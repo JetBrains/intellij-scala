@@ -143,7 +143,7 @@ trait ScPattern extends ScalaPsiElement {
               fun.parameters.length == 1 =>
         val subst = if (fun.typeParameters.length == 0) substitutor else {
           var undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
-            s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
+            s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(ScTypeParameterType(p,
               substitutor))))
           val clazz = ScalaPsiUtil.getContextOfType(this, true, classOf[ScTemplateDefinition])
           clazz match {
@@ -182,7 +182,7 @@ trait ScPattern extends ScalaPsiElement {
               fun.parameters.length == 1 =>
         val subst = if (fun.typeParameters.length == 0) substitutor else {
          val undefSubst = substitutor followed fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
-           s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
+           s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(ScTypeParameterType(p,
              substitutor))))
          val funType = undefSubst.subst(fun.parameters(0).getType(TypingContext.empty) match {
            case Success(tp, _) => tp

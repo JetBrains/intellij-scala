@@ -80,8 +80,8 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                     calculateReferenceType(ref, shapesOnly = false).getOrElse(ScType.designator(td))
             val newSubst = {
               val clazzType = ScParameterizedType(refType, td.getTypeParameters.map(tp =>
-                ScUndefinedType(tp match {case tp: ScTypeParam => new ScTypeParameterType(tp, r.substitutor)
-                case _ => new ScTypeParameterType(tp, r.substitutor)})))
+                ScUndefinedType(tp match {case tp: ScTypeParam => ScTypeParameterType(tp, r.substitutor)
+                case _ => ScTypeParameterType(tp, r.substitutor)})))
               val emptySubst: ScSubstitutor = new ScSubstitutor(Map(td.typeParameters.map(tp =>
                 ((tp.name, ScalaPsiUtil.getPsiElementId(tp)), Any)): _*), Map.empty, None)
               expectedType match {
@@ -107,7 +107,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
             val substitutor = r.substitutor
             val subst = if (fun.typeParameters.length == 0) substitutor else {
               val undefSubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
-                s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
+                s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(ScTypeParameterType(p,
                   substitutor))))
               val emptySubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
                 s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), p.upperBound.getOrAny))

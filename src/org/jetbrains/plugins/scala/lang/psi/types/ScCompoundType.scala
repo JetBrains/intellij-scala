@@ -16,17 +16,17 @@ import scala.collection.mutable
 /**
  * Substitutor should be meaningful only for decls and typeDecls. Components shouldn't be applied by substitutor.
  */
-case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, ScType],
-                          typesMap: Map[String, TypeAliasSignature]) extends ValueType {
-  private var hash: Int = -1
+class ScCompoundType private (val components: Seq[ScType], val signatureMap: Map[Signature, ScType],
+                     val typesMap: Map[String, TypeAliasSignature]) extends ValueType {
+  override val hashCode: Int = 7 + components.hashCode() + (signatureMap.hashCode() * 31 + typesMap.hashCode()) * 31
 
-  override def hashCode: Int = {
-    if (hash == -1) {
-      hash = components.hashCode() + (signatureMap.hashCode() * 31 + typesMap.hashCode()) * 31
-    }
-    hash
+  override def equals(other: scala.Any): Boolean = other match {
+    case c: ScCompoundType =>
+      c.components == components &&
+        c.signatureMap == signatureMap &&
+        c.typesMap == typesMap
+    case _ => false
   }
-
 
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitCompoundType(this)
@@ -47,7 +47,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
         } else boundsDepth
     }
     val ints = components.map(_.typeDepth)
-    val componentsDepth = if (ints.length == 0) 0 else ints.max
+    val componentsDepth = if (ints.isEmpty) 0 else ints.max
     if (depths.nonEmpty) componentsDepth.max(depths.max + 1)
     else componentsDepth
   }
@@ -96,7 +96,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
             () => res
           }, tp.ptp)
         }
-        new ScCompoundType(components.map(_.recursiveUpdate(update, visited + this)), signatureMap.map {
+        ScCompoundType(components.map(_.recursiveUpdate(update, visited + this)), signatureMap.map {
           case (s: Signature, tp) =>
 
             val pTypes: List[Seq[() => ScType]] =
@@ -132,7 +132,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
             () => res
           }, tp.ptp)
         }
-        new ScCompoundType(components.map(_.recursiveVarianceUpdateModifiable(newData, update, variance)), signatureMap.map {
+        ScCompoundType(components.map(_.recursiveVarianceUpdateModifiable(newData, update, variance)), signatureMap.map {
           case (s: Signature, tp) =>
             val tParams = if (s.typeParams.length == 0) TypeParameter.EMPTY_ARRAY else s.typeParams.map(updateTypeParam)
             (new Signature(
@@ -195,7 +195,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
           (true, undefinedSubst)
         }
       case _ =>
-        if (signatureMap.size == 0 && typesMap.size == 0) {
+        if (signatureMap.isEmpty && typesMap.isEmpty) {
           val filtered = components.filter {
             case psi.types.Any => false
             case psi.types.AnyRef =>
@@ -252,6 +252,16 @@ object ScCompoundType {
     }
 
     ScCompoundType(components, signatureMapVal.toMap, typesVal.toMap)
+  }
+
+  def apply(components: Seq[ScType], signatureMap: Map[Signature, ScType],
+            typesMap: Map[String, TypeAliasSignature]): ScCompoundType = {
+    val result = new ScCompoundType(components, signatureMap, typesMap)
+    ScType.allTypesCache.intern(result).asInstanceOf[ScCompoundType]
+  }
+
+  def unapply(c: ScCompoundType): Option[(Seq[ScType], Map[Signature, ScType], Map[String, TypeAliasSignature])] = {
+    Some(c.components, c.signatureMap, c.typesMap)
   }
 
   class CompoundSignature()

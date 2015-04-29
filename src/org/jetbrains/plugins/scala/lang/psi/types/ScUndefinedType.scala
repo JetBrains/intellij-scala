@@ -12,14 +12,23 @@ import scala.collection.immutable.HashSet
  * In conformance using ScUndefinedSubstitutor you can accumulate information
  * about possible generic type.
  */
-case class ScUndefinedType(tpt: ScTypeParameterType) extends NonValueType {
+class ScUndefinedType private (val tpt: ScTypeParameterType) extends NonValueType {
   var level = 0
+
+  override val hashCode: Int = 5 + tpt.hashCode
+
+  override def equals(other: scala.Any): Boolean = other match {
+    case other: ScUndefinedType => other.tpt == tpt
+    case _ => false
+  }
+
+  override def toString: String = s"ScUndefinedType($tpt)"
 
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitUndefinedType(this)
   }
 
-  def this(tpt: ScTypeParameterType, level: Int) {
+  private def this(tpt: ScTypeParameterType, level: Int) {
     this(tpt)
     this.level = level
   }
@@ -44,14 +53,26 @@ case class ScUndefinedType(tpt: ScTypeParameterType) extends NonValueType {
   }
 }
 
+object ScUndefinedType {
+  def apply(tpt: ScTypeParameterType): ScUndefinedType = {
+    val result = new ScUndefinedType(tpt)
+    ScType.allTypesCache.intern(result).asInstanceOf[ScUndefinedType]
+  }
+
+  def apply(tpt: ScTypeParameterType, level: Int): ScUndefinedType = {
+    val result = new ScUndefinedType(tpt, level)
+    ScType.allTypesCache.intern(result).asInstanceOf[ScUndefinedType]
+  }
+
+  def unapply(t: ScUndefinedType): Option[ScTypeParameterType] = Some(t.tpt)
+}
+
 /**
  * This type works like undefined type, but you cannot use this type
  * to resolve generics. It's important if two local type
  * inferences work together.
  */
-case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType) extends NonValueType {
-  private var hash: Int = -1
-
+class ScAbstractType(val tpt: ScTypeParameterType, val lower: ScType, val upper: ScType) extends NonValueType {
   override def toString: String = {
     val buffer = new StringBuilder
     buffer.append("?")
@@ -69,12 +90,7 @@ case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType
     buffer.toString()
   }
 
-  override def hashCode: Int = {
-    if (hash == -1) {
-      hash = (upper.hashCode() * 31 + lower.hashCode()) * 31 + tpt.args.hashCode()
-    }
-    hash
-  }
+  override val hashCode: Int = 6 + (upper.hashCode() * 31 + lower.hashCode()) * 31 + tpt.args.hashCode()
 
   override def equals(obj: scala.Any): Boolean = {
     obj match {
@@ -144,5 +160,16 @@ case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType
 
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitAbstractType(this)
+  }
+}
+
+object ScAbstractType {
+  def apply(tpt: ScTypeParameterType, lower: ScType, upper: ScType): ScAbstractType = {
+    val result = new ScAbstractType(tpt, lower, upper)
+    ScType.allTypesCache.intern(result).asInstanceOf[ScAbstractType]
+  }
+
+  def unapply(a: ScAbstractType): Option[(ScTypeParameterType, ScType, ScType)] = {
+    Some(a.tpt, a.lower, a.upper)
   }
 }

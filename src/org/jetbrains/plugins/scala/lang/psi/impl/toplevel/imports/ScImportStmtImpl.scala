@@ -183,7 +183,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                 if (!checkWildcardImports) return true
                 (elem, processor) match {
                   case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] =>
-                    if (!processor.processType(new ScDesignatorType(cl, true), place,
+                    if (!processor.processType(ScDesignatorType(cl, true), place,
                       newState)) return false
                   case (_, processor: BaseProcessor) if refType.isDefined =>
                     if (!processor.processType(refType.get, place, newState)) return false
@@ -264,7 +264,7 @@ class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScIm
                         calculateRefType(checkResolve(next)).foreach {tp =>
                           newState = newState.put(BaseProcessor.FROM_TYPE_KEY, tp)
                         }
-                        if (!processor.processType(new ScDesignatorType(cl, true), place, newState)) return false
+                        if (!processor.processType(ScDesignatorType(cl, true), place, newState)) return false
                       case _ =>
                         if (!elem.processDeclarations(p1,
                           // In this case import optimizer should check for used selectors

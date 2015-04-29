@@ -99,17 +99,17 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-                      new ScUndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
+                      ScUndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
                 }
                 Left(params.map(p => p.copy(paramType = s.subst(p.paramType))))
               } else {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-                      new ScTypeVariable(tp.name))
+                      ScTypeVariable(tp.name))
                 }
                 val arguments = typeParams.toList.map(tp =>
-                  new ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType()), s.subst(tp.upperType())))
+                  ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType()), s.subst(tp.upperType())))
                 Left(params.map(p => p.copy(paramType = ScExistentialType(s.subst(p.paramType), arguments))))
               }
             case ScTypePolymorphicType(internal, typeParams) =>
@@ -117,17 +117,17 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-                      new ScUndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
+                      ScUndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
                 }
                 Right(s.subst(internal))
               } else {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-                      new ScTypeVariable(tp.name))
+                      ScTypeVariable(tp.name))
                 }
                 val arguments = typeParams.toList.map(tp =>
-                  new ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType()), s.subst(tp.upperType())))
+                  ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType()), s.subst(tp.upperType())))
                 Right(ScExistentialType(s.subst(internal), arguments))
               }
             case _ => Right(tp)

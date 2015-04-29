@@ -459,7 +459,7 @@ package object collections {
     Option(clazz).map { c =>
       val designatorType = ScDesignatorType(c)
       val undefines = c.getTypeParameters.toSeq.map(ptp =>
-        ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
+        ScUndefinedType(ScTypeParameterType(ptp, ScSubstitutor.empty))
       )
       ScParameterizedType(designatorType, undefines)
     }

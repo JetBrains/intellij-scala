@@ -289,7 +289,7 @@ object Bounds {
                 case a: Array[ScType] if a.length == 0 => types.Any
                 case a: Array[ScType] if a.length == 1 => a(0)
                 case many =>
-                  new ScCompoundType(many.toSeq, Map.empty, Map.empty)
+                  ScCompoundType(many.toSeq, Map.empty, Map.empty)
               }
             }
             //todo: refinement for compound types

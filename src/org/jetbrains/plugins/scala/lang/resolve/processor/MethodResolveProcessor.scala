@@ -420,7 +420,7 @@ object MethodResolveProcessor {
             typeParameters.foldLeft(ScSubstitutor.empty) {
               (subst: ScSubstitutor, tp: ScTypeParam) =>
                 subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
-                  new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
+                  ScUndefinedType(ScTypeParameterType(tp, ScSubstitutor.empty)))
             }
           })
       //todo: this case is impossible case for reasons mentioned above
@@ -434,7 +434,7 @@ object MethodResolveProcessor {
             typeParameters.foldLeft(ScSubstitutor.empty) {
               (subst: ScSubstitutor, tp: PsiTypeParameter) =>
                 subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
-                  new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
+                  ScUndefinedType(ScTypeParameterType(tp, ScSubstitutor.empty)))
             }
           })
       case (None, t: ScTypeParametersOwner) =>
@@ -446,7 +446,7 @@ object MethodResolveProcessor {
             t.typeParameters.foldLeft(ScSubstitutor.empty) {
               (subst: ScSubstitutor, tp: ScTypeParam) =>
                 subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
-                  new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
+                  ScUndefinedType(ScTypeParameterType(tp, ScSubstitutor.empty)))
             }
           })
       case (None, p: PsiTypeParameterListOwner) =>
@@ -458,7 +458,7 @@ object MethodResolveProcessor {
             p.getTypeParameters.foldLeft(ScSubstitutor.empty) {
               (subst: ScSubstitutor, tp: PsiTypeParameter) =>
                 subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
-                  new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
+                  ScUndefinedType(ScTypeParameterType(tp, ScSubstitutor.empty)))
             }
           })
       case _ => s

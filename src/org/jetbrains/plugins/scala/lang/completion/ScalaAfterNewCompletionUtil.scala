@@ -32,7 +32,7 @@ object ScalaAfterNewCompletionUtil {
   def getLookupElementFromClass(expectedTypes: Array[ScType], clazz: PsiClass,
                                 renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]): LookupElement = {
     val undefines: Seq[ScUndefinedType] = clazz.getTypeParameters.map(ptp =>
-      new ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
+      ScUndefinedType(ScTypeParameterType(ptp, ScSubstitutor.empty))
     )
     val predefinedType =
       if (clazz.getTypeParameters.length == 1) {
@@ -43,7 +43,7 @@ object ScalaAfterNewCompletionUtil {
     val noUndefType =
       if (clazz.getTypeParameters.length == 1) {
         ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(ptp =>
-          new ScTypeParameterType(ptp, ScSubstitutor.empty)
+          ScTypeParameterType(ptp, ScSubstitutor.empty)
         ))
       }
       else
@@ -181,7 +181,7 @@ object ScalaAfterNewCompletionUtil {
           def process(clazz: PsiClass): Boolean = {
             if (clazz.name == null || clazz.name == "") return true
             val undefines: Seq[ScUndefinedType] = clazz.getTypeParameters.map(ptp =>
-              new ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
+              ScUndefinedType(ScTypeParameterType(ptp, ScSubstitutor.empty))
             )
             val predefinedType =
               if (clazz.getTypeParameters.length >= 1) {
@@ -192,7 +192,7 @@ object ScalaAfterNewCompletionUtil {
             val noUndefType =
               if (clazz.getTypeParameters.length >= 1) {
                 ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(ptp =>
-                  new ScTypeParameterType(ptp, ScSubstitutor.empty)
+                  ScTypeParameterType(ptp, ScSubstitutor.empty)
                 ))
               }
               else

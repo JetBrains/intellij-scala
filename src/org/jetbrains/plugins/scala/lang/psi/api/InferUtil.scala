@@ -66,10 +66,10 @@ object InferUtil {
         implicitParameters = ps
         updatedType match {
           case tpt: ScTypePolymorphicType =>
-            resInner = t.copy(internalType = mt.copy(returnType = tpt.internalType)(mt.project, mt.scope),
+            resInner = t.copy(internalType = mt.copy(returnType = tpt.internalType)(),
               typeParameters = tpt.typeParameters)
           case _ => //shouldn't be there
-            resInner = t.copy(internalType = mt.copy(returnType = updatedType)(mt.project, mt.scope))
+            resInner = t.copy(internalType = mt.copy(returnType = updatedType)())
         }
       case t@ScTypePolymorphicType(mt@ScMethodType(retType, params, impl), typeParams) if impl =>
         val fullAbstractSubstitutor = t.abstractTypeSubstitutor
@@ -113,7 +113,7 @@ object InferUtil {
         // See SCL-3516
         val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, coreElement, check, fullInfo = fullInfo)
         implicitParameters = ps
-        resInner = mt.copy(returnType = updatedType)(mt.project, mt.scope)
+        resInner = mt.copy(returnType = updatedType)()
       case ScMethodType(retType, params, isImplicit) if isImplicit =>
         val (paramsForInfer, exprs, resolveResults) =
           findImplicits(params, coreElement, element, check, searchImplicitsRecursively)
@@ -218,7 +218,7 @@ object InferUtil {
     var nonValueType = _nonValueType
     nonValueType match {
       case Success(ScTypePolymorphicType(m@ScMethodType(internal, params, impl), typeParams), _)
-        if expectedType != None && (!fromImplicitParameters || impl) =>
+        if expectedType.isDefined && (!fromImplicitParameters || impl) =>
         def updateRes(expected: ScType) {
           if (expected.equiv(types.Unit)) return //do not update according to Unit type
           val innerInternal = internal match {
@@ -233,7 +233,7 @@ object InferUtil {
         }
         updateRes(expectedType.get)
       //todo: Something should be unified, that's bad to have fromImplicitParameters parameter.
-      case Success(ScTypePolymorphicType(internal, typeParams), _) if expectedType != None && fromImplicitParameters =>
+      case Success(ScTypePolymorphicType(internal, typeParams), _) if expectedType.isDefined && fromImplicitParameters =>
         def updateRes(expected: ScType) {
           nonValueType = Success(ScalaPsiUtil.localTypeInference(internal,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
@@ -254,7 +254,7 @@ object InferUtil {
           && !mt.returnType.conforms(expectedType) =>
           mt.returnType match {
             case methodType: ScMethodType => return mt.copy(
-              returnType = applyImplicitViewToResult(methodType, Some(expectedRet)))(mt.project, mt.scope)
+              returnType = applyImplicitViewToResult(methodType, Some(expectedRet)))()
             case _ =>
           }
           val dummyExpr = ScalaPsiElementFactory.createExpressionWithContextFromText("null", expr.getContext, expr)
@@ -263,7 +263,7 @@ object InferUtil {
 
           expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(dummyExpr, expectedRet))
 
-          new ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
+          ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
         case _ => mt
       }
     }

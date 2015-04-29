@@ -91,7 +91,7 @@ object ResolveUtils {
       case (_, None) => s.subst(ScType.create(m.getReturnType, m.getProject, scope))
       case (_, Some(x)) => x
     }
-    new ScMethodType(retType,
+    ScMethodType(retType,
       m match {
         case f: FakePsiMethod => f.params.toSeq
         case _ =>

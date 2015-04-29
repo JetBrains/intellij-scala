@@ -78,8 +78,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         tp
       } else {
         ScParameterizedType(tp, clazz.getTypeParameters.map {
-          case tp: ScTypeParam => new ScTypeParameterType(tp, subst)
-          case ptp             => new ScTypeParameterType(ptp, subst)
+          case tp: ScTypeParam => ScTypeParameterType(tp, subst)
+          case ptp             => ScTypeParameterType(ptp, subst)
         })
       }
     }
@@ -135,7 +135,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               val subst = new ScSubstitutor(s.typeParameters.zip(params).map {
                 case (tpClass: ScTypeParam, tpConstr: ScTypeParam) =>
                   ((tpClass.name, ScalaPsiUtil.getPsiElementId(tpClass)),
-                    new ScTypeParameterType(tpConstr, ScSubstitutor.empty))
+                    ScTypeParameterType(tpConstr, ScSubstitutor.empty))
               }.toMap, Map.empty, None)
               (params, subst)
             case _ => (Seq.empty, ScSubstitutor.empty)

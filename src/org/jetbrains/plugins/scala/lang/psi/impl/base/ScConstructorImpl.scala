@@ -79,8 +79,8 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       tp
     } else {
       ScParameterizedType(tp, clazz.getTypeParameters.map {
-        case tp: ScTypeParam => new ScTypeParameterType(tp, subst)
-        case ptp => new ScTypeParameterType(ptp, subst)
+        case tp: ScTypeParam => ScTypeParameterType(tp, subst)
+        case ptp => ScTypeParameterType(ptp, subst)
       })
     }
   }

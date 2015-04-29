@@ -87,12 +87,9 @@ class TypeParameter(val name: String, val typeParams: Seq[TypeParameter], val lo
     }, ptp)
   }
 
-  def canEqual(other: Any): Boolean = other.isInstanceOf[TypeParameter]
-
   override def equals(other: Any): Boolean = other match {
     case that: TypeParameter =>
-      (that canEqual this) &&
-        name == that.name &&
+      name == that.name &&
         typeParams == that.typeParams &&
         lowerType() == that.lowerType() &&
         upperType() == that.upperType() &&
@@ -124,11 +121,33 @@ object TypeParameter {
   val EMPTY_ARRAY: Array[TypeParameter] = Array.empty
 }
 
-case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
-                       (val project: Project, val scope: GlobalSearchScope) extends NonValueType {
+class ScMethodType private (val returnType: ScType, val params: Seq[Parameter], val isImplicit: Boolean)
+                           (val project: Project, val scope: GlobalSearchScope) extends NonValueType {
+  
+  
+  override def equals(other: scala.Any): Boolean = other match {
+    case m: ScMethodType =>
+      m.returnType == returnType &&
+      m.params == params &&
+      m.isImplicit == isImplicit &&
+      m.project == project &&
+      m.scope == scope
+    case _ => false
+  }
+
+  override val hashCode: Int = {
+    13 + returnType.hashCode() + (params.hashCode() + (if (isImplicit) 239 else 0) + (project.hashCode() + scope.hashCode() * 31) * 31) * 31
+  }
+
+  override def toString: String = s"ScMethodType($returnType, $params, $isImplicit)"
 
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitMethodType(this)
+  }
+  
+  def copy(returnType: ScType = returnType, params: Seq[Parameter] = params, isImplicit: Boolean = isImplicit)
+          (project: Project = project, scope: GlobalSearchScope = scope): ScMethodType = {
+     ScMethodType(returnType, params, isImplicit)(project, scope)
   }
 
   override def typeDepth: Int = returnType.typeDepth
@@ -145,7 +164,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     }))(project, scope)
   }
 
-  override def removeAbstracts = new ScMethodType(returnType.removeAbstracts,
+  override def removeAbstracts = ScMethodType(returnType.removeAbstracts,
     params.map(p => p.copy(paramType = p.paramType.removeAbstracts)), isImplicit)(project, scope)
 
   override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
@@ -159,7 +178,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     update(this) match {
       case (true, res) => res
       case _ =>
-        new ScMethodType(returnType.recursiveUpdate(update, newVisited),
+        ScMethodType(returnType.recursiveUpdate(update, newVisited),
           params.map(p => p.copy(paramType = p.paramType.recursiveUpdate(update, newVisited))), isImplicit)(project, scope)
     }
   }
@@ -169,7 +188,7 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
-        new ScMethodType(returnType.recursiveVarianceUpdateModifiable(newData, update, variance),
+        ScMethodType(returnType.recursiveVarianceUpdateModifiable(newData, update, variance),
           params.map(p => p.copy(paramType = p.paramType.recursiveVarianceUpdateModifiable(newData, update, -variance))),
           isImplicit)(project, scope)
     }
@@ -198,11 +217,37 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
   }
 }
 
-case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeParameter]) extends NonValueType {
+object ScMethodType {
+  def apply(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
+           (project: Project, scope: GlobalSearchScope): ScMethodType = {
+    val result = new ScMethodType(returnType, params, isImplicit)(project, scope)
+    ScType.allTypesCache.intern(result).asInstanceOf[ScMethodType]
+  }
+
+  def unapply(m: ScMethodType): Option[(ScType, Seq[Parameter], Boolean)] = {
+    Some(m.returnType, m.params, m.isImplicit)
+  }
+}
+
+class ScTypePolymorphicType private (val internalType: ScType, val typeParameters: Seq[TypeParameter]) extends NonValueType {
   if (internalType.isInstanceOf[ScTypePolymorphicType]) {
     throw new IllegalArgumentException("Polymorphic type can't have wrong internal type")
   }
 
+  override def equals(other: scala.Any): Boolean = other match {
+    case tpt: ScTypePolymorphicType =>
+      tpt.internalType == internalType &&
+        tpt.typeParameters == typeParameters
+    case _ => false
+  }
+
+  def copy(internalType: ScType = internalType, typeParameters: Seq[TypeParameter] = typeParameters): ScTypePolymorphicType = {
+    ScTypePolymorphicType(internalType, typeParameters)
+  }
+
+  override val hashCode: Int = 14 + internalType.hashCode() + typeParameters.hashCode() * 31
+
+  override def toString: String = s"ScTypePolymorphicType($internalType, $typeParameters)"
 
   def polymorphicTypeSubstitutor: ScSubstitutor = polymorphicTypeSubstitutor(inferValueType = false)
 
@@ -251,13 +296,13 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType())) Nothing else tp.lowerType()
       val upperType: ScType = if (hasRecursiveTypeParameters(tp.upperType())) Any else tp.upperType()
       ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-              new ScAbstractType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty), lowerType, upperType))
+              ScAbstractType(ScTypeParameterType(tp.ptp, ScSubstitutor.empty), lowerType, upperType))
     }), Map.empty, None)
   }
 
   def typeParameterTypeSubstitutor: ScSubstitutor =
     new ScSubstitutor(new HashMap[(String, String), ScType] ++ typeParameters.map(tp => ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-            new ScTypeParameterType(tp.ptp, ScSubstitutor.empty))), Map.empty, None)
+            ScTypeParameterType(tp.ptp, ScSubstitutor.empty))), Map.empty, None)
 
   def inferValueType: ValueType = {
     polymorphicTypeSubstitutor(inferValueType = true).subst(internalType.inferValueType).asInstanceOf[ValueType]
@@ -324,9 +369,9 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
         }
         val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, String), ScType] ++
                 typeParameters.zip(p.typeParameters).map({
-          tuple => ((tuple._1.name, ScalaPsiUtil.getPsiElementId(tuple._1.ptp)), new ScTypeParameterType(tuple._2.name,
+          tuple => ((tuple._1.name, ScalaPsiUtil.getPsiElementId(tuple._1.ptp)), ScTypeParameterType(tuple._2.name,
             tuple._2.ptp match {
-              case p: ScTypeParam => p.typeParameters.toList.map{new ScTypeParameterType(_, ScSubstitutor.empty)}
+              case p: ScTypeParam => p.typeParameters.toList.map{ScTypeParameterType(_, ScSubstitutor.empty)}
               case _ => Nil
             }, new Suspension(tuple._2.lowerType), new Suspension(tuple._2.upperType), tuple._2.ptp))
         }), Map.empty, None)
@@ -342,5 +387,16 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
   override def typeDepth: Int = {
     if (typeParameters.nonEmpty) internalType.typeDepth.max(ScType.typeParamsDepth(typeParameters.toArray) + 1)
     else internalType.typeDepth
+  }
+}
+
+object ScTypePolymorphicType {
+  def apply(internalType: ScType, typeParameters: Seq[TypeParameter]): ScTypePolymorphicType = {
+    val result = new ScTypePolymorphicType(internalType, typeParameters)
+    ScType.allTypesCache.intern(result).asInstanceOf[ScTypePolymorphicType]
+  }
+
+  def unapply(t: ScTypePolymorphicType): Option[(ScType, Seq[TypeParameter])] = {
+    Some(t.internalType, t.typeParameters)
   }
 }

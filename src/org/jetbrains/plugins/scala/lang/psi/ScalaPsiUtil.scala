@@ -3,6 +3,7 @@ package lang
 package psi
 
 import java.lang.ref.WeakReference
+import java.util.concurrent.atomic.AtomicReferenceArray
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.lang.java.JavaLanguage
@@ -22,7 +23,7 @@ import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
-import com.intellij.util.containers.ConcurrentWeakHashMap
+import com.intellij.util.containers.{WeakHashMap, ConcurrentWeakHashMap}
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
@@ -263,12 +264,12 @@ object ScalaPsiUtil {
       case fun: ScFunction =>
         fun.typeParameters.foldLeft(ScSubstitutor.empty) {
           (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
-            new ScUndefinedType(new ScTypeParameterType(tp: ScTypeParam, classSubst), 1))
+            ScUndefinedType(ScTypeParameterType(tp: ScTypeParam, classSubst), 1))
         }
       case fun: PsiMethod =>
         fun.getTypeParameters.foldLeft(ScSubstitutor.empty) {
           (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
-            new ScUndefinedType(new ScTypeParameterType(tp: PsiTypeParameter, classSubst), 1))
+            ScUndefinedType(ScTypeParameterType(tp: PsiTypeParameter, classSubst), 1))
         }
     }
   }
@@ -370,7 +371,7 @@ object ScalaPsiUtil {
       )
     ) collect {
       case cl: ScTrait => ScParameterizedType(ScType.designator(cl), cl.typeParameters.map(tp =>
-        new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
+        ScUndefinedType(ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
     } flatMap {
       case p: ScParameterizedType => Some(p)
       case _ => None
@@ -890,20 +891,23 @@ object ScalaPsiUtil {
     res
   }
 
-  private val idMap = new ConcurrentWeakHashMap[String, WeakReference[String]](10009)
+  class Interner[T <: AnyRef](primeSize: Int = 23333) {
+    private val cache: AtomicReferenceArray[WeakReference[T]] = new AtomicReferenceArray[WeakReference[T]](primeSize)
 
-  def getFromMap[T](map: ConcurrentWeakHashMap[T, WeakReference[T]], s: T): T = {
-    val res = {
-      val weak = map.get(s)
-      if (weak != null) weak.get()
-      else null.asInstanceOf[T]
-    }
-    if (res != null) res
-    else {
-      map.put(s, new WeakReference(s))
-      s
+    def intern(t: T): T = {
+      val hash = Math.abs(t.hashCode() % cache.length)
+      val t2 = cache.get(hash)
+      if (t2 != null) {
+        val res = t2.get()
+        if (res != null && res.equals(t))
+          return res
+      }
+      cache.set(hash, new WeakReference[T](t))
+      t
     }
   }
+
+  private val idMap = new Interner[String](10009)
 
   def getPsiElementId(elem: PsiElement): String = {
     if (elem == null) return "NullElement"
@@ -925,7 +929,7 @@ object ScalaPsiUtil {
             (if (elem.getTextRange != null) elem.getTextRange.getStartOffset else "NoRange")
       }
 
-      getFromMap(idMap, res)
+      idMap.intern(res)
     }
     catch {
       case pieae: PsiInvalidElementAccessException => "NotValidElement"
@@ -940,7 +944,7 @@ object ScalaPsiUtil {
     typeParams.foldLeft(ScSubstitutor.empty) {
       (subst: ScSubstitutor, tp: TypeParameter) =>
         subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-          new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
+          ScUndefinedType(ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
     }
   }
   def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
@@ -987,7 +991,7 @@ object ScalaPsiUtil {
         case Some(unSubst) =>
           if (!filterTypeParams) {
             val undefiningSubstitutor = new ScSubstitutor(typeParams.map(typeParam => {
-              ((typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)), new ScUndefinedType(new ScTypeParameterType(typeParam.ptp, ScSubstitutor.empty)))
+              ((typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)), ScUndefinedType(ScTypeParameterType(typeParam.ptp, ScSubstitutor.empty)))
             }).toMap, Map.empty, None)
             ScTypePolymorphicType(retType, typeParams.map(tp => {
               var lower = tp.lowerType()
@@ -1114,7 +1118,7 @@ object ScalaPsiUtil {
                     }
                     tp.ptp match {
                       case typeParam: ScTypeParam =>
-                        if (!checkTypeParam(typeParam, sub.subst(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty))))
+                        if (!checkTypeParam(typeParam, sub.subst(ScTypeParameterType(tp.ptp, ScSubstitutor.empty))))
                           throw new SafeCheckException
                       case _ =>
                     }
@@ -1687,7 +1691,7 @@ object ScalaPsiUtil {
       }
 
       def substitute(typeParameter: PsiTypeParameter): PsiType = {
-        ScType.toPsi(substitutor.subst(new ScTypeParameterType(typeParameter, substitutor)),
+        ScType.toPsi(substitutor.subst(ScTypeParameterType(typeParameter, substitutor)),
           project, scope)
       }
 

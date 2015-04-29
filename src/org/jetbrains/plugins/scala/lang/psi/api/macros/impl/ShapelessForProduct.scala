@@ -40,7 +40,7 @@ object ShapelessForProduct extends ScalaMacroTypeable {
       case c: ScTypeDefinition =>
         val tpt = c.typeParameters
         if (tpt.length == 0) return None
-        val undef = new ScUndefinedType(new ScTypeParameterType(tpt(0), ScSubstitutor.empty))
+        val undef = ScUndefinedType(ScTypeParameterType(tpt(0), ScSubstitutor.empty))
         val genericType = ScParameterizedType(ScDesignatorType(c), Seq(undef))
         val (res, undefSubst) = Conformance.conformsInner(genericType, context.expectedType.get, Set.empty, new ScUndefinedSubstitutor())
         if (!res) return None

@@ -90,16 +90,16 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     } else {
       if (parentClass != null) {
         Success(ScParameterizedType(ScProjectionType(ScThisType(parentClass), this, superReference = false),
-          typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))), Some(this))
+          typeParameters.map(ScTypeParameterType(_, ScSubstitutor.empty))), Some(this))
       } else {
         Success(ScParameterizedType(ScType.designator(this),
-          typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))), Some(this))
+          typeParameters.map(ScTypeParameterType(_, ScSubstitutor.empty))), Some(this))
       }
     }
   }
 
   def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false): TypeResult[ScType] = {
-    def args: Seq[ScTypeParameterType] = typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))
+    def args: Seq[ScTypeParameterType] = typeParameters.map(ScTypeParameterType(_, ScSubstitutor.empty))
     def innerType = if (typeParameters.length == 0) ScType.designator(this)
                     else ScParameterizedType(ScType.designator(this), args)
     val parentClazz = containingClass

@@ -33,7 +33,7 @@ object ScProjectionType {
   def apply(projected: ScType, element: PsiNamedElement,
             superReference: Boolean /* todo: find a way to remove it*/): ScType = {
     val res = new ScProjectionType(projected, element, superReference)
-    projected match {
+    val result = projected match {
       case c: ScCompoundType =>
         res.isAliasType match {
           case Some(AliasType(td: ScTypeAliasDefinition, _, upper)) if td.typeParameters.isEmpty => upper.getOrElse(res)
@@ -41,6 +41,7 @@ object ScProjectionType {
         }
       case _ => res
     }
+    ScType.allTypesCache.intern(result)
   }
 
   def unapply(proj: ScProjectionType): Option[(ScType, PsiNamedElement, Boolean)] = {
@@ -86,7 +87,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
             typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
             ta.typeParameters.map(tp => {
               val name = tp.name + "$$"
-              args += new ScExistentialArgument(name, Nil, types.Nothing, types.Any)
+              args += ScExistentialArgument(name, Nil, types.Nothing, types.Any)
               ScTypeVariable(name)
             }))
           val s = actualSubst.followed(genericSubst)
@@ -97,14 +98,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
     } else None
   }
 
-  private var hash: Int = -1
-
-  override def hashCode: Int = {
-    if (hash == -1) {
-      hash = projected.hashCode() + element.hashCode() * 31 + (if (superReference) 239 else 0)
-    }
-    hash
-  }
+  override val hashCode: Int = 9 + projected.hashCode() + element.hashCode() * 31 + (if (superReference) 239 else 0)
 
   override def removeAbstracts = ScProjectionType(projected.removeAbstracts, element, superReference)
 
@@ -327,11 +321,8 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
     visitor.visitProjectionType(this)
   }
 
-  def canEqual(other: Any): Boolean = other.isInstanceOf[ScProjectionType]
-
   override def equals(other: Any): Boolean = other match {
     case that: ScProjectionType =>
-      (that canEqual this) &&
         projected == that.projected &&
         element == that.element &&
         superReference == that.superReference
@@ -355,8 +346,17 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
  *
  * So when expression is typed, we should replace all such types be return value.
  */
-case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
+class ScThisType private (val clazz: ScTemplateDefinition) extends ValueType {
   clazz.getClass //throw NPE if clazz is null...
+
+  override def equals(other: scala.Any): Boolean = other match {
+    case t: ScThisType => t.clazz == clazz
+    case _ => false
+  }
+
+  override val hashCode: Int = 10 + clazz.hashCode()
+
+  override def toString: String = s"ScThisType($clazz)"
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
                           falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
@@ -391,15 +391,36 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
   }
 }
 
+object ScThisType {
+  def apply(clazz: ScTemplateDefinition): ScThisType = {
+    val result = new ScThisType(clazz)
+    ScType.allTypesCache.intern(result).asInstanceOf[ScThisType]
+  }
+
+  def unapply(t: ScThisType): Option[ScTemplateDefinition] = {
+    Some(t.clazz)
+  }
+}
+
 /**
  * This type means normal designator type.
  * It can be whether singleton type (v.type) or simple type (java.lang.String).
  * element can be any stable element, class, value or type alias
  */
-case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
+class ScDesignatorType private (val element: PsiNamedElement, val isStatic: Boolean = false) extends ValueType {
+  override val hashCode: Int = 8 + element.hashCode() + (if (isStatic) 239 else 0)
+
+  override def equals(other: scala.Any): Boolean = other match {
+    case d: ScDesignatorType =>
+      d.element == element
+    case _ => false
+  }
+
+  override def toString: String = s"ScDesignatorType($element)"
+
   override protected def isAliasTypeInner: Option[AliasType] = {
     element match {
-      case ta: ScTypeAlias if ta.typeParameters.length == 0 =>
+      case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
         Some(AliasType(ta, ta.lowerBound, ta.upperBound))
       case ta: ScTypeAlias => //higher kind case
         ta match {
@@ -424,7 +445,7 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
           typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
           ta.typeParameters.map(tp => {
             val name = tp.name + "$$"
-            args += new ScExistentialArgument(name, Nil, types.Nothing, types.Any)
+            args += ScExistentialArgument(name, Nil, types.Nothing, types.Any)
             ScTypeVariable(name)
           }))
         Some(AliasType(ta, ta.lowerBound.map(scType => ScExistentialType(genericSubst.subst(scType), args.toList)),
@@ -440,17 +461,6 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
         ScType.baseTypesQualMap.get(clazz.qualifiedName)
       case _ => None
     }
-  }
-
-  private var isStaticClass = false
-  /**
-   * You can use this method to check if it's Java class,
-   * which is used for getting static context => no implicit conversion
-   */
-  def isStatic = isStaticClass
-  def this(elem: PsiNamedElement, isStaticClass: Boolean) {
-    this (elem)
-    this.isStaticClass = isStaticClass
   }
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
@@ -505,5 +515,14 @@ object ScDesignatorType {
       case Some(c) => ScType.designator(c)
       case _ => types.Nothing
     }
+  }
+
+  def apply(element: PsiNamedElement, isStatic: Boolean = false): ScDesignatorType = {
+    val result = new ScDesignatorType(element, isStatic)
+    ScType.allTypesCache.intern(result).asInstanceOf[ScDesignatorType]
+  }
+
+  def unapply(d: ScDesignatorType): Option[PsiNamedElement] = {
+    Some(d.element)
   }
 }

@@ -221,7 +221,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
         )
       ) collect {
         case cl: ScTrait => ScParameterizedType(ScType.designator(cl), cl.typeParameters.map(tp =>
-          new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
+          ScUndefinedType(ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
       } flatMap {
         case p: ScParameterizedType => Some(p)
         case _ => None
@@ -378,7 +378,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
       val funClass: PsiClass = ScalaPsiManager.instance(place.getProject).getCachedClass(place.getResolveScope, "scala.Function1")
       funClass match {
         case cl: ScTrait => ScParameterizedType(ScType.designator(funClass), cl.typeParameters.map(tp =>
-          new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty))))
+          ScUndefinedType(ScTypeParameterType(tp, ScSubstitutor.empty))))
         case _ => null
       }
     }

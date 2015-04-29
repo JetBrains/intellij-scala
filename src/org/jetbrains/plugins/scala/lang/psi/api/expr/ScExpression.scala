@@ -85,7 +85,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                         ) match {
                           case function1: ScTrait =>
                             ScParameterizedType(ScType.designator(function1), function1.typeParameters.map(tp =>
-                              new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1))) match {
+                              ScUndefinedType(ScTypeParameterType(tp, ScSubstitutor.empty), 1))) match {
                               case funTp: ScParameterizedType =>
                                 val secondArg = funTp.typeArgs(1)
                                 Conformance.undefinedSubst(funTp, paramType).getSubstitutor match {
@@ -369,7 +369,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
               new Parameter("", None, tpe, false, false, false, index)
           }
           val methType =
-            new ScMethodType(getTypeAfterImplicitConversion(ignoreBaseTypes = ignoreBaseType,
+            ScMethodType(getTypeAfterImplicitConversion(ignoreBaseTypes = ignoreBaseType,
               fromUnderscore = true).tr.getOrAny,
               params, false)(getProject, getResolveScope)
           new Success(methType, Some(this))

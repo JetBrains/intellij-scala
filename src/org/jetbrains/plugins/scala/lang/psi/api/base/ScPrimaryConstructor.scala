@@ -86,12 +86,12 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
         else ScDesignatorType(clazz)
       if (typeParameters.length == 0) designatorType
       else {
-        ScParameterizedType(designatorType, typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty)))
+        ScParameterizedType(designatorType, typeParameters.map(ScTypeParameterType(_, ScSubstitutor.empty)))
       }
     })
-    if (clauses.length == 0) return new ScMethodType(returnType, Seq.empty, false)(getProject, getResolveScope)
+    if (clauses.length == 0) return ScMethodType(returnType, Seq.empty, false)(getProject, getResolveScope)
     val res = clauses.foldRight[ScType](returnType){(clause: ScParameterClause, tp: ScType) =>
-      new ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)(getProject, getResolveScope)
+      ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)(getProject, getResolveScope)
     }
     res.asInstanceOf[ScMethodType]
   }

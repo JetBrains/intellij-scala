@@ -3,7 +3,11 @@ package lang
 package psi
 package types
 
+import java.lang.ref.WeakReference
+
+import com.intellij.util.containers.{WeakHashMap, ConcurrentWeakHashMap}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.Interner
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
@@ -19,8 +23,19 @@ import scala.collection.mutable.ArrayBuffer
 /**
 * @author ilyas
 */
-case class ScExistentialType(quantified : ScType,
-                             wildcards : List[ScExistentialArgument]) extends ValueType {
+class ScExistentialType private (val quantified : ScType,
+                                 val wildcards : List[ScExistentialArgument]) extends ValueType {
+
+  override def equals(other: scala.Any): Boolean = other match {
+    case e: ScExistentialType =>
+      e.quantified == quantified &&
+        e.wildcards == wildcards
+    case _ => false
+  }
+
+  override val hashCode: Int = 11 + quantified.hashCode() + 31 * wildcards.hashCode()
+
+  override def toString: String = s"ScExistentialType($quantified, $wildcards)"
 
   @volatile
   private var _boundNames: List[String] = null
@@ -52,7 +67,7 @@ case class ScExistentialType(quantified : ScType,
             case a: ScTypeAlias if a.getContext.isInstanceOf[ScExistentialClause] =>
               if (!rejected.contains(a.name)) {
                 wildcards.find(_.name == a.name) match {
-                  case Some(arg) => (true, unpacked.get(arg).getOrElse(tp), rejected)
+                  case Some(arg) => (true, unpacked.getOrElse(arg, tp), rejected)
                   case _ => (true, tp, rejected)
                 }
               } else (true, tp, rejected)
@@ -61,12 +76,12 @@ case class ScExistentialType(quantified : ScType,
           case ScTypeVariable(name) =>
             if (!rejected.contains(name)) {
               wildcards.find(_.name == name) match {
-                case Some(arg) => (true, unpacked.get(arg).getOrElse(tp), rejected)
+                case Some(arg) => (true, unpacked.getOrElse(arg, tp), rejected)
                 case _ => (true, tp, rejected)
               }
             } else (true, tp, rejected)
           case c@ScCompoundType(components, _, typeMap) =>
-            val newSet = rejected ++ typeMap.map(_._1)
+            val newSet = rejected ++ typeMap.keys
             (false, c, newSet)
           case ex@ScExistentialType(_quantified, _wildcards) =>
             val newSet = if (ex ne this) rejected ++ ex.wildcards.map(_.name) else rejected //todo: for wildcards add ex.wildcards
@@ -196,7 +211,7 @@ case class ScExistentialType(quantified : ScType,
           checkRecursive(lower, rejected)
           checkRecursive(upper, rejected)
         case c@ScCompoundType(comps, signatureMap, typeMap) =>
-          val newSet = rejected ++ typeMap.map(_._1)
+          val newSet = rejected ++ typeMap.keys
           comps.foreach(checkRecursive(_, newSet))
           signatureMap.foreach {
             case (s, rt) =>
@@ -274,7 +289,7 @@ case class ScExistentialType(quantified : ScType,
     tp match {
       case _: StdType => tp
       case c@ScCompoundType(components, signatureMap, typeMap) =>
-        val newSet = rejected ++ typeMap.map(_._1)
+        val newSet = rejected ++ typeMap.keys
 
         def updateTypeParam(tp: TypeParameter): TypeParameter = {
           new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), {
@@ -286,7 +301,7 @@ case class ScExistentialType(quantified : ScType,
           }, tp.ptp)
         }
 
-        new ScCompoundType(components, signatureMap.map {
+        ScCompoundType(components, signatureMap.map {
           case (s, sctype) =>
             val pTypes: List[Seq[() => ScType]] =
               s.substitutedTypes.map(_.map(f => () => updateRecursive(f(), newSet, variance)))
@@ -415,7 +430,7 @@ case class ScExistentialType(quantified : ScType,
     val usedWildcards = wildcardsMap().keySet
 
     val used = wildcards.filter(arg => usedWildcards.contains(arg))
-    if (used.length == 0) return quantified
+    if (used.isEmpty) return quantified
     if (used.length != wildcards.length) return ScExistentialType(quantified, used).simplify()
 
     //first rule
@@ -426,7 +441,7 @@ case class ScExistentialType(quantified : ScType,
     }
 
     //third rule
-    if (wildcards.length == 0) return quantified
+    if (wildcards.isEmpty) return quantified
 
     var updated = false
     //fourth rule
@@ -499,11 +514,34 @@ object ScExistentialType {
   def simpleExistential(name: String, args: List[ScTypeParameterType], lowerBound: ScType, upperBound: ScType): ScExistentialType = {
     ScExistentialType(ScTypeVariable(name), List(ScExistentialArgument(name, args, lowerBound, upperBound)))
   }
+
+  def apply(quantified : ScType,
+            wildcards : List[ScExistentialArgument]): ScExistentialType = {
+    val result = new ScExistentialType(quantified, wildcards)
+    ScType.allTypesCache.intern(result).asInstanceOf[ScExistentialType]
+  }
+
+  def unapply(e: ScExistentialType): Option[(ScType, List[ScExistentialArgument])] = {
+    Some(e.quantified, e.wildcards)
+  }
 }
 
-case class ScExistentialArgument(name : String, args : List[ScTypeParameterType],
-                                 lowerBound : ScType, upperBound : ScType) {
-  def unpack = new ScSkolemizedType(name, args, lowerBound, upperBound)
+class ScExistentialArgument private (val name : String, val args : List[ScTypeParameterType],
+                                     val lowerBound : ScType, val upperBound : ScType) {
+  override def equals(other: scala.Any): Boolean = other match {
+    case e: ScExistentialArgument =>
+      e.name == name &&
+        e.args == args &&
+        e.lowerBound == lowerBound &&
+        e.upperBound == upperBound
+    case _ => false
+  }
+
+  override val hashCode: Int = name.hashCode + (args.hashCode() + (lowerBound.hashCode() + upperBound.hashCode() * 31) * 31) * 31
+
+  override def toString: String = s"ScExistentialArgument($name, $args, $lowerBound, $upperBound)"
+
+  def unpack = ScSkolemizedType(name, args, lowerBound, upperBound)
 
   def withoutAbstracts: ScExistentialArgument = ScExistentialArgument(name, args, lowerBound.removeAbstracts, upperBound.removeAbstracts)
 
@@ -532,8 +570,34 @@ case class ScExistentialArgument(name : String, args : List[ScTypeParameterType]
   }
 }
 
-case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], lower : ScType, upper : ScType)
+object ScExistentialArgument {
+  private val argumentsCache = new Interner[ScExistentialArgument]()
+
+  def apply(name: String, args: List[ScTypeParameterType], lowerBound: ScType, upperBound: ScType): ScExistentialArgument = {
+    val result = new ScExistentialArgument(name, args, lowerBound, upperBound)
+    argumentsCache.intern(result)
+  }
+
+  def unapply(e: ScExistentialArgument): Option[(String, List[ScTypeParameterType], ScType, ScType)] = {
+    Some(e.name, e.args, e.lowerBound, e.upperBound)
+  }
+}
+
+class ScSkolemizedType private (val name : String, val args : List[ScTypeParameterType], val lower : ScType, val upper : ScType)
   extends ValueType {
+  override def equals(other: scala.Any): Boolean = other match {
+    case s: ScSkolemizedType =>
+      s.name == name &&
+      s.args == args &&
+      s.lower == lower &&
+      s.upper == upper
+    case _ => false
+  }
+
+  override val hashCode: Int = 12 + name.hashCode + (args.hashCode() + (lower.hashCode() + 31 * upper.hashCode()) * 31) * 31  
+
+  override def toString: String = s"ScSkolemizedType($name, $args, $lower, $upper)"
+
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitSkolemizedType(this)
   }
@@ -586,5 +650,16 @@ case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], low
         (true, u)
       case _ => (false, uSubst)
     }
+  }
+}
+
+object ScSkolemizedType {
+  def apply(name: String, args: List[ScTypeParameterType], lower: ScType, upper: ScType): ScSkolemizedType = {
+    val result = new ScSkolemizedType(name, args, lower, upper)
+    ScType.allTypesCache.intern(result).asInstanceOf[ScSkolemizedType]
+  }
+
+  def unapply(e: ScSkolemizedType): Option[(String, List[ScTypeParameterType], ScType, ScType)] = {
+    Some(e.name, e.args, e.lower, e.upper)
   }
 }

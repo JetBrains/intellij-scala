@@ -3,10 +3,15 @@ package lang
 package psi
 package types
 
+import java.lang
+import java.lang.ref.WeakReference
+
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
+import com.intellij.util.containers.{WeakHashMap, ConcurrentWeakHashMap}
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.Interner
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -67,7 +72,7 @@ trait ScType {
         (true, ScTypeVariable(s.name))
       case t => (false, t)
     })
-    if (wildcards.length > 0) {
+    if (wildcards.nonEmpty) {
       ScExistentialType(quantified, wildcards.toList).simplify()
     } else quantified
   }
@@ -162,6 +167,9 @@ trait ScType {
 }
 
 object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
+  //the main goal is performance and less memory usage
+  val allTypesCache = new Interner[ScType]()
+
   def typeParamsDepth(typeParams: Array[TypeParameter]): Int = {
     typeParams.map {
       case typeParam =>
@@ -415,7 +423,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
    */
   def designator(element: PsiNamedElement): ScType = {
     element match {
-      case td: ScClass => StdType.QualNameToType.getOrElse(td.qualifiedName, new ScDesignatorType(element))
+      case td: ScClass => StdType.QualNameToType.getOrElse(td.qualifiedName, ScDesignatorType(element))
       case _ =>
         val clazzOpt = element match {
           case p: ScClassParameter => Option(p.containingClass)
@@ -428,7 +436,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
 
         clazzOpt match {
           case Some(clazz) => ScProjectionType(ScThisType(clazz), element, superReference = false)
-          case _ => new ScDesignatorType(element)
+          case _ => ScDesignatorType(element)
         }
     }
   }

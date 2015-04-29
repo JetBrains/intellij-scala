@@ -57,7 +57,7 @@ trait ScFun extends ScTypeParametersOwner {
 
   def methodType: ScType = {
     paramClauses.foldRight[ScType](retType) {
-      (params: Seq[Parameter], tp: ScType) => new ScMethodType(tp, params, false)(getProject, getResolveScope)
+      (params: Seq[Parameter], tp: ScType) => ScMethodType(tp, params, false)(getProject, getResolveScope)
     }
   }
 
@@ -148,7 +148,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
             fun.typeParameters.zip(typeParameters).foreach {
               case (oldParam: ScTypeParam, newParam: ScTypeParam) =>
                 typeParamSubst = typeParamSubst.bindT((oldParam.name, ScalaPsiUtil.getPsiElementId(oldParam)),
-                  new ScTypeParameterType(newParam, subst))
+                  ScTypeParameterType(newParam, subst))
             }
             fun.returnType.toOption.map(typeParamSubst.followed(subst).subst)
           case Some((fun: ScSyntheticFunction, subst)) =>
@@ -156,7 +156,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
             fun.typeParameters.zip(typeParameters).foreach {
               case (oldParam: ScSyntheticTypeParameter, newParam: ScTypeParam) =>
                 typeParamSubst = typeParamSubst.bindT((oldParam.name, ScalaPsiUtil.getPsiElementId(oldParam)),
-                  new ScTypeParameterType(newParam, subst))
+                  ScTypeParameterType(newParam, subst))
             }
             Some(subst.subst(fun.retType))
           case Some((fun: PsiMethod, subst)) =>
@@ -164,7 +164,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
             fun.getTypeParameters.zip(typeParameters).foreach {
               case (oldParam: PsiTypeParameter, newParam: ScTypeParam) =>
                 typeParamSubst = typeParamSubst.bindT((oldParam.name, ScalaPsiUtil.getPsiElementId(oldParam)),
-                  new ScTypeParameterType(newParam, subst))
+                  ScTypeParameterType(newParam, subst))
             }
             Some(typeParamSubst.followed(subst).subst(ScType.create(fun.getReturnType, getProject, getResolveScope)))
           case _ => None
@@ -225,9 +225,9 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     if (!hasParameterClause) return resultType
     val res = if (clauses.length > 0)
       clauses.foldRight[ScType](resultType){(clause: ScParameterClause, tp: ScType) =>
-        new ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)(getProject, getResolveScope)
+        ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)(getProject, getResolveScope)
       }
-      else new ScMethodType(resultType, Seq.empty, false)(getProject, getResolveScope)
+      else ScMethodType(resultType, Seq.empty, false)(getProject, getResolveScope)
     res.asInstanceOf[ScMethodType]
   }
 

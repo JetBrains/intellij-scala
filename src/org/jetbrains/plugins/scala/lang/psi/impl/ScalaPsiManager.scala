@@ -476,7 +476,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     def calc: ScType = {
       tp.getSuperTypes match {
         case array: Array[PsiClassType] if array.length == 1 => ScType.create(array(0), project)
-        case many => new ScCompoundType(many.map { ScType.create(_, project) }, Map.empty, Map.empty)
+        case many => ScCompoundType(many.map { ScType.create(_, project) }, Map.empty, Map.empty)
       }
     }
     val parameterType = psiTypeParameterUpperTypeMap.get(tp)
@@ -496,12 +496,12 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         val lower = () => stp.lowerBound.getOrNothing
         val upper = () => stp.upperBound.getOrAny
         // todo rework for error handling!
-        val res = new ScTypeParameterType(stp.name, inner, lower, upper, stp)
+        val res = ScTypeParameterType.apply(stp.name, inner, lower, upper, stp)
         res
       case _ =>
         val lower = () => types.Nothing
         val upper = () => psiTypeParameterUpperType(tp)
-        val res = new ScTypeParameterType(tp.name, Nil, lower, upper, tp)
+        val res = ScTypeParameterType(tp.name, Nil, lower, upper, tp)
         res
     }
   }

@@ -100,7 +100,7 @@ private[expr] object ExpectedTypes {
       case te: ScThrowStmt =>
         // Not in the SLS, but in the implementation.
         val throwableClass = ScalaPsiManager.instance(te.getProject).getCachedClass(te.getResolveScope, "java.lang.Throwable")
-        val throwableType = if (throwableClass != null) new ScDesignatorType(throwableClass) else Any
+        val throwableType = if (throwableClass != null) ScDesignatorType(throwableClass) else Any
         Array((throwableType, None))
       //see SLS[8.4]
       case c: ScCaseClause => c.getContext.getContext match {

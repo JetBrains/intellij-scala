@@ -1695,9 +1695,9 @@ object Conformance {
           }
           val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, String), ScType] ++ typeParameters1.zip(typeParameters2).map({
             tuple => ((tuple._1.name, ScalaPsiUtil.getPsiElementId(tuple._1.ptp)),
-              new ScTypeParameterType(tuple._2.name,
+              ScTypeParameterType(tuple._2.name,
                 tuple._2.ptp match {
-                  case p: ScTypeParam => p.typeParameters.toList.map{new ScTypeParameterType(_, ScSubstitutor.empty)}
+                  case p: ScTypeParam => p.typeParameters.toList.map{ScTypeParameterType(_, ScSubstitutor.empty)}
                   case _ => Nil
                 }, new Suspension(tuple._2.lowerType), new Suspension(tuple._2.upperType), tuple._2.ptp))
           }), Map.empty, None)

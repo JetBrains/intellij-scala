@@ -160,7 +160,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
 
       override def visitMethodType(m: ScMethodType): Unit = {
         val ScMethodType(retType, params, isImplicit) = m
-        result = new ScMethodType(substInternal(retType),
+        result = ScMethodType(substInternal(retType),
           params.map(p => p.copy(paramType = substInternal(p.paramType),
             expectedType = substInternal(p.expectedType))), isImplicit)(m.project, m.scope)
       }
@@ -320,7 +320,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         substCopy.myDependentMethodTypesFun = myDependentMethodTypesFun
         substCopy.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
         substCopy.myDependentMethodTypes = myDependentMethodTypes
-        result = new ScExistentialType(substCopy.substInternal(q),
+        result = ScExistentialType(substCopy.substInternal(q),
           wildcards.map(_.subst(ScSubstitutor.this)))
       }
 

@@ -220,7 +220,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                       val subst = if (fun.typeParameters.length == 0) substitutor
                       else {
                         val undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
-                          s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
+                          s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(ScTypeParameterType(p,
                             substitutor))))
                         val emptySubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
                           s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), p.upperBound.getOrAny))

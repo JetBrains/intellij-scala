@@ -24,7 +24,7 @@ class ScWildcardTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     for {
       lb <- lowerBound
       ub <- upperBound
-    } yield new ScExistentialType(ScTypeVariable("_$1"), List(new ScExistentialArgument("_$1", Nil, lb, ub)))
+    } yield ScExistentialType(ScTypeVariable("_$1"), List(ScExistentialArgument("_$1", Nil, lb, ub)))
   }
 
   override def accept(visitor: ScalaElementVisitor) {
