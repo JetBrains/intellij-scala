@@ -4,6 +4,7 @@ package lang.refactoring.extractMethod
 import java.util
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveState}
 import com.intellij.refactoring.util.VariableData
@@ -307,7 +308,7 @@ object ScalaExtractMethodUtils {
   }
 
   def typedName(name: String, typeText: String, project: Project, byName: Boolean = false): String = {
-    val colon = if (ScalaNamesUtil.isOpCharacter(name.last)) " : " else ": "
+    val colon = if (StringUtil.isEmpty(name) || ScalaNamesUtil.isOpCharacter(name.last)) " : " else ": "
     val arrow = ScalaPsiUtil.functionArrow(project) + " "
     val byNameArrow = if (byName) arrow else ""
     s"$name$colon$byNameArrow$typeText"

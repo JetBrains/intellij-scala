@@ -125,6 +125,7 @@ class ScalaIntroduceParameterDialog(project: Project,
         myParametersTableModel.fireTableDataChanged()
         parametersTable.updateUI()
         updateSignatureAlarmFired()
+        getRefactorAction.setEnabled(!newText.isEmpty)
       }
     })
     val paramNameLabel = new JLabel("Name:")
