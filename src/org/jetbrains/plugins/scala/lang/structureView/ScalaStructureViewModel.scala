@@ -3,7 +3,10 @@ package lang
 package structureView
 
 import java.util
+import java.util.Comparator
 
+import com.intellij.icons.AllIcons
+import com.intellij.ide.IdeBundle
 import com.intellij.ide.structureView.{StructureViewModel, StructureViewTreeElement, TextEditorBasedStructureViewModel}
 import com.intellij.ide.util.treeView.smartTree._
 import com.intellij.psi.PsiElement
@@ -16,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
+import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 
 /**
  * @author Alexander Podkhalyuzin
@@ -23,7 +27,8 @@ import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
  */
 class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val console: ScalaLanguageConsole = null)
   extends TextEditorBasedStructureViewModel(myRootElement) with StructureViewModel.ElementInfoProvider {
-  def isAlwaysLeaf(element: StructureViewTreeElement): Boolean = !isAlwaysShowsPlus(element)
+  def isAlwaysLeaf(element: StructureViewTreeElement): Boolean = !(isAlwaysShowsPlus(element) ||
+      element.isInstanceOf[TestStructureViewElement])
 
   def isAlwaysShowsPlus(element: StructureViewTreeElement): Boolean = {
     element match {
@@ -42,7 +47,24 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val 
   @NotNull
   override def getSorters: Array[Sorter] = {
     val res = new Array[Sorter](1)
-    res(0) = Sorter.ALPHA_SORTER
+    res(0) = new Sorter() {
+      override def isVisible: Boolean = true
+
+      override def getComparator: Comparator[_] = new Comparator[AnyRef] {
+        override def compare(o1: AnyRef, o2: AnyRef): Int =
+          (o1, o2) match {
+            case (test1: TestStructureViewElement, test2: TestStructureViewElement) => 0
+            case (_, test: TestStructureViewElement) => -1
+            case (test: TestStructureViewElement, _) => 1
+            case _ => SorterUtil.getStringPresentation(o1).compareToIgnoreCase(SorterUtil.getStringPresentation(o2))
+          }
+      }
+
+      override def getName: String = "ALPHA_SORTER_IGNORING_TEST_NODES"
+
+      override def getPresentation: ActionPresentation = new ActionPresentationData(IdeBundle.message("action.sort" +
+          ".alphabetically"), IdeBundle.message("action.sort.alphabetically"), AllIcons.ObjectBrowser.Sorted)
+    }
     res
   }
 
@@ -77,5 +99,5 @@ class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val 
 
 object ScalaStructureViewModel {
   private val NODE_PROVIDERS: util.Collection[NodeProvider[_ <: TreeElement]] =
-    util.Arrays.asList(new ScalaInheritedMembersNodeProvider)
+    util.Arrays.asList(new ScalaInheritedMembersNodeProvider, new TestNodeProvider)
 }
