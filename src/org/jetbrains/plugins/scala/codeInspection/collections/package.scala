@@ -444,6 +444,8 @@ package object collections {
   def hasSideEffects(expr: ScExpression) = exprsWithSideEffects(expr).nonEmpty
 
   def rightRangeInParent(expr: ScExpression, parent: ScExpression): TextRange = {
+    if (expr == parent) return TextRange.create(0, expr.getTextLength)
+
     val endOffset = parent.getTextRange.getEndOffset
 
     val startOffset = expr match {
