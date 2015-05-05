@@ -41,7 +41,7 @@ trait IntegrationTest {
     import scala.collection.JavaConversions._
 
     def helper(root: AbstractTreeNode[_], currentParentName: String): Boolean = {
-      println("helper: " + root.getValue.asInstanceOf[TreeElement].getPresentation.getPresentableText + "<->" + nodeName + " parent: " + currentParentName + "<->" + parentName)
+//      println("helper: " + root.getValue.asInstanceOf[TreeElement].getPresentation.getPresentableText + "<->" + nodeName + " parent: " + currentParentName + "<->" + parentName)
       root.getValue.isInstanceOf[TestStructureViewElement] && {
         val presentation = root.getValue.asInstanceOf[TreeElement].getPresentation
         presentation.isInstanceOf[TestItemRepresentation] && presentation.getPresentableText == nodeName &&

@@ -12,8 +12,8 @@ trait FlatSpecSingleTestTest extends FlatSpecGenerator {
   def testFlatSpec() {
     addFlatSpec()
 
-    runTestByLocation(7, 1, "FlatSpecTest.scala",
-      checkConfigAndSettings(_, "FlatSpecTest", "A FlatSpecTest should be able to run single test"),
+    runTestByLocation(7, 1, flatSpecFileName,
+      checkConfigAndSettings(_, flatSpecClassName, "A FlatSpecTest should be able to run single test"),
       root => checkResultTreeHasExactNamedPath(root, flatSpecTestPath:_*) &&
           checkResultTreeDoesNotHaveNodes(root, "should not run other tests"),
       debug = true

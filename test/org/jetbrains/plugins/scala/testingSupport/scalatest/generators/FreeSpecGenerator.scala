@@ -23,7 +23,7 @@ trait FreeSpecGenerator extends IntegrationTest {
         |    }
         |  }
         |}
-      """.stripMargin
+      """.stripMargin.trim()
     )
   }
 
@@ -60,7 +60,9 @@ trait FreeSpecGenerator extends IntegrationTest {
       |      }
       |    }
       |  }
+      |
+      |  "Empty scope" - {}
       |}
-    """.stripMargin)
+    """.stripMargin.trim())
   }
 }
