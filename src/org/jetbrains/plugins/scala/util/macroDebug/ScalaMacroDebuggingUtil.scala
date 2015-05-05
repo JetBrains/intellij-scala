@@ -188,33 +188,16 @@ object ScalaMacroDebuggingUtil {
         WriteCommandAction.runWriteCommandAction(project, new Runnable {
           override def run() {
             implicit val context = new org.jetbrains.plugins.scala.meta.semantic.Context(macroCall.getProject)
-            val callImpl = macroCall.asInstanceOf[ScMethodCallImpl]
-            val body = callImpl.getEffectiveInvokedExpr match {
-              case e: ScReferenceExpression => e.resolve().asInstanceOf[ScMacroDefinition]
-            }
-            val macroBody = ConverterImpl.ideaToMeta(body)
-            val macroArgs = callImpl.args.exprs.toStream.map(ConverterImpl.ideaToMeta)
-            val macroApplication = m.Term.Apply(m.Term.Name(body.name), macroArgs.asInstanceOf[scala.collection.immutable.Seq[m.Term]])
-            val mMacroEnv = scala.collection.mutable.Map[m.Term.Name, Any]()
-            try {
-              val result = macroApplication.eval(mMacroEnv.toMap)
-            } catch {
-              case ex: Exception =>
-                val v = ex.getMessage
-                ex.printStackTrace()
-                ""
-              case ex: Throwable =>
-                val v = ex.getMessage
-                ex.printStackTrace()
-                ""
-            }
             val macroExpansion =
               """
                 |val eval$1: String = "world"
-                |print("hello ")
-                |print(eval$1)
-                |print("!")
-                |()
+                | implicit object Serializer6 extends AnyRef with serialization.Serializer[Test.List] {
+                |    def apply(x5: Test.List): String = x5 match {
+                |      case (x7@(_: Test.Cons)) =>
+                |        "{ ".+("$tag: 0, ".+("head: ".+(serialization.serialize.apply[Int](x7.head)(serialization.this.Serializer.intSerializer))).+(", ").+("tail: ".+(serialization.serialize.apply[Test.List](x7.tail)(Serializer6)))).+(" }")
+                |      case (x8@(_: Test.Nil.type)) => "{ $tag: 1 }"
+                |    }
+                |  };
               """.stripMargin
             val expansion = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(s"{$macroExpansion}", PsiManager.getInstance(project))
             var statement = macroCall.getParent.addAfter(expansion, macroCall)
