@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.ui
 
 import com.intellij.refactoring.ui.ComboBoxVisibilityPanel
-import ScalaComboBoxVisibilityPanel._
+import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaComboBoxVisibilityPanel._
 
 /**
  * Nikolay.Tropin
@@ -13,8 +13,8 @@ class ScalaComboBoxVisibilityPanel(additional: String*)
 
 object ScalaComboBoxVisibilityPanel {
   private def modifiers(additional: Seq[String]) =
-    (Seq("private[this]", "private", "protected[this]", "protected") ++ additional).sorted.distinct.toArray
+    (Seq("private[this]", "private", "protected[this]", "protected") ++ additional.diff(Seq("", "public"))).sorted.distinct
 
-  def options(additional: Seq[String]) = modifiers(additional) :+ ""
-  def names(additional: Seq[String]) = modifiers(additional) :+ "public"
+  def options(additional: Seq[String]) = (modifiers(additional) :+ "").toArray
+  def names(additional: Seq[String]) = (modifiers(additional) :+ "public").toArray
 }
