@@ -20,13 +20,15 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
                                    var startsNewClause: Boolean = false)
         extends ParameterTableModelItemBase[ScalaParameterInfo](parameter, typeCodeFragment, defaultValue) {
 
-  var typeText: String = Option(typeCodeFragment).map(_.getText).getOrElse("")
+  var typeText: String = Option(parameter.scType).map(_.presentableText).getOrElse("")
 
   def keywordsAndAnnotations = parameter.keywordsAndAnnotations
 
   override def isEllipsisType: Boolean = parameter.isRepeatedParameter
 
   def updateType(problems: ListBuffer[String] = ListBuffer()): Unit = {
+    if (typeText == parameter.scType.presentableText) return
+
     var trimmed = typeText.trim
     if (trimmed.endsWith("*")) {
       parameter.isRepeatedParameter = true
