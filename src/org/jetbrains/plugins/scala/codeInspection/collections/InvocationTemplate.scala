@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
+import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
@@ -29,6 +30,7 @@ class InvocationTemplate(nameCondition: String => Boolean) {
 
   def unapplySeq(expr: ScExpression): Option[(ScExpression, Seq[ScExpression])] = {
     stripped(expr) match {
+      case (mc: ScMethodCall) childOf (parentCall: ScMethodCall) if !parentCall.isApplyOrUpdateCall => None
       case MethodRepr(_, qualOpt, Some(ref), args) if nameCondition(ref.refName) && refCondition(ref) =>
         Some(qualOpt.orNull, args)
       case MethodRepr(call: ScMethodCall, Some(qual), None, args) if nameCondition("apply") && call.isApplyOrUpdateCall && !call.isUpdateCall =>
