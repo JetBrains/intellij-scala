@@ -182,7 +182,7 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
   private def traverseTypedefBody(psiRoot: ScTemplateBody, entry: ScalaArrangementEntry) {
     genUnseparableRanges(psiRoot, entry)
     val top = arrangementEntries.top
-    val queue = unseparableRanges.get(entry).getOrElse(mutable.Queue[ScalaArrangementEntry]())
+    val queue = unseparableRanges.getOrElse(entry, mutable.Queue[ScalaArrangementEntry]())
     //    var unseparable =
     def next() = if (queue.isEmpty) null else queue.dequeue()
     psiRoot.getChildren.foldLeft(false, if (queue.isEmpty) null else queue.dequeue())((acc, child) => {
@@ -302,7 +302,7 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
         if (!unseparableRanges.contains(entry)) {
           unseparableRanges += (entry -> mutable.Queue[ScalaArrangementEntry]())
         }
-        unseparableRanges.get(entry).map(queue =>
+        unseparableRanges.get(entry).foreach(queue =>
           queue.enqueue(createNewEntry(body, new TextRange(newOffset,
             child.getTextRange.getEndOffset), UNSEPARABLE_RANGE, null, canArrange = true)))
         None
@@ -321,7 +321,7 @@ object ScalaArrangementVisitor {
 
   private def hasJavaGetterName(method: ScFunction) = {
     val name = method.getName
-    if (nameStartsWith(name, "get")) {
+    if (nameStartsWith(name, "get") && !(nameStartsWith(name, "getAnd") && name.charAt("getAnd".length).isUpper)) {
       method.returnType.getOrAny != Unit
     } else if (nameStartsWith(name, "is")) {
       method.returnType.getOrAny == Boolean
