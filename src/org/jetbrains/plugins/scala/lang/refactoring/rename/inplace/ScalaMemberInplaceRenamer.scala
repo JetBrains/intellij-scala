@@ -152,6 +152,11 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
         throw new Throwable(message, t)
     }
   }
+
+  override def getNameIdentifier: PsiElement = {
+    if (!myElementToRename.isPhysical) null
+    else super.getNameIdentifier
+  }
 }
 object ScalaMemberInplaceRenamer {
   val REVERT_INFO: Key[ScalaRefactoringUtil.RevertInfo] = new Key("RevertInfo")
