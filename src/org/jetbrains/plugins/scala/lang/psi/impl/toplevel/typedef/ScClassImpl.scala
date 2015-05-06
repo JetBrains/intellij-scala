@@ -7,7 +7,7 @@ package typedef
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.DumbServiceImpl
+import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.util.{PsiTreeUtil, PsiModificationTracker}
 import org.jetbrains.plugins.scala.caches.CachesUtil
@@ -78,7 +78,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
                                   state: ResolveState,
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
-    if (DumbServiceImpl.getInstance(getProject).isDumb) return true
+    if (DumbService.getInstance(getProject).isDumb) return true
     if (!super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
 
     constructor match {

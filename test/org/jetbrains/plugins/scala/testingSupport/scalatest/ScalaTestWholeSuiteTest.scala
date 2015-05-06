@@ -16,13 +16,14 @@ with FunSpecGenerator with FunSuiteGenerator with PropSpecGenerator with WordSpe
   val freeSpecTestPaths = List(List("[root]", "FreeSpecTest", "A FreeSpecTest", "should be able to run single tests"),
     List("[root]", "FreeSpecTest", "A FreeSpecTest", "should not run tests that are not selected"))
   val funSpecTestPaths = List(List("[root]", "FunSpecTest", "FunSpecTest", "should launch single test"),
-    List("[root]", "FunSpecTest", "FunSpecTest", "should not launch other tests"))
+    List("[root]", "FunSpecTest", "FunSpecTest", "should not launch other tests"),
+    List("[root]", "FunSpecTest", "OtherScope", "is here"))
   val funSuiteTestPaths = List(List("[root]", "FunSuiteTest", "should run single test"),
     List("[root]", "FunSuiteTest", "should not run other tests"))
   val propSpecTestPaths = List(List("[root]", "PropSpecTest", "Single tests should run"),
     List("[root]", "PropSpecTest", "other test should not run"))
   val wordSpecTestPaths = List(List("[root]", "WordSpecTest", "WordSpecTest", "Run single test"),
-    List("[root]", "WordSpecTest", "WordSpecTest", "ignore other tests"))
+    List("[root]", "WordSpecTest", "WordSpecTest", "ignore other tests"), List("[root]", "WordSpecTest", "outer", "inner"))
 
   def testFeatureSpec() {
     addFeatureSpec()

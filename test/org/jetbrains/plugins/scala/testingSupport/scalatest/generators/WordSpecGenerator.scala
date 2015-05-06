@@ -7,6 +7,9 @@ import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
  * @since 10.02.2015.
  */
 trait WordSpecGenerator extends IntegrationTest {
+  def wordSpecClassName = "WordSpecTest"
+  def wordSpecFileName = wordSpecClassName + ".scala"
+
   def addWordSpec() {
     addFileToProject("WordSpecTest.scala",
       """
@@ -22,8 +25,14 @@ trait WordSpecGenerator extends IntegrationTest {
         |      print(">>TEST: FAILED<<")
         |    }
         |  }
+        |
+        |  "empty" should {}
+        |
+        |  "outer" should {
+        |    "inner" in {}
+        |  }
         |}
-      """.stripMargin
+      """.stripMargin.trim()
     )
   }
 }

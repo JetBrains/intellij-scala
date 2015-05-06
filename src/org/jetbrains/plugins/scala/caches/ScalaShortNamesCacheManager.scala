@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.caches
 
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.project.{DumbService, DumbServiceImpl, Project}
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi._
 import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.psi.stubs.StubIndex
@@ -28,7 +28,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager")
 
   def getClassByFQName(name: String, scope: GlobalSearchScope): PsiClass = {
-    if (DumbServiceImpl.getInstance(project).isDumb) return null
+    if (DumbService.getInstance(project).isDumb) return null
 
     val classes =
       StubIndex.getElements[java.lang.Integer, PsiClass](ScalaIndexKeys.FQN_KEY, name.hashCode, project,
@@ -48,7 +48,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
   }
 
   def getClassesByFQName(fqn: String, scope: GlobalSearchScope): Seq[PsiClass] = {
-    if (DumbServiceImpl.getInstance(project).isDumb) return Seq.empty
+    if (DumbService.getInstance(project).isDumb) return Seq.empty
 
     val classes =
       StubIndex.getElements[java.lang.Integer, PsiClass](ScalaIndexKeys.FQN_KEY, fqn.hashCode, project,

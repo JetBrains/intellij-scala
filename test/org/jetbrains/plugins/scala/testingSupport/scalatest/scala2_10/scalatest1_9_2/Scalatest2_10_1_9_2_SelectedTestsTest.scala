@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.singleTest.ScalaTest
  * @author Roman.Shein
  * @since 11.02.2015.
  */
-class Scalatest2_10_1_9_2_SingleTestTest extends {
+class Scalatest2_10_1_9_2_SelectedTestsTest extends {
   override val featureSpecConfigTestName = "Feature 1 Scenario: Scenario A"
   override val featureSpecTestPath = List("[root]", "Feature 1 Scenario: Scenario A")
   override val flatSpecTestPath = List("[root]", "A FlatSpecTest should be able to run single test")
