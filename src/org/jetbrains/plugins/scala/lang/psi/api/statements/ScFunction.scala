@@ -9,7 +9,7 @@ import java.util
 
 import com.intellij.lang.java.lexer.JavaLexer
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.DumbServiceImpl
+import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Key
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiReferenceList.Role
@@ -447,7 +447,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   override def getIcon(flags: Int) = Icons.FUNCTION
 
   def getReturnType: PsiType = {
-    if (DumbServiceImpl.getInstance(getProject).isDumb || !SyntheticClasses.get(getProject).isClassesRegistered) {
+    if (DumbService.getInstance(getProject).isDumb || !SyntheticClasses.get(getProject).isClassesRegistered) {
       return null //no resolve during dumb mode or while synthetic classes is not registered
     }
     CachesUtil.get(

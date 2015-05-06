@@ -70,8 +70,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       case file: ScalaFile =>
         val isInSources: Boolean = ScalaUtils.isUnderSources(file)
         if (isInSources && (element eq file)) {
-          if (typeAware) UsageTrigger.trigger("scala.file.with.type.aware.annotated")
-          else UsageTrigger.trigger("scala.file.without.type.aware.annotated")
+          if (typeAware) Stats.trigger("scala.file.with.type.aware.annotated")
+          else Stats.trigger("scala.file.without.type.aware.annotated")
         }
         (file.isCompiled, isInSources)
       case _ => (false, false)
@@ -128,7 +128,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
 
       override def visitMacroDefinition(fun: ScMacroDefinition): Unit = {
-        if (isInSources) UsageTrigger.trigger("scala.macro.definition")
+        if (isInSources) Stats.trigger("scala.macro.definition")
         super.visitMacroDefinition(fun)
       }
 
@@ -327,7 +327,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
 
       override def visitExistentialTypeElement(exist: ScExistentialTypeElement): Unit = {
-        if (isInSources) UsageTrigger.trigger("scala.existential.type")
+        if (isInSources) Stats.trigger("scala.existential.type")
         super.visitExistentialTypeElement(exist)
       }
 
