@@ -87,8 +87,10 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
 
     val psiFile = myManager.findViewProvider(file).getPsi(ScalaFileType.SCALA_LANGUAGE)
 
-    new PsiLocation(project, myModule, psiFile.findElementAt(FileDocumentManager.getInstance().
-        getDocument(file).getLineStartOffset(lineNumber) + offset))
+    val psiElement = psiFile.findElementAt(FileDocumentManager.getInstance().getDocument(file).
+        getLineStartOffset(lineNumber) + offset)
+
+    new PsiLocation(project, myModule, psiElement)
   }
 
   override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings =

@@ -9,7 +9,7 @@ import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 
 import com.intellij.ProjectTopics
 import com.intellij.openapi.components.ProjectComponent
-import com.intellij.openapi.project.{DumbServiceImpl, Project}
+import com.intellij.openapi.project.{DumbService, DumbServiceImpl, Project}
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.openapi.util.{Key, LowMemoryWatcher}
 import com.intellij.psi._
@@ -136,7 +136,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       ScalaShortNamesCacheManager.getInstance(project).getImplicitObjectsByPackage(fqn, scope)
     }
 
-    if (DumbServiceImpl.getInstance(project).isDumb) return Seq.empty
+    if (DumbService.getInstance(project).isDumb) return Seq.empty
 
     val reference = implicitObjectMap.get(fqn)
     val map = if (reference == null || reference.get() == null) {
@@ -316,7 +316,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   def getJavaPackageClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): JSet[String] = {
     val qualifier: String = psiPackage.getQualifiedName
     def calc: JSet[String] = {
-      if (DumbServiceImpl.getInstance(project).isDumb) return Collections.emptySet()
+      if (DumbService.getInstance(project).isDumb) return Collections.emptySet()
       val classes: util.Collection[PsiClass] =
         StubIndex.getElements(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
           new ScalaSourceFilterScope(scope, project), classOf[PsiClass])
@@ -345,7 +345,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   def getScalaClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): mutable.HashSet[String] = {
     val qualifier: String = psiPackage.getQualifiedName
     def calc: mutable.HashSet[String] = {
-      if (DumbServiceImpl.getInstance(project).isDumb) return mutable.HashSet.empty
+      if (DumbService.getInstance(project).isDumb) return mutable.HashSet.empty
       val classes: util.Collection[PsiClass] =
         StubIndex.getElements(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, qualifier, project,
           new ScalaSourceFilterScope(scope, project), classOf[PsiClass])

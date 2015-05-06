@@ -264,7 +264,7 @@ import com.intellij.openapi.util.{Pair => IPair}
                                          oldState: ResolveState,
                                          lastParent: PsiElement,
                                          place: PsiElement): Boolean = {
-    if (DumbServiceImpl.getInstance(getProject).isDumb) return true
+    if (DumbService.getInstance(getProject).isDumb) return true
     var state = oldState
     //exception cases
     this match {

@@ -68,13 +68,17 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
 
   def projectOpened() {
     project.scalaEvents.addScalaProjectListener(ScalaListener)
-    configureWidget()
-    notifyIfNeeded()
+    statusBar.foreach { bar =>
+      configureWidget(bar)
+      notifyIfNeeded()
+    }
   }
 
   def projectClosed() {
     project.scalaEvents.removeScalaProjectListener(ScalaListener)
-    configureWidget()
+    statusBar.foreach { bar =>
+      configureWidget(bar)
+    }
   }
 
   def getState = settings
@@ -83,7 +87,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
     settings = state
   }
 
-  private def configureWidget() {
+  private def configureWidget(bar: StatusBar) {
     (applicable, installed) match {
       case (true, true) => // do nothing
       case (true, false) =>
@@ -128,19 +132,21 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
 
     settings.TYPE_AWARE_HIGHLIGHTING_ENABLED = enabled
 
-    updateWidget()
-    reparseActiveFile()
+    statusBar.foreach { bar =>
+      updateWidget(bar)
+      reparseActiveFile()
 
-    if (enabled)
-      notify(status, EnabledMessage, NotificationType.INFORMATION)
-    else
-      notify(status, DisabledMessage, NotificationType.INFORMATION)
+      if (enabled)
+        notify(status, EnabledMessage, NotificationType.INFORMATION)
+      else
+        notify(status, DisabledMessage, NotificationType.INFORMATION)
+    }
   }
 
   private def status = "Scala type-aware highlighting: %s"
           .format(if(enabled) "enabled" else "disabled")
 
-  private def updateWidget() {
+  private def updateWidget(bar: StatusBar) {
     bar.updateWidget(Widget.ID)
   }
 
@@ -157,7 +163,8 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
     })
   }
 
-  private def bar = WindowManager.getInstance.getStatusBar(project)
+  private def statusBar: Option[StatusBar] =
+    Option(WindowManager.getInstance).map(_.getStatusBar(project))
 
   private object Widget extends StatusBarWidget {
     def ID = "TypeAwareHighlighting"
@@ -186,9 +193,11 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
 
   private object ScalaListener extends ScalaProjectListener {
     def onScalaProjectChanged() {
-      configureWidget()
-      if (project.hasScala) {
-        notifyIfNeeded()
+      statusBar.foreach { bar =>
+        configureWidget(bar)
+        if (project.hasScala) {
+          notifyIfNeeded()
+        }
       }
     }
   }
