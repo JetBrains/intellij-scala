@@ -9,7 +9,8 @@ import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTypeDefinition}
@@ -132,6 +133,7 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
           case m: ScMember if m.isLocal =>
             if (m.getTextOffset < context.getTextOffset) messageForLocal(name)
             else ""
+          case _: ScCaseClause | _: ScGenerator | _: ScEnumerator => messageForLocal(name)
           case m: PsiMember => messageForMember(name)
           case _ => ""
         }
