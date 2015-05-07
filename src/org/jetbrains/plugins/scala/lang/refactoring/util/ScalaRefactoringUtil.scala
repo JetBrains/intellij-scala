@@ -795,7 +795,12 @@ object ScalaRefactoringUtil {
     }
   }
 
-  def nextParent(expr: ScExpression, file: PsiFile): PsiElement = {
+  def findParentExpr(file: PsiFile, range: TextRange): ScExpression = {
+    val elem = commonParent(file, range)
+    findParentExpr(elem)
+  }
+
+  def nextParent(expr: PsiElement, file: PsiFile): PsiElement = {
     if (expr == null) file
     else expr.getParent match {
       case args: ScArgumentExprList => args.getParent
