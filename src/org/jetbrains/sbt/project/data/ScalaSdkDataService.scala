@@ -27,6 +27,9 @@ class ScalaSdkDataService(platformFacade: PlatformFacade, helper: ProjectStructu
       helper.findIdeModule(moduleData.getExternalName, project)
     }
 
+    if (module == null)
+      return
+
     module.configureScalaCompilerSettingsFrom("SBT", sdkData.compilerOptions)
 
     val compilerVersion = sdkData.scalaVersion
