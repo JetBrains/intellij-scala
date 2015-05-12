@@ -82,7 +82,7 @@ class ScalaArrangementParseInfo {
     var toProcess: List[(ScFunction, ScalaArrangementDependency)] = List[(ScFunction, ScalaArrangementDependency)]()
     toProcess = (method, result)::toProcess
     var usedMethods = HashSet[ScFunction]()
-    while (!toProcess.isEmpty) {
+    while (toProcess.nonEmpty) {
       val (depenenceSource, dependency) = toProcess.head
       toProcess = toProcess.tail
       methodDependencies.get(depenenceSource) match {
@@ -92,17 +92,18 @@ class ScalaArrangementParseInfo {
             if (usedMethods.contains(dependentMethod)) {
               return None
             }
-            val dependentEntry = methodToEntry(dependentMethod)
-            if (dependentEntry != null) {
-              val dependentMethodInfo = if (cache.contains(dependentMethod)) {
-                cache(dependentMethod)
-              } else {
-                new ScalaArrangementDependency(dependentEntry)
+            methodToEntry.get(dependentMethod).foreach(dependentEntry =>
+              if (dependentEntry != null) {
+                val dependentMethodInfo = if (cache.contains(dependentMethod)) {
+                  cache(dependentMethod)
+                } else {
+                  new ScalaArrangementDependency(dependentEntry)
+                }
+                cache.put(dependentMethod, dependentMethodInfo)
+                dependency.addDependentMethodInfo(dependentMethodInfo)
+                toProcess = (dependentMethod, dependentMethodInfo) :: toProcess
               }
-              cache.put(dependentMethod, dependentMethodInfo)
-              dependency.addDependentMethodInfo(dependentMethodInfo)
-              toProcess = (dependentMethod, dependentMethodInfo) :: toProcess
-            }
+            )
           }
         case None =>
       }
