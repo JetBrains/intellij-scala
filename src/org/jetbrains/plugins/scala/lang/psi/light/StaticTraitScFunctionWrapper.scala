@@ -32,7 +32,7 @@ object StaticTraitScFunctionWrapper {
   def methodText(function: ScFunction, containingClass: PsiClassWrapper): String = {
     val builder = new StringBuilder
 
-    builder.append(JavaConversionUtil.modifiers(function, true))
+    builder.append(JavaConversionUtil.annotationsAndModifiers(function, true))
 
     if (!function.isConstructor) {
       function.returnType match {
@@ -48,6 +48,9 @@ object StaticTraitScFunctionWrapper {
     val qualName = containingClass.getQualifiedName
     builder.append(((qualName.substring(0, qualName.length() - 6) + " This") +: function.parameters.map { case param =>
       val builder = new StringBuilder
+      val paramAnnotations = JavaConversionUtil.annotations(param).mkString(" ")
+      if (!paramAnnotations.isEmpty)
+        builder.append(paramAnnotations).append(" ")
       param.getRealParameterType(TypingContext.empty) match {
         case Success(tp, _) =>
           if (param.isCallByNameParameter) builder.append("scala.Function0<")
