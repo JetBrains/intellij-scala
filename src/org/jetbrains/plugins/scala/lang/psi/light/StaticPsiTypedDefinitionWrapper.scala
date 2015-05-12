@@ -51,7 +51,7 @@ object StaticPsiTypedDefinitionWrapper {
 
     ScalaPsiUtil.nameContext(b) match {
       case m: ScModifierListOwner =>
-        builder.append(JavaConversionUtil.modifiers(m, true))
+        builder.append(JavaConversionUtil.annotationsAndModifiers(m, true))
       case _ =>
     }
 
