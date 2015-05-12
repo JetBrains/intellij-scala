@@ -32,6 +32,10 @@ abstract class ScalaSuppressByLineCommentFix(key: HighlightDisplayKey) extends S
         val docComment = owner.docComment.get
         container.addAfter(comment, docComment)
         container.addAfter(newLine, docComment)
+      case owner: ScCommentOwner =>
+        val firstChild = owner.getFirstChild
+        owner.addBefore(comment, firstChild)
+        owner.addBefore(newLine, firstChild)
       case _ =>
         val parent = container.getParent
         parent.addBefore(comment, container)
