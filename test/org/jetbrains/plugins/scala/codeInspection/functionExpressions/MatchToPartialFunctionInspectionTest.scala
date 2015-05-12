@@ -97,4 +97,48 @@ class MatchToPartialFunctionInspectionTest extends ScalaLightInspectionFixtureTe
     checkTextHasError(text)
     testFix(text, result, annotation)
   }
+
+  def testInOverloadedMethod(): Unit = {
+    val text =
+      s"""
+         |object test {
+         |  object Bar {
+         |      def bar(g: Int => Unit): Unit = {
+         |        g
+         |      }
+         |
+         |      def bar(i: Int): Unit = {}
+         |    }
+         |
+         |    Bar.bar { ${START}i => i match $END{
+         |        case int_ =>
+         |      }
+         |    }
+         |  }
+         |}
+         """.stripMargin
+    checkTextHasNoErrors(text)
+  }
+
+  def testInOverloadedMethodInfix(): Unit = {
+    val text =
+     s"""
+       |object test {
+       |  object Bar {
+       |      def bar(g: Int => Unit): Unit = {
+       |        g
+       |      }
+       |
+       |      def bar(i: Int): Unit = {}
+       |    }
+       |
+       |    Bar bar { ${START}i => i match $END{
+       |        case int_ =>
+       |      }
+       |    }
+       |  }
+       |}
+     """.stripMargin
+    checkTextHasNoErrors(text)
+  }
 }
