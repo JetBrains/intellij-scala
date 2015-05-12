@@ -481,9 +481,13 @@ object getDummyBlocks {
           val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
           subBlocks.add(new ScalaBlock(block, child, null, null, indent, childWrap, block.getSettings))
         }
-        prevChild = child
       }
       prevChild = child
+    }
+    if (prevChild.getElementType == ScalaTokenTypes.kYIELD) {
+      //add a block for 'yield' in case of incomplete for statement (expression after yield is missing)
+      subBlocks.add(new ScalaBlock(block, prevChild, null, null, ScalaIndentProcessor.getChildIndent(block, prevChild),
+        arrangeSuggestedWrapForChild(block, prevChild, scalaSettings, block.suggestedWrap), block.getSettings))
     }
     subBlocks
   }
