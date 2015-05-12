@@ -26,15 +26,14 @@ class SbtAndroidFacetDataService(platformFacade: PlatformFacade, helper: Project
 
   def doImportData(toImport: util.Collection[DataNode[AndroidFacetData]], project: Project) {
     toImport.asScala.foreach { facetNode =>
-      val module = {
-        val moduleData: ModuleData = facetNode.getData(ProjectKeys.MODULE)
-        helper.findIdeModule(moduleData.getExternalName, project)
+      val moduleData: ModuleData = facetNode.getData(ProjectKeys.MODULE)
+      for {
+        module <- Option(helper.findIdeModule(moduleData.getExternalName, project))
+        facetManager <- Option(FacetManager.getInstance(module))
+        facet = Option(facetManager.getFacetByType(AndroidFacet.ID)).getOrElse(createFacet(module))
+      } {
+        configureFacet(facet, facetNode.getData)
       }
-
-      val facet = Option(FacetManager.getInstance(module))
-                    .safeMap { _.getFacetByType(AndroidFacet.ID) }
-                    .getOrElse(createFacet(module))
-      configureFacet(facet, facetNode.getData)
     }
   }
 

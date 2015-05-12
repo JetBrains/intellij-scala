@@ -94,7 +94,7 @@ abstract class SbtImportNotificationProvider(project: Project, notifications: Ed
 
   protected def getProjectSettings(file: VirtualFile): Option[SbtProjectSettings] =
     for {
-      externalProjectPath <- getExternalProject(file.getCanonicalPath)
+      externalProjectPath <- Option(file.getCanonicalPath).flatMap(getExternalProject)
       sbtSettings <- Option(SbtSystemSettings.getInstance(project))
       projectSettings <- Option(sbtSettings.getLinkedProjectSettings(externalProjectPath))
     } yield {
@@ -110,5 +110,5 @@ abstract class SbtImportNotificationProvider(project: Project, notifications: Ed
   }
 
   private def isSbtFile(file: VirtualFile): Boolean =
-    getExternalProject(file.getCanonicalPath).isDefined
+    Option(file.getCanonicalPath).flatMap(getExternalProject).isDefined
 }
