@@ -4,7 +4,7 @@ package editor.backspaceHandler
 import com.intellij.codeInsight.editorActions.BackspaceHandlerDelegate
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.xml.XmlTokenType
+import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -45,7 +45,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
 
         PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
       }
-    } else if (element.getNode.getElementType == XmlTokenType.XML_NAME && element.getParent != null && element.getParent.isInstanceOf[ScXmlStartTag]) {
+    } else if (element.getNode.getElementType == ScalaXmlTokenTypes.XML_NAME && element.getParent != null && element.getParent.isInstanceOf[ScXmlStartTag]) {
       val openingTag = element.getParent.asInstanceOf[ScXmlStartTag]
       val closingTag = openingTag.getClosingTag
 
@@ -58,8 +58,8 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       }
     } else if (element.getNode.getElementType == ScalaTokenTypes.tMULTILINE_STRING && offset - element.getTextOffset == 3) {
       correctMultilineString(element.getTextOffset + element.getTextLength - 3)
-    } else if (element.getNode.getElementType == XmlTokenType.XML_ATTRIBUTE_VALUE_START_DELIMITER && element.getNextSibling != null &&
-      element.getNextSibling.getNode.getElementType == XmlTokenType.XML_ATTRIBUTE_VALUE_END_DELIMITER) {
+    } else if (element.getNode.getElementType == ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_START_DELIMITER && element.getNextSibling != null &&
+      element.getNextSibling.getNode.getElementType == ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER) {
         extensions.inWriteAction {
           editor.getDocument.deleteString(element.getTextOffset + 1, element.getTextOffset + 2)
           PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)

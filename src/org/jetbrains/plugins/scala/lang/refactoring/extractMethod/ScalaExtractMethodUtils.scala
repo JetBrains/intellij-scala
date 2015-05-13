@@ -4,6 +4,7 @@ package lang.refactoring.extractMethod
 import java.util
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveState}
 import com.intellij.refactoring.util.VariableData
@@ -109,7 +110,7 @@ object ScalaExtractMethodUtils {
     if (!settings.lastReturn) {
       val returnVisitor = new ScalaRecursiveElementVisitor {
         override def visitReturnStatement(ret: ScReturnStmt) {
-          if (ret.returnFunction != Some(method)) return
+          if (!ret.returnFunction.contains(method)) return
           val retExprText = ret.expr.map(_.getText).mkString
           val newText = settings.returnType match {
             case Some(psi.types.Unit) => byOutputsSize(
@@ -157,7 +158,7 @@ object ScalaExtractMethodUtils {
                         case call: ScMethodCall => tail()
                         case _ =>
                           ref.asInstanceOf[ScExpression].expectedType() match {
-                            case Some(ScFunctionType(_, params)) if params.length == 0 => tail()
+                            case Some(ScFunctionType(_, params)) if params.isEmpty => tail()
                             case _ =>
                               //we need to replace by method call
                               val newRef = ScalaPsiElementFactory.createExpressionFromText(param.newName + "()", method.getManager)
@@ -210,7 +211,7 @@ object ScalaExtractMethodUtils {
     } else false
     val retType = definition.getType(TypingContext.empty).getOrNothing
     val tp = definition match {
-      case fun: ScFunction if fun.paramClauses.clauses.length == 0 =>
+      case fun: ScFunction if fun.paramClauses.clauses.isEmpty =>
         ScFunctionType(retType, Seq.empty)(definition.getProject, definition.getResolveScope)
       case _ => retType
     }
@@ -232,12 +233,12 @@ object ScalaExtractMethodUtils {
     }
     val returnStmtType = settings.returnType
     val outputs = settings.outputs
-    val lastMeaningful = settings.lastMeaningful
+    val lastExprType = settings.lastExprType
     if (settings.lastReturn) {
       return prepareResult(returnStmtType.get)
     }
-    if (outputs.length == 0 && returnStmtType == None && lastMeaningful != None) {
-      return prepareResult(lastMeaningful.get)
+    if (outputs.length == 0 && returnStmtType.isEmpty && lastExprType.isDefined) {
+      return prepareResult(lastExprType.get)
     }
     def byOutputsSize[T](ifZero: => T, ifOne: => T, ifMany: => T): T = {
       outputs.length match {
@@ -307,7 +308,7 @@ object ScalaExtractMethodUtils {
   }
 
   def typedName(name: String, typeText: String, project: Project, byName: Boolean = false): String = {
-    val colon = if (ScalaNamesUtil.isOpCharacter(name.last)) " : " else ": "
+    val colon = if (StringUtil.isEmpty(name) || ScalaNamesUtil.isOpCharacter(name.last)) " : " else ": "
     val arrow = ScalaPsiUtil.functionArrow(project) + " "
     val byNameArrow = if (byName) arrow else ""
     s"$name$colon$byNameArrow$typeText"
@@ -379,7 +380,7 @@ object ScalaExtractMethodUtils {
     def insertCallStmt(): PsiElement = {
       def insertExpression(text: String): PsiElement = {
         val expr = ScalaPsiElementFactory.createExpressionFromText(text, manager)
-        elements.apply(0).replace(expr)
+        elements.head.replace(expr)
       }
       if (settings.lastReturn) insertExpression(s"return $methodCallText")
       else if (settings.outputs.length == 0) {
@@ -425,7 +426,7 @@ object ScalaExtractMethodUtils {
         }
         val expr = ScalaPsiElementFactory.createExpressionFromText(exprText, manager)
         val declaration = ScalaPsiElementFactory.createDeclaration(pattern, "", isVariable = !isVal, expr, manager)
-        val result = elements(0).replace(declaration)
+        val result = elements.head.replace(declaration)
         ScalaPsiUtil.adjustTypes(result)
         result
       }

@@ -25,29 +25,29 @@ ScalaFile
         PsiWhiteSpace('\n  ')
         XmlExpression
           XmlEmptyTag
-            XmlToken:XML_START_TAG_START('<')
-            XmlToken:XML_NAME('name')
+            PsiElement(XML_START_TAG_START)('<')
+            PsiElement(XML_NAME)('name')
             PsiWhiteSpace(' ')
             XmlAttribute
-              XmlToken:XML_NAME('fi')
-              XmlToken:XML_EQ('=')
-              XmlToken:XML_ATTRIBUTE_VALUE_START_DELIMITER('"')
-              XmlToken:XML_ATTRIBUTE_VALUE_TOKEN('gg')
-              XmlToken:XML_ATTRIBUTE_VALUE_END_DELIMITER('"')
-            XmlToken:XML_EMPTY_ELEMENT_END('/>')
+              PsiElement(XML_NAME)('fi')
+              PsiElement(XML_EQ)('=')
+              PsiElement(XML_ATTRIBUTE_VALUE_START_DELIMITER)('"')
+              PsiElement(XML_ATTRIBUTE_VALUE_TOKEN)('gg')
+              PsiElement(XML_ATTRIBUTE_VALUE_END_DELIMITER)('"')
+            PsiElement(XML_EMPTY_ELEMENT_END)('/>')
           PsiWhiteSpace(' ')
           XmlEmptyTag
-            XmlToken:XML_START_TAG_START('<')
-            XmlToken:XML_NAME('name')
+            PsiElement(XML_START_TAG_START)('<')
+            PsiElement(XML_NAME)('name')
             PsiWhiteSpace(' ')
             XmlAttribute
-              XmlToken:XML_NAME('di')
-              XmlToken:XML_EQ('=')
+              PsiElement(XML_NAME)('di')
+              PsiElement(XML_EQ)('=')
               PsiElement(ScalaXmlInjectionStart)('{')
               BlockOfExpressions
                 ReferenceExpression: scala
                   PsiElement(identifier)('scala')
               PsiElement(ScalaXmlInjection End)('}')
-            XmlToken:XML_EMPTY_ELEMENT_END('/>')
+            PsiElement(XML_EMPTY_ELEMENT_END)('/>')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

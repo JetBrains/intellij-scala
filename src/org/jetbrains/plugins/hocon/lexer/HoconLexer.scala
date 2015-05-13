@@ -2,6 +2,7 @@ package org.jetbrains.plugins.hocon.lexer
 
 import com.intellij.lexer.LexerBase
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.hocon.HoconConstants
 
 import scala.annotation.tailrec
 import scala.util.matching.Regex
@@ -38,7 +39,7 @@ class HoconLexer extends LexerBase {
                             token: HoconTokenType,
                             condition: State => Boolean = _ => true,
                             transitionFun: State => State = identity)
-          extends TokenMatcher {
+    extends TokenMatcher {
 
     def matchToken(seq: CharSequence, state: State) =
       if (condition(state) && seq.startsWith(str))
@@ -50,7 +51,7 @@ class HoconLexer extends LexerBase {
                           token: HoconTokenType,
                           condition: State => Boolean = _ => true,
                           transitionFun: State => State = identity)
-          extends TokenMatcher {
+    extends TokenMatcher {
 
     def matchToken(seq: CharSequence, state: State) =
       if (condition(state))
@@ -96,7 +97,7 @@ class HoconLexer extends LexerBase {
     new RegexTokenMatcher( """#[^\n]*""".r, HashComment, always, identity),
     new RegexTokenMatcher( """//[^\n]*""".r, DoubleSlashComment, always, identity),
     UnquotedCharsMatcher,
-    new RegexTokenMatcher("\"{3}([^\"]+|\"{1,2}[^\"])*(\"{3,}|$)".r, MultilineString, always, onContents),
+    MultilineStringMatcher,
     QuotedStringMatcher,
     new RegexTokenMatcher(".".r, BadCharacter, always, identity)
   )
@@ -126,6 +127,17 @@ class HoconLexer extends LexerBase {
         } else offset
       Some(TokenMatch(QuotedString, drain(1, escaping = false), onContents(state)))
     } else None
+  }
+
+  object MultilineStringMatcher extends TokenMatcher {
+    def matchToken(seq: CharSequence, state: State) =
+      if (seq.startsWith("\"\"\"")) {
+        val strWithoutOpening = seq.subSequence(3, seq.length)
+        val length = HoconConstants.MultilineStringEnd.findFirstMatchIn(strWithoutOpening)
+          .map(m => m.end + 3).getOrElse(seq.length)
+
+        Some(TokenMatch(MultilineString, length, onContents(state)))
+      } else None
   }
 
   object UnquotedCharsMatcher extends TokenMatcher {

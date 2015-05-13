@@ -6,4 +6,6 @@ class IntroduceParameterUsagesTest extends IntroduceParameterTestBase {
   override def folderPath: String = super.folderPath + "usages/"
 
   def testSimpleUsage = doTest
+
+  def testFromStringLiteral = doTest
 }

@@ -4,7 +4,7 @@ package parser
 package parsing
 package xml
 
-import com.intellij.psi.xml.XmlTokenType
+import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher
 
@@ -25,12 +25,10 @@ object Content {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val contentMarker = builder.mark()
     builder.getTokenType match {
-      case XmlTokenType.XML_DATA_CHARACTERS => {
+      case ScalaXmlTokenTypes.XML_DATA_CHARACTERS =>
         builder.advanceLexer()
-      }
-      case XmlTokenType.XML_CHAR_ENTITY_REF => {
+      case ScalaXmlTokenTypes.XML_CHAR_ENTITY_REF =>
         builder.advanceLexer()
-      }
       case _ =>
     }
     
@@ -42,16 +40,13 @@ object Content {
               !Reference.parse(builder) &&
               !ScalaExpr.parse(builder) && !patcher.parse(builder)) isReturn = true
       builder.getTokenType match {
-        case XmlTokenType.XML_DATA_CHARACTERS => {
+        case ScalaXmlTokenTypes.XML_DATA_CHARACTERS =>
           builder.advanceLexer()
-        }
-        case XmlTokenType.XML_CHAR_ENTITY_REF => {
+        case ScalaXmlTokenTypes.XML_CHAR_ENTITY_REF =>
           builder.advanceLexer()
-        }
-        case XmlTokenType.XML_ENTITY_REF_TOKEN => builder.advanceLexer()
-        case _ => {
+        case ScalaXmlTokenTypes.XML_ENTITY_REF_TOKEN => builder.advanceLexer()
+        case _ =>
           if (isReturn) return
-        }
       }
       subparse()
     }

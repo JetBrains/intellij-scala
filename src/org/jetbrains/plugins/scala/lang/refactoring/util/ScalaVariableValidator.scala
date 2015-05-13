@@ -3,16 +3,18 @@ package org.jetbrains.plugins.scala.lang.refactoring.util
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.extensions.ResolvesTo
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -83,12 +85,12 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
     result
   }
 
-  def findConflicts(name: String, allOcc: Boolean): Array[(ScNamedElement, String)] = { //returns declaration and message
+  def findConflicts(name: String, allOcc: Boolean): Array[(PsiNamedElement, String)] = { //returns declaration and message
     val container = enclosingContainer(allOcc)
     if (container == null) return Array()
-    val buf = new ArrayBuffer[(ScNamedElement, String)]
+    val buf = new ArrayBuffer[(PsiNamedElement, String)]
     buf ++= validateDown(container, name, allOcc)
-    buf ++= validateUp(container, name)
+    buf ++= validateReference(selectedElement, name)
     var cl = container
     while (cl != null && !cl.isInstanceOf[ScTypeDefinition]) cl = cl.getParent
     if (cl != null) {
@@ -97,14 +99,14 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
           for (member <- x.members) {
             member match {
               case x: ScVariable => for (el <- x.declaredElements if el.name == name)
-                buf += ((el, messageForField(el.name)))
+                buf += ((el, messageForMember(el.name)))
               case x: ScValue => for (el <- x.declaredElements if el.name == name)
-                buf += ((el, messageForField(el.name)))
+                buf += ((el, messageForMember(el.name)))
               case _ =>
             }
           }
           for (function <- x.functions; if function.name == name) {
-            buf += ((x, messageForField(function.name)))
+            buf += ((x, messageForMember(function.name)))
           }
           x match {
             case scClass: ScClass =>
@@ -122,48 +124,28 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
     buf.toArray
   }
 
-  private def validateUp(element: PsiElement, name: String): Array[(ScNamedElement, String)] = {
-    val buf = new ArrayBuffer[(ScNamedElement, String)]
-    val parent = if (element.getPrevSibling != null) element.getPrevSibling else element.getParent
-    element match {
-      case x: ScVariableDefinition =>
-        val elems = x.declaredElements
-        for (elem <- elems) {
-          if (elem.name == name) {
-            buf += (if (x.isLocal) (elem, messageForLocal(elem.name)) else (elem, messageForField(elem.name)))
-          }
+  private def validateReference(context: PsiElement, name: String): Seq[(PsiNamedElement, String)] = {
+    ScalaPsiElementFactory.createExpressionFromText(name, context) match {
+      case ResolvesTo(elem @ ScalaPsiUtil.inNameContext(nameCtx)) =>
+        val message = nameCtx match {
+          case p: ScClassParameter => messageForClassParameter(name)
+          case p: ScParameter => messageForParameter(name)
+          case m: ScMember if m.isLocal =>
+            if (m.getTextOffset < context.getTextOffset) messageForLocal(name)
+            else ""
+          case _: ScCaseClause | _: ScGenerator | _: ScEnumerator => messageForLocal(name)
+          case m: PsiMember => messageForMember(name)
+          case _ => ""
         }
-      case x: ScPatternDefinition =>
-        val elems = x.declaredElements
-        for (elem <- elems) {
-          if (elem.name == name) {
-            buf += (if (x.isLocal) (elem, messageForLocal(elem.name)) else (elem, messageForField(elem.name)))
-          }
-        }
-      case x: ScParameters =>
-        for (parameter <- x.params)
-        if (parameter.name == name) {
-          buf += ((parameter, messageForParameter(parameter.name)))
-        }
-      case x: ScFunctionDefinition =>
-        if (x.name == name) {
-          buf += (if (x.isLocal) (x, messageForLocal(x.name)) else (x, messageForField(x.name)))
-        }
-      case _ =>
+        if (message != "") Seq((elem, message))
+        else Seq.empty
+      case _ => Seq.empty
     }
-    parent match {
-      case _: ScPackaging | null =>
-      case _ => parent.getParent match {
-        case _: ScPackaging =>
-        case _ => buf ++= validateUp(parent, name)
-      }
-    }
-    buf.toArray
   }
 
-  private def validateDown(element: PsiElement, name: String, allOcc: Boolean): Array[(ScNamedElement, String)] = {
+  private def validateDown(element: PsiElement, name: String, allOcc: Boolean): Seq[(PsiNamedElement, String)] = {
     val container = enclosingContainer(allOcc)
-    val buf = new ArrayBuffer[(ScNamedElement, String)]
+    val buf = new ArrayBuffer[(PsiNamedElement, String)]
     for (child <- element.getChildren) {
       child match {
         case x: ScClassParameter if x.name == name =>
@@ -171,9 +153,9 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
         case x: ScParameter if x.name == name =>
           buf += ((x, messageForParameter(x.name)))
         case x: ScFunctionDefinition if x.name == name =>
-          buf += (if (x.isLocal) (x, messageForLocal(x.name)) else (x, messageForField(x.name)))
+          buf += (if (x.isLocal) (x, messageForLocal(x.name)) else (x, messageForMember(x.name)))
         case x: ScBindingPattern if x.name == name =>
-          buf += (if (x.isClassMember) (x, messageForField(x.name)) else (x, messageForLocal(x.name)))
+          buf += (if (x.isClassMember) (x, messageForMember(x.name)) else (x, messageForLocal(x.name)))
         case _ =>
       }
     }
@@ -201,11 +183,11 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
           case x: ScVariableDefinition =>
             val elems = x.declaredElements
             for (elem <- elems; if elem.name == name)
-              buf += (if (x.isLocal) (elem, messageForLocal(elem.name)) else (elem, messageForField(elem.name)))
+              buf += (if (x.isLocal) (elem, messageForLocal(elem.name)) else (elem, messageForMember(elem.name)))
           case x: ScPatternDefinition =>
             val elems = x.declaredElements
             for (elem <- elems; if elem.name == name)
-              buf += (if (x.isLocal) (elem, messageForLocal(elem.name)) else (elem, messageForField(elem.name)))
+              buf += (if (x.isLocal) (elem, messageForLocal(elem.name)) else (elem, messageForMember(elem.name)))
           case _ =>
         }
         fromDoubles = fromDoubles.getPrevSibling
@@ -215,7 +197,7 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
         from = from.getNextSibling
       }
     }
-    buf.toArray
+    buf
   }
 
   def validateName(name: String, increaseNumber: Boolean): String = {
@@ -232,7 +214,7 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
     res
   }
 
-  private def messageForField(name: String) = ScalaBundle.message("introduced.variable.will.conflict.with.field", name)
+  private def messageForMember(name: String) = ScalaBundle.message("introduced.variable.will.conflict.with.field", name)
   private def messageForLocal(name: String) = ScalaBundle.message("introduced.variable.will.conflict.with.local", name)
   private def messageForParameter(name: String) = ScalaBundle.message("introduced.variable.will.conflict.with.parameter", name)
   private def messageForClassParameter(name: String) = ScalaBundle.message("introduced.variable.will.conflict.with.class.parameter", name)

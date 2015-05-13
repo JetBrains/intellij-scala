@@ -17,9 +17,9 @@ ScalaFile
         PsiWhiteSpace(' ')
         XmlPattern
           XmlStartTag
-            XmlToken:XML_START_TAG_START('<')
-            XmlToken:XML_NAME('xml')
-            XmlToken:XML_TAG_END('>')
+            PsiElement(XML_START_TAG_START)('<')
+            PsiElement(XML_NAME)('xml')
+            PsiElement(XML_TAG_END)('>')
           PsiElement(ScalaXmlInjectionStart)('{')
           ArgumentPatterns
             NamingPattern: patterns
@@ -33,9 +33,9 @@ ScalaFile
           PsiElement(ScalaXmlInjection End)('}')
           PsiWhiteSpace(' ')
           XmlEndTag
-            XmlToken:XML_END_TAG_START('</')
-            XmlToken:XML_NAME('xml')
-            XmlToken:XML_TAG_END('>')
+            PsiElement(XML_END_TAG_START)('</')
+            PsiElement(XML_NAME)('xml')
+            PsiElement(XML_TAG_END)('>')
         PsiWhiteSpace(' ')
         PsiElement(=>)('=>')
         BlockOfExpressions

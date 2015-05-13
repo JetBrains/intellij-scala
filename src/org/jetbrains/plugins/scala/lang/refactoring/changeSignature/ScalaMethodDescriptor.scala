@@ -28,10 +28,10 @@ class ScalaMethodDescriptor(val fun: ScMethodLike) extends MethodDescriptor[Scal
 
   override def canChangeVisibility: Boolean = !fun.isLocal
 
-  val parameters = fun.parameterList.params.map(new ScalaParameterInfo(_))
-  override def getParameters: util.List[ScalaParameterInfo] = parameters.asJava
+  val parameters = parametersInner
+  override def getParameters: util.List[ScalaParameterInfo] = parameters.flatten.asJava
 
-  override def getParametersCount: Int = parameters.size
+  override def getParametersCount: Int = parameters.flatten.size
 
   override def canChangeReturnType: ReadWriteOption =
     if (fun.isConstructor) ReadWriteOption.None else ReadWriteOption.ReadWrite
@@ -46,4 +46,6 @@ class ScalaMethodDescriptor(val fun: ScMethodLike) extends MethodDescriptor[Scal
     case f: ScFunction => f.returnType.getOrAny.presentableText
     case _ => ""
   }
+
+  protected def parametersInner: Seq[Seq[ScalaParameterInfo]] = ScalaParameterInfo.allForMethod(fun)
 }

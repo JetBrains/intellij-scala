@@ -19,6 +19,9 @@ object Equivalence {
     equivInner(l, r, new ScUndefinedSubstitutor)._2
 
   val guard = RecursionManager.createGuard("equivalence.guard")
+  val eval = new ThreadLocal[Boolean] {
+    override def initialValue(): Boolean = false
+  }
 
   val cache: ConcurrentWeakHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)] =
     new ConcurrentWeakHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
@@ -34,7 +37,15 @@ object Equivalence {
 
     val key = (l, r, falseUndef)
 
-    val tuple = cache.get(key)
+    val nowEval = eval.get()
+    val tuple = if (nowEval) null else {
+      try {
+        eval.set(true)
+        cache.get(key)
+      } finally {
+        eval.set(false)
+      }
+    }
     if (tuple != null) {
       if (subst.isEmpty) return tuple
       return tuple.copy(_2 = subst + tuple._2)
@@ -47,10 +58,10 @@ object Equivalence {
     val uSubst = new ScUndefinedSubstitutor()
 
     def comp(): (Boolean, ScUndefinedSubstitutor) = {
-      if (l.isInstanceOf[ScDesignatorType] && l.getValType != None) {
+      if (l.isInstanceOf[ScDesignatorType] && l.getValType.isDefined) {
         return equivInner(l.getValType.get, r, subst, falseUndef)
       }
-      if (r.isInstanceOf[ScDesignatorType] && r.getValType != None) {
+      if (r.isInstanceOf[ScDesignatorType] && r.getValType.isDefined) {
         return equivInner(l, r.getValType.get, subst, falseUndef)
       }
 
@@ -85,7 +96,14 @@ object Equivalence {
       def compute(): (Boolean, ScUndefinedSubstitutor) = comp()
     })
     if (res == null) return (false, new ScUndefinedSubstitutor())
-    cache.put(key, res)
+    if (!nowEval) {
+      try {
+        eval.set(true)
+        cache.put(key, res)
+      } finally {
+        eval.set(false)
+      }
+    }
     if (subst.isEmpty) return res
     res.copy(_2 = subst + res._2)
   }

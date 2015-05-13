@@ -16,16 +16,19 @@ import scala.collection.mutable.ListBuffer
  */
 class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
                                    typeCodeFragment: ScalaCodeFragment,
-                                   defaultValue: ScalaCodeFragment)
+                                   defaultValue: ScalaCodeFragment,
+                                   var startsNewClause: Boolean = false)
         extends ParameterTableModelItemBase[ScalaParameterInfo](parameter, typeCodeFragment, defaultValue) {
 
-  var typeText: String = typeCodeFragment.getText
+  var typeText: String = Option(parameter.scType).map(_.presentableText).getOrElse("")
 
   def keywordsAndAnnotations = parameter.keywordsAndAnnotations
 
   override def isEllipsisType: Boolean = parameter.isRepeatedParameter
 
   def updateType(problems: ListBuffer[String] = ListBuffer()): Unit = {
+    if (typeText == parameter.scType.presentableText) return
+
     var trimmed = typeText.trim
     if (trimmed.endsWith("*")) {
       parameter.isRepeatedParameter = true

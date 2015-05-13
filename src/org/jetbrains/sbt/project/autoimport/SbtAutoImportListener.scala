@@ -43,5 +43,5 @@ class SbtAutoImportListener(project: Project) extends VirtualFileAdapter {
   }
 
   private def isBuildFile(file: VirtualFile): Boolean =
-    Sbt.getProjectBaseByBuildFile(project, file.getCanonicalPath).isDefined
+    Option(file.getCanonicalPath).flatMap(Sbt.getProjectBaseByBuildFile(project, _)).isDefined
 }

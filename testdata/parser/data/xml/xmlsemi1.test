@@ -32,9 +32,9 @@ ScalaFile
           XmlExpression
             XmlElement
               XmlStartTag
-                XmlToken:XML_START_TAG_START('<')
-                XmlToken:XML_NAME('span')
-                XmlToken:XML_TAG_END('>')
+                PsiElement(XML_START_TAG_START)('<')
+                PsiElement(XML_NAME)('span')
+                PsiElement(XML_TAG_END)('>')
               PsiWhiteSpace(' ')
               PsiElement(ScalaXmlInjectionStart)('{')
               BlockOfExpressions
@@ -44,8 +44,8 @@ ScalaFile
               PsiElement(ScalaXmlInjection End)('}')
               PsiWhiteSpace(' ')
               XmlEndTag
-                XmlToken:XML_END_TAG_START('</')
-                XmlToken:XML_NAME('span')
-                XmlToken:XML_TAG_END('>')
+                PsiElement(XML_END_TAG_START)('</')
+                PsiElement(XML_NAME)('span')
+                PsiElement(XML_TAG_END)('>')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

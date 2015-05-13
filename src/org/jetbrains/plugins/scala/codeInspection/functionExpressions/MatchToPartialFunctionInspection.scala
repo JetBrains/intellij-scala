@@ -29,12 +29,12 @@ import scala.collection.JavaConverters._
 class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId){
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case fun @ ScFunctionExpr(Seq(param), Some(ms @ ScMatchStmt(ref: ScReferenceExpression, _)))
-      if ref.resolve() == param && !(param.typeElement.isDefined && notExpectedType(fun)) =>
+      if ref.resolve() == param && !(param.typeElement.isDefined && notExpectedType(fun)) && checkNoOverloading(fun) =>
       registerProblem(holder, ms, fun)
     case fun @ ScFunctionExpr(Seq(param), Some(ScBlock(ms @ ScMatchStmt(ref: ScReferenceExpression, _))))
-      if ref.resolve() == param && !(param.typeElement.isDefined && notExpectedType(fun)) =>
+      if ref.resolve() == param && !(param.typeElement.isDefined && notExpectedType(fun)) && checkNoOverloading(fun) =>
       registerProblem(holder, ms, fun) //if fun is last statement in block, result can be block without braces
-    case ms @ ScMatchStmt(und: ScUnderscoreSection, _) =>
+    case ms @ ScMatchStmt(und: ScUnderscoreSection, _) if checkNoOverloading(ms) =>
       registerProblem(holder, ms, ms)
   }
 
@@ -58,6 +58,28 @@ class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId){
       val rangeInParent = new TextRange(0, endOffsetInParent)
       val fix = new MatchToPartialFunctionQuickFix(ms, fExprToReplace)
       holder.registerProblem(fExprToReplace, inspectionName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, rangeInParent, fix)
+    }
+  }
+
+  private def checkNoOverloading(argExpr: ScExpression): Boolean = {
+    val call = PsiTreeUtil.getParentOfType(argExpr, classOf[MethodInvocation])
+    val arg = argExpr match {
+      case _ childOf (x childOf (_: ScArgumentExprList)) => x
+      case _ childOf (x childOf (_: ScInfixExpr)) => x
+      case _ => argExpr
+    }
+    if (call == null || !call.argumentExpressions.contains(arg)) return true
+
+    val ref = call match {
+      case ScInfixExpr(qual, r, _) =>
+        ScalaPsiElementFactory.createExpressionWithContextFromText(s"${qual.getText}.${r.refName}", call.getContext, call)
+      case ScMethodCall(r: ScReferenceExpression, _) =>
+        ScalaPsiElementFactory.createExpressionWithContextFromText(r.getText, call.getContext, call)
+      case _ => return true
+    }
+    ref match {
+      case r: ScReferenceExpression => r.multiResolve(false).length <= 1
+      case _ => true
     }
   }
 }

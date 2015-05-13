@@ -70,6 +70,22 @@ object StdType {
     "scala.Singleton" -> Singleton
   )
 
+  val ANY = Any
+  val ANYREF = AnyRef
+  val ANYVAL = AnyVal
+  val UNIT = Unit
+  val BOOLEAN = Boolean
+  val BYTE = Byte
+  val SHORT = Short
+  val CHAR = Char
+  val INT = Int
+  val LONG = Long
+  val DOUBLE = Double
+  val FLOAT = Float
+  val NULL = Null
+  val NOTHING = Nothing
+  val SINGLETON = Singleton
+
   import com.intellij.psi.CommonClassNames._
   val fqnBoxedToScType = Map(
     JAVA_LANG_BOOLEAN -> Boolean,

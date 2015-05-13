@@ -17,6 +17,8 @@ package org.jetbrains.plugins.scala;
 
 import com.intellij.lang.Language;
 import com.intellij.openapi.fileTypes.LanguageFileType;
+import com.intellij.openapi.fileTypes.ex.FileTypeIdentifiableByVirtualFile;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.icons.Icons;
@@ -26,7 +28,7 @@ import javax.swing.*;
 /**
  * @author ilyas
  */
-public class ScalaFileType extends LanguageFileType {
+public class ScalaFileType extends LanguageFileType implements FileTypeIdentifiableByVirtualFile {
 
   public static final ScalaFileType SCALA_FILE_TYPE = new ScalaFileType();
   public static final Language SCALA_LANGUAGE = ScalaLanguage.Instance;
@@ -56,5 +58,13 @@ public class ScalaFileType extends LanguageFileType {
 
   public Icon getIcon() {
      return Icons.FILE_TYPE_LOGO;
+  }
+
+  // TODO Temporary fix for Upsource
+  // (FileTypeManagerImpl.isFileOfType is called from ScalaSourceFilterScope,
+  // while FileTypeManager contains no .scala pattern)
+  @Override
+  public boolean isMyFileType(@NotNull VirtualFile virtualFile) {
+    return virtualFile.getName().endsWith(".scala");
   }
 }

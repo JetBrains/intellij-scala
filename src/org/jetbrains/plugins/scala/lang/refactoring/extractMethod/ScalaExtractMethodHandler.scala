@@ -9,22 +9,18 @@ import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
-import com.intellij.psi.search.LocalSearchScope
-import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.refactoring.util.CommonRefactoringUtil
-import com.intellij.refactoring.{HelpID, RefactoringActionHandler}
+import com.intellij.refactoring.RefactoringActionHandler
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -33,7 +29,6 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
-import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -59,43 +54,26 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
   private def invokeOnEditor(project: Project, editor: Editor, file: ScalaFile, dataContext: DataContext) {
     if (!ScalaRefactoringUtil.ensureFileWritable(project, file)) {
       showErrorMessage(ScalaBundle.message("file.is.not.writable"), project, editor)
-      return
     }
     if (!editor.getSelectionModel.hasSelection) return
     val elements: Seq[PsiElement] = ScalaRefactoringUtil.selectedElements(editor, file, trimComments = false)
 
-    if (showNotPossibleWarnings(elements, project, editor)) return
+    ScalaRefactoringUtil.showNotPossibleWarnings(elements, project, editor, REFACTORING_NAME)
 
     def checkLastReturn(elem: PsiElement): Boolean = {
       elem match {
         case ret: ScReturnStmt => true
         case m: ScMatchStmt =>
           m.getBranches.forall(checkLastReturn(_))
-        case f: ScIfStmt if f.elseBranch != None && f.thenBranch != None =>
+        case f: ScIfStmt if f.elseBranch.isDefined && f.thenBranch.isDefined =>
           checkLastReturn(f.thenBranch.get) && checkLastReturn(f.elseBranch.get)
-        case block: ScBlock if block.lastExpr != None => checkLastReturn(block.lastExpr.get)
+        case block: ScBlock if block.lastExpr.isDefined => checkLastReturn(block.lastExpr.get)
         case _ => false
-      }
-    }
-    @tailrec
-    def checkLastExpressionMeaningful(elem: PsiElement): Boolean = {
-      if (!elem.isInstanceOf[ScExpression]) return false
-      val expr = elem.asInstanceOf[ScExpression]
-      expr.getParent match {
-        case t: ScTryBlock if t.lastExpr == Some(expr) => checkLastExpressionMeaningful(t.getParent)
-        case bl: ScBlock if bl.lastExpr == Some(expr) => checkLastExpressionMeaningful(bl)
-        case bl: ScBlock => false
-        case clause: ScCaseClause => checkLastExpressionMeaningful(clause.getParent.getParent)
-        case d: ScDoStmt if d.getExprBody == Some(expr) => false
-        case w: ScWhileStmt if w.body == Some(expr) => false
-        case i: ScIfStmt if i.elseBranch == None && i.thenBranch == Some(expr) => false
-        case fun: ScFunction if !fun.hasAssign => false
-        case _ => true
       }
     }
 
     def returnType: Option[ScType] = {
-      val fun = PsiTreeUtil.getParentOfType(elements(0), classOf[ScFunctionDefinition])
+      val fun = PsiTreeUtil.getParentOfType(elements.head, classOf[ScFunctionDefinition])
       if (fun == null) return None
       var result: Option[ScType] = None
       val visitor = new ScalaRecursiveElementVisitor {
@@ -106,40 +84,34 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
           }
         }
       }
-      for (element <- elements if result == None) {
+      for (element <- elements if result.isEmpty) {
         element.accept(visitor)
       }
       result
     }
 
-    val lastScalaElem = elements.reverse.find(_.isInstanceOf[ScalaPsiElement]).get
-    val lastReturn = checkLastReturn(lastScalaElem)
-    val isLastExpressionMeaningful: Option[ScType] = {
-      if (lastReturn) None
-      else if (checkLastExpressionMeaningful(lastScalaElem))
-        Some(lastScalaElem.asInstanceOf[ScExpression].getType(TypingContext.empty).getOrAny)
-      else None
-    }
+    val (lastReturn, lastExprType) = elements.reverse.collectFirst {
+      case expr: ScExpression => (checkLastReturn(expr), Some(expr.getType(TypingContext.empty).getOrAny))
+    }.getOrElse((false, None))
+
     val hasReturn: Option[ScType] = returnType
     val stopAtScope: PsiElement = findScopeBound(elements).getOrElse(file)
-    val siblings: Array[PsiElement] = getSiblings(elements(0), stopAtScope)
+    val siblings: Array[PsiElement] = getSiblings(elements.head, stopAtScope)
     if (siblings.length == 0) {
       showErrorMessage(ScalaBundle.message("extract.method.cannot.find.possible.scope"), project, editor)
-      return
     }
     val array = elements.toArray
     if (ApplicationManager.getApplication.isUnitTestMode && siblings.length > 0) {
       invokeDialog(project, editor, array, hasReturn, lastReturn, siblings(0), siblings.length == 1,
-        isLastExpressionMeaningful)
+        lastExprType)
     } else if (siblings.length > 1) {
-      ScalaRefactoringUtil.showChooser(editor, siblings, {selectedValue =>
+      ScalaRefactoringUtil.showChooser(editor, siblings, {(selectedValue: PsiElement) =>
         invokeDialog(project, editor, array, hasReturn, lastReturn, selectedValue,
-          siblings(siblings.length - 1) == selectedValue, isLastExpressionMeaningful)
-      }, "Choose level for Extract Method", getTextForElement, true)
-      return
+          siblings(siblings.length - 1) == selectedValue, lastExprType)
+      }, "Choose level for Extract Method", getTextForElement, (e: PsiElement) => e.getParent)
     }
     else if (siblings.length == 1) {
-      invokeDialog(project, editor, array, hasReturn, lastReturn, siblings(0), smallestScope = true, isLastExpressionMeaningful)
+      invokeDialog(project, editor, array, hasReturn, lastReturn, siblings(0), smallestScope = true, lastExprType)
     }
   }
 
@@ -227,7 +199,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
   private def invokeDialog(project: Project, editor: Editor, elements: Array[PsiElement], hasReturn: Option[ScType],
                            lastReturn: Boolean, sibling: PsiElement, smallestScope: Boolean,
-                           lastMeaningful: Option[ScType]) {
+                           lastExprType: Option[ScType]) {
 
     val info = ReachingDefintionsCollector.collectVariableInfo(elements, sibling.asInstanceOf[ScalaPsiElement])
 
@@ -235,12 +207,11 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     val output = info.outputVariables
     if (output.exists(_.element.isInstanceOf[ScFunctionDefinition])) {
       showErrorMessage(ScalaBundle.message("cannot.extract.used.function.definition"), project, editor)
-      return
     }
     val settings: ScalaExtractMethodSettings =
       if (!ApplicationManager.getApplication.isUnitTestMode) {
         val dialog = new ScalaExtractMethodDialog(project, elements, hasReturn, lastReturn, sibling,
-          input.toArray, output.toArray, lastMeaningful)
+          input.toArray, output.toArray, lastExprType)
         dialog.show()
         if (!dialog.isOK) return
         dialog.getSettings
@@ -256,12 +227,12 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
         new ScalaExtractMethodSettings("testMethodName", ScalaExtractMethodUtils.getParameters(input.toArray, elements),
           ScalaExtractMethodUtils.getReturns(output.toArray, elements), "", sibling,
-          elements, hasReturn, lastReturn, lastMeaningful, innerClassSettings)
+          elements, hasReturn, lastReturn, lastExprType, innerClassSettings)
       }
     val duplicates = DuplicatesUtil.findDuplicates(settings)
     performRefactoring(settings, editor)
     if (settings.returnType.isEmpty && settings.typeParameters.isEmpty) {
-      if (duplicates.size > 0) DuplicatesUtil.processDuplicates(duplicates, settings, project, editor)
+      if (duplicates.nonEmpty) DuplicatesUtil.processDuplicates(duplicates, settings, project, editor)
     }
   }
 
@@ -280,16 +251,16 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       case b: ScBlock  =>
         b.getParent match {
           case f: ScFunctionDefinition => local(s"def ${f.name}")
-          case p: ScPatternDefinition if p.bindings.nonEmpty => local(s"val ${p.bindings(0).name}")
-          case v: ScVariableDefinition if v.bindings.nonEmpty => local(s"var ${v.bindings(0).name}")
+          case p: ScPatternDefinition if p.bindings.nonEmpty => local(s"val ${p.bindings.head.name}")
+          case v: ScVariableDefinition if v.bindings.nonEmpty => local(s"var ${v.bindings.head.name}")
           case _: ScCaseClause => local("case clause")
           case ifStmt: ScIfStmt =>
-            if (ifStmt.thenBranch.exists(_ == b)) local("if block")
+            if (ifStmt.thenBranch.contains(b)) local("if block")
             else "Extract local method in else block"
-          case forStmt: ScForStatement if forStmt.body.exists(_ == b) => local("for statement")
-          case whileStmt: ScWhileStmt if whileStmt.body.exists(_ == b) => local("while statement")
-          case doSttm: ScDoStmt if doSttm.getExprBody.exists(_ == b) => local("do statement")
-          case funExpr: ScFunctionExpr if funExpr.result.exists(_ == b) => local("function expression")
+          case forStmt: ScForStatement if forStmt.body.contains(b) => local("for statement")
+          case whileStmt: ScWhileStmt if whileStmt.body.contains(b) => local("while statement")
+          case doSttm: ScDoStmt if doSttm.getExprBody.contains(b) => local("do statement")
+          case funExpr: ScFunctionExpr if funExpr.result.contains(b) => local("function expression")
           case _ => local("code block")
         }
       case _: ScalaFile => "Extract file method"
@@ -353,61 +324,6 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     }
   }
 
-  private def showNotPossibleWarnings(elements: Seq[PsiElement], project: Project, editor: Editor): Boolean = {
-    def errors(elem: PsiElement): Option[String] = elem match {
-      case _: ScBlockStatement => None
-      case comm: PsiComment if !comm.getParent.isInstanceOf[ScMember] => None
-      case _: PsiWhiteSpace => None
-      case _ if ScalaTokenTypes.tSEMICOLON == elem.getNode.getElementType => None
-      case typedef: ScTypeDefinition => checkTypeDefUsages(typedef)
-      case _: ScSelfInvocation => ScalaBundle.message("cannot.extract.self.invocation").toOption
-      case _ => ScalaBundle.message("cannot.extract.empty.message").toOption
-    }
-
-    def checkTypeDefUsages(typedef: ScTypeDefinition): Option[String] = {
-      val scope = new LocalSearchScope(PsiTreeUtil.getParentOfType(typedef, classOf[ScControlFlowOwner], true))
-      val refs = ReferencesSearch.search(typedef, scope).findAll()
-      import scala.collection.JavaConverters.collectionAsScalaIterableConverter
-      for {
-        ref <- refs.asScala
-        if !elements.exists(PsiTreeUtil.isAncestor(_, ref.getElement, false))
-      } {
-        return ScalaBundle.message("cannot.extract.used.type.definition").toOption
-      }
-      None
-    }
-
-    val messages = elements.flatMap(errors)
-    if (messages.nonEmpty) {
-      showErrorMessage(messages.mkString("\n"), project, editor)
-      return true
-    }
-
-    if (elements.length == 0 || !elements.exists(_.isInstanceOf[ScBlockStatement])) {
-      showErrorMessage(ScalaBundle.message("cannot.extract.empty.message"), project, editor)
-      return true
-    }
-
-    var typeDefMessage: Option[String] = None
-    for (element <- elements) {
-      val visitor = new ScalaRecursiveElementVisitor {
-        override def visitTypeDefinition(typedef: ScTypeDefinition) {
-          typeDefMessage = checkTypeDefUsages(typedef)
-        }
-      }
-      element.accept(visitor)
-      typeDefMessage match {
-        case Some(m) =>
-          showErrorMessage(m, project, editor)
-          return true
-        case None =>
-      }
-    }
-    false
-  }
-
-  private def showErrorMessage(text: String, project: Project, editor: Editor) {
-    if (ApplicationManager.getApplication.isUnitTestMode) throw new RuntimeException(text)
-    CommonRefactoringUtil.showErrorHint(project, editor, text, REFACTORING_NAME, HelpID.EXTRACT_METHOD)
-  }
+  private def showErrorMessage(text: String, project: Project, editor: Editor) =
+    ScalaRefactoringUtil.showErrorMessage(text, project, editor, REFACTORING_NAME)
 }

@@ -18,89 +18,28 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
  */
 
 object JavaConversionUtil {
+
+  val keywordAnnotations = Map(
+    "scala.native" -> "native",
+    "scala.annotation.strictfp" -> "strictfp",
+    "scala.volatile" -> "volatile",
+    "scala.transient" -> "transient")
+
   def typeText(tp: ScType, project: Project, scope: GlobalSearchScope): String = {
     val psiType = ScType.toPsi(tp, project, scope)
     psiType.getCanonicalText
   }
 
-  def modifiers(s: ScModifierListOwner, isStatic: Boolean): String = {
+  def annotationsAndModifiers(s: ScModifierListOwner, isStatic: Boolean): String = {
     val builder = new StringBuilder
 
     s match {
       case holder: ScAnnotationsHolder =>
-        val keywordAnnotations = Map("scala.native" -> "native", "scala.annotation.strictfp" -> "strictfp",
-          "scala.volatile" -> "volatile", "scala.transient" -> "transient")
-        for (annotation <- holder.annotations if !keywordAnnotations.values.toSet.contains(annotation.getQualifiedName) &&
-             annotation.getQualifiedName != "scala.throws") {
-          builder.append("@").append(annotation.getQualifiedName)
-          annotation.constructor.args match {
-            case Some(args) =>
-              def convertArgs(args: Seq[ScExpression]): String = {
-                def convertExpression(e: ScExpression): String = {
-                  def problem = "CannotConvertExpression"
-                  e match {
-                    case a: ScAssignStmt =>
-                      val res = a.getLExpression.getText + " = "
-                      a.getRExpression match {
-                        case Some(expr) => res + convertExpression(expr)
-                        case _ => res
-                      }
-                    case l: ScLiteral if !l.isMultiLineString => l.getText
-                    case l: ScLiteral => "\"" + StringUtil.escapeStringCharacters(l.getValue.toString) + "\""
-                    case call: ScMethodCall =>
-                      if (call.getInvokedExpr.getText.endsWith("Array")) {
-                        call.args.exprs.map(convertExpression).mkString("{", ", ", "}")
-                      } else problem
-                    case call: ScGenericCall =>
-                      if (call.referencedExpr.getText.endsWith("classOf")) {
-                        val arguments = call.arguments
-                        if (arguments.length == 1) {
-                          val typeResult = arguments.apply(0).getType(TypingContext.empty)
-                          typeResult match {
-                            case Success(tp, _) =>
-                              ScType.extractClass(tp, Some(s.getProject)) match {
-                                case Some(clazz) => clazz.getQualifiedName + ".class"
-                                case _ => problem
-                              }
-                            case _ => problem
-                          }
-                        } else problem
-                      } else problem
-                    case n: ScNewTemplateDefinition =>
-                      n.extendsBlock.templateParents match {
-                        case Some(c: ScClassParents) =>
-                          c.constructor match {
-                            case Some(constr) =>
-                              constr.reference match {
-                                case Some(ref) =>
-                                  ref.resolve() match {
-                                    case c: PsiClass =>
-                                      var res = "@" + c.getQualifiedName
-                                      constr.args match {
-                                        case Some(constrArgs) => res += convertArgs(constrArgs.exprs)
-                                        case _ =>
-                                      }
-                                      res
-                                    case _ => problem
-                                  }
-                                case _ => problem
-                              }
-                            case _ => problem
-                          }
-                        case _ => problem
-                      }
-                    case _ => problem
-                  }
-                }
-                args.map(convertExpression).mkString("(", ", ", ")")
-              }
-              builder.append(convertArgs(args.exprs))
-            case _ =>
-          }
-          builder.append("\n")
-        }
-        for (annotation <- keywordAnnotations) {
-          if (holder.hasAnnotation(annotation._1) != None) builder.append(annotation._2).append(" ")
+        val annotationsText = annotations(holder).mkString("\n")
+        if (!annotationsText.isEmpty)
+          builder.append(annotationsText).append(" ")
+        for ((fqn, keyword) <- keywordAnnotations) {
+          if (holder.hasAnnotation(fqn).isDefined) builder.append(keyword).append(" ")
         }
       case _ =>
     }
@@ -119,5 +58,83 @@ object JavaConversionUtil {
     }
 
     builder.toString()
+  }
+  
+  def annotations(holder: ScAnnotationsHolder): Seq[String] = {
+    val convertibleAnnotations = holder.annotations.filterNot { a =>
+      a.getQualifiedName match {
+        case s if keywordAnnotations.keySet.contains(s) => true
+        case s if Set("scala.throws", "scala.inline", "scala.unchecked").contains(s) => true
+        case s if s.endsWith("BeanProperty") => true
+        case _ => false
+      }
+    }
+    convertibleAnnotations.map { a =>
+      val fqn = a.getQualifiedName
+      val args = convertArgs(a.constructor.args.toSeq.flatMap(_.exprs))
+      s"@$fqn$args"
+    }
+  }
+
+  def convertExpression(e: ScExpression): String = {
+    def problem = "CannotConvertExpression"
+    e match {
+      case a: ScAssignStmt =>
+        val res = a.getLExpression.getText + " = "
+        a.getRExpression match {
+          case Some(expr) => res + convertExpression(expr)
+          case _ => res
+        }
+      case l: ScLiteral if !l.isMultiLineString => l.getText
+      case l: ScLiteral => "\"" + StringUtil.escapeStringCharacters(l.getValue.toString) + "\""
+      case call: ScMethodCall =>
+        if (call.getInvokedExpr.getText.endsWith("Array")) {
+          call.args.exprs.map(convertExpression).mkString("{", ", ", "}")
+        } else problem
+      case call: ScGenericCall =>
+        if (call.referencedExpr.getText.endsWith("classOf")) {
+          val arguments = call.arguments
+          if (arguments.length == 1) {
+            val typeResult = arguments.apply(0).getType(TypingContext.empty)
+            typeResult match {
+              case Success(tp, _) =>
+                ScType.extractClass(tp, Some(e.getProject)) match {
+                  case Some(clazz) => clazz.getQualifiedName + ".class"
+                  case _ => problem
+                }
+              case _ => problem
+            }
+          } else problem
+        } else problem
+      case n: ScNewTemplateDefinition =>
+        n.extendsBlock.templateParents match {
+          case Some(c: ScClassParents) =>
+            c.constructor match {
+              case Some(constr) =>
+                constr.reference match {
+                  case Some(ref) =>
+                    ref.resolve() match {
+                      case c: PsiClass =>
+                        var res = "@" + c.getQualifiedName
+                        constr.args match {
+                          case Some(constrArgs) => res += convertArgs(constrArgs.exprs)
+                          case _ =>
+                        }
+                        res
+                      case _ => problem
+                    }
+                  case _ => problem
+                }
+              case _ => problem
+            }
+          case _ => problem
+        }
+      case _ => problem
+    }
+  }
+
+  def convertArgs(args: Seq[ScExpression]): String = {
+    if (args.isEmpty) ""
+    else args.map(convertExpression).mkString("(", ", ", ")")
   }
 }

@@ -1,0 +1,18 @@
+object Test {
+
+  val x1 = foo(1)
+
+  def foo(x: Int) = x + 1
+
+  val x2 = foo(2) + <all>foo(1)<end>
+}
+------
+object Test {
+
+  private val value: Int = foo(1)
+  val x1 = value
+
+  def foo(x: Int) = x + 1
+
+  val x2 = foo(2) + value
+}

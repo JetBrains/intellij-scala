@@ -219,7 +219,7 @@ package object project {
     def scalaLanguageLevel: Option[ScalaLanguageLevel] = module.flatMap(_.scalaSdk.map(_.languageLevel))
   }
 
-  val LibraryVersion: Regex = """(?<=:|-)\d+\.\d+\.\d+""".r
+  val LibraryVersion: Regex = """(?<=:|-)\d+\.\d+\.\d+[^:\s]*""".r
 
   val JarVersion: Regex = """(?<=-)\d+\.\d+\.\d+\S*(?=\.jar$)""".r
 }

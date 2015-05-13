@@ -1,0 +1,14 @@
+val list = List(1, 2)
+for {
+  i <- list
+  j <- list
+  if i * j % 3 == 0
+} yield <all>i * j<end>
+------
+val list = List(1, 2)
+for {
+  i <- list
+  j <- list
+  value: Int = i * j
+  if value % 3 == 0
+} yield value
