@@ -39,9 +39,9 @@ ScalaFile
           PsiWhiteSpace(' ')
           XmlExpression
             XmlEmptyTag
-              XmlToken:XML_START_TAG_START('<')
-              XmlToken:XML_NAME('a')
-              XmlToken:XML_EMPTY_ELEMENT_END('/>')
+              PsiElement(XML_START_TAG_START)('<')
+              PsiElement(XML_NAME)('a')
+              PsiElement(XML_EMPTY_ELEMENT_END)('/>')
         PsiWhiteSpace('\n  ')
         ScFunctionDeclaration: foo
           AnnotationsList

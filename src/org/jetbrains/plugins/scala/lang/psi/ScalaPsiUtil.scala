@@ -1118,6 +1118,7 @@ object ScalaPsiUtil {
   }
 
   def getElementsRange(start: PsiElement, end: PsiElement): Seq[PsiElement] = {
+    if (start == null || end == null) return Nil
     val file = start.getContainingFile
     if (file == null || file != end.getContainingFile) return Nil
 
@@ -1900,14 +1901,17 @@ object ScalaPsiUtil {
   def parameterOf(exp: ScExpression): Option[Parameter] = {
     def forArgumentList(expr: ScExpression, args: ScArgumentExprList): Option[Parameter] = {
       args.getParent match {
-        case constructor: ScConstructor => // TODO secondary parameter lists
-          val params = constructor.reference.flatMap(r => Option(r.resolve())) match {
-            case Some(pc: ScPrimaryConstructor) => pc.parameters
-            case Some(fun: ScFunction) if fun.isConstructor => fun.parameters
-            case Some(m: PsiMethod) if m.isConstructor => m.getParameterList.getParameters.toSeq
+        case constructor: ScConstructor =>
+          val paramClauses = constructor.reference.flatMap(r => Option(r.resolve())) match {
+            case Some(pc: ScPrimaryConstructor) => pc.parameterList.clauses.map(_.parameters)
+            case Some(fun: ScFunction) if fun.isConstructor => fun.parameterList.clauses.map(_.parameters)
+            case Some(m: PsiMethod) if m.isConstructor => Seq(m.getParameterList.getParameters.toSeq)
             case _ => Seq.empty
           }
-          val maybeParameter = params.lift(args.exprs.indexOf(expr))
+          val clauseIndex = constructor.arguments.indexOf(args)
+          val paramClause = paramClauses(clauseIndex)
+          val paramIndex = Math.min(args.exprs.indexOf(expr), paramClause.size - 1) //to handle varargs
+          val maybeParameter = paramClause.lift(paramIndex)
           maybeParameter.map(new Parameter(_))
         case _ =>
           val matchedParams = args.matchedParameters.getOrElse(Seq.empty)

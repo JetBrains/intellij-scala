@@ -4,9 +4,13 @@ import javax.swing.SwingUtilities
 
 import com.intellij.execution.{PsiLocation, RunnerAndConfigurationSettings, Location}
 import com.intellij.execution.testframework.AbstractTestProxy
+import com.intellij.ide.util.treeView.AbstractTreeNode
+import com.intellij.ide.util.treeView.smartTree.{TreeElementWrapper, TreeElement}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiDocumentManager}
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement
+import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl.TestItemRepresentation
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
 
 import scala.annotation.tailrec
@@ -28,6 +32,28 @@ trait IntegrationTest {
   protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings
 
   protected def createLocation(lineNumber: Int, offset: Int, fileName: String): PsiLocation[PsiElement]
+
+  protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*)
+  
+  protected def runFileStructureViewTest(testClassName: String, testName: String, parentTestName: Option[String] = None, testStatus: Int = TestStructureViewElement.normalStatusId)
+
+  protected def checkTestNodeInFileStructure(root: TreeElementWrapper, nodeName: String, parentName: Option[String], status: Int): Boolean = {
+    import scala.collection.JavaConversions._
+
+    def helper(root: AbstractTreeNode[_], currentParentName: String): Boolean = {
+//      println("helper: " + root.getValue.asInstanceOf[TreeElement].getPresentation.getPresentableText + "<->" + nodeName + " parent: " + currentParentName + "<->" + parentName)
+      root.getValue.isInstanceOf[TestStructureViewElement] && {
+        val presentation = root.getValue.asInstanceOf[TreeElement].getPresentation
+        presentation.isInstanceOf[TestItemRepresentation] && presentation.getPresentableText == nodeName &&
+            presentation.asInstanceOf[TestItemRepresentation].testStatus == status &&
+            parentName.map(currentParentName == _).getOrElse(true)} ||
+          root.getChildren.toList.exists(helper(_, root.getValue.asInstanceOf[TreeElement].getPresentation.getPresentableText))
+    }
+
+    helper(root, "")
+  }
+
+  protected def buildFileStructure(fileName: String): TreeElementWrapper
 
   def getProject: Project
 
@@ -151,6 +177,4 @@ trait IntegrationTest {
     val startLineNumber = document.getLineNumber(textRange.getStartOffset)
     assert(startLineNumber == sourceLine)
   }
-
-
 }

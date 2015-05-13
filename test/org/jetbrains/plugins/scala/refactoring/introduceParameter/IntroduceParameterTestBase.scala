@@ -2,22 +2,22 @@ package org.jetbrains.plugins.scala.refactoring.introduceParameter
 
 import java.io.File
 
-import com.intellij.ide.util.SuperMethodWarningUtil
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
-import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
+import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiDocumentManager, PsiMethod}
-import com.intellij.refactoring.RefactoringBundle
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterProcessor
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.types.StdType
+import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
+import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureProcessor, ScalaMethodDescriptor, ScalaParameterInfo}
+import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
@@ -32,6 +32,7 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
   private val allMarker = "//all = "
   private val nameMarker = "//name = "
   private val defaultMarker = "//default = "
+  private val constructorMarker = "//constructor = "
 
   protected def doTest() {
     import _root_.junit.framework.Assert._
@@ -56,33 +57,18 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
 
     //getting settings
-    val allOffset = fileText.indexOf(allMarker)
-    val replaceAllOccurrences = if (allOffset == -1) true else {
-      val comment = scalaFile.findElementAt(allOffset)
-      val commentText = comment.getText
-      val text = commentText.substring(allMarker.length)
-      text match {
-        case "true" => true
-        case "false" => false
+    def getSetting(marker: String, default: String): String = {
+      val offset = fileText.indexOf(marker)
+      if (offset == -1) default
+      else {
+        val comment = scalaFile.findElementAt(offset)
+        comment.getText.substring(marker.length)
       }
     }
-
-    val nameOffset = fileText.indexOf(nameMarker)
-    val paramName = if (nameOffset == -1) "param" else {
-      val comment = scalaFile.findElementAt(nameOffset)
-      val commentText = comment.getText
-      commentText.substring(nameMarker.length)
-    }
-
-    val defaultOffset = fileText.indexOf(defaultMarker)
-    val isDefaultParam = if (defaultOffset == -1) false else {
-      val comment = scalaFile.findElementAt(defaultOffset)
-      val commentText = comment.getText
-      commentText.substring(defaultMarker.length) match {
-        case "true" => true
-        case "false" => false
-      }
-    }
+    val replaceAllOccurrences = getSetting(allMarker, "true").toBoolean
+    val paramName = getSetting(nameMarker, "param")
+    val isDefaultParam = getSetting(defaultMarker, "false").toBoolean
+    val toPrimaryConstructor = getSetting(constructorMarker, "false").toBoolean
 
     //start to inline
     try {
@@ -92,17 +78,30 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
           ScalaRefactoringUtil.afterExpressionChoosing(project, editor, scalaFile, null, "Introduce Variable") {
             ScalaRefactoringUtil.trimSpacesAndComments(editor, scalaFile)
             PsiDocumentManager.getInstance(project).commitAllDocuments()
-            val (expr: ScExpression, types: Array[ScType]) =
-              ScalaRefactoringUtil.getExpression(project, editor, scalaFile, startOffset, endOffset).get
+            val handler = new ScalaIntroduceParameterHandler()
+            val (exprWithTypes, elems) = handler.selectedElements(scalaFile, project, editor) match {
+              case Some((x, y)) => (x, y)
+              case None => return
+            }
 
-            val function = PsiTreeUtil.getContextOfType(expr, true, classOf[ScFunctionDefinition])
-            val methodToSearchFor: PsiMethod = SuperMethodWarningUtil.checkSuperMethod(function, RefactoringBundle.message("to.refactor"))
+            val (methodLike: ScMethodLike, returnType) =
+              if (toPrimaryConstructor)
+                (PsiTreeUtil.getContextOfType(elems.head, true, classOf[ScClass]).constructor.get, StdType.ANY)
+              else {
+                val fun = PsiTreeUtil.getContextOfType(elems.head, true, classOf[ScFunctionDefinition])
+                (fun, fun.returnType.getOrAny)
+              }
+            val collectedData = handler.collectData(exprWithTypes, elems, methodLike, editor)
+            assert(collectedData.isDefined, "Could not collect data for introduce parameter")
+            val data = collectedData.get.copy(paramName = paramName, replaceAll = replaceAllOccurrences)
 
-            val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr),
-              function.body.getOrElse(function))
-            val processor = new ScalaIntroduceParameterProcessor(project, editor, methodToSearchFor, function,
-              replaceAllOccurrences, occurrences, startOffset, endOffset, paramName, isDefaultParam, types(0), expr)
-            processor.run()
+            val paramInfo = new ScalaParameterInfo(data.paramName, -1, data.tp, project, false, false, data.defaultArg, isIntroducedParameter = true)
+            val descriptor: ScalaMethodDescriptor = handler.createMethodDescriptor(data.methodToSearchFor, paramInfo)
+            val changeInfo = new ScalaChangeInfo(descriptor.getVisibility, data.methodToSearchFor, descriptor.getName, returnType,
+              descriptor.parameters, isDefaultParam)
+
+            changeInfo.introducedParameterData = Some(data)
+            new ScalaChangeSignatureProcessor(project, changeInfo).run()
           }
         }
       }, project, "Test")
@@ -117,10 +116,9 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
       case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
       case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
         text.substring(2, text.length - 2).trim
-      case _ => {
+      case _ =>
         assertTrue("Test result must be in last comment statement.", false)
         ""
-      }
     }
     assertEquals(output, res.trim)
   }

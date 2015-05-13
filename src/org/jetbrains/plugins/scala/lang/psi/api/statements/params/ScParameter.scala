@@ -91,7 +91,10 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     clause.isImplicit
   }
 
-  def index = getParent.asInstanceOf[ScParameterClause].parameters.indexOf(this)
+  def index = getParent.getParent match {
+    case parameters: ScParameters => parameters.params.indexOf(this)
+    case _ => getParent.asInstanceOf[ScParameterClause].parameters.indexOf(this)
+  }
 
   override def getName: String = {
     val res = super.getName

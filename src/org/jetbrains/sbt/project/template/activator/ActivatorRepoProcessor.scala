@@ -81,7 +81,8 @@ class ActivatorRepoProcessor {
     var reader: IndexReader = null
 
     try {
-      template.usingTempDirectory("index-activator", None) {
+      template.usingTempDirectoryWithHandler("index-activator", None)(
+      {case io: IOException => error("Can't process templates list", io); Map.empty[String, ActivatorRepoProcessor.DocData]}, {case io: IOException => }) {
         extracted =>
 
           ZipUtil.extract(location, extracted, null)

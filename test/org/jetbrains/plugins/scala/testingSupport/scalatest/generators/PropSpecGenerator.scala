@@ -22,7 +22,7 @@ trait PropSpecGenerator extends IntegrationTest {
         |    print(">>TEST: FAILED<<")
         |  }
         |}
-      """.stripMargin
+      """.stripMargin.trim()
     )
   }
 }

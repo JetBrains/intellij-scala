@@ -7,6 +7,9 @@ import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
  * @since 10.02.2015.
  */
 trait FlatSpecGenerator extends IntegrationTest {
+  def flatSpecClassName = "FlatSpecTest"
+  def flatSpecFileName = flatSpecClassName + ".scala"
+
   def addFlatSpec() {
     addFileToProject("FlatSpecTest.scala",
       """
@@ -49,7 +52,7 @@ trait FlatSpecGenerator extends IntegrationTest {
       |
       |  }
       |}
-    """.stripMargin
+    """.stripMargin.trim()
     )
   }
 }

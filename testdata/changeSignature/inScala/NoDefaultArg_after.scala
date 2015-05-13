@@ -5,5 +5,5 @@ class NoDefaultArg {
 }
 
 class NoDefaultArgChild extends NoDefaultArg {
-  override def foo(i: Int, j: Int =  ) = super.foo(i)
+  override def foo(i: Int, j: Int) = super.foo(i)
 }

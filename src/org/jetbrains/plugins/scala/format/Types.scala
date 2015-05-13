@@ -23,7 +23,7 @@ object Types {
     case types.Double => 0D
     case ScDesignatorType(element) => element.name match {
       case "String" => ""
-      case "BigInt" => BigInt(0)
+      case "BigInt" | "BigInteger" => BigInt(0)
       case "BigDecimal" => BigDecimal(0)
       case "Calendar" => Calendar.getInstance
       case "Date" => new Date()

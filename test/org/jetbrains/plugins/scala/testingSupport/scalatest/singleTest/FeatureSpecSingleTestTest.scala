@@ -11,11 +11,11 @@ trait FeatureSpecSingleTestTest extends FeatureSpecGenerator {
   val featureSpecConfigTestName = "Feature: Feature 1 Scenario: Scenario A"
   val featureSpecTestPath = List("[root]", "FeatureSpecTest", "Feature: Feature 1", "Scenario: Scenario A")
 
-  def testFeatureSpec() {
+  def testFeatureSpecSingleTest() {
     addFeatureSpec()
 
-    runTestByLocation(5, 7, "FeatureSpecTest.scala",
-      checkConfigAndSettings(_, "FeatureSpecTest", featureSpecConfigTestName),
+    runTestByLocation(5, 7, featureSpecFileName,
+      checkConfigAndSettings(_, featureSpecClassName, featureSpecConfigTestName),
       root => checkResultTreeHasExactNamedPath(root, featureSpecTestPath:_*) &&
           checkResultTreeDoesNotHaveNodes(root, "Scenario: Scenario B"),
       debug = true

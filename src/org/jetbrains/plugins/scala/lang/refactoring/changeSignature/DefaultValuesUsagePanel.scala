@@ -8,7 +8,7 @@ import javax.swing._
  * Nikolay.Tropin
  * 2014-09-05
  */
-class DefaultValuesUsagePanel extends JPanel {
+class DefaultValuesUsagePanel(labelText: String = "Default values:") extends JPanel {
   private val myRbModifyCalls: JRadioButton = new JRadioButton
   private val myRbAddDefaultArg: JRadioButton = new JRadioButton
 
@@ -18,8 +18,8 @@ class DefaultValuesUsagePanel extends JPanel {
     val boxLayout: BoxLayout = new BoxLayout(this, BoxLayout.X_AXIS)
     setLayout(boxLayout)
 
-    add(new JLabel("Default values: "))
-    myRbAddDefaultArg.setText("Add default arguments in definition")
+    add(new JLabel(labelText))
+    myRbAddDefaultArg.setText("Add to definition")
     myRbModifyCalls.setText("Modify method calls")
     myRbAddDefaultArg.setMnemonic('d')
     myRbModifyCalls.setMnemonic('m')

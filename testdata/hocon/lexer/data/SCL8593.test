@@ -1,0 +1,34 @@
+x.fun="CREATE THIS "${cass.key}"."""${cas.t}""" "(
+sym_id ascii,
+ts timestamp,
+val decimal,
+prev_val decimal,
+PRIMARY KEY (sym_id, ts)
+) WITH CLUSTERING ORDER BY ( ts DESC )"
+-----
+UNQUOTED_CHARS {x}
+PERIOD {.}
+UNQUOTED_CHARS {fun}
+EQUALS {=}
+QUOTED_STRING {"CREATE THIS "}
+DOLLAR {$}
+SUB_LBRACE {{}
+UNQUOTED_CHARS {cass}
+PERIOD {.}
+UNQUOTED_CHARS {key}
+SUB_RBRACE {}}
+QUOTED_STRING {"."}
+QUOTED_STRING {""}
+DOLLAR {$}
+SUB_LBRACE {{}
+UNQUOTED_CHARS {cas}
+PERIOD {.}
+UNQUOTED_CHARS {t}
+SUB_RBRACE {}}
+MULTILINE_STRING {""" "(
+sym_id ascii,
+ts timestamp,
+val decimal,
+prev_val decimal,
+PRIMARY KEY (sym_id, ts)
+) WITH CLUSTERING ORDER BY ( ts DESC )"}

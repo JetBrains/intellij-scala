@@ -9,8 +9,8 @@ import com.intellij.lang.refactoring.InlineHandler
 import com.intellij.lang.refactoring.InlineHandler.Settings
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.search.searches.ReferencesSearch
@@ -41,6 +41,9 @@ import scala.collection.mutable.ArrayBuffer
  */
 
 class ScalaInlineHandler extends InlineHandler {
+
+  private var occurrenceHighlighters: Seq[RangeHighlighter] = Seq.empty
+
   def removeDefinition(element: PsiElement, settings: InlineHandler.Settings) {
     element match {
       case rp: ScBindingPattern =>
@@ -95,8 +98,7 @@ class ScalaInlineHandler extends InlineHandler {
           val project = newExpr.getProject
           val manager = FileEditorManager.getInstance(project)
           val editor = manager.getSelectedTextEditor
-          ScalaRefactoringUtil.highlightOccurrences(project, Array[PsiElement](newExpr), editor)
-          WindowManager.getInstance().getStatusBar(project).setInfo(ScalaBundle.message("press.escape.to.remove.the.highlighting"))
+          occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, Array[PsiElement](newExpr), editor)
           CodeStyleManager.getInstance(project).reformatRange(newExpr.getContainingFile, newExpr.getTextRange.getStartOffset - 1,
             newExpr.getTextRange.getEndOffset + 1) //to prevent situations like this 2 ++2 (+2 was inlined)
         }
@@ -120,7 +122,7 @@ class ScalaInlineHandler extends InlineHandler {
       val bind = v.declaredElements.apply(0)
       val refs = ReferencesSearch.search(bind, bind.getUseScope).findAll.asScala
       val inlineTitle = title(inlineTitleSuffix)
-      ScalaRefactoringUtil.highlightOccurrences(element.getProject, refs.map(_.getElement).toArray, editor)
+      occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(element.getProject, refs.map(_.getElement).toArray, editor)
       val settings = new InlineHandler.Settings {def isOnlyOneReferenceToInline: Boolean = false}
       if (refs.size == 0)
         showErrorHint(ScalaBundle.message("cannot.inline.never.used"), inlineTitleSuffix)
@@ -142,8 +144,9 @@ class ScalaInlineHandler extends InlineHandler {
           element.getProject)
         dialog.show()
         if (!dialog.isOK) {
-          WindowManager.getInstance().getStatusBar(element.getProject).setInfo(ScalaBundle.message("press.escape.to.remove.the.highlighting"))
-          null
+          occurrenceHighlighters.foreach(_.dispose())
+          occurrenceHighlighters = Seq.empty
+          InlineHandler.Settings.CANNOT_INLINE_SETTINGS
         } else settings
       } else settings
     }

@@ -6,6 +6,9 @@ package types
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -428,6 +431,22 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
           case _ => new ScDesignatorType(element)
         }
     }
+  }
+
+  def ofNamedElement(named: PsiElement, s: ScSubstitutor = ScSubstitutor.empty): Option[ScType] = {
+    val baseType = named match {
+      case p: ScPrimaryConstructor => None
+      case e: ScFunction if e.isConstructor => None
+      case e: ScFunction => e.returnType.toOption
+      case e: ScBindingPattern => e.getType(TypingContext.empty).toOption
+      case e: ScFieldId => e.getType(TypingContext.empty).toOption
+      case e: ScParameter => e.getRealParameterType(TypingContext.empty).toOption
+      case e: PsiMethod if e.isConstructor => None
+      case e: PsiMethod =>  create(e.getReturnType, named.getProject, named.getResolveScope).toOption
+      case e: PsiVariable => create(e.getType, named.getProject, named.getResolveScope).toOption
+      case _ => None
+    }
+    baseType.map(s.subst)
   }
 
   object ExtractClass {

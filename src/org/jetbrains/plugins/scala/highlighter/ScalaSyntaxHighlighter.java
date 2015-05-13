@@ -25,10 +25,10 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.StringEscapesTokenTypes;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
-import com.intellij.psi.xml.XmlTokenType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
+import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocLexer;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-import static com.intellij.psi.xml.XmlTokenType.*;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
 
 /**
@@ -59,17 +58,19 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
           ScalaDocElementTypes.SCALA_DOC_COMMENT
   );
 
-  // XML tags
+  // ScalaXmlTokenTypes.XML tags
   static final TokenSet tXML_TAGS = TokenSet.create(
-      tOPENXMLTAG, tCLOSEXMLTAG, tXMLTAGPART, tBADCLOSEXMLTAG, XML_CDATA_END, XML_CDATA_START, XML_PI_START, XML_PI_END
+      tOPENXMLTAG, tCLOSEXMLTAG, tXMLTAGPART, tBADCLOSEXMLTAG, ScalaXmlTokenTypes.XML_CDATA_END(),
+      ScalaXmlTokenTypes.XML_CDATA_START(), ScalaXmlTokenTypes.XML_PI_START(), ScalaXmlTokenTypes.XML_PI_END()
   );
 
   static final TokenSet tXML_TEXT = TokenSet.create(
-      XML_DATA_CHARACTERS, XML_ATTRIBUTE_VALUE_TOKEN, XML_ATTRIBUTE_VALUE_START_DELIMITER,
-      XML_ATTRIBUTE_VALUE_END_DELIMITER
+      ScalaXmlTokenTypes.XML_DATA_CHARACTERS(), ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_TOKEN(), 
+      ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_START_DELIMITER(), ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER()
   );
   
-  static final TokenSet tXML_COMMENTS = TokenSet.create(XML_COMMENT_START, XML_COMMENT_END, XML_COMMENT_CHARACTERS, 
+  static final TokenSet tXML_COMMENTS = TokenSet.create(
+      ScalaXmlTokenTypes.XML_COMMENT_START(), ScalaXmlTokenTypes.XML_COMMENT_END(), ScalaXmlTokenTypes.XML_COMMENT_CHARACTERS(), 
       tXML_COMMENT_START, tXML_COMMENT_END);
 
   //Html escape sequences
@@ -77,9 +78,10 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
       ScalaDocTokenType.DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT
   );
 
-  // XML tags in ScalaDoc
+  // ScalaXmlTokenTypes.XML tags in ScalaDoc
   static final TokenSet tSCALADOC_HTML_TAGS = TokenSet.create(
-      XML_TAG_NAME, XML_START_TAG_START, XML_EMPTY_ELEMENT_END, XML_END_TAG_START, XML_TAG_END
+      ScalaXmlTokenTypes.XML_TAG_NAME(), ScalaXmlTokenTypes.XML_START_TAG_START(), ScalaXmlTokenTypes.XML_EMPTY_ELEMENT_END(),
+      ScalaXmlTokenTypes.XML_END_TAG_START(), ScalaXmlTokenTypes.XML_TAG_END()
   );
 
   //ScalaDoc Wiki syntax elements
@@ -311,7 +313,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
       myLayeredTagStack.clear();
       myXmlState = 0;
       myBuffer = buffer;
-      myBufferEnd = buffer.length();
+      myBufferEnd = endOffset;
       myTokenType = null;
       openingTags = new Stack<String>();
       tagMatch = false;
@@ -322,19 +324,19 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     public IElementType getTokenType() {
       IElementType type = super.getTokenType();
 
-      if (type == XML_START_TAG_START) {
+      if (type == ScalaXmlTokenTypes.XML_START_TAG_START()) {
         return tOPENXMLTAG;
-      } else if (type == XML_TAG_END && isInClosingTag) {
+      } else if (type == ScalaXmlTokenTypes.XML_TAG_END() && isInClosingTag) {
         return tagMatch ? tCLOSEXMLTAG : tBADCLOSEXMLTAG;
-      } else if (type == XML_NAME) {
+      } else if (type == ScalaXmlTokenTypes.XML_NAME()) {
         return tXMLTAGPART;
-      } else if (type == XML_EMPTY_ELEMENT_END) {
+      } else if (type == ScalaXmlTokenTypes.XML_EMPTY_ELEMENT_END()) {
         return tCLOSEXMLTAG;
       } else if (tSCALADOC_HTML_TAGS.contains(type)) {
         return tXMLTAGPART;
-      } else if (type == XML_COMMENT_START) {
+      } else if (type == ScalaXmlTokenTypes.XML_COMMENT_START()) {
         return tXML_COMMENT_START;
-      } else if (type == XML_COMMENT_END) {
+      } else if (type == ScalaXmlTokenTypes.XML_COMMENT_END()) {
         return tXML_COMMENT_END;
       }
 
@@ -347,21 +349,21 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
       String tokenText = getTokenText();
       super.advance();
 
-      if (type == XML_END_TAG_START) {
+      if (type == ScalaXmlTokenTypes.XML_END_TAG_START()) {
         isInClosingTag = true;
-      } else if (type == XML_EMPTY_ELEMENT_END) {
+      } else if (type == ScalaXmlTokenTypes.XML_EMPTY_ELEMENT_END()) {
         if (!openingTags.empty()) {
           openingTags.pop();
         }
-      } else if (type == XML_TAG_END && isInClosingTag) {
+      } else if (type == ScalaXmlTokenTypes.XML_TAG_END() && isInClosingTag) {
         isInClosingTag = false;
         if (tagMatch) {
           openingTags.pop();
         }
-      } else if (type == XML_NAME && (afterStartTagStart || isInClosingTag)) {
+      } else if (type == ScalaXmlTokenTypes.XML_NAME() && (afterStartTagStart || isInClosingTag)) {
         if (!isInClosingTag) openingTags.push(tokenText); else tagMatch = !openingTags.empty() && openingTags.peek().equals(tokenText);
         afterStartTagStart = false;
-      } else if (type == XML_START_TAG_START) {
+      } else if (type == ScalaXmlTokenTypes.XML_START_TAG_START()) {
         afterStartTagStart = true;
       }
     }
@@ -376,10 +378,10 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     public IElementType getTokenType() {
       IElementType htmlType = super.getTokenType();
 
-      if (htmlType == XML_CHAR_ENTITY_REF) {
+      if (htmlType == ScalaXmlTokenTypes.XML_CHAR_ENTITY_REF()) {
         return ScalaDocTokenType.DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT;
-      } else if (htmlType == XML_DATA_CHARACTERS || htmlType == XML_BAD_CHARACTER ||
-          XmlTokenType.COMMENTS.contains(htmlType)) {
+      } else if (htmlType == ScalaXmlTokenTypes.XML_DATA_CHARACTERS() || htmlType == ScalaXmlTokenTypes.XML_BAD_CHARACTER() ||
+          ScalaXmlTokenTypes.XML_COMMENTS().contains(htmlType)) {
         return ScalaDocTokenType.DOC_COMMENT_DATA;
       }
 

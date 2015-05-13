@@ -3,10 +3,10 @@ package lang.refactoring.introduceField
 
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -27,6 +27,9 @@ import org.jetbrains.plugins.scala.util.ScalaUtils
  * 6/27/13
  */
 class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandlerBase {
+
+  private var occurrenceHighlighters = Seq.empty[RangeHighlighter]
+
   def invoke(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
     try {
       UsageTrigger.trigger(ScalaBundle.message("introduce.field.id"))
@@ -88,7 +91,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     val manager = aClass.getManager
     val name = settings.name
     val typeName = Option(settings.scType).map(_.canonicalText).getOrElse("")
-    val replacedOccurences = ScalaRefactoringUtil.replaceOccurences(occurrencesToReplace, name, ifc.file, ifc.editor)
+    val replacedOccurences = ScalaRefactoringUtil.replaceOccurences(occurrencesToReplace, name, ifc.file)
 
     val anchor = anchorForNewDeclaration(expression, replacedOccurences, aClass)
     val initInDecl = settings.initInDeclaration
@@ -152,14 +155,14 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     val occCount = ifc.occurrences.length
     // Add occurrences highlighting
     if (occCount > 1)
-      ScalaRefactoringUtil.highlightOccurrences(ifc.project, ifc.occurrences, ifc.editor)
+      occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(ifc.project, ifc.occurrences, ifc.editor)
 
     val dialog = new ScalaIntroduceFieldDialog(ifc, settings)
     dialog.show()
     if (!dialog.isOK) {
       if (occCount > 1) {
-        WindowManager.getInstance.getStatusBar(ifc.project).
-                setInfo(ScalaBundle.message("press.escape.to.remove.the.highlighting"))
+        occurrenceHighlighters.foreach(_.dispose())
+        occurrenceHighlighters = Seq.empty
       }
     }
     dialog

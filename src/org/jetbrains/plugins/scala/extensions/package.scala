@@ -7,9 +7,9 @@ import javax.swing.SwingUtilities
 
 import com.intellij.openapi.application.{ApplicationManager, Result}
 import com.intellij.openapi.command.{CommandProcessor, WriteCommandAction}
-import com.intellij.openapi.progress.{ProgressManager, ProgressIndicator}
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{ThrowableComputable, Computable}
+import com.intellij.openapi.util.{Computable, ThrowableComputable}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.util.Processor
@@ -17,8 +17,8 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiParameter
@@ -34,8 +34,8 @@ import scala.language.higherKinds
 import scala.reflect.{ClassTag, classTag}
 import scala.runtime.NonLocalReturnControl
 import scala.util.control.Exception.catching
-import scala.util.{Failure, Success, Try}
 import scala.util.matching.Regex
+import scala.util.{Failure, Success, Try}
 
 /**
   * Pavel Fatin
@@ -56,6 +56,7 @@ package object extensions {
     def hasQueryLikeName = {
       repr.getName match {
         case "getInstance" => false // TODO others?
+        case name if name.startsWith("getAnd") && name.charAt("getAnd".length).isUpper => false
         case AccessorNamePattern() => true
         case _ => false
       }

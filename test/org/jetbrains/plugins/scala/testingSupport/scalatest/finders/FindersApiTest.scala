@@ -65,13 +65,13 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
     val fileName = "BehaviorFlatSpec.scala"
 
     //'behavior' word
-    checkSelection(4, 3, fileName, testNames)
+    checkSelection(3, 3, fileName, testNames)
     //'of' word
-    checkSelection(4, 12, fileName, testNames)
+    checkSelection(3, 12, fileName, testNames)
     //object name
-    checkSelection(4, 20, fileName, testNames)
+    checkSelection(3, 20, fileName, testNames)
     //specific test
-    checkSelection(6, 8, fileName, Set("FlatSpec should run scopes"))
+    checkSelection(5, 8, fileName, Set("FlatSpec should run scopes"))
   }
 
   //for now, there is no need to test path.FreeSpec separately: it and FreeSpec share the same finder
@@ -85,25 +85,25 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
     val ignoredTestName = "A ComplexFreeSpec Outer scope 2 Inner scope 2 Innermost scope"
 
     //outermost close
-    checkSelection(4, 10, fileName, Set(testName1, testName2, testName3))
+    checkSelection(3, 10, fileName, Set(testName1, testName2, testName3))
     //just a nested scope
-    checkSelection(5, 12, fileName, Set(testName1))
+    checkSelection(4, 12, fileName, Set(testName1))
     //a test scope (scope with 'in')
-    checkSelection(6, 11, fileName, Set(testName1))
+    checkSelection(5, 11, fileName, Set(testName1))
     //a dash
-    checkSelection(5, 20, fileName, Set(testName1))
+    checkSelection(4, 20, fileName, Set(testName1))
     //a whitespace
-    checkSelection(5, 21, fileName, Set(testName1))
+    checkSelection(4, 21, fileName, Set(testName1))
     //'in' word
-    checkSelection(6, 23, fileName, Set(testName1))
+    checkSelection(5, 23, fileName, Set(testName1))
     //TODO: ignored tests are not processed by the finder, even when left-clicking exactly the ignored test.
     // So finders do not provide a testName and our manual search does. It is a bit inconsistent.
     //an ignored test scope
-    checkSelection(26, 13, fileName, Set())
+    checkSelection(25, 13, fileName, Set())
     //'ignore' word
-    checkSelection(26, 27, fileName, Set())
+    checkSelection(25, 27, fileName, Set())
     //different depth scopes
-    checkSelection(11, 10, fileName, Set(testName2, testName3))
+    checkSelection(10, 10, fileName, Set(testName2, testName3))
   }
 
   def testFunSpec() {
@@ -115,16 +115,16 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
     val testName2 = "FunSpecTest should not launch other tests"
 
     //'describe' word
-    checkSelection(4, 5, fileName, Set(testName1, testName2))
+    checkSelection(3, 5, fileName, Set(testName1, testName2))
     //described test name
-    checkSelection(4, 20, fileName, Set(testName1, testName2))
+    checkSelection(3, 20, fileName, Set(testName1, testName2))
     //'it' word
-    checkSelection(5, 5, fileName, Set(testName1))
+    checkSelection(4, 5, fileName, Set(testName1))
     //test name
-    checkSelection(5, 15, fileName, Set(testName1))
+    checkSelection(4, 15, fileName, Set(testName1))
     //inside test
-    checkSelection(10, 1, fileName, Set(testName2))
-    checkSelection(10, 15, fileName, Set(testName2))
+    checkSelection(9, 1, fileName, Set(testName2))
+    checkSelection(9, 15, fileName, Set(testName2))
   }
 
   def testFunSuite(){
@@ -134,11 +134,11 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
     val testName1 = "should not run other tests"
 
     //'test' word
-    checkSelection(5, 4, fileName, Set(testName1))
+    checkSelection(4, 4, fileName, Set(testName1))
     //test name
-    checkSelection(5, 10, fileName, Set(testName1))
+    checkSelection(4, 10, fileName, Set(testName1))
     //inside test
-    checkSelection(6, 10, fileName, Set(testName1))
+    checkSelection(5, 10, fileName, Set(testName1))
   }
 
   def testPropSpec() {
@@ -148,11 +148,11 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
     val testName1 = "Single tests should run"
 
     //'property' word
-    checkSelection(5, 5, fileName, Set(testName1))
+    checkSelection(4, 5, fileName, Set(testName1))
     //test name
-    checkSelection(5, 15, fileName, Set(testName1))
+    checkSelection(4, 15, fileName, Set(testName1))
     //inside test
-    checkSelection(6, 10, fileName, Set(testName1))
+    checkSelection(5, 10, fileName, Set(testName1))
   }
 
   def testWordSpec() {
@@ -163,12 +163,12 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
     val testName2 = "WordSpecTest should ignore other tests"
 
     //outer scope
-    checkSelection(4, 5, fileName, Set(testName1, testName2))
+    checkSelection(3, 5, fileName, Set(testName1, testName2))
     //'should' word
-    checkSelection(4, 20, fileName, Set(testName1, testName2))
+    checkSelection(3, 20, fileName, Set(testName1, testName2))
     //inner scope
-    checkSelection(5, 10, fileName, Set(testName1))
+    checkSelection(4, 10, fileName, Set(testName1))
     //'in' word
-    checkSelection(9, 26, fileName, Set(testName2))
+    checkSelection(8, 26, fileName, Set(testName2))
   }
 }

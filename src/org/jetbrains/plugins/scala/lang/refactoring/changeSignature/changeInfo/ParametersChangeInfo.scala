@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature.changeInfo
 
-import com.intellij.psi.JavaPsiFacade
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaParameterInfo
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -13,19 +12,17 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 private[changeInfo] trait ParametersChangeInfo {
   this: ScalaChangeInfo =>
 
-  private val oldParameters = function.parameterList.params.toArray
-  private val oldParameterNames: Array[String] = oldParameters.map(_.getName)
-  private val oldParameterTypes: Array[String] = {
-    val factory = JavaPsiFacade.getElementFactory(function.getProject)
-    oldParameters.map(p => factory.createTypeElement(p.getType).getText)
-  }
+  private val oldParameters = ScalaParameterInfo.allForMethod(function)
+  private val oldParametersArray = oldParameters.flatten.toArray
+  private val oldParameterNames: Array[String] = oldParametersArray.map(_.name)
+  private val oldParameterTypes: Array[String] = oldParametersArray.map(_.getTypeText)
 
-  val toRemoveParm: Array[Boolean] = oldParameters.zipWithIndex.map {
+  val toRemoveParm: Array[Boolean] = oldParametersArray.zipWithIndex.map {
     case (p, i) => !newParameters.exists(_.oldIndex == i)
   }
 
   val isParameterSetOrOrderChanged: Boolean = {
-    oldParameters.length != newParameters.length ||
+    oldParameters.map(_.length) != newParams.map(_.length) ||
             newParameters.zipWithIndex.exists {case (p, i) => p.oldIndex != i}
   }
 
@@ -36,8 +33,8 @@ private[changeInfo] trait ParametersChangeInfo {
   val isParameterTypesChanged: Boolean = newParameters.zipWithIndex.exists {
     case (p, i) =>  (p.oldIndex == i) &&
       (p.getTypeText != getOldParameterTypes(i) ||
-              p.isRepeatedParameter != oldParameters(i).isRepeatedParameter ||
-              p.isByName != oldParameters(i).isCallByNameParameter)
+              p.isRepeatedParameter != oldParametersArray(i).isRepeatedParameter ||
+              p.isByName != oldParametersArray(i).isByName)
   }
 
   val wasVararg: Boolean = false

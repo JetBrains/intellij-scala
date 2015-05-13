@@ -7,6 +7,9 @@ import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
  * @since 10.02.2015.
  */
 trait FunSpecGenerator extends IntegrationTest {
+  def funSpecClassName = "FunSpecTest"
+  def funSpecFileName = funSpecClassName + ".scala"
+
   def addFunSpec() {
     addFileToProject("FunSpecTest.scala",
       """
@@ -22,8 +25,14 @@ trait FunSpecGenerator extends IntegrationTest {
         |      print(">>TEST: FAILED<<")
         |    }
         |  }
+        |
+        |  describe("OtherScope") {
+        |    it ("is here") {}
+        |  }
+        |
+        |  describe("emptyScope") {}
         |}
-      """.stripMargin
+      """.stripMargin.trim()
     )
   }
 }

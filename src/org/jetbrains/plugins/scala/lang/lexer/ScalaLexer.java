@@ -18,18 +18,18 @@ package org.jetbrains.plugins.scala.lang.lexer;
 import com.intellij.lexer.Lexer;
 import com.intellij.lexer.LexerPosition;
 import com.intellij.lexer.LexerState;
-import com.intellij.lexer.XmlLexer;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.xml.IXmlLeafElementType;
+import com.intellij.psi.xml.XmlTokenType;
 import com.intellij.util.containers.Stack;
 import gnu.trove.TIntStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.intellij.psi.xml.XmlTokenType.*;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.*;
 
 
@@ -39,7 +39,7 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx.*;
 public class ScalaLexer extends Lexer {
 
   protected final Lexer myScalaPlainLexer;
-  private final Lexer myXmlLexer = new XmlLexer();
+  private final Lexer myXmlLexer = new ScalaXmlTokenTypes.PatchedXmlLexer();
 
   protected Lexer myCurrentLexer;
 
@@ -69,7 +69,7 @@ public class ScalaLexer extends Lexer {
     myCurrentLexer = myScalaPlainLexer;
   }
 
-  public void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
+  public void start(@NotNull CharSequence buffer, int startOffset, int endOffset, int initialState) {
     myCurrentLexer = myScalaPlainLexer;
     myCurrentLexer.start(buffer, startOffset, endOffset, initialState & MASK);
     myBraceStack.clear();
@@ -115,7 +115,7 @@ public class ScalaLexer extends Lexer {
         if (!xmlTagValidator.validate()) {
           xmlSteps = xmlTagValidator.step;
         }
-        
+
         myCurrentLexer = myXmlLexer;
         myXmlState = 0;
         myCurrentLexer.start(getBufferSequence(), start, myBufferEnd, 0);
@@ -123,7 +123,7 @@ public class ScalaLexer extends Lexer {
         myLayeredTagStack.peek().push(new MyOpenXmlTag());
         myTokenType = myCurrentLexer.getTokenType();
         locateTextRange();
-      } else if ((/*type == XML_ATTRIBUTE_VALUE_TOKEN || */type == XML_DATA_CHARACTERS) && //todo: Dafuq???
+      } else if ((/*type == XML_ATTRIBUTE_VALUE_TOKEN || */type == ScalaXmlTokenTypes.XML_DATA_CHARACTERS()) && //todo: Dafuq???
           tokenText.startsWith("{") && !tokenText.startsWith("{{") && !inCdata) {
         myXmlState = myCurrentLexer.getState();
         (myCurrentLexer = myScalaPlainLexer).start(getBufferSequence(), start, myBufferEnd, 0);
@@ -142,13 +142,13 @@ public class ScalaLexer extends Lexer {
       } else if (type == ScalaTokenTypes.tLBRACE && myBraceStack.size() > 0) {
         int currentLayer = myBraceStack.pop();
         myBraceStack.push(++currentLayer);
-      } else if ((XML_START_TAG_START == type || XML_COMMENT_START == type
-          || XML_CDATA_START == type || XML_PI_START == type) && !myLayeredTagStack.isEmpty()) {
-        if (type == XML_CDATA_START) {
+      } else if ((ScalaXmlTokenTypes.XML_START_TAG_START() == type || ScalaXmlTokenTypes.XML_COMMENT_START() == type
+          || ScalaXmlTokenTypes.XML_CDATA_START() == type || ScalaXmlTokenTypes.XML_PI_START() == type) && !myLayeredTagStack.isEmpty()) {
+        if (type == ScalaXmlTokenTypes.XML_CDATA_START()) {
           inCdata = true;
         }
         myLayeredTagStack.peek().push(new MyOpenXmlTag());
-      } else if (XML_EMPTY_ELEMENT_END == type && !myLayeredTagStack.isEmpty() &&
+      } else if (ScalaXmlTokenTypes.XML_EMPTY_ELEMENT_END() == type && !myLayeredTagStack.isEmpty() &&
           !myLayeredTagStack.peek().isEmpty() && myLayeredTagStack.peek().peek().state == TAG_STATE.UNDEFINED) {
 
         myLayeredTagStack.peek().pop();
@@ -156,10 +156,10 @@ public class ScalaLexer extends Lexer {
           myLayeredTagStack.pop();
           locateTextRange();
           startScalaPlainLexer(start + 2);
-          myTokenType = XML_EMPTY_ELEMENT_END;
+          myTokenType = ScalaXmlTokenTypes.XML_EMPTY_ELEMENT_END();
           return;
         }
-      } else if (XML_TAG_END == type && !myLayeredTagStack.isEmpty() && !myLayeredTagStack.peek().isEmpty()) {
+      } else if (ScalaXmlTokenTypes.XML_TAG_END() == type && !myLayeredTagStack.isEmpty() && !myLayeredTagStack.peek().isEmpty()) {
         MyOpenXmlTag tag = myLayeredTagStack.peek().peek();
         if (tag.state == TAG_STATE.UNDEFINED) {
           tag.state = TAG_STATE.NONEMPTY;
@@ -170,10 +170,10 @@ public class ScalaLexer extends Lexer {
           myLayeredTagStack.pop();
           locateTextRange();
           startScalaPlainLexer(start + 1);
-          myTokenType = XML_TAG_END;
+          myTokenType = ScalaXmlTokenTypes.XML_TAG_END();
           return;
         }
-      } else if (XML_PI_END == type && !myLayeredTagStack.isEmpty() &&
+      } else if (ScalaXmlTokenTypes.XML_PI_END() == type && !myLayeredTagStack.isEmpty() &&
           !myLayeredTagStack.peek().isEmpty() && myLayeredTagStack.peek().peek().state == TAG_STATE.UNDEFINED) {
 
         myLayeredTagStack.peek().pop();
@@ -181,10 +181,10 @@ public class ScalaLexer extends Lexer {
           myLayeredTagStack.pop();
           locateTextRange();
           startScalaPlainLexer(start + 2);
-          myTokenType = XML_PI_END;
+          myTokenType = ScalaXmlTokenTypes.XML_PI_END();
           return;
         }
-      } else if (XML_COMMENT_END == type && !myLayeredTagStack.isEmpty() &&
+      } else if (ScalaXmlTokenTypes.XML_COMMENT_END() == type && !myLayeredTagStack.isEmpty() &&
           !myLayeredTagStack.peek().isEmpty() && myLayeredTagStack.peek().peek().state == TAG_STATE.UNDEFINED) {
 
         myLayeredTagStack.peek().pop();
@@ -192,10 +192,10 @@ public class ScalaLexer extends Lexer {
           myLayeredTagStack.pop();
           locateTextRange();
           startScalaPlainLexer(start + 3);
-          myTokenType = XML_COMMENT_END;
+          myTokenType = ScalaXmlTokenTypes.XML_COMMENT_END();
           return;
         }
-      } else if (XML_CDATA_END == type && !myLayeredTagStack.isEmpty() &&
+      } else if (ScalaXmlTokenTypes.XML_CDATA_END() == type && !myLayeredTagStack.isEmpty() &&
           !myLayeredTagStack.peek().isEmpty() && myLayeredTagStack.peek().peek().state == TAG_STATE.UNDEFINED) {
         inCdata = false;
         myLayeredTagStack.peek().pop();
@@ -203,25 +203,25 @@ public class ScalaLexer extends Lexer {
           myLayeredTagStack.pop();
           locateTextRange();
           startScalaPlainLexer(start + 3);
-          myTokenType = XML_CDATA_END;
+          myTokenType = ScalaXmlTokenTypes.XML_CDATA_END();
           return;
         }
-      } else if (type == XML_DATA_CHARACTERS && tokenText.indexOf('{') != -1 && !inCdata) {
+      } else if (type == ScalaXmlTokenTypes.XML_DATA_CHARACTERS() && tokenText.indexOf('{') != -1 && !inCdata) {
         int scalaToken = tokenText.indexOf('{');
         while (scalaToken != -1 && scalaToken + 1 < tokenText.length() && tokenText.charAt(scalaToken + 1) == '{')
           scalaToken = tokenText.indexOf('{', scalaToken + 2);
         if (scalaToken != -1) {
-          myTokenType = XML_DATA_CHARACTERS;
+          myTokenType = ScalaXmlTokenTypes.XML_DATA_CHARACTERS();
           myTokenStart = myCurrentLexer.getTokenStart();
           myTokenEnd = myTokenStart + scalaToken;
           myCurrentLexer.start(getBufferSequence(), myTokenEnd, myBufferEnd, myCurrentLexer.getState());
         }
-      } else if ((type == XML_REAL_WHITE_SPACE ||
-          type == XML_WHITE_SPACE ||
-          type == TAG_WHITE_SPACE) &&
+      } else if ((type == XmlTokenType.XML_REAL_WHITE_SPACE ||
+          type == XmlTokenType.XML_WHITE_SPACE ||
+          type == XmlTokenType.TAG_WHITE_SPACE) &&
           tokenText.matches("\\s*\n(\n|\\s)*")) {
         type = ScalaTokenTypes.tWHITE_SPACE_IN_LINE;
-      } else if (!(type instanceof IXmlLeafElementType)) {
+      } else if (type == null || !(type instanceof IXmlLeafElementType) && !ScalaXmlTokenTypes.isSubstituted(type.toString())) {
         ++xmlSteps;
       }
       if (myTokenType == null) {
@@ -230,7 +230,7 @@ public class ScalaLexer extends Lexer {
         locateTextRange();
       }
       //we have to advance current lexer only if we didn't start scala plain lexer on this iteration
-      //because of wrong behaviour of the latter ScalaPlainLexer 
+      //because of wrong behaviour of the latter ScalaPlainLexer
       myCurrentLexer.advance();
     }
   }
@@ -272,6 +272,7 @@ public class ScalaLexer extends Lexer {
     myTokenType = null;
   }
 
+  @NotNull
   public LexerPosition getCurrentPosition() {
     return new MyPosition(
         myTokenStart,
@@ -284,7 +285,7 @@ public class ScalaLexer extends Lexer {
             myLayeredTagStack));
   }
 
-  public void restore(LexerPosition position) {
+  public void restore(@NotNull LexerPosition position) {
     MyPosition pos = (MyPosition) position;
     myBraceStack = pos.state.braceStack;
     myCurrentLexer = pos.state.currentLexer;
@@ -292,9 +293,10 @@ public class ScalaLexer extends Lexer {
     myTokenEnd = pos.end;
     myLayeredTagStack = pos.state.tagStack;
     myCurrentLexer.start(myCurrentLexer.getBufferSequence(), myTokenStart, myBufferEnd,
-        myCurrentLexer instanceof XmlLexer ? pos.state.xmlState : 0);
+        myCurrentLexer instanceof ScalaXmlTokenTypes.PatchedXmlLexer ? pos.state.xmlState : 0);
   }
 
+  @NotNull
   public CharSequence getBufferSequence() {
     return myBuffer;
   }
@@ -355,71 +357,69 @@ public class ScalaLexer extends Lexer {
   }
 
   private static class XmlTagValidator {
-    final private static List<IElementType> allStopTokens = 
-        Arrays.<IElementType>asList(XML_TAG_END, XML_EMPTY_ELEMENT_END, XML_PI_END,  
-            XML_COMMENT_END, null, XML_START_TAG_START);
-    final private static List<IElementType> validStopTokens = Arrays.<IElementType>asList(XML_TAG_END, 
-        XML_EMPTY_ELEMENT_END, XML_PI_END, XML_COMMENT_END);
-    
+    final private static List<IElementType> allStopTokens =
+        Arrays.<IElementType>asList(ScalaXmlTokenTypes.XML_TAG_END(), ScalaXmlTokenTypes.XML_EMPTY_ELEMENT_END(), ScalaXmlTokenTypes.XML_PI_END(),
+            ScalaXmlTokenTypes.XML_COMMENT_END(), null, ScalaXmlTokenTypes.XML_START_TAG_START());
+    final private static List<IElementType> validStopTokens = Arrays.<IElementType>asList(ScalaXmlTokenTypes.XML_TAG_END(),
+        ScalaXmlTokenTypes.XML_EMPTY_ELEMENT_END(), ScalaXmlTokenTypes.XML_PI_END(), ScalaXmlTokenTypes.XML_COMMENT_END());
+
     final private Lexer lexer;
     final private LinkedList<IElementType> xmlTokens;
-    final private XmlLexer valLexer;
+    final private ScalaXmlTokenTypes.PatchedXmlLexer valLexer;
     private int step = 0;
-    
+
     private XmlTagValidator(Lexer lexer) {
       this.lexer = lexer;
       xmlTokens = new LinkedList<IElementType>();
-      valLexer = new XmlLexer();
+      valLexer = new ScalaXmlTokenTypes.PatchedXmlLexer();
     }
 
     private boolean validate() {
       valLexer.start(lexer.getBufferSequence(), lexer.getTokenStart(), lexer.getBufferEnd(), 0);
       step = 0;
-      
-      boolean isCdata = valLexer.getTokenType() == XML_CDATA_START;
-      int state = valLexer.getState();
-      
+
+      boolean isCdata = valLexer.getTokenType() == ScalaXmlTokenTypes.XML_CDATA_START();
+
       advanceLexer();
       step = 1;
-      
+
       if (!isCdata) {
         while (canProcess()) {
-          if (valLexer.getTokenType() == XML_DATA_CHARACTERS) {
-              return xmlTokens.peekLast() == XML_EQ && valLexer.getTokenText().startsWith("{") && 
+          if (valLexer.getTokenType() == ScalaXmlTokenTypes.XML_DATA_CHARACTERS()) {
+              return xmlTokens.peekLast() == ScalaXmlTokenTypes.XML_EQ() && valLexer.getTokenText().startsWith("{") &&
                       !valLexer.getTokenText().startsWith("{{");
           } else {
             advanceLexer();
           }
-          state = valLexer.getState();
         }
 
         return validStopTokens.contains(valLexer.getTokenType());
-      } 
+      }
 
-      if (valLexer.getTokenType() == XML_CDATA_END) return true; 
+      if (valLexer.getTokenType() == ScalaXmlTokenTypes.XML_CDATA_END()) return true;
       advanceLexer();
-      return valLexer.getTokenType() == XML_CDATA_END;
+      return valLexer.getTokenType() == ScalaXmlTokenTypes.XML_CDATA_END();
     }
-    
+
     private void advanceLexer() {
       xmlTokens.addLast(valLexer.getTokenType());
       valLexer.advance();
       ++step;
     }
-    
+
     private boolean canProcess() {
       if (allStopTokens.contains(valLexer.getTokenType())) return false;
-      
-      if (valLexer.getTokenType() == XML_NAME) {
-        if (xmlTokens.size() == 1) return true;
-        if (xmlTokens.peekLast() != XML_WHITE_SPACE) return false;
-        xmlTokens.pollLast();
-        
-        if (xmlTokens.peekLast() == XML_NAME) {
-          return xmlTokens.size() == 2;
-        } 
 
-        return xmlTokens.peekLast() == XML_ATTRIBUTE_VALUE_END_DELIMITER;
+      if (valLexer.getTokenType() == ScalaXmlTokenTypes.XML_NAME()) {
+        if (xmlTokens.size() == 1) return true;
+        if (xmlTokens.peekLast() != XmlTokenType.XML_WHITE_SPACE) return false;
+        xmlTokens.pollLast();
+
+        if (xmlTokens.peekLast() == ScalaXmlTokenTypes.XML_NAME()) {
+          return xmlTokens.size() == 2;
+        }
+
+        return xmlTokens.peekLast() == ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER();
       } else {
         return true;
       }

@@ -3,17 +3,16 @@ package org.jetbrains.plugins.scala.editor.typedHandler
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate.Result
 import com.intellij.codeInsight.{AutoPopupController, CodeInsightSettings}
-import com.intellij.lexer.XmlLexer
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.codeStyle.CodeStyleManager
-import com.intellij.psi.xml.XmlTokenType
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes.PatchedXmlLexer
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -116,16 +115,16 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
                             && element.getPrevSibling.getNode.getElementType == ScalaDocTokenType.DOC_ITALIC_TAG)) {
       moveCaret()
       return Result.STOP
-    } else if (c == '"' && elementType == XmlTokenType.XML_ATTRIBUTE_VALUE_END_DELIMITER) {
+    } else if (c == '"' && elementType == ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER) {
       moveCaret()
       return Result.STOP
-    } else if ((c == '>' || c == '/') && elementType == XmlTokenType.XML_EMPTY_ELEMENT_END) {
+    } else if ((c == '>' || c == '/') && elementType == ScalaXmlTokenTypes.XML_EMPTY_ELEMENT_END) {
       moveCaret()
       return Result.STOP
-    } else if (c == '>' && elementType == XmlTokenType.XML_TAG_END) {
+    } else if (c == '>' && elementType == ScalaXmlTokenTypes.XML_TAG_END) {
       moveCaret()
       return Result.STOP
-    } else if (c == '>' && prevElement != null && prevElement.getNode.getElementType == XmlTokenType.XML_EMPTY_ELEMENT_END) {
+    } else if (c == '>' && prevElement != null && prevElement.getNode.getElementType ==ScalaXmlTokenTypes.XML_EMPTY_ELEMENT_END) {
       return Result.STOP
     } else if (c == '>' && settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR && prevElement != null &&
       prevElement.getNode.getElementType == ScalaTokenTypes.tFUNTYPE) {
@@ -207,7 +206,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   }
 
   private def completeXmlAttributeQuote(editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int) {
-    if (element != null && element.getNode.getElementType == XmlTokenType.XML_EQ && element.getParent != null &&
+    if (element != null && element.getNode.getElementType == ScalaXmlTokenTypes.XML_EQ && element.getParent != null &&
             element.getParent.isInstanceOf[ScXmlAttribute]) {
       insertAndCommit(offset, "\"\"", document, project)
       editor.getCaretModel.moveCaretRelatively(1, 0, false, false, false)
@@ -345,19 +344,19 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   }
 
   private def completeEmptyXmlTag(editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int) {
-    if (element != null && element.getNode.getElementType == XmlTokenType.XML_DATA_CHARACTERS && element.getText == "/" &&
+    if (element != null && element.getNode.getElementType == ScalaXmlTokenTypes.XML_DATA_CHARACTERS && element.getText == "/" &&
             element.getPrevSibling != null && element.getPrevSibling.isInstanceOf[ScXmlStartTag]) {
-      val xmlLexer = new XmlLexer()
+      val xmlLexer = new PatchedXmlLexer
       xmlLexer.start(element.getPrevSibling.getText + "/>")
       xmlLexer.advance()
 
-      if (xmlLexer.getTokenType != XmlTokenType.XML_START_TAG_START) return
+      if (xmlLexer.getTokenType != ScalaXmlTokenTypes.XML_START_TAG_START) return
 
       while (xmlLexer.getTokenEnd < xmlLexer.getBufferEnd) {
         xmlLexer.advance()
       }
 
-      if (xmlLexer.getTokenType != XmlTokenType.XML_EMPTY_ELEMENT_END) return
+      if (xmlLexer.getTokenType != ScalaXmlTokenTypes.XML_EMPTY_ELEMENT_END) return
 
       extensions.inWriteAction {
         document.insertString(offset, ">")
