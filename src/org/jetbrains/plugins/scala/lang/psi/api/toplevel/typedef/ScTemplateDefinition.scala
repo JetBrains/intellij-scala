@@ -9,7 +9,7 @@ import java.util
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.{DumbService, DumbServiceImpl}
+import com.intellij.openapi.project.DumbService
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiClassImplUtil.MemberType
@@ -21,10 +21,11 @@ import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -107,7 +108,17 @@ import com.intellij.openapi.util.{Pair => IPair}
 
   override def findMethodsAndTheirSubstitutorsByName(name: String,
                                                      checkBases: Boolean): JList[IPair[PsiMethod, PsiSubstitutor]] = {
-    PsiClassImplUtil.findMethodsAndTheirSubstitutorsByName(this, name, checkBases)
+    //the reordering is a hack to enable 'go to test location' for junit test methods defined in traits
+    import scala.collection.JavaConversions._
+    PsiClassImplUtil.findMethodsAndTheirSubstitutorsByName(this, name, checkBases).toList.sortBy(myPair =>
+      myPair.first match {
+        case wrapper: ScFunctionWrapper if wrapper.function.isInstanceOf[ScFunctionDeclaration] => 1
+        case wrapper: ScFunctionWrapper if wrapper.function.isInstanceOf[ScFunctionDefinition] => wrapper.containingClass match {
+          case myClass: ScTemplateDefinition if myClass.members.contains(wrapper.function) => 0
+          case _ => 1
+        }
+        case _ => 1
+      })
   }
 
   override def getAllMethodsAndTheirSubstitutors: JList[IPair[PsiMethod, PsiSubstitutor]] = {
