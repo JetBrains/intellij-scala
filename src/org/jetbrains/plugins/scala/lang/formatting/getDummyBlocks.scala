@@ -12,7 +12,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.tree._
-import com.intellij.psi.{PsiComment, PsiElement, PsiErrorElement, PsiWhiteSpace}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.formatting.ScalaWrapManager._
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -33,13 +33,12 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
-import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 
 object getDummyBlocks {
   val fieldGroupAlignmentKey: Key[Alignment] = Key.create("field.group.alignment.key")
-  private val alignmentsMap = scala.collection.mutable.Map[ScInterpolatedStringLiteral, Alignment]()
+  private val alignmentsMap = scala.collection.mutable.Map[SmartPsiElementPointer[ScInterpolatedStringLiteral], Alignment]()
 
   def apply(firstNode: ASTNode, lastNode: ASTNode, block: ScalaBlock): util.ArrayList[Block] =
     if (lastNode != null) applyInner(firstNode, lastNode, block) else applyInner(firstNode, block)
@@ -123,7 +122,8 @@ object getDummyBlocks {
       }
       case interpolated: ScInterpolatedStringLiteral =>
         //create and store alignment; required for support of multi-line interploated strings (SCL-8665)
-        alignmentsMap.put(interpolated, Alignment.createAlignment())
+        alignmentsMap.put(SmartPointerManager.getInstance(interpolated.getProject).
+            createSmartPsiElementPointer(interpolated), Alignment.createAlignment())
       case _ =>
     }
     val alignment: Alignment = if (mustAlignment(node, block.getSettings))
@@ -532,7 +532,8 @@ object getDummyBlocks {
 
     val alignment = null
     val validAlignment = Option(ScalaPsiUtil.getParentOfType(node.getPsi, classOf[ScInterpolatedStringLiteral])).
-        map(_.asInstanceOf[ScInterpolatedStringLiteral]).map(alignmentsMap.get).flatten.getOrElse(Alignment.createAlignment(true))
+        map(_.asInstanceOf[ScInterpolatedStringLiteral]).map(literal => alignmentsMap.find{case (pointer, _) =>
+      pointer.getElement == literal}.map(_._2)).flatten.getOrElse(Alignment.createAlignment(true))
     val wrap: Wrap = Wrap.createWrap(WrapType.NONE, true)
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val marginChar = "" + MultilineStringUtil.getMarginChar(node.getPsi)
