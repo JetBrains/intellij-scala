@@ -30,9 +30,7 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
         if (mc == null || mc.args == null || mc.args.exprs.isEmpty) return
         mc.getInvokedExpr match {
           case ref: ScReferenceExpression => ref.resolve() match {
-            case fun: ScFunction =>
-              if (fun.name.startsWith("set") && mc.args.exprs.size == 1 && isBooleanType(mc.args.exprs(0)) &&
-                      getIgnoreSetters) return
+            case fun: ScFunction if fun.parameters.size == 1 => return
             case _ =>
           }
           case _ =>
@@ -84,7 +82,7 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
     }
   }
 
-  def getIgnoreSetters: Boolean
-  def setIgnoreSetters(value: Boolean)
+  def isIgnoreSingleParameter: Boolean
+  def setIgnoreSingleParameter(value: Boolean)
 
 }
