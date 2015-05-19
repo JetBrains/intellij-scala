@@ -62,6 +62,7 @@ class UTestConfigurationProducer extends {
             (if (testName != null) "\\" + testName else ""), confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[UTestRunConfiguration]
     runConfiguration.setTestClassPath(testClassPath)
+    runConfiguration.initWorkingDir()
     if (testName != null) runConfiguration.setTestName(testName)
     val kind = if (testName == null) TestKind.CLASS else TestKind.TEST_NAME
     runConfiguration.setTestKind(kind)
@@ -140,7 +141,7 @@ class UTestConfigurationProducer extends {
       parent = PsiTreeUtil.getParentOfType(parent, classOf[ScTypeDefinition], true)
     }
     if (!parent.isInstanceOf[ScObject]) return (null, null)
-    if (!suitePaths.exists(suitePath => isInheritor(parent, suitePath))) return (null, null)
+    if (!suitePaths.exists(suitePath => TestConfigurationUtil.isInheritor(parent, suitePath))) return (null, null)
     val testClassPath = parent.qualifiedName
 
     //now get test name

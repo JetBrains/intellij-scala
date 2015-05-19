@@ -7,15 +7,15 @@ import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTupleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{Any => scTypeAny, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 /**
  * Nikolay.Tropin
@@ -23,31 +23,42 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
  */
 object CreateFromUsageUtil {
 
-  def argsTextByTypes(types: Seq[ScType]): String = {
-    val names = types.map(NameSuggester.suggestNamesByType(_).headOption.getOrElse("value"))
-    val uniqueNames = names.foldLeft(List[String]()) { (r, h) =>
+  def uniqueNames(names: Seq[String]) = {
+    names.foldLeft(List[String]()) { (r, h) =>
       (h #:: Stream.from(1).map(h + _)).find(!r.contains(_)).get :: r
-    }
-    (uniqueNames.reverse, types).zipped.map((name, tpe) => s"$name: ${tpe.canonicalText}").mkString("(", ", ", ")")
+    }.reverse
+  }
+  
+  def nameByType(tp: ScType) = NameSuggester.suggestNamesByType(tp).headOption.getOrElse("value")
+  
+  def nameAndTypeForArg(arg: PsiElement): (String, ScType) = arg match {
+    case ref: ScReferenceExpression => (ref.refName, ref.getType().getOrAny)
+    case expr: ScExpression =>
+      val tp = expr.getType().getOrAny
+      (nameByType(tp), tp)
+    case bp: ScBindingPattern if !bp.isWildcard => (bp.name, bp.getType(TypingContext.empty).getOrAny)
+    case p: ScPattern =>
+      val tp: ScType = p.getType(TypingContext.empty).getOrAny
+      (nameByType(tp), tp)
+    case _ => ("value", scTypeAny)
+  }
+  
+  def paramsText(args: Seq[PsiElement]) = {
+    val (names, types) = args.map(nameAndTypeForArg).unzip
+    (uniqueNames(names), types).zipped.map((name, tpe) => s"$name: ${tpe.canonicalText}").mkString("(", ", ", ")")
   }
 
-  def argsText(args: Seq[ScExpression]) = {
-    val types = args.map(_.getType().getOrAny)
-    argsTextByTypes(types)
-  }
-
-  def argumentsText(ref: ScReferenceElement) = {
+  def parametersText(ref: ScReferenceElement) = {
     ref.getParent match {
       case p: ScPattern =>
-        val types = patternArgs(p).map(_.getType(TypingContext.empty).getOrAny)
-        argsTextByTypes(types)
+        paramsText(patternArgs(p))
       case _ =>
         val fromConstrArguments = PsiTreeUtil.getParentOfType(ref, classOf[ScConstructor]) match {
           case ScConstructor(simple: ScSimpleTypeElement, args) if ref.getParent == simple => args
           case ScConstructor(pt: ScParameterizedTypeElement, args) if ref.getParent == pt.typeElement => args
           case _ => Seq.empty
         }
-        fromConstrArguments.map(argList => argsText(argList.exprs)).mkString
+        fromConstrArguments.map(argList => paramsText(argList.exprs)).mkString
     }
   }
 
@@ -101,7 +112,11 @@ object CreateFromUsageUtil {
     FileEditorManager.getInstance(project).openTextEditor(descriptor, true)
   }
 
-  def unapplyMethodText(pattern: ScPattern) = s"def unapply(x: Any): ${unapplyMethodTypeText(pattern)} = ???"
+  def unapplyMethodText(pattern: ScPattern) = {
+    val pType = pattern.expectedType.getOrElse(scTypeAny)
+    val pName = nameByType(pType)
+    s"def unapply($pName: ${pType.canonicalText}): ${unapplyMethodTypeText(pattern)} = ???"
+  }
 
   def unapplyMethodTypeText(pattern: ScPattern) = {
     val types = CreateFromUsageUtil.patternArgs(pattern).map(_.getType(TypingContext.empty).getOrAny)

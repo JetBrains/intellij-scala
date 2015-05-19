@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
  * Date: 28.07.2008
  */
 public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
-  private ScalaCodeStyleSettings() {
+  public ScalaCodeStyleSettings() {
     super("ScalaCodeStyleSettings", null);
   }
 

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
  */
 class OperationOnCollectionQuickFix(expr: ScExpression, simpl: Simplification) extends AbstractFixOnPsiElement(simpl.hint, expr){
   def doApplyFix(project: Project) {
-    val toReplace = getElement
+    val toReplace = simpl.exprToReplace.getElement
     if (!toReplace.isValid) return
     val newExpr = ScalaPsiElementFactory.createExpressionFromText(simpl.replacementText, toReplace.getManager)
     toReplace.replaceExpression(newExpr, removeParenthesis = true)

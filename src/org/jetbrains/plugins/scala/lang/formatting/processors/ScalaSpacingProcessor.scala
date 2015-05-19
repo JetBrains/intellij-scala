@@ -11,7 +11,7 @@ import com.intellij.psi.codeStyle.CommonCodeStyleSettings
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.xml._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -40,11 +40,6 @@ import scala.annotation.tailrec
 
 object ScalaSpacingProcessor extends ScalaTokenTypes {
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.formatting.processors.ScalaSpacingProcessor")
-  val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1)
-  val NO_SPACING = Spacing.createSpacing(0, 0, 0, false, 0)
-  val COMMON_SPACING = Spacing.createSpacing(1, 1, 0, true, 100)
-  val IMPORT_BETWEEN_SPACING = Spacing.createSpacing(0, 0, 1, true, 100)
-  val IMPORT_OTHER_SPACING = Spacing.createSpacing(0, 0, 2, true, 100)
 
   val BLOCK_ELEMENT_TYPES = {
     import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
@@ -69,6 +64,24 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     prev
   }
 
+  private def spacesToPreventNewIds(left: ScalaBlock, right: ScalaBlock, fileText: String, textRange: TextRange): Integer = {
+    if (ScalaXmlTokenTypes.XML_ELEMENTS.contains(left.getNode.getElementType) ||
+      ScalaXmlTokenTypes.XML_ELEMENTS.contains(right.getNode.getElementType)) return 0
+    @tailrec
+    def dfsChildren(currentNode: ASTNode, getChildren: ASTNode => List[ASTNode]): ASTNode = {
+      getChildren(currentNode) find (_.getTextLength > 0) match {
+        case Some(next) => dfsChildren(next, getChildren)
+        case None => currentNode
+      }
+    }
+    val leftElement = dfsChildren(left.myLastNode.getOrElse(left.getNode), _.getChildren(null).toList.reverse)
+    val rightElement = dfsChildren(right.getNode, _.getChildren(null).toList)
+    val concatString = if (textRange.contains(rightElement.getTextRange) && textRange.contains(leftElement.getTextRange)) {
+      leftElement.getTextRange.substring(fileText) + rightElement.getTextRange.substring(fileText)
+    } else return 0
+    if (ScalaNamesUtil.isIdentifier(concatString) || ScalaNamesUtil.isKeyword(concatString)) 1 else 0
+  }
+
   def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing = {
     val settings = right.getCommonSettings
     val keepBlankLinesInCode = settings.KEEP_BLANK_LINES_IN_CODE
@@ -88,14 +101,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       if (keepLineBreaks) Spacing.createDependentLFSpacing(y, y, range, true, x)
       else Spacing.createDependentLFSpacing(y, y, range, false, 0)
     }
-    val WITHOUT_SPACING = getSpacing(keepBlankLinesInCode, 0, 0)
-    val WITHOUT_SPACING_NO_KEEP = Spacing.createSpacing(0, 0, 0, false, 0)
-    val WITHOUT_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(keepBlankLinesInCode, 0, range)
-    val WITH_SPACING = getSpacing(keepBlankLinesInCode, 1, 0)
-    val WITH_SPACING_NO_KEEP = Spacing.createSpacing(1, 1, 0, false, 0)
-    val WITH_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(keepBlankLinesInCode, 1, range)
-    val ON_NEW_LINE = getSpacing(keepBlankLinesInCode, 0, 1)
-    val DOUBLE_LINE = getSpacing(keepBlankLinesInCode, 0, 2)
     val leftNode = left.getNode
     val rightNode = right.getNode
     val fileText = leftNode.getPsi.getContainingFile.getText
@@ -118,6 +123,23 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         (leftPsi.getText, rightPsi.getText)
       } else (left.getTextRange.substring(fileText),
             right.getTextRange.substring(fileText))
+
+    val spacesMin: Integer = spacesToPreventNewIds(left, right, fileText, fileTextRange)
+    val WITHOUT_SPACING = getSpacing(keepBlankLinesInCode, spacesMin, 0)
+    val WITHOUT_SPACING_NO_KEEP = Spacing.createSpacing(spacesMin, spacesMin, 0, false, 0)
+    val WITHOUT_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(keepBlankLinesInCode, spacesMin, range)
+    val WITH_SPACING = getSpacing(keepBlankLinesInCode, 1, 0)
+    val WITH_SPACING_NO_KEEP = Spacing.createSpacing(1, 1, 0, false, 0)
+    val WITH_SPACING_DEPENDENT = (range: TextRange) => getDependentLFSpacing(keepBlankLinesInCode, 1, range)
+    val ON_NEW_LINE = getSpacing(keepBlankLinesInCode, 0, 1)
+    val DOUBLE_LINE = getSpacing(keepBlankLinesInCode, 0, 2)
+
+    val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1)
+    val NO_SPACING = Spacing.createSpacing(spacesMin, spacesMin, 0, false, 0)
+    val COMMON_SPACING = Spacing.createSpacing(1, 1, 0, true, 100)
+    val IMPORT_BETWEEN_SPACING = Spacing.createSpacing(0, 0, 1, true, 100)
+    val IMPORT_OTHER_SPACING = Spacing.createSpacing(0, 0, 2, true, 100)
+
     import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
     if ((leftPsi.isInstanceOf[PsiComment] || leftPsi.isInstanceOf[PsiDocComment]) &&
             (rightPsi.isInstanceOf[PsiComment] || rightPsi.isInstanceOf[PsiDocComment])) {
@@ -159,10 +181,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (ScalaElementTypes.XML_START_TAG, ScalaElementTypes.XML_END_TAG, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return WITHOUT_SPACING
-      case (ScalaElementTypes.XML_START_TAG, XmlTokenType.XML_DATA_CHARACTERS, _, _) =>
+      case (ScalaElementTypes.XML_START_TAG, ScalaXmlTokenTypes.XML_DATA_CHARACTERS, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return WITHOUT_SPACING
-      case (XmlTokenType.XML_DATA_CHARACTERS, ScalaElementTypes.XML_END_TAG, _, _) =>
+      case (ScalaXmlTokenTypes.XML_DATA_CHARACTERS, ScalaElementTypes.XML_END_TAG, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return WITHOUT_SPACING
       case (ScalaElementTypes.XML_START_TAG, _, _, _) =>
@@ -171,21 +193,21 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (_, ScalaElementTypes.XML_END_TAG, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return ON_NEW_LINE
-      case (XmlTokenType.XML_DATA_CHARACTERS, XmlTokenType.XML_DATA_CHARACTERS, _, _) =>
+      case (ScalaXmlTokenTypes.XML_DATA_CHARACTERS, ScalaXmlTokenTypes.XML_DATA_CHARACTERS, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return WITH_SPACING
-      case (XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN, XmlTokenType.XML_CHAR_ENTITY_REF, _, _) => 
+      case (ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_TOKEN, ScalaXmlTokenTypes.XML_CHAR_ENTITY_REF, _, _) =>
         return Spacing.getReadOnlySpacing
-      case (XmlTokenType.XML_CHAR_ENTITY_REF, XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN, _, _) =>
+      case (ScalaXmlTokenTypes.XML_CHAR_ENTITY_REF, ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_TOKEN, _, _) =>
         return Spacing.getReadOnlySpacing
-      case (XmlTokenType.XML_DATA_CHARACTERS, XmlTokenType.XML_CDATA_END, _, _) =>
+      case (ScalaXmlTokenTypes.XML_DATA_CHARACTERS, ScalaXmlTokenTypes.XML_CDATA_END, _, _) =>
         return Spacing.getReadOnlySpacing
-      case (XmlTokenType.XML_DATA_CHARACTERS, _, _, _) =>
+      case (ScalaXmlTokenTypes.XML_DATA_CHARACTERS, _, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return ON_NEW_LINE
-      case (XmlTokenType.XML_CDATA_START, XmlTokenType.XML_DATA_CHARACTERS, _, _) =>
+      case (ScalaXmlTokenTypes.XML_CDATA_START, ScalaXmlTokenTypes.XML_DATA_CHARACTERS, _, _) =>
         return Spacing.getReadOnlySpacing
-      case (_, XmlTokenType.XML_DATA_CHARACTERS, _, _) =>
+      case (_, ScalaXmlTokenTypes.XML_DATA_CHARACTERS, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return ON_NEW_LINE
       case (ScalaElementTypes.XML_EMPTY_TAG, ScalaElementTypes.XML_EMPTY_TAG, _, _) =>
@@ -194,43 +216,43 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (_, ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START | ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return NO_SPACING
-      case (XmlTokenType.XML_START_TAG_START | XmlTokenType.XML_END_TAG_START |
-              XmlTokenType.XML_CDATA_START | XmlTokenType.XML_PI_START, _, _, _) =>
+      case (ScalaXmlTokenTypes.XML_START_TAG_START | ScalaXmlTokenTypes.XML_END_TAG_START |
+              ScalaXmlTokenTypes.XML_CDATA_START | ScalaXmlTokenTypes.XML_PI_START, _, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return NO_SPACING
-      case (_, XmlTokenType.XML_TAG_END | XmlTokenType.XML_EMPTY_ELEMENT_END |
-              XmlTokenType.XML_CDATA_END | XmlTokenType.XML_PI_END, _, _) =>
+      case (_, ScalaXmlTokenTypes.XML_TAG_END | ScalaXmlTokenTypes.XML_EMPTY_ELEMENT_END |
+              ScalaXmlTokenTypes.XML_CDATA_END | ScalaXmlTokenTypes.XML_PI_END, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return NO_SPACING
-      case (XmlTokenType.XML_NAME, ScalaElementTypes.XML_ATTRIBUTE, _, _) =>
+      case (ScalaXmlTokenTypes.XML_NAME, ScalaElementTypes.XML_ATTRIBUTE, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return COMMON_SPACING
-      case (XmlTokenType.XML_NAME, XmlTokenType.XML_EQ, _, _) =>
+      case (ScalaXmlTokenTypes.XML_NAME, ScalaXmlTokenTypes.XML_EQ, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return NO_SPACING
-      case (XmlTokenType.XML_EQ, XmlTokenType.XML_ATTRIBUTE_VALUE_START_DELIMITER |
+      case (ScalaXmlTokenTypes.XML_EQ, ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_START_DELIMITER |
               ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return NO_SPACING
-      case (XmlTokenType.XML_ATTRIBUTE_VALUE_START_DELIMITER, XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN, _, _) =>
+      case (ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_START_DELIMITER, ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_TOKEN, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return NO_SPACING
-      case (XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN, XmlTokenType.XML_ATTRIBUTE_VALUE_END_DELIMITER, _, _) =>
+      case (ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_TOKEN, ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return NO_SPACING
       case (ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START | ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END, _, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return NO_SPACING
-      case (_, XmlTokenType.XML_DATA_CHARACTERS | XmlTokenType.XML_COMMENT_END
-              | XmlTokenType.XML_COMMENT_CHARACTERS, _, _) =>
+      case (_, ScalaXmlTokenTypes.XML_DATA_CHARACTERS | ScalaXmlTokenTypes.XML_COMMENT_END
+              | ScalaXmlTokenTypes.XML_COMMENT_CHARACTERS, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return NO_SPACING
-      case (XmlTokenType.XML_DATA_CHARACTERS | XmlTokenType.XML_COMMENT_START
-              | XmlTokenType.XML_COMMENT_CHARACTERS, _, _, _) =>
+      case (ScalaXmlTokenTypes.XML_DATA_CHARACTERS | ScalaXmlTokenTypes.XML_COMMENT_START
+              | ScalaXmlTokenTypes.XML_COMMENT_CHARACTERS, _, _, _) =>
         if (scalaSettings.KEEP_XML_FORMATTING) return Spacing.getReadOnlySpacing
         return NO_SPACING
       case (el1, el2, _, _) if scalaSettings.KEEP_XML_FORMATTING &&
-        (XML_ELEMENTS.contains(el1) || XML_ELEMENTS.contains(el2)) => return Spacing.getReadOnlySpacing
+        (ScalaXmlTokenTypes.XML_ELEMENTS.contains(el1) || ScalaXmlTokenTypes.XML_ELEMENTS.contains(el2)) => return Spacing.getReadOnlySpacing
       case _ =>
     }
 

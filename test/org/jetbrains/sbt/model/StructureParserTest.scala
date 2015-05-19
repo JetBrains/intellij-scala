@@ -62,6 +62,7 @@ object StructureParserTest {
       organization = "some-organization",
       version = "1.2.3",
       base = new File("$BASE"),
+      basePackages = Seq("org.jetbrains", "org.intellij"),
       target = new File(""),
       build,
       configurations = Seq(configuration),

@@ -10,6 +10,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase;
 
 @State(
     name = "ScalaApplicationSettings",
@@ -51,10 +52,15 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public boolean MOVE_COMPANION = true;
 
+  public boolean UPGRADE_TO_INTERPOLATED = true;
+
   //MISC
   public boolean ASK_USE_LATEST_PLUGIN_BUILDS = true;
   public boolean ASK_PLATFORM_UPDATE = true;
   public enum pluginBranch {Release, EAP, Nightly}
+
+  private String[] INSPECTION_LIKE_OPTION_CLASSES = OperationOnCollectionInspectionBase.likeOptionClassesDefault();
+  private String[] INSPECTION_LIKE_COLLECTION_CLASSES = OperationOnCollectionInspectionBase.likeCollectionClassesDefault();
 
   public ScalaApplicationSettings getState() {
     return this;
@@ -66,6 +72,22 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public static ScalaApplicationSettings getInstance() {
     return ServiceManager.getService(ScalaApplicationSettings.class);
+  }
+
+  public String[] getLikeOptionClasses() {
+    return INSPECTION_LIKE_OPTION_CLASSES;
+  }
+
+  public void setLikeOptionClasses(String[] patterns) {
+    INSPECTION_LIKE_OPTION_CLASSES = patterns;
+  }
+
+  public String[] getLikeCollectionClasses() {
+    return INSPECTION_LIKE_COLLECTION_CLASSES;
+  }
+
+  public void setLikeCollectionClasses(String[] patterns) {
+    INSPECTION_LIKE_COLLECTION_CLASSES = patterns;
   }
 
 }

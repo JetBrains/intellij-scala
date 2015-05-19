@@ -1,0 +1,18 @@
+<html>
+<body>
+Don't emulate <code>headOption</code> or <code>lastOption</code>
+<p>Before:</p>
+<code>if (seq.nonEmpty) Some(seq.head) else None</code><br>
+<code>seq.lift(0)</code><br>
+<code>if (seq.size == 0) None else seq.lastOption</code><br>
+<code>seq.lift(seq.size - 1)</code><br>
+
+<p>After:</p>
+
+<code>seq.headOption</code><br>
+<code>seq.headOption</code><br>
+<code>seq.lastOption</code><br>
+<code>seq.lastOption</code><br>
+
+</body>
+</html>

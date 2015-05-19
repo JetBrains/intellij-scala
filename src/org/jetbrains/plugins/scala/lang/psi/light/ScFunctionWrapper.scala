@@ -72,7 +72,7 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
                         forDefault: Option[Int] = None) extends {
   val elementFactory = JavaPsiFacade.getInstance(function.getProject).getElementFactory
   val containingClass = {
-    if (cClass != None) cClass.get
+    if (cClass.isDefined) cClass.get
     else {
       var res: PsiClass = function.containingClass
       if (isStatic) {
@@ -128,7 +128,7 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
     if (returnType == null) {
       val typeParameters = function.typeParameters
       val generifySubst: ScSubstitutor =
-        if (typeParameters.length > 0) {
+        if (typeParameters.nonEmpty) {
           val methodTypeParameters = getTypeParameters
           if (typeParameters.length == methodTypeParameters.length) {
             val tvs =
@@ -172,12 +172,12 @@ object ScFunctionWrapper {
                  isJavaVarargs: Boolean, forDefault: Option[Int] = None): String = {
     val builder = new StringBuilder
 
-    builder.append(JavaConversionUtil.modifiers(function, isStatic))
+    builder.append(JavaConversionUtil.annotationsAndModifiers(function, isStatic))
 
     val subst = getSubstitutor(cClass, function)
 
     function match {
-      case function: ScFunction if function.typeParameters.length > 0 =>
+      case function: ScFunction if function.typeParameters.nonEmpty =>
         builder.append(function.typeParameters.map(tp => {
           var res = tp.name
           tp.upperTypeElement match {
@@ -201,7 +201,7 @@ object ScFunctionWrapper {
                   }
                 case _ =>
               }
-              if (classes.length > 0) {
+              if (classes.nonEmpty) {
                 res += classes.map(_.getQualifiedName).mkString(" extends ", " & ", "")
               }
             case _ =>
@@ -254,6 +254,9 @@ object ScFunctionWrapper {
     }.flatMap(_.effectiveParameters).map { case param =>
       val builder = new StringBuilder
       val varargs: Boolean = param.isRepeatedParameter && isJavaVarargs
+      val paramAnnotations = JavaConversionUtil.annotations(param).mkString(" ")
+      if (!paramAnnotations.isEmpty)
+        builder.append(paramAnnotations).append(" ")
       val tt =
         if (varargs) param.getType(TypingContext.empty)
         else param.getRealParameterType(TypingContext.empty)

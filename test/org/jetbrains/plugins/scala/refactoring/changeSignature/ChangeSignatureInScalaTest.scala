@@ -113,4 +113,10 @@ class ChangeSignatureInScalaTest extends ChangeSignatureTestBase {
     val params = Seq(parameterInfo("i", -1, types.Int, "0"))
     doTest(null, "foo", null, Seq(params))
   }
+
+  def testAddClauseConstructorVararg(): Unit = {
+    isAddDefaultValue = false
+    val params = Seq(Seq(parameterInfo("b", 0, types.Boolean)), Seq(parameterInfo("x", -1, types.Int, "10"), parameterInfo("i", 1, types.Int, isRep = true)))
+    doTest(null, "AddClauseConstructorVararg", null, params)
+  }
 }

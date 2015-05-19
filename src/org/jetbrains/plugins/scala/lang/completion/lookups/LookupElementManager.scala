@@ -25,7 +25,9 @@ object LookupElementManager {
                        isOverloadedForClassName: Boolean = false,
                        shouldImport: Boolean = false,
                        isInStableCodeReference: Boolean = false,
-                       containingClass: Option[PsiClass] = None): Seq[ScalaLookupItem] = {
+                       containingClass: Option[PsiClass] = None,
+                       isInSimpleString: Boolean = false,
+                       isInInterpolatedString: Boolean = false): Seq[ScalaLookupItem] = {
     val element = resolveResult.element
     val substitutor = resolveResult.substitutor
     val isRenamed: Option[String] = resolveResult.isRenamed match {
@@ -72,6 +74,7 @@ object LookupElementManager {
       lookupItem.isInStableCodeReference = isInStableCodeReference
       lookupItem.substitutor = substitutor
       lookupItem.prefixCompletion = resolveResult.prefixCompletion
+      lookupItem.isInSimpleString = isInSimpleString
       lookupItem
     }
 

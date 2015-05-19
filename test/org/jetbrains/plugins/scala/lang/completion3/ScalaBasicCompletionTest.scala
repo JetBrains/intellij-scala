@@ -980,4 +980,100 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
 
     checkResultByText(resultText)
   }
+
+  def testStringSimple() {
+    val fileText =
+      """
+        |object Z {
+        |  val xxx = 1
+        |  "$<caret>"
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |object Z {
+        |  val xxx = 1
+        |  s"$xxx<caret>"
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "xxx").get)
+
+    checkResultByText(resultText)
+  }
+
+  def testStringNeedBraces() {
+    val fileText =
+      """
+        |object Z {
+        |  val xxx = 1
+        |  "$<caret>asdfas"
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |object Z {
+        |  val xxx = 1
+        |  s"${xxx<caret>}asdfas"
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "xxx").get, '\n')
+
+    checkResultByText(resultText)
+  }
+
+  def testStringFunction() {
+    val fileText =
+      """
+        |object Z {
+        |  def xxx() = 1
+        |  "$<caret>"
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |object Z {
+        |  def xxx() = 1
+        |  s"${xxx()<caret>}"
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "xxx").get)
+
+    checkResultByText(resultText)
+  }
+
+  def testInterpolatedStringDotCompletion() {
+    val fileText =
+      """
+        |object Z {
+        |  def xxx: String = "abc"
+        |  s"$xxx.<caret>"
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |object Z {
+        |  def xxx: String = "abc"
+        |  s"${xxx.substring(<caret>)}"
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "substring").get)
+
+    checkResultByText(resultText)
+  }
 }

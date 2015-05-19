@@ -3,6 +3,8 @@ package lang
 package formatting
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.project.Project
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIfStmt
 
@@ -33,5 +35,10 @@ object FormatterUtil {
     var result = 0
     while (offset >= 0 && text(offset) != '\n') {offset += -1; result += 1}
     result
+  }
+
+  def getNormalIndentString(project: Project) = {
+    String.format("%1$" +
+        ScalaCodeStyleSettings.getInstance(project).getContainer.getIndentSize(ScalaFileType.SCALA_FILE_TYPE) + "s", " ")
   }
 }

@@ -11,9 +11,10 @@ abstract class OperationsOnCollectionInspectionTest extends ScalaLightCodeInsigh
   val END = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
   val inspectionClass: Class[_ <: OperationOnCollectionInspection]
   def hint: String
+  def description: String = hint
 
-  protected def check(text: String) {
-    checkTextHasError(text, hint, inspectionClass)
+  protected def check(text: String, description: String = description) {
+    checkTextHasError(text, description, inspectionClass)
   }
 
   protected def testFix(text: String, result: String, hint: String) {

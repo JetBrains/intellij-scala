@@ -8,11 +8,13 @@ import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.DefaultJavaProgramRunner
 import com.intellij.execution.process.{ProcessEvent, ProcessAdapter, ProcessHandler, ProcessListener}
 import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
+import com.intellij.ide.structureView.newStructureView.StructureViewComponent
+import com.intellij.ide.util.treeView.smartTree.{TreeElementWrapper, NodeProvider, TreeElement}
 import com.intellij.openapi.util.Key
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.execution.{Location, PsiLocation, Executor, RunnerAndConfigurationSettings}
+import com.intellij.execution.{PsiLocation, Executor, RunnerAndConfigurationSettings}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
@@ -20,6 +22,10 @@ import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.testFramework.{PsiTestUtil, UsefulTestCase}
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestBase
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
+import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement
+import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer
 import org.jetbrains.plugins.scala.util.TestUtils
 
@@ -40,6 +46,36 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
 
   protected val useDynamicClassPath = false
 
+  override protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*) = {
+    val structureViewRoot = buildFileStructure(testClassName + ".scala")
+    for (test <- tests) {
+      assert(checkTestNodeInFileStructure(structureViewRoot, test, None, status))
+    }
+  }
+
+  override protected def runFileStructureViewTest(testClassName: String, testName: String, parentTestName: Option[String],
+                                                  testStatus: Int = TestStructureViewElement.normalStatusId) = {
+    val structureViewRoot = buildFileStructure(testClassName + ".scala")
+    assert(checkTestNodeInFileStructure(structureViewRoot, testName, parentTestName, testStatus))
+  }
+
+  override protected def buildFileStructure(fileName: String): TreeElementWrapper = {
+    val ioFile = new java.io.File(srcDir, fileName)
+    val file = PsiManager.getInstance(getProject).findFile(getVirtualFile(ioFile))
+    val treeViewModel = new ScalaStructureViewModel(file.asInstanceOf[ScalaFile]){
+      override def isEnabled (provider: NodeProvider[_ <: TreeElement]): Boolean = provider.isInstanceOf[TestNodeProvider]
+    }
+    val wrapper = new StructureViewComponent.StructureViewTreeElementWrapper(getProject, treeViewModel.getRoot, treeViewModel)
+
+    def initTree(wrapper: StructureViewComponent.StructureViewTreeElementWrapper) {
+      import scala.collection.JavaConversions._
+      wrapper.initChildren()
+      wrapper.getChildren.toList.foreach(node => initTree(node.asInstanceOf[StructureViewComponent.StructureViewTreeElementWrapper]))
+    }
+    initTree(wrapper)
+    wrapper
+  }
+
   override protected def createLocation(lineNumber: Int, offset: Int, fileName: String): PsiLocation[PsiElement] = {
     val ioFile = new java.io.File(srcDir, fileName)
 
@@ -51,14 +87,14 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
 
     val psiFile = myManager.findViewProvider(file).getPsi(ScalaFileType.SCALA_LANGUAGE)
 
-    new PsiLocation(project, myModule, psiFile.findElementAt(FileDocumentManager.getInstance().
-        getDocument(file).getLineStartOffset(lineNumber) + offset))
+    val psiElement = psiFile.findElementAt(FileDocumentManager.getInstance().getDocument(file).
+        getLineStartOffset(lineNumber) + offset)
+
+    new PsiLocation(project, myModule, psiElement)
   }
 
-  override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings = {
-
+  override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings =
     configurationProducer.createConfigurationByLocation(createLocation(lineNumber, offset, fileName))
-  }
 
   override protected def runTestFromConfig(
                                    configurationCheck: RunnerAndConfigurationSettings => Boolean,

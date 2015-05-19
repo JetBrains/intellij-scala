@@ -30,7 +30,7 @@ class ControlFlowTest extends LightCodeInsightFixtureTestCase {
     val start: PsiElement = file.findElementAt(if (model.hasSelection) model.getSelectionStart else 0)
     val end: PsiElement = file.findElementAt(if (model.hasSelection) model.getSelectionEnd - 1 else file.getTextLength - 1)
     val owner: ScControlFlowOwner = PsiTreeUtil.getParentOfType(PsiTreeUtil.findCommonParent(start, end), classOf[ScControlFlowOwner], false)
-    val instructions = owner.getControlFlow(false)
+    val instructions = owner.getControlFlow()
     val cf: String = dumpControlFlow(instructions)
     Assert.assertEquals(input.get(1).trim, cf.trim)
   }

@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
  */
 class ExistsEqualsTest extends OperationsOnCollectionInspectionTest{
   val hint = InspectionBundle.message("exists.equals.hint")
+  val forallNotEqualsHint = InspectionBundle.message("forall.notEquals.hint")
   def test_1() {
     val selected = s"List(0).${START}exists(x => x == 1)$END"
     check(selected)
@@ -54,6 +55,14 @@ class ExistsEqualsTest extends OperationsOnCollectionInspectionTest{
   def test_7() {
     val text = "Map(1 -> \"1\").exists(_ == (1, \"1\"))"
     checkTextHasNoErrors(text, hint, inspectionClass)
+  }
+
+  def testForallNotEquals(): Unit = {
+    val selected = s"Seq(1, 2).${START}forall(_ != 2)$END"
+    checkTextHasError(selected, forallNotEqualsHint, inspectionClass)
+    val text = "Seq(1, 2).forall(_ != 2)"
+    val result = "!Seq(1, 2).contains(2)"
+    testFix(text, result, forallNotEqualsHint)
   }
 
   override val inspectionClass = classOf[ExistsEqualsInspection]

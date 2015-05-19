@@ -18,7 +18,9 @@ class AnnotatorBasedErrorInspection extends LocalInspectionTool {
 
   override def getID: String = "AnnotatorBasedError"
 
-  override def getGroupDisplayName: String = "Scala: Internal"
+  override def getGroupDisplayName: String = "Internal"
+
+  override def getGroupPath: Array[String] = Array("Scala", "Internal")
 
   override def getDefaultLevel: HighlightDisplayLevel = HighlightDisplayLevel.ERROR
 

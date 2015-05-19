@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
+import com.intellij.psi.util.CachedValueProvider
+import com.intellij.psi.util.CachedValueProvider.Result
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{AllVariablesControlFlowPolicy, ScalaControlFlowBuilder}
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.{Instruction, ScControlFlowPolicy}
@@ -13,23 +15,25 @@ import scala.collection.mutable
 
 trait ScControlFlowOwner extends ScalaPsiElement {
 
-  private val myControlFlowCache = mutable.Map[ScControlFlowPolicy, Seq[Instruction]]()
+  private val myControlFlowCache = mutable.Map[ScControlFlowPolicy, ControlFlowCacheProvider]()
 
-  private def buildControlFlow(scope: Option[ScalaPsiElement], policy: ScControlFlowPolicy = AllVariablesControlFlowPolicy) = {
+  private def buildControlFlow(policy: ScControlFlowPolicy = AllVariablesControlFlowPolicy) = {
     val builder = new ScalaControlFlowBuilder(null, null, policy)
-    scope match {
-      case Some(elem) =>
-        val controlflow = builder.buildControlflow(elem)
-        myControlFlowCache += (policy -> controlflow)
-        controlflow
+    controlFlowScope match {
+      case Some(elem) => builder.buildControlflow(elem)
       case None => Seq.empty
     }
   }
 
-  def getControlFlow(cached: Boolean, policy: ScControlFlowPolicy = AllVariablesControlFlowPolicy): Seq[Instruction] = {
-    if (!cached || !myControlFlowCache.contains(policy)) buildControlFlow(controlFlowScope, policy)
-    else myControlFlowCache(policy)
+  def getControlFlow(policy: ScControlFlowPolicy = AllVariablesControlFlowPolicy): Seq[Instruction] = {
+    val provider = myControlFlowCache.getOrElseUpdate(policy, new ControlFlowCacheProvider(policy))
+    provider.compute().getValue
   }
 
   def controlFlowScope: Option[ScalaPsiElement]
+
+  private class ControlFlowCacheProvider(policy: ScControlFlowPolicy) extends CachedValueProvider[Seq[Instruction]] {
+
+    override def compute(): Result[Seq[Instruction]] = Result.create(buildControlFlow(policy), ScControlFlowOwner.this)
+  }
 }

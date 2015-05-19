@@ -22,7 +22,7 @@ trait FunSuiteGenerator extends IntegrationTest {
         |    print(">>TEST: OK<<")
         |  }
         |}
-      """.stripMargin
+      """.stripMargin.trim()
     )
   }
 }

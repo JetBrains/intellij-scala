@@ -14,4 +14,4 @@ trait TypeInferenceBug {
   }
 
 }
-//TypeInferenceBug.this.type#B
+//TypeInferenceBug.this.B

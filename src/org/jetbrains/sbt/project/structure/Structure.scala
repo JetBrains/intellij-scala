@@ -9,8 +9,8 @@ import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.ParsedValue
 case class Structure(projects: Seq[Project], repository: Option[Repository], localCachePath: Option[String], sbtVersion: String)
 
 case class Project(id: String, name: String, organization: String, version: String, base: File,
-                   target: File, build: Build, configurations: Seq[Configuration], java: Option[Java],
-                   scala: Option[Scala], android: Option[Android], dependencies: Dependencies,
+                   basePackages: Seq[String], target: File, build: Build, configurations: Seq[Configuration],
+                   java: Option[Java], scala: Option[Scala], android: Option[Android],dependencies: Dependencies,
                    resolvers: Set[Resolver], play2: Option[Play2])
 
 case class Build(imports: Seq[String], classes: Seq[File], docs: Seq[File], sources: Seq[File])

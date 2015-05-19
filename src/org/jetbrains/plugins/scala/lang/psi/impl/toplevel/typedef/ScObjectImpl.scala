@@ -7,7 +7,7 @@ package typedef
 
 import com.intellij.lang.ASTNode
 import com.intellij.lang.java.lexer.JavaLexer
-import com.intellij.openapi.project.{DumbServiceImpl, Project}
+import com.intellij.openapi.project.{DumbService, DumbServiceImpl, Project}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightField
@@ -101,7 +101,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    if (DumbServiceImpl.getInstance(getProject).isDumb) return true
+    if (DumbService.getInstance(getProject).isDumb) return true
     if (!super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
     if (isPackageObject && name != "`package`") {
       val newState = state.put(BaseProcessor.FROM_TYPE_KEY, null)
@@ -147,6 +147,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
           try {
             val method = ScalaPsiElementFactory.createMethodWithContext(s, c.getContext, c)
             method.setSynthetic(this)
+            method.syntheticCaseClass = Some(c)
             res += method
           }
           catch {

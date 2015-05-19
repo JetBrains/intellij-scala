@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryCon
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaParameterInfo
+import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterData
 
 import scala.beans.BeanProperty
 
@@ -17,12 +18,12 @@ import scala.beans.BeanProperty
  * Nikolay.Tropin
  * 2014-08-28
  */
-class ScalaChangeInfo(val newVisibility: String,
-                      val function: ScMethodLike,
-                      @BeanProperty val newName: String,
-                      val newType: ScType,
-                      val newParams: Seq[Seq[ScalaParameterInfo]],
-                      val isAddDefaultArgs: Boolean)
+case class ScalaChangeInfo(newVisibility: String,
+                           function: ScMethodLike,
+                           @BeanProperty newName: String,
+                           newType: ScType,
+                           newParams: Seq[Seq[ScalaParameterInfo]],
+                           isAddDefaultArgs: Boolean)
         extends ScalaChangeInfoBase(newParams.flatten.toArray)
         with UnsupportedJavaInfo with VisibilityChangeInfo with ParametersChangeInfo {
 
@@ -32,6 +33,9 @@ class ScalaChangeInfo(val newVisibility: String,
     if (newType != null) ScType.toPsi(newType, project, GlobalSearchScope.allScope(project))
     else null
   }
+
+  //used in introduce parameter refactoring
+  var introducedParameterData: Option[ScalaIntroduceParameterData] = None
 
   override def getValue(i: Int, callExpression: PsiCallExpression): PsiExpression =
     getNewParameters()(i).getValue(callExpression)
@@ -60,7 +64,7 @@ class ScalaChangeInfo(val newVisibility: String,
 
   override val getLanguage: Language = ScalaFileType.SCALA_LANGUAGE
 
-  override def isReturnTypeChanged: Boolean = function match {
+  override val isReturnTypeChanged: Boolean = function match {
     case f: ScFunction => f.returnType.toOption.map(_.canonicalText) != Option(newType).map(_.canonicalText)
     case _ => false
   }

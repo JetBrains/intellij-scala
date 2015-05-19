@@ -7,7 +7,7 @@ package base
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.caches.CachesUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScParameters, ScTypeParamClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -48,6 +48,17 @@ trait ScMethodLike extends ScMember with PsiMethod {
   def effectiveParameterClauses: Seq[ScParameterClause]
 
   def parameterList: ScParameters
+
+  def addParameter(param: ScParameter): ScMethodLike = {
+    if (parameterList.clauses.length > 0)
+      parameterList.clauses.apply(0).addParameter(param)
+    else {
+      val clause: ScParameterClause = ScalaPsiElementFactory.createClauseFromText("()", getManager)
+      val newClause = clause.addParameter(param)
+      parameterList.addClause(newClause)
+    }
+    this
+  }
 
   private def getConstructorTypeParametersImpl: Option[ScTypeParamClause] = {
     this match {

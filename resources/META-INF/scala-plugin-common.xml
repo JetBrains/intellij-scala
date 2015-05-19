@@ -169,9 +169,9 @@
         <refactoring.elementListenerProvider implementation="org.jetbrains.plugins.scala.runner.ScalaRunConfigurationRefactoringListenerProvider"/>
         <!--<moveFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaFileHandler" order="first"/>-->
         <refactoring.inlineHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineHandler"/>
-        <refactoring.introduceParameterMethodUsagesProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterMethodUsagesProcessor"/>
         <refactoring.safeDeleteProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.delete.ScalaSafeDeleteProcessorDelegate" order="first"/>
         <refactoring.changeSignatureUsageProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaChangeSignatureUsageProcessor" order = "first" id="scalaProcessor"/>
+        <refactoring.changeSignatureUsageProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterUsageProcessor" order = "first" id="scalaIntroduceParamterProcessor"/>
         <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.StringLiteralProcessor"/>
         <copyPastePostProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.JavaCopyPastePostProcessor"/>
         <copyPastePostProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor"/>
@@ -631,378 +631,450 @@
 
         <!-- inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.infiniteCycle.LoopVariableNotUpdatedInspection"
-                         displayName="Loop variable not updated inside loop" groupName="Scala: General" shortName="LoopVariableNotUpdated" id="LoopVariableNotUpdatedInspection" level="WARNING"
+                         displayName="Loop variable not updated inside loop" groupPath="Scala" groupName="General" shortName="LoopVariableNotUpdated" id="LoopVariableNotUpdatedInspection" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.fileNameInspection.ScalaFileNameInspection"
-                         displayName="File Name Inspection" groupName="Scala: General" shortName="ScalaFileName" id="ScalaFileName" level="WARNING"
+                         displayName="File Name Inspection" groupPath="Scala" groupName="General" shortName="ScalaFileName" id="ScalaFileName" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.packageNameInspection.ScalaPackageNameInspection"
-                         displayName="Package Name Inspection" groupName="Scala: General" id="ScalaPackageName"
+                         displayName="Package Name Inspection" groupPath="Scala" groupName="General" id="ScalaPackageName"
                          shortName="ScalaPackageName" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.deprecation.ScalaDeprecationInspection"
-                         displayName="Scala Deprecation" groupName="Scala: General" shortName="ScalaDeprecation"
+                         displayName="Scala Deprecation" groupPath="Scala" groupName="General" shortName="ScalaDeprecation"
                          id="ScalaDeprecation" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.CaseClassParamInspection"
-                         displayName="Case Class Parameter" groupName="Scala: General" shortName="CaseClassParam"
+                         displayName="Case Class Parameter" groupPath="Scala" groupName="General" shortName="CaseClassParam"
                          id="CaseClassParam" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection"
-                         displayName="'var' could be a 'val'" groupName="Scala: General" shortName="VarCouldBeVal"
+                         displayName="'var' could be a 'val'" groupPath="Scala" groupName="General" shortName="VarCouldBeVal"
                          level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolInspection"
-                         displayName="Unused Symbol" groupName="Scala: General" shortName="ScalaUnusedSymbol"
+                         displayName="Unused Symbol" groupPath="Scala" groupName="General" shortName="ScalaUnusedSymbol"
                          level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.sugar.FunctionTupleSyntacticSugarInspection"
-                         displayName="Syntactic Sugar" groupName="Scala: General" shortName="FunctionTupleSyntacticSugar"
+                         displayName="Syntactic Sugar" groupPath="Scala" groupName="General" shortName="FunctionTupleSyntacticSugar"
                          id="FunctionTupleSyntacticSugar" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.defaultFileTemplateInspection.ScalaDefaultFileTemplateUsageInspection"
-                         displayName="Default file template inspection" groupName="Scala: General" shortName="ScalaDefaultFileTemplateUsage"
+                         displayName="Default file template inspection" groupPath="Scala" groupName="General" shortName="ScalaDefaultFileTemplateUsage"
                          id="ScalaDefaultFileTemplateUsage" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.AppliedTypeLambdaCanBeSimplifiedInspection"
-                         displayName="Applied Type Lambda can be simplified" groupName="Scala: General"
+                         displayName="Applied Type Lambda can be simplified" groupPath="Scala" groupName="General"
                          shortName="AppliedTypeLambdaCanBeSimplified" id="AppliedTypeLambdaCanBeSimplified"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.AccessorLikeMethodIsEmptyParenInspection"
-                         displayName="Method with accessor-like name is empty-paren" groupName="Scala: Method signature"
-                         shortName="AccessorLikeMethodIsEmptyParen" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.AccessorLikeMethodIsUnitInspection"
-                         displayName="Method with accessor-like name has Unit result type" groupName="Scala: Method signature"
-                         shortName="AccessorLikeMethodIsUnit" id="AccessorLikeMethodIsUnit"
-                         level="WARNING" enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.EmptyParenMethodOverridenAsParameterlessInspection"
-                         displayName="Empty-paren Scala method overriden as parameterless" groupName="Scala: Method signature"
-                         shortName="EmptyParenMethodOverridenAsParameterless" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorMethodOverridenAsEmptyParenInspection"
-                         displayName="Java accessor method overriden as empty-paren" groupName="Scala: Method signature"
-                         shortName="JavaAccessorMethodOverridenAsEmptyParen" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaMutatorMethodOverridenAsParameterlessInspection"
-                         displayName="Java mutator method overriden as parameterless" groupName="Scala: Method signature"
-                         shortName="JavaMutatorMethodOverridenAsParameterless" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.MutatorLikeMethodIsParameterlessInspection"
-                         displayName="Mutator like method is paramaterless" groupName="Scala: Method signature"
-                         shortName="MutatorLikeMethodIsParameterless" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ParameterlessMemberOverridenAsEmptyParenInspection"
-                         displayName="Parameterless Scala member overriden as empty-paren" groupName="Scala: Method signature"
-                         shortName="ParameterlessMemberOverridenAsEmptyParen" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.EmptyParenMethodAccessedAsParameterlessInspection"
-                         displayName="Empty-paren method accessed as parameterless" groupName="Scala: Method signature"
-                         shortName="EmptyParenMethodAccessedAsParameterless" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodDeclaredWithTypeAnnotationInspection"
-                         displayName="Redundant Unit result type annotation" groupName="Scala: Method signature"
-                         shortName="UnitMethodDeclaredWithTypeAnnotation" level="WARNING"
-                         enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodDefinedLikeFunctionInspection"
-                         displayName="Method with Unit result type defined like function" groupName="Scala: Method signature"
-                         shortName="UnitMethodDefinedLikeFunction" level="WARNING"
-                         enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodDefinedWithEqualsSignInspection"
-                         displayName="Method with Unit result type defined with equals sign" groupName="Scala: Method signature"
-                         shortName="UnitMethodDefinedWithEqualsSign" level="WARNING"
-                         enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodIsParameterlessInspection"
-                         displayName="Method with Unit result type is parameterless" groupName="Scala: Method signature"
-                         shortName="UnitMethodIsParameterless" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorMethodCalledAsEmptyParenInspection"
-                         displayName="Java accessor method called as empty-paren" groupName="Scala: Method signature"
-                         shortName="JavaAccessorMethodCalledAsEmptyParen" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaMutatorMethodAccessedAsParameterlessInspection"
-                         displayName="Java mutator method accessed as parameterless" groupName="Scala: Method signature"
-                         shortName="JavaMutatorMethodAccessedAsParameterless" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ApparentRefinementOfResultTypeInspection"
-                         displayName="Apparent refinement of result type; are you missing an '=' sign?" groupName="Scala: Method signature"
-                         shortName="ApparentRefinementOfResultType" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodDefinedLikeProcedureInspection"
-                         displayName="Method with Unit result type is defined like procedure" groupName="Scala: Method signature"
-                         shortName="UnitMethodDefinedLikeProcedure" level="WARNING"
-                         enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.DeclarationHasNoExplicitTypeInspection"
-                         displayName="Method declaration has no explicit return type" groupName="Scala: Method signature"
-                         shortName="DeclarationHasNoExplicitType" level="WARNING"
-                         enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.postfix.PostfixMethodCallInspection"
-                         displayName="Use of postfix method call" groupName="Scala: General"
+                         displayName="Use of postfix method call" groupPath="Scala" groupName="General"
                          shortName="PostfixMethodCall" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.feature.LanguageFeatureInspection"
-                         displayName="Advanced language features" groupName="Scala: General"
+                         displayName="Advanced language features" groupPath="Scala" groupName="General"
                          shortName="LanguageFeature" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection"
-                         displayName="Reference must be prefixed" groupName="Scala: General"
+                         displayName="Reference must be prefixed" groupPath="Scala" groupName="General"
                          shortName="ReferenceMustBePrefixed" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.literal.FloatLiteralEndingWithDecimalPointInspection"
-                         displayName="Floating point literal ending with '.'" groupName="Scala: General"
+                         displayName="Floating point literal ending with '.'" groupPath="Scala" groupName="General"
                          shortName="FloatLiteralEndingWithDecimalPoint" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.packageNameInspection.ChainedPackageInspection"
-                         displayName="Chained Package Clause Inspection" groupName="Scala: General"
+                         displayName="Chained Package Clause Inspection" groupPath="Scala" groupName="General"
                          shortName="ChainedPackage" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.redundantReturnInspection.RemoveRedundantReturnInspection"
-                         displayName="Redundant Return" groupName="Scala: General"
+                         displayName="Redundant Return" groupPath="Scala" groupName="General"
                          shortName="RemoveRedundantReturn" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection"
-                         displayName="Relative Import" groupName="Scala: General"
+                         displayName="Relative Import" groupPath="Scala" groupName="General"
                          shortName="RelativeImport" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.shadow.VariablePatternShadowInspection"
-                         displayName="Suspicious shadowing by a Variable Pattern" groupName="Scala: General"
+                         displayName="Suspicious shadowing by a Variable Pattern" groupPath="Scala" groupName="General"
                          shortName="VariablePatternShadow" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.shadow.TypeParameterShadowInspection"
-                         displayName="Suspicious shadowing by a Type Parameter" groupName="Scala: General"
+                         displayName="Suspicious shadowing by a Type Parameter" groupPath="Scala" groupName="General"
                          shortName="TypeParameterShadow" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.valInTraitInspection.AbstractValueInTraitInspection"
-                         displayName="Abstract Value in Trait" groupName="Scala: General"
+                         displayName="Abstract Value in Trait" groupPath="Scala" groupName="General"
                          shortName="AbstractValueInTrait" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.semicolon.ScalaUnnecessarySemicolonInspection"
-                         displayName="Scala unnecessary semicolon inspection" groupName="Scala: General"
+                         displayName="Scala unnecessary semicolon inspection" groupPath="Scala" groupName="General"
                          shortName="ScalaUnnecessarySemicolon" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.xml.ScalaXmlUnmatchedTagInspection"
-                         displayName="Unmatched Tag" groupName="Scala: General" shortName="ScalaXmlUnmatchedTag" level="ERROR"
+                         displayName="Unmatched Tag" groupPath="Scala" groupName="General" shortName="ScalaXmlUnmatchedTag" level="ERROR"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.imports.SingleImportInspection"
                          displayName="Unnecessary braces in import inspection"
-                         groupName="Scala: General" shortName="SingleImport"
+                         groupPath="Scala" groupName="General" shortName="SingleImport"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parameters.NameBooleanParametersInspection"
                          displayName="Name boolean parameters"
-                         groupName="Scala: General" shortName="NameBooleanParameters"
+                         groupPath="Scala" groupName="General" shortName="NameBooleanParameters"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.cast.ScalaRedundantCastInspection"
-                         displayName="Redundant cast inspection" groupName="Scala: General"
+                         displayName="Redundant cast inspection" groupPath="Scala" groupName="General"
                          shortName="ScalaRedundantCast" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.cast.ScalaRedundantConversionInspection"
-                         displayName="Redundant conversion inspection" groupName="Scala: General"
+                         displayName="Redundant conversion inspection" groupPath="Scala" groupName="General"
                          shortName="ScalaRedundantConversion" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.recursion.NoTailRecursionAnnotationInspection"
-                         displayName="No tail recursion annotation" groupName="Scala: General"
+                         displayName="No tail recursion annotation" groupPath="Scala" groupName="General"
                          shortName="NoTailRecursionAnnotation" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.catchAll.DangerousCatchAllInspection"
                          displayName="Missing type annotation"
-                         groupName="Scala: General" shortName="DangerousCatchAll"
+                         groupPath="Scala" groupName="General" shortName="DangerousCatchAll"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.format.ScalaMalformedFormatStringInspection"
-                         displayName="Malformed format string" groupName="Scala: General"
+                         displayName="Malformed format string" groupPath="Scala" groupName="General"
                          shortName="ScalaMalformedFormatString" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.format.LegacyStringFormattingInspection"
-                         displayName="Legacy string formatting" groupName="Scala: General"
+                         displayName="Legacy string formatting" groupPath="Scala" groupName="General"
                          shortName="LegacyStringFormatting" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.notImplementedCode.NotImplementedCodeInspection"
-                         displayName="Not implemented code" groupName="Scala: General"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.notImplementedCode.NotImplementedCodeInspection"
+                         displayName="Not implemented code" groupPath="Scala" groupName="General"
                          shortName="NotImplementedCode" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection"
-                         displayName="Redundant block" groupName="Scala: General"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection"
+                         displayName="Redundant block" groupPath="Scala" groupName="General"
                          shortName="RedundantBlock" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.forwardReferenceInspection.ForwardReferenceInspection"
-                         displayName="Suspicious forward reference" groupName="Scala: General"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.forwardReferenceInspection.ForwardReferenceInspection"
+                         displayName="Suspicious forward reference" groupPath="Scala" groupName="General"
                          shortName="ForwardReference" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection"
-                         displayName="Type annotation required" groupName="Scala: General"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection"
+                         displayName="Type annotation required" groupPath="Scala" groupName="General"
                          shortName="TypeAnnotation" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.booleans.DoubleNegationInspection"
-                       displayName="Double negation" groupName="Scala: General"
-                       shortName="DoubleNegation" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanInspection"
-                       displayName="Simplify boolean expression" groupName="Scala: General"
-                       shortName="SimplifyBoolean" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection"
-                       displayName="Unnecessary parentheses" groupName="Scala: General"
-                       shortName="ScalaUnnecessaryParentheses" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckCanBeMatchInspection"
-                       displayName="Type check can be pattern matching" groupName="Scala: General"
-                       shortName="TypeCheckCanBeMatch" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspection"-->
-                       <!--displayName="Simplifiable operation on collection" groupName="Scala: General"-->
-                       <!--shortName="OperationOnCollection" level="WARNING"-->
-                       <!--enabledByDefault="true" language="Scala"/>-->
-
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.etaExpansion.ConvertibleToMethodValueInspection"
-                       displayName="Anonymous function convertible to a method value" groupName="Scala: General"
-                       shortName="ConvertibleToMethodValue" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.ComparingUnrelatedTypesInspection"
-                       displayName="Comparing unrelated types" groupName="Scala: General"
-                       shortName="ComparingUnrelatedTypes" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection"
-                       displayName="Match statement convertible to pattern matching anonymous function" groupName="Scala: General"
-                       shortName="MatchToPartialFunction" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUnreachableCodeInspection"
-                       displayName="Unreachable code" groupName="Scala: General"
-                       shortName="ScalaUnreachableCode" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUselessExpressionInspection"
-                       displayName="Useless expression" groupName="Scala: General"
-                       shortName="ScalaUselessExpression" level="WEAK WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.NoReturnTypeForImplicitDefInspection"
-                       displayName="No return type for implicit function" groupName="Scala: General"
-                       shortName="NoReturnTypeForImplicitDef" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parameters.AutoTuplingInspection"
-                       displayName="Auto-tupling" groupName="Scala: General"
-                       shortName="AutoTupling" level="WARNING"
-                       enabledByDefault="false" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.DeprecatedViewBoundInspection"
-                       displayName="View bounds are deprecated" groupName="Scala: General"
-                       shortName="DeprecatedViewBound" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <!--Scalastyle inspection-->
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
-                       displayName="Scala style inspection" groupName="Scala: Code Style"
-                       shortName="ScalaStyle"
-                       enabledByDefault="true" language="Scala"/>
-
-      <!--collection inspections-->
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterHeadOptionInspection"
-                       displayName="Simplifiable filter and headOption" groupName="Scala: Collections"
-                       shortName="FilterHeadOption" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetOrElseFalseInspection"
-                       displayName="Simplifiable map and getOrElse(false)" groupName="Scala: Collections"
-                       shortName="MapGetOrElseFalse" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FindIsDefinedInspection"
-                       displayName="Simplifiable find and isDefined" groupName="Scala: Collections"
-                       shortName="FindIsDefined" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterSizeCheckInspection"
-                       displayName="Simplifiable filter and size check" groupName="Scala: Collections"
-                       shortName="FilterSizeCheck" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterSizeInspection"
-                       displayName="Simplifiable filter and size" groupName="Scala: Collections"
-                       shortName="FilterSize" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FindNotEqualsNoneInspection"
-                       displayName="Simplifiable find and notEquals None" groupName="Scala: Collections"
-                       shortName="FindNotEqualsNone" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SimplifiableFoldOrReduceInspection"
-                       displayName="Simplifiable fold or reduce method" groupName="Scala: Collections"
-                       shortName="SimplifiableFoldOrReduce" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FoldTrueAndInspection"
-                       displayName="Fold simplifiable to forall" groupName="Scala: Collections"
-                       shortName="FoldTrueAnd" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortFilterInspection"
-                       displayName="Filter after sort" groupName="Scala: Collections"
-                       shortName="SortFilter" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetOrElseInspection"
-                       displayName="Simplifiable map and getOrElse" groupName="Scala: Collections"
-                       shortName="MapGetOrElse" level="WARNING"
-                       enabledByDefault="false" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ExistsEqualsInspection"
-                       displayName="Exists simplifiable to contains" groupName="Scala: Collections"
-                       shortName="ExistsEquals" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetOrElseNullInspection"
-                       displayName="Simplifiable getOrElse(null)" groupName="Scala: Collections"
-                       shortName="GetOrElseNull" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetGetOrElseInspection"
-                       displayName="Simplifiable get and getOrElse on a map" groupName="Scala: Collections"
-                       shortName="GetGetOrElse" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.NotIsEmptyInspection"
-                       displayName="isEmpty replaceable for nonEmpty" groupName="Scala: Collections"
-                       shortName="NotIsEmpty" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseMapInspection"
-                       displayName="reverse.map to reverseMap" groupName="Scala: Collections"
-                       shortName="ReverseMap" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseIteratorInspection"
-                       displayName="reverse.iterator to reverseIterator" groupName="Scala: Collections"
-                       shortName="ReverseIterator" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ZipWithIndexInspection"
-                       displayName="Replace xs.zip(xs.indices) with xs.zipWithIndex" groupName="Scala: Collections"
-                       shortName="ZipWithIndex" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ZeroIndexToHeadInspection"
-                       displayName="Replace getting value by zero index with head" groupName="Scala: Collections"
-                       shortName="ZeroIndexToHead" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantCollectionConversionInspection"
-                       displayName="Redundant collection conversion" groupName="Scala: Collections"
-                       shortName="RedundantCollectionConversion" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SideEffectsInMonadicTransformationInspection"
-                       displayName="Side effects in a monadic transformation" groupName="Scala: Collections"
-                       shortName="SideEffectsInMonadicTransformation" level="WARNING"
-                       enabledByDefault="false" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SizeToLengthInspection"
-                       displayName="Replace .size to .length on arrays and strings" groupName="Scala: Collections"
-                       shortName="SizeToLength" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.UnitInMapInspection"
-                       displayName="Expression with unit return type in the argument of map" groupName="Scala: Collections"
-                       shortName="UnitInMap" level="WARNING"
-                       enabledByDefault="true" language="Scala"/>
-
-
-
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.booleans.DoubleNegationInspection"
+                         displayName="Double negation" groupPath="Scala" groupName="General"
+                         shortName="DoubleNegation" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanInspection"
+                         displayName="Simplify boolean expression" groupPath="Scala" groupName="General"
+                         shortName="SimplifyBoolean" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection"
+                         displayName="Unnecessary parentheses" groupPath="Scala" groupName="General"
+                         shortName="ScalaUnnecessaryParentheses" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckCanBeMatchInspection"
+                         displayName="Type check can be pattern matching" groupPath="Scala" groupName="General"
+                         shortName="TypeCheckCanBeMatch" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.etaExpansion.ConvertibleToMethodValueInspection"
+                         displayName="Anonymous function convertible to a method value" groupPath="Scala" groupName="General"
+                         shortName="ConvertibleToMethodValue" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.ComparingUnrelatedTypesInspection"
+                         displayName="Comparing unrelated types" groupPath="Scala" groupName="General"
+                         shortName="ComparingUnrelatedTypes" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection"
+                         displayName="Match statement convertible to pattern matching anonymous function" groupPath="Scala" groupName="General"
+                         shortName="MatchToPartialFunction" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUnreachableCodeInspection"
+                         displayName="Unreachable code" groupPath="Scala" groupName="General"
+                         shortName="ScalaUnreachableCode" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.ScalaUselessExpressionInspection"
+                         displayName="Useless expression" groupPath="Scala" groupName="General"
+                         shortName="ScalaUselessExpression" level="WEAK WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.NoReturnTypeForImplicitDefInspection"
+                         displayName="No return type for implicit function" groupPath="Scala" groupName="General"
+                         shortName="NoReturnTypeForImplicitDef" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parameters.AutoTuplingInspection"
+                         displayName="Auto-tupling" groupPath="Scala" groupName="General"
+                         shortName="AutoTupling" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.DeprecatedViewBoundInspection"
+                         displayName="View bounds are deprecated" groupPath="Scala" groupName="General"
+                         shortName="DeprecatedViewBound" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
-       displayName="All Errors Tool" groupName="Scala: General"
-       shortName="ScalaAllErrors" level="WARNING"
-       enabledByDefault="false" language="Scala"/>-->
+                        displayName="All Errors Tool" groupPath="Scala" groupName="General"
+                        shortName="ScalaAllErrors" level="WARNING"
+                        enabledByDefault="false" language="Scala"/>-->
+
+        <!--Method signature inspections-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.AccessorLikeMethodIsEmptyParenInspection"
+                         displayName="Method with accessor-like name is empty-paren" groupPath="Scala" groupName="Method signature"
+                         shortName="AccessorLikeMethodIsEmptyParen" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.AccessorLikeMethodIsUnitInspection"
+                         displayName="Method with accessor-like name has Unit result type" groupPath="Scala" groupName="Method signature"
+                         shortName="AccessorLikeMethodIsUnit" id="AccessorLikeMethodIsUnit"
+                         level="WARNING" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.EmptyParenMethodOverridenAsParameterlessInspection"
+                         displayName="Empty-paren Scala method overriden as parameterless" groupPath="Scala" groupName="Method signature"
+                         shortName="EmptyParenMethodOverridenAsParameterless" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorMethodOverridenAsEmptyParenInspection"
+                         displayName="Java accessor method overriden as empty-paren" groupPath="Scala" groupName="Method signature"
+                         shortName="JavaAccessorMethodOverridenAsEmptyParen" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaMutatorMethodOverridenAsParameterlessInspection"
+                         displayName="Java mutator method overriden as parameterless" groupPath="Scala" groupName="Method signature"
+                         shortName="JavaMutatorMethodOverridenAsParameterless" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.MutatorLikeMethodIsParameterlessInspection"
+                         displayName="Mutator like method is paramaterless" groupPath="Scala" groupName="Method signature"
+                         shortName="MutatorLikeMethodIsParameterless" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ParameterlessMemberOverridenAsEmptyParenInspection"
+                         displayName="Parameterless Scala member overriden as empty-paren" groupPath="Scala" groupName="Method signature"
+                         shortName="ParameterlessMemberOverridenAsEmptyParen" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.EmptyParenMethodAccessedAsParameterlessInspection"
+                         displayName="Empty-paren method accessed as parameterless" groupPath="Scala" groupName="Method signature"
+                         shortName="EmptyParenMethodAccessedAsParameterless" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodDeclaredWithTypeAnnotationInspection"
+                         displayName="Redundant Unit result type annotation" groupPath="Scala" groupName="Method signature"
+                         shortName="UnitMethodDeclaredWithTypeAnnotation" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodDefinedLikeFunctionInspection"
+                         displayName="Method with Unit result type defined like function" groupPath="Scala" groupName="Method signature"
+                         shortName="UnitMethodDefinedLikeFunction" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodDefinedWithEqualsSignInspection"
+                         displayName="Method with Unit result type defined with equals sign" groupPath="Scala" groupName="Method signature"
+                         shortName="UnitMethodDefinedWithEqualsSign" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodIsParameterlessInspection"
+                         displayName="Method with Unit result type is parameterless" groupPath="Scala" groupName="Method signature"
+                         shortName="UnitMethodIsParameterless" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorMethodCalledAsEmptyParenInspection"
+                         displayName="Java accessor method called as empty-paren" groupPath="Scala" groupName="Method signature"
+                         shortName="JavaAccessorMethodCalledAsEmptyParen" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaMutatorMethodAccessedAsParameterlessInspection"
+                         displayName="Java mutator method accessed as parameterless" groupPath="Scala" groupName="Method signature"
+                         shortName="JavaMutatorMethodAccessedAsParameterless" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.ApparentRefinementOfResultTypeInspection"
+                         displayName="Apparent refinement of result type; are you missing an '=' sign?" groupPath="Scala" groupName="Method signature"
+                         shortName="ApparentRefinementOfResultType" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodDefinedLikeProcedureInspection"
+                         displayName="Method with Unit result type is defined like procedure" groupPath="Scala" groupName="Method signature"
+                         shortName="UnitMethodDefinedLikeProcedure" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.DeclarationHasNoExplicitTypeInspection"
+                         displayName="Method declaration has no explicit return type" groupPath="Scala" groupName="Method signature"
+                         shortName="DeclarationHasNoExplicitType" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
+
+        <!--Scalastyle inspection-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
+                         displayName="Scala style inspection" groupPath="Scala" groupName="Code Style"
+                         shortName="ScalaStyle"
+                         enabledByDefault="true" language="Scala"/>
+
+        <!--collection inspections-->
+        <!--size-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.EmptyCheckInspection"
+                         displayName="Simplifiable empty check" groupPath="Scala, Collections" groupName="Size"
+                         shortName="EmptyCheck" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SizeToLengthInspection"
+                         displayName="Size to length on arrays and strings" groupPath="Scala, Collections" groupName="Size"
+                         shortName="SizeToLength" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <!--comparing-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.EqualityToSameElementsInspection"
+                         displayName="Equals on arrays and iterators" groupPath="Scala, Collections" groupName="Comparing"
+                         shortName="EqualityToSameElements" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SameElementsToEqualsInspection"
+                         displayName="SameElements on collections of a same kind" groupPath="Scala, Collections" groupName="Comparing"
+                         shortName="SameElementsToEquals" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.CorrespondsUnsortedInspection"
+                         displayName="Corresponds/sameElements on unsorted collection" groupPath="Scala, Collections" groupName="Comparing"
+                         shortName="CorrespondsUnsorted" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ComparingDiffCollectionKindsInspection"
+                         displayName="Equals on collections of different kinds" groupPath="Scala, Collections" groupName="Comparing"
+                         shortName="ComparingDiffCollectionKinds" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <!--indices-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ZipWithIndexInspection"
+                         displayName="Manually zipping with indices" groupPath="Scala, Collections" groupName="Indices"
+                         shortName="ZipWithIndex" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ZeroIndexToHeadInspection"
+                         displayName="Access to first element by index" groupPath="Scala, Collections" groupName="Indices"
+                         shortName="ZeroIndexToHead" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.LastIndexToLastInspection"
+                         displayName="Access to last element by index" groupPath="Scala, Collections" groupName="Indices"
+                         shortName="LastIndexToLast" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RangeToIndicesInspection"
+                         displayName="Constructing range for seq indices" groupPath="Scala, Collections" groupName="Indices"
+                         shortName="RangeToIndices" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+      <!--simplifications: filter and exists-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterHeadOptionInspection"
+                         displayName="Filter and headOption to find" groupPath="Scala, Collections" groupName="Simplifications: filter and exists"
+                         shortName="FilterHeadOption" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FindEmptyCheckInspection"
+                         displayName="Find and emptiness check to exists" groupPath="Scala, Collections" groupName="Simplifications: filter and exists"
+                         shortName="FindEmptyCheck" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterEmptyCheckInspection"
+                         displayName="Filter and emptiness check to exists/forall" groupPath="Scala, Collections" groupName="Simplifications: filter and exists"
+                         shortName="FilterEmptyCheck" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterSizeInspection"
+                         displayName="Filter and size to count" groupPath="Scala, Collections" groupName="Simplifications: filter and exists"
+                         shortName="FilterSize" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ExistsEqualsInspection"
+                         displayName="Exists simplifiable to contains" groupPath="Scala, Collections" groupName="Simplifications: filter and exists"
+                         shortName="ExistsEquals" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapToBooleanContainsInspection"
+                         displayName="Map and contains(true/false) to exists or !forall" groupPath="Scala, Collections" groupName="Simplifications: filter and exists"
+                         shortName="MapToBooleanContains" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterOtherContainsInspection"
+                         displayName="Filter and contains to intersect or diff" groupPath="Scala, Collections" groupName="Simplifications: filter and exists"
+                         shortName="FilterOtherContains" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <!--simplifications: other-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SimplifiableFoldOrReduceInspection"
+                         displayName="Simplifiable fold or reduce method" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="SimplifiableFoldOrReduce" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FoldTrueAndInspection"
+                         displayName="Fold simplifiable to forall" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="FoldTrueAnd" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseMapInspection"
+                         displayName="Reverse and map to reverseMap" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="ReverseMap" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseIteratorInspection"
+                         displayName="Reverse and iterator to reverseIterator" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="ReverseIterator" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ToSetAndBackInspection"
+                         displayName="Conversion to Set and back to distinct" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="ToSetAndBack" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.DropTakeToSliceInspection"
+                         displayName="Drop and take to slice" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="DropTakeToSlice" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseTakeReverseInspection"
+                         displayName="Reverse, take and reverse to takeRight" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="ReverseTakeReverse" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapFlattenInspection"
+                         displayName="Map and flatten to flatMap" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="MapFlatten" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.HeadOrLastOptionInspection"
+                         displayName="Emulated headOption or lastOption" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="HeadOrLastOption" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <!--maps-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetGetOrElseInspection"
+                         displayName="Get and getOrElse to getOrElse" groupPath="Scala, Collections" groupName="Maps"
+                         shortName="GetGetOrElse" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapKeysInspection"
+                         displayName="Extracting keys manually" groupPath="Scala, Collections" groupName="Maps"
+                         shortName="MapKeys" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapValuesInspection"
+                         displayName="Extracting values manually" groupPath="Scala, Collections" groupName="Maps"
+                         shortName="MapValues" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <!--options-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantHeadOrLastOptionInspection"
+                         displayName="Redundant headOption or lastOption" groupPath="Scala, Collections" groupName="Options"
+                         shortName="RedundantHeadOrLastOption" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.OptionEqualsSomeToContainsInspection"
+                         displayName="Equals Some(x) to contains(x)" groupPath="Scala, Collections" groupName="Options"
+                         shortName="OptionEqualsSome" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetOrElseInspection"
+                         displayName="Map and getOrElse to fold" groupPath="Scala, Collections" groupName="Options"
+                         shortName="MapGetOrElse" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetOrElseFalseInspection"
+                         displayName="Map and getOrElse(false) to exists" groupPath="Scala, Collections" groupName="Options"
+                         shortName="MapGetOrElseFalse" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetOrElseNullInspection"
+                         displayName="GetOrElse(null) to orNull" groupPath="Scala, Collections" groupName="Options"
+                         shortName="GetOrElseNull" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.IfElseToOptionInspection"
+                       displayName="Emulated Option(x)" groupPath="Scala, Collections" groupName="Options"
+                       shortName="IfElseToOption" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
+        <!--other-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortFilterInspection"
+                         displayName="Filter after sort" groupPath="Scala, Collections" groupName="Other"
+                         shortName="SortFilter" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantCollectionConversionInspection"
+                         displayName="Redundant collection conversion" groupPath="Scala, Collections" groupName="Other"
+                         shortName="RedundantCollectionConversion" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SideEffectsInMonadicTransformationInspection"
+                         displayName="Side effects in a monadic transformation" groupPath="Scala, Collections" groupName="Other"
+                         shortName="SideEffectsInMonadicTransformation" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.UnitInMapInspection"
+                         displayName="Unit return type in the argument of map" groupPath="Scala, Collections" groupName="Other"
+                         shortName="UnitInMap" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+
 
         <!-- scaladoc inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnclosedTagWithoutParserInspection"
-                         displayName="Tag Unclosed" groupName="Scala: Scaladoc" shortName="ScalaDocUnclosedTagWithoutParser" level="WARNING"
+                         displayName="Tag Unclosed" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocUnclosedTagWithoutParser" level="WARNING"
                          enabledByDefault="true" language="Scala" />
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocInlinedTagInspection"
-                         displayName="Inlined Tag" groupName="Scala: Scaladoc" shortName="ScalaDocInlinedTag" level="WARNING"
+                         displayName="Inlined Tag" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocInlinedTag" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnbalancedHeaderInspection"
-                         displayName="Header tags unbalanced" groupName="Scala: Scaladoc" shortName="ScalaDocUnbalancedHeader" level="WARNING"
+                         displayName="Header tags unbalanced" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocUnbalancedHeader" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnknownTagInspection"
-                         displayName="Unknown tag" groupName="Scala: Scaladoc" shortName="ScalaDocUnknownTag" level="WARNING"
+                         displayName="Unknown tag" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocUnknownTag" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnknownParameterInspection"
-                         displayName="Unknown Parameter" groupName="Scala: Scaladoc" shortName="ScalaDocUnknownParameter" level="WARNING"
+                         displayName="Unknown Parameter" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocUnknownParameter" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocMissingParameterDescriptionInspection"
-                         displayName="Missing tag parameter description" groupName="Scala: Scaladoc" shortName="ScalaDocMissingParameterDescription"
+                         displayName="Missing tag parameter description" groupPath="Scala" groupName="Scaladoc" shortName="ScalaDocMissingParameterDescription"
                          level="WARNING" enabledByDefault="true" language="Scala" />
         <!-- end of scaladoc inspections -->
         <!-- end of inspections -->
 
-      <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType" />
+        <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType" />
     </extensions>
 
 

@@ -11,6 +11,7 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util._
 import com.intellij.openapi.wm.WindowManager
@@ -44,11 +45,13 @@ import scala.collection.JavaConverters._
  */
 
 class ScalaIntroduceVariableHandler extends RefactoringActionHandler with DialogConflictsReporter {
+
   val REFACTORING_NAME = ScalaBundle.message("introduce.variable.title")
+  private var occurrenceHighlighters = Seq.empty[RangeHighlighter]
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
     val canBeIntroduced: ScExpression => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
-    ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, "Introduce Parameter", canBeIntroduced) {
+    ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, "Introduce Variable", canBeIntroduced) {
       ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
       invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
     }
@@ -73,7 +76,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
 
       def runWithDialog() {
         val dialog = getDialog(project, editor, expr, types, occurrences, declareVariable = false, validator)
-        if (!dialog.isOK) return
+        if (!dialog.isOK) {
+          occurrenceHighlighters.foreach(_.dispose())
+          occurrenceHighlighters = Seq.empty
+          return
+        }
         val varName: String = dialog.getEnteredName
         val varType: ScType = dialog.getSelectedType
         val isVariable: Boolean = dialog.isDeclareVariable
@@ -154,7 +161,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
         case forSt: ScForStatement => Some(forSt)
         case _: ScEnumerator | _: ScGenerator => Option(prev.getParent.getParent.asInstanceOf[ScForStatement])
         case guard: ScGuard if guard.getParent.isInstanceOf[ScEnumerators] => Option(prev.getParent.getParent.asInstanceOf[ScForStatement])
-        case _ => None
+        case _ =>
+          parExpr match {
+            case forSt: ScForStatement => Some(forSt) //there are occurrences both in body and in enumerators
+            case _ => None
+          }
       }
       for {//check that first occurence is after first generator
         forSt <- result
@@ -237,19 +248,23 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
     val fastDefinition = occCount == 1 && isOneLiner
 
     //changes document directly
-    val replacedOccurences = ScalaRefactoringUtil.replaceOccurences(occurrences, varName, file, editor)
+    val replacedOccurences = ScalaRefactoringUtil.replaceOccurences(occurrences, varName, file)
 
     //only Psi-operations after this moment
     var firstRange = replacedOccurences(0)
-    val commonParent: PsiElement = ScalaRefactoringUtil.commonParent(file, replacedOccurences: _*)
-    val parExpr = ScalaRefactoringUtil.findParentExpr(commonParent) match {
-      case _ childOf ((block: ScBlock) childOf ((_) childOf (call: ScMethodCall)))
-        if isFunExpr && occCount == 1 && block.statements.size == 1 => call
-      case _ childOf ((block: ScBlock) childOf (infix: ScInfixExpr))
-        if isFunExpr && occCount == 1 && block.statements.size == 1 => infix
-      case expr => expr
-    }
-    val nextParent: PsiElement = ScalaRefactoringUtil.nextParent(parExpr, file)
+    val parentExprs =
+      if (occCount == 1)
+        ScalaRefactoringUtil.findParentExpr(file, firstRange) match {
+          case _ childOf ((block: ScBlock) childOf ((_) childOf (call: ScMethodCall)))
+            if isFunExpr && block.statements.size == 1 => Seq(call)
+          case _ childOf ((block: ScBlock) childOf (infix: ScInfixExpr))
+            if isFunExpr && block.statements.size == 1 => Seq(infix)
+          case expr => Seq(expr)
+        }
+      else replacedOccurences.toSeq.map(ScalaRefactoringUtil.findParentExpr(file, _))
+    val commonParent: PsiElement = PsiTreeUtil.findCommonParent(parentExprs: _*)
+
+    val nextParent: PsiElement = ScalaRefactoringUtil.nextParent(commonParent, file)
 
     editor.getCaretModel.moveToOffset(replacedOccurences(mainOcc).getEndOffset)
 
@@ -281,7 +296,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       }
       result
     }
-    
+
     def createVariableDefinition(): PsiElement = {
       val created = ScalaPsiElementFactory.createDeclaration(varName, typeName, isVariable,
         ScalaRefactoringUtil.unparExpr(expression), file.getManager)
@@ -296,12 +311,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
             needFormatting = true
             extBl.addEarlyDefinitions()
           case _ =>
-            val container = ScalaRefactoringUtil.container(parExpr, file)
-            val needBraces = !parExpr.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(parExpr, nextParent)
+            val container = ScalaRefactoringUtil.container(commonParent, file)
+            val needBraces = !commonParent.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(commonParent, nextParent)
             if (needBraces) {
               firstRange = firstRange.shiftRight(1)
-              val replaced = parExpr.replaceExpression(ScalaPsiElementFactory.createExpressionFromText("{" + parExpr.getText + "}", file.getManager),
-                removeParenthesis = false)
+              val replaced = commonParent.replace(ScalaPsiElementFactory.createExpressionFromText("{" + commonParent.getText + "}", file.getManager))
               replaced.getPrevSibling match {
                 case ws: PsiWhiteSpace if ws.getText.contains("\n") => ws.delete()
                 case _ =>
@@ -318,7 +332,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       result
     }
 
-    val createdDeclaration: PsiElement = isIntroduceEnumerator(parExpr, nextParent, firstRange.getStartOffset) match {
+    val createdDeclaration: PsiElement = isIntroduceEnumerator(commonParent, nextParent, firstRange.getStartOffset) match {
       case Some(forStmt) => createEnumeratorIn(forStmt)
       case _ => createVariableDefinition()
     }
@@ -362,7 +376,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
                           validator: ScalaVariableValidator): ScalaIntroduceVariableDialog = {
     // Add occurrences highlighting
     if (occurrences.length > 1)
-      ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
+      occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, occurrences, editor)
 
     val possibleNames = NameSuggester.suggestNames(expr, validator)
     val dialog = new ScalaIntroduceVariableDialog(project, typez, occurrences.length, validator, possibleNames)

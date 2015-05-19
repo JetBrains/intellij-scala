@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationProducer, TestConfigurationUtil}
+import TestConfigurationUtil.isInheritor
 
 /**
  * User: Alexander Podkhalyuzin
@@ -58,6 +59,7 @@ class ScalaTestConfigurationProducer extends {
       (if (testName != null) "." + testName else ""), confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[ScalaTestRunConfiguration]
     runConfiguration.setTestClassPath(testClassPath)
+    runConfiguration.initWorkingDir()
     if (testName != null) runConfiguration.setTestName(testName)
     val kind = if (testName == null) TestKind.CLASS else TestKind.TEST_NAME
     runConfiguration.setTestKind(kind)
@@ -622,38 +624,14 @@ class ScalaTestConfigurationProducer extends {
     }
     implicit def o2e(x: Option[String]): OptionExtension = new OptionExtension(x)
 
-
+    import ScalaTestUtil._
     val oldResult = (testClassPath,
-      (checkFunSuite("org.scalatest.FunSuite") ++
-              checkFunSuite("org.scalatest.FunSuiteLike") ++
-              checkFunSuite("org.scalatest.fixture.FunSuite") ++
-              checkFunSuite("org.scalatest.fixture.FunSuiteLike") ++
-              checkFunSuite("org.scalatest.fixture.FixtureFunSuite") ++
-              checkFunSuite("org.scalatest.fixture.MultipleFixtureFunSuite") ++
-              checkFeatureSpec("org.scalatest.FeatureSpec") ++
-              checkFeatureSpec("org.scalatest.FeatureSpecLike") ++
-              checkFeatureSpec("org.scalatest.fixture.FeatureSpec") ++
-              checkFeatureSpec("org.scalatest.fixture.FeatureSpecLike") ++
-              checkFeatureSpec("org.scalatest.fixture.FixtureFeatureSpec") ++
-              checkFeatureSpec("org.scalatest.fixture.MultipleFixtureFeatureSpec") ++
-              checkFreeSpec("org.scalatest.FreeSpec") ++
-              checkFreeSpec("org.scalatest.FreeSpecLike") ++
-              checkFreeSpec("org.scalatest.fixture.FreeSpec") ++
-              checkFreeSpec("org.scalatest.fixture.FreeSpecLike") ++
-              checkFreeSpec("org.scalatest.fixture.FixtureFreeSpec") ++
-              checkFreeSpec("org.scalatest.fixture.MultipleFixtureFreeSpec") ++
-              checkFreeSpec("org.scalatest.path.FreeSpec") ++
-              checkFreeSpec("org.scalatest.path.FreeSpecLike") ++
-              checkJUnit3Suite("org.scalatest.junit.JUnit3Suite") ++
-              checkJUnitSuite("org.scalatest.junit.JUnitSuite") ++
-              checkJUnitSuite("org.scalatest.junit.JUnitSuiteLike") ++
-              checkPropSpec("org.scalatest.PropSpec") ++
-              checkPropSpec("org.scalatest.PropSpecLike") ++
-              checkPropSpec("org.scalatest.fixture.PropSpec") ++
-              checkPropSpec("org.scalatest.fixture.PropSpecLike") ++
-              checkPropSpec("org.scalatest.fixture.FixturePropSpec") ++
-              checkPropSpec("org.scalatest.fixture.MultipleFixturePropSpec") ++
-
+      (getFunSuiteBases.toStream.map(checkFunSuite).find(_.isDefined).getOrElse(None) ++
+              getFeatureSpecBases.toStream.map(checkFeatureSpec).find(_.isDefined).getOrElse(None) ++
+              getFreeSpecBases.toStream.map(checkFreeSpec).find(_.isDefined).getOrElse(None) ++
+              getJUnit3SuiteBases.toStream.map(checkJUnit3Suite).find(_.isDefined).getOrElse(None) ++
+              getJUnitSuiteBases.toStream.map(checkJUnitSuite).find(_.isDefined).getOrElse(None) ++
+              getPropSpecBases.toStream.map(checkPropSpec).find(_.isDefined).getOrElse(None) ++
               /**
               //TODO: actually implement checkSpec for scalatest 2.0 Spec
         checkSpec("org.scalatest.Spec") ++
@@ -662,40 +640,25 @@ class ScalaTestConfigurationProducer extends {
         checkSpec("org.scalatest.fixture.SpecLike") ++
                 */
               //this is intended for scalatest versions < 2.0
-              checkFunSpec("org.scalatest.Spec") ++
-              checkFunSpec("org.scalatest.SpecLike") ++
-              checkFunSpec("org.scalatest.fixture.Spec") ++
-              checkFunSpec("org.scalatest.fixture.SpecLike") ++
-              checkFunSpec("org.scalatest.fixture.FixtureSpec") ++
-              checkFunSpec("org.scalatest.fixture.MultipleFixtureSpec") ++
+              getFunSpecBasesPre2_0.toStream.map(checkFunSpec).find(_.isDefined).getOrElse(None) ++
               //this is intended for scalatest version 2.0
-              checkFunSpec("org.scalatest.FunSpec") ++
-              checkFunSpec("org.scalatest.FunSpecLike") ++
-              checkFunSpec("org.scalatest.fixture.FunSpec") ++
-              checkFunSpec("org.scalatest.fixture.FunSpecLike") ++
-              checkFunSpec("org.scalatest.path.FunSpec") ++
-              checkFunSpec("org.scalatest.path.FunSpecLike") ++
+              getFunSpecBasesPost2_0.toStream.map(checkFunSpec).find(_.isDefined).getOrElse(None) ++
               //---
-              checkTestNGSuite("org.scalatest.testng.TestNGSuite") ++
-              checkTestNGSuite("org.scalatest.testng.TestNGSuiteLike") ++
-              checkFlatSpec("org.scalatest.FlatSpec") ++
-              checkFlatSpec("org.scalatest.FlatSpecLike") ++
-              checkFlatSpec("org.scalatest.fixture.FlatSpec") ++
-              checkFlatSpec("org.scalatest.fixture.FlatSpecLike") ++
-              checkFlatSpec("org.scalatest.fixture.FixtureFlatSpec") ++
-              checkFlatSpec("org.scalatest.fixture.MultipleFixtureFlatSpec") ++
-              checkWordSpec("org.scalatest.WordSpec") ++
-              checkWordSpec("org.scalatest.WordSpecLike") ++
-              checkWordSpec("org.scalatest.fixture.WordSpec") ++
-              checkWordSpec("org.scalatest.fixture.WordSpecLike") ++
-              checkWordSpec("org.scalatest.fixture.FixtureWordSpec") ++
-              checkWordSpec("org.scalatest.fixture.MultipleFixtureWordSpec")).orNull)
+              getTestNGSuiteBases.toStream.map(checkTestNGSuite).find(_.isDefined).getOrElse(None) ++
+              getFlatSpecBases.toStream.map(checkFlatSpec).find(_.isDefined).getOrElse(None) ++
+              getWordSpecBases.toStream.map(checkWordSpec).find(_.isDefined).getOrElse(None)).orNull)
 
     val astTransformer = new ScalaTestAstTransformer()
     val selection = astTransformer.testSelection(location)
 
-    if (selection != null) (testClassPath,
-          escapeAndConcatTestNames(selection.testNames().toList))
+    if (selection != null) {
+      if (selection.testNames.nonEmpty) (testClassPath, escapeAndConcatTestNames(selection.testNames().toList))
+      else {
+        val parent = location.getPsiElement.getParent
+        if (parent != null) getLocationClassAndTest(new PsiLocation(location.getProject, parent))
+        else null
+      }
+    }
     else oldResult
   }
 }

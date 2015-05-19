@@ -23,6 +23,6 @@ trait FreeSpecPathGenerator extends IntegrationTest {
         |    }
         |  }
         |}
-      """.stripMargin)
+      """.stripMargin.trim())
   }
 }

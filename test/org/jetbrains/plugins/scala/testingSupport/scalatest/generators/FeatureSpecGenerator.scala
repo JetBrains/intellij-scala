@@ -7,8 +7,11 @@ import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
  * @since 10.02.2015.
  */
 trait FeatureSpecGenerator extends IntegrationTest{
+  def featureSpecClassName = "FeatureSpecTest"
+  def featureSpecFileName = featureSpecClassName + ".scala"
+
   def addFeatureSpec() {
-    addFileToProject("FeatureSpecTest.scala",
+    addFileToProject(featureSpecFileName,
       """
         |import org.scalatest._
         |
@@ -30,6 +33,8 @@ trait FeatureSpecGenerator extends IntegrationTest{
         |    print(">>TEST: 2-C-C<<")
         |   }
         | }
+        |
+        | feature("empty") {}
         |}
       """.stripMargin.trim()
     )

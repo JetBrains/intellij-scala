@@ -168,7 +168,7 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
       } else if (expressions.length == 1) {
         chooseExpression(expressions(0))
       } else {
-        ScalaRefactoringUtil.showChooser(editor, expressions, elem =>
+        ScalaRefactoringUtil.showChooser(editor, expressions, (elem: PsiElement) =>
           chooseExpression(elem), "Expressions", (expr: PsiElement) => {
           expr match {
             case expr: ScExpression =>
@@ -331,7 +331,12 @@ class ImplicitParametersTreeStructure(project: Project,
       if (namedElement != null) {
         val text: String = namedElement.name
         if (text == InferUtil.notFoundParameterName) {
-          data.setPresentableText("Parameter not found")
+          value.implicitSearchState match {
+            case Some(state) =>
+              data.setPresentableText(s"Parameter not found for type: ${state.tp}")
+            case _ =>
+              data.setPresentableText("Parameter not found")
+          }
           data.setAttributesKey(CodeInsightColors.WRONG_REFERENCES_ATTRIBUTES)
         } else {
           namedElement match {

@@ -8,6 +8,6 @@ trait ObjectGraphMatchers {
 }
 /*
 Few variants:
-ObjectGraphMatchers.this.type#B with ObjectGraphMatchers.this.type#A
-ObjectGraphMatchers.this.type#A with ObjectGraphMatchers.this.type#B
+ObjectGraphMatchers.this.B with ObjectGraphMatchers.this.A
+ObjectGraphMatchers.this.A with ObjectGraphMatchers.this.B
  */

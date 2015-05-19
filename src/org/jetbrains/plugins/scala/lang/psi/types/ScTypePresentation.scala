@@ -109,13 +109,11 @@ trait ScTypePresentation {
       val refName = e.name
       def checkIfStable(e: PsiElement): Boolean = {
         e match {
-          case _: ScObject | _: ScBindingPattern | _: ScParameter => true
+          case _: ScObject | _: ScBindingPattern | _: ScParameter | _: ScFieldId => true
           case _ => false
         }
       }
-      val typeTailForProjection =
-        if (checkIfStable(e)) typeTail(needDotType)
-        else ""
+      val typeTailForProjection = typeTail(checkIfStable(e) && needDotType)
       def isInnerStaticJavaClassForParent(clazz: PsiClass): Boolean = {
         clazz.getLanguage != ScalaFileType.SCALA_LANGUAGE &&
           e.isInstanceOf[PsiModifierListOwner] &&
@@ -139,7 +137,9 @@ trait ScTypePresentation {
         case _: ScCompoundType | _: ScExistentialType =>
           s"(${innerTypeText(p)})#$refName"
         case _ =>
-          s"${innerTypeText(p)}#$refName"
+          val innerText = innerTypeText(p)
+          if (innerText.endsWith(".type")) innerText.stripSuffix("type") + refName
+          else s"$innerText#$refName"
       }
     }
 

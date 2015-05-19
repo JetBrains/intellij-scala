@@ -28,7 +28,7 @@ import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.EventListener;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -52,7 +52,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     private ScalaVariableValidator validator;
     private String[] possibleNames;
 
-    private HashMap<String, ScType> myTypeMap = null;
+    private LinkedHashMap<String, ScType> myTypeMap = null;
     private EventListenerList myListenerList = new EventListenerList();
 
     private static final String REFACTORING_NAME = ScalaBundle.message("introduce.variable.title");

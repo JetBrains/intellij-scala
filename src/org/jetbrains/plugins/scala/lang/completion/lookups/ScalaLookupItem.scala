@@ -10,14 +10,16 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IconUtil
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
+import org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.PresentationUtil._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReferenceElement, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -60,6 +62,9 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   var prefixCompletion: Boolean = false
   var isLocalVariable: Boolean = false
   var isSbtLookupItem: Boolean = false
+  var isInSimpleString: Boolean = false
+  var isInSimpleStringNoBraces: Boolean = false
+  var isInInterpolatedString: Boolean = false
 
   def isNamedParameterOrAssignment = isNamedParameter || isAssignment
 
@@ -194,19 +199,49 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   }
 
   override def handleInsert(context: InsertionContext) {
+    def shift: Int = {
+      val smartAdd = if (someSmartCompletion) 5 else 0
+      val simpleStringAdd =
+        if (isInSimpleString && isInSimpleStringNoBraces) 1
+        else if (isInSimpleString) 2
+        else if (isInInterpolatedString) 1
+        else 0
+      smartAdd + simpleStringAdd
+    }
+
     if (getInsertHandler != null) super.handleInsert(context)
     else if (isClassName || prefixCompletion) {
-      PsiDocumentManager.getInstance(context.getProject).commitDocument(context.getDocument)
-      val startOffset = context.getStartOffset
-      var ref: ScReferenceElement = PsiTreeUtil.findElementOfClassAtOffset(context.getFile, startOffset, classOf[ScReferenceElement], false)
-      val useFullyQualifiedName = PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) != null &&
-        PsiTreeUtil.getParentOfType(ref, classOf[ScImportSelectors]) == null //do not complete in sel
-      if (ref == null) return
-      val file = ref.getContainingFile
-
+      context.commitDocument()
       element match {
         case TypeToImport(_) if isRenamed != None => //do nothing
         case TypeToImport(cl) =>
+          if (isInSimpleString) {
+            val literal = context.getFile.findElementAt(context.getStartOffset).getParent
+            val startOffset = context.getStartOffset
+            val tailOffset = context.getTailOffset
+            val literalOffset = literal.getTextRange.getStartOffset
+            val document = context.getDocument
+            document.insertString(tailOffset, "}")
+            document.insertString(startOffset, "{")
+            document.insertString(literalOffset, "s")
+            context.commitDocument()
+            val index = context.getStartOffset + 2
+            val elem = context.getFile.findElementAt(index)
+            elem.getNode.getElementType match {
+              case ScalaTokenTypes.tIDENTIFIER =>
+                val reference = elem.getParent
+                reference.getParent match {
+                  case block: ScBlock if RedundantBlockInspection.isRedundantBlock(block) =>
+                    block.replace(reference)
+                    isInSimpleStringNoBraces = true
+                  case _ =>
+                }
+            }
+          }
+          var ref = PsiTreeUtil.findElementOfClassAtOffset(context.getFile, context.getStartOffset + shift, classOf[ScReferenceElement], false)
+          val useFullyQualifiedName = PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) != null &&
+            PsiTreeUtil.getParentOfType(ref, classOf[ScImportSelectors]) == null //do not complete in sel
+          if (ref == null) return
           while (ref.getParent != null && ref.getParent.isInstanceOf[ScReferenceElement] &&
             (ref.getParent.asInstanceOf[ScReferenceElement].qualifier match {
               case Some(r) => r != ref
@@ -248,17 +283,19 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
           }
         case p: PsiPackage if shouldImport =>
           simpleInsert(context)
-          val document = context.getEditor.getDocument
-          PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
+          context.commitDocument()
+          val ref: ScReferenceElement =
+            PsiTreeUtil.findElementOfClassAtOffset(context.getFile, context.getStartOffset + shift, classOf[ScReferenceElement], false)
+          if (ref == null) return
           ScalaImportTypeFix.getImportHolder(ref, ref.getProject).addImportForPath(p.getQualifiedName)
         case _ =>
           simpleInsert(context)
           if (containingClass != null) {
             val document = context.getEditor.getDocument
-            PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
-            file match {
+            PsiDocumentManager.getInstance(context.getProject).commitDocument(document)
+            context.getFile match {
               case scalaFile: ScalaFile =>
-                val elem = scalaFile.findElementAt(startOffset + (if (someSmartCompletion) 5 else 0))
+                val elem = scalaFile.findElementAt(context.getStartOffset + shift)
                 def qualifyReference(ref: ScReferenceExpression) {
                   val newRef = ScalaPsiElementFactory.createExpressionFromText(
                     containingClass.name + "." + ref.getText,
@@ -277,8 +314,8 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
                         ref.bindToElement(element, Some(containingClass))
                       } else {
                         ScalaPsiUtil.nameContext(elementToImport) match {
-                          case memb: PsiMember =>
-                            val containingClass = memb.containingClass
+                          case member: PsiMember =>
+                            val containingClass = member.containingClass
                             if (containingClass != null && containingClass.qualifiedName != null) {
                               ScalaImportTypeFix.getImportHolder(ref, ref.getProject).addImportForPsiNamedElement(elementToImport, null)
                             }

@@ -8,6 +8,8 @@ import com.intellij.codeInsight.daemon.impl.CollectHighlightsUtil
 import com.intellij.diagnostic.LogMessageEx
 import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import com.intellij.openapi.editor.{Editor, RangeMarker}
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
+import com.intellij.openapi.progress.util.AbstractProgressIndicatorBase
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.Ref
@@ -43,21 +45,32 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
     var associations: List[Association] = Nil
 
     try {
-      breakable {
-        for ((startOffset, endOffset) <- startOffsets.zip(endOffsets);
-             element <- CollectHighlightsUtil.getElementsInRange(file, startOffset, endOffset);
-             reference <- element.asOptionOf[ScReferenceElement];
-             dependency <- Dependency.dependencyFor(reference) if dependency.isExternal;
-             range = dependency.source.getTextRange.shiftRight(-startOffset)) {
-          if (System.currentTimeMillis > timeBound) {
-            Log.warn("Time-out while collecting dependencies in %s:\n%s".format(
-              file.getName, file.getText.substring(startOffset, endOffset)))
-            break()
+      ProgressManager.getInstance().runProcess(new Runnable {
+        override def run(): Unit = {
+          breakable {
+            for ((startOffset, endOffset) <- startOffsets.zip(endOffsets);
+                 element <- CollectHighlightsUtil.getElementsInRange(file, startOffset, endOffset);
+                 reference <- element.asOptionOf[ScReferenceElement];
+                 dependency <- Dependency.dependencyFor(reference) if dependency.isExternal;
+                 range = dependency.source.getTextRange.shiftRight(-startOffset)) {
+              if (System.currentTimeMillis > timeBound) {
+                Log.warn("Time-out while collecting dependencies in %s:\n%s".format(
+                  file.getName, file.getText.substring(startOffset, endOffset)))
+                break()
+              }
+              associations ::= Association(dependency.kind, range, dependency.path)
+            }
           }
-          associations ::= Association(dependency.kind, range, dependency.path)
         }
-      }
+      }, new AbstractProgressIndicatorBase {
+        override def isCanceled: scala.Boolean = {
+          System.currentTimeMillis > timeBound || super.isCanceled
+        }
+      })
     } catch {
+      case p: ProcessCanceledException =>
+        Log.warn("Time-out while collecting dependencies in %s:\n%s".format(
+          file.getName, file.getText.substring(startOffsets(0), endOffsets(0))))
       case e: Exception =>
         val selections = (startOffsets, endOffsets).zipped.map((a, b) => file.getText.substring(a, b))
         val attachments = selections.zipWithIndex.map(p => new Attachment(s"Selection-${p._2 + 1}.scala", p._1))

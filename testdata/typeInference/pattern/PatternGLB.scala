@@ -7,4 +7,4 @@ class PatternGLB {
       /*start*/d/*end*/
   }
 }
-//PatternGLB.this.type#B
+//PatternGLB.this.B

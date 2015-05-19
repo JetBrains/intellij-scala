@@ -12,8 +12,8 @@ trait WordSpecSingleTestTest extends WordSpecGenerator {
   def testWordSpec() {
     addWordSpec()
 
-    runTestByLocation(5, 10, "WordSpecTest.scala",
-      checkConfigAndSettings(_, "WordSpecTest", "WordSpecTest should Run single test"),
+    runTestByLocation(5, 10, wordSpecFileName,
+      checkConfigAndSettings(_, wordSpecClassName, "WordSpecTest should Run single test"),
       root => checkResultTreeHasExactNamedPath(root, wordSpecTestPath:_*) &&
           checkResultTreeDoesNotHaveNodes(root, "ignore other tests"),
       debug = true

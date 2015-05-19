@@ -8,7 +8,8 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 class UnitInMapTest extends OperationsOnCollectionInspectionTest {
   override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[UnitInMapInspection]
 
-  override def hint: String = InspectionBundle.message("expression.unit.return.in.map")
+  override def description: String = InspectionBundle.message("expression.unit.return.in.map")
+  override def hint: String = InspectionBundle.message("use.foreach.instead.of.map")
 
   def test1(): Unit = {
     doTest(
@@ -40,9 +41,6 @@ class UnitInMapTest extends OperationsOnCollectionInspectionTest {
   }
 
   def test2(): Unit = {
-    Seq(1, 2).map { x =>
-      println(x)
-    }
     check(s"val mapped = Seq(1, 2).map(${START}println(_)$END)")
     check(
       s"""

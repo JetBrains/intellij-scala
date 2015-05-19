@@ -1,43 +1,53 @@
 package org.jetbrains.plugins.scala
 package codeInspection.collections
 
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
+import org.jetbrains.plugins.scala.extensions.ExpressionType
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
-import org.jetbrains.plugins.scala.project._
 
 /**
  * Nikolay.Tropin
  * 2014-05-05
  */
 class MapGetOrElseInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(new MapGetOrElse(this))
+  override def possibleSimplificationTypes: Array[SimplificationType] = Array(MapGetOrElse)
 }
 
-class MapGetOrElse(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object MapGetOrElse extends SimplificationType() {
   def hint = InspectionBundle.message("map.getOrElse.hint")
 
-  override def getSimplification(last: MethodRepr, second: MethodRepr): List[Simplification] = {
-    (last.optionalMethodRef, second.optionalMethodRef) match {
-      case (Some(lastRef), Some(secondRef)) if lastRef.refName == "getOrElse" &&
-              secondRef.refName == "map" &&
-              checkScalaVersion(lastRef) &&
-              checkResolve(lastRef, likeOptionClasses) &&
-              checkResolve(secondRef, likeOptionClasses) &&
-              checkTypes(second.optionalBase, second.args, last.args)=>
-        createSimplification(second, last.itself, "fold", last.args, second.args)
-      case _ => Nil
+  override def getSimplification(expr: ScExpression): Option[Simplification] = {
+
+    expr match {
+      case qual`.mapOnOption`(fun)`.getOrElse`(default) =>
+        replacementText(qual, fun, default) match {
+          case Some(newText) if checkTypes(qual, fun, newText) =>
+            val simplification = replace(expr).withText(newText).highlightFrom(qual)
+            Some(simplification)
+          case _ => None
+        }
+      case _ => None
     }
   }
 
-  def checkScalaVersion(elem: PsiElement) = { //there is no Option.fold in Scala 2.9
-    elem.scalaLanguageLevel.map(_ > Scala_2_9).getOrElse(true)
+  def replacementText(qual: ScExpression, mapArg: ScExpression, goeArg: ScExpression): Option[String] = {
+    val firstArgText = argListText(Seq(goeArg))
+    val secondArgText = argListText(Seq(mapArg))
+    Some(s"${qual.getText}.fold $firstArgText$secondArgText")
+  }
+
+  def checkTypes(qual: ScExpression, mapArg: ScExpression, replacementText: String): Boolean = {
+    val mapArgRetType = mapArg match {
+      case ExpressionType(ScFunctionType(retType, _)) => retType
+      case _ => return false
+    }
+    ScalaPsiElementFactory.createExpressionFromText(replacementText, qual.getContext) match {
+      case ScMethodCall(ScMethodCall(_, Seq(firstArg)), _) => mapArgRetType.conforms(firstArg.getType().getOrNothing)
+      case _ => false
+    }
   }
 
   def checkTypes(optionalBase: Option[ScExpression], mapArgs: Seq[ScExpression], getOrElseArgs: Seq[ScExpression]): Boolean = {

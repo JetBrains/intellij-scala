@@ -1,0 +1,14 @@
+<html>
+<body>
+Equality for scala collections checks that both collections are of same kind (Seq, Set or Map) and have same elements.<br>
+Inspection suggests to replace appropriate usages of methods <code>sameElements</code> or <code>corresponds</code> with equivalent equality check.
+
+Before:
+<p><code>seq sameElements list</code></p>
+<p><code>hashSet sameElements treeSet  -> </code></p>
+
+After:
+<p><code>seq == list</code></p>
+<p><code>hashSet == treeSet</code></p>
+</body>
+</html>

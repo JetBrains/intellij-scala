@@ -24,28 +24,8 @@ class RedundantBlockInspection extends AbstractInspection {
               blockOfExpr.getChildren.length == 1 && !block.getChildren.exists(_.isInstanceOf[ScCaseClauses]) =>
       holder.registerProblem(block, new TextRange(0, 1), "Remove redundant braces", new InCaseClauseQuickFix(block))
     case block: ScBlockExpr if block.getChildren.length == 3 =>
-      val child: PsiElement = block.getChildren.apply(1)
-      val probablyRedundant = child match {
-        case ref: ScReferenceExpression if ref.qualifier.isEmpty => true
-        case t: ScThisReference if t.reference.isEmpty => true
-        case _ => false
-      }
-      if (probablyRedundant) {
-        val next: PsiElement = block.getNextSibling
-        val parent = block.getParent
-        val isRedundant = parent match {
-          case _: ScArgumentExprList => false
-          case _ if next == null => true
-          case _: ScInterpolatedStringLiteral =>
-            val text = child.getText
-            val nextLetter = next.getText.headOption.getOrElse(' ')
-            val checkId = ScalaNamesUtil.isIdentifier(text) && (nextLetter == '$' || !ScalaNamesUtil.isIdentifier(text + nextLetter))
-            checkId && !text.startsWith("_") && !text.exists(_ == '$') && !text.startsWith("`")
-          case _ => false
-        }
-        if (isRedundant) {
-          holder.registerProblem(block, "The enclosing block is redundant", new QuickFix(block))
-        }
+      if (RedundantBlockInspection.isRedundantBlock(block)) {
+        holder.registerProblem(block, "The enclosing block is redundant", new QuickFix(block))
       }
   }
 
@@ -65,5 +45,30 @@ class RedundantBlockInspection extends AbstractInspection {
       }
       bl.delete()
     }
+  }
+}
+
+object RedundantBlockInspection {
+  def isRedundantBlock(block: ScBlock): Boolean = {
+    val child: PsiElement = block.getChildren.apply(1)
+    val probablyRedundant = child match {
+      case ref: ScReferenceExpression if ref.qualifier.isEmpty => true
+      case t: ScThisReference if t.reference.isEmpty => true
+      case _ => false
+    }
+    if (probablyRedundant) {
+      val next: PsiElement = block.getNextSibling
+      val parent = block.getParent
+      parent match {
+        case _: ScArgumentExprList => false
+        case _ if next == null => true
+        case _: ScInterpolatedStringLiteral =>
+          val text = child.getText
+          val nextLetter = next.getText.headOption.getOrElse(' ')
+          val checkId = ScalaNamesUtil.isIdentifier(text) && (nextLetter == '$' || !ScalaNamesUtil.isIdentifier(text + nextLetter))
+          checkId && !text.startsWith("_") && !text.exists(_ == '$') && !text.startsWith("`")
+        case _ => false
+      }
+    } else false
   }
 }

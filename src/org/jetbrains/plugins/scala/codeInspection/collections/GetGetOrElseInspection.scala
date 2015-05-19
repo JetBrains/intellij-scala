@@ -2,9 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
-import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionsUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
  * Nikolay.Tropin
@@ -12,30 +10,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
  */
 class GetGetOrElseInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] =
-    Array(new GetGetOrElse(this))
+    Array(GetGetOrElse)
 }
 
-class GetGetOrElse(inspection: OperationOnCollectionInspection) extends SimplificationType(inspection) {
+object GetGetOrElse extends SimplificationType() {
 
   def hint = InspectionBundle.message("get.getOrElse.hint")
 
-  override def getSimplification(last: MethodRepr, second: MethodRepr) = {
-    (last.optionalMethodRef, second.optionalMethodRef) match {
-      case (Some(lastRef), Some(secondRef))
-        if lastRef.refName == "getOrElse" &&
-                secondRef.refName == "get" &&
-                checkResolve(lastRef, likeOptionClasses) &&
-                checkResolve(secondRef, likeCollectionClasses) &&
-                checkResolveToMap(secondRef) =>
-
-        createSimplification(second, last.itself, "getOrElse", second.args ++ last.args)
-      case _ => Nil
+  override def getSimplification(expr: ScExpression) = {
+    expr match {
+      case map`.getOnMap`(key)`.getOrElse`(default) =>
+        Some(replace(expr).withText(invocationText(map, "getOrElse", key, default)).highlightFrom(map))
+      case _ => None
     }
-  }
-
-  private def checkResolveToMap(memberRef: ScReferenceElement) = memberRef.resolve() match {
-    case m: ScMember => Option(m.containingClass).exists(_.name.toLowerCase.contains("map"))
-    case _ => false
   }
 
 }
