@@ -345,6 +345,8 @@ package object collections {
   }
 
   def isOfClassFrom(expr: ScExpression, patterns: Array[String]): Boolean = {
+    if (expr == null) return false
+
     expr.getType() match {
       case Success(tp, _) =>
         ScType.extractDesignatorSingletonType(tp).getOrElse(tp) match {
