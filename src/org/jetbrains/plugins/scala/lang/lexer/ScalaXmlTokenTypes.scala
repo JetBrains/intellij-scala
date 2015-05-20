@@ -24,6 +24,8 @@ object ScalaXmlTokenTypes {
   
   def getByName(name: String) = allTypes.get(name)
 
+  def substitute(tpe: IElementType) = if (tpe == null) null else getByName(tpe.toString) getOrElse tpe
+
   def isSubstituted(name: String) = allTypes.get(name).isDefined
   
   val XML_EQ = create("XML_EQ")
@@ -84,9 +86,6 @@ object ScalaXmlTokenTypes {
     XmlTokenType.XML_TAG_CHARACTERS, XmlTokenType.XML_ATTRIBUTE_VALUE_TOKEN, XmlTokenType.XML_PI_TARGET, XmlTokenType.XML_COMMENT_CHARACTERS)
 
   class PatchedXmlLexer extends MergingLexerAdapter(new _XmlLexer(new __XmlLexer(null.asInstanceOf[Reader]), false), XML_TOKENS_TO_MERGE) {
-    override def getTokenType: IElementType = {
-      val tp = super.getTokenType
-      if (tp == null) null else getByName(tp.toString) getOrElse tp
-    }
+    override def getTokenType: IElementType = substitute(super.getTokenType)
   }
 }
