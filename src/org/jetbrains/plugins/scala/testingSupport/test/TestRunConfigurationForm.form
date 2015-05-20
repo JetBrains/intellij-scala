@@ -152,7 +152,9 @@
             <children>
               <component id="3645e" class="javax.swing.JTextArea" binding="testNameTextField">
                 <constraints/>
-                <properties/>
+                <properties>
+                  <lineWrap value="true"/>
+                </properties>
               </component>
             </children>
           </scrollpane>
