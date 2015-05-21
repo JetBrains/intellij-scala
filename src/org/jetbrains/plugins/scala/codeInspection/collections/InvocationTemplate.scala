@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
 import org.jetbrains.plugins.scala.extensions.childOf
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
@@ -34,6 +34,10 @@ class InvocationTemplate(nameCondition: String => Boolean) {
       case MethodRepr(_, qualOpt, Some(ref), args) if nameCondition(ref.refName) && refCondition(ref) =>
         Some(qualOpt.orNull, args)
       case MethodRepr(call: ScMethodCall, Some(qual), None, args) if nameCondition("apply") && call.isApplyOrUpdateCall && !call.isUpdateCall =>
+        val text = qual match {
+          case _: ScReferenceExpression | _: ScMethodCall | _: ScGenericCall => s"${qual.getText}.apply"
+          case _ => s"(${qual.getText}).apply"
+        }
         val ref = ScalaPsiElementFactory.createExpressionFromText(s"(${qual.getText}).apply", call).asInstanceOf[ScReferenceExpression]
         if (refCondition(ref)) Some(qual, args)
         else None
