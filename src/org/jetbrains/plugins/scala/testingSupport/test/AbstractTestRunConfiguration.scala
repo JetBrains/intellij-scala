@@ -378,7 +378,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     if (module == null) throw new ExecutionException("Module is not specified")
 
     val state = new JavaCommandLineState(env) with AbstractTestRunConfiguration.TestCommandLinePatcher {
-      val getClasses: Seq[String] = classes.map(_.qualifiedName).toSeq
+      val getClasses: Seq[String] = getClassFileNames(classes)
 
       protected override def createJavaParameters: JavaParameters = {
         val params = new JavaParameters()
@@ -555,6 +555,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     }
     state
   }
+
+  protected def getClassFileNames(classes: mutable.HashSet[PsiClass]): Seq[String] = classes.map(_.qualifiedName).toSeq
 
   override def writeExternal(element: Element) {
     super.writeExternal(element)
