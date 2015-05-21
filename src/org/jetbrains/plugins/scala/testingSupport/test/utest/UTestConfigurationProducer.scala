@@ -117,9 +117,11 @@ class UTestConfigurationProducer extends {
                     case _ => None
                   }
                 case upperInfix: ScInfixExpr =>
-                  if (upperInfix.getFirstChild.isInstanceOf[ScLiteral]) {
-                    buildTestPath(upperInfix.getFirstChild.asInstanceOf[ScLiteral], "\\" + test.getValue.toString + acc)
-                  } else None
+                  upperInfix.getFirstChild match {
+                    case scopeName: ScLiteral =>
+                      buildTestPath(scopeName, "\\" + test.getValue.toString + acc)
+                    case _ => None
+                  }
                 case _ => None
               }
             case _ => None
@@ -137,7 +139,7 @@ class UTestConfigurationProducer extends {
     val parentLiteral: ScLiteral = PsiTreeUtil.getParentOfType(element, classOf[ScLiteral], false)
     if (parent == null) return (null, null)
 
-    while (PsiTreeUtil.getParentOfType(parent, classOf[ScTypeDefinition], true) != null) {
+    while (!parent.isInstanceOf[ScObject] && PsiTreeUtil.getParentOfType(parent, classOf[ScTypeDefinition], true) != null) {
       parent = PsiTreeUtil.getParentOfType(parent, classOf[ScTypeDefinition], true)
     }
     if (!parent.isInstanceOf[ScObject]) return (null, null)

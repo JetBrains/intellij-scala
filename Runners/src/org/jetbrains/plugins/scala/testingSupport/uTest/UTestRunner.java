@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
@@ -173,7 +174,13 @@ public class UTestRunner {
   }
 
   private static int runTestSuites(String className, Collection<TestPath> tests, int nextId) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    Class clazz = Class.forName(className);
+    Class clazz;
+    try {
+      clazz = Class.forName(className);
+    } catch (ClassNotFoundException e) {
+        System.out.println("ClassNotFoundException for " + className + ": " + e.getMessage());
+        return nextId;
+    }
     int lastDotPosition = className.lastIndexOf(".");
     String suiteName = (lastDotPosition != -1) ? className.substring(lastDotPosition + 1) : className;
     List<TestMethod> testsToRun = new LinkedList<TestMethod>();
@@ -220,7 +227,13 @@ public class UTestRunner {
         " nodeId='" + nodeId + "' parentNodeId='" + 0 + "' captureStandardOutput='true']");
     for (TestMethod testMethod : testsToRun) {
       Method test = testMethod.method;
-      Tree<Test> testTree = (Tree) test.invoke(null);
+      Tree<Test> testTree;
+      try {
+        testTree = (Tree) ((Modifier.isStatic(test.getModifiers())) ? test.invoke(null) : test.invoke(clazz.getField("MODULE$").get(null)));
+      } catch (NoSuchFieldException e) {
+        System.out.println("Instance field not found for object " + clazz.getName() + ": " + e.getMessage());
+        return nodeId;
+      }
 
       TestTreeSeq treeSeq = new TestTreeSeq(testTree);
       String testMethodName = test.getName();
