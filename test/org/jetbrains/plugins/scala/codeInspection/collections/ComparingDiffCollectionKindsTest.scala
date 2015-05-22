@@ -59,4 +59,9 @@ class ComparingDiffCollectionKindsTest extends OperationsOnCollectionInspectionT
     checkTextHasNoErrors("Seq(1) == Seq(1)", leftHint, inspectionClass)
     checkTextHasNoErrors("Seq(1) == Seq(1)", rightHint, inspectionClass)
   }
+
+  def testNullAndNothing(): Unit = {
+    checkTextHasNoErrors("Set(1) == null")
+    checkTextHasNoErrors("Map(1 -> 2) == ???")
+  }
 }
