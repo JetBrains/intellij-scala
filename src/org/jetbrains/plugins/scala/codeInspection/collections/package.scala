@@ -363,9 +363,9 @@ package object collections {
 
   def isCollection(className: String, expr: ScExpression): Boolean = {
     val collectionType = collectionTypeFromClassName(className, expr.getProject)
-    if (collectionType.isEmpty) false
-    else expr.getType().getOrAny.conforms(collectionType.get)
-    collectionType.exists(expr.getType().getOrAny.conforms(_))
+    val exprType = expr.getType().getOrAny
+    if (exprType == StdType.NULL || exprType == StdType.NOTHING) false
+    else collectionType.exists(exprType.conforms(_))
   }
 
   def isSet(expr: ScExpression): Boolean = isCollection("scala.collection.GenSet", expr)
