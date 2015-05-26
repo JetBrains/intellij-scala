@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.util.scalatest;
 
-import com.intellij.execution.filters.Filter.Result;
 import com.intellij.execution.filters.Filter;
 import com.intellij.execution.filters.HyperlinkInfo;
 import com.intellij.execution.filters.HyperlinkInfoFactory;
