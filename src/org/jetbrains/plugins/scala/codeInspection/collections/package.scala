@@ -345,6 +345,8 @@ package object collections {
   }
 
   def isOfClassFrom(expr: ScExpression, patterns: Array[String]): Boolean = {
+    if (expr == null) return false
+
     expr.getType() match {
       case Success(tp, _) =>
         ScType.extractDesignatorSingletonType(tp).getOrElse(tp) match {
@@ -361,9 +363,9 @@ package object collections {
 
   def isCollection(className: String, expr: ScExpression): Boolean = {
     val collectionType = collectionTypeFromClassName(className, expr.getProject)
-    if (collectionType.isEmpty) false
-    else expr.getType().getOrAny.conforms(collectionType.get)
-    collectionType.exists(expr.getType().getOrAny.conforms(_))
+    val exprType = expr.getType().getOrAny
+    if (exprType == StdType.NULL || exprType == StdType.NOTHING) false
+    else collectionType.exists(exprType.conforms(_))
   }
 
   def isSet(expr: ScExpression): Boolean = isCollection("scala.collection.GenSet", expr)

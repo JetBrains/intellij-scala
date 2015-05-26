@@ -1909,10 +1909,12 @@ object ScalaPsiUtil {
             case _ => Seq.empty
           }
           val clauseIndex = constructor.arguments.indexOf(args)
-          val paramClause = paramClauses(clauseIndex)
-          val paramIndex = Math.min(args.exprs.indexOf(expr), paramClause.size - 1) //to handle varargs
-          val maybeParameter = paramClause.lift(paramIndex)
-          maybeParameter.map(new Parameter(_))
+          paramClauses.lift(clauseIndex) match {
+            case None => None
+            case Some(paramClause) =>
+              val paramIndex = Math.min(args.exprs.indexOf(expr), paramClause.size - 1)
+              paramClause.lift(paramIndex).map(new Parameter(_))
+          }
         case _ =>
           val matchedParams = args.matchedParameters.getOrElse(Seq.empty)
           val same = matchedParams.collectFirst {

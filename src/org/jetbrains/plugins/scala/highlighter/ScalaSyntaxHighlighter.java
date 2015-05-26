@@ -369,14 +369,14 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     }
   }
 
-  private static class ScalaHtmlHighlightingLexerWrapper extends HtmlHighlightingLexer {
+  public static class ScalaHtmlHighlightingLexerWrapper extends HtmlHighlightingLexer {
     public ScalaHtmlHighlightingLexerWrapper() {
       super(FileTypeManager.getInstance().getStdFileType("CSS"));
     }
 
     @Override
     public IElementType getTokenType() {
-      IElementType htmlType = super.getTokenType();
+      final IElementType htmlType = ScalaXmlTokenTypes.substitute(super.getTokenType());
 
       if (htmlType == ScalaXmlTokenTypes.XML_CHAR_ENTITY_REF()) {
         return ScalaDocTokenType.DOC_HTML_ESCAPE_HIGHLIGHTED_ELEMENT;

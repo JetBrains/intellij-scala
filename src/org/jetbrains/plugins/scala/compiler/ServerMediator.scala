@@ -86,7 +86,10 @@ class ServerMediator(project: Project) extends ProjectComponent {
               val model = ModuleRootManager.getInstance(module).getModifiableModel
               val extension = model.getModuleExtension(classOf[CompilerModuleExtension])
 
-              val outputUrlParts = extension.getCompilerOutputUrl.split("/").toSeq
+              val outputUrlParts = extension.getCompilerOutputUrl match {
+                case null => Seq.empty
+                case url => url.split("/").toSeq
+              }
               val nameForTests = if (outputUrlParts.last == "classes") "test-classes" else "test"
 
               extension.inheritCompilerOutputPath(false)
