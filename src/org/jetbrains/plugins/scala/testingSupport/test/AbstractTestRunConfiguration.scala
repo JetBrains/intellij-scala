@@ -50,7 +50,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
                                             val configurationFactory: ConfigurationFactory,
                                             val name: String,
                                             private var envs: java.util.Map[String, String] =
-                                            new mutable.HashMap[String, String]())
+                                            new mutable.HashMap[String, String](),
+                                            private var addIntegrationTestsClasspath: Boolean = false)
   extends ModuleBasedConfiguration[RunConfigurationModule](name,
     new RunConfigurationModule(project),
     configurationFactory)
@@ -59,6 +60,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   val SCALA_HOME = "-Dscala.home="
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
+
+  def setupIntegrationTestClassPath() = addIntegrationTestsClasspath = true
 
   def getAdditionalTestParams(testName: String): Seq[String] = Seq()
 
@@ -408,9 +411,12 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 //          "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010")
 
         val rtJarPath = ScalaUtil.runnersPath()
-        val integrationTestsPath = ScalaUtil.testingSupportTestPath()
         params.getClassPath.add(rtJarPath)
-        params.getClassPath.add(integrationTestsPath)
+        if (addIntegrationTestsClasspath) {
+          //a workaround to add jars for integration tests
+          val integrationTestsPath = ScalaUtil.testingSupportTestPath()
+          params.getClassPath.add(integrationTestsPath)
+        }
 
         searchTest match {
           case SearchForTest.IN_WHOLE_PROJECT =>
