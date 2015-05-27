@@ -4,16 +4,17 @@ package testingSupport.test.utest
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.execution.{JavaRunConfigurationExtensionManager, Location, RunManager, RunnerAndConfigurationSettings}
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.impl.source.tree.LeafElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDirectory, PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTuplePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScInfixExpr, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
+import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationProducer, TestConfigurationUtil}
 
 import scala.annotation.tailrec
@@ -81,93 +82,113 @@ class UTestConfigurationProducer extends {
 
   override def suitePaths = List("utest.framework.TestSuite")
 
-  private val testObjectPath = "utest.framework.TestSuite$"
-
-  private def checkMethod(call: ScMethodCall): Boolean = {
-    call.getFirstChild match {
-      case ref: ScReferenceExpression => ref.resolve() match {
-        case member: ScMember =>
-          val containingClass = member.getContainingClass
-          containingClass.getQualifiedName == testObjectPath
-        case _ => false
-      }
-      case _ => false
+  /**
+   * Provides name of a test suite (i.e. single test defined as a val is uTest TestSuite) from a an 'apply' method call
+   * defining the suite.
+   * @param testSuite
+   * @return
+   */
+  private def getTestSuiteName(testSuite: ScMethodCall): Option[String] = {
+    testSuite.getParent match {
+      case patternDef: ScPatternDefinition => Some(patternDef.bindings.head.getName)
+      case tuple: ScTuple =>
+        tuple.getParent match {
+          case patternDef: ScPatternDefinition =>
+            val patterns = patternDef.pList.patterns
+            if (patterns.size == 1 && patterns.head.isInstanceOf[ScTuplePattern]) {
+              val index = tuple.exprs.zipWithIndex.find { case (expr, _) => expr == testSuite }.map(_._2).get
+              val bindings = patternDef.bindings
+              if (bindings.size > index) Some(bindings(index).getName) else None
+            } else None
+          case _ => None
+        }
+      case _ => None
     }
   }
 
-  @tailrec
-  private def buildTestPath(test: ScLiteral, acc: String): Option[String] = {
-    if (test.isString) {
-      val infix = test.getParent
-      infix match {
-        case infixExpr: ScInfixExpr =>
-          val block = infixExpr.getParent
-          block match {
-            case expr: ScBlockExpr =>
-              expr.getParent match {
-                case argList: ScArguments =>
-                  val methodCall = argList.getParent
-                  val testName = methodCall.getParent match {
-                    case patDef: ScPatternDefinition => patDef.bindings.head.getName
-                    case _ => return None
-                  }
-                  methodCall match {
-                    case call: ScMethodCall =>
-                      if (checkMethod(call)) Some(testName + "\\" + test.getValue.toString + acc) else None
-                    case _ => None
-                  }
-                case upperInfix: ScInfixExpr =>
-                  upperInfix.getFirstChild match {
-                    case scopeName: ScLiteral =>
-                      buildTestPath(scopeName, "\\" + test.getValue.toString + acc)
-                    case _ => None
-                  }
-                case _ => None
-              }
-            case _ => None
+  private def buildTestPath(testExpr: ScExpression, testScopeName: String): Option[String] = {
+    testExpr match {
+      case (_: ScInfixExpr) | (_: ScMethodCall) =>
+        testExpr.getParent match {
+          case block: ScBlockExpr =>
+            block.getParent match {
+              case argList: ScArguments =>
+                argList.getParent match {
+                  case call: ScMethodCall if TestNodeProvider.isUTestSuiteApplyCall(call) =>
+                    getTestSuiteName(call).map(_ + "\\" + testScopeName)
+                  case call: ScMethodCall if TestNodeProvider.isUTestApplyCall(call) =>
+                    buildPathFromTestExpr(call).map(_ + "\\" + testScopeName)
+                  case _ => None
+                }
+              case upperInfix: ScInfixExpr =>
+                buildPathFromTestExpr(upperInfix).map(_ + "\\" + testScopeName)
+              case _ => None
+            }
+          case _ => None
+        }
+      case _ => None
+    }
+  }
 
-          }
-        case _ => None
+  private def getTestName(literal: ScLiteral) = literal.getValue match {
+    case symbol: Symbol => symbol.name
+    case other => other.toString
+  }
+
+  /**
+   * Attempts to build a test path from given expression containing test name and expression containing test scope definition.
+   * @param testNameExpr expression containing test name
+   * @param testExpr expression containing test definition
+   * @return
+   */
+  @tailrec
+  private def buildPathFromTestNameExpr(testNameExpr: ScExpression, testExpr: ScExpression): Option[String] = {
+    val subExprs = testNameExpr.getChildren.filter(_.isInstanceOf[ScExpression]).map(_.asInstanceOf[ScExpression])
+    //for now, only process tests that have simle literals as names
+    if (subExprs.length == 1) {
+      subExprs.head match {
+        case literal: ScLiteral if literal.isString || literal.isSymbol => buildTestPath(testExpr, getTestName(literal))
+        case other => buildPathFromTestNameExpr(other, testExpr)
       }
     } else None
   }
 
+  private def buildPathFromTestExpr(expr: ScExpression): Option[String] =
+    expr.firstChild match {
+      case Some(literal: ScLiteral) => buildTestPath(expr, getTestName(literal))
+      case Some(innerExpr: ScExpression) => buildPathFromTestNameExpr(innerExpr, expr)
+      case _ => None
+    }
+
   override def getLocationClassAndTest(location: Location[_ <: PsiElement]): (String, String) = {
-    //for now, only support by-name calls if caret is in test's name
     val element = location.getPsiElement
-    var parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
-    val parentLiteral: ScLiteral = PsiTreeUtil.getParentOfType(element, classOf[ScLiteral], false)
-    if (parent == null) return (null, null)
-
-    while (!parent.isInstanceOf[ScObject] && PsiTreeUtil.getParentOfType(parent, classOf[ScTypeDefinition], true) != null) {
-      parent = PsiTreeUtil.getParentOfType(parent, classOf[ScTypeDefinition], true)
+    val fail = (null, null)
+    //first, check that containing type definition is a uTest suite
+    var containingObject: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
+    if (containingObject == null) return fail
+    while (!containingObject.isInstanceOf[ScObject] && PsiTreeUtil.getParentOfType(containingObject, classOf[ScTypeDefinition], true) != null) {
+      containingObject = PsiTreeUtil.getParentOfType(containingObject, classOf[ScTypeDefinition], true)
     }
-    if (!parent.isInstanceOf[ScObject]) return (null, null)
-    if (!suitePaths.exists(suitePath => TestConfigurationUtil.isInheritor(parent, suitePath))) return (null, null)
-    val testClassPath = parent.qualifiedName
+    if (!containingObject.isInstanceOf[ScObject]) return fail
+    if (!suitePaths.exists(suitePath => TestConfigurationUtil.isInheritor(containingObject, suitePath))) return (null, null)
+    val testClassPath = containingObject.qualifiedName
 
-    //now get test name
-    val testName = Option(parentLiteral) match {
-      case Some(x) =>
-        buildTestPath(x, "").orNull
-      case None if element.isInstanceOf[LeafElement] =>
-        val patDef: ScPatternDefinition = Option(element.getParent).map(_.getParent).map(_.getParent) match {
-          case Some(pat: ScPatternDefinition) => pat
-          case _ => null
-        }
-        //this can be used later, when creation click anywhere inside the test is supported
-        //val patDef = PsiTreeUtil.getParentOfType(element, classOf[ScPatternDefinition])
-        if (patDef == null) null else {
-          val test = patDef.bindings.head.getName
-          patDef.getLastChild match {
-            case methodCall: ScMethodCall if checkMethod(methodCall) =>
-              test
-            case _ => null
-          }
-        }
-      case _ => null
-    }
-
+    val testName = ScalaPsiUtil.getParentWithProperty(element, strict = false,
+      e => TestNodeProvider.isUTestInfixExpr(e) || TestNodeProvider.isUTestSuiteApplyCall(e) || TestNodeProvider.isUTestApplyCall(e)).
+        map { case infixExpr: ScInfixExpr =>
+                //test location is a scope defined through infix '-'
+                 buildPathFromTestExpr(infixExpr)
+              case methodCall: ScMethodCall if TestNodeProvider.isUTestApplyCall(methodCall) =>
+                //test location is a scope define without use of '-' method
+                buildPathFromTestExpr(methodCall)
+              case methodCall: ScMethodCall =>
+                //test location is a test method definition
+                getTestSuiteName(methodCall)
+              case _ => None
+    }.flatten.getOrElse(
+      //it is also possible that element is on left-hand of test suite definition
+        TestNodeProvider.getUTestLeftHandTestDefinition(element).flatMap(getTestSuiteName).orNull
+    )
     (testClassPath, testName)
   }
 }
