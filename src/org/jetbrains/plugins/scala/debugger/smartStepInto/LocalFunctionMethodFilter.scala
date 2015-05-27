@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package debugger
+package org.jetbrains.plugins.scala.debugger.smartStepInto
 
 import com.intellij.debugger.engine._
 import com.intellij.debugger.impl.DebuggerUtilsEx

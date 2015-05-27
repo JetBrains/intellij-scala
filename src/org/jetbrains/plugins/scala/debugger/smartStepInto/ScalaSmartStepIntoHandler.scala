@@ -1,0 +1,197 @@
+package org.jetbrains.plugins.scala.debugger.smartStepInto
+
+import java.util.{Collections, List => JList}
+
+import com.intellij.debugger.SourcePosition
+import com.intellij.debugger.actions.{JvmSmartStepIntoHandler, MethodSmartStepTarget, SmartStepTarget}
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.util.Range
+import com.intellij.util.text.CharArrayUtil
+import org.jetbrains.plugins.scala.codeInspection.collections.{MethodRepr, stripped}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
+import org.jetbrains.plugins.scala.lang.psi.types.StdType
+
+import scala.annotation.tailrec
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
+
+/**
+ * User: Alexander Podkhalyuzin
+ * Date: 26.01.12
+ */
+
+class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
+  override def findSmartStepTargets(position: SourcePosition): JList[SmartStepTarget] = {
+    val line: Int = position.getLine
+    if (line < 0) {
+      return Collections.emptyList[SmartStepTarget]
+    }
+    val (element, doc) =
+      (for {
+        sf @ (_sf: ScalaFile) <- position.getFile.toOption
+        if !sf.isCompiled
+        vFile <- sf.getVirtualFile.toOption
+        doc <- FileDocumentManager.getInstance().getDocument(vFile).toOption
+        if doc.getLineCount > line
+      } yield {
+        val startOffset: Int = doc.getLineStartOffset(line)
+        val offset: Int = CharArrayUtil.shiftForward(doc.getCharsSequence, startOffset, " \t")
+        val element: PsiElement = sf.findElementAt(offset)
+        (element, doc)
+      }) match {
+        case Some((null, _)) => return Collections.emptyList[SmartStepTarget]
+        case Some((e, d)) => (e, d)
+        case _ => return Collections.emptyList[SmartStepTarget]
+      }
+
+    val lineStart = doc.getLineStartOffset(line)
+    val lineRange = new TextRange(lineStart, doc.getLineEndOffset(line))
+    val maxElement = maxElementOnLine(element, lineStart)
+    val lines: Range[Integer] = new Range[Integer](line, doc.getLineNumber(maxElement.getTextRange.getEndOffset))
+    val collector = new TargetCollector(lines)
+    maxElement.accept(collector)
+    maxElement.nextSiblings
+            .takeWhile(s => lineRange.intersects(s.getTextRange))
+            .foreach(_.accept(collector))
+    collector.result.asJava
+  }
+
+  def isAvailable(position: SourcePosition): Boolean = {
+    val file: PsiFile = position.getFile
+    file.isInstanceOf[ScalaFile]
+  }
+
+  override def createMethodFilter(stepTarget: SmartStepTarget) = {
+    stepTarget match {
+      case methodTarget: MethodSmartStepTarget =>
+        methodTarget.getMethod match {
+          case fun: ScFunction if fun.isLocal =>
+            new LocalFunctionMethodFilter(fun, stepTarget.getCallingExpressionLines)
+          case fun: ScMethodLike if fun.isConstructor =>
+            new ScalaBreakpointMethodFilter(fun, stepTarget.getCallingExpressionLines)
+          case fun: ScFunctionDefinition if fun.containingClass.isInstanceOf[ScNewTemplateDefinition] =>
+            new ScalaBreakpointMethodFilter(fun, stepTarget.getCallingExpressionLines)
+          case fake: FakePsiMethod =>
+            new ScalaBreakpointMethodFilter(fake, stepTarget.getCallingExpressionLines)
+          case _ => super.createMethodFilter(stepTarget)
+        }
+      case _ => super.createMethodFilter(stepTarget)
+    }
+  }
+
+  @tailrec
+  private def maxElementOnLine(startElem: PsiElement, lineStart: Int): PsiElement = {
+    val parent = startElem.getParent
+    if (parent != null && parent.getTextRange.getStartOffset >= lineStart) maxElementOnLine(parent, lineStart)
+    else startElem
+  }
+
+  private class TargetCollector(currentLines: Range[Integer]) extends ScalaRecursiveElementVisitor {
+    val result = ArrayBuffer[SmartStepTarget]()
+
+    override def visitNewTemplateDefinition(templ: ScNewTemplateDefinition): Unit = {
+      val extBl = templ.extendsBlock
+      var label = ""
+
+      def findConstructorAndMethod: Option[(ScConstructor, PsiMethod)] = {
+        for {
+          tp <- extBl.templateParents
+          typeElem <- tp.typeElements.headOption
+          constr <- findConstructor(typeElem)
+          ref <- constr.reference
+          resolve @ (_: PsiMethod | _: PsiClass) <- ref.resolve().toOption
+        } yield {
+          resolve match {
+            case m: PsiMethod => (constr, m)
+            case i: PsiClass if i.isInterface => (constr, fakeConstructor(i.name))
+          }
+        }
+      }
+
+      def findConstructor(typeElem: ScTypeElement): Option[ScConstructor] = typeElem match {
+        case p: ScParameterizedTypeElement => p.findConstructor
+        case s: ScSimpleTypeElement => s.findConstructor
+        case _ => None
+      }
+
+      def fakeConstructor(interfaceName: String): PsiMethod = {
+        new FakePsiMethod(templ, interfaceName, Array.empty, StdType.UNIT, _ => false) {
+          override def isConstructor: Boolean = true
+
+          override def equals(obj: scala.Any): Boolean = obj match {
+            case fake: FakePsiMethod =>
+              fake.navElement == this.navElement && fake.getName == this.getName
+            case _ => false
+          }
+
+          override def hashCode() = navElement.hashCode() + 31 * getName.hashCode
+        }
+      }
+
+      def addMethodsIfInArgument(): Unit = {
+        PsiTreeUtil.getParentOfType(templ, classOf[MethodInvocation]) match {
+          case MethodRepr(_, _, _, args) if args.map(stripped).contains(templ) =>
+            extBl.templateBody match {
+              case Some(tb) =>
+                for {
+                  fun @ (_f: ScFunctionDefinition) <- tb.functions
+                  body <- fun.body
+                } {
+                  result += new MethodSmartStepTarget(fun, label, body, true, currentLines)
+                }
+              case _ =>
+            }
+          case _ =>
+        }
+      }
+
+      for ((constr, method) <- findConstructorAndMethod) {
+        label = constr.simpleTypeElement.fold("")(ste => ste.getText + ".")
+        result += new MethodSmartStepTarget(method, "new ", constr, true, currentLines)
+      }
+
+      addMethodsIfInArgument()
+    }
+
+    override def visitExpression(expr: ScExpression) {
+      val implicits = expr.getImplicitConversions()._2
+      implicits match {
+        case Some(f: PsiMethod) => result += new MethodSmartStepTarget(f, "implicit ", null, false, currentLines)
+        case _ =>
+      }
+
+      expr match {
+        case e if ScUnderScoreSectionUtil.isUnderscoreFunction(e) =>
+          return //ignore clojures
+        case ref: ScReferenceExpression =>
+          ref.resolve() match {
+            case fun: PsiMethod => result += new MethodSmartStepTarget(fun, null, null, false, currentLines)
+            case _ =>
+          }
+        case f: ScForStatement =>
+          f.getDesugarizedExpr match {
+            case Some(e) =>
+              e.accept(this)
+              return
+            case _ =>
+          }
+        case f: ScFunctionExpr =>
+          return //ignore closures
+        case b: ScBlock if b.isAnonymousFunction =>
+          return //ignore closures
+        case _ =>
+      }
+      super.visitExpression(expr)
+    }
+  }
+
+}

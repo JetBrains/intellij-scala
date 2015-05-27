@@ -146,7 +146,7 @@
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler"/>
         <debuggerClassFilterProvider implementation="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerClassFilterProvider"/>
         <xdebugger.settings implementation="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings"/>
-        <debugger.jvmSmartStepIntoHandler implementation="org.jetbrains.plugins.scala.debugger.ScalaSmartStepIntoHandler"/>
+        <debugger.jvmSmartStepIntoHandler implementation="org.jetbrains.plugins.scala.debugger.smartStepInto.ScalaSmartStepIntoHandler"/>
         <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaMethodProcessor" order="first"/>
         <renamePsiElementProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.rename.PrepareRenameScalaMethodProcessor" order="last"/>
