@@ -20,7 +20,7 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
                                    var startsNewClause: Boolean = false)
         extends ParameterTableModelItemBase[ScalaParameterInfo](parameter, typeCodeFragment, defaultValue) {
 
-  var typeText: String = Option(parameter.scType).map(_.presentableText).getOrElse("")
+  var typeText: String = generateTypeText(parameter)
 
   def keywordsAndAnnotations = parameter.keywordsAndAnnotations
 
@@ -50,6 +50,9 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
     } else {
       parameter.isByName = false
     }
+    if (parameter.isByName && parameter.isRepeatedParameter) {
+      problems += "Parameter could not be repeated and by-name in the same time"
+    }
     val typeElem = ScalaPsiElementFactory.createTypeElementFromText(trimmed, typeCodeFragment, typeCodeFragment.getLastChild)
     if (typeElem == null || typeElem.getType().isEmpty) {
       problems += s"Could not understand type $trimmed"
@@ -58,5 +61,12 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
     else {
       parameter.scType = typeElem.getType().getOrAny
     }
+  }
+
+  private def generateTypeText(parameter: ScalaParameterInfo) = {
+    val arrow = if (parameter.isByName) ScalaPsiUtil.functionArrow(typeCodeFragment.getProject) else ""
+    val star = if (parameter.isRepeatedParameter) "*" else ""
+    val text = Option(parameter.scType).map(_.presentableText)
+    text.map(tpeText => s"$arrow $tpeText$star").getOrElse("")
   }
 }
