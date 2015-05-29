@@ -10,7 +10,8 @@ import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.CharsetToolkit.UTF8
-import com.intellij.openapi.vfs.newvfs.FileAttribute
+import com.intellij.openapi.vfs.newvfs.persistent.PersistentFS
+import com.intellij.openapi.vfs.newvfs.{ManagingFS, FileAttribute}
 import com.intellij.openapi.vfs.{CharsetToolkit, VirtualFile, VirtualFileWithId}
 import com.intellij.reference.SoftReference
 
@@ -27,7 +28,7 @@ object DecompilerUtil {
   val DECOMPILER_VERSION = 263
   private val SCALA_DECOMPILER_FILE_ATTRIBUTE = new FileAttribute("_is_scala_compiled_new_key_", DECOMPILER_VERSION, true)
   private val SCALA_DECOMPILER_KEY = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
-  
+
   class DecompilationResult(val isScala: Boolean, val sourceName: String, val timeStamp: Long) {
     def sourceText: String = ""
   }
@@ -53,6 +54,9 @@ object DecompilerUtil {
     else projects(0)
   }
 
+  // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
+  // The following check is hardly bulletproof, however there is no API to query FS features.
+  private def attributesSupported = ManagingFS.getInstance.isInstanceOf[PersistentFS]
 
   def isScalaFile(file: VirtualFile): Boolean =
     try isScalaFile(file, file.contentsToByteArray)
@@ -67,17 +71,19 @@ object DecompilerUtil {
     var data = file.getUserData(SCALA_DECOMPILER_KEY)
     var res: DecompilationResult = if (data == null) null else data.get()
     if (res == null || res.timeStamp != timeStamp) {
-      val readAttribute = SCALA_DECOMPILER_FILE_ATTRIBUTE.readAttribute(file)
+      val readAttribute = if (attributesSupported) SCALA_DECOMPILER_FILE_ATTRIBUTE.readAttribute(file) else null
       def updateAttributeAndData() {
-        val writeAttribute = SCALA_DECOMPILER_FILE_ATTRIBUTE.writeAttribute(file)
         val decompilationResult = decompileInner(file, bytes)
-        try {
-          writeAttribute.writeBoolean(decompilationResult.isScala)
-          writeAttribute.writeUTF(decompilationResult.sourceName)
-          writeAttribute.writeLong(decompilationResult.timeStamp)
-          writeAttribute.close()
-        } catch {
-          case e: IOException =>
+        if (attributesSupported) {
+          val writeAttribute = SCALA_DECOMPILER_FILE_ATTRIBUTE.writeAttribute(file)
+          try {
+            writeAttribute.writeBoolean(decompilationResult.isScala)
+            writeAttribute.writeUTF(decompilationResult.sourceName)
+            writeAttribute.writeLong(decompilationResult.timeStamp)
+            writeAttribute.close()
+          } catch {
+            case e: IOException =>
+          }
         }
         res = decompilationResult
       }
