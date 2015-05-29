@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.smartStepInto
 
 import java.util.{Collections, List => JList}
+import javax.swing.Icon
 
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.actions.{JvmSmartStepIntoHandler, MethodSmartStepTarget, SmartStepTarget}
@@ -12,8 +13,9 @@ import com.intellij.util.Range
 import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.plugins.scala.codeInspection.collections.{MethodRepr, stripped}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
@@ -44,7 +46,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
         if doc.getLineCount > line
       } yield {
         val startOffset: Int = doc.getLineStartOffset(line)
-        val offset: Int = CharArrayUtil.shiftForward(doc.getCharsSequence, startOffset, " \t")
+        val offset: Int = CharArrayUtil.shiftForward(doc.getCharsSequence, startOffset, " \t{")
         val element: PsiElement = sf.findElementAt(offset)
         (element, doc)
       }) match {
@@ -73,17 +75,17 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
   override def createMethodFilter(stepTarget: SmartStepTarget) = {
     stepTarget match {
       case methodTarget: MethodSmartStepTarget =>
-        methodTarget.getMethod match {
+        val scalaFilter = methodTarget.getMethod match {
           case fun: ScFunction if fun.isLocal =>
-            new LocalFunctionMethodFilter(fun, stepTarget.getCallingExpressionLines)
-          case fun: ScMethodLike if fun.isConstructor =>
-            new ScalaBreakpointMethodFilter(fun, stepTarget.getCallingExpressionLines)
-          case fun: ScFunctionDefinition if fun.containingClass.isInstanceOf[ScNewTemplateDefinition] =>
-            new ScalaBreakpointMethodFilter(fun, stepTarget.getCallingExpressionLines)
-          case fake: FakePsiMethod =>
-            new ScalaBreakpointMethodFilter(fake, stepTarget.getCallingExpressionLines)
-          case _ => super.createMethodFilter(stepTarget)
+            Some(new LocalFunctionMethodFilter(fun, stepTarget.getCallingExpressionLines))
+          case psiMethod if stepTarget.needsBreakpointRequest() =>
+            ScalaBreakpointMethodFilter.from(psiMethod, stepTarget.getCallingExpressionLines)
+          case _ => None
         }
+        scalaFilter.getOrElse(super.createMethodFilter(stepTarget))
+      case ScalaFunExprSmartStepTarget(fExpr, stmts) =>
+        ScalaBreakpointMethodFilter.from(None, stmts, stepTarget.getCallingExpressionLines)
+                .getOrElse(super.createMethodFilter(stepTarget))
       case _ => super.createMethodFilter(stepTarget)
     }
   }
@@ -91,8 +93,11 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
   @tailrec
   private def maxElementOnLine(startElem: PsiElement, lineStart: Int): PsiElement = {
     val parent = startElem.getParent
-    if (parent != null && parent.getTextRange.getStartOffset >= lineStart) maxElementOnLine(parent, lineStart)
-    else startElem
+    parent match {
+      case _: ScBlock | null => startElem
+      case p if p.getTextRange.getStartOffset >= lineStart => maxElementOnLine(parent, lineStart)
+      case _ => startElem
+    }
   }
 
   private class TargetCollector(currentLines: Range[Integer]) extends ScalaRecursiveElementVisitor {
@@ -126,6 +131,8 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
       def fakeConstructor(interfaceName: String): PsiMethod = {
         new FakePsiMethod(templ, interfaceName, Array.empty, StdType.UNIT, _ => false) {
           override def isConstructor: Boolean = true
+
+          override def getIcon(flags: Int): Icon = Icons.CLASS
 
           override def equals(obj: scala.Any): Boolean = obj match {
             case fake: FakePsiMethod =>
@@ -170,8 +177,9 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
       }
 
       expr match {
-        case e if ScUnderScoreSectionUtil.isUnderscoreFunction(e) =>
-          return //ignore clojures
+        case FunExpressionTarget(stmts, presentation) =>
+          result += new ScalaFunExprSmartStepTarget(expr, stmts, presentation, currentLines)
+          return //stop at function expression
         case ref: ScReferenceExpression =>
           ref.resolve() match {
             case fun: PsiMethod => result += new MethodSmartStepTarget(fun, null, null, false, currentLines)
@@ -184,10 +192,6 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
               return
             case _ =>
           }
-        case f: ScFunctionExpr =>
-          return //ignore closures
-        case b: ScBlock if b.isAnonymousFunction =>
-          return //ignore closures
         case _ =>
       }
       super.visitExpression(expr)
