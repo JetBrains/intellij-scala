@@ -16,13 +16,13 @@ import com.intellij.psi._
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.{Processor, Query}
+import com.sun.jdi._
 import com.sun.jdi.request.ClassPrepareRequest
-import com.sun.jdi.{AbsentInformationException, ClassNotPreparedException, Location, ReferenceType}
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager._
+import org.jetbrains.plugins.scala.debugger.smartStepInto.FunExpressionTarget
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, inReadAction}
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition}
@@ -70,9 +70,8 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     def findSuitableParent(element: PsiElement): PsiElement = {
       element match {
         case null => null
-        case elem @ (_: ScForStatement | _: ScTemplateDefinition | _: ScFunctionExpr) => elem
-        case caseCls: ScCaseClauses if caseCls.getParent.isInstanceOf[ScBlockExpr] => caseCls
-        case expr: ScExpression if ScalaPsiUtil.isByNameArgument(expr) || isInsideMacro(position) => expr
+        case elem @ (_: ScForStatement | _: ScTemplateDefinition | FunExpressionTarget(_, _)) => elem
+        case expr: ScExpression if isInsideMacro(position) => expr
         case elem => findSuitableParent(elem.getParent)
       }
     }
@@ -367,7 +366,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     try {
       hasLocations = refType.locationsOfLine(position.getLine + 1).size > 0
     } catch {
-      case ignore @ (_: AbsentInformationException | _: ClassNotPreparedException) =>
+      case ignore @ (_: AbsentInformationException | _: ClassNotPreparedException | _: ObjectCollectedException) =>
     }
     hasLocations
   }
