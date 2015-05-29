@@ -27,7 +27,7 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
   override def isEllipsisType: Boolean = parameter.isRepeatedParameter
 
   def updateType(problems: ListBuffer[String] = ListBuffer()): Unit = {
-    if (typeText == parameter.scType.presentableText) return
+    if (parameter.scType != null && typeText == parameter.scType.presentableText) return
 
     var trimmed = typeText.trim
     if (trimmed.endsWith("*")) {
