@@ -105,4 +105,50 @@ class ScalaFieldEvaluationTest extends ScalaDebuggerTestCase {
       evalStartsWith("java.lang.Math.PI", "3.14")
     }
   }
+
+  def testPrivateThisField() {
+    addFileToProject("Sample.scala",
+      """
+        |object Sample {
+        |  private[this] val x = 1
+        |
+        |  def main(args: Array[String]) {
+        |    "stop here"
+        |  }
+        |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 4)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalStartsWith("x", "1")
+    }
+  }
+
+  def testPrivateThisField2() {
+    addFileToProject("Sample.scala",
+      """
+        |object Sample {
+        |  private[this] val x = 1
+        |
+        |  def main(args: Array[String]) {
+        |    new A().foo()
+        |  }
+        |}
+        |
+        |class A {
+        |  private[this] var x = 0
+        |
+        |  def foo(): Unit = {
+        |    "stop here"
+        |  }
+        |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 14)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalStartsWith("x", "0")
+    }
+  }
 }
