@@ -47,7 +47,8 @@ object ScalaSuppressableInspectionTool {
 
   def suppressActions(toolShortName: String): Array[SuppressQuickFix] = {
     val displayKey: HighlightDisplayKey = HighlightDisplayKey.find(toolShortName)
-    allFixesForKey(displayKey)
+    if (displayKey != null) allFixesForKey(displayKey)
+    else Array.empty
   }
 
   def allFixesForKey(key: HighlightDisplayKey): Array[SuppressQuickFix] = Array(
