@@ -4,7 +4,7 @@ name :=  "ScalaCommunity"
 
 organization :=  "JetBrains"
 
-scalaVersion in Global :=  "2.11.2"
+scalaVersion in Global :=  "2.11.6"
 
 resolvers in ThisBuild ++= bintrayJetbrains.allResolvers
 
@@ -32,12 +32,17 @@ libraryDependencies ++= Seq(
   "org.apache.maven.wagon" % "wagon-http" % "2.6" % Compile
 )
 
-libraryDependencies ++= Seq(
-  Dependencies.sbtStructureCore,
-  Dependencies.sbtStructureExtractor012 % Provided,
-  Dependencies.sbtStructureExtractor013 % Provided,
-  Dependencies.sbtLaunch % Provided
-)
+libraryDependencies += Dependencies.sbtStructureCore
+
+lazy val sbtRuntimeDependencies = project
+  .in(file("sbtRuntimeDependencies"))
+  .settings(
+    libraryDependencies ++= Seq(
+      Dependencies.sbtStructureExtractor012,
+      Dependencies.sbtStructureExtractor013,
+      Dependencies.sbtLaunch
+    )
+  )
 
 lazy val testDownloader = project.in(file("testJarsDownloader"))
 
@@ -101,7 +106,7 @@ lazy val ScalaRunner = project.in(file( "ScalaRunner"))
 
 lazy val Runners = project.in(file( "Runners")).dependsOn(ScalaRunner)
 
-lazy val ScalaCommunity = project.in(file("")).dependsOn(compiler_settings, Runners % "test->test;compile->compile").aggregate(jps_plugin)
+lazy val ScalaCommunity = project.in(file("")).dependsOn(compiler_settings, Runners % "test->test;compile->compile").aggregate(jps_plugin, sbtRuntimeDependencies)
 
 lazy val jps_plugin = Project( "scala-jps-plugin", file("jps-plugin")).dependsOn(compiler_settings)
   .settings(unmanagedJars in Compile := allIdeaJars.value)
@@ -193,7 +198,8 @@ packageStructure in Compile := {
   lazy val resolved = (
     (dependencyClasspath in Compile).value ++
       (dependencyClasspath in(Runners, Compile)).value ++
-      (dependencyClasspath in(ScalaCommunity, Compile)).value
+      (dependencyClasspath in(ScalaCommunity, Compile)).value ++
+      (dependencyClasspath in (sbtRuntimeDependencies, Compile)).value
     )
     .map { f => f.metadata.get(moduleID.key) -> f.data}.toMap
     .collect { case (Some(x), y) => (x.organization % x.name % x.revision) -> y}
