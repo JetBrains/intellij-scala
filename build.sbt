@@ -8,6 +8,8 @@ scalaVersion in Global :=  "2.11.2"
 
 resolvers in ThisBuild ++= bintrayJetbrains.allResolvers
 
+resolvers in ThisBuild += Resolver.typesafeIvyRepo("releases")
+
 libraryDependencies += "org.apache.maven.indexer" % "indexer-core" % "6.0"
 
 //libraryDependencies += "org.apache.maven.indexer" % "indexer-artifact" % "5.1.2" % Compile - was merged with core in 6.0
@@ -30,7 +32,12 @@ libraryDependencies ++= Seq(
   "org.apache.maven.wagon" % "wagon-http" % "2.6" % Compile
 )
 
-libraryDependencies ++= Dependencies.sbtStructure
+libraryDependencies ++= Seq(
+  Dependencies.sbtStructureCore,
+  Dependencies.sbtStructureExtractor012 % Provided,
+  Dependencies.sbtStructureExtractor013 % Provided,
+  Dependencies.sbtLaunch % Provided
+)
 
 lazy val testDownloader = project.in(file("testJarsDownloader"))
 
@@ -200,14 +207,14 @@ packageStructure in Compile := {
       (artifactPath in (Runners, Compile, packageBin)).value,
       (artifactPath in (ScalaRunner, Compile, packageBin)).value
     ) -> "lib/scala-plugin-runners.jar",
-    file("jars") -> "launcher/",
     file("SDK/nailgun") -> "lib/jps/",
     file("SDK/sbt") -> "lib/jps/",
     file("SDK/scalap") -> "lib/",
     file("SDK/scalastyle") -> "lib/",
+    libOf(Dependencies.sbtStructureCore),
     libOf(Dependencies.sbtStructureExtractor012)._1 -> "launcher/sbt-structure-0.12.jar",
     libOf(Dependencies.sbtStructureExtractor013)._1 -> "launcher/sbt-structure-0.13.jar",
-    libOf(Dependencies.sbtStructureCore),
+    libOf(Dependencies.sbtLaunch)._1 -> "launcher/sbt-launch.jar",
     (artifactPath in (jps_plugin, Compile, packageBin)).value -> "lib/jps/scala-jps-plugin.jar",
     libOf("org.atteo" % "evo-inflector" % "1.2"),
     libOf("org.scala-lang" % "scala-library" % "2.11.2")._1 -> "lib/scala-library.jar",
