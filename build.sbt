@@ -47,7 +47,7 @@ javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6")
 
 scalacOptions in Global += "-target:jvm-1.6"
 
-ideaVersion := "141.177.4"
+ideaVersion := "142.2157"
 
 ideaBasePath in Global := baseDirectory.value / "SDK" / "ideaSDK" / s"idea-${ideaVersion.value}"
 
@@ -156,8 +156,8 @@ javaOptions in Test := Seq(
   "-Xmx1024m",
   "-XX:MaxPermSize=350m",
   "-ea",
-  s"-Didea.system.path=${Path.userHome}/.IdeaData/IDEA-14/scala/test-system",
-  s"-Didea.config.path=${Path.userHome}/.IdeaData/IDEA-14/scala/test-config",
+  s"-Didea.system.path=${Path.userHome}/.IdeaData/IDEA-15/scala/test-system",
+  s"-Didea.config.path=${Path.userHome}/.IdeaData/IDEA-15/scala/test-config",
   s"-Dplugin.path=${baseDirectory.value}/out/plugin/Scala"
 )
 

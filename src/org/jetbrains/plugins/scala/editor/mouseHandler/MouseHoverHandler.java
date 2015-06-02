@@ -16,6 +16,7 @@
 package org.jetbrains.plugins.scala.editor.mouseHandler;
 
 import com.intellij.codeInsight.documentation.DocumentationManager;
+import com.intellij.codeInsight.documentation.DocumentationManagerProtocol;
 import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.codeInsight.hint.HintManagerImpl;
 import com.intellij.codeInsight.hint.HintUtil;
@@ -785,11 +786,11 @@ public class MouseHoverHandler extends AbstractProjectComponent {
       }
 
       String description = e.getDescription();
-      if (StringUtil.isEmpty(description) || !description.startsWith(DocumentationManager.PSI_ELEMENT_PROTOCOL)) {
+      if (StringUtil.isEmpty(description) || !description.startsWith(DocumentationManagerProtocol.PSI_ELEMENT_PROTOCOL)) {
         return;
       }
 
-      String elementName = e.getDescription().substring(DocumentationManager.PSI_ELEMENT_PROTOCOL.length());
+      String elementName = e.getDescription().substring(DocumentationManagerProtocol.PSI_ELEMENT_PROTOCOL.length());
 
       final PsiElement targetElement = myProvider.getDocumentationElementForLink(PsiManager.getInstance(myProject), elementName, myContext);
       if (targetElement != null) {
