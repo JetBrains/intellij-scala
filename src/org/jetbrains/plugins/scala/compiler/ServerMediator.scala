@@ -25,6 +25,8 @@ class ServerMediator(project: Project) extends ProjectComponent {
 
   private val connection = project.getMessageBus.connect
   private val serverLauncher = new BuildManagerListener {
+    override def beforeBuildProcessStarted(project: Project, uuid: UUID): Unit = {}
+
     override def buildStarted(project: Project, sessionId: UUID, isAutomake: Boolean): Unit = {
       if (settings.COMPILE_SERVER_ENABLED && isScalaProject && !ApplicationManager.getApplication.isUnitTestMode) {
         invokeAndWait {

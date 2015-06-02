@@ -439,8 +439,8 @@ object TestNodeProvider {
   private def findListOfPatternsWithIndex(elem: PsiElement): Option[(ScPatternList, Option[(Int, Int)])] = {
     def checkParent[T](currentElement: PsiElement, parentType: Class[T]): Option[T] = {
       currentElement.getParent match {
-        case parent: T if parentType.isInstance(parent) =>
-          Some(parent)
+        case parent if parentType.isInstance(parent) =>
+          Some(parent.asInstanceOf[T])
         case _ => None
       }
     }

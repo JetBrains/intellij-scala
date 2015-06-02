@@ -18,259 +18,259 @@ import java.util.ResourceBundle;
  * @author Pavel Fatin
  */
 public class SbtSettingsPane {
-    private JRadioButton myBundledButton;
-    private JRadioButton myCustomButton;
-    private JTextField myMaximumHeapSize;
-    private TextFieldWithBrowseButton myLauncherPath;
-    private RawCommandLineEditor myVmParameters;
-    private JPanel myContentPanel;
-    private TextFieldWithBrowseButton customVMPath;
-    private JRadioButton useIDEVMButton;
-    private JRadioButton useCustomVMButton;
+  private JRadioButton myBundledButton;
+  private JRadioButton myCustomButton;
+  private JTextField myMaximumHeapSize;
+  private TextFieldWithBrowseButton myLauncherPath;
+  private RawCommandLineEditor myVmParameters;
+  private JPanel myContentPanel;
+  private TextFieldWithBrowseButton customVMPath;
+  private JRadioButton useIDEVMButton;
+  private JRadioButton useCustomVMButton;
 
-    public SbtSettingsPane() {
-        myBundledButton.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent itemEvent) {
-                setLauncherPathEnabled(itemEvent.getStateChange() == ItemEvent.DESELECTED);
-            }
-        });
+  public SbtSettingsPane() {
+    myBundledButton.addItemListener(new ItemListener() {
+      @Override
+      public void itemStateChanged(ItemEvent itemEvent) {
+        setLauncherPathEnabled(itemEvent.getStateChange() == ItemEvent.DESELECTED);
+      }
+    });
 
-        myCustomButton.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent itemEvent) {
-                setLauncherPathEnabled(itemEvent.getStateChange() == ItemEvent.SELECTED);
-            }
-        });
+    myCustomButton.addItemListener(new ItemListener() {
+      @Override
+      public void itemStateChanged(ItemEvent itemEvent) {
+        setLauncherPathEnabled(itemEvent.getStateChange() == ItemEvent.SELECTED);
+      }
+    });
 
-        myBundledButton.setSelected(true);
+    myBundledButton.setSelected(true);
 
-        useIDEVMButton.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent itemEvent) {
-                setCustomVMPathEnabled(itemEvent.getStateChange() == ItemEvent.DESELECTED);
-            }
-        });
+    useIDEVMButton.addItemListener(new ItemListener() {
+      @Override
+      public void itemStateChanged(ItemEvent itemEvent) {
+        setCustomVMPathEnabled(itemEvent.getStateChange() == ItemEvent.DESELECTED);
+      }
+    });
 
-        useCustomVMButton.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent itemEvent) {
-                setCustomVMPathEnabled(itemEvent.getStateChange() == ItemEvent.SELECTED);
-            }
-        });
+    useCustomVMButton.addItemListener(new ItemListener() {
+      @Override
+      public void itemStateChanged(ItemEvent itemEvent) {
+        setCustomVMPathEnabled(itemEvent.getStateChange() == ItemEvent.SELECTED);
+      }
+    });
 
-        useCustomVMButton.setSelected(false);
-    }
+    useCustomVMButton.setSelected(false);
+  }
 
-    // TODO: this is a workaround to fix SCL-8059 non-working "..." buttons
-    // Investigation needed to find out why path listeners are being removed.
-    public void setPathListeners() {
-        myLauncherPath.addBrowseFolderListener("Choose a custom launcher", "Choose sbt-launch.jar", null,
-            FileChooserDescriptorFactory.createSingleLocalFileDescriptor());
+  // TODO: this is a workaround to fix SCL-8059 non-working "..." buttons
+  // Investigation needed to find out why path listeners are being removed.
+  public void setPathListeners() {
+    myLauncherPath.addBrowseFolderListener("Choose a custom launcher", "Choose sbt-launch.jar", null,
+        FileChooserDescriptorFactory.createSingleLocalFileDescriptor());
 
-        customVMPath.addBrowseFolderListener("Choose a custom VM", "Choose JRE home directory", null,
-            FileChooserDescriptorFactory.createSingleFolderDescriptor());
-    }
+    customVMPath.addBrowseFolderListener("Choose a custom VM", "Choose JRE home directory", null,
+        FileChooserDescriptorFactory.createSingleFolderDescriptor());
+  }
 
 
-    public JPanel getContentPanel() {
-        return myContentPanel;
-    }
+  public JPanel getContentPanel() {
+    return myContentPanel;
+  }
 
-    public void setLauncherPathEnabled(boolean enabled) {
-        myLauncherPath.setEnabled(enabled);
-    }
+  public void setLauncherPathEnabled(boolean enabled) {
+    myLauncherPath.setEnabled(enabled);
+  }
 
-    public void setCustomVMPathEnabled(boolean enabled) {
-        customVMPath.setEnabled(enabled);
-    }
+  public void setCustomVMPathEnabled(boolean enabled) {
+    customVMPath.setEnabled(enabled);
+  }
 
-    public boolean isCustomLauncher() {
-        return myCustomButton.isSelected();
-    }
+  public boolean isCustomLauncher() {
+    return myCustomButton.isSelected();
+  }
 
-    public boolean isCustomVM() {
-        return useCustomVMButton.isSelected();
-    }
+  public boolean isCustomVM() {
+    return useCustomVMButton.isSelected();
+  }
 
-    public void setCustomLauncherEnabled(boolean enabled) {
-        myBundledButton.setSelected(!enabled);
-        myCustomButton.setSelected(enabled);
-    }
+  public void setCustomLauncherEnabled(boolean enabled) {
+    myBundledButton.setSelected(!enabled);
+    myCustomButton.setSelected(enabled);
+  }
 
-    public void setCustomVMEnabled(boolean enabled) {
-        useCustomVMButton.setSelected(enabled);
-        useIDEVMButton.setSelected(!enabled);
-    }
+  public void setCustomVMEnabled(boolean enabled) {
+    useCustomVMButton.setSelected(enabled);
+    useIDEVMButton.setSelected(!enabled);
+  }
 
-    public String getLauncherPath() {
-        return myLauncherPath.getText();
-    }
+  public String getLauncherPath() {
+    return myLauncherPath.getText();
+  }
 
-    public String getCustomVMPath() {
-        return customVMPath.getText();
-    }
+  public String getCustomVMPath() {
+    return customVMPath.getText();
+  }
 
-    public void setLauncherPath(String path) {
-        myLauncherPath.setText(path);
-    }
+  public void setLauncherPath(String path) {
+    myLauncherPath.setText(path);
+  }
 
-    public void setCustomVMPath(String path) {
-        customVMPath.setText(path);
-    }
+  public void setCustomVMPath(String path) {
+    customVMPath.setText(path);
+  }
 
-    public String getMaximumHeapSize() {
-        return myMaximumHeapSize.getText();
-    }
+  public String getMaximumHeapSize() {
+    return myMaximumHeapSize.getText();
+  }
 
-    public void setMaximumHeapSize(String value) {
-        myMaximumHeapSize.setText(value);
-    }
+  public void setMaximumHeapSize(String value) {
+    myMaximumHeapSize.setText(value);
+  }
 
-    public String getVmParameters() {
-        return myVmParameters.getText();
-    }
+  public String getVmParameters() {
+    return myVmParameters.getText();
+  }
 
-    public void setMyVmParameters(String value) {
-        myVmParameters.setText(value);
-    }
+  public void setMyVmParameters(String value) {
+    myVmParameters.setText(value);
+  }
 
-    {
+  {
 // GUI initializer generated by IntelliJ IDEA GUI Designer
 // >>> IMPORTANT!! <<<
 // DO NOT EDIT OR ADD ANY CODE HERE!
-        $$$setupUI$$$();
-    }
+    $$$setupUI$$$();
+  }
 
-    /**
-     * Method generated by IntelliJ IDEA GUI Designer
-     * >>> IMPORTANT!! <<<
-     * DO NOT edit this method OR call it in your code!
-     *
-     * @noinspection ALL
-     */
-    private void $$$setupUI$$$() {
-        myContentPanel = new JPanel();
-        myContentPanel.setLayout(new GridLayoutManager(7, 2, new Insets(0, 0, 0, 0), -1, -1));
-        final Spacer spacer1 = new Spacer();
-        myContentPanel.add(spacer1, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final TitledSeparator titledSeparator1 = new TitledSeparator();
-        titledSeparator1.setText(ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.sbtLauncher"));
-        myContentPanel.add(titledSeparator1, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final TitledSeparator titledSeparator2 = new TitledSeparator();
-        titledSeparator2.setText(ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.jvmOptions"));
-        myContentPanel.add(titledSeparator2, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
-        myContentPanel.add(panel1, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
-        myBundledButton = new JRadioButton();
-        this.$$$loadButtonText$$$(myBundledButton, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.bundled"));
-        panel1.add(myBundledButton, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myCustomButton = new JRadioButton();
-        this.$$$loadButtonText$$$(myCustomButton, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.custom"));
-        panel1.add(myCustomButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myLauncherPath = new TextFieldWithBrowseButton();
-        panel1.add(myLauncherPath, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(250, -1), null, null, 0, false));
-        final JPanel panel2 = new JPanel();
-        panel2.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
-        myContentPanel.add(panel2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
-        useIDEVMButton = new JRadioButton();
-        this.$$$loadButtonText$$$(useIDEVMButton, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.fromProjectJDK"));
-        panel2.add(useIDEVMButton, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        useCustomVMButton = new JRadioButton();
-        this.$$$loadButtonText$$$(useCustomVMButton, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.custom"));
-        panel2.add(useCustomVMButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        customVMPath = new TextFieldWithBrowseButton();
-        panel2.add(customVMPath, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(250, -1), null, null, 0, false));
-        final TitledSeparator titledSeparator3 = new TitledSeparator();
-        titledSeparator3.setText(ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.jvm"));
-        myContentPanel.add(titledSeparator3, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JPanel panel3 = new JPanel();
-        panel3.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
-        myContentPanel.add(panel3, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
-        final JLabel label1 = new JLabel();
-        this.$$$loadLabelText$$$(label1, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.maxHeapSize"));
-        panel3.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label2 = new JLabel();
-        this.$$$loadLabelText$$$(label2, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.vmParams"));
-        panel3.add(label2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myMaximumHeapSize = new JTextField();
-        myMaximumHeapSize.setColumns(5);
-        panel3.add(myMaximumHeapSize, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        myVmParameters = new RawCommandLineEditor();
-        myVmParameters.setDialogCaption(ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.vmParams"));
-        myVmParameters.setEnabled(true);
-        panel3.add(myVmParameters, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(250, -1), null, null, 0, false));
-        final Spacer spacer2 = new Spacer();
-        myContentPanel.add(spacer2, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        label1.setLabelFor(myMaximumHeapSize);
-        ButtonGroup buttonGroup;
-        buttonGroup = new ButtonGroup();
-        buttonGroup.add(myBundledButton);
-        buttonGroup.add(myCustomButton);
-        buttonGroup = new ButtonGroup();
-        buttonGroup.add(useIDEVMButton);
-        buttonGroup.add(useCustomVMButton);
-    }
+  /**
+   * Method generated by IntelliJ IDEA GUI Designer
+   * >>> IMPORTANT!! <<<
+   * DO NOT edit this method OR call it in your code!
+   *
+   * @noinspection ALL
+   */
+  private void $$$setupUI$$$() {
+    myContentPanel = new JPanel();
+    myContentPanel.setLayout(new GridLayoutManager(7, 2, new Insets(0, 0, 0, 0), -1, -1));
+    final Spacer spacer1 = new Spacer();
+    myContentPanel.add(spacer1, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    final TitledSeparator titledSeparator1 = new TitledSeparator();
+    titledSeparator1.setText(ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.sbtLauncher"));
+    myContentPanel.add(titledSeparator1, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    final TitledSeparator titledSeparator2 = new TitledSeparator();
+    titledSeparator2.setText(ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.jvmOptions"));
+    myContentPanel.add(titledSeparator2, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    final JPanel panel1 = new JPanel();
+    panel1.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
+    myContentPanel.add(panel1, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
+    myBundledButton = new JRadioButton();
+    this.$$$loadButtonText$$$(myBundledButton, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.bundled"));
+    panel1.add(myBundledButton, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myCustomButton = new JRadioButton();
+    this.$$$loadButtonText$$$(myCustomButton, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.custom"));
+    panel1.add(myCustomButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myLauncherPath = new TextFieldWithBrowseButton();
+    panel1.add(myLauncherPath, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(250, -1), null, null, 0, false));
+    final JPanel panel2 = new JPanel();
+    panel2.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
+    myContentPanel.add(panel2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
+    useIDEVMButton = new JRadioButton();
+    this.$$$loadButtonText$$$(useIDEVMButton, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.fromProjectJDK"));
+    panel2.add(useIDEVMButton, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    useCustomVMButton = new JRadioButton();
+    this.$$$loadButtonText$$$(useCustomVMButton, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.custom"));
+    panel2.add(useCustomVMButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    customVMPath = new TextFieldWithBrowseButton();
+    panel2.add(customVMPath, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(250, -1), null, null, 0, false));
+    final TitledSeparator titledSeparator3 = new TitledSeparator();
+    titledSeparator3.setText(ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.jvm"));
+    myContentPanel.add(titledSeparator3, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    final JPanel panel3 = new JPanel();
+    panel3.setLayout(new GridLayoutManager(2, 2, new Insets(0, 0, 0, 0), -1, -1));
+    myContentPanel.add(panel3, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
+    final JLabel label1 = new JLabel();
+    this.$$$loadLabelText$$$(label1, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.maxHeapSize"));
+    panel3.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JLabel label2 = new JLabel();
+    this.$$$loadLabelText$$$(label2, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.vmParams"));
+    panel3.add(label2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myMaximumHeapSize = new JTextField();
+    myMaximumHeapSize.setColumns(5);
+    panel3.add(myMaximumHeapSize, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myVmParameters = new RawCommandLineEditor();
+    myVmParameters.setDialogCaption(ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.vmParams"));
+    myVmParameters.setEnabled(true);
+    panel3.add(myVmParameters, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(250, -1), null, null, 0, false));
+    final Spacer spacer2 = new Spacer();
+    myContentPanel.add(spacer2, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+    label1.setLabelFor(myMaximumHeapSize);
+    ButtonGroup buttonGroup;
+    buttonGroup = new ButtonGroup();
+    buttonGroup.add(myBundledButton);
+    buttonGroup.add(myCustomButton);
+    buttonGroup = new ButtonGroup();
+    buttonGroup.add(useIDEVMButton);
+    buttonGroup.add(useCustomVMButton);
+  }
 
-    /**
-     * @noinspection ALL
-     */
-    private void $$$loadLabelText$$$(JLabel component, String text) {
-        StringBuffer result = new StringBuffer();
-        boolean haveMnemonic = false;
-        char mnemonic = '\0';
-        int mnemonicIndex = -1;
-        for (int i = 0; i < text.length(); i++) {
-            if (text.charAt(i) == '&') {
-                i++;
-                if (i == text.length()) break;
-                if (!haveMnemonic && text.charAt(i) != '&') {
-                    haveMnemonic = true;
-                    mnemonic = text.charAt(i);
-                    mnemonicIndex = result.length();
-                }
-            }
-            result.append(text.charAt(i));
+  /**
+   * @noinspection ALL
+   */
+  private void $$$loadLabelText$$$(JLabel component, String text) {
+    StringBuffer result = new StringBuffer();
+    boolean haveMnemonic = false;
+    char mnemonic = '\0';
+    int mnemonicIndex = -1;
+    for (int i = 0; i < text.length(); i++) {
+      if (text.charAt(i) == '&') {
+        i++;
+        if (i == text.length()) break;
+        if (!haveMnemonic && text.charAt(i) != '&') {
+          haveMnemonic = true;
+          mnemonic = text.charAt(i);
+          mnemonicIndex = result.length();
         }
-        component.setText(result.toString());
-        if (haveMnemonic) {
-            component.setDisplayedMnemonic(mnemonic);
-            component.setDisplayedMnemonicIndex(mnemonicIndex);
-        }
+      }
+      result.append(text.charAt(i));
     }
+    component.setText(result.toString());
+    if (haveMnemonic) {
+      component.setDisplayedMnemonic(mnemonic);
+      component.setDisplayedMnemonicIndex(mnemonicIndex);
+    }
+  }
 
-    /**
-     * @noinspection ALL
-     */
-    private void $$$loadButtonText$$$(AbstractButton component, String text) {
-        StringBuffer result = new StringBuffer();
-        boolean haveMnemonic = false;
-        char mnemonic = '\0';
-        int mnemonicIndex = -1;
-        for (int i = 0; i < text.length(); i++) {
-            if (text.charAt(i) == '&') {
-                i++;
-                if (i == text.length()) break;
-                if (!haveMnemonic && text.charAt(i) != '&') {
-                    haveMnemonic = true;
-                    mnemonic = text.charAt(i);
-                    mnemonicIndex = result.length();
-                }
-            }
-            result.append(text.charAt(i));
+  /**
+   * @noinspection ALL
+   */
+  private void $$$loadButtonText$$$(AbstractButton component, String text) {
+    StringBuffer result = new StringBuffer();
+    boolean haveMnemonic = false;
+    char mnemonic = '\0';
+    int mnemonicIndex = -1;
+    for (int i = 0; i < text.length(); i++) {
+      if (text.charAt(i) == '&') {
+        i++;
+        if (i == text.length()) break;
+        if (!haveMnemonic && text.charAt(i) != '&') {
+          haveMnemonic = true;
+          mnemonic = text.charAt(i);
+          mnemonicIndex = result.length();
         }
-        component.setText(result.toString());
-        if (haveMnemonic) {
-            component.setMnemonic(mnemonic);
-            component.setDisplayedMnemonicIndex(mnemonicIndex);
-        }
+      }
+      result.append(text.charAt(i));
     }
+    component.setText(result.toString());
+    if (haveMnemonic) {
+      component.setMnemonic(mnemonic);
+      component.setDisplayedMnemonicIndex(mnemonicIndex);
+    }
+  }
 
-    /**
-     * @noinspection ALL
-     */
-    public JComponent $$$getRootComponent$$$() {
-        return myContentPanel;
-    }
+  /**
+   * @noinspection ALL
+   */
+  public JComponent $$$getRootComponent$$$() {
+    return myContentPanel;
+  }
 }

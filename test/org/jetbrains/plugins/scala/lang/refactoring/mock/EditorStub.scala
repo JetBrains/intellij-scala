@@ -98,4 +98,6 @@ class EditorStub extends Editor {
   def getDocument: Document = null
 
   def getInsets: Insets = null
+
+  override def offsetToVisualPosition(i: Int, b: Boolean): VisualPosition = null
 }

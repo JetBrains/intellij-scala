@@ -541,8 +541,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 //        val consoleView: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala",
 //          processHandler, consoleProperties, getEnvironment)
         //init it in two steps since there is no way to init it in one call with idBasedTreeConstruction = true
-        val consoleView = SMTestRunnerConnectionUtil.createConsoleWithCustomLocator("Scala", consoleProperties,
-          getEnvironment, new CompositeTestLocationProvider(null), true, null)
+        val consoleView = SMTestRunnerConnectionUtil.createConsole("Scala", consoleProperties, getEnvironment)
         consoleView.attachToProcess(processHandler)
 
         val res = new DefaultExecutionResult(consoleView, processHandler,
