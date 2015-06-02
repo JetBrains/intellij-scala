@@ -12,9 +12,10 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Range
 import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.plugins.scala.codeInspection.collections.{MethodRepr, stripped}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt, ResolvesTo}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
@@ -182,7 +183,11 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
           return //stop at function expression
         case ref: ScReferenceExpression =>
           ref.resolve() match {
-            case fun: PsiMethod => result += new MethodSmartStepTarget(fun, null, null, false, currentLines)
+            case fun: ScFunctionDefinition if fun.name == "apply" && ref.refName != "apply" =>
+              val prefix = s"${ref.refName}."
+              result += new MethodSmartStepTarget(fun, prefix, ref, false, currentLines)
+            case fun: PsiMethod =>
+              result += new MethodSmartStepTarget(fun, null, ref, false, currentLines)
             case _ =>
           }
         case f: ScForStatement =>
@@ -195,6 +200,21 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
         case _ =>
       }
       super.visitExpression(expr)
+    }
+
+    override def visitPattern(pat: ScPattern): Unit = {
+      val ref = pat match {
+        case cp: ScConstructorPattern =>  Some(cp.ref)
+        case ip: ScInfixPattern => Some(ip.refernece)
+        case _ => None
+      }
+      ref match {
+        case Some(r @ ResolvesTo(f: ScFunctionDefinition)) =>
+          val prefix = s"${r.refName}."
+          result += new MethodSmartStepTarget(f, prefix, r, false, currentLines)
+        case _ =>
+      }
+      super.visitPattern(pat)
     }
   }
 
