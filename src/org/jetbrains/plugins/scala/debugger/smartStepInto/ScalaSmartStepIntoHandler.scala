@@ -196,9 +196,9 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
           ref.resolve() match {
             case fun: ScFunctionDefinition if fun.name == "apply" && ref.refName != "apply" =>
               val prefix = s"${ref.refName}."
-              result += new MethodSmartStepTarget(fun, prefix, ref, false, noStopAtLines)
+              result += new MethodSmartStepTarget(fun, prefix, ref.nameId, false, noStopAtLines)
             case fun: PsiMethod =>
-              result += new MethodSmartStepTarget(fun, null, ref, false, noStopAtLines)
+              result += new MethodSmartStepTarget(fun, null, ref.nameId, false, noStopAtLines)
             case _ =>
           }
         case f: ScForStatement =>
@@ -222,7 +222,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
       ref match {
         case Some(r @ ResolvesTo(f: ScFunctionDefinition)) =>
           val prefix = s"${r.refName}."
-          result += new MethodSmartStepTarget(f, prefix, r, false, noStopAtLines)
+          result += new MethodSmartStepTarget(f, prefix, r.nameId, false, noStopAtLines)
         case _ =>
       }
       super.visitPattern(pat)
