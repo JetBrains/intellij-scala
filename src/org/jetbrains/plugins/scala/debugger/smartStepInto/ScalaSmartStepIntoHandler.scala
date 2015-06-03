@@ -12,10 +12,10 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Range
 import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.plugins.scala.codeInspection.collections.{MethodRepr, stripped}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt, ResolvesTo}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt, ResolvesTo, childOf}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
@@ -59,15 +59,26 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
     val lineStart = doc.getLineStartOffset(line)
     val lineRange = new TextRange(lineStart, doc.getLineEndOffset(line))
     val maxElement = maxElementOnLine(element, lineStart)
-    val lines: Range[Integer] = new Range[Integer](line, doc.getLineNumber(maxElement.getTextRange.getEndOffset))
-    val collector = new TargetCollector(lines)
+
+    def linesToSkip(): Range[Integer] = {
+      val element = maxElement match {
+        case (_: ScCaseClause) childOf (_ childOf (mc: ScMatchStmt)) => mc
+        case (_: ScCaseClauses) childOf (mc: ScMatchStmt) => mc
+        case _ => maxElement
+      }
+      val range = element.getTextRange
+      val startLine = doc.getLineNumber(range.getStartOffset)
+      val endLine = doc.getLineNumber(range.getEndOffset)
+      new Range[Integer](startLine, endLine)
+    }
+
+    val collector = new TargetCollector(linesToSkip())
     maxElement.accept(collector)
     maxElement.nextSiblings
             .takeWhile(s => lineRange.intersects(s.getTextRange))
             .foreach(_.accept(collector))
     collector.result.asJava
   }
-
   def isAvailable(position: SourcePosition): Boolean = {
     val file: PsiFile = position.getFile
     file.isInstanceOf[ScalaFile]
@@ -101,7 +112,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
     }
   }
 
-  private class TargetCollector(currentLines: Range[Integer]) extends ScalaRecursiveElementVisitor {
+  private class TargetCollector(noStopAtLines: Range[Integer]) extends ScalaRecursiveElementVisitor {
     val result = ArrayBuffer[SmartStepTarget]()
 
     override def visitNewTemplateDefinition(templ: ScNewTemplateDefinition): Unit = {
@@ -154,7 +165,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
                   fun @ (_f: ScFunctionDefinition) <- tb.functions
                   body <- fun.body
                 } {
-                  result += new MethodSmartStepTarget(fun, label, body, true, currentLines)
+                  result += new MethodSmartStepTarget(fun, label, body, true, noStopAtLines)
                 }
               case _ =>
             }
@@ -164,7 +175,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
 
       for ((constr, method) <- findConstructorAndMethod) {
         label = constr.simpleTypeElement.fold("")(ste => ste.getText + ".")
-        result += new MethodSmartStepTarget(method, "new ", constr, true, currentLines)
+        result += new MethodSmartStepTarget(method, "new ", constr, true, noStopAtLines)
       }
 
       addMethodsIfInArgument()
@@ -173,21 +184,21 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
     override def visitExpression(expr: ScExpression) {
       val implicits = expr.getImplicitConversions()._2
       implicits match {
-        case Some(f: PsiMethod) => result += new MethodSmartStepTarget(f, "implicit ", null, false, currentLines)
+        case Some(f: PsiMethod) => result += new MethodSmartStepTarget(f, "implicit ", null, false, noStopAtLines)
         case _ =>
       }
 
       expr match {
         case FunExpressionTarget(stmts, presentation) =>
-          result += new ScalaFunExprSmartStepTarget(expr, stmts, presentation, currentLines)
+          result += new ScalaFunExprSmartStepTarget(expr, stmts, presentation, noStopAtLines)
           return //stop at function expression
         case ref: ScReferenceExpression =>
           ref.resolve() match {
             case fun: ScFunctionDefinition if fun.name == "apply" && ref.refName != "apply" =>
               val prefix = s"${ref.refName}."
-              result += new MethodSmartStepTarget(fun, prefix, ref, false, currentLines)
+              result += new MethodSmartStepTarget(fun, prefix, ref, false, noStopAtLines)
             case fun: PsiMethod =>
-              result += new MethodSmartStepTarget(fun, null, ref, false, currentLines)
+              result += new MethodSmartStepTarget(fun, null, ref, false, noStopAtLines)
             case _ =>
           }
         case f: ScForStatement =>
@@ -211,7 +222,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
       ref match {
         case Some(r @ ResolvesTo(f: ScFunctionDefinition)) =>
           val prefix = s"${r.refName}."
-          result += new MethodSmartStepTarget(f, prefix, r, false, currentLines)
+          result += new MethodSmartStepTarget(f, prefix, r, false, noStopAtLines)
         case _ =>
       }
       super.visitPattern(pat)
