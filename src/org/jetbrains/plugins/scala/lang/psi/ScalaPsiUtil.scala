@@ -1962,6 +1962,7 @@ object ScalaPsiUtil {
       case _ =>
         exp.getParent match {
           case parenth: ScParenthesisedExpr => parameterOf(parenth)
+          case block: ScBlock => parameterOf(block)
           case ie: ScInfixExpr if exp == (if (ie.isLeftAssoc) ie.lOp else ie.rOp) =>
             ie.operation match {
               case ResolvesTo(f: ScFunction) => f.parameters.headOption.map(p => new Parameter(p))
