@@ -21,49 +21,72 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
 
   override def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
     val scalaDoc = Option(scalaDocProvider.getQuickNavigateInfo(element, originalElement))
-    scalaDoc.map { d => extractDoc(element, originalElement, d) }.orNull
+    scalaDoc.map { doc => appendToScalaDoc(doc, extractDoc(element))}.orNull
   }
 
   override def generateDoc(element: PsiElement, originalElement: PsiElement): String = {
-    val scalaDoc = Option(scalaDocProvider.generateDoc(element, originalElement)).map(_.replace("</body></html>", ""))
-    scalaDoc.map { d => extractDoc(element, originalElement, d) + "</body></html>" }.orNull
+    val scalaDoc = Option(scalaDocProvider.generateDoc(element, originalElement))
+    scalaDoc.map { doc => appendToScalaDoc(doc, extractDoc(element))}.orNull
   }
 
-  private def extractDoc(element: PsiElement, originalElement: PsiElement, scalaDoc: String): String = {
-    if (originalElement.getContainingFile.getFileType.getName != Sbt.Name) return scalaDoc
 
-    element match {
-      case value: ScNamedElement =>
-        val keyDefinition = Option(element.getNavigationElement)
-                            .safeMap { _.getParent }
-                            .safeMap { _.getParent }
-                            .collect { case s: ScPatternDefinition => s }
+  private def appendToScalaDoc(scalaDoc: String, sbtDoc: String): String =
+    (scalaDoc.replace("</body></html>", "") + sbtDoc) + "</body></html>"
 
-        val keyArgs = keyDefinition map { _.getLastChild } match {
-          case Some(call: ScMethodCall) => call.argumentExpressions
-          case _ => Seq.empty
-        }
+  private def extractDoc(element: PsiElement): String = element match {
+    case settingKey: ScNamedElement if (isElementInSbtFile(element)) =>
+      extractDocFromSettingKey(settingKey)
+    case _ =>
+      ""
+  }
 
-        def extractDocString(expr: ScExpression): Option[String] = expr match {
-          case ScLiteralImpl.string(str) => Some(str)
-          case ScInfixExpr(lOp, _, rOp) =>
-            val str = extractDocString(lOp).getOrElse("") ++
-                      extractDocString(rOp).getOrElse("")
-            if (str.nonEmpty) Some(str) else None
-          case refExpr: ScReferenceExpression => Some(refExpr.getText)
-          case _ => None
-        }
+  private def isElementInSbtFile(element: PsiElement): Boolean =
+    Option(element).safeMap(_.getContainingFile).fold(false)(_.getFileType.getName != Sbt.Name)
 
-        val docs = keyArgs flatMap extractDocString
+  private def extractDocFromSettingKey(settingKey: ScNamedElement): String = {
+    val keyDefinition = findSettingKeyDefinition(settingKey)
+    val keyDefinitionArgs = keyDefinition.fold(Seq.empty[ScExpression])(getKeyDefinitionArgs)
+    val argStrings = keyDefinitionArgs.flatMap(argToString)
 
-        scalaDoc + (keyArgs.headOption match {
-          case Some(_: ScLiteral) => // new key definition
-            docs lift 1 map { "<br/><b>" + _ + "</b>" }
-          case Some(_: ScReferenceExpressionImpl) => // reference to another key
-            docs lift 0 map { "</br><b><i>" + _ + "</i></b>" }
-          case _ => None
-        }).getOrElse("")
-      case _ => scalaDoc
+    val doc = keyDefinitionArgs.headOption match {
+      case Some(_: ScLiteral) => getDocForNewKeyDefinition(argStrings)
+      case Some(_: ScReferenceExpressionImpl) => getDocForKeyReference(argStrings)
+      case _ => None
     }
+
+    doc.getOrElse("")
   }
+
+  private def findSettingKeyDefinition(settingKey: ScNamedElement): Option[ScPatternDefinition] =
+    Option(settingKey.getNavigationElement)
+      .safeMap(_.getParent)
+      .safeMap(_.getParent)
+      .collect { case s: ScPatternDefinition => s }
+
+  private def getKeyDefinitionArgs(keyDefinition: ScPatternDefinition): Seq[ScExpression] =
+    keyDefinition.lastChild match {
+      case Some(call: ScMethodCall) => call.argumentExpressions
+      case _ => Seq.empty
+    }
+
+  private def argToString(arg: ScExpression): Option[String] = arg match {
+    case ScLiteralImpl.string(str) =>
+      Some(str)
+    case ScInfixExpr(lOp, _, rOp) =>
+      val str = argToString(lOp).getOrElse("") ++
+        argToString(rOp).getOrElse("")
+      if (str.nonEmpty) Some(str) else None
+    case refExpr: ScReferenceExpression =>
+      Some(refExpr.getText)
+    case _ =>
+      None
+  }
+
+  private def getDocForNewKeyDefinition(docs: Seq[String]): Option[String] =
+    // val someKey = SettingKey[Unit]("some-key", "Here are docs for some-key")
+    docs.lift(1).map("<br/><b>" + _ + "</b>")
+
+  private def getDocForKeyReference(docs: Seq[String]): Option[String] =
+    // val someKey = SettingKey[Unit](someOtherKey)
+    docs.lift(0).map("<br/><b><i>" + _ + "</i></b>")
 }
