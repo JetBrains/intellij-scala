@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.debugger.smartStepInto
 import javax.swing.Icon
 
 import com.intellij.debugger.actions.SmartStepTarget
-import com.intellij.icons.AllIcons
 import com.intellij.util.Range
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
@@ -14,9 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 class ScalaFunExprSmartStepTarget(val funExpr: ScExpression, val stmts: Seq[ScBlockStatement], label: String, expressionLines: Range[Integer])
         extends SmartStepTarget(label, funExpr, true, expressionLines) {
 
-  def getIcon: Icon = AllIcons.Nodes.Function
-
-  def getPresentation = label
+  override def getIcon: Icon = Icons.LAMBDA
 }
 
 object ScalaFunExprSmartStepTarget {
