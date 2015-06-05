@@ -1,66 +1,75 @@
 package org.jetbrains.plugins.scala
 package project.gradle
 
+import java.io.File
 import java.util
 
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.gradle.model.data.ScalaModelData
 import org.jetbrains.plugins.scala.project._
 
-import org.jetbrains.sbt.project.data.AbstractDataService
+import org.jetbrains.sbt.project.data.{AbstractDataService, SafeProjectStructureHelper}
 
 import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
  */
-class ScalaGradleDataService(platformFacade: PlatformFacade, helper: ProjectStructureHelper)
-        extends AbstractDataService[ScalaModelData, Library](ScalaModelData.KEY) {
+class ScalaGradleDataService(val helper: ProjectStructureHelper)
+        extends AbstractDataService[ScalaModelData, Library](ScalaModelData.KEY)
+        with SafeProjectStructureHelper {
+
+  import ScalaGradleDataService._
 
   def doImportData(toImport: util.Collection[DataNode[ScalaModelData]], project: Project) {
     toImport.asScala.foreach(doImport(_, project))
   }
 
-  private def doImport(scalaNode: DataNode[ScalaModelData], project: Project) {
-    val scalaData = scalaNode.getData
-
-    val module = {
-      val moduleData = scalaNode.getData(ProjectKeys.MODULE)
-      helper.findIdeModule(moduleData.getExternalName, project)
+  private def doImport(scalaNode: DataNode[ScalaModelData], project: Project): Unit =
+    for {
+      module <- getIdeModuleByNode(scalaNode, project)
+      compilerOptions = compilerOptionsFrom(scalaNode.getData)
+      compilerClasspath = scalaNode.getData.getScalaClasspath.asScala.toSeq
+    } {
+      module.configureScalaCompilerSettingsFrom("Gradle", compilerOptions)
+      configureScalaSdk(project, module, compilerClasspath)
     }
 
-    module.configureScalaCompilerSettingsFrom("Gradle", ScalaGradleDataService.compilerOptionsFrom(scalaData))
+  private def configureScalaSdk(project: Project, module: Module, compilerClasspath: Seq[File]): Unit = {
+    val compilerVersion =
+      findScalaLibraryIn(compilerClasspath).flatMap(getVersionFromJar)
+        .getOrElse(throw new ExternalSystemException("Cannot determine Scala compiler version for module " + module.getName))
 
-    val compilerClasspath = scalaData.getScalaClasspath.asScala.toSeq
-
-    val compilerVersion = compilerClasspath.map(_.getName)
-            .find(_.startsWith("scala-library"))
-            .flatMap(JarVersion.findFirstIn)
-            .map(Version(_))
-            .getOrElse(throw new ExternalSystemException("Cannot determine Scala compiler version for module " +
-                         scalaNode.getData(ProjectKeys.MODULE).getExternalName))
-
-    val scalaLibrary = project.libraries
-            .filter(_.getName.contains("scala-library"))
-            .find(_.scalaVersion == Some(compilerVersion))
-            .getOrElse(throw new ExternalSystemException("Cannot find project Scala library " +
-            compilerVersion.number + " for module " + scalaNode.getData(ProjectKeys.MODULE).getExternalName))
+    val scalaLibrary =
+      findAllScalaLibrariesIn(project).find(_.scalaVersion == Some(compilerVersion))
+        .getOrElse(throw new ExternalSystemException("Cannot find project Scala library " + compilerVersion.number + " for module " + module.getName))
 
     if (!scalaLibrary.isScalaSdk) {
-      val languageLevel = compilerVersion.toLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
+      val languageLevel = scalaLibrary.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
       scalaLibrary.convertToScalaSdkWith(languageLevel, compilerClasspath)
     }
   }
 
-  def doRemoveData(toRemove: util.Collection[_ <: Library], project: Project) {
-
-  }
+  def doRemoveData(toRemove: util.Collection[_ <: Library], project: Project) {}
 }
 
 private object ScalaGradleDataService {
+
+  private val ScalaLibraryName = "scala-library"
+
+  private def findScalaLibraryIn(classpath: Seq[File]): Option[File] =
+    classpath.find(_.getName.startsWith(ScalaLibraryName))
+
+  private def getVersionFromJar(scalaLibrary: File): Option[Version] =
+    JarVersion.findFirstIn(scalaLibrary.getName).map(Version(_))
+
+  private def findAllScalaLibrariesIn(project: Project): Seq[Library] =
+    project.libraries.filter(_.getName.contains(ScalaLibraryName))
+
   private def compilerOptionsFrom(data: ScalaModelData): Seq[String] = {
     val options = data.getScalaCompileOptions
 
