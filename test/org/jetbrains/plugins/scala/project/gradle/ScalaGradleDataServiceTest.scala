@@ -4,6 +4,7 @@ import java.io.File
 
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException, Key}
+import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import org.jetbrains.plugins.gradle.model.data.{ScalaCompileOptionsData, ScalaModelData}
 import org.jetbrains.sbt.project.ExternalSystemDsl._
 import org.jetbrains.sbt.project.data._
@@ -71,8 +72,13 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
       importProjectData(generateProject(Some("2.11.5"), Set(new File("/tmp/test/scala-library-2.10.4.jar"))))
     }
 
-  def testWithTheSameVersionOfScalaLibrary(): Unit =
+  def testWithTheSameVersionOfScalaLibrary(): Unit = {
     importProjectData(generateProject(Some("2.10.4"), Set(new File("/tmp/test/scala-library-2.10.4.jar"))))
+
+    import org.jetbrains.plugins.scala.project._
+    val isLibrarySetUp = ProjectLibraryTable.getInstance(getProject).getLibraries.filter(_.getName.contains("scala-library")).exists(_.isScalaSdk)
+    assert(isLibrarySetUp, "Scala library is not set up")
+  }
 
   def testModuleIsNull(): Unit = {
     val testProject = new project {
