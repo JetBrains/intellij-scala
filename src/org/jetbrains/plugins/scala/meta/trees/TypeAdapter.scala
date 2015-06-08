@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.meta.trees
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 import scala.meta.internal.ast.Term.Param
@@ -9,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.{api => p}
 import org.jetbrains.plugins.scala.lang.psi.{types => ptype}
 import scala.meta.internal.{ast=>m}
-import scala.meta.internal.{hygiene => h}
+import scala.meta.internal.{semantic => h}
 
 trait TypeAdapter {
   self: Converter =>
@@ -56,12 +57,19 @@ trait TypeAdapter {
     }
   }
 
+  def toType(elem: PsiElement): m.Type = {
+    elem match {
+      case t: p.toplevel.packaging.ScPackaging => m.Type.Singleton(ref(t.reference.get))
+    }
+  }
+
   def toType(tp: ptype.ScType): m.Type = {
 
     tp match {
       case t: ptype.ScParameterizedType => m.Type.Apply(toType(t.designator), t.typeArgs.toStream.map(toType))
-      case t: ptype.ScType => m.Type.Name(t.canonicalText)
+      case t: ptype.ScDesignatorType =>  m.Type.Name(t.canonicalText, denot = h.Denotation.Zero, sigma = h.Sigma.Naive).withDenot(t.element)
 
+      case t: ptype.ScType => m.Type.Name(t.canonicalText)
     }
   }
 

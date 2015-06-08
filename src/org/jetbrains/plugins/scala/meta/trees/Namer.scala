@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.{api => p}
 import org.jetbrains.plugins.scala.lang.psi.{types => ptype}
 import scala.meta.internal.{ast=>m}
-import scala.meta.internal.{hygiene => h}
+import scala.meta.internal.{semantic => h}
 
 trait Namer {
   self: Converter =>
@@ -45,7 +45,7 @@ trait Namer {
   }
 
   def ref(cr: p.base.ScStableCodeReferenceElement): m.Term.Name = {
-    m.Term.Name(cr.getCanonicalText)
+    m.Term.Name(cr.getCanonicalText).withDenot(cr)
   }
   
 }
