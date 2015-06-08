@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.{api => p}
 import org.jetbrains.plugins.scala.lang.psi.{types => ptype}
 
 import scala.meta.internal.{ast=>m}
-import scala.meta.internal.{hygiene => h}
 
 trait TreeAdapter {
   self: Converter =>

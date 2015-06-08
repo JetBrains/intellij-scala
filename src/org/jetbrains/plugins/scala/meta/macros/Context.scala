@@ -4,13 +4,13 @@ import scala.{Seq => _}
 import scala.collection.immutable.Seq
 import scala.meta._
 
-class Context extends macros.Context {
+class Context extends semantic.Context {
   override def tpe(param : scala.meta.Term.Param) = ???
   override def dialect: Dialect = ???
-  override def warning(msg: String) = ???
-  override def error(msg: String) = ???
-  override def abort(msg: String) = ???
-  override def resources = ???
+//  override def warning(msg: String) = ???
+//  override def error(msg: String) = ???
+//  override def abort(msg: String) = ???
+//  override def resources = ???
 
   override def desugar(term: Term): Term = ???
   override def tpe(term: Term): Type = ???

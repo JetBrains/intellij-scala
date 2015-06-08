@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.meta.trees
 
+import com.intellij.psi.PsiElement
+
 import scala.meta.internal.ast.Term.Param
 import scala.{Seq => _}
 import scala.collection.immutable.Seq
@@ -7,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.{api => p}
 import org.jetbrains.plugins.scala.lang.psi.{types => ptype}
 import scala.meta.internal.{ast=>m}
-import scala.meta.internal.{hygiene => h}
+import scala.meta.internal.{semantic => h}
 
 trait Utils {
   self: Converter =>
@@ -38,7 +40,7 @@ trait Utils {
     }
   }
 
-  implicit class RichPSI(psi: ScalaPsiElement) {
+  implicit class RichPSI(psi: PsiElement) {
     def ?! = {println(msg); throw new UnmatchedTree(msg)}
 
     def msg: String = {
