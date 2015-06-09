@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.meta
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiFileFactory
-import com.intellij.testFramework.fixtures.CodeInsightTestFixture
+import com.intellij.psi.{PsiElement, PsiFileFactory, PsiWhiteSpace}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
 import org.jetbrains.plugins.scala.meta.trees.ConverterImpl
 
 import scala.meta.internal.ast.Tree
@@ -16,13 +15,25 @@ trait TreeConverterTestUtils {
 
   def myProjectAdapter: Project // we need to go deeper
 
-  implicit def psiFromText(text: String): ScalaPsiElement = {
-    val file: ScalaFile = parseTextToFile(text + "\n42") //HACK: force file to be a scala script to ease resolving
-    val startPos = file.getText.indexOf("//start")
+  def psiFromText(text: String): ScalaPsiElement = {
+    def nextScalaPsiElement(current: PsiElement): ScalaPsiElement = current match {
+      case _: PsiWhiteSpace => nextScalaPsiElement(current.getNextSibling)
+      case sce: ScalaPsiElement => sce
+      case _: PsiElement => nextScalaPsiElement(current.getNextSibling)
+    }
+    val file: ScalaFile = parseTextToFile(text + "\n42")
+    val startToken = "//start"
+    //HACK: force file to be a scala script to ease resolving
+    val startPos = file.getText.indexOf(startToken)
     if (startPos < 0)
       file.firstChild.get.asInstanceOf[ScalaPsiElement]
-    else
-      file.findElementAt(startPos).getParent.asInstanceOf[ScalaPsiElement]
+    else {
+      val element = file.findElementAt(startPos)
+      element.getParent match {
+        case parent: ScCommentOwner => parent.asInstanceOf[ScalaPsiElement]
+        case _ => nextScalaPsiElement(element)
+      }
+    }
   }
 
   def structuralEquals(tree1: Tree, tree2: Tree): Boolean = {
@@ -46,7 +57,8 @@ trait TreeConverterTestUtils {
   }
 
   protected def convert(text: String): Tree = {
-    ConverterImpl.ideaToMeta(text)
+    val psi = psiFromText(text)
+    ConverterImpl.ideaToMeta(psi)
   }
 
   def parseTextToFile(@Language("Scala") s: String): ScalaFile = {
