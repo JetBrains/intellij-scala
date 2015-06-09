@@ -9,34 +9,43 @@ import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, Proj
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.project.module.SbtModule
-import org.jetbrains.sbt.resolvers.{SbtResolverIndex, SbtResolverIndexesManager}
+import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndex, SbtResolverIndexesManager}
 
 import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
  */
-class SbtModuleDataService(platformFacade: PlatformFacade, helper: ProjectStructureHelper)
-  extends AbstractDataService[SbtModuleData, Module](SbtModuleData.Key) {
+class SbtModuleDataService(val helper: ProjectStructureHelper)
+  extends AbstractDataService[SbtModuleData, Module](SbtModuleData.Key)
+  with SafeProjectStructureHelper {
 
   def doImportData(toImport: util.Collection[DataNode[SbtModuleData]], project: Project) {
     toImport.asScala.foreach { moduleNode =>
-      val moduleData = moduleNode.getData
-
-      val module = {
-        val moduleData: ModuleData = moduleNode.getData(ProjectKeys.MODULE)
-        helper.findIdeModule(moduleData.getExternalName, project)
+      for {
+        module <- getIdeModuleByNode(moduleNode, project)
+        imports = moduleNode.getData.imports
+        resolvers = moduleNode.getData.resolvers
+      } {
+        SbtModule.setImportsTo(module, imports)
+        setResolvers(module, resolvers)
+        updateLocalResolvers(resolvers)
       }
-
-      SbtModule.setImportsTo(module, moduleData.imports)
-      SbtModule.setResolversTo(module, moduleData.resolvers)
-
-      moduleData.resolvers foreach { _ => SbtResolverIndexesManager().add(_) }
-      val localResolvers = moduleData.resolvers.toSeq.filter {
-        _.associatedIndex.exists { i => i.isLocal && i.timestamp == SbtResolverIndex.NO_TIMESTAMP }
-      }
-      SbtResolverIndexesManager().update(localResolvers)
     }
+  }
+
+  private def setResolvers(module: Module, resolvers: Set[SbtResolver]): Unit = {
+    SbtModule.setResolversTo(module, resolvers)
+    resolvers.foreach(SbtResolverIndexesManager().add)
+  }
+
+  private def updateLocalResolvers(resolvers: Set[SbtResolver]): Unit = {
+    val localResolvers = resolvers.filter { resolver =>
+      resolver.associatedIndex.exists { index =>
+        index.isLocal && index.timestamp == SbtResolverIndex.NO_TIMESTAMP
+      }
+    }
+    SbtResolverIndexesManager().update(localResolvers.toSeq)
   }
 
   def doRemoveData(toRemove: util.Collection[_ <: Module], project: Project) {}
