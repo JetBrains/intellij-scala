@@ -6,6 +6,7 @@ import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException, Key}
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import org.jetbrains.plugins.gradle.model.data.{ScalaCompileOptionsData, ScalaModelData}
+import org.jetbrains.sbt.UsefulTestCaseHelper
 import org.jetbrains.sbt.project.ExternalSystemDsl._
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.{ProjectDataServiceTestCase, SbtProjectSystem}
@@ -17,7 +18,7 @@ import scala.collection.JavaConverters._
  * @author Nikolay Obedin
  * @since 6/4/15.
  */
-class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
+class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulTestCaseHelper {
 
   def generateProject(scalaVersion: Option[String], scalaCompilerClasspath: Set[File]): DataNode[ProjectData] =
     new project {

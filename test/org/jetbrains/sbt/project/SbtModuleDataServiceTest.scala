@@ -4,7 +4,7 @@ import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.sbt.Sbt
+import org.jetbrains.sbt.{UsefulTestCaseHelper, Sbt}
 import org.jetbrains.sbt.project.data.{SbtModuleNode, SbtModuleData, Node}
 import org.jetbrains.sbt.project.module.SbtModule
 import org.jetbrains.sbt.resolvers.{SbtResolverIndexesManager, SbtResolver}
@@ -56,12 +56,12 @@ class SbtModuleDataServiceTest extends ProjectDataServiceTestCase {
   def testNonEmptyResolvers(): Unit =
     doTest(Seq.empty, Set(
       SbtResolver(SbtResolver.Kind.Maven, "maven resolver", "http:///nothing"),
-      SbtResolver(SbtResolver.Kind.Ivy, "ivy resolver", "file:///nothing")))
+      SbtResolver(SbtResolver.Kind.Ivy, "ivy resolver", getProject.getBasePath)))
 
   def testNonEmptyImportsAndResolvers(): Unit =
     doTest(Seq("first import", "second import"), Set(
       SbtResolver(SbtResolver.Kind.Maven, "maven resolver", "http://nothing"),
-      SbtResolver(SbtResolver.Kind.Ivy, "ivy resolver", "file://nothing")))
+      SbtResolver(SbtResolver.Kind.Ivy, "ivy resolver", getProject.getBasePath)))
 
   def testModuleIsNull(): Unit = {
     val testProject = new project {
