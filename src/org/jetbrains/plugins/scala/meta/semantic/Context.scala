@@ -10,7 +10,7 @@ import scala.collection.immutable.Seq
 import scala.meta.internal.{ast=>m}
 
 class Context(val project: Project) extends semantic.Context {
-  override def dialect: Dialect = ???
+  override def dialect = ???
 
   override def desugar(term: Term): Term = ???
   override def tpe(term: Term): Type = m.Type.Name("Any")

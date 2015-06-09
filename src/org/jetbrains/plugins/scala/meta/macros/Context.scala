@@ -6,7 +6,7 @@ import scala.meta._
 
 class Context extends semantic.Context {
   override def tpe(param : scala.meta.Term.Param) = ???
-  override def dialect: Dialect = ???
+//  override def dialect: Dialect = ???
 //  override def warning(msg: String) = ???
 //  override def error(msg: String) = ???
 //  override def abort(msg: String) = ???
@@ -27,4 +27,5 @@ class Context extends semantic.Context {
   override def parents(member: Member): Seq[Member] = ???
   override def children(member: Member): Seq[Member] = ???
 
+  override def dialect = ???
 }
