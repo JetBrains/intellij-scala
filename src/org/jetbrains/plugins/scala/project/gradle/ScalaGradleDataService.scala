@@ -36,17 +36,17 @@ class ScalaGradleDataService(val helper: ProjectStructureHelper)
       compilerClasspath = scalaNode.getData.getScalaClasspath.asScala.toSeq
     } {
       module.configureScalaCompilerSettingsFrom("Gradle", compilerOptions)
-      configureScalaSdk(project, module, compilerClasspath)
+      configureScalaSdk(module, project.scalaLibraries, compilerClasspath)
     }
 
-  private def configureScalaSdk(project: Project, module: Module, compilerClasspath: Seq[File]): Unit = {
+  private def configureScalaSdk(module: Module, scalaLibraries: Seq[Library], compilerClasspath: Seq[File]): Unit = {
     val compilerVersion =
       findScalaLibraryIn(compilerClasspath).flatMap(getVersionFromJar)
         .getOrElse(throw new ExternalSystemException("Cannot determine Scala compiler version for module " + module.getName))
 
     val scalaLibrary =
-      findAllScalaLibrariesIn(project).find(_.scalaVersion == Some(compilerVersion))
-        .getOrElse(throw new ExternalSystemException("Cannot find project Scala library " + compilerVersion.number + " for module " + module.getName))
+        scalaLibraries.find(_.scalaVersion == Some(compilerVersion))
+          .getOrElse(throw new ExternalSystemException("Cannot find project Scala library " + compilerVersion.number + " for module " + module.getName))
 
     if (!scalaLibrary.isScalaSdk) {
       val languageLevel = scalaLibrary.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
@@ -59,16 +59,11 @@ class ScalaGradleDataService(val helper: ProjectStructureHelper)
 
 private object ScalaGradleDataService {
 
-  private val ScalaLibraryName = "scala-library"
-
   private def findScalaLibraryIn(classpath: Seq[File]): Option[File] =
     classpath.find(_.getName.startsWith(ScalaLibraryName))
 
   private def getVersionFromJar(scalaLibrary: File): Option[Version] =
     JarVersion.findFirstIn(scalaLibrary.getName).map(Version(_))
-
-  private def findAllScalaLibrariesIn(project: Project): Seq[Library] =
-    project.libraries.filter(_.getName.contains(ScalaLibraryName))
 
   private def compilerOptionsFrom(data: ScalaModelData): Seq[String] = {
     val options = data.getScalaCompileOptions
