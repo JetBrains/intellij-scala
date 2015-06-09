@@ -25,6 +25,8 @@ trait SymbolTable {
   def toSymbol(elem: PsiElement): h.Symbol = {
     elem match {
       case _ if !isGlobal(elem) => h.Symbol.Local(randomUUID().toString)
+      case td: p.toplevel.typedef.ScTypeDefinition if !td.qualifiedName.contains(".") =>
+        h.Symbol.Global(h.Symbol.Empty, td.name, h.Signature.Type)
       case td: p.toplevel.typedef.ScTypeDefinition => h.Symbol.Global(toSymbol(td.parent.get), td.name, h.Signature.Type)
       case pc: p.toplevel.packaging.ScPackaging => toSymbol(pc.reference.get.bind().get.element)
       case pp: PsiPackage if pp.getName == null => h.Symbol.Root
