@@ -67,7 +67,7 @@ trait TypeAdapter {
 
     tp match {
       case t: ptype.ScParameterizedType => m.Type.Apply(toType(t.designator), t.typeArgs.toStream.map(toType))
-      case t: ptype.ScDesignatorType =>  m.Type.Name(t.canonicalText, denot = h.Denotation.Zero, sigma = h.Sigma.Naive).withDenot(t.element)
+      case t: ptype.ScDesignatorType =>  m.Type.Name(t.canonicalText, denot = h.Denotation.Zero).withDenot(t.element)
 
       case t: ptype.ScType => m.Type.Name(t.canonicalText)
     }
