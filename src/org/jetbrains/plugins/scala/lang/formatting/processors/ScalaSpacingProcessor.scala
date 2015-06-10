@@ -270,7 +270,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     //for interpolated strings
     if (rightElementType == tINTERPOLATED_STRING_ESCAPE) return Spacing.getReadOnlySpacing
-    if (Set(tINTERPOLATED_STRING, tINTERPOLATED_MULTILINE_STRING).contains(rightElementType)) return WITHOUT_SPACING
+    if (Set(tINTERPOLATED_STRING, tINTERPOLATED_MULTILINE_STRING).contains(rightElementType))
+      return if (leftString == MultilineStringUtil.getMarginChar(leftPsi).toString) Spacing.getReadOnlySpacing else WITHOUT_SPACING
     if (Set(leftElementType, rightElementType).contains(tINTERPOLATED_STRING_INJECTION) ||
       rightElementType == tINTERPOLATED_STRING_END) return Spacing.getReadOnlySpacing
     if (Option(leftNode.getTreeParent.getTreePrev).exists(_.getElementType == tINTERPOLATED_STRING_ID)) {
@@ -290,11 +291,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     //multiline strings
     if (scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE && isMultiLineStringCase(rightPsi)) {
       (scalaSettings.MULTI_LINE_QUOTES_ON_NEW_LINE, scalaSettings.KEEP_MULTI_LINE_QUOTES) match {
-        case (true, true) =>
+        case (false, true) =>
           return if (rightPsi.getPrevSibling != null && rightPsi.getPrevSibling.getText.contains("\n")) ON_NEW_LINE else WITH_SPACING
         case (true, false) => return ON_NEW_LINE
         case (false, false) => return WITH_SPACING_NO_KEEP
-        case (false, true) => return Spacing.createDependentLFSpacing(1, 1, rightPsi.getParent.getTextRange, true, 1)
+        case (true, true) => return Spacing.createDependentLFSpacing(1, 1, rightPsi.getParent.getTextRange, true, 1)
       }
     }
 
