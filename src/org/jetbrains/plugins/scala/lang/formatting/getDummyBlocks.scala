@@ -83,11 +83,6 @@ object getDummyBlocks {
               scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
         subBlocks.addAll(getMultilineStringBlocks(node, block))
         return subBlocks
-      case _: PsiElement
-        if node.getFirstChildNode == null && node.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING &&
-          scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
-        subBlocks.addAll(getMultilineStringBlocks(node, block))
-        return subBlocks
       case _
         if node.getElementType == ScalaDocElementTypes.DOC_TAG =>
         val docTag = node.getPsi.asInstanceOf[ScDocTag]
@@ -184,7 +179,13 @@ object getDummyBlocks {
         }
       }
       val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
-      subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
+      if (child.getFirstChildNode == null && child.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING &&
+          scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE) {
+        //flatten interpolated strings
+        subBlocks.addAll(getMultilineStringBlocks(child, block))
+      } else {
+        subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
+      }
       prevChild = child
     }
     subBlocks
@@ -530,7 +531,8 @@ object getDummyBlocks {
 
     val indent = Indent.getNoneIndent
     val simpleIndent = Indent.getAbsoluteNoneIndent
-    val prefixIndent = Indent.getSpaceIndent(marginIndent, true)
+    val prefixIndent = Indent.getSpaceIndent(marginIndent +
+      (if (node.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING) 1 else 0), true)
 
     val lines = node.getText.split("\n")
     var acc = 0
