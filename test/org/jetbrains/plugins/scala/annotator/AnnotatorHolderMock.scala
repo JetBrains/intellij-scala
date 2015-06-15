@@ -17,7 +17,7 @@ class AnnotatorHolderMock extends AnnotationHolder {
   
   private var myAnnotations = List[Message]()
   
-  def createInfoAnnotation(range: TextRange, message: String) = null
+  def createInfoAnnotation(range: TextRange, message: String) = FakeAnnotation
 
   def createInfoAnnotation(node: ASTNode, message: String) = {
     myAnnotations ::= Info(node.getText, message)
