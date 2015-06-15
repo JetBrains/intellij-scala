@@ -21,8 +21,9 @@ import com.sun.jdi.request.ClassPrepareRequest
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager._
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.debugger.smartStepInto.FunExpressionTarget
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, inReadAction}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition}
@@ -32,10 +33,12 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaNamesUtil, ScalaRefactoringUtil}
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceElement, ResolveTargets}
 import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
 
 import scala.annotation.tailrec
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -48,15 +51,31 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     case _ => None
   }
 
-  @NotNull def locationsOfLine(refType: ReferenceType, position: SourcePosition): util.List[Location] = {
+  @NotNull
+  def locationsOfLine(refType: ReferenceType, position: SourcePosition): util.List[Location] = {
+    def findCustomizedLocations(line: Int) = {
+      val allLocations = refType.allLineLocations().asScala
+      allLocations.filter { l =>
+        val custom = customLineNumber(l)
+        custom.isDefined && custom.contains(line - 1)
+      }.asJava
+    }
+
     try {
       val line: Int = position.getLine + 1
-      val locations: util.List[Location] =
+      val jvmLocations: util.List[Location] =
         if (getDebugProcess.getVirtualMachineProxy.versionHigher("1.4"))
           refType.locationsOfLine(DebugProcess.JAVA_STRATUM, null, line)
         else refType.locationsOfLine(line)
-      if (locations == null || locations.isEmpty) throw NoDataException.INSTANCE
-      locations
+      val customized = findCustomizedLocations(line)
+      val size = jvmLocations.size() + customized.size()
+
+      if (size == 0) throw NoDataException.INSTANCE
+
+      val all = new util.ArrayList[Location](size)
+      all.addAll(jvmLocations)
+      all.addAll(customized)
+      all
     }
     catch {
       case e: AbsentInformationException =>
@@ -198,11 +217,30 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     }
   }
 
+  private def customLineNumber(location: Location): Option[Int] = {
+    //scalac sometimes generates very strange line numbers for <init> method
+    def lineForConstructor: Option[Int] = {
+      val declType = location.declaringType()
+      inReadAction {
+        findPsiClassByReferenceType(declType) match {
+          case Some(c) =>
+            val doc = PsiDocumentManager.getInstance(getDebugProcess.getProject).getDocument(c.getContainingFile)
+            Some(doc.getLineNumber(c.getTextOffset))
+          case None => None
+        }
+      }
+    }
+
+    if (location.method.isConstructor && location.method.location == location) lineForConstructor
+    else None
+  }
+
   private def calcLineIndex(location: Location): Int = {
     LOG.assertTrue(getDebugProcess != null)
     if (location == null) return -1
     try {
-      location.lineNumber - 1
+      customLineNumber(location)
+              .getOrElse(location.lineNumber - 1)
     }
     catch {
       case e: InternalError => -1
@@ -265,66 +303,131 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     exprs.toSeq
   }
 
+  private def findScriptFile(location: Location): Option[PsiFile] = {
+    try {
+      val refType = location.declaringType()
+      val name = refType.name()
+      if (name.startsWith(SCRIPT_HOLDER_CLASS_NAME)) {
+        val sourceName = location.sourceName
+        val files = FilenameIndex.getFilesByName(getDebugProcess.getProject, sourceName, getDebugProcess.getSearchScope)
+        files.headOption
+      }
+      else None
+    }
+    catch {
+      case e: AbsentInformationException => None
+    }
+  }
+
+  private def findClassByQualName(qName: String): Option[PsiClass] = {
+    val project = getDebugProcess.getProject
+    val cacheManager = ScalaShortNamesCacheManager.getInstance(project)
+    val packageSuffix = ".package$"
+    val classes =
+      if (qName.endsWith(packageSuffix))
+        Seq(cacheManager.getPackageObjectByName(qName.stripSuffix(packageSuffix), GlobalSearchScope.allScope(project)))
+      else
+        cacheManager.getClassesByFQName(qName, getDebugProcess.getSearchScope)
+
+    val clazz =
+      if (classes.length == 1) classes.headOption
+      else if (classes.length == 2 && ScalaPsiUtil.getCompanionModule(classes.head).contains(classes(1))) classes.headOption
+      else None
+    clazz.filter(_.isValid)
+  }
+
   @Nullable private def getPsiFileByLocation(project: Project, location: Location): PsiFile = {
+
+    def qualName(refType: ReferenceType): String = {
+      val originalQName = refType.name.replace('/', '.')
+      if (originalQName.endsWith("package$")) return originalQName
+
+      val dollar: Int = originalQName.indexOf('$')
+      if (dollar >= 0) originalQName.substring(0, dollar) else originalQName
+    }
+
+    def searchForMacroDebugging(qName: String): PsiFile = {
+      val directoryIndex: DirectoryIndex = DirectoryIndex.getInstance(project)
+      val dotIndex = qName.lastIndexOf(".")
+      val packageName = if (dotIndex > 0) qName.substring(0, dotIndex) else ""
+      val query: Query[VirtualFile] = directoryIndex.getDirectoriesByPackageName(packageName, true)
+      val fileNameWithoutExtension = if (dotIndex > 0) qName.substring(dotIndex + 1) else qName
+      val fileNames: util.Set[String] = new util.HashSet[String]
+      import scala.collection.JavaConversions._
+      for (extention <- ScalaLoader.SCALA_EXTENSIONS) {
+        fileNames.add(fileNameWithoutExtension + "." + extention)
+      }
+      val result = new Ref[PsiFile]
+      query.forEach(new Processor[VirtualFile] {
+        override def process(vDir: VirtualFile): Boolean = {
+          var isFound = false
+          for {
+            fileName <- fileNames
+            if !isFound
+            vFile <- vDir.findChild(fileName).toOption
+          } {
+            val psiFile: PsiFile = PsiManager.getInstance(project).findFile(vFile)
+            val debugFile: PsiFile = ScalaMacroDebuggingUtil.loadCode(psiFile, force = false)
+            if (debugFile != null) {
+              result.set(debugFile)
+              isFound = true
+            }
+            else if (psiFile.isInstanceOf[ScalaFile]) {
+              result.set(psiFile)
+              isFound = true
+            }
+          }
+          !isFound
+        }
+      })
+      result.get
+    }
+
+
     if (location == null) return null
     val refType = location.declaringType
     if (refType == null) return null
-    val originalQName = refType.name.replace('/', '.')
-    val searchScope: GlobalSearchScope = getDebugProcess.getSearchScope
-    if (originalQName.startsWith(SCRIPT_HOLDER_CLASS_NAME)) {
-      try {
-        val sourceName = location.sourceName
-        val files: Array[PsiFile] = FilenameIndex.getFilesByName(project, sourceName, searchScope)
-        if (files.length == 1) return files(0)
-      }
-      catch {
-        case e: AbsentInformationException => return null
-      }
+
+    val scriptFile = findScriptFile(location)
+    if (scriptFile.isDefined) return scriptFile.get
+
+    val qName = qualName(refType)
+
+    if (!ScalaMacroDebuggingUtil.isEnabled)
+      findClassByQualName(qName).map(_.getNavigationElement.getContainingFile).orNull
+    else
+      searchForMacroDebugging(qName)
+  }
+
+  private def findPsiClassByReferenceType(refType: ReferenceType): Option[PsiClass] = {
+    val debugProcess = debugProcessImpl match {
+      case Some(d) => d
+      case _ => return None
     }
-    val dollar: Int = originalQName.indexOf('$')
-    val qName = if (dollar >= 0) originalQName.substring(0, dollar) else originalQName
-    val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(qName, searchScope)
-    val clazz: PsiClass =
-      if (classes.length == 1) classes.head
-      else if (classes.length == 2 && ScalaPsiUtil.getCompanionModule(classes.head).contains(classes(1))) classes.head
-      else null
-    if (clazz != null && clazz.isValid && !ScalaMacroDebuggingUtil.isEnabled) {
-      return clazz.getNavigationElement.getContainingFile
-    }
-    val directoryIndex: DirectoryIndex = DirectoryIndex.getInstance(project)
-    val dotIndex = qName.lastIndexOf(".")
-    val packageName = if (dotIndex > 0) qName.substring(0, dotIndex) else ""
-    val query: Query[VirtualFile] = directoryIndex.getDirectoriesByPackageName(packageName, true)
-    val fileNameWithoutExtension = if (dotIndex > 0) qName.substring(dotIndex + 1) else qName
-    val fileNames: util.Set[String] = new util.HashSet[String]
-    import scala.collection.JavaConversions._
-    for (extention <- ScalaLoader.SCALA_EXTENSIONS) {
-      fileNames.add(fileNameWithoutExtension + "." + extention)
-    }
-    val result = new Ref[PsiFile]
-    query.forEach(new Processor[VirtualFile] {
-      override def process(vDir: VirtualFile): Boolean = {
-        var isFound = false
-        for {
-          fileName <- fileNames
-          if !isFound
-          vFile <- vDir.findChild(fileName).toOption
-        } {
-          val psiFile: PsiFile = PsiManager.getInstance(project).findFile(vFile)
-          val debugFile: PsiFile = ScalaMacroDebuggingUtil.loadCode(psiFile, force = false)
-          if (debugFile != null) {
-            result.set(debugFile)
-            isFound = true
-          }
-          else if (psiFile.isInstanceOf[ScalaFile]) {
-            result.set(psiFile)
-            isFound = true
+    try {
+      val project = getDebugProcess.getProject
+      val location = refType.allLineLocations().get(0)
+      val file = getPsiFileByLocation(project, location)
+      val name = refType.name()
+
+      var foundClass: Option[PsiClass] = None
+      val processor = new BaseProcessor(Set(ResolveTargets.CLASS)) {
+        override def execute(element: PsiElement, state: ResolveState): Boolean = {
+          element match {
+            case cl: PsiClass if name.contains(cl.name) && DebuggerUtil.getClassJVMName(cl).getName(debugProcess) == name =>
+              foundClass = Some(cl)
+              false
+            case _ => true
           }
         }
-        !isFound
       }
-    })
-    result.get
+      val startElem = file.findElementAt(SourcePosition.createFromLine(file, location.lineNumber()).getOffset)
+      PsiTreeUtil.treeWalkUp(processor, startElem, file, ResolveState.initial())
+      foundClass
+    }
+    catch {
+      case t: Throwable => None
+    }
   }
 
   @NotNull def getAllClasses(position: SourcePosition): util.List[ReferenceType] = {
@@ -364,7 +467,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
   private def hasLocations(refType: ReferenceType, position: SourcePosition): Boolean = {
     var hasLocations = false
     try {
-      hasLocations = refType.locationsOfLine(position.getLine + 1).size > 0
+      hasLocations = locationsOfLine(refType, position).size > 0
     } catch {
       case ignore @ (_: AbsentInformationException | _: ClassNotPreparedException | _: ObjectCollectedException) =>
     }
