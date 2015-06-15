@@ -19,7 +19,7 @@ class ScalaSdkDataServiceTest extends ProjectDataServiceTestCase with UsefulTest
 
   import ExternalSystemDsl._
 
-  def generateProject(scalaVersion: String, scalaLibraryVersion: Option[String], compilerOptions: Seq[String]): DataNode[ProjectData] =
+  private def generateProject(scalaVersion: String, scalaLibraryVersion: Option[String], compilerOptions: Seq[String]): DataNode[ProjectData] =
     new project {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
@@ -39,6 +39,13 @@ class ScalaSdkDataServiceTest extends ProjectDataServiceTestCase with UsefulTest
       }
     }.build.toDataNode
 
+  private def doTestAndCheckScalaSdk(scalaVersion: String, scalaLibraryVersion: String): Unit = {
+    import org.jetbrains.plugins.scala.project._
+    importProjectData(generateProject(scalaVersion, Some(scalaLibraryVersion), Seq.empty))
+    val isLibrarySetUp = ProjectLibraryTable.getInstance(getProject).getLibraries.filter(_.getName.contains("scala-library")).exists(_.isScalaSdk)
+    assert(isLibrarySetUp, "Scala library is not set up")
+  }
+
   def testWithoutScalaLibrary(): Unit =
     importProjectData(generateProject("2.11.5", None, Seq.empty))
 
@@ -46,13 +53,6 @@ class ScalaSdkDataServiceTest extends ProjectDataServiceTestCase with UsefulTest
     assertException[ExternalSystemException](Some("Cannot find project Scala library 2.11.5 for module Module 1")) {
       importProjectData(generateProject("2.11.5", Some("2.10.4"), Seq.empty))
     }
-
-  def doTestAndCheckScalaSdk(scalaVersion: String, scalaLibraryVersion: String): Unit = {
-    import org.jetbrains.plugins.scala.project._
-    importProjectData(generateProject(scalaVersion, Some(scalaLibraryVersion), Seq.empty))
-    val isLibrarySetUp = ProjectLibraryTable.getInstance(getProject).getLibraries.filter(_.getName.contains("scala-library")).exists(_.isScalaSdk)
-    assert(isLibrarySetUp, "Scala library is not set up")
-  }
 
   def testWithCompatibleScalaLibrary(): Unit = {
     doTestAndCheckScalaSdk("2.11.1", "2.11.5")
