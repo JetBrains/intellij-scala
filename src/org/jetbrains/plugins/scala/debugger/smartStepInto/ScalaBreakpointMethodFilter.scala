@@ -5,7 +5,7 @@ import com.intellij.debugger.engine._
 import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.util.Range
 import com.sun.jdi.{Location, Method}
-import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
@@ -44,7 +44,7 @@ class ScalaBreakpointMethodFilter(psiMethod: Option[PsiMethod],
       case None => //is created for fun expression
         method.name == "apply" || method.name.startsWith("apply$")
       case Some(m) =>
-        val javaName = if (m.isConstructor) "<init>" else ScalaNamesUtil.toJavaName(m.name)
+        val javaName = inReadAction(if (m.isConstructor) "<init>" else ScalaNamesUtil.toJavaName(m.name))
         javaName == method.name && signatureMatches(method)
 
     }
@@ -66,7 +66,9 @@ object ScalaBreakpointMethodFilter {
         case Some(e: ScExpression) =>  from(Some(funDef), Seq(e), exprLines)
         case _ => None
       }
-    case pc: ScPrimaryConstructor => from(Some(pc), stmtsForTemplate(pc.containingClass), exprLines)
+    case pc: ScPrimaryConstructor =>
+      val statements = stmtsForTemplate(pc.containingClass)
+      from(Some(pc), statements, exprLines)
     case fake: FakePsiMethod =>
       fake.navElement match {
         case newTp: ScNewTemplateDefinition => from(Some(fake), stmtsForTemplate(newTp), exprLines)
@@ -76,8 +78,12 @@ object ScalaBreakpointMethodFilter {
   }
 
   def from(psiMethod: Option[PsiMethod], stmts: Seq[ScBlockStatement], exprLines: Range[Integer]): Option[ScalaBreakpointMethodFilter] = {
-    val firstPos = stmts.headOption.map(SourcePosition.createFromElement)
-    val lastPos = stmts.lastOption.map(SourcePosition.createFromElement)
+    from(psiMethod, stmts.headOption, stmts.lastOption, exprLines)
+  }
+
+  def from(psiMethod: Option[PsiMethod], first: Option[PsiElement], last: Option[PsiElement], exprLines: Range[Integer]): Option[ScalaBreakpointMethodFilter] = {
+    val firstPos = first.map(SourcePosition.createFromElement)
+    val lastPos = last.map(SourcePosition.createFromElement)
     Some(new ScalaBreakpointMethodFilter(psiMethod, firstPos, lastPos, exprLines))
   }
 
