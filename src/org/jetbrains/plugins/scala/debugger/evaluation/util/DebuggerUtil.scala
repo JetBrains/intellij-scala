@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ValueClassType}
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -168,7 +168,16 @@ object DebuggerUtil {
 
       case _ => Seq.empty
     }
-    val parameters = function.effectiveParameterClauses.flatMap(_.effectiveParameters) ++ localParameters
+    val valueClassParameter = function.containingClass match {
+      case cl: ScClass if ValueClassType.isValueClass(cl) =>
+        cl.constructors match {
+          case Array(pc: ScPrimaryConstructor) => pc.parameters.headOption
+          case _ => None
+        }
+      case _ => None
+    }
+    val simpleParameters = function.effectiveParameterClauses.flatMap(_.effectiveParameters)
+    val parameters = valueClassParameter ++: simpleParameters ++: localParameters
     val paramTypes = parameters.map(parameterForJVMSignature(_, subst)).mkString("(", "", ")")
     val resultType = function match {
       case fun: ScFunction if !fun.isConstructor =>
@@ -330,6 +339,7 @@ object DebuggerUtil {
           val qual = t.getQualifiedNameForDebugger + (t match {
             case t: ScTrait if withPostfix => "$class"
             case o: ScObject if withPostfix || o.isPackageObject => "$"
+            case c: ScClass if withPostfix && ValueClassType.isValueClass(c) => "$" //methods from a value class always delegate to the companion object
             case _ => ""
           })
           JVMNameUtil.getJVMRawText(qual)
@@ -343,7 +353,7 @@ object DebuggerUtil {
     val children: Array[ASTNode] = if (node != null) node.getChildren(null) else Array.empty[ASTNode]
     if (children.isEmpty) {
       val position = SourcePosition.createFromElement(elem)
-      if (lines.find(_.getLine == position.getLine) == None) {
+      if (!lines.exists(_.getLine == position.getLine)) {
         lines += position
       }
     }
@@ -423,7 +433,7 @@ object DebuggerUtil {
     val buf = new mutable.HashSet[ScTypedDefinition]
     block.accept(new ScalaRecursiveElementVisitor {
       override def visitReference(ref: ScReferenceElement) {
-        if (ref.qualifier != None) {
+        if (ref.qualifier.isDefined) {
           super.visitReference(ref)
           return
         }
