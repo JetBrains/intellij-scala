@@ -16,7 +16,7 @@ class ScalaProjectData(val owner: ProjectSystemId,
 
 object ScalaProjectData {
   val Key: Key[ScalaProjectData] = new Key(classOf[ScalaProjectData].getName,
-    ProjectKeys.PROJECT.getProcessingWeight + 1)
+    ProjectKeys.MODULE.getProcessingWeight + 1)
 
   trait Sdk
   case class Jdk(version: String) extends Sdk
