@@ -5,12 +5,40 @@ import com.intellij.openapi.module.StdModuleTypes
 import org.jetbrains.sbt.project.data._
 
 /**
+ * DSL for runtime building of External System projects.
+ *
+ * Example usage:
+ *
+ *   val testProject = new project {
+ *     name := "Some name"
+ *     ...
+ *
+ *     val library1 := new library {
+ *       name := "Some library name"
+ *     }
+ *     val library2 := new library {
+ *       name := "Another library name"
+ *     }
+ *     libraries ++= Seq(library1, library2)
+ *
+ *     val module1 = new module {
+ *       name := "Some module name"
+ *       ...
+ *       libraryDependencies += library1
+ *     }
+ *     modules += module1
+ *   }
+ *   val testProjectDataNode = testProject.build.toDataNode
+ *
+ * More examples are in test cases in org.jetbrains.sbt.project package
+ *
  * @author Nikolay Obedin
  * @since 6/5/15.
  */
 object ExternalSystemDsl {
 
   class Attribute[T](val key: String)
+
   trait ProjectAttribute
   trait ModuleAttribute
   trait LibraryAttribute
@@ -47,11 +75,19 @@ object ExternalSystemDsl {
       attributes = attributes + ((attribute, m.toString) -> value)
   }
 
+  /**
+   * Assignment to specific attribute
+   * Implicit conversion to this class is used to create a fancy DSL
+   */
   class AttributeDef[T : Manifest](attribute: Attribute[T], attributes: AttributeMap) {
     def :=(newValue: => T): Unit =
       attributes.put(attribute, newValue)
   }
 
+  /**
+   * Appending and concatenating values of attributes that have sequential type
+   * Implicit conversion to this class is used to create a fancy DSL
+   */
   class AttributeSeqDef[T](attribute: Attribute[Seq[T]], attributes: AttributeMap)(implicit m: Manifest[Seq[T]]) {
     def +=(newValue: => T): Unit = {
       val newSeq = attributes.get(attribute).getOrElse(Seq.empty) :+ newValue
@@ -89,13 +125,6 @@ object ExternalSystemDsl {
       node
     }
 
-    private val attributes = new AttributeMap
-
-    protected implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with ProjectAttribute): AttributeDef[T] =
-      new AttributeDef(attribute, attributes)
-    protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ProjectAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
-      new AttributeSeqDef(attribute, attributes)
-
     private def createModuleDependencies(moduleToNode: Map[module, ModuleNode]): Unit =
       moduleToNode.foreach { case (module, moduleNode) =>
         module.getModuleDependencies.foreach { dependency =>
@@ -113,6 +142,13 @@ object ExternalSystemDsl {
           }
         }
       }
+
+    private val attributes = new AttributeMap
+
+    protected implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with ProjectAttribute): AttributeDef[T] =
+      new AttributeDef(attribute, attributes)
+    protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ProjectAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
+      new AttributeSeqDef(attribute, attributes)
   }
 
   abstract class module {
