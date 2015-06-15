@@ -4,8 +4,11 @@ import java.io.File
 
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException, Key}
+import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import org.jetbrains.plugins.gradle.model.data.{ScalaCompileOptionsData, ScalaModelData}
+import org.jetbrains.plugins.scala.project.DebuggingInfoLevel
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.sbt.UsefulTestCaseHelper
 import org.jetbrains.sbt.project.ExternalSystemDsl._
 import org.jetbrains.sbt.project.data._
@@ -20,7 +23,7 @@ import scala.collection.JavaConverters._
  */
 class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulTestCaseHelper {
 
-  def generateProject(scalaVersion: Option[String], scalaCompilerClasspath: Set[File]): DataNode[ProjectData] =
+  def generateProject(scalaVersion: Option[String], scalaCompilerClasspath: Set[File], compilerOptions: Option[ScalaCompileOptionsData]): DataNode[ProjectData] =
     new project {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
@@ -44,7 +47,7 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
           override protected def key: Key[ScalaModelData] = ScalaModelData.KEY
 
           data.setScalaClasspath(scalaCompilerClasspath.asJava)
-          data.setScalaCompileOptions(new ScalaCompileOptionsData)
+          data.setScalaCompileOptions(compilerOptions.getOrElse(new ScalaCompileOptionsData))
           data.setTargetCompatibility("1.5")
         }
       }
@@ -55,30 +58,80 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
 
   def testEmptyScalaCompilerClasspath(): Unit =
     assertException[ExternalSystemException](compilerVersionError) {
-      importProjectData(generateProject(None, Set.empty))
+      importProjectData(generateProject(None, Set.empty, None))
     }
 
   def testScalaCompilerClasspathWithoutScala(): Unit =
     assertException[ExternalSystemException](compilerVersionError) {
-      importProjectData(generateProject(None, Set(new File("/tmp/test/not-a-scala-library.jar"))))
+      importProjectData(generateProject(None, Set(new File("/tmp/test/not-a-scala-library.jar")), None))
     }
 
   def testWithoutScalaLibrary(): Unit =
     assertException[ExternalSystemException](scalaLibraryError) {
-      importProjectData(generateProject(None, Set(new File("/tmp/test/scala-library-2.10.4.jar"))))
+      importProjectData(generateProject(None, Set(new File("/tmp/test/scala-library-2.10.4.jar")), None))
     }
 
   def testWithDifferentVersionOfScalaLibrary(): Unit =
     assertException[ExternalSystemException](scalaLibraryError) {
-      importProjectData(generateProject(Some("2.11.5"), Set(new File("/tmp/test/scala-library-2.10.4.jar"))))
+      importProjectData(generateProject(Some("2.11.5"), Set(new File("/tmp/test/scala-library-2.10.4.jar")), None))
     }
 
   def testWithTheSameVersionOfScalaLibrary(): Unit = {
-    importProjectData(generateProject(Some("2.10.4"), Set(new File("/tmp/test/scala-library-2.10.4.jar"))))
+    importProjectData(generateProject(Some("2.10.4"), Set(new File("/tmp/test/scala-library-2.10.4.jar")), None))
 
     import org.jetbrains.plugins.scala.project._
     val isLibrarySetUp = ProjectLibraryTable.getInstance(getProject).getLibraries.filter(_.getName.contains("scala-library")).exists(_.isScalaSdk)
     assert(isLibrarySetUp, "Scala library is not set up")
+  }
+
+  def testCompilerOptionsSetup(): Unit = {
+    val additionalOptions = Seq(
+      "-Xplugin:test-plugin.jar",
+      "-Xexperimental",
+      "-P:continuations:enable",
+      "-language:dynamics",
+      "-language:existentials",
+      "-explaintypes",
+      "-feature",
+      "-language:higherKinds",
+      "-language:implicitConversions",
+      "-language:macros",
+      "-language:postfixOps",
+      "-language:reflectiveCalls",
+      "-no-specialization",
+      "-nowarn"
+    )
+
+    val options = new ScalaCompileOptionsData
+    options.setDebugLevel("source")
+    options.setEncoding("utf-8")
+    options.setDeprecation(true)
+    options.setOptimize(true)
+    options.setUnchecked(true)
+    options.setAdditionalParameters(additionalOptions.asJava)
+
+    importProjectData(generateProject(Some("2.10.4"), Set(new File("/tmp/test/scala-library-2.10.4.jar")), Some(options)))
+    val module = ModuleManager.getInstance(getProject).findModuleByName("Module 1")
+    val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(getProject).getSettingsForModule(module)
+
+    assert(compilerConfiguration.debuggingInfoLevel == DebuggingInfoLevel.Source)
+    assert(compilerConfiguration.plugins == Seq("test-plugin.jar"))
+    assert(compilerConfiguration.additionalCompilerOptions.toSet == Set("-Xexperimental", "-encoding utf-8", "-target:jvm-1.5"))
+    assert(compilerConfiguration.continuations)
+    assert(compilerConfiguration.deprecationWarnings)
+    assert(compilerConfiguration.dynamics)
+    assert(compilerConfiguration.existentials)
+    assert(compilerConfiguration.explainTypeErrors)
+    assert(compilerConfiguration.featureWarnings)
+    assert(compilerConfiguration.higherKinds)
+    assert(compilerConfiguration.implicitConversions)
+    assert(compilerConfiguration.macros)
+    assert(compilerConfiguration.optimiseBytecode)
+    assert(compilerConfiguration.postfixOps)
+    assert(compilerConfiguration.reflectiveCalls)
+    assert(!compilerConfiguration.specialization)
+    assert(compilerConfiguration.uncheckedWarnings)
+    assert(!compilerConfiguration.warnings)
   }
 
   def testModuleIsNull(): Unit = {
