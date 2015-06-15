@@ -11,8 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.gradle.model.data.ScalaModelData
 import org.jetbrains.plugins.scala.project._
-
-import org.jetbrains.sbt.project.data.{AbstractDataService, SafeProjectStructureHelper}
+import org.jetbrains.sbt.project.data.service.{SafeProjectStructureHelper, AbstractDataService}
 
 import scala.collection.JavaConverters._
 

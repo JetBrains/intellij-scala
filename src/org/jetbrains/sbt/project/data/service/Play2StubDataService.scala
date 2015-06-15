@@ -1,9 +1,10 @@
-package org.jetbrains.sbt.project.data
+package org.jetbrains.sbt.project.data.service
 
 import java.util
 
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.project.Project
+import org.jetbrains.sbt.project.data.Play2ProjectData
 
 /**
  * User: Dmitry.Naydanov
