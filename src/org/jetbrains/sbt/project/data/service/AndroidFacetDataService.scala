@@ -1,19 +1,18 @@
 package org.jetbrains.sbt
-package project.data
-
+package project.data.service
 
 import java.io.File
 import java.util
 
 import com.intellij.facet.FacetManager
-import com.intellij.openapi.externalSystem.model.project.ModuleData
-import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
-import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
+import com.intellij.openapi.externalSystem.model.DataNode
+import com.intellij.openapi.externalSystem.service.project.ProjectStructureHelper
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.SystemProperties
 import org.jetbrains.android.facet.{AndroidFacet, AndroidFacetType, AndroidRootUtil}
+import org.jetbrains.sbt.project.data.AndroidFacetData
 
 import scala.collection.JavaConverters._
 
@@ -21,7 +20,7 @@ import scala.collection.JavaConverters._
  * @author Nikolay Obedin
  * @since 8/12/14.
  */
-class SbtAndroidFacetDataService(val helper: ProjectStructureHelper)
+class AndroidFacetDataService(val helper: ProjectStructureHelper)
         extends AbstractDataService[AndroidFacetData, AndroidFacet](AndroidFacetData.Key)
         with SafeProjectStructureHelper {
 

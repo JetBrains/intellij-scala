@@ -3,7 +3,7 @@
 <idea-plugin version="2">
 
   <extensions defaultExtensionNs="com.intellij">
-    <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtAndroidFacetDataService"/>
+    <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.AndroidFacetDataService"/>
   </extensions>
 
 </idea-plugin>
