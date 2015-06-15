@@ -6,17 +6,17 @@ import com.intellij.debugger.{DebuggerBundle, SourcePosition}
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi._
-import com.sun.jdi.{ReferenceType, ObjectReference, Value}
-import org.jetbrains.plugins.scala.debugger.evaluation.{ScalaEvaluatorBuilderUtil, EvaluationException}
+import com.intellij.psi.util.PsiTreeUtil
+import com.sun.jdi.{ObjectReference, ReferenceType, Value}
+import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ScalaEvaluatorBuilderUtil}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor, ScReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -199,6 +199,7 @@ object DebuggerUtil {
 
   private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor) = param match {
       case p: ScParameter if p.isRepeatedParameter => "Lscala/collection/Seq;"
+      case p: ScParameter if p.isCallByNameParameter => "Lscala/Function0;"
       case _ => getJVMStringForType(subst.subst(param.getType(TypingContext.empty).getOrAny))
     }
   
@@ -328,7 +329,7 @@ object DebuggerUtil {
         } else {
           val qual = t.getQualifiedNameForDebugger + (t match {
             case t: ScTrait if withPostfix => "$class"
-            case o: ScObject if withPostfix => "$"
+            case o: ScObject if withPostfix || o.isPackageObject => "$"
             case _ => ""
           })
           JVMNameUtil.getJVMRawText(qual)
