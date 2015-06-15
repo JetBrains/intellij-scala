@@ -18,7 +18,7 @@ class SbtModuleDataServiceTest extends ProjectDataServiceTestCase {
 
   import ExternalSystemDsl._
 
-  def generateProject(imports: Seq[String], resolvers: Set[SbtResolver]): DataNode[ProjectData] =
+  private def generateProject(imports: Seq[String], resolvers: Set[SbtResolver]): DataNode[ProjectData] =
     new project {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
@@ -68,7 +68,6 @@ class SbtModuleDataServiceTest extends ProjectDataServiceTestCase {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-
       arbitraryNodes += new SbtModuleNode(Seq("some import"), Set.empty)
     }.build.toDataNode
 

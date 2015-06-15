@@ -23,7 +23,8 @@ import scala.collection.JavaConverters._
  */
 class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulTestCaseHelper {
 
-  def generateProject(scalaVersion: Option[String], scalaCompilerClasspath: Set[File], compilerOptions: Option[ScalaCompileOptionsData]): DataNode[ProjectData] =
+  private def generateProject(scalaVersion: Option[String], scalaCompilerClasspath: Set[File],
+      compilerOptions: Option[ScalaCompileOptionsData]): DataNode[ProjectData] =
     new project {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
@@ -53,8 +54,8 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
       }
     }.build.toDataNode
 
-  val compilerVersionError = Some("Cannot determine Scala compiler version for module Module 1")
-  val scalaLibraryError = Some("Cannot find project Scala library 2.10.4 for module Module 1")
+  private val compilerVersionError = Some("Cannot determine Scala compiler version for module Module 1")
+  private val scalaLibraryError = Some("Cannot find project Scala library 2.10.4 for module Module 1")
 
   def testEmptyScalaCompilerClasspath(): Unit =
     assertException[ExternalSystemException](compilerVersionError) {
