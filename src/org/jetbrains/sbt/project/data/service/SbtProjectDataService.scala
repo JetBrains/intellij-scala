@@ -1,5 +1,6 @@
 package org.jetbrains.sbt
 package project.data
+package service
 
 import java.util
 
@@ -7,7 +8,7 @@ import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.compiler.{CompilerConfiguration, CompilerConfigurationImpl}
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
-import com.intellij.openapi.module.{ModuleUtil, ModuleManager}
+import com.intellij.openapi.module.{ModuleManager, ModuleUtil}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
@@ -16,6 +17,7 @@ import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
 import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.sbt.project.data.SbtProjectData$
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
 
@@ -25,14 +27,14 @@ import scala.collection.JavaConverters._
  * @author Pavel Fatin
  */
 class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStructureHelper)
-  extends AbstractDataService[ScalaProjectData, Project](ScalaProjectData.Key) {
+  extends AbstractDataService[SbtProjectData, Project](SbtProjectData.Key) {
 
-  def doImportData(toImport: util.Collection[DataNode[ScalaProjectData]], project: Project) =
+  def doImportData(toImport: util.Collection[DataNode[SbtProjectData]], project: Project) =
     toImport.asScala.foreach(node => doImportData(project, node.getData))
 
   def doRemoveData(toRemove: util.Collection[_ <: Project], project: Project) {}
 
-  private def doImportData(project: Project, data: ScalaProjectData): Unit = {
+  private def doImportData(project: Project, data: SbtProjectData): Unit = {
     ScalaProjectSettings.getInstance(project).setBasePackages(data.basePackages.asJava)
     configureJdk(project, data)
     updateJavaCompilerOptionsIn(project, data.javacOptions)
@@ -41,13 +43,13 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
     updateIncrementalityType(project)
   }
 
-  private def configureJdk(project: Project, data: ScalaProjectData): Unit = {
+  private def configureJdk(project: Project, data: SbtProjectData): Unit = {
     val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
     val projectJdk = data.jdk.flatMap(findJdkBy).orElse(existingJdk).orElse(allJdks.headOption)
     projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
   }
 
-  private def setLanguageLevel(project: Project, data: ScalaProjectData): Unit = {
+  private def setLanguageLevel(project: Project, data: SbtProjectData): Unit = {
     val projectJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
     val javaLanguageLevel = javaLanguageLevelFrom(data.javacOptions)
       .orElse(projectJdk.flatMap(defaultJavaLanguageLevelIn))
@@ -57,7 +59,7 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
     }
   }
 
-  private def setSbtVersion(project: Project, data: ScalaProjectData): Unit =
+  private def setSbtVersion(project: Project, data: SbtProjectData): Unit =
     Option(SbtSystemSettings.getInstance(project).getLinkedProjectSettings(data.projectPath))
       .foreach(s => s.sbtVersion = data.sbtVersion)
 
@@ -67,9 +69,9 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
       ScalaCompilerConfiguration.instanceIn(project).incrementalityType = IncrementalityType.SBT
   }
 
-  private def findJdkBy(sdk: ScalaProjectData.Sdk): Option[Sdk] = sdk match {
-    case ScalaProjectData.Android(version) => findAndroidJdkByVersion(version)
-    case ScalaProjectData.Jdk(version) => allJdks.find(_.getName.contains(version))
+  private def findJdkBy(sdk: SbtProjectData.Sdk): Option[Sdk] = sdk match {
+    case SbtProjectData.Android(version) => findAndroidJdkByVersion(version)
+    case SbtProjectData.Jdk(version) => allJdks.find(_.getName.contains(version))
   }
 
   private def allAndroidSdks: Seq[Sdk] =

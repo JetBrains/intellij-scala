@@ -14,7 +14,7 @@ import org.jetbrains.sbt.project.data.AndroidFacetNode
  * @author Nikolay Obedin
  * @since 6/15/15.
  */
-class SbtAndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
+class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
 
   import ExternalSystemDsl._
 

@@ -26,10 +26,10 @@
         <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.sbt.editor.documentationProvider.SbtDocumentationProvider" order="first"/>
 
         <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
-        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.ScalaSdkDataService"/>
-        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtProjectDataService"/>
-        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.SbtModuleDataService"/>
-        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.Play2StubDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.ScalaSdkDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtProjectDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.Play2StubDataService"/>
         <externalSystemConfigLocator implementation="org.jetbrains.sbt.project.SbtConfigLocator"/>
 
         <projectService serviceImplementation="org.jetbrains.sbt.settings.SbtSystemSettings"/>
