@@ -76,10 +76,19 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
     ProjectJdkTable.getInstance().getSdksOfType(AndroidSdkType.getInstance()).asScala
 
   private def findAndroidJdkByVersion(version: String): Option[Sdk] = {
+    def isGEQAsInt(fst: String, snd: String): Boolean =
+      try {
+        val fstInt = fst.toInt
+        val sndInt = snd.toInt
+        fstInt >= sndInt
+      } catch {
+        case exc: NumberFormatException => false
+      }
+
     val matchingSdks = for {
       sdk <- allAndroidSdks
       platformVersion <- Option(AndroidPlatform.getInstance(sdk)).map(_.getApiLevel.toString)
-      if (platformVersion == version)
+      if (isGEQAsInt(platformVersion, version))
     } yield sdk
     matchingSdks.headOption
   }
