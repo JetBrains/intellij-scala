@@ -21,24 +21,26 @@ import scala.collection.JavaConverters._
  * @author Nikolay Obedin
  * @since 8/12/14.
  */
-class SbtAndroidFacetDataService(platformFacade: PlatformFacade, helper: ProjectStructureHelper)
-        extends AbstractDataService[AndroidFacetData, AndroidFacet](AndroidFacetData.Key) {
+class SbtAndroidFacetDataService(val helper: ProjectStructureHelper)
+        extends AbstractDataService[AndroidFacetData, AndroidFacet](AndroidFacetData.Key)
+        with SafeProjectStructureHelper {
 
   def doImportData(toImport: util.Collection[DataNode[AndroidFacetData]], project: Project) {
     toImport.asScala.foreach { facetNode =>
-      val moduleData: ModuleData = facetNode.getData(ProjectKeys.MODULE)
       for {
-        module <- Option(helper.findIdeModule(moduleData.getExternalName, project))
+        module <- getIdeModuleByNode(facetNode, project)
         facetManager <- Option(FacetManager.getInstance(module))
-        facet = Option(facetManager.getFacetByType(AndroidFacet.ID)).getOrElse(createFacet(module))
+        facet = getOrCreateFacet(module, facetManager)
       } {
-        configureFacet(facet, facetNode.getData)
+        configureFacet(module, facet, facetNode.getData)
       }
     }
   }
 
-  private def createFacet(module: Module) = {
-    val facetManager = FacetManager.getInstance(module)
+  private def getOrCreateFacet(module: Module, facetManager: FacetManager): AndroidFacet =
+    Option(facetManager.getFacetByType(AndroidFacet.ID)).getOrElse(createFacet(module, facetManager))
+
+  private def createFacet(module: Module, facetManager: FacetManager) = {
     val model = facetManager.createModifiableModel
     val facet = facetManager.createFacet(new AndroidFacetType, "Android", null)
     model.addFacet(facet)
@@ -46,28 +48,27 @@ class SbtAndroidFacetDataService(platformFacade: PlatformFacade, helper: Project
     facet
   }
 
-  private def configureFacet(facet: AndroidFacet, data: AndroidFacetData) = {
-    val module = facet.getModule
-    val props = facet.getConfiguration.getState
+  private def configureFacet(module: Module, facet: AndroidFacet, data: AndroidFacetData) = {
+    val configuration = facet.getConfiguration.getState
 
     val base = AndroidRootUtil.getModuleDirPath(module)
     def getRelativePath(f: File) = "/" + FileUtil.getRelativePath(base, FileUtil.toSystemIndependentName(f.getAbsolutePath), '/')
 
-    props.GEN_FOLDER_RELATIVE_PATH_APT = getRelativePath(data.gen)
-    props.GEN_FOLDER_RELATIVE_PATH_AIDL = getRelativePath(data.gen)
-    props.MANIFEST_FILE_RELATIVE_PATH = getRelativePath(data.manifest)
-    props.RES_FOLDER_RELATIVE_PATH = getRelativePath(data.res)
-    props.ASSETS_FOLDER_RELATIVE_PATH = getRelativePath(data.assets)
-    props.LIBS_FOLDER_RELATIVE_PATH = getRelativePath(data.libs)
-    props.APK_PATH = getRelativePath(data.apk)
-    props.LIBRARY_PROJECT = data.isLibrary
-    props.myProGuardCfgFiles = new util.ArrayList[String]()
+    configuration.GEN_FOLDER_RELATIVE_PATH_APT = getRelativePath(data.gen)
+    configuration.GEN_FOLDER_RELATIVE_PATH_AIDL = getRelativePath(data.gen)
+    configuration.MANIFEST_FILE_RELATIVE_PATH = getRelativePath(data.manifest)
+    configuration.RES_FOLDER_RELATIVE_PATH = getRelativePath(data.res)
+    configuration.ASSETS_FOLDER_RELATIVE_PATH = getRelativePath(data.assets)
+    configuration.LIBS_FOLDER_RELATIVE_PATH = getRelativePath(data.libs)
+    configuration.APK_PATH = getRelativePath(data.apk)
+    configuration.LIBRARY_PROJECT = data.isLibrary
+    configuration.myProGuardCfgFiles = new util.ArrayList[String]()
 
     if (data.proguardConfig.nonEmpty) {
       val proguardFile = new File(module.getProject.getBasePath) / "proguard-sbt.txt"
       FileUtil.writeToFile(proguardFile, data.proguardConfig.mkString(SystemProperties.getLineSeparator))
-      props.myProGuardCfgFiles.add(proguardFile.getCanonicalPath)
-      props.RUN_PROGUARD = true
+      configuration.myProGuardCfgFiles.add(proguardFile.getCanonicalPath)
+      configuration.RUN_PROGUARD = true
     }
   }
 
