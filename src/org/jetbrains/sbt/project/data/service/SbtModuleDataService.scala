@@ -1,13 +1,12 @@
-package org.jetbrains.sbt
-package project.data
+package org.jetbrains.sbt.project.data.service
 
 import java.util
 
-import com.intellij.openapi.externalSystem.model.project.ModuleData
-import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
-import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
+import com.intellij.openapi.externalSystem.model.DataNode
+import com.intellij.openapi.externalSystem.service.project.ProjectStructureHelper
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import org.jetbrains.sbt.project.data.SbtModuleData
 import org.jetbrains.sbt.project.module.SbtModule
 import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndex, SbtResolverIndexesManager}
 

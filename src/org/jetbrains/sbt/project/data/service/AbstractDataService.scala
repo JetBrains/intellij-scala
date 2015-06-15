@@ -1,5 +1,4 @@
-package org.jetbrains.sbt
-package project.data
+package org.jetbrains.sbt.project.data.service
 
 import java.util
 

@@ -1,15 +1,17 @@
-package org.jetbrains.sbt
-package project.data
+package org.jetbrains.sbt.project.data.service
 
 import java.io.File
 import java.util
-import com.intellij.openapi.externalSystem.model.{ProjectKeys, ExternalSystemException, DataNode}
+
+import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
+import com.intellij.openapi.externalSystem.service.project.ProjectStructureHelper
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.externalSystem.service.project.{ProjectStructureHelper, PlatformFacade}
 import org.jetbrains.plugins.scala.project._
-import collection.JavaConverters._
+import org.jetbrains.sbt.project.data.ScalaSdkData
+
+import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin

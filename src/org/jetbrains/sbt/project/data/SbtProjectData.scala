@@ -7,15 +7,15 @@ import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys, ProjectSyste
 /**
  * @author Pavel Fatin
  */
-class ScalaProjectData(val owner: ProjectSystemId,
+class SbtProjectData(val owner: ProjectSystemId,
                        val basePackages: Seq[String],
-                       val jdk: Option[ScalaProjectData.Sdk],
+                       val jdk: Option[SbtProjectData.Sdk],
                        val javacOptions: Seq[String],
                        val sbtVersion: String,
                        val projectPath: String) extends AbstractExternalEntityData(owner)
 
-object ScalaProjectData {
-  val Key: Key[ScalaProjectData] = new Key(classOf[ScalaProjectData].getName,
+object SbtProjectData {
+  val Key: Key[SbtProjectData] = new Key(classOf[SbtProjectData].getName,
     ProjectKeys.MODULE.getProcessingWeight + 1)
 
   trait Sdk

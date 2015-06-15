@@ -1,6 +1,6 @@
-package org.jetbrains.sbt.project.data
+package org.jetbrains.sbt.project.data.service
 
-import com.intellij.openapi.externalSystem.model.{ProjectKeys, DataNode}
+import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ProjectStructureHelper
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
