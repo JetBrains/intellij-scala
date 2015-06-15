@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.smartStepInto
 
 import java.util.{Collections, List => JList}
-import javax.swing.Icon
 
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.actions.{JvmSmartStepIntoHandler, MethodSmartStepTarget, SmartStepTarget}
@@ -12,16 +11,13 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Range
 import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.plugins.scala.codeInspection.collections.{MethodRepr, stripped}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt, ResolvesTo, childOf}
-import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
-import org.jetbrains.plugins.scala.lang.psi.types.StdType
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -88,10 +84,10 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
     stepTarget match {
       case methodTarget: MethodSmartStepTarget =>
         val scalaFilter = methodTarget.getMethod match {
-          case fun: ScFunction if fun.isLocal =>
-            Some(new LocalFunctionMethodFilter(fun, stepTarget.getCallingExpressionLines))
-          case psiMethod if stepTarget.needsBreakpointRequest() =>
-            ScalaBreakpointMethodFilter.from(psiMethod, stepTarget.getCallingExpressionLines)
+          case f @ (_: ScMethodLike | _: FakeAnonymousClassConstructor) if stepTarget.needsBreakpointRequest() =>
+            ScalaBreakpointMethodFilter.from(f, stepTarget.getCallingExpressionLines)
+          case fun: ScMethodLike =>
+            Some(new ScalaMethodFilter(fun, stepTarget.getCallingExpressionLines))
           case _ => None
         }
         scalaFilter.getOrElse(super.createMethodFilter(stepTarget))
@@ -119,40 +115,27 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
       val extBl = templ.extendsBlock
       var label = ""
 
-      def findConstructorAndMethod: Option[(ScConstructor, PsiMethod)] = {
-        for {
-          tp <- extBl.templateParents
-          typeElem <- tp.typeElements.headOption
-          constr <- findConstructor(typeElem)
-          ref <- constr.reference
-          resolve @ (_: PsiMethod | _: PsiClass) <- ref.resolve().toOption
-        } yield {
-          resolve match {
-            case m: PsiMethod => (constr, m)
-            case i: PsiClass if i.isInterface => (constr, fakeConstructor(i.name))
-          }
-        }
-      }
-
       def findConstructor(typeElem: ScTypeElement): Option[ScConstructor] = typeElem match {
         case p: ScParameterizedTypeElement => p.findConstructor
         case s: ScSimpleTypeElement => s.findConstructor
         case _ => None
       }
 
-      def fakeConstructor(interfaceName: String): PsiMethod = {
-        new FakePsiMethod(templ, interfaceName, Array.empty, StdType.UNIT, _ => false) {
-          override def isConstructor: Boolean = true
+      def addConstructor(): Unit = {
+        for {
+          tp <- extBl.templateParents
+          typeElem <- tp.typeElements.headOption
+          constr <- findConstructor(typeElem)
+          ref <- constr.reference
+        } yield {
+          label = constr.simpleTypeElement.fold("")(ste => s"new ${ste.getText}.")
 
-          override def getIcon(flags: Int): Icon = Icons.CLASS
-
-          override def equals(obj: scala.Any): Boolean = obj match {
-            case fake: FakePsiMethod =>
-              fake.navElement == this.navElement && fake.getName == this.getName
-            case _ => false
+          val generateAnonClass = tp.typeElementsWithoutConstructor.nonEmpty || extBl.templateBody.nonEmpty
+          val method = ref.resolve() match {
+            case m: PsiMethod if !generateAnonClass => m
+            case _ => new FakeAnonymousClassConstructor(templ, ref.refName)
           }
-
-          override def hashCode() = navElement.hashCode() + 31 * getName.hashCode
+          result += new MethodSmartStepTarget(method, "new ", constr, /*needBreakpointRequest = */ generateAnonClass, noStopAtLines)
         }
       }
 
@@ -173,11 +156,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
         }
       }
 
-      for ((constr, method) <- findConstructorAndMethod) {
-        label = constr.simpleTypeElement.fold("")(ste => ste.getText + ".")
-        result += new MethodSmartStepTarget(method, "new ", constr, true, noStopAtLines)
-      }
-
+      addConstructor()
       addMethodsIfInArgument()
     }
 
