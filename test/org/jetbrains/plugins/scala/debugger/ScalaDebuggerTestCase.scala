@@ -17,7 +17,6 @@ import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.process.{ProcessAdapter, ProcessEvent, ProcessHandler, ProcessListener}
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
 import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Key
@@ -26,9 +25,9 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.concurrency.Semaphore
 import com.sun.jdi.VoidValue
-import junit.framework.Assert
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory
 import org.jetbrains.plugins.scala.extensions._
+import org.junit.Assert
 
 import scala.collection.mutable
 
@@ -42,6 +41,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   private val breakpoints: mutable.Set[(String, Int)] = mutable.Set.empty
 
   protected def runDebugger(mainClass: String, debug: Boolean = false)(callback: => Unit) {
+    var processHandler: ProcessHandler = null
     UsefulTestCase.edt(new Runnable {
       def run() {
         if (needMake) {
@@ -50,7 +50,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
         }
         addBreakpoints()
         val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find { _.getClass == classOf[GenericDebuggerRunner] }.get
-        runProcess(mainClass, getModule, classOf[DefaultDebugExecutor], new ProcessAdapter {
+        processHandler = runProcess(mainClass, getModule, classOf[DefaultDebugExecutor], new ProcessAdapter {
           override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
             val text = event.getText
             if (debug) print(text)
@@ -59,7 +59,8 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
       }
     })
     callback
-    resume()
+    getDebugProcess.stop(true)
+    processHandler.destroyProcess()
   }
 
   protected def runProcess(className: String,
@@ -78,11 +79,6 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     val processHandler: AtomicReference[ProcessHandler] = new AtomicReference[ProcessHandler]
     runner.execute(executionEnvironmentBuilder.build, new ProgramRunner.Callback {
       def processStarted(descriptor: RunContentDescriptor) {
-        disposeOnTearDown(new Disposable {
-          def dispose() {
-            descriptor.dispose()
-          }
-        })
         val handler: ProcessHandler = descriptor.getProcessHandler
         assert(handler != null)
         handler.addProcessListener(listener)
@@ -95,7 +91,6 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   }
 
   protected override def tearDown(): Unit = {
-    getDebugProcess.stop(true)
     super.tearDown()
   }
 
@@ -209,11 +204,15 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   protected def addOtherLibraries() = {}
 
   def checkLocation(source: String, methodName: String, lineNumber: Int): Unit = {
+    def format(s: String, mn: String, ln: Int) = s"$s:$mn:$ln"
     managed {
       val location = suspendContext.getFrameProxy.getStackFrame.location
-      Assert.assertEquals("Wrong source file:", source, location.sourceName)
-      Assert.assertEquals("Wrong method name:", methodName, location.method.name)
-      Assert.assertEquals("Wrong line:", lineNumber, location.lineNumber)
+      val expected = format(source, methodName, lineNumber)
+      val actualLine = inReadAction {
+        new ScalaPositionManager(getDebugProcess).getSourcePosition(location).getLine
+      }
+      val actual = format(location.sourceName, location.method().name(), actualLine + 1)
+      Assert.assertEquals("Wrong location:", expected, actual)
     }
   }
 }
