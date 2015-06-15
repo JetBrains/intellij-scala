@@ -16,7 +16,6 @@ import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
 import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.sbt.project.data.SbtProjectDataService._
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
 
@@ -28,69 +27,66 @@ import scala.collection.JavaConverters._
 class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStructureHelper)
   extends AbstractDataService[ScalaProjectData, Project](ScalaProjectData.Key) {
 
-  def doImportData(toImport: util.Collection[DataNode[ScalaProjectData]], project: Project) {
-    toImport.asScala.foreach { node =>
-      val data = node.getData
-
-      ScalaProjectSettings.getInstance(project).setBasePackages(data.basePackages.asJava)
-
-      val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
-
-      val projectJdk = data.jdk.flatMap(findJdkBy).orElse(existingJdk).orElse(allJdks.headOption)
-
-      projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
-
-      val javacOptions = data.javacOptions
-
-      updateJavaCompilerOptionsIn(project, javacOptions)
-
-      val javaLanguageLevel = javaLanguageLevelFrom(javacOptions)
-              .orElse(projectJdk.flatMap(defaultJavaLanguageLevelIn))
-
-      javaLanguageLevel.foreach(updateJavaLanguageLevelIn(project, _))
-
-      Option(SbtSystemSettings.getInstance(project).getLinkedProjectSettings(data.projectPath)).foreach { s =>
-        s.sbtVersion = data.sbtVersion
-      }
-
-      val modules = ModuleManager.getInstance(project).getModules
-      if (modules.exists(it => ModuleUtil.getModuleType(it) == SharedSourcesModuleType.instance)) {
-        ScalaCompilerConfiguration.instanceIn(project).incrementalityType = IncrementalityType.SBT
-      }
-    }
-  }
+  def doImportData(toImport: util.Collection[DataNode[ScalaProjectData]], project: Project) =
+    toImport.asScala.foreach(node => doImportData(project, node.getData))
 
   def doRemoveData(toRemove: util.Collection[_ <: Project], project: Project) {}
-}
 
-object SbtProjectDataService {
-  private val JavaLanguageLevels = Map(
-    "1.3" -> LanguageLevel.JDK_1_3,
-    "1.4" -> LanguageLevel.JDK_1_4,
-    "1.5" -> LanguageLevel.JDK_1_5,
-    "1.6" -> LanguageLevel.JDK_1_6,
-    "1.7" -> LanguageLevel.JDK_1_7,
-    "1.8" -> LanguageLevel.JDK_1_8,
-    "1.9" -> LanguageLevel.JDK_1_9)
-  
-  def findJdkBy(sdk: ScalaProjectData.Sdk): Option[Sdk] = sdk match {
-    case ScalaProjectData.Android(version) => findAndroidJdkByVersion(version)
-    case ScalaProjectData.Jdk(version) => Option(ProjectJdkTable.getInstance().findJdk(version))
+  private def doImportData(project: Project, data: ScalaProjectData): Unit = {
+    ScalaProjectSettings.getInstance(project).setBasePackages(data.basePackages.asJava)
+    configureJdk(project, data)
+    updateJavaCompilerOptionsIn(project, data.javacOptions)
+    setLanguageLevel(project, data)
+    setSbtVersion(project, data)
+    updateIncrementalityType(project)
   }
 
-  def findAndroidJdkByVersion(version: String): Option[Sdk] = {
-    val sdks = ProjectJdkTable.getInstance().getSdksOfType(AndroidSdkType.getInstance()).asScala
-    for (sdk <- sdks) {
-      val platformVersion = Option(AndroidPlatform.getInstance(sdk)).map { _.getApiLevel.toString }
-      if (platformVersion.fold(false){ _ == version })
-        return Some(sdk)
+  private def configureJdk(project: Project, data: ScalaProjectData): Unit = {
+    val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
+    val projectJdk = data.jdk.flatMap(findJdkBy).orElse(existingJdk).orElse(allJdks.headOption)
+    projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
+  }
+
+  private def setLanguageLevel(project: Project, data: ScalaProjectData): Unit = {
+    val projectJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
+    val javaLanguageLevel = javaLanguageLevelFrom(data.javacOptions)
+      .orElse(projectJdk.flatMap(defaultJavaLanguageLevelIn))
+    javaLanguageLevel.foreach { level =>
+      val extension = LanguageLevelProjectExtension.getInstance(project)
+      extension.setLanguageLevel(level)
     }
-    None
   }
 
-  def allJdks: Seq[Sdk] = ProjectJdkTable.getInstance.getSdksOfType(JavaSdk.getInstance).asScala
-  
-  def updateJavaCompilerOptionsIn(project: Project, options: Seq[String]) {
+  private def setSbtVersion(project: Project, data: ScalaProjectData): Unit =
+    Option(SbtSystemSettings.getInstance(project).getLinkedProjectSettings(data.projectPath))
+      .foreach(s => s.sbtVersion = data.sbtVersion)
+
+  private def updateIncrementalityType(project: Project): Unit = {
+    val modules = ModuleManager.getInstance(project).getModules
+    if (modules.exists(it => ModuleUtil.getModuleType(it) == SharedSourcesModuleType.instance))
+      ScalaCompilerConfiguration.instanceIn(project).incrementalityType = IncrementalityType.SBT
+  }
+
+  private def findJdkBy(sdk: ScalaProjectData.Sdk): Option[Sdk] = sdk match {
+    case ScalaProjectData.Android(version) => findAndroidJdkByVersion(version)
+    case ScalaProjectData.Jdk(version) => allJdks.find(_.getName.contains(version))
+  }
+
+  private def allAndroidSdks: Seq[Sdk] =
+    ProjectJdkTable.getInstance().getSdksOfType(AndroidSdkType.getInstance()).asScala
+
+  private def findAndroidJdkByVersion(version: String): Option[Sdk] = {
+    val matchingSdks = for {
+      sdk <- allAndroidSdks
+      platformVersion <- Option(AndroidPlatform.getInstance(sdk)).map(_.getApiLevel.toString)
+      if (platformVersion == version)
+    } yield sdk
+    matchingSdks.headOption
+  }
+
+  private def allJdks: Seq[Sdk] = ProjectJdkTable.getInstance.getSdksOfType(JavaSdk.getInstance).asScala
+
+  private def updateJavaCompilerOptionsIn(project: Project, options: Seq[String]) {
     val settings = JavacConfiguration.getOptions(project, classOf[JavacConfiguration])
 
     def contains(values: String*) = values.exists(options.contains)
@@ -117,38 +113,41 @@ object SbtProjectDataService {
     settings.ADDITIONAL_OPTIONS_STRING = customOptions.mkString(" ")
   }
 
-  def javaLanguageLevelFrom(options: Seq[String]): Option[LanguageLevel] = {
+  private def javaLanguageLevelFrom(options: Seq[String]): Option[LanguageLevel] = {
     valueOf("-source", options).flatMap(s => Option(LanguageLevel.parse(s)))
   }
 
-  def valueOf(name: String, options: Seq[String]): Option[String] =
+  private def valueOf(name: String, options: Seq[String]): Option[String] =
     Option(options.indexOf(name)).filterNot(-1 == _).flatMap(i => options.lift(i + 1))
 
-  def additionalOptionsFrom(options: Seq[String]): Seq[String] = {
+  private def additionalOptionsFrom(options: Seq[String]): Seq[String] = {
     val handledOptions = Set("-g:none", "-nowarn", "-Xlint:none", "-deprecation", "-Xlint:deprecation")
+
+    def removePair(name: String, options: Seq[String]): Seq[String] = {
+      val index = options.indexOf(name)
+
+      if (index == -1) options else {
+        val (prefix, suffix) = options.splitAt(index)
+        prefix ++ suffix.drop(2)
+      }
+    }
 
     removePair("-source", removePair("-target", options.filterNot(handledOptions.contains)))
   }
 
-  def removePair(name: String, options: Seq[String]): Seq[String] = {
-    val index = options.indexOf(name)
-
-    if (index == -1) options else {
-      val (prefix, suffix) = options.splitAt(index)
-      prefix ++ suffix.drop(2)
-    }
-  }
-
-  def defaultJavaLanguageLevelIn(jdk: Sdk): Option[LanguageLevel] = {
+  private def defaultJavaLanguageLevelIn(jdk: Sdk): Option[LanguageLevel] = {
+    val JavaLanguageLevels = Map(
+      "1.3" -> LanguageLevel.JDK_1_3,
+      "1.4" -> LanguageLevel.JDK_1_4,
+      "1.5" -> LanguageLevel.JDK_1_5,
+      "1.6" -> LanguageLevel.JDK_1_6,
+      "1.7" -> LanguageLevel.JDK_1_7,
+      "1.8" -> LanguageLevel.JDK_1_8,
+      "1.9" -> LanguageLevel.JDK_1_9)
     val jdkVersion = jdk.getVersionString
 
     JavaLanguageLevels.collectFirst {
       case (name, level) if jdkVersion.contains(name) => level
     }
-  }
-
-  def updateJavaLanguageLevelIn(project: Project, level: LanguageLevel) {
-    val extension = LanguageLevelProjectExtension.getInstance(project)
-    extension.setLanguageLevel(level)
   }
 }
