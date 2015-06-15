@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeE
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 
 import scala.annotation.tailrec
@@ -163,7 +164,8 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
     override def visitExpression(expr: ScExpression) {
       val implicits = expr.getImplicitConversions()._2
       implicits match {
-        case Some(f: PsiMethod) => result += new MethodSmartStepTarget(f, "implicit ", null, false, noStopAtLines)
+        case Some(f: PsiMethod) if f.isPhysical => //synthetic conversions are created for implicit classes
+          result += new MethodSmartStepTarget(f, "implicit ", expr, false, noStopAtLines)
         case _ =>
       }
 
@@ -176,6 +178,10 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
             case fun: ScFunctionDefinition if fun.name == "apply" && ref.refName != "apply" =>
               val prefix = s"${ref.refName}."
               result += new MethodSmartStepTarget(fun, prefix, ref.nameId, false, noStopAtLines)
+            case Both(f: ScFunctionDefinition, ContainingClass(cl: ScClass)) if cl.getModifierList.hasModifierProperty("implicit") =>
+              val isActuallyImplicit = ref.qualifier.exists(_.getImplicitConversions()._2.nonEmpty)
+              val prefix = if (isActuallyImplicit) "implicit " else null
+              result += new MethodSmartStepTarget(f, prefix, ref.nameId, false, noStopAtLines)
             case fun: PsiMethod =>
               result += new MethodSmartStepTarget(fun, null, ref.nameId, false, noStopAtLines)
             case _ =>
