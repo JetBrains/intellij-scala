@@ -32,7 +32,7 @@ import scala.collection.JavaConverters._
  * @author Nikolay Obedin
  * @since 6/15/15.
  */
-class SbtProjectDataServiceTest extends ProjectDataServiceTestCase with UsefulTestCaseHelper {
+class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
 
   override def setUp(): Unit = {
     super.setUp()
