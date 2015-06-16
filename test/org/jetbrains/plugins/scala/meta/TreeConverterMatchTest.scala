@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.meta
 
+import org.junit.Ignore
+
 import scala.meta.internal.ast._
 
 import scala.{Seq => _}
 import scala.collection.immutable.Seq
 
-class TreeConverterMatchTest extends TreeConverterTestBase {
+class TreeConverterMatchTest extends TreeConverterTestBaseWithLibrary {
 
   def testMatchRef() {
     doTest(
@@ -16,7 +18,11 @@ class TreeConverterMatchTest extends TreeConverterTestBase {
 
   def testMatchExtractorSimple() {
     doTest(
-      "a match { case Foo(bar, baz) => }",
+      """def f = {
+        |case class Foo(a: Any, b: Any)
+        |//start
+        |a match { case Foo(bar, baz) => }}
+        |""".stripMargin,
       Term.Match(Term.Name("a"), List(Case(Pat.Extract(Term.Name("Foo"), Nil,
         List(Pat.Var.Term(Term.Name("bar")), Pat.Var.Term(Term.Name("baz")))), None, Term.Block(Nil))))
     )
@@ -24,16 +30,16 @@ class TreeConverterMatchTest extends TreeConverterTestBase {
 
   def testMatchExtractorTypedArgs() {
     doTest(
-      "a match { case Foo(bar: Int, baz) => }",
-      Term.Match(Term.Name("a"), List(Case(Pat.Extract(Term.Name("Foo"), Nil, 
+      "a match { case Some(bar: Int, baz) => }",
+      Term.Match(Term.Name("a"), List(Case(Pat.Extract(Term.Name("Some"), Nil,
         List(Pat.Typed(Pat.Var.Term(Term.Name("bar")), Type.Name("Int")), Pat.Var.Term(Term.Name("baz")))), None, Term.Block(Nil))))
     )
   }
   
   def testMatchBinding() {
     doTest(
-      "a match { case b @ foo() => }",
-      Term.Match(Term.Name("a"), List(Case(Pat.Bind(Pat.Var.Term(Term.Name("b")), Pat.Extract(Term.Name("foo"), Nil, Nil)), None, Term.Block(Nil))))
+      "a match { case b @ Some() => }",
+      Term.Match(Term.Name("a"), List(Case(Pat.Bind(Pat.Var.Term(Term.Name("b")), Pat.Extract(Term.Name("Some"), Nil, Nil)), None, Term.Block(Nil))))
     )
   }
   
@@ -101,21 +107,21 @@ class TreeConverterMatchTest extends TreeConverterTestBase {
         |//start
         |a match { case _: (T Map U) => }}
       """.stripMargin,
-      Term.Block(Seq(Term.Match(Term.Name("a"), List(Case(Pat.Typed(Pat.Wildcard(), Pat.Type.ApplyInfix(Type.Name("T"), Type.Name("Map"), Type.Name("U"))), None, Term.Block(Nil))))))
+      Term.Match(Term.Name("a"), List(Case(Pat.Typed(Pat.Wildcard(), Pat.Type.ApplyInfix(Type.Name("T"), Type.Name("Map"), Type.Name("U"))), None, Term.Block(Nil))))
     )
   }
   
   def testMatchExtractorWildCardSeq() {
     doTest(
-      "a match { case foo(_*) => }",
-      Term.Match(Term.Name("a"), List(Case(Pat.Extract(Term.Name("foo"), Nil, List(Pat.Arg.SeqWildcard())), None, Term.Block(Nil))))
+      "a match { case Some(_*) => }",
+      Term.Match(Term.Name("a"), List(Case(Pat.Extract(Term.Name("Some"), Nil, List(Pat.Arg.SeqWildcard())), None, Term.Block(Nil))))
     )
   }
 
   def testMatchExtractorBoundWildCardSeq() {
     doTest(
-      "a match { case foo(x @ _*) => }",
-      Term.Match(Term.Name("a"), List(Case(Pat.Extract(Term.Name("foo"), Nil, List(Pat.Bind(Pat.Var.Term(Term.Name("x")), Pat.Arg.SeqWildcard()))), None, Term.Block(Nil))))
+      "a match { case Some(x @ _*) => }",
+      Term.Match(Term.Name("a"), List(Case(Pat.Extract(Term.Name("Some"), Nil, List(Pat.Bind(Pat.Var.Term(Term.Name("x")), Pat.Arg.SeqWildcard()))), None, Term.Block(Nil))))
     )
   }
   

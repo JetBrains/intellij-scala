@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.meta.trees
 
+import com.intellij.psi.PsiElement
+
 import scala.meta.internal.ast.Term.Param
 import scala.{Seq => _}
 import scala.collection.immutable.Seq
@@ -11,6 +13,13 @@ import scala.meta.internal.{semantic => h}
 
 trait Namer {
   self: Converter =>
+
+  def toName(elem: PsiElement): m.Term.Name = {
+    elem match {
+      case td: p.toplevel.typedef.ScTemplateDefinition => m.Term.Name(td.name).withDenot(td)
+      case ne: p.toplevel.ScNamedElement => m.Term.Name(ne.name).withDenot(ne)
+    }
+  }
 
   def toName(e: p.expr.ScExpression): m.Term.Name = {
     m.Term.Name(e.getText)
@@ -45,7 +54,7 @@ trait Namer {
   }
 
   def ref(cr: p.base.ScStableCodeReferenceElement): m.Term.Name = {
-    m.Term.Name(cr.getCanonicalText).withDenot(cr)
+    m.Term.Name(cr.refName).withDenot(cr)
   }
   
 }
