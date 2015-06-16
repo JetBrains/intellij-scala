@@ -135,6 +135,20 @@ class VarianceTest extends SimpleTestCase {
     }
   }
 
+  def testSCL8803() {
+    assertMatches(messages(
+      """object Main extends App {
+        |
+        |  class Sum[+T](dummy: T, val sel: Int) {
+        |    def this(d: T, value: List[Int]) = this(d, value.sum)
+        |  }
+        |
+        |  println(new Sum(0, List(1, 2)).sel)
+        |}""".stripMargin)) {
+      case Nil =>
+    }
+  }
+
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new ScalaAnnotator() {}
     val mock = new AnnotatorHolderMock
