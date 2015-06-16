@@ -90,6 +90,10 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
       list.add("-P:continuations:enable");
     }
 
+    if (myState.experimental) {
+      list.add("-Xexperimental");
+    }
+
     switch (myState.debuggingInfoLevel) {
       case None:
         list.add("-g:none");
@@ -145,6 +149,8 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
     public boolean existentials;
 
     public boolean macros;
+
+    public boolean experimental;
 
     public boolean warnings = true; //no -nowarn
 
