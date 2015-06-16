@@ -227,6 +227,14 @@
               <toolTipText value="Respect @specialize annotations"/>
             </properties>
           </component>
+          <component id="5ed87" class="javax.swing.JCheckBox" binding="myExperimental">
+            <constraints>
+              <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="E&amp;xperimental Features"/>
+            </properties>
+          </component>
         </children>
       </grid>
       <component id="6d327" class="com.intellij.ui.TitledSeparator">
