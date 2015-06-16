@@ -276,6 +276,11 @@ public class ScalaCompilerProfilesPanel extends JPanel {
     }
 
     @Override
+    public void removeNodes(Collection<TreePath> path) {
+      // TODO looks like we don't need it
+    }
+
+    @Override
     public void moveNodeTo(TreePath parentOrNeighbour) {
     }
 
