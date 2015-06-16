@@ -5,8 +5,8 @@ import java.util.UUID._
 import com.intellij.psi.{PsiPackage, PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
-import scala.{Seq => _}
-import scala.collection.immutable.Seq
+//import scala.{Seq => _}
+//import scala.collection.immutable.Seq
 import org.jetbrains.plugins.scala.lang.psi.{api => p}
 import org.jetbrains.plugins.scala.lang.psi.{types => ptype}
 import scala.meta.internal.{ast=>m}
@@ -36,6 +36,7 @@ trait SymbolTable {
       case td: p.toplevel.typedef.ScTemplateDefinition => fqnameToSymbol(td.qualifiedName)
       case td: p.toplevel.typedef.ScTypeDefinition => h.Symbol.Global(toSymbol(td.parent.get), td.name, h.Signature.Type)
       case td: p.statements.ScFunction =>
+        // meta trees don't resolve unapply methods
         if (td.name == "unapply")
           toSymbol(td.containingClass)
         else {

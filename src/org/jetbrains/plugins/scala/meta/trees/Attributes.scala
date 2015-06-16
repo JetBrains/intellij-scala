@@ -4,7 +4,7 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
 import scala.meta.internal.{ast => m, semantic => h}
-import scala.{Seq => _}
+//import scala.{Seq => _}
 
 trait Attributes {
   self: Converter =>

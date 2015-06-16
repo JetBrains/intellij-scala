@@ -66,7 +66,7 @@ trait TypeAdapter {
   def toType(tp: ptype.ScType): m.Type = {
 
     tp match {
-      case t: ptype.ScParameterizedType => m.Type.Apply(toType(t.designator), t.typeArgs.toStream.map(toType))
+      case t: ptype.ScParameterizedType => m.Type.Apply(toType(t.designator), Seq(t.typeArgs.map(toType):_*))
       case t: ptype.ScDesignatorType =>  m.Type.Name(t.canonicalText, denot = h.Denotation.Zero).withDenot(t.element)
 
       case t: ptype.ScType => m.Type.Name(t.canonicalText)
@@ -77,7 +77,7 @@ trait TypeAdapter {
     m.Type.Param(
       if(tp.isCovariant) m.Mod.Covariant() :: Nil else if(tp.isContravariant) m.Mod.Contravariant() :: Nil else Nil,
       if (tp.name != "_") m.Type.Name(tp.name) else m.Name.Anonymous(),
-      tp.typeParameters.toStream.map(toType),
+      Seq(tp.typeParameters.map(toType):_*),
       typeBounds(tp),
       viewBounds(tp),
       contextBounds(tp)
@@ -85,11 +85,11 @@ trait TypeAdapter {
   }
 
   def viewBounds(tp: p.toplevel.ScTypeBoundsOwner): Seq[m.Type] = {
-    tp.viewTypeElement.toStream.map(toType)
+    Seq(tp.viewTypeElement.map(toType):_*)
   }
 
   def contextBounds(tp: p.toplevel.ScTypeBoundsOwner): Seq[m.Type] = {
-    tp.contextBoundTypeElement.toStream.map(toType)
+    Seq(tp.contextBoundTypeElement.map(toType):_*)
   }
 
   def typeBounds(tp: p.toplevel.ScTypeBoundsOwner): m.Type.Bounds = {
