@@ -6,10 +6,10 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.{Module => IJModule}
 import com.intellij.openapi.project.{Project => IJProject}
-import com.intellij.openapi.vcs.FilePathImpl
 import com.intellij.openapi.vcs.changes.{CurrentContentRevision, SimpleContentRevision}
 import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore, VirtualFile}
 import com.intellij.testFramework.LightVirtualFile
+import com.intellij.vcsUtil.VcsUtil
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.modifier.ui.{BuildFileChange, BuildFileModifiedStatus,
 ChangesConfirmationDialog}
@@ -71,8 +71,8 @@ trait BuildFileModifier {
     val fileStatusMap = mutable.Map[VirtualFile, (BuildFileModifiedStatus, Long)]()
     val documentManager = FileDocumentManager.getInstance()
     val vcsChanges = filesToWorkingCopies.toSeq.map{case (original, copy) =>
-      val originalRevision = new SimpleContentRevision(VfsUtilCore.loadText(original), new FilePathImpl(original), "original")
-      val copyRevision = new CurrentContentRevision(new FilePathImpl(copy))
+      val originalRevision = new SimpleContentRevision(VfsUtilCore.loadText(original), VcsUtil getFilePath original, "original")
+      val copyRevision = new CurrentContentRevision(VcsUtil getFilePath original)
       val isModified = changes.contains(copy)
       assert(!fileStatusMap.contains(copy))
       val buildFileStatus = if (isModified) BuildFileModifiedStatus.MODIFIED_AUTOMATICALLY else BuildFileModifiedStatus.DETECTED

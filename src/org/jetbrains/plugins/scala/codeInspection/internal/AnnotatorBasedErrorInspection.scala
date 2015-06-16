@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.codeInspection.internal
 
 import com.intellij.codeHighlighting.HighlightDisplayLevel
+import com.intellij.codeInsight.daemon.impl.HighlightVisitor
 import com.intellij.codeInsight.daemon.impl.analysis.{HighlightInfoHolder, HighlightVisitorImpl}
 import com.intellij.codeInspection._
 import com.intellij.lang.ASTNode
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder, AnnotationSession, HighlightSeverity}
+import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.impl.source.resolve.PsiResolveHelperImpl
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiJavaFile}
@@ -31,13 +33,19 @@ class AnnotatorBasedErrorInspection extends LocalInspectionTool {
       override def visitElement(element: PsiElement) {
         val file = element.getContainingFile
         if (file.isInstanceOf[PsiJavaFile]) {
-          val visitor = new HighlightVisitorImpl(new PsiResolveHelperImpl(file.getManager))
+          val highlightVisitors = Extensions.getExtensions(HighlightVisitor.EP_HIGHLIGHT_VISITOR, element.getProject)
           val highlightInfoHolder = new HighlightInfoHolder(file)
-          visitor.analyze(file, true, highlightInfoHolder, new Runnable {
-            def run() {
-              visitor.visit(element)
-            }
-          })
+
+          highlightVisitors.headOption.map {
+            case vr: HighlightVisitorImpl =>
+              vr.clone().analyze(file, true, highlightInfoHolder, new Runnable {
+                def run() {
+                  vr.visit(element)
+                }
+              })
+            case _ =>
+          }
+
           if (highlightInfoHolder.hasErrorResults) {
             holder.registerProblem(element, "Error detected", ProblemHighlightType.ERROR, null: TextRange)
           }
