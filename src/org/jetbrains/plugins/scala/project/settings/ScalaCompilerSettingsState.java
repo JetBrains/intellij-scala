@@ -27,6 +27,8 @@ public class ScalaCompilerSettingsState {
 
   public boolean macros = false;
 
+  public boolean experimental = false;
+
   public boolean warnings = true;
 
   public boolean deprecationWarnings = false;
@@ -67,6 +69,7 @@ public class ScalaCompilerSettingsState {
         higherKinds == that.higherKinds &&
         existentials == that.existentials &&
         macros == that.macros &&
+        experimental == that.experimental &&
         warnings == that.warnings &&
         deprecationWarnings == that.deprecationWarnings &&
         uncheckedWarnings == that.uncheckedWarnings &&
