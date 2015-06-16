@@ -102,6 +102,7 @@ trait TreeAdapter {
     def arg(pt: p.base.patterns.ScPattern): m.Pat.Arg = pt match {
       case t: ScSeqWildcard       =>  Arg.SeqWildcard()
       case t: ScWildcardPattern   =>  Wildcard()
+      case t: ScStableReferenceElementPattern => toName(t.refElement.get.resolve())
       case t: ScPattern           => pattern(t)
     }
     pt match {
