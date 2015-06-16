@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.meta
 
 import scala.meta.internal.ast._
 
-class TreeConverterImportTest extends TreeConverterTestBase {
+class TreeConverterImportTest extends TreeConverterTestBaseWithLibrary {
 
   def testImportSimple() {
     doTest(
@@ -34,50 +34,36 @@ class TreeConverterImportTest extends TreeConverterTestBase {
   
   def testImportSelector() {
     doTest(
-      "import foo.bar.baz",
-      Import(List(Import.Clause(Term.Select(Term.Name("foo"), Term.Name("bar")), List(Import.Selector.Name(Name.Indeterminate("baz"))))))
-    )
-  }
-  
-  def testImportSuper() {
-    doTest(
-      "import super.foo.bar",
-      Import(List(Import.Clause(Term.Select(Term.Super(Name.Anonymous(), Name.Anonymous()), Term.Name("foo")), List(Import.Selector.Name(Name.Indeterminate("bar"))))))
-    )
-  }
-
-  def testImportThis() {
-    doTest(
-      "import this.foo.bar",
-      Import(List(Import.Clause(Term.Select(Term.This(Name.Anonymous()), Term.Name("foo")), List(Import.Selector.Name(Name.Indeterminate("bar"))))))
+      "import scala.collection.immutable",
+      Import(List(Import.Clause(Term.Select(Term.Name("scala"), Term.Name("collection")), List(Import.Selector.Name(Name.Indeterminate("immutable"))))))
     )
   }
 
   def testImportMultiple() {
     doTest(
-      "import scala.Any, Any.foo",
-      Import(List(Import.Clause(Term.Name("scala"), List(Import.Selector.Name(Name.Indeterminate("Any")))), Import.Clause(Term.Name("Any"), List(Import.Selector.Name(Name.Indeterminate("foo"))))))
+      "import scala.collection, collection.immutable",
+      Import(List(Import.Clause(Term.Name("scala"), List(Import.Selector.Name(Name.Indeterminate("collection")))), Import.Clause(Term.Name("collection"), List(Import.Selector.Name(Name.Indeterminate("immutable"))))))
     )
   }
   
   def testUnImport() {
     doTest(
-      "import foo.{bar => _}",
-       Import(List(Import.Clause(Term.Name("foo"), List(Import.Selector.Unimport(Name.Indeterminate("bar"))))))
+      "import scala.{collection => _}",
+       Import(List(Import.Clause(Term.Name("scala"), List(Import.Selector.Unimport(Name.Indeterminate("collection"))))))
     )
   }
 
   def testImportAllExcept() {
     doTest(
-      "import foo.{bar => _, _}",
-      Import(List(Import.Clause(Term.Name("foo"), List(Import.Selector.Unimport(Name.Indeterminate("bar")), Import.Selector.Wildcard()))))
+      "import scala.{collection => _, _}",
+      Import(List(Import.Clause(Term.Name("scala"), List(Import.Selector.Unimport(Name.Indeterminate("collection")), Import.Selector.Wildcard()))))
     )
   }
 
   def testMixedUnImport() {
     doTest(
-      "import foo.{baz, bar => _, _}",
-      Import(List(Import.Clause(Term.Name("foo"), List(Import.Selector.Name(Name.Indeterminate("baz")), Import.Selector.Unimport(Name.Indeterminate("bar")), Import.Selector.Wildcard()))))
+      "import scala.{collection, BigInt => _, _}",
+      Import(List(Import.Clause(Term.Name("scala"), List(Import.Selector.Name(Name.Indeterminate("collection")), Import.Selector.Unimport(Name.Indeterminate("BigInt")), Import.Selector.Wildcard()))))
     )
   }
 }
