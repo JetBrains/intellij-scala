@@ -37,6 +37,7 @@ public class ScalaCompilerSettingsPanel {
   private JCheckBox myFeatureWarnings;
   private JCheckBox myMacros;
   private JCheckBox mySpecialization;
+  private JCheckBox myExperimental;
 
   private MyPathEditor myPluginsEditor = new MyPathEditor(new FileChooserDescriptor(true, false, true, true, false, true));
 
@@ -61,6 +62,7 @@ public class ScalaCompilerSettingsPanel {
     state.higherKinds = myHigherKinds.isSelected();
     state.existentials = myExistentials.isSelected();
     state.macros = myMacros.isSelected();
+    state.experimental = myExperimental.isSelected();
 
     state.compileOrder = (CompileOrder) myCompileOrder.getSelectedItem();
     state.warnings = myWarnings.isSelected();
@@ -97,6 +99,7 @@ public class ScalaCompilerSettingsPanel {
     myHigherKinds.setSelected(state.higherKinds);
     myExistentials.setSelected(state.existentials);
     myMacros.setSelected(state.macros);
+    myExperimental.setSelected(state.experimental);
 
     myCompileOrder.setSelectedItem(state.compileOrder);
     myWarnings.setSelected(state.warnings);
@@ -270,6 +273,11 @@ public class ScalaCompilerSettingsPanel {
     mySpecialization.setDisplayedMnemonicIndex(7);
     mySpecialization.setToolTipText("Respect @specialize annotations");
     panel1.add(mySpecialization, new GridConstraints(9, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    myExperimental = new JCheckBox();
+    myExperimental.setText("Experimental");
+    myExperimental.setMnemonic('X');
+    myExperimental.setDisplayedMnemonicIndex(1);
+    panel1.add(myExperimental, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final TitledSeparator titledSeparator3 = new TitledSeparator();
     titledSeparator3.setText("Compiler plugins");
     myContentPanel.add(titledSeparator3, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
