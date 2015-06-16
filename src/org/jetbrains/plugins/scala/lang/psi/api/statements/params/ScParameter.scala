@@ -138,6 +138,15 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
                 val i = clause.parameters.indexOf(this)
                 if (result != null) result = None
                 else result = Some(params(i))
+              case any if ScExpression.languageAndFlagsValidForSAM(f)=>
+                //infer type if it's a Single Abstract Method
+                ScExpression.getSAMtype(any) match {
+                  case Some(methodtp: ScParameterizedType) =>
+                    val i = clause.parameters.indexOf(this)
+                    //subtract one for return type in typeArgs
+                    if (i < (methodtp.typeArgs.length - 1)) result = Some(methodtp.typeArgs(i))
+                  case _ =>
+                }
               case _ =>
             }
           }
