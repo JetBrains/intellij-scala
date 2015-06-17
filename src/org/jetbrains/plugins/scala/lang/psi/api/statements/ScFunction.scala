@@ -588,7 +588,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
-  def getType(ctx: TypingContext) = {
+  def getType(ctx: TypingContext): TypeResult[ScType] = {
     returnType match {
       case Success(tp: ScType, _) =>
         var res: TypeResult[ScType] = Success(tp, None)

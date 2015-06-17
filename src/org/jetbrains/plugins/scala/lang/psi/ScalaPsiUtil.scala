@@ -56,6 +56,9 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveTargets, ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -2254,6 +2257,82 @@ object ScalaPsiUtil {
           modifierList.addBefore(newElem, mod)
           modifierList.addBefore(ScalaPsiElementFactory.createWhitespace(manager), mod)
         }
+    }
+  }
+
+  /**
+   * Should we check if it's a Single Abstract Method?
+   * In 2.11 works with -Xexperimental
+   * In 2.12 works by default
+   * @return true if language level and flags are correct
+   */
+  def isSAMEnabled(e: PsiElement) = e.scalaLanguageLevel match {
+    case Some(lang) if lang < Scala_2_11 => false
+    case Some(lang) if lang == Scala_2_11 =>
+      val settings = e.module match {
+        case Some(module) => module.scalaCompilerSettings
+        case None => ScalaCompilerConfiguration.instanceIn(e.getProject).defaultProfile.getSettings
+      }
+      settings.experimental || settings.additionalCompilerOptions.contains("-Xexperimental")
+    case _ => true //if there's no module e.scalaLanguageLevel is None, we treat it as Scala 2.12
+  }
+
+  /**
+   * Determines if expected can be created with a Single Abstract Method and if so return the required ScType for it
+   * @see SCL-6140
+   * @see https://github.com/scala/scala/pull/3018/
+   */
+  def toSAMType(expected: ScType): Option[ScType] = {
+
+    def constructorValidForSAM(constructors: Array[PsiMethod]): Boolean = {
+      //primary constructor (if any) must be public, no-args, not overloaded
+      constructors.length match {
+        case 0 => true
+        case 1 => constructors.head.getModifierList.hasModifierProperty("public") &&
+          constructors.head.getParameterList.getParameters.isEmpty
+        case _ => false
+      }
+    }
+
+    ScType.extractClassType(expected) match {
+      case Some((cl, sub)) =>
+        cl match {
+          case templDef: ScTemplateDefinition => //it's a Scala class or trait
+            val abst = templDef.functions.filter(_.isAbstractMember)
+            val constrValid = templDef match { //if it's a class check its constructor
+              case cla: ScClass => cla.constructors.length <= 1
+              case _ => true
+            }
+            //cl must have only one abstract member, one argument list and be monomorphic
+            val valid =
+              constrValid &&
+                abst.length == 1 &&
+                abst.head.parameterList.clauses.length <= 1 &&
+                !abst.head.hasTypeParameters
+
+            if (valid) {
+              abst.head.getType() match {
+                case Success(tp, _) => Some(sub.subst(tp))
+                case _ => None
+              }
+            } else None
+          case _ => //it's a Java abstract class or interface
+            val abst: Array[PsiMethod] = cl.getMethods.filter(_.getModifierList.hasModifierProperty("abstract"))
+            //must have exactly one abstract member and SAM must be monomorphic
+            val valid = abst.length == 1 && !abst.head.hasTypeParameters && constructorValidForSAM(cl.getConstructors)
+            if (valid) {
+              //need to generate ScType for Java method
+              val method = abst.head
+              val project = method.getProject
+              val scope = method.getResolveScope
+              val returnType: ScType = ScType.create(method.getReturnType, project, scope)
+              val params: Array[ScType] = method.getParameterList.getParameters.map {
+                param: PsiParameter => ScType.create(param.getTypeElement.getType, project, scope)
+              }
+              Some(ScFunctionType(returnType, params)(project, scope))
+            } else None
+        }
+      case None => None
     }
   }
 
