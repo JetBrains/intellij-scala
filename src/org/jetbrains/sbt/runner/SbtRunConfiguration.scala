@@ -78,7 +78,7 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
   def determineMainClass(launcherPath: String): String = {
     val jf = new JarFile(new File(launcherPath))
     val attributes = jf.getManifest.getMainAttributes
-    attributes.getValue("Main-Class")
+    Option(attributes.getValue("Main-Class")).getOrElse("xsbt.boot.Boot")
   }
 
   def getTasks: String = tasks
