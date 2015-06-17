@@ -8,12 +8,17 @@ import com.intellij.openapi.actionSystem.Shortcut
 import com.intellij.openapi.project.{Project, IndexNotReadyException}
 import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.PsiElement
+import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPatternList, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScTuplePattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScPatternsImpl
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl._
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2Util
@@ -46,11 +51,11 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
               for (expr <- body.exprs) {
                 (expr match {
                   case expr: ScMethodCall =>
-                    extractTestViewElement(expr, clazz, project)
+                    TestNodeProvider.extractTestViewElement(expr, clazz, project)
                   case expr: ScInfixExpr =>
-                    extractTestViewElementInfix(expr, clazz, project)
+                    TestNodeProvider.extractTestViewElementInfix(expr, clazz, project)
                   case expr: ScPatternDefinition =>
-                    extractTestViewElementPatternDef(expr, clazz, project)
+                    TestNodeProvider.extractTestViewElementPatternDef(expr, clazz, project)
                   case _ =>
                     None
                 }).map(children.add)
@@ -63,19 +68,30 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
           case e: IndexNotReadyException => new util.ArrayList[TreeElement]()
         }
       case valElement: ScalaValueStructureViewElement =>
+        def tryTupledId(psiElement: PsiElement) = TestNodeProvider.getUTestLeftHandTestDefinition(psiElement) match {
+          case Some(testTupleDefinition) => TestNodeProvider.extractUTest(testTupleDefinition, testTupleDefinition.getProject)
+          case _ => new util.ArrayList[TreeElement]()
+        }
+
         valElement.getValue match {
           case valDef: ScPatternDefinition =>
             valDef.getLastChild match {
               case testCall: ScMethodCall =>
-                extractUTest(testCall, testCall.getProject)
-              case _ =>
-                new util.ArrayList[TreeElement]()
+                TestNodeProvider.extractUTest(testCall, testCall.getProject)
+              case _ => tryTupledId(valElement.element)
             }
+          case identifier: LeafPsiElement if identifier.getElementType == ScalaTokenTypes.tIDENTIFIER =>
+            tryTupledId(identifier)
           case _ => new util.ArrayList[TreeElement]()
         }
       case _ => new util.ArrayList[TreeElement]()
     }
   }
+}
+
+object TestNodeProvider {
+  val ignoredSuffix = " !!! IGNORED !!!"
+  val pendingSuffix = " (pending)"
 
   private def getInnerInfixExprs(expr: ScInfixExpr) = {
     expr.getLastChild.getChildren.filter(_.isInstanceOf[ScInfixExpr]).map(_.asInstanceOf[ScInfixExpr])
@@ -106,15 +122,6 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
       None
     } else None
   }
-
-//  private def extractTestViewFunDef(expr: ScFunctionDefinition, body: ScTemplateBody, clazz: ScTypeDefinition, project: Project):
-//  Option[TestStructureViewElement] = {
-//    import Specs2Util._
-//    import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
-//    if (isInheritor(clazz, getAcceptanseSpecBase)) {
-//      extractAcceptanceSpecification(expr, body, project)
-//    } else None
-//  }
 
   private def extractTestViewElement(expr: ScMethodCall, clazz: ScTypeDefinition, project: Project):
   Option[TestStructureViewElement] = {
@@ -150,10 +157,13 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
     expr.args.getLastChild.getChildren.filter(_.isInstanceOf[ScMethodCall]).map(_.asInstanceOf[ScMethodCall])
   }
 
-//  private def maybePendingMethodCall(expr: ScMethodCall): TestStructureViewElement = {
-//    if (checkMethodCallPending(expr)) pendingScalaTestElement(expr, getMethodCallTestName(expr))
-//    else new TestStructureViewElement(expr, getMethodCallTestName(expr))
-//  }
+  private def getInnerExprs(expr: PsiElement) = {
+    (expr match {
+      case infixExpr: ScInfixExpr => expr.getLastChild.getChildren
+      case methodCall: ScMethodCall => methodCall.args.getLastChild.getChildren
+      case _ => Array[ScExpression]()
+    }).filter(_.isInstanceOf[ScExpression]).map(_.asInstanceOf[ScExpression])
+  }
 
   private def checkMethodCallPending(expr: ScMethodCall): Boolean = {
     expr.getLastChild match {
@@ -171,7 +181,7 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
   private def pendingScalaTestElement(element: PsiElement, name: String, children: Array[TreeElement] = Array()) =
     new TestStructureViewElement(element, name + TestNodeProvider.pendingSuffix, children, TestStructureViewElement.pendingStatusId)
 
-  private def getInfixExprTestName(expr: ScInfixExpr) = expr.getNode.getFirstChildNode.getText
+  def getInfixExprTestName(expr: ScInfixExpr) = expr.getNode.getFirstChildNode.getText
 
   private def checkScMethodCall(expr: ScMethodCall, funName: String, paramNames: List[String]*): Boolean = {
     val methodExpr = expr.getEffectiveInvokedExpr.findFirstChildByType(ScalaElementTypes.REFERENCE_EXPRESSION)
@@ -188,9 +198,9 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
         case Some(resolveResult) =>
           resolveResult.getActualElement.getName == callerName && {
             val funElement = resolveResult.innerResolveResult match {
-            case Some(innerResult) =>
-              innerResult.getActualElement
-            case None => resolveResult.getElement
+              case Some(innerResult) =>
+                innerResult.getActualElement
+              case None => resolveResult.getElement
             }
             funElement.getName == "apply" && funElement.isInstanceOf[ScFunctionDefinition] &&
                 checkClauses(funElement.asInstanceOf[ScFunctionDefinition].getParameterList.clauses, paramNames: _*)
@@ -210,9 +220,9 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
   }
 
   private def checkScInfixExpr(expr: ScInfixExpr, funName: String, paramNames: Option[Seq[List[String]]]): Boolean = {
-      val methodExpr = expr.getEffectiveInvokedExpr
-      methodExpr.isInstanceOf[ScReferenceExpression] && checkRefExpr(methodExpr.asInstanceOf[ScReferenceExpression],
-        funName, None, paramNames)
+    val methodExpr = expr.getEffectiveInvokedExpr
+    methodExpr.isInstanceOf[ScReferenceExpression] && checkRefExpr(methodExpr.asInstanceOf[ScReferenceExpression],
+      funName, None, paramNames)
   }
 
   private def checkScInfixExpr(expr: ScInfixExpr, funName: String, paramNames: List[String]*): Boolean =
@@ -345,7 +355,7 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
     lazy val children = processChildren(getInnerMethodCalls(expr), extractFunSpec, project)
     extractScMethodCall(expr, ExtractEntry("describe", true, true, _ => children, List("java.lang.String"), List("void")),
       project).orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArg:_*), project)).
-      orElse(extractScMethodCall(expr, ExtractEntry("they", true, true, scMethodCallDefaultArg:_*), project))
+        orElse(extractScMethodCall(expr, ExtractEntry("they", true, true, scMethodCallDefaultArg:_*), project))
   }
 
   private def extractFeatureSpec(expr: ScMethodCall, project: Project): Option[TestStructureViewElement] = {
@@ -363,17 +373,17 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
   }
 
   //-----Specs2-----
-//  private def extractAcceptanceSpecification(isExpr: ScFunctionDefinition, body: ScTemplateBody,
-//                                             project: Project): Option[TestStructureViewElement] = {
-//    if (isExpr.getName == "is" && isExpr.getParameterList.getParametersCount == 0) {
-//      //ScalaElementTypes.FUNCTION_DEFINITION
-//      val children = isExpr.findChildrenByType(ScalaElementTypes.REFERENCE_EXPRESSION).filter(_.isInstanceOf[ScReferenceExpression]).
-//          map(_.asInstanceOf[ScReferenceExpression]).map(test =>(test, test.resolve())).
-//          filter{case (test, testDef) => testDef != null && testDef.isInstanceOf[ScFunctionDefinition]}.
-//          map{case (test, testDef) => new TestStructureViewElement(testDef, testDef.asInstanceOf[ScFunctionDefinition].getName)}
-//      Some(new TestStructureViewElement(isExpr, isExpr.getName, children.toArray))
-//    } else None
-//  }
+  //  private def extractAcceptanceSpecification(isExpr: ScFunctionDefinition, body: ScTemplateBody,
+  //                                             project: Project): Option[TestStructureViewElement] = {
+  //    if (isExpr.getName == "is" && isExpr.getParameterList.getParametersCount == 0) {
+  //      //ScalaElementTypes.FUNCTION_DEFINITION
+  //      val children = isExpr.findChildrenByType(ScalaElementTypes.REFERENCE_EXPRESSION).filter(_.isInstanceOf[ScReferenceExpression]).
+  //          map(_.asInstanceOf[ScReferenceExpression]).map(test =>(test, test.resolve())).
+  //          filter{case (test, testDef) => testDef != null && testDef.isInstanceOf[ScFunctionDefinition]}.
+  //          map{case (test, testDef) => new TestStructureViewElement(testDef, testDef.asInstanceOf[ScFunctionDefinition].getName)}
+  //      Some(new TestStructureViewElement(isExpr, isExpr.getName, children.toArray))
+  //    } else None
+  //  }
 
   private def extractUnitSpec(expr: ScInfixExpr, project: Project): Option[TestStructureViewElement] = {
     lazy val children = processChildren(getInnerInfixExprs(expr), extractUnitSpec, project)
@@ -382,25 +392,91 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
 
   //-----uTest-----
   private def extractUTest(expr: ScMethodCall, project: Project): util.Collection[TreeElement] = {
-    def extractUTestInner(expr: ScInfixExpr, project: Project): Option[TestStructureViewElement] = {
-      if (checkScInfixExpr(expr, "$minus", List("java.lang.Object"))) {
-        Some(new TestStructureViewElement(expr, getInfixExprTestName(expr), processChildren(getInnerInfixExprs(expr), extractUTestInner, project)))
+    def extractUTestInner(expr: PsiElement, project: Project): Option[TestStructureViewElement] = {
+      if (isUTestInfixExpr(expr)) {
+        Some(new TestStructureViewElement(expr, getInfixExprTestName(expr.asInstanceOf[ScInfixExpr]),
+          processChildren(getInnerExprs(expr), extractUTestInner, project)))
+      } else if (isUTestApplyCall(expr)) {
+        Some(new TestStructureViewElement(expr, getMethodCallTestName(expr.asInstanceOf[ScMethodCall]),
+          processChildren(getInnerExprs(expr), extractUTestInner, project)))
       } else None
     }
-    if (checkScMethodCallApply(expr, "TestSuite$", List("void"))) {
+    if (isUTestSuiteApplyCall(expr)) {
       import scala.collection.JavaConversions._
       expr.args.findFirstChildByType(ScalaElementTypes.BLOCK_EXPR) match {
-        case blockExpr: ScBlockExpr => (for (infixExpr <- blockExpr.children if infixExpr.isInstanceOf[ScInfixExpr])
-          yield extractUTestInner(infixExpr.asInstanceOf[ScInfixExpr], project)).filter(_.isDefined).map(_.get).toList
+        case blockExpr: ScBlockExpr => (for (methodExpr <- blockExpr.children if methodExpr.isInstanceOf[ScInfixExpr] || methodExpr.isInstanceOf[ScMethodCall])
+          yield extractUTestInner(methodExpr, project)).filter(_.isDefined).map(_.get).toList
         case _ => new util.ArrayList[TreeElement]
       }
     } else new util.ArrayList[TreeElement]()
   }
-}
 
-object TestNodeProvider {
-  val ignoredSuffix = " !!! IGNORED !!!"
-  val pendingSuffix = " (pending)"
+  def isUTestInfixExpr(psiElement: PsiElement): Boolean = psiElement match {
+    case inifxExpr: ScInfixExpr => checkScInfixExpr(inifxExpr, "$minus", List("java.lang.Object")) ||
+        checkScInfixExpr(inifxExpr, "$minus", List())
+    case _ => false
+  }
+
+  def isUTestApplyCall(psiElement: PsiElement): Boolean = psiElement match {
+    case methodCall: ScMethodCall =>
+      val literal = methodCall.getEffectiveInvokedExpr
+      literal.isInstanceOf[ScLiteral] && {
+        val (_, actualType, _, _) = literal.getImplicitConversions()
+        actualType match {
+          case Some(funDef: ScFunctionDefinition) =>
+            funDef.getName == "TestableSymbol" && funDef.isSynthetic && checkClauses(funDef.getParameterList.clauses, List("scala.Symbol"))
+          case _ => false
+        }
+      }
+    case _ => false
+  }
+
+  def isUTestSuiteApplyCall(psiElement: PsiElement): Boolean = psiElement match {
+    case methodCall: ScMethodCall => checkScMethodCallApply(methodCall, "TestSuite$", List("void"))
+    case _ => false
+  }
+
+  private def findListOfPatternsWithIndex(elem: PsiElement): Option[(ScPatternList, Option[(Int, Int)])] = {
+    def checkParent[T](currentElement: PsiElement, parentType: Class[T]): Option[T] = {
+      currentElement.getParent match {
+        case parent: T if parentType.isInstance(parent) =>
+          Some(parent)
+        case _ => None
+      }
+    }
+
+    checkParent(elem, classOf[ScReferencePattern]).flatMap(checkParent(_, classOf[ScPatternsImpl])).
+        flatMap(checkParent(_, classOf[ScTuplePattern])).flatMap(checkParent(_, classOf[ScPatternList])) match {
+      case Some(patternList) =>
+        val refPattern = elem.getParent
+        val patternsImpl = refPattern.getParent.asInstanceOf[ScPatternsImpl]
+        val index = patternsImpl.patterns.zipWithIndex.
+            find{case (pat, _) => pat == refPattern}.get._2
+        Some((patternList, Some(index, patternsImpl.patterns.size)))
+      case _ => checkParent(elem, classOf[ScReferencePattern]).flatMap(checkParent(_, classOf[ScPatternList])).orElse(
+        elem.getParent match {
+          case parent: ScPatternDefinition if parent.bindings.size == 1 =>
+            Option(PsiTreeUtil.getChildOfType(parent, classOf[ScPatternList]))
+          case _ => None
+        }
+      ).map((_, None))
+    }
+  }
+
+  def getUTestLeftHandTestDefinition(element: PsiElement) = findListOfPatternsWithIndex(element) match {
+    case Some((pattern, indexOpt)) if pattern.getParent != null && pattern.getParent.isInstanceOf[ScPatternDefinition] =>
+      ((pattern.getParent.getLastChild, indexOpt) match {
+        case (suiteMethodCall: ScMethodCall, None) => suiteMethodCall //left-hand is a simple pattern
+        case (tuple: ScTuple, Some((index, size))) if size == tuple.exprs.size =>
+          //left-hand is a tuple
+          tuple.exprs(index)
+        case _ => null
+      }) match {
+        case suite: ScMethodCall if TestNodeProvider.isUTestSuiteApplyCall(suite) => Some(suite) //getTestSuiteName(suite).orNull
+        case _ => None
+      }
+    case _ => None
+  }
 }
 
 case class ExtractEntry(funName: String, canIgnore: Boolean, canPend: Boolean, children: (Unit => Array[TreeElement]), args: List[String]*) {

@@ -16,12 +16,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ImplicitParametersOwner, ScPackage}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitParametersOwner, ScPackage}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -219,7 +219,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val argEvaluators = arguments.map(ScalaEvaluator(_))
 
     def unaryEval(operatorName: String, function: Evaluator => Evaluator): Evaluator = {
-      if (argEvaluators.length == 0) {
+      if (argEvaluators.isEmpty) {
         val eval = qualOpt match {
           case None => new ScalaThisEvaluator()
           case Some(qual) => ScalaEvaluator(qual)
@@ -323,10 +323,10 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         if (argEvaluators.length == 1) new ScalaArrayAccessEvaluator(qualEval, argEvaluators(0))
         else throw EvaluationException("Wrong number of parameters for Array.apply method")
       case "length" =>
-        if (argEvaluators.length == 0) new ScalaFieldEvaluator(qualEval, _ => true, "length")
+        if (argEvaluators.isEmpty) new ScalaFieldEvaluator(qualEval, _ => true, "length")
         else throw EvaluationException("Wrong number of parameters for Array.length method")
       case "clone" =>
-        if (argEvaluators.length == 0) new ScalaMethodEvaluator(qualEval, "clone", null/*todo*/, Nil)
+        if (argEvaluators.isEmpty) new ScalaMethodEvaluator(qualEval, "clone", null/*todo*/, Nil)
         else throw EvaluationException("Wrong number of parameters for Array.clone method")
       case "update" =>
         if (argEvaluators.length == 2) {
@@ -334,7 +334,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           new AssignmentEvaluator(leftEval, unboxEvaluator(argEvaluators(1)))
         } else throw EvaluationException("Wrong number of parameters for Array.update method")
       case "toString" =>
-        if (argEvaluators.length == 0) new ScalaMethodEvaluator(qualEval, "toString", null/*todo*/, Nil)
+        if (argEvaluators.isEmpty) new ScalaMethodEvaluator(qualEval, "toString", null/*todo*/, Nil)
         else throw EvaluationException("Wrong number of parameters for Array.toString method")
       case _ =>
         throw EvaluationException("Array method not supported")
@@ -394,7 +394,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       val argTypeText =
         if (argTypes.isEmpty) expectedType.canonicalText
         else Bounds.lub(argTypes).canonicalText
-      val argsText = if (exprsForP.length > 0) exprsForP.sortBy(_.getTextRange.getStartOffset).map(_.getText).mkString(".+=(", ").+=(", ").result()") else ""
+      val argsText = if (exprsForP.nonEmpty) exprsForP.sortBy(_.getTextRange.getStartOffset).map(_.getText).mkString(".+=(", ").+=(", ").result()") else ""
       val exprText = s"_root_.scala.collection.Seq.newBuilder[$argTypeText]$argsText"
       val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, context, context)
       ScalaEvaluator(newExpr)
@@ -557,7 +557,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
           val evaluator =
             if (p.isRepeated) repeatedArgEvaluator(exprsForP, p.expectedType, call)
-            else if (exprsForP.length > 0) {
+            else if (exprsForP.nonEmpty) {
               if (exprsForP.length == 1) ScalaEvaluator(exprsForP(0))
               else {
                 throw EvaluationException("Wrong number of matched expressions")
@@ -640,7 +640,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         arrayMethodEvaluator(fun.name,  qualOption, args)
       case fun: ScFunction =>
         ref match {
-          case isInsideValueClass(c) if qualOption == None =>
+          case isInsideValueClass(c) if qualOption.isEmpty =>
             val clName = c.name
             val paramName = c.allClauses.flatMap(_.parameters).map(_.name).headOption.getOrElse("$this")
             val text = s"new $clName($paramName).${call.getText}"
@@ -730,15 +730,12 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         val name = NameTransformer.encode(cp.name)
         val fieldEval = new ScalaFieldEvaluator(qualEval, _ => true, name, true)
         new ScalaMethodEvaluator(fieldEval, "apply", null, Nil)
-      case c: ScClassParameter if c.isPrivateThis =>
-        //this is field if it's used outside of initialization
-        //name of this field ends with $$ + c.getName
-        //this is scala "field"
+      case privateThisField(named) =>
         val named = resolve.asInstanceOf[ScNamedElement]
         val qualEval = qualifierEvaluator(qualifier, ref)
         val name = NameTransformer.encode(named.name)
         new ScalaFieldEvaluator(qualEval, _ => true, name, true)
-      case cp: ScClassParameter if qualifier == None && ValueClassType.isValueClass(cp.containingClass) =>
+      case cp: ScClassParameter if qualifier.isEmpty && ValueClassType.isValueClass(cp.containingClass) =>
         //methods of value classes have hidden argument with underlying value
         new ScalaLocalVariableEvaluator("$this", fileName)
       case _: ScClassParameter | _: ScBindingPattern =>
@@ -1173,7 +1170,7 @@ object ScalaEvaluatorBuilderUtil {
       case clazz: PsiClass => true
       case f: ScFunctionExpr => true
       case (_: ScExpression) childOf (_: ScForStatement) => true
-      case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).length > 0 => true
+      case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
       case b: ScBlockExpr if b.isAnonymousFunction => true
       case (g: ScGuard) childOf (_: ScEnumerators) => true
       case (g: ScGenerator) childOf (enums: ScEnumerators) if enums.generators.headOption != Some(g) => true
@@ -1273,6 +1270,20 @@ object ScalaEvaluatorBuilderUtil {
     def unapply(r: ScalaResolveResult): Option[(ScTrait, ScFunctionDefinition)] = {
       r.getElement match {
         case Both(fun: ScFunctionDefinition, ContainingClass(tr: ScTrait)) if fun.isPrivate => Some(tr, fun)
+        case _ => None
+      }
+    }
+  }
+
+  object privateThisField {
+    def unapply(elem: PsiElement): Option[ScNamedElement] = {
+      elem match {
+        case c: ScClassParameter if c.isPrivateThis => Some(c)
+        case Both(bp: ScBindingPattern, ScalaPsiUtil.inNameContext(v @ (_: ScVariable | _: ScValue))) =>
+          v match {
+            case mo: ScModifierListOwner if mo.getModifierList.accessModifier.exists(am => am.isPrivate && am.isThis) => Some(bp)
+            case _ => None
+          }
         case _ => None
       }
     }

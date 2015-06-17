@@ -3,19 +3,30 @@ package org.jetbrains.plugins.scala.debugger.evaluation
 import java.util.concurrent.atomic.AtomicReference
 
 import com.intellij.debugger.DebuggerManagerEx
+import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.engine.evaluation.expression.EvaluatorBuilder
-import com.intellij.debugger.engine.evaluation.{CodeFragmentFactory, TextWithImports}
 import com.intellij.debugger.impl.DebuggerContextImpl
 import com.intellij.debugger.ui.DebuggerExpressionComboBox
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.util.concurrency.Semaphore
+import com.intellij.xdebugger.impl.XDebugSessionImpl
+import com.intellij.xdebugger.impl.frame.XValueMarkers
+import com.intellij.xdebugger.impl.ui.tree.ValueMarkup
+import com.intellij.xdebugger.{XDebugSession, XDebuggerManager}
+import com.sun.jdi.{ObjectReference, Value}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+
+import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 /**
  * @author Alexander Podkhalyuzin
@@ -23,10 +34,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 class ScalaCodeFragmentFactory extends CodeFragmentFactory {
   def createCodeFragment(item: TextWithImports, context: PsiElement, project: Project): JavaCodeFragment = {
-    val fragment = new ScalaCodeFragment(project, item.getText)
-    fragment.setContext(context, null)
-    fragment.addImportsFromString(item.getImports)
-    fragment.putUserData(DebuggerExpressionComboBox.KEY, "DebuggerComboBoxEditor.IS_DEBUGGER_EDITOR")
+    val fragment = createCodeFragmentInner(item, context, project)
+    fragment.setContext(wrapContext(project, context), null)
 
     def evaluateType(expr: ScExpression): ScType = {
       val debuggerContext: DebuggerContextImpl = DebuggerManagerEx.getInstanceEx(project).getContext
@@ -58,6 +67,14 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
     fragment
   }
 
+  private def createCodeFragmentInner(item: TextWithImports, context: PsiElement, project: Project): ScalaCodeFragment = {
+    val fragment = new ScalaCodeFragment(project, item.getText)
+    fragment.setContext(context, null)
+    fragment.addImportsFromString(item.getImports)
+    fragment.putUserData(DebuggerExpressionComboBox.KEY, "DebuggerComboBoxEditor.IS_DEBUGGER_EDITOR")
+    fragment
+  }
+
   def createPresentationCodeFragment(item: TextWithImports, context: PsiElement, project: Project): JavaCodeFragment = {
     createCodeFragment(item, context, project)
   }
@@ -74,4 +91,44 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
   def getFileType: LanguageFileType = ScalaFileType.SCALA_FILE_TYPE
 
   def getEvaluatorBuilder: EvaluatorBuilder = ScalaEvaluatorBuilder
+
+  private def wrapContext(project: Project, originalContext: PsiElement): PsiElement = {
+    if (project.isDefault) return originalContext
+    var context: PsiElement = originalContext
+    val session: XDebugSession = XDebuggerManager.getInstance(project).getCurrentSession
+    if (session != null) {
+      val markers: XValueMarkers[_, _] = session.asInstanceOf[XDebugSessionImpl].getValueMarkers
+      val markupMap = if (markers != null) markers.getAllMarkers.asScala.toMap else null
+      if (markupMap != null && markupMap.nonEmpty) {
+        val (variablesText, reverseMap): (String, Map[String, Value]) = markupVariablesText(markupMap)
+        val offset: Int = variablesText.length - 1
+        val textWithImports: TextWithImportsImpl = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, variablesText, "", getFileType)
+        val codeFragment: JavaCodeFragment = createCodeFragmentInner(textWithImports, context, project)
+        codeFragment.accept(new ScalaRecursiveElementVisitor() {
+          override def visitPatternDefinition(pat: ScPatternDefinition): Unit = {
+            val bindingPattern = pat.bindings.head
+            val name: String = bindingPattern.name
+            bindingPattern.putUserData(CodeFragmentFactoryContextWrapper.LABEL_VARIABLE_VALUE_KEY, reverseMap.getOrElse(name, null))
+          }
+        })
+        val newContext: PsiElement = codeFragment.findElementAt(offset)
+        if (newContext != null) {
+          context = newContext
+        }
+      }
+    }
+    context
+  }
+
+  private def markupVariablesText(markupMap: Map[_ <: Any, ValueMarkup]): (String, Map[String, Value]) = {
+    val reverseMap = mutable.Map[String, Value]()
+    val names = markupMap.collect {
+      case (obj: ObjectReference, markup: ValueMarkup) if StringUtil.isJavaIdentifier(markup.getText) =>
+        val labelName = markup.getText + CodeFragmentFactoryContextWrapper.DEBUG_LABEL_SUFFIX
+        reverseMap.put(labelName, obj)
+        labelName
+    }
+    val text = names.map(n => s"val $n = null").mkString("\n")
+    (text, reverseMap.toMap)
+  }
 }

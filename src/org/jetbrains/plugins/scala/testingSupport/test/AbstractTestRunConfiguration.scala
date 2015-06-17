@@ -50,7 +50,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
                                             val configurationFactory: ConfigurationFactory,
                                             val name: String,
                                             private var envs: java.util.Map[String, String] =
-                                            new mutable.HashMap[String, String]())
+                                            new mutable.HashMap[String, String](),
+                                            private var addIntegrationTestsClasspath: Boolean = false)
   extends ModuleBasedConfiguration[RunConfigurationModule](name,
     new RunConfigurationModule(project),
     configurationFactory)
@@ -59,6 +60,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
   val SCALA_HOME = "-Dscala.home="
   val CLASSPATH = "-Denv.classpath=\"%CLASSPATH%\""
   val EMACS = "-Denv.emacs=\"%EMACS%\""
+
+  def setupIntegrationTestClassPath() = addIntegrationTestsClasspath = true
 
   def getAdditionalTestParams(testName: String): Seq[String] = Seq()
 
@@ -378,7 +381,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     if (module == null) throw new ExecutionException("Module is not specified")
 
     val state = new JavaCommandLineState(env) with AbstractTestRunConfiguration.TestCommandLinePatcher {
-      val getClasses: Seq[String] = classes.map(_.qualifiedName).toSeq
+      val getClasses: Seq[String] = getClassFileNames(classes)
 
       protected override def createJavaParameters: JavaParameters = {
         val params = new JavaParameters()
@@ -408,9 +411,12 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 //          "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010")
 
         val rtJarPath = ScalaUtil.runnersPath()
-        val integrationTestsPath = ScalaUtil.testingSupportTestPath()
         params.getClassPath.add(rtJarPath)
-        params.getClassPath.add(integrationTestsPath)
+        if (addIntegrationTestsClasspath) {
+          //a workaround to add jars for integration tests
+          val integrationTestsPath = ScalaUtil.testingSupportTestPath()
+          params.getClassPath.add(integrationTestsPath)
+        }
 
         searchTest match {
           case SearchForTest.IN_WHOLE_PROJECT =>
@@ -555,6 +561,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
     }
     state
   }
+
+  protected def getClassFileNames(classes: mutable.HashSet[PsiClass]): Seq[String] = classes.map(_.qualifiedName).toSeq
 
   override def writeExternal(element: Element) {
     super.writeExternal(element)

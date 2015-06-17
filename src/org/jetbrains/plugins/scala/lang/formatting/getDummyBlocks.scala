@@ -12,14 +12,14 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.tree._
-import com.intellij.psi.{PsiComment, PsiElement, PsiErrorElement, PsiWhiteSpace}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.formatting.ScalaWrapManager._
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -38,6 +38,7 @@ import scala.collection.mutable.ArrayBuffer
 
 object getDummyBlocks {
   val fieldGroupAlignmentKey: Key[Alignment] = Key.create("field.group.alignment.key")
+  private val alignmentsMap = scala.collection.mutable.Map[SmartPsiElementPointer[ScInterpolatedStringLiteral], Alignment]()
 
   def apply(firstNode: ASTNode, lastNode: ASTNode, block: ScalaBlock): util.ArrayList[Block] =
     if (lastNode != null) applyInner(firstNode, lastNode, block) else applyInner(firstNode, block)
@@ -119,6 +120,10 @@ object getDummyBlocks {
             return subBlocks
           }
       }
+      case interpolated: ScInterpolatedStringLiteral =>
+        //create and store alignment; required for support of multi-line interploated strings (SCL-8665)
+        alignmentsMap.put(SmartPointerManager.getInstance(interpolated.getProject).
+            createSmartPsiElementPointer(interpolated), Alignment.createAlignment())
       case _ =>
     }
     val alignment: Alignment = if (mustAlignment(node, block.getSettings))
@@ -476,9 +481,13 @@ object getDummyBlocks {
           val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
           subBlocks.add(new ScalaBlock(block, child, null, null, indent, childWrap, block.getSettings))
         }
-        prevChild = child
       }
       prevChild = child
+    }
+    if (prevChild.getElementType == ScalaTokenTypes.kYIELD) {
+      //add a block for 'yield' in case of incomplete for statement (expression after yield is missing)
+      subBlocks.add(new ScalaBlock(block, prevChild, null, null, ScalaIndentProcessor.getChildIndent(block, prevChild),
+        arrangeSuggestedWrapForChild(block, prevChild, scalaSettings, block.suggestedWrap), block.getSettings))
     }
     subBlocks
   }
@@ -522,7 +531,9 @@ object getDummyBlocks {
     val subBlocks = new util.ArrayList[Block]
 
     val alignment = null
-    val validAlignment = Alignment.createAlignment(true)
+    val validAlignment = Option(ScalaPsiUtil.getParentOfType(node.getPsi, classOf[ScInterpolatedStringLiteral])).
+        map(_.asInstanceOf[ScInterpolatedStringLiteral]).map(literal => alignmentsMap.find{case (pointer, _) =>
+      pointer.getElement == literal}.map(_._2)).flatten.getOrElse(Alignment.createAlignment(true))
     val wrap: Wrap = Wrap.createWrap(WrapType.NONE, true)
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val marginChar = "" + MultilineStringUtil.getMarginChar(node.getPsi)
@@ -557,12 +568,23 @@ object getDummyBlocks {
             node.getStartOffset + acc + line.length), node, block, null, indent, wrap, settings))
         }
       } else if (trimmedLine.length > 0) {
-        val (startOffset, endOffset, myIndent) = if (trimmedLine.startsWith("\"\"\"") && acc != 0)
-          (node.getStartOffset + acc + linePrefixLength, node.getStartOffset + acc + line.length, Indent.getSpaceIndent(0, true))
-        else if (trimmedLine.startsWith("\"\"\"") && acc == 0) (node.getStartOffset, node.getStartOffset + line.length, Indent.getNoneIndent)
-        else (node.getStartOffset + acc, node.getStartOffset + acc + line.length, simpleIndent)
+        val (startOffset, endOffset, myIndent, myAlignment) = if (trimmedLine.startsWith("\"\"\"") && acc != 0)
+          (node.getStartOffset + acc + linePrefixLength, node.getStartOffset + acc + line.length,
+              Indent.getSpaceIndent(0, true), alignment)
+        else if (trimmedLine.startsWith("\"\"\"") && acc == 0) {
+          if (Option(node.getTreePrev).exists(_.getElementType == ScalaElementTypes.INTERPOLATED_PREFIX_LITERAL_REFERENCE) &&
+          line.length > 3) {
+            //split beginning of interpolated string (s"""|<string>) to facilitate alignment in difficult cases
+            // first, add block for opening quotes
+            subBlocks.add(new StringLineScalaBlock(new TextRange(node.getStartOffset, node.getStartOffset + 3), node,
+              block, alignment, Indent.getNoneIndent, null, settings))
+            //now, return block parameters for text after the opening quotes
+            (node.getStartOffset + 3, node.getStartOffset + line.length, Indent.getNoneIndent, validAlignment)
+          } else
+            (node.getStartOffset, node.getStartOffset + line.length, Indent.getNoneIndent, alignment)
+        } else (node.getStartOffset + acc, node.getStartOffset + acc + line.length, simpleIndent, alignment)
 
-        subBlocks.add(new StringLineScalaBlock(new TextRange(startOffset, endOffset), node, block, alignment,
+        subBlocks.add(new StringLineScalaBlock(new TextRange(startOffset, endOffset), node, block, myAlignment,
           myIndent, null, settings))
       }
 

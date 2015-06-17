@@ -1546,6 +1546,13 @@ object ScalaPsiUtil {
     el
   }
 
+  @tailrec
+  def getParentWithProperty(element: PsiElement, strict: Boolean, property: PsiElement => Boolean): Option[PsiElement] = {
+    if (element == null) None
+    else if (!strict && property(element)) Some(element)
+    else getParentWithProperty(element.getParent, strict = false, property)
+  }
+
   def contextOfType[T <: PsiElement](element: PsiElement, strict: Boolean, clazz: Class[T]): T = {
     var el: PsiElement = if (!strict) element else {
       if (element == null) return null.asInstanceOf[T]
