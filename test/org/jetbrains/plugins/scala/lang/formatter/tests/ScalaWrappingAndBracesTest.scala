@@ -314,4 +314,36 @@ class B extends A
     doTextTest(before, after)
   }
 
+  def testChopDown() {
+    getSettings.setRightMargin(null, 50)
+    getIndentOptions.CONTINUATION_INDENT_SIZE = 2
+    getCommonSettings.METHOD_PARAMETERS_WRAP = CommonCodeStyleSettings.WRAP_ON_EVERY_ITEM
+    getCommonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE = true
+    getCommonSettings.METHOD_PARAMETERS_RPAREN_ON_NEXT_LINE = true
+    getScalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS = true
+    val before =
+""" 
+class Foo {
+  def methodWithTooManyParamsForALine(param1: Bar, param2: Bar, param3: Bar, param4: Bar, param5: Bar, param6: Bar) = {
+    // some code
+  }
+}
+""".replace("\r", "")
+    val after =
+"""
+class Foo {
+  def methodWithTooManyParamsForALine(
+    param1: Bar,
+    param2: Bar,
+    param3: Bar,
+    param4: Bar,
+    param5: Bar,
+    param6: Bar
+  ) = {
+    // some code
+  }
+}
+""".replace("\r", "")
+    doTextTest(before, after)
+  }
 }

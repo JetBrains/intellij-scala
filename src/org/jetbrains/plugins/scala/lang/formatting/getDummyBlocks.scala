@@ -126,9 +126,7 @@ object getDummyBlocks {
             createSmartPsiElementPointer(interpolated), Alignment.createAlignment())
       case _ =>
     }
-    val alignment: Alignment = if (mustAlignment(node, block.getSettings))
-      Alignment.createAlignment
-    else null
+    val alignment = if (mustAlignment(node, block.getSettings)) Alignment.createAlignment else null
     var alternateAlignment: Alignment = null
     for (child <- children if isCorrectBlock(child)) {
       val indent = ScalaIndentProcessor.getChildIndent(block, child)
@@ -670,7 +668,6 @@ object getDummyBlocks {
     node.getPsi match {
       case _: ScXmlStartTag => true  //todo:
       case _: ScXmlEmptyTag => true   //todo:
-      case _: ScParameters if mySettings.ALIGN_MULTILINE_PARAMETERS => true
       case _: ScParameterClause if mySettings.ALIGN_MULTILINE_PARAMETERS => true
       case _: ScTemplateParents if mySettings.ALIGN_MULTILINE_EXTENDS_LIST => true
       case _: ScArgumentExprList if mySettings.ALIGN_MULTILINE_PARAMETERS_IN_CALLS  ||

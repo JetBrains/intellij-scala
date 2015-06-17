@@ -6,6 +6,6 @@ class a {
 -----
 class a {
   abstract def foo()()
-                  () =
+    () =
     true
 }

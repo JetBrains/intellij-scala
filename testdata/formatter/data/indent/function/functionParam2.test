@@ -1,0 +1,13 @@
+class a {
+  def top[V] (
+    bar: Seq[V]
+  ) (implicit ord: Ordering[V]) =
+  bar.sorted.headOption
+}
+-----
+class a {
+  def top[V](
+    bar: Seq[V]
+  )(implicit ord: Ordering[V]) =
+    bar.sorted.headOption
+}
