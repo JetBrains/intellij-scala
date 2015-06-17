@@ -29,6 +29,7 @@ object TestConfigurationUtil {
       configuration.setTestKind(TestRunConfigurationForm.TestKind.ALL_IN_PACKAGE)
       configuration.setGeneratedName(displayName)
       configuration.setModule(location.getModule)
+      configuration.initWorkingDir()
       JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
       settings
   }

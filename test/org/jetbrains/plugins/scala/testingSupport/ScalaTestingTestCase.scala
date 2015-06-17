@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
-import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer
+import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, AbstractTestConfigurationProducer}
 import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
@@ -104,6 +104,8 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
                                    debug: Boolean = false
                                    ): (String, Option[AbstractTestProxy]) = {
     assert(configurationCheck(runConfig))
+    assert(runConfig.getConfiguration.isInstanceOf[AbstractTestRunConfiguration])
+    runConfig.getConfiguration.asInstanceOf[AbstractTestRunConfiguration].setupIntegrationTestClassPath()
     val testResultListener = new TestResultListener(runConfig.getName)
     var testTreeRoot: Option[AbstractTestProxy] = None
     UsefulTestCase.edt(new Runnable {

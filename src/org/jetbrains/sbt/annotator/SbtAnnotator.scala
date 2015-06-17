@@ -58,10 +58,10 @@ class SbtAnnotator extends Annotator {
   private def checkExpressionType(exp: ScExpression, holder: AnnotationHolder) {
     exp.getType(TypingContext.empty).foreach { expressionType =>
       if (expressionType.equiv(types.Nothing) || expressionType.equiv(types.Null)) {
-        holder.createErrorAnnotation(exp, "Expected expression type is Setting[_] in SBT file")
+        holder.createErrorAnnotation(exp, "Expected expression type is Def.SettingsDefinition in SBT file")
       } else {
         if (!checkType(exp, expressionType)) {
-          holder.createErrorAnnotation(exp, s"Expression type ($expressionType) must conform to Setting[_] in SBT file")
+          holder.createErrorAnnotation(exp, s"Expression type ($expressionType) must conform to Def.SettingsDefinition in SBT file")
         }
       }
     }
@@ -89,6 +89,7 @@ class SbtAnnotator extends Annotator {
 object SbtAnnotator {
   val SbtSettingType = "Project.Setting[_]"
   val SbtSettingSeqType = "Seq[Project.Setting[_]]"
+  val SbtDefSettingsDefinition = "Def.SettingsDefinition"
   
-  val allTypes = List(SbtSettingSeqType, SbtSettingType)
+  val allTypes = List(SbtSettingSeqType, SbtSettingType, SbtDefSettingsDefinition)
 }

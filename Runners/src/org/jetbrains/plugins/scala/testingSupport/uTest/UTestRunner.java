@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
@@ -35,7 +36,39 @@ public class UTestRunner {
     return " locationHint='scalatest://TopOfMethod:" + className + ":" + method.getName() + "TestName:" + testName + "'";
   }
 
-  private static int traverseResults(Tree<Result> result, String suiteClassName, boolean outerSuite, int parentId, int prevId, Method method) {
+  private static int traverseAndReportResults(Tree<Result> result, TestMethod testMethod, String suiteClassName,
+                                                       boolean outerSuite, int rootId, int prevId) {
+    if (testMethod.testPath != null && testMethod.testPath.path.size() > 1) {
+      //the test is located in inner scope, which is not reflected by results tree; additional nodes are constructed for
+      //consistent reporting
+      int currentId = prevId;
+      int parentId = rootId;
+      List<String> paths = new ArrayList<String>(testMethod.testPath.path.subList(0, testMethod.testPath.path.size() - 1));
+      for (String pathElement: paths) {
+        //open scopes for all nodes that were not run, but still should be displayed for consistency
+        currentId++;
+        String locationHint = getLocationHint(suiteClassName, testMethod.method, pathElement);
+        System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(pathElement) + "' nodeId='" + currentId +
+            "' parentNodeId='" + parentId + "'" + locationHint + " captureStandardOutput='true']");
+        parentId = currentId;
+      }
+      int nextId = traverseResults(result, suiteClassName, outerSuite, currentId, currentId, testMethod.method);
+      Collections.reverse(paths);
+      for (String pathElement: paths) {
+        //close scopes for all the additional nodes
+        System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(pathElement) + "' nodeId='"+ currentId + "']");
+        currentId--;
+      }
+      return nextId;
+    } else {
+      return traverseResults(result, suiteClassName, outerSuite, rootId, prevId, testMethod.method);
+    }
+  }
+
+  private static final String innerTestSuffix = "#inner";
+
+  private static int traverseResults(Tree<Result> result, String suiteClassName,
+                                     boolean outerSuite, int parentId, int prevId, Method method) {
     Result currentRes = result.value();
     String testName = currentRes.name();//namePrefix + (outerSuite ? "" : "\\" + currentRes.name());
     String suiteName = currentRes.name();
@@ -53,6 +86,8 @@ public class UTestRunner {
         //it's a test with inner tests, build tree structure
         System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(suiteName) + "' nodeId='" + suiteId +
             "' parentNodeId='" + parentId + "'" + locationHint + " captureStandardOutput='true']");
+        parentId = suiteId;
+        testName = testName + innerTestSuffix;
       }
       System.out.println("\n##teamcity[testStarted name='" + escapeString(testName) +
           "' nodeId='" + currentTestId + "' parentNodeId='" + parentId + "'" + locationHint + " captureStandardOutput='true']");
@@ -138,8 +173,14 @@ public class UTestRunner {
     return counter;
   }
 
-  private static void runTestSuites(String className, Collection<TestPath> tests) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    Class clazz = Class.forName(className);
+  private static int runTestSuites(String className, Collection<TestPath> tests, int nextId) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    Class clazz;
+    try {
+      clazz = Class.forName(className);
+    } catch (ClassNotFoundException e) {
+        System.out.println("ClassNotFoundException for " + className + ": " + e.getMessage());
+        return nextId;
+    }
     int lastDotPosition = className.lastIndexOf(".");
     String suiteName = (lastDotPosition != -1) ? className.substring(lastDotPosition + 1) : className;
     List<TestMethod> testsToRun = new LinkedList<TestMethod>();
@@ -178,16 +219,21 @@ public class UTestRunner {
         }
       }
     }
-    int testCount = testsToRun.size();
-    System.out.println("##teamcity[testCount count='" + testCount + "']");
-    int parentNodeId = 0;
-    int nodeId = 1;
+//    int testCount = testsToRun.size();
+//    System.out.println("##teamcity[testCount count='" + testCount + "']");
+    int nodeId = nextId + 1;
     int prevId = nodeId;
     System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(suiteName) + "'" + getLocationHint(className, suiteName) +
-        " nodeId='" + nodeId + "' parentNodeId='" + parentNodeId + "' captureStandardOutput='true']");
+        " nodeId='" + nodeId + "' parentNodeId='" + 0 + "' captureStandardOutput='true']");
     for (TestMethod testMethod : testsToRun) {
       Method test = testMethod.method;
-      Tree<Test> testTree = (Tree) test.invoke(null);
+      Tree<Test> testTree;
+      try {
+        testTree = (Tree) ((Modifier.isStatic(test.getModifiers())) ? test.invoke(null) : test.invoke(clazz.getField("MODULE$").get(null)));
+      } catch (NoSuchFieldException e) {
+        System.out.println("Instance field not found for object " + clazz.getName() + ": " + e.getMessage());
+        return nodeId;
+      }
 
       TestTreeSeq treeSeq = new TestTreeSeq(testTree);
       String testMethodName = test.getName();
@@ -200,11 +246,12 @@ public class UTestRunner {
           testMethod.testPath != null ? scala.collection.JavaConversions.asScalaBuffer(testMethod.testPath.path).toList() : treeSeq.run$default$3(),
           ExecutionContext.Implicits$.MODULE$.global());
       boolean classTestKind = testMethod.testPath == null || testMethod.testPath.path.isEmpty();
-      prevId = traverseResults(result, clazz.getName(), classTestKind, currentSuiteId, prevId, test);
+      prevId = traverseAndReportResults(result, testMethod, clazz.getName(), classTestKind, currentSuiteId, prevId);
 
       System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(testMethodName) + "' nodeId='" + currentSuiteId + "']");
     }
     System.out.println("\n##teamcity[testSuiteFinished name='" + escapeString(suiteName) + "' nodeId='" + nodeId + "']");
+    return prevId + 1;
   }
 
 
@@ -249,13 +296,15 @@ public class UTestRunner {
       }
     }
 
+    int nextId = 0;
+
     if (failedUsed) {
       for (String className: failedTestMap.keySet()) {
-        runTestSuites(className, failedTestMap.get(className));
+        nextId = runTestSuites(className, failedTestMap.get(className), nextId);
       }
     } else {
       for (String className: classes) {
-        runTestSuites(className, tests);
+        nextId = runTestSuites(className, tests, nextId);
       }
     }
 

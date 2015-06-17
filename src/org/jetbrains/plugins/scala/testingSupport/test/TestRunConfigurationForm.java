@@ -116,6 +116,7 @@ public class TestRunConfigurationForm {
     final JScrollPane scrollPane1 = new JScrollPane();
     panel1.add(scrollPane1, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     testNameTextField = new JTextArea();
+    testNameTextField.setLineWrap(true);
     scrollPane1.setViewportView(testNameTextField);
     final JLabel label5 = new JLabel();
     label5.setText("Use classpath and SDK of module:");
