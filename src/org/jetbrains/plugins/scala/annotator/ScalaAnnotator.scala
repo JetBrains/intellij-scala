@@ -265,7 +265,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         if (typeAware && !compiled && fun.getParent.isInstanceOf[ScTemplateBody]) {
           checkOverrideMethods(fun, holder, isInSources)
         }
-        checkFunctionForVariance(fun, holder)
+        if (!fun.isConstructor) checkFunctionForVariance(fun, holder)
         super.visitFunction(fun)
       }
 
