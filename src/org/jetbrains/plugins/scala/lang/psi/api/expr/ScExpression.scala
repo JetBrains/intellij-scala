@@ -12,11 +12,10 @@ import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -25,9 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, Type
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -54,7 +50,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     val data = (checkImplicits, isShape, expectedOption, ignoreBaseTypes, fromUnderscore)
 
     CachesUtil.getMappedWithRecursionPreventingWithRollback(this, data, CachesUtil.TYPE_AFTER_IMPLICIT_KEY,
-      (expr: ScExpression, data: Data) => {
+      builder = (expr: ScExpression, data: Data) => {
         val (checkImplicits: Boolean, isShape: Boolean,
         expectedOption: Option[ScType],
         ignoreBaseTypes: Boolean,
@@ -74,28 +70,10 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 //if this result is ok, we do not need to think about implicits
                 case Success(tp, _) if tp.conforms(expected) => defaultResult
                 case Success(tp, _) =>
-                  //is it a sam function?
-                  if (languageAndFlagsValidForSAM(this)) {
-                    val tpToCheck: Option[ScType] = expr match {
-                      case ref: ScReferenceExpression =>
-                        //expr can't reference a val or a var of a functional type,a method call
-                        //but it can reference a function
-                        Option(ref.resolve()) match {
-                          //do not allow: def blargle = println(); val foo: Runnable = blargle
-                          //allow: def blargle() = println(); val foo: Runnable = blargle
-                          case Some(fun: ScFunction) if fun.hasParameterClause => Some(fun.getType().getOrElse(tp))
-                          case Some(_: ScFunction | _: ScReferencePattern) => None
-                          case _ => Some(tp)
-                        }
-                      case _ => Some(tp)
-                    }
-                    tpToCheck match {
-                      case Some(param: ScParameterizedType) =>
-                        ScExpression.getSAMtype(expected, Some(param.designator)) match {
-                          case Some(methodtp) if methodtp.conforms(param) =>
-                            return ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None)
-                          case _ =>
-                        }
+                  if (ScalaPsiUtil.isSAMEnabled(this) && ScFunctionType.isFunctionType(tp)) {
+                    ScalaPsiUtil.toSAMType(expected) match {
+                      case Some(methodType) if methodType.conforms(tp) =>
+                        return ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None)
                       case _ =>
                     }
                   }
@@ -583,84 +561,6 @@ object ScExpression {
   case class ExpressionTypeResult(tr: TypeResult[ScType],
                                   importsUsed: scala.collection.Set[ImportUsed],
                                   implicitFunction: Option[PsiNamedElement])
-
-  /**
-   * Should we check if it's a Single Abstract Method?
-   * In 2.11 works with -Xexperimental
-   * In 2.12 works by default
-   * @return true if language level and flags are correct
-   */
-  def languageAndFlagsValidForSAM(e: PsiElement) = e.scalaLanguageLevel match {
-    case Some(lang) if lang < Scala_2_11 => false
-    case Some(lang) if lang == Scala_2_11 =>
-      val settings = e.module match {
-        case Some(module) => module.scalaCompilerSettings
-        case None => ScalaCompilerConfiguration.instanceIn(e.getProject).defaultProfile.getSettings
-      }
-      settings.experimental || settings.additionalCompilerOptions.contains("-Xexperimental")
-    case _ => true //if there's no module e.scalaLanguageLevel is None, we treat it as Scala 2.12
-  }
-
-  /**
-   * Determines if expected can be created with a Single Abstract Method and if so return the required ScType for it
-   * @see SCL-6140
-   * @see https://github.com/scala/scala/pull/3018/
-   * @param exprDesignator designator that may be used for creation of ScType if expected is a Java class or interface
-   */
-  def getSAMtype(expected: ScType, exprDesignator: Option[ScType] = None): Option[ScType] = {
-
-    def constructorValidforSAM(constructors: Array[PsiMethod]): Boolean = {
-      //primary constructor (if any) must be public, no-args, not overloaded
-      constructors.length match {
-        case 0 => true
-        case 1 => constructors.head.getModifierList.hasModifierProperty("public") &&
-          constructors.head.getParameterList.getParameters.isEmpty
-        case _ => false
-      }
-    }
-
-    ScType.extractClassType(expected) match {
-      case Some((cl, sub)) =>
-        cl match {
-          case templDef: ScTemplateDefinition => //it's a Scala class or trait
-            val abst = templDef.functions.filter(_.isAbstractMember)
-            val constrValid = templDef match { //if it's a class check its constructor
-              case cla: ScClass => cla.constructors.length <= 1
-              case _ => true
-            }
-            //cl must have only one abstract member, one argument list and be monomorphic
-            val valid =
-              constrValid &&
-              abst.length == 1 &&
-              abst.head.parameterList.clauses.length <= 1 &&
-              !abst.head.hasTypeParameters
-
-            if (valid) {
-              abst.head.getType() match {
-                case Success(tp, _) => return Some(sub.subst(tp))
-                case _ =>
-              }
-            }
-          case _ => //it's a Java abstract class or interface
-            val abst: Array[PsiMethod] = cl.getMethods.filter(_.getModifierList.hasModifierProperty("abstract"))
-            //must have exactly one abstract member and SAM must be monomorphic
-            val valid = abst.length == 1 && !abst.head.hasTypeParameters && constructorValidforSAM(cl.getConstructors)
-            if (valid) {
-              //need to generate ScType for Java method
-              val method = abst.head
-              val proj = method.getProject
-              val scope = method.getResolveScope
-              val rettp: ScType = ScType.create(method.getReturnType, proj, scope)
-              val params: Array[ScType] = method.getParameterList.getParameters.map {
-                param: PsiParameter => ScType.create(param.getTypeElement.getType, proj, scope)
-              }
-              return Some(sub.subst(ScParameterizedType(exprDesignator.getOrElse(expected), params :+ rettp)))
-            }
-        }
-      case None =>
-    }
-    None
-  }
 
   object Type {
     def unapply(exp: ScExpression): Option[ScType] = exp.getType(TypingContext.empty).toOption

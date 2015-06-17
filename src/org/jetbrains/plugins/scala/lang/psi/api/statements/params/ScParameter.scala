@@ -138,13 +138,12 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
                 val i = clause.parameters.indexOf(this)
                 if (result != null) result = None
                 else result = Some(params(i))
-              case any if ScExpression.languageAndFlagsValidForSAM(f)=>
+              case any if ScalaPsiUtil.isSAMEnabled(f)=>
                 //infer type if it's a Single Abstract Method
-                ScExpression.getSAMtype(any) match {
-                  case Some(methodtp: ScParameterizedType) =>
+                ScalaPsiUtil.toSAMType(any) match {
+                  case Some(ScFunctionType(_, params)) =>
                     val i = clause.parameters.indexOf(this)
-                    //subtract one for return type in typeArgs
-                    if (i < (methodtp.typeArgs.length - 1)) result = Some(methodtp.typeArgs(i))
+                    if (i < params.length) result = Some(params(i))
                   case _ =>
                 }
               case _ =>
