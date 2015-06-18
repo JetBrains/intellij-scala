@@ -50,7 +50,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     val data = (checkImplicits, isShape, expectedOption, ignoreBaseTypes, fromUnderscore)
 
     CachesUtil.getMappedWithRecursionPreventingWithRollback(this, data, CachesUtil.TYPE_AFTER_IMPLICIT_KEY,
-      builder = (expr: ScExpression, data: Data) => {
+      (expr: ScExpression, data: Data) => {
         val (checkImplicits: Boolean, isShape: Boolean,
         expectedOption: Option[ScType],
         ignoreBaseTypes: Boolean,
@@ -71,6 +71,10 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 case Success(tp, _) if tp.conforms(expected) => defaultResult
                 case Success(tp, _) =>
                   if (ScalaPsiUtil.isSAMEnabled(this) && ScFunctionType.isFunctionType(tp)) {
+                    val des = tp match {
+                      case param: ScParameterizedType => Some(param.designator)
+                      case _ => None
+                    }
                     ScalaPsiUtil.toSAMType(expected) match {
                       case Some(methodType) if methodType.conforms(tp) =>
                         return ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None)
