@@ -18,12 +18,13 @@ trait Namer {
     elem match {
       case td: p.toplevel.typedef.ScTemplateDefinition => m.Term.Name(td.name).withDenot(td)
       case ne: p.toplevel.ScNamedElement => m.Term.Name(ne.name).withDenot(ne)
+      case re: p.expr.ScReferenceExpression => toName(re.resolve())
     }
   }
 
-  def toName(e: p.expr.ScExpression): m.Term.Name = {
-    m.Term.Name(e.getText)
-  }
+//  def toName(e: p.expr.ScExpression): m.Term.Name = {
+//    m.Term.Name(e.getText)
+//  }
 
   def toName(e: p.statements.ScTypeAlias): m.Type.Name = {
     m.Type.Name(e.name)

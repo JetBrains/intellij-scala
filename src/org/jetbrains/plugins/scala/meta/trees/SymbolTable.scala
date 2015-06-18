@@ -19,18 +19,23 @@ trait SymbolTable {
   def isLocal(elem: PsiElement): Boolean = {
     elem match {
       case e: p.toplevel.typedef.ScTypeDefinition => e.isLocal
+      case e: p.base.patterns.ScBindingPattern if e.containingClass == null => true
       case _ => false
     }
   }
 
   def fqnameToSymbol(fqName: String): h.Symbol = {
-    fqName.split('.').foldLeft(h.Symbol.Root.asInstanceOf[h.Symbol])((sym, name) => h.Symbol.Global(sym, name, h.Signature.Type))
+    fqName.split('.').foldLeft(h.Symbol.Root.asInstanceOf[h.Symbol])((parent, name) => h.Symbol.Global(parent, name, h.Signature.Type))
   }
 
   def toSymbol(elem: PsiElement): h.Symbol = {
     elem match {
-        // a wild assumption that nobody sane enough would use a colon in a filename
-      case _ if isLocal(elem) => h.Symbol.Local(elem.getContainingFile.getVirtualFile.getCanonicalPath + ":" + elem.getTextOffset)
+      case _ if isLocal(elem) =>
+        // aka LightVirtualFile in case of running in test
+        if (elem.getContainingFile.getVirtualFile == null)
+          h.Symbol.Local(elem.getContainingFile.getName + ":" + elem.getTextOffset)
+        else
+          h.Symbol.Local(elem.getContainingFile.getVirtualFile.getCanonicalPath + "\n" + elem.getTextOffset)
       case td: p.toplevel.typedef.ScTypeDefinition if !td.qualifiedName.contains(".") => // empty package defn
         h.Symbol.Global(h.Symbol.Empty, td.name, h.Signature.Type)
       case td: p.toplevel.typedef.ScTemplateDefinition => fqnameToSymbol(td.qualifiedName)
