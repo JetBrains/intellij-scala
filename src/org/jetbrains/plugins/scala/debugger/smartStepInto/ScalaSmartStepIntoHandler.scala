@@ -11,6 +11,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Range
 import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.plugins.scala.codeInspection.collections.{MethodRepr, stripped}
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
@@ -131,7 +132,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
         } yield {
           label = constr.simpleTypeElement.fold("")(ste => s"new ${ste.getText}.")
 
-          val generateAnonClass = tp.typeElementsWithoutConstructor.nonEmpty || extBl.templateBody.nonEmpty
+          val generateAnonClass = DebuggerUtil.generatesAnonClass(templ)
           val method = ref.resolve() match {
             case m: PsiMethod if !generateAnonClass => m
             case _ => new FakeAnonymousClassConstructor(templ, ref.refName)
