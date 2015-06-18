@@ -19,6 +19,7 @@ import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
 import org.jetbrains.plugins.scala.codeInspection.internal.AnnotatorBasedErrorInspection
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -47,7 +48,7 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
 
   override protected def getTestsTempDir: String = ""
 
-  protected def getRootDir: String = "scala-plugin/target/testProjects"
+  protected def getRootDir: String = TestUtils.getTestDataPath + "/projects"
 
   def testScalaPlugin(): Unit = doRunTest()
 
