@@ -153,18 +153,6 @@ object ScalaPsiUtil {
     }
   }
 
-  @tailrec
-  def isLocalClass(td: PsiClass): Boolean = {
-    td.getParent match {
-      case tb: ScTemplateBody =>
-        val parent = PsiTreeUtil.getParentOfType(td, classOf[PsiClass], true)
-        if (parent == null || parent.isInstanceOf[ScNewTemplateDefinition]) return true
-        isLocalClass(parent)
-      case _: ScPackaging | _: ScalaFile => false
-      case _ => true
-    }
-  }
-
   def convertMemberName(s: String): String = {
     if (s == null || s.isEmpty) return s
     val s1 = if (s(0) == '`' && s.length() > 1) s.tail.dropRight(1) else s
