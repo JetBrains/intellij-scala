@@ -1,25 +1,25 @@
-package org.jetbrains.plugins.scala.annotator.SAM
+package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.PsiFileFactory
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.annotator._
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.junit.Assert
 
 /**
  * Author: Svyatoslav Ilinskiy
  * Date: 6/15/15
  */
-class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdapter /*with SimpleTestCase*/ {
-  override def setUp() {
+class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+  protected override def setUp() {
     super.setUp()
 
-    val settings = getModuleAdapter.scalaCompilerSettings.getState
-    settings.additionalCompilerOptions = settings.additionalCompilerOptions :+ "-Xexperimental"
-    getModuleAdapter.scalaCompilerSettings.loadState(settings)
+    val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProjectAdapter).defaultProfile
+    val newSettings = defaultProfile.getSettings
+    newSettings.experimental = true
+    defaultProfile.setSettings(newSettings)
   }
 
   def testBasicGenerics() {
@@ -128,19 +128,96 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
     }
   }
 
-  def simpleNegTests() {
+  def testSimpleNegWrongReturnType() {
     val code =
       """
-        |trait Blergh { def apply(i: Int): String }
-        |trait Blargle { def apply(i: Int, j: String): String }
-        |((j: Int) => j): Blergh
-        |((i: Int) => "aaa"): Blargle
-        |((i: Int, j: Int) => "aa"): Blargle
-        |((j: String) => j): Blergh
+        |object T {
+        |  trait Blergh { def apply(i: Int): String }
+        |  ((j: Int) => j): Blergh
+        |}
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("((j: Int) => j)", doesNotConform()) :: Error("((i: Int) => \"aaa\")", doesNotConform()) ::
-        Error("((i: Int, j: Int) => \"aa\")", doesNotConform()) :: Error("((j: String) => j)", doesNotConform()) :: Nil =>
+      case Error("((j: Int) => j)", typeMismatch()) :: Error("((j: Int) => j)", doesNotConform()) ::
+        Error("Blergh", null) :: Nil =>
+    }
+  }
+
+  def testSimpleNegWrongParamNumber() {
+    val code =
+      """
+        |object T {
+        |  trait Blargle { def apply(i: Int, j: String): String }
+        |  ((i: Int) => "aaa"): Blargle
+        |}
+      """.stripMargin
+    assertMatches(messages(code)) {
+      case Error("((i: Int) => \"aaa\")", typeMismatch()) :: Error("((i: Int) => \"aaa\")", doesNotConform()) ::
+        Error("Blargle", null) :: Nil =>
+    }
+  }
+
+  def testSimpleNegWrongParamType() {
+    val code =
+      """
+        |object T {
+        |  trait Blargle { def apply(i: Int, j: String): String }
+        |  ((i: Int, j: Int) => "aaa"): Blargle
+        |}
+      """.stripMargin
+    assertMatches(messages(code)) {
+      case Error("((i: Int, j: Int) => \"aaa\")", typeMismatch()) :: Error("((i: Int, j: Int) => \"aaa\")", doesNotConform()) ::
+        Error("Blargle", null) :: Nil =>
+    }
+  }
+
+  def testSimpleNegRightParamWrongReturn() {
+    val code =
+      """
+        |object T {
+        |  trait Blergh { def apply(i: Int): String }
+        |  (j => j): Blergh
+        |}
+      """.stripMargin
+    assertMatches(messages(code)) {
+      case Error("(j => j)", typeMismatch()) :: Error("(j => j)", doesNotConform()) ::
+        Error("Blergh", null) :: Nil =>
+    }
+  }
+
+  def testConstructorWithArgs() {
+    val code =
+      """
+        |abstract class Foo(s: String) { def a(): String }
+        |val f: Foo = () => ""
+      """.stripMargin
+    assertMatches(messages(code)) {
+      case Error("() => \"\"", typeMismatch()) :: Nil =>
+    }
+  }
+
+  def testImplicitConversionWithSAM() {
+    val code =
+      """
+        |import scala.language.implicitConversions
+        |object T {
+        |  trait Foo {
+        |    def bar(): Int
+        |  }
+        |
+        |  val i: Foo = () => 2
+        |
+        |  implicit def FooToString(f: Foo): String = f.bar().toString
+        |  wantFoo(i)
+        |  wantString(i)
+        |  wantFoo(() => 4)
+        |  wantString(() => 3)
+        |  def wantFoo(f: Foo) = println(f.bar())
+        |  def wantString(s: String) = println(s)
+        |}
+        |
+      """.stripMargin
+    assertMatches(messages(code)) {
+      case Error("() => 3", typeMismatch()) :: Error("wantString", cannotResolveReference()) :: Nil =>
     }
   }
   
@@ -174,6 +251,7 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
   val cannotResolveSymbol = ContainsPattern("Cannot resolve symbol")
   val doesNotConform = ContainsPattern("doesn't conform to expected type")
   val typeMismatch = ContainsPattern("Type mismatch")
+  val cannotResolveReference = ContainsPattern("Cannot resolve reference")
 
   case class ContainsPattern(fr: String) {
     def unapply(s: String) = s.contains(fr)
