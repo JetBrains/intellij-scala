@@ -16,13 +16,20 @@ trait Attributes {
       if (elem.isEmpty) h.Denotation.Zero
       else
         elem.get match {
+            //reference has a prefix
           case cr: p.base.ScStableCodeReferenceElement if cr.qualifier.isDefined =>
             h.Denotation.Single(h.Prefix.Type(m.Type.Singleton(ref(cr.qualifier.get))), toSymbol(cr))
-          case cr: p.base.ScStableCodeReferenceElement => h.Denotation.Single(h.Prefix.Zero, toSymbol(cr))
-          case r:  org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl => h.Denotation.Single(h.Prefix.Type(toType(r.getParentPackage)), toSymbol(r))
+          case cr: p.base.ScStableCodeReferenceElement =>
+            h.Denotation.Single(h.Prefix.Zero, toSymbol(cr))
+          case re: p.base.patterns.ScBindingPattern =>
+            // FIXME: zero prefix?
+            h.Denotation.Single(h.Prefix.Zero, toSymbol(re))
+          case r: org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl =>
+            h.Denotation.Single(h.Prefix.Type(toType(r.getParentPackage)), toSymbol(r))
           case td: p.toplevel.typedef.ScTypeDefinition if !td.qualifiedName.contains(".") =>
             h.Denotation.Single(h.Prefix.Zero, toSymbol(td))
-          case td: p.toplevel.typedef.ScTypeDefinition => h.Denotation.Single(h.Prefix.Type(toType(td.parent.get)), toSymbol(td))
+          case td: p.toplevel.typedef.ScTypeDefinition =>
+            h.Denotation.Single(h.Prefix.Type(toType(td.parent.get)), toSymbol(td))
         }
     }
 
