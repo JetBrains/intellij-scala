@@ -2308,8 +2308,9 @@ object ScalaPsiUtil {
           case templDef: ScTemplateDefinition => //it's a Scala class or trait
             val abst = templDef.functions.filter(_.isAbstractMember)
             val constrValid = templDef match { //if it's a class check its constructor
-              case cla: ScClass => cla.constructors.length <= 1
-              case _ => true
+              case cla: ScClass => constructorValidForSAM(cla.constructors)
+              case tr: ScTrait => true
+              case _ => false
             }
             //cl must have only one abstract member, one argument list and be monomorphic
             val valid =
