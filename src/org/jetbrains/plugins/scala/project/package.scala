@@ -131,6 +131,8 @@ package object project {
 
     def libraries: Seq[Library] = ProjectLibraryTable.getInstance(project).getLibraries.toSeq
 
+    def scalaLibraries: Seq[Library] = project.libraries.filter(_.getName.contains(ScalaLibraryName))
+
     def scalaSdks: Seq[ScalaSdk] = libraries.filter(_.isScalaSdk).map(new ScalaSdk(_))
 
     def createScalaSdk(name: String, classes: Seq[File], sources: Seq[File], docs: Seq[File], compilerClasspath: Seq[File], languageLevel: ScalaLanguageLevel): ScalaSdk = {
@@ -222,4 +224,6 @@ package object project {
   val LibraryVersion: Regex = """(?<=:|-)\d+\.\d+\.\d+[^:\s]*""".r
 
   val JarVersion: Regex = """(?<=-)\d+\.\d+\.\d+\S*(?=\.jar$)""".r
+
+  val ScalaLibraryName: String = "scala-library"
 }
