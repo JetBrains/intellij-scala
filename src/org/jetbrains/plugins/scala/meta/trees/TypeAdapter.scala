@@ -59,7 +59,7 @@ trait TypeAdapter {
 
   def toType(elem: PsiElement): m.Type = {
     elem match {
-      case t: p.toplevel.packaging.ScPackaging => m.Type.Singleton(ref(t.reference.get))
+      case t: p.toplevel.packaging.ScPackaging => m.Type.Singleton(toTermName(t.reference.get))
       case t: p.toplevel.typedef.ScTemplateDefinition => toType(t.getType(TypingContext.empty))
     }
   }

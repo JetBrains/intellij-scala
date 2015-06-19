@@ -18,7 +18,7 @@ trait Attributes {
         elem.get match {
             //reference has a prefix
           case cr: p.base.ScStableCodeReferenceElement if cr.qualifier.isDefined =>
-            h.Denotation.Single(h.Prefix.Type(m.Type.Singleton(ref(cr.qualifier.get))), toSymbol(cr))
+            h.Denotation.Single(h.Prefix.Type(m.Type.Singleton(toTermName(cr.qualifier.get))), toSymbol(cr))
           case cr: p.base.ScStableCodeReferenceElement =>
             h.Denotation.Single(h.Prefix.Zero, toSymbol(cr))
           case re: p.base.patterns.ScBindingPattern =>
