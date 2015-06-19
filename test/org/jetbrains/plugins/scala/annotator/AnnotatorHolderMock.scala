@@ -14,6 +14,10 @@ class AnnotatorHolderMock extends AnnotationHolder {
     0, 0, HighlightSeverity.WEAK_WARNING, "message", "tooltip")
   
   def annotations = myAnnotations.reverse
+  def errorAnnotations = annotations.filter {
+    case error: Error => true
+    case _ => false
+  }
   
   private var myAnnotations = List[Message]()
   

@@ -82,6 +82,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         new AttributesDescriptor(DefaultHighlighter.PARAMETER_NAME, DefaultHighlighter.PARAMETER),
         new AttributesDescriptor(DefaultHighlighter.ANONYMOUS_PARAMETER_NAME, DefaultHighlighter.ANONYMOUS_PARAMETER),
         new AttributesDescriptor(DefaultHighlighter.PATTERN_NAME, DefaultHighlighter.PATTERN),
+        new AttributesDescriptor(DefaultHighlighter.GENERATOR_NAME, DefaultHighlighter.GENERATOR),
         new AttributesDescriptor(DefaultHighlighter.METHOD_CALL_NAME, DefaultHighlighter.METHOD_CALL),
         new AttributesDescriptor(DefaultHighlighter.OBJECT_METHOD_CALL_NAME, DefaultHighlighter.OBJECT_METHOD_CALL),
         new AttributesDescriptor(DefaultHighlighter.LOCAL_METHOD_CALL_NAME, DefaultHighlighter.LOCAL_METHOD_CALL),
@@ -157,7 +158,9 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         "<brace>{</brace><keyword>val</keyword> <attribute>name</attribute> <assign>=</assign> value<brace>}</brace>\n" +
         "<keyword>trait</keyword> <trait>Trait</trait> <brace>{</brace>\n" +
         "<brace>}</brace>\n\n" +
-        "<keyword>abstract</keyword> <keyword>class</keyword> <abstract>SomeAbstract</abstract>\n\n";
+        "<keyword>abstract</keyword> <keyword>class</keyword> <abstract>SomeAbstract</abstract> <brace>{</brace>\n" +
+        "  <keyword>for</keyword> <par>(</par><generator>x</generator> <- list<par>)</par> <brace>{</brace><generator>x</generator><brace>}</brace>\n" +
+        "<brace>}</brace>\n\n";
   }
 
   @Nullable
@@ -201,6 +204,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("localmethod", DefaultHighlighter.LOCAL_METHOD_CALL);
     map.put("methoddecl", DefaultHighlighter.METHOD_DECLARATION);
     map.put("pattern", DefaultHighlighter.PATTERN);
+    map.put("generator", DefaultHighlighter.GENERATOR);
     map.put("typeAlias", DefaultHighlighter.TYPE_ALIAS);
     map.put("wikiElement", DefaultHighlighter.SCALA_DOC_WIKI_SYNTAX);
     map.put("scaladocHtml", DefaultHighlighter.SCALA_DOC_HTML_TAG);
