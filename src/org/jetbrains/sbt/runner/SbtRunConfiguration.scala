@@ -1,6 +1,8 @@
 package org.jetbrains.sbt.runner
 
+import java.io.File
 import java.util
+import java.util.jar.{Attributes, JarFile}
 
 import com.intellij.execution.Executor
 import com.intellij.execution.configuration.EnvironmentVariablesComponent
@@ -26,11 +28,6 @@ import scala.collection.mutable
  */
 class SbtRunConfiguration(val project: Project, val configurationFactory: ConfigurationFactory, val name: String)
         extends ModuleBasedConfiguration[RunConfigurationModule](name, new RunConfigurationModule(project), configurationFactory) {
-
-  /**
-   * Main class of SBT.
-   */
-  val MAIN_CLASS = "xsbt.boot.Boot"
 
   /**
    * List of task to execute in format of SBT.
@@ -78,6 +75,11 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
     envirnomentVariables.putAll(params.getEnvironmentVariables)
   }
 
+  def determineMainClass(launcherPath: String): String = {
+    val jf = new JarFile(new File(launcherPath))
+    val attributes = jf.getManifest.getMainAttributes
+    Option(attributes.getValue("Main-Class")).getOrElse("xsbt.boot.Boot")
+  }
 
   def getTasks: String = tasks
 
@@ -103,11 +105,13 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
       params.setWorkingDirectory(project.getBaseDir.getPath)
       params.configureByProject(configuration.getProject, JavaParameters.JDK_ONLY, jdk)
       val sbtSystemSettings: SbtSystemSettings = SbtSystemSettings.getInstance(configuration.getProject)
-      if (sbtSystemSettings.getCustomLauncherEnabled)
+      if (sbtSystemSettings.getCustomLauncherEnabled) {
         params.getClassPath.add(sbtSystemSettings.getCustomLauncherPath)
-      else
+        params.setMainClass(determineMainClass(sbtSystemSettings.getCustomLauncherPath))
+      } else {
         params.getClassPath.add(SbtRunner.getDefaultLauncher)
-      params.setMainClass(MAIN_CLASS)
+        params.setMainClass(determineMainClass(SbtRunner.getDefaultLauncher.getAbsolutePath))
+      }
       params.setEnv(envirnomentVariables)
       params.getVMParametersList.addParametersString(javaOptions)
       params.getProgramParametersList.addParametersString(tasks)
