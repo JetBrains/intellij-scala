@@ -162,6 +162,8 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
           ObjectUtils.assertNotNull(value.qualifiedName)
         }
 
+        override def isAutoSelectionEnabled: Boolean = false
+
         import com.intellij.openapi.ui.popup.PopupStep.FINAL_CHOICE
         override def onChosen(selectedValue: TypeToImport, finalChoice: Boolean): PopupStep[_] = {
           if (selectedValue == null) {
