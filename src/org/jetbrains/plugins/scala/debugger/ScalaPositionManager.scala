@@ -21,9 +21,10 @@ import com.sun.jdi.request.ClassPrepareRequest
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager._
+import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.debugger.smartStepInto.FunExpressionTarget
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, inReadAction}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition}
@@ -33,8 +34,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaNamesUtil, ScalaRefactoringUtil}
-import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceElement, ResolveTargets}
+import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
 
 import scala.annotation.tailrec
@@ -146,7 +146,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     def notLocalEnclosingTypeDefinition(element: PsiElement): Option[ScTypeDefinition] = {
       PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition]) match {
         case null => None
-        case td if ScalaPsiUtil.isLocalClass(td) => notLocalEnclosingTypeDefinition(td.getParent)
+        case td if DebuggerUtil.isLocalClass(td) => notLocalEnclosingTypeDefinition(td.getParent)
         case td => Some(td)
       }
     }
@@ -171,7 +171,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
             clazz != null && manager.cachedDeepIsInheritor(obj, clazz)
           case _ => false
         }
-        ScalaPsiUtil.isLocalClass(definition) || isDelayed
+        DebuggerUtil.isLocalClass(definition) || isDelayed
       }
 
       sourceImage match {
@@ -400,29 +400,74 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
   }
 
   private def findPsiClassByReferenceType(refType: ReferenceType): Option[PsiClass] = {
-    val debugProcess = debugProcessImpl match {
-      case Some(d) => d
-      case _ => return None
+    def checkLines(td: ScTemplateDefinition, document: Document) = {
+      val refTypeLines = refType.allLineLocations().asScala.map(_.lineNumber() - 1).toSet
+      val startLine = document.getLineNumber(td.getTextRange.getStartOffset)
+      val endLine = document.getLineNumber(td.getTextRange.getEndOffset)
+      val docLines = Range.inclusive(startLine, endLine).toSet
+      refTypeLines.intersect(docLines).nonEmpty //very loose check because sometimes first line for <init> method is after range of the class
     }
+
+    def nameMatches(td: ScTemplateDefinition) = {
+      val name = refType.name()
+      def checkEnding() = {
+        td match {
+          case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) =>
+            name.last.isDigit
+          case td: ScTypeDefinition =>
+            name.endsWith(DebuggerUtil.classnamePostfix(td, withPostfix = true))
+          case _ => false
+        }
+      }
+
+      def checkParts() = {
+        def classJVMNameParts(clazz: ScTemplateDefinition): Seq[String] = {
+          def partFor(elem: PsiElement): Option[String] = {
+            elem match {
+              case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) => Some("$anon$")
+              case newTd: ScNewTemplateDefinition => None
+              case td: ScTypeDefinition => Some(ScalaNamesUtil.toJavaName(td.name))
+              case _ if ScalaEvaluatorBuilderUtil.isGenerateClass(elem) => Some("$anonfun$")
+              case _ => None
+            }
+          }
+          (Iterator(clazz) ++ clazz.parentsInFile).flatMap(partFor).toSeq.reverse
+        }
+
+        val parts = classJVMNameParts(td)
+
+        @tailrec
+        def inner(parts: Iterable[String], nameTail: String): Boolean = {
+          parts match {
+            case Seq(head, _*) =>
+              val index = nameTail.indexOf(head)
+              if (index >= 0) inner(parts.tail, nameTail.substring(index + head.length))
+              else false
+            case Seq() => true
+          }
+        }
+        inner(parts, refType.name())
+      }
+      checkEnding() && checkParts()
+    }
+
     try {
       val project = getDebugProcess.getProject
       val location = refType.allLineLocations().get(0)
       val file = getPsiFileByLocation(project, location)
-      val name = refType.name()
+      val document = PsiDocumentManager.getInstance(project).getDocument(file)
 
       var foundClass: Option[PsiClass] = None
-      val processor = new BaseProcessor(Set(ResolveTargets.CLASS)) {
-        override def execute(element: PsiElement, state: ResolveState): Boolean = {
-          element match {
-            case cl: PsiClass if name.contains(cl.name) && DebuggerUtil.getClassJVMName(cl).getName(debugProcess) == name =>
-              foundClass = Some(cl)
-              false
-            case _ => true
-          }
+
+      file.accept(new ScalaRecursiveElementVisitor {
+        override def visitElement(element: ScalaPsiElement): Unit = element match {
+          case td: ScTemplateDefinition if checkLines(td, document) && nameMatches(td) =>
+            foundClass = Some(td)
+          case _ =>
+            super.visitElement(element)
         }
-      }
-      val startElem = file.findElementAt(SourcePosition.createFromLine(file, location.lineNumber()).getOffset)
-      PsiTreeUtil.treeWalkUp(processor, startElem, file, ResolveState.initial())
+
+      })
       foundClass
     }
     catch {
@@ -434,7 +479,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     val result = inReadAction {
       val sourceImage = findReferenceTypeSourceImage(position)
       sourceImage match {
-        case td: ScTemplateDefinition if ScalaPsiUtil.isLocalClass(td) =>
+        case td: ScTemplateDefinition if DebuggerUtil.isLocalClass(td) =>
           val qName = findEnclosingTypeDefinition(position).map(typeDef => typeDef.getQualifiedNameForDebugger)
           val javaName = td match {
             case _: ScNewTemplateDefinition => "$anon$"
