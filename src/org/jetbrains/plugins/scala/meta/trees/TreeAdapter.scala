@@ -27,14 +27,14 @@ trait TreeAdapter {
       case t: p.statements.ScTypeAliasDefinition =>
         m.Defn.Type(convertMods(t), toTypeName(t), Seq(t.typeParameters map toType:_*), toType(t.aliasedType))
       case t: p.statements.ScFunctionDeclaration =>
-        m.Decl.Def(convertMods(t), m.Term.Name(t.name), Seq(t.typeParameters map toType:_*), Seq(t.paramClauses.clauses.map(convertParamClause):_*), returnType(t.returnType))
+        m.Decl.Def(convertMods(t), toTermName(t), Seq(t.typeParameters map toType:_*), Seq(t.paramClauses.clauses.map(convertParamClause):_*), returnType(t.returnType))
       case t: p.statements.ScPatternDefinition =>
         patternDefinition(t)
       case t: p.statements.ScVariableDefinition =>
-        def pattern(bp: p.base.patterns.ScBindingPattern) = m.Pat.Var.Term(m.Term.Name(bp.name))
+        def pattern(bp: p.base.patterns.ScBindingPattern) = m.Pat.Var.Term(toTermName(bp))
         m.Defn.Var(convertMods(t), Seq(t.bindings.map(pattern):_*), t.declaredType.map(toType), expression(t.expr))
       case t: p.statements.ScFunctionDefinition =>
-        m.Defn.Def(convertMods(t), m.Term.Name(t.name),
+        m.Defn.Def(convertMods(t), toTermName(t),
           Seq(t.typeParameters map toType:_*),
           Seq(t.paramClauses.clauses.map(convertParamClause):_*),
           t.definedReturnType.map(toType).toOption,
@@ -42,7 +42,7 @@ trait TreeAdapter {
         )
       case t: p.statements.ScMacroDefinition =>
         m.Defn.Macro(
-          convertMods(t), m.Term.Name(t.name),
+          convertMods(t), toTermName(t),
           Seq(t.typeParameters map toType:_*),
           Seq(t.paramClauses.clauses.map(convertParamClause):_*),
           t.definedReturnType.map(toType).get,
@@ -59,7 +59,7 @@ trait TreeAdapter {
 
   def toTrait(t: p.toplevel.typedef.ScTrait) = m.Defn.Trait(
     convertMods(t),
-    toName(t),
+    toTypeName(t),
     Seq(t.typeParameters map toType:_*),
     m.Ctor.Primary(Nil, m.Ctor.Ref.Name("this"), Nil),
     template(t.extendsBlock)
@@ -67,7 +67,7 @@ trait TreeAdapter {
 
   def toClass(c: p.toplevel.typedef.ScClass) = m.Defn.Class(
     convertMods(c),
-    toName(c),
+    toTypeName(c),
     Seq(c.typeParameters map toType:_*),
     ctor(c.constructor),
     template(c.extendsBlock)
@@ -75,7 +75,7 @@ trait TreeAdapter {
 
   def toObject(o: p.toplevel.typedef.ScObject) = m.Defn.Object(
     convertMods(o),
-    toName(o),
+    toTermName(o),
     m.Ctor.Primary(Nil, m.Ctor.Ref.Name("this"), Nil),
     template(o.extendsBlock)
   )
@@ -106,16 +106,16 @@ trait TreeAdapter {
       case t: ScPattern           => pattern(t)
     }
     pt match {
-      case t: ScReferencePattern  =>  Var.Term(toName(t))
-      case t: ScConstructorPattern=>  Extract(ref(t.ref), Nil, Seq(t.args.patterns.map(arg):_*))
-      case t: ScNamingPattern     =>  Bind(Var.Term(toName(t)), arg(t.named))
-      case t@ ScTypedPattern(te: p.base.types.ScWildcardTypeElement) => Typed(if (t.isWildcard) Wildcard() else Var.Term(toName(t)), Type.Wildcard())
-      case t@ ScTypedPattern(te)  =>  Typed(if (t.isWildcard) Wildcard() else Var.Term(toName(t)), toType(te).patTpe)
+      case t: ScReferencePattern  =>  Var.Term(toTermName(t))
+      case t: ScConstructorPattern=>  Extract(toTermName(t.ref), Nil, Seq(t.args.patterns.map(arg):_*))
+      case t: ScNamingPattern     =>  Bind(Var.Term(toTermName(t)), arg(t.named))
+      case t@ ScTypedPattern(te: p.base.types.ScWildcardTypeElement) => Typed(if (t.isWildcard) Wildcard() else Var.Term(toTermName(t)), Type.Wildcard())
+      case t@ ScTypedPattern(te)  =>  Typed(if (t.isWildcard) Wildcard() else Var.Term(toTermName(t)), toType(te).patTpe)
       case t: ScLiteralPattern    =>  literal(t.getLiteral)
       case t: ScTuplePattern      =>  Tuple(Seq(t.patternList.get.patterns.map(pattern):_*))
       case t: ScWildcardPattern   =>  Wildcard()
       case t: ScCompositePattern  =>  compose(Seq(t.subpatterns : _*))
-      case t: ScInfixPattern      =>  ExtractInfix(pattern(t.leftPattern), ref(t.refernece), t.rightPattern.map(pt=>Seq(pattern(pt))).getOrElse(Nil))
+      case t: ScInfixPattern      =>  ExtractInfix(pattern(t.leftPattern), toTermName(t.refernece), t.rightPattern.map(pt=>Seq(pattern(pt))).getOrElse(Nil))
       case t: ScPattern => t ?!
     }
   }
@@ -202,13 +202,13 @@ trait TreeAdapter {
     def qual(q: p.base.ScStableCodeReferenceElement): m.Term.Ref = {
       q.pathQualifier match {
         case Some(parent: p.expr.ScSuperReference) =>
-          m.Term.Select(m.Term.Super(m.Name.Anonymous(), m.Name.Anonymous()), ref(q))
+          m.Term.Select(m.Term.Super(m.Name.Anonymous(), m.Name.Anonymous()), toTermName(q))
         case Some(parent: p.expr.ScThisReference) =>
-          m.Term.Select(m.Term.This(m.Name.Anonymous()), ref(q))
+          m.Term.Select(m.Term.This(m.Name.Anonymous()), toTermName(q))
         case Some(parent:p.base.ScStableCodeReferenceElement) =>
-          m.Term.Select(qual(parent), ref(q))
+          m.Term.Select(qual(parent), toTermName(q))
         case Some(other) => other ?!
-        case None         => ref(q)
+        case None         => toTermName(q)
       }
     }
     def selector(sel: p.toplevel.imports.ScImportSelector): m.Import.Selector = {
@@ -246,7 +246,7 @@ trait TreeAdapter {
 
   def patternDefinition(t: p.statements.ScPatternDefinition): m.Tree = {
     def pattern(bp: p.base.patterns.ScBindingPattern): m.Pat = {
-      m.Pat.Var.Term(m.Term.Name(bp.name))
+      m.Pat.Var.Term(toTermName(bp))
     }
 
     if(t.bindings.exists(_.isVal))
@@ -293,8 +293,8 @@ trait TreeAdapter {
   protected def convertParam(param: p.statements.params.ScParameter): m.Term.Param = {
       val mods = convertMods(param) ++ (if (param.isImplicitParameter) Seq(m.Mod.Implicit()) else Seq.empty)
       if (param.isVarArgs)
-        m.Term.Param(mods, m.Term.Name(param.name), param.typeElement.map(tp => m.Type.Arg.Repeated(toType(tp))), None)
+        m.Term.Param(mods, toTermName(param), param.typeElement.map(tp => m.Type.Arg.Repeated(toType(tp))), None)
       else
-        m.Term.Param(mods, m.Term.Name(param.name), param.typeElement.map(toType), None)
+        m.Term.Param(mods, toTermName(param), param.typeElement.map(toType), None)
   }
 }

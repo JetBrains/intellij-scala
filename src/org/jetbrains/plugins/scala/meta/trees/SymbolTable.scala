@@ -33,7 +33,9 @@ trait SymbolTable {
     elem match {
       case mm: p.toplevel.typedef.ScMember =>
         if (mm.containingClass == null) h.Symbol.Empty else toSymbol(mm.containingClass)
-
+      case bp: p.base.patterns.ScBindingPattern =>
+        if (bp.containingClass == null) h.Symbol.Empty else toSymbol(bp.containingClass)
+      case other => other ?!
     }
   }
 
@@ -69,6 +71,8 @@ trait SymbolTable {
         toSymbol(cr.resolve())
       case ta: p.statements.ScTypeAlias =>
         h.Symbol.Global(ownerSymbol(ta), ta.name, h.Signature.Type)
+      case bp: p.base.patterns.ScBindingPattern =>
+        h.Symbol.Global(ownerSymbol(bp), bp.name, h.Signature.Term)
       case _ => elem ?!
     }
   }

@@ -16,30 +16,23 @@ trait Namer {
   self: Converter =>
 
   def toTermName(elem: PsiElement): m.Term.Name = elem match {
-    case td: p.toplevel.typedef.ScTemplateDefinition =>
-      m.Term.Name(td.name).withDenot(td)
     case ne: p.toplevel.ScNamedElement =>
       m.Term.Name(ne.name).withDenot(ne)
     case re: p.expr.ScReferenceExpression =>
       toTermName(re.resolve())
+    case cr: p.base.ScStableCodeReferenceElement =>
+      m.Term.Name(cr.refName).withDenot(cr)
     case se: impl.toplevel.synthetic.SyntheticNamedElement => ??? // FIXME: find a way to resolve synthetic elements
     case other => other ?!
   }
 
   def toTypeName(elem: PsiElement): m.Type.Name = elem match {
-    case ta: p.statements.ScTypeAlias => m.Type.Name(ta.name).withDenot(ta)
-  }
-
-  def toName(td: p.toplevel.typedef.ScTypeDefinition) = {
-    m.Type.Name(td.name)
-  }
-
-  def toName(o: p.toplevel.typedef.ScObject) = {
-    m.Term.Name(o.name)
-  }
-
-  def toName(n: p.toplevel.ScNamedElement) = {
-    m.Term.Name(n.name)
+    case ne: p.toplevel.ScNamedElement =>
+      m.Type.Name(ne.name).withDenot(ne)
+    case re: p.expr.ScReferenceExpression =>
+      toTypeName(re.resolve())
+    case se: impl.toplevel.synthetic.SyntheticNamedElement => ??? // FIXME: find a way to resolve synthetic elements
+    case other => other ?!
   }
 
   def toName(t: p.base.ScPrimaryConstructor) = {
@@ -54,8 +47,4 @@ trait Namer {
     m.Name.Indeterminate(cr.getCanonicalText)
   }
 
-  def ref(cr: p.base.ScStableCodeReferenceElement): m.Term.Name = {
-    m.Term.Name(cr.refName).withDenot(cr)
-  }
-  
 }
