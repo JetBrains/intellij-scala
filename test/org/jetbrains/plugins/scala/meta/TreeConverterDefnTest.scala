@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.meta
 
 import scala.meta.internal.ast._
 
-class TreeConverterDefnTest extends  TreeConverterTestBase {
+class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
 
   def testValInit() {
     doTest(
@@ -114,8 +114,8 @@ class TreeConverterDefnTest extends  TreeConverterTestBase {
 
   def testManyStatements() {
     doTest(
-      "def f = {foo(); bar(); 42}",
-      Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Term.Block(List(Term.Apply(Term.Name("foo"), Nil), Term.Apply(Term.Name("bar"), Nil), Lit.Int(42))))
+      "def f = {f(); f(); 42}",
+      Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Term.Block(List(Term.Apply(Term.Name("f"), Nil), Term.Apply(Term.Name("f"), Nil), Lit.Int(42))))
     )
   }
 }

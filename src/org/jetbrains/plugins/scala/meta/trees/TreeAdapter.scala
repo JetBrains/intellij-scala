@@ -23,9 +23,9 @@ trait TreeAdapter {
       case t: p.statements.ScVariableDeclaration =>
         m.Decl.Var(convertMods(t), Seq(t.getIdList.fieldIds map { it => m.Pat.Var.Term(m.Term.Name(it.name))}:_*), toType(t.typeElement.get.calcType))
       case t: p.statements.ScTypeAliasDeclaration =>
-        m.Decl.Type(convertMods(t), m.Type.Name(t.name), Seq(t.typeParameters map toType: _*), typeBounds(t))
+        m.Decl.Type(convertMods(t), toTypeName(t), Seq(t.typeParameters map toType: _*), typeBounds(t))
       case t: p.statements.ScTypeAliasDefinition =>
-        m.Defn.Type(convertMods(t), toName(t), Seq(t.typeParameters map toType:_*), toType(t.aliasedType))
+        m.Defn.Type(convertMods(t), toTypeName(t), Seq(t.typeParameters map toType:_*), toType(t.aliasedType))
       case t: p.statements.ScFunctionDeclaration =>
         m.Decl.Def(convertMods(t), m.Term.Name(t.name), Seq(t.typeParameters map toType:_*), Seq(t.paramClauses.clauses.map(convertParamClause):_*), returnType(t.returnType))
       case t: p.statements.ScPatternDefinition =>
@@ -102,7 +102,7 @@ trait TreeAdapter {
     def arg(pt: p.base.patterns.ScPattern): m.Pat.Arg = pt match {
       case t: ScSeqWildcard       =>  Arg.SeqWildcard()
       case t: ScWildcardPattern   =>  Wildcard()
-      case t: ScStableReferenceElementPattern => toName(t.refElement.get.resolve())
+      case t: ScStableReferenceElementPattern => toTermName(t.refElement.get.resolve())
       case t: ScPattern           => pattern(t)
     }
     pt match {
@@ -169,13 +169,13 @@ trait TreeAdapter {
       case t: ScUnitExpr => m.Lit.Unit()
       case t: ScReturnStmt => m.Term.Return(expression(t.expr).get)
       case t: ScBlock => m.Term.Block(Seq(t.statements.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*))
-      case t: ScMethodCall => m.Term.Apply(toName(t.getInvokedExpr), Seq(t.args.exprs.map(callArgs):_*))
-      case t: ScInfixExpr => m.Term.ApplyInfix(expression(t.getBaseExpr), toName(t.getInvokedExpr), Nil, Seq(expression(t.getArgExpr)))
-      case t: ScPrefixExpr => m.Term.ApplyUnary(toName(t.operation), expression(t.operand))
+      case t: ScMethodCall => m.Term.Apply(toTermName(t.getInvokedExpr), Seq(t.args.exprs.map(callArgs):_*))
+      case t: ScInfixExpr => m.Term.ApplyInfix(expression(t.getBaseExpr), toTermName(t.getInvokedExpr), Nil, Seq(expression(t.getArgExpr)))
+      case t: ScPrefixExpr => m.Term.ApplyUnary(toTermName(t.operation), expression(t.operand))
       case t: ScIfStmt => m.Term.If(expression(t.condition.get),
         t.thenBranch.map(expression).getOrElse(m.Lit.Unit()), t.elseBranch.map(expression).getOrElse(m.Lit.Unit()))
       case t: ScMatchStmt => m.Term.Match(expression(t.expr.get), Seq(t.caseClauses.map(caseClause):_*))
-      case t: ScReferenceExpression => toName(t)
+      case t: ScReferenceExpression => toTermName(t)
       case t: ScNewTemplateDefinition => m.Term.New(template(t))
       case t: ScFunctionExpr => m.Term.Function(Seq(t.parameters.map(convertParam):_*), expression(t.result).get)
       case other: ScalaPsiElement => other ?!
@@ -184,7 +184,7 @@ trait TreeAdapter {
 
   def callArgs(e: p.expr.ScExpression) = {
     e match {
-      case t: p.expr.ScAssignStmt => m.Term.Arg.Named(toName(t.getLExpression), expression(t.getRExpression).get)
+      case t: p.expr.ScAssignStmt => m.Term.Arg.Named(toTermName(t.getLExpression), expression(t.getRExpression).get)
       case t: p.expr.ScUnderscoreSection => m.Term.Placeholder()
       case other => expression(e)
     }

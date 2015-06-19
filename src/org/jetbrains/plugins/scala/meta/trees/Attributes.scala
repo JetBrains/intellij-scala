@@ -22,14 +22,20 @@ trait Attributes {
           case cr: p.base.ScStableCodeReferenceElement =>
             h.Denotation.Single(h.Prefix.Zero, toSymbol(cr))
           case re: p.base.patterns.ScBindingPattern =>
-            // FIXME: zero prefix?
-            h.Denotation.Single(h.Prefix.Zero, toSymbol(re))
+            h.Denotation.Single(Option(re.containingClass).map(cc => h.Prefix.Type(toType(cc))).getOrElse(h.Prefix.Zero), toSymbol(re))
           case r: org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl =>
             h.Denotation.Single(h.Prefix.Type(toType(r.getParentPackage)), toSymbol(r))
           case td: p.toplevel.typedef.ScTypeDefinition if !td.qualifiedName.contains(".") =>
             h.Denotation.Single(h.Prefix.Zero, toSymbol(td))
           case td: p.toplevel.typedef.ScTypeDefinition =>
             h.Denotation.Single(h.Prefix.Type(toType(td.parent.get)), toSymbol(td))
+          case ta: p.statements.ScTypeAlias =>
+            h.Denotation.Single(Option(ta.containingClass).map(cc => h.Prefix.Type(toType(cc))).getOrElse(h.Prefix.Zero), toSymbol(ta))
+          case mm: p.toplevel.typedef.ScMember =>
+            h.Denotation.Single(Option(mm.containingClass).map(cc => h.Prefix.Type(toType(cc))).getOrElse(h.Prefix.Zero), toSymbol(mm))
+          case pp: p.statements.params.ScParameter =>
+            // FIXME: prefix of a parameter?
+            h.Denotation.Single(h.Prefix.Zero, toSymbol(pp))
         }
     }
 

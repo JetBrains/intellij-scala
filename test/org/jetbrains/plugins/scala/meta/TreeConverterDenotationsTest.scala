@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.meta
 
 import scala.meta.internal.ast._
-import scala.meta.Semantics
+import scala.meta._
 
 class TreeConverterDenotationsTest extends TreeConverterTestBaseWithLibrary {
 
