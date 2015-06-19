@@ -237,6 +237,7 @@ trait TreeAdapter {
       case ScLiteral(d: java.lang.Double)     => Lit.Double(d)
       case ScLiteral(b: java.lang.Boolean)    => Lit.Bool(b)
       case ScLiteral(c: java.lang.Character)  => Lit.Char(c)
+      case ScLiteral(b: java.lang.Byte)       => Lit.Byte(b)
       case ScLiteral(s: String)               => Lit.String(s)
       case ScLiteral(null)                    => Lit.Null()
       case _ if l.isSymbol                    => Lit.Symbol(l.getValue.asInstanceOf[Symbol])
