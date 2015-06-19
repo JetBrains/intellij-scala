@@ -14,7 +14,7 @@ class TreeConverterExprTest extends TreeConverterTestBase {
   def testIfElse() {
     doTest(
       "if (false) 42 else 0",
-      Term.If(Lit.Bool(value = true), Lit.Int(42), Lit.Int(0))
+      Term.If(Lit.Bool(value = false), Lit.Int(42), Lit.Int(0))
     )
   }
   

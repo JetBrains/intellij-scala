@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.meta.trees
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, TypeResult}
 
 import scala.meta.internal.ast.Term.Param
 import scala.{Seq => _}
@@ -60,6 +60,7 @@ trait TypeAdapter {
   def toType(elem: PsiElement): m.Type = {
     elem match {
       case t: p.toplevel.packaging.ScPackaging => m.Type.Singleton(ref(t.reference.get))
+      case t: p.toplevel.typedef.ScTemplateDefinition => toType(t.getType(TypingContext.empty))
     }
   }
 

@@ -7,6 +7,7 @@ import scala.{Seq => _}
 import scala.collection.immutable.Seq
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.{api => p}
+import org.jetbrains.plugins.scala.lang.psi.{impl => impl}
 import org.jetbrains.plugins.scala.lang.psi.{types => ptype}
 import scala.meta.internal.{ast=>m}
 import scala.meta.internal.{semantic => h}
@@ -14,20 +15,19 @@ import scala.meta.internal.{semantic => h}
 trait Namer {
   self: Converter =>
 
-  def toName(elem: PsiElement): m.Term.Name = {
-    elem match {
-      case td: p.toplevel.typedef.ScTemplateDefinition => m.Term.Name(td.name).withDenot(td)
-      case ne: p.toplevel.ScNamedElement => m.Term.Name(ne.name).withDenot(ne)
-      case re: p.expr.ScReferenceExpression => toName(re.resolve())
-    }
+  def toTermName(elem: PsiElement): m.Term.Name = elem match {
+    case td: p.toplevel.typedef.ScTemplateDefinition =>
+      m.Term.Name(td.name).withDenot(td)
+    case ne: p.toplevel.ScNamedElement =>
+      m.Term.Name(ne.name).withDenot(ne)
+    case re: p.expr.ScReferenceExpression =>
+      toTermName(re.resolve())
+    case se: impl.toplevel.synthetic.SyntheticNamedElement => ??? // FIXME: find a way to resolve synthetic elements
+    case other => other ?!
   }
 
-//  def toName(e: p.expr.ScExpression): m.Term.Name = {
-//    m.Term.Name(e.getText)
-//  }
-
-  def toName(e: p.statements.ScTypeAlias): m.Type.Name = {
-    m.Type.Name(e.name)
+  def toTypeName(elem: PsiElement): m.Type.Name = elem match {
+    case ta: p.statements.ScTypeAlias => m.Type.Name(ta.name).withDenot(ta)
   }
 
   def toName(td: p.toplevel.typedef.ScTypeDefinition) = {
