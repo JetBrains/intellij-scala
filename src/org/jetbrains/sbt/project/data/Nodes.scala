@@ -75,13 +75,13 @@ class LibraryDependencyNode(val data: LibraryDependencyData)
   protected def key = ProjectKeys.LIBRARY_DEPENDENCY
 }
 
-class ScalaProjectNode(val data: ScalaProjectData)
-  extends Node[ScalaProjectData] {
-  def this(basePackages: Seq[String], jdk: Option[ScalaProjectData.Sdk], javacOptions: Seq[String], sbtVersion: String, projectPath: String) {
-    this(new ScalaProjectData(SbtProjectSystem.Id, basePackages, jdk, javacOptions, sbtVersion, projectPath))
+class ScalaProjectNode(val data: SbtProjectData)
+  extends Node[SbtProjectData] {
+  def this(basePackages: Seq[String], jdk: Option[SbtProjectData.Sdk], javacOptions: Seq[String], sbtVersion: String, projectPath: String) {
+    this(new SbtProjectData(SbtProjectSystem.Id, basePackages, jdk, javacOptions, sbtVersion, projectPath))
   }
 
-  protected def key = ScalaProjectData.Key
+  protected def key = SbtProjectData.Key
 }
 
 class ScalaSdkNode(val data: ScalaSdkData)

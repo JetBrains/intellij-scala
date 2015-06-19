@@ -15,18 +15,18 @@ object SbtModule {
   private val ResolversKey = "sbt.resolvers"
 
   def getImportsFrom(module: Module): Seq[String] =
-    Option(module).safeMap(_.getOptionValue(ImportsKey)).fold(Sbt.DefaultImplicitImports)(_.split(Delimiter))
+    Option(module.getOptionValue(ImportsKey)).filter(_.nonEmpty).fold(Sbt.DefaultImplicitImports)(_.split(Delimiter))
 
   def setImportsTo(module: Module, imports: Seq[String]) =
-    Option(module).foreach(_.setOption(ImportsKey, imports.mkString(Delimiter)))
+    Option(module.setOption(ImportsKey, imports.mkString(Delimiter)))
 
   def getResolversFrom(module: Module): Set[SbtResolver] =
-    Option(module).safeMap(_.getOptionValue(ResolversKey)).map { str =>
+    Option(module.getOptionValue(ResolversKey)).map { str =>
       str.split(Delimiter).map(SbtResolver.fromString).collect {
         case Some(r) => r
       }.toSet
     }.getOrElse(Set.empty)
 
   def setResolversTo(module: Module, resolvers: Set[SbtResolver]) =
-    Option(module).foreach(_.setOption(ResolversKey, resolvers.map(_.toString).mkString(Delimiter)))
+    Option(module.setOption(ResolversKey, resolvers.map(_.toString).mkString(Delimiter)))
 }
