@@ -1,24 +1,30 @@
 package org.jetbrains.plugins.scala.lang.highlighting
 
 import java.io.File
+import java.util
 
-import com.intellij.analysis.AnalysisScope
-import com.intellij.codeInspection.ex.{GlobalInspectionContextImpl, InspectionManagerEx, LocalInspectionToolWrapper}
-import com.intellij.codeInspection.reference.{RefEntity, RefFile}
-import com.intellij.codeInspection.{CommonProblemDescriptor, InspectionManager}
+import com.intellij.codeInspection.InspectionManager
+import com.intellij.codeInspection.ex.InspectionManagerEx
 import com.intellij.ide.highlighter.JavaFileType
+import com.intellij.lang.ASTNode
+import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.projectRoots.{JavaSdkType, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.psi.{PsiElement, PsiManager}
+import com.intellij.psi.impl.PsiManagerEx
+import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope}
 import com.intellij.testFramework.IdeaTestUtil
-import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
+import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.codeInspection.internal.AnnotatorBasedErrorInspection
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -85,34 +91,60 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
       new SourceFilterScope(GlobalSearchScope.getScopeRestrictedByFileTypes(GlobalSearchScope.projectScope(myProject),
         ScalaFileType.SCALA_FILE_TYPE, JavaFileType.INSTANCE), myProject)
 
-    val scope: AnalysisScope = new AnalysisScope(searchScope, myProject)
-    val wrapper = new LocalInspectionToolWrapper(new AnnotatorBasedErrorInspection)
-    val inspectionContext: GlobalInspectionContextImpl = CodeInsightTestFixtureImpl.createGlobalContextForTool(
-      scope, myProject, inspectionManagerEx, wrapper
-    )
-    inspectionContext.doInspections(scope)
-    val presentation = inspectionContext.getPresentation(wrapper)
-    val problems = presentation.getProblemElements
-    if (!problems.isEmpty) {
-      import scala.collection.JavaConversions._
-      val number = problems.map(_._2.length).sum
+    val files: util.Collection[VirtualFile] = FileTypeIndex.getFiles(ScalaFileType.SCALA_FILE_TYPE, searchScope)
 
-      problems.foreach {
-        case (entity: RefEntity, descriptors: Array[CommonProblemDescriptor]) =>
-          entity match {
-            case entity: RefFile =>
-              println(entity.getElement.getVirtualFile.getPath)
-            case _ =>
-              println(entity.getQualifiedName)
-          }
-          descriptors.foreach {
-            case descriptor: CommonProblemDescriptor =>
-              println("  " + descriptor.getDescriptionTemplate)
-          }
+    LocalFileSystem.getInstance().refreshFiles(files)
+
+    val fileManager = PsiManager.getInstance(myProject).asInstanceOf[PsiManagerEx].getFileManager
+    val annotator = new ScalaAnnotator
+
+
+    import scala.collection.JavaConversions._
+
+    var percent = 0
+    var errorCount = 0
+    val size: Int = files.size()
+
+    for ((file, index) <- files.zipWithIndex) {
+      val mock = new AnnotatorHolderMock {
+        override def createErrorAnnotation(range: TextRange, message: String): Annotation = {
+          errorCount += 1
+          println(s"Error in ${file.getName}. Range: $range. Message: $message.")
+          super.createErrorAnnotation(range, message)
+        }
+
+        override def createErrorAnnotation(elt: PsiElement, message: String): Annotation = {
+          errorCount += 1
+          println(s"Error in ${file.getName}. Range: ${elt.getTextRange}. Message: $message.")
+          super.createErrorAnnotation(elt, message)
+        }
       }
 
-      assert(assertion = false, s"Project has $number errors!")
+      if ((index + 1) * 100 >= (percent + 1) * size) {
+        while ((index + 1) * 100 >= (percent + 1) * size) percent += 1
+        println(s"Analyzing... $percent%")
+      }
+
+      val psi = fileManager.findFile(file)
+
+
+      val visitor = new ScalaRecursiveElementVisitor {
+        override def visitElement(element: ScalaPsiElement) {
+          try {
+            annotator.annotate(element, mock)
+          } catch {
+            case e: Throwable =>
+              println(s"Exception in ${file.getName}, Stacktrace: ")
+              e.printStackTrace()
+              assert(false)
+          }
+          super.visitElement(element)
+        }
+      }
+      psi.accept(visitor)
     }
+
+    assert(errorCount == 0, s"$errorCount found.")
   }
 
   override protected def setUpInWriteAction(): Unit = {
@@ -123,6 +155,5 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
     SbtSystemSettings.getInstance(myProject).setCustomLauncherEnabled(true)
     SbtSystemSettings.getInstance(myProject).setCustomLauncherPath(new File("scala-plugin/jars/sbt-launch.jar").getAbsolutePath)
     SbtSystemSettings.getInstance(myProject).setCustomSbtStructureDir(new File("scala-plugin/jars").getAbsolutePath)
-    myFixture.enableInspections(classOf[AnnotatorBasedErrorInspection])
   }
 }
