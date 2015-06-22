@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.meta.trees
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiPackage, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -19,6 +19,8 @@ trait Namer {
       toTermName(re.resolve())
     case cr: ScStableCodeReferenceElement =>
       m.Term.Name(cr.refName).withDenot(cr)
+    case pp: PsiPackage =>
+      m.Term.Name(pp.getName).withDenot(pp)
     case se: impl.toplevel.synthetic.SyntheticNamedElement => ??? // FIXME: find a way to resolve synthetic elements
     case cs: p.base.ScConstructor =>
       toTermName(cs.reference.get)

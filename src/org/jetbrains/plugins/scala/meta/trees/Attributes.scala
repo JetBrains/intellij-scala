@@ -17,7 +17,6 @@ trait Attributes {
   protected implicit class RichAttributesTree[T <: m.Tree](ptree: T) {
 
     def denot[P <: PsiElement](elem: Option[P]): h.Denotation = {
-//      def prefix(elem: PsiElement) = h.Prefix.
       def mprefix(elem: PsiElement) = h.Prefix.Type(toType(elem))
       if (elem.isEmpty) h.Denotation.Zero
       else
@@ -26,6 +25,7 @@ trait Attributes {
           case cr: ScStableCodeReferenceElement if cr.qualifier.isDefined =>
             h.Denotation.Single(h.Prefix.Type(m.Type.Singleton(toTermName(cr.qualifier.get))), toSymbol(cr))
           case cr: ScStableCodeReferenceElement =>
+            // FIXME: prefix.zero?
             h.Denotation.Single(h.Prefix.Zero, toSymbol(cr))
           case td: ScFieldId =>
             val pref = td.nameContext match {

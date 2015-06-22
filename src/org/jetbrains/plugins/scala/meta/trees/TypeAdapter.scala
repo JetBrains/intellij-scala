@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.meta.trees
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiPackage, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
@@ -44,7 +44,7 @@ trait TypeAdapter {
         }
       case t: ScTypeVariableTypeElement =>
         println("i cannot into type variables"); ???
-      case _ => println(tp.getClass); ???
+      case other => other ?!
     }
   }
 
@@ -59,7 +59,10 @@ trait TypeAdapter {
   def toType(elem: PsiElement): m.Type = {
     elem match {
       case t: packaging.ScPackaging => m.Type.Singleton(toTermName(t.reference.get))
-      case t: typedef.ScTemplateDefinition => toType(t.getType(TypingContext.empty))
+      case t: PsiPackage if t.getName == null => m.Type.Singleton(rootPackageName)
+      case t: PsiPackage => m.Type.Singleton(toTermName(t))
+      case t: typedef.ScTemplateDefinition => toType(t.getType(TypingContext.empty)) // FIXME: what about typing context?
+      case other => other ?!
     }
   }
 
@@ -67,7 +70,7 @@ trait TypeAdapter {
 
     tp match {
       case t: ScParameterizedType => m.Type.Apply(toType(t.designator), Seq(t.typeArgs.map(toType):_*))
-      case t: ScDesignatorType =>  m.Type.Name(t.canonicalText, denot = h.Denotation.Zero).withDenot(t.element)
+      case t: ScDesignatorType =>  m.Type.Name(t.canonicalText).withDenot(t.element)
 
       case t: ptype.ScType => m.Type.Name(t.canonicalText)
     }
