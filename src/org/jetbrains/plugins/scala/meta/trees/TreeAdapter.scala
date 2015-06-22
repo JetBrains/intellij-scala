@@ -284,8 +284,8 @@ trait TreeAdapter {
     overrideMod ++ common ++ classParam
   }
 
-  def convertParamClause(params: params.ScParameterClause): Seq[Param] = {
-    Seq(params.parameters.map(convertParam):_*)
+  def convertParamClause(paramss: params.ScParameterClause): Seq[Param] = {
+    Seq(paramss.parameters.map(convertParam):_*)
   }
 
   protected def convertParam(param: params.ScParameter): m.Term.Param = {
