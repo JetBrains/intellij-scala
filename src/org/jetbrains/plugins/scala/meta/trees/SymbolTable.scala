@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
@@ -52,6 +53,13 @@ trait SymbolTable {
         fqnameToSymbol(td.qualifiedName)
       case td: ScTypeDefinition =>
         h.Symbol.Global(toSymbol(td.parent.get), td.name, h.Signature.Type)
+      case td: ScFieldId =>
+        val owner = td.nameContext match {
+          case vd: ScValueDeclaration => ownerSymbol(vd)
+          case vd: ScVariableDeclaration => ownerSymbol(vd)
+          case other => other ?!
+        }
+        h.Symbol.Global(owner, td.name, h.Signature.Term)
       case td: ScFunction =>
         // meta trees don't resolve unapply methods
         if (td.name == "unapply")
