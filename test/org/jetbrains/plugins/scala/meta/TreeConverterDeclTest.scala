@@ -192,4 +192,12 @@ class TreeConverterDeclTest extends TreeConverterTestBase {
         Nil, Type.Name("T"))
     )
   }
+  
+  def testLocalDeclarations() {
+    doTest(
+      "def f = { val x = 42 }",
+      Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Term.Block(List(Defn.Val(Nil, List(Pat.Var.Term(Term.Name("x"))), None, Lit.Int(42)))))
+    )
+  }
+  
 }

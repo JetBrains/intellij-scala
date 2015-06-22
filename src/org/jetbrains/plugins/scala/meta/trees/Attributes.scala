@@ -55,18 +55,18 @@ trait Attributes {
     def withDenot[P <: PsiElement](elem: P): T = withDenot(Some(elem))
 
     def withDenot[P <: PsiElement](elem: Option[P]): T = {
-      val ptree1 = ptree match {
+      val denotatedTree = ptree match {
         case ptree: m.Name.Anonymous => ptree.copy(denot = denot(elem))
         case ptree: m.Name.Indeterminate => ptree.copy(denot = denot(elem))
-        case ptree: m.Term.Name => ptree.copy(denot = denot(elem))
+        case ptree: m.Term.Name => ptree.copy(denot = denot(elem), typing = ptree.typing)
         case ptree: m.Type.Name => ptree.copy(denot = denot(elem))
         // TODO: some ctor refs don't have corresponding constructor symbols in Scala (namely, ones for traits)
         // in these cases, our lsym is going to be a symbol of the trait in question
         // we need to account for that in `symbolTable.convert` and create a constructor symbol of our own
-        case ptree: m.Ctor.Name => ptree.copy(denot = denot(elem))
+        case ptree: m.Ctor.Name => ptree.copy(denot = denot(elem), typing = ptree.typing)
         case _ => ???
       }
-      ptree
+      denotatedTree.asInstanceOf[T]
     }
   }
 
