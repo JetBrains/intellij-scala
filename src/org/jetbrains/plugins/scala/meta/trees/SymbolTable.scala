@@ -1,16 +1,15 @@
 package org.jetbrains.plugins.scala.meta.trees
 
-import java.util.UUID._
-
-import com.intellij.psi.{PsiPackage, PsiElement, PsiNamedElement}
+import com.intellij.psi.{PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
-//import scala.{Seq => _}
-//import scala.collection.immutable.Seq
-import org.jetbrains.plugins.scala.lang.psi.{api => p}
-import org.jetbrains.plugins.scala.lang.psi.{types => ptype}
-import scala.meta.internal.{ast=>m}
-import scala.meta.internal.{semantic => h}
+import scala.meta.internal.{ast => m, semantic => h}
 
 trait SymbolTable {
   self: Converter =>
@@ -18,9 +17,9 @@ trait SymbolTable {
 
   def isLocal(elem: PsiElement): Boolean = {
     elem match {
-      case e: p.toplevel.typedef.ScTypeDefinition => e.isLocal
-      case e: p.base.patterns.ScBindingPattern if e.containingClass == null => true
-      case pp: p.statements.params.ScParameter => true
+      case e: ScTypeDefinition => e.isLocal
+      case e: ScBindingPattern if e.containingClass == null => true
+      case pp: params.ScParameter => true
       case _ => false
     }
   }
@@ -31,9 +30,9 @@ trait SymbolTable {
 
   def ownerSymbol(elem: PsiElement): h.Symbol = {
     elem match {
-      case mm: p.toplevel.typedef.ScMember =>
+      case mm: ScMember =>
         if (mm.containingClass == null) h.Symbol.Empty else toSymbol(mm.containingClass)
-      case bp: p.base.patterns.ScBindingPattern =>
+      case bp: ScBindingPattern =>
         if (bp.containingClass == null) h.Symbol.Empty else toSymbol(bp.containingClass)
       case other => other ?!
     }
@@ -47,13 +46,13 @@ trait SymbolTable {
           h.Symbol.Local(elem.getContainingFile.getName + ":" + elem.getTextOffset)
         else
           h.Symbol.Local(elem.getContainingFile.getVirtualFile.getCanonicalPath + "\n" + elem.getTextOffset)
-      case td: p.toplevel.typedef.ScTypeDefinition if !td.qualifiedName.contains(".") => // empty package defn
+      case td: ScTypeDefinition if !td.qualifiedName.contains(".") => // empty package defn
         h.Symbol.Global(h.Symbol.Empty, td.name, h.Signature.Type)
-      case td: p.toplevel.typedef.ScTemplateDefinition =>
+      case td: ScTemplateDefinition =>
         fqnameToSymbol(td.qualifiedName)
-      case td: p.toplevel.typedef.ScTypeDefinition =>
+      case td: ScTypeDefinition =>
         h.Symbol.Global(toSymbol(td.parent.get), td.name, h.Signature.Type)
-      case td: p.statements.ScFunction =>
+      case td: ScFunction =>
         // meta trees don't resolve unapply methods
         if (td.name == "unapply")
           toSymbol(td.containingClass)
@@ -61,17 +60,17 @@ trait SymbolTable {
           val jvmsig = DebuggerUtil.getFunctionJVMSignature(td).getName(null)
           h.Symbol.Global(ownerSymbol(td), td.name, h.Signature.Method(jvmsig))
         }
-      case pc: p.toplevel.packaging.ScPackaging =>
+      case pc: ScPackaging =>
         toSymbol(pc.reference.get.bind().get.element)
       case pp: PsiPackage if pp.getName == null =>
         h.Symbol.Root
       case pc: PsiPackage =>
         h.Symbol.Global(toSymbol(pc.getParentPackage), pc.getName, h.Signature.Type)
-      case cr: p.base.ScStableCodeReferenceElement =>
+      case cr: ScStableCodeReferenceElement =>
         toSymbol(cr.resolve())
-      case ta: p.statements.ScTypeAlias =>
+      case ta: ScTypeAlias =>
         h.Symbol.Global(ownerSymbol(ta), ta.name, h.Signature.Type)
-      case bp: p.base.patterns.ScBindingPattern =>
+      case bp: ScBindingPattern =>
         h.Symbol.Global(ownerSymbol(bp), bp.name, h.Signature.Term)
       case _ => elem ?!
     }

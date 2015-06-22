@@ -1,15 +1,10 @@
 package org.jetbrains.plugins.scala.meta.trees
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
-import scala.meta.internal.ast.Term.Param
+import scala.meta.internal.{ast => m, semantic => h}
 import scala.{Seq => _}
-import scala.collection.immutable.Seq
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.{api => p}
-import org.jetbrains.plugins.scala.lang.psi.{types => ptype}
-import scala.meta.internal.{ast=>m}
-import scala.meta.internal.{semantic => h}
 
 trait Utils {
   self: Converter =>

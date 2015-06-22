@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.meta.trees
 
-import com.intellij.psi.{PsiElement, PsiNamedElement}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
 import scala.meta.internal.{ast => m, semantic => h}
-//import scala.{Seq => _}
 
 trait Attributes {
   self: Converter =>

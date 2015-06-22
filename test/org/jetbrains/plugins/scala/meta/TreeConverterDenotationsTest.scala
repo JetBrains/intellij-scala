@@ -7,7 +7,7 @@ class TreeConverterDenotationsTest extends TreeConverterTestBaseWithLibrary {
 
   def testSimple() {
     val a = convert(
-      "var a: scala.collection.immutable.List[Int] = _"
+      "scala.collection.immutable.List()"
     )
     val b = a.show[Semantics]
     ""
