@@ -26,7 +26,10 @@ trait SymbolTable {
   }
 
   def fqnameToSymbol(fqName: String): h.Symbol = {
-    fqName.split('.').foldLeft(h.Symbol.Root.asInstanceOf[h.Symbol])((parent, name) => h.Symbol.Global(parent, name, h.Signature.Type))
+    fqName
+      .split('.')
+      .dropRight(1)
+      .foldLeft(h.Symbol.Root.asInstanceOf[h.Symbol])((parent, name) => h.Symbol.Global(parent, name, h.Signature.Term))
   }
 
   def ownerSymbol(elem: PsiElement): h.Symbol = {
@@ -50,7 +53,7 @@ trait SymbolTable {
       case td: ScTypeDefinition if !td.qualifiedName.contains(".") => // empty package defn
         h.Symbol.Global(h.Symbol.Empty, td.name, h.Signature.Type)
       case td: ScTemplateDefinition =>
-        fqnameToSymbol(td.qualifiedName)
+        h.Symbol.Global(fqnameToSymbol(td.qualifiedName), td.name, h.Signature.Type)
       case td: ScTypeDefinition =>
         h.Symbol.Global(toSymbol(td.parent.get), td.name, h.Signature.Type)
       case td: ScFieldId =>
@@ -73,7 +76,7 @@ trait SymbolTable {
       case pp: PsiPackage if pp.getName == null =>
         h.Symbol.Root
       case pc: PsiPackage =>
-        h.Symbol.Global(toSymbol(pc.getParentPackage), pc.getName, h.Signature.Type)
+        h.Symbol.Global(toSymbol(pc.getParentPackage), pc.getName, h.Signature.Term)
       case cr: ScStableCodeReferenceElement =>
         toSymbol(cr.resolve())
       case ta: ScTypeAlias =>

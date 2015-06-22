@@ -143,6 +143,7 @@ trait TreeAdapter {
     val early   = t.extendsBlock.earlyDefinitions map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*)) getOrElse Seq.empty
     val ctor = t.extendsBlock.templateParents match {
       case Some(parents: p.toplevel.templates.ScClassParents) => toCtor(parents.constructor.get)
+      case None => ???
     }
     val self    = t.selfType match {
       case Some(tpe: ptype.ScType) => m.Term.Param(Nil, m.Term.Name("self"), Some(toType(tpe)), None)
@@ -165,12 +166,14 @@ trait TreeAdapter {
       case t: ScUnitExpr => m.Lit.Unit()
       case t: ScReturnStmt => m.Term.Return(expression(t.expr).get)
       case t: ScBlock => m.Term.Block(Seq(t.statements.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*))
-      case t: ScMethodCall => m.Term.Apply(toTermName(t.getInvokedExpr), Seq(t.args.exprs.map(callArgs):_*))
+      case t: ScMethodCall => m.Term.Apply(expression(t.getInvokedExpr), Seq(t.args.exprs.map(callArgs):_*))
       case t: ScInfixExpr => m.Term.ApplyInfix(expression(t.getBaseExpr), toTermName(t.getInvokedExpr), Nil, Seq(expression(t.getArgExpr)))
       case t: ScPrefixExpr => m.Term.ApplyUnary(toTermName(t.operation), expression(t.operand))
       case t: ScIfStmt => m.Term.If(expression(t.condition.get),
         t.thenBranch.map(expression).getOrElse(m.Lit.Unit()), t.elseBranch.map(expression).getOrElse(m.Lit.Unit()))
       case t: ScMatchStmt => m.Term.Match(expression(t.expr.get), Seq(t.caseClauses.map(caseClause):_*))
+      case t: ScReferenceExpression if t.qualifier.isDefined =>
+        m.Term.Select(expression(t.qualifier.get), toTermName(t))
       case t: ScReferenceExpression => toTermName(t)
       case t: ScNewTemplateDefinition => m.Term.New(template(t))
       case t: ScFunctionExpr => m.Term.Function(Seq(t.parameters.map(convertParam):_*), expression(t.result).get)
