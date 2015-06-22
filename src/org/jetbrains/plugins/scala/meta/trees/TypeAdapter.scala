@@ -1,24 +1,23 @@
 package org.jetbrains.plugins.scala.meta.trees
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScParameterizedType}
+import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
-import scala.meta.internal.ast.Term.Param
-import scala.{Seq => _}
 import scala.collection.immutable.Seq
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.{api => p}
-import org.jetbrains.plugins.scala.lang.psi.{types => ptype}
-import scala.meta.internal.{ast=>m}
-import scala.meta.internal.{semantic => h}
+import scala.meta.internal.{ast => m, semantic => h}
+import scala.{Seq => _}
 
 trait TypeAdapter {
   self: Converter =>
 
-  def toType(tp: p.base.types.ScTypeElement): m.Type = {
+  def toType(tp: ScTypeElement): m.Type = {
 
     tp match {
-      case t: p.base.types.ScSimpleTypeElement =>
+      case t: ScSimpleTypeElement =>
         t.reference match {
           case Some(reference) =>
             reference.bind() match {
@@ -27,23 +26,23 @@ trait TypeAdapter {
             }
           case None =>  m.Type.Placeholder(m.Type.Bounds(None, None))
         }
-      case t: p.base.types.ScFunctionalTypeElement =>
+      case t: ScFunctionalTypeElement =>
         toType(t.paramTypeElement) match {
           case m.Type.Tuple(elements) => m.Type.Function(elements, toType(t.returnTypeElement.get))
           case param => m.Type.Function(Seq(param), toType(t.returnTypeElement.get))
         }
-      case t: p.base.types.ScParameterizedTypeElement =>
+      case t: ScParameterizedTypeElement =>
         m.Type.Apply(m.Type.Name(t.typeElement.calcType.canonicalText), t.typeArgList.typeArgs.toStream.map(toType))
-      case t: p.base.types.ScTupleTypeElement =>
+      case t: ScTupleTypeElement =>
         m.Type.Tuple(Seq(t.components.map(toType):_*))
-      case t: p.base.types.ScWildcardTypeElement =>
+      case t: ScWildcardTypeElement =>
         m.Type.Placeholder(typeBounds(t))
-      case t: p.base.types.ScParenthesisedTypeElement =>
+      case t: ScParenthesisedTypeElement =>
         t.typeElement match {
-          case Some(t: p.base.types.ScInfixTypeElement) => m.Type.ApplyInfix(toType(t.lOp), m.Type.Name(t.ref.refName), toType(t.rOp.get))
+          case Some(t: ScInfixTypeElement) => m.Type.ApplyInfix(toType(t.lOp), m.Type.Name(t.ref.refName), toType(t.rOp.get))
           case _ => ???
         }
-      case t: p.base.types.ScTypeVariableTypeElement =>
+      case t: ScTypeVariableTypeElement =>
         println("i cannot into type variables"); ???
       case _ => println(tp.getClass); ???
     }
@@ -59,16 +58,16 @@ trait TypeAdapter {
 
   def toType(elem: PsiElement): m.Type = {
     elem match {
-      case t: p.toplevel.packaging.ScPackaging => m.Type.Singleton(toTermName(t.reference.get))
-      case t: p.toplevel.typedef.ScTemplateDefinition => toType(t.getType(TypingContext.empty))
+      case t: packaging.ScPackaging => m.Type.Singleton(toTermName(t.reference.get))
+      case t: typedef.ScTemplateDefinition => toType(t.getType(TypingContext.empty))
     }
   }
 
   def toType(tp: ptype.ScType): m.Type = {
 
     tp match {
-      case t: ptype.ScParameterizedType => m.Type.Apply(toType(t.designator), Seq(t.typeArgs.map(toType):_*))
-      case t: ptype.ScDesignatorType =>  m.Type.Name(t.canonicalText, denot = h.Denotation.Zero).withDenot(t.element)
+      case t: ScParameterizedType => m.Type.Apply(toType(t.designator), Seq(t.typeArgs.map(toType):_*))
+      case t: ScDesignatorType =>  m.Type.Name(t.canonicalText, denot = h.Denotation.Zero).withDenot(t.element)
 
       case t: ptype.ScType => m.Type.Name(t.canonicalText)
     }
@@ -85,15 +84,15 @@ trait TypeAdapter {
     )
   }
 
-  def viewBounds(tp: p.toplevel.ScTypeBoundsOwner): Seq[m.Type] = {
+  def viewBounds(tp: ScTypeBoundsOwner): Seq[m.Type] = {
     Seq(tp.viewTypeElement.map(toType):_*)
   }
 
-  def contextBounds(tp: p.toplevel.ScTypeBoundsOwner): Seq[m.Type] = {
+  def contextBounds(tp: ScTypeBoundsOwner): Seq[m.Type] = {
     Seq(tp.contextBoundTypeElement.map(toType):_*)
   }
 
-  def typeBounds(tp: p.toplevel.ScTypeBoundsOwner): m.Type.Bounds = {
+  def typeBounds(tp: ScTypeBoundsOwner): m.Type.Bounds = {
     m.Type.Bounds(tp.lowerTypeElement.map(toType), tp.upperTypeElement.map(toType))
   }
 
