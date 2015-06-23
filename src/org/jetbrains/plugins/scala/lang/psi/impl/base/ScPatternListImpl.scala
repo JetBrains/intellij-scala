@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScPatternListStub
 class ScPatternListImpl private () extends ScalaStubBasedElementImpl[ScPatternList] with ScPatternList{
 
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScPatternListStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScPatternListStub) = {this(); setStub(stub); setNullNode()}
 
   override def toString: String = "ListOfPatterns"
 

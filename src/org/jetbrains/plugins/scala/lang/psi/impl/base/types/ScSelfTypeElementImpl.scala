@@ -23,7 +23,7 @@ import scala.collection.mutable.ArrayBuffer
 class ScSelfTypeElementImpl extends ScalaStubBasedElementImpl[ScSelfTypeElement] with ScSelfTypeElement {
   def this(node: ASTNode) = {this (); setNode(node)}
 
-  def this(stub: ScSelfTypeElementStub) = {this (); setStub(stub); setNode(null)}
+  def this(stub: ScSelfTypeElementStub) = {this (); setStub(stub); setNullNode()}
 
   override def toString: String = "SelfType: " + name
 

@@ -37,7 +37,7 @@ import scala.collection.mutable
 
 class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScImportStmt {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScImportStmtStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScImportStmtStub) = {this(); setStub(stub); setNullNode()}
 
   override def toString: String = "ScImportStatement"
 

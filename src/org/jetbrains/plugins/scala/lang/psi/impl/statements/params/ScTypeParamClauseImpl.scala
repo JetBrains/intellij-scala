@@ -22,7 +22,7 @@ import scala.collection.mutable.ArrayBuffer
 */
 class ScTypeParamClauseImpl extends ScalaStubBasedElementImpl[ScTypeParamClause] with ScTypeParamClause {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTypeParamClauseStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScTypeParamClauseStub) = {this(); setStub(stub); setNullNode()}
 
   override def toString: String = "TypeParameterClause"
 

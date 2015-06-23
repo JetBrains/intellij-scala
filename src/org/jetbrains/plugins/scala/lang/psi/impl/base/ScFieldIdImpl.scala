@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 class ScFieldIdImpl private () extends ScalaStubBasedElementImpl[ScFieldId] with ScFieldId with ScImportableDeclarationsOwner {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScFieldIdStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScFieldIdStub) = {this(); setStub(stub); setNullNode()}
 
   override def toString: String = "Field identifier: " + name
 

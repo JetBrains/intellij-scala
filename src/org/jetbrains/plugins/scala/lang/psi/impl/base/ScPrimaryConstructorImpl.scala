@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScPrimaryConstructorStub
 
 class ScPrimaryConstructorImpl extends ScalaStubBasedElementImpl[ScPrimaryConstructor] with ScPrimaryConstructor {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScPrimaryConstructorStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScPrimaryConstructorStub) = {this(); setStub(stub); setNullNode()}
 
   override def getIcon(flags: Int): Icon = Icons.FUNCTION
 

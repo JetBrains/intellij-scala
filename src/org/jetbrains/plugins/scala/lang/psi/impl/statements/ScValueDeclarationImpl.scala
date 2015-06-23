@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext
 class ScValueDeclarationImpl extends ScalaStubBasedElementImpl[ScValue] with ScValueDeclaration {
   def this(node: ASTNode) = {this (); setNode(node)}
 
-  def this(stub: ScValueStub) = {this (); setStub(stub); setNode(null)}
+  def this(stub: ScValueStub) = {this (); setStub(stub); setNullNode()}
 
   override def toString: String = "ScValueDeclaration: " + declaredElements.map(_.name).mkString(", ")
 

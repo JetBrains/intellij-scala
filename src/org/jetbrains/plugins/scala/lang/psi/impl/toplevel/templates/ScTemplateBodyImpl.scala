@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateBodyStub
 class ScTemplateBodyImpl extends ScalaStubBasedElementImpl[ScTemplateBody] with ScTemplateBody
                                         with ScImportsHolder {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTemplateBodyStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScTemplateBodyStub) = {this(); setStub(stub); setNullNode()}
 
   override def toString: String = "ScTemplateBody"
 

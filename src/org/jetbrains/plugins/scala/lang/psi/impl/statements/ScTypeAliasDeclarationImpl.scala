@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Any, Nothing}
 
 class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] with ScTypeAliasDeclaration {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTypeAliasStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScTypeAliasStub) = {this(); setStub(stub); setNullNode()}
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 

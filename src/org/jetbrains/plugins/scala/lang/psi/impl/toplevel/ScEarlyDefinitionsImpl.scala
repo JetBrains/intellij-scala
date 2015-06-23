@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScEarlyDefinitionsStub
 
 class ScEarlyDefinitionsImpl private () extends ScalaStubBasedElementImpl[ScEarlyDefinitions] with ScEarlyDefinitions {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScEarlyDefinitionsStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScEarlyDefinitionsStub) = {this(); setStub(stub); setNullNode()}
   override def toString: String = "EarlyDefinitions"
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,

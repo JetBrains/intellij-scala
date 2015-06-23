@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 class ScClassParentsImpl extends ScalaStubBasedElementImpl[ScTemplateParents] with ScClassParents {
   def this(node: ASTNode) = {this (); setNode(node)}
 
-  def this(stub: ScTemplateParentsStub) = {this (); setStub(stub); setNode(null)}
+  def this(stub: ScTemplateParentsStub) = {this (); setStub(stub); setNullNode()}
 
   override def toString: String = "ClassParents"
 

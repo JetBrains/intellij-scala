@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClausesStub
 class ScParametersImpl extends ScalaStubBasedElementImpl[ScParameters] with ScParameters {
 
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScParamClausesStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScParamClausesStub) = {this(); setStub(stub); setNullNode()}
 
   override def toString: String = "Parameters"
 
