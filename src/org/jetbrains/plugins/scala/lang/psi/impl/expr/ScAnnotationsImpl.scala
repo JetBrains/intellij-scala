@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationsStub
 
 class ScAnnotationsImpl extends ScalaStubBasedElementImpl[ScAnnotations] with ScAnnotations{
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScAnnotationsStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScAnnotationsStub) = {this(); setStub(stub); setNullNode()}
   override def toString: String = "AnnotationsList"
 
   def getAnnotations: Array[ScAnnotation] =

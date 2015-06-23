@@ -30,7 +30,7 @@ class ScParameterImpl extends ScalaStubBasedElementImpl[ScParameter] with ScPara
   }
 
   def this(stub: ScParameterStub) = {
-    this(); setStub(stub); setNode(null)
+    this(); setStub(stub); setNullNode()
   }
 
   override def toString: String = "Parameter: " + name

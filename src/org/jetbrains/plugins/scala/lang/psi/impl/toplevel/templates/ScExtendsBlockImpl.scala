@@ -35,7 +35,7 @@ import scala.collection.mutable.ListBuffer
 class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with ScExtendsBlock {
   def this(node: ASTNode) = {this (); setNode(node)}
 
-  def this(stub: ScExtendsBlockStub) = {this (); setStub(stub); setNode(null)}
+  def this(stub: ScExtendsBlockStub) = {this (); setStub(stub); setNullNode()}
 
   override def toString: String = "ExtendsBlock"
 

@@ -33,7 +33,7 @@ import scala.collection.mutable.ArrayBuffer
 class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with ScPackaging with ScImportsHolder with ScDeclarationSequenceHolder {
   def this(node: ASTNode) = {this (); setNode(node)}
 
-  def this(stub: ScPackageContainerStub) = {this (); setStub(stub); setNode(null)}
+  def this(stub: ScPackageContainerStub) = {this (); setStub(stub); setNullNode()}
 
   def fullPackageName: String = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
 

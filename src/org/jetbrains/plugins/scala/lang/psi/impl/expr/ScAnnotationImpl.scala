@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 class ScAnnotationImpl extends ScalaStubBasedElementImpl[ScAnnotation] with ScAnnotation with PsiAnnotationParameterList{
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScAnnotationStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScAnnotationStub) = {this(); setStub(stub); setNullNode()}
 
   override def toString: String = "Annotation"
 

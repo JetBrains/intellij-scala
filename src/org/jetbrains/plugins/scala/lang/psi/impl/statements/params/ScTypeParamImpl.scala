@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
 class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScTypeBoundsOwnerImpl with ScTypeParam with PsiClassFake {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTypeParamStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScTypeParamStub) = {this(); setStub(stub); setNullNode()}
 
   override def toString: String = "TypeParameter: " + name
 
