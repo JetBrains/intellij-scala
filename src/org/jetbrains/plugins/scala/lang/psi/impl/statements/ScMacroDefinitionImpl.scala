@@ -24,7 +24,7 @@ class ScMacroDefinitionImpl extends ScFunctionImpl with ScMacroDefinition {
   }
 
   def this(stub: ScFunctionStub) = {
-    this(); setStub(stub); setNode(null)
+    this(); setStub(stub); setNullNode()
   }
 
   override def processDeclarations(processor: PsiScopeProcessor,

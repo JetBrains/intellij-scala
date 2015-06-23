@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Unit}
 class ScFunctionDefinitionImpl extends ScFunctionImpl with ScFunctionDefinition {
   def this(node: ASTNode) = {this (); setNode(node)}
 
-  def this(stub: ScFunctionStub) = {this (); setStub(stub); setNode(null)}
+  def this(stub: ScFunctionStub) = {this (); setStub(stub); setNullNode()}
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                    state: ResolveState,

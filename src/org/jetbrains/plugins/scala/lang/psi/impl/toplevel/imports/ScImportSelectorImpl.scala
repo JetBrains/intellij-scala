@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorStub
 
 class ScImportSelectorImpl extends ScalaStubBasedElementImpl[ScImportSelector] with ScImportSelector {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScImportSelectorStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScImportSelectorStub) = {this(); setStub(stub); setNullNode()}
 
   override def toString: String = "ImportSelector"
 

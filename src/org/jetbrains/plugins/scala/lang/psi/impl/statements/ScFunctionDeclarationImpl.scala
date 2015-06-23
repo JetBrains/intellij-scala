@@ -25,7 +25,7 @@ class ScFunctionDeclarationImpl extends ScFunctionImpl with ScFunctionDeclaratio
   }
 
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScFunctionStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScFunctionStub) = {this(); setStub(stub); setNullNode()}
 
   override def toString: String = "ScFunctionDeclaration: " + name
 

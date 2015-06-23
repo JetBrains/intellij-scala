@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 class ScVariableDeclarationImpl extends ScalaStubBasedElementImpl[ScVariable] with ScVariableDeclaration {
   def this(node: ASTNode) = {this (); setNode(node)}
 
-  def this(stub: ScVariableStub) = {this (); setStub(stub); setNode(null)}
+  def this(stub: ScVariableStub) = {this (); setStub(stub); setNullNode()}
 
   override def toString: String = "ScVariableDeclaration: " + declaredElements.map(_.name).mkString(", ")
 

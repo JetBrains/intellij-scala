@@ -33,7 +33,7 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
   }
 
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScReferencePatternStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScReferencePatternStub) = {this(); setStub(stub); setNullNode()}
 
   override def isIrrefutableFor(t: Option[ScType]): Boolean = true
 

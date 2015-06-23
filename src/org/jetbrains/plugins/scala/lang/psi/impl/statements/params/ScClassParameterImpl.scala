@@ -24,7 +24,7 @@ class ScClassParameterImpl(node: ASTNode) extends ScParameterImpl(node) with ScC
   def this(stub: ScParameterStub) = {
     this(DummyASTNode)
     setStub(stub)
-    setNode(null)
+    setNullNode()
   }
 
   override def toString: String = "ClassParameter: " + name
