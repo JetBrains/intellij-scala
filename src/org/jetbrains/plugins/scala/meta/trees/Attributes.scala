@@ -40,12 +40,12 @@ trait Attributes {
             h.Denotation.Single(mprefix(r.getParentPackage), toSymbol(r))
           case td: ScTypeDefinition if !td.qualifiedName.contains(".") =>
             h.Denotation.Single(h.Prefix.Zero, toSymbol(td))
-          case td: ScTypeDefinition =>
-            h.Denotation.Single(mprefix(td.parent.get), toSymbol(td))
-          case ta: ScTypeAlias =>
-            h.Denotation.Single(Option(ta.containingClass).map(cc => mprefix(cc)).getOrElse(h.Prefix.Zero), toSymbol(ta))
           case mm: ScMember =>
             h.Denotation.Single(Option(mm.containingClass).map(cc => mprefix(cc)).getOrElse(h.Prefix.Zero), toSymbol(mm))
+//          case td: ScTypeDefinition =>
+//            h.Denotation.Single(Option(td.containingClass).map(cc => mprefix(cc)).getOrElse(h.Prefix.Zero), toSymbol(td))
+//          case ta: ScTypeAlias =>
+//            h.Denotation.Single(Option(ta.containingClass).map(cc => mprefix(cc)).getOrElse(h.Prefix.Zero), toSymbol(ta))
           case pp: params.ScParameter =>
             // FIXME: prefix of a parameter?
             h.Denotation.Single(h.Prefix.Zero, toSymbol(pp))

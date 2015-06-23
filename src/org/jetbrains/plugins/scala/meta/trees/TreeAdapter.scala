@@ -123,14 +123,15 @@ trait TreeAdapter {
   def template(t: p.toplevel.templates.ScExtendsBlock): m.Template = {
     def ctor(tpe: types.ScTypeElement) = m.Ctor.Ref.Name(tpe.calcType.canonicalText)
     val exprs   = t.templateBody map (it => Seq(it.exprs.map(expression): _*))
-    val holders = t.templateBody map (it => Seq(it.holders.map(ideaToMeta(_).asInstanceOf[m.Stat]): _*))
+    val members = t.templateBody map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]): _*))
     val early   = t.earlyDefinitions map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*)) getOrElse Seq.empty
     val parents = t.templateParents map (it => Seq(it.typeElements map ctor :_*)) getOrElse Seq.empty
     val self    = t.selfType match {
       case Some(tpe: ptype.ScType) => m.Term.Param(Nil, m.Term.Name("self"), Some(toType(tpe)), None)
       case None => m.Term.Param(Nil, m.Name.Anonymous(), None, None)
     }
-    val stats = (exprs, holders) match {
+    // FIXME: preserve expression and member order
+    val stats = (exprs, members) match {
       case (Some(exp), Some(hld)) => Some(hld ++ exp)
       case (Some(exp), None)  => Some(exp)
       case (None, Some(hld))  => Some(hld)
