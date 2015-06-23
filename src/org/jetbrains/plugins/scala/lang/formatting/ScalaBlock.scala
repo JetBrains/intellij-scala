@@ -30,7 +30,8 @@ class ScalaBlock (val myParentBlock: ScalaBlock,
         protected var myAlignment: Alignment,
         protected var myIndent: Indent,
         protected var myWrap: Wrap,
-        protected val mySettings: CodeStyleSettings)
+        protected val mySettings: CodeStyleSettings,
+        val subBlocksContext: Option[SubBlocksContext] = None)
 extends Object with ScalaTokenTypes with ASTBlock {
 
   protected var mySubBlocks: List[Block] = null
@@ -165,4 +166,27 @@ extends Object with ScalaTokenTypes with ASTBlock {
     _suggestedWrap
   }
 
+  def getChildBlockLastNode(childNode: ASTNode) = subBlocksContext.flatMap(_.childrenAdditionalContexts.get(childNode)).
+    map(_.getLastNode(childNode)).orNull
+
+  def getCustomAlignment(childNode: ASTNode): Option[Alignment] = subBlocksContext
+    .flatMap(_.childrenAdditionalContexts.get(childNode)).flatMap(_.alignment)
+}
+
+class SubBlocksContext(val additionalNodes: Seq[ASTNode] = Seq(), val alignment: Option[Alignment] = None,
+                       val childrenAdditionalContexts: Map[ASTNode, SubBlocksContext] = Map()) {
+  def getLastNode(firstNode: ASTNode): ASTNode = getLastNode.filter(_ != firstNode).orNull
+  private def getLastNode: Option[ASTNode] =
+    childrenAdditionalContexts.map { case (_, context) => context.getLastNode }.filter(_.isDefined).map(_.get) ++
+      additionalNodes ++ childrenAdditionalContexts.map { case (child, _) => child } match {
+      case empty if empty.isEmpty => None
+      case nonEmpty => Some(nonEmpty.maxBy(_.getTextRange.getEndOffset))
+    }
+}
+
+object SubBlocksContext {
+  def apply(childNodes: Seq[ASTNode], alignment: Option[Alignment]): SubBlocksContext =
+    new SubBlocksContext(childNodes, alignment)
+  def apply(node: ASTNode, alignment: Alignment, childNodes: Seq[ASTNode]): SubBlocksContext =
+    new SubBlocksContext(Seq(), None, Map({node -> SubBlocksContext(childNodes, Some(alignment))}))
 }
