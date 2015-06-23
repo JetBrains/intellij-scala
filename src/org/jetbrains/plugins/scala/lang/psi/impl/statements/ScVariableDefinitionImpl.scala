@@ -38,7 +38,7 @@ class ScVariableDefinitionImpl extends ScalaStubBasedElementImpl[ScVariable] wit
 
   def this(node: ASTNode) = {this (); setNode(node)}
 
-  def this(stub: ScVariableStub) = {this (); setStub(stub); setNode(null)}
+  def this(stub: ScVariableStub) = {this (); setStub(stub); setNullNode()}
 
   override def toString: String = "ScVariableDefinition"
 

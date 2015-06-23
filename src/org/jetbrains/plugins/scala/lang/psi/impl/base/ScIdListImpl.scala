@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScIdListStub
 
 class ScIdListImpl private () extends ScalaStubBasedElementImpl[ScIdList] with ScIdList {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScIdListStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScIdListStub) = {this(); setStub(stub); setNullNode()}
 
   def fieldIds: Seq[ScFieldId]  = {
     val stub = getStub

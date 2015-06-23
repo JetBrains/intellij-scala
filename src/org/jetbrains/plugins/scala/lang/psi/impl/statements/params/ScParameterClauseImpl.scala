@@ -27,7 +27,7 @@ class ScParameterClauseImpl extends ScalaStubBasedElementImpl[ScParameterClause]
   }
 
   def this(stub: ScParamClauseStub) = {
-    this (); setStub(stub); setNode(null)
+    this (); setStub(stub); setNullNode()
   }
 
   override def toString: String = "ParametersClause"

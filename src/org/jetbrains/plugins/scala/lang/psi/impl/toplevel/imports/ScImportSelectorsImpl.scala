@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorsStub
 
 class ScImportSelectorsImpl extends ScalaStubBasedElementImpl[ScImportSelectors] with ScImportSelectors {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScImportSelectorsStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScImportSelectorsStub) = {this(); setStub(stub); setNullNode()}
 
   override def toString: String = "ImportSelectors"
 

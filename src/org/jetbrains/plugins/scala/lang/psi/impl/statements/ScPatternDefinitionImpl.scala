@@ -36,7 +36,7 @@ class ScPatternDefinitionImpl extends ScalaStubBasedElementImpl[ScValue] with Sc
   def this(stub: ScValueStub) = {
     this()
     setStub(stub)
-    setNode(null)
+    setNullNode()
   }
   
   override def toString: String = "ScPatternDefinition"

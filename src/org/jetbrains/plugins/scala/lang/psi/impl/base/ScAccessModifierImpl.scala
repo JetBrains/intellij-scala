@@ -26,7 +26,7 @@ import scala.collection.mutable.ArrayBuffer
 
 class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] with ScAccessModifier {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScAccessModifierStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScAccessModifierStub) = {this(); setStub(stub); setNullNode()}
 
   override def toString: String = "AccessModifier"
 

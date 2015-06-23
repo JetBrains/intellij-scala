@@ -22,7 +22,7 @@ import scala.collection.mutable.ArrayBuffer
 */
 class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with ScModifierList {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScModifiersStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScModifiersStub) = {this(); setStub(stub); setNullNode()}
 
   override def toString: String = "Modifiers"
 

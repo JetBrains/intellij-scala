@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 */
 class ScTypeAliasDefinitionImpl extends ScalaStubBasedElementImpl[ScTypeAlias] with ScTypeAliasDefinition {
   def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTypeAliasStub) = {this(); setStub(stub); setNode(null)}
+  def this(stub: ScTypeAliasStub) = {this(); setStub(stub); setNullNode()}
 
   def nameId = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
     case null =>
