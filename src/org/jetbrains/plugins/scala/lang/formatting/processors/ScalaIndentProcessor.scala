@@ -50,22 +50,47 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       }
     }
 
-    node.getPsi match {
-      case expr: ScFunctionExpr =>
-        expr.result match {
-          case Some(e) if e == child.getPsi =>
-            child.getPsi match {
-              case _: ScBlockImpl => Indent.getNoneIndent
-              case _: ScBlockExpr if settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
-                settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
-              case _: ScBlockExpr => Indent.getNoneIndent
-              case _: ScExpression => Indent.getNormalIndent
-              case _ => Indent.getNoneIndent
-            }
-          case Some(e) if child.isInstanceOf[PsiComment] => Indent.getNormalIndent
-          //the above case is a hack added to fix SCL-6803; probably will backfire with unintended indents
+    def processFunExpr(expr: ScFunctionExpr): Indent = expr.result match {
+      case Some(e) if e == child.getPsi =>
+        child.getPsi match {
+          case _: ScBlockImpl => Indent.getNoneIndent
+          case _: ScBlockExpr if settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
+            settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
+          case _: ScBlockExpr => Indent.getNoneIndent
+          case _: ScExpression => Indent.getNormalIndent
           case _ => Indent.getNoneIndent
         }
+      case Some(e) if child.isInstanceOf[PsiComment] => Indent.getNormalIndent
+      //the above case is a hack added to fix SCL-6803; probably will backfire with unintended indents
+      case _ => Indent.getNoneIndent
+    }
+
+
+    def processMethodCall = child.getPsi match {
+      case arg: ScArgumentExprList if arg.isBraceArgs =>
+        if (settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
+          settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2) Indent.getNormalIndent
+        else Indent.getNoneIndent
+      case _ => Indent.getContinuationWithoutFirstIndent
+    }
+
+    //the methodCall/functionExpr have dot block as optional, so cases with and without dot are considered
+    if (node.getElementType == ScalaTokenTypes.tDOT)
+      Option(node.getTreeParent).map(_.getTreeParent).filter(_ != null).map {
+      _.getPsi match {
+        case expr: ScFunctionExpr =>
+          return processFunExpr(expr)
+        case _: ScMethodCall =>
+          return processMethodCall
+        case _ if node.getTreeParent.getPsi.isInstanceOf[ScReferenceExpression] =>
+          //proper indentation for chained ref exprs
+          return Indent.getContinuationWithoutFirstIndent
+        case _ =>
+      }
+    }
+
+    node.getPsi match {
+      case expr: ScFunctionExpr => processFunExpr(expr)
       case el: ScXmlElement =>
         child.getPsi match {
           case _: ScXmlStartTag | _: ScXmlEndTag | _: ScXmlEmptyTag => Indent.getNoneIndent
@@ -120,14 +145,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _: ScExpression => Indent.getNormalIndent
           case _ => Indent.getNoneIndent
         }
-      case _: ScMethodCall =>
-        child.getPsi match {
-          case arg: ScArgumentExprList if arg.isBraceArgs =>
-            if (settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
-              settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2) Indent.getNormalIndent
-            else Indent.getNoneIndent
-          case _ => Indent.getContinuationWithoutFirstIndent
-        }
+      case _: ScMethodCall => processMethodCall
       case arg: ScArgumentExprList if arg.isBraceArgs => Indent.getNoneIndent
       case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt | _: ScForStatement
               | _: ScFinallyBlock | _: ScCatchBlock | _: ScValue | _: ScVariable=>
@@ -182,23 +200,11 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         }
       case _: ScParenthesisedExpr | _: ScParenthesisedPattern | _: ScParenthesisedExpr =>
         Indent.getContinuationWithoutFirstIndent(settings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION)
-//      case paramClause : ScParameterClause if child.getTreePrev != null && child.getTreePrev.getPsi.isInstanceOf[PsiWhiteSpace] && child.getTreePrev.getText.contains("\n") =>
-//        Indent.getContinuationIndent(true)
       case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
               _: ScExpression | _: ScTypeElement | _: ScTypes | _: ScTypeArgs =>
         Indent.getContinuationWithoutFirstIndent
       case _: ScArgumentExprList =>
-        val refExpr = node.getTreePrev.getPsi
-        if (refExpr.getText.contains("\n")) {
-          //ugly hack for SCL-3859
-          if (child.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
-                  child.getElementType != ScalaTokenTypes.tLPARENTHESIS) {
-            val indentSettings = settings.getIndentOptions
-            Indent.getSpaceIndent(indentSettings.CONTINUATION_INDENT_SIZE + indentSettings.INDENT_SIZE)
-          } else {
-            Indent.getContinuationWithoutFirstIndent
-          }
-        } else if (child.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
+        if (child.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
             child.getElementType != ScalaTokenTypes.tLPARENTHESIS)
           Indent.getNormalIndent(settings.ALIGN_MULTILINE_METHOD_BRACKETS)
         else Indent.getNoneIndent
