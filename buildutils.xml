@@ -27,5 +27,14 @@
         </move>
     </target>
 
-    <target name="idea.postbuild" depends="rename.scala.library,rename.sbt.structure.0.12,rename.sbt.structure.0.13"/>
+    <target name="rename.sbt.launch">
+        <move todir="out/plugin/Scala/launcher">
+            <fileset dir="out/plugin/Scala/launcher">
+                <include name="sbt-launch*.jar"/>
+            </fileset>
+            <mapper type="glob" from="*" to="sbt-launch.jar"/>
+        </move>
+    </target>
+
+    <target name="idea.postbuild" depends="rename.scala.library,rename.sbt.structure.0.12,rename.sbt.structure.0.13,rename.sbt.launch"/>
 </project>

@@ -70,12 +70,12 @@
         <element id="library" level="project" name="SBT: org.apache.lucene:lucene-analyzers-common:4.3.0:jar" />
         <element id="library" level="project" name="SBT: org.apache.lucene:lucene-queryparser:4.3.0:jar" />
         <element id="library" level="project" name="SBT: org.apache.lucene:lucene-sandbox:4.3.0:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:4.0.0:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:4.1.0:jar" />
       </element>
       <element id="directory" name="launcher">
-        <element id="file-copy" path="$PROJECT_DIR$/jars/sbt-launch.jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-12:4.0.0:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-13:4.0.0:jar" />
+        <element id="library" level="project" name="SBT: org.scala-sbt:sbt-launch:0.13.8:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-12:4.1.0:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-13:4.1.0:jar" />
       </element>
     </root>
   </artifact>
