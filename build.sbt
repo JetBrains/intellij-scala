@@ -43,8 +43,6 @@ unmanagedSourceDirectories in Test += baseDirectory.value /  "test"
 
 unmanagedResourceDirectories in Compile += baseDirectory.value /  "resources"
 
-ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects")
-
 javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6")
 
 scalacOptions in Global += "-target:jvm-1.6"
