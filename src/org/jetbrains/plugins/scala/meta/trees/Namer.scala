@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.meta.trees
 
-import com.intellij.psi.{PsiPackage, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import com.intellij.psi.{PsiElement, PsiPackage}
+import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
 
 import scala.meta.internal.{ast => m, semantic => h}
@@ -13,6 +14,9 @@ trait Namer {
   self: Converter =>
 
   def toTermName(elem: PsiElement): m.Term.Name = elem match {
+      // TODO: what to resolve apply/update methods to?
+    case sf: ScFunction if sf.name == "apply" || sf.name == "update" =>
+      m.Term.Name(sf.containingClass.name).withDenot(sf)
     case ne: ScNamedElement =>
       m.Term.Name(ne.name).withDenot(ne)
     case re: ScReferenceExpression =>
@@ -22,7 +26,7 @@ trait Namer {
     case pp: PsiPackage =>
       m.Term.Name(pp.getName).withDenot(pp)
     case se: impl.toplevel.synthetic.SyntheticNamedElement => ??? // FIXME: find a way to resolve synthetic elements
-    case cs: p.base.ScConstructor =>
+    case cs: ScConstructor =>
       toTermName(cs.reference.get)
     case other => other ?!
   }
@@ -36,7 +40,7 @@ trait Namer {
     case other => other ?!
   }
 
-  def toPrimaryCtorName(t: p.base.ScPrimaryConstructor) = {
+  def toPrimaryCtorName(t: ScPrimaryConstructor) = {
     m.Ctor.Ref.Name("this")
   }
 

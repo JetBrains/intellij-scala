@@ -54,8 +54,6 @@ trait SymbolTable {
         h.Symbol.Global(h.Symbol.Empty, td.name, h.Signature.Type)
       case td: ScTemplateDefinition =>
         h.Symbol.Global(fqnameToSymbol(td.qualifiedName), td.name, h.Signature.Type)
-      case td: ScTypeDefinition =>
-        h.Symbol.Global(toSymbol(td.parent.get), td.name, h.Signature.Type)
       case td: ScFieldId =>
         val owner = td.nameContext match {
           case vd: ScValueDeclaration => ownerSymbol(vd)
@@ -64,7 +62,7 @@ trait SymbolTable {
         }
         h.Symbol.Global(owner, td.name, h.Signature.Term)
       case td: ScFunction =>
-        // meta trees don't resolve unapply methods
+        // TODO: meta trees don't resolve unapply methods(or do they?)
         if (td.name == "unapply")
           toSymbol(td.containingClass)
         else {
