@@ -17,7 +17,7 @@ sealed case class ScalaLanguageLevel(ordinal: Int, version: String) extends Name
 
   def <(level: ScalaLanguageLevel): Boolean = ordinal < level.ordinal
 
-  def <=(level: ScalaLanguageLevel): Boolean = ordinal < level.ordinal
+  def <=(level: ScalaLanguageLevel): Boolean = ordinal <= level.ordinal
 }
 
 object ScalaLanguageLevel {
