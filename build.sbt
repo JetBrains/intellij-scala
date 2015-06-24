@@ -12,7 +12,7 @@ libraryDependencies += "org.apache.maven.indexer" % "indexer-core" % "6.0"
 
 //libraryDependencies += "org.apache.maven.indexer" % "indexer-artifact" % "5.1.2" % Compile - was merged with core in 6.0
 
-libraryDependencies +=  "org.scalatest" % "scalatest-finders" % "0.9.6"
+//libraryDependencies +=  "org.scalatest" % "scalatest-finders" % "0.9.6"
 
 libraryDependencies +=  "org.atteo" % "evo-inflector" % "1.2"
 
@@ -80,6 +80,8 @@ unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/nailgun" * "*.jar").cl
 unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/scalastyle" * "*.jar").classpath
 
 unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar"
+
+unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/scalatest-finders" * "*.jar").classpath
 
 lazy val compiler_settings = project.in(file( "compiler-settings"))
   .settings(unmanagedJars in Compile := allIdeaJars.value)
@@ -203,7 +205,7 @@ packageStructure in Compile := {
     libOf("org.atteo" % "evo-inflector" % "1.2"),
     libOf("org.scala-lang" % "scala-library" % "2.11.2")._1 -> "lib/scala-library.jar",
     libOf("org.scala-lang" % "scala-reflect" % "2.11.2"),
-    libOf("org.scalatest" % "scalatest-finders" % "0.9.6"),
+//    libOf("org.scalatest" % "scalatest-finders" % "0.9.6"),
     libOf("org.scala-lang.modules" % "scala-xml_2.11" % "1.0.2"),
     libOf("org.scala-lang.modules" % "scala-parser-combinators_2.11" % "1.0.2"),
     libOf("org.apache.maven.indexer" % "indexer-core" % "6.0"),
