@@ -58,6 +58,8 @@ object Dependencies {
 
   val mavenIndexerCore = "org.apache.maven.indexer" % "indexer-core" % "6.0"
   val mavenModel = "org.apache.maven" % "maven-model" % "3.0.5"
+
+
 }
 
 object DependencyGroups {
@@ -116,6 +118,39 @@ object DependencyGroups {
     evoInflector,
     scalatestFinders
   ) ++ mavenIndexer
+
+  val scalaRunner = Seq(
+    "org.specs2" %% "specs2" % "2.3.11" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
+  )
+
+  val runners = Seq(
+    "org.specs2" %% "specs2" % "2.3.11" % "provided"  excludeAll ExclusionRule(organization = "org.ow2.asm"),
+    "org.scalatest" % "scalatest_2.11" % "2.2.1" % "provided",
+    "com.lihaoyi" %% "utest" % "0.1.3" % "provided"
+  )
+
+  val testDownloader = Seq(
+    "org.scalatest" % "scalatest_2.11" % "2.2.1",
+    "org.scalatest" % "scalatest_2.10" % "2.2.1",
+    "org.specs2" % "specs2_2.11" % "2.4.15",
+    "org.scalaz" % "scalaz-core_2.11" % "7.1.0",
+    "org.scalaz" % "scalaz-concurrent_2.11" % "7.1.0",
+    "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.2",
+    "org.specs2" % "specs2_2.10" % "2.4.6",
+    "org.scalaz" % "scalaz-core_2.10" % "7.1.0",
+    "org.scalaz" % "scalaz-concurrent_2.10" % "7.1.0",
+    "org.scalaz.stream" % "scalaz-stream_2.11" % "0.6a",
+    "com.chuusai" % "shapeless_2.11" % "2.0.0",
+    "org.typelevel" % "scodec-bits_2.11" % "1.1.0-SNAPSHOT",
+    "org.typelevel" % "scodec-core_2.11" % "1.7.0-SNAPSHOT",
+    "org.scalatest" % "scalatest_2.11" % "2.1.7",
+    "org.scalatest" % "scalatest_2.10" % "2.1.7",
+    "org.scalatest" % "scalatest_2.10" % "1.9.2",
+    "com.github.julien-truffaut"  %%  "monocle-core"    % "1.2.0-SNAPSHOT",
+    "com.github.julien-truffaut"  %%  "monocle-generic" % "1.2.0-SNAPSHOT",
+    "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.2.0-SNAPSHOT",
+    "io.spray" %% "spray-routing" % "1.3.1"
+  )
 
   val sbtRuntime = Seq(
     sbtStructureExtractor012,
