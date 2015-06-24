@@ -37,7 +37,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
       }
     case MethodRepr(_, Some(baseExpr), Some(ResolvesTo(fun: ScFunction)), Seq(arg, _*)) if mayNeedHighlighting(fun) =>
       for {
-        ScParameterizedType(_, Seq(elemType)) <- baseExpr.getType()
+        ScParameterizedType(_, Seq(elemType)) <- baseExpr.getType().map(tryExtractSingletonType)
         argType <- arg.getType()
         if cannotBeCompared(elemType, argType)
       } {
@@ -60,11 +60,13 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
   }
 
   def cannotBeCompared(type1: ScType, type2: ScType): Boolean = {
-    val types = Seq(type1, type2)
+    val types = Seq(type1, type2).map(tryExtractSingletonType)
     val Seq(unboxed1, unboxed2) =
       if (types.contains(Null)) types else types.map(StdType.unboxedType)
     ComparingUtil.isNeverSubType(unboxed1, unboxed2) && ComparingUtil.isNeverSubType(unboxed2, unboxed1)
   }
+
+  private def tryExtractSingletonType(tp: ScType): ScType = ScType.extractDesignatorSingletonType(tp).getOrElse(tp)
 
 
   private def mayNeedHighlighting(fun: ScFunction): Boolean = {
