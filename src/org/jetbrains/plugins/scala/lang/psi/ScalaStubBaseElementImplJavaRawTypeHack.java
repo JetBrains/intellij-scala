@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi;
 
 import com.intellij.extapi.psi.StubBasedPsiElementBase;
 import com.intellij.lang.ASTNode;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.StubBasedPsiElement;
 import com.intellij.psi.stubs.IStubElementType;
@@ -17,6 +18,8 @@ import java.lang.reflect.Field;
 public abstract class ScalaStubBaseElementImplJavaRawTypeHack<T extends PsiElement>
     extends StubBasedPsiElementBase<StubElement<T> >
     implements StubBasedPsiElement<StubElement<T> >  {
+  private static Logger LOG = Logger.getInstance(ScalaStubBaseElementImplJavaRawTypeHack.class);
+
   public ScalaStubBaseElementImplJavaRawTypeHack() {
     super(DummyASTNode.getInstanceForJava());
   }
@@ -29,7 +32,12 @@ public abstract class ScalaStubBaseElementImplJavaRawTypeHack<T extends PsiEleme
   }
 
   public void setNullNode() throws NoSuchFieldException, IllegalAccessException {
-    Field nodeField = StubBasedPsiElementBase.class.getDeclaredField("myNode");
+    Field nodeField = null;
+    for (Field f : StubBasedPsiElementBase.class.getDeclaredFields()) {
+      if (ASTNode.class.isAssignableFrom(f.getType())) {
+        nodeField = f;
+      }
+    }
     nodeField.setAccessible(true);
     nodeField.set(this, null);
   }
