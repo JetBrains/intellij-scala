@@ -35,11 +35,11 @@ class UTestConfigurationProducer extends {
     if (testClassPath == null) return false
     configuration match {
       case configuration: UTestRunConfiguration if configuration.getTestKind == TestKind.CLASS &&
-              testClassName == null =>
+        testClassName == null =>
         testClassPath == configuration.getTestClassPath
       case configuration: UTestRunConfiguration if configuration.getTestKind == TestKind.TEST_NAME =>
         testClassPath == configuration.getTestClassPath && testClassName != null &&
-                testClassName == configuration.getTestName
+          testClassName == configuration.getTestName
       case _ => false
     }
   }
@@ -59,8 +59,8 @@ class UTestConfigurationProducer extends {
     val (testClassPath, testName) = getLocationClassAndTest(location)
     if (testClassPath == null) return null
     val settings = RunManager.getInstance(location.getProject).
-            createRunConfiguration(StringUtil.getShortName(testClassPath) +
-            (if (testName != null) "\\" + testName else ""), confFactory)
+      createRunConfiguration(StringUtil.getShortName(testClassPath) +
+      (if (testName != null) "\\" + testName else ""), confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[UTestRunConfiguration]
     runConfiguration.setTestClassPath(testClassPath)
     runConfiguration.initWorkingDir()
@@ -144,7 +144,7 @@ class UTestConfigurationProducer extends {
   @tailrec
   private def buildPathFromTestNameExpr(testNameExpr: ScExpression, testExpr: ScExpression): Option[String] = {
     val subExprs = testNameExpr.getChildren.filter(_.isInstanceOf[ScExpression]).map(_.asInstanceOf[ScExpression])
-    //for now, only process tests that have simle literals as names
+    //for now, only process tests that have simple literals as names
     if (subExprs.length == 1) {
       subExprs.head match {
         case literal: ScLiteral if literal.isString || literal.isSymbol => buildTestPath(testExpr, getTestName(literal))
@@ -154,11 +154,14 @@ class UTestConfigurationProducer extends {
   }
 
   private def buildPathFromTestExpr(expr: ScExpression): Option[String] =
-    expr.firstChild match {
-      case Some(literal: ScLiteral) => buildTestPath(expr, getTestName(literal))
-      case Some(innerExpr: ScExpression) => buildPathFromTestNameExpr(innerExpr, expr)
-      case _ => None
-    }
+    expr.firstChild.flatMap(TestConfigurationUtil.getStaticTestName(_, allowSymbolLiterals = true)).
+      flatMap(buildTestPath(expr, _))
+  //
+  //    expr.firstChild match {
+  //      case Some(literal: ScLiteral) => buildTestPath(expr, getTestName(literal))
+  //      case Some(innerExpr: ScExpression) => buildPathFromTestNameExpr(innerExpr, expr)
+  //      case _ => None
+  //    }
 
   override def getLocationClassAndTest(location: Location[_ <: PsiElement]): (String, String) = {
     val element = location.getPsiElement
@@ -175,20 +178,20 @@ class UTestConfigurationProducer extends {
 
     val testName = ScalaPsiUtil.getParentWithProperty(element, strict = false,
       e => TestNodeProvider.isUTestInfixExpr(e) || TestNodeProvider.isUTestSuiteApplyCall(e) || TestNodeProvider.isUTestApplyCall(e)).
-        map { case infixExpr: ScInfixExpr =>
-                //test location is a scope defined through infix '-'
-                 buildPathFromTestExpr(infixExpr)
-              case methodCall: ScMethodCall if TestNodeProvider.isUTestApplyCall(methodCall) =>
-                //test location is a scope define without use of '-' method
-                buildPathFromTestExpr(methodCall)
-              case methodCall: ScMethodCall =>
-                //test location is a test method definition
-                getTestSuiteName(methodCall)
-              case _ => None
+      map { case infixExpr: ScInfixExpr =>
+      //test location is a scope defined through infix '-'
+      buildPathFromTestExpr(infixExpr)
+    case methodCall: ScMethodCall if TestNodeProvider.isUTestApplyCall(methodCall) =>
+      //test location is a scope define without use of '-' method
+      buildPathFromTestExpr(methodCall)
+    case methodCall: ScMethodCall =>
+      //test location is a test method definition
+      getTestSuiteName(methodCall)
+    case _ => None
     }.flatten.getOrElse(
-      //it is also possible that element is on left-hand of test suite definition
+        //it is also possible that element is on left-hand of test suite definition
         TestNodeProvider.getUTestLeftHandTestDefinition(element).flatMap(getTestSuiteName).orNull
-    )
+      )
     (testClassPath, testName)
   }
 }
