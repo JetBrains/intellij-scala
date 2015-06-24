@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType$;
+import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil;
 import org.scalatest.finders.AstNode;
 import org.scalatest.finders.Finder;
 import org.scalatest.finders.Selection;
@@ -213,7 +214,7 @@ public class ScalaTestAstTransformer {
                 Annotation styleOpt = null;
                 for (Annotation a : annotations) {
                     if (a.annotationType().getName().equals("org.scalatest.Style") ||
-                        a.annotationType().getName().equals("org.scalatest.Finders")) {
+                            a.annotationType().getName().equals("org.scalatest.Finders")) {
                         styleOpt = a;
                     }
                 }
@@ -223,7 +224,7 @@ public class ScalaTestAstTransformer {
                     if (finderClassName != null) {
                         Class finderClass = loadClass(finderClassName, module);
                         if (finderClass == null) {
-                          return null;
+                            return null;
                         }
                         Object instance = finderClass.newInstance();
                         if (instance instanceof Finder) {
@@ -273,15 +274,13 @@ public class ScalaTestAstTransformer {
     }
 
     class StMethodDefinition extends org.scalatest.finders.MethodDefinition {
-        public String pClassName;
-        public PsiElement element;
-        public String pName;
+        public final String pClassName;
+        public final PsiElement element;
 
-        public StMethodDefinition(String pClassName, PsiElement element, String pName, String... pParamTypes) {
-            super(pClassName, null, new AstNode[0], pName, pParamTypes);
+        public StMethodDefinition(String pClassName, PsiElement element, String... pParamTypes) {
+            super(pClassName, null, new AstNode[0], TestConfigurationUtil.getStaticTestNameOrNothing(element, false), pParamTypes);
             this.pClassName = pClassName;
             this.element = element;
-            this.pName = pName;
         }
 
         @Override
@@ -292,6 +291,11 @@ public class ScalaTestAstTransformer {
         @Override
         public AstNode[] children() {
             return getChildren(pClassName, element);
+        }
+
+        @Override
+        public boolean canBePartOfTestName() {
+            return TestConfigurationUtil.getStaticTestName(element, false).isDefined();
         }
 
         @Override
@@ -311,17 +315,17 @@ public class ScalaTestAstTransformer {
 
 
     private class StMethodInvocation extends org.scalatest.finders.MethodInvocation {
-        public String pClassName;
-        public AstNode pTarget;
-        public MethodInvocation invocation;
-        public String pName;
+        public final String pClassName;
+        public final AstNode pTarget;
+        public final MethodInvocation invocation;
+        public final PsiElement nameSource;
 
-        public StMethodInvocation(String pClassName, AstNode pTarget, MethodInvocation invocation, String pName, AstNode... args) {
+        public StMethodInvocation(String pClassName, AstNode pTarget, MethodInvocation invocation, String pName, PsiElement nameSource, AstNode... args) {
             super(pClassName, pTarget, null, new AstNode[0], pName, args);
             this.pClassName = pClassName;
             this.pTarget = pTarget;
-            this.pName = pName;
             this.invocation = invocation;
+            this.nameSource = nameSource;
         }
 
         @Override
@@ -332,6 +336,15 @@ public class ScalaTestAstTransformer {
         @Override
         public AstNode[] children() {
             return getChildren(pClassName, invocation);
+        }
+
+        private PsiElement closestInvocationElement() {
+            return PsiTreeUtil.getParentOfType(nameSource, MethodInvocation.class);
+        }
+
+        @Override
+        public boolean canBePartOfTestName() {
+            return super.canBePartOfTestName() && TestConfigurationUtil.getStaticTestName(closestInvocationElement(), false).isDefined();
         }
 
         @Override
@@ -346,6 +359,11 @@ public class ScalaTestAstTransformer {
         @Override
         public int hashCode() {
             return invocation.hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return TestConfigurationUtil.getStaticTestNameOrNothing(closestInvocationElement(), false);
         }
     }
 
@@ -404,6 +422,16 @@ public class ScalaTestAstTransformer {
         @Override
         public AstNode[] children() {
             return getChildren(pClassName, element);
+        }
+
+        @Override
+        public boolean canBePartOfTestName() {
+            return TestConfigurationUtil.getStaticTestName(element, false).isDefined();
+        }
+
+        @Override
+        public String toString() {
+            return TestConfigurationUtil.getStaticTestNameOrNothing(element, false);
         }
 
         @Override
@@ -487,9 +515,10 @@ public class ScalaTestAstTransformer {
 
             }
             String pName = (current.isApplyOrUpdateCall()) ? "apply" : ref.refName();
+            PsiElement nameSource = (current.isApplyOrUpdateCall()) ? null : ref;
             AstNode[] array = new AstNode[args.size()];
             args.toArray(array);
-            return new StMethodInvocation(containingClassName, target, selected, pName, array);
+            return new StMethodInvocation(containingClassName, target, selected, pName, nameSource, array);
         } else if (current.getInvokedExpr() instanceof MethodInvocation) {
             return getScalaTestMethodInvocation(selected, ((MethodInvocation) current.getInvokedExpr()), paramsExpr, className);
         } else {
@@ -509,7 +538,7 @@ public class ScalaTestAstTransformer {
             }
             String[] array = new String[paramTypes.size()];
             paramTypes.toArray(array);
-            return new StMethodDefinition(className, methodDef, name, array);
+            return new StMethodDefinition(className, methodDef, array);
         } else {
             return null;      // May be to build the nested AST nodes too.
         }
