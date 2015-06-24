@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package debugger.ui
 
 import com.intellij.debugger.DebuggerContext
-import com.intellij.debugger.engine.{DebugProcessImpl, DebugProcess}
 import com.intellij.debugger.engine.evaluation.{EvaluationContext, EvaluationContextImpl}
+import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl}
 import com.intellij.debugger.ui.impl.watch.ValueDescriptorImpl
 import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, DescriptorLabelListener, NodeRendererImpl}
 import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptor, ValueDescriptor}
@@ -25,7 +25,7 @@ class RuntimeRefRenderer extends NodeRendererImpl {
   override def getUniqueId: String = "ScalaRuntimeRefRenderer"
 
   override def isApplicable(t: Type): Boolean = {
-    t.name() != null && t.name().startsWith("scala.runtime.") && t.name().endsWith("Ref")
+    t != null && t.name() != null && t.name().startsWith("scala.runtime.") && t.name().endsWith("Ref")
   }
   
   override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit = {
