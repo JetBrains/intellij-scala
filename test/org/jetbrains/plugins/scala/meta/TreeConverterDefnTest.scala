@@ -77,11 +77,10 @@ class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
   
   def testDefImplicitParam() {
     doTest(
-      "def f(a: Int)(implicit b: Int) = a + b",
+      "def f(a: Int)(implicit b: Int) = b",
       Defn.Def(Nil, Term.Name("f"), Nil,
         (Term.Param(Nil, Term.Name("a"), Some(Type.Name("Int")), None) :: Nil) ::
-          (Term.Param(Mod.Implicit() :: Nil, Term.Name("b"), Some(Type.Name("Int")), None) :: Nil) :: Nil, None,
-        Term.ApplyInfix(Term.Name("a"), Term.Name("+"), Nil, Term.Name("b") :: Nil))
+          (Term.Param(Mod.Implicit() :: Nil, Term.Name("b"), Some(Type.Name("Int")), None) :: Nil) :: Nil, None, Term.Name("b"))
     )
   }
   

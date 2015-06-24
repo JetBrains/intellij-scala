@@ -21,7 +21,7 @@ trait TypeAdapter {
         t.reference match {
           case Some(reference) =>
             reference.bind() match {
-              case Some(result) => m.Type.Name(result.name)
+              case Some(result) => toTypeName(result.element)
               case None => m.Type.Placeholder(m.Type.Bounds(None, None))
             }
           case None =>  m.Type.Placeholder(m.Type.Bounds(None, None))
@@ -39,7 +39,7 @@ trait TypeAdapter {
         m.Type.Placeholder(typeBounds(t))
       case t: ScParenthesisedTypeElement =>
         t.typeElement match {
-          case Some(t: ScInfixTypeElement) => m.Type.ApplyInfix(toType(t.lOp), m.Type.Name(t.ref.refName), toType(t.rOp.get))
+          case Some(t: ScInfixTypeElement) => m.Type.ApplyInfix(toType(t.lOp), toTypeName(t.ref), toType(t.rOp.get))
           case _ => ???
         }
       case t: ScTypeVariableTypeElement =>
@@ -70,7 +70,7 @@ trait TypeAdapter {
 
     tp match {
       case t: ScParameterizedType => m.Type.Apply(toType(t.designator), Seq(t.typeArgs.map(toType):_*))
-      case t: ScDesignatorType =>  m.Type.Name(t.canonicalText).withDenot(t.element)
+      case t: ScDesignatorType =>  toTypeName(t.element)
 
       case t: ptype.ScType => m.Type.Name(t.canonicalText)
     }

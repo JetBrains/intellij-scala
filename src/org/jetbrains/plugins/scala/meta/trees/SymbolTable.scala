@@ -5,10 +5,9 @@ import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
+import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
 
 import scala.meta.internal.{ast => m, semantic => h}
 
@@ -25,10 +24,10 @@ trait SymbolTable {
     }
   }
 
-  def fqnameToSymbol(fqName: String): h.Symbol = {
+  def fqnameToSymbol(fqName: String, toDrop: Int = 1): h.Symbol = {
     fqName
       .split('.')
-      .dropRight(1)
+      .dropRight(toDrop)
       .foldLeft(h.Symbol.Root.asInstanceOf[h.Symbol])((parent, name) => h.Symbol.Global(parent, name, h.Signature.Term))
   }
 
@@ -50,6 +49,8 @@ trait SymbolTable {
           h.Symbol.Local(elem.getContainingFile.getName + ":" + elem.getTextOffset)
         else
           h.Symbol.Local(elem.getContainingFile.getVirtualFile.getCanonicalPath + "\n" + elem.getTextOffset)
+      case sc: impl.toplevel.synthetic.ScSyntheticClass =>
+        h.Symbol.Global(fqnameToSymbol(sc.getQualifiedName), sc.className, h.Signature.Type)
       case td: ScTypeDefinition if !td.qualifiedName.contains(".") => // empty package defn
         h.Symbol.Global(h.Symbol.Empty, td.name, h.Signature.Type)
       case td: ScTemplateDefinition =>
