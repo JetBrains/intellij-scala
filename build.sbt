@@ -65,22 +65,45 @@ lazy val scalaCommunity =
   .aggregate(jpsPlugin, sbtRuntimeDependencies, testDownloader)
 
 lazy val jpsPlugin  =
-  newProject("jpsPlugin", "jps-plugin")()
+  newProject("jpsPlugin", "jps-plugin")(
+    unmanagedJars in Compile ++= (baseDirectory.value.getParentFile / "SDK/sbt" * "*.jar").classpath,
+    unmanagedJars in Compile ++= (baseDirectory.value.getParentFile / "SDK/nailgun" * "*.jar").classpath,
+    unmanagedSourceDirectories in Compile += baseDirectory.value / "src",
+    unmanagedResourceDirectories in Compile += baseDirectory.value /  "resources"
+  )
   .settings(commonIdeaSettings:_*)
   .dependsOn(compilerSettings)
 
 lazy val compilerSettings =
-  newProject("compilerSettings", "compiler-settings")()
+  newProject("compilerSettings", "compiler-settings")(
+    unmanagedJars in Compile ++= (baseDirectory.value.getParentFile / "SDK/nailgun" * "*.jar").classpath,
+    unmanagedSourceDirectories in Compile += baseDirectory.value / "src"
+  )
   .settings(commonIdeaSettings:_*)
 
 lazy val scalaRunner =
-  newProject("scalaRunner", "ScalaRunner")()
+  newProject("scalaRunner", "ScalaRunner")(
+    unmanagedSourceDirectories in Compile += baseDirectory.value / "src",
+    unmanagedResourceDirectories in Compile += baseDirectory.value / "resources",
+    libraryDependencies += "org.specs2" %% "specs2" % "2.3.11" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
+  )
 
 lazy val runners =
-  newProject("runners", "Runners")().dependsOn(scalaRunner)
+  newProject("runners", "Runners")(
+    unmanagedSourceDirectories in Compile += baseDirectory.value / "src",
+    libraryDependencies ++= Seq(
+      "org.specs2" %% "specs2" % "2.3.11" % "provided"  excludeAll ExclusionRule(organization = "org.ow2.asm"),
+      "org.scalatest" % "scalatest_2.11" % "2.2.1" % "provided",
+      "com.lihaoyi" %% "utest" % "0.1.3" % "provided"
+    )
+  ).dependsOn(scalaRunner)
 
 lazy val nailgunRunners =
-  newProject("nailgunRunners", "NailgunRunners")().dependsOn(scalaRunner)
+  newProject("nailgunRunners", "NailgunRunners")(
+    unmanagedSourceDirectories in Compile += baseDirectory.value / "src",
+    unmanagedJars in Compile ++= (baseDirectory.value.getParentFile / "SDK/nailgun" * "*.jar").classpath
+  )
+  .dependsOn(scalaRunner)
 
 lazy val ideaRunner =
   newProject("ideaRunner", "idea-runner")(
@@ -114,7 +137,41 @@ lazy val sbtRuntimeDependencies =
   )
 
 lazy val testDownloader =
-  newProject("testJarsDownloader")()
+  newProject("testJarsDownloader")(
+    conflictWarning  := ConflictWarning.disable,
+    resolvers ++= Seq(
+      "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases",
+      "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+    ),
+    libraryDependencies ++= Seq(
+      "org.scalatest" % "scalatest_2.11" % "2.2.1",
+      "org.scalatest" % "scalatest_2.10" % "2.2.1",
+      "org.specs2" % "specs2_2.11" % "2.4.15",
+      "org.scalaz" % "scalaz-core_2.11" % "7.1.0",
+      "org.scalaz" % "scalaz-concurrent_2.11" % "7.1.0",
+      "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.2",
+      "org.specs2" % "specs2_2.10" % "2.4.6",
+      "org.scalaz" % "scalaz-core_2.10" % "7.1.0",
+      "org.scalaz" % "scalaz-concurrent_2.10" % "7.1.0",
+      "org.scalaz.stream" % "scalaz-stream_2.11" % "0.6a",
+      "com.chuusai" % "shapeless_2.11" % "2.0.0",
+      "org.typelevel" % "scodec-bits_2.11" % "1.1.0-SNAPSHOT",
+      "org.typelevel" % "scodec-core_2.11" % "1.7.0-SNAPSHOT",
+      "org.scalatest" % "scalatest_2.11" % "2.1.7",
+      "org.scalatest" % "scalatest_2.10" % "2.1.7",
+      "org.scalatest" % "scalatest_2.10" % "1.9.2",
+      "com.github.julien-truffaut"  %%  "monocle-core"    % "1.2.0-SNAPSHOT",
+      "com.github.julien-truffaut"  %%  "monocle-generic" % "1.2.0-SNAPSHOT",
+      "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.2.0-SNAPSHOT",
+      "io.spray" %% "spray-routing" % "1.3.1"
+    ),
+    dependencyOverrides ++= Set(
+      "org.scalatest" % "scalatest_2.10" % "2.1.7",
+      "org.scalatest" % "scalatest_2.11" % "2.1.7",
+      "org.scalatest" % "scalatest_2.10" % "1.9.2",
+      "com.chuusai" % "shapeless_2.11" % "2.0.0"
+    )
+  )
 
 // packaging
 
