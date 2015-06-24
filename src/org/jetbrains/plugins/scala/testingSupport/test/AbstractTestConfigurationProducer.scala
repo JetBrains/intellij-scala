@@ -8,6 +8,7 @@ import com.intellij.execution.{Location, RunnerAndConfigurationSettings}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator
 
 /**
  * @author Ksenia.Sautina
@@ -16,12 +17,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 trait AbstractTestConfigurationProducer {
   private var myPsiElement: PsiElement = null
+  private val constEvaluator = new ScalaConstantExpressionEvaluator
   def getSourceElement: PsiElement = myPsiElement
 
   def suitePaths: List[String]
 
   def createConfigurationByElement(location: Location[_ <: PsiElement],
-                                             context: ConfigurationContext): RunnerAndConfigurationSettingsImpl = {
+                                   context: ConfigurationContext): RunnerAndConfigurationSettingsImpl = {
     if (context.getModule == null) return null
     val scope: GlobalSearchScope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(context.getModule, true)
     if (suitePaths.forall(
@@ -31,8 +33,8 @@ trait AbstractTestConfigurationProducer {
   }
 
   def findExistingByElement(location: Location[_ <: PsiElement],
-                                      existingConfigurations: Array[RunnerAndConfigurationSettings],
-                                      context: ConfigurationContext): RunnerAndConfigurationSettings = {
+                            existingConfigurations: Array[RunnerAndConfigurationSettings],
+                            context: ConfigurationContext): RunnerAndConfigurationSettings = {
     existingConfigurations.find(c => isConfigurationByLocation(c.getConfiguration, location)).orNull
   }
 
@@ -42,9 +44,7 @@ trait AbstractTestConfigurationProducer {
 
 
   protected def escapeAndConcatTestNames(testNames: List[String]) = {
-    val res = testNames.map(escapeTestName)
+    val res = testNames.map(TestConfigurationUtil.escapeTestName)
     if (res.size > 0) res.tail.fold(res.head)(_+"\n"+_) else ""
   }
-
-  protected def escapeTestName(testName: String) = testName.replace("\\", "\\\\").replace("\n", "\\n")
 }
