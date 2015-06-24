@@ -48,7 +48,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                                      fromUnderscore: Boolean = false): ExpressionTypeResult = {
     type Data = (Boolean, Boolean, Option[ScType], Boolean, Boolean)
     val data = (checkImplicits, isShape, expectedOption, ignoreBaseTypes, fromUnderscore)
-    
+
     CachesUtil.getMappedWithRecursionPreventingWithRollback(this, data, CachesUtil.TYPE_AFTER_IMPLICIT_KEY,
       (expr: ScExpression, data: Data) => {
         val (checkImplicits: Boolean, isShape: Boolean,
@@ -70,6 +70,17 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 //if this result is ok, we do not need to think about implicits
                 case Success(tp, _) if tp.conforms(expected) => defaultResult
                 case Success(tp, _) =>
+                  if (ScalaPsiUtil.isSAMEnabled(this) && ScFunctionType.isFunctionType(tp)) {
+                    val des = tp match {
+                      case param: ScParameterizedType => Some(param.designator)
+                      case _ => None
+                    }
+                    ScalaPsiUtil.toSAMType(expected) match {
+                      case Some(methodType) if methodType.conforms(tp) =>
+                        return ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None)
+                      case _ =>
+                    }
+                  }
                   val functionType = ScFunctionType(expected, Seq(tp))(getProject, getResolveScope)
                   val results = new ImplicitCollector(this, functionType, functionType, None,
                     isImplicitConversion = true, isExtensionConversion = false).collect()
@@ -113,10 +124,10 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   }
 
   def getTypeWithoutImplicits(ctx: TypingContext, //todo: remove TypingContext?
-                              ignoreBaseTypes: Boolean = false, 
+                              ignoreBaseTypes: Boolean = false,
                               fromUnderscore: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
-    
+
     type Data = (Boolean, Boolean)
     val data = (ignoreBaseTypes, fromUnderscore)
 
@@ -348,7 +359,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   }
 
   def getNonValueType(ctx: TypingContext = TypingContext.empty, //todo: remove?
-                      ignoreBaseType: Boolean = false, 
+                      ignoreBaseType: Boolean = false,
                       fromUnderscore: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
     type Data = (Boolean, Boolean)
@@ -414,7 +425,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     ExpectedTypes.expectedExprType(this, fromUnderscore)
 
   def expectedTypes(fromUnderscore: Boolean = true): Array[ScType] = expectedTypesEx(fromUnderscore).map(_._1)
-  
+
   def expectedTypesEx(fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
     CachesUtil.getMappedWithRecursionPreventingWithRollback(this, fromUnderscore, CachesUtil.EXPECTED_TYPES_KEY,
       (expr: ScExpression, data: Boolean) => ExpectedTypes.expectedExprTypes(expr, fromUnderscore = data),

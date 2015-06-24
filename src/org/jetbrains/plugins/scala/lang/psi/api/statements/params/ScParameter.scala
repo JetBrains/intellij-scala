@@ -138,6 +138,14 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
                 val i = clause.parameters.indexOf(this)
                 if (result != null) result = None
                 else result = Some(params(i))
+              case any if ScalaPsiUtil.isSAMEnabled(f)=>
+                //infer type if it's a Single Abstract Method
+                ScalaPsiUtil.toSAMType(any) match {
+                  case Some(ScFunctionType(_, params)) =>
+                    val i = clause.parameters.indexOf(this)
+                    if (i < params.length) result = Some(params(i))
+                  case _ =>
+                }
               case _ =>
             }
           }

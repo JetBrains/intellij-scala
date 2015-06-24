@@ -221,6 +221,12 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         Some(checkConformanceWithInference(retType, args, typeParams, params))
       case ScTypePolymorphicType(ScFunctionType(retType, params), typeParams) =>
         Some(checkConformanceWithInference(retType, args, typeParams, functionParams(params)))
+      case any if ScalaPsiUtil.isSAMEnabled(this) =>
+        ScalaPsiUtil.toSAMType(any) match {
+          case Some(ScFunctionType(retType: ScType, params: Seq[ScType])) =>
+            Some(checkConformance(retType, args, functionParams(params)))
+          case _ => None
+        }
       case _ => None
     }
 
@@ -266,9 +272,16 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       }
     }
 
-    var res: ScType = checkApplication(invokedType, args(isNamedDynamic = isApplyDynamicNamed)).getOrElse {
+    val actualInvokedType: ScType =
+      if (ScalaPsiUtil.isSAMEnabled(this)) {
+        ScalaPsiUtil.toSAMType(invokedType) match {
+          case Some(mt) => getEffectiveInvokedExpr.getNonValueType().getOrElse(invokedType)
+          case _ => invokedType
+        }
+      } else invokedType
+    var res: ScType = checkApplication(actualInvokedType, args(isNamedDynamic = isApplyDynamicNamed)).getOrElse {
       var (processedType, importsUsed, implicitFunction, applyOrUpdateResult) =
-        ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, this, isShape = false).getOrElse {
+        ScalaPsiUtil.processTypeForUpdateOrApply(actualInvokedType, this, isShape = false).getOrElse {
           (types.Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
         }
       if (useExpectedType) {
