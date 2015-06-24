@@ -36,6 +36,8 @@ trait Namer {
       m.Type.Name(ne.name).withDenot(ne)
     case re: ScReferenceExpression =>
       toTypeName(re.resolve())
+    case sc: impl.toplevel.synthetic.ScSyntheticClass =>
+      m.Type.Name(sc.className).withDenot(sc)
     case se: impl.toplevel.synthetic.SyntheticNamedElement => ??? // FIXME: find a way to resolve synthetic elements
     case other => other ?!
   }

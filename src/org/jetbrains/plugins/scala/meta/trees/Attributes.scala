@@ -3,10 +3,9 @@ package org.jetbrains.plugins.scala.meta.trees
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
-import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
+import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
 
 import scala.meta.internal.{ast => m, semantic => h}
 
@@ -16,8 +15,21 @@ trait Attributes {
 
   protected implicit class RichAttributesTree[T <: m.Tree](ptree: T) {
 
+    def fqnameToPrefix(fqn: String) = {
+      fqn
+        .split('.')
+        .dropRight(1)
+        .foldLeft(rootPackagePrefix) {
+          (parent, name) => h.Prefix.Type(m.Type.Singleton(
+            m.Term.Name(name, denot =
+              h.Denotation.Single(parent, fqnameToSymbol(fqn.substring(0, fqn.indexOf(name) + name.size), toDrop = 0)))
+          )
+        )
+      }
+    }
+
     def denot[P <: PsiElement](elem: Option[P]): h.Denotation = {
-      def mprefix(elem: PsiElement) = h.Prefix.Type(toType(elem))
+      def mprefix(elem: PsiElement, fqn: String = "") = Option(elem).map(cc => h.Prefix.Type(toType(cc))).getOrElse(fqnameToPrefix(fqn))
       if (elem.isEmpty) h.Denotation.Zero
       else
         elem.get match {
@@ -29,23 +41,23 @@ trait Attributes {
             h.Denotation.Single(h.Prefix.Zero, toSymbol(cr))
           case td: ScFieldId =>
             val pref = td.nameContext match {
-              case vd: ScValueDeclaration    => Option(vd.containingClass).map(cc => mprefix(cc)).getOrElse(h.Prefix.Zero)
-              case vd: ScVariableDeclaration => Option(vd.containingClass).map(cc => mprefix(cc)).getOrElse(h.Prefix.Zero)
+              case vd: ScValueDeclaration    => mprefix(vd.containingClass)
+              case vd: ScVariableDeclaration => mprefix(vd.containingClass)
               case other => other ?!
             }
             h.Denotation.Single(pref, toSymbol(td))
           case re: patterns.ScBindingPattern =>
-            h.Denotation.Single(Option(re.containingClass).map(cc => mprefix(cc)).getOrElse(h.Prefix.Zero), toSymbol(re))
+            h.Denotation.Single(mprefix(re.containingClass), toSymbol(re))
           case r: ScPackageImpl =>
             h.Denotation.Single(mprefix(r.getParentPackage), toSymbol(r))
           case td: ScTypeDefinition if !td.qualifiedName.contains(".") =>
             h.Denotation.Single(h.Prefix.Zero, toSymbol(td))
+          case td: ScTypeDefinition =>
+            h.Denotation.Single(mprefix(td.containingClass, td.qualifiedName), toSymbol(td))
+          case sc: impl.toplevel.synthetic.ScSyntheticClass =>
+            h.Denotation.Single(fqnameToPrefix(sc.getQualifiedName), toSymbol(sc))
           case mm: ScMember =>
-            h.Denotation.Single(Option(mm.containingClass).map(cc => mprefix(cc)).getOrElse(h.Prefix.Zero), toSymbol(mm))
-//          case td: ScTypeDefinition =>
-//            h.Denotation.Single(Option(td.containingClass).map(cc => mprefix(cc)).getOrElse(h.Prefix.Zero), toSymbol(td))
-//          case ta: ScTypeAlias =>
-//            h.Denotation.Single(Option(ta.containingClass).map(cc => mprefix(cc)).getOrElse(h.Prefix.Zero), toSymbol(ta))
+            h.Denotation.Single(mprefix(mm.containingClass), toSymbol(mm))
           case pp: params.ScParameter =>
             // FIXME: prefix of a parameter?
             h.Denotation.Single(h.Prefix.Zero, toSymbol(pp))

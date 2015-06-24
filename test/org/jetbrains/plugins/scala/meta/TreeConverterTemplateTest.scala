@@ -119,14 +119,14 @@ class TreeConverterTemplateTest extends TreeConverterTestBase {
           Some(List(Defn.Class(Nil, Type.Name("B"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
           Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None),
             Some(List(Defn.Class(Nil, Type.Name("C"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
-            Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), Some(Nil)))))))))))
+            Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), None))))))))))
     )
   }
 
   def testClassMixedChildren() {
     doTest(
       // FIXME: member/expr order preser vation not working for now, exprs will always go after members
-      "class A {val a = 42; class B; def f() = 42; type T; trait Foo; 42; f(a)}",
+      "class A {val a = 42; class B; def f = 42; type T; trait Foo; 42; f(a)}",
       Defn.Class(Nil, Type.Name("A"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
         Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None),
           Some(List(Defn.Val(Nil, List(Pat.Var.Term(Term.Name("a"))), None, Lit.Int(42)),
