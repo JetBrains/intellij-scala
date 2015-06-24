@@ -38,7 +38,7 @@ class InvocationTemplate(nameCondition: String => Boolean) {
           case _: ScReferenceExpression | _: ScMethodCall | _: ScGenericCall => s"${qual.getText}.apply"
           case _ => s"(${qual.getText}).apply"
         }
-        val ref = ScalaPsiElementFactory.createExpressionFromText(s"(${qual.getText}).apply", call).asInstanceOf[ScReferenceExpression]
+        val ref = ScalaPsiElementFactory.createExpressionFromText(text, call).asInstanceOf[ScReferenceExpression]
         if (refCondition(ref)) Some(qual, args)
         else None
       case MethodRepr(_, Some(MethodRepr(_, qualOpt, Some(ref), firstArgs)), None, secondArgs) if nameCondition(ref.refName) && refCondition(ref) => 
