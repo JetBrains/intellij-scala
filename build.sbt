@@ -4,158 +4,117 @@ resolvers in ThisBuild ++= bintrayJetbrains.allResolvers
 
 resolvers in ThisBuild += Resolver.typesafeIvyRepo("releases")
 
-lazy val sbtRuntimeDependencies = newProject("sbtRuntimeDependencies")(
-  libraryDependencies ++= DependencyGroups.sbtRuntime
+lazy val commonIdeaSettings = ideaPluginSettings ++ Seq(
+  ideaBuild := Versions.ideaVersion,
+  ideaDownloadDirectory := baseDirectory.in(ThisBuild).value / "SDK" / "ideaSDK"
 )
 
-lazy val testDownloader = newProject("testJarsDownloader")()
-
-lazy val scalaCommunity = newProject("scalaCommunity", "")(
+lazy val scalaCommunity =
+  newProject("scalaCommunity", "")(
+    unmanagedSourceDirectories in Compile += baseDirectory.value /  "src",
+    unmanagedSourceDirectories in Test += baseDirectory.value /  "test",
+    unmanagedResourceDirectories in Compile += baseDirectory.value /  "resources",
+    ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
+    javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6"),
+    scalacOptions in Global += "-target:jvm-1.6",
     libraryDependencies ++= DependencyGroups.scalaCommunity,
-    libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test"
+    libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test",
+    unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
+    unmanagedJars in Compile ++= {
+      val sdkDirs = Seq("scalap", "nailgun", "scalastyle", "scalatest-finders")
+      val sdkPathFinder = sdkDirs.foldLeft(PathFinder.empty) { (finder, dir) =>
+        finder +++ (baseDirectory.value / "SDK" / dir)
+      }
+      (sdkPathFinder * globFilter("*.jar")).classpath
+    },
+    // jar hell workaround(ignore idea bundled lucene in test runtime)
+    fullClasspath in Test := {(fullClasspath in Test).value.filterNot(_.data.getName.endsWith("lucene-core-2.4.1.jar"))},
+    baseDirectory in Test := baseDirectory.value.getParentFile,
+    fork in Test := true,
+    parallelExecution := false,
+    javaOptions in Test := Seq(
+      //  "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005",
+      "-Xms128m",
+      "-Xmx1024m",
+      "-XX:MaxPermSize=350m",
+      "-ea",
+      s"-Didea.system.path=${Path.userHome}/.IdeaData/IDEA-15/scala/test-system",
+      s"-Didea.config.path=${Path.userHome}/.IdeaData/IDEA-15/scala/test-config",
+      s"-Dplugin.path=${baseDirectory.value}/out/plugin/Scala"
+    )
   )
-    .dependsOn(compilerSettings, runners % "test->test;compile->compile")
-  .aggregate(jpsPlugin, sbtRuntimeDependencies)
-
-update := {
-  (update in testDownloader).value
-  update.value
-}
-
-unmanagedSourceDirectories in Compile += baseDirectory.value /  "src"
-
-unmanagedSourceDirectories in Test += baseDirectory.value /  "test"
-
-unmanagedResourceDirectories in Compile += baseDirectory.value /  "resources"
-
-ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects")
-
-javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6")
-
-scalacOptions in Global += "-target:jvm-1.6"
-
-ideaVersion := "142.2670.3"
-
-ideaBasePath in Global := baseDirectory.value / "SDK" / "ideaSDK" / s"idea-${ideaVersion.value}"
-
-ideaBaseJars in Global := (ideaBasePath.value  / "lib" * "*.jar").classpath
-
-ideaICPluginJars in Global := {
-  val basePluginsDir = ideaBasePath.value  / "plugins"
-  val baseDirectories =
-    basePluginsDir / "copyright" / "lib" +++
-      basePluginsDir / "gradle" / "lib" +++
-      basePluginsDir / "Groovy" / "lib" +++
-      basePluginsDir / "IntelliLang" / "lib" +++
-      basePluginsDir / "java-i18n" / "lib" +++
-      basePluginsDir / "android" / "lib" +++
-      basePluginsDir / "maven" / "lib" +++
-      basePluginsDir / "junit" / "lib" +++
-      basePluginsDir / "properties" / "lib"
-  val customJars = baseDirectories * (globFilter("*.jar") -- "*asm*.jar" -- "*lucene-core*")
-  customJars.classpath
-}
-
-allIdeaJars in Global := (ideaBaseJars in Global).value ++ (ideaICPluginJars in Global).value
-
-unmanagedJars in Compile := allIdeaJars.value
-
-unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/scalap" * "*.jar").classpath
-
-unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/nailgun" * "*.jar").classpath
-
-unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/scalastyle" * "*.jar").classpath
-
-unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar"
-
-unmanagedJars in Compile ++= (baseDirectory.value /  "SDK/scalatest-finders" * "*.jar").classpath
-
-lazy val compilerSettings = newProject("compilerSettings", "compiler-settings")(
-    unmanagedJars in Compile := allIdeaJars.value
+  .settings(commonIdeaSettings:_*)
+  .settings(
+    ideaInternalPlugins := Seq(
+      "copyright",
+      "gradle",
+      "Groovy",
+      "IntelliLang",
+      "java-i18n",
+      "android",
+      "maven",
+      "junit",
+      "properties"
+    ),
+    ideaInternalPluginsJars <<= (ideaInternalPluginsJars).map { classpath =>
+      classpath.filterNot(_.data.getName.contains("lucene-core"))
+    },
+    aggregate.in(updateIdea) := false
   )
+  .dependsOn(compilerSettings, runners % "test->test;compile->compile")
+  .aggregate(jpsPlugin, sbtRuntimeDependencies, testDownloader)
 
-lazy val scalaRunner = newProject("scalaRunner", "ScalaRunner")()
-
-lazy val runners = newProject("runners", "Runners")().dependsOn(scalaRunner)
-
-lazy val jpsPlugin = newProject("jpsPlugin", "jps-plugin")(
-    unmanagedJars in Compile := allIdeaJars.value
-  )
+lazy val jpsPlugin  =
+  newProject("jpsPlugin", "jps-plugin")()
+  .settings(commonIdeaSettings:_*)
   .dependsOn(compilerSettings)
 
-lazy val ideaRunner = newProject("ideaRunner", "idea-runner")(
-    unmanagedJars in Compile := (ideaBasePath.value  / "lib" * "*.jar").classpath, autoScalaLibrary := false
+lazy val compilerSettings =
+  newProject("compilerSettings", "compiler-settings")()
+  .settings(commonIdeaSettings:_*)
+
+lazy val scalaRunner =
+  newProject("scalaRunner", "ScalaRunner")()
+
+lazy val runners =
+  newProject("runners", "Runners")().dependsOn(scalaRunner)
+
+lazy val nailgunRunners =
+  newProject("nailgunRunners", "NailgunRunners")().dependsOn(scalaRunner)
+
+lazy val ideaRunner =
+  newProject("ideaRunner", "idea-runner")(
+    unmanagedJars in Compile := ideaMainJars.in(scalaCommunity).value,
+    autoScalaLibrary := false,
+    unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
+    // run configuration
+    fork in run := true,
+    mainClass in (Compile, run) := Some("com.intellij.idea.Main"),
+    javaOptions in run ++= Seq(
+      "-Xmx800m",
+      "-XX:ReservedCodeCacheSize=64m",
+      "-XX:MaxPermSize=250m",
+      "-XX:+HeapDumpOnOutOfMemoryError",
+      "-ea",
+      "-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005",
+      "-Didea.is.internal=true",
+      "-Didea.debug.mode=true",
+      "-Didea.system.path=/home/miha/.IdeaData/IDEA-14/scala/system",
+      "-Didea.config.path=/home/miha/.IdeaData/IDEA-14/scala/config",
+      "-Dapple.laf.useScreenMenuBar=true",
+      s"-Dplugin.path=${baseDirectory.value.getParentFile}/out/plugin",
+      "-Didea.ProcessCanceledException=disabled"
+    )
   )
   .dependsOn(Seq(compilerSettings, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners).map(_ % Provided): _*)
 
-lazy val nailgunRunners = newProject("nailgunRunners", "NailgunRunners")().dependsOn(scalaRunner)
-
-ideaResolver := {
-  val ideaVer = ideaVersion.value
-  val ideaSDKPath = ideaBasePath.value.getParentFile
-  val ideaArchiveName = ideaSDKPath.getAbsolutePath + s"/ideaSDK${ideaVersion.value}.arc"
-  def renameFun = (ideaSDKPath.listFiles sortWith { _.lastModified > _.lastModified }).head.renameTo(ideaBasePath.value)
-  val s = ideaVer.substring(0, ideaVer.indexOf('.'))
-  IdeaResolver(
-    teamcityURL = "https://teamcity.jetbrains.com",
-    buildTypes = Seq("bt410"),
-    branch = s"idea/${ideaVersion.value}",
-    artifacts = Seq(
-      System.getProperty("os.name") match {
-        case r"^Linux"     => (s"/ideaIC-$s.SNAPSHOT.tar.gz", ideaArchiveName,  Some({ _: File => s"tar xvfz $ideaArchiveName -C ${ideaSDKPath.getAbsolutePath}".!; renameFun}))
-        case r"^Mac OS.*"  => (s"/ideaIC-$s.SNAPSHOT.win.zip", ideaArchiveName, Some({ _: File => s"unzip $ideaArchiveName -d ${ideaBasePath.value}".!; renameFun}))
-        case r"^Windows.*" => (s"/ideaIC-$s.SNAPSHOT.win.zip", ideaArchiveName, Some({ _: File => IO.unzip(file(ideaArchiveName), ideaBasePath.value); renameFun}))
-        case other => throw new IllegalStateException(s"OS $other is not supported")
-      },
-      ("/sources.zip",  ideaBasePath.value.getAbsolutePath + "/sources.zip")
-    )
+lazy val sbtRuntimeDependencies =
+  newProject("sbtRuntimeDependencies")(
+    libraryDependencies ++= DependencyGroups.sbtRuntime
   )
-}
 
-downloadIdea := {
-  val log = streams.value.log
-  val ideaSDKPath = ideaBasePath.value.getParentFile
-  val resolver = (ideaResolver in Compile).value
-  val buildId = getBuildId(resolver).getOrElse("")
-  val artifactBaseUrl = resolver.teamcityURL + s"/guestAuth/app/rest/builds/id:$buildId/artifacts/content"
-  if (!ideaSDKPath.exists) ideaSDKPath.mkdirs
-  def downloadDep(art: TCArtifact): Unit = {
-    val fileTo = file(art.to)
-    if (!fileTo.exists() || art.overwrite) {
-      log.info(s"downloading${if (art.overwrite) "(overwriting)" else ""}: ${art.from} -> ${fileTo.getAbsolutePath}")
-      IO.download(url(artifactBaseUrl + art.from), fileTo)
-      log.success(s"download of ${fileTo.getName} finished")
-      art.extractFun foreach { func =>
-        log.info(s"extracting from archive ${fileTo.getName}")
-        func(fileTo)
-        log.success("extract finished")
-      }
-    } else log.info(s"$fileTo already exists, skipping")
-  }
-  resolver.artifacts foreach downloadDep
-}
-
-// tests
-
-fork in Test := true
-
-parallelExecution := false
-
-javaOptions in Test := Seq(
-//  "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005",
-  "-Xms128m",
-  "-Xmx1024m",
-  "-XX:MaxPermSize=350m",
-  "-ea",
-  s"-Didea.system.path=${Path.userHome}/.IdeaData/IDEA-15/scala/test-system",
-  s"-Didea.config.path=${Path.userHome}/.IdeaData/IDEA-15/scala/test-config",
-  s"-Dplugin.path=${baseDirectory.value}/out/plugin/Scala"
-)
-
-// jar hell workaround(ignore idea bundled lucene in test runtime)
-fullClasspath in Test := {(fullClasspath in Test).value.filterNot(_.data.getName.endsWith("lucene-core-2.4.1.jar"))}
-
-baseDirectory in Test := baseDirectory.value.getParentFile
+lazy val testDownloader =
+  newProject("testJarsDownloader")()
 
 // packaging
 
