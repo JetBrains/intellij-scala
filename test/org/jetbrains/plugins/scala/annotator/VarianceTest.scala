@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
- * @author Svyaatoslav ILINSKIY
+ * @author Svyatoslav ILINSKIY
  * @since  6/27/2014.
  */
 class VarianceTest extends SimpleTestCase {
@@ -145,6 +145,17 @@ class VarianceTest extends SimpleTestCase {
         |
         |  println(new Sum(0, List(1, 2)).sel)
         |}""".stripMargin)) {
+      case Nil =>
+    }
+  }
+
+  def testSCL8863() = {
+    assertMatches(messages(
+      """
+        |class Test[+T]{
+        |  var arr: Array[T@uncheckedVariance] = null
+        |}
+      """.stripMargin)) {
       case Nil =>
     }
   }
