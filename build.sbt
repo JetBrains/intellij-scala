@@ -160,3 +160,12 @@ packagePluginZip <<= (packagePlugin, baseDirectory in ThisBuild).map { (_, baseD
   val zipFile = baseDir / "out" / "scala-plugin.zip"
   IO.zip((base ***) pair (relativeTo(base), false), zipFile)
 }
+
+lazy val updateIdeaIfNecessary = taskKey[Unit]("Check whether IDEA is downloaded and download it if it's not")
+
+updateIdeaIfNecessary <<= (ideaBaseDirectory, ideaBuild, ideaExternalPlugins, streams).map {
+  (baseDir, build, externalPlugins, streams) =>
+    if (!baseDir.exists) ideaplugin.Tasks.updateIdea(baseDir, build, externalPlugins, streams)
+}
+
+onLoad in Global := ((s: State) => { "updateIdeaIfNecessary" :: s}) compose (onLoad in Global).value
