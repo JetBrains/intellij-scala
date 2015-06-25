@@ -31,6 +31,15 @@ object ScalaKeywordLookupItem {
         case THIS | FALSE | TRUE | NULL | SUPER => // do nothing
         case _ =>
           def addSpace(addCompletionChar: Boolean = false) {
+            if (context.getFile.getViewProvider.getFileType != ScalaFileType.SCALA_FILE_TYPE) { // for play2 - we shouldn't add space in templates (like @if, @while etc)
+              val offset = context.getStartOffset
+              val docStart = Math.max(0, context.getStartOffset - 1)
+
+              val seq = context.getDocument.getCharsSequence.subSequence(docStart, offset)
+
+              if (seq.length() == 1 && seq.charAt(0) == '@') return
+            }
+
             context.setAddCompletionChar(addCompletionChar)
             if (document.getTextLength <= offset || document.getText.charAt(offset) != ' ')
               document.insertString(offset, " ")
