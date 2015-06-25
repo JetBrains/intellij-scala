@@ -10,6 +10,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.ide.DataManager
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DefaultActionGroup, Separator}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.{DumbAware, Project}
@@ -40,14 +41,18 @@ class CompileServerManager(project: Project) extends ProjectComponent {
    def projectOpened() {
      project.scalaEvents.addScalaProjectListener(ScalaListener)
      configureWidget()
-     timer.setRepeats(true)
-     timer.start()
+     if (!ApplicationManager.getApplication.isUnitTestMode) {
+       timer.setRepeats(true)
+       timer.start()
+     }
    }
 
    def projectClosed() {
      project.scalaEvents.addScalaProjectListener(ScalaListener)
      configureWidget()
-     timer.stop()
+     if (!ApplicationManager.getApplication.isUnitTestMode) {
+       timer.stop()
+     }
    }
 
    def getComponentName = getClass.getSimpleName
