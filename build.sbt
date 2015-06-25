@@ -12,7 +12,10 @@ lazy val commonIdeaSettings = ideaPluginSettings ++ Seq(
 )
 
 lazy val scalaCommunity =
-  newProject("scalaCommunity", "")(
+  newProject("scalaCommunity", "")
+  .dependsOn(compilerSettings, runners % "test->test;compile->compile")
+  .aggregate(jpsPlugin, sbtRuntimeDependencies, testDownloader)
+  .settings(
     ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
     javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6"),
     scalacOptions in Global += "-target:jvm-1.6",
@@ -54,40 +57,36 @@ lazy val scalaCommunity =
     },
     aggregate.in(updateIdea) := false
   )
-  .dependsOn(compilerSettings, runners % "test->test;compile->compile")
-  .aggregate(jpsPlugin, sbtRuntimeDependencies, testDownloader)
 
 lazy val jpsPlugin  =
-  newProject("jpsPlugin", "jps-plugin")(
-    unmanagedJars in Compile ++= unmanagedJarsFrom("sbt", "nailgun").value
-  )
-  .settings(commonIdeaSettings:_*)
+  newProject("jpsPlugin", "jps-plugin")
   .dependsOn(compilerSettings)
+  .settings(unmanagedJars in Compile ++= unmanagedJarsFrom("sbt", "nailgun").value)
+  .settings(commonIdeaSettings:_*)
 
 lazy val compilerSettings =
-  newProject("compilerSettings", "compiler-settings")(
-    unmanagedJars in Compile ++= unmanagedJarsFrom("nailgun").value
-  )
+  newProject("compilerSettings", "compiler-settings")
+  .settings(unmanagedJars in Compile ++= unmanagedJarsFrom("nailgun").value)
   .settings(commonIdeaSettings:_*)
 
 lazy val scalaRunner =
-  newProject("scalaRunner", "ScalaRunner")(
-    libraryDependencies ++= DependencyGroups.scalaRunner
-  )
+  newProject("scalaRunner", "ScalaRunner")
+  .settings(libraryDependencies ++= DependencyGroups.scalaRunner)
 
 lazy val runners =
-  newProject("runners", "Runners")(
-    libraryDependencies ++= DependencyGroups.runners
-  ).dependsOn(scalaRunner)
+  newProject("runners", "Runners")
+  .dependsOn(scalaRunner)
+  .settings(libraryDependencies ++= DependencyGroups.runners)
 
 lazy val nailgunRunners =
-  newProject("nailgunRunners", "NailgunRunners")(
-    unmanagedJars in Compile ++= unmanagedJarsFrom("nailgun").value
-  )
+  newProject("nailgunRunners", "NailgunRunners")
   .dependsOn(scalaRunner)
+  .settings(unmanagedJars in Compile ++= unmanagedJarsFrom("nailgun").value)
 
 lazy val ideaRunner =
-  newProject("ideaRunner", "idea-runner")(
+  newProject("ideaRunner", "idea-runner")
+  .dependsOn(Seq(compilerSettings, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners).map(_ % Provided): _*)
+  .settings(
     autoScalaLibrary := false,
     unmanagedJars in Compile := ideaMainJars.in(scalaCommunity).value,
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
@@ -110,15 +109,14 @@ lazy val ideaRunner =
       "-Didea.ProcessCanceledException=disabled"
     )
   )
-  .dependsOn(Seq(compilerSettings, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners).map(_ % Provided): _*)
 
 lazy val sbtRuntimeDependencies =
-  newProject("sbtRuntimeDependencies")(
-    libraryDependencies ++= DependencyGroups.sbtRuntime
-  )
+  newProject("sbtRuntimeDependencies")
+  .settings(libraryDependencies ++= DependencyGroups.sbtRuntime)
 
 lazy val testDownloader =
-  newProject("testJarsDownloader")(
+  newProject("testJarsDownloader")
+  .settings(
     conflictWarning  := ConflictWarning.disable,
     resolvers ++= Seq(
       "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases",
