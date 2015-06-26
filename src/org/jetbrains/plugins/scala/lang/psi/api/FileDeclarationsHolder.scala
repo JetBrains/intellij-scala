@@ -215,5 +215,5 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
   
   private def predefObjects: Seq[String] = ScalaFileImpl.DefaultImplicitlyImportedObjects
 
-  private def predefPackages: Seq[String] = ScalaFileImpl.DefaultImplicitlyImportedPackges
+  private def predefPackages: Seq[String] = ScalaFileImpl.DefaultImplicitlyImportedPackages
 }

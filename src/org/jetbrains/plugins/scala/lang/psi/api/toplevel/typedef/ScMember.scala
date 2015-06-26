@@ -53,10 +53,11 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     val context = getContext
     (getContainingClassLoose, this) match {
       case (null, _) => null
+      case (found, fun: ScFunction) if fun.syntheticContainingClass.isDefined => fun.syntheticContainingClass.get
       case (found, fun: ScFunction) if fun.isSynthetic => found
       case (found, _: ScClassParameter | _: ScPrimaryConstructor) => found
-      case (found, _) if context == found.extendsBlock || Some(context) == found.extendsBlock.templateBody ||
-        Some(context) == found.extendsBlock.earlyDefinitions => found
+      case (found, _) if context == found.extendsBlock || found.extendsBlock.templateBody.contains(context) ||
+        found.extendsBlock.earlyDefinitions.contains(context) => found
       case (found, _) => null // See SCL-3178
     }
   }

@@ -43,75 +43,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
     }
   }
 
-  @volatile
-  private var fakeModule: Option[ScObject] = null
-  @volatile
-  private var fakeModuleModCount: Long = -1L
-
-  def fakeCompanionModule: Option[ScObject] = {
-    ScalaPsiUtil.getBaseCompanionModule(this) match {
-      case Some(td: ScObject) => None
-      case _ if !isCase => None
-      case _ =>
-        def calc(clazz: ScClass) = {
-          val texts = clazz.getSyntheticMethodsText
-
-          val extendsText = {
-            try {
-              if (typeParameters.isEmpty && constructor.get.effectiveParameterClauses.length == 1) {
-                val typeElementText =
-                  constructor.get.effectiveParameterClauses.map {
-                    clause =>
-                      clause.effectiveParameters.map(parameter => {
-                        val parameterText = parameter.typeElement.fold("_root_.scala.Nothing")(_.getText)
-                        if (parameter.isRepeatedParameter) s"_root_.scala.Seq[$parameterText]"
-                        else parameterText
-                      }).mkString("(", ", ", ")")
-                  }.mkString("(", " => ", s" => $name)")
-                val typeElement = ScalaPsiElementFactory.createTypeElementFromText(typeElementText, getManager)
-                s" extends ${typeElement.getText}"
-              } else {
-                ""
-              }
-            } catch {
-              case e: Exception => ""
-            }
-          }
-          val accessModifier = clazz.getModifierList.accessModifier.fold("")(_.modifierFormattedText + " ")
-          val objText =
-            s"""${accessModifier}object ${clazz.name}$extendsText{
-               |  ${texts.mkString("\n  ")}
-               |}""".stripMargin
-          val next = ScalaPsiUtil.getNextStubOrPsiElement(clazz)
-          val obj: ScObject =
-            ScalaPsiElementFactory.createObjectWithContext(objText, clazz.getParent, if (next != null) next else clazz)
-          import org.jetbrains.plugins.scala.extensions._
-          val objOption: Option[ScObject] = obj.toOption
-          objOption.foreach { (obj: ScObject) =>
-            obj.setSyntheticObject()
-            obj.members.foreach {
-              case s: ScFunctionDefinition =>
-                s.setSynthetic(clazz) // So we find the `apply` method in ScalaPsiUti.syntheticParamForParam
-                s.syntheticCaseClass = Some(clazz)
-              case _ =>
-            }
-          }
-          objOption
-        }
-
-        val modCount = PsiModificationTracker.SERVICE.getInstance(getProject).getOutOfCodeBlockModificationCount
-        if (fakeModule != null && modCount == fakeModuleModCount) return fakeModule
-        val res = calc(this)
-        synchronized {
-          if (fakeModule != null && modCount == fakeModuleModCount) return fakeModule
-          fakeModule = res
-          fakeModuleModCount = modCount
-        }
-        res
-    }
-  }
-
-  protected def typeParamString : String = if (typeParameters.length > 0) typeParameters.map(param => {
+  protected def typeParamString : String = if (typeParameters.nonEmpty) typeParameters.map(param => {
     var paramText = param.name
     param.lowerTypeElement foreach {
       case tp => paramText = paramText + " >: " + tp.getText
@@ -133,7 +65,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
     val paramString = constructor match {
       case Some(x: ScPrimaryConstructor) =>
         (if (x.parameterList.clauses.length == 1 &&
-            x.parameterList.clauses.apply(0).isImplicit) "()" else "") + x.parameterList.clauses.map(c =>
+            x.parameterList.clauses.head.isImplicit) "()" else "") + x.parameterList.clauses.map(c =>
           c.parameters.map(p =>
             p.name + " : " +
                     p.typeElement.fold("Any")(_.getText) +
@@ -154,10 +86,10 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
     val paramStringRes = constructor match {
       case Some(x: ScPrimaryConstructor) =>
         val clauses = x.parameterList.clauses
-        if (clauses.length == 0) "scala.Boolean"
+        if (clauses.isEmpty) "scala.Boolean"
         else {
-          val params = clauses(0).parameters
-          if (params.length == 0) "scala.Boolean"
+          val params = clauses.head.parameters
+          if (params.isEmpty) "scala.Boolean"
           else {
             val strings = params.map(p =>
               (if (p.isRepeatedParameter) "scala.Seq[" else "") +
@@ -170,7 +102,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
       case None => "scala.Boolean"
     }
     val typeParamStringRes =
-      if (typeParameters.length > 0)
+      if (typeParameters.nonEmpty)
         typeParameters.map(_.name).mkString("[", ", ", "]")
       else ""
 

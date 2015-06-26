@@ -117,7 +117,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
       myLibraryLoader.clean();
       myLibraryLoader = null;
     }
-    super.tearDown();
+
     if (rootPath() != null) {
       new WriteAction<Object>() {
         @Override
@@ -126,5 +126,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
         }
       }.execute().throwException();
     }
+
+    super.tearDown();
   }
 }

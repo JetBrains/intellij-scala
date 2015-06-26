@@ -178,24 +178,15 @@ object TypeDefinitionMembers {
                 addSignature(new Signature("is" + param.name.capitalize, Seq.empty, 0, subst, param))
               }
             }
-          case f: ScFunction if nonBridge(place, f) && !f.isConstructor && f.parameters.length == 0 =>
+          case f: ScFunction if nonBridge(place, f) && !f.isConstructor && f.parameters.isEmpty =>
             addSignature(new PhysicalSignature(f, subst))
-          case c: ScClass if c.isCase && c.fakeCompanionModule != None && nonBridge(place, c) =>
-            val o = c.fakeCompanionModule.get
-            addSignature(new Signature(o.name, Seq.empty, 0, subst, o))
           case o: ScObject if nonBridge(place, o) =>
+            addSignature(new Signature(o.name, Seq.empty, 0, subst, o))
+          case c: ScTypeDefinition if c.fakeCompanionModule.isDefined && nonBridge(place, c) =>
+            val o = c.fakeCompanionModule.get
             addSignature(new Signature(o.name, Seq.empty, 0, subst, o))
           case _ =>
         }
-      }
-
-      template match {
-        case obj: ScObject =>
-          for (method <- obj.objectSyntheticMembers if method.getParameterList.getParametersCount == 0) {
-            val sig = new PhysicalSignature(method, subst)
-            addSignature(sig)
-          }
-        case _ =>
       }
 
       if (!base) {
@@ -426,32 +417,27 @@ object TypeDefinitionMembers {
             }
           case f: ScFunction if nonBridge(place, f) && !f.isConstructor =>
             addSignature(new PhysicalSignature(f, subst))
-          case c: ScClass =>
-            if (c.isCase && c.fakeCompanionModule != None && nonBridge(place, c)) {
+          case o: ScObject if nonBridge(place, o) =>
+            addSignature(new Signature(o.name, Seq.empty, 0, subst, o))
+          case c: ScTypeDefinition =>
+            if (c.fakeCompanionModule.isDefined && nonBridge(place, c)) {
               val o = c.fakeCompanionModule.get
               addSignature(new Signature(o.name, Seq.empty, 0, subst, o))
             }
-            if (c.hasModifierProperty("implicit")) {
-              c.getSyntheticImplicitMethod match {
-                case Some(impl) =>
-                  addSignature(new PhysicalSignature(impl, subst))
-                case _ =>
-              }
+            c match {
+              case c: ScClass if c.hasModifierProperty("implicit") =>
+                c.getSyntheticImplicitMethod match {
+                  case Some(impl) =>
+                    addSignature(new PhysicalSignature(impl, subst))
+                  case _ =>
+                }
+              case _ =>
             }
-          case o: ScObject if nonBridge(place, o) =>
-            addSignature(new Signature(o.name, Seq.empty, 0, subst, o))
           case _ =>
         }
       }
 
-      template match {
-        case obj: ScObject =>
-          for (method <- obj.objectSyntheticMembers) {
-            val sig = new PhysicalSignature(method, subst)
-            addSignature(sig)
-          }
-        case _ =>
-      }
+
 
       if (!base) {
         for (member <- template.syntheticMethodsNoOverride) {
@@ -529,7 +515,7 @@ object TypeDefinitionMembers {
     val ans = get(clazz, signaturesKey, new MyOptionalProvider(clazz, {c: PsiClass => SignatureNodes.build(c)})(
       ScalaPsiUtil.getDependentItem(clazz)
     ))
-    place.map {
+    place.foreach {
       case _: ScInterpolatedPrefixReference =>
         val allowedNames = ans.keySet
         for (child <- clazz.getChildren) {
@@ -768,7 +754,7 @@ object TypeDefinitionMembers {
                   if (!processor.execute(elem, state.put(ScSubstitutor.key, n.substitutor followed subst)))
                     return false
                 } else {
-                  if (n.supers.length > 0 &&
+                  if (n.supers.nonEmpty &&
                     !processor.execute(n.supers.apply(0).info.asInstanceOf[Signature].namedElement,
                       state.put(ScSubstitutor.key, n.supers.apply(0).substitutor followed subst))) return false
                 }

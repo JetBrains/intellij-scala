@@ -101,17 +101,12 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
           }
         }
         ScalaPsiUtil.getCompanionModule(clazz) match {
-          case Some(td: ScClass) if td.isCase && td.fakeCompanionModule != None =>
+          case Some(td: ScTypeDefinition) if td.fakeCompanionModule.isDefined =>
             return Seq(td)
           case _ =>
         }
 
         clazz match {
-          case o: ScObject if o.objectSyntheticMembers.contains(fun) =>
-            ScalaPsiUtil.getCompanionModule(clazz) match {
-              case Some(c: ScClass) => Seq(o, c) // Offer navigation to the class and object for apply/unapply.
-              case _ => Seq(o)
-            }
           case td: ScTypeDefinition if td.syntheticMethodsNoOverride.contains(fun) => Seq(td)
           case _ => fun.getSyntheticNavigationElement match {
             case Some(element) => Seq(element)
@@ -120,7 +115,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
         }
       case o: ScObject =>
         ScalaPsiUtil.getCompanionModule(o) match {
-          case Some(td: ScClass) if td.isCase && td.fakeCompanionModule != None => Seq(td)
+          case Some(td: ScTypeDefinition) if td.fakeCompanionModule.isDefined => Seq(td)
           case _ => Seq(element)
         }
       case param: ScParameter =>

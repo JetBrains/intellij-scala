@@ -78,12 +78,12 @@ object ResolveUtils {
 
   def methodType(m : PsiMethod, s : ScSubstitutor, scope: GlobalSearchScope) =
     ScFunctionType(s.subst(ScType.create(m.getReturnType, m.getProject, scope)),
-      collection.immutable.Seq(m.getParameterList.getParameters.map({
+      m.getParameterList.getParameters.map({
         p => val pt = p.getType
         //scala hack: Objects in java are modelled as Any in scala
         if (pt.equalsToText("java.lang.Object")) types.Any
         else s.subst(ScType.create(pt, m.getProject, scope))
-      }).toSeq: _*))(m.getProject, scope)
+      }).toSeq)(m.getProject, scope)
 
   def javaMethodType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope, returnType: Option[ScType] = None): ScMethodType = {
     val retType: ScType = (m, returnType) match {
@@ -103,7 +103,7 @@ object ResolveUtils {
   }
 
   def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope = null, returnType: Option[ScType] = None): NonValueType = {
-    if (m.getTypeParameters.length == 0) javaMethodType(m, s, scope, returnType)
+    if (m.getTypeParameters.isEmpty) javaMethodType(m, s, scope, returnType)
     else {
       ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(new TypeParameter(_)))
     }

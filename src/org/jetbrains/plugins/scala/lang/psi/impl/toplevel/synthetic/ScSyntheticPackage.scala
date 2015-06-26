@@ -15,7 +15,7 @@ import com.intellij.psi.stubs.StubIndexKey
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageContainer
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -129,7 +129,7 @@ object ScSyntheticPackage {
             Array(pkgs.flatMap(p =>
               if (p.fqn.length == fqn.length)
                 p.typeDefs.flatMap {
-                  case td@(c: ScClass) if c.isCase && c.fakeCompanionModule != None =>
+                  case td@(c: ScTypeDefinition) if c.fakeCompanionModule.isDefined =>
                     Seq(td, c.fakeCompanionModule.get)
                   case td => Seq(td)
                 }

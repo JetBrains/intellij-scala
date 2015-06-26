@@ -1527,7 +1527,7 @@ object ScalaPsiUtil {
   def getUnapplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     getMethodsForName(clazz, "unapply") ++ getMethodsForName(clazz, "unapplySeq") ++
     (clazz match {
-      case c: ScObject => c.objectSyntheticMembers.filter(s => s.name == "unapply" || s.name == "unapplySeq").
+      case c: ScObject => c.syntheticMethodsNoOverride.filter(s => s.name == "unapply" || s.name == "unapplySeq").
               map(new PhysicalSignature(_, ScSubstitutor.empty))
       case _ => Seq.empty[PhysicalSignature]
     })
@@ -1580,7 +1580,7 @@ object ScalaPsiUtil {
       if (element == null) return null
       element.getContext
     }
-    while (el != null && classes.find(_.isInstance(el)) == None) el = el.getContext
+    while (el != null && !classes.exists(_.isInstance(el))) el = el.getContext
     el
   }
 
@@ -1589,7 +1589,7 @@ object ScalaPsiUtil {
       case Some(td) => Some(td)
       case _ =>
         clazz match {
-          case x: ScClass if x.isCase => x.fakeCompanionModule
+          case x: ScTypeDefinition => x.fakeCompanionModule
           case _ => None
         }
     }
