@@ -43,7 +43,7 @@ trait ScToplevelElement extends ScalaPsiElement {
     }
     if (stub != null) {
       stub.getChildrenByType[ScTypeDefinition](TokenSets.TMPL_DEF_BIT_SET, JavaArrayFactoryUtil.ScTypeDefinitionFactory)
-    } else collection.immutable.Seq(findChildrenByClassScala(classOf[ScTypeDefinition]).toSeq : _*)
+    } else findChildrenByClassScala(classOf[ScTypeDefinition]).toSeq
   }
 
   def packagings: Seq[ScPackaging] = {

@@ -10,7 +10,7 @@ import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTrait, ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
 import scala.collection.Seq
@@ -53,12 +53,18 @@ trait ScDeclarationSequenceHolder extends ScalaPsiElement {
     e match {
       case c: ScClass =>
         processor.execute(c, state)
-        if (c.isCase && c.fakeCompanionModule != None) {
+        if (c.fakeCompanionModule.isDefined) {
           processor.execute(c.fakeCompanionModule.get, state)
         }
         c.getSyntheticImplicitMethod match {
           case Some(impl) => if (!processElement(impl, processor, state)) return false
           case _ =>
+        }
+        true
+      case t: ScTrait =>
+        processor.execute(t, state)
+        if (t.fakeCompanionModule.isDefined) {
+          processor.execute(t.fakeCompanionModule.get, state)
         }
         true
       case named: ScNamedElement => processor.execute(named, state)

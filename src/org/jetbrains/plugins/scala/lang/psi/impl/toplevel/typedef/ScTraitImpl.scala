@@ -12,8 +12,10 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, PhysicalSignature}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -23,7 +25,7 @@ import scala.collection.mutable.ArrayBuffer
 */
 class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParametersOwner with ScTemplateDefinition {
   override def additionalJavaNames: Array[String] = {
-    Array(fakeCompanionClass.getName)
+    Array(fakeCompanionClass.getName) //do not add fakeCompanionModule => will build tree from stubs everywhere
   }
 
   override def accept(visitor: PsiElementVisitor) {
@@ -70,6 +72,12 @@ class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParameter
     TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) { node =>
       this.processPsiMethodsForNode(node, isStatic = false, isInterface = true)(res += _)
     }
+
+    for (synthetic <- syntheticMethodsNoOverride) {
+      this.processPsiMethodsForNode(new SignatureNodes.Node(new PhysicalSignature(synthetic, ScSubstitutor.empty),
+        ScSubstitutor.empty),
+        isStatic = false, isInterface = isInterface)(res += _)
+    }
     res.toArray
   }
 
@@ -77,5 +85,9 @@ class ScTraitImpl extends ScTypeDefinitionImpl with ScTrait with ScTypeParameter
 
   override def getInterfaces: Array[PsiClass] = {
     getSupers.filter(_.isInterface)
+  }
+
+  override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = {
+    SyntheticMembersInjector.inject(this)
   }
 }

@@ -19,8 +19,10 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, PsiClassWrapper}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, PhysicalSignature}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
@@ -131,14 +133,7 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     }
   }
 
-  def objectSyntheticMembers: Seq[PsiMethod] = {
-    import org.jetbrains.plugins.scala.caches.CachesUtil._
-    get(this, OBJECT_SYNTHETIC_MEMBERS_KEY, new MyProvider[ScObjectImpl, Seq[PsiMethod]](this, obj => {
-      obj.objectSyntheticMembersImpl
-    })(PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
-  }
-
-  protected def objectSyntheticMembersImpl: Seq[PsiMethod] = {
+  override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = {
     (if (isSyntheticObject) Seq.empty
     else ScalaPsiUtil.getCompanionModule(this) match {
       case Some(c: ScClass) if c.isCase =>
@@ -222,6 +217,12 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
         case _ => false
       }
       this.processPsiMethodsForNode(node, isStatic = false, isInterface = isInterface)(res += _)
+    }
+
+    for (synthetic <- syntheticMethodsNoOverride) {
+      this.processPsiMethodsForNode(new SignatureNodes.Node(new PhysicalSignature(synthetic, ScSubstitutor.empty),
+        ScSubstitutor.empty),
+        isStatic = false, isInterface = isInterface)(res += _)
     }
     res.toArray
   }

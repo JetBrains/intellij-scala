@@ -13,7 +13,15 @@
         <extensionPoint name="scalaSyntheticClassProducer" interface="org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer"/>
         <extensionPoint name="evaluatorCompileHelper" interface="org.jetbrains.plugins.scala.debugger.evaluation.EvaluatorCompileHelper"/>
         <extensionPoint name="serverWidgetEP" interface="org.jetbrains.plugins.scala.compiler.ServerWidgetEP"/>
+        <extensionPoint name="syntheticMemberInjector" interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"/>
     </extensionPoints>
+
+    <extensions defaultExtensionNs="org.intellij.scala">
+        <syntheticMemberInjector
+                implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MonocleInjector"/>
+        <syntheticMemberInjector
+                implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.QuasiQuotesInjector"/>
+    </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
       <project.converterProvider 

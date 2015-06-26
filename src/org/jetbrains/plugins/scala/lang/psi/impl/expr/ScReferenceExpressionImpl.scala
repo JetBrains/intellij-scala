@@ -199,7 +199,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
                   te.getContext match {
                     case pt: ScParameterType =>
                       pt.getContext match {
-                        case p: ScParameter if p.getDefaultExpression != Some(this) =>
+                        case p: ScParameter if !p.getDefaultExpression.contains(this) =>
                           p.owner match {
                             case f: ScFunction =>
                               var found = false
@@ -232,7 +232,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       getContext match {
         case i: ScSugarCallExpr if this == i.getBaseExpr => true
         case m: ScMethodCall if this == m.getInvokedExpr => true
-        case ref: ScReferenceExpression if ref.qualifier == Some(this) => true
+        case ref: ScReferenceExpression if ref.qualifier.contains(this) => true
         case _ => false
       }
     }
@@ -363,9 +363,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(clazz: ScClass, s)) if clazz.isCase =>
         s.subst(clazz.constructor.
                 getOrElse(return Failure("Case Class hasn't primary constructor", Some(this))).polymorphicType)
-      case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.length != 0 =>
+      case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.nonEmpty =>
         s.subst(ScParameterizedType(ScType.designator(clazz),
-          collection.immutable.Seq(clazz.typeParameters.map(new ScTypeParameterType(_, s)).toSeq: _*)))
+          clazz.typeParameters.map(new ScTypeParameterType(_, s))))
       case Some(ScalaResolveResult(clazz: PsiClass, _)) => new ScDesignatorType(clazz, true) //static Java class
       case Some(ScalaResolveResult(field: PsiField, s)) =>
         s.subst(ScType.create(field.getType, field.getProject, getResolveScope))
@@ -382,8 +382,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
                     case ScThisType(clazz) => ScDesignatorType(clazz)
                     case ScDesignatorType(o: ScObject) => Any
                     case ScCompoundType(comps, _, _) =>
-                      if (comps.length == 0) Any
-                      else ScTypeUtil.removeTypeDesignator(comps(0)).getOrElse(Any)
+                      if (comps.isEmpty) Any
+                      else ScTypeUtil.removeTypeDesignator(comps.head).getOrElse(Any)
                     case _ => ScTypeUtil.removeTypeDesignator(tp).getOrElse(Any)
                   }
                   Some(ScExistentialType(ScParameterizedType(ScDesignatorType(jlClass),

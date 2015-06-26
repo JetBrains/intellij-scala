@@ -48,7 +48,7 @@ trait ScImportsHolder extends ScalaPsiElement {
         }
       case _ =>
     }
-    collection.immutable.Seq(findChildrenByClassScala(classOf[ScImportStmt]).toSeq: _*)
+    findChildrenByClassScala(classOf[ScImportStmt]).toSeq
   }
   
   @volatile
