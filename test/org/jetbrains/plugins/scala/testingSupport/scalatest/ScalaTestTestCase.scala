@@ -15,11 +15,11 @@ abstract class ScalaTestTestCase extends ScalaTestingTestCase(new ScalaTestConfi
 
   override protected def checkConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings,
                                        testClass: String,
-                                       testName: Option[String] = None) = {
+                                       testNames: String*) = {
     val config = configAndSettings.getConfiguration
     assert(config.isInstanceOf[ScalaTestRunConfiguration])
     val scalaTestConfig = config.asInstanceOf[ScalaTestRunConfiguration]
-    checkConfig(testClass, testName, scalaTestConfig)
+    checkConfig(testClass, testNames, scalaTestConfig)
   }
 
   override protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*): Unit = {
