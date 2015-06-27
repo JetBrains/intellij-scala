@@ -278,7 +278,7 @@ public class ScalaTestAstTransformer {
         public final PsiElement element;
 
         public StMethodDefinition(String pClassName, PsiElement element, String... pParamTypes) {
-            super(pClassName, null, new AstNode[0], TestConfigurationUtil.getStaticTestNameOrNothing(element, false), pParamTypes);
+            super(pClassName, null, new AstNode[0], TestConfigurationUtil.getStaticTestNameOrDefault(element, "", false), pParamTypes);
             this.pClassName = pClassName;
             this.element = element;
         }
@@ -363,7 +363,7 @@ public class ScalaTestAstTransformer {
 
         @Override
         public String toString() {
-            return TestConfigurationUtil.getStaticTestNameOrNothing(closestInvocationElement(), false);
+            return TestConfigurationUtil.getStaticTestNameOrDefault(closestInvocationElement(), name(), false);
         }
     }
 
@@ -431,7 +431,7 @@ public class ScalaTestAstTransformer {
 
         @Override
         public String toString() {
-            return TestConfigurationUtil.getStaticTestNameOrNothing(element, false);
+            return TestConfigurationUtil.getStaticTestNameOrDefault(element, name(), false);
         }
 
         @Override
@@ -466,16 +466,19 @@ public class ScalaTestAstTransformer {
         PsiElement firstChild = element.getFirstChild();
         AstNode[] emptyArray = new AstNode[0];
         if (firstChild instanceof ScLiteral && (((ScLiteral) firstChild).isString())) {
-            return new ToStringTarget(className, null, emptyArray, ((ScLiteral) firstChild).getValue().toString());
+            return new StToStringTarget(className, firstChild, ((ScLiteral)firstChild).getValue().toString());
+            //return new ToStringTarget(className, null, emptyArray, ((ScLiteral) firstChild).getValue().toString());
         } else if (firstChild instanceof MethodInvocation) {
             StMethodInvocation inv = getScalaTestMethodInvocation(selected, (MethodInvocation) firstChild, Collections.<ScExpression>emptyList(), className);
             if (inv != null) {
                 return inv;
             } else {
-                return new ToStringTarget(className, null, emptyArray, firstChild.getText());
+                return new StToStringTarget(className, firstChild, firstChild.getText());
+                //return new ToStringTarget(className, null, emptyArray, firstChild.getText());
             }
         } else {
-            return new ToStringTarget(className, null, emptyArray, firstChild.getText());
+            return new StToStringTarget(className, firstChild, firstChild.getText());
+            //return new ToStringTarget(className, null, emptyArray, firstChild.getText());
         }
     }
 
