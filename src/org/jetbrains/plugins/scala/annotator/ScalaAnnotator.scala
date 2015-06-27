@@ -430,11 +430,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         lastIndex = text.indexOf("/*_*/", lastIndex) + 5
         indexes += lastIndex
       }
-      if (indexes.length == 0) return mutable.HashSet.empty
+      if (indexes.isEmpty) return mutable.HashSet.empty
       if (indexes.length % 2 != 0) indexes += text.length
 
       val res = new mutable.HashSet[TextRange]
-      for (i <- 0 until indexes.length by 2) {
+      for (i <- indexes.indices by 2) {
         res += new TextRange(indexes(i), indexes(i + 1))
       }
       res
@@ -498,7 +498,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                         val annotation: Annotation = holder.createErrorAnnotation(expr, error)
                         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                         typeElement match {
-                          case Some(te) =>
+                          //Don't highlight te if it's outside of original file.
+                          case Some(te) if te.containingFile == t.containingFile =>
                             val fix = new ChangeTypeFix(te, returnType.getOrNothing)
                             annotation.registerFix(fix)
                             val teAnnotation = holder.createErrorAnnotation(te, null)
