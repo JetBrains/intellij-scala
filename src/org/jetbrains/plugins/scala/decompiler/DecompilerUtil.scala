@@ -202,10 +202,10 @@ object DecompilerUtil {
       }
     } catch {
       case m: MatchError =>
-        LOG.info(s"Error during decompiling ${file.getName}: ${m.getMessage()}. Stacktrace is suppressed.")
+        LOG.warn(s"Error during decompiling $file: ${m.getMessage()}. Stacktrace is suppressed.")
         new DecompilationResult(isScala = false, "", file.getTimeStamp)
       case t: Throwable =>
-        LOG.info(s"Error during decompiling ${file.getName}: ${t.getMessage}", t)
+        LOG.warn(s"Error during decompiling $file: ${t.getMessage}. Stacktrace is suppressed.")
         new DecompilationResult(isScala = false, "", file.getTimeStamp)
     }
   }
