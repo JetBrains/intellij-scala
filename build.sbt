@@ -92,7 +92,7 @@ lazy val ScalaRunner = project.in(file( "ScalaRunner"))
 
 lazy val Runners = project.in(file( "Runners")).dependsOn(ScalaRunner)
 
-lazy val ScalaCommunity = project.in(file("")).dependsOn(compiler_settings, Runners).aggregate(jps_plugin)
+lazy val ScalaCommunity = project.in(file("")).dependsOn(compiler_settings, Runners % "test->test;compile->compile").aggregate(jps_plugin)
 
 lazy val jps_plugin = Project( "scala-jps-plugin", file("jps-plugin")).dependsOn(compiler_settings)
   .settings(unmanagedJars in Compile := allIdeaJars.value)
