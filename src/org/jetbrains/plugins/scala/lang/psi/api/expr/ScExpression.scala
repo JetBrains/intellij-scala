@@ -75,7 +75,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                       case param: ScParameterizedType => Some(param.designator)
                       case _ => None
                     }
-                    ScalaPsiUtil.toSAMType(expected) match {
+                    ScalaPsiUtil.toSAMType(expected, des) match {
                       case Some(methodType) if tp.conforms(methodType) =>
                         return ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None)
                       case _ =>

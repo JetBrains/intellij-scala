@@ -2290,7 +2290,7 @@ object ScalaPsiUtil {
    * @see SCL-6140
    * @see https://github.com/scala/scala/pull/3018/
    */
-  def toSAMType(expected: ScType): Option[ScType] = {
+  def toSAMType(expected: ScType, designatorOption: Option[ScType] = None): Option[ScType] = {
 
     def constructorValidForSAM(constructors: Array[PsiMethod]): Boolean = {
       //primary constructor (if any) must be public, no-args, not overloaded
@@ -2338,7 +2338,10 @@ object ScalaPsiUtil {
               val params: Array[ScType] = method.getParameterList.getParameters.map {
                 param: PsiParameter => ScType.create(param.getTypeElement.getType, project, scope)
               }
-              Some(ScFunctionType(returnType, params)(project, scope))
+              designatorOption match {
+                case Some(des) => Some(ScParameterizedType(des, params :+ returnType))
+                case _ => Some(ScFunctionType(returnType, params)(project, scope))
+              }
             } else None
         }
       case None => None
