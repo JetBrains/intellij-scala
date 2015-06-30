@@ -1,0 +1,25 @@
+<html>
+<body>
+Checks if a parameter can be converted to SAM (Single Abstract Method) format.<br/>
+For example:
+<br />
+<br />
+
+<code>
+    new Thread(new Runnable {<br />
+    <!--<div style="margin-left: 1%">-->
+
+    &nbsp;&nbsp;override def run() = println() <br />
+
+    }<br />
+</code>
+
+<br />
+<p>can be rewritten as<p/>
+<br />
+<code>
+    new Thread(() => println())
+</code>
+
+</body>
+</html>
