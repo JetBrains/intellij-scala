@@ -2316,7 +2316,7 @@ object ScalaPsiUtil {
             val valid =
               constrValid &&
                 abst.length == 1 &&
-                abst.head.parameterList.clauses.length <= 1 &&
+                abst.head.parameterList.clauses.length == 1 &&
                 !abst.head.hasTypeParameters
 
             if (valid) {
