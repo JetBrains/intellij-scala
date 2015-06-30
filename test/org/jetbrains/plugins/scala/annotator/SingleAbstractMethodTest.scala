@@ -254,6 +254,11 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
     }
   }
 
+  def testSimpleThreadRunnable(): Unit = {
+    val code = "new Thread(() => println()).run()"
+    doPosTest(code)
+  }
+
   
   def doPosTest(code: String) {
     assertMatches(messages(code)) {
