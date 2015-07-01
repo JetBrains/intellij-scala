@@ -1172,7 +1172,7 @@ object ScalaPsiUtil {
     }
     inner(elem, (l: List[PsiElement]) => l)
   }
-  
+
   def getFirstStubOrPsiElement(elem: PsiElement): PsiElement = {
     elem match {
       case st: ScalaStubBasedElementImpl[_] if st.getStub != null =>
@@ -1205,14 +1205,15 @@ object ScalaPsiUtil {
       }
     }
     elem match {
-      case st: ScalaStubBasedElementImpl[_] if st.getStub != null =>
+      case st: ScalaStubBasedElementImpl[_] =>
         val stub = st.getStub
-        workWithStub(stub)
-      case file: PsiFileImpl if file.getStub != null =>
+        if (stub != null) return workWithStub(stub)
+      case file: PsiFileImpl =>
         val stub = file.getStub
-        workWithStub(stub)
-      case _ => elem.getPrevSibling
+        if (stub != null) return workWithStub(stub)
+      case _ =>
     }
+    elem.getPrevSibling
   }
 
   def isLValue(elem: PsiElement) = elem match {
@@ -1289,7 +1290,7 @@ object ScalaPsiUtil {
     new Signature(x.name, Seq.empty, 0, ScSubstitutor.empty, x)
 
   def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false): Seq[Signature] = {
-    val empty = Seq.empty 
+    val empty = Seq.empty
     val typed = x match {case x: ScTypedDefinition => x case _ => return empty}
     val clazz: ScTemplateDefinition = nameContext(typed) match {
       case e @ (_: ScValue | _: ScVariable | _:ScObject) if e.getParent.isInstanceOf[ScTemplateBody] ||
@@ -1366,7 +1367,7 @@ object ScalaPsiUtil {
     while (parent != null && !isAppropriatePsiElement(parent)) parent = parent.getParent
     parent
   }
-  
+
   object inNameContext {
     def unapply(x: PsiNamedElement): Option[PsiElement] = nameContext(x).toOption
   }
