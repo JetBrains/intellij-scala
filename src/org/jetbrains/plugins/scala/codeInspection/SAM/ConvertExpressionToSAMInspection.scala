@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
  */
 class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, inspectionName) {
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case param: ScNewTemplateDefinition =>
+    case param: ScNewTemplateDefinition if ScalaPsiUtil.isSAMEnabled(param) =>
       for (expected <- param.expectedTypes()) {
         inspectAccordingToExpectedType(expected, param, holder)
       }
