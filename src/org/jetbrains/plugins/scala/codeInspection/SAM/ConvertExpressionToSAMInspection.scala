@@ -26,27 +26,30 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
   private def inspectAccordingToExpectedType(expected: ScType, definition: ScNewTemplateDefinition, holder: ProblemsHolder) {
     ScalaPsiUtil.toSAMType(expected) match {
       case Some(expectedMethodType) =>
-        val funChildIt = definition.breadthFirst.filter(_.isInstanceOf[ScFunctionDefinition])
-        if (funChildIt.hasNext) {
-          val actualFun = funChildIt.next().asInstanceOf[ScFunctionDefinition]
-          actualFun.body match {
-            case Some(body) if expectedMethodType.conforms(actualFun.getType().getOrNothing) =>
-              lazy val replacement: String = {
-                val res = new StringBuilder
-                actualFun.effectiveParameterClauses.headOption match {
-                  case Some(paramClause) =>
-                    res.append(paramClause.getText)
-                    res.append(" => ")
-                  case _ =>
+        definition.breadthFirst.find {
+          case _: ScFunctionDefinition => true
+          case _ => false
+        } match {
+          case Some(fun: ScFunctionDefinition) =>
+            fun.body match {
+              case Some(body) if expectedMethodType.conforms(fun.getType().getOrNothing) =>
+                lazy val replacement: String = {
+                  val res = new StringBuilder
+                  fun.effectiveParameterClauses.headOption match {
+                    case Some(paramClause) =>
+                      res.append(paramClause.getText)
+                      res.append(" => ")
+                    case _ =>
+                  }
+                  res.append(fun.body.getOrElse(fun).getText)
+                  res.toString()
                 }
-                res.append(actualFun.body.getOrElse(actualFun).getText)
-                res.toString()
-              }
-              val fix = new ReplaceExpressionWithSAMQuickFix(definition, replacement)
-              holder.registerProblem(definition, inspectionName,
-                ProblemHighlightType.GENERIC_ERROR_OR_WARNING, fix)
-            case _ =>
-          }
+                val fix = new ReplaceExpressionWithSAMQuickFix(definition, replacement)
+                holder.registerProblem(definition, inspectionName,
+                  ProblemHighlightType.GENERIC_ERROR_OR_WARNING, fix)
+              case _ =>
+            }
+          case _ =>
         }
       case _ =>
     }
