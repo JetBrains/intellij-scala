@@ -39,20 +39,20 @@ class CompileServerManager(project: Project) extends ProjectComponent {
    def disposeComponent() {}
 
    def projectOpened() {
+     if (ApplicationManager.getApplication.isUnitTestMode) return
+
      project.scalaEvents.addScalaProjectListener(ScalaListener)
      configureWidget()
-     if (!ApplicationManager.getApplication.isUnitTestMode) {
-       timer.setRepeats(true)
-       timer.start()
-     }
+     timer.setRepeats(true)
+     timer.start()
    }
 
    def projectClosed() {
-     project.scalaEvents.addScalaProjectListener(ScalaListener)
+     if (ApplicationManager.getApplication.isUnitTestMode) return
+
+     project.scalaEvents.removeScalaProjectListener(ScalaListener)
      configureWidget()
-     if (!ApplicationManager.getApplication.isUnitTestMode) {
-       timer.stop()
-     }
+     timer.stop()
    }
 
    def getComponentName = getClass.getSimpleName
