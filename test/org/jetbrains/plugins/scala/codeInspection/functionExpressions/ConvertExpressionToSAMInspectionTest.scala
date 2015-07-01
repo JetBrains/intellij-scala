@@ -113,4 +113,20 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
       """.stripMargin
     checkTextHasNoErrors(code)
   }
+
+  def testTwoFunctions(): Unit = {
+    val code =
+      """
+        |trait A {
+        |  def foo(): String
+        |  def bar(): Int = 2
+        |}
+        |def baz(a: A) = println()
+        |baz(new A {
+        |  def foo() = "2"
+        |  override def bar() = 3
+        |})
+      """.stripMargin
+    checkTextHasNoErrors(code)
+  }
 }
