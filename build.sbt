@@ -64,14 +64,7 @@ lazy val scalaCommunity: Project =
       dependencyClasspath in (runners, Compile),
       dependencyClasspath in (sbtRuntimeDependencies, Compile)
     ).map { (a,b,c) => a ++ b ++ c },
-    packagePlugin <<= packagePlugin.dependsOn(
-      pack in Compile,
-      pack in (compilerSettings, Compile),
-      pack in (jpsPlugin, Compile),
-      pack in (nailgunRunners, Compile),
-      pack in (runners, Compile),
-      pack in (scalaRunner, Compile)
-    )
+    packagePlugin <<= packagePlugin.dependsOn(pack in Compile)
   )
 
 lazy val jpsPlugin  =
