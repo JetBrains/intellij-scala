@@ -93,8 +93,14 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
     new PsiLocation(project, myModule, psiElement)
   }
 
+  private def failedConfigMessage(fileName: String, lineNumber: Int, offset: Int) =
+    "Failed to create run configuration for test from file " + fileName + " from line " + lineNumber + " at offset " + offset
+
   override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings =
-    configurationProducer.createConfigurationByLocation(createLocation(lineNumber, offset, fileName))
+    configurationProducer.createConfigurationByLocation(createLocation(lineNumber, offset, fileName)).map(_._2) match {
+      case Some(testConfig) => testConfig
+      case _ => throw new RuntimeException(failedConfigMessage(fileName, lineNumber, offset))
+    }
 
   override protected def runTestFromConfig(
                                    configurationCheck: RunnerAndConfigurationSettings => Boolean,
