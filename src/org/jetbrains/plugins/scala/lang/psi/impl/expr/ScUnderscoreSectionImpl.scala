@@ -90,7 +90,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               tp.removeAbstracts match {
                 case ScFunctionType(_, params) if params.length >= unders.length => processFunctionType(params)
                 case any if ScalaPsiUtil.isSAMEnabled(this) =>
-                  ScalaPsiUtil.toSAMType(any) match {
+                  ScalaPsiUtil.toSAMType(any, getResolveScope) match {
                     case Some(ScFunctionType(_, params)) if params.length >= unders.length =>
                       processFunctionType(params)
                     case _ =>
