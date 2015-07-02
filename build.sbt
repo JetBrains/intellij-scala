@@ -1,20 +1,23 @@
 import Keys.{`package` => pack}
 import Common._
+import CustomKeys._
 import Packaging._
 
-resolvers in ThisBuild ++= bintrayJetbrains.allResolvers
+resolvers in ThisBuild ++=
+  bintrayJetbrains.allResolvers :+
+  Resolver.typesafeIvyRepo("releases")
 
-resolvers in ThisBuild += Resolver.typesafeIvyRepo("releases")
+sdkDirectory in ThisBuild := baseDirectory.in(ThisBuild).value / "SDK"
 
-lazy val commonIdeaSettings = ideaPluginSettings ++ Seq(
-  ideaBuild := Versions.ideaVersion,
-  ideaDownloadDirectory := baseDirectory.in(ThisBuild).value / "SDK" / "ideaSDK"
-)
+ideaBuild in ThisBuild := Versions.ideaVersion
 
-lazy val scalaCommunity =
+ideaDownloadDirectory in ThisBuild := sdkDirectory.value / "ideaSDK"
+
+lazy val scalaCommunity: Project =
   newProject("scalaCommunity", "")
   .dependsOn(compilerSettings, runners % "test->test;compile->compile")
-  .aggregate(jpsPlugin, sbtRuntimeDependencies, testDownloader)
+  .aggregate(jpsPlugin, sbtRuntimeDependencies, testDownloader, compilerSettings, runners, nailgunRunners, scalaRunner)
+  .enablePlugins(SbtIdeaPlugin)
   .settings(
     ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
     javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6"),
@@ -22,7 +25,22 @@ lazy val scalaCommunity =
     libraryDependencies ++= DependencyGroups.scalaCommunity,
     libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test",
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
-    unmanagedJars in Compile ++= unmanagedJarsFrom("scalap", "nailgun", "scalastyle", "scalatest-finders").value,
+    unmanagedJars in Compile ++= unmanagedJarsFromSdk("scalap", "nailgun", "scalastyle", "scalatest-finders").value,
+    ideaInternalPlugins := Seq(
+      "copyright",
+      "gradle",
+      "Groovy",
+      "IntelliLang",
+      "java-i18n",
+      "android",
+      "maven",
+      "junit",
+      "properties"
+    ),
+    ideaInternalPluginsJars <<= (ideaInternalPluginsJars).map { classpath =>
+      classpath.filterNot(_.data.getName.contains("lucene-core"))
+    },
+    aggregate.in(updateIdea) := false,
     // jar hell workaround(ignore idea bundled lucene in test runtime)
     fullClasspath in Test := {(fullClasspath in Test).value.filterNot(_.data.getName.endsWith("lucene-core-2.4.1.jar"))},
     baseDirectory in Test := baseDirectory.value.getParentFile,
@@ -39,35 +57,33 @@ lazy val scalaCommunity =
       s"-Dplugin.path=${baseDirectory.value}/out/plugin/Scala"
     )
   )
-  .settings(commonIdeaSettings:_*)
+  .settings(packageSettings:_*)
   .settings(
-    ideaInternalPlugins := Seq(
-      "copyright",
-      "gradle",
-      "Groovy",
-      "IntelliLang",
-      "java-i18n",
-      "android",
-      "maven",
-      "junit",
-      "properties"
-    ),
-    ideaInternalPluginsJars <<= (ideaInternalPluginsJars).map { classpath =>
-      classpath.filterNot(_.data.getName.contains("lucene-core"))
-    },
-    aggregate.in(updateIdea) := false
+    dependencyClasspath.in(packagePlugin) <<= (
+      dependencyClasspath in Compile,
+      dependencyClasspath in (runners, Compile),
+      dependencyClasspath in (sbtRuntimeDependencies, Compile)
+    ).map { (a,b,c) => a ++ b ++ c },
+    packagePlugin <<= packagePlugin.dependsOn(
+      pack in Compile,
+      pack in (compilerSettings, Compile),
+      pack in (jpsPlugin, Compile),
+      pack in (nailgunRunners, Compile),
+      pack in (runners, Compile),
+      pack in (scalaRunner, Compile)
+    )
   )
 
 lazy val jpsPlugin  =
   newProject("jpsPlugin", "jps-plugin")
   .dependsOn(compilerSettings)
-  .settings(unmanagedJars in Compile ++= unmanagedJarsFrom("sbt", "nailgun").value)
-  .settings(commonIdeaSettings:_*)
+  .enablePlugins(SbtIdeaPlugin)
+  .settings(unmanagedJars in Compile ++= unmanagedJarsFromSdk("sbt", "nailgun").value)
 
 lazy val compilerSettings =
   newProject("compilerSettings", "compiler-settings")
-  .settings(unmanagedJars in Compile ++= unmanagedJarsFrom("nailgun").value)
-  .settings(commonIdeaSettings:_*)
+  .enablePlugins(SbtIdeaPlugin)
+  .settings(unmanagedJars in Compile ++= unmanagedJarsFromSdk("nailgun").value)
 
 lazy val scalaRunner =
   newProject("scalaRunner", "ScalaRunner")
@@ -81,7 +97,7 @@ lazy val runners =
 lazy val nailgunRunners =
   newProject("nailgunRunners", "NailgunRunners")
   .dependsOn(scalaRunner)
-  .settings(unmanagedJars in Compile ++= unmanagedJarsFrom("nailgun").value)
+  .settings(unmanagedJars in Compile ++= unmanagedJarsFromSdk("nailgun").value)
 
 lazy val ideaRunner =
   newProject("ideaRunner", "idea-runner")
@@ -89,7 +105,7 @@ lazy val ideaRunner =
   .settings(
     autoScalaLibrary := false,
     unmanagedJars in Compile := ideaMainJars.in(scalaCommunity).value,
-    unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
+    unmanagedJars in Compile += file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
     // run configuration
     fork in run := true,
     mainClass in (Compile, run) := Some("com.intellij.idea.Main"),
@@ -131,41 +147,55 @@ lazy val testDownloader =
     )
   )
 
-// packaging
-
-pack in Compile <<= (pack in Compile) dependsOn (
-  pack in (compilerSettings, Compile),
-  pack in (jpsPlugin, Compile),
-  pack in (runners, Compile),
-  pack in (nailgunRunners, Compile),
-  pack in (scalaRunner, Compile)
+packageStructure := {
+  import PackageEntry._
+  val crossLibraries = List(Dependencies.scalaParserCombinators, Dependencies.scalaXml)
+  val librariesToCopyAsIs = DependencyGroups.scalaCommunity.filterNot { lib =>
+    crossLibraries.contains(lib) || lib == Dependencies.scalaLibrary
+  }
+  val jps = Seq(
+    Artifact(artifactPath.in(jpsPlugin, Compile, packageBin).value,
+      "lib/jps/scala-jps-plugin.jar"),
+    Directory(sdkDirectory.value / "nailgun",
+      "lib/jps"),
+    Directory(sdkDirectory.value / "sbt",
+      "lib/jps")
   )
-
-lazy val packagePlugin = taskKey[Unit]("Package scala plugin locally")
-
-lazy val packagePluginZip = taskKey[Unit]("Package and compress scala plugin locally")
-
-packagePlugin := {
-  val (dirs, files) = packageStructure.value.partition(_._1.isDirectory)
-  val base = baseDirectory.in(ThisBuild).value / "out" / "plugin" / "Scala"
-  IO.delete(base.getParentFile)
-  dirs  foreach { case (from, to) => IO.copyDirectory(from, base / to, overwrite = true) }
-  files foreach { case (from, to) => IO.copyFile(from, base / to)}
+  val launcher = Seq(
+    Library(Dependencies.sbtStructureExtractor012,
+      "launcher/sbt-structure-0.12.jar"),
+    Library(Dependencies.sbtStructureExtractor013,
+      "launcher/sbt-structure-0.13.jar"),
+    Library(Dependencies.sbtLaunch,
+      "launcher/sbt-launch.jar")
+  )
+  val lib = Seq(
+    Artifact(artifactPath.in(scalaCommunity, Compile, packageBin).value,
+      "lib/scala-plugin.jar"),
+    Artifact(artifactPath.in(compilerSettings, Compile, packageBin).value,
+      "lib/compiler-settings.jar"),
+    Artifact(artifactPath.in(nailgunRunners, Compile, packageBin).value,
+      "lib/scala-nailgun-runner.jar"),
+    MergedArtifact(Seq(
+        artifactPath.in(runners, Compile, packageBin).value,
+        artifactPath.in(scalaRunner, Compile, packageBin).value),
+      "lib/scala-plugin-runners.jar"),
+    Library(Dependencies.scalaLibrary,
+      "lib/scala-library.jar"),
+    Directory(sdkDirectory.value / "scalap",
+      "lib"),
+    Directory(sdkDirectory.value / "scalastyle",
+      "lib")
+  ) ++
+    crossLibraries.map { lib =>
+      new Library(lib.copy(name = lib.name + "_2.11"), s"${lib.name}.jar")
+    } ++
+    librariesToCopyAsIs.map { lib =>
+      new Library(lib, s"${lib.name}.jar")
+    }
+  jps ++ lib ++ launcher
 }
 
-packagePlugin <<= packagePlugin.dependsOn(pack in Compile)
+onLoad in Global := ((s: State) => { "updateIdea" :: s}) compose (onLoad in Global).value
 
-packagePluginZip <<= (packagePlugin, baseDirectory in ThisBuild).map { (_, baseDir) =>
-  val base = baseDir / "out" / "plugin"
-  val zipFile = baseDir / "out" / "scala-plugin.zip"
-  IO.zip((base ***) pair (relativeTo(base), false), zipFile)
-}
-
-lazy val updateIdeaIfNecessary = taskKey[Unit]("Check whether IDEA is downloaded and download it if it's not")
-
-updateIdeaIfNecessary <<= (ideaBaseDirectory, ideaBuild, ideaExternalPlugins, streams).map {
-  (baseDir, build, externalPlugins, streams) =>
-    if (!baseDir.exists) ideaplugin.Tasks.updateIdea(baseDir, build, externalPlugins, streams)
-}
-
-onLoad in Global := ((s: State) => { "updateIdeaIfNecessary" :: s}) compose (onLoad in Global).value
+addCommandAlias("downloadIdea", "updateIdea")
