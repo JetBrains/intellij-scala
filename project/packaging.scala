@@ -1,83 +1,74 @@
 import sbt._
 import Keys._
 
+import CustomKeys._
 
 object Packaging {
-  def packageStructure: Def.Initialize[Task[Seq[(File, String)]]] = Def.task {
-    packageArtifacts.value ++ packageUnmanagedJars.value ++ packageLibraries.value
+
+  sealed trait PackageEntry {
+    val destination: String
   }
 
-  private def getArtifactPath(projectName: String) = Def.task {
-    artifactPath.in(new LocalProject(projectName), Compile, packageBin).value
+  object PackageEntry {
+    final case class Directory(source: File, destination: String) extends PackageEntry
+    final case class Artifact(source: File, destination: String) extends PackageEntry
+    final case class MergedArtifact(sources: Seq[File], destination: String) extends PackageEntry
+    final case class Library(source: ModuleID, destination: String) extends PackageEntry
   }
 
-  private def mergeIntoOneJar(files: File*): File =
-    IO.withTemporaryDirectory { tmp =>
-      files.foreach(IO.unzip(_, tmp))
-      val zipFile = IO.temporaryDirectory / "sbt-merge-result.jar"
-      zipFile.delete()
-      IO.zip((tmp ***) pair (relativeTo(tmp), false), zipFile)
+  lazy val packageSettings = Seq(
+    packagePlugin <<= (dependencyClasspath.in(packagePlugin), packageStructure, baseDirectory.in(ThisBuild)).map {
+      (libs, structure, baseDir) =>
+        val pluginDir = baseDir / "out" / "plugin" / "Scala"
+        new Packager(libs).pack(structure, pluginDir)
+        pluginDir
+    },
+    packagePluginZip <<= (packagePlugin, baseDirectory.in(ThisBuild)).map { (pluginPath, baseDir) =>
+      val zipFile = baseDir / "out" / "scala-plugin.zip"
+      IO.zip((pluginPath.getParentFile ***) pair (relativeTo(pluginPath.getParentFile), false), zipFile)
       zipFile
     }
+  )
 
-  private def packageArtifacts = Def.task {
-    Seq(
-      getArtifactPath("scalaCommunity").value ->
-        "lib/scala-plugin.jar",
-      getArtifactPath("compilerSettings").value ->
-        "lib/compiler-settings.jar",
-      getArtifactPath("nailgunRunners").value ->
-        "lib/scala-nailgun-runner.jar",
-      getArtifactPath("jpsPlugin").value ->
-        "lib/jps/scala-jps-plugin.jar",
-      mergeIntoOneJar(getArtifactPath("runners").value, getArtifactPath("scalaRunner").value) ->
-        "lib/scala-plugin-runners.jar"
-    )
-  }
+  private class Packager(libraries: Classpath) {
+    def pack(structure: Seq[PackageEntry], base: File): Unit = {
+      val (dirs, files) = convertStructure(structure, base).partition(_._1.isDirectory)
+      IO.delete(base)
+      dirs  foreach { case (from, to) => IO.copyDirectory(from, to, overwrite = true) }
+      files foreach { case (from, to) => IO.copyFile(from, to)}
+    }
 
-  private def packageUnmanagedJars = Def.task {
-    Seq(
-      file("SDK/nailgun")     -> "lib/jps/",
-      file("SDK/sbt")         -> "lib/jps/",
-      file("SDK/scalap")      -> "lib/",
-      file("SDK/scalastyle")  -> "lib/"
-    )
-  }
+    import PackageEntry._
 
-  private def getDependencyClasspath(projectName: String) = Def.task {
-    dependencyClasspath.in(new LocalProject(projectName), Compile).value
-  }
+    private def convertStructure(entries: Seq[PackageEntry], base: File): Seq[(File, File)] =
+      entries.map(e => convertEntry(e, base))
 
-  private def packageLibraries = Def.task {
-    val resolveClasspath =
-      getDependencyClasspath("scalaCommunity").value ++
-        getDependencyClasspath("runners").value ++
-        getDependencyClasspath("sbtRuntimeDependencies").value
-    val resolvedLibraries = (for {
-      jarFile <- resolveClasspath
+    private def convertEntry(entry: PackageEntry, base: File): (File, File) =
+      entry match {
+        case Directory(source, destination) =>
+          source -> base / destination
+        case Artifact(source, destination) =>
+          source -> base / destination
+        case MergedArtifact(sources, destination) =>
+          mergeIntoOneJar(sources:_*) -> (base / destination)
+        case Library(libraryId, destination) =>
+          val libKey = libraryId.organization % libraryId.name % libraryId.revision
+          resolvedLibraries(libKey) -> (base / destination)
+      }
+
+    private val resolvedLibraries = (for {
+      jarFile <- libraries
       moduleId <- jarFile.get(moduleID.key)
       key = (moduleId.organization % moduleId.name % moduleId.revision)
     } yield (key, jarFile.data)).toMap
-    def libOf(lib: ModuleID, prefix: String = "lib/") = {
-      val libKey = lib.organization % lib.name % lib.revision
-      resolvedLibraries(libKey) -> (prefix + resolvedLibraries(libKey).name)
-    }
 
-    val renamedLibraries = Seq(
-      libOf(Dependencies.sbtStructureExtractor012)._1 -> "launcher/sbt-structure-0.12.jar",
-      libOf(Dependencies.sbtStructureExtractor013)._1 -> "launcher/sbt-structure-0.13.jar",
-      libOf(Dependencies.sbtLaunch)._1 -> "launcher/sbt-launch.jar",
-      libOf(Dependencies.scalaLibrary)._1 -> "lib/scala-library.jar"
-    )
-
-    val crossLibraries = Seq(Dependencies.scalaParserCombinators, Dependencies.scalaXml).map { lib =>
-      libOf(lib.copy(name = lib.name + "_2.11"))
-    }
-
-    val otherLibraries = DependencyGroups.scalaCommunity.filterNot { lib =>
-      Seq(Dependencies.scalaLibrary, Dependencies.scalaParserCombinators, Dependencies.scalaXml).contains(lib)
-    }
-
-    renamedLibraries ++ crossLibraries ++ otherLibraries.map(libOf(_))
+    private def mergeIntoOneJar(files: File*): File =
+      IO.withTemporaryDirectory { tmp =>
+        files.foreach(IO.unzip(_, tmp))
+        val zipFile = IO.temporaryDirectory / "sbt-merge-result.jar"
+        zipFile.delete()
+        IO.zip((tmp ***) pair (relativeTo(tmp), false), zipFile)
+        zipFile
+      }
   }
 }
