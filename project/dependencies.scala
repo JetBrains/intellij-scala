@@ -3,7 +3,7 @@ import sbt._
 
 object Versions {
   val scalaVersion = "2.11.6"
-  val ideaVersion = "142-EAP-SNAPSHOT"
+  val ideaVersion = "142.2887.3"
   val sbtStructureVersion = "4.1.0"
   val luceneVersion = "4.3.0"
   val aetherVersion = "1.0.0.v20140518"
