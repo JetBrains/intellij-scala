@@ -8,5 +8,5 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.staticStringTest._
  */
 class Scalatest2_11_2_1_7_StaticStringTest extends Scalatest2_11_2_1_7_Base with FeatureSpecStaticStringTest with
   FlatSpecStaticStringTest with FreeSpecStaticStringTest with FunSpecStaticStringTest with FunSuiteStaticStringTest with
-  PropSpecStaticStringTest with WordSpecStaticStringTest {
+  PropSpecStaticStringTest with WordSpecStaticStringTest with MethodsStaticStringTest {
 }
