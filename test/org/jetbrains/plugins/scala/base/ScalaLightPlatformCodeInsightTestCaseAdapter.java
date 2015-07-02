@@ -118,15 +118,6 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
       myLibraryLoader = null;
     }
 
-    if (rootPath() != null) {
-      new WriteAction<Object>() {
-        @Override
-        protected void run(Result<Object> objectResult) throws Throwable {
-          closeAndDeleteProject();
-        }
-      }.execute().throwException();
-    }
-
     super.tearDown();
   }
 }
