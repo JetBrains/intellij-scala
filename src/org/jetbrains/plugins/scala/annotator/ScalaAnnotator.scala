@@ -348,7 +348,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           case Some(typ) => checkBoundsVariance(varr, holder, typ, varr, checkTypeDeclaredSameBracket = false)
           case _ =>
         }
-        if (!childHasAnnotation(varr.typeElement, "@uncheckedVariance")) {
+        if (!childHasAnnotation(varr.typeElement, "uncheckedVariance")) {
           checkValueAndVariableVariance(varr, ScTypeParam.Covariant, varr.declaredElements, holder)
           checkValueAndVariableVariance(varr, ScTypeParam.Contravariant, varr.declaredElements, holder)
         }
@@ -369,7 +369,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           case Some(typ) => checkBoundsVariance(v, holder, typ, v, checkTypeDeclaredSameBracket = false)
           case _ =>
         }
-        if (!childHasAnnotation(v.typeElement, "@uncheckedVariance")) {
+        if (!childHasAnnotation(v.typeElement, "uncheckedVariance")) {
           checkValueAndVariableVariance(v, ScTypeParam.Covariant, v.declaredElements, holder)
         }
         super.visitValue(v)
@@ -571,7 +571,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
     def checkAndHighlightBounds(boundOption: Option[ScTypeElement], expectedVariance: Int) {
       boundOption match {
-        case Some(bound) if !childHasAnnotation(Some(bound), "@uncheckedVariance") =>
+        case Some(bound) if !childHasAnnotation(Some(bound), "uncheckedVariance") =>
           checkVariance(bound.calcType, expectedVariance, toHighlight, checkParentOf, holder, checkTypeDeclaredSameBracket, insideParameterized)
         case _ =>
       }
@@ -1065,7 +1065,14 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
   def childHasAnnotation(teOption: Option[ScTypeElement], annotation: String): Boolean = teOption match {
     case Some(te) => te.breadthFirst.exists {
-      case annot: ScAnnotations => annot.getAnnotations.exists(_.getText == annotation)
+      case annot: ScAnnotationExpr =>
+        annot.constr.reference match {
+          case Some(ref) => Option(ref.resolve()) match {
+            case Some(res: PsiNamedElement) => res.getName == annotation
+            case _ => false
+          }
+          case _ => false
+        }
       case _ => false
     }
     case _ => false
@@ -1074,7 +1081,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   private def checkFunctionForVariance(fun: ScFunction, holder: AnnotationHolder) {
     if (!modifierIsThis(fun) && !compoundType(fun)) { //if modifier contains [this] or if it is a compound type we do not highlight it
       checkBoundsVariance(fun, holder, fun.nameId, fun.getParent)
-      if (!childHasAnnotation(fun.returnTypeElement, "@uncheckedVariance")) {
+      if (!childHasAnnotation(fun.returnTypeElement, "uncheckedVariance")) {
         fun.returnType match {
           case Success(returnType, _) =>
             checkVariance(ScType.expandAliases(returnType).getOrType(returnType), ScTypeParam.Covariant, fun.nameId,
@@ -1084,7 +1091,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       }
       for (parameter <- fun.parameters) {
         parameter.typeElement match {
-          case Some(te) if !childHasAnnotation(Some(te), "@uncheckedVariance") =>
+          case Some(te) if !childHasAnnotation(Some(te), "uncheckedVariance") =>
             checkVariance(ScType.expandAliases(te.calcType).getOrType(te.calcType), ScTypeParam.Contravariant,
               parameter.nameId, fun.getParent, holder)
           case _ =>
