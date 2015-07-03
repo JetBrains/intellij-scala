@@ -2,6 +2,7 @@ package org.jetbrains.sbt
 package annotator
 
 import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.annotator.Error
 import org.jetbrains.sbt.project.module.SbtModule
 import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndexesManager}
@@ -17,6 +18,7 @@ class DependencyAnnotatorTest extends AnnotatorTestBase(classOf[SbtDependencyAnn
 
   override def setUp() = {
     super.setUp()
+    FileUtil.delete(SbtResolverIndexesManager.DEFAULT_INDEXES_DIR)
     SbtResolverIndexesManager().update(Seq(testResolver))
 
     val moduleManager = Option(ModuleManager.getInstance(getProjectAdapter))
