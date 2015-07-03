@@ -95,7 +95,7 @@ public class ScalaTestRunner {
         } else {
           argsArray.add(isOlderScalaTestVersion() ? "-r" : newArgs[i]);
         }
-        if (i + 1 < newArgs.length) argsArray.add(newArgs[i + 1] + "WithLocation");
+        if (i + 1 < newArgs.length) argsArray.add(newArgs[i + 1].equals(reporterQualName) ? newArgs[i + 1] + "WithLocation" : newArgs[i + 1]);
         i += 2;
       } else {
         argsArray.add(newArgs[i]);
@@ -193,7 +193,6 @@ public class ScalaTestRunner {
       }
     }
     String[] arga = argsArray.toArray(new String[argsArray.size()]);
-    String reporterQualName = "org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestReporter";
     Class<?> reporterClass = ScalaTestRunner.class.getClassLoader().
         loadClass(reporterQualName);
     Reporter reporter = (Reporter) reporterClass.newInstance();
