@@ -1,11 +1,11 @@
 import Keys.{`package` => pack}
 import Common._
-import CustomKeys._
-import Packaging._
 
 resolvers in ThisBuild ++=
   bintrayJetbrains.allResolvers :+
   Resolver.typesafeIvyRepo("releases")
+
+lazy val sdkDirectory = SettingKey[File]("sdk-directory", "Path to SDK directory where unmanagedJars and IDEA are located")
 
 sdkDirectory in ThisBuild := baseDirectory.in(ThisBuild).value / "SDK"
 
@@ -25,7 +25,7 @@ lazy val scalaCommunity: Project =
     libraryDependencies ++= DependencyGroups.scalaCommunity,
     libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test",
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
-    unmanagedJars in Compile ++= unmanagedJarsFromSdk("scalap", "nailgun", "scalastyle", "scalatest-finders").value,
+    unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "scalap", "nailgun", "scalastyle", "scalatest-finders"),
     ideaInternalPlugins := Seq(
       "copyright",
       "gradle",
@@ -57,26 +57,17 @@ lazy val scalaCommunity: Project =
       s"-Dplugin.path=${baseDirectory.value}/out/plugin/Scala"
     )
   )
-  .settings(packageSettings:_*)
-  .settings(
-    dependencyClasspath.in(packagePlugin) <<= (
-      dependencyClasspath in Compile,
-      dependencyClasspath in (runners, Compile),
-      dependencyClasspath in (sbtRuntimeDependencies, Compile)
-    ).map { (a,b,c) => a ++ b ++ c },
-    packagePlugin <<= packagePlugin.dependsOn(pack in Compile)
-  )
 
 lazy val jpsPlugin  =
   newProject("jpsPlugin", "jps-plugin")
   .dependsOn(compilerSettings)
   .enablePlugins(SbtIdeaPlugin)
-  .settings(unmanagedJars in Compile ++= unmanagedJarsFromSdk("sbt", "nailgun").value)
+  .settings(unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "sbt", "nailgun"))
 
 lazy val compilerSettings =
   newProject("compilerSettings", "compiler-settings")
   .enablePlugins(SbtIdeaPlugin)
-  .settings(unmanagedJars in Compile ++= unmanagedJarsFromSdk("nailgun").value)
+  .settings(unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"))
 
 lazy val scalaRunner =
   newProject("scalaRunner", "ScalaRunner")
@@ -90,7 +81,7 @@ lazy val runners =
 lazy val nailgunRunners =
   newProject("nailgunRunners", "NailgunRunners")
   .dependsOn(scalaRunner)
-  .settings(unmanagedJars in Compile ++= unmanagedJarsFromSdk("nailgun").value)
+  .settings(unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"))
 
 lazy val ideaRunner =
   newProject("ideaRunner", "idea-runner")
@@ -140,55 +131,84 @@ lazy val testDownloader =
     )
   )
 
-packageStructure := {
-  import PackageEntry._
-  val crossLibraries = List(Dependencies.scalaParserCombinators, Dependencies.scalaXml)
-  val librariesToCopyAsIs = DependencyGroups.scalaCommunity.filterNot { lib =>
-    crossLibraries.contains(lib) || lib == Dependencies.scalaLibrary
-  }
-  val jps = Seq(
-    Artifact(artifactPath.in(jpsPlugin, Compile, packageBin).value,
-      "lib/jps/scala-jps-plugin.jar"),
-    Directory(sdkDirectory.value / "nailgun",
-      "lib/jps"),
-    Directory(sdkDirectory.value / "sbt",
-      "lib/jps")
-  )
-  val launcher = Seq(
-    Library(Dependencies.sbtStructureExtractor012,
-      "launcher/sbt-structure-0.12.jar"),
-    Library(Dependencies.sbtStructureExtractor013,
-      "launcher/sbt-structure-0.13.jar"),
-    Library(Dependencies.sbtLaunch,
-      "launcher/sbt-launch.jar")
-  )
-  val lib = Seq(
-    Artifact(artifactPath.in(scalaCommunity, Compile, packageBin).value,
-      "lib/scala-plugin.jar"),
-    Artifact(artifactPath.in(compilerSettings, Compile, packageBin).value,
-      "lib/compiler-settings.jar"),
-    Artifact(artifactPath.in(nailgunRunners, Compile, packageBin).value,
-      "lib/scala-nailgun-runner.jar"),
-    MergedArtifact(Seq(
-        artifactPath.in(runners, Compile, packageBin).value,
-        artifactPath.in(scalaRunner, Compile, packageBin).value),
-      "lib/scala-plugin-runners.jar"),
-    Library(Dependencies.scalaLibrary,
-      "lib/scala-library.jar"),
-    Directory(sdkDirectory.value / "scalap",
-      "lib"),
-    Directory(sdkDirectory.value / "scalastyle",
-      "lib")
-  ) ++
-    crossLibraries.map { lib =>
-      new Library(lib.copy(name = lib.name + "_2.11"), s"${lib.name}.jar")
-    } ++
-    librariesToCopyAsIs.map { lib =>
-      new Library(lib, s"${lib.name}.jar")
+lazy val pluginPackager =
+  newProject("pluginPackager")
+  .settings(
+    artifactPath := baseDirectory.in(ThisBuild).value / "out" / "plugin" / "Scala",
+    dependencyClasspath <<= (
+      dependencyClasspath in (scalaCommunity, Compile),
+      dependencyClasspath in (runners, Compile),
+      dependencyClasspath in (sbtRuntimeDependencies, Compile)
+    ).map { (a,b,c) => a ++ b ++ c },
+    fileMappings := {
+      import Packaging.PackageEntry._
+      val crossLibraries = List(Dependencies.scalaParserCombinators, Dependencies.scalaXml)
+      val librariesToCopyAsIs = DependencyGroups.scalaCommunity.filterNot { lib =>
+        crossLibraries.contains(lib) || lib == Dependencies.scalaLibrary
+      }
+      val jps = Seq(
+        Artifact(pack.in(jpsPlugin, Compile).value,
+          "lib/jps/scala-jps-plugin.jar"),
+        Directory(sdkDirectory.value / "nailgun",
+          "lib/jps"),
+        Directory(sdkDirectory.value / "sbt",
+          "lib/jps")
+      )
+      val launcher = Seq(
+        Library(Dependencies.sbtStructureExtractor012,
+          "launcher/sbt-structure-0.12.jar"),
+        Library(Dependencies.sbtStructureExtractor013,
+          "launcher/sbt-structure-0.13.jar"),
+        Library(Dependencies.sbtLaunch,
+          "launcher/sbt-launch.jar")
+      )
+      val lib = Seq(
+        Artifact(pack.in(scalaCommunity, Compile).value,
+          "lib/scala-plugin.jar"),
+        Artifact(pack.in(compilerSettings, Compile).value,
+          "lib/compiler-settings.jar"),
+        Artifact(pack.in(nailgunRunners, Compile).value,
+          "lib/scala-nailgun-runner.jar"),
+        MergedArtifact(Seq(
+            pack.in(runners, Compile).value,
+            pack.in(scalaRunner, Compile).value),
+          "lib/scala-plugin-runners.jar"),
+        Library(Dependencies.scalaLibrary,
+          "lib/scala-library.jar"),
+        Directory(sdkDirectory.value / "scalap",
+          "lib"),
+        Directory(sdkDirectory.value / "scalastyle",
+          "lib")
+      ) ++
+        crossLibraries.map { lib =>
+          Library(lib.copy(name = lib.name + "_2.11"), s"${lib.name}.jar")
+        } ++
+        librariesToCopyAsIs.map { lib =>
+          Library(lib, s"${lib.name}.jar")
+        }
+      Packaging.convertEntriesToFileMappings(jps ++ lib ++ launcher, artifactPath.value, dependencyClasspath.value)
+    },
+    pack := {
+      Packaging.packagePlugin(fileMappings.value, artifactPath.value)
+      artifactPath.value
     }
-  jps ++ lib ++ launcher
-}
+  )
+
+lazy val pluginCompressor =
+  newProject("pluginCompressor")
+  .settings(
+    artifactPath := baseDirectory.in(ThisBuild).value / "out" / "scala-plugin.zip",
+    pack := {
+      Packaging.compressPackagedPlugin(pack.in(pluginPackager).value, artifactPath.value)
+      artifactPath.value
+    }
+  )
+
 
 onLoad in Global := ((s: State) => { "updateIdea" :: s}) compose (onLoad in Global).value
 
 addCommandAlias("downloadIdea", "updateIdea")
+
+addCommandAlias("packagePlugin", "pluginPackager/package")
+
+addCommandAlias("packagePluginZip", "pluginCompressor/package")
