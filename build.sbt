@@ -181,10 +181,10 @@ lazy val pluginPackager =
           "lib")
       ) ++
         crossLibraries.map { lib =>
-          Library(lib.copy(name = lib.name + "_2.11"), s"${lib.name}.jar")
+          Library(lib.copy(name = lib.name + "_2.11"), s"lib/${lib.name}.jar")
         } ++
         librariesToCopyAsIs.map { lib =>
-          Library(lib, s"${lib.name}.jar")
+          Library(lib, s"lib/${lib.name}.jar")
         }
       Packaging.convertEntriesToFileMappings(jps ++ lib ++ launcher, artifactPath.value, dependencyClasspath.value)
     },

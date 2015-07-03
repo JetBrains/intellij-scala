@@ -37,6 +37,9 @@ object Dependencies {
   val luceneHighlighter = "org.apache.lucene" % "lucene-highlighter" % luceneVersion
   val luceneMemory = "org.apache.lucene" % "lucene-memory" % luceneVersion
   val luceneQueries = "org.apache.lucene" % "lucene-queries" % luceneVersion
+  val luceneQueryParser = "org.apache.lucene" % "lucene-queryparser" % luceneVersion
+  val luceneAnalyzers = "org.apache.lucene" % "lucene-analyzers-common" % luceneVersion
+  val luceneSandbox = "org.apache.lucene" % "lucene-sandbox" % luceneVersion
 
   val aetherApi = "org.eclipse.aether" % "aether-api" % aetherVersion
   val aetherUtil = "org.eclipse.aether" % "aether-util" % aetherVersion
@@ -77,7 +80,10 @@ object DependencyGroups {
     luceneCore,
     luceneHighlighter,
     luceneMemory,
-    luceneQueries
+    luceneQueries,
+    luceneQueryParser,
+    luceneAnalyzers,
+    luceneSandbox
   )
 
   val aether = Seq(
@@ -115,8 +121,7 @@ object DependencyGroups {
     scalaXml,
     scalaParserCombinators,
     sbtStructureCore,
-    evoInflector,
-    scalatestFinders
+    evoInflector
   ) ++ mavenIndexer
 
   val scalaRunner = Seq(
