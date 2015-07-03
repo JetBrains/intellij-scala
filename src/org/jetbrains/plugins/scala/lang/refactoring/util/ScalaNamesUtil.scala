@@ -24,7 +24,7 @@ object ScalaNamesUtil {
   }
 
   private def checkGeneric(text: String, predicate: ScalaLexer => Boolean): Boolean = {
-    ApplicationManager.getApplication.assertReadAccessAllowed()
+//    ApplicationManager.getApplication.assertReadAccessAllowed() - looks like we don't need it
     if (text == null || text == "") return false
     
     val lexer = lexerCache.get()
