@@ -60,8 +60,7 @@ class Specs2ConfigurationProducer extends {
     // is the name of an example to be filtered.
     if (testName != null) {
       val options = runConfiguration.getJavaOptions
-      val exampleFilterProperty = "-Dspecs2.ex=\"" + testName + "\""
-      runConfiguration.setJavaOptions(Seq(options,  exampleFilterProperty).mkString(" "))
+      runConfiguration.setJavaOptions(options)
       val name = testClassPath + "::" + testName
       runConfiguration.setGeneratedName(name)
       runConfiguration.setName(name)
