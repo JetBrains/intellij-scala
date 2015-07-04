@@ -47,7 +47,6 @@
         <element id="library" level="project" name="SBT: org.atteo:evo-inflector:1.2:jar" />
         <element id="library" level="project" name="SBT: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.2:jar" />
         <element id="library" level="project" name="SBT: org.codehaus.plexus:plexus-utils:3.0.8:jar" />
-        <element id="library" level="project" name="SBT: org.scalatest:scalatest-finders:0.9.6:jar" />
         <element id="library" level="project" name="SBT: org.scala-lang.modules:scala-xml_2.11:1.0.2:jar" />
         <element id="library" level="project" name="SBT: org.sonatype.sisu:sisu-guice:3.0.3:no_aop:jar" />
         <element id="library" level="project" name="SBT: org.sonatype.sisu:sisu-inject-bean:2.2.3:jar" />
