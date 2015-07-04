@@ -90,7 +90,7 @@ trait PrecedenceHelper[T] {
   protected def isSpecialResult(result: ScalaResolveResult): Boolean = {
     val importsUsed = result.importsUsed.toSeq
     if (importsUsed.length == 1) {
-      val importExpr = importsUsed(0) match {
+      val importExpr = importsUsed.head match {
         case ImportExprUsed(expr) => expr
         case ImportSelectorUsed(selector) => PsiTreeUtil.getContextOfType(selector, true, classOf[ScImportExpr])
         case ImportWildcardSelectorUsed(expr) => expr
@@ -126,9 +126,10 @@ trait PrecedenceHelper[T] {
   protected def addResult(result: ScalaResolveResult): Boolean = addResults(Seq(result))
   protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
     if (isUpdateHistory && !fromHistory) history += AddResult(results)
-    if (results.length == 0) return true
-    lazy val qualifiedName: T = getQualifiedName(results(0))
-    lazy val levelSet = getLevelSet(results(0))
+    if (results.isEmpty) return true
+    val result: ScalaResolveResult = results.head
+    lazy val qualifiedName: T = getQualifiedName(result)
+    lazy val levelSet = getLevelSet(result)
     def addResults() {
       if (qualifiedName != null) levelQualifiedNamesSet.add(qualifiedName)
       val iterator = results.iterator
@@ -136,8 +137,8 @@ trait PrecedenceHelper[T] {
         levelSet.add(iterator.next())
       }
     }
-    val currentPrecedence = getPrecedence(results(0))
-    val topPrecedence = getTopPrecedence(results(0))
+    val currentPrecedence = getPrecedence(result)
+    val topPrecedence = getTopPrecedence(result)
     if (currentPrecedence < topPrecedence) return false
     else if (currentPrecedence == topPrecedence && levelSet.isEmpty) return false
     else if (currentPrecedence == topPrecedence) {
@@ -146,25 +147,25 @@ trait PrecedenceHelper[T] {
           qualifiedNamesSet.contains(qualifiedName))) {
         return false
       } else if (qualifiedName != null && qualifiedNamesSet.contains(qualifiedName)) return false
-      if (!fromHistory && isUpdateHistory && isSpecialResult(results(0))) {
+      if (!fromHistory && isUpdateHistory && isSpecialResult(result)) {
         results.foreach(ignoredSet.add)
       } else addResults()
     } else {
       if (qualifiedName != null && qualifiedNamesSet.contains(qualifiedName)) {
         return false
       } else {
-        if (!fromHistory && isUpdateHistory && isSpecialResult(results(0))) {
+        if (!fromHistory && isUpdateHistory && isSpecialResult(result)) {
           results.foreach(ignoredSet.add)
         } else {
-          setTopPrecedence(results(0), currentPrecedence)
+          setTopPrecedence(result, currentPrecedence)
           val levelSetIterator = levelSet.iterator()
           while (levelSetIterator.hasNext) {
             val next = levelSetIterator.next()
-            if (filterNot(next, results(0))) {
+            if (filterNot(next, result)) {
               levelSetIterator.remove()
             }
           }
-          clearLevelQualifiedSet(results(0))
+          clearLevelQualifiedSet(result)
           addResults()
         }
       }
