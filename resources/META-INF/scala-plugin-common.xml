@@ -815,7 +815,7 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection"
                          displayName="Convert expression to Single Abstract Method (SAM)" groupName="Scala: General"
                          shortName="ConvertExpressionToSAM" level="WARNING"
-                         enabledByDefault="false" language="Scala"/>
+                         enabledByDefault="true" language="Scala"/>
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
                         displayName="All Errors Tool" groupPath="Scala" groupName="General"
                         shortName="ScalaAllErrors" level="WARNING"

@@ -26,13 +26,8 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
   private def inspectAccordingToExpectedType(expected: ScType, definition: ScNewTemplateDefinition, holder: ProblemsHolder) {
     ScalaPsiUtil.toSAMType(expected, definition.getResolveScope) match {
       case Some(expectedMethodType) =>
-        val funDefinitions = definition.breadthFirst.filter {
-          case _: ScFunctionDefinition => true
-          case _ => false
-        }
-
-        funDefinitions.toList match {
-          case (fun: ScFunctionDefinition) :: Nil =>
+        definition.members match {
+          case Seq(fun: ScFunctionDefinition) =>
             fun.body match {
               case Some(body) if expectedMethodType.conforms(fun.getType().getOrNothing) =>
                 lazy val replacement: String = {
