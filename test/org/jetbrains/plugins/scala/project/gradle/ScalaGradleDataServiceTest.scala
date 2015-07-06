@@ -117,7 +117,8 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
 
     assert(compilerConfiguration.debuggingInfoLevel == DebuggingInfoLevel.Source)
     assert(compilerConfiguration.plugins == Seq("test-plugin.jar"))
-    assert(compilerConfiguration.additionalCompilerOptions.toSet == Set("-Xexperimental", "-encoding utf-8", "-target:jvm-1.5"))
+    assert(compilerConfiguration.additionalCompilerOptions.toSet == Set("-encoding utf-8", "-target:jvm-1.5"))
+    assert(compilerConfiguration.experimental)
     assert(compilerConfiguration.continuations)
     assert(compilerConfiguration.deprecationWarnings)
     assert(compilerConfiguration.dynamics)
