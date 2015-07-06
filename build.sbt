@@ -1,6 +1,8 @@
 import Keys.{`package` => pack}
 import Common._
 
+// Global build settings
+
 resolvers in ThisBuild ++=
   BintrayJetbrains.allResolvers :+
   Resolver.typesafeIvyRepo("releases")
@@ -12,6 +14,16 @@ sdkDirectory in ThisBuild := baseDirectory.in(ThisBuild).value / "SDK"
 ideaBuild in ThisBuild := Versions.ideaVersion
 
 ideaDownloadDirectory in ThisBuild := sdkDirectory.value / "ideaSDK"
+
+onLoad in Global := ((s: State) => { "updateIdea" :: s}) compose (onLoad in Global).value
+
+addCommandAlias("downloadIdea", "updateIdea")
+
+addCommandAlias("packagePlugin", "pluginPackager/package")
+
+addCommandAlias("packagePluginZip", "pluginCompressor/package")
+
+// Main projects
 
 lazy val scalaCommunity: Project =
   newProject("scalaCommunity", file("."))
@@ -83,6 +95,8 @@ lazy val nailgunRunners =
   .dependsOn(scalaRunner)
   .settings(unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"))
 
+// Utility projects
+
 lazy val ideaRunner =
   newProject("ideaRunner", file("idea-runner"))
   .dependsOn(Seq(compilerSettings, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners).map(_ % Provided): _*)
@@ -130,6 +144,8 @@ lazy val testDownloader =
       "com.chuusai" % "shapeless_2.11" % "2.0.0"
     )
   )
+
+// Packaging projects
 
 lazy val pluginPackager =
   newProject("pluginPackager")
@@ -203,12 +219,3 @@ lazy val pluginCompressor =
       artifactPath.value
     }
   )
-
-
-onLoad in Global := ((s: State) => { "updateIdea" :: s}) compose (onLoad in Global).value
-
-addCommandAlias("downloadIdea", "updateIdea")
-
-addCommandAlias("packagePlugin", "pluginPackager/package")
-
-addCommandAlias("packagePluginZip", "pluginCompressor/package")
