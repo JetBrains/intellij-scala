@@ -30,6 +30,11 @@ class DependencyAnnotatorTest extends AnnotatorTestBase(classOf[SbtDependencyAnn
     }
   }
 
+  override def tearDown() = {
+    super.tearDown()
+    FileUtil.delete(SbtResolverIndexesManager.DEFAULT_INDEXES_DIR)
+  }
+
   def testDoNotAnnotateIndexedDep =
     doTest(Seq.empty)
   def testAnnotateUnresolvedDep = {
