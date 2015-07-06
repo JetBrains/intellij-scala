@@ -18,7 +18,7 @@ trait ScParameterizedTypeElement extends ScTypeElement {
 
   def findConstructor: Option[ScConstructor]
 
-  def desugarizedExistentialType: Option[ScTypeElement]
+  def computeDesugarizedType: Option[ScTypeElement]
 }
 
 object ScParameterizedTypeElement {

@@ -11,6 +11,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
+import com.intellij.openapi.updateSettings.impl.pluginsAdvertisement.PluginsAdvertiser.Plugin
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
@@ -60,7 +61,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, 
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{Version, ModuleExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -2266,6 +2267,17 @@ object ScalaPsiUtil {
           modifierList.addBefore(ScalaPsiElementFactory.createWhitespace(manager), mod)
         }
     }
+  }
+
+  /**
+   * @see https://github.com/non/kind-projector
+   */
+  def kindProjectorPluginEnabled(e: PsiElement): Boolean = {
+    val plugins = e.module match {
+      case Some(mod) => mod.scalaCompilerSettings.plugins
+      case _ => ScalaCompilerConfiguration.instanceIn(e.getProject).defaultProfile.getSettings.plugins
+    }
+    plugins.exists(_.contains("kind-projector"))
   }
 
   /**
