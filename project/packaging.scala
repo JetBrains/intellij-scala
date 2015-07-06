@@ -13,11 +13,11 @@ object Packaging {
     final case class Library(source: ModuleID, destination: String) extends PackageEntry
   }
 
-  def packagePlugin(fileMappings: Seq[(File, File)], destination: File): Unit = {
+  def packagePlugin(mappings: Seq[(File, String)], destination: File): Unit = {
     IO.delete(destination)
-    val (dirs, files) = fileMappings.partition(_._1.isDirectory)
-    dirs  foreach { case (from, to) => IO.copyDirectory(from, to, overwrite = true) }
-    files foreach { case (from, to) => IO.copyFile(from, to)}
+    val (dirs, files) = mappings.partition(_._1.isDirectory)
+    dirs  foreach { case (from, to) => IO.copyDirectory(from, destination / to, overwrite = true) }
+    files foreach { case (from, to) => IO.copyFile(from, destination / to)}
   }
 
   def compressPackagedPlugin(source: File, destination: File): Unit =
@@ -25,26 +25,26 @@ object Packaging {
 
   import PackageEntry._
 
-  def convertEntriesToFileMappings(entries: Seq[PackageEntry], artifactPath: File, libraries: Classpath): Seq[(File, File)] = {
+  def convertEntriesToMappings(entries: Seq[PackageEntry], libraries: Classpath): Seq[(File, String)] = {
     val resolvedLibraries = (for {
       jarFile <- libraries
       moduleId <- jarFile.get(moduleID.key)
       key = (moduleId.organization % moduleId.name % moduleId.revision)
     } yield (key, jarFile.data)).toMap
-    entries.map(e => convertEntry(e, artifactPath, resolvedLibraries))
+    entries.map(e => convertEntry(e, resolvedLibraries))
   }
 
-  private def convertEntry(entry: PackageEntry, base: File, resolvedLibraries: Map[ModuleID, File]): (File, File) =
+  private def convertEntry(entry: PackageEntry, resolvedLibraries: Map[ModuleID, File]): (File, String) =
     entry match {
       case Directory(source, destination) =>
-        source -> base / destination
+        source -> destination
       case Artifact(source, destination) =>
-        source -> base / destination
+        source -> destination
       case MergedArtifact(sources, destination) =>
-        mergeIntoTemporaryJar(sources:_*) -> (base / destination)
+        mergeIntoTemporaryJar(sources:_*) -> destination
       case Library(libraryId, destination) =>
         val libKey = libraryId.organization % libraryId.name % libraryId.revision
-        resolvedLibraries(libKey) -> (base / destination)
+        resolvedLibraries(libKey) -> destination
     }
 
   private def mergeIntoTemporaryJar(filesToMerge: File*): File =

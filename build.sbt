@@ -140,7 +140,7 @@ lazy val pluginPackager =
       dependencyClasspath in (runners, Compile),
       dependencyClasspath in (sbtRuntimeDependencies, Compile)
     ).map { (a,b,c) => a ++ b ++ c },
-    fileMappings := {
+    mappings := {
       import Packaging.PackageEntry._
       val crossLibraries = List(Dependencies.scalaParserCombinators, Dependencies.scalaXml)
       val librariesToCopyAsIs = DependencyGroups.scalaCommunity.filterNot { lib =>
@@ -186,10 +186,10 @@ lazy val pluginPackager =
         librariesToCopyAsIs.map { lib =>
           Library(lib, s"lib/${lib.name}.jar")
         }
-      Packaging.convertEntriesToFileMappings(jps ++ lib ++ launcher, artifactPath.value, dependencyClasspath.value)
+      Packaging.convertEntriesToMappings(jps ++ lib ++ launcher, dependencyClasspath.value)
     },
     pack := {
-      Packaging.packagePlugin(fileMappings.value, artifactPath.value)
+      Packaging.packagePlugin(mappings.value, artifactPath.value)
       artifactPath.value
     }
   )
