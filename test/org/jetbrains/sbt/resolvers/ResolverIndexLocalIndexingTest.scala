@@ -3,6 +3,7 @@ package resolvers
 
 import java.io.{IOException, File}
 
+import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 
 /**
@@ -18,8 +19,14 @@ class ResolverIndexLocalIndexingTest extends ResolverIndexingTestCase with Usefu
     assertIndexContentsEquals(testIndex, Set("org.jetbrains"), Set("test-one", "test-two"), Set("0.0.1", "0.0.2"))
   }
 
-  def testNonExistentIndexUpdate() =
-    assertException[IOException](Some("Repository directory /non-existent-dir does not exist")) {
-      createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/non-existent-dir"))
-    }
+  def testNonExistentIndexUpdate() = {
+    if (SystemInfo.isWindows)
+      assertException[IOException](Some("Repository directory \non-existent-dir does not exist")) {
+        createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/non-existent-dir"))
+      }
+    else
+      assertException[IOException](Some("Repository directory /non-existent-dir does not exist")) {
+        createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/non-existent-dir"))
+      }
+  }
 }
