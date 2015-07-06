@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.scala.runner
 
-import java.util
-
 import com.intellij.execution._
 import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationType}
 import com.intellij.execution.configurations.ConfigurationUtil
 import com.intellij.execution.impl.RunManagerImpl
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Comparing
+import com.intellij.openapi.util.Ref
 import com.intellij.psi.{util => _, _}
 import com.intellij.psi.util.PsiMethodUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -22,17 +19,17 @@ import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, ScFunctionWr
  * @author Alefas
  * @since 02.03.12
  */
-class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProduceBaseAdapter(ApplicationConfigurationType.getInstance) with Cloneable {
+class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProduceBaseAdapter[ApplicationConfiguration](ApplicationConfigurationType.getInstance) with Cloneable {
 
   def getSourceElement: PsiElement = myPsiElement
 
-  def createConfigurationByElement(_location: Location[_ <: PsiElement], context: ConfigurationContext): RunnerAndConfigurationSettings = {
+  def createConfigurationByElement(_location: Location[_ <: PsiElement], context: ConfigurationContext, configuration: ApplicationConfiguration): Boolean = {
     val location = JavaExecutionUtil.stepIntoSingleClass(_location)
-    if (location == null) return null
+    if (location == null) return false
     val element: PsiElement = location.getPsiElement
     val containingFile = element.getContainingFile
-    if (!containingFile.isInstanceOf[ScalaFile])return null
-    if (!element.isPhysical) return null
+    if (!containingFile.isInstanceOf[ScalaFile])return false
+    if (!element.isPhysical) return false
     var currentElement: PsiElement = element
     var method: PsiMethod = findMain(currentElement)
     while (method != null) {
@@ -43,15 +40,17 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
           case fun: ScFunctionWrapper => fun.function.getFirstChild
           case elem => elem.getFirstChild
         }
-        return createConfiguration(aClass, context, location)
+        createConfiguration(aClass, context, location, configuration)
+        return true
       }
       currentElement = method.getParent
       method = findMain(currentElement)
     }
     val aClass: PsiClass = getMainClass(element)
-    if (aClass == null) return null
+    if (aClass == null) return false
     myPsiElement = aClass
-    createConfiguration(aClass, context, location)
+    createConfiguration(aClass, context, location, configuration)
+    true
   }
 
   /**
@@ -85,41 +84,11 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
   }
 
   private def createConfiguration(aClass: PsiClass, context: ConfigurationContext,
-                                  location: Location[_ <: PsiElement]): RunnerAndConfigurationSettings = {
-    val project: Project = aClass.getProject
-    val settings: RunnerAndConfigurationSettings = cloneTemplateConfiguration(project, context)
-    val configuration: ApplicationConfiguration = settings.getConfiguration.asInstanceOf[ApplicationConfiguration]
+                                  location: Location[_ <: PsiElement], configuration: ApplicationConfiguration) {
     configuration.MAIN_CLASS_NAME = JavaExecutionUtil.getRuntimeQualifiedName(aClass)
     configuration.setName(configuration.suggestedName())
     setupConfigurationModule(context, configuration)
     JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
-    settings
-  }
-
-  protected override def findExistingByElement(location: Location[_ <: PsiElement],
-                                               existingConfigurations: util.List[RunnerAndConfigurationSettings],
-                                               context: ConfigurationContext): RunnerAndConfigurationSettings = {
-    val aClass: PsiClass = getMainClass(location.getPsiElement)
-    if (aClass == null) {
-      return null
-    }
-    val predefinedModule: Module = RunManagerEx.getInstanceEx(location.getProject).asInstanceOf[RunManagerImpl].
-            getConfigurationTemplate(getConfigurationFactory).getConfiguration.asInstanceOf[ApplicationConfiguration].getConfigurationModule.getModule
-    import scala.collection.JavaConversions._
-    for (existingConfiguration <- existingConfigurations) {
-      val appConfiguration: ApplicationConfiguration = existingConfiguration.getConfiguration.asInstanceOf[ApplicationConfiguration]
-      if (Comparing.equal(JavaExecutionUtil.getRuntimeQualifiedName(aClass), appConfiguration.MAIN_CLASS_NAME)) {
-        if (Comparing.equal(location.getModule, appConfiguration.getConfigurationModule.getModule)) {
-          return existingConfiguration
-        }
-        val configurationModule: Module = appConfiguration.getConfigurationModule.getModule
-        if (Comparing.equal(location.getModule, configurationModule)) return existingConfiguration
-        if (Comparing.equal(predefinedModule, configurationModule)) {
-          return existingConfiguration
-        }
-      }
-    }
-    null
   }
 
   private var myPsiElement: PsiElement = null
@@ -160,6 +129,69 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
       method = getContainingMethod(element)
     }
     null
+  }
+
+  private def hasClassAncestorWithName(_element: PsiElement, name: String): Boolean = {
+    def isConfigClassWithName(clazz: PsiClass) = clazz match {
+      case clazz: PsiClassWrapper if clazz.getQualifiedName == name => true
+      case o: ScObject if o.fakeCompanionClassOrCompanionClass.getQualifiedName == name => true
+      case _ => false
+    }
+
+    var element = _element
+    do {
+      element match {
+        case clazz: PsiClass if isConfigClassWithName(clazz) => return true
+        case f: ScalaFile if f.getClasses.exists(isConfigClassWithName) => return true
+        case _ => element = element.getParent
+      }
+    } while (element != null)
+    false
+  }
+
+  override def isConfigurationFromContext(configuration: ApplicationConfiguration, context: ConfigurationContext): Boolean = {
+    val location = context.getLocation
+    if (location == null) return false
+    //use fast psi location check to filter off obvious candidates
+    if (context.getPsiLocation == null || !hasClassAncestorWithName(context.getPsiLocation, configuration.MAIN_CLASS_NAME)) return false
+    val aClass: PsiClass = getMainClass(context.getPsiLocation)
+    if (aClass == null) return false
+    val predefinedModule: Module = RunManagerEx.getInstanceEx(location.getProject).asInstanceOf[RunManagerImpl].
+      getConfigurationTemplate(getConfigurationFactory).getConfiguration.asInstanceOf[ApplicationConfiguration].getConfigurationModule.getModule
+    JavaExecutionUtil.getRuntimeQualifiedName(aClass) == configuration.MAIN_CLASS_NAME &&
+      (location.getModule == configuration.getConfigurationModule.getModule || predefinedModule == configuration.getConfigurationModule.getModule)
+  }
+
+  override def setupConfigurationFromContext(configuration: ApplicationConfiguration, context: ConfigurationContext, sourceElement: Ref[PsiElement]): Boolean = {
+    val location = JavaExecutionUtil.stepIntoSingleClass(context.getLocation)
+    if (location == null) return false
+    val element: PsiElement = location.getPsiElement
+    val containingFile = element.getContainingFile
+    if (!containingFile.isInstanceOf[ScalaFile])return false
+    if (!element.isPhysical) return false
+    var currentElement: PsiElement = element
+    var method: PsiMethod = findMain(currentElement)
+    while (method != null) {
+      val aClass: PsiClass = method.containingClass
+      if (ConfigurationUtil.MAIN_CLASS.value(aClass)) {
+        myPsiElement = method match {
+          case fun: ScFunction => fun.getFirstChild
+          case fun: ScFunctionWrapper => fun.function.getFirstChild
+          case elem => elem.getFirstChild
+        }
+        createConfiguration(aClass, context, location, configuration)
+        sourceElement.set(myPsiElement)
+        return true
+      }
+      currentElement = method.getParent
+      method = findMain(currentElement)
+    }
+    val aClass: PsiClass = getMainClass(element)
+    if (aClass == null) return false
+    myPsiElement = aClass
+    createConfiguration(aClass, context, location, configuration)
+    sourceElement.set(myPsiElement)
+    true
   }
 }
 
