@@ -669,6 +669,10 @@
                          displayName="Applied Type Lambda can be simplified" groupPath="Scala" groupName="General"
                          shortName="AppliedTypeLambdaCanBeSimplified" id="AppliedTypeLambdaCanBeSimplified"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProjectorReplaceLambdaWithLetterInspection"
+                         displayName="Kind Projector: Replace Lambda with λ" groupPath="Scala" groupName="General"
+                         shortName="KindProjectorReplaceLambdaWithLetter" id="KindProjectorReplaceLambdaWithLetter"
+                         level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.postfix.PostfixMethodCallInspection"
                          displayName="Use of postfix method call" groupPath="Scala" groupName="General"
                          shortName="PostfixMethodCall" level="WARNING"
