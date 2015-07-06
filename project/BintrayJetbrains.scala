@@ -1,6 +1,6 @@
 import sbt._
 
-object bintrayJetbrains {
+object BintrayJetbrains {
 
   def jbResolver(name: String, patterns: Patterns) =
     Resolver.url(name, url("http://dl.bintray.com/jetbrains/sbt-plugins"))(patterns)

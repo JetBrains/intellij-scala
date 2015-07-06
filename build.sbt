@@ -2,7 +2,7 @@ import Keys.{`package` => pack}
 import Common._
 
 resolvers in ThisBuild ++=
-  bintrayJetbrains.allResolvers :+
+  BintrayJetbrains.allResolvers :+
   Resolver.typesafeIvyRepo("releases")
 
 lazy val sdkDirectory = SettingKey[File]("sdk-directory", "Path to SDK directory where unmanagedJars and IDEA are located")
