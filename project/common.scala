@@ -4,8 +4,8 @@ import scala.language.implicitConversions
 import scala.language.postfixOps
 
 object Common {
-  def newProject(projectName: String, basePath: String): Project =
-    Project(projectName, file(basePath)).settings(
+  def newProject(projectName: String, base: File): Project =
+    Project(projectName, base).settings(
       name := projectName,
       organization := "JetBrains",
       scalaVersion := Versions.scalaVersion,
@@ -15,7 +15,7 @@ object Common {
     )
 
   def newProject(projectName: String): Project =
-    newProject(projectName, projectName)
+    newProject(projectName, file(projectName))
 
   def unmanagedJarsFrom(sdkDirectory: File, subdirectories: String*): Classpath = {
     val sdkPathFinder = subdirectories.foldLeft(PathFinder.empty) { (finder, dir) =>

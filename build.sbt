@@ -14,7 +14,7 @@ ideaBuild in ThisBuild := Versions.ideaVersion
 ideaDownloadDirectory in ThisBuild := sdkDirectory.value / "ideaSDK"
 
 lazy val scalaCommunity: Project =
-  newProject("scalaCommunity", "")
+  newProject("scalaCommunity", file("."))
   .dependsOn(compilerSettings, runners % "test->test;compile->compile")
   .aggregate(jpsPlugin, sbtRuntimeDependencies, testDownloader, compilerSettings, runners, nailgunRunners, scalaRunner)
   .enablePlugins(SbtIdeaPlugin)
@@ -59,32 +59,32 @@ lazy val scalaCommunity: Project =
   )
 
 lazy val jpsPlugin  =
-  newProject("jpsPlugin", "jps-plugin")
+  newProject("jpsPlugin", file("jps-plugin"))
   .dependsOn(compilerSettings)
   .enablePlugins(SbtIdeaPlugin)
   .settings(unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "sbt", "nailgun"))
 
 lazy val compilerSettings =
-  newProject("compilerSettings", "compiler-settings")
+  newProject("compilerSettings", file("compiler-settings"))
   .enablePlugins(SbtIdeaPlugin)
   .settings(unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"))
 
 lazy val scalaRunner =
-  newProject("scalaRunner", "ScalaRunner")
+  newProject("scalaRunner", file("ScalaRunner"))
   .settings(libraryDependencies ++= DependencyGroups.scalaRunner)
 
 lazy val runners =
-  newProject("runners", "Runners")
+  newProject("runners", file("Runners"))
   .dependsOn(scalaRunner)
   .settings(libraryDependencies ++= DependencyGroups.runners)
 
 lazy val nailgunRunners =
-  newProject("nailgunRunners", "NailgunRunners")
+  newProject("nailgunRunners", file("NailgunRunners"))
   .dependsOn(scalaRunner)
   .settings(unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"))
 
 lazy val ideaRunner =
-  newProject("ideaRunner", "idea-runner")
+  newProject("ideaRunner", file("idea-runner"))
   .dependsOn(Seq(compilerSettings, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners).map(_ % Provided): _*)
   .settings(
     autoScalaLibrary := false,
