@@ -71,10 +71,6 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 case Success(tp, _) if tp.conforms(expected) => defaultResult
                 case Success(tp, _) =>
                   if (ScalaPsiUtil.isSAMEnabled(this) && ScFunctionType.isFunctionType(tp)) {
-//                    val des = tp match {
-//                      case param: ScParameterizedType => Some(param.designator)
-//                      case _ => None
-//                    }
                     ScalaPsiUtil.toSAMType(expected, getResolveScope) match {
                       case Some(methodType) if tp.conforms(methodType) =>
                         return ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None)
