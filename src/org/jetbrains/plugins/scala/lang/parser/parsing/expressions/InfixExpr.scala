@@ -65,8 +65,8 @@ object InfixExpr {
       val setMarker = builder.mark
       val opMarker = builder.mark
       builder.advanceLexer() //Ate id
-      TypeArgs.parse(builder, isPattern = false)
       opMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
+      TypeArgs.parse(builder, isPattern = false)
       if (builder.twoNewlinesBeforeCurrentToken) {
         setMarker.rollbackTo()
         count = 0
