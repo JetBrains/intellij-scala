@@ -106,10 +106,12 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
     val code =
       """
         |trait A {
-        |  def foo(): String
+        |  def foo: String
         |}
         |def bar(a: A) = ???
-        |bar(() => "something")
+        |bar(new A {
+        |  def foo = "ab"
+        |})
       """.stripMargin
     checkTextHasNoErrors(code)
   }
@@ -128,5 +130,71 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
         |})
       """.stripMargin
     checkTextHasNoErrors(code)
+  }
+
+  def testInner(): Unit = {
+    val code =
+      s"""
+        |new Thread(${START}new Runnable {
+        |  def run() {
+        |    def foo(i: Int) = i
+        |
+        |    println(foo(10))
+        |  }
+        |}$END)
+      """.stripMargin
+    check(code)
+    val text =
+      s"""
+         |new Thread(new Runnable {
+         |  def run() {
+         |    def foo(i: Int) = i
+         |
+         |    println(foo(10))
+         |  }
+         |})
+      """.stripMargin
+    val res =
+      s"""
+         |new Thread(() => {
+         |  def foo(i: Int) = i
+         |
+         |  println(foo(10))
+         |})
+      """.stripMargin
+    testFix(text, res, annotation)
+  }
+
+  def testMultiLine(): Unit = {
+    val code =
+      s"""
+        |new Thread(${START}new Runnable {
+        |  override def run(): Unit = {
+        |    val i = 2 + 3
+        |    val z = 2
+        |    println(i - z)
+        |  }
+        |}$END)
+      """.stripMargin
+    check(code)
+    val text =
+      s"""
+         |new Thread(new Runnable {
+         |  override def run(): Unit = {
+         |    val i = 2 + 3
+         |    val z = 2
+         |    println(i - z)
+         |  }
+         |})
+       """.stripMargin
+    val res =
+      """
+        |new Thread(() => {
+        |  val i = 2 + 3
+        |  val z = 2
+        |  println(i - z)
+        |})
+      """.stripMargin
+    testFix(text, res, annotation)
   }
 }
