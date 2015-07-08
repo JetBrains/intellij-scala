@@ -9,7 +9,7 @@ import scala.{Seq => _}
 trait Utils {
   self: Converter =>
   
-  val rootPackageName = m.Term.Name("_root_", denot = h.Denotation.Single(h.Prefix.Zero, h.Symbol.Root))
+  val rootPackageName = m.Term.Name("_root_", denot = h.Denotation.Single(h.Prefix.Zero, h.Symbol.RootPackage))
   val rootPackagePrefix = h.Prefix.Type(m.Type.Singleton(rootPackageName))
 
   class UnmatchedTree(msg: String) extends RuntimeException(msg)
