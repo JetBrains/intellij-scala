@@ -28,15 +28,15 @@ trait SymbolTable {
     fqName
       .split('.')
       .dropRight(toDrop)
-      .foldLeft(h.Symbol.Root.asInstanceOf[h.Symbol])((parent, name) => h.Symbol.Global(parent, name, h.Signature.Term))
+      .foldLeft(h.Symbol.RootPackage.asInstanceOf[h.Symbol])((parent, name) => h.Symbol.Global(parent, name, h.Signature.Term))
   }
 
   def ownerSymbol(elem: PsiElement): h.Symbol = {
     elem match {
       case mm: ScMember =>
-        if (mm.containingClass == null) h.Symbol.Empty else toSymbol(mm.containingClass)
+        if (mm.containingClass == null) h.Symbol.EmptyPackage else toSymbol(mm.containingClass)
       case bp: ScBindingPattern =>
-        if (bp.containingClass == null) h.Symbol.Empty else toSymbol(bp.containingClass)
+        if (bp.containingClass == null) h.Symbol.EmptyPackage else toSymbol(bp.containingClass)
       case other => other ?!
     }
   }
@@ -52,7 +52,7 @@ trait SymbolTable {
       case sc: impl.toplevel.synthetic.ScSyntheticClass =>
         h.Symbol.Global(fqnameToSymbol(sc.getQualifiedName), sc.className, h.Signature.Type)
       case td: ScTypeDefinition if !td.qualifiedName.contains(".") => // empty package defn
-        h.Symbol.Global(h.Symbol.Empty, td.name, h.Signature.Type)
+        h.Symbol.Global(h.Symbol.EmptyPackage, td.name, h.Signature.Type)
       case td: ScTemplateDefinition =>
         h.Symbol.Global(fqnameToSymbol(td.qualifiedName), td.name, h.Signature.Type)
       case td: ScFieldId =>
@@ -73,7 +73,7 @@ trait SymbolTable {
       case pc: ScPackaging =>
         toSymbol(pc.reference.get.bind().get.element)
       case pp: PsiPackage if pp.getName == null =>
-        h.Symbol.Root
+        h.Symbol.RootPackage
       case pc: PsiPackage =>
         h.Symbol.Global(toSymbol(pc.getParentPackage), pc.getName, h.Signature.Term)
       case cr: ScStableCodeReferenceElement =>
