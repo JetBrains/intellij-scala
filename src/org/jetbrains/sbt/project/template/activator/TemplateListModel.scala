@@ -25,5 +25,5 @@ class TemplateListModel(val items: Array[(String, ActivatorRepoProcessor.DocData
 
   def getId(i: Int) = getItem(i)._1
 
-  private def getItem(i: Int): (String, DocData) = if (i < sortedItems.length) sortedItems(i) else dumbItem
+  private def getItem(i: Int): (String, DocData) = if (i < sortedItems.length && i > -1) sortedItems(i) else dumbItem
 }
