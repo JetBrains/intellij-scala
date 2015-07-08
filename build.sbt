@@ -55,7 +55,6 @@ lazy val scalaCommunity: Project =
     aggregate.in(updateIdea) := false,
     // jar hell workaround(ignore idea bundled lucene in test runtime)
     fullClasspath in Test := {(fullClasspath in Test).value.filterNot(_.data.getName.endsWith("lucene-core-2.4.1.jar"))},
-    baseDirectory in Test := baseDirectory.value.getParentFile,
     fork in Test := true,
     parallelExecution := false,
     javaOptions in Test := Seq(
