@@ -22,7 +22,7 @@ trait Attributes {
         .foldLeft(rootPackagePrefix) {
           (parent, name) => h.Prefix.Type(m.Type.Singleton(
             m.Term.Name(name, denot =
-              h.Denotation.Single(parent, fqnameToSymbol(fqn.substring(0, fqn.indexOf(name) + name.size), toDrop = 0)))
+              h.Denotation.Single(parent, fqnameToSymbol(fqn.substring(0, fqn.indexOf(name) + name.length), toDrop = 0)))
           )
         )
       }
