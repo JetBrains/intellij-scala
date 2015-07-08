@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.UsefulTestCaseHelper
-import org.jetbrains.sbt.project.data.{SbtProjectData, ScalaProjectNode}
+import org.jetbrains.sbt.project.data.{SbtProjectData, SbtProjectNode}
 
 import ExternalSystemDsl._
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -57,7 +57,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
 
-      arbitraryNodes += new ScalaProjectNode(basePackages, jdk, javacOptions, sbtVersion, getProject.getBasePath)
+      arbitraryNodes += new SbtProjectNode(basePackages, jdk, javacOptions, sbtVersion, getProject.getBasePath)
     }.build.toDataNode
 
   private def doTestBasePackages(basePackages: Seq[String]): Unit = {
@@ -133,7 +133,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
         externalConfigPath := getProject.getBasePath + "/module1"
       }
 
-      arbitraryNodes += new ScalaProjectNode(Seq.empty, None, Seq.empty, "", getProject.getBasePath)
+      arbitraryNodes += new SbtProjectNode(Seq.empty, None, Seq.empty, "", getProject.getBasePath)
     }.build.toDataNode
 
     importProjectData(testProject)

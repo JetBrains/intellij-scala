@@ -79,7 +79,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val projectJdk = project.android.map(android => SbtProjectData.Android(android.version))
             .orElse(jdk.map(SbtProjectData.Jdk))
 
-    projectNode.add(new ScalaProjectNode(basePackages, projectJdk, javacOptions, sbtVersion, root))
+    projectNode.add(new SbtProjectNode(basePackages, projectJdk, javacOptions, sbtVersion, root))
 
     project.play2 map {
       case play2Data => projectNode.add(new Play2ProjectNode(play2Data.keys))
