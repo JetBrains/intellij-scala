@@ -116,7 +116,8 @@ class SbtSystemSettings(project: Project)
   }
 
   override def getLinkedProjectSettings(linkedProjectPath: String): SbtProjectSettings =
-    super.getLinkedProjectSettings(ExternalSystemApiUtil.normalizePath(linkedProjectPath))
+    Option(super.getLinkedProjectSettings(linkedProjectPath))
+      .getOrElse(super.getLinkedProjectSettings(ExternalSystemApiUtil.normalizePath(linkedProjectPath)))
 }
 
 object SbtSystemSettings {

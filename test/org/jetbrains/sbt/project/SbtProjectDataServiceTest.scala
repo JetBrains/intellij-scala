@@ -9,6 +9,7 @@ import com.intellij.openapi.application.Application
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{ModuleUtil, ModuleManager}
 import com.intellij.openapi.projectRoots.{Sdk, JavaSdk, ProjectJdkTable}
 import com.intellij.openapi.projectRoots.impl.JavaSdkImpl
@@ -111,7 +112,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
 
   def testSbtVersion: Unit = {
     val projectSettings = SbtProjectSettings.default
-    projectSettings.setExternalProjectPath(getProject.getBasePath)
+    projectSettings.setExternalProjectPath(ExternalSystemApiUtil.normalizePath(getProject.getBasePath))
     SbtSystemSettings.getInstance(getProject).linkProject(projectSettings)
 
     val expectedVersion = "0.13.8"
