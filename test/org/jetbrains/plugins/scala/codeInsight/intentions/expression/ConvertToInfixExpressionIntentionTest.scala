@@ -96,4 +96,25 @@ class ConvertToInfixExpressionIntentionTest extends ScalaIntentionTestBase {
     doTest(text, resultText)
   }
 
+  def testConvertToInfix12() = {
+    val text =
+      """
+        |case class M[A](a: A) {
+        |  def map[B](f: A => B): M[B] = M(f(a))
+        |}
+        |
+        |M(1).<caret>map[String](_.toString)
+      """.stripMargin
+    val resultText =
+      """
+        |case class M[A](a: A) {
+        |  def map[B](f: A => B): M[B] = M(f(a))
+        |}
+        |
+        |M(1) <caret>map[String] (_.toString)
+      """.stripMargin
+
+    doTest(text, resultText)
+  }
+
 }

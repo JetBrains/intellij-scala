@@ -30,11 +30,18 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
     if (!IntentionAvailabilityChecker.checkIntention(this, element)) return false
     val methodCallExpr : ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null) return false
-    if (!methodCallExpr.getInvokedExpr.isInstanceOf[ScReferenceExpression]) return false
-    val range: TextRange = ((methodCallExpr.getInvokedExpr).asInstanceOf[ScReferenceExpression]).nameId.getTextRange
+    val referenceExpr = methodCallExpr.getInvokedExpr match {
+      case ref: ScReferenceExpression => ref
+      case call: ScGenericCall => Option(call.referencedExpr) match { //if the expression has type args
+        case Some(ref: ScReferenceExpression) => ref
+        case _ => return false
+      }
+      case _ => return false
+    }
+    val range: TextRange = referenceExpr.nameId.getTextRange
     val offset = editor.getCaretModel.getOffset
     if (!(range.getStartOffset <= offset && offset <= range.getEndOffset)) return false
-    if (((methodCallExpr.getInvokedExpr).asInstanceOf[ScReferenceExpression]).isQualified) return true
+    if (referenceExpr.isQualified) return true
     false
   }
 
@@ -42,24 +49,37 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
     if (methodCallExpr == null || !methodCallExpr.isValid) return
 
+    val referenceExpr = methodCallExpr.getInvokedExpr match {
+      case ref: ScReferenceExpression => ref
+      case call: ScGenericCall => Option(call.referencedExpr) match { //if the expression has type args
+        case Some(ref: ScReferenceExpression) => ref
+        case _ => return
+      }
+      case _ => return
+    }
     val start = methodCallExpr.getTextRange.getStartOffset
-    val diff = editor.getCaretModel.getOffset -
-            ((methodCallExpr.getInvokedExpr).asInstanceOf[ScReferenceExpression]).nameId.getTextRange.getStartOffset
+    val diff = editor.getCaretModel.getOffset - referenceExpr.nameId.getTextRange.getStartOffset
 
     var putArgsFirst = false
     val argsBuilder = new StringBuilder
     val invokedExprBuilder = new StringBuilder
 
-    val qual = methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get
-    val oper = ((methodCallExpr.getInvokedExpr).asInstanceOf[ScReferenceExpression]).nameId
+    val qual = referenceExpr.qualifier.get
+    val operText = methodCallExpr.getInvokedExpr match {
+      case call: ScGenericCall => call.typeArgs match {
+        case Some(typeArgs) => referenceExpr.nameId.getText ++ typeArgs.getText
+        case _ => referenceExpr.nameId.getText
+      }
+      case _ =>  referenceExpr.nameId.getText
+    }
     val invokedExprText = methodCallExpr.getInvokedExpr.getText
     val methodCallArgs = methodCallExpr.args
 
     if (invokedExprText.last == ':') {
       putArgsFirst = true
-      invokedExprBuilder.append(oper.getText).append(" ").append(qual.getText)
+      invokedExprBuilder.append(operText).append(" ").append(qual.getText)
     } else {
-      invokedExprBuilder.append(qual.getText).append(" ").append(oper.getText)
+      invokedExprBuilder.append(qual.getText).append(" ").append(operText)
     }
 
     argsBuilder.append(methodCallArgs.getText)
@@ -85,14 +105,14 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
     }
 
     val infixExpr = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
-    infixExpr.asInstanceOf[ScInfixExpr].getBaseExpr.replaceExpression(exprA, true)
-    infixExpr.asInstanceOf[ScInfixExpr].getArgExpr.replaceExpression(exprB, true)
+    infixExpr.asInstanceOf[ScInfixExpr].getBaseExpr.replaceExpression(exprA, removeParenthesis = true)
+    infixExpr.asInstanceOf[ScInfixExpr].getArgExpr.replaceExpression(exprB, removeParenthesis = true)
 
     val size = infixExpr.asInstanceOf[ScInfixExpr].operation.nameId.getTextRange.getStartOffset -
             infixExpr.getTextRange.getStartOffset
 
     inWriteAction {
-      methodCallExpr.replaceExpression(infixExpr, true)
+      methodCallExpr.replaceExpression(infixExpr, removeParenthesis = true)
       editor.getCaretModel.moveToOffset(start + diff + size)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }
