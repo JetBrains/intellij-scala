@@ -40,6 +40,25 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     }
   }
 
+  def testOptionApply(): Unit = {
+    val java =
+      """
+        |import scala.Option;
+        |
+        |public abstract class OptionApply {
+        |
+        |    public OptionApply() {
+        |        setAction(Option.apply("importVCardFile"));
+        |    }
+        |
+        |    public abstract void setAction(Option<String> bar);
+        |}
+      """.stripMargin
+    assertMatches(messagesFromJavaCode(scalaFileText = "", java, javaClassName = "OptionApply")) {
+      case Nil =>
+    }
+  }
+
   def messagesFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     myFixture.addFileToProject("dummy.scala", scalaFileText)
     val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
