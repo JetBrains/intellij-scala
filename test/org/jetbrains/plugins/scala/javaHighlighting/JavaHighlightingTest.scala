@@ -2,14 +2,14 @@ package org.jetbrains.plugins.scala
 package javaHighlighting
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
-import com.intellij.psi.{PsiFile, PsiDocumentManager}
+import com.intellij.ide.highlighter.JavaFileType
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator, _}
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.junit.Assert
 
-import scala.collection.JavaConverters._
 
 /**
  * Author: Svyatoslav Ilinskiy
@@ -40,13 +40,14 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     }
   }
 
-  def messagesFromJavaCode(scalaFileText: String, javaFileText: String, javaFileName: String = "dummy.java"): List[Message] = {
+  def messagesFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     myFixture.addFileToProject("dummy.scala", scalaFileText)
-    val myFile: PsiFile = myFixture.addFileToProject(javaFileName, javaFileText)
+    val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
     myFixture.openFileInEditor(myFile.getVirtualFile)
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
     val allInfo = CodeInsightTestFixtureImpl.instantiateAndRun(myFile, getEditor, Array(), false)
 
+    import scala.collection.JavaConverters._
     allInfo.asScala.toList.collect {
       case highlightInfo if highlightInfo.`type` == HighlightInfoType.ERROR =>
         val elementText = myFile.findElementAt(highlightInfo.getStartOffset).getText
