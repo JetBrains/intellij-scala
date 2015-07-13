@@ -40,6 +40,20 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     }
   }
 
+  def testCaseClassImplement() = {
+    val scala = "case class CaseClass()"
+    val java =
+      """
+        |public class CaseClassExtended extends CaseClass {
+        |
+        |}
+      """.stripMargin
+    assertMatches(messagesFromJavaCode(scala, java, javaClassName = "CaseClassExtended")) {
+      case Nil =>
+    }
+
+  }
+
   def messagesFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     myFixture.addFileToProject("dummy.scala", scalaFileText)
     val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
