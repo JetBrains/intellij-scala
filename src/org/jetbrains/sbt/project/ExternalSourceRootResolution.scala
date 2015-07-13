@@ -7,13 +7,14 @@ import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
 import org.jetbrains.sbt.project.data.{ContentRootNode, ModuleDependencyNode, LibraryNode, ModuleNode}
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
-import org.jetbrains.sbt.project.structure.{Directory, Project}
+
+import org.jetbrains.sbt.{structure=>sbtStructure}
 
 /**
  * @author Pavel Fatin
  */
 trait ExternalSourceRootResolution { self: SbtProjectResolver =>
-  def createSharedSourceModules(projectToModuleNode: Map[Project, ModuleNode],
+  def createSharedSourceModules(projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode],
           libraryNodes: Seq[LibraryNode],
           moduleFilesDirectory: File): Seq[ModuleNode] = {
 
@@ -42,7 +43,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
   }
 
   def createSourceModuleNodesAndDependencies(rootGroup: RootGroup,
-                                             projectToModuleNode: Map[Project, ModuleNode],
+                                             projectToModuleNode: Map[sbtStructure.ProjectData, ModuleNode],
                                              libraryNodes: Seq[LibraryNode],
                                              moduleFilesDirectory: File): ModuleNode = {
     val projects = rootGroup.projects
@@ -57,9 +58,9 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       uniqueProjectDependencies.foreach { dependencyId =>
         val dependency = projectToModuleNode.values.find(_.getId == dependencyId.project).getOrElse(
           throw new ExternalSystemException("Cannot find project dependency: " + dependencyId.project))
-        
+
         val dependencyNode = new ModuleDependencyNode(moduleNode, dependency)
-        dependencyNode.setScope(scopeFor(dependencyId.configurations))
+        dependencyNode.setScope(scopeFor(dependencyId.configuration))
         moduleNode.add(dependencyNode)
       }
 
@@ -102,7 +103,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
       case (Root.Scope.Test, Root.Kind.Resources)     => ExternalSystemSourceType.TEST_RESOURCE
     }
 
-  private def sharedAndExternalRootsIn(projects: Seq[Project]): Seq[SharedRoot] = {
+  private def sharedAndExternalRootsIn(projects: Seq[sbtStructure.ProjectData]): Seq[SharedRoot] = {
     val projectRoots = projects.flatMap(project => sourceRootsIn(project).map(ProjectRoot(project,_)))
 
     // TODO return the message about omitted directories
@@ -127,13 +128,13 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     }
   }
 
-  private def sourceRootsIn(project: Project): Seq[Root] = {
+  private def sourceRootsIn(project: sbtStructure.ProjectData): Seq[Root] = {
     val relevantScopes = Set("compile", "test", "it")
 
     val relevantConfigurations = project.configurations.filter(it => relevantScopes.contains(it.id))
 
     relevantConfigurations.flatMap { configuration =>
-      def createRoot(kind: Root.Kind)(directory: Directory) = {
+      def createRoot(kind: Root.Kind)(directory: sbtStructure.DirectoryData) = {
         val scope = if (configuration.id == "compile") Root.Scope.Compile else Root.Scope.Test
         Root(scope, kind, directory.file.canonicalFile)
       }
@@ -143,16 +144,16 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     }
   }
 
-  private case class RootGroup(name: String, roots: Seq[Root], projects: Seq[Project]) {
+  private case class RootGroup(name: String, roots: Seq[Root], projects: Seq[sbtStructure.ProjectData]) {
     def base: File = {
       val root = roots.head
       root.base.getOrElse(root.directory)
     }
   }
 
-  private case class SharedRoot(root: Root, projects: Seq[Project])
+  private case class SharedRoot(root: Root, projects: Seq[sbtStructure.ProjectData])
 
-  private case class ProjectRoot(project: Project, root: Root) {
+  private case class ProjectRoot(project: sbtStructure.ProjectData, root: Root) {
     def isInternal: Boolean = !isExternal
 
     def isExternal: Boolean = root.directory.isOutsideOf(project.base)
