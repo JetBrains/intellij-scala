@@ -1178,18 +1178,26 @@ object ScalaPsiElementFactory {
   def createEquivMethodCall(infixExpr: ScInfixExpr): ScMethodCall = {
     val baseText = infixExpr.getBaseExpr.getText
     val opText = infixExpr.operation.getText
+    val typeArgText = infixExpr.typeArgs match {
+      case Some(tpArg) => tpArg.getText
+      case _ => ""
+    }
     val argText = infixExpr.getArgExpr.getText
     val clauseText = infixExpr.getArgExpr match {
       case _: ScTuple | _: ScParenthesisedExpr | _: ScUnitExpr => argText
       case _ =>  s"($argText)"
     }
-    val exprText = s"($baseText).$opText$clauseText"
+    val exprText = s"($baseText).$opText$typeArgText$clauseText"
 
     val exprA : ScExpression = createExpressionWithContextFromText(baseText, infixExpr, infixExpr.getBaseExpr)
 
     val methodCallExpr =
       createExpressionWithContextFromText(exprText.toString, infixExpr.getContext, infixExpr).asInstanceOf[ScMethodCall]
-    methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get.replaceExpression(exprA, removeParenthesis = true)
+    val referenceExpr = methodCallExpr.getInvokedExpr match {
+      case ref: ScReferenceExpression => ref
+      case call: ScGenericCall => call.referencedExpr.asInstanceOf[ScReferenceExpression]
+    }
+    referenceExpr.qualifier.get.replaceExpression(exprA, removeParenthesis = true)
     methodCallExpr
   }
 
