@@ -145,7 +145,7 @@ class ScalaFieldEvaluationTest extends ScalaDebuggerTestCase {
         |}
       """.stripMargin.trim()
     )
-    addBreakpoint("Sample.scala", 14)
+    addBreakpoint("Sample.scala", 12)
     runDebugger("Sample") {
       waitForBreakpoint()
       evalStartsWith("x", "0")

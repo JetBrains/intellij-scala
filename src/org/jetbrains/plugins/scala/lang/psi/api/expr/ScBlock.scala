@@ -151,9 +151,8 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
 
   def isAnonymousFunction: Boolean = false
 
-  def exprs: Seq[ScExpression] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScExpression]).toSeq: _*)
-  def statements: Seq[ScBlockStatement] =
-    collection.immutable.Seq(findChildrenByClassScala(classOf[ScBlockStatement]).toSeq: _*)
+  def exprs: Seq[ScExpression] = findChildrenByClassScala(classOf[ScExpression]).toSeq
+  def statements: Seq[ScBlockStatement] = findChildrenByClassScala(classOf[ScBlockStatement]).toSeq
   
   def hasRBrace: Boolean = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tRBRACE)).length == 1
   

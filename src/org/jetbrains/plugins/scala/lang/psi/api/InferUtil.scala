@@ -264,6 +264,11 @@ object InferUtil {
           expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(dummyExpr, expectedRet))
 
           new ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
+        case Some(tp) if ScalaPsiUtil.isSAMEnabled(expr) =>
+          ScalaPsiUtil.toSAMType(tp) match {
+            case Some(_) => tp
+            case _ => mt
+          }
         case _ => mt
       }
     }

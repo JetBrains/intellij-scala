@@ -40,10 +40,14 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
         result.add(t.name)
         result.add(t.getName)
         result.add(t.fakeCompanionClass.getName)
+        t.fakeCompanionModule match {
+          case Some(o) => result.add(o.getName)
+          case _ =>
+        }
       case o: ScObject =>
         result.add(o.name)
         result.add(o.getName)
-      case c: ScClass if c.isCase =>
+      case c: ScClass =>
         result.add(c.name)
         c.fakeCompanionModule match {
           case Some(o) => result.add(o.getName)

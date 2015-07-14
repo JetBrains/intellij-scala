@@ -59,13 +59,15 @@ trait IntegrationTest {
 
   protected def addFileToProject(fileName: String, fileText: String)
 
-  protected def checkConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, testClass: String, testName: Option[String] = None): Boolean
+  protected def checkConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, testClass: String, testNames: String*): Boolean
 
-  protected def checkConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, testClass: String, testName: String): Boolean =
-    checkConfigAndSettings(configAndSettings, testClass, Some(testName))
-
-  protected def checkConfig(testClass: String, testName: Option[String], config: AbstractTestRunConfiguration): Boolean = {
-    config.getTestClassPath == testClass && testName.map(config.getTestName == _).getOrElse(config.getTestName == "")
+  protected def checkConfig(testClass: String, testNames: Seq[String], config: AbstractTestRunConfiguration): Boolean = {
+    config.getTestClassPath == testClass && (config.getTestName match {
+      case "" => testNames.size == 0
+      case configTestName =>
+        val configTests = parseTestName(configTestName)
+        configTests.size == testNames.size && ((configTests zip testNames) forall {case (actual, required) => actual == required})
+    })//(config.getTestName) testNames.map(config.getTestName == _).getOrElse(config.getTestName == "")
   }
 
   protected def checkResultTreeHasExactNamedPath(root: AbstractTestProxy, names: String*): Boolean =
@@ -177,4 +179,9 @@ trait IntegrationTest {
     val startLineNumber = document.getLineNumber(textRange.getStartOffset)
     assert(startLineNumber == sourceLine)
   }
+
+  private def parseTestName(testName: String): Seq[String] = {
+    testName.split("\n").map(TestRunnerUtil.unescapeTestName)
+  }
+
 }

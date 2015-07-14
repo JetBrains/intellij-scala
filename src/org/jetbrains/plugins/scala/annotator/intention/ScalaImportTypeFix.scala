@@ -68,30 +68,27 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
 
   def showHint(editor: Editor): Boolean = {
     if (!ref.isValid) return false
-    if (ref.qualifier != None) return false
+    if (ref.qualifier.isDefined) return false
     ref.getContext match {
       case postf: ScPostfixExpr if postf.operation == ref => false
       case pref: ScPrefixExpr if pref.operation == ref => false
       case inf: ScInfixExpr if inf.operation == ref => false
-      case _ => {
+      case _ =>
         classes = ScalaImportTypeFix.getTypesToImport(ref, project)
         classes.length match {
           case 0 => false
           case 1 if ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY &&
-                  !caretNear(editor) => {
+                  !caretNear(editor) =>
             CommandProcessor.getInstance().runUndoTransparentAction(new Runnable {
               def run() {
                 new ScalaAddImportAction(editor, classes, ref).execute()
               }
             })
             false
-          }
-          case _ => {
+          case _ =>
             fixesAction(editor)
             true
-          }
         }
-      }
     }
   }
 
@@ -119,7 +116,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
         val action = new ScalaAddImportAction(editor, classes, ref: ScReferenceElement)
 
         val offset = ref.getTextRange.getStartOffset
-        if (classes.length > 0 && offset >= startOffset(editor) && offset <= endOffset(editor) && editor != null &&
+        if (classes.nonEmpty && offset >= startOffset(editor) && offset <= endOffset(editor) && editor != null &&
                 offset <= editor.getDocument.getTextLength) {
           HintManager.getInstance().showQuestionHint(editor,
           if (classes.length == 1) classes(0).qualifiedName + "? Alt+Enter"
@@ -161,6 +158,8 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
         override def getTextFor(value: TypeToImport): String = {
           ObjectUtils.assertNotNull(value.qualifiedName)
         }
+
+        override def isAutoSelectionEnabled: Boolean = false
 
         import com.intellij.openapi.ui.popup.PopupStep.FINAL_CHOICE
         override def onChosen(selectedValue: TypeToImport, finalChoice: Boolean): PopupStep[_] = {
@@ -275,19 +274,17 @@ object ScalaImportTypeFix {
           case Some(cl) => notInner(cl, ref)
           case _ => true
         }
-      case t: ScTypeDefinition => {
-       parent(t) match {
-          case _: ScalaFile => true
-          case _: ScPackaging => true
-          case _: ScTemplateBody => {
-            Option(t.containingClass) match {
-              case Some(obj: ScObject) => ResolveUtils.isAccessible(obj, ref) && notInner(obj, ref)
-              case _ => false
-            }
-          }
-          case _ => false
-        }
-      }
+      case t: ScTypeDefinition =>
+        parent(t) match {
+           case _: ScalaFile => true
+           case _: ScPackaging => true
+           case _: ScTemplateBody =>
+             Option(t.containingClass) match {
+               case Some(obj: ScObject) => ResolveUtils.isAccessible(obj, ref) && notInner(obj, ref)
+               case _ => false
+             }
+           case _ => false
+         }
       case _ => true
     }
   }
@@ -309,8 +306,8 @@ object ScalaImportTypeFix {
       }
       addClazz(clazz)
       clazz match {
-        case c: ScClass if c.isCase =>
-          if (ScalaPsiUtil.getBaseCompanionModule(c) == None) {
+        case c: ScTypeDefinition if c.fakeCompanionModule.isDefined =>
+          if (ScalaPsiUtil.getBaseCompanionModule(c).isEmpty) {
             ScalaPsiUtil.getCompanionModule(c) match {
               case Some(c) => addClazz(c)
               case _ =>
@@ -333,7 +330,7 @@ object ScalaImportTypeFix {
       buffer.filter {
         case ClassTypeToImport(clazz) =>
           clazz.isInstanceOf[ScObject] &&
-            clazz.asInstanceOf[ScObject].functionsByName("apply").length > 0
+            clazz.asInstanceOf[ScObject].functionsByName("apply").nonEmpty
         case _ => false
       }.toArray
     }

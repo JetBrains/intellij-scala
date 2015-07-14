@@ -7,15 +7,9 @@ import com.sun.jdi.Location
 import com.sun.jdi.request.StepRequest
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
-import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-
-import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Nikolay.Tropin
@@ -51,7 +45,7 @@ class ScalaSyntheticSteppingFilter extends ExtraSteppingFilter {
 
       if (!sourcePosition.getFile.getLanguage.is(ScalaLanguage.Instance)) return false
 
-      val classInSource = PsiTreeUtil.getParentOfType(sourcePosition.getElementAt, classOf[ScTemplateDefinition], false)
+      val classInSource = PsiTreeUtil.getParentOfType(sourcePosition.getElementAt, classOf[ScTemplateDefinition], true)
       if (classInSource == null) return false
 
       !existsInSource(name, classInSource)

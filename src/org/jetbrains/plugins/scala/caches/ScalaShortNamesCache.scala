@@ -9,7 +9,7 @@ import com.intellij.psi.stubs.StubIndex
 import com.intellij.util.containers.HashSet
 import com.intellij.util.{ArrayUtil, Processor}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 import scala.collection.mutable.ArrayBuffer
@@ -52,7 +52,7 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
       while (classesIterator.hasNext) {
         val clazz = classesIterator.next()
         clazz match {
-          case c: ScClass if isOkForJava(c) =>
+          case c: ScTypeDefinition if isOkForJava(c) =>
             c.fakeCompanionModule match {
               case Some(o) => res += o
               case _ =>
@@ -69,6 +69,10 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
         clazz match {
           case c: ScTrait if isOkForJava(c) =>
             res += c.fakeCompanionClass
+            c.fakeCompanionModule match {
+              case Some(o) => res += o
+              case _ =>
+            }
           case _ =>
         }
       }

@@ -17,11 +17,11 @@ sealed case class ScalaLanguageLevel(ordinal: Int, version: String) extends Name
 
   def <(level: ScalaLanguageLevel): Boolean = ordinal < level.ordinal
 
-  def <=(level: ScalaLanguageLevel): Boolean = ordinal < level.ordinal
+  def <=(level: ScalaLanguageLevel): Boolean = ordinal <= level.ordinal
 }
 
 object ScalaLanguageLevel {
-  val Values = Array(Scala_2_7, Scala_2_8, Scala_2_9, Scala_2_10, Scala_2_11)
+  val Values = Array(Scala_2_7, Scala_2_8, Scala_2_9, Scala_2_10, Scala_2_11, Scala_2_12)
 
   val Default = Scala_2_11
 
@@ -32,7 +32,8 @@ object ScalaLanguageLevel {
     Scala_2_8 -> ScalaLanguageLevelProxy.Scala_2_8,
     Scala_2_9 -> ScalaLanguageLevelProxy.Scala_2_9,
     Scala_2_10 -> ScalaLanguageLevelProxy.Scala_2_10,
-    Scala_2_11 -> ScalaLanguageLevelProxy.Scala_2_11)
+    Scala_2_11 -> ScalaLanguageLevelProxy.Scala_2_11,
+    Scala_2_12 -> ScalaLanguageLevelProxy.Scala_2_12)
 
   private val ProxyToLevel = LevelToProxy.map(_.swap)
 
@@ -50,4 +51,6 @@ object ScalaLanguageLevel {
   object Scala_2_10 extends ScalaLanguageLevel(3, "2.10")
 
   object Scala_2_11 extends ScalaLanguageLevel(4, "2.11")
+
+  object Scala_2_12 extends ScalaLanguageLevel(5, "2.12")
 }

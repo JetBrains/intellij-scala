@@ -11,7 +11,6 @@ import com.intellij.psi.{PsiAnonymousClass, PsiClass, PsiElement}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
@@ -26,7 +25,7 @@ object ScalaFieldEvaluator {
       case a: PsiAnonymousClass => ref => true
       case e: ScExpression => ref => true
       case td: ScTypeDefinition =>
-        if (ScalaPsiUtil.isLocalClass(td)) {
+        if (DebuggerUtil.isLocalClass(td)) {
           val fqn = td.getQualifiedNameForDebugger
           ref => {
             val refName = ref.name()

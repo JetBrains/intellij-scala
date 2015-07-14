@@ -20,7 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, PhysicalSignature}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
 import scala.collection.mutable
@@ -39,10 +41,9 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
   }
 
   override def additionalJavaNames: Array[String] = {
-    fakeCompanionModule match {
-      case Some(m) => Array(m.getName)
-      case _ => Array.empty
-    }
+    //do not add all cases with fakeCompanionModule, it will be used in Stubs.
+    if (isCase) fakeCompanionModule.map(_.getName).toArray
+    else Array.empty
   }
 
   def this(node: ASTNode) = {this(); setNode(node)}
@@ -120,6 +121,12 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
       this.processPsiMethodsForNode(node, isStatic = false, isInterface = isInterface)(res += _, names += _)
     }
 
+    for (synthetic <- syntheticMethodsNoOverride) {
+      this.processPsiMethodsForNode(new SignatureNodes.Node(new PhysicalSignature(synthetic, ScSubstitutor.empty),
+        ScSubstitutor.empty),
+        isStatic = false, isInterface = isInterface)(res += _, names += _)
+    }
+
     ScalaPsiUtil.getCompanionModule(this) match {
       case Some(o: ScObject) =>
         def add(method: PsiMethod) {
@@ -129,6 +136,12 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
         }
         TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(o) { node =>
           this.processPsiMethodsForNode(node, isStatic = true, isInterface = false)(add)
+        }
+
+        for (synthetic <- o.syntheticMethodsNoOverride) {
+          this.processPsiMethodsForNode(new SignatureNodes.Node(new PhysicalSignature(synthetic, ScSubstitutor.empty),
+            ScSubstitutor.empty),
+            isStatic = true, isInterface = false)(res += _, names += _)
         }
       case _ =>
     }
@@ -145,20 +158,7 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     buffer.toArray
   }
 
-  override def syntheticMethodsNoOverride: scala.Seq[PsiMethod] = {
-    CachesUtil.get(this, CachesUtil.SYNTHETIC_MEMBERS_KEY,
-      new CachesUtil.MyProvider[ScClassImpl, Seq[PsiMethod]](this, clazz => clazz.innerSyntheticMembers)
-        (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
-  }
-
-  private def innerSyntheticMembers: Seq[PsiMethod] = {
-    val res = new ArrayBuffer[PsiMethod]
-    res ++= super.syntheticMethodsNoOverride
-    res ++= syntheticMembersImpl
-    res.toSeq
-  }
-
-  private def syntheticMembersImpl: Seq[PsiMethod] = {
+  override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = {
     val buf = new ArrayBuffer[PsiMethod]
     if (isCase && !hasModifierProperty("abstract") && parameters.length > 0) {
       constructor match {

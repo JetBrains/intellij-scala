@@ -6,7 +6,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil._
 import com.intellij.psi.{PsiElement, PsiMethod, PsiNamedElement, PsiPackage}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction, ScTypeAlias, ScValueDeclaration}
@@ -26,7 +25,7 @@ import scala.collection.mutable.ArrayBuffer
 
 object ReachingDefintionsCollector {
   
-  def collectVariableInfo(fragment: Seq[PsiElement], place: ScalaPsiElement): FragmentVariableInfos = {
+  def collectVariableInfo(fragment: Seq[PsiElement], place: PsiElement): FragmentVariableInfos = {
     // CFG -> DFA
     val commonParent = findCommonParent(fragment: _*)
     val cfowner = getParentOfType(commonParent.getContext, classOf[ScControlFlowOwner], false)
@@ -49,7 +48,7 @@ object ReachingDefintionsCollector {
   }
 
   //defines if the given PsiNamedElement is visible at `place`
-  private def isVisible(element: PsiNamedElement, place: ScalaPsiElement): Boolean = {
+  private def isVisible(element: PsiNamedElement, place: PsiElement): Boolean = {
     def checkResolve(ref: PsiElement) = ref match {
       case r: ScReferenceElement =>
         r.multiResolve(false).map(_.getElement).exists(PsiEquivalenceUtil.areElementsEquivalent(_, element))

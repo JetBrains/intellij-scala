@@ -28,14 +28,9 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
             ivySdks.sortBy(_.version).map(SdkChoice(_, "Ivy")) ++
             mavenSdks.sortBy(_.version).map(SdkChoice(_, "Maven"))
 
-    val sdk = if (sdks.nonEmpty) {
-      val dialog = new SdkSelectionDialog(parentComponent, () => sdks.asJava)
-      Option(dialog.open())
-    } else {
-      SdkSelection.chooseScalaSdkFiles(parentComponent)
-    } 
+    val dialog = new SdkSelectionDialog(parentComponent, () => sdks.asJava)
 
-    sdk.map(_.createNewLibraryConfiguration()).orNull
+    Option(dialog.open()).map(_.createNewLibraryConfiguration()).orNull
   }
 
   override def getDefaultLevel = LibrariesContainer.LibraryLevel.GLOBAL

@@ -174,7 +174,7 @@ Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter {
 
   def testSCL2839sTrue() {
     getScalaSettings.INSERT_WHITESPACES_IN_SIMPLE_ONE_LINE_METHOD = true
-    getSettings.KEEP_SIMPLE_METHODS_IN_ONE_LINE = true
+    getCommonSettings.KEEP_SIMPLE_METHODS_IN_ONE_LINE = true
 
     val before =
 """
@@ -197,7 +197,7 @@ def func2() {
   }
 
   def testSCL2839sFalse() {
-    getSettings.KEEP_SIMPLE_METHODS_IN_ONE_LINE = false
+    getCommonSettings.KEEP_SIMPLE_METHODS_IN_ONE_LINE = false
 
     val before =
 """
@@ -268,7 +268,7 @@ def f[T](i: Int) {
   def testSCL3126AllTrue() {
     getScalaSettings.SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES = true
     getScalaSettings.PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME = true
-    getSettings.SPACE_BEFORE_METHOD_PARENTHESES = true
+    getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = true
 
     val before = 
 """
@@ -322,7 +322,7 @@ def ::= (o: Any) {}
   def testSCL3126InfixFalse() {
     getScalaSettings.SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES = false
     getScalaSettings.PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME = true
-    getSettings.SPACE_BEFORE_METHOD_PARENTHESES = true
+    getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = true
 
     val before =
 """
@@ -376,7 +376,7 @@ def ::= (o: Any) {}
   def testSCL3126InfixTruePreservevTrue() {
     getScalaSettings.SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES = true
     getScalaSettings.PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME = true
-    getSettings.SPACE_BEFORE_METHOD_PARENTHESES = false
+    getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = false
 
     val before =
 """
@@ -430,7 +430,7 @@ def ::= (o: Any) {}
   def testSCL3126InfixTruePreserveFalse() {
     getScalaSettings.SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES = true
     getScalaSettings.PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME = false
-    getSettings.SPACE_BEFORE_METHOD_PARENTHESES = false
+    getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = false
 
     val before =
 """
@@ -483,7 +483,7 @@ def ::= (o: Any) {}
   def testSCL3126AllFalse() {
     getScalaSettings.SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES = false
     getScalaSettings.PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME = false
-    getSettings.SPACE_BEFORE_METHOD_PARENTHESES = false
+    getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = false
 
     val before =
 """
@@ -535,8 +535,8 @@ def ::=(o: Any) {}
   }
 
   def testSCL2474() {
-    getSettings.SPACE_BEFORE_METHOD_CALL_PARENTHESES = true
-    getSettings.SPACE_BEFORE_METHOD_PARENTHESES = true
+    getCommonSettings.SPACE_BEFORE_METHOD_CALL_PARENTHESES = true
+    getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = true
 
     val before =
 """
@@ -556,8 +556,8 @@ f (1)(2)
   }
 
   def testThisExtraSpace() {
-    getSettings.SPACE_BEFORE_METHOD_PARENTHESES = false
-    getSettings.SPACE_BEFORE_METHOD_CALL_PARENTHESES = false
+    getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = false
+    getCommonSettings.SPACE_BEFORE_METHOD_CALL_PARENTHESES = false
 
     val before =
 """
@@ -613,7 +613,7 @@ class B(i: Int)(s: String) {
     getScalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = true
     getScalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST = true
     getScalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = false
-    getSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
+    getCommonSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
     val before =
       """
 Array.fill(34){scala.util.Random.nextInt(12)  }
@@ -658,7 +658,7 @@ bars foreach { case (x, y) => list.add(x + y) }
     getScalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = true
     getScalaSettings.KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST = true
     getScalaSettings.PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE = false
-    getSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
+    getCommonSettings.KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
     val before =
       """
 Array.fill(34){scala.util.Random.nextInt(12)  }

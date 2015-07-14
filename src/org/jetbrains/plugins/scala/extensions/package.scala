@@ -214,7 +214,7 @@ package object extensions {
         if (typedDef.isAbstractMember) return None
         clazz match {
           case wrapper: PsiClassWrapper if wrapper.definition.isInstanceOf[ScObject] =>
-            return Some(wrapper.definition)
+            return Some(wrapper) //this is static case, when containing class should be wrapper
           case _ =>
         }
 

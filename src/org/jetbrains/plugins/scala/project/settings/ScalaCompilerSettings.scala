@@ -21,6 +21,7 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
   var higherKinds: Boolean = _
   var existentials: Boolean = _
   var macros: Boolean = _
+  var experimental: Boolean = _
 
   var warnings: Boolean = _
   var deprecationWarnings: Boolean = _
@@ -43,6 +44,7 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
     ("-language:higherKinds", () => higherKinds, higherKinds = _),
     ("-language:existentials", () => existentials, existentials = _),
     ("-language:macros", () => macros, macros = _),
+    ("-Xexperimental", () => experimental, experimental = _),
     ("-nowarn", () => !warnings, (b: Boolean) => warnings = !b),
     ("-deprecation", () => deprecationWarnings, deprecationWarnings = _),
     ("-unchecked", () => uncheckedWarnings, uncheckedWarnings = _),
@@ -117,6 +119,7 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
     higherKinds = state.higherKinds
     existentials = state.existentials
     macros = state.macros
+    experimental = state.experimental
 
     warnings = state.warnings
     deprecationWarnings = state.deprecationWarnings
@@ -143,6 +146,7 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
     state.higherKinds = higherKinds
     state.existentials = existentials
     state.macros = macros
+    state.experimental = experimental
 
     state.warnings = warnings
     state.deprecationWarnings = deprecationWarnings

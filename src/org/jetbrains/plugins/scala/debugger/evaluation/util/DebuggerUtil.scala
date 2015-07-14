@@ -6,25 +6,27 @@ import com.intellij.debugger.{DebuggerBundle, SourcePosition}
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi._
-import com.sun.jdi.{ReferenceType, ObjectReference, Value}
-import org.jetbrains.plugins.scala.debugger.evaluation.{ScalaEvaluatorBuilderUtil, EvaluationException}
+import com.intellij.psi.util.PsiTreeUtil
+import com.sun.jdi.{ObjectReference, ReferenceType, Value}
+import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ScalaEvaluatorBuilderUtil}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor, ScReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ValueClassType}
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -168,7 +170,16 @@ object DebuggerUtil {
 
       case _ => Seq.empty
     }
-    val parameters = function.effectiveParameterClauses.flatMap(_.effectiveParameters) ++ localParameters
+    val valueClassParameter = function.containingClass match {
+      case cl: ScClass if ValueClassType.isValueClass(cl) =>
+        cl.constructors match {
+          case Array(pc: ScPrimaryConstructor) => pc.parameters.headOption
+          case _ => None
+        }
+      case _ => None
+    }
+    val simpleParameters = function.effectiveParameterClauses.flatMap(_.effectiveParameters)
+    val parameters = valueClassParameter ++: simpleParameters ++: localParameters
     val paramTypes = parameters.map(parameterForJVMSignature(_, subst)).mkString("(", "", ")")
     val resultType = function match {
       case fun: ScFunction if !fun.isConstructor =>
@@ -199,6 +210,7 @@ object DebuggerUtil {
 
   private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor) = param match {
       case p: ScParameter if p.isRepeatedParameter => "Lscala/collection/Seq;"
+      case p: ScParameter if p.isCallByNameParameter => "Lscala/Function0;"
       case _ => getJVMStringForType(subst.subst(param.getType(TypingContext.empty).getOrAny))
     }
   
@@ -323,17 +335,21 @@ object DebuggerUtil {
       case t: ScNewTemplateDefinition =>
         new JVMClassAt(SourcePosition.createFromElement(t))
       case t: ScTypeDefinition =>
-        if (ScalaPsiUtil.isLocalClass(t)) {
-          new JVMClassAt(SourcePosition.createFromElement(t))
-        } else {
-          val qual = t.getQualifiedNameForDebugger + (t match {
-            case t: ScTrait if withPostfix => "$class"
-            case o: ScObject if withPostfix => "$"
-            case _ => ""
-          })
+        if (isLocalClass(t)) new JVMClassAt(SourcePosition.createFromElement(t))
+        else {
+          val qual = t.getQualifiedNameForDebugger + classnamePostfix(t, withPostfix)
           JVMNameUtil.getJVMRawText(qual)
         }
       case _ => JVMNameUtil.getJVMQualifiedName(clazz)
+    }
+  }
+
+  def classnamePostfix(t: ScTemplateDefinition, withPostfix: Boolean = false): String = {
+    t match {
+      case t: ScTrait if withPostfix => "$class"
+      case o: ScObject if withPostfix || o.isPackageObject => "$"
+      case c: ScClass if withPostfix && ValueClassType.isValueClass(c) => "$" //methods from a value class always delegate to the companion object
+      case _ => ""
     }
   }
 
@@ -342,7 +358,7 @@ object DebuggerUtil {
     val children: Array[ASTNode] = if (node != null) node.getChildren(null) else Array.empty[ASTNode]
     if (children.isEmpty) {
       val position = SourcePosition.createFromElement(elem)
-      if (lines.find(_.getLine == position.getLine) == None) {
+      if (!lines.exists(_.getLine == position.getLine)) {
         lines += position
       }
     }
@@ -422,7 +438,7 @@ object DebuggerUtil {
     val buf = new mutable.HashSet[ScTypedDefinition]
     block.accept(new ScalaRecursiveElementVisitor {
       override def visitReference(ref: ScReferenceElement) {
-        if (ref.qualifier != None) {
+        if (ref.qualifier.isDefined) {
           super.visitReference(ref)
           return
         }
@@ -434,7 +450,7 @@ object DebuggerUtil {
             buf ++= localParamsForFunDef(fun, visited).filter(atRightPlace)
           case fun: ScMethodLike if fun.isConstructor && !visited.contains(fun) =>
             fun.containingClass match {
-              case c: ScClass if ScalaPsiUtil.isLocalClass(c) =>
+              case c: ScClass if isLocalClass(c) =>
                 visited += c
                 buf ++= localParamsForConstructor(c, visited).filter(atRightPlace)
               case _ =>
@@ -463,6 +479,23 @@ object DebuggerUtil {
       case o: ScObject =>
         !o.getContext.isInstanceOf[ScTemplateBody] && ScalaPsiUtil.getContextOfType(o, true, classOf[PsiClass]) != null
       case _ => false
+    }
+  }
+
+  def generatesAnonClass(newTd: ScNewTemplateDefinition) = {
+    val extBl = newTd.extendsBlock
+    extBl.templateBody.nonEmpty || extBl.templateParents.exists(_.typeElementsWithoutConstructor.nonEmpty)
+  }
+
+  @tailrec
+  def isLocalClass(td: PsiClass): Boolean = {
+    td.getParent match {
+      case tb: ScTemplateBody =>
+        val parent = PsiTreeUtil.getParentOfType(td, classOf[PsiClass], true)
+        if (parent == null || parent.isInstanceOf[ScNewTemplateDefinition]) return true
+        isLocalClass(parent)
+      case _: ScPackaging | _: ScalaFile => false
+      case _ => true
     }
   }
 }

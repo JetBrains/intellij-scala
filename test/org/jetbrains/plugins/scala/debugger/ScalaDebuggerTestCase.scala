@@ -5,10 +5,10 @@ import java.io.File
 import java.util.concurrent.atomic.AtomicReference
 
 import com.intellij.debugger.DebuggerManagerEx
+import com.intellij.debugger.engine._
 import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.engine.evaluation.expression.EvaluatorBuilder
 import com.intellij.debugger.engine.events.DebuggerContextCommandImpl
-import com.intellij.debugger.engine.{ContextUtil, DebugProcessImpl, DebuggerUtils, SuspendContextImpl}
 import com.intellij.debugger.impl._
 import com.intellij.execution.Executor
 import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationType}
@@ -17,7 +17,6 @@ import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.process.{ProcessAdapter, ProcessEvent, ProcessHandler, ProcessListener}
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
 import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Key
@@ -26,9 +25,9 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.concurrency.Semaphore
 import com.sun.jdi.VoidValue
-import junit.framework.Assert
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory
 import org.jetbrains.plugins.scala.extensions._
+import org.junit.Assert
 
 import scala.collection.mutable
 
@@ -42,6 +41,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   private val breakpoints: mutable.Set[(String, Int)] = mutable.Set.empty
 
   protected def runDebugger(mainClass: String, debug: Boolean = false)(callback: => Unit) {
+    var processHandler: ProcessHandler = null
     UsefulTestCase.edt(new Runnable {
       def run() {
         if (needMake) {
@@ -50,7 +50,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
         }
         addBreakpoints()
         val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find { _.getClass == classOf[GenericDebuggerRunner] }.get
-        runProcess(mainClass, getModule, classOf[DefaultDebugExecutor], new ProcessAdapter {
+        processHandler = runProcess(mainClass, getModule, classOf[DefaultDebugExecutor], new ProcessAdapter {
           override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
             val text = event.getText
             if (debug) print(text)
@@ -59,7 +59,8 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
       }
     })
     callback
-    resume()
+    getDebugProcess.stop(true)
+    processHandler.destroyProcess()
   }
 
   protected def runProcess(className: String,
@@ -78,11 +79,6 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     val processHandler: AtomicReference[ProcessHandler] = new AtomicReference[ProcessHandler]
     runner.execute(executionEnvironmentBuilder.build, new ProgramRunner.Callback {
       def processStarted(descriptor: RunContentDescriptor) {
-        disposeOnTearDown(new Disposable {
-          def dispose() {
-            descriptor.dispose()
-          }
-        })
         val handler: ProcessHandler = descriptor.getProcessHandler
         assert(handler != null)
         handler.addProcessListener(listener)
@@ -92,6 +88,10 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     })
     semaphore.waitFor()
     processHandler.get
+  }
+
+  protected override def tearDown(): Unit = {
+    super.tearDown()
   }
 
   protected def getDebugProcess: DebugProcessImpl = {
@@ -118,8 +118,9 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
         val file = getVirtualFile(ioFile)
         UsefulTestCase.edt(new Runnable {
           def run() {
-            DebuggerManagerEx.getInstanceEx(getProject).getBreakpointManager.
-                addLineBreakpoint(FileDocumentManager.getInstance().getDocument(file), line)
+            val document = FileDocumentManager.getInstance().getDocument(file)
+            val breakpointManager = DebuggerManagerEx.getInstanceEx(getProject).getBreakpointManager
+            breakpointManager.addLineBreakpoint(document, line)
           }
         })
     }
@@ -127,21 +128,19 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
   protected def waitForBreakpoint(): SuspendContextImpl =  {
     var i = 0
-    def suspendManager = getDebugProcess.getSuspendManager
-    while (i < 1000 && suspendManager.getPausedContext == null && !getDebugProcess.getExecutionResult.getProcessHandler.isProcessTerminated) {
+    def processTerminated: Boolean = getDebugProcess.getExecutionResult.getProcessHandler.isProcessTerminated
+    while (i < 1000 && suspendContext == null && !processTerminated) {
       Thread.sleep(10)
       i += 1
     }
 
-    def context = suspendManager.getPausedContext
-    assert(context != null, "too long process, terminated=" +
-        getDebugProcess.getExecutionResult.getProcessHandler.isProcessTerminated)
-    context
+    assert(suspendContext != null, "too long process, terminated=" + processTerminated)
+    suspendContext
   }
 
   protected def managed[T >: Null](callback: => T): T = {
     var result: T = null
-    def ctx = DebuggerContextUtil.createDebuggerContext(getDebugSession, getDebugProcess.getSuspendManager.getPausedContext)
+    def ctx = DebuggerContextUtil.createDebuggerContext(getDebugSession, suspendContext)
     val semaphore = new Semaphore()
     semaphore.down()
     getDebugProcess.getManagerThread.invokeAndWait(new DebuggerContextCommandImpl(ctx) {
@@ -155,10 +154,13 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     result
   }
 
-  protected def evaluationContext(): EvaluationContextImpl = {
-    val suspendContext = getDebugProcess.getSuspendManager.getPausedContext
-    new EvaluationContextImpl(suspendContext, suspendContext.getFrameProxy, suspendContext.getFrameProxy.thisObject())
-  }
+  protected def suspendManager = getDebugProcess.getSuspendManager
+
+  protected def suspendContext = suspendManager.getPausedContext
+
+  protected def evaluationContext() = new EvaluationContextImpl(suspendContext, suspendContext.getFrameProxy, suspendContext.getFrameProxy.thisObject())
+
+  protected def currentSourcePosition = ContextUtil.getSourcePosition(suspendContext)
 
   protected def evalResult(codeText: String): String = {
     val semaphore = new Semaphore()
@@ -174,7 +176,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
           codeFragment.forceResolveScope(GlobalSearchScope.allScope(getProject))
           DebuggerUtils.checkSyntax(codeFragment)
           val evaluatorBuilder: EvaluatorBuilder = factory.getEvaluatorBuilder
-          val evaluator = evaluatorBuilder.build(codeFragment, ContextUtil.getSourcePosition(ctx))
+          val evaluator = evaluatorBuilder.build(codeFragment, currentSourcePosition)
 
           val value = evaluator.evaluate(ctx)
           val res = value match {
@@ -195,9 +197,22 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
   protected def evalStartsWith(codeText: String, startsWith: String) {
     val result = evalResult(codeText)
-    Assert.assertTrue(result + " doesn't strats with " + startsWith,
+    Assert.assertTrue(result + " doesn't starts with " + startsWith,
       result.startsWith(startsWith))
   }
 
   protected def addOtherLibraries() = {}
+
+  def checkLocation(source: String, methodName: String, lineNumber: Int): Unit = {
+    def format(s: String, mn: String, ln: Int) = s"$s:$mn:$ln"
+    managed {
+      val location = suspendContext.getFrameProxy.getStackFrame.location
+      val expected = format(source, methodName, lineNumber)
+      val actualLine = inReadAction {
+        new ScalaPositionManager(getDebugProcess).getSourcePosition(location).getLine
+      }
+      val actual = format(location.sourceName, location.method().name(), actualLine + 1)
+      Assert.assertEquals("Wrong location:", expected, actual)
+    }
+  }
 }

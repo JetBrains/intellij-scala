@@ -123,6 +123,8 @@ public class DefaultHighlighter {
   @NonNls
   static final String PATTERN_NAME = "Pattern value";
   @NonNls
+  static final String GENERATOR_NAME = "For statement value";
+  @NonNls
   static final String TYPE_ALIAS_NAME = "Type Alias";
   @NonNls
   static final String XML_TEXT_NAME = "XML Text";
@@ -233,6 +235,8 @@ public class DefaultHighlighter {
   @NonNls
   static final String PATTERN_ID = "Scala Pattern value";
   @NonNls
+  static final String GENERATOR_ID = "Scala For statement value";
+  @NonNls
   static final String TYPE_ALIAS_ID = "Scala Type Alias";
   @NonNls
   static final String XML_TEXT_ID = "Scala XML Text";
@@ -281,6 +285,7 @@ public class DefaultHighlighter {
   public static TextAttributesKey VARIABLES = createKey(VARIABLES_ID, HighlightInfoType.STATIC_FIELD.getAttributesKey());
   public static TextAttributesKey LAZY = createKey(LAZY_ID, HighlightInfoType.STATIC_FIELD.getAttributesKey());
   public static TextAttributesKey PATTERN = createKey(PATTERN_ID, HighlightInfoType.LOCAL_VARIABLE.getAttributesKey());
+  public static TextAttributesKey GENERATOR = createKey(GENERATOR_ID, HighlightInfoType.LOCAL_VARIABLE.getAttributesKey());
   public static TextAttributesKey PARAMETER = createKey(PARAMETER_ID, HighlightInfoType.PARAMETER.getAttributesKey());
   public static TextAttributesKey ANONYMOUS_PARAMETER = createKey(ANONYMOUS_PARAMETER_ID, HighlightInfoType.PARAMETER.getAttributesKey());
   public static TextAttributesKey METHOD_CALL = createKey(METHOD_CALL_ID, HighlightInfoType.METHOD_CALL.getAttributesKey());

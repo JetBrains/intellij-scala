@@ -21,3 +21,4 @@ build
 target/
 
 testdata/debugger
+testdata/projects

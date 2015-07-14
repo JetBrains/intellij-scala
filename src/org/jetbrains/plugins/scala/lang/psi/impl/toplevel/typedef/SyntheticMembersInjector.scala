@@ -1,70 +1,64 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
-import com.intellij.psi.{PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.extensions.ExtensionPointName
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScClassParameterImpl
-import org.jetbrains.plugins.scala.project._
 
 import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Mikhail.Mutcianko
- *         date 26.12.14
+ * @since  26.12.14
  */
+class SyntheticMembersInjector {
+  /**
+   * This method allows to add custom functions to any class, object or trait.
+   * This includes synthetic companion object.
+   *
+   * Context for this method will be class. So inner types and imports of this class
+   * will not be available. But you can use anything outside of
+   * @param source class to inject functions
+   * @return sequence of functions text
+   */
+  def injectFunctions(source: ScTypeDefinition): Seq[String] = Seq.empty
+
+  /**
+   * Use this method to mark class or trait, that it requires companion object.
+   * Note that object as source is not possible.
+   * @param source class or trait
+   * @return if this source requires companion object
+   */
+  def needsCompanionObject(source: ScTypeDefinition): Boolean = false
+}
+
 object SyntheticMembersInjector {
+  val LOG = Logger.getInstance(getClass)
 
-  def inject(source: ScTypeDefinition): Seq[PsiMethod] = processRules(source)
+  val EP_NAME: ExtensionPointName[SyntheticMembersInjector] =
+    ExtensionPointName.create("org.intellij.scala.syntheticMemberInjector")
 
-  private def processRules(source: ScTypeDefinition): Seq[PsiMethod] = {
-    val buf = new ArrayBuffer[PsiMethod]
-    source match {
-      // legacy macro emulation - in 2.10 quasiquotes were implemented by a compiler plugin
-      // so we need to manually add QQ interpolator stub
-      case c:ScClass if c.qualifiedName == "scala.StringContext" && needQQEmulation(c) =>
-        val template = "def q(args: Any*): scala.reflect.runtime.universe.Tree = ???"
-        try {
-          val method = ScalaPsiElementFactory.createMethodWithContext(template, c, c)
-          method.setSynthetic(c)
-          buf += method
-        } catch { case  e: Exception => Seq()}
-      // Monocle lenses generation
-      case obj:ScObject =>
-        obj.fakeCompanionClassOrCompanionClass match {
-          case clazz:ScClass if clazz.findAnnotation("monocle.macros.Lenses") != null =>
-            buf ++= mkLens(obj)
-          case _ =>
-        }
-      case _ =>
+  def inject(source: ScTypeDefinition): Seq[ScFunction] = {
+    val buffer = new ArrayBuffer[ScFunction]()
+    for {
+      injector <- EP_NAME.getExtensions
+      template <- injector.injectFunctions(source)
+    } try {
+      val context = source match {
+        case o: ScObject if o.isSyntheticObject => o.fakeCompanionClassOrCompanionClass
+        case _ => source
+      }
+      val function = ScalaPsiElementFactory.createMethodWithContext(template, context, source)
+      function.setSynthetic(context)
+      function.syntheticContainingClass = Some(source)
+      buffer += function
+    } catch {
+      case e: Throwable =>
+        LOG.error(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
     }
-    buf.toSeq
+    buffer
   }
 
-  private def mkLens(obj: ScObject): ArrayBuffer[PsiMethod] = {
-    val buf = new ArrayBuffer[PsiMethod]
-    val clazz = obj.fakeCompanionClassOrCompanionClass.asInstanceOf[ScClass]
-    val fields = clazz.allVals.collect({case (f: ScClassParameterImpl, _) => f}).filter(_.isCaseClassVal)
-    val prefix = Option(clazz.findAnnotation("monocle.macros.Lenses").findAttributeValue("value")) match {
-      case Some(literal: ScLiteralImpl) => literal.getValue.toString
-      case _ => ""
-    }
-    fields.foreach({ i =>
-      try {
-        val template = if (clazz.typeParameters.isEmpty)
-          s"def $prefix${i.name}: monocle.Lens[${clazz.qualifiedName}, ${i.typeElement.get.calcType}] = ???"
-        else {
-          val tparams = s"[${clazz.typeParameters.map(_.getText).mkString(",")}]"
-          s"def $prefix${i.name}$tparams: monocle.Lens[${clazz.qualifiedName}$tparams, ${i.typeElement.get.calcType}] = ???"
-        }
-        val method = ScalaPsiElementFactory.createMethodWithContext(template, clazz, obj)
-        method.setSynthetic(clazz)
-        buf += method
-      } catch { case _: Throwable => }
-    })
-    buf
-  }
-
-  private def needQQEmulation(e: PsiElement) =
-    e.module.exists(_.scalaCompilerSettings.plugins.exists(_.contains("paradise_2.10")))
+  def needsCompanion(source: ScTypeDefinition): Boolean = EP_NAME.getExtensions.exists(_.needsCompanionObject(source))
 }
