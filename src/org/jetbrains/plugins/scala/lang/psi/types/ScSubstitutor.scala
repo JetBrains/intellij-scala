@@ -27,6 +27,10 @@ object ScSubstitutor {
   val key: Key[ScSubstitutor] = Key.create("scala substitutor key")
 
   private val followLimit = 800
+
+  var cacheSubstitutions = false
+
+  val cache: scala.collection.mutable.Map[(String, String), ScType] = scala.collection.mutable.Map()
 }
 
 class ScSubstitutor(val tvMap: Map[(String, String), ScType],
@@ -113,6 +117,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   }
 
   private def followed(s: ScSubstitutor, level: Int): ScSubstitutor = {
+    if (ScSubstitutor.cacheSubstitutions) ScSubstitutor.cache ++= s.tvMap
     if (level > ScSubstitutor.followLimit)
       throw new RuntimeException("Too much followers for substitutor: " + this.toString)
     if (follower == null && tvMap.size + aliasesMap.size  == 0 && updateThisType.isEmpty && !myDependentMethodTypesFunDefined) s

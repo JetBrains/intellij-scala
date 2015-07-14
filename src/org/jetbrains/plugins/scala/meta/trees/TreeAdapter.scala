@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, api => p, types => ptype}
 
 import scala.collection.immutable.Seq
@@ -167,7 +168,13 @@ trait TreeAdapter {
       case t: ScUnitExpr => m.Lit.Unit()
       case t: ScReturnStmt => m.Term.Return(expression(t.expr).get)
       case t: ScBlock => m.Term.Block(Seq(t.statements.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*))
-      case t: ScMethodCall => m.Term.Apply(expression(t.getInvokedExpr), Seq(t.args.exprs.map(callArgs):_*))
+      case t: ScMethodCall =>
+        ScSubstitutor.cacheSubstitutions = true
+        val tp = t.getType().get.asInstanceOf[ScParameterizedType]
+        ScSubstitutor.cacheSubstitutions = false
+        val res = m.Term.Apply(expression(t.getInvokedExpr), Seq(t.args.exprs.map(callArgs):_*))
+        ScSubstitutor.cache.clear()
+        res
       case t: ScInfixExpr => m.Term.ApplyInfix(expression(t.getBaseExpr), toTermName(t.getInvokedExpr), Nil, Seq(expression(t.getArgExpr)))
       case t: ScPrefixExpr => m.Term.ApplyUnary(toTermName(t.operation), expression(t.operand))
       case t: ScIfStmt => m.Term.If(expression(t.condition.get),

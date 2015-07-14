@@ -4,7 +4,7 @@ import com.intellij.psi.{PsiPackage, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScParameterizedType}
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
 import scala.collection.immutable.Seq
@@ -61,7 +61,9 @@ trait TypeAdapter {
       case t: packaging.ScPackaging => m.Type.Singleton(toTermName(t.reference.get))
       case t: PsiPackage if t.getName == null => m.Type.Singleton(rootPackageName)
       case t: PsiPackage => m.Type.Singleton(toTermName(t))
-      case t: typedef.ScTemplateDefinition => toType(t.getType(TypingContext.empty)) // FIXME: what about typing context?
+      case t: typedef.ScTemplateDefinition =>
+        val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
+        toType(s.subst(t.getType(TypingContext.empty).get)) // FIXME: what about typing context?
       case other => other ?!
     }
   }
@@ -69,8 +71,11 @@ trait TypeAdapter {
   def toType(tp: ptype.ScType): m.Type = {
 
     tp match {
-      case t: ScParameterizedType => m.Type.Apply(toType(t.designator), Seq(t.typeArgs.map(toType):_*))
-      case t: ScDesignatorType =>  toTypeName(t.element)
+      case t: ScParameterizedType =>
+        m.Type.Apply(toType(t.designator), Seq(t.typeArgs.map(toType):_*))
+      case t: ScThisType => toTypeName(t.clazz).withDenot(t.clazz)
+      case t: ScProjectionType => m.Type.Project(toType(t.projected), toTypeName(t.actualElement))
+      case t: ScDesignatorType =>  toTypeName(t.element).withDenot(t.element)
 
       case t: ptype.ScType => m.Type.Name(t.canonicalText)
     }
