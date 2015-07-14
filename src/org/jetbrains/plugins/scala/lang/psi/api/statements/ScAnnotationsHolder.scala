@@ -8,15 +8,15 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScAnnotations}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+
+import scala.annotation.tailrec
 
 /**
  * User: Alexander Podkhalyuzin
@@ -48,21 +48,30 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
     text.substring(text.lastIndexOf(".", 0) + 1, text.length)
   })
 
-  def hasAnnotation(clazz: PsiClass): Boolean = hasAnnotation(clazz.qualifiedName) != None
+  def hasAnnotation(clazz: PsiClass): Boolean = hasAnnotation(clazz.qualifiedName).isDefined
 
   def hasAnnotation(qualifiedName: String): Option[ScAnnotation] = {
-    def acceptType(tp: ScType): Boolean = {
-      tp match {
-        case ScDesignatorType(clazz: PsiClass) => clazz.qualifiedName == qualifiedName
-        case ScParameterizedType(ScDesignatorType(clazz: PsiClass), _) => clazz.qualifiedName == qualifiedName
-        case _ =>
-          tp.isAliasType match {
-            case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => acceptType(ta.aliasedType(TypingContext.empty).getOrAny)
-            case _ => false
-          }
-      }
+    annotations.find(annot => acceptType(annot.typeElement.getType(TypingContext.empty).getOrAny, qualifiedName))
+  }
+
+  def allMatchingAnnotations(qualifiedName: String): Seq[ScAnnotation] = {
+    annotations.filter { annot =>
+      acceptType(annot.typeElement.getType().getOrAny, qualifiedName)
     }
-    annotations.find(annot => acceptType(annot.typeElement.getType(TypingContext.empty).getOrAny))
+  }
+
+  @tailrec
+  private def acceptType(tp: ScType, qualifiedName: String): Boolean = {
+    tp match {
+      case ScDesignatorType(clazz: PsiClass) => clazz.qualifiedName == qualifiedName
+      case ScParameterizedType(ScDesignatorType(clazz: PsiClass), _) => clazz.qualifiedName == qualifiedName
+      case _ =>
+        tp.isAliasType match {
+          case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) =>
+            acceptType(ta.aliasedType(TypingContext.empty).getOrAny, qualifiedName)
+          case _ => false
+        }
+    }
   }
 
   def addAnnotation(qualifiedName: String): PsiAnnotation = {
@@ -73,7 +82,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
     val added = container.add(element).asInstanceOf[PsiAnnotation]
     container.add(ScalaPsiElementFactory.createNewLine(getManager))
 
-    ScalaPsiUtil.adjustTypes(added, true)
+    ScalaPsiUtil.adjustTypes(added, addImports = true)
 
     added
   }

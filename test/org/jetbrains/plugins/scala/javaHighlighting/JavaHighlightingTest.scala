@@ -83,6 +83,33 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     }
   }
 
+  def testMultipleThrowStatements(): Unit = {
+    val scala = ""
+    val java =
+      """
+        |import scala.concurrent.Await;
+        |import scala.concurrent.Future;
+        |import scala.concurrent.duration.Duration;
+        |
+        |import java.util.concurrent.TimeoutException;
+        |
+        |public class ThrowsJava {
+        |    public void bar(Future<Integer> scalaFuture) {
+        |        try {
+        |            Await.ready(scalaFuture, Duration.Inf());
+        |        } catch (InterruptedException e) {
+        |            e.printStackTrace();
+        |        } catch (TimeoutException e) {
+        |            e.printStackTrace();
+        |        }
+        |    }
+        |}
+      """.stripMargin
+    assertMatches(messagesFromJavaCode(scala, java, javaClassName = "ThrowsJava")) {
+      case Nil =>
+    }
+  }
+
   def messagesFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     myFixture.addFileToProject("dummy.scala", scalaFileText)
     val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
