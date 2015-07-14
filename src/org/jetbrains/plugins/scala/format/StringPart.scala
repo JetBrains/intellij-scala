@@ -54,7 +54,7 @@ case class Injection(expression: ScExpression, specifier: Option[Specifier]) ext
 
   def problem: Option[InjectionProblem] = specifier.flatMap {
     it =>
-      val _type = expressionType.map(ScType.expandAliases).getOrElse(new Object())
+      val _type = expressionType.map(ScType.expandAliases(_)).getOrElse(new Object())
       _type match {
         case Success(result, _) => result match {
           case res: ScType =>
