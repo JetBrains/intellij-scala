@@ -2291,7 +2291,7 @@ object ScalaPsiUtil {
    * @see SCL-6140
    * @see https://github.com/scala/scala/pull/3018/
    */
-  def toSAMType(expected: ScType): Option[ScType] = {
+  def toSAMType(expected: ScType, scope: GlobalSearchScope): Option[ScType] = {
 
     def constructorValidForSAM(constructors: Array[PsiMethod]): Boolean = {
       //primary constructor (if any) must be public, no-args, not overloaded
@@ -2317,7 +2317,7 @@ object ScalaPsiUtil {
             val valid =
               constrValid &&
                 abst.length == 1 &&
-                abst.head.parameterList.clauses.length <= 1 &&
+                abst.head.parameterList.clauses.length == 1 &&
                 !abst.head.hasTypeParameters
 
             if (valid) {
@@ -2334,7 +2334,6 @@ object ScalaPsiUtil {
               //need to generate ScType for Java method
               val method = abst.head
               val project = method.getProject
-              val scope = method.getResolveScope
               val returnType: ScType = ScType.create(method.getReturnType, project, scope)
               val params: Array[ScType] = method.getParameterList.getParameters.map {
                 param: PsiParameter => ScType.create(param.getTypeElement.getType, project, scope)
