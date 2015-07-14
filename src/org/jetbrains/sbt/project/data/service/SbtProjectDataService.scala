@@ -17,7 +17,7 @@ import org.jetbrains.android.sdk.{AndroidPlatform, AndroidSdkType}
 import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.sbt.project.data.SbtProjectData$
+import org.jetbrains.sbt.project.data
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
 
@@ -70,9 +70,9 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
       ScalaCompilerConfiguration.instanceIn(project).incrementalityType = IncrementalityType.SBT
   }
 
-  private def findJdkBy(sdk: SbtProjectData.Sdk): Option[Sdk] = sdk match {
-    case SbtProjectData.Android(version) => findAndroidJdkByVersion(version)
-    case SbtProjectData.Jdk(version) => allJdks.find(_.getName.contains(version))
+  private def findJdkBy(sdk: data.Sdk): Option[Sdk] = sdk match {
+    case data.Android(version) => findAndroidJdkByVersion(version)
+    case data.Jdk(version) => allJdks.find(_.getName.contains(version))
   }
 
   private def allAndroidSdks: Seq[Sdk] =
