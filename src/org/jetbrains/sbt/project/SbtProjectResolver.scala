@@ -21,6 +21,8 @@ import org.jetbrains.sbt.resolvers.SbtResolver
 import org.jetbrains.sbt.structure.XmlSerializer._
 import org.jetbrains.sbt.{structure=>sbtStructure}
 
+import scala.collection.immutable.HashMap
+
 /**
  * @author Pavel Fatin
  */
@@ -93,7 +95,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             case sbtStructure.PlayString(str) => new StringParsedValue(str)
             case sbtStructure.PlaySeqString(strs) => new SeqStringParsedValue(strs)
           }
-          (name, newVals)
+          def avoidSL7005Bug[K, V](m: Map[K,V]): Map[K, V] = HashMap(m.toSeq:_*)
+          (name, avoidSL7005Bug(newVals))
         }
         projectNode.add(new Play2ProjectNode(oldPlay2Data.toMap))
     }
