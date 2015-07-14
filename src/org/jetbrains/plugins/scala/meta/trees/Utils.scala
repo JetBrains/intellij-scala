@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.meta.trees
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
@@ -8,6 +9,8 @@ import scala.{Seq => _}
 
 trait Utils {
   self: Converter =>
+
+  val LOG = Logger.getInstance(this.getClass)
   
   val rootPackageName = m.Term.Name("_root_", denot = h.Denotation.Single(h.Prefix.Zero, h.Symbol.RootPackage))
   val rootPackagePrefix = h.Prefix.Type(m.Type.Singleton(rootPackageName))

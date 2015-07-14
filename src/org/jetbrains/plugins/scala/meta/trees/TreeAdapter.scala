@@ -170,7 +170,7 @@ trait TreeAdapter {
       case t: ScBlock => m.Term.Block(Seq(t.statements.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*))
       case t: ScMethodCall =>
         ScSubstitutor.cacheSubstitutions = true
-        val tp = t.getType().get.asInstanceOf[ScParameterizedType]
+        val tp = t.getType()
         ScSubstitutor.cacheSubstitutions = false
         val res = m.Term.Apply(expression(t.getInvokedExpr), Seq(t.args.exprs.map(callArgs):_*))
         ScSubstitutor.cache.clear()
