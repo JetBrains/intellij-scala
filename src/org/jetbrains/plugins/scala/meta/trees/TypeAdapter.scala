@@ -77,7 +77,9 @@ trait TypeAdapter {
       case t: ScProjectionType => m.Type.Project(toType(t.projected), toTypeName(t.actualElement))
       case t: ScDesignatorType =>  toTypeName(t.element).withDenot(t.element)
 
-      case t: ptype.ScType => m.Type.Name(t.canonicalText)
+      case t: ptype.ScType =>
+        LOG.warn(s"Unknown type: ${t.getClass} - ${t.canonicalText}")
+        m.Type.Name(t.canonicalText)
     }
   }
 

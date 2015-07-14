@@ -150,7 +150,7 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
 
   private def addLibraryRoots(version: TestUtils.ScalaSdkVersion, libModel: Library.ModifiableModel, mockLib: String, mockLibSrc: String) {
     val libRoot: File = new File(mockLib)
-    assert(libRoot.exists)
+    assert(libRoot.exists, s"Mock library not found at ${libRoot.getAbsolutePath}")
     libModel.addRoot(VfsUtil.getUrlForLibraryRoot(libRoot), OrderRootType.CLASSES)
     if (mockLibSrc != null) {
       val srcRoot: File = new File(mockLibSrc)
