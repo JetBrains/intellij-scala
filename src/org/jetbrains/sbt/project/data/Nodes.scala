@@ -87,7 +87,7 @@ class LibraryDependencyNode(val data: LibraryDependencyData)
 
 class SbtProjectNode(val data: SbtProjectData)
   extends Node[SbtProjectData] {
-  def this(basePackages: Seq[String], jdk: Option[SbtProjectData.Sdk], javacOptions: Seq[String], sbtVersion: String, projectPath: String) {
+  def this(basePackages: Seq[String], jdk: Option[Sdk], javacOptions: Seq[String], sbtVersion: String, projectPath: String) {
     this(new SbtProjectData(SbtProjectSystem.Id, basePackages, jdk, javacOptions, sbtVersion, projectPath))
   }
 
