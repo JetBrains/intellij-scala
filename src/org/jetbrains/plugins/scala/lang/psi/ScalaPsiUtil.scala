@@ -2345,4 +2345,13 @@ object ScalaPsiUtil {
     }
   }
 
+  @tailrec
+  def contextContainingFilePath(e: PsiElement): String = {
+    e match {
+      case null => ""
+      case file: PsiFile => file.getVirtualFile.getPath
+      case e => contextContainingFilePath(e.getContext)
+    }
+  }
+
 }
