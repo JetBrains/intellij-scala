@@ -220,6 +220,45 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
       case Error("() => 3", typeMismatch()) :: Error("wantString", cannotResolveReference()) :: Nil =>
     }
   }
+
+  def testUnimplementedWithSAM(): Unit = {
+    val code =
+      """
+        |abstract class Foo { def a(): String }
+        |val f: Foo = () => ???
+      """.stripMargin
+    doPosTest(code)
+  }
+
+  def testConformance(): Unit = {
+    val code =
+      """
+        |trait SAAM {
+        |  def sam(s: String): Object
+        |}
+        |val s: SAAM = (i: Object) => ""
+      """.stripMargin
+    doPosTest(code)
+  }
+
+  def testConformanceNeg(): Unit = {
+    val code =
+      """
+        |trait SAAM {
+        |  def sam(s: Object): Object
+        |}
+        |val s: SAAM = (i: String) => i
+      """.stripMargin
+    assertMatches(messages(code)) {
+      case Error("(i: String) => i", typeMismatch()) :: Nil =>
+    }
+  }
+
+  def testSimpleThreadRunnable(): Unit = {
+    val code = "new Thread(() => println()).run()"
+    doPosTest(code)
+  }
+
   
   def doPosTest(code: String) {
     assertMatches(messages(code)) {
