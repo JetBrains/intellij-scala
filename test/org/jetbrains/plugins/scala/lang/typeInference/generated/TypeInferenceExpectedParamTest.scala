@@ -9,6 +9,10 @@ class TypeInferenceExpectedParamTest extends TypeInferenceTestBase {
 
   def testComlexCase() {doTest()}
 
+  def testByNameParamUnderscore() {doTest()}
+
+  def testLazyValUnderscore() {doTest()}
+
   def testComplexCombination() {doTest()}
 
   def testCurrings() {doTest()}
