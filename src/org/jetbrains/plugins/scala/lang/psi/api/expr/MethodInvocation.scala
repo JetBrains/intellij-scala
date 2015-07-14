@@ -222,7 +222,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       case ScTypePolymorphicType(ScFunctionType(retType, params), typeParams) =>
         Some(checkConformanceWithInference(retType, args, typeParams, functionParams(params)))
       case any if ScalaPsiUtil.isSAMEnabled(this) =>
-        ScalaPsiUtil.toSAMType(any) match {
+        ScalaPsiUtil.toSAMType(any, getResolveScope) match {
           case Some(ScFunctionType(retType: ScType, params: Seq[ScType])) =>
             Some(checkConformance(retType, args, functionParams(params)))
           case _ => None
@@ -274,7 +274,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
     val actualInvokedType: ScType =
       if (ScalaPsiUtil.isSAMEnabled(this)) {
-        ScalaPsiUtil.toSAMType(invokedType) match {
+        ScalaPsiUtil.toSAMType(invokedType, getResolveScope) match {
           case Some(mt) => getEffectiveInvokedExpr.getNonValueType().getOrElse(invokedType)
           case _ => invokedType
         }
