@@ -74,7 +74,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def convert(root: String, data: sbtStructure.StructureData, jdk: Option[String]): Node[ProjectData] = {
     val projects = data.projects
-    val project = data.projects.find(_.base == root)
+    val project = data.projects.find(p => FileUtil.filesEqual(p.base, new File(root)))
       .orElse(data.projects.headOption)
       .getOrElse(throw new RuntimeException("No root project found"))
     val projectNode = new ProjectNode(project.name, root, root)
