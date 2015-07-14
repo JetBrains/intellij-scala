@@ -265,7 +265,7 @@ object InferUtil {
 
           new ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
         case Some(tp) if ScalaPsiUtil.isSAMEnabled(expr) =>
-          ScalaPsiUtil.toSAMType(tp) match {
+          ScalaPsiUtil.toSAMType(tp, expr.getResolveScope) match {
             case Some(_) => tp
             case _ => mt
           }
