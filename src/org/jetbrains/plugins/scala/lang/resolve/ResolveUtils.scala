@@ -3,6 +3,7 @@ package lang
 package resolve
 
 import com.intellij.lang.java.JavaLanguage
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.impl.source.resolve.JavaResolveUtil
 import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
@@ -489,14 +490,23 @@ object ResolveUtils {
                   case r: ResolveProcessor => r.getResolveScope
                   case _ => place.getResolveScope
                 }
-                var classes: Array[PsiClass] = manager.getCachedClasses(scope, fqn)
+                def getClasses(fqn: String): Array[PsiClass] = {
+                  val unsortedClasses = manager.getCachedClasses(scope, fqn)
+                  if (lastParent == null || unsortedClasses.length <= 1) unsortedClasses
+                  else {
+                    val contextString = ScalaPsiUtil.contextContainingFilePath(lastParent)
+                    unsortedClasses.sortBy(cl => -StringUtil.commonPrefixLength(contextString, ScalaPsiUtil.contextContainingFilePath(cl)))
+                  }
+                }
+
+                var classes: Array[PsiClass] = getClasses(fqn)
                 if (classes.isEmpty) {
                   //todo: fast fix for the problem with classes, should be fixed in indexes
                   val improvedFqn = fqn.split('.').map { s =>
                     if (ScalaNamesUtil.isKeyword(s)) s"`$s`" else s
                   }.mkString(".")
                   if (improvedFqn != fqn) {
-                    classes = manager.getCachedClasses(scope, improvedFqn)
+                    classes = getClasses(improvedFqn)
                   }
                 }
                 for (clazz <- classes if clazz.containingClass == null) {
