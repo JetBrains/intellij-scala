@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala
 package javaHighlighting
 
-import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.ide.highlighter.JavaFileType
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator, _}
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -40,16 +39,59 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     }
   }
 
+  def testOptionApply(): Unit = {
+    val java =
+      """
+        |import scala.Option;
+        |
+        |public abstract class OptionApply {
+        |
+        |    public OptionApply() {
+        |        setAction(Option.apply("importVCardFile"));
+        |    }
+        |
+        |    public abstract void setAction(Option<String> bar);
+        |}
+      """.stripMargin
+    assertMatches(messagesFromJavaCode(scalaFileText = "", java, javaClassName = "OptionApply")) {
+      case Nil =>
+    }
+  }
+
+  def testAccessBacktick(): Unit = {
+    val scala =
+      """
+        |import scala.beans.BeanProperty
+        |
+        |case class TestAccessBacktick(@BeanProperty `type`:String)
+      """.stripMargin
+
+    val java =
+      """
+        |public class TestJavaAAA {
+        |    public static void main(String[] args) {
+        |        TestAccessBacktick t = new TestAccessBacktick("42");
+        |        t.type();
+        |        t.getType();
+        |        t.get$u0060type$u0060();
+        |    }
+        |}
+      """.stripMargin
+
+    assertMatches(messagesFromJavaCode(scala, java, javaClassName = "TestJavaAAA")) {
+      case Error("get$u0060type$u0060", CannotResolveMethod()) :: Nil =>
+    }
+  }
+
   def messagesFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     myFixture.addFileToProject("dummy.scala", scalaFileText)
     val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
     myFixture.openFileInEditor(myFile.getVirtualFile)
-    PsiDocumentManager.getInstance(getProject).commitAllDocuments()
-    val allInfo = CodeInsightTestFixtureImpl.instantiateAndRun(myFile, getEditor, Array(), false)
+    val allInfo = myFixture.doHighlighting()
 
     import scala.collection.JavaConverters._
     allInfo.asScala.toList.collect {
-      case highlightInfo if highlightInfo.`type` == HighlightInfoType.ERROR =>
+      case highlightInfo if highlightInfo.`type`.getSeverity(null) == HighlightSeverity.ERROR =>
         val elementText = myFile.findElementAt(highlightInfo.getStartOffset).getText
         new Error(elementText, highlightInfo.getDescription)
     }
@@ -74,6 +116,8 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
   def assertMatches[T](actual: T)(pattern: PartialFunction[T, Unit]) {
     Assert.assertTrue("actual: " + actual.toString, pattern.isDefinedAt(actual))
   }
+
+  val CannotResolveMethod = ContainsPattern("Cannot resolve method")
 
   case class ContainsPattern(fragment: String) {
     def unapply(s: String) = s.contains(fragment)
