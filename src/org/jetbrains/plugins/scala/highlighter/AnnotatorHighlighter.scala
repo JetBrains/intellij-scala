@@ -189,6 +189,8 @@ object AnnotatorHighlighter {
             }
           case _: ScCaseClause =>
             annotation.setTextAttributes(DefaultHighlighter.PATTERN)
+          case _: ScGenerator | _: ScEnumerator =>
+            annotation.setTextAttributes(DefaultHighlighter.GENERATOR)
           case _ =>
         }
       case x: PsiField =>
@@ -207,7 +209,7 @@ object AnnotatorHighlighter {
           val fun = x.asInstanceOf[ScFunction]
           val clazz = fun.containingClass
           clazz match {
-            case o: ScObject if o.objectSyntheticMembers.contains(fun) =>
+            case o: ScObject if o.syntheticMethodsNoOverride.contains(fun) =>
               annotation.setTextAttributes(DefaultHighlighter.OBJECT_METHOD_CALL)
               return
             case _ =>
@@ -243,6 +245,8 @@ object AnnotatorHighlighter {
       case x: ScAnnotation => visitAnnotation(x, holder)
       case x: ScParameter => visitParameter(x, holder)
       case x: ScCaseClause => visitCaseClause(x, holder)
+      case x: ScGenerator => visitGenerator(x, holder)
+      case x: ScEnumerator => visitEnumerator(x, holder)
       case x: ScTypeAlias => visitTypeAlias(x, holder)
       case _ if element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER =>
         getParentByStub(element) match {
@@ -334,18 +338,26 @@ object AnnotatorHighlighter {
     annotation.setTextAttributes(attributesKey)
   }
 
-  private def visitPattern(pattern: ScPattern, holder: AnnotationHolder): Unit = {
+  private def visitPattern(pattern: ScPattern, holder: AnnotationHolder, attribute: TextAttributesKey): Unit = {
     for (binding <- pattern.bindings if !binding.isWildcard) {
       val annotation = holder.createInfoAnnotation(binding.nameId, null)
-      annotation.setTextAttributes(DefaultHighlighter.PATTERN)
+      annotation.setTextAttributes(attribute)
     }
   }
 
   private def visitCaseClause(clause: ScCaseClause, holder: AnnotationHolder): Unit = {
     clause.pattern match {
-      case Some(x) => visitPattern(x, holder)
+      case Some(x) => visitPattern(x, holder, DefaultHighlighter.PATTERN)
       case None =>
     }
+  }
+
+  private def visitGenerator(generator: ScGenerator, holder: AnnotationHolder): Unit = {
+    visitPattern(generator.pattern, holder, DefaultHighlighter.GENERATOR)
+  }
+
+  private def visitEnumerator(enumerator: ScEnumerator, holder: AnnotationHolder): Unit = {
+    visitPattern(enumerator.pattern, holder, DefaultHighlighter.GENERATOR)
   }
   
   private def referenceIsToCompanionObjectOfClass(r: ScReferenceElement): Boolean = {

@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
+import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.PropertiesExtension
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
 import org.jetbrains.plugins.scala.util.ScalaUtil
@@ -534,7 +535,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
           attachExtensionsToProcess(currentConfiguration, processHandler, runnerSettings)
         val consoleProperties = new SMTRunnerConsoleProperties(currentConfiguration, "Scala", executor)
           with PropertiesExtension {
-          def getRunConfigurationBase: RunConfigurationBase = config
+            override def getTestLocator = new ScalaTestLocationProvider
+            def getRunConfigurationBase: RunConfigurationBase = config
         }
 
         // console view
@@ -627,7 +629,7 @@ object AbstractTestRunConfiguration extends SuiteValidityChecker {
     var configuration: RunConfigurationBase = null
   }
 
-  private[test] trait PropertiesExtension {
+  private[test] trait PropertiesExtension extends SMTRunnerConsoleProperties{
     def getRunConfigurationBase: RunConfigurationBase
   }
 

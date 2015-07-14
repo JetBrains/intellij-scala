@@ -50,8 +50,6 @@ abstract class AbstractTestFramework extends JavaTestFramework {
     val project = clazz.getProject
     val suiteClazz: PsiClass = ScalaPsiManager.instance(project).getCachedClass(getMarkerClassFQName,
       GlobalSearchScope.allScope(project), ScalaPsiManager.ClassCategory.TYPE)
-//    val suiteClazz: PsiClass = ScalaPsiManager.instance(parent.getProject).
-//            getCachedClass(getMarkerClassFQName, clazz.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
     if (suiteClazz == null) return false
     ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)
   }

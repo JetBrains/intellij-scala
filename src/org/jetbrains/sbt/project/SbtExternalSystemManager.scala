@@ -39,6 +39,7 @@ class SbtExternalSystemManager
     val classpath = parameters.getClassPath
 
     classpath.add(jarWith[this.type])
+    classpath.add(jarWith[org.jetbrains.sbt.structure.XmlSerializer[_]])
     classpath.add(jarWith[scala.App])
     classpath.add(jarWith[scala.xml.Node])
 

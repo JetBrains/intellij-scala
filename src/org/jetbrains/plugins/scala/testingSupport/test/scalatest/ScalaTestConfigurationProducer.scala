@@ -40,20 +40,21 @@ class ScalaTestConfigurationProducer extends {
     super.findExistingByElement(location, existingConfigurations, context)
   }
 
-  override def createConfigurationByLocation(location: Location[_ <: PsiElement]): RunnerAndConfigurationSettings = {
+  override def createConfigurationByLocation(location: Location[_ <: PsiElement]): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
     val element = location.getPsiElement
-    if (element == null) return null
+    if (element == null) return None
 
     if (element.isInstanceOf[PsiPackage] || element.isInstanceOf[PsiDirectory]) {
       val name = element match {
         case p: PsiPackage => p.getName
         case d: PsiDirectory => d.getName
       }
-      return TestConfigurationUtil.packageSettings(element, location, confFactory, ScalaBundle.message("test.in.scope.scalatest.presentable.text", name))
+      return Some((element, TestConfigurationUtil.packageSettings(element, location, confFactory, ScalaBundle.message("test.in.scope.scalatest.presentable.text", name))))
     }
 
-    val (testClassPath, testName) = getLocationClassAndTest(location)
-    if (testClassPath == null) return null
+    val (testClass, testName) = getLocationClassAndTest(location)
+    if (testClass == null) return None
+    val testClassPath = testClass.qualifiedName
     val settings = RunManager.getInstance(location.getProject).
       createRunConfiguration(StringUtil.getShortName(testClassPath) +
       (if (testName != null) "." + testName else ""), confFactory)
@@ -73,7 +74,7 @@ class ScalaTestConfigurationProducer extends {
       case e: Exception =>
     }
     JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(runConfiguration, location)
-    settings
+    Some((testClass, settings))
   }
 
   override def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {
@@ -83,8 +84,9 @@ class ScalaTestConfigurationProducer extends {
       if (!configuration.isInstanceOf[ScalaTestRunConfiguration]) return false
       return TestConfigurationUtil.isPackageConfiguration(element, configuration)
     }
-    val (testClassPath, testName) = getLocationClassAndTest(location)
-    if (testClassPath == null) return false
+    val (testClass, testName) = getLocationClassAndTest(location)
+    if (testClass == null) return false
+    val testClassPath = testClass.qualifiedName
     configuration match {
       case configuration: ScalaTestRunConfiguration if configuration.getTestKind == TestKind.CLASS &&
         testName == null =>
@@ -96,7 +98,7 @@ class ScalaTestConfigurationProducer extends {
     }
   }
 
-  def getLocationClassAndTest(location: Location[_ <: PsiElement]): (String, String) = {
+  def getLocationClassAndTest(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
     val element = location.getPsiElement
     var clazz: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     if (clazz == null) return (null, null)
@@ -107,7 +109,6 @@ class ScalaTestConfigurationProducer extends {
     if (!clazz.isInstanceOf[ScClass]) return (null, null)
     if (ScalaTestRunConfiguration.isInvalidSuite(clazz)) return (null, null)
     if (!suitePaths.exists(suitePath => isInheritor(clazz, suitePath))) return (null, null)
-    val testClassPath = clazz.qualifiedName
 
     sealed trait ReturnResult
     case class SuccessResult(invocation: MethodInvocation, testName: String, middleName: String) extends ReturnResult
@@ -625,7 +626,7 @@ class ScalaTestConfigurationProducer extends {
     implicit def o2e(x: Option[String]): OptionExtension = new OptionExtension(x)
 
     import ScalaTestUtil._
-    val oldResult = (testClassPath,
+    val oldResult = (clazz,
       (getFunSuiteBases.toStream.map(checkFunSuite).find(_.isDefined).getOrElse(None) ++
               getFeatureSpecBases.toStream.map(checkFeatureSpec).find(_.isDefined).getOrElse(None) ++
               getFreeSpecBases.toStream.map(checkFreeSpec).find(_.isDefined).getOrElse(None) ++
@@ -652,7 +653,7 @@ class ScalaTestConfigurationProducer extends {
     val selection = astTransformer.testSelection(location)
 
     if (selection != null) {
-      if (selection.testNames.nonEmpty) (testClassPath, escapeAndConcatTestNames(selection.testNames().toList))
+      if (selection.testNames.nonEmpty) (clazz, escapeAndConcatTestNames(selection.testNames().toList))
       else {
         val parent = location.getPsiElement.getParent
         if (parent != null) getLocationClassAndTest(new PsiLocation(location.getProject, parent))

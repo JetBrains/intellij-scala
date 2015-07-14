@@ -11,5 +11,5 @@ package types
  */
 
 trait ScTypes extends ScalaPsiElement {
-  def types: Seq[ScTypeElement] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScTypeElement]).toSeq: _*)
+  def types: Seq[ScTypeElement] = findChildrenByClassScala(classOf[ScTypeElement]).toSeq
 }

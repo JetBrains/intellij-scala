@@ -1,10 +1,14 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
+import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
+
 /**
  * @author Nikolay.Tropin
  */
 class OptionEqualsSomeTest extends OperationsOnCollectionInspectionTest {
   override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[OptionEqualsSomeToContainsInspection]
+
+  override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
 
   override def hint: String = OptionEqualsSomeToContains.hint
 

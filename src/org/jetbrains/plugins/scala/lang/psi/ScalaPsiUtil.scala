@@ -58,6 +58,9 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveTargets, ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -149,18 +152,6 @@ object ScalaPsiUtil {
       case call: ScMethodCall => false
       case g: ScGenericCall => withEtaExpansion(g)
       case p: ScParenthesisedExpr => withEtaExpansion(p)
-      case _ => true
-    }
-  }
-
-  @tailrec
-  def isLocalClass(td: PsiClass): Boolean = {
-    td.getParent match {
-      case tb: ScTemplateBody =>
-        val parent = PsiTreeUtil.getParentOfType(td, classOf[PsiClass], true)
-        if (parent == null || parent.isInstanceOf[ScNewTemplateDefinition]) return true
-        isLocalClass(parent)
-      case _: ScPackaging | _: ScalaFile => false
       case _ => true
     }
   }
@@ -1181,7 +1172,7 @@ object ScalaPsiUtil {
     }
     inner(elem, (l: List[PsiElement]) => l)
   }
-  
+
   def getFirstStubOrPsiElement(elem: PsiElement): PsiElement = {
     elem match {
       case st: ScalaStubBasedElementImpl[_] if st.getStub != null =>
@@ -1214,14 +1205,15 @@ object ScalaPsiUtil {
       }
     }
     elem match {
-      case st: ScalaStubBasedElementImpl[_] if st.getStub != null =>
+      case st: ScalaStubBasedElementImpl[_] =>
         val stub = st.getStub
-        workWithStub(stub)
-      case file: PsiFileImpl if file.getStub != null =>
+        if (stub != null) return workWithStub(stub)
+      case file: PsiFileImpl =>
         val stub = file.getStub
-        workWithStub(stub)
-      case _ => elem.getPrevSibling
+        if (stub != null) return workWithStub(stub)
+      case _ =>
     }
+    elem.getPrevSibling
   }
 
   def isLValue(elem: PsiElement) = elem match {
@@ -1298,7 +1290,7 @@ object ScalaPsiUtil {
     new Signature(x.name, Seq.empty, 0, ScSubstitutor.empty, x)
 
   def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false): Seq[Signature] = {
-    val empty = Seq.empty 
+    val empty = Seq.empty
     val typed = x match {case x: ScTypedDefinition => x case _ => return empty}
     val clazz: ScTemplateDefinition = nameContext(typed) match {
       case e @ (_: ScValue | _: ScVariable | _:ScObject) if e.getParent.isInstanceOf[ScTemplateBody] ||
@@ -1375,7 +1367,7 @@ object ScalaPsiUtil {
     while (parent != null && !isAppropriatePsiElement(parent)) parent = parent.getParent
     parent
   }
-  
+
   object inNameContext {
     def unapply(x: PsiNamedElement): Option[PsiElement] = nameContext(x).toOption
   }
@@ -1536,7 +1528,7 @@ object ScalaPsiUtil {
   def getUnapplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     getMethodsForName(clazz, "unapply") ++ getMethodsForName(clazz, "unapplySeq") ++
     (clazz match {
-      case c: ScObject => c.objectSyntheticMembers.filter(s => s.name == "unapply" || s.name == "unapplySeq").
+      case c: ScObject => c.syntheticMethodsNoOverride.filter(s => s.name == "unapply" || s.name == "unapplySeq").
               map(new PhysicalSignature(_, ScSubstitutor.empty))
       case _ => Seq.empty[PhysicalSignature]
     })
@@ -1589,7 +1581,7 @@ object ScalaPsiUtil {
       if (element == null) return null
       element.getContext
     }
-    while (el != null && classes.find(_.isInstance(el)) == None) el = el.getContext
+    while (el != null && !classes.exists(_.isInstance(el))) el = el.getContext
     el
   }
 
@@ -1598,7 +1590,7 @@ object ScalaPsiUtil {
       case Some(td) => Some(td)
       case _ =>
         clazz match {
-          case x: ScClass if x.isCase => x.fakeCompanionModule
+          case x: ScTypeDefinition => x.fakeCompanionModule
           case _ => None
         }
     }
@@ -1962,6 +1954,7 @@ object ScalaPsiUtil {
       case _ =>
         exp.getParent match {
           case parenth: ScParenthesisedExpr => parameterOf(parenth)
+          case block: ScBlock => parameterOf(block)
           case ie: ScInfixExpr if exp == (if (ie.isLeftAssoc) ie.lOp else ie.rOp) =>
             ie.operation match {
               case ResolvesTo(f: ScFunction) => f.parameters.headOption.map(p => new Parameter(p))
@@ -2273,6 +2266,83 @@ object ScalaPsiUtil {
           modifierList.addBefore(newElem, mod)
           modifierList.addBefore(ScalaPsiElementFactory.createWhitespace(manager), mod)
         }
+    }
+  }
+
+  /**
+   * Should we check if it's a Single Abstract Method?
+   * In 2.11 works with -Xexperimental
+   * In 2.12 works by default
+   * @return true if language level and flags are correct
+   */
+  def isSAMEnabled(e: PsiElement) = e.scalaLanguageLevel match {
+    case Some(lang) if lang < Scala_2_11 => false
+    case Some(lang) if lang == Scala_2_11 =>
+      val settings = e.module match {
+        case Some(module) => module.scalaCompilerSettings
+        case None => ScalaCompilerConfiguration.instanceIn(e.getProject).defaultProfile.getSettings
+      }
+      settings.experimental || settings.additionalCompilerOptions.contains("-Xexperimental")
+    case _ => true //if there's no module e.scalaLanguageLevel is None, we treat it as Scala 2.12
+  }
+
+  /**
+   * Determines if expected can be created with a Single Abstract Method and if so return the required ScType for it
+   * @see SCL-6140
+   * @see https://github.com/scala/scala/pull/3018/
+   */
+  def toSAMType(expected: ScType): Option[ScType] = {
+
+    def constructorValidForSAM(constructors: Array[PsiMethod]): Boolean = {
+      //primary constructor (if any) must be public, no-args, not overloaded
+      constructors.length match {
+        case 0 => true
+        case 1 => constructors.head.getModifierList.hasModifierProperty("public") &&
+          constructors.head.getParameterList.getParameters.isEmpty
+        case _ => false
+      }
+    }
+
+    ScType.extractClassType(expected) match {
+      case Some((cl, sub)) =>
+        cl match {
+          case templDef: ScTemplateDefinition => //it's a Scala class or trait
+            val abst = templDef.functions.filter(_.isAbstractMember)
+            val constrValid = templDef match { //if it's a class check its constructor
+              case cla: ScClass => constructorValidForSAM(cla.constructors)
+              case tr: ScTrait => true
+              case _ => false
+            }
+            //cl must have only one abstract member, one argument list and be monomorphic
+            val valid =
+              constrValid &&
+                abst.length == 1 &&
+                abst.head.parameterList.clauses.length <= 1 &&
+                !abst.head.hasTypeParameters
+
+            if (valid) {
+              abst.head.getType() match {
+                case Success(tp, _) => Some(sub.subst(tp))
+                case _ => None
+              }
+            } else None
+          case _ => //it's a Java abstract class or interface
+            val abst: Array[PsiMethod] = cl.getMethods.filter(_.getModifierList.hasModifierProperty("abstract"))
+            //must have exactly one abstract member and SAM must be monomorphic
+            val valid = abst.length == 1 && !abst.head.hasTypeParameters && constructorValidForSAM(cl.getConstructors)
+            if (valid) {
+              //need to generate ScType for Java method
+              val method = abst.head
+              val project = method.getProject
+              val scope = method.getResolveScope
+              val returnType: ScType = ScType.create(method.getReturnType, project, scope)
+              val params: Array[ScType] = method.getParameterList.getParameters.map {
+                param: PsiParameter => ScType.create(param.getTypeElement.getType, project, scope)
+              }
+              Some(ScFunctionType(returnType, params)(project, scope))
+            } else None
+        }
+      case None => None
     }
   }
 

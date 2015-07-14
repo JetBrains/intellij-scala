@@ -76,6 +76,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement {
   private var synthNavElement: Option[PsiElement] = None
   var syntheticCaseClass: Option[ScClass] = None
+  var syntheticContainingClass: Option[ScTypeDefinition] = None
   def setSynthetic(navElement: PsiElement) {
     synthNavElement = Some(navElement)
   }
@@ -588,7 +589,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
-  def getType(ctx: TypingContext) = {
+  def getType(ctx: TypingContext): TypeResult[ScType] = {
     returnType match {
       case Success(tp: ScType, _) =>
         var res: TypeResult[ScType] = Success(tp, None)

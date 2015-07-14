@@ -7,6 +7,7 @@ import com.intellij.openapi.roots.impl.DirectoryIndex
 import com.intellij.openapi.util.{Condition, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.{FileReference, FileReferenceSet}
+import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.hocon.CommonUtil._
 import org.jetbrains.plugins.hocon.HoconConstants._
 
@@ -75,13 +76,15 @@ class IncludedFileReferenceSet(text: String, element: PsiElement, absolute: Bool
 
     if (pkgName == null) return empty
 
-    val scope = pfi.getOrderEntriesForFile(parent).iterator.asScala.map { oe =>
+    val allScopes = pfi.getOrderEntriesForFile(parent).iterator.asScala.map { oe =>
       val withTests = pfi.isInTestSourceContent(parent) || (oe match {
         case eoe: ExportableOrderEntry => eoe.getScope == DependencyScope.TEST
         case _ => false
       })
       oe.getOwnerModule.getModuleWithDependenciesAndLibrariesScope(withTests)
-    }.reduce(_ union _)
+    }
+
+    val scope = if (allScopes.nonEmpty) allScopes.reduce(_ union _) else GlobalSearchScope.EMPTY_SCOPE
 
     // If there are any source roots with package prefix and that package is a subpackage of
     // including file's package, they will be omitted because `getDirectoriesByPackageName` doesn't find them.

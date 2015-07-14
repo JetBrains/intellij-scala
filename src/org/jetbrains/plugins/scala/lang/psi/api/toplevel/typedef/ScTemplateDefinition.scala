@@ -17,7 +17,8 @@ import com.intellij.psi.impl.{PsiClassImplUtil, PsiSuperMethodImplUtil}
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
+import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil, PsiUtil}
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
@@ -134,9 +135,16 @@ import com.intellij.openapi.util.{Pair => IPair}
   def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false): TypeResult[ScType]
 
   def members: Seq[ScMember] = extendsBlock.members
-  def syntheticMethodsNoOverride: Seq[PsiMethod] = Seq.empty
   def functions: Seq[ScFunction] = extendsBlock.functions
   def aliases: Seq[ScTypeAlias] = extendsBlock.aliases
+
+  def syntheticMethodsNoOverride: scala.Seq[PsiMethod] = {
+    CachesUtil.get(this, CachesUtil.SYNTHETIC_MEMBERS_KEY,
+      new CachesUtil.MyProvider[ScTemplateDefinition, Seq[PsiMethod]](this, clazz => clazz.syntheticMethodsNoOverrideImpl)
+      (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
+  }
+
+  protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = Seq.empty
 
   def typeDefinitions: Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
 

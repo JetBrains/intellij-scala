@@ -55,8 +55,7 @@ object DecompilerUtil {
   }
 
   // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
-  // The following check is hardly bulletproof, however there is no API to query FS features.
-  private def attributesSupported = ManagingFS.getInstance.isInstanceOf[PersistentFS]
+  private def attributesSupported = !ScalaLoader.isUnderUpsource
 
   def isScalaFile(file: VirtualFile): Boolean =
     try isScalaFile(file, file.contentsToByteArray)
@@ -202,10 +201,10 @@ object DecompilerUtil {
       }
     } catch {
       case m: MatchError =>
-        LOG.info(s"Error during decompiling ${file.getName}: ${m.getMessage()}. Stacktrace is suppressed.")
+        LOG.warn(s"Error during decompiling $file: ${m.getMessage()}. Stacktrace is suppressed.")
         new DecompilationResult(isScala = false, "", file.getTimeStamp)
       case t: Throwable =>
-        LOG.info(s"Error during decompiling ${file.getName}: ${t.getMessage}", t)
+        LOG.warn(s"Error during decompiling $file: ${t.getMessage}. Stacktrace is suppressed.")
         new DecompilationResult(isScala = false, "", file.getTimeStamp)
     }
   }

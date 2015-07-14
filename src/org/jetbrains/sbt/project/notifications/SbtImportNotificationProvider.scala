@@ -90,7 +90,7 @@ abstract class SbtImportNotificationProvider(project: Project, notifications: Ed
   }
 
   protected def getExternalProject(filePath: String): Option[String] =
-    (!project.isDisposed).option(Sbt.getProjectBaseByBuildFile(project, filePath)).flatten
+    (!project.isDisposed && Sbt.isProjectDefinitionFile(project, filePath.toFile)).option(project.getBasePath)
 
   protected def getProjectSettings(file: VirtualFile): Option[SbtProjectSettings] =
     for {

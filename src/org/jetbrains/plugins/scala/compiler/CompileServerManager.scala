@@ -10,6 +10,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.ide.DataManager
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DefaultActionGroup, Separator}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.{DumbAware, Project}
@@ -38,6 +39,8 @@ class CompileServerManager(project: Project) extends ProjectComponent {
    def disposeComponent() {}
 
    def projectOpened() {
+     if (ApplicationManager.getApplication.isUnitTestMode) return
+
      project.scalaEvents.addScalaProjectListener(ScalaListener)
      configureWidget()
      timer.setRepeats(true)
@@ -45,7 +48,9 @@ class CompileServerManager(project: Project) extends ProjectComponent {
    }
 
    def projectClosed() {
-     project.scalaEvents.addScalaProjectListener(ScalaListener)
+     if (ApplicationManager.getApplication.isUnitTestMode) return
+
+     project.scalaEvents.removeScalaProjectListener(ScalaListener)
      configureWidget()
      timer.stop()
    }

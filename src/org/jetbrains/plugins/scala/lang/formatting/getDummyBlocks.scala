@@ -84,11 +84,6 @@ object getDummyBlocks {
               scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
         subBlocks.addAll(getMultilineStringBlocks(node, block))
         return subBlocks
-      case _: PsiElement
-        if node.getFirstChildNode == null && node.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING &&
-          scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
-        subBlocks.addAll(getMultilineStringBlocks(node, block))
-        return subBlocks
       case _
         if node.getElementType == ScalaDocElementTypes.DOC_TAG =>
         val docTag = node.getPsi.asInstanceOf[ScDocTag]
@@ -189,7 +184,13 @@ object getDummyBlocks {
         }
       }
       val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
-      subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
+      if (child.getFirstChildNode == null && child.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING &&
+          scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE) {
+        //flatten interpolated strings
+        subBlocks.addAll(getMultilineStringBlocks(child, block))
+      } else {
+        subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
+      }
       prevChild = child
     }
     subBlocks
@@ -247,15 +248,23 @@ object getDummyBlocks {
       do {
         val indent = ScalaIndentProcessor.getChildIndent(block, child)
         if (isCorrectBlock(child) && !child.getPsi.isInstanceOf[ScTemplateParents]) {
-          val (childAlignment, childWrap) = (null, arrangeSuggestedWrapForChild(block, child, settings, block.suggestedWrap))
+          val (childAlignment, childWrap) = (block.getCustomAlignment(child).orNull, arrangeSuggestedWrapForChild(block, child, settings, block.suggestedWrap))
 
-          subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
+          subBlocks.add(new ScalaBlock(block, child, block.getChildBlockLastNode(child), childAlignment, indent,
+            childWrap, block.getSettings, block.subBlocksContext.flatMap(_.childrenAdditionalContexts.get(child))))
         } else if (isCorrectBlock(child)) {
           subBlocks.addAll(getTemplateParentsBlocks(child, block))
         }
-      } while (child != lastNode && {child = child.getTreeNext; true})
+      } while (child != lastNode && {child = child.getTreeNext; child != null})
     }
 
+    //it is not used right now, but could come in handy later
+    block.subBlocksContext.foreach(_.additionalNodes.foreach { additionalNode =>
+      val indent = ScalaIndentProcessor.getChildIndent(block, additionalNode)
+      val (childAlignment, childWrap) = (block.getCustomAlignment(additionalNode).orNull, arrangeSuggestedWrapForChild(block, additionalNode, settings, block.suggestedWrap))
+      subBlocks.add(new ScalaBlock(block, additionalNode, block.getChildBlockLastNode(additionalNode), childAlignment,
+        indent, childWrap, block.getSettings))
+    })
 
     subBlocks
   }
@@ -433,7 +442,8 @@ object getDummyBlocks {
       if (isCorrectBlock(child)) {
         val indent = ScalaIndentProcessor.getChildIndent(block, child)
         val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
-        subBlocks.add(new ScalaBlock(block, child, null, alignment, indent, childWrap, settings))
+        subBlocks.add(new ScalaBlock(block, child, block.getChildBlockLastNode(child), alignment, indent, childWrap,
+          settings, block.subBlocksContext.flatMap(_.childrenAdditionalContexts.get(child))))
       }
     }
     subBlocks
@@ -541,7 +551,8 @@ object getDummyBlocks {
 
     val indent = Indent.getNoneIndent
     val simpleIndent = Indent.getAbsoluteNoneIndent
-    val prefixIndent = Indent.getSpaceIndent(marginIndent, true)
+    val prefixIndent = Indent.getSpaceIndent(marginIndent +
+      (if (node.getElementType == ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING) 1 else 0), true)
 
     val lines = node.getText.split("\n")
     var acc = 0
@@ -633,29 +644,35 @@ object getDummyBlocks {
     subBlocks
   }
 
-  def getMethodCallOrRefExprSubBlocks(node: ASTNode, block: ScalaBlock, parentAlignment: Alignment = null): util.ArrayList[Block] = {
+  def getMethodCallOrRefExprSubBlocks(node: ASTNode, block: ScalaBlock, parentAlignment: Alignment = null,
+                                       delegatedChildren: List[ASTNode] = List()): util.ArrayList[Block] = {
     val settings = block.getSettings
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
     val subBlocks = new util.ArrayList[Block]
-    val children = node.getChildren(null)
     val alignment = if (parentAlignment != null)
       parentAlignment
     else if (mustAlignment(node, settings))
       Alignment.createAlignment
     else null
-    for (child <- children) {
-      child.getPsi match {
-        case methodCall: ScMethodCall =>
-          subBlocks.addAll(getMethodCallOrRefExprSubBlocks(child, block, alignment))
-        case refExpr: ScReferenceExpression =>
-          subBlocks.addAll(getMethodCallOrRefExprSubBlocks(child, block, alignment))
-        case _ =>
-          if (isCorrectBlock(child)) {
-            val indent = ScalaIndentProcessor.getChildIndent(block, child)
-            val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
-            subBlocks.add(new ScalaBlock(block, child, null, alignment, indent, childWrap, settings))
-          }
-      }
+    val children = node.getChildren(null).filter(isCorrectBlock).toList
+    children match {
+      //don't check for element types other then absolutely required - they do not matter
+      case caller :: args :: Nil if args.getPsi.isInstanceOf[ScArgumentExprList] =>
+        subBlocks.addAll(getMethodCallOrRefExprSubBlocks(caller, block, parentAlignment, args :: delegatedChildren))
+      case expr :: dot :: id :: Nil  if dot.getElementType == ScalaTokenTypes.tDOT =>
+        val indent = ScalaIndentProcessor.getChildIndent(block, dot)
+        val childWrap = arrangeSuggestedWrapForChild(block, dot, scalaSettings, block.suggestedWrap)
+        val exprIndent = ScalaIndentProcessor.getChildIndent(block, dot)
+        val exprWrap = arrangeSuggestedWrapForChild(block, expr, scalaSettings, block.suggestedWrap)
+        subBlocks.add(new ScalaBlock(block, expr, null, alignment, exprIndent, exprWrap, settings))
+        subBlocks.add(new ScalaBlock(block, dot, (id::delegatedChildren).sortBy(_.getTextRange.getStartOffset).lastOption.orNull,
+          alignment, indent, childWrap, settings, Some(SubBlocksContext(id, alignment, delegatedChildren))))
+      case id :: Nil =>
+        val indent = ScalaIndentProcessor.getChildIndent(block, id)
+        val childWrap = arrangeSuggestedWrapForChild(block, id, scalaSettings, block.suggestedWrap)
+        subBlocks.add(new ScalaBlock(block, id, delegatedChildren.sortBy(_.getTextRange.getStartOffset).lastOption.orNull,
+          alignment, indent, childWrap, settings, Some(SubBlocksContext(id, alignment, delegatedChildren))))
+      case _ =>
     }
     subBlocks
   }

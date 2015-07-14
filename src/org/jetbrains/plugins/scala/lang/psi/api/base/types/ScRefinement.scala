@@ -13,6 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHo
 */
 
 trait ScRefinement extends ScalaPsiElement {
-  def holders : Seq[ScDeclaredElementsHolder] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScDeclaredElementsHolder]).toSeq: _*)
-  def types : Seq[ScTypeAlias] = collection.immutable.Seq(findChildrenByClassScala(classOf[ScTypeAlias]).toSeq: _*)
+  def holders : Seq[ScDeclaredElementsHolder] = findChildrenByClassScala(classOf[ScDeclaredElementsHolder]).toSeq
+  def types : Seq[ScTypeAlias] = findChildrenByClassScala(classOf[ScTypeAlias]).toSeq
 }

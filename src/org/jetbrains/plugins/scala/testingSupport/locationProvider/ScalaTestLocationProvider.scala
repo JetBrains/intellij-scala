@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.testingSupport.locationProvider
 
 import java.util.{ArrayList, List}
 
+import com.intellij.execution.testframework.sm.runner.SMTestLocator
 import com.intellij.execution.{Location, PsiLocation}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.testIntegration.TestLocationProvider
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -20,14 +20,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
  * For Specs, Specs2 and ScalaTest
  */
 
-class ScalaTestLocationProvider extends TestLocationProvider {
+class ScalaTestLocationProvider extends SMTestLocator {
   private val SpecsHintPattern = """(\S+)\?filelocation=(.+):(.+)""".r
 
   private val ScalaTestTopOfClassPattern = """TopOfClass:(\S+)TestName:(.+)""".r
   private val ScalaTestTopOfMethodPattern = """TopOfMethod:(\S+):(\S+)TestName:(.+)""".r
   private val ScalaTestLineInFinePattern = """LineInFile:(\S+):(.+):(.+)TestName:(.+)""".r
 
-  def getLocation(protocolId: String, locationData: String, project: Project): List[Location[_ <: PsiElement]] = {
+  override def getLocation(protocolId: String, locationData: String, project: Project, scope: GlobalSearchScope): List[Location[_ <: PsiElement]] = {
     protocolId match {
       case "scala" =>
         locationData match {

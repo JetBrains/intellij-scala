@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 
 /**
 * @author Alexander Podkhalyuzin
@@ -23,6 +24,12 @@ trait ScInfixExpr extends ScExpression with ScSugarCallExpr {
     }
   }
 
+  def typeArgs: Option[ScTypeArgs] = {
+    findChildrenByClassScala(classOf[ScTypeArgs]) match {
+      case Array(tpArg: ScTypeArgs) => Some(tpArg)
+      case _ => None
+    }
+  }
 
   def rOp: ScExpression = {
     val exprs: Array[ScExpression] = findChildrenByClassScala(classOf[ScExpression])

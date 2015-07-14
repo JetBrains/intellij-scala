@@ -201,7 +201,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
                            lastReturn: Boolean, sibling: PsiElement, smallestScope: Boolean,
                            lastExprType: Option[ScType]) {
 
-    val info = ReachingDefintionsCollector.collectVariableInfo(elements, sibling.asInstanceOf[ScalaPsiElement])
+    val info = ReachingDefintionsCollector.collectVariableInfo(elements, sibling)
 
     val input = info.inputVariables
     val output = info.outputVariables

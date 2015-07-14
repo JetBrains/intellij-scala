@@ -11,6 +11,7 @@ import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
+import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 import org.jetbrains.plugins.scala.util.{ScalaToolsFactory, TestUtils}
 
 import scala.collection.mutable
@@ -30,8 +31,10 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     super.setUp()
 
     libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath = null)
-    libLoader.loadLibrary(TestUtils.DEFAULT_SCALA_SDK_VERSION)
+    libLoader.loadLibrary(libVersion)
   }
+
+  protected def libVersion: ScalaSdkVersion = TestUtils.DEFAULT_SCALA_SDK_VERSION
 
   protected def checkAfterSurroundWith(text: String, assumedText: String, surrounder: Surrounder, canSurround: Boolean) {
     myFixture.configureByText("dummy.scala", text)

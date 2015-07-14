@@ -75,13 +75,13 @@ class LibraryDependencyNode(val data: LibraryDependencyData)
   protected def key = ProjectKeys.LIBRARY_DEPENDENCY
 }
 
-class ScalaProjectNode(val data: ScalaProjectData)
-  extends Node[ScalaProjectData] {
-  def this(basePackages: Seq[String], jdk: Option[ScalaProjectData.Sdk], javacOptions: Seq[String], sbtVersion: String, projectPath: String) {
-    this(new ScalaProjectData(SbtProjectSystem.Id, basePackages, jdk, javacOptions, sbtVersion, projectPath))
+class SbtProjectNode(val data: SbtProjectData)
+  extends Node[SbtProjectData] {
+  def this(basePackages: Seq[String], jdk: Option[SbtProjectData.Sdk], javacOptions: Seq[String], sbtVersion: String, projectPath: String) {
+    this(new SbtProjectData(SbtProjectSystem.Id, basePackages, jdk, javacOptions, sbtVersion, projectPath))
   }
 
-  protected def key = ScalaProjectData.Key
+  protected def key = SbtProjectData.Key
 }
 
 class ScalaSdkNode(val data: ScalaSdkData)
@@ -95,8 +95,9 @@ class ScalaSdkNode(val data: ScalaSdkData)
 
 class AndroidFacetNode(val data: AndroidFacetData)
   extends Node[AndroidFacetData] {
-  def this(version: String, manifest: File, apk: File, res: File, assets: File, gen: File, libs: File, isLibrary: Boolean, proguardConfig: Seq[String]) {
-    this(new AndroidFacetData(SbtProjectSystem.Id, version, manifest, apk, res, assets, gen, libs, isLibrary, proguardConfig))
+  def this(version: String, manifest: String, apk: String, res: String, assets: String, gen: String, libs: String, isLibrary: Boolean, proguardConfig: Seq[String]) {
+    this(new AndroidFacetData(SbtProjectSystem.Id, version, new File(manifest), new File(apk),
+                              new File(res), new File(assets), new File(gen), new File(libs), isLibrary, proguardConfig))
   }
 
   protected def key = AndroidFacetData.Key

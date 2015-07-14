@@ -98,7 +98,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
         // Look in sources of an appropriate entry
         val files = entry.getFiles(OrderRootType.SOURCES)
         val filesIterator = files.iterator
-        while (!filesIterator.isEmpty) {
+        while (filesIterator.nonEmpty) {
           val file = filesIterator.next()
           val source = file.findFileByRelativePath(relPath)
           if (source != null) {
@@ -113,8 +113,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
       entryIterator = entries.iterator
 
       //Look in libraries sources if file not relative to path
-      if (typeDefinitions.length == 0) return this
-      val qual = typeDefinitions.apply(0).qualifiedName
+      if (typeDefinitions.isEmpty) return this
+      val qual = typeDefinitions.head.qualifiedName
       var result: Option[PsiFile] = None
 
       FilenameIndex.processFilesByName(sourceFile, false, new Processor[PsiFileSystemItem] {
@@ -305,9 +305,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     while (true) {
       val packs: Seq[ScPackaging] = x.packagings
       if (packs.length > 1) return null
-      else if (packs.length == 0) return if (res.length == 0) res else res.substring(1)
-      res += "." + packs(0).getPackageName
-      x = packs(0)
+      else if (packs.isEmpty) return if (res.length == 0) res else res.substring(1)
+      res += "." + packs.head.getPackageName
+      x = packs.head
     }
     null //impossible line
   }
@@ -317,7 +317,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
     def inner(p: ScPackaging, prefix: String): String = {
       val subs = p.packagings
-      if (subs.length > 0 && !subs(0).isExplicit) inner(subs(0), prefix + "." + subs(0).getPackageName)
+      if (subs.nonEmpty && !subs.head.isExplicit) inner(subs.head, prefix + "." + subs.head.getPackageName)
       else prefix
     }
 
@@ -341,7 +341,12 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
               case Some(clazz) => arrayBuffer += clazz
               case _ =>
             }
-          case t: ScTrait => arrayBuffer += t.fakeCompanionClass
+          case t: ScTrait =>
+            arrayBuffer += t.fakeCompanionClass
+            t.fakeCompanionModule match {
+              case Some(m) => arrayBuffer += m
+              case _ =>
+            }
           case c: ScClass =>
             c.fakeCompanionModule match {
               case Some(m) => arrayBuffer += m
@@ -359,7 +364,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   protected def isScalaPredefinedClass = {
     def inner(file: ScalaFile): java.lang.Boolean = {
       java.lang.Boolean.valueOf(file.typeDefinitions.length == 1 &&
-        Set("scala", "scala.Predef").contains(file.typeDefinitions.apply(0).qualifiedName))
+        Set("scala", "scala.Predef").contains(file.typeDefinitions.head.qualifiedName))
     }
     CachesUtil.get[ScalaFile, java.lang.Boolean](this, CachesUtil.SCALA_PREDEFINED_KEY,
       new CachesUtil.MyProvider[ScalaFile, java.lang.Boolean](this, e => inner(e))
@@ -368,7 +373,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   
   
   def isScalaPredefinedClassInner = typeDefinitions.length == 1 &&
-    Set("scala", "scala.Predef").contains(typeDefinitions.apply(0).qualifiedName)
+    Set("scala", "scala.Predef").contains(typeDefinitions.head.qualifiedName)
 
 
   override def findReferenceAt(offset: Int): PsiReference = super.findReferenceAt(offset)
@@ -451,7 +456,7 @@ object ScalaFileImpl {
   val CONTEXT_KEY = new Key[PsiElement]("context.key")
   val CHILD_KEY = new Key[PsiElement]("child.key")
 
-  val DefaultImplicitlyImportedPackges = Seq("scala", "java.lang")
+  val DefaultImplicitlyImportedPackages = Seq("scala", "java.lang")
 
   val DefaultImplicitlyImportedObjects = Seq("scala.Predef", "scala" /* package object*/)
 
@@ -482,7 +487,7 @@ object ScalaFileImpl {
     packagingsIn(root).map(packaging => toVector(packaging.getPackageName))
 
   private def packagingsIn(root: PsiElement): List[ScPackaging] = {
-    root.children.findByType(classOf[ScPackaging]).headOption match {
+    root.children.findByType(classOf[ScPackaging]) match {
       case Some(packaging) => packaging :: packagingsIn(packaging)
       case _ => Nil
     }

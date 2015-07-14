@@ -67,7 +67,7 @@ trait ScTypePsiTypeBridge {
               case Array() => des
               case _ if classType.isRaw =>
                 var index = 0
-                ScParameterizedType(des, collection.immutable.Seq(tps.map({tp => {
+                ScParameterizedType(des, tps.map({tp => {
                   val arrayOfTypes: Array[PsiClassType] = tp.getExtendsListTypes ++ tp.getImplementsListTypes
                   ScSkolemizedType(s"_$$${index += 1; index}", Nil, types.Nothing,
                     arrayOfTypes.length match {
@@ -76,10 +76,10 @@ trait ScTypePsiTypeBridge {
                       case _ => ScCompoundType(arrayOfTypes.map(create(_, project, scope, visitedRawTypes + clazz)),
                         Map.empty, Map.empty)
                     })
-              }}): _*)).unpackedType
+              }})).unpackedType
               case _ =>
                 var index = 0
-                ScParameterizedType(des, collection.immutable.Seq(tps.map
+                ScParameterizedType(des, tps.map
                   (tp => {
                     val psiType = substitutor.substitute(tp)
                     psiType match {
@@ -94,7 +94,7 @@ trait ScTypePsiTypeBridge {
                       case _ if psiType != null => ScType.create(psiType, project, scope, visitedRawTypes)
                       case _ => ScalaPsiManager.typeVariable(tp)
                     }
-                  }).toSeq: _*)).unpackedType
+                  }).toSeq).unpackedType
             }
           case _ => types.Nothing
         }

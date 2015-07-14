@@ -19,6 +19,7 @@ import com.intellij.testFramework.LightVirtualFile
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.lang.completion
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.sbt.resolvers.SbtResolverIndexesManager
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -66,6 +67,12 @@ abstract class CompletionTestBase extends completion.CompletionTestBase {
   override def setUp() {
     super.setUpWithoutScalaLib()
     loadSbt(getProjectAdapter, getModuleAdapter)
+    FileUtil.delete(SbtResolverIndexesManager.DEFAULT_INDEXES_DIR)
+  }
+
+  override def tearDown(): Unit = {
+    super.tearDown()
+    FileUtil.delete(SbtResolverIndexesManager.DEFAULT_INDEXES_DIR)
   }
 
   private def loadSbt(project: Project, module: Module) {
