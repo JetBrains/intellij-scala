@@ -16,7 +16,8 @@ class Context(val project: Project) extends semantic.Context {
   override def tpe(term: Term): Type = m.Type.Name("Any")
   override def tpe(param : scala.meta.Term.Param) = ???
   override def defns(ref: Ref): Seq[Member] = {
-    val manager = ScalaPsiManager.instance(project).getCachedClass(ProjectScope.getProjectScope(project), "Hello$")
+//    ref.name
+//    Seq().head
     ???
   }
   override def members(tpe: Type): Seq[Member] = ???

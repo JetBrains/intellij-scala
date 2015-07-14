@@ -36,14 +36,18 @@ class TreeConverterDenotationsTest extends TreeConverterTestBaseWithLibrary {
     """
       |Defn.Val(Nil, List(Pat.Var.Term(Term.Name("a")[1])), None, Term.Apply(Term.Name("GenMapFactory")[2], List(Term.ApplyInfix(Lit.Int(1), Term.Name("->")[3], Nil, List(Lit.Int(2))), Term.ApplyInfix(Lit.Int(2), Term.Name("->")[4], Nil, List(Lit.Int(3))))))
       |[1] Type.Singleton(Term.Name("_root_")[5])::local#fooscala:50
-      |[2] Type.Apply(Type.Name("GenMapFactory")[6], List(Type.Name("CC")))::scala.collection.generic#GenMapFactory.apply(Lscala/collection/Seq;)Ljava/lang/Object;
-      |[3] Type.Apply(Type.Name("_root_.scala.Predef.ArrowAssoc"), List(Type.Name("A")))::scala.Predef#ArrowAssoc.->(Ljava/lang/Object;)Lscala/Tuple2;
-      |[4] Type.Apply(Type.Name("_root_.scala.Predef.ArrowAssoc"), List(Type.Name("A")))::scala.Predef#ArrowAssoc.->(Ljava/lang/Object;)Lscala/Tuple2;
+      |[2] Type.Apply(Type.Name("GenMapFactory")[6], List(Type.Name("Map")[7]))::scala.collection.generic#GenMapFactory.apply(Lscala/collection/Seq;)Ljava/lang/Object;
+      |[3] Type.Apply(Type.Project(Type.Name("Predef")[8], Type.Name("ArrowAssoc")[9]), List(Type.Name("Int")))::scala.Predef#ArrowAssoc.->(Ljava/lang/Object;Ljava/lang/Object;)Lscala/Tuple2;
+      |[4] Type.Apply(Type.Project(Type.Name("Predef")[8], Type.Name("ArrowAssoc")[9]), List(Type.Name("Int")))::scala.Predef#ArrowAssoc.->(Ljava/lang/Object;Ljava/lang/Object;)Lscala/Tuple2;
       |[5] 0::_root_
-      |[6] Type.Singleton(Term.Name("generic")[7])::scala.collection.generic#GenMapFactory
-      |[7] Type.Singleton(Term.Name("collection")[8])::scala.collection.generic
-      |[8] Type.Singleton(Term.Name("scala")[9])::scala.collection
-      |[9] Type.Singleton(Term.Name("_root_")[5])::scala
+      |[6] Type.Singleton(Term.Name("generic")[10])::scala.collection.generic#GenMapFactory
+      |[7] Type.Singleton(Term.Name("mutable")[11])::scala.collection.mutable#Map
+      |[8] Type.Singleton(Term.Name("scala")[12])::scala#Predef
+      |[9] Type.Name("Predef")[8]::scala.Predef#ArrowAssoc
+      |[10] Type.Singleton(Term.Name("collection")[13])::scala.collection.generic
+      |[11] Type.Singleton(Term.Name("collection")[13])::scala.collection.mutable
+      |[12] Type.Singleton(Term.Name("_root_")[5])::scala
+      |[13] Type.Singleton(Term.Name("scala")[12])::scala.collection
     """.stripMargin
     )
   }

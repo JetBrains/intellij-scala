@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.meta.internal.{ast => m, semantic => h}
 import scala.{Seq => _}
@@ -20,6 +21,11 @@ trait Namer {
     case ne: ScNamedElement =>
       m.Term.Name(ne.name).withDenot(ne)
     case re: ScReferenceExpression =>
+      re.bind() match {
+        case Some(ScalaResolveResult(pn, subst)) =>
+          ""
+        case None => ???
+      }
       toTermName(re.resolve())
     case cr: ScStableCodeReferenceElement =>
       m.Term.Name(cr.refName).withDenot(cr)
