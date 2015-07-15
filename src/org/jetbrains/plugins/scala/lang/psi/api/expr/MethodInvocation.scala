@@ -272,16 +272,9 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       }
     }
 
-    val actualInvokedType: ScType =
-      if (ScalaPsiUtil.isSAMEnabled(this)) {
-        ScalaPsiUtil.toSAMType(invokedType, getResolveScope) match {
-          case Some(mt) => getEffectiveInvokedExpr.getNonValueType().getOrElse(invokedType)
-          case _ => invokedType
-        }
-      } else invokedType
-    var res: ScType = checkApplication(actualInvokedType, args(isNamedDynamic = isApplyDynamicNamed)).getOrElse {
+    var res: ScType = checkApplication(invokedType, args(isNamedDynamic = isApplyDynamicNamed)).getOrElse {
       var (processedType, importsUsed, implicitFunction, applyOrUpdateResult) =
-        ScalaPsiUtil.processTypeForUpdateOrApply(actualInvokedType, this, isShape = false).getOrElse {
+        ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, this, isShape = false).getOrElse {
           (types.Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
         }
       if (useExpectedType) {
