@@ -111,11 +111,13 @@ class ScalaResolveResult(val element: PsiNamedElement,
     case rr: ScalaResolveResult =>
       if (element ne rr.element) return false
       if (nameShadow != rr.nameShadow) return false
+      if (implicitFunction != rr.implicitFunction) return false
       innerResolveResult == rr.innerResolveResult
     case _ => false
   }
 
-  override def hashCode: Int = element.hashCode + innerResolveResult.hashCode() * 31 + nameShadow.hashCode() * 31 * 31
+  override def hashCode: Int =
+    element.hashCode + innerResolveResult.hashCode() * 31 + nameShadow.hashCode() * 31 * 31 + implicitFunction.hashCode() * 31 * 31
 
   override def toString =  {
     val name = element match {
