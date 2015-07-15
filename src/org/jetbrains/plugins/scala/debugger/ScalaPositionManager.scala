@@ -22,6 +22,7 @@ import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingEvaluator
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.debugger.smartStepInto.FunExpressionTarget
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, inReadAction}
@@ -475,7 +476,8 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     }
   }
 
-  @NotNull def getAllClasses(position: SourcePosition): util.List[ReferenceType] = {
+  @NotNull
+  def getAllClasses(position: SourcePosition): util.List[ReferenceType] = {
     val result = inReadAction {
       val sourceImage = findReferenceTypeSourceImage(position)
       sourceImage match {
@@ -512,12 +514,18 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
   private def hasLocations(refType: ReferenceType, position: SourcePosition): Boolean = {
     var hasLocations = false
     try {
-      hasLocations = locationsOfLine(refType, position).size > 0
+      hasLocations =
+        if (!position.getFile.isPhysical) { //may be generated in compiling evaluator
+          val generatedClassName = position.getFile.getUserData(ScalaCompilingEvaluator.classNameKey)
+          generatedClassName != null && refType.name().contains(generatedClassName)
+        }
+        else locationsOfLine(refType, position).size > 0
     } catch {
-      case ignore @ (_: AbsentInformationException | _: ClassNotPreparedException | _: ObjectCollectedException) =>
+      case ignore @ (_: NoDataException | _: AbsentInformationException | _: ClassNotPreparedException | _: ObjectCollectedException) =>
     }
     hasLocations
   }
+
   private def filterAllClasses(condition: ReferenceType => Boolean): util.List[ReferenceType] = {
     import scala.collection.JavaConverters._
     val allClasses = getDebugProcess.getVirtualMachineProxy.allClasses.asScala
