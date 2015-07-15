@@ -177,7 +177,7 @@ class ScalaInlineHandler extends InlineHandler {
     }
 
     def isSimpleTypeAlias(typeAlias: ScTypeAlias): Boolean =
-      typeAlias.typeParameters.length != 0
+      typeAlias.typeParameters.length == 0
 
 
     UsageTrigger.trigger(ScalaBundle.message("inline.id"))
