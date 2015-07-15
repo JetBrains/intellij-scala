@@ -32,7 +32,7 @@ trait TypeAdapter {
           case param => m.Type.Function(Seq(param), toType(t.returnTypeElement.get))
         }
       case t: ScParameterizedTypeElement =>
-        m.Type.Apply(m.Type.Name(t.typeElement.calcType.canonicalText), t.typeArgList.typeArgs.toStream.map(toType))
+        m.Type.Apply(toType(t.typeElement.calcType), t.typeArgList.typeArgs.toStream.map(toType))
       case t: ScTupleTypeElement =>
         m.Type.Tuple(Seq(t.components.map(toType):_*))
       case t: ScWildcardTypeElement =>

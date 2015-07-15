@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.meta.trees
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
@@ -58,6 +59,8 @@ trait Attributes {
             h.Denotation.Single(fqnameToPrefix(sc.getQualifiedName), toSymbol(sc))
           case mm: ScMember =>
             h.Denotation.Single(mprefix(mm.containingClass), toSymbol(mm))
+          case tp: ScTypeParam =>
+            h.Denotation.Single(h.Prefix.Zero, toSymbol(tp))
           case pp: params.ScParameter =>
             // FIXME: prefix of a parameter?
             h.Denotation.Single(h.Prefix.Zero, toSymbol(pp))

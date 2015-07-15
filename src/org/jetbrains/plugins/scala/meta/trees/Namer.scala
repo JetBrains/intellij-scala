@@ -44,6 +44,8 @@ trait Namer {
       toTypeName(re.resolve())
     case sc: impl.toplevel.synthetic.ScSyntheticClass =>
       m.Type.Name(sc.className).withDenot(sc)
+    case cr: ScStableCodeReferenceElement =>
+      toTypeName(cr.resolve())
     case se: impl.toplevel.synthetic.SyntheticNamedElement => ??? // FIXME: find a way to resolve synthetic elements
     case other => other ?!
   }
