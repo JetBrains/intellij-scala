@@ -63,6 +63,11 @@ private[expr] object ExpectedTypes {
         case ScFunctionType(retType, _) => Array[(ScType, Option[ScTypeElement])]((retType, None))
         case ScPartialFunctionType(retType, _) => Array[(ScType, Option[ScTypeElement])]((retType, None))
         case ScAbstractType(_, _, upper) => fromFunction(upper, tp._2)
+        case samType if ScalaPsiUtil.isSAMEnabled(expr) =>
+          ScalaPsiUtil.toSAMType(samType, expr.getResolveScope) match {
+            case Some(methodType) => fromFunction(methodType, tp._2)
+            case _ => Array[(ScType, Option[ScTypeElement])]()
+          }
         case _ => Array[(ScType, Option[ScTypeElement])]()
       }
     }
