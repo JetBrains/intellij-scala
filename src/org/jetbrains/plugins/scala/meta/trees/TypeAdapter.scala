@@ -73,10 +73,17 @@ trait TypeAdapter {
     tp match {
       case t: ScParameterizedType =>
         m.Type.Apply(toType(t.designator), Seq(t.typeArgs.map(toType):_*))
-      case t: ScThisType => toTypeName(t.clazz).withDenot(t.clazz)
-      case t: ScProjectionType => m.Type.Project(toType(t.projected), toTypeName(t.actualElement))
-      case t: ScDesignatorType =>  toTypeName(t.element).withDenot(t.element)
-
+      case t: ScThisType =>
+        toTypeName(t.clazz).withDenot(t.clazz)
+      case t: ScProjectionType =>
+        t.projected match {
+          case tt: ScThisType =>
+            m.Type.Select(toTermName(tt.clazz), toTypeName(t.actualElement))
+          case _ =>
+            m.Type.Project(toType(t.projected), toTypeName(t.actualElement))
+        }
+      case t: ScDesignatorType =>
+        toTypeName(t.element).withDenot(t.element)
       case t: ptype.ScType =>
         LOG.warn(s"Unknown type: ${t.getClass} - ${t.canonicalText}")
         m.Type.Name(t.canonicalText)
