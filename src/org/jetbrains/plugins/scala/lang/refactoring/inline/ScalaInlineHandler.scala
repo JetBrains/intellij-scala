@@ -177,7 +177,7 @@ class ScalaInlineHandler extends InlineHandler {
     }
 
     def isSimpleTypeAlias(typeAlias: ScTypeAlias): Boolean =
-      typeAlias.typeParameters.length > 0
+      typeAlias.typeParameters.length != 0
 
 
     UsageTrigger.trigger(ScalaBundle.message("inline.id"))
@@ -203,10 +203,10 @@ class ScalaInlineHandler extends InlineHandler {
       case funDef: ScFunctionDefinition if funDef.body.isDefined && funDef.parameters.isEmpty =>
         if (funDef.isLocal) getSettings(funDef, "Method", "local method")
         else getSettings(funDef, "Method", "method")
-      case typeAlias: ScTypeAliasDefinition if (isSimpleTypeAlias(typeAlias)) =>
-        showErrorHint(ScalaBundle.message("cannot.inline.recursive.function"), "TypeAlias")
+      case typeAlias: ScTypeAliasDefinition if (!isSimpleTypeAlias(typeAlias)) =>
+        showErrorHint(ScalaBundle.message("cannot.inline.notsimple.typealias"), "Type Alias")
       case typeAlias: ScTypeAliasDefinition =>
-        getSettings(typeAlias, "TypeAlias", "typeAlias")
+        getSettings(typeAlias, "Type Alias", "type alias")
       case _ => null
     }
   }
