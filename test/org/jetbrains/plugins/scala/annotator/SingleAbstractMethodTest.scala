@@ -31,7 +31,7 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
         |def foo(a: Blargle[String]) = a.blargle("10")
         |foo(x => println(x.charAt(0)))
       """.stripMargin
-    doPosTest(code)
+    checkCodeHasNoErrors(code)
   }
 
   def testTypeInference() {
@@ -43,7 +43,7 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
         |
         | val b: Foo = (i, j) => println(i + j.charAt(0))
       """.stripMargin
-    doPosTest(code)
+    checkCodeHasNoErrors(code)
   }
 
   def testFunctionSAM() {
@@ -52,7 +52,7 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
         |def z() = println()
         |val y: Runnable = z
       """.stripMargin
-    doPosTest(code)
+    checkCodeHasNoErrors(code)
   }
 
   def testFunctionNegOne() {
@@ -62,7 +62,7 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
         |val y: Runnable = z()
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("z()", typeMismatch()) :: Error("z()", doesNotConform()) :: Error("Runnable", null) :: Nil =>
+      case Error("z()", typeMismatch()) :: Error("z()", doesNotConform()):: Nil =>
     }
   }
 
@@ -73,7 +73,7 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
         |val y: Runnable = z
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("z", typeMismatch()) :: Error("z", doesNotConform()) :: Error("Runnable", null) :: Nil =>
+      case Error("z", typeMismatch()) :: Error("z", doesNotConform()) :: Nil =>
     }
   }
 
@@ -85,10 +85,10 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
         |val y: Runnable = x
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("x", typeMismatch()) :: Error("x", doesNotConform()) :: Error("Runnable", null) :: Nil =>
+      case Error("x", typeMismatch()) :: Error("x", doesNotConform()) :: Nil =>
     }
   }
-  
+
   def testSCL7686(): Unit = {
     val code =
       """
@@ -96,7 +96,7 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
         |val a: FI = x => "result: " + x.toString
         |println(a(5))
       """.stripMargin
-    doPosTest(code)
+    checkCodeHasNoErrors(code)
   }
 
   def testUnderscoreOne() {
@@ -105,7 +105,7 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
         |trait Foo { def bar(i: Int, s: String): String }
         |val f: Foo = _ + _
       """.stripMargin
-    doPosTest(code)
+    checkCodeHasNoErrors(code)
   }
 
   def testUnderscoreTwo() {
@@ -114,7 +114,7 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
         |trait Foo { def bar(s: String): String }
         |val i: Foo = _.charAt(0).toString
       """.stripMargin
-    doPosTest(code)
+    checkCodeHasNoErrors(code)
   }
 
   def testSimpleNeg() {
@@ -138,7 +138,7 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
       """.stripMargin
     assertMatches(messages(code)) {
       case Error("((j: Int) => j)", typeMismatch()) :: Error("((j: Int) => j)", doesNotConform()) ::
-        Error("Blergh", null) :: Nil =>
+        Error("j", doesNotConform()) :: Nil =>
     }
   }
 
@@ -151,8 +151,7 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
         |}
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("((i: Int) => \"aaa\")", typeMismatch()) :: Error("((i: Int) => \"aaa\")", doesNotConform()) ::
-        Error("Blargle", null) :: Nil =>
+      case Error("((i: Int) => \"aaa\")", typeMismatch()) :: Error("((i: Int) => \"aaa\")", doesNotConform()) :: Nil =>
     }
   }
 
@@ -165,8 +164,7 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
         |}
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("((i: Int, j: Int) => \"aaa\")", typeMismatch()) :: Error("((i: Int, j: Int) => \"aaa\")", doesNotConform()) ::
-        Error("Blargle", null) :: Nil =>
+      case Error("((i: Int, j: Int) => \"aaa\")", typeMismatch()) :: Error("((i: Int, j: Int) => \"aaa\")", doesNotConform()) :: Nil =>
     }
   }
 
@@ -179,8 +177,8 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
         |}
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("(j => j)", typeMismatch()) :: Error("(j => j)", doesNotConform()) ::
-        Error("Blergh", null) :: Nil =>
+      case Error("(j => j)", typeMismatch()) :: Error("(j => j)", doesNotConform()) :: Error("j", doesNotConform()) :: Nil =>
+
     }
   }
 
@@ -227,7 +225,7 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
         |abstract class Foo { def a(): String }
         |val f: Foo = () => ???
       """.stripMargin
-    doPosTest(code)
+    checkCodeHasNoErrors(code)
   }
 
   def testConformance(): Unit = {
@@ -238,7 +236,7 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
         |}
         |val s: SAAM = (i: Object) => ""
       """.stripMargin
-    doPosTest(code)
+    checkCodeHasNoErrors(code)
   }
 
   def testConformanceNeg(): Unit = {
@@ -256,11 +254,21 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
 
   def testSimpleThreadRunnable(): Unit = {
     val code = "new Thread(() => println()).run()"
-    doPosTest(code)
+    checkCodeHasNoErrors(code)
   }
 
-  
-  def doPosTest(code: String) {
+  def testValueDiscarding(): Unit = {
+    val code =
+      """
+        |def goo(r: Runnable) = 2
+        |
+        |
+        |goo(() => {1 + 1})
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
+  def checkCodeHasNoErrors(code: String) {
     assertMatches(messages(code)) {
       case Nil =>
     }
@@ -274,7 +282,10 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
 
     parse.depthFirst.foreach(annotator.annotate(_, mock))
 
-    mock.annotations.filterNot(_.isInstanceOf[Info])
+    mock.errorAnnotations.filter {
+      case Error(_, null) => false
+      case _ => true
+    }
   }
 
   def assertMatches[T](actual: T)(pattern: PartialFunction[T, Unit]) {
