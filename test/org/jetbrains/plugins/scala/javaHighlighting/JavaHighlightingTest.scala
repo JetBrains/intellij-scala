@@ -110,6 +110,35 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     }
   }
 
+  def testSCL5617Option(): Unit = {
+    val scala = ""
+    val java =
+      """
+        |import scala.Function1;
+        |import scala.Option;
+        |import scala.runtime.BoxedUnit;
+        |import java.util.concurrent.atomic.AtomicReference;
+        |import scala.runtime.AbstractFunction1;
+        |
+        |public class SCL5617 {
+        |     public static void main(String[] args) {
+        |        AtomicReference<Function1<Object, BoxedUnit>> f = new AtomicReference<Function1<Object, BoxedUnit>>(new AbstractFunction1<Object, BoxedUnit>() {
+        |          public BoxedUnit apply(Object o) {
+        |            Option<String> option = Option.empty();
+        |            return BoxedUnit.UNIT;
+        |          }
+        |        });
+        |
+        |        Option<Function1<Object, BoxedUnit>> o = Option.apply(f.get());
+        |    }
+        |}
+        |
+      """.stripMargin
+    assertMatches(messagesFromJavaCode(scala, java, "SCL5617")) {
+      case Nil =>
+    }
+  }
+
   def messagesFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     myFixture.addFileToProject("dummy.scala", scalaFileText)
     val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
