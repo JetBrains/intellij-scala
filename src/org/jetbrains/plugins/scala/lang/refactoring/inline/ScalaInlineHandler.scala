@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScStableReferenceElementPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -87,8 +87,18 @@ class ScalaInlineHandler extends InlineHandler {
     def createTypeAliasInliner(reference: PsiReference) = {
       def getAliasedType(): ScTypeElement =
         element.asInstanceOf[ScTypeAliasDefinition].aliasedTypeElement
-      reformat(reference.getElement.replace(getAliasedType))
+
+      val referenceOpt = reference.getElement match {
+        case e: ScStableCodeReferenceElement =>
+          Some(PsiTreeUtil.getParentOfType(e, classOf[ScTypeElement]))
+        case _ => None
+      }
+
+      referenceOpt.foreach { inValue =>
+        reformat(inValue.replace(getAliasedType))
+      }
     }
+
 
     def createExpressionInliner(reference: PsiReference) = {
       def getExpression(): ScExpression = {
@@ -126,13 +136,14 @@ class ScalaInlineHandler extends InlineHandler {
 
     new InlineHandler.Inliner {
       def inlineUsage(usage: UsageInfo, referenced: PsiElement) {
+        val reference = usage.getReference
         referenced match {
           case bp: ScBindingPattern =>
-            createExpressionInliner(usage.getReference)
+            createExpressionInliner(reference)
           case funDef: ScFunctionDefinition =>
-            createExpressionInliner(usage.getReference)
+            createExpressionInliner(reference)
           case typeAlias: ScTypeAliasDefinition =>
-            createTypeAliasInliner(usage.getReference)
+            createTypeAliasInliner(reference)
           case _ =>
         }
       }
