@@ -24,7 +24,7 @@ class ScalaSyntheticProvider extends SyntheticTypeComponentProvider {
   }
 
   private def hasSpecializationMethod(refType: ReferenceType): Boolean = {
-    refType.allMethods.asScala.exists(isSpecialization)
+    refType.methods().asScala.exists(isSpecialization)
   }
 
   private def isSpecialization(method: Method): Boolean = {
