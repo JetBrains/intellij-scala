@@ -544,7 +544,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
         }
       }
       if (cand.length == 0 && ScalaPsiUtil.approveDynamic(tp, getProject, getResolveScope) && call.isDefined) {
-        cand = ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(call.get, tp, isShape = true, noImplicits = true, isDynamic = true)
+        cand = ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(call.get, tp, isShape = true, isDynamic = true)
       }
       cand
     }
