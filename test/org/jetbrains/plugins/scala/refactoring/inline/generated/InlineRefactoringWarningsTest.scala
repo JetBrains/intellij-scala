@@ -19,4 +19,6 @@ class InlineRefactoringWarningsTest extends InlineRefactoringTestBase {
   def testRecursiveMethod = doTest
 
   def testStableReference = doTest
+
+  def testNotSimpleTypeAlias = doTest
 }
