@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScStableReferenceElementPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -74,55 +75,64 @@ class ScalaInlineHandler extends InlineHandler {
   }
 
   def createInliner(element: PsiElement, settings: InlineHandler.Settings): InlineHandler.Inliner = {
-    val expr = ScalaRefactoringUtil.unparExpr(element match {
-      case rp: ScBindingPattern => {
-        PsiTreeUtil.getParentOfType(rp, classOf[ScDeclaredElementsHolder]) match {
-          case v@ScPatternDefinition.expr(e) if v.declaredElements == Seq(element) => e
-          case v@ScVariableDefinition.expr(e) if v.declaredElements == Seq(element) => e
+    def reformat(newValue: PsiElement) = {
+      val project = newValue.getProject
+      val manager = FileEditorManager.getInstance(project)
+      val editor = manager.getSelectedTextEditor
+      occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, Array[PsiElement](newValue), editor)
+      CodeStyleManager.getInstance(project).reformatRange(newValue.getContainingFile, newValue.getTextRange.getStartOffset - 1,
+        newValue.getTextRange.getEndOffset + 1) //to prevent situations like this 2 ++2 (+2 was inlined)
+    }
+
+    def createTypeAliasInliner(reference: PsiReference) = {
+      def getAliasedType(): ScTypeElement =
+        element.asInstanceOf[ScTypeAliasDefinition].aliasedTypeElement
+      reformat(reference.getElement.replace(getAliasedType))
+    }
+
+    def createExpressionInliner(reference: PsiReference) = {
+      def getExpression(): ScExpression = {
+        ScalaRefactoringUtil.unparExpr(element match {
+          case rp: ScBindingPattern => {
+            PsiTreeUtil.getParentOfType(rp, classOf[ScDeclaredElementsHolder]) match {
+              case v@ScPatternDefinition.expr(e) if v.declaredElements == Seq(element) => e
+              case v@ScVariableDefinition.expr(e) if v.declaredElements == Seq(element) => e
+              case _ => return null
+            }
+          }
+
+          case funDef: ScFunctionDefinition if funDef.parameters.isEmpty =>
+            funDef.body.orNull
           case _ => return null
-        }
+        })
       }
-      case funDef: ScFunctionDefinition if funDef.parameters.isEmpty =>
-        funDef.body.orNull
-      case typeAlias: ScTypeAliasDefinition =>
-        ScalaPsiElementFactory.createExpressionFromText(typeAlias.aliasedType.get.presentableText, typeAlias.getManager)
-      case _ => return null
-    })
+
+      val expressionOpt = reference.getElement match {
+        case Parent(call: ScMethodCall) if call.argumentExpressions.isEmpty => Some(call)
+        case e: ScExpression => Some(e)
+        case _ => None
+      }
+
+      val expr = getExpression()
+      expressionOpt.foreach { expression =>
+        val replacement = expression match {
+          case _ childOf (_: ScInterpolatedStringLiteral) =>
+            ScalaPsiElementFactory.createExpressionFromText(s"{" + expr.getText + "}", expression.getManager)
+          case _ => expr
+        }
+        reformat(expression.replaceExpression(replacement, removeParenthesis = true))
+      }
+    }
+
     new InlineHandler.Inliner {
       def inlineUsage(usage: UsageInfo, referenced: PsiElement) {
-        val reference = usage.getReference
-        reference match {
-          case referenceExpression: ScReferenceExpression =>
-            val expressionOpt = reference.getElement match {
-              case Parent(call: ScMethodCall) if call.argumentExpressions.isEmpty => Some(call)
-              case e: ScExpression => Some(e)
-              //              case typeAlias: ScStableCodeReferenceElement =>Some(typeAlias)
-              case _ => None
-            }
-
-            expressionOpt.foreach { expression =>
-              val replacement = expression match {
-                case _ childOf (_: ScInterpolatedStringLiteral) =>
-                  ScalaPsiElementFactory.createExpressionFromText(s"{" + expr.getText + "}", expression.getManager)
-                case _ => expr
-              }
-              //change replaceExpression -> replace?
-              val newExpr = expression.replaceExpression(replacement, removeParenthesis = true)
-              val project = newExpr.getProject
-              val manager = FileEditorManager.getInstance(project)
-              val editor = manager.getSelectedTextEditor
-              occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, Array[PsiElement](newExpr), editor)
-              CodeStyleManager.getInstance(project).reformatRange(newExpr.getContainingFile, newExpr.getTextRange.getStartOffset - 1,
-                newExpr.getTextRange.getEndOffset + 1) //to prevent situations like this 2 ++2 (+2 was inlined)
-            }
-          case codeReference: ScStableCodeReferenceElement =>
-            val newExpr = codeReference.replace(expr)
-            val project = newExpr.getProject
-            val manager = FileEditorManager.getInstance(project)
-            val editor = manager.getSelectedTextEditor
-            occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, Array[PsiElement](newExpr), editor)
-            CodeStyleManager.getInstance(project).reformatRange(newExpr.getContainingFile, newExpr.getTextRange.getStartOffset - 1,
-              newExpr.getTextRange.getEndOffset + 1) //to prevent situations like this 2 ++2 (+2 was inlined)
+        referenced match {
+          case bp: ScBindingPattern =>
+            createExpressionInliner(usage.getReference)
+          case funDef: ScFunctionDefinition =>
+            createExpressionInliner(usage.getReference)
+          case typeAlias: ScTypeAliasDefinition =>
+            createTypeAliasInliner(usage.getReference)
           case _ =>
         }
       }
