@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 
+import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -248,13 +249,13 @@ object InferUtil {
     if (!expr.isInstanceOf[ScExpression]) return nonValueType
 
     // interim fix for SCL-3905.
-    def applyImplicitViewToResult(mt: ScMethodType, expectedType: Option[ScType]): ScType = {
+    def applyImplicitViewToResult(mt: ScMethodType, expectedType: Option[ScType], fromSAM: Boolean = false): ScType = {
       expectedType match {
         case Some(expectedType@ScFunctionType(expectedRet, expectedParams)) if expectedParams.length == mt.params.length
           && !mt.returnType.conforms(expectedType) =>
           mt.returnType match {
             case methodType: ScMethodType => return mt.copy(
-              returnType = applyImplicitViewToResult(methodType, Some(expectedRet)))(mt.project, mt.scope)
+              returnType = applyImplicitViewToResult(methodType, Some(expectedRet), fromSAM))(mt.project, mt.scope)
             case _ =>
           }
           val dummyExpr = ScalaPsiElementFactory.createExpressionWithContextFromText("null", expr.getContext, expr)
@@ -264,11 +265,8 @@ object InferUtil {
           expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(dummyExpr, expectedRet))
 
           new ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
-        case Some(tp) if ScalaPsiUtil.isSAMEnabled(expr) =>
-          ScalaPsiUtil.toSAMType(tp, expr.getResolveScope) match {
-            case Some(_) => tp
-            case _ => mt
-          }
+        case Some(tp) if !fromSAM && ScalaPsiUtil.isSAMEnabled(expr) =>
+          applyImplicitViewToResult(mt, ScalaPsiUtil.toSAMType(tp, expr.getResolveScope), fromSAM = true)
         case _ => mt
       }
     }
