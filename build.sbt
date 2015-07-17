@@ -125,7 +125,10 @@ lazy val ideaRunner =
 
 lazy val sbtRuntimeDependencies =
   newProject("sbtRuntimeDependencies")
-  .settings(libraryDependencies ++= DependencyGroups.sbtRuntime)
+  .settings(
+    libraryDependencies ++= DependencyGroups.sbtRuntime,
+    autoScalaLibrary := false
+  )
 
 lazy val testDownloader =
   newProject("testJarsDownloader")
