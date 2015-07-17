@@ -2335,7 +2335,8 @@ object ScalaPsiUtil {
               val params: Array[ScType] = method.getParameterList.getParameters.map {
                 param: PsiParameter => ScType.create(param.getTypeElement.getType, project, scope)
               }
-              Some(ScFunctionType(returnType, params)(project, scope))
+              val result = ScFunctionType(returnType, params)(project, scope)
+              Some(sub.subst(result))
             } else None
         }
       case None => None
