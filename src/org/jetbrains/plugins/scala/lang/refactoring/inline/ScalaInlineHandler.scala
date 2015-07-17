@@ -102,11 +102,11 @@ class ScalaInlineHandler extends InlineHandler {
             case expression: ScExpression =>
               val oldValue = expression match {
                 case _ childOf (_: ScInterpolatedStringLiteral) =>
-                  ScalaPsiElementFactory.createExpressionFromText(s"{" + replacementValue + "}", replacement.getManager)
+                 s"{" + replacementValue + "}"
                 case _ =>
-                  ScalaPsiElementFactory.createExpressionFromText(replacementValue, replacement.getManager)
+                  replacementValue
               }
-              expression.replaceExpression(oldValue, removeParenthesis = true)
+              expression.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(oldValue, replacement.getManager), removeParenthesis = true)
             case typeElement: ScTypeElement =>
               replacement.replace(ScalaPsiElementFactory.createTypeElementFromText(replacementValue, replacement.getManager))
           }
