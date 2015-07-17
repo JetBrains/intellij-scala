@@ -37,7 +37,7 @@ lazy val scalaCommunity: Project =
     libraryDependencies ++= DependencyGroups.scalaCommunity,
     libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test",
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
-    unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "scalap", "nailgun", "scalastyle", "scalatest-finders"),
+    unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "scalap", "nailgun", "scalastyle"),
     ideaInternalPlugins := Seq(
       "copyright",
       "gradle",
