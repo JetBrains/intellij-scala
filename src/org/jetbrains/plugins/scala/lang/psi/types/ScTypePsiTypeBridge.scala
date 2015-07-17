@@ -8,6 +8,7 @@ import java.util
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
@@ -171,9 +172,10 @@ trait ScTypePsiTypeBridge {
       case ScCompoundType(Seq(typez, _*), _, _) => toPsi(typez, project, scope)
       case ScDesignatorType(c: ScTypeDefinition) if ScType.baseTypesQualMap.contains(c.qualifiedName) =>
         toPsi(ScType.baseTypesQualMap.get(c.qualifiedName).get, project, scope, noPrimitives, skolemToWildcard)
-      case ScDesignatorType(valType: ScClass) if isValueType(valType) && !noPrimitives =>
+      case ScDesignatorType(valType: ScClass) if isValueType(valType) =>
         valType.parameters.head.getRealParameterType(TypingContext.empty) match {
-          case Success(tp, _) => toPsi(tp, project, scope, noPrimitives, skolemToWildcard)
+          case Success(tp, _) if !(noPrimitives && ScalaEvaluatorBuilderUtil.isPrimitiveScType(tp)) =>
+            toPsi(tp, project, scope, noPrimitives, skolemToWildcard)
           case _ => createType(valType)
         }
       case ScDesignatorType(c: PsiClass) => createType(c)

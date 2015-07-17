@@ -39,6 +39,49 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     }
   }
 
+  def testValueTypes(): Unit = {
+    val scala =
+      """
+        |class Order(val limitPrice: Price, val qty: Quantity)
+        |class Prices(val prices: java.util.List[Price])
+        |
+        |class Price(val doubleVal: Double) extends AnyVal
+        |class Quantity(val doubleVal: Double) extends AnyVal
+        |class Bar
+        |class BarWrapper(val s: Bar) extends AnyVal
+        |class BarWrappers(val bars: java.util.List[BarWrapper])
+        |
+      """.stripMargin
+    val java =
+      """
+        |import java.util.ArrayList;
+        |
+        |public class JavaHighlightingValueTypes {
+        |
+        |    public static void main(String[] args) {
+        |        Order o = new Order(19.0, 10);
+        |        System.out.println("Hello World! " + o.limitPrice());
+        |        Price p = new Price(10);
+        |
+        |        Prices pr = new Prices(new ArrayList<Price>());
+        |        BarWrappers barWrappers = new BarWrappers(new ArrayList<Bar>());
+        |
+        |        doublePrice(new Price(10.0));
+        |        doublePrice(42.0);
+        |    }
+        |
+        |    public static void doublePrice(Price p) {
+        |        System.out.println(p.doubleVal() * 2);
+        |    }
+        |
+        |}
+      """.stripMargin
+
+    assertMatches(messagesFromJavaCode(scala, java, javaClassName = "JavaHighlightingValueTypes")) {
+      case Error("(42.0)", CannotBeApplied()) :: Nil =>
+    }
+  }
+
   def testOptionApply(): Unit = {
     val java =
       """
@@ -107,49 +150,6 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
       """.stripMargin
     assertMatches(messagesFromJavaCode(scala, java, javaClassName = "ThrowsJava")) {
       case Nil =>
-    }
-  }
-
-  def testValueTypes(): Unit = {
-    val scala =
-      """
-        |class Order(val limitPrice: Price, val qty: Quantity)
-        |class Prices(val prices: java.util.List[Price])
-        |
-        |class Price(val doubleVal: Double) extends AnyVal
-        |class Quantity(val doubleVal: Double) extends AnyVal
-        |
-      """.stripMargin
-    val java =
-      """
-        |import java.util.ArrayList;
-        |
-        |public class JavaHighlightingValueTypes {
-        |
-        |    public static void main(String[] args) {
-        |        Order o = new Order(19.0, 10);
-        |
-        |        System.out.println("Hello World! " + o.limitPrice());
-        |
-        |        Price p = new Price(10);
-        |        ArrayList<Price> prices = new ArrayList<Price>();
-        |        prices.add(new Price(10));
-        |        Prices pr = new Prices(prices);
-        |
-        |        Quantity q = new Quantity(10);
-        |        doublePrice(new Price(10.0));
-        |        doublePrice(42.0);
-        |    }
-        |
-        |    public static void doublePrice(Price p) {
-        |        System.out.println(p.doubleVal() * 2);
-        |    }
-        |
-        |}
-      """.stripMargin
-
-    assertMatches(messagesFromJavaCode(scala, java, javaClassName = "JavaHighlightingValueTypes")) {
-      case Error("(42.0)", CannotBeApplied()) :: Nil =>
     }
   }
 
