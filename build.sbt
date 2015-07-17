@@ -28,7 +28,6 @@ addCommandAlias("packagePluginZip", "pluginCompressor/package")
 lazy val scalaCommunity: Project =
   newProject("scalaCommunity", file("."))
   .dependsOn(compilerSettings, runners % "test->test;compile->compile")
-  .aggregate(jpsPlugin, sbtRuntimeDependencies, testDownloader, compilerSettings, runners, nailgunRunners, scalaRunner)
   .enablePlugins(SbtIdeaPlugin)
   .settings(
     ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
@@ -53,7 +52,7 @@ lazy val scalaCommunity: Project =
     },
     aggregate.in(updateIdea) := false,
     // jar hell workaround(ignore idea bundled lucene in test runtime)
-    fullClasspath in Test := {(fullClasspath in Test).value.filterNot(_.data.getName.endsWith("lucene-core-2.4.1.jar"))},
+    fullClasspath in Test <<= fullClasspath.in(Test).map(filterTestClasspath),
     fork in Test := true,
     parallelExecution := false,
     javaOptions in Test := Seq(

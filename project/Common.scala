@@ -24,4 +24,7 @@ object Common {
     }
     (sdkPathFinder * globFilter("*.jar")).classpath
   }
+
+  def filterTestClasspath(classpath: Def.Classpath): Def.Classpath =
+    classpath.filterNot(_.data.getName.endsWith("lucene-core-2.4.1.jar"))
 }
