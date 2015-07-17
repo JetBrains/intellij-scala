@@ -27,4 +27,13 @@ object Common {
 
   def filterTestClasspath(classpath: Def.Classpath): Def.Classpath =
     classpath.filterNot(_.data.getName.endsWith("lucene-core-2.4.1.jar"))
+
+  val slowTestsCategory: String =
+    "org.jetbrains.plugins.scala.SlowTests"
+
+  val testConfigDir: File =
+    Path.userHome / ".IdeaData" / "IDEA-15" / "scala" / "test-config"
+
+  val testSystemDir: File =
+    Path.userHome / ".IdeaData" / "IDEA-15" / "scala" / "test-system"
 }
