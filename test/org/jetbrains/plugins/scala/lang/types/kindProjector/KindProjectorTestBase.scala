@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAda
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScParameterizedType, ScProjectionType}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 /**
@@ -49,14 +46,12 @@ abstract class KindProjectorTestBase extends ScalaLightPlatformCodeInsightTestCa
     val endOffset = fileText.indexOf(endExprMarker)
     assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
 
-    val addOne = if(PsiTreeUtil.getParentOfType(scalaFile.findElementAt(startOffset),classOf[ScExpression]) != null) 0 else 1 //for xml tests
     val expr: ScParameterizedTypeElement = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset, endOffset, classOf[ScParameterizedTypeElement])
     assert(expr != null, "Not specified expression in range to infer type.")
     val typez = expr.computeDesugarizedType
     typez match {
 
       case Some(tp) =>
-//      case Success(tp @ (_: ScProjectionType | _: ScParameterizedType), _) =>
         val res = tp.getText
         val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
         val text = lastPsi.getText
@@ -67,15 +62,7 @@ abstract class KindProjectorTestBase extends ScalaLightPlatformCodeInsightTestCa
           case _ => assertTrue("Test result must be in last comment statement.", false)
         }
         assertEquals(output, res)
-//      case Success(_: ScParameterizedType, _) =>
-//        assert(assertion = false, message = "Projection type not created from parameterized type")
       case _ => assert(assertion = false, message = "Projection type not created from parameterized type")
-      //      case Success(_, _) =>
-//        assert(assertion = false, message = "Expression has no projection type")
-//      case Failure(msg, elem) => assert(assertion = false, message = msg + " :: " + (elem match {
-//        case Some(x) => x.getText
-//        case None => "empty element"
-//      }))
     }
   }
 }
