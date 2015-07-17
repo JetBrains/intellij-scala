@@ -2048,6 +2048,11 @@ object ScalaPsiUtil {
     }
   }
 
+  def isMethodValue(ref: ScReferenceExpression): Boolean = ref match {
+    case ResolvesTo(m: PsiMethod) if m.getParameterList.getParametersCount > 0 && !ref.getParent.isInstanceOf[MethodInvocation] => true
+    case _ => false
+  }
+
   /** Creates a synthetic parameter clause based on view and context bounds */
   def syntheticParamClause(paramOwner: ScTypeParametersOwner, paramClauses: ScParameters, classParam: Boolean): Option[ScParameterClause] = {
     if (paramOwner == null) return None
