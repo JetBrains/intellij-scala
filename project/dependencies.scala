@@ -62,7 +62,7 @@ object Dependencies {
   val mavenIndexerCore = "org.apache.maven.indexer" % "indexer-core" % "6.0"
   val mavenModel = "org.apache.maven" % "maven-model" % "3.0.5"
 
-
+  val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
 }
 
 object DependencyGroups {
