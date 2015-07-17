@@ -61,10 +61,12 @@ lazy val scalaCommunity: Project =
       "-Xmx1024m",
       "-XX:MaxPermSize=350m",
       "-ea",
-      s"-Didea.system.path=${Path.userHome}/.IdeaData/IDEA-15/scala/test-system",
-      s"-Didea.config.path=${Path.userHome}/.IdeaData/IDEA-15/scala/test-config",
+      s"-Didea.system.path=$testSystemDir",
+      s"-Didea.config.path=$testConfigDir",
       s"-Dplugin.path=${baseDirectory.value}/out/plugin/Scala"
-    )
+    ),
+    test in Test <<= test.in(Test).dependsOn(setUpTestEnvironment),
+    testOnly in Test <<= testOnly.in(Test).dependsOn(setUpTestEnvironment)
   )
 
 lazy val jpsPlugin  =
@@ -144,6 +146,26 @@ lazy val testDownloader =
       "com.chuusai" % "shapeless_2.11" % "2.0.0"
     )
   )
+
+// Testing keys and settings
+
+addCommandAlias("runSlowTests", s"testOnly -- --include-categories=$slowTestsCategory")
+
+addCommandAlias("runFastTests", s"testOnly -- --exclude-categories=$slowTestsCategory")
+
+lazy val setUpTestEnvironment = taskKey[Unit]("Set up proper environment for running tests")
+
+setUpTestEnvironment in ThisBuild := {
+  streams.value.log.info(s"Cleaning up test system and config directories")
+  IO.delete(testSystemDir)
+  IO.delete(testConfigDir)
+  update.in(testDownloader).value
+}
+
+concurrentRestrictions in Global := Seq(
+  Tags.limit(Tags.Test, 1)
+)
+
 
 // Packaging projects
 
