@@ -25,7 +25,7 @@ object Dependencies {
   val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2"
   val sbtStructureCore = "org.jetbrains" % "sbt-structure-core_2.11" % sbtStructureVersion
   val evoInflector = "org.atteo" % "evo-inflector" % "1.2"
-  val scalatestFinders = "org.scalatest" % "scalatest-finders" % "0.9.6"
+  val scalatestFindersPatched = "org.scalatest" % "scalatest-finders-patched" % "0.9.6"
 
   val plexusContainerDefault = "org.codehaus.plexus" % "plexus-container-default" % "1.5.5"
   val plexusClassworlds = "org.codehaus.plexus" % "plexus-classworlds" % "2.4"
@@ -121,7 +121,8 @@ object DependencyGroups {
     scalaXml,
     scalaParserCombinators,
     sbtStructureCore,
-    evoInflector
+    evoInflector,
+    scalatestFindersPatched
   ) ++ mavenIndexer
 
   val scalaRunner = Seq(
