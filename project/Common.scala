@@ -11,7 +11,8 @@ object Common {
       scalaVersion := Versions.scalaVersion,
       unmanagedSourceDirectories in Compile += baseDirectory.value / "src",
       unmanagedSourceDirectories in Test += baseDirectory.value / "test",
-      unmanagedResourceDirectories in Compile += baseDirectory.value / "resources"
+      unmanagedResourceDirectories in Compile += baseDirectory.value / "resources",
+      libraryDependencies += Dependencies.junitInterface
     )
 
   def newProject(projectName: String): Project =
