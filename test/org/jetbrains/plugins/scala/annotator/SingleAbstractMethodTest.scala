@@ -268,6 +268,16 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
     checkCodeHasNoErrors(code)
   }
 
+  def testJavaGenerics(): Unit = {
+    val code =
+      """
+        |import java.util.concurrent.FutureTask
+        |
+        |new FutureTask[String](() => "hi")
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
   def checkCodeHasNoErrors(code: String) {
     assertMatches(messages(code)) {
       case Nil =>
