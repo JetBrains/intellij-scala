@@ -27,10 +27,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement,
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScProjectionType, ScTypeParameterType, ScFunctionType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
@@ -102,7 +103,7 @@ class ScalaInlineHandler extends InlineHandler {
             case expression: ScExpression =>
               val oldValue = expression match {
                 case _ childOf (_: ScInterpolatedStringLiteral) =>
-                 s"{" + replacementValue + "}"
+                  s"{" + replacementValue + "}"
                 case _ =>
                   replacementValue
               }
@@ -172,8 +173,14 @@ class ScalaInlineHandler extends InlineHandler {
       } else settings
     }
 
-    def isSimpleTypeAlias(typeAlias: ScTypeAlias): Boolean =
+    def isSimpleTypeAlias(typeAlias: ScTypeAliasDefinition): Boolean =
       typeAlias.typeParameters.isEmpty
+
+    def isProjectionRef(typeAlias: ScTypeAliasDefinition): Boolean =
+      typeAlias.aliasedTypeElement.calcType.isInstanceOf[ScProjectionType]
+
+    def isTypeParameter(typeAlias: ScTypeAliasDefinition): Boolean =
+      typeAlias.aliasedTypeElement.calcType.isInstanceOf[ScTypeParameterType]
 
 
     UsageTrigger.trigger(ScalaBundle.message("inline.id"))
@@ -201,6 +208,10 @@ class ScalaInlineHandler extends InlineHandler {
         else getSettings(funDef, "Method", "method")
       case typeAlias: ScTypeAliasDefinition if !isSimpleTypeAlias(typeAlias) =>
         showErrorHint(ScalaBundle.message("cannot.inline.notsimple.typealias"), "Type Alias")
+      case typeAlias: ScTypeAliasDefinition if isProjectionRef(typeAlias) =>
+        showErrorHint(ScalaBundle.message("cannot.inline.projectionref.typealias"), "Type Alias")
+      case typeAlias: ScTypeAliasDefinition if isTypeParameter(typeAlias) =>
+        showErrorHint(ScalaBundle.message("cannot.inline.typeparameter.typealias"), "Type Alias")
       case typeAlias: ScTypeAliasDefinition =>
         getSettings(typeAlias, "Type Alias", "type alias")
       case _ => null
