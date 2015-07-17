@@ -110,6 +110,27 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     }
   }
 
+  def testOverrideFinal(): Unit = {
+    val scala = ""
+    val java =
+      """
+        |import scala.Function1;
+        |import scala.concurrent.ExecutionContext;
+        |
+        |public abstract class Future<T> implements scala.concurrent.Future<T> {
+        |
+        |    @Override
+        |    public scala.concurrent.Future<T> withFilter(Function1<T, Object> pred, ExecutionContext executor) {
+        |        return null;
+        |    }
+        |}
+      """.stripMargin
+
+    assertMatches(messagesFromJavaCode(scala, java, "Future")) {
+      case Nil =>
+    }
+  }
+
   def messagesFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     myFixture.addFileToProject("dummy.scala", scalaFileText)
     val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
