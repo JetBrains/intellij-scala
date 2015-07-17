@@ -174,6 +174,55 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
 
   }
 
+
+  def testClassParameter(): Unit = {
+    val scala =
+      """
+        |class ScalaClass (var name: String, var surname: String)
+        |
+        |object Start {
+        |  def main(args: Array[String]) {
+        |    val scalaClassObj = new ScalaClass("Dom", "Sien")
+        |    println(scalaClassObj.name)
+        |    println(scalaClassObj.surname)
+        |
+        |    val javaClassObj = new JavaClass("Dom2", "Sien2", 31)
+        |    println(javaClassObj.name)
+        |    println(javaClassObj.surname)
+        |    println(javaClassObj.getAge)
+        |  }
+        |}
+      """.stripMargin
+
+    val java =
+      """
+        |public class JavaClass extends ScalaClass {
+        |  private int age;
+        |
+        |  public JavaClass(String name, String surname, int age) {
+        |    super(name, surname);
+        |    this.age = age;
+        |  }
+        |
+        |  public int getAge() {
+        |    return age;
+        |  }
+        |
+        |  public void setAge(int age) {
+        |    this.age = age;
+        |  }
+        |}
+      """.stripMargin
+
+    assertMatches(messagesFromJavaCode(scala, java, "JavaClass")) {
+      case Nil =>
+    }
+
+    assertMatches(messagesFromScalaCode(scala, java)) {
+      case Nil =>
+    }
+  }
+
   def messagesFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     myFixture.addFileToProject("dummy.scala", scalaFileText)
     val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
