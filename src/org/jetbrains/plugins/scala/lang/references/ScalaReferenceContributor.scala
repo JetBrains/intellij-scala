@@ -35,10 +35,9 @@ class ScalaReferenceContributor extends PsiReferenceContributor {
 class InterpolatedStringReferenceProvider extends PsiReferenceProvider {
   override def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] = {
     element match {
+      case s: ScInterpolatedStringLiteral => Array.empty
       case l: ScLiteral if (l.isString || l.isMultiLineString) && l.getText.contains("$") =>
-        val interpolated = l.asOptionOf[ScInterpolatedStringLiteral]
-          .getOrElse(ScalaPsiElementFactory.createExpressionFromText("s" + l.getText, l.getContext))
-
+        val interpolated = ScalaPsiElementFactory.createExpressionFromText("s" + l.getText, l.getContext)
         interpolated.getChildren.filter {
           case r: ScInterpolatedStringPartReference => false
           case ref: ScReferenceExpression => true
