@@ -33,26 +33,27 @@ class Specs2ConfigurationProducer extends {
     super.findExistingByElement(location, existingConfigurations, context)
   }
 
-  override def createConfigurationByLocation(location: Location[_ <: PsiElement]): RunnerAndConfigurationSettings = {
+  override def createConfigurationByLocation(location: Location[_ <: PsiElement]): Option[(PsiElement, RunnerAndConfigurationSettings)] = {
     val element = location.getPsiElement
-    if (element == null) return null
+    if (element == null) return None
 
     if (element.isInstanceOf[PsiPackage] || element.isInstanceOf[PsiDirectory]) {
       val name = element match {
         case p: PsiPackage => p.getName
         case d: PsiDirectory => d.getName
       }
-      return TestConfigurationUtil.packageSettings(element, location, confFactory, ScalaBundle.message("test.in.scope.specs2.presentable.text", name))
+      return Some((element, TestConfigurationUtil.packageSettings(element, location, confFactory, ScalaBundle.message("test.in.scope.specs2.presentable.text", name))))
     }
 
     val parent: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
 
-    if (parent == null) return null
+    if (parent == null) return None
 
     val settings = RunManager.getInstance(location.getProject).createRunConfiguration(parent.name, confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[Specs2RunConfiguration]
-    val (testClassPath, testName) = getLocationClassAndTest(location)
-    if (testClassPath == null) return null
+    val (testClass, testName) = getLocationClassAndTest(location)
+    if (testClass == null) return None
+    val testClassPath = testClass.qualifiedName
     runConfiguration.setTestClassPath(testClassPath)
     runConfiguration.setTestKind(TestKind.CLASS)
     runConfiguration.initWorkingDir()
@@ -61,8 +62,7 @@ class Specs2ConfigurationProducer extends {
     // is the name of an example to be filtered.
     if (testName != null) {
       val options = runConfiguration.getJavaOptions
-      val exampleFilterProperty = "-Dspecs2.ex=\"" + testName + "\""
-      runConfiguration.setJavaOptions(Seq(options,  exampleFilterProperty).mkString(" "))
+      runConfiguration.setJavaOptions(options)
       val name = testClassPath + "::" + testName
       runConfiguration.setGeneratedName(name)
       runConfiguration.setName(name)
@@ -79,7 +79,7 @@ class Specs2ConfigurationProducer extends {
       case e: Exception =>
     }
     JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(runConfiguration, location)
-    settings
+    Some((testClass, settings))
   }
 
   override def isConfigurationByLocation(configuration: RunConfiguration, location: Location[_ <: PsiElement]): Boolean = {
@@ -98,7 +98,9 @@ class Specs2ConfigurationProducer extends {
 
     if (!ScalaPsiUtil.cachedDeepIsInheritor(parent, suiteClazz)) return false
 
-    val (testClassPath, testName) = getLocationClassAndTest(location)
+    val (testClass, testName) = getLocationClassAndTest(location)
+    if (testClass == null) return false
+    val testClassPath = testClass.qualifiedName
 
     configuration match {
       case configuration: Specs2RunConfiguration if configuration.getTestKind == TestKind.CLASS &&
@@ -116,7 +118,7 @@ class Specs2ConfigurationProducer extends {
       flatMap(TestConfigurationUtil.getStaticTestName(_))
   }
 
-  def getLocationClassAndTest(location: Location[_ <: PsiElement]): (String, String) = {
+  def getLocationClassAndTest(location: Location[_ <: PsiElement]): (ScTypeDefinition, String) = {
     val element = location.getPsiElement
     val testClassDef: ScTypeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition], false)
     if (testClassDef == null) return (null, null)
@@ -130,8 +132,8 @@ class Specs2ConfigurationProducer extends {
     val testClassPath = testClassDef.qualifiedName
 
     ScalaPsiUtil.getParentWithProperty(element, strict = false, e => TestNodeProvider.isSpecs2TestExpr(e)) match {
-      case Some(infixExpr: ScInfixExpr) => extractStaticTestName(infixExpr).map((testClassPath, _)).getOrElse((testClassPath, null))
-      case _ => (testClassPath, null)
+      case Some(infixExpr: ScInfixExpr) => (testClassDef, extractStaticTestName(infixExpr).orNull)
+      case _ => (testClassDef, null)
     }
   }
 }

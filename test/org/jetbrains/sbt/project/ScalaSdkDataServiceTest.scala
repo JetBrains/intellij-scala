@@ -84,7 +84,8 @@ class ScalaSdkDataServiceTest extends ProjectDataServiceTestCase with UsefulTest
       "-language:reflectiveCalls",
       "-no-specialization",
       "-unchecked",
-      "-nowarn"
+      "-nowarn",
+      "-XmyCoolAdditionalOption"
     )
 
     importProjectData(generateProject("2.11.5", Some("2.11.5"), options))
@@ -93,8 +94,9 @@ class ScalaSdkDataServiceTest extends ProjectDataServiceTestCase with UsefulTest
 
     assert(compilerConfiguration.debuggingInfoLevel == DebuggingInfoLevel.Source)
     assert(compilerConfiguration.plugins == Seq("test-plugin.jar"))
-    assert(compilerConfiguration.additionalCompilerOptions == Seq("-Xexperimental"))
+    assert(compilerConfiguration.additionalCompilerOptions == Seq("-XmyCoolAdditionalOption"))
     assert(compilerConfiguration.continuations)
+    assert(compilerConfiguration.experimental)
     assert(compilerConfiguration.deprecationWarnings)
     assert(compilerConfiguration.dynamics)
     assert(compilerConfiguration.existentials)

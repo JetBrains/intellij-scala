@@ -6,7 +6,6 @@ import java.util
 import com.intellij.codeInspection.InspectionManager
 import com.intellij.codeInspection.ex.InspectionManagerEx
 import com.intellij.ide.highlighter.JavaFileType
-import com.intellij.lang.ASTNode
 import com.intellij.lang.annotation.Annotation
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
@@ -16,25 +15,27 @@ import com.intellij.openapi.projectRoots.{JavaSdkType, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope}
+import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
-import org.jetbrains.plugins.scala.codeInspection.internal.AnnotatorBasedErrorInspection
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
+import org.jetbrains.plugins.scala.{ScalaFileType, SlowTests, extensions}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSystemSettings
+import org.junit.experimental.categories.Category
 
 /**
  * @author Alefas
  * @since 12/11/14.
  */
+
+@Category(Array(classOf[SlowTests]))
 class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
   override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
     val settings = new SbtProjectSettings

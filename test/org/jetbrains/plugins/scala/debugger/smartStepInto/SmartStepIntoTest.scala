@@ -382,4 +382,31 @@ class SmartStepIntoTest extends SmartStepIntoTestBase {
     }
   }
 
+  def testMethodValue(): Unit = {
+    addFileToProject("Sample.scala",
+    """
+      |object Sample {
+      |  def main(args: Array[String]): Unit = {
+      |    val a = new A(Seq(1, 2, 3))
+      |    a.update(incr)
+      |  }
+      |
+      |  def incr(i: Int): Int = i + 1
+      |
+      |  class A(var seq: Seq[Int]) {
+      |    def update(f: Int => Int) = {
+      |      seq = seq.map(f)
+      |    }
+      |  }
+      |}
+      |""".stripMargin.trim
+    )
+    addBreakpoint("Sample.scala", 3)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      checkSmartStepTargets("update(Function1<Object, Object>)", "f: (Int) => Int")
+      checkSmartStepInto("f: (Int) => Int", "Sample.scala", "apply", 4)
+    }
+  }
+
 }

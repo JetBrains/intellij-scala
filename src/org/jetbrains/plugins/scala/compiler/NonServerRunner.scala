@@ -69,7 +69,11 @@ class NonServerRunner(project: Project, errorHandler: Option[ErrorHandler] = Non
             val reader = new BufferedReader(new InputStreamReader(p.getInputStream))
             new MyBase64StreamReader(reader, listener)
 
-             ProcessWaitFor.attach(p, new Consumer[Integer] {
+            val processWaitFor = new ProcessWaitFor(p, new TaskExecutor {
+              override def executeTask(task: Runnable): Future[_] = BaseOSProcessHandler.ExecutorServiceHolder.submit(task)
+            })
+
+            processWaitFor.setTerminationCallback(new Consumer[Integer] {
               override def consume(t: Integer) {
                 myCallbacks.foreach(c => c())
               }

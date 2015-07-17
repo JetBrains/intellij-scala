@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodePro
 class ScalaStructureViewModel(private val myRootElement: ScalaFile, private val console: ScalaLanguageConsole = null)
   extends TextEditorBasedStructureViewModel(myRootElement) with StructureViewModel.ElementInfoProvider {
   def isAlwaysLeaf(element: StructureViewTreeElement): Boolean = !(isAlwaysShowsPlus(element) ||
-      element.isInstanceOf[TestStructureViewElement])
+      element.isInstanceOf[TestStructureViewElement] || element.isInstanceOf[ScalaValueStructureViewElement])
 
   def isAlwaysShowsPlus(element: StructureViewTreeElement): Boolean = {
     element match {

@@ -78,7 +78,7 @@ class ActivatorProjectBuilder extends AbstractExternalModuleBuilder[SbtProjectSe
         //todo Looks like template name can't be set without some hack (activator itself can't do it)
 
         createStub(info.id, contentPath)
-    } getOrElse error("Can't download templates list")
+    } getOrElse error("Can't download template")
 
     modifiableRootModel.inheritSdk()
 
