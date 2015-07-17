@@ -49,7 +49,7 @@ public class ActivatorTemplateList {
     list1.addListSelectionListener(new ListSelectionListener() {
       @Override
       public void valueChanged(ListSelectionEvent listSelectionEvent) {
-        textArea1.setText(assemblyText(listSelectionEvent.getLastIndex()));
+        textArea1.setText(assemblyText(list1.getSelectedIndex()));
       }
     });
   }
@@ -59,7 +59,7 @@ public class ActivatorTemplateList {
   }
 
   public String getSelectedTemplate() {
-    return (String) list1.getModel().getElementAt(list1.getSelectedIndex());
+    return templateListModel.getId(list1.getSelectedIndex());
   }
 
   private String assemblyText(int idx) {

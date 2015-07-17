@@ -16,6 +16,7 @@
 package org.jetbrains.plugins.scala;
 
 import com.intellij.debugger.DebuggerManager;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.compiler.CompilerManager;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.project.Project;
@@ -46,7 +47,9 @@ public class ScalaLoader implements ApplicationComponent { //todo: to remove?
   }
 
   public void initComponent() {
-    loadScala();
+    if (!isUnderUpsource()) {
+      loadScala();
+    }
   }
 
   public static void loadScala() {
@@ -59,8 +62,11 @@ public class ScalaLoader implements ApplicationComponent { //todo: to remove?
         DebuggerManager.getInstance(project).addClassNameMapper(new ScalaJVMNameMapper());
       }
     });
+  }
 
-
+  public static boolean isUnderUpsource() {
+    // The following check is hardly bulletproof, however (currently) there is no API to query that
+    return ApplicationManager.getApplication().getClass().getSimpleName().contains("Upsource");
   }
 
   public void disposeComponent() {

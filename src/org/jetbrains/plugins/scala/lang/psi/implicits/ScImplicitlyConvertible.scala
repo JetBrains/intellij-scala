@@ -227,15 +227,15 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
         case _ => None
       }
 
-      def firstArgType = funType.map(_.typeArgs.apply(0))
+      def firstArgType = funType.map(_.typeArgs.head)
       
       def secondArgType = funType.map(_.typeArgs.apply(1))
       
       val subst = r.substitutor
       val (tp: ScType, retTp: ScType) = r.element match {
-        case f: ScFunction if f.paramClauses.clauses.length > 0 =>
-          val params = f.paramClauses.clauses.apply(0).parameters
-          (subst.subst(params.apply(0).getType(TypingContext.empty).getOrNothing),
+        case f: ScFunction if f.paramClauses.clauses.nonEmpty =>
+          val params = f.paramClauses.clauses.head.parameters
+          (subst.subst(params.head.getType(TypingContext.empty).getOrNothing),
            subst.subst(f.returnType.getOrNothing))
         case f: ScFunction =>
           Conformance.undefinedSubst(funType.getOrElse(return default), subst.subst(f.returnType.getOrElse(return default))).getSubstitutor match {
@@ -423,10 +423,10 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                 }
               }
             }
-            if (clauses.length == 0) {
+            if (clauses.isEmpty) {
               val rt = subst.subst(f.returnType.getOrElse(return true))
               if (funType == null || !rt.conforms(funType)) return true
-            } else if (clauses(0).parameters.length != 1 || clauses(0).isImplicit) return true
+            } else if (clauses.head.parameters.length != 1 || clauses.head.isImplicit) return true
             addResult(new ScalaResolveResult(f, subst, getImports(state)))
           case b: ScBindingPattern =>
             ScalaPsiUtil.nameContext(b) match {
@@ -484,7 +484,7 @@ object ScImplicitlyConvertible {
 
   def setupFakeCall(expr: ScMethodCall, rr: ScalaResolveResult, tp: ScType, expected: Option[ScType]) {
     expr.getInvokedExpr.putUserData(FAKE_RESOLVE_RESULT_KEY, rr)
-    expr.args.exprs.apply(0).putUserData(FAKE_EXPRESSION_TYPE_KEY, tp)
+    expr.args.exprs.head.putUserData(FAKE_EXPRESSION_TYPE_KEY, tp)
     expr.putUserData(FAKE_EXPECTED_TYPE_KEY, expected)
   }
 

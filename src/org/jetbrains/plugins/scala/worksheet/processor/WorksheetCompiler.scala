@@ -3,6 +3,7 @@ package worksheet.processor
 
 import com.intellij.compiler.impl.CompilerErrorTreeView
 import com.intellij.compiler.progress.CompilerTask
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.components.ServiceManager
@@ -18,6 +19,7 @@ import com.intellij.util.ui.MessageCategory
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.server._
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
@@ -58,18 +60,28 @@ class WorksheetCompiler {
           WorksheetEditorPrinter.newWorksheetUiFor(editor, worksheetVirtual)
         worksheetPrinter.scheduleWorksheetUpdate()
 
+        val onError = (msg: String) => {
+          NotificationUtil.builder(project, msg).setGroup(
+            "Scala").setNotificationType(NotificationType.ERROR).setTitle(CONFIG_ERROR_HEADER).show()
+        }
+
         val consumer = new RemoteServerConnector.CompilerInterfaceImpl(task, worksheetPrinter, None, auto)
 
         task.start(new Runnable {
           override def run() {
             //todo smth with exit code
-            new RemoteServerConnector(
-              RunWorksheetAction getModuleFor worksheetFile, tempFile, outputDir, name
-            ).compileAndRun(new Runnable {
-              override def run() {
-                if (runType == OutOfProcessServer) callback(name, outputDir.getAbsolutePath)
-              }
-            }, worksheetVirtual, consumer)
+            try {
+              new RemoteServerConnector(
+                RunWorksheetAction getModuleFor worksheetFile, tempFile, outputDir, name
+              ).compileAndRun(new Runnable {
+                override def run() {
+                  if (runType == OutOfProcessServer) callback(name, outputDir.getAbsolutePath)
+                }
+              }, worksheetVirtual, consumer)
+            }
+            catch {
+              case ex: IllegalArgumentException => onError(ex.getMessage)
+            }
           }
         }, new Runnable {override def run() {}})
       case Right(errorMessage: PsiErrorElement) =>
@@ -117,6 +129,8 @@ class WorksheetCompiler {
 object WorksheetCompiler extends WorksheetPerFileConfig {
   private val MAKE_BEFORE_RUN = new FileAttribute("ScalaWorksheetMakeBeforeRun", 1, true)
   private val ERROR_CONTENT_NAME = "Worksheet errors"
+
+  val CONFIG_ERROR_HEADER = "Worksheet configuration error:"
 
   def getCompileKey = Key.create[String]("scala.worksheet.compilation")
   def getOriginalFileKey = Key.create[String]("scala.worksheet.original.file")

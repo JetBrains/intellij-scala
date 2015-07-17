@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
+import _root_.scala.collection.mutable.ArrayBuffer
+
 /**
  * @author Alefas
  * @since 07.12.12
@@ -18,8 +20,8 @@ object LightUtil {
    * @return Java throws section string or empty string
    */
   def getThrowsSection(holder: ScAnnotationsHolder): String = {
-    holder.hasAnnotation("scala.throws") match {
-      case Some(annotation) =>
+    val throwAnnotations = holder.allMatchingAnnotations("scala.throws").foldLeft[ArrayBuffer[String]](ArrayBuffer()) {
+      case (accumulator, annotation) =>
         val classes = annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap { expr =>
           expr.getType(TypingContext.empty) match {
             case Success(ScParameterizedType(des, Seq(arg)), _) => ScType.extractClass(des) match {
@@ -37,7 +39,7 @@ object LightUtil {
             case _ => Seq.empty
           }
         }
-        if (classes.length == 0) {
+        if (classes.isEmpty) {
           annotation.constructor.typeArgList match {
             case Some(args) =>
               val classes = args.typeArgs.map(_.getType(TypingContext.empty)).filter(_.isDefined).map(_.get).flatMap { arg =>
@@ -50,12 +52,13 @@ object LightUtil {
                   case _ => Seq.empty
                 }
               }
-              if (!classes.isEmpty) classes.mkString(" throws ", ", ", " ")
-              else ""
-            case None => ""
+              if (classes.nonEmpty) accumulator :+ classes.mkString(sep = ", ")
+              else accumulator
+            case None => accumulator
           }
-        } else classes.mkString(" throws ", ", ", " ")
-      case _ => ""
+        } else accumulator :+ classes.mkString(sep = ", ")
+      case _ => ArrayBuffer()
     }
+    throwAnnotations.mkString(start = " throws ", sep = ", ", end = " ")
   }
 }

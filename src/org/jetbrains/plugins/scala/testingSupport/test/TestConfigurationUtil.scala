@@ -7,7 +7,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScInfixExpr, ScParenthesisedExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression, ScInfixExpr, ScParenthesisedExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -58,26 +58,76 @@ object TestConfigurationUtil {
     ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClazz)
   }
 
-  def getStaticTestName(element: PsiElement, allowSymbolLiterals: Boolean = false): Option[String] = {
+  private def getStaticTestNameElement(element: PsiElement, allowSymbolLiterals: Boolean): Option[Any] = {
+    val noArgMethods = Seq("toLowerCase", "trim")
+    val oneArgMethods = Seq("stripSuffix", "stripPrefix", "substring")
+    val twoArgMethods = Seq("replace", "substring")
+
+    def proessNoArgMethods(refExpr: ScReferenceExpression) = refExpr.smartQualifier.
+      flatMap(getStaticTestNameRaw(_, allowSymbolLiterals)).flatMap{ expr =>
+      refExpr.refName match {
+        case "toLowerCase" => Some(expr.toLowerCase)
+        case "trim" => Some(expr.trim)
+        case _ => None
+      }
+    }
+
     element match {
       case literal: ScLiteral if literal.isString && literal.getValue.isInstanceOf[String] =>
         Some(escapeTestName(literal.getValue.asInstanceOf[String]))
       case literal: ScLiteral if allowSymbolLiterals && literal.isSymbol && literal.getValue.isInstanceOf[Symbol] =>
         Some(escapeTestName(literal.getValue.asInstanceOf[Symbol].name))
-      case p: ScParenthesisedExpr => p.expr.flatMap(getStaticTestName(_, allowSymbolLiterals))
+      case literal: ScLiteral if literal.getValue.isInstanceOf[Number] =>
+        Some(literal.getValue)
+      case p: ScParenthesisedExpr => p.expr.flatMap(getStaticTestNameRaw(_, allowSymbolLiterals))
       case infixExpr: ScInfixExpr =>
         infixExpr.getInvokedExpr match {
           case refExpr: ScReferenceExpression if refExpr.refName == "+" =>
-            getStaticTestName(infixExpr.lOp, allowSymbolLiterals).flatMap(left => getStaticTestName(infixExpr.rOp, allowSymbolLiterals).map(left + _))
+            getStaticTestNameElement(infixExpr.lOp, allowSymbolLiterals).flatMap(left => getStaticTestNameElement(infixExpr.rOp, allowSymbolLiterals).map(left + _.toString))
+          case _ => None
+        }
+      case methodCall: ScMethodCall =>
+        methodCall.getInvokedExpr match {
+          case refExpr: ScReferenceExpression if noArgMethods.contains(refExpr.refName) &&
+            methodCall.argumentExpressions.isEmpty =>
+            proessNoArgMethods(refExpr)
+          case refExpr: ScReferenceExpression if oneArgMethods.contains(refExpr.refName) &&
+            methodCall.argumentExpressions.size == 1 =>
+            def helper(anyExpr: Any, arg: Any): Option[Any] = (anyExpr, refExpr.refName, arg) match {
+              case (expr: String, "stripSuffix", string: String) => Some(expr.stripSuffix(string))
+              case (expr: String, "stripPrefix", string: String) => Some(expr.stripPrefix(string))
+              case (expr: String, "substring", integer: Int) => Some(expr.substring(integer))
+              case _ => None
+            }
+            methodCall.argumentExpressions.headOption.flatMap(getStaticTestNameElement(_, allowSymbolLiterals)).
+              flatMap(arg =>
+              refExpr.smartQualifier.flatMap(getStaticTestNameElement(_, allowSymbolLiterals)).flatMap(helper(_, arg))
+              )
+          case refExpr: ScReferenceExpression if twoArgMethods.contains(refExpr.refName) &&
+            methodCall.argumentExpressions.size == 2 =>
+            def helper(anyExpr: Any, arg1: Any, arg2: Any): Option[Any] = (anyExpr, refExpr.refName, arg1, arg2) match {
+              case (expr: String, "replace", s1: String, s2: String) => Some(expr.replace(s1, s2))
+              case (expr: String, "substring", begin: Int, end: Int) => Some(expr.substring(begin, end))
+              case _ => None
+            }
+            val arg1Opt = getStaticTestNameElement(methodCall.argumentExpressions.head, allowSymbolLiterals)
+            val arg2Opt = getStaticTestNameElement(methodCall.argumentExpressions(1), allowSymbolLiterals)
+            (arg1Opt, arg2Opt) match {
+              case (Some(arg1), Some(arg2)) =>
+                refExpr.smartQualifier.flatMap(getStaticTestNameElement(_, allowSymbolLiterals)).flatMap(helper(_, arg1, arg2))
+              case _ => None
+            }
           case _ => None
         }
       case refExpr: ScReferenceExpression if refExpr.getText == "+" =>
-        getStaticTestName(refExpr.getParent, allowSymbolLiterals)
+        getStaticTestNameRaw(refExpr.getParent, allowSymbolLiterals)
+      case refExpr: ScReferenceExpression if noArgMethods.contains(refExpr.refName) =>
+        proessNoArgMethods(refExpr)
       case refExpr: ScReferenceExpression =>
         refExpr.advancedResolve.map(_.getActualElement) match {
           case Some(refPattern: ScReferencePattern) =>
             ScalaPsiUtil.nameContext(refPattern) match {
-              case patternDef: ScPatternDefinition => patternDef.expr.flatMap(getStaticTestName(_, allowSymbolLiterals))
+              case patternDef: ScPatternDefinition => patternDef.expr.flatMap(getStaticTestNameRaw(_, allowSymbolLiterals))
               case _ => None
             }
           case _ => None
@@ -85,6 +135,12 @@ object TestConfigurationUtil {
       case _ => None
     }
   }
+
+  private def getStaticTestNameRaw(element: PsiElement, allowSymbolLiterals: Boolean): Option[String] =
+    getStaticTestNameElement(element, allowSymbolLiterals).filter(_.isInstanceOf[String]).map(_.asInstanceOf[String])
+
+  def getStaticTestName(element: PsiElement, allowSymbolLiterals: Boolean = false): Option[String] =
+    getStaticTestNameRaw(element, allowSymbolLiterals).map(_.trim)
 
   def getStaticTestNameOrDefault(element: PsiElement, default: String, allowSymbolLiterals: Boolean) =
     getStaticTestName(element, allowSymbolLiterals).getOrElse(default)

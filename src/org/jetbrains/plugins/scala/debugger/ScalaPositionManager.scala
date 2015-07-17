@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package debugger
 
 import java.util
+import java.util.Collections
 
 import com.intellij.debugger.engine.{CompoundPositionManager, DebugProcess, DebugProcessImpl}
 import com.intellij.debugger.requests.ClassPrepareRequestor
@@ -22,6 +23,7 @@ import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingEvaluator
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.debugger.smartStepInto.FunExpressionTarget
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, inReadAction}
@@ -51,6 +53,13 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     case _ => None
   }
 
+  private def checkScalaFile(position: SourcePosition): Unit = {
+    position.getFile match {
+      case _: ScalaFile =>
+      case _ => throw NoDataException.INSTANCE
+    }
+  }
+
   @NotNull
   def locationsOfLine(refType: ReferenceType, position: SourcePosition): util.List[Location] = {
     def findCustomizedLocations(line: Int) = {
@@ -61,6 +70,8 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
       }.asJava
     }
 
+    checkScalaFile(position)
+
     try {
       val line: Int = position.getLine + 1
       val jvmLocations: util.List[Location] =
@@ -70,16 +81,13 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
       val customized = findCustomizedLocations(line)
       val size = jvmLocations.size() + customized.size()
 
-      if (size == 0) throw NoDataException.INSTANCE
-
       val all = new util.ArrayList[Location](size)
       all.addAll(jvmLocations)
       all.addAll(customized)
       all
     }
     catch {
-      case e: AbsentInformationException =>
-        throw NoDataException.INSTANCE
+      case e: AbsentInformationException => Collections.emptyList()
     }
   }
 
@@ -157,6 +165,8 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
   }
 
   def createPrepareRequest(requestor: ClassPrepareRequestor, position: SourcePosition): ClassPrepareRequest = {
+    checkScalaFile(position)
+
     val qName = new Ref[String](null)
     val waitRequestor = new Ref[ClassPrepareRequestor](null)
     inReadAction {
@@ -187,14 +197,11 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
       }
       // Enclosing type definition is not found
       if (qName.get == null) {
-        if (position.getFile.isInstanceOf[ScalaFile]) {
-          qName.set(SCRIPT_HOLDER_CLASS_NAME + "*")
-        }
+        qName.set(SCRIPT_HOLDER_CLASS_NAME + "*")
       }
       waitRequestor.set(new ScalaPositionManager.MyClassPrepareRequestor(position, requestor))
     }
 
-    if (qName.get == null || waitRequestor.get == null) throw NoDataException.INSTANCE
     getDebugProcess.getRequestsManager.createClassPrepareRequest(waitRequestor.get, qName.get)
   }
 
@@ -287,7 +294,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
 
   private def expressionsOnLine(file: ScalaFile, lineNumber: Int): Seq[ScExpression] = {
     val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
-    if (lineNumber >= document.getLineCount) throw NoDataException.INSTANCE
+    if (lineNumber >= document.getLineCount) return Seq.empty
     val startLine = document.getLineStartOffset(lineNumber)
     val endLine = document.getLineEndOffset(lineNumber)
     val lineRange = new TextRange(startLine, endLine)
@@ -475,7 +482,11 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     }
   }
 
-  @NotNull def getAllClasses(position: SourcePosition): util.List[ReferenceType] = {
+  @NotNull
+  def getAllClasses(position: SourcePosition): util.List[ReferenceType] = {
+
+    checkScalaFile(position)
+
     val result = inReadAction {
       val sourceImage = findReferenceTypeSourceImage(position)
       sourceImage match {
@@ -505,19 +516,24 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
           }
       }
     }
-    if (result == null || result.isEmpty) throw NoDataException.INSTANCE
     result
   }
 
   private def hasLocations(refType: ReferenceType, position: SourcePosition): Boolean = {
     var hasLocations = false
     try {
-      hasLocations = locationsOfLine(refType, position).size > 0
+      hasLocations =
+        if (!position.getFile.isPhysical) { //may be generated in compiling evaluator
+          val generatedClassName = position.getFile.getUserData(ScalaCompilingEvaluator.classNameKey)
+          generatedClassName != null && refType.name().contains(generatedClassName)
+        }
+        else locationsOfLine(refType, position).size > 0
     } catch {
-      case ignore @ (_: AbsentInformationException | _: ClassNotPreparedException | _: ObjectCollectedException) =>
+      case ignore @ (_: NoDataException | _: AbsentInformationException | _: ClassNotPreparedException | _: ObjectCollectedException) =>
     }
     hasLocations
   }
+
   private def filterAllClasses(condition: ReferenceType => Boolean): util.List[ReferenceType] = {
     import scala.collection.JavaConverters._
     val allClasses = getDebugProcess.getVirtualMachineProxy.allClasses.asScala

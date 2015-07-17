@@ -489,7 +489,7 @@ object ScalaPsiUtil {
   }
 
   def processTypeForUpdateOrApplyCandidates(call: MethodInvocation, tp: ScType, isShape: Boolean,
-                                            noImplicits: Boolean, isDynamic: Boolean): Array[ScalaResolveResult] = {
+                                            isDynamic: Boolean): Array[ScalaResolveResult] = {
     val isUpdate = call.isUpdateCall
     val methodName =
       if (isDynamic) ResolvableReferenceExpression.getDynamicNameForMethodInvocation(call)
@@ -541,9 +541,9 @@ object ScalaPsiUtil {
       candidates = processor.candidatesS
     }
 
-    if (!noImplicits && candidates.forall(!_.isApplicable())) {
+    if (!isDynamic && candidates.forall(!_.isApplicable())) {
       //should think about implicit conversions
-      findImplicitConversion(expr, methodName, call, processor, noImplicitsForArgs = false) match {
+      findImplicitConversion(expr, methodName, call, processor, noImplicitsForArgs = candidates.nonEmpty) match {
         case Some(res) =>
           ProgressManager.checkCanceled()
           val function = res.element
@@ -565,8 +565,8 @@ object ScalaPsiUtil {
   def processTypeForUpdateOrApply(tp: ScType, call: MethodInvocation, isShape: Boolean):
       Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[ScalaResolveResult])] = {
 
-    def checkCandidates(withImplicits: Boolean, withDynamic: Boolean = false): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[ScalaResolveResult])] = {
-      val candidates: Array[ScalaResolveResult] = processTypeForUpdateOrApplyCandidates(call, tp, isShape, noImplicits = !withImplicits, isDynamic = withDynamic)
+    def checkCandidates(withDynamic: Boolean = false): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[ScalaResolveResult])] = {
+      val candidates: Array[ScalaResolveResult] = processTypeForUpdateOrApplyCandidates(call, tp, isShape, isDynamic = withDynamic)
       PartialFunction.condOpt(candidates) {
         case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
           def update(tp: ScType): ScType = {
@@ -591,10 +591,7 @@ object ScalaPsiUtil {
       }
     }
 
-    checkCandidates(withImplicits = false).orElse(checkCandidates(withImplicits = true)).orElse {
-        //let's check dynamic type
-        checkCandidates(withImplicits = false, withDynamic = true)
-    }
+    checkCandidates(withDynamic = false).orElse(checkCandidates(withDynamic = true))
   }
 
   /**
@@ -1173,7 +1170,7 @@ object ScalaPsiUtil {
     }
     inner(elem, (l: List[PsiElement]) => l)
   }
-  
+
   def getFirstStubOrPsiElement(elem: PsiElement): PsiElement = {
     elem match {
       case st: ScalaStubBasedElementImpl[_] if st.getStub != null =>
@@ -1206,14 +1203,15 @@ object ScalaPsiUtil {
       }
     }
     elem match {
-      case st: ScalaStubBasedElementImpl[_] if st.getStub != null =>
+      case st: ScalaStubBasedElementImpl[_] =>
         val stub = st.getStub
-        workWithStub(stub)
-      case file: PsiFileImpl if file.getStub != null =>
+        if (stub != null) return workWithStub(stub)
+      case file: PsiFileImpl =>
         val stub = file.getStub
-        workWithStub(stub)
-      case _ => elem.getPrevSibling
+        if (stub != null) return workWithStub(stub)
+      case _ =>
     }
+    elem.getPrevSibling
   }
 
   def isLValue(elem: PsiElement) = elem match {
@@ -1290,7 +1288,7 @@ object ScalaPsiUtil {
     new Signature(x.name, Seq.empty, 0, ScSubstitutor.empty, x)
 
   def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false): Seq[Signature] = {
-    val empty = Seq.empty 
+    val empty = Seq.empty
     val typed = x match {case x: ScTypedDefinition => x case _ => return empty}
     val clazz: ScTemplateDefinition = nameContext(typed) match {
       case e @ (_: ScValue | _: ScVariable | _:ScObject) if e.getParent.isInstanceOf[ScTemplateBody] ||
@@ -1367,7 +1365,7 @@ object ScalaPsiUtil {
     while (parent != null && !isAppropriatePsiElement(parent)) parent = parent.getParent
     parent
   }
-  
+
   object inNameContext {
     def unapply(x: PsiNamedElement): Option[PsiElement] = nameContext(x).toOption
   }
@@ -2302,7 +2300,7 @@ object ScalaPsiUtil {
    * @see SCL-6140
    * @see https://github.com/scala/scala/pull/3018/
    */
-  def toSAMType(expected: ScType): Option[ScType] = {
+  def toSAMType(expected: ScType, scope: GlobalSearchScope): Option[ScType] = {
 
     def constructorValidForSAM(constructors: Array[PsiMethod]): Boolean = {
       //primary constructor (if any) must be public, no-args, not overloaded
@@ -2328,7 +2326,7 @@ object ScalaPsiUtil {
             val valid =
               constrValid &&
                 abst.length == 1 &&
-                abst.head.parameterList.clauses.length <= 1 &&
+                abst.head.parameterList.clauses.length == 1 &&
                 !abst.head.hasTypeParameters
 
             if (valid) {
@@ -2345,7 +2343,6 @@ object ScalaPsiUtil {
               //need to generate ScType for Java method
               val method = abst.head
               val project = method.getProject
-              val scope = method.getResolveScope
               val returnType: ScType = ScType.create(method.getReturnType, project, scope)
               val params: Array[ScType] = method.getParameterList.getParameters.map {
                 param: PsiParameter => ScType.create(param.getTypeElement.getType, project, scope)
@@ -2354,6 +2351,15 @@ object ScalaPsiUtil {
             } else None
         }
       case None => None
+    }
+  }
+
+  @tailrec
+  def contextContainingFilePath(e: PsiElement): String = {
+    e match {
+      case null => ""
+      case file: PsiFile => file.getViewProvider.getVirtualFile.getPath
+      case e => contextContainingFilePath(e.getContext)
     }
   }
 

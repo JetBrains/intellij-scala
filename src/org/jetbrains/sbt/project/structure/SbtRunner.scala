@@ -20,7 +20,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
                 customLauncher: Option[File], customStructureDir: Option[String]) {
   private val LauncherDir = getSbtLauncherDir
   private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
-  private val DefaultSbtVersion = "0.13"
+  private val DefaultSbtVersion = "0.13.8"
   private val SinceSbtVersion = "0.12.4"
 
   private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)

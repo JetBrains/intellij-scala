@@ -3,7 +3,9 @@ package org.jetbrains.plugins.scala.debugger.smartStepInto
 import javax.swing.Icon
 
 import com.intellij.debugger.actions.SmartStepTarget
+import com.intellij.psi.PsiMethod
 import com.intellij.util.Range
+import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -30,6 +32,7 @@ object FunExpressionTarget {
         val clauses = b.caseClauses.get
         Some(clauses.caseClauses.flatMap(_.expr).flatMap(blockStmts), text(b))
       case expr: ScExpression if ScalaPsiUtil.isByNameArgument(expr) => Some(blockStmts(expr), text(expr))
+      case ref @ MethodValue(m) => Some(Seq(ref), text(expr))
       case _ => None
     }
   }
@@ -57,5 +60,11 @@ object FunExpressionTarget {
   }
 
   private def text(e: ScExpression) = parameterNameAndType(e).getOrElse(shorten(e.getText))
+}
 
+private object MethodValue {
+  def unapply(ref: ScReferenceExpression): Option[PsiMethod] = ref match {
+    case ResolvesTo(m: PsiMethod) if m.getParameterList.getParametersCount > 0 && !ref.getParent.isInstanceOf[MethodInvocation] => Some(m)
+    case _ => None
+  }
 }

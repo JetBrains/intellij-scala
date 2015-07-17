@@ -6,6 +6,7 @@ import com.intellij.facet.FacetManager
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.android.facet.AndroidFacet
 import org.jetbrains.sbt.UsefulTestCaseHelper
 import org.jetbrains.sbt.project.data.AndroidFacetNode
@@ -30,12 +31,12 @@ class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
         externalConfigPath := getProject.getBasePath + "/module1"
         arbitraryNodes += new AndroidFacetNode(
           version = "21",
-          manifest = new File(getProject.getBasePath + "/manifest.xml"),
-          apk = new File(getProject.getBasePath + "/test.apk"),
-          res = new File(getProject.getBasePath + "/res"),
-          assets = new File(getProject.getBasePath + "/assets"),
-          gen = new File(getProject.getBasePath + "/gen"),
-          libs = new File(getProject.getBasePath + "/libs"),
+          manifest = getProject.getBasePath + "/manifest.xml",
+          apk = getProject.getBasePath + "/test.apk",
+          res = getProject.getBasePath + "/res",
+          assets = getProject.getBasePath + "/assets",
+          gen = getProject.getBasePath + "/gen",
+          libs = getProject.getBasePath + "/libs",
           isLibrary = true,
           proguardConfig = proguardConfig
         )
@@ -65,7 +66,7 @@ class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
 
     if (proguardConfig.nonEmpty) {
       import scala.collection.JavaConverters._
-      val proguardConfigPath = getProject.getBasePath + "/proguard-sbt.txt"
+      val proguardConfigPath = FileUtil.toSystemDependentName(getProject.getBasePath + "/proguard-sbt.txt")
       assert(properties.myProGuardCfgFiles.asScala.toSeq == Seq(proguardConfigPath))
       val actualProguardConfig = scala.io.Source.fromFile(proguardConfigPath).getLines().toSeq
       assert(actualProguardConfig == proguardConfig)
@@ -83,7 +84,7 @@ class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new AndroidFacetNode("", null, null, null, null, null, null, false, Seq.empty)
+      arbitraryNodes += new AndroidFacetNode("", "", "", "", "", "", "", false, Seq.empty)
     }.build.toDataNode
     importProjectData(testProject)
   }

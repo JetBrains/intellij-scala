@@ -26,10 +26,10 @@ object ScalaDocPsiCreator {
         val element = new ScDocSyntaxElementImpl(node)
         element.setFlag(a.getFlagConst)
 
-        var parrentNode = node
-        while (parrentNode != null && parrentNode.getElementType != SCALA_DOC_COMMENT) {
-          parrentNode = parrentNode.getTreeParent
-          parrentNode.getElementType match {
+        var parentNode = node
+        while (parentNode.getTreeParent != null && parentNode.getElementType != SCALA_DOC_COMMENT) {
+          parentNode = parentNode.getTreeParent
+          parentNode.getElementType match {
             case a: ScaladocSyntaxElementType =>
               element.setFlag(a.getFlagConst)
             case _ =>

@@ -142,11 +142,11 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     if (!hasDirtyDependencies && !dirtyFilesHolder.hasDirtyFiles && !dirtyFilesHolder.hasRemovedFiles) {
       if (targetTimestamp.isEmpty)
-        timestamps.set(representativeTarget, context.getCompilationStartStamp)
+        timestamps.set(representativeTarget, context.getCompilationStartStamp(representativeTarget))
       return false
     }
 
-    timestamps.set(representativeTarget, context.getCompilationStartStamp)
+    timestamps.set(representativeTarget, context.getCompilationStartStamp(representativeTarget))
     true
   }
 

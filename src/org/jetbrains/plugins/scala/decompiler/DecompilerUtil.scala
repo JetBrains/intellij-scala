@@ -55,8 +55,7 @@ object DecompilerUtil {
   }
 
   // Underlying VFS implementation may not support attributes (e.g. Upsource's file system).
-  // The following check is hardly bulletproof, however there is no API to query FS features.
-  private def attributesSupported = ManagingFS.getInstance.isInstanceOf[PersistentFS]
+  private def attributesSupported = !ScalaLoader.isUnderUpsource
 
   def isScalaFile(file: VirtualFile): Boolean =
     try isScalaFile(file, file.contentsToByteArray)

@@ -9,6 +9,7 @@ import com.intellij.openapi.application.Application
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{ModuleUtil, ModuleManager}
 import com.intellij.openapi.projectRoots.{Sdk, JavaSdk, ProjectJdkTable}
 import com.intellij.openapi.projectRoots.impl.JavaSdkImpl
@@ -20,7 +21,7 @@ import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.UsefulTestCaseHelper
-import org.jetbrains.sbt.project.data.{SbtProjectData, ScalaProjectNode}
+import org.jetbrains.sbt.project.data.{SbtProjectData, SbtProjectNode}
 
 import ExternalSystemDsl._
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -39,53 +40,26 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
     setUpJdks()
   }
 
-  private def setUpJdks(): Unit = {
-    ApplicationManagerEx.getApplicationEx.runWriteAction(new Runnable {
-      def run(): Unit = {
-        val projectJdkTable = ProjectJdkTable.getInstance()
-        projectJdkTable.getAllJdks.foreach(projectJdkTable.removeJdk)
-        projectJdkTable.addJdk(IdeaTestUtil.getMockJdk17)
-        projectJdkTable.addJdk(IdeaTestUtil.getMockJdk18)
-      }
-    })
-    // TODO: find a way to create mock Android SDK
-  }
-
-  private def generateProject(basePackages: Seq[String], jdk: Option[SbtProjectData.Sdk], javacOptions: Seq[String], sbtVersion: String): DataNode[ProjectData] =
-    new project {
-      name := getProject.getName
-      ideDirectoryPath := getProject.getBasePath
-      linkedProjectPath := getProject.getBasePath
-
-      arbitraryNodes += new ScalaProjectNode(basePackages, jdk, javacOptions, sbtVersion, getProject.getBasePath)
-    }.build.toDataNode
-
-  private def doTestBasePackages(basePackages: Seq[String]): Unit = {
-    importProjectData(generateProject(basePackages, None, Seq.empty, ""))
-    assert(ScalaProjectSettings.getInstance(getProject).getBasePackages.asScala == basePackages)
-  }
-
   def testEmptyBasePackages: Unit =
     doTestBasePackages(Seq.empty)
+
   def testNonEmptyBasePackages: Unit =
     doTestBasePackages(Seq("com.test1.base", "com.test2.base"))
-
-  private def defaultJdk: Sdk =
-    ProjectJdkTable.getInstance().getAllJdks.head
-
-  private def doTestSdk(sdk: Option[SbtProjectData.Sdk], expectedSdk: Sdk, expectedLanguageLevel: LanguageLevel): Unit = {
-    importProjectData(generateProject(Seq.empty, sdk, Seq.empty, ""))
-    assert(ProjectRootManager.getInstance(getProject).getProjectSdk == expectedSdk)
-    val actualLanguageLevel = LanguageLevelProjectExtension.getInstance(getProject).getLanguageLevel
-    assert(actualLanguageLevel == expectedLanguageLevel)
-  }
 
   def testValidJavaSdk: Unit =
     doTestSdk(Some(SbtProjectData.Jdk("1.8")),
       ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdk18.getName),
       LanguageLevel.JDK_1_8)
+
+  def testValidJavaSdkWithDifferentLanguageLevel: Unit =
+    doTestSdk(Some(SbtProjectData.Jdk("1.8")),
+      Seq("-source", "1.6"),
+      ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdk18.getName),
+      LanguageLevel.JDK_1_6)
+
   def testInvalidSdk: Unit =
     doTestSdk(Some(SbtProjectData.Jdk("20")), defaultJdk, LanguageLevel.JDK_1_7)
+
   def testAbsentSdk: Unit =
     doTestSdk(None, defaultJdk, LanguageLevel.JDK_1_7)
 
@@ -111,7 +85,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
 
   def testSbtVersion: Unit = {
     val projectSettings = SbtProjectSettings.default
-    projectSettings.setExternalProjectPath(getProject.getBasePath)
+    projectSettings.setExternalProjectPath(ExternalSystemApiUtil.normalizePath(getProject.getBasePath))
     SbtSystemSettings.getInstance(getProject).linkProject(projectSettings)
 
     val expectedVersion = "0.13.8"
@@ -133,10 +107,49 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
         externalConfigPath := getProject.getBasePath + "/module1"
       }
 
-      arbitraryNodes += new ScalaProjectNode(Seq.empty, None, Seq.empty, "", getProject.getBasePath)
+      arbitraryNodes += new SbtProjectNode(Seq.empty, None, Seq.empty, "", getProject.getBasePath)
     }.build.toDataNode
 
     importProjectData(testProject)
     assert(ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType == IncrementalityType.SBT)
+  }
+
+  private def setUpJdks(): Unit = {
+    ApplicationManagerEx.getApplicationEx.runWriteAction(new Runnable {
+      def run(): Unit = {
+        val projectJdkTable = ProjectJdkTable.getInstance()
+        projectJdkTable.getAllJdks.foreach(projectJdkTable.removeJdk)
+        projectJdkTable.addJdk(IdeaTestUtil.getMockJdk17)
+        projectJdkTable.addJdk(IdeaTestUtil.getMockJdk18)
+      }
+    })
+    // TODO: find a way to create mock Android SDK
+  }
+
+  private def generateProject(basePackages: Seq[String], jdk: Option[SbtProjectData.Sdk], javacOptions: Seq[String], sbtVersion: String): DataNode[ProjectData] =
+    new project {
+      name := getProject.getName
+      ideDirectoryPath := getProject.getBasePath
+      linkedProjectPath := getProject.getBasePath
+
+      arbitraryNodes += new SbtProjectNode(basePackages, jdk, javacOptions, sbtVersion, getProject.getBasePath)
+    }.build.toDataNode
+
+  private def doTestBasePackages(basePackages: Seq[String]): Unit = {
+    importProjectData(generateProject(basePackages, None, Seq.empty, ""))
+    assert(ScalaProjectSettings.getInstance(getProject).getBasePackages.asScala == basePackages)
+  }
+
+  private def defaultJdk: Sdk =
+    ProjectJdkTable.getInstance().getAllJdks.head
+
+  private def doTestSdk(sdk: Option[SbtProjectData.Sdk], expectedSdk: Sdk, expectedLanguageLevel: LanguageLevel): Unit =
+    doTestSdk(sdk, Seq.empty, expectedSdk, expectedLanguageLevel)
+
+  private def doTestSdk(sdk: Option[SbtProjectData.Sdk], javacOptions: Seq[String], expectedSdk: Sdk, expectedLanguageLevel: LanguageLevel): Unit = {
+    importProjectData(generateProject(Seq.empty, sdk, javacOptions, ""))
+    assert(ProjectRootManager.getInstance(getProject).getProjectSdk == expectedSdk)
+    val actualLanguageLevel = LanguageLevelProjectExtension.getInstance(getProject).getLanguageLevel
+    assert(actualLanguageLevel == expectedLanguageLevel)
   }
 }

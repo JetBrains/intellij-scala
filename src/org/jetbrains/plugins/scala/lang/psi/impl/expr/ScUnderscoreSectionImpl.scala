@@ -9,7 +9,7 @@ import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
@@ -39,8 +39,10 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           case Some(ScalaResolveResult(b: ScBindingPattern, _)) =>
             b.nameContext match {
               case _: ScValue | _: ScVariable if b.isClassMember => fun()
+              case v: ScValue if v.hasModifierPropertyScala("lazy") => fun()
               case _ => ref.getNonValueType(TypingContext.empty)
             }
+          case Some(ScalaResolveResult(p: ScParameter, _)) if p.isCallByNameParameter => fun()
           case _ => ref.getNonValueType(TypingContext.empty)
         }
       case Some(expr) => expr.getNonValueType(TypingContext.empty)
@@ -90,7 +92,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               tp.removeAbstracts match {
                 case ScFunctionType(_, params) if params.length >= unders.length => processFunctionType(params)
                 case any if ScalaPsiUtil.isSAMEnabled(this) =>
-                  ScalaPsiUtil.toSAMType(any) match {
+                  ScalaPsiUtil.toSAMType(any, getResolveScope) match {
                     case Some(ScFunctionType(_, params)) if params.length >= unders.length =>
                       processFunctionType(params)
                     case _ =>

@@ -71,12 +71,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 case Success(tp, _) if tp.conforms(expected) => defaultResult
                 case Success(tp, _) =>
                   if (ScalaPsiUtil.isSAMEnabled(this) && ScFunctionType.isFunctionType(tp)) {
-                    val des = tp match {
-                      case param: ScParameterizedType => Some(param.designator)
-                      case _ => None
-                    }
-                    ScalaPsiUtil.toSAMType(expected) match {
-                      case Some(methodType) if methodType.conforms(tp) =>
+                    ScalaPsiUtil.toSAMType(expected, getResolveScope) match {
+                      case Some(methodType) if tp.conforms(methodType) =>
                         return ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None)
                       case _ =>
                     }
@@ -548,7 +544,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
         }
       }
       if (cand.length == 0 && ScalaPsiUtil.approveDynamic(tp, getProject, getResolveScope) && call.isDefined) {
-        cand = ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(call.get, tp, isShape = true, noImplicits = true, isDynamic = true)
+        cand = ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(call.get, tp, isShape = true, isDynamic = true)
       }
       cand
     }

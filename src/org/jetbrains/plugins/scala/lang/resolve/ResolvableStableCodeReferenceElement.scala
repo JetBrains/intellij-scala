@@ -3,6 +3,7 @@ package lang
 package resolve
 
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
 import org.jetbrains.plugins.scala.caches.CachesUtil
@@ -117,7 +118,16 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
           //so this is full qualified reference => findClass, or findPackage
           val facade = JavaPsiFacade.getInstance(getProject)
           val manager = ScalaPsiManager.instance(getProject)
-          val classes = manager.getCachedClasses(ref.getResolveScope, refText)
+          val unsortedClasses = manager.getCachedClasses(ref.getResolveScope, refText)
+          //#SCL-8793: We calculating distance between class and reference.
+          //this is important in case, when project contains more than one similar library (sbt-launcher for exmaple)
+          //and other library can cause big problems, when references from the first library resolves to the second
+          val classes =
+            if (unsortedClasses.length <= 1) unsortedClasses
+            else {
+              val contextString = ScalaPsiUtil.contextContainingFilePath(this)
+              unsortedClasses.sortBy(cl => -StringUtil.commonPrefixLength(contextString, ScalaPsiUtil.contextContainingFilePath(cl)))
+            }
           val pack = facade.findPackage(refText)
           if (pack != null) processor.execute(pack, ResolveState.initial)
           for (clazz <- classes) processor.execute(clazz, ResolveState.initial)

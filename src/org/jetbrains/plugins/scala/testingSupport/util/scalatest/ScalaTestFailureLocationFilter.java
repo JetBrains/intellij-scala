@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
  * @author Roman.Shein
  * @since 01.02.2015.
  */
-public class ScalaTestFailureLocationFilter implements Filter, DumbAware {
+public class ScalaTestFailureLocationFilter implements Filter {
 
   private final ExceptionInfoCache myCache;
 
