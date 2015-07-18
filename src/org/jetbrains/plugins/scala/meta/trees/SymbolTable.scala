@@ -9,11 +9,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
+import org.scalameta.collections._
 
 import scala.meta.internal.{ast => m, semantic => h}
 
 trait SymbolTable {
   self: Converter =>
+
+  private val symbolCache = TwoWayCache[PsiElement, h.Symbol]()
 
 
   def isLocal(elem: PsiElement): Boolean = {
@@ -44,7 +47,7 @@ trait SymbolTable {
   }
 
   def toSymbol(elem: PsiElement): h.Symbol = {
-    elem match {
+    def convert = elem match {
       case _ if isLocal(elem) =>
         // aka LightVirtualFile in case of running in test
         if (elem.getContainingFile.getVirtualFile == null)
@@ -86,5 +89,12 @@ trait SymbolTable {
         h.Symbol.Global(ownerSymbol(bp), bp.name, h.Signature.Term)
       case _ => elem ?!
     }
+    symbolCache.getOrElseUpdate(elem, convert)
+  }
+
+  def fromSymbol(sym: h.Symbol): PsiElement = {
+    def convert: PsiElement = ???
+
+    symbolCache.getOrElseUpdate(sym, convert)
   }
 }
