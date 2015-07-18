@@ -260,6 +260,8 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                 else None
             }
           case fun: ScFunction if !PsiTreeUtil.isContextAncestor(fun, place, false) =>
+            if (isImplicitConversion && (fun.name == "conforms" || fun.name == "$conforms") &&
+              fun.containingClass != null && fun.containingClass.qualifiedName == "scala.Predef") return None
             if (!fun.hasTypeParameters && withLocalTypeInference) return None
 
             val oneImplicit = fun.effectiveParameterClauses.length == 1 && fun.effectiveParameterClauses.head.isImplicit
