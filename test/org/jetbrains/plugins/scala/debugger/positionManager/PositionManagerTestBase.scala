@@ -3,7 +3,9 @@ package org.jetbrains.plugins.scala.debugger.positionManager
 import com.intellij.debugger.SourcePosition
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi.PsiManager
+import com.sun.jdi.Location
 import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaPositionManager}
+import org.jetbrains.plugins.scala.extensions
 import org.junit.Assert
 
 import scala.collection.JavaConverters._
@@ -35,6 +37,36 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
     }
   }
 
+  protected def checkLocationsOfLine(fileText: String, expectedLocations: Set[Loc]*): Unit = {
+    val sourcePositions = setupFileAndCreateSourcePositions(fileText.stripMargin.trim.replace("\r",""))
+    Assert.assertEquals("Wrong number of expected locations sets: ", sourcePositions.size, expectedLocations.size)
+
+    runDebugger("Main") {
+      waitForBreakpoint()
+      val posManager = new ScalaPositionManager(getDebugProcess)
+
+      def checkSourcePosition(initialPosition: SourcePosition, location: Location) = {
+        extensions.inReadAction {
+          val newPosition = posManager.getSourcePosition(location)
+          Assert.assertEquals(initialPosition.getFile, newPosition.getFile)
+          Assert.assertEquals(initialPosition.getLine, newPosition.getLine)
+        }
+      }
+
+      for ((position, locationSet) <- sourcePositions.zip(expectedLocations)) {
+        val foundLocations: Set[Loc] = managed {
+          val classes = posManager.getAllClasses(position)
+          val locations = classes.asScala.flatMap(refType => posManager.locationsOfLine(refType, position).asScala)
+          locations.foreach(checkSourcePosition(position, _))
+          locations.map(toSimpleLocation).toSet
+        }
+        Assert.assertTrue(s"Wrong locations are found at ${position.toString} (found: $foundLocations, expected: $locationSet", locationSet.subsetOf(foundLocations))
+      }
+    }
+  }
+
+  private def toSimpleLocation(location: Location) = Loc(location.declaringType().name(), location.method().name(), location.lineNumber())
+
   protected def setupFileAndCreateSourcePositions(fileText: String): Seq[SourcePosition] = {
     val breakpointLine = fileText.lines.indexWhere(_.contains(bp))
     var cleanedText = fileText.replace(bp, "")
@@ -59,3 +91,5 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
     offsets.map(SourcePosition.createFromOffset(psiFile,_))
   }
 }
+
+case class Loc(className: String, methodName: String, line: Int)
