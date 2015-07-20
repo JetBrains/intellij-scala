@@ -1173,9 +1173,10 @@ object ScalaEvaluatorBuilderUtil {
       case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
       case b: ScBlockExpr if b.isAnonymousFunction => true
       case (g: ScGuard) childOf (_: ScEnumerators) => true
-      case (g: ScGenerator) childOf (enums: ScEnumerators) if enums.generators.headOption != Some(g) => true
+      case (g: ScGenerator) childOf (enums: ScEnumerators) if !enums.generators.headOption.contains(g) => true
       case e: ScEnumerator => true
       case (expr: ScExpression) childOf (argLisg: ScArgumentExprList) if ScalaPsiUtil.parameterOf(expr).exists(_.isByName) => true
+      case ref: ScReferenceExpression if ScalaPsiUtil.isMethodValue(ref) => true
       case _ => false
     }
   }
