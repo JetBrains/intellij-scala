@@ -1,4 +1,5 @@
-package org.jetbrains.sbt.project.data.service
+package org.jetbrains.sbt.project.data
+package service
 
 import java.io.File
 import java.util
@@ -9,30 +10,27 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.sbt.project.data.ScalaSdkData
 
 import scala.collection.JavaConverters._
 
 /**
  * @author Pavel Fatin
  */
-class ScalaSdkDataService(val helper: ProjectStructureHelper)
-  extends AbstractDataService[ScalaSdkData, Library](ScalaSdkData.Key)
+class ModuleExtDataService(val helper: ProjectStructureHelper)
+  extends AbstractDataService[ModuleExtData, Library](ModuleExtData.Key)
   with SafeProjectStructureHelper {
 
-  def doImportData(toImport: util.Collection[DataNode[ScalaSdkData]], project: Project) =
+  def doImportData(toImport: util.Collection[DataNode[ModuleExtData]], project: Project) =
     toImport.asScala.foreach(doImport(_, project))
 
-  private def doImport(sdkNode: DataNode[ScalaSdkData], project: Project): Unit = {
+  private def doImport(sdkNode: DataNode[ModuleExtData], project: Project): Unit = {
     for {
       module <- getIdeModuleByNode(sdkNode, project)
-      sdkData = sdkNode.getData
-      compilerOptions = sdkData.compilerOptions
-      compilerClasspath = sdkData.compilerClasspath
-      compilerVersion = sdkData.scalaVersion
+      data = sdkNode.getData
     } {
-      module.configureScalaCompilerSettingsFrom("SBT", compilerOptions)
-      configureScalaSdk(module, project.scalaLibraries, compilerVersion, compilerClasspath)
+      module.configureScalaCompilerSettingsFrom("SBT", data.scalacOptions)
+      data.scalaVersion.foreach(version => configureScalaSdk(module, project.scalaLibraries, version, data.scalacClasspath))
+      data.jdk.foreach(jdk => configureSdk(module, jdk, data.javacOptions))
     }
   }
 
@@ -48,6 +46,8 @@ class ScalaSdkDataService(val helper: ProjectStructureHelper)
       if (!scalaLibrary.isScalaSdk)
         scalaLibrary.convertToScalaSdkWith(scalaLibrary.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default), compilerClasspath)
     }
+
+  private def configureSdk(module: Module, jdk: Sdk, javacOptions: Seq[String]): Unit = {}
 
   def doRemoveData(toRemove: util.Collection[_ <: Library], project: Project) {}
 }
