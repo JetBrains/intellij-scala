@@ -9,13 +9,13 @@ import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import org.jetbrains.plugins.scala.project.{DebuggingInfoLevel, CompileOrder, Version}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.sbt.UsefulTestCaseHelper
-import org.jetbrains.sbt.project.data.ScalaSdkNode
+import org.jetbrains.sbt.project.data.ModuleExtNode
 
 /**
  * @author Nikolay Obedin
  * @since 6/9/15.
  */
-class ScalaSdkDataServiceTest extends ProjectDataServiceTestCase with UsefulTestCaseHelper {
+class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTestCaseHelper {
 
   import ExternalSystemDsl._
 
@@ -35,7 +35,7 @@ class ScalaSdkDataServiceTest extends ProjectDataServiceTestCase with UsefulTest
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
         externalConfigPath := getProject.getBasePath + "/module1"
         scalaLibrary.foreach(libraryDependencies += _)
-        arbitraryNodes += new ScalaSdkNode(Version(scalaVersion), "", Seq.empty, compilerOptions)
+        arbitraryNodes += new ModuleExtNode(Some(Version(scalaVersion)), Seq.empty, compilerOptions, None, Seq.empty)
       }
     }.build.toDataNode
 
@@ -118,7 +118,7 @@ class ScalaSdkDataServiceTest extends ProjectDataServiceTestCase with UsefulTest
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new ScalaSdkNode(Version("2.11.5"), "", Seq.empty, Seq.empty)
+      arbitraryNodes += new ModuleExtNode(Some(Version("2.11.5")), Seq.empty, Seq.empty, None, Seq.empty)
     }.build.toDataNode
 
     importProjectData(testProject)

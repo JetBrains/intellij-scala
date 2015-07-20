@@ -26,7 +26,7 @@
         <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.sbt.editor.documentationProvider.SbtDocumentationProvider" order="first"/>
 
         <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
-        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.ScalaSdkDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.ModuleExtDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtProjectDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtModuleDataService"/>
         <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.Play2StubDataService"/>
