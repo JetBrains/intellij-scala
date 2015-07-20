@@ -1180,10 +1180,12 @@ object ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def anonClassCount(elem: PsiElement): Int = {
+  def anonClassCount(elem: PsiElement): Int = { //todo: non irrefutable patterns?
     elem match {
-      case f: ScForStatement =>
-        f.enumerators.fold(1)(e => e.enumerators.length + e.generators.length + e.guards.length) //todo: non irrefutable patterns?
+      case (e: ScExpression) childOf (f: ScForStatement) =>
+        f.enumerators.fold(1)(e => e.generators.length)
+      case (e @ (_: ScEnumerator | _: ScGenerator | _: ScGuard)) childOf (enums: ScEnumerators) =>
+        enums.children.takeWhile(_ != e).count(_.isInstanceOf[ScGenerator])
       case _ => 1
     }
   }
