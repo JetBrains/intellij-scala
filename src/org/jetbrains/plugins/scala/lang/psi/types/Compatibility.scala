@@ -212,7 +212,7 @@ object Compatibility {
       }
     }
 
-    def createResult(problems: Seq[ApplicabilityProblem]): ConformanceExtResult =
+    def createResult(problems: Seq[ApplicabilityProblem] = Seq.empty): ConformanceExtResult =
       ConformanceExtResult(problems, undefSubst, defaultParameterUsed, matched, matchedTypes)
     
     while (k < parameters.length.min(exprs.length)) {
@@ -290,7 +290,7 @@ object Compatibility {
     
     if(problems.nonEmpty) return createResult(problems.reverse)
     
-    if (exprs.length == parameters.length) return createResult(Seq.empty)
+    if (exprs.length == parameters.length) return createResult()
     else if (exprs.length > parameters.length) {
       if (namedMode)
         return createResult(Seq(new ApplicabilityProblem("12")))
@@ -314,14 +314,14 @@ object Compatibility {
     }
     else {
       if (exprs.length == parameters.length - 1 && !namedMode && parameters.last.isRepeated) 
-        return createResult(Seq.empty)
+        return createResult()
       
       val missed = for ((parameter: Parameter, b) <- parameters.zip(used)
                         if !b && !parameter.isDefault) yield MissedValueParameter(parameter)
       defaultParameterUsed = parameters.zip(used).exists { case (param, bool) => !bool && param.isDefault}
       if(missed.nonEmpty) return createResult(missed)
     }
-    createResult(Seq.empty)
+    createResult()
   }
 
   def toParameter(p: ScParameter, substitutor: ScSubstitutor) = {
