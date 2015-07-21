@@ -26,6 +26,7 @@ class SideEffectsInMonadicTransformationTest extends OperationsOnCollectionInspe
          |    ${START}filtered = filtered + 1$END
          |    true
          |  }
+         |  else false
          |}
        """.stripMargin)
   }
