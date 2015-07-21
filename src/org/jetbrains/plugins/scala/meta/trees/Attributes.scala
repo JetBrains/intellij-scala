@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
 import scala.meta.internal.{ast => m, semantic => h}
 
 trait Attributes {
-  self: Converter =>
+  self: TreeConverter =>
 
 
   protected implicit class RichAttributesTree[T <: m.Tree](ptree: T) {

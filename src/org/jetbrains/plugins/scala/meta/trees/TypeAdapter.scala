@@ -12,7 +12,7 @@ import scala.meta.internal.{ast => m, semantic => h}
 import scala.{Seq => _}
 
 trait TypeAdapter {
-  self: Converter =>
+  self: TreeConverter =>
 
   def toType(tp: ScTypeElement): m.Type = {
 

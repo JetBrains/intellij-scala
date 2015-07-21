@@ -1,19 +1,24 @@
 package org.jetbrains.plugins.scala.meta
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElement, PsiFileFactory, PsiWhiteSpace}
+import com.intellij.psi.{PsiFile, PsiElement, PsiFileFactory, PsiWhiteSpace}
+import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
-import org.jetbrains.plugins.scala.meta.trees.ConverterImpl
+import org.jetbrains.plugins.scala.meta.trees.TreeConverter
 
 import scala.meta.internal.ast.Tree
 
 trait TreeConverterTestUtils {
 
-  def myProjectAdapter: Project // we need to go deeper
+  def fixture: CodeInsightTestFixture // we need to go deeper
+
+  val converter: TreeConverter
+
+  val startToken = "//start"
 
   def psiFromText(text: String): ScalaPsiElement = {
     def nextScalaPsiElement(current: PsiElement): ScalaPsiElement = current match {
@@ -21,12 +26,10 @@ trait TreeConverterTestUtils {
       case sce: ScalaPsiElement => sce
       case _: PsiElement => nextScalaPsiElement(current.getNextSibling)
     }
-    val file: ScalaFile = parseTextToFile(text + "\n42")
-    val startToken = "//start"
-    //HACK: force file to be a scala script to ease resolving
+    val file: ScalaFile = parseTextToFile(text)
     val startPos = file.getText.indexOf(startToken)
     if (startPos < 0)
-      file.firstChild.get.asInstanceOf[ScalaPsiElement]
+      file.typeDefinitions.head // should not happen,
     else {
       val element = file.findElementAt(startPos)
       element.getParent match {
@@ -58,12 +61,17 @@ trait TreeConverterTestUtils {
 
   protected def convert(text: String): Tree = {
     val psi = psiFromText(text)
-    ConverterImpl.ideaToMeta(psi)
+    converter.ideaToMeta(psi)
   }
 
   def parseTextToFile(@Language("Scala") s: String): ScalaFile = {
-    PsiFileFactory.getInstance(myProjectAdapter)
-      .createFileFromText("foo" + ScalaFileType.DEFAULT_EXTENSION, ScalaFileType.SCALA_FILE_TYPE, s)
-      .asInstanceOf[ScalaFile]
+    val text =
+      s"""
+        |object Dummy {
+        |${if (!s.contains(startToken)) startToken else ""}
+        |$s
+        |}
+      """.stripMargin
+    fixture.configureByText(ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
   }
 }

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.meta
 
 import scala.meta.internal.ast._
 
-class TreeConverterExprTest extends TreeConverterTestBase {
+class TreeConverterExprTest extends TreeConverterTestBaseNoLibrary {
 
   def testIf() {
     doTest(

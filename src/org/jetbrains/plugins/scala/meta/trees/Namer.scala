@@ -12,7 +12,7 @@ import scala.meta.internal.{ast => m, semantic => h}
 import scala.{Seq => _}
 
 trait Namer {
-  self: Converter =>
+  self: TreeConverter =>
 
   def toTermName(elem: PsiElement): m.Term.Name = elem match {
       // TODO: what to resolve apply/update methods to?
@@ -21,11 +21,6 @@ trait Namer {
     case ne: ScNamedElement =>
       m.Term.Name(ne.name).withDenot(ne)
     case re: ScReferenceExpression =>
-      re.bind() match {
-        case Some(ScalaResolveResult(pn, subst)) =>
-          ""
-        case None => ???
-      }
       toTermName(re.resolve())
     case cr: ScStableCodeReferenceElement =>
       m.Term.Name(cr.refName).withDenot(cr)

@@ -14,7 +14,7 @@ import scala.meta.internal.{ast => m}
 import scala.{Seq => _}
 
 trait TreeAdapter {
-  self: Converter =>
+  self: TreeConverter =>
 
   def ideaToMeta(tree: ScalaPsiElement): m.Tree = {
     tree match {

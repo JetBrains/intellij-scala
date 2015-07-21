@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.meta
 
 import scala.meta.internal.ast._
 
-class TreeConverterTemplateTest extends TreeConverterTestBase {
+class TreeConverterTemplateTest extends TreeConverterTestBaseNoLibrary {
 
   def testTraitEmpty() {
     doTest(
