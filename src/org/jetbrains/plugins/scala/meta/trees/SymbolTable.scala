@@ -8,16 +8,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
 import org.scalameta.collections._
 
 import scala.meta.internal.{ast => m, semantic => h}
 
 trait SymbolTable {
-  self: Converter =>
+  self: TreeConverter =>
 
   private val symbolCache = TwoWayCache[PsiElement, h.Symbol]()
 
+  def localSymbolDelim = "*"
 
   def isLocal(elem: PsiElement): Boolean = {
     elem match {
@@ -49,11 +51,7 @@ trait SymbolTable {
   def toSymbol(elem: PsiElement): h.Symbol = {
     def convert = elem match {
       case _ if isLocal(elem) =>
-        // aka LightVirtualFile in case of running in test
-        if (elem.getContainingFile.getVirtualFile == null)
-          h.Symbol.Local(elem.getContainingFile.getName + ":" + elem.getTextOffset)
-        else
-          h.Symbol.Local(elem.getContainingFile.getVirtualFile.getCanonicalPath + "\n" + elem.getTextOffset)
+        h.Symbol.Local(elem.getContainingFile.getVirtualFile.getUrl + localSymbolDelim + elem.getTextOffset)
       case sc: impl.toplevel.synthetic.ScSyntheticClass =>
         h.Symbol.Global(fqnameToSymbol(sc.getQualifiedName), sc.className, h.Signature.Type)
       case td: ScTypeDefinition if !td.qualifiedName.contains(".") => // empty package defn
@@ -93,7 +91,15 @@ trait SymbolTable {
   }
 
   def fromSymbol(sym: h.Symbol): PsiElement = {
-    def convert: PsiElement = ???
+    def convert: PsiElement = sym match {
+      case h.Symbol.Local(id) =>
+        val url::pos = id.split(localSymbolDelim).toList
+        findFileByPath(url).findElementAt(pos.head.toInt)
+      case h.Symbol.RootPackage => ???
+      case h.Symbol.EmptyPackage => ???
+      case h.Symbol.Zero => ???
+      case h.Symbol.Global(owner, name, signature) => ???
+    }
 
     symbolCache.getOrElseUpdate(sym, convert)
   }
