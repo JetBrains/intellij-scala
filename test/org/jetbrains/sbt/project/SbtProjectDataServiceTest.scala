@@ -1,33 +1,29 @@
 package org.jetbrains.sbt.project
 
-import java.io.File
+import java.util.Collections
 
-import com.android.sdklib.repository.local.LocalSdk
-import com.intellij.compiler.{CompilerConfigurationImpl, CompilerConfiguration}
+import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
-import com.intellij.openapi.application.Application
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.module.{ModuleUtil, ModuleManager}
-import com.intellij.openapi.projectRoots.{Sdk, JavaSdk, ProjectJdkTable}
-import com.intellij.openapi.projectRoots.impl.JavaSdkImpl
+import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
-import org.jetbrains.android.sdk.{AndroidSdkData, AndroidPlatform, AndroidSdkAdditionalData, AndroidSdkType}
 import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.sbt.UsefulTestCaseHelper
-import org.jetbrains.sbt.project.data.{SbtProjectData, SbtProjectNode}
-
-import ExternalSystemDsl._
+import org.jetbrains.sbt.project.ExternalSystemDsl._
+import org.jetbrains.sbt.project.data.SbtProjectNode
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
+
 import scala.collection.JavaConverters._
+
+import junit.framework.Assert._
 
 /**
  * @author Nikolay Obedin
@@ -74,13 +70,13 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
     importProjectData(generateProject(Seq.empty, None, options, ""))
 
     val compilerOptions = JavacConfiguration.getOptions(getProject, classOf[JavacConfiguration])
-    assert(!compilerOptions.DEBUGGING_INFO)
-    assert(compilerOptions.GENERATE_NO_WARNINGS)
-    assert(compilerOptions.DEPRECATION)
-    assert(compilerOptions.ADDITIONAL_OPTIONS_STRING == "-Werror")
+    assertFalse(compilerOptions.DEBUGGING_INFO)
+    assertTrue(compilerOptions.GENERATE_NO_WARNINGS)
+    assertTrue(compilerOptions.DEPRECATION)
+    assertTrue(compilerOptions.ADDITIONAL_OPTIONS_STRING == "-Werror")
 
     val compilerConfiguration = CompilerConfiguration.getInstance(getProject)
-    assert(compilerConfiguration.getProjectBytecodeTarget == "1.8")
+    assertEquals("1.8", compilerConfiguration.getProjectBytecodeTarget)
   }
 
   def testSbtVersion: Unit = {
@@ -91,7 +87,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
     val expectedVersion = "0.13.8"
     importProjectData(generateProject(Seq.empty, None, Seq.empty, expectedVersion))
     val actualVersion = SbtSystemSettings.getInstance(getProject).getLinkedProjectSettings(getProject.getBasePath).sbtVersion
-    assert(expectedVersion == actualVersion)
+    assertEquals(expectedVersion, actualVersion)
   }
 
   def testIncrementalityTypeForSharedModules: Unit = {
@@ -111,7 +107,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
     }.build.toDataNode
 
     importProjectData(testProject)
-    assert(ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType == IncrementalityType.SBT)
+    assertEquals(IncrementalityType.SBT, ScalaCompilerConfiguration.instanceIn(getProject).incrementalityType)
   }
 
   private def setUpJdks(): Unit = {
@@ -137,7 +133,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
 
   private def doTestBasePackages(basePackages: Seq[String]): Unit = {
     importProjectData(generateProject(basePackages, None, Seq.empty, ""))
-    assert(ScalaProjectSettings.getInstance(getProject).getBasePackages.asScala == basePackages)
+    assertContainsElements(ScalaProjectSettings.getInstance(getProject).getBasePackages, basePackages:_*)
   }
 
   private def defaultJdk: Sdk =
@@ -148,8 +144,11 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
 
   private def doTestSdk(sdk: Option[data.Sdk], javacOptions: Seq[String], expectedSdk: Sdk, expectedLanguageLevel: LanguageLevel): Unit = {
     importProjectData(generateProject(Seq.empty, sdk, javacOptions, ""))
-    assert(ProjectRootManager.getInstance(getProject).getProjectSdk == expectedSdk)
-    val actualLanguageLevel = LanguageLevelProjectExtension.getInstance(getProject).getLanguageLevel
-    assert(actualLanguageLevel == expectedLanguageLevel)
+    assertEquals(expectedSdk, ProjectRootManager.getInstance(getProject).getProjectSdk)
+    val languageLevelProjectExtension = LanguageLevelProjectExtension.getInstance(getProject)
+    val actualLanguageLevel = languageLevelProjectExtension.getLanguageLevel
+    assertEquals(expectedLanguageLevel,actualLanguageLevel)
+    if (data.SdkUtils.defaultJavaLanguageLevelIn(expectedSdk).fold(false)(_ != expectedLanguageLevel))
+      assertFalse(languageLevelProjectExtension.getDefault)
   }
 }
