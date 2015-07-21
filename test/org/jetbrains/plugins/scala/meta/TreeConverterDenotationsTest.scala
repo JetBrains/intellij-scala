@@ -35,7 +35,7 @@ class TreeConverterDenotationsTest extends TreeConverterTestBaseWithLibrary {
     """.stripMargin,
     """
       |Defn.Val(Nil, List(Pat.Var.Term(Term.Name("a")[1])), None, Term.Apply(Term.Name("GenMapFactory")[2], List(Term.ApplyInfix(Lit.Int(1), Term.Name("->")[3], Nil, List(Lit.Int(2))), Term.ApplyInfix(Lit.Int(2), Term.Name("->")[4], Nil, List(Lit.Int(3))))))
-      |[1] Type.Singleton(Term.Name("_root_")[5])::local#fooscala:50
+      |[1] Type.Singleton(Term.Name("_root_")[5])::local#temp:///src/aaa.scala*50
       |[2] Type.Apply(Type.Name("GenMapFactory")[6], List(Type.Name("Map")[7]))::scala.collection.generic#GenMapFactory.apply(Lscala/collection/Seq;)Ljava/lang/Object;
       |[3] Type.Apply(Type.Select(Term.Name("Predef")[8], Type.Name("ArrowAssoc")[9]), List(Type.Name("Int")))::scala.Predef#ArrowAssoc.->(Ljava/lang/Object;Ljava/lang/Object;)Lscala/Tuple2;
       |[4] Type.Apply(Type.Select(Term.Name("Predef")[8], Type.Name("ArrowAssoc")[9]), List(Type.Name("Int")))::scala.Predef#ArrowAssoc.->(Ljava/lang/Object;Ljava/lang/Object;)Lscala/Tuple2;

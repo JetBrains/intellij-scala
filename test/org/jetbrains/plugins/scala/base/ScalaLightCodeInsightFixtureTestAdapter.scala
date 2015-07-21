@@ -30,12 +30,16 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
   override protected def setUp() {
     super.setUp()
 
-    myFixture.allowTreeAccessForAllFiles()
-    libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath = null)
-    libLoader.loadScala(libVersion)
+    if (loadScalaLibrary) {
+      myFixture.allowTreeAccessForAllFiles()
+      libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath = null)
+      libLoader.loadScala(libVersion)
+    }
   }
 
   protected def libVersion: ScalaSdkVersion = TestUtils.DEFAULT_SCALA_SDK_VERSION
+
+  protected def loadScalaLibrary = true
 
   protected def checkAfterSurroundWith(text: String, assumedText: String, surrounder: Surrounder, canSurround: Boolean) {
     myFixture.configureByText("dummy.scala", text)
