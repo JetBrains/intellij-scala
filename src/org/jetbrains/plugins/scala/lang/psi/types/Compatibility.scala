@@ -174,8 +174,8 @@ object Compatibility {
       return ConformanceExtResult(problems.toSeq, undefSubst)
     }
 
-    if (parameters.length == 0) 
-      return ConformanceExtResult(if(exprs.length == 0) Seq.empty else Seq(new ApplicabilityProblem("5")), undefSubst)
+    if (parameters.isEmpty)
+      return ConformanceExtResult(if(exprs.isEmpty) Seq.empty else Seq(new ApplicabilityProblem("5")), undefSubst)
     
     var k = 0
     var namedMode = false //todo: optimization, when namedMode enabled, exprs.length <= parameters.length
@@ -198,7 +198,6 @@ object Compatibility {
         val typeResult =
           expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType))._1
         typeResult.toOption.toList.flatMap { exprType =>
-        {
           val conforms = Conformance.conforms(paramType, exprType, checkWeak = true)
           matched ::= (param, expr.expr)
           matchedTypes ::= (param, exprType)
@@ -208,7 +207,6 @@ object Compatibility {
             undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeak = true)
             List.empty
           }
-        }
         }
       }
     }
@@ -331,7 +329,7 @@ object Compatibility {
           val exprType: ScType = expr.getTypeAfterImplicitConversion().tr.get
           val conforms = Conformance.conforms(paramType, exprType, checkWeak = true)
           if (!conforms) {
-            throw new RuntimeException("Unexpected behaviour in Compatibility.checkConformanceExt with default")
+//            throw new RuntimeException("Unexpected behaviour in Compatibility.checkConformanceExt with default")
           } else {
             matched ::= (param, expr)
             matchedTypes ::= (param, exprType)

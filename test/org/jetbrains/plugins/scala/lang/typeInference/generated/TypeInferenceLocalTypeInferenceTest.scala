@@ -88,4 +88,10 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
   def testZipWithIndex() {doTest()}
 
   def testsyncronized() {doTest()}
+
+  def testSCL2507_1() {doTest()}
+
+  def testSCL2507_2() {doTest()}
+
+  def testSCL2507_3() {doTest()}
 }
