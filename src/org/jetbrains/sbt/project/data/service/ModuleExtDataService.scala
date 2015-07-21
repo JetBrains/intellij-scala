@@ -4,11 +4,13 @@ package service
 import java.io.File
 import java.util
 
+import com.intellij.compiler.CompilerConfiguration
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
 import com.intellij.openapi.externalSystem.service.project.ProjectStructureHelper
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
+import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModuleRootManager, ModuleRootModificationUtil}
 import org.jetbrains.plugins.scala.project._
 
 import scala.collection.JavaConverters._
@@ -30,7 +32,9 @@ class ModuleExtDataService(val helper: ProjectStructureHelper)
     } {
       module.configureScalaCompilerSettingsFrom("SBT", data.scalacOptions)
       data.scalaVersion.foreach(version => configureScalaSdk(module, project.scalaLibraries, version, data.scalacClasspath))
-      data.jdk.foreach(jdk => configureSdk(module, jdk, data.javacOptions))
+      configureOrInheritSdk(module, data.jdk)
+      configureLanguageLevel(module, data.javacOptions)
+      configureJavacOptions(module, data.javacOptions)
     }
   }
 
@@ -47,7 +51,31 @@ class ModuleExtDataService(val helper: ProjectStructureHelper)
         scalaLibrary.convertToScalaSdkWith(scalaLibrary.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default), compilerClasspath)
     }
 
-  private def configureSdk(module: Module, jdk: Sdk, javacOptions: Seq[String]): Unit = {}
+  private def configureOrInheritSdk(module: Module, sdk: Option[Sdk]): Unit = {
+    ModuleRootModificationUtil.setSdkInherited(module)
+    sdk.flatMap(SdkUtils.findProjectSdk).foreach(it => ModuleRootModificationUtil.setModuleSdk(module, it))
+  }
+
+  private def configureLanguageLevel(module: Module, javacOptions: Seq[String]): Unit = {
+    val moduleSdk = Option(ModuleRootManager.getInstance(module).getSdk)
+    val languageLevel = SdkUtils.javaLanguageLevelFrom(javacOptions)
+      .orElse(moduleSdk.flatMap(SdkUtils.defaultJavaLanguageLevelIn))
+    languageLevel.foreach { level =>
+      val extension = LanguageLevelModuleExtensionImpl.getInstance(module)
+      extension.setLanguageLevel(level)
+      extension.commit()
+    }
+  }
+
+  private def configureJavacOptions(module: Module, javacOptions: Seq[String]): Unit = {
+    for {
+      targetPos <- Option(javacOptions.indexOf("-target")).filterNot(_ == -1)
+      targetValue <- javacOptions.lift(targetPos)
+      compilerSettings = CompilerConfiguration.getInstance(module.getProject)
+    } {
+      compilerSettings.setBytecodeTargetLevel(module, targetValue)
+    }
+  }
 
   def doRemoveData(toRemove: util.Collection[_ <: Library], project: Project) {}
 }
