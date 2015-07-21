@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
@@ -319,7 +320,25 @@ object Compatibility {
       val missed = for ((parameter: Parameter, b) <- parameters.zip(used)
                         if !b && !parameter.isDefault) yield MissedValueParameter(parameter)
       defaultParameterUsed = parameters.zip(used).exists { case (param, bool) => !bool && param.isDefault}
-      if(missed.nonEmpty) return createResult(missed)
+      if(missed.nonEmpty)
+        return createResult(missed)
+      else {
+        // inspect types default values
+        for ((param, use) <- parameters.zip(used) if param.isDefault && !use) {
+          val paramType: ScType = param.paramType
+          val expectedType: ScType = param.expectedType
+          val expr: ScExpression = param.psiParam.get.asInstanceOf[ScParameterImpl].getActualDefaultExpression.get
+          val exprType: ScType = expr.getTypeAfterImplicitConversion().tr.get
+          val conforms = Conformance.conforms(paramType, exprType, checkWeak = true)
+          if (!conforms) {
+            throw new RuntimeException("Unexpected behaviour in Compatibility.checkConformanceExt with default")
+          } else {
+            matched ::= (param, expr)
+            matchedTypes ::= (param, exprType)
+            undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeak = true)
+          }
+        }
+      }
     }
     createResult()
   }
