@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.meta.trees
 
 trait MemberAdapter {
-  self: Converter =>
+  self: TreeConverter =>
 
 }

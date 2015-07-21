@@ -8,7 +8,7 @@ import scala.meta.internal.{ast => m, semantic => h}
 import scala.{Seq => _}
 
 trait Utils {
-  self: Converter =>
+  self: TreeConverter =>
 
   val LOG = Logger.getInstance(this.getClass)
   
