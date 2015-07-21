@@ -11,7 +11,6 @@ import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, Proj
 import com.intellij.openapi.module.{ModuleManager, ModuleUtil}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
-import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
