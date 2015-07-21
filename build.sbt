@@ -156,10 +156,14 @@ addCommandAlias("runFastTests", s"testOnly -- --exclude-categories=$slowTestsCat
 lazy val setUpTestEnvironment = taskKey[Unit]("Set up proper environment for running tests")
 
 setUpTestEnvironment in ThisBuild := {
-  streams.value.log.info(s"Cleaning up test system and config directories")
+  update.in(testDownloader).value
+}
+
+lazy val cleanUpTestEnvironment = taskKey[Unit]("Clean up IDEA test system and config directories")
+
+cleanUpTestEnvironment in ThisBuild := {
   IO.delete(testSystemDir)
   IO.delete(testConfigDir)
-  update.in(testDownloader).value
 }
 
 concurrentRestrictions in Global := Seq(
