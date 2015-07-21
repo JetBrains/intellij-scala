@@ -30,11 +30,15 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
   override protected def setUp() {
     super.setUp()
 
-    libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath = null)
-    libLoader.loadLibrary(libVersion)
+    if (loadScalaLibrary) {
+      libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath = null)
+      libLoader.loadLibrary(libVersion)
+    }
   }
 
   protected def libVersion: ScalaSdkVersion = TestUtils.DEFAULT_SCALA_SDK_VERSION
+
+  protected def loadScalaLibrary = true
 
   protected def checkAfterSurroundWith(text: String, assumedText: String, surrounder: Surrounder, canSurround: Boolean) {
     myFixture.configureByText("dummy.scala", text)
@@ -191,7 +195,9 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
   }
 
   protected override def tearDown() {
-    libLoader.clean()
+    if (libLoader != null) {
+      libLoader.clean()
+    }
     super.tearDown()
   }
 }

@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.meta
 
-import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiFile, PsiElement, PsiFileFactory, PsiWhiteSpace}
+import java.util.regex.{Matcher, Pattern}
+
+import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
@@ -29,7 +30,7 @@ trait TreeConverterTestUtils {
     val file: ScalaFile = parseTextToFile(text)
     val startPos = file.getText.indexOf(startToken)
     if (startPos < 0)
-      file.typeDefinitions.head // should not happen,
+      file.typeDefinitions.headOption.getOrElse(file.getImportStatements.head)
     else {
       val element = file.findElementAt(startPos)
       element.getParent match {
@@ -64,14 +65,16 @@ trait TreeConverterTestUtils {
     converter.ideaToMeta(psi)
   }
 
-  def parseTextToFile(@Language("Scala") s: String): ScalaFile = {
-    val text =
+  def parseTextToFile(@Language("Scala") str: String): ScalaFile = {
+    def isTopLevel = Pattern.compile("^\\s*(class|trait|object|import|package).*", Pattern.DOTALL).matcher(str).matches()
+    val text = if (!isTopLevel)
       s"""
         |object Dummy {
-        |${if (!s.contains(startToken)) startToken else ""}
-        |$s
+        |${if (!str.contains(startToken)) startToken else ""}
+        |$str
         |}
       """.stripMargin
+    else str
     fixture.configureByText(ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
   }
 }
