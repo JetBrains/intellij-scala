@@ -17,7 +17,7 @@ object LastIndexToLast extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       case qual`.apply`(qual2`.sizeOrLength`() `-` literal("1"))
-        if PsiEquivalenceUtil.areElementsEquivalent(qual, qual2) && isSeq(qual) =>
+        if PsiEquivalenceUtil.areElementsEquivalent(qual, qual2) && isSeq(qual) && !isIndexedSeq(qual) =>
         Some(replace(expr).withText(invocationText(qual, "last")))
       case _ => None
     }
