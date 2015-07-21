@@ -10,7 +10,8 @@ import com.intellij.openapi.externalSystem.service.project.ProjectStructureHelpe
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModuleRootManager, ModuleRootModificationUtil}
+import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModifiableRootModel, ModuleRootManager, ModuleRootModificationUtil}
+import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.project._
 
 import scala.collection.JavaConverters._
@@ -61,16 +62,20 @@ class ModuleExtDataService(val helper: ProjectStructureHelper)
     val languageLevel = SdkUtils.javaLanguageLevelFrom(javacOptions)
       .orElse(moduleSdk.flatMap(SdkUtils.defaultJavaLanguageLevelIn))
     languageLevel.foreach { level =>
-      val extension = LanguageLevelModuleExtensionImpl.getInstance(module)
-      extension.setLanguageLevel(level)
-      extension.commit()
+      ModuleRootModificationUtil.updateModel(module, new Consumer[ModifiableRootModel] {
+        override def consume(model: ModifiableRootModel): Unit = {
+          val extension = model.getModuleExtension(classOf[LanguageLevelModuleExtensionImpl])
+          extension.setLanguageLevel(level)
+          extension.commit()
+        }
+      })
     }
   }
 
   private def configureJavacOptions(module: Module, javacOptions: Seq[String]): Unit = {
     for {
       targetPos <- Option(javacOptions.indexOf("-target")).filterNot(_ == -1)
-      targetValue <- javacOptions.lift(targetPos)
+      targetValue <- javacOptions.lift(targetPos + 1)
       compilerSettings = CompilerConfiguration.getInstance(module.getProject)
     } {
       compilerSettings.setBytecodeTargetLevel(module, targetValue)
