@@ -22,11 +22,11 @@ class ResolverIvyCacheTest extends ResolverIndexingTestCase with UsefulTestCaseH
 
   def testNonExistentIndexUpdate() = {
     if (SystemInfo.isWindows)
-      assertException[IOException](Some("C:\\non-existent-dir is not a valid Ivy cache directory")) {
+      assertException[InvalidRepository](Some("Repository is absent or invalid: file:/C:/non-existent-dir")) {
         createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Ivy, "Test repo", "C:\\non-existent-dir"))
       }
     else
-      assertException[IOException](Some("/non-existent-dir is not a valid Ivy cache directory")) {
+      assertException[InvalidRepository](Some("Repository is absent or invalid: file:/non-existent-dir")) {
         createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Ivy, "Test repo", "/non-existent-dir"))
       }
   }

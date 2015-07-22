@@ -23,7 +23,7 @@ class SbtMavenRepoIndexer private (val root: String, val indexDir: File) extends
 
   indexDir.mkdirs()
   if (!indexDir.exists || !indexDir.isDirectory)
-    throw new RuntimeException(SbtBundle("sbt.resolverIndexer.cantCreateMavenIndexDir", indexDir.absolutePath))
+    throw new CantCreateIndexDirectory(indexDir)
 
   // This lines are absolutely necessary
   // Otherwise Plexus container won't find maven-indexer interfaces' implementations
@@ -47,6 +47,8 @@ class SbtMavenRepoIndexer private (val root: String, val indexDir: File) extends
   private var context = {
     val repoUrl = if (root.startsWith("file:")) null else root
     val repoDir = if (root.startsWith("file:")) new File(root.substring(5)) else null
+    if (repoDir != null && !repoDir.isDirectory)
+      throw new InvalidRepository(repoDir.toURI)
     indexer.createIndexingContext(
       root.shaDigest, root.shaDigest,
       repoDir, indexDir,
