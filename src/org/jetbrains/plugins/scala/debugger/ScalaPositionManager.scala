@@ -41,6 +41,7 @@ import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
+import scala.util.Try
 
 /**
  * @author ilyas
@@ -477,8 +478,14 @@ object ScalaPositionManager {
   }
 
   private class MyClassPrepareRequestor(position: SourcePosition, requestor: ClassPrepareRequestor) extends ClassPrepareRequestor {
+   private val sourceName = position.getFile.getName
+   private def sourceNameOf(refType: ReferenceType): Option[String] = Try(refType.sourceName()).toOption
+
    def processClassPrepare(debuggerProcess: DebugProcess, referenceType: ReferenceType) {
       val positionManager: CompoundPositionManager = debuggerProcess.asInstanceOf[DebugProcessImpl].getPositionManager
+
+     if (!sourceNameOf(referenceType).contains(sourceName)) return
+
       if (positionManager.locationsOfLine(referenceType, position).size > 0) {
         requestor.processClassPrepare(debuggerProcess, referenceType)
       }
