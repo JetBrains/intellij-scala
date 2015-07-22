@@ -59,6 +59,8 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
           progressIndicator.setText(index.root)
           try {
             index.update(Some(progressIndicator))
+          } catch {
+            case exc : ResolverException => notifyWarning(exc.getMessage)
           } finally {
             updatingIndexes synchronized {
               updatingIndexes -= index
@@ -71,15 +73,20 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
   private def loadIndexes() {
     indexesDir.mkdirs()
     if (!indexesDir.exists || !indexesDir.isDirectory) {
-      notifyError(SbtBundle("sbt.resolverIndexer.cantCreateIndexesDir", indexesDir.absolutePath))
+      notifyWarning(SbtBundle("sbt.resolverIndexer.cantCreateIndexesDir", indexesDir.absolutePath))
       return
     }
 
     val indices = indexesDir.listFiles()
     if (indices == null) return
-    indices foreach { indexDir => if (indexDir.isDirectory) {
-        val index = SbtResolverIndex.load(indexDir)
-        indexes.add(index)
+    indices foreach { indexDir =>
+      if (indexDir.isDirectory) {
+        try {
+          val index = SbtResolverIndex.load(indexDir)
+          indexes.add(index)
+        } catch {
+          case exc : ResolverException => notifyWarning(exc.getMessage)
+        }
       }
     }
   }
@@ -90,10 +97,11 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
 object SbtResolverIndexesManager {
   val DEFAULT_INDEXES_DIR = new File(PathManager.getSystemPath) / "sbt" / "indexes"
 
-  def notifyWarn(msg: String) =
-    Notifications.Bus.notify(new Notification("sbt", "Resolver Indexer", msg, NotificationType.WARNING))
-  def notifyError(msg: String) =
-    Notifications.Bus.notify(new Notification("sbt", "Resolver Indexer", msg, NotificationType.ERROR))
+  def notifyWarning(msg: String) = {
+    val notification = new Notification("sbt", "Resolver Indexer", msg, NotificationType.WARNING)
+    notification.setImportant(false)
+    Notifications.Bus.notify(notification)
+  }
 
   def apply() = ServiceManager.getService(classOf[SbtResolverIndexesManager])
 }

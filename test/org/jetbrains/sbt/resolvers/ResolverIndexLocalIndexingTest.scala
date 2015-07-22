@@ -21,11 +21,11 @@ class ResolverIndexLocalIndexingTest extends ResolverIndexingTestCase with Usefu
 
   def testNonExistentIndexUpdate() = {
     if (SystemInfo.isWindows)
-      assertException[IOException](Some("Repository directory \\non-existent-dir does not exist")) {
-        createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/non-existent-dir"))
+      assertException[InvalidRepository](Some("Repository is absent or invalid: file:/C:/non-existent-dir")) {
+        createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/C:/non-existent-dir"))
       }
     else
-      assertException[IOException](Some("Repository directory /non-existent-dir does not exist")) {
+      assertException[InvalidRepository](Some("Repository is absent or invalid: file:/non-existent-dir")) {
         createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/non-existent-dir"))
       }
   }
