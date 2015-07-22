@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProjectorSimplifyTypeProjectionInspection.{inspectionId, inspectionName}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, InspectionBundle}
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
@@ -63,7 +64,13 @@ class KindProjectorSimplifyTypeProjectionInspection extends LocalInspectionTool 
                                     //currently we do not try to convert to inline syntax.
                                     //It gets too complex with nested parameterized types
                                     val builder = new StringBuilder
-                                    builder.append("λ[")
+                                    val styleSettings = ScalaCodeStyleSettings.getInstance(projection.getProject)
+                                    if (styleSettings.REPLACE_LAMBDA_WITH_GREEK_LETTER) {
+                                      builder.append("λ")
+                                    } else {
+                                      builder.append("Lambda")
+                                    }
+                                    builder.append("[")
                                     val parameters = aliasParam.map { param: ScTypeParam =>
                                       if (param.isCovariant || param.isContravariant || boundsDefined(param)) {
                                         s"`${param.getText}`"
