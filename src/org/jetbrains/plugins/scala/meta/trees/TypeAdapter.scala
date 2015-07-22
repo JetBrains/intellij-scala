@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.meta.trees
 
-import com.intellij.psi.{PsiPackage, PsiElement}
+import com.intellij.psi.{PsiClass, PsiPackage, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
@@ -61,6 +61,7 @@ trait TypeAdapter {
       case t: packaging.ScPackaging => m.Type.Singleton(toTermName(t.reference.get))
       case t: PsiPackage if t.getName == null => m.Type.Singleton(rootPackageName)
       case t: PsiPackage => m.Type.Singleton(toTermName(t))
+      case t: PsiClass => m.Type.Name(t.getName).withDenot(t)
       case t: typedef.ScTemplateDefinition =>
         val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
         toType(s.subst(t.getType(TypingContext.empty).get)) // FIXME: what about typing context?

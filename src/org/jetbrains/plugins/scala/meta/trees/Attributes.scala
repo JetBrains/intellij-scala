@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.meta.trees
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiMethod, PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -38,10 +38,9 @@ trait Attributes {
           case cr: ScStableCodeReferenceElement if cr.qualifier.isDefined =>
             h.Denotation.Single(h.Prefix.Type(m.Type.Singleton(toTermName(cr.qualifier.get))), toSymbol(cr))
           case cr: ScStableCodeReferenceElement =>
-            // FIXME: prefix.zero?
             h.Denotation.Single(h.Prefix.Zero, toSymbol(cr))
           case td: ScFieldId =>
-            val pref = td.nameContext match {
+            val pref = td.nameContext match {  // FIXME: what?
               case vd: ScValueDeclaration    => mprefix(vd.containingClass)
               case vd: ScVariableDeclaration => mprefix(vd.containingClass)
               case other => other ?!
@@ -62,8 +61,13 @@ trait Attributes {
           case tp: ScTypeParam =>
             h.Denotation.Single(h.Prefix.Zero, toSymbol(tp))
           case pp: params.ScParameter =>
-            // FIXME: prefix of a parameter?
-            h.Denotation.Single(h.Prefix.Zero, toSymbol(pp))
+            h.Denotation.Single(h.Prefix.Zero, toSymbol(pp)) // FIXME: prefix of a parameter?
+          // Java Stuff starts here
+          case pc: PsiClass =>
+            h.Denotation.Single(mprefix(pc.getContainingClass, pc.getQualifiedName), toSymbol(pc))
+          case pm: PsiMethod =>
+            h.Denotation.Single(mprefix(pm.getContainingClass), toSymbol(pm))
+          case other => other ?!
         }
     }
 
