@@ -94,4 +94,6 @@ class TypeInferenceLocalTypeInferenceTest extends TypeInferenceTestBase {
   def testSCL2507_2() {doTest()}
 
   def testSCL2507_3() {doTest()}
+
+//  def testSCL2507_4() {doTest()}
 }
