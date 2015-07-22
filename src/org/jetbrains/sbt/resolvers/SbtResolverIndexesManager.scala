@@ -46,30 +46,27 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
 
     var indexesToUpdate = Seq.empty[SbtResolverIndex]
     updatingIndexes synchronized {
-      indexesToUpdate = resolvers filter { r => updatingIndexes.find { r.root == _.root }.isEmpty } map add
+      indexesToUpdate = resolvers.filterNot(r => updatingIndexes.exists(r.root == _.root)).map(add)
       updatingIndexes ++= indexesToUpdate
     }
 
     if (indexesToUpdate.isEmpty) return
 
     ProgressManager.getInstance().run(new Task.Backgroundable(null, "Indexing resolvers") {
-      def run(progressIndicator: ProgressIndicator) {
-        try {
-          indexesToUpdate.foreach { index =>
-            progressIndicator.setFraction(0.0)
-            progressIndicator.setText(index.root)
+      def run(progressIndicator: ProgressIndicator): Unit =
+        indexesToUpdate.foreach { index =>
+          progressIndicator.setFraction(0.0)
+          progressIndicator.setText(index.root)
+          try {
             index.update(Some(progressIndicator))
+          } finally {
             updatingIndexes synchronized {
               updatingIndexes -= index
             }
           }
-        } finally {
-            updatingIndexes synchronized { updatingIndexes --= indexesToUpdate }
         }
-      }
     })
   }
-
 
   private def loadIndexes() {
     indexesDir.mkdirs()

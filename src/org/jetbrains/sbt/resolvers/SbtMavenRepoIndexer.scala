@@ -54,12 +54,13 @@ class SbtMavenRepoIndexer private (val root: String, val indexDir: File) extends
     )
   }
 
-
-  def close() {
-    indexer.closeIndexingContext(context, false)
-    container.dispose()
-    Thread.currentThread().setContextClassLoader(origClassLoader)
-  }
+  def close(): Unit =
+    try {
+      indexer.closeIndexingContext(context, false)
+    } finally {
+      container.dispose()
+      Thread.currentThread().setContextClassLoader(origClassLoader)
+    }
 
   def update(progressIndicator: Option[ProgressIndicator]) {
     if (context.getRepositoryUrl == null)
