@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.meta.trees
 
-import com.intellij.psi.{PsiElement, PsiPackage}
+import com.intellij.debugger.engine.JVMNameUtil
+import com.intellij.psi.impl.file.PsiPackageImpl
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -44,6 +47,8 @@ trait SymbolTable {
         if (mm.containingClass == null) h.Symbol.EmptyPackage else toSymbol(mm.containingClass)
       case bp: ScBindingPattern =>
         if (bp.containingClass == null) h.Symbol.EmptyPackage else toSymbol(bp.containingClass)
+      case pc: PsiMember =>
+        if (pc.getContainingClass == null) h.Symbol.EmptyPackage else toSymbol(pc.getContainingClass)
       case other => other ?!
     }
   }
@@ -75,30 +80,67 @@ trait SymbolTable {
         }
       case pc: ScPackaging =>
         toSymbol(pc.reference.get.bind().get.element)
-      case pp: PsiPackage if pp.getName == null =>
-        h.Symbol.RootPackage
-      case pc: PsiPackage =>
-        h.Symbol.Global(toSymbol(pc.getParentPackage), pc.getName, h.Signature.Term)
       case cr: ScStableCodeReferenceElement =>
         toSymbol(cr.resolve())
       case ta: ScTypeAlias =>
         h.Symbol.Global(ownerSymbol(ta), ta.name, h.Signature.Type)
       case bp: ScBindingPattern =>
         h.Symbol.Global(ownerSymbol(bp), bp.name, h.Signature.Term)
+      // Java stuff starts here
+      case pc: PsiClass =>
+        h.Symbol.Global(ownerSymbol(pc), pc.getName, h.Signature.Type)
+      case pm: PsiMethod =>
+        h.Symbol.Global(ownerSymbol(pm), pm.getName, h.Signature.Method(JVMNameUtil.getJVMSignature(pm).getName(null)))
+      case pp: PsiPackage if pp.getName == null =>
+        h.Symbol.RootPackage
+      case pc: PsiPackage =>
+        h.Symbol.Global(toSymbol(pc.getParentPackage), pc.getName, h.Signature.Term)
       case _ => elem ?!
     }
     symbolCache.getOrElseUpdate(elem, convert)
   }
 
   def fromSymbol(sym: h.Symbol): PsiElement = {
+    def getFqName(sym: h.Symbol): (String, Option[String]) = sym match {
+      case h.Symbol.Global(owner, name, signature) =>
+        signature match {
+          case h.Signature.Type | h.Signature.Term =>
+            (s"${getFqName(owner)._1}.$name", None)
+          case h.Signature.Method(jvmsig) =>
+            (s"${getFqName(owner)._1}.$name", Some(jvmsig))
+          case h.Signature.TypeParameter =>
+            ???
+          case h.Signature.TermParameter =>
+            ???
+        }
+      case other => LOG.error("can't get fqn of non-global symbol"); ???
+    }
+
     def convert: PsiElement = sym match {
       case h.Symbol.Local(id) =>
         val url::pos = id.split(localSymbolDelim).toList
         findFileByPath(url).findElementAt(pos.head.toInt)
-      case h.Symbol.RootPackage => ???
-      case h.Symbol.EmptyPackage => ???
-      case h.Symbol.Zero => ???
-      case h.Symbol.Global(owner, name, signature) => ???
+      case h.Symbol.RootPackage => new PsiPackageImpl(PsiManager.getInstance(getCurrentProject), "")
+      case h.Symbol.EmptyPackage => new PsiPackageImpl(PsiManager.getInstance(getCurrentProject), "")
+      case h.Symbol.Zero => LOG.error("can't map Zero symbol"); ???
+      case h.Symbol.Global(owner, name, signature) =>
+        getFqName(sym) match {
+          case (fqn, Some(jvmSig)) =>
+            val clazz = ScalaPsiManager.instance(getCurrentProject).getCachedClass(
+              GlobalSearchScope.projectScope(getCurrentProject), fqn.split('.').drop(1).mkString(".")
+            )
+            clazz match {
+              case sc: ScTemplateDefinition =>
+//                sc.findMethodBySignature()
+                ???
+              case pc: PsiClass =>
+                ???
+            }
+          case (fqn, None) =>
+            ScalaPsiManager.instance(getCurrentProject).getCachedClass(
+              GlobalSearchScope.projectScope(getCurrentProject), fqn.split('.').drop(1).mkString(".")
+            )
+        }
     }
 
     symbolCache.getOrElseUpdate(sym, convert)

@@ -52,4 +52,17 @@ class TreeConverterDenotationsTest extends TreeConverterTestBaseWithLibrary {
     )
   }
 
+  def testBackwardLookup(): Unit = {
+    import scala.meta.internal.{ast => m, semantic => h}
+    val tree = convert(
+      """
+        |java.lang.System.exit(1)
+      """.stripMargin)
+    tree match {
+      case m.Term.Apply(fun, args) => fun match {
+        case m.Term.Select(qual, name) => converter.fromSymbol(name.denot.symbols.head)
+      }
+    }
+  }
+
 }

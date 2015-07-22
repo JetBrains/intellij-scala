@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.meta
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.{PsiFile, PsiManager}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
@@ -15,6 +16,8 @@ class TreeConverterTestBase extends ScalaLightCodeInsightFixtureTestAdapter with
       val virtualFile = VirtualFileManager.getInstance().findFileByUrl(path)
       PsiManager.getInstance(myFixture.getProject).findFile(virtualFile)
     }
+
+    override def getCurrentProject: Project = myFixture.getProject
   }
   def testOk() = () // to get rid of no tests found spam in IDEA junit runner
 }

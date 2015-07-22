@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.meta.trees
 
-import com.intellij.psi.{PsiElement, PsiPackage}
+import com.intellij.psi.{PsiMethod, PsiClass, PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -24,11 +24,17 @@ trait Namer {
       toTermName(re.resolve())
     case cr: ScStableCodeReferenceElement =>
       m.Term.Name(cr.refName).withDenot(cr)
-    case pp: PsiPackage =>
-      m.Term.Name(pp.getName).withDenot(pp)
-    case se: impl.toplevel.synthetic.SyntheticNamedElement => ??? // FIXME: find a way to resolve synthetic elements
+    case se: impl.toplevel.synthetic.SyntheticNamedElement =>
+      ??? // FIXME: find a way to resolve synthetic elements
     case cs: ScConstructor =>
       toTermName(cs.reference.get)
+    // Java stuff starts here
+    case pp: PsiPackage =>
+      m.Term.Name(pp.getName).withDenot(pp)
+    case pc: PsiClass =>
+      m.Term.Name(pc.getName).withDenot(pc)
+    case pm: PsiMethod =>
+      m.Term.Name(pm.getName).withDenot(pm)
     case other => other ?!
   }
 
