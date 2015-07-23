@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
 
+import scala.language.postfixOps
 import scala.meta.internal.{ast => m, semantic => h}
 
 trait Attributes {
@@ -83,7 +84,7 @@ trait Attributes {
         // in these cases, our lsym is going to be a symbol of the trait in question
         // we need to account for that in `symbolTable.convert` and create a constructor symbol of our own
         case ptree: m.Ctor.Name => ptree.copy(denot = denot(elem), typing = ptree.typing)
-        case _ => ???
+        case _ => unreachable
       }
       denotatedTree.asInstanceOf[T]
     }

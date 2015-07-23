@@ -42,12 +42,10 @@ trait Utils {
   }
 
   implicit class RichPSI(psi: PsiElement) {
-    def ?! = {println(msg); throw new UnmatchedTree(msg)}
-
-    def msg: String = {
-      s"${psi.getClass} @\n${psi.getText}"
-    }
+    def ?! = throw new ScalaMetaUnexpectedPSI(psi)
   }
 
+  def unreachable = throw new ScalaMetaUnreachableException
+  def unreachable(reason: String) = throw new ScalaMetaUnreachableException(reason)
 
 }
