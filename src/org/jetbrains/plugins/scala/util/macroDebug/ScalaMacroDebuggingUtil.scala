@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala
 package util.macroDebug
 
 import java.io.File
-import scala.meta.internal.{ast => m}
-import scala.meta.eval._
-
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -19,13 +16,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScMethodCallImpl
-import org.jetbrains.plugins.scala.meta.trees.ConverterImpl
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-import scala.meta.internal.ast
 
 /**
  * User: Dmitry Naydanov
