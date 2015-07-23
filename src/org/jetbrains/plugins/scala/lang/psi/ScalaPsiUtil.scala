@@ -7,7 +7,7 @@ import java.lang.ref.WeakReference
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{JavaModuleType, ModuleUtil, ModuleUtilCore, Module}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
@@ -2281,6 +2281,17 @@ object ScalaPsiUtil {
       case _ => ScalaCompilerConfiguration.instanceIn(e.getProject).defaultProfile.getSettings.plugins
     }
     plugins.exists(_.contains("kind-projector"))
+  }
+
+  /**
+   * @see https://github.com/non/kind-projector
+   */
+  def kindProjectorPluginEnabled(p: Project): Boolean = {
+    val modules = ModuleUtil.getModulesOfType(p, JavaModuleType.getModuleType)
+    import collection.JavaConversions._
+    modules.exists { mod =>
+      mod.hasScala && mod.scalaCompilerSettings.plugins.exists(_.contains("kind-projector"))
+    }
   }
 
   /**
