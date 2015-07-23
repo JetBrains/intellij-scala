@@ -11,6 +11,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.roots._
+import com.intellij.openapi.roots.impl.LibraryScopeCache
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
@@ -405,7 +406,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     if (vFile == null) GlobalSearchScope.allScope(getProject)
     else {
       val resolveScopeManager = ResolveScopeManager.getInstance(getProject)
-      resolveScopeManager.getDefaultResolveScope(vFile)
+      if (isCompiled) {
+        val orderEntries = ProjectRootManager.getInstance(getProject).getFileIndex.getOrderEntriesForFile(vFile)
+        LibraryScopeCache.getInstance(getProject).getLibraryScope(orderEntries)
+      } else resolveScopeManager.getDefaultResolveScope(vFile)
     }
   }
 

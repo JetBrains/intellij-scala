@@ -24,7 +24,7 @@ import scala.annotation.tailrec
  */
 
 object SimpleType {
-  def parse(builder: ScalaPsiBuilder, isPattern: Boolean): Boolean = {
+  def parse(builder: ScalaPsiBuilder, isPattern: Boolean, multipleSQBrackets: Boolean = true): Boolean = {
     @tailrec
     def parseTail(curMarker: PsiBuilder.Marker, checkSQBracket: Boolean = true) {
       builder.getTokenType match {
@@ -32,7 +32,7 @@ object SimpleType {
           val newMarker = curMarker.precede
           TypeArgs.parse(builder, isPattern)
           curMarker.done(ScalaElementTypes.TYPE_GENERIC_CALL)
-          parseTail(newMarker, checkSQBracket = false)
+          parseTail(newMarker, checkSQBracket = multipleSQBrackets)
         case ScalaTokenTypes.tINNER_CLASS =>
           val newMarker = curMarker.precede
           builder.advanceLexer() //Ate #

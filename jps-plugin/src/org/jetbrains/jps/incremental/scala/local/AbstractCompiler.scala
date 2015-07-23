@@ -33,20 +33,13 @@ abstract class AbstractCompiler extends Compiler {
     }
 
     def debug(msg: F0[String]) {
-      val lines = msg().trim.split('\n').map(ClientLogger.trim)
+      val lines = msg().trim.split('\n')
       client.debug("\n\n" + lines.mkString("\n") + "\n")
     }
 
     def trace(exception: F0[Throwable]) {
       client.trace(exception())
     }
-  }
-
-  private object ClientLogger {
-    private val MaxLineLength = 500
-
-    private def trim(line: String) =
-      if (line.length > MaxLineLength) line.substring(0, MaxLineLength) + "..." else line
   }
 
   private class ClientProgress(client: Client) extends ExtendedCompileProgress {

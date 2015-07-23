@@ -28,16 +28,14 @@ addCommandAlias("packagePluginZip", "pluginCompressor/package")
 lazy val scalaCommunity: Project =
   newProject("scalaCommunity", file("."))
   .dependsOn(compilerSettings, runners % "test->test;compile->compile")
-  .aggregate(jpsPlugin, sbtRuntimeDependencies, testDownloader, compilerSettings, runners, nailgunRunners, scalaRunner)
   .enablePlugins(SbtIdeaPlugin)
   .settings(
     ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
     javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6"),
     scalacOptions in Global += "-target:jvm-1.6",
     libraryDependencies ++= DependencyGroups.scalaCommunity,
-    libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % "test",
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
-    unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "scalap", "nailgun", "scalastyle", "scalatest-finders"),
+    unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "scalap", "nailgun", "scalastyle"),
     ideaInternalPlugins := Seq(
       "copyright",
       "gradle",
@@ -54,7 +52,7 @@ lazy val scalaCommunity: Project =
     },
     aggregate.in(updateIdea) := false,
     // jar hell workaround(ignore idea bundled lucene in test runtime)
-    fullClasspath in Test := {(fullClasspath in Test).value.filterNot(_.data.getName.endsWith("lucene-core-2.4.1.jar"))},
+    fullClasspath in Test <<= fullClasspath.in(Test).map(filterTestClasspath),
     fork in Test := true,
     parallelExecution := false,
     javaOptions in Test := Seq(
@@ -63,10 +61,12 @@ lazy val scalaCommunity: Project =
       "-Xmx1024m",
       "-XX:MaxPermSize=350m",
       "-ea",
-      s"-Didea.system.path=${Path.userHome}/.IdeaData/IDEA-15/scala/test-system",
-      s"-Didea.config.path=${Path.userHome}/.IdeaData/IDEA-15/scala/test-config",
+      s"-Didea.system.path=$testSystemDir",
+      s"-Didea.config.path=$testConfigDir",
       s"-Dplugin.path=${baseDirectory.value}/out/plugin/Scala"
-    )
+    ),
+    test in Test <<= test.in(Test).dependsOn(setUpTestEnvironment),
+    testOnly in Test <<= testOnly.in(Test).dependsOn(setUpTestEnvironment)
   )
 
 lazy val jpsPlugin  =
@@ -125,7 +125,10 @@ lazy val ideaRunner =
 
 lazy val sbtRuntimeDependencies =
   newProject("sbtRuntimeDependencies")
-  .settings(libraryDependencies ++= DependencyGroups.sbtRuntime)
+  .settings(
+    libraryDependencies ++= DependencyGroups.sbtRuntime,
+    autoScalaLibrary := false
+  )
 
 lazy val testDownloader =
   newProject("testJarsDownloader")
@@ -143,6 +146,30 @@ lazy val testDownloader =
       "com.chuusai" % "shapeless_2.11" % "2.0.0"
     )
   )
+
+// Testing keys and settings
+
+addCommandAlias("runSlowTests", s"testOnly -- --include-categories=$slowTestsCategory")
+
+addCommandAlias("runFastTests", s"testOnly -- --exclude-categories=$slowTestsCategory")
+
+lazy val setUpTestEnvironment = taskKey[Unit]("Set up proper environment for running tests")
+
+setUpTestEnvironment in ThisBuild := {
+  update.in(testDownloader).value
+}
+
+lazy val cleanUpTestEnvironment = taskKey[Unit]("Clean up IDEA test system and config directories")
+
+cleanUpTestEnvironment in ThisBuild := {
+  IO.delete(testSystemDir)
+  IO.delete(testConfigDir)
+}
+
+concurrentRestrictions in Global := Seq(
+  Tags.limit(Tags.Test, 1)
+)
+
 
 // Packaging projects
 

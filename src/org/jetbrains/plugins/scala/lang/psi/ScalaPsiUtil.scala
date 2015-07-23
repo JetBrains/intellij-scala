@@ -7,10 +7,11 @@ import java.lang.ref.WeakReference
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{JavaModuleType, ModuleUtil, ModuleUtilCore, Module}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
+import com.intellij.openapi.updateSettings.impl.pluginsAdvertisement.PluginsAdvertiser.Plugin
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
@@ -60,7 +61,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, 
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{Version, ModuleExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -488,7 +489,7 @@ object ScalaPsiUtil {
   }
 
   def processTypeForUpdateOrApplyCandidates(call: MethodInvocation, tp: ScType, isShape: Boolean,
-                                            noImplicits: Boolean, isDynamic: Boolean): Array[ScalaResolveResult] = {
+                                            isDynamic: Boolean): Array[ScalaResolveResult] = {
     val isUpdate = call.isUpdateCall
     val methodName =
       if (isDynamic) ResolvableReferenceExpression.getDynamicNameForMethodInvocation(call)
@@ -540,9 +541,9 @@ object ScalaPsiUtil {
       candidates = processor.candidatesS
     }
 
-    if (!noImplicits && candidates.forall(!_.isApplicable())) {
+    if (!isDynamic && candidates.forall(!_.isApplicable())) {
       //should think about implicit conversions
-      findImplicitConversion(expr, methodName, call, processor, noImplicitsForArgs = false) match {
+      findImplicitConversion(expr, methodName, call, processor, noImplicitsForArgs = candidates.nonEmpty) match {
         case Some(res) =>
           ProgressManager.checkCanceled()
           val function = res.element
@@ -564,8 +565,8 @@ object ScalaPsiUtil {
   def processTypeForUpdateOrApply(tp: ScType, call: MethodInvocation, isShape: Boolean):
       Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[ScalaResolveResult])] = {
 
-    def checkCandidates(withImplicits: Boolean, withDynamic: Boolean = false): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[ScalaResolveResult])] = {
-      val candidates: Array[ScalaResolveResult] = processTypeForUpdateOrApplyCandidates(call, tp, isShape, noImplicits = !withImplicits, isDynamic = withDynamic)
+    def checkCandidates(withDynamic: Boolean = false): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[ScalaResolveResult])] = {
+      val candidates: Array[ScalaResolveResult] = processTypeForUpdateOrApplyCandidates(call, tp, isShape, isDynamic = withDynamic)
       PartialFunction.condOpt(candidates) {
         case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
           def update(tp: ScType): ScType = {
@@ -590,10 +591,7 @@ object ScalaPsiUtil {
       }
     }
 
-    checkCandidates(withImplicits = false).orElse(checkCandidates(withImplicits = true)).orElse {
-        //let's check dynamic type
-        checkCandidates(withImplicits = false, withDynamic = true)
-    }
+    checkCandidates(withDynamic = false).orElse(checkCandidates(withDynamic = true))
   }
 
   /**
@@ -2051,6 +2049,11 @@ object ScalaPsiUtil {
     }
   }
 
+  def isMethodValue(ref: ScReferenceExpression): Boolean = ref match {
+    case ResolvesTo(m: PsiMethod) if m.getParameterList.getParametersCount > 0 && !ref.getParent.isInstanceOf[MethodInvocation] => true
+    case _ => false
+  }
+
   /** Creates a synthetic parameter clause based on view and context bounds */
   def syntheticParamClause(paramOwner: ScTypeParametersOwner, paramClauses: ScParameters, classParam: Boolean): Option[ScParameterClause] = {
     if (paramOwner == null) return None
@@ -2270,6 +2273,28 @@ object ScalaPsiUtil {
   }
 
   /**
+   * @see https://github.com/non/kind-projector
+   */
+  def kindProjectorPluginEnabled(e: PsiElement): Boolean = {
+    val plugins = e.module match {
+      case Some(mod) => mod.scalaCompilerSettings.plugins
+      case _ => ScalaCompilerConfiguration.instanceIn(e.getProject).defaultProfile.getSettings.plugins
+    }
+    plugins.exists(_.contains("kind-projector"))
+  }
+
+  /**
+   * @see https://github.com/non/kind-projector
+   */
+  def kindProjectorPluginEnabled(p: Project): Boolean = {
+    val modules = ModuleUtil.getModulesOfType(p, JavaModuleType.getModuleType)
+    import collection.JavaConversions._
+    modules.exists { mod =>
+      mod.hasScala && mod.scalaCompilerSettings.plugins.exists(_.contains("kind-projector"))
+    }
+  }
+
+  /**
    * Should we check if it's a Single Abstract Method?
    * In 2.11 works with -Xexperimental
    * In 2.12 works by default
@@ -2338,11 +2363,11 @@ object ScalaPsiUtil {
               val params: Array[ScType] = method.getParameterList.getParameters.map {
                 param: PsiParameter => ScType.create(param.getTypeElement.getType, project, scope)
               }
-              Some(ScFunctionType(returnType, params)(project, scope))
+              val result = ScFunctionType(returnType, params)(project, scope)
+              Some(sub.subst(result))
             } else None
         }
       case None => None
     }
   }
-
 }

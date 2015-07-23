@@ -375,25 +375,23 @@ object ScalaDocumentationProvider {
         for (annotation <- function.annotations if annotation.annotationExpr.getText.startsWith("throws")) {
           buffer.append(leadingAsterisks).append(MyScaladocParsing.THROWS_TAG).append(" ")
           annotation.constructor.args.foreach( a =>
-            a.exprs match {
-              case exprHead :: _ =>
-                exprHead.getType(TypingContext.empty) match {
-                  case Success(head, _) =>
-                    head match {
-                      case ScParameterizedType(_, args) =>
-                        args.headOption match {
-                          case a: Some[ScType] =>
-                            ScType.extractClass(a.get, Option(function.getProject)) match {
-                              case Some(clazz) => buffer append clazz.qualifiedName
-                              case _ =>
-                            }
-                          case _ =>
-                        }
-                      case _ =>
-                    }
-                  case _ =>
-                }
-              case _ =>
+            a.exprs.headOption.map {
+              case exprHead => exprHead.getType(TypingContext.empty) match {
+                case Success(head, _) =>
+                  head match {
+                    case ScParameterizedType(_, args) =>
+                      args.headOption match {
+                        case a: Some[ScType] =>
+                          ScType.extractClass(a.get, Option(function.getProject)) match {
+                            case Some(clazz) => buffer append clazz.qualifiedName
+                            case _ =>
+                          }
+                        case _ =>
+                      }
+                    case _ =>
+                  }
+                case _ =>
+              }
             }
           )
 

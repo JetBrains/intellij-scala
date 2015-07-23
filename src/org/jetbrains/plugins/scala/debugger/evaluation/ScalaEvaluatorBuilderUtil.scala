@@ -1173,17 +1173,20 @@ object ScalaEvaluatorBuilderUtil {
       case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
       case b: ScBlockExpr if b.isAnonymousFunction => true
       case (g: ScGuard) childOf (_: ScEnumerators) => true
-      case (g: ScGenerator) childOf (enums: ScEnumerators) if enums.generators.headOption != Some(g) => true
+      case (g: ScGenerator) childOf (enums: ScEnumerators) if !enums.generators.headOption.contains(g) => true
       case e: ScEnumerator => true
       case (expr: ScExpression) childOf (argLisg: ScArgumentExprList) if ScalaPsiUtil.parameterOf(expr).exists(_.isByName) => true
+      case ref: ScReferenceExpression if ScalaPsiUtil.isMethodValue(ref) => true
       case _ => false
     }
   }
 
-  def anonClassCount(elem: PsiElement): Int = {
+  def anonClassCount(elem: PsiElement): Int = { //todo: non irrefutable patterns?
     elem match {
-      case f: ScForStatement =>
-        f.enumerators.fold(1)(e => e.enumerators.length + e.generators.length + e.guards.length) //todo: non irrefutable patterns?
+      case (e: ScExpression) childOf (f: ScForStatement) =>
+        f.enumerators.fold(1)(e => e.generators.length)
+      case (e @ (_: ScEnumerator | _: ScGenerator | _: ScGuard)) childOf (enums: ScEnumerators) =>
+        enums.children.takeWhile(_ != e).count(_.isInstanceOf[ScGenerator])
       case _ => 1
     }
   }
