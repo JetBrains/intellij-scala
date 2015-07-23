@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import scala.language.postfixOps
 import scala.meta.internal.{ast => m, semantic => h}
 import scala.{Seq => _}
 
@@ -25,7 +26,7 @@ trait Namer {
     case cr: ScStableCodeReferenceElement =>
       m.Term.Name(cr.refName).withDenot(cr)
     case se: impl.toplevel.synthetic.SyntheticNamedElement =>
-      ??? // FIXME: find a way to resolve synthetic elements
+      throw new ScalaMetaException(s"Synthetic elements not implemented") // FIXME: find a way to resolve synthetic elements
     case cs: ScConstructor =>
       toTermName(cs.reference.get)
     // Java stuff starts here
@@ -47,7 +48,8 @@ trait Namer {
       m.Type.Name(sc.className).withDenot(sc)
     case cr: ScStableCodeReferenceElement =>
       toTypeName(cr.resolve())
-    case se: impl.toplevel.synthetic.SyntheticNamedElement => ??? // FIXME: find a way to resolve synthetic elements
+    case se: impl.toplevel.synthetic.SyntheticNamedElement =>
+      throw new ScalaMetaException(s"Synthetic elements not implemented") // FIXME: find a way to resolve synthetic elements
     case other => other ?!
   }
 

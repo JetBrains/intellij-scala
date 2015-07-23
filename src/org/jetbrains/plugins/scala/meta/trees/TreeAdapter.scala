@@ -82,8 +82,8 @@ trait TreeAdapter {
 
   def ctor(pc: Option[ScPrimaryConstructor]): m.Ctor.Primary = {
     pc match {
-      case None => throw new RuntimeException("no primary constructor in class")
       case Some(ctor) => m.Ctor.Primary(convertMods(ctor), toPrimaryCtorName(ctor), Seq(ctor.parameterList.clauses.map(convertParamClause):_*))
+      case None => unreachable("no primary constructor in class")
     }
   }
 
@@ -145,7 +145,7 @@ trait TreeAdapter {
     val early   = t.extendsBlock.earlyDefinitions map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*)) getOrElse Seq.empty
     val ctor = t.extendsBlock.templateParents match {
       case Some(parents: p.toplevel.templates.ScClassParents) => toCtor(parents.constructor.get)
-      case None => ???
+      case None => unreachable(s"Class ${t.qualifiedName} has no parents")
     }
     val self    = t.selfType match {
       case Some(tpe: ptype.ScType) => m.Term.Param(Nil, m.Term.Name("self"), Some(toType(tpe)), None)
@@ -214,8 +214,8 @@ trait TreeAdapter {
           m.Term.Select(m.Term.This(m.Name.Anonymous()), toTermName(q))
         case Some(parent:ScStableCodeReferenceElement) =>
           m.Term.Select(qual(parent), toTermName(q))
+        case None        => toTermName(q)
         case Some(other) => other ?!
-        case None         => toTermName(q)
       }
     }
     def selector(sel: p.toplevel.imports.ScImportSelector): m.Import.Selector = {
@@ -262,7 +262,7 @@ trait TreeAdapter {
       m.Defn.Val(convertMods(t), Seq(t.bindings.map(pattern):_*), t.declaredType.map(toType), expression(t.expr).get)
     else if(t.bindings.exists(_.isVar))
       m.Defn.Var(convertMods(t), Seq(t.bindings.map(pattern):_*), t.declaredType.map(toType), expression(t.expr))
-    else ???
+    else unreachable
   }
 
   def convertMods(t: p.toplevel.ScModifierListOwner): Seq[m.Mod] = {

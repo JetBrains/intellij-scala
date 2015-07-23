@@ -24,5 +24,15 @@ class TreeConverterExprTest extends TreeConverterTestBaseNoLibrary {
       Term.If(Lit.Bool(value = true), Lit.Int(42), Term.If(Lit.Bool(value = false), Lit.Int(999), Lit.Int(0)))
     )
   }
+
+  def testObjectMethodCall() {
+    doTest(
+      """object Foo { def f() = 42 }
+        |//start
+        |Foo.f()
+      """.stripMargin,
+      Term.Apply(Term.Select(Term.Name("Foo"), Term.Name("f")), Nil)
+    )
+  }
   
 }

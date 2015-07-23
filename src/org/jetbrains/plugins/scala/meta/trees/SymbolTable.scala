@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
 import org.scalameta.collections._
 
+import scala.language.postfixOps
 import scala.meta.internal.{ast => m, semantic => h}
 
 trait SymbolTable {
@@ -113,7 +114,7 @@ trait SymbolTable {
           case h.Signature.TermParameter =>
             ???
         }
-      case other => LOG.error("can't get fqn of non-global symbol"); ???
+      case other => unreachable("can't get fqn of non-global symbol")
     }
 
     def convert: PsiElement = sym match {
@@ -122,7 +123,7 @@ trait SymbolTable {
         findFileByPath(url).findElementAt(pos.head.toInt)
       case h.Symbol.RootPackage => new PsiPackageImpl(PsiManager.getInstance(getCurrentProject), "")
       case h.Symbol.EmptyPackage => new PsiPackageImpl(PsiManager.getInstance(getCurrentProject), "")
-      case h.Symbol.Zero => LOG.error("can't map Zero symbol"); ???
+      case h.Symbol.Zero => unreachable("can't map Zero symbol")
       case h.Symbol.Global(owner, name, signature) =>
         getFqName(sym) match {
           case (fqn, Some(jvmSig)) =>

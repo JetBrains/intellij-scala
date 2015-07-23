@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
 import scala.collection.immutable.Seq
+import scala.language.postfixOps
 import scala.meta.internal.{ast => m, semantic => h}
 import scala.{Seq => _}
 
@@ -40,10 +41,9 @@ trait TypeAdapter {
       case t: ScParenthesisedTypeElement =>
         t.typeElement match {
           case Some(t: ScInfixTypeElement) => m.Type.ApplyInfix(toType(t.lOp), toTypeName(t.ref), toType(t.rOp.get))
-          case _ => ???
+          case _ => unreachable
         }
-      case t: ScTypeVariableTypeElement =>
-        println("i cannot into type variables"); ???
+      case t: ScTypeVariableTypeElement => throw new ScalaMetaException("i cannot into type variables")
       case other => other ?!
     }
   }
@@ -52,7 +52,7 @@ trait TypeAdapter {
     import org.jetbrains.plugins.scala.lang.psi.types.result._
     tr match {
       case Success(res, _) => toType(res)
-      case Failure(cause, place) => throw new RuntimeException(s"Failed to convert type: $cause at $place")
+      case Failure(cause, place) => throw new ScalaMetaTypeResultFailure(place, cause)
     }
   }
 
@@ -118,7 +118,9 @@ trait TypeAdapter {
     import ptype.result._
     tr match {
       case Success(t, elem) => toType(t)
-      case Failure(cause, place)    => m.Type.Name("Unit")
+      case Failure(cause, place) =>
+        LOG.warn(s"Failed to infer return type($cause) at ${place.map(_.getText).getOrElse("UNKNOWN")}")
+        m.Type.Name("Unit")
     }
   }
 }
