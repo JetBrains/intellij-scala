@@ -278,6 +278,21 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
     checkCodeHasNoErrors(code)
   }
 
+  def testSAMMethodReference(): Unit = {
+    val code =
+      """
+        |trait F[T, R] {
+        |  def apply(a: T): R
+        |}
+        |
+        |def len(s: String): Int  = s.length
+        |
+        |val f: F[String, Int] = len
+        |
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
   def checkCodeHasNoErrors(code: String) {
     assertMatches(messages(code)) {
       case Nil =>
