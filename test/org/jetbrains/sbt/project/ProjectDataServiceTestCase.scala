@@ -23,7 +23,7 @@ abstract class ProjectDataServiceTestCase extends PlatformTestCase {
           override def run(): Unit = {
             val projectDataManager = ServiceManager.getService(classOf[ProjectDataManager])
             val platformFacade = ServiceManager.getService(classOf[PlatformFacade])
-            projectDataManager.importData(projectData.getKey, java.util.Collections.singleton(projectData), getProject, platformFacade, true)
+            projectDataManager.importData(projectData, getProject, platformFacade, true)
           }
         })
     })
