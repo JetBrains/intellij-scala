@@ -35,4 +35,43 @@ class TreeConverterExprTest extends TreeConverterTestBaseNoLibrary {
     )
   }
   
+  def testNewNoParen() {
+    doTest(
+      """class Foo
+        |//start
+        |new Foo
+      """.stripMargin,
+      Term.New(Template(Nil, List(Ctor.Ref.Name("Foo")), Term.Param(Nil, Name.Anonymous(), None, None), None))
+    )
+  }
+
+  def testNewEmptyParen() {
+    doTest(
+      """class Foo
+        |//start
+        |new Foo()
+      """.stripMargin,
+      Term.New(Template(Nil, List(Term.Apply(Ctor.Ref.Name("Foo"), Nil)), Term.Param(Nil, Name.Anonymous(), None, None), None))
+    )
+  }
+  
+  def testNewWithArg() {
+    doTest(
+      """class Foo(a: Int)
+        |//start
+        |new Foo(42)
+      """.stripMargin,
+      Term.New(Template(Nil, List(Term.Apply(Ctor.Ref.Name("Foo"), List(Lit.Int(42)))), Term.Param(Nil, Name.Anonymous(), None, None), None))
+    )
+  }
+
+  def testNewMutiParen() {
+    doTest(
+      """class Foo(a:Int)(b:String)
+        |//start
+        |new Foo(42)("")""".stripMargin,
+      Term.New(Template(Nil, List(Term.Apply(Term.Apply(Ctor.Ref.Name("Foo"), List(Lit.Int(42))), List(Lit.String("")))), Term.Param(Nil, Name.Anonymous(), None, None), None))
+    )
+  }
+
 }

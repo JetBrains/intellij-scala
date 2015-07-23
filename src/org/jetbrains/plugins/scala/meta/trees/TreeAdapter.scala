@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScParameterizedType}
+import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, api => p, types => ptype}
 
 import scala.collection.immutable.Seq
@@ -141,10 +141,14 @@ trait TreeAdapter {
     m.Template(early, parents, self, stats)
   }
 
-  def template(t: ScTemplateDefinition): m.Template = {
+  def newTemplate(t: ScTemplateDefinition): m.Template = {
     val early   = t.extendsBlock.earlyDefinitions map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*)) getOrElse Seq.empty
     val ctor = t.extendsBlock.templateParents match {
-      case Some(parents: p.toplevel.templates.ScClassParents) => toCtor(parents.constructor.get)
+      case Some(parents: p.toplevel.templates.ScClassParents) =>
+        parents.constructor match {
+          case Some(ctr) => toCtor(ctr)
+          case None => unreachable(s"no constructor found in class ${t.qualifiedName}")
+        }
       case None => unreachable(s"Class ${t.qualifiedName} has no parents")
     }
     val self    = t.selfType match {
@@ -156,9 +160,11 @@ trait TreeAdapter {
 
   def toCtor(c: ScConstructor) = {
     if (c.arguments.isEmpty)
-      toTermName(c)
-    else
-      m.Term.Apply(toTermName(c), Seq(c.args.get.exprs.map(callArgs):_*))
+      toCtorName(c)
+    else {
+      val head = m.Term.Apply(toCtorName(c), Seq(c.arguments.head.exprs.map(callArgs): _*))
+      c.arguments.tail.foldLeft(head)((term, exprList) => m.Term.Apply(term, Seq(exprList.exprs.map(callArgs): _*)))
+    }
   }
 
   def expression(e: ScExpression): m.Term = {
@@ -183,7 +189,7 @@ trait TreeAdapter {
       case t: ScReferenceExpression if t.qualifier.isDefined =>
         m.Term.Select(expression(t.qualifier.get), toTermName(t))
       case t: ScReferenceExpression => toTermName(t)
-      case t: ScNewTemplateDefinition => m.Term.New(template(t))
+      case t: ScNewTemplateDefinition => m.Term.New(newTemplate(t))
       case t: ScFunctionExpr => m.Term.Function(Seq(t.parameters.map(convertParam):_*), expression(t.result).get)
       case other: ScalaPsiElement => other ?!
     }

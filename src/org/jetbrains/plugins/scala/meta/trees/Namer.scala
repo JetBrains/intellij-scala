@@ -53,6 +53,16 @@ trait Namer {
     case other => other ?!
   }
 
+  def toCtorName(c: ScConstructor): m.Term.Ref = {
+    // FIXME: what about other cases of m.Ctor ?
+    val resolved = toTermName(c)
+    resolved match {
+      case n@m.Term.Name(value) =>
+        m.Ctor.Ref.Name(value).copy(denot = n.denot, expansion = n.expansion, typing = n.typing)
+      case other => unreachable
+    }
+  }
+
   def toPrimaryCtorName(t: ScPrimaryConstructor) = {
     m.Ctor.Ref.Name("this")
   }
