@@ -58,13 +58,13 @@ trait TypeAdapter {
 
   def toType(elem: PsiElement): m.Type = {
     elem match {
+      case t: typedef.ScTemplateDefinition =>
+        val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
+        toType(s.subst(t.getType(TypingContext.empty).get)) // FIXME: what about typing context?
       case t: packaging.ScPackaging => m.Type.Singleton(toTermName(t.reference.get))
       case t: PsiPackage if t.getName == null => m.Type.Singleton(rootPackageName)
       case t: PsiPackage => m.Type.Singleton(toTermName(t))
       case t: PsiClass => m.Type.Name(t.getName).withDenot(t)
-      case t: typedef.ScTemplateDefinition =>
-        val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
-        toType(s.subst(t.getType(TypingContext.empty).get)) // FIXME: what about typing context?
       case other => other ?!
     }
   }
@@ -85,6 +85,8 @@ trait TypeAdapter {
         }
       case t: ScDesignatorType =>
         toTypeName(t.element).withDenot(t.element)
+      case t: StdType =>
+        m.Type.Name(t.name) // FIXME: should we even attach denotations to std types?
       case t: ptype.ScType =>
         LOG.warn(s"Unknown type: ${t.getClass} - ${t.canonicalText}")
         m.Type.Name(t.canonicalText)
