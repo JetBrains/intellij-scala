@@ -2,14 +2,18 @@ import sbt._
 
 object BintrayJetbrains {
 
-  def jbResolver(name: String, patterns: Patterns) =
-    Resolver.url(name, url("http://dl.bintray.com/jetbrains/sbt-plugins"))(patterns)
+  def jbBintrayResolver(name: String, repo: String, patterns: Patterns) =
+    Resolver.url(name, url(s"http://dl.bintray.com/jetbrains/$repo"))(patterns)
+
+  def jbSbtResolver(name: String, patterns: Patterns) =
+    jbBintrayResolver(name, "sbt-plugins", patterns)
 
   object Resolvers {
     val mavenPatched  = "jb-maven-patched" at "http://dl.bintray.com/jetbrains/maven-patched/"
-    val structureCore = jbResolver("jb-structure-core", Resolver.ivyStylePatterns)
-    val structureExtractor012 = jbResolver("jb-structure-extractor-0.12", Patterns.structureExtractor012)
-    val structureExtractor013 = jbResolver("jb-structure-extractor-0.13", Patterns.structureExtractor013)
+    val scalaTestFindersPatched  = jbBintrayResolver("scalatest-finders-patched", "scalatest", Resolver.ivyStylePatterns)
+    val structureCore = jbSbtResolver("jb-structure-core", Resolver.ivyStylePatterns)
+    val structureExtractor012 = jbSbtResolver("jb-structure-extractor-0.12", Patterns.structureExtractor012)
+    val structureExtractor013 = jbSbtResolver("jb-structure-extractor-0.13", Patterns.structureExtractor013)
   }
 
   object Patterns {
@@ -18,5 +22,6 @@ object BintrayJetbrains {
   }
 
   val allResolvers = Seq(Resolvers.mavenPatched, Resolvers.structureCore,
-                         Resolvers.structureExtractor012, Resolvers.structureExtractor013)
+                         Resolvers.structureExtractor012, Resolvers.structureExtractor013,
+                         Resolvers.scalaTestFindersPatched)
 }

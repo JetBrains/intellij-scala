@@ -56,6 +56,7 @@ class SbtProjectDataService(platformFacade: PlatformFacade, helper: ProjectStruc
     javaLanguageLevel.foreach { level =>
       val extension = LanguageLevelProjectExtension.getInstance(project)
       extension.setLanguageLevel(level)
+      extension.setDefault(false)
     }
   }
 

@@ -30,6 +30,7 @@ object FunExpressionTarget {
         val clauses = b.caseClauses.get
         Some(clauses.caseClauses.flatMap(_.expr).flatMap(blockStmts), text(b))
       case expr: ScExpression if ScalaPsiUtil.isByNameArgument(expr) => Some(blockStmts(expr), text(expr))
+      case ref: ScReferenceExpression if ScalaPsiUtil.isMethodValue(ref) => Some(Seq(ref), text(expr))
       case _ => None
     }
   }
@@ -57,5 +58,4 @@ object FunExpressionTarget {
   }
 
   private def text(e: ScExpression) = parameterNameAndType(e).getOrElse(shorten(e.getText))
-
 }

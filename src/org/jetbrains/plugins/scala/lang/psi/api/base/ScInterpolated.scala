@@ -39,7 +39,7 @@ trait ScInterpolated extends ScalaPsiElement {
       val quote = if (l.isMultiLineString) "\"\"\"" else "\""
       val parts = getStringParts(l).mkString(quote, s"$quote, $quote", quote) //making list of string literals
       val params = l.getInjections.map(_.getText).mkString("(", ",", ")")
-      Option(ScalaPsiElementFactory.createExpressionWithContextFromText(
+      if (getContext == null) None else Option(ScalaPsiElementFactory.createExpressionWithContextFromText(
         s"_root_.scala.StringContext($parts).${getFirstChild.getText}$params", getContext, this))
     }
 

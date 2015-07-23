@@ -160,6 +160,20 @@ class VarianceTest extends SimpleTestCase {
     }
   }
 
+  def testUV() = {
+    assertMatches(messages(
+      """
+        |import scala.annotation.unchecked.{ uncheckedVariance => uV }
+        |
+        |class Test[+T] {
+        |  var arr: Array[T@uV] = null
+        |}
+      """.stripMargin)) {
+      case Nil =>
+    }
+  }
+
+
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new ScalaAnnotator() {}
     val mock = new AnnotatorHolderMock

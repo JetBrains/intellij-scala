@@ -14,13 +14,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
+import org.jetbrains.plugins.scala.lang.psi.types.{Any, StdType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScDeclarationSequenceHolder, ScImportsHolder}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -47,6 +48,15 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
 
     if (context != null) {
       return true
+    }
+
+    if (ScalaPsiUtil.kindProjectorPluginEnabled(place)) {
+      val manager = place.getManager
+      processor.execute(new ScSyntheticClass(manager, "Lambda", Any), state)
+      processor.execute(new ScSyntheticClass(manager, "λ", Any), state)
+      processor.execute(new ScSyntheticClass(manager, "?", Any), state)
+      processor.execute(new ScSyntheticClass(manager, "+?", Any), state)
+      processor.execute(new ScSyntheticClass(manager, "-?", Any), state)
     }
 
     val scope = place.getResolveScope

@@ -15,7 +15,7 @@ object ZeroIndexToHead extends SimplificationType() {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case qual`.apply`(literal("0")) if isSeq(qual) =>
+      case qual`.apply`(literal("0")) if isSeq(qual) && !isIndexedSeq(qual) =>
         Some(replace(expr).withText(invocationText(qual, "head")).highlightFrom(qual))
       case _ => None
     }

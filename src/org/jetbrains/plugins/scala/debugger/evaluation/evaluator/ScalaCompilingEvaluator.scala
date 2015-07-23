@@ -6,13 +6,14 @@ import java.net.URI
 import java.util
 
 import com.intellij.codeInsight.CodeInsightUtilCore
+import com.intellij.debugger.engine._
 import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.engine.evaluation.expression.{ExpressionEvaluator, Modifier}
-import com.intellij.debugger.engine.{ContextUtil, DebugProcess, SuspendContextImpl}
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
 import com.intellij.debugger.{DebuggerInvocationUtil, EvaluatingComputable}
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.{PsiElement, PsiFileFactory}
 import com.sun.jdi._
@@ -125,6 +126,8 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
 
 object ScalaCompilingEvaluator {
 
+  val classNameKey = Key.create[String]("generated.class.name")
+
   private def keep(reference: ObjectReference, context: EvaluationContext) {
     context.getSuspendContext.asInstanceOf[SuspendContextImpl].keep(reference)
   }
@@ -184,6 +187,8 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
   private def init(): Unit = {
     val file = context.getContainingFile
     val copy = PsiFileFactory.getInstance(project).createFileFromText(file.getName, file.getFileType, file.getText, file.getModificationStamp, false)
+    copy.putUserData(ScalaCompilingEvaluator.classNameKey, generatedClassName)
+
     val range = context.getTextRange
     val copyContext: PsiElement = CodeInsightUtilCore.findElementInRange(copy, range.getStartOffset, range.getEndOffset, context.getClass, file.getLanguage)
 
