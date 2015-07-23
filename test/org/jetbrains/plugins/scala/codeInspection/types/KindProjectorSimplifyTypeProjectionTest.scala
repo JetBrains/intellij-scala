@@ -102,5 +102,10 @@ class KindProjectorSimplifyTypeProjectionTest extends ScalaLightInspectionFixtur
     checkTextHasNoErrors(code)
   }
 
+  def testAliasNoParam(): Unit = {
+    val code = "def a: ({type Λ$ = String})#Λ$"
+    checkTextHasNoErrors(code)
+  }
+
   def testFix(text: String, res: String): Unit = testFix(text, res, annotation)
 }
