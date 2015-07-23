@@ -30,9 +30,9 @@ abstract class LightScalaTestCase extends LightCodeInsightFixtureTestCase {
 
 object LightScalaTestCase {
   val SCALA_DESCRIPTOR = new LightProjectDescriptor {
-    def getModuleType : ModuleType[T] forSome {type T <: ModuleBuilder} = StdModuleTypes.JAVA
-    def getSdk = IdeaTestUtil.getMockJdk14
-    def configureModule(module: Module, model: ModifiableRootModel, contentEntry: ContentEntry) {
+    override def getModuleType : ModuleType[T] forSome {type T <: ModuleBuilder} = StdModuleTypes.JAVA
+    override def getSdk = IdeaTestUtil.getMockJdk14
+    override def configureModule(module: Module, model: ModifiableRootModel, contentEntry: ContentEntry) {
       val modifiableModel = model.getModuleLibraryTable.createLibrary("SCALA").getModifiableModel
       val scalaLib = TestUtils.getMockScalaLib + "!/"
       val scalaJar = JarFileSystem.getInstance.refreshAndFindFileByPath(scalaLib)

@@ -8,7 +8,6 @@ import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataMan
 import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
 import com.intellij.openapi.roots.ex.ProjectRootManagerEx
 import com.intellij.testFramework.PlatformTestCase
-import com.intellij.testFramework.exceptionCases.AbstractExceptionCase
 
 /**
  * TestCase class to use when testing ProjectDataService implementations
@@ -23,7 +22,7 @@ abstract class ProjectDataServiceTestCase extends PlatformTestCase {
           override def run(): Unit = {
             val projectDataManager = ServiceManager.getService(classOf[ProjectDataManager])
             val platformFacade = ServiceManager.getService(classOf[PlatformFacade])
-            projectDataManager.importData(projectData.getKey, java.util.Collections.singleton(projectData), getProject, platformFacade, true)
+            projectDataManager.importData(projectData, getProject, platformFacade, true)
           }
         })
     })
