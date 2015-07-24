@@ -31,6 +31,7 @@ abstract class IdeClient(compilerName: String,
 
     val sourcePath = source.map(file => file.getPath)
 
+    context.getProjectDescriptor.getProject.getName
     if (kind == Kind.WARNING && ScalaReflectMacroExpansionParser.isMacroMessage(text)) {
       ScalaReflectMacroExpansionParser.processMessage(text)
     } else {
