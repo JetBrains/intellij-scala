@@ -31,7 +31,7 @@ class SbtAnnotator extends Annotator {
     }
   }
 
-  private def getSbtVersion(element: PsiElement): String = {
+  protected def getSbtVersion(element: PsiElement): String = {
     val projectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
     val module = Option(projectFileIndex.getModuleForFile(element.getContainingFile.getVirtualFile))
     val settings = SbtSystemSettings.getInstance(element.getProject)
@@ -51,17 +51,17 @@ class SbtAnnotator extends Annotator {
       case _: SbtFileImpl | _: ScImportStmt | _: PsiComment | _: PsiWhiteSpace =>
       case exp: ScExpression => checkExpressionType(exp, holder)
       case _: ScFunctionDefinition | _: ScPatternDefinition if is13_+ =>
-      case other => holder.createErrorAnnotation(other, "SBT file must contain only expressions")
+      case other => holder.createErrorAnnotation(other, SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions"))
     }
   }
 
   private def checkExpressionType(exp: ScExpression, holder: AnnotationHolder) {
     exp.getType(TypingContext.empty).foreach { expressionType =>
       if (expressionType.equiv(types.Nothing) || expressionType.equiv(types.Null)) {
-        holder.createErrorAnnotation(exp, "Expected expression type is Def.SettingsDefinition in SBT file")
+        holder.createErrorAnnotation(exp, SbtBundle("sbt.annotation.expectedExpressionType"))
       } else {
         if (!checkType(exp, expressionType)) {
-          holder.createErrorAnnotation(exp, s"Expression type ($expressionType) must conform to Def.SettingsDefinition in SBT file")
+          holder.createErrorAnnotation(exp, SbtBundle("sbt.annotation.expressionMustConform", expressionType))
         }
       }
     }
