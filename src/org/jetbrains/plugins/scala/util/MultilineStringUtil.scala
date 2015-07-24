@@ -11,6 +11,8 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.types.StdType
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -61,10 +63,24 @@ object MultilineStringUtil {
     true
   }
 
-  def needAddStripMargin(element: PsiElement, marginChar: String) = {
+  def needAddStripMargin(element: PsiElement, marginChar: String): Boolean = {
     def hasMarginChars(element: PsiElement) = element.getText.replace("\r", "").split("\n[ \t]*\\|").length > 1
 
     findAllMethodCallsOnMLString(element, "stripMargin").isEmpty && !hasMarginChars(element)
+  }
+
+  def needAddByType(literal: ScLiteral): Boolean = literal match {
+    case interpolated: ScInterpolatedStringLiteral => interpolated.reference match {
+      case Some(ref: ScReferenceExpression) =>
+        ref.resolve() match {
+          case funDef: ScFunction =>
+            val tpe = funDef.returnType
+            tpe.exists(scType => scType.canonicalText.endsWith("java.lang.String") || scType.canonicalText.endsWith("scala.Predef.String"))
+          case _ => true
+        }
+      case _ => true
+    }
+    case _ => true
   }
 
   def insertStripMargin(document: Document, literal: ScLiteral, marginChar: Char) {
