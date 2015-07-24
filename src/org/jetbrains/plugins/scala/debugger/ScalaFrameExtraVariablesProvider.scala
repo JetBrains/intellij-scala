@@ -13,9 +13,9 @@ import org.jetbrains.plugins.scala.codeInsight.template.util.VariablesCompletion
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 import scala.collection.JavaConverters._
@@ -60,6 +60,8 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
 
   private def canEvaluate(srr: ScalaResolveResult, place: PsiElement) = {
     srr.getElement match {
+      case _: ScWildcardPattern => false
+      case tp: ScTypedPattern if tp.name == "_" => false
       case cp: ScClassParameter if !cp.isEffectiveVal =>
         def notInThisClass(elem: PsiElement) = {
           elem != null && !PsiTreeUtil.isAncestor(cp.containingClass, elem, true)
