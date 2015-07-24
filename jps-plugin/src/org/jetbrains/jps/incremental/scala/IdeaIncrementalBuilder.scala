@@ -11,7 +11,7 @@ import org.jetbrains.jps.builders.{DirtyFilesHolder, FileProcessor}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.ScalaBuilder._
-import org.jetbrains.jps.incremental.scala.local.IdeClientIdea
+import org.jetbrains.jps.incremental.scala.local.{ScalaReflectMacroExpansionParser, IdeClientIdea}
 import org.jetbrains.jps.incremental.scala.model.{CompileOrder, IncrementalityType}
 
 import _root_.scala.collection.JavaConverters._
@@ -79,6 +79,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
         if (delta != null && JavaBuilderUtil.updateMappings(context, delta, dirtyFilesHolder, chunk, scalaSources, successfullyCompiled.asJava))
           ExitCode.ADDITIONAL_PASS_REQUIRED
         else {
+          if (ScalaReflectMacroExpansionParser.expansions.nonEmpty) ScalaReflectMacroExpansionParser.serializeExpansions(context)
           client.progress("Compilation completed", Some(1.0F))
           code
         }
