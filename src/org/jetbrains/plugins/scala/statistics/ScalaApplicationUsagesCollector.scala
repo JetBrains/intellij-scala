@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.psi.JavaPsiFacade
+import com.intellij.util.PlatformUtils
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.project._
 
@@ -53,7 +54,7 @@ class ScalaApplicationUsagesCollector extends AbstractApplicationUsagesCollector
       }
 
 
-      val isPlayInstalled = PluginManager.isPluginInstalled(PluginId.getId("com.intellij.scala.play2template"))
+      val isPlayInstalled = PlatformUtils.isIdeaUltimate
 
       if (scala_version.isDefined) {
         checkLibrary("scalaz", "Scalaz")
