@@ -34,9 +34,9 @@ class AppliedTypeLambdaCanBeSimplifiedTest extends ScalaLightInspectionFixtureTe
   }
 
   def testKindProjectorFunctionSyntax(): Unit = {
-    val text = s"def a: ${START}λ[A => (A, A)][Int]$END)"
+    val text = s"def a: ${START}Lambda[A => (A, A)][Int]$END)"
     check(text)
-    val code = "def a: λ[A => (A, A)][Int]"
+    val code = "def a: Lamda[A => (A, A)][Int]"
     val res = "def a: (Int, Int)"
     testFix(code, res)
   }
