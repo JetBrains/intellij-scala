@@ -3,14 +3,13 @@ package org.jetbrains.jps.incremental.scala.local
 import java.io.{ObjectOutputStream, File, FileOutputStream}
 import java.util.regex.Pattern
 
+import com.intellij.openapi.application.PathManager
 import org.jetbrains.jps.incremental.CompileContext
+import org.jetbrains.plugin.scala.util.{Place, MacroExpansion}
 
 import scala.collection.mutable
 
 object ScalaReflectMacroExpansionParser {
-
-  case class Place(macroApplication: String, sourceFile: String, line: Int, offset: Int)
-  case class MacroExpansion(place: Place, body: String)
 
   object ParsingState extends Enumeration {
     type ParsingState = Value
@@ -63,8 +62,7 @@ object ScalaReflectMacroExpansionParser {
   def reset() = parsingState = ParsingState.INIT
 
   def serializeExpansions(context: CompileContext) = {
-//    context.getProjectDescriptor.getProject.
-    val fo = new FileOutputStream(File.createTempFile(s"expansion-${context.getProjectDescriptor.getProject.getName}", "txt"))
+    val fo = new FileOutputStream(new File(System.getProperty("java.io.tmpdir") + s"/../../expansion-${context.getProjectDescriptor.getProject.getName}"))
     val so = new ObjectOutputStream(fo)
     for (expansion <- expansions) {
       so.writeObject(expansion)
