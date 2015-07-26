@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.util
 
-import java.io.{EOFException, FileInputStream, ObjectInputStream}
+import java.io.{EOFException, FileInputStream, ObjectInputStream, File}
 import java.util.regex.Pattern
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
@@ -81,15 +81,13 @@ class DummyAction extends AnAction {
   }
 
   def deserializeExpansions(implicit event: AnActionEvent): Seq[MacroExpansion] = {
-    val fs = new FileInputStream(PathManager.getSystemPath + s"/expansion-${event.getProject.getName}")
+    val file = new File(PathManager.getSystemPath + s"/expansion-${event.getProject.getName}")
+    if (!file.exists()) return Seq.empty
+    val fs = new FileInputStream(file)
     val os = new ObjectInputStream(fs)
     val res = scala.collection.mutable.ListBuffer[MacroExpansion]()
-    while (true) {
-      try {
-        res += os.readObject().asInstanceOf[MacroExpansion]
-      } catch {
-        case _:EOFException => return res
-      }
+    while (fs.available() > 0) {
+      res += os.readObject().asInstanceOf[MacroExpansion]
     }
     res
   }
