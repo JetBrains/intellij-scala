@@ -57,6 +57,7 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox useEclipseCompatibilityModeCheckBox;
   private JTextField scalaTestDefaultSuperClass;
   private JCheckBox useOldImplicitConversionCheckBox;
+  private JCheckBox macroExpansions;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private Project myProject;
 
@@ -123,6 +124,9 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setAotCOmpletion(myAotCompletion.isSelected());
     scalaProjectSettings.setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
     scalaProjectSettings.setCollectionTypeHighlightingLevel(collectionHighlightingChooser.getSelectedIndex());
+
+    scalaProjectSettings.setPerformMacroExpansions(macroExpansions.isSelected());
+
     injectionPrefixTable.saveSettings(scalaProjectSettings);
   }
 
@@ -204,6 +208,9 @@ public class ScalaProjectSettingsPanel {
     if (scalaProjectSettings.getCollectionTypeHighlightingLevel() !=
         collectionHighlightingChooser.getSelectedIndex()) return true;
 
+    if (scalaProjectSettings.isPerformMacroExpansions() != macroExpansions.isSelected())
+      return true;
+
     if (injectionPrefixTable.isModified(scalaProjectSettings)) return true;
 
     return false;
@@ -252,6 +259,8 @@ public class ScalaProjectSettingsPanel {
     setValue(myAotCompletion, scalaProjectSettings.isAotCompletion());
     setValue(useScalaClassesPriorityCheckBox, scalaProjectSettings.isScalaPriority());
     collectionHighlightingChooser.setSelectedIndex(scalaProjectSettings.getCollectionTypeHighlightingLevel());
+
+    setValue(macroExpansions, scalaProjectSettings.isPerformMacroExpansions());
 
     injectionPrefixTable.loadSettings(scalaProjectSettings);
   }
