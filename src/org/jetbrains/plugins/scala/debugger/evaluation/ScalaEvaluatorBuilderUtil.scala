@@ -83,9 +83,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case Some(ScThisType(clazz)) => clazz
       case Some(tp) => ScType.extractClass(tp, Some(elem.getProject)) match {
         case Some(x) => x
-        case None => getContainingClass(elem)
+        case None => getContextClass(elem)
       }
-      case _ => getContainingClass(elem)
+      case _ => getContextClass(elem)
     }
     containingClass match {
       case o: ScObject if isStable(o) =>
@@ -154,7 +154,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def localMethodEvaluator(fun: ScFunctionDefinition, argEvaluators: Seq[Evaluator]): Evaluator = {
     val name = NameTransformer.encode(fun.name)
-    val containingClass = if (fun.isSynthetic) fun.containingClass else getContainingClass(fun)
+    val containingClass = if (fun.isSynthetic) fun.containingClass else getContextClass(fun)
     if (contextClass == null) {
       throw EvaluationException("Cannot evaluate local method")
     }
@@ -488,14 +488,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           new ScalaFieldEvaluator(eval, ref => true,name)
         } else {
           val qualEvaluator = ScalaEvaluator(qual)
-          new ScalaFieldEvaluator(qualEvaluator, ScalaFieldEvaluator.getFilter(getContainingClass(field)), field.name)
+          new ScalaFieldEvaluator(qualEvaluator, ScalaFieldEvaluator.getFilter(getContextClass(field)), field.name)
         }
       case None =>
         val evaluator = thisOrImportedQualifierEvaluator(ref)
-        new ScalaFieldEvaluator(evaluator, ScalaFieldEvaluator.getFilter(getContainingClass(field)), field.name)
+        new ScalaFieldEvaluator(evaluator, ScalaFieldEvaluator.getFilter(getContextClass(field)), field.name)
     }
   }
-  
+
   def javaMethodEvaluator(method: PsiMethod, ref: ScReferenceExpression, arguments: Seq[ScExpression]): Evaluator = {
 
     def boxArguments(arguments: Seq[Evaluator], method: PsiElement): Seq[Evaluator] = {
@@ -670,7 +670,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
       val namedElement = resolve.asInstanceOf[PsiNamedElement]
       val name = NameTransformer.encode(namedElement.name) + (if (isObject) "$module" else "")
-      val containingClass = getContainingClass(namedElement)
+      val containingClass = getContextClass(namedElement)
 
       def localVariableEvaluator(): Evaluator = {
         val eval = ScalaPsiUtil.nameContext(namedElement) match {
@@ -977,7 +977,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case _ => explEvaluators
     }
   }
-  
+
   def fromLocalArgEvaluator(local: ScTypedDefinition): Evaluator = {
     val name = local.asInstanceOf[PsiNamedElement].name
     val elemAt = position.getElementAt
@@ -1126,7 +1126,7 @@ object ScalaEvaluatorBuilderUtil {
       Set[PsiType](BOOLEAN, INT, CHAR, DOUBLE, FLOAT, LONG, BYTE, SHORT).contains(tp)
     case _ => false
   }
-  
+
   def isPrimitiveScType(tp: ScType) = {
     import org.jetbrains.plugins.scala.lang.psi.types._
     Set[ScType](Boolean, Int, Char, Double, Float, Long, Byte, Short).contains(tp)
@@ -1191,10 +1191,6 @@ object ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def getContainingClass(elem: PsiElement): PsiElement = {
-    elem.parentsInFile.find(isGenerateClass).getOrElse(getContextClass(elem))
-  }
-
   def localFunctionIndex(named: PsiNamedElement): Int = {
     elementsWithSameNameIndex(named, {
       case f: ScFunction if f.isLocal && f.name == named.name => true
@@ -1218,9 +1214,9 @@ object ScalaEvaluatorBuilderUtil {
       case _ if method.isConstructor =>  "$lessinit$greater$default$" + paramIndex + "()"
     }
   }
-  
+
   def elementsWithSameNameIndex(named: PsiNamedElement, condition: PsiElement => Boolean): Int = {
-    val containingClass = getContainingClass(named)
+    val containingClass = getContextClass(named)
     val depthFirstIterator = containingClass.depthFirst {
       case `containingClass` => true
       case elem if isGenerateClass(elem) => false
