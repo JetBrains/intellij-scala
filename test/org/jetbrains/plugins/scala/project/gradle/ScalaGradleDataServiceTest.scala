@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.project.gradle
 
 import java.io.File
+import java.util
 
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException, Key}
@@ -47,7 +48,13 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
           override protected val data: ScalaModelData = new ScalaModelData(SbtProjectSystem.Id)
           override protected def key: Key[ScalaModelData] = ScalaModelData.KEY
 
-          data.setScalaClasspath(scalaCompilerClasspath.asJava)
+          def asSerializableJavaSet[T](scalaSet: Set[T]): util.Set[T] = {
+            val classpath = new util.HashSet[T]()
+            util.Collections.addAll(classpath, scalaSet.toSeq:_*)
+            classpath
+          }
+
+          data.setScalaClasspath(asSerializableJavaSet(scalaCompilerClasspath))
           data.setScalaCompileOptions(compilerOptions.getOrElse(new ScalaCompileOptionsData))
           data.setTargetCompatibility("1.5")
         }
