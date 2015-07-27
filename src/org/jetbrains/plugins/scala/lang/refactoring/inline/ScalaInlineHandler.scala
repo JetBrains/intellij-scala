@@ -15,7 +15,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiNamedElement, PsiElement, PsiReference}
+import com.intellij.psi.{PsiExpression, PsiNamedElement, PsiElement, PsiReference}
 import com.intellij.refactoring.HelpID
 import com.intellij.refactoring.util.{CommonRefactoringUtil, RefactoringMessageDialog}
 import com.intellij.usageView.UsageInfo
@@ -173,15 +173,20 @@ class ScalaInlineHandler extends InlineHandler {
       } else settings
     }
 
-    def isSimpleTypeAlias(typeAlias: ScTypeAliasDefinition): Boolean =
-      typeAlias.typeParameters.isEmpty
+    def isSimpleTypeAlias(typeAlias: ScTypeAliasDefinition): Boolean = {
+      typeAlias.aliasedTypeElement.depthFirst.forall {
+        case t@(_: ScTypeElement) =>
+          t.calcType match {
+            case part: ScTypeParameterType => false
+            case part: ScProjectionType => false
+            case _=> true
+          }
+        case _ => true
+      }
+    }
 
-    def isProjectionRef(typeAlias: ScTypeAliasDefinition): Boolean =
-      typeAlias.aliasedTypeElement.calcType.isInstanceOf[ScProjectionType]
-
-    def isTypeParameter(typeAlias: ScTypeAliasDefinition): Boolean =
-      typeAlias.aliasedTypeElement.calcType.isInstanceOf[ScTypeParameterType]
-
+    def isParametrizedTypeAlias(typeAlias: ScTypeAliasDefinition): Boolean =
+      !typeAlias.typeParameters.isEmpty
 
     UsageTrigger.trigger(ScalaBundle.message("inline.id"))
 
@@ -206,12 +211,8 @@ class ScalaInlineHandler extends InlineHandler {
       case funDef: ScFunctionDefinition if funDef.body.isDefined && funDef.parameters.isEmpty =>
         if (funDef.isLocal) getSettings(funDef, "Method", "local method")
         else getSettings(funDef, "Method", "method")
-      case typeAlias: ScTypeAliasDefinition if !isSimpleTypeAlias(typeAlias) =>
+      case typeAlias: ScTypeAliasDefinition if isParametrizedTypeAlias(typeAlias) || !isSimpleTypeAlias(typeAlias) =>
         showErrorHint(ScalaBundle.message("cannot.inline.notsimple.typealias"), "Type Alias")
-      case typeAlias: ScTypeAliasDefinition if isProjectionRef(typeAlias) =>
-        showErrorHint(ScalaBundle.message("cannot.inline.projectionref.typealias"), "Type Alias")
-      case typeAlias: ScTypeAliasDefinition if isTypeParameter(typeAlias) =>
-        showErrorHint(ScalaBundle.message("cannot.inline.typeparameter.typealias"), "Type Alias")
       case typeAlias: ScTypeAliasDefinition =>
         getSettings(typeAlias, "Type Alias", "type alias")
       case _ => null
