@@ -175,7 +175,7 @@ class ScalaInlineHandler extends InlineHandler {
 
     def isSimpleTypeAlias(typeAlias: ScTypeAliasDefinition): Boolean = {
       typeAlias.aliasedTypeElement.depthFirst.forall {
-        case t@(_: ScTypeElement) =>
+        case t: ScTypeElement =>
           t.calcType match {
             case part: ScTypeParameterType => false
             case part: ScProjectionType => false
