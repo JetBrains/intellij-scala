@@ -22,8 +22,8 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase {
   protected def doTest(messages: Seq[Message]) {
     val mock = new AnnotatorHolderMock
     annotator.annotate(loadTestFile(), mock)
-    println(mock.annotations)
     assertTrue(messages.forall(mock.annotations.contains))
+    assertTrue(mock.annotations.forall(messages.contains))
   }
 }
 
@@ -49,6 +49,13 @@ class SbtAnnotatorTest013 extends SbtAnnotatorTestBase {
 
 class SbtAnnotatorTest0137 extends SbtAnnotatorTestBase {
   override def annotator = new SbtAnnotatorMock("0.13.7")
+
+  def testSbtAnnotator =
+    doTest(Seq.empty)
+}
+
+class SbtAnnotatorTestNullVersion extends SbtAnnotatorTestBase {
+  override def annotator = new SbtAnnotatorMock(null)
 
   def testSbtAnnotator =
     doTest(Seq.empty)
