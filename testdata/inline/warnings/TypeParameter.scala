@@ -1,4 +1,4 @@
-//cannot.inline.typeparameter.typealias
+//cannot.inline.notsimple.typealias
 class A[T](t: T) {
   type /*caret*/S = T
   val a = new A(1)

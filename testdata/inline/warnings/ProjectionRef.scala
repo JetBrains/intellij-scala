@@ -1,4 +1,4 @@
-//cannot.inline.projectionref.typealias
+//cannot.inline.notsimple.typealias
 class A {
   type S
   type /*caret*/Q = S
