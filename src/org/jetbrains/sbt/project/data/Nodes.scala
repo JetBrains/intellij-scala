@@ -3,6 +3,7 @@ package project.data
 
 import java.io.File
 
+import com.intellij.externalSystem.JavaProjectData
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
 import org.jetbrains.plugins.scala.project.Version
@@ -20,6 +21,15 @@ class ProjectNode(val data: ProjectData)
   }
 
   protected def key = ProjectKeys.PROJECT
+}
+
+class JavaProjectNode(val data: JavaProjectData)
+  extends Node[JavaProjectData] {
+  def this(compilerOutputPath: String) {
+    this(new JavaProjectData(SbtProjectSystem.Id, compilerOutputPath))
+  }
+
+  protected def key = JavaProjectData.KEY
 }
 
 class ModuleNode(val data: ModuleData)

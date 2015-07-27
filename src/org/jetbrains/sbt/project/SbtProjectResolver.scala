@@ -86,6 +86,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
             .orElse(jdk.map(SbtProjectData.Jdk))
 
     projectNode.add(new SbtProjectNode(basePackages, projectJdk, javacOptions, sbtVersion, root))
+    projectNode.add(new JavaProjectNode(root + "/target"))
 
     project.play2 map {
       case play2Data =>
