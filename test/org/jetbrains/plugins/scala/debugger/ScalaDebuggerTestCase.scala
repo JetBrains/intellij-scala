@@ -30,6 +30,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert
 
 import scala.collection.mutable
+import scala.util.{Failure, Success, Try}
 
 /**
  * User: Alefas
@@ -176,12 +177,15 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
           codeFragment.forceResolveScope(GlobalSearchScope.allScope(getProject))
           DebuggerUtils.checkSyntax(codeFragment)
           val evaluatorBuilder: EvaluatorBuilder = factory.getEvaluatorBuilder
-          val evaluator = evaluatorBuilder.build(codeFragment, currentSourcePosition)
 
-          val value = evaluator.evaluate(ctx)
+          val value = Try {
+            val evaluator = evaluatorBuilder.build(codeFragment, currentSourcePosition)
+            evaluator.evaluate(ctx)
+          }
           val res = value match {
-            case v: VoidValue => "undefined"
-            case _ => DebuggerUtils.getValueAsString(ctx, value)
+            case Success(v: VoidValue) => "undefined"
+            case Success(v) => DebuggerUtils.getValueAsString(ctx, v)
+            case Failure(e: EvaluateException) => e.getMessage
           }
           semaphore.up()
           res
