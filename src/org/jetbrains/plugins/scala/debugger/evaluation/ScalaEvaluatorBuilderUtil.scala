@@ -709,7 +709,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             }
             else new ScalaDuplexEvaluator(fieldEval, localVariableEvaluator())
           }
-          else throw new NeedCompilationException("Cannot load local variable from anonymous class")
+          else throw EvaluationException("Cannot load local variable from anonymous class")
       }
     }
 
