@@ -12,7 +12,7 @@ import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModuleRootManager}
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.testFramework.IdeaTestUtil
+import com.intellij.testFramework.{UsefulTestCase, IdeaTestUtil}
 import junit.framework.Assert._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{DebuggingInfoLevel, Version}
@@ -81,8 +81,8 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
     val compilerConfiguration = ScalaCompilerConfiguration.instanceIn(getProject).getSettingsForModule(module)
 
     assertEquals(compilerConfiguration.debuggingInfoLevel, DebuggingInfoLevel.Source)
-    assertContainsElements(compilerConfiguration.plugins.asJava, "test-plugin.jar")
-    assertContainsElements(compilerConfiguration.additionalCompilerOptions.asJava, "-XmyCoolAdditionalOption")
+    UsefulTestCase.assertContainsElements(compilerConfiguration.plugins.asJava, "test-plugin.jar")
+    UsefulTestCase.assertContainsElements(compilerConfiguration.additionalCompilerOptions.asJava, "-XmyCoolAdditionalOption")
     assertTrue(compilerConfiguration.continuations)
     assertTrue(compilerConfiguration.experimental)
     assertTrue(compilerConfiguration.deprecationWarnings)
