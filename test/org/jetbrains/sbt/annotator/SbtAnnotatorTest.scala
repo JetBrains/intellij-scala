@@ -58,36 +58,39 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbt {
   }
 }
 
-
 class SbtAnnotatorTest012 extends SbtAnnotatorTestBase {
   override def annotator = new SbtAnnotatorMock("0.12.4")
-
-  def testSbtAnnotator =
-    doTest(Seq(
-      Error("version := \"SNAPSHOT\"", SbtBundle("sbt.annotation.blankLineRequired", "0.12.4")),
-      Error("lazy val foo = project.in(file(\"foo\"))", SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions"))
-    ))
+  def testSbtAnnotator = doTest(Expectations.sbt012)
 }
 
 class SbtAnnotatorTest013 extends SbtAnnotatorTestBase {
   override def annotator = new SbtAnnotatorMock("0.13.1")
-
-  def testSbtAnnotator =
-    doTest(Seq(
-      Error("version := \"SNAPSHOT\"", SbtBundle("sbt.annotation.blankLineRequired", "0.13.1"))
-    ))
+  def testSbtAnnotator = doTest(Expectations.sbt013)
 }
 
 class SbtAnnotatorTest0137 extends SbtAnnotatorTestBase {
   override def annotator = new SbtAnnotatorMock("0.13.7")
-
-  def testSbtAnnotator =
-    doTest(Seq.empty)
+  def testSbtAnnotator = doTest(Expectations.sbt0137)
 }
 
 class SbtAnnotatorTestNullVersion extends SbtAnnotatorTestBase {
   override def annotator = new SbtAnnotatorMock(null)
+  def testSbtAnnotator = doTest(Expectations.sbt0137)
+}
 
-  def testSbtAnnotator =
-    doTest(Seq.empty)
+object Expectations {
+  val sbt0137 = Seq(
+    Error("object Bar", SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions")),
+    Error("null", SbtBundle("sbt.annotation.expectedExpressionType")),
+    Error("???", SbtBundle("sbt.annotation.expectedExpressionType")),
+    Error("organization", SbtBundle("sbt.annotation.expressionMustConform", "SettingKey[String]")),
+    Error("\"some string\"", SbtBundle("sbt.annotation.expressionMustConform", "String"))
+  )
+
+  val sbt013 = sbt0137 :+ Error("version := \"SNAPSHOT\"", SbtBundle("sbt.annotation.blankLineRequired", "0.13.1"))
+
+  val sbt012 = sbt0137 ++ Seq(
+    Error("version := \"SNAPSHOT\"", SbtBundle("sbt.annotation.blankLineRequired", "0.12.4")),
+    Error("lazy val foo = project.in(file(\"foo\"))", SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions"))
+  )
 }
