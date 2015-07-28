@@ -540,11 +540,7 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         }
 
         // console view
-//        val consoleView: BaseTestsOutputConsoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala",
-//          processHandler, consoleProperties, getEnvironment)
-        //init it in two steps since there is no way to init it in one call with idBasedTreeConstruction = true
-        val consoleView = SMTestRunnerConnectionUtil.createConsole("Scala", consoleProperties, getEnvironment)
-        consoleView.attachToProcess(processHandler)
+        val consoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala", processHandler, consoleProperties)
 
         val res = new DefaultExecutionResult(consoleView, processHandler,
           createActions(consoleView, processHandler, executor): _*)
