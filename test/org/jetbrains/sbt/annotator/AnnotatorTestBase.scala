@@ -3,22 +3,21 @@ package annotator
 
 import java.io.File
 
-import com.intellij.lang.annotation.Annotator
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiFileFactory
-import org.jetbrains.plugins.scala.annotator.AnnotatorHolderMock
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import com.intellij.testFramework.PlatformTestCase
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.language.{SbtFileImpl, SbtFileType}
 
 /**
  * @author Nikolay Obedin
  * @since 8/4/14.
  */
-abstract class AnnotatorTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class AnnotatorTestBase extends PlatformTestCase {
 
-  def folderPath  = baseRootPath() + "/annotator/Sbt/"
+  def folderPath  = TestUtils.getTestDataPath + "/annotator/Sbt/"
 
   def testFileExt = ".sbt"
 
@@ -28,6 +27,6 @@ abstract class AnnotatorTestBase extends ScalaLightPlatformCodeInsightTestCaseAd
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
     val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    PsiFileFactory.getInstance(getProjectAdapter).createFileFromText(fileName , SbtFileType, fileText).asInstanceOf[SbtFileImpl]
+    PsiFileFactory.getInstance(getProject).createFileFromText(fileName , SbtFileType, fileText).asInstanceOf[SbtFileImpl]
   }
 }
