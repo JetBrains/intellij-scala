@@ -15,7 +15,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiExpression, PsiNamedElement, PsiElement, PsiReference}
+import com.intellij.psi._
 import com.intellij.refactoring.HelpID
 import com.intellij.refactoring.util.{CommonRefactoringUtil, RefactoringMessageDialog}
 import com.intellij.usageView.UsageInfo
@@ -178,8 +178,9 @@ class ScalaInlineHandler extends InlineHandler {
         case t: ScTypeElement =>
           t.calcType match {
             case part: ScTypeParameterType => false
-            case part: ScProjectionType => false
-            case _=> true
+            case part: ScProjectionType if !ScalaPsiUtil.hasStablePath(part.element) =>
+              false
+            case _ => true
           }
         case _ => true
       }
@@ -193,6 +194,8 @@ class ScalaInlineHandler extends InlineHandler {
     element match {
       case typedDef: ScTypedDefinition if ScFunctionType.unapply(typedDef.getType().getOrAny).exists(_._2.nonEmpty) =>
         showErrorHint(ScalaBundle.message("cannot.inline.anonymous.function"), "element")
+      case named: ScNamedElement if named.getContainingFile != PsiDocumentManager.getInstance(editor.getProject).getPsiFile(editor.getDocument) =>
+        showErrorHint(ScalaBundle.message("cannot.inline.different.files"), "element")
       case named: ScNamedElement if !usedInSameClassOnly(named) =>
         showErrorHint(ScalaBundle.message("cannot.inline.used.outside.class"), "member")
       case bp: ScBindingPattern =>
