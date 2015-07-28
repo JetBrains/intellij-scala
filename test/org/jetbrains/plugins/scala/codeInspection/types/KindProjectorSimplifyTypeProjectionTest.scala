@@ -24,18 +24,18 @@ class KindProjectorSimplifyTypeProjectionTest extends ScalaLightInspectionFixtur
   }
 
   def testEither(): Unit = {
-    val code = s"def a: $START({type A[β] = Either[Int, β]})#A$END"
+    val code = s"def a: $START({type A[Beta] = Either[Int, Beta]})#A$END"
     check(code)
-    val text = "def a: ({type A[β] = Either[Int, β]})#A"
-    val res = "def a: Lambda[β => Either[Int, β]]"
+    val text = "def a: ({type A[Beta] = Either[Int, Beta]})#A"
+    val res = "def a: Lambda[Beta => Either[Int, Beta]]"
     testFix(text, res)
   }
 
   def testTwoParameters(): Unit = {
-    val code = s"def a: $START({type A[-α, +γ] = Function2[α, String, γ]})#A$END"
+    val code = s"def a: $START({type A[-Alpha, +Gamma] = Function2[Alpha, String, Gamma]})#A$END"
     check(code)
-    val text = "def a: ({type A[-α, +γ] = Function2[α, String, γ]})#A"
-    val res = "def a: Lambda[(`-α`, `+γ`) => (α, String) => γ]"
+    val text = "def a: ({type A[-Alpha, +Gamma] = Function2[Alpha, String, Gamma]})#A"
+    val res = "def a: Lambda[(`-Alpha`, `+Gamma`) => (Alpha, String) => Gamma]"
     testFix(text, res)
   }
 
