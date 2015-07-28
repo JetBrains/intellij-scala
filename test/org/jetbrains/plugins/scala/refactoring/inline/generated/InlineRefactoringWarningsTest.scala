@@ -25,4 +25,6 @@ class InlineRefactoringWarningsTest extends InlineRefactoringTestBase {
   def testTypeParameter = doTest
 
   def testProjectionRef = doTest
+
+  def testNotUserTypealiasDefinition = doTest
 }
