@@ -78,7 +78,7 @@ class CompileServerLauncher extends ApplicationComponent {
             CompileServerManager.instance(project).configureWidget()
           }
         }
-        
+
         true
     }
   }
@@ -126,10 +126,10 @@ class CompileServerLauncher extends ApplicationComponent {
       it.destroyProcess()
     }
   }
-  
+
   def stop(project: Project) {
     stop()
-     
+
     ApplicationManager.getApplication invokeLater new Runnable {
       override def run() {
         CompileServerManager.instance(project).configureWidget()
@@ -148,7 +148,7 @@ class CompileServerLauncher extends ApplicationComponent {
 
 object CompileServerLauncher {
   def instance = ApplicationManager.getApplication.getComponent(classOf[CompileServerLauncher])
-  
+
   def compilerJars = {
     val jpsBuildersJar = new File(PathUtil.getJarPathForClass(classOf[BuilderService]))
     val utilJar = new File(PathUtil.getJarPathForClass(classOf[FileUtil]))
