@@ -11,4 +11,6 @@ class InlineRefactoringTypeAliasTest extends InlineRefactoringTestBase {
   def testInlineSimple = doTest
 
   def testMultiple = doTest
+
+  def testStablePath = doTest
 }
