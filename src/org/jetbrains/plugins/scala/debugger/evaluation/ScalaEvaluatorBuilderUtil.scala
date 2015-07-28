@@ -7,6 +7,8 @@ import com.intellij.debugger.engine.evaluation.expression._
 import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi._
+import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -680,6 +682,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
               case _ => throw EvaluationException("Cannot evaluate parameter")
             }
           case caseCl: ScCaseClause => patternEvaluator(caseCl, namedElement)
+          case _: ScGenerator | _: ScEnumerator if isNotUsedEnumerator(namedElement, position.getElementAt) =>
+            throw EvaluationException("Cannot evaluate variable from a for-statement which was not used in its body")
           case LazyVal(_) => localLazyValEvaluator(namedElement)
           case _ => new ScalaLocalVariableEvaluator(name, fileName)
         }
@@ -688,8 +692,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         else eval
       }
 
-      contextClass match {
-        case null | `containingClass` => localVariableEvaluator()
+      containingClass match {
+        case `contextClass` | _: ScGenerator | _: ScEnumerator => localVariableEvaluator()
+        case _ if contextClass == null => localVariableEvaluator()
         case _ =>
           var iterationCount = 0
           var positionClass: PsiElement = contextClass
@@ -1237,6 +1242,27 @@ object ScalaEvaluatorBuilderUtil {
 
   def isLocalFunction(fun: ScFunction): Boolean = {
     !fun.getContext.isInstanceOf[ScTemplateBody]
+  }
+
+  def isNotUsedEnumerator(named: PsiNamedElement, place: PsiElement): Boolean = {
+    named match {
+      case ScalaPsiUtil.inNameContext(enum @ (_: ScEnumerator | _: ScGenerator)) =>
+        enum.getParent.getParent match {
+          case ScForStatement(enums, body) =>
+            enums.namings.map(_.pattern) match {
+              case Seq(refPattern: ScReferencePattern) => return false //can always evaluate from single simple generator
+              case _ =>
+            }
+
+            def insideBody = PsiTreeUtil.isAncestor(body, place, false)
+            def isNotUsed = ReferencesSearch.search(named, new LocalSearchScope(body)).findFirst() == null
+
+            insideBody && isNotUsed
+
+          case _ => false
+        }
+      case _ => false
+    }
   }
 
   object isInsideValueClass {

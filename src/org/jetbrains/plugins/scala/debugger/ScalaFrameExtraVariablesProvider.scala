@@ -10,6 +10,7 @@ import com.intellij.psi.{PsiElement, ResolveState}
 import com.intellij.xdebugger.impl.breakpoints.XExpressionImpl
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.template.util.VariablesCompletionProcessor
+import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -72,8 +73,8 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
           case LazyVal(lzy) => lzy
           case _  => null
         }
-
         notInThisClass(funDef) || notInThisClass(lazyVal)
+      case named if ScalaEvaluatorBuilderUtil.isNotUsedEnumerator(named, place) => false
       case ScalaPsiUtil.inNameContext(LazyVal(_)) => false //don't add lazy vals as they can be computed too early
       case _ => true
     }
