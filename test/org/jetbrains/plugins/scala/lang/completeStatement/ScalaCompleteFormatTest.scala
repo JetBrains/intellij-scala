@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.completeStatement
 
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
-
 /**
  * @author Ksenia.Sautina
  * @since 2/25/13
  */
-class ScalaCompleteFormatTest extends ScalaCodeInsightTestBase {
+class ScalaCompleteFormatTest extends ScalaCompleteStatementTestBase {
   def testFormat() {
     val fileText =
       """
@@ -22,9 +20,7 @@ class ScalaCompleteFormatTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testFormat2() {
@@ -46,9 +42,8 @@ class ScalaCompleteFormatTest extends ScalaCodeInsightTestBase {
         |  }
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testFormat3() {
@@ -72,9 +67,8 @@ class ScalaCompleteFormatTest extends ScalaCodeInsightTestBase {
         |  }
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testFormatJava() {
@@ -91,10 +85,6 @@ class ScalaCompleteFormatTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.java", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkJavaFileByText(fileText, resultText)
   }
-
-
 }
