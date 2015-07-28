@@ -9,7 +9,6 @@ class a {
 
   /**
    * <caret>
-   * @return
    */
   def fa = "fa"
 }
