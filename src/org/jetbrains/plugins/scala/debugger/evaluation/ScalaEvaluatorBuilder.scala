@@ -60,11 +60,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     catch {
       case e: NeedCompilationException =>
         buildCompilingEvaluator
-      case e: EvaluateException =>
-        try buildCompilingEvaluator
-        catch {
-          case _: EvaluateException => throw e
-        }
+      case e: EvaluateException => throw e
     }
   }
 }
