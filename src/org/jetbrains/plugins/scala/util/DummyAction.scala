@@ -5,11 +5,15 @@ import java.util.regex.Pattern
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.PathManager
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import com.intellij.psi.{PsiElement, PsiManager}
+import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiElement, PsiManager}
 import org.jetbrains.plugin.scala.util.MacroExpansion
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 
 import scala.annotation.tailrec
 
@@ -24,38 +28,50 @@ class DummyAction extends AnAction {
     val expansions = deserializeExpansions(e)
     for (expansion <- expansions) {
       val exp = ensugarExpansion(expansion.body)
-      val isma = isMacroAnnotation(expansion)
+      getRealOwner(expansion) match {
+        case Some(_: ScAnnotation) => // TODO
+        case Some(mc: ScMethodCall) =>
+          inWriteCommandAction(e.getProject) {
+            val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(s"{$exp}", PsiManager.getInstance(e.getProject))
+            mc.replace(blockImpl)
+            e.getProject
+          }
+        case Some(other) => ()
+        case None => ()
+      }
       ""
     }
   }
 
-  def isMacroAnnotation(expansion: MacroExpansion)(implicit e: AnActionEvent): Boolean = {
-    def getRealOwner(expansion: MacroExpansion): Option[PsiElement] = {
-      val virtualFile = VirtualFileManager.getInstance().findFileByUrl("file://" + expansion.place.sourceFile)
-      val psiFile = PsiManager.getInstance(e.getProject).findFile(virtualFile)
-      psiFile.findElementAt(expansion.place.offset) match {
-        // macro method call has offset pointing to '(', not method name
-        case e: LeafPsiElement if e.findReferenceAt(0) == null =>
-          def walkUp(elem: PsiElement = e): Option[PsiElement] = elem match {
-            case null => None
-            case m: ScMethodCall => Some(m)
-            case e: PsiElement => walkUp(e.getParent)
-          }
-          walkUp()
-        case e: LeafPsiElement =>
-          def walkUp(elem: PsiElement = e): Option[PsiElement] = elem match {
-            case null => None
-            case a: ScAnnotation => Some(a)
-            case e: PsiElement => walkUp(e.getParent)
-          }
-          walkUp()
-        case _ => None
-      }
+  def getRealOwner(expansion: MacroExpansion)(implicit e: AnActionEvent): Option[PsiElement] = {
+    val virtualFile = VirtualFileManager.getInstance().findFileByUrl("file://" + expansion.place.sourceFile)
+    val psiFile = PsiManager.getInstance(e.getProject).findFile(virtualFile)
+    psiFile.findElementAt(expansion.place.offset) match {
+      // macro method call has offset pointing to '(', not method name
+      case e: LeafPsiElement if e.findReferenceAt(0) == null =>
+        def walkUp(elem: PsiElement = e): Option[PsiElement] = elem match {
+          case null => None
+          case m: ScMethodCall => Some(m)
+          case e: PsiElement => walkUp(e.getParent)
+        }
+        walkUp()
+      case e: LeafPsiElement =>
+        def walkUp(elem: PsiElement = e): Option[PsiElement] = elem match {
+          case null => None
+          case a: ScAnnotation => Some(a)
+          case e: PsiElement => walkUp(e.getParent)
+        }
+        walkUp()
+      case _ => None
     }
+  }
+
+  def isMacroAnnotation(expansion: MacroExpansion)(implicit e: AnActionEvent): Boolean = {
     getRealOwner(expansion) match {
       case Some(_: ScAnnotation) => true
       case Some(_: ScMethodCall) => false
-      case None => false
+      case Some(other)           => false
+      case None                  => false
     }
   }
 
