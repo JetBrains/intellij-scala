@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, Type
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin, ilyas
@@ -64,33 +63,21 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
         case fun: ScFunctionalTypeElement =>
           fun.returnTypeElement match {
             case Some(ret) =>
-              val lambdaTypeBuilder = new StringBuilder
               val typeName = "Λ$"
-              val param = fun.paramTypeElement
-              lambdaTypeBuilder.append(s"({type $typeName[")
-              param match {
+              val paramText = fun.paramTypeElement match {
                 case tuple: ScTupleTypeElement =>
-                  val components = tuple.components.toIterator
-                  for (component <- components) {
-                    component match {
-                      case parameterized: ScParameterizedTypeElement =>
-                        lambdaTypeBuilder.append(convertParameterized(parameterized))
-                      case simple: ScSimpleTypeElement => lambdaTypeBuilder.append(convertSimpleType(simple))
-                      case _ => return None //something went terribly wrong
-                    }
-
-                    if (components.hasNext) {
-                      lambdaTypeBuilder.append(", ")
-                    }
+                  val paramList = tuple.components.map {
+                    case parameterized: ScParameterizedTypeElement => convertParameterized(parameterized)
+                    case simple: ScSimpleTypeElement => convertSimpleType(simple)
+                    case _ => return None //something went terribly wrong
                   }
-                case simple: ScSimpleTypeElement =>
-                  lambdaTypeBuilder.append(simple.getText.replaceAll("`", ""))
-                case parameterized: ScParameterizedTypeElement =>
-                  lambdaTypeBuilder.append(convertParameterized(parameterized))
+                  paramList.mkString(sep = ", ")
+                case simple: ScSimpleTypeElement => simple.getText.replaceAll("`", "")
+                case parameterized: ScParameterizedTypeElement => convertParameterized(parameterized)
                 case _ => return None
               }
-              lambdaTypeBuilder.append(s"] = ${ret.getText}})#$typeName")
-              val newTE = ScalaPsiElementFactory.createTypeElementFromText(lambdaTypeBuilder.toString(), getContext, this)
+              val lambdaText = s"({type $typeName[$paramText] = ${ret.getText}})#$typeName"
+              val newTE = ScalaPsiElementFactory.createTypeElementFromText(lambdaText, getContext, this)
               Option(newTE)
             case _ => None
           }
@@ -105,27 +92,23 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
         else res + (i / 25)
       }
 
-      val typeName = "Λ$"
-      val inlineTypeBuilder = new StringBuilder
-      inlineTypeBuilder.append(s"({type $typeName")
-      val parameters = new ArrayBuffer[String]
-      val body = typeArgList.typeArgs.zipWithIndex.map {
+      val (paramOpt: Seq[Option[String]], body: Seq[String]) = typeArgList.typeArgs.zipWithIndex.map {
         case (simple: ScSimpleTypeElement, i) if inlineSyntaxIds.contains(simple.getText) =>
           val name = generateName(i)
-          parameters += simple.getText.replace("?", generateName(i))
-          name
+          (Some(simple.getText.replace("?", name)), name)
         case (param: ScParameterizedTypeElement, i) if inlineSyntaxIds.contains(param.typeElement.getText) =>
           val name = generateName(i)
-          parameters += param.getText.replace("?", name)
-          name
-        case (a, _) => a.getText
-      }
+          (Some(param.getText.replace("?", name)), name)
+        case (a, _) => (None, a.getText)
+      }.unzip
+      val paramText = paramOpt.collect {
+        case Some(p) => p
+      }.mkString(start = "[", sep = ", ", end = "]")
+      val bodyText = body.mkString(start = "[", sep = ", ", end = "]")
 
-      inlineTypeBuilder.append(parameters.mkString(start = "[", sep = ", ", end = "]"))
-      inlineTypeBuilder.append(s" = ${typeElement.getText}")
-      inlineTypeBuilder.append(body.mkString(start = "[", sep = ", ", end = "]"))
-      inlineTypeBuilder.append(s"})#$typeName")
-      val newTE = ScalaPsiElementFactory.createTypeElementFromText(inlineTypeBuilder.toString(), getContext, this)
+      val typeName = "Λ$"
+      val inlineText = s"({type $typeName$paramText = ${typeElement.getText}$bodyText})#$typeName"
+      val newTE = ScalaPsiElementFactory.createTypeElementFromText(inlineText, getContext, this)
       Option(newTE)
     }
 
