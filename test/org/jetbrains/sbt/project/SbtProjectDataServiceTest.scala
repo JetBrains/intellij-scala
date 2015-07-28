@@ -11,7 +11,7 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.testFramework.IdeaTestUtil
+import com.intellij.testFramework.{UsefulTestCase, IdeaTestUtil}
 import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -133,7 +133,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
 
   private def doTestBasePackages(basePackages: Seq[String]): Unit = {
     importProjectData(generateProject(basePackages, None, Seq.empty, ""))
-    assertContainsElements(ScalaProjectSettings.getInstance(getProject).getBasePackages, basePackages:_*)
+    UsefulTestCase.assertContainsElements(ScalaProjectSettings.getInstance(getProject).getBasePackages, basePackages:_*)
   }
 
   private def defaultJdk: Sdk =
