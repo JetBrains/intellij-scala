@@ -153,7 +153,7 @@ object CompileServerLauncher {
     val jpsRoot = new File(pluginRoot, "jps")
 
     Seq(
-      new File(ideaRoot, "jps-server.jar"),
+      new File(ideaRoot, "jps-builders.jar"),
       new File(ideaRoot, "trove4j.jar"),
       new File(ideaRoot, "util.jar"),
       new File(pluginRoot, "scala-library.jar"),
