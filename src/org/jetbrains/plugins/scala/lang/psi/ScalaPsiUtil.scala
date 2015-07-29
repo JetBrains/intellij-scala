@@ -2341,7 +2341,7 @@ object ScalaPsiUtil {
    * @see SCL-6140
    * @see https://github.com/scala/scala/pull/3018/
    */
-  def toSAMType(expected: ScType, scope: GlobalSearchScope): Option[ScType] = {
+  def toSAMType(expected: ScType, scalaScope: GlobalSearchScope): Option[ScType] = {
 
     def constructorValidForSAM(constructors: Array[PsiMethod]): Boolean = {
       //primary constructor (if any) must be public, no-args, not overloaded
@@ -2371,8 +2371,14 @@ object ScalaPsiUtil {
                 !abst.head.hasTypeParameters
 
             if (valid) {
-              abst.head.getType() match {
-                case Success(tp, _) => Some(sub.subst(tp))
+              val fun = abst.head
+              fun.getType() match {
+                case Success(tp, _) =>
+                  val subbed = sub.subst(tp)
+                  extrapolateWildcardBounds(subbed, expected, fun.getProject, scalaScope) match {
+                    case s@Some(_) => s
+                    case _ => Some(subbed)
+                  }
                 case _ => None
               }
             } else None
@@ -2384,15 +2390,63 @@ object ScalaPsiUtil {
               //need to generate ScType for Java method
               val method = abst.head
               val project = method.getProject
-              val returnType: ScType = ScType.create(method.getReturnType, project, scope)
+              val returnType: ScType = ScType.create(method.getReturnType, project, scalaScope)
               val params: Array[ScType] = method.getParameterList.getParameters.map {
-                param: PsiParameter => ScType.create(param.getTypeElement.getType, project, scope)
+                param: PsiParameter => ScType.create(param.getTypeElement.getType, project, scalaScope)
               }
-              val result = ScFunctionType(returnType, params)(project, scope)
-              Some(sub.subst(result))
+              val fun = ScFunctionType(returnType, params)(project, scalaScope)
+              val subbed = sub.subst(fun)
+              extrapolateWildcardBounds(subbed, expected, project, scalaScope) match {
+                case s@Some(_) => s
+                case _ => Some(subbed)
+              }
             } else None
         }
       case None => None
+    }
+  }
+
+  /**
+   * In some cases existential bounds can be simplified without losing precision
+   *
+   * trait Comparinator[T] { def compare(a: T, b: T): Int }
+   *
+   * trait Test {
+   *   def foo(a: Comparinator[_ >: String]): Int
+   * }
+   *
+   * can be simplified to:
+   *
+   * trait Test {
+   *   def foo(a: Comparinator[String]): Int
+   * }
+   *
+   * @see https://github.com/scala/scala/pull/4101
+   * @see SCL-8956
+   */
+  private def extrapolateWildcardBounds(tp: ScType, expected: ScType, proj: Project, scope: GlobalSearchScope): Option[ScType] = {
+    expected match {
+      case ScExistentialType(ScParameterizedType(expectedDesignator, _), wildcards) =>
+        tp match {
+          case ScFunctionType(retTp, params) =>
+            def convertParameter(tpArg: ScType, variance: Int): ScType = {
+              wildcards.find(_.name == tpArg.canonicalText) match {
+                case Some(wildcard) =>
+                  (wildcard.lowerBound, wildcard.upperBound) match {
+                    case (lo, Any) if variance == ScTypeParam.Contravariant => lo
+                    case (Nothing, hi) if variance == ScTypeParam.Covariant => hi
+                    case _ => tpArg
+                  }
+                case _ => tpArg
+              }
+            }
+            //parameter clauses are contravariant positions, return types are covariant positions
+            val newParams = params.map(convertParameter(_, ScTypeParam.Contravariant))
+            val newRetTp = convertParameter(retTp, ScTypeParam.Covariant)
+            Some(ScFunctionType(newRetTp, newParams)(proj, scope))
+          case _ => None
+        }
+      case _ => None
     }
   }
 }
