@@ -293,17 +293,83 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
     checkCodeHasNoErrors(code)
   }
 
-  def checkCodeHasNoErrors(code: String) {
-    assertMatches(messages(code)) {
+  def testExistentialBounds(): Unit = {
+    val code =
+      """
+        |trait Blargle[T] {
+        |  def foo(a: T): String
+        |}
+        |
+        |def f(b: Blargle[_ >: Int]) = -1
+        |f(s => s.toString)
+        |
+        |def g[T](b: Blargle[_ >: T]) = -1
+        |g((s: String) => s)
+        |
+        |trait Blergh[T] {
+        |  def foo(): T
+        |}
+        |
+        |def h[T](b: Blergh[_ <: T]) = -1
+        |h(() => "")
+        |def i(b: Blergh[_ <: String]) = -1
+        |i(() => "")
+        |
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
+  def testOverload(): Unit = {
+    val code =
+      """
+        |trait SAMOverload[A] {
+        |  def foo(s: A): Int = ???
+        |}
+        |
+        |def f[T](s: T): Unit = ()
+        |def f[T](s: T, a: SAMOverload[_ >: T]) = ()
+        |f("", (s: String) => 2)
+        |
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
+  def testJavaSAM(): Unit = {
+    val scalaCode = "new ObservableCopy(1).mapFunc(x => x + 1)"
+    val javaCode =
+      """
+        |public interface Func1<T, R> {
+        |    R call(T t);
+        |}
+        |
+        |public class ObservableCopy<T> {
+        |    public ObservableCopy(T t) {}
+        |
+        |    public final <R> ObservableCopy<R> mapFunc(Func1<? super T, ? extends R> func) {
+        |        return null;
+        |    }
+        |}
+        |
+      """.stripMargin
+    checkCodeHasNoErrors(scalaCode, Some(javaCode))
+  }
+
+  def checkCodeHasNoErrors(scalaCode: String, javaCode: Option[String] = None) {
+    assertMatches(messages(scalaCode, javaCode)) {
       case Nil =>
     }
   }
 
-  def messages(code: String): List[Message] = {
+  def messages(@Language("Scala") scalaCode: String, javaCode: Option[String] = None): List[Message] = {
+    javaCode match {
+      case Some(s) => configureFromFileTextAdapter("dummy.java", s)
+      case _ =>
+    }
+
     val annotator = new ScalaAnnotator() {}
     val mock = new AnnotatorHolderMock
 
-    val parse: ScalaFile = parseText(code)
+    val parse: ScalaFile = parseText(scalaCode)
 
     parse.depthFirst.foreach(annotator.annotate(_, mock))
 
