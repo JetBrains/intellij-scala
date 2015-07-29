@@ -200,7 +200,8 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
     
     if (element.getNode.getElementType == tLBRACE && 
-      Option(element.getParent.getPrevSibling).exists(_.getNode.getElementType == tINTERPOLATED_STRING_INJECTION)) {
+      Option(element.getParent.getPrevSibling).exists(_.getNode.getElementType == tINTERPOLATED_STRING_INJECTION) &&
+      (element.getNextSibling == null || element.getNextSibling.getNode.getElementType != tRBRACE)) {
       insertAndCommit(offset, "}", document, project)
     }
   }

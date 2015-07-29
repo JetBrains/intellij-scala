@@ -10,12 +10,14 @@ import com.intellij.psi.{PsiElement, ResolveState}
 import com.intellij.xdebugger.impl.breakpoints.XExpressionImpl
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.template.util.VariablesCompletionProcessor
+import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScTypedPattern, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScCatchBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 import scala.collection.JavaConverters._
@@ -60,6 +62,8 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
 
   private def canEvaluate(srr: ScalaResolveResult, place: PsiElement) = {
     srr.getElement match {
+      case _: ScWildcardPattern => false
+      case tp: ScTypedPattern if tp.name == "_" => false
       case cp: ScClassParameter if !cp.isEffectiveVal =>
         def notInThisClass(elem: PsiElement) = {
           elem != null && !PsiTreeUtil.isAncestor(cp.containingClass, elem, true)
@@ -70,11 +74,16 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
           case LazyVal(lzy) => lzy
           case _  => null
         }
-
         notInThisClass(funDef) || notInThisClass(lazyVal)
+      case named if ScalaEvaluatorBuilderUtil.isNotUsedEnumerator(named, place) => false
+      case ScalaPsiUtil.inNameContext(cc: ScCaseClause) if isInCatchBlock(cc) => false //cannot evaluate catched exceptions in scala
       case ScalaPsiUtil.inNameContext(LazyVal(_)) => false //don't add lazy vals as they can be computed too early
       case _ => true
     }
+  }
+
+  private def isInCatchBlock(cc: ScCaseClause): Boolean = {
+    cc.parents.take(3).exists(_.isInstanceOf[ScCatchBlock])
   }
 
 }

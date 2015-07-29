@@ -7,6 +7,6 @@ object Baz {
       case _ => 0
     }
   }
-  
+
   baz(i/*caret*/ = 2)
 }

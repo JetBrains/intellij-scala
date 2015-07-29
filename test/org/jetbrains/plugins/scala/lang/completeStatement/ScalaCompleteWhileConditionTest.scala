@@ -1,15 +1,13 @@
 package org.jetbrains.plugins.scala
 package lang.completeStatement
 
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
-
 /**
  * @author Ksenia.Sautina
+ * @author Dmitry.Naydanov
  * @since 2/25/13
  */
-class ScalaCompleteWhileConditionTest extends ScalaCodeInsightTestBase {
-
-  def testWhileCondition() {
+class ScalaCompleteWhileConditionTest extends ScalaCompleteStatementTestBase {
+  def testWhileCondition1() {
     val fileText =
       """
         |class B {
@@ -28,9 +26,7 @@ class ScalaCompleteWhileConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testWhileCondition2() {
@@ -52,9 +48,7 @@ class ScalaCompleteWhileConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testWhileCondition3() {
@@ -76,9 +70,7 @@ class ScalaCompleteWhileConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
 
@@ -103,9 +95,7 @@ class ScalaCompleteWhileConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testWhileCondition5() {
@@ -128,9 +118,7 @@ class ScalaCompleteWhileConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testWhileCondition6() {
@@ -156,9 +144,7 @@ class ScalaCompleteWhileConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testWhileCondition7() {
@@ -169,7 +155,7 @@ class ScalaCompleteWhileConditionTest extends ScalaCodeInsightTestBase {
         |    while ()<caret>
         |  }
         |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
+      """.stripMargin
     val resultText =
       """
         |class B {
@@ -179,10 +165,8 @@ class ScalaCompleteWhileConditionTest extends ScalaCodeInsightTestBase {
         |    }
         |  }
         |}
-      """.stripMargin('|').replaceAll("\r", "").trim()
+      """.stripMargin
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 }

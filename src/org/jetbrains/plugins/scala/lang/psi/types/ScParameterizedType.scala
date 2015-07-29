@@ -399,7 +399,7 @@ private[types] object CyclicHelper {
   def compute[R](pn1: PsiNamedElement, pn2: PsiNamedElement)(fun: () => R): Option[R] = {
     import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
     doComputationsForTwoElements(pn1, pn2, (p: Object, searches: Seq[Object]) => {
-      searches.find(_ == p) == None
+      !searches.contains(p)
     }, pn2, pn1, fun(), CYCLIC_HELPER_KEY)
   }
 }
