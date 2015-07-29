@@ -77,5 +77,5 @@ class SbtAnnotator extends Annotator {
 }
 
 object SbtAnnotator {
-  val AllowedTypes = List("Def.Setting[_]", "Seq[Def.Setting[_]]", "Def.SettingsDefinition")
+  val AllowedTypes = List("Seq[Def.SettingsDefinition]", "Def.SettingsDefinition")
 }
