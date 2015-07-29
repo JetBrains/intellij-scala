@@ -145,7 +145,7 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     contentPanel.add(replaceInForGeneratorCheckBox, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     replaceLambdaWithGreekLetter = new JCheckBox();
     replaceLambdaWithGreekLetter.setSelected(false);
-    replaceLambdaWithGreekLetter.setText("Kind Projector: Replace 'Lambda' with `λ`");
+    replaceLambdaWithGreekLetter.setText("Kind Projector: Replace 'Lambda' with unicode symbol");
     contentPanel.add(replaceLambdaWithGreekLetter, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
   }
 }
