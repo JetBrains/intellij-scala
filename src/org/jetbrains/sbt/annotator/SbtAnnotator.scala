@@ -18,74 +18,64 @@ import org.jetbrains.sbt.settings.SbtSystemSettings
  * @author Pavel Fatin
  */
 class SbtAnnotator extends Annotator {
-  def annotate(element: PsiElement, holder: AnnotationHolder) {
-    element match {
-      case file: SbtFileImpl =>
-        val children = file.children.toVector
-        checkElements(children, holder)
-        if (StringUtil.compareVersionNumbers(getSbtVersion(element), "0.13.7") < 0)
-          checkBlankLines(children, holder)
-      case _ =>
-    }
+  def annotate(element: PsiElement, holder: AnnotationHolder): Unit = element match {
+    case file: SbtFileImpl =>
+      val sbtVersion =
+        SbtSystemSettings.getInstance(file.getProject)
+          .getLinkedProjectSettings(file)
+          .safeMap(_.sbtVersion)
+          .getOrElse(Sbt.DefaultVersion)
+      new Worker(file.children.toVector, sbtVersion, holder).annotate()
+    case _ =>
   }
 
-  protected def getSbtVersion(element: PsiElement): String =
-    SbtSystemSettings.getInstance(element.getProject)
-      .getLinkedProjectSettings(element)
-      .safeMap(_.sbtVersion)
-      .getOrElse(Sbt.DefaultVersion)
-
-  private def checkElements(children: Seq[PsiElement], holder: AnnotationHolder) {
-    if (children.isEmpty) return 
-    
-    val is13_+ = {
-      val sbtVersion = getSbtVersion(children.head)
-      StringUtil.compareVersionNumbers(sbtVersion, "0.13.0") >= 0
+  private class Worker(sbtFileElements: Seq[PsiElement], sbtVersion: String, holder: AnnotationHolder) {
+    def annotate(): Unit = {
+      sbtFileElements.collect {
+        case exp: ScExpression => annotateTypeMismatch(exp)
+        case element => annotateNonExpression(element)
+      }
+      if (!is_0_13_7)
+        annotateMissingBlankLines()
     }
 
-    children.foreach {
+    private def annotateNonExpression(element: PsiElement): Unit = element match {
       case _: SbtFileImpl | _: ScImportStmt | _: PsiComment | _: PsiWhiteSpace =>
-      case exp: ScExpression => checkExpressionType(exp, holder)
-      case _: ScFunctionDefinition | _: ScPatternDefinition if is13_+ =>
+      case _: ScFunctionDefinition | _: ScPatternDefinition if is_0_13 =>
       case other => holder.createErrorAnnotation(other, SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions"))
     }
-  }
 
-  private def checkExpressionType(exp: ScExpression, holder: AnnotationHolder) {
-    exp.getType(TypingContext.empty).foreach { expressionType =>
-      if (expressionType.equiv(types.Nothing) || expressionType.equiv(types.Null)) {
-        holder.createErrorAnnotation(exp, SbtBundle("sbt.annotation.expectedExpressionType"))
-      } else {
-        if (!checkType(exp, expressionType)) {
-          holder.createErrorAnnotation(exp, SbtBundle("sbt.annotation.expressionMustConform", expressionType))
+    private def annotateTypeMismatch(expression: ScExpression): Unit =
+      expression.getType(TypingContext.empty).foreach { expressionType =>
+        if (expressionType.equiv(types.Nothing) || expressionType.equiv(types.Null)) {
+          holder.createErrorAnnotation(expression, SbtBundle("sbt.annotation.expectedExpressionType"))
+        } else {
+          if (!isTypeAllowed(expression, expressionType))
+            holder.createErrorAnnotation(expression, SbtBundle("sbt.annotation.expressionMustConform", expressionType))
         }
       }
-    }
-  }
 
-  private def findType(exp: ScExpression, text: String) = {
-    Option(ScalaPsiElementFactory.createTypeFromText(text, exp.getContext, exp))
-  }
-  
-  private def checkType(exp: ScExpression, tpe: ScType) = {
-    SbtAnnotator.allTypes exists {
-      case expected => findType(exp, expected) exists (a => tpe conforms a)
-    }
-  }
+    private def findTypeByText(exp: ScExpression, text: String) =
+      Option(ScalaPsiElementFactory.createTypeFromText(text, exp.getContext, exp))
 
-  private def checkBlankLines(children: Seq[PsiElement], holder: AnnotationHolder) {
-    children.sliding(3).foreach {
-      case Seq(_: ScExpression, space: PsiWhiteSpace, e: ScExpression) if space.getText.count(_ == '\n') == 1 =>
-        holder.createErrorAnnotation(e, SbtBundle("sbt.annotation.blankLineRequired", getSbtVersion(e)))
-      case _ =>
-    }
+    private def isTypeAllowed(expression: ScExpression, expressionType: ScType) =
+      SbtAnnotator.AllowedTypes.exists(typeStr => findTypeByText(expression, typeStr) exists (t => expressionType conforms t))
+
+    private def annotateMissingBlankLines(): Unit =
+      sbtFileElements.sliding(3).foreach {
+        case Seq(_: ScExpression, space: PsiWhiteSpace, e: ScExpression) if space.getText.count(_ == '\n') == 1 =>
+          holder.createErrorAnnotation(e, SbtBundle("sbt.annotation.blankLineRequired", sbtVersion))
+        case _ =>
+      }
+
+    private def is_0_13: Boolean =
+      StringUtil.compareVersionNumbers(sbtVersion, "0.13.0") >= 0
+
+    private def is_0_13_7: Boolean =
+      StringUtil.compareVersionNumbers(sbtVersion, "0.13.7") >= 0
   }
 }
 
 object SbtAnnotator {
-  val SbtSettingType = "Project.Setting[_]"
-  val SbtSettingSeqType = "Seq[Project.Setting[_]]"
-  val SbtDefSettingsDefinition = "Def.SettingsDefinition"
-  
-  val allTypes = List(SbtSettingSeqType, SbtSettingType, SbtDefSettingsDefinition)
+  val AllowedTypes = List("Def.Setting[_]", "Seq[Def.Setting[_]]", "Def.SettingsDefinition")
 }
