@@ -7,12 +7,14 @@ import javax.swing.event.HyperlinkEvent
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ApplicationComponent
-import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
 import com.intellij.util.net.NetUtils
+import gnu.trove.TObjectFunction
+import org.jetbrains.jps.incremental.BuilderService
 import org.jetbrains.plugins.scala.extensions._
 
 import scala.collection.JavaConverters._
@@ -148,14 +150,17 @@ object CompileServerLauncher {
   def instance = ApplicationManager.getApplication.getComponent(classOf[CompileServerLauncher])
   
   def compilerJars = {
-    val ideaRoot = new File(PathUtil.getJarPathForClass(classOf[ApplicationManager])).getParent
+    val jpsBuildersJar = new File(PathUtil.getJarPathForClass(classOf[BuilderService]))
+    val utilJar = new File(PathUtil.getJarPathForClass(classOf[FileUtil]))
+    val trove4jJar = new File(PathUtil.getJarPathForClass(classOf[TObjectFunction]))
+
     val pluginRoot = new File(PathUtil.getJarPathForClass(getClass)).getParent
     val jpsRoot = new File(pluginRoot, "jps")
 
     Seq(
-      new File(ideaRoot, "jps-server.jar"),
-      new File(ideaRoot, "trove4j.jar"),
-      new File(ideaRoot, "util.jar"),
+      jpsBuildersJar,
+      utilJar,
+      trove4jJar,
       new File(pluginRoot, "scala-library.jar"),
       new File(pluginRoot, "scala-nailgun-runner.jar"),
       new File(pluginRoot, "compiler-settings.jar"),
