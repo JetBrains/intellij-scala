@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.completeStatement
 
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
-
 /**
  * @author Ksenia.Sautina
  * @since 2/25/13
  */
-class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
+class ScalaCompleteIfConditionTest extends ScalaCompleteStatementTestBase {
   def testIfCondition() {
     val fileText =
       """
@@ -27,9 +25,7 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testIfCondition2() {
@@ -51,9 +47,7 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testIfCondition3() {
@@ -75,9 +69,7 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testIfCondition4() {
@@ -101,9 +93,7 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testIfCondition5() {
@@ -126,9 +116,7 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testIfCondition6() {
@@ -154,9 +142,7 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testIfCondition7() {
@@ -179,9 +165,7 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testIfConditionJava() {
@@ -203,9 +187,7 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.java", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkJavaFileByText(fileText, resultText)
   }
 
   def testIfCondition2Java() {
@@ -227,8 +209,6 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.java", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkJavaFileByText(fileText, resultText)
   }
 }

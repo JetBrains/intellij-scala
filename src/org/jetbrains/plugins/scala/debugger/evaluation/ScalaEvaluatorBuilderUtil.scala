@@ -7,6 +7,8 @@ import com.intellij.debugger.engine.evaluation.expression._
 import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi._
+import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -44,6 +46,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def fileName = contextClass.toOption.flatMap(_.getContainingFile.toOption).map(_.name).orNull
 
   def importedQualifierEvaluator(ref: ScReferenceElement, resolveResult: ScalaResolveResult): Evaluator = {
+    val message = ScalaBundle.message("cannot.evaluate.imported.reference")
     resolveResult.fromType match {
       case Some(ScDesignatorType(element)) =>
         element match {
@@ -59,11 +62,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           case ScDesignatorType(elem) => elem.name + "." + p.actualElement.name
           case projected: ScProjectionType => exprToEvaluate(projected) + "." + projected.actualElement.name
           case ScThisType(_) => "this." + p.actualElement.name
-          case _ => throw EvaluationException("Cannot evaluate imported reference")
+          case _ => throw EvaluationException(message)
         }
         val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprToEvaluate(p), ref.getContext, ref)
         ScalaEvaluator(expr)
-      case _ => throw EvaluationException("Cannot evaluate imported reference")
+      case _ => throw EvaluationException(message)
     }
   }
 
@@ -83,9 +86,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case Some(ScThisType(clazz)) => clazz
       case Some(tp) => ScType.extractClass(tp, Some(elem.getProject)) match {
         case Some(x) => x
-        case None => getContainingClass(elem)
+        case None => getContextClass(elem)
       }
-      case _ => getContainingClass(elem)
+      case _ => getContextClass(elem)
     }
     containingClass match {
       case o: ScObject if isStable(o) =>
@@ -154,9 +157,10 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def localMethodEvaluator(fun: ScFunctionDefinition, argEvaluators: Seq[Evaluator]): Evaluator = {
     val name = NameTransformer.encode(fun.name)
-    val containingClass = if (fun.isSynthetic) fun.containingClass else getContainingClass(fun)
+    val containingClass = if (fun.isSynthetic) fun.containingClass else getContextClass(fun)
+    val message = ScalaBundle.message("cannot.evaluate.local.method")
     if (contextClass == null) {
-      throw EvaluationException("Cannot evaluate local method")
+      throw EvaluationException(message)
     }
     val thisEvaluator: Evaluator = containingClass match {
       case obj: ScObject if isStable(obj) =>
@@ -175,7 +179,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       val idx = localFunctionIndex(fun)
       new ScalaMethodEvaluator(thisEvaluator, name, signature, evaluators, None, positions, idx)
     }
-    else throw EvaluationException("Cannot evaluate local method")
+    else throw EvaluationException(message)
   }
 
 
@@ -225,7 +229,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           case Some(qual) => ScalaEvaluator(qual)
         }
         function(eval)
-      } else throw EvaluationException(s"Wrong number of arguments for method '$operatorName'")
+      } else throw EvaluationException(ScalaBundle.message("wrong.number.of.arguments", operatorName))
     }
     def unaryEvalForBoxes(operatorName: String, boxesName: String): Evaluator = {
       unaryEval(operatorName, unaryEvaluator(_, boxesName))
@@ -237,7 +241,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           case Some(qual) => ScalaEvaluator(qual)
         }
         function(eval, argEvaluators(0))
-      } else throw EvaluationException(s"Wrong number of arguments for method '$operatorName'")
+      } else throw EvaluationException(ScalaBundle.message("wrong.number.of.arguments", operatorName))
     }
     def binaryEvalForBoxes(operatorName: String, boxesName: String): Evaluator = {
       binaryEval(operatorName, binaryEvaluator(_, _, boxesName))
@@ -316,28 +320,29 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def arrayMethodEvaluator(name: String, qual: Option[ScExpression], argEvaluators: Seq[Evaluator]): Evaluator = {
     val qualEval = qual match {
       case Some(q) => ScalaEvaluator(q)
-      case None => throw EvaluationException(s"Cannot evaluate method $name: array instance is not found")
+      case None => throw EvaluationException(ScalaBundle.message("array.instance.is.not.found", name))
     }
+    val message = ScalaBundle.message("wrong.number.of.arguments", s"Array.$name")
     name match {
       case "apply" =>
         if (argEvaluators.length == 1) new ScalaArrayAccessEvaluator(qualEval, argEvaluators(0))
-        else throw EvaluationException("Wrong number of parameters for Array.apply method")
+        else throw EvaluationException(message)
       case "length" =>
         if (argEvaluators.isEmpty) new ScalaFieldEvaluator(qualEval, _ => true, "length")
-        else throw EvaluationException("Wrong number of parameters for Array.length method")
+        else throw EvaluationException(message)
       case "clone" =>
         if (argEvaluators.isEmpty) new ScalaMethodEvaluator(qualEval, "clone", null/*todo*/, Nil)
-        else throw EvaluationException("Wrong number of parameters for Array.clone method")
+        else throw EvaluationException(message)
       case "update" =>
         if (argEvaluators.length == 2) {
           val leftEval = new ScalaArrayAccessEvaluator(qualEval, argEvaluators(0))
           new AssignmentEvaluator(leftEval, unboxEvaluator(argEvaluators(1)))
-        } else throw EvaluationException("Wrong number of parameters for Array.update method")
+        } else throw EvaluationException(message)
       case "toString" =>
         if (argEvaluators.isEmpty) new ScalaMethodEvaluator(qualEval, "toString", null/*todo*/, Nil)
-        else throw EvaluationException("Wrong number of parameters for Array.toString method")
+        else throw EvaluationException(message)
       case _ =>
-        throw EvaluationException("Array method not supported")
+        throw EvaluationException(ScalaBundle.message("array.method.not.supported"))
     }
   }
 
@@ -414,9 +419,10 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case _ => Seq.empty
     }
     val i = implicitParameters.indexOf(param)
+    val cannotFindMessage = ScalaBundle.message("cannot.find.implicit.parameters")
     owner.findImplicitParameters match {
       case Some(resolveResults) if resolveResults.length == implicitParameters.length =>
-        if (resolveResults(i) == null) throw EvaluationException("cannot find implicit parameters to pass")
+        if (resolveResults(i) == null) throw EvaluationException(cannotFindMessage)
 
         val exprText = resolveResults(i) match {
           case ScalaResolveResult(clazz: ScTrait, substitutor) if clazz.qualifiedName == "scala.reflect.ClassManifest" =>
@@ -424,14 +430,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             argType match {
               case ScParameterizedType(tp, Seq(paramType)) => classManifestText(paramType)
               case _ =>
-                throw EvaluationException("cannot find implicit parameters to pass")
+                throw EvaluationException(cannotFindMessage)
             }
           case ScalaResolveResult(clazz: ScTrait, substitutor) if clazz.qualifiedName == "scala.reflect.ClassTag" =>
             val argType = substitutor.subst(clazz.getType(TypingContext.empty).get)
             argType match {
               case ScParameterizedType(tp, Seq(arg)) => classTagText(arg)
               case _ =>
-                throw EvaluationException("cannot find implicit parameters to pass")
+                throw EvaluationException(cannotFindMessage)
             }
           case ScalaResolveResult(elem, _) =>
             val context = ScalaPsiUtil.nameContext(elem)
@@ -445,14 +451,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             clazz match {
               case o: ScObject if isStable(o) => o.qualifiedName + "." + elem.name
               case o: ScObject => //todo: It can cover many cases!
-                throw EvaluationException("Implicit parameters from dependent objects are not supported")
+                throw EvaluationException(ScalaBundle.message("implicit.parameters.from.dependent.objects"))
               case _ => elem.name //from scope
             }
         }
         val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, owner.getContext, owner)
         ScalaEvaluator(newExpr)
       case None =>
-        throw EvaluationException("cannot find implicit parameters to pass")
+        throw EvaluationException(cannotFindMessage)
     }
 
   }
@@ -474,7 +480,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case funExpr: ScFunctionExpr =>
         evaluator.setParameterIndex(funExpr.parameters.indexOf(resolve))
         evaluator.setMethodName("apply")
-      case _ => throw EvaluationException("Evaluation from parameter not from function definition or function expression")
+      case _ => throw EvaluationException(ScalaBundle.message("cannot.evaluate.parameter", name))
     }
     evaluator
   }
@@ -488,14 +494,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           new ScalaFieldEvaluator(eval, ref => true,name)
         } else {
           val qualEvaluator = ScalaEvaluator(qual)
-          new ScalaFieldEvaluator(qualEvaluator, ScalaFieldEvaluator.getFilter(getContainingClass(field)), field.name)
+          new ScalaFieldEvaluator(qualEvaluator, ScalaFieldEvaluator.getFilter(getContextClass(field)), field.name)
         }
       case None =>
         val evaluator = thisOrImportedQualifierEvaluator(ref)
-        new ScalaFieldEvaluator(evaluator, ScalaFieldEvaluator.getFilter(getContainingClass(field)), field.name)
+        new ScalaFieldEvaluator(evaluator, ScalaFieldEvaluator.getFilter(getContextClass(field)), field.name)
     }
   }
-  
+
   def javaMethodEvaluator(method: PsiMethod, ref: ScReferenceExpression, arguments: Seq[ScExpression]): Evaluator = {
 
     def boxArguments(arguments: Seq[Evaluator], method: PsiElement): Seq[Evaluator] = {
@@ -553,14 +559,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         case param =>
           val p = new Parameter(param)
           val exprsForP = matchedParameters.find(_._1.name == p.name).map(_._2).getOrElse(Seq.empty).filter(_ != null)
-          if (p.isByName) throw new NeedCompilationException("cannot evaluate methods with by-name parameters")
+          if (p.isByName) throw new NeedCompilationException(ScalaBundle.message("method.with.by-name.parameters"))
 
           val evaluator =
             if (p.isRepeated) repeatedArgEvaluator(exprsForP, p.expectedType, call)
             else if (exprsForP.nonEmpty) {
               if (exprsForP.length == 1) ScalaEvaluator(exprsForP(0))
               else {
-                throw EvaluationException("Wrong number of matched expressions")
+                throw EvaluationException(ScalaBundle.message("wrong.number.of.expressions"))
               }
             }
             else if (param.isImplicitParameter) implicitArgEvaluator(fun, param, call)
@@ -573,7 +579,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
               val localEvals = localParamRefs.map(ScalaEvaluator(_))
               functionEvaluator(ref.qualifier, ref, methodName, previousClausesEvaluators ++ localEvals)
             }
-            else throw EvaluationException(s"Cannot evaluate parameter ${p.name}")
+            else throw EvaluationException(ScalaBundle.message("cannot.evaluate.parameter", p.name))
 
           if (!isOfPrimitiveType(param)) boxEvaluator(evaluator)
           else evaluator
@@ -600,8 +606,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val name = NameTransformer.encode(funName)
 
     ref.bind() match {
-      case Some(r) if r.tuplingUsed => throw EvaluationException("Tupling is unsupported. Use tuple expression.")
-      case None => throw EvaluationException(s"Cannot evaluate method $funName")
+      case Some(r) if r.tuplingUsed => throw EvaluationException(ScalaBundle.message("tupling.not.supported"))
+      case None => throw EvaluationException(ScalaBundle.message("cannot.evaluate.method", funName))
       case Some(r @ privateTraitMethod(tr, fun)) =>
         val traitTypeEval = new TypeEvaluator(DebuggerUtil.getClassJVMName(tr, withPostfix = true))
         val qualEval = qualEvaluator(r)
@@ -621,7 +627,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def methodCallEvaluator(call: ScExpression, arguments: Seq[ScExpression], matchedParameters: Map[Parameter, Seq[ScExpression]]): Evaluator = {
     val ref = call match {
       case hasDeepestInvokedReference(r) => r
-      case _ => throw EvaluationException("Cannot evaluate method call: " + call.getText)
+      case _ => throw EvaluationException(ScalaBundle.message("cannot.evaluate.method", call.getText))
     }
 
     val qualOption = ref.qualifier
@@ -670,16 +676,18 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
       val namedElement = resolve.asInstanceOf[PsiNamedElement]
       val name = NameTransformer.encode(namedElement.name) + (if (isObject) "$module" else "")
-      val containingClass = getContainingClass(namedElement)
+      val containingClass = getContextClass(namedElement)
 
       def localVariableEvaluator(): Evaluator = {
         val eval = ScalaPsiUtil.nameContext(namedElement) match {
           case param: ScParameter =>
             param.owner match {
               case fun @ (_: ScFunction | _: ScFunctionExpr) => parameterEvaluator(fun, param)
-              case _ => throw EvaluationException("Cannot evaluate parameter")
+              case _ => throw EvaluationException(ScalaBundle.message("cannot.evaluate.parameter", param.name))
             }
           case caseCl: ScCaseClause => patternEvaluator(caseCl, namedElement)
+          case _: ScGenerator | _: ScEnumerator if isNotUsedEnumerator(namedElement, position.getElementAt) =>
+            throw EvaluationException(ScalaBundle.message("not.used.from.for.statement", name))
           case LazyVal(_) => localLazyValEvaluator(namedElement)
           case _ => new ScalaLocalVariableEvaluator(name, fileName)
         }
@@ -688,8 +696,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         else eval
       }
 
-      contextClass match {
-        case null | `containingClass` => localVariableEvaluator()
+      containingClass match {
+        case `contextClass` | _: ScGenerator | _: ScEnumerator => localVariableEvaluator()
+        case _ if contextClass == null => localVariableEvaluator()
         case _ =>
           var iterationCount = 0
           var positionClass: PsiElement = contextClass
@@ -709,7 +718,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             }
             else new ScalaDuplexEvaluator(fieldEval, localVariableEvaluator())
           }
-          else throw new NeedCompilationException("Cannot load local variable from anonymous class")
+          else throw EvaluationException(ScalaBundle.message("local.variable.from.anonymous.class", name))
       }
     }
 
@@ -781,11 +790,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val name = namedElement.name
     if (caseCl.getParent != null) {
       val pattern = caseCl.pattern
-      if (pattern.isEmpty) throw EvaluationException("Cannot find pattern of case clause")
+      if (pattern.isEmpty) throw EvaluationException(ScalaBundle.message("cannot.find.pattern"))
       caseCl.getParent.getParent match {
         case matchStmt: ScMatchStmt if namedElement.isInstanceOf[ScPattern] =>
           val expr = matchStmt.expr
-          if (expr.isEmpty) throw EvaluationException("Cannot find expression of match statement")
+          if (expr.isEmpty) throw EvaluationException(ScalaBundle.message("cannot.find.expression.of.match"))
           val exprEval = ScalaEvaluator(expr.get)
           val fromPatternEvaluator = evaluateSubpatternFromPattern(exprEval, pattern.get, namedElement.asInstanceOf[ScPattern])
           new ScalaDuplexEvaluator(new ScalaLocalVariableEvaluator(name, fileName), fromPatternEvaluator)
@@ -797,14 +806,15 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           new ScalaDuplexEvaluator(new ScalaLocalVariableEvaluator(name, fileName), fromPatternEvaluator)
         case _ => new ScalaLocalVariableEvaluator(name, fileName)
       }
-    } else throw EvaluationException("Invalid case clause")
+    } else throw EvaluationException(ScalaBundle.message("invalid.case.clause"))
   }
 
   def assignmentEvaluator(stmt: ScAssignStmt): Evaluator = {
+    val message = ScalaBundle.message("assignent.without.expression")
     if (stmt.isNamedParameter) {
       stmt.getRExpression match {
         case Some(expr) => ScalaEvaluator(expr)
-        case _ => throw EvaluationException("Cannot evaluate assign statement without expression")
+        case _ => throw EvaluationException(message)
       }
     } else {
       stmt.getLExpression match {
@@ -819,7 +829,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val leftEvaluator = ScalaEvaluator(stmt.getLExpression)
           val rightEvaluator = stmt.getRExpression match {
             case Some(expr) => ScalaEvaluator(expr)
-            case _ => throw EvaluationException("Cannot evaluate assign statement without expression")
+            case _ => throw EvaluationException(message)
           }
           def createAssignEvaluator(leftEvaluator: Evaluator): Option[Evaluator] = {
             leftEvaluator match {
@@ -854,17 +864,17 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
                 val getEval = new ScalaMethodEvaluator(extractEval, "get", null, Seq.empty)
                 new ScalaFieldEvaluator(getEval, x => true, s"_${nextPatternIndex + 1}")
               }
-              else throw EvaluationException("Cannot extract value from unapply without arguments")
+              else throw EvaluationException(ScalaBundle.message("unapply.without.arguments"))
             } else if (funName == "unapplySeq") {
               val extractEval = new ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval))
               val getEval = new ScalaMethodEvaluator(extractEval, "get", null, Seq.empty)
               val indexExpr = ScalaPsiElementFactory.createExpressionFromText("" + nextPatternIndex, pattern.getManager)
               val indexEval = ScalaEvaluator(indexExpr)
               new ScalaMethodEvaluator(getEval, "apply", null, Seq(indexEval))
-            } else throw EvaluationException("Pattern reference does not resolve to unapply or unapplySeq")
+            } else throw EvaluationException(ScalaBundle.message("pattern.doesnot.resolves.to.unapply", ref.refName))
           val nextPattern = pattern.subpatterns(nextPatternIndex)
           evaluateSubpatternFromPattern(newEval, nextPattern, subPattern)
-        case _ => throw EvaluationException("Pattern reference does not resolve to unapply or unapplySeq")
+        case _ => throw EvaluationException(ScalaBundle.message("pattern.doesnot.resolves.to.unapply", ref.refName))
       }
     }
 
@@ -892,9 +902,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val ref: ScStableCodeReferenceElement = infix.refernece
           evaluateConstructorOrInfix(exprEval, ref, infix, nextPatternIndex)
         //todo: handle infix with tuple right pattern
-        case _: ScCompositePattern => throw EvaluationException("Pattern alternatives cannot bind variables")
-        case _: ScXmlPattern => throw EvaluationException("Xml patterns are not supported") //todo: xml patterns
-        case _ => throw EvaluationException(s"This kind of patterns is not supported: ${pattern.getText}") //todo: xml patterns
+        case _: ScCompositePattern => throw EvaluationException(ScalaBundle.message("pattern.alternatives.cannot.bind.vars"))
+        case _: ScXmlPattern => throw EvaluationException(ScalaBundle.message("xml.patterns.not.supported")) //todo: xml patterns
+        case _ => throw EvaluationException(ScalaBundle.message("kind.of.patterns.not.supported", pattern.getText)) //todo: xml patterns
       }
     }
   }
@@ -903,7 +913,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     templ.extendsBlock.templateParents match {
       case Some(parents: ScClassParents) =>
         if (parents.typeElements.length != 1) {
-          throw new NeedCompilationException("Anonymous classes are not supported")
+          throw new NeedCompilationException(ScalaBundle.message("anon.classes.not.supported"))
         }
         parents.constructor match {
           case Some(constr) =>
@@ -926,12 +936,12 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
                   case _ =>
                     new ScalaMethodEvaluator(typeEvaluator, "<init>", null, argumentEvaluators)
                 }
-              case _ => throw EvaluationException("Cannot evaluate new expression without class reference")
+              case _ => throw EvaluationException(ScalaBundle.message("new.expression.without.class.reference"))
             }
 
-          case None => throw EvaluationException("Cannot evaluate expression without constructor call")
+          case None => throw EvaluationException(ScalaBundle.message("new.expression.without.constructor.call"))
         }
-      case _ => throw EvaluationException("Cannot evaluate expression without template parents")
+      case _ => throw EvaluationException(ScalaBundle.message("new.expression.without.template.parents"))
     }
   }
 
@@ -940,7 +950,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
                                      clazz: PsiClass): Seq[Evaluator] = {
     val constrDef = constr.reference match {
       case Some(ResolvesTo(elem)) => elem
-      case _ => throw EvaluationException("Could not resolve constructor")
+      case _ => throw EvaluationException(ScalaBundle.message("could.not.resolve.constructor"))
     }
     val explicitArgs = constr.arguments.flatMap(_.exprs)
     val explEvaluators =
@@ -977,7 +987,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case _ => explEvaluators
     }
   }
-  
+
   def fromLocalArgEvaluator(local: ScTypedDefinition): Evaluator = {
     val name = local.asInstanceOf[PsiNamedElement].name
     val elemAt = position.getElementAt
@@ -1126,7 +1136,7 @@ object ScalaEvaluatorBuilderUtil {
       Set[PsiType](BOOLEAN, INT, CHAR, DOUBLE, FLOAT, LONG, BYTE, SHORT).contains(tp)
     case _ => false
   }
-  
+
   def isPrimitiveScType(tp: ScType) = {
     import org.jetbrains.plugins.scala.lang.psi.types._
     Set[ScType](Boolean, Int, Char, Double, Float, Long, Byte, Short).contains(tp)
@@ -1142,7 +1152,7 @@ object ScalaEvaluatorBuilderUtil {
           val newExprText = fun.containingClass match {
             case o: ScObject if isStable(o) => s"${o.qualifiedName}.$callText"
             case o: ScObject => //todo: It can cover many cases!
-              throw EvaluationException("Implicit conversions from dependent objects are not supported")
+              throw EvaluationException(ScalaBundle.message("implicit.conversions.from.dependent.objects"))
             case _ => callText //from scope
           }
           Some(ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, expr.getContext, expr))
@@ -1191,10 +1201,6 @@ object ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def getContainingClass(elem: PsiElement): PsiElement = {
-    elem.parentsInFile.find(isGenerateClass).getOrElse(getContextClass(elem))
-  }
-
   def localFunctionIndex(named: PsiNamedElement): Int = {
     elementsWithSameNameIndex(named, {
       case f: ScFunction if f.isLocal && f.name == named.name => true
@@ -1218,9 +1224,9 @@ object ScalaEvaluatorBuilderUtil {
       case _ if method.isConstructor =>  "$lessinit$greater$default$" + paramIndex + "()"
     }
   }
-  
+
   def elementsWithSameNameIndex(named: PsiNamedElement, condition: PsiElement => Boolean): Int = {
-    val containingClass = getContainingClass(named)
+    val containingClass = getContextClass(named)
     val depthFirstIterator = containingClass.depthFirst {
       case `containingClass` => true
       case elem if isGenerateClass(elem) => false
@@ -1241,6 +1247,27 @@ object ScalaEvaluatorBuilderUtil {
 
   def isLocalFunction(fun: ScFunction): Boolean = {
     !fun.getContext.isInstanceOf[ScTemplateBody]
+  }
+
+  def isNotUsedEnumerator(named: PsiNamedElement, place: PsiElement): Boolean = {
+    named match {
+      case ScalaPsiUtil.inNameContext(enum @ (_: ScEnumerator | _: ScGenerator)) =>
+        enum.getParent.getParent match {
+          case ScForStatement(enums, body) =>
+            enums.namings.map(_.pattern) match {
+              case Seq(refPattern: ScReferencePattern) => return false //can always evaluate from single simple generator
+              case _ =>
+            }
+
+            def insideBody = PsiTreeUtil.isAncestor(body, place, false)
+            def isNotUsed = ReferencesSearch.search(named, new LocalSearchScope(body)).findFirst() == null
+
+            insideBody && isNotUsed
+
+          case _ => false
+        }
+      case _ => false
+    }
   }
 
   object isInsideValueClass {

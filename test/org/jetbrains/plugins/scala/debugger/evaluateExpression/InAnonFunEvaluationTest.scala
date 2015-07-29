@@ -108,7 +108,7 @@ class InAnonFunEvaluationTest extends ScalaDebuggerTestCase{
         |    def printName(param: String, notUsed: String) {
         |      for (s <- List("a", "b"); if s == "a"; ss = s + s; i <- List(1,2); if i == 1; si = s + i) {
         |        val in = "in"
-        |        println(s + param)
+        |        println(s + param + ss)
         |        "stop here"
         |      }
         |    }
@@ -126,9 +126,9 @@ class InAnonFunEvaluationTest extends ScalaDebuggerTestCase{
       evalEquals("name", "name")
       evalEquals("notUsed", "notUsed")
       evalEquals("args", "[]")
-//      evalEquals("i", "1")
-//      evalEquals("ss", "aa")
-//      evalEquals("si", "a1")
+      evalEquals("ss", "aa")
+      evalEquals("i", ScalaBundle.message("not.used.from.for.statement", "i"))
+      evalEquals("si", ScalaBundle.message("not.used.from.for.statement", "si"))
     }
   }
 
