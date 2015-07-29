@@ -231,5 +231,5 @@ object WorksheetFileHook {
 
   private def getPanel(file: VirtualFile): Option[WeakReference[MyPanel]] = Option(file2panel get file)
 
-  def instance(project: Project) = ServiceManager.getService(project, classOf[WorksheetFileHook])
+  def instance(project: Project) = project.getComponent(classOf[WorksheetFileHook])
 }
