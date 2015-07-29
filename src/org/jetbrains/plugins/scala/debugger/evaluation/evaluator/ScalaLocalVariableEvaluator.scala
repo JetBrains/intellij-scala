@@ -50,9 +50,16 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
       var frameIndex = startFrame.getFrameIndex
       while (frameIndex < lastIndex) {
         val frameProxy = threadProxy.frame(frameIndex)
-        evaluationStrategy(frameProxy) match {
-          case Some(x) if sourceName(frameProxy) == mySourceName => return Some(x)
-          case _ => frameIndex += 1
+        try {
+          evaluationStrategy(frameProxy) match {
+            case Some(x) if sourceName(frameProxy) == mySourceName => return Some(x)
+            case _ => frameIndex += 1
+          }
+        }
+        catch {
+          case e: EvaluateException =>
+            myEvaluatedVariable = null
+            myContext = null
         }
       }
       None
@@ -99,18 +106,16 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
       throw EvaluationException(DebuggerBundle.message("evaluation.error.no.stackframe"))
     }
 
-    try {
-      val result = evaluateWithFrames(withSimpleName)
-        .orElse(evaluateWithFrames(parameterByIndex))
-        .orElse(evaluateWithFrames(withDollar))
+    val result = evaluateWithFrames(withSimpleName)
+      .orElse(evaluateWithFrames(parameterByIndex))
+      .orElse(evaluateWithFrames(withDollar))
 
-      result match {
-        case Some(x) => x
-        case None =>
-          myEvaluatedVariable = null
-          myContext = null
-          throw EvaluationException(DebuggerBundle.message("evaluation.error.local.variable.missing", myName))
-      }
+    result match {
+      case Some(x) => x
+      case None =>
+        myEvaluatedVariable = null
+        myContext = null
+        throw EvaluationException(DebuggerBundle.message("evaluation.error.local.variable.missing", myName))
     }
   }
 
