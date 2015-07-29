@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScTypedPattern, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScCatchBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
@@ -75,9 +76,14 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
         }
         notInThisClass(funDef) || notInThisClass(lazyVal)
       case named if ScalaEvaluatorBuilderUtil.isNotUsedEnumerator(named, place) => false
+      case ScalaPsiUtil.inNameContext(cc: ScCaseClause) if isInCatchBlock(cc) => false //cannot evaluate catched exceptions in scala
       case ScalaPsiUtil.inNameContext(LazyVal(_)) => false //don't add lazy vals as they can be computed too early
       case _ => true
     }
+  }
+
+  private def isInCatchBlock(cc: ScCaseClause): Boolean = {
+    cc.parents.take(3).exists(_.isInstanceOf[ScCatchBlock])
   }
 
 }
