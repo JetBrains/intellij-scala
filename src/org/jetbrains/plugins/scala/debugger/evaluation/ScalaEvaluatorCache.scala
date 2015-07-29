@@ -5,7 +5,7 @@ import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluator
 import com.intellij.debugger.impl.{DebuggerManagerAdapter, DebuggerSession}
 import com.intellij.debugger.{DebuggerManagerEx, SourcePosition}
-import com.intellij.openapi.components.{AbstractProjectComponent, ServiceManager}
+import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
 
@@ -36,7 +36,7 @@ class ScalaEvaluatorCache(project: Project) extends AbstractProjectComponent(pro
   def get(position: SourcePosition, element: PsiElement): Option[ExpressionEvaluator] = {
     val file = position.getFile
     val offset = position.getOffset
-    if (cachedStamp.get(file) != Some(file.getModificationStamp)) {
+    if (!cachedStamp.get(file).contains(file.getModificationStamp)) {
       cachedStamp(file) = file.getModificationStamp
       cachedEvaluators.filterKeys(_._1 == file).foreach {
         case (pos, map) =>
@@ -67,5 +67,5 @@ class ScalaEvaluatorCache(project: Project) extends AbstractProjectComponent(pro
 }
 
 object ScalaEvaluatorCache {
-  def getInstance(project: Project) = ServiceManager.getService(project, classOf[ScalaEvaluatorCache])
+  def getInstance(project: Project) = project.getComponent(classOf[ScalaEvaluatorCache])
 }
