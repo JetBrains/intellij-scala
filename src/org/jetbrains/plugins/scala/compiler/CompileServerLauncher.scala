@@ -13,7 +13,7 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
 import com.intellij.util.net.NetUtils
-import gnu.trove.TObjectFunction
+import gnu.trove.TByteArrayList
 import org.jetbrains.jps.incremental.BuilderService
 import org.jetbrains.plugins.scala.extensions._
 
@@ -152,7 +152,7 @@ object CompileServerLauncher {
   def compilerJars = {
     val jpsBuildersJar = new File(PathUtil.getJarPathForClass(classOf[BuilderService]))
     val utilJar = new File(PathUtil.getJarPathForClass(classOf[FileUtil]))
-    val trove4jJar = new File(PathUtil.getJarPathForClass(classOf[TObjectFunction]))
+    val trove4jJar = new File(PathUtil.getJarPathForClass(classOf[TByteArrayList]))
 
     val pluginRoot = new File(PathUtil.getJarPathForClass(getClass)).getParent
     val jpsRoot = new File(pluginRoot, "jps")
