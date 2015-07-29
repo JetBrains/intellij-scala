@@ -2,7 +2,6 @@ package org.jetbrains.sbt
 package annotator
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -13,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.sbt.language.SbtFileImpl
-import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSystemSettings
 
 /**
@@ -31,13 +29,11 @@ class SbtAnnotator extends Annotator {
     }
   }
 
-  protected def getSbtVersion(element: PsiElement): String = {
-    val projectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
-    val module = Option(projectFileIndex.getModuleForFile(element.getContainingFile.getVirtualFile))
-    val settings = SbtSystemSettings.getInstance(element.getProject)
-    val projectSettings = module.safeMap(settings.getLinkedProjectSettings).getOrElse(SbtProjectSettings.default)
-    projectSettings.sbtVersion
-  }
+  protected def getSbtVersion(element: PsiElement): String =
+    SbtSystemSettings.getInstance(element.getProject)
+      .getLinkedProjectSettings(element)
+      .safeMap(_.sbtVersion)
+      .getOrElse(Sbt.DefaultVersion)
 
   private def checkElements(children: Seq[PsiElement], holder: AnnotationHolder) {
     if (children.isEmpty) return 

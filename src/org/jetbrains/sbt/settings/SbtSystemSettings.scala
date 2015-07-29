@@ -1,4 +1,5 @@
-package org.jetbrains.sbt.settings
+package org.jetbrains.sbt
+package settings
 
 import java.util
 
@@ -7,7 +8,9 @@ import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSetti
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.psi.PsiElement
 import com.intellij.util.containers.ContainerUtilRt
 import com.intellij.util.xmlb.annotations.AbstractCollection
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener, SbtProjectSettingsListenerAdapter, SbtTopic}
@@ -113,6 +116,15 @@ class SbtSystemSettings(project: Project)
       else
         acc
     }
+  }
+
+  def getLinkedProjectSettings(element: PsiElement): Option[SbtProjectSettings] = {
+    for {
+      virtualFile <- Option(element.getContainingFile).safeMap(_.getVirtualFile)
+      projectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
+      module <- Option(projectFileIndex.getModuleForFile(virtualFile))
+      if project == element.getProject
+    } yield getLinkedProjectSettings(module)
   }
 
   override def getLinkedProjectSettings(linkedProjectPath: String): SbtProjectSettings =
