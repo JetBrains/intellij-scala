@@ -58,22 +58,15 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
     val lineRange = new TextRange(lineStart, doc.getLineEndOffset(line))
     val maxElement = maxElementOnLine(element, lineStart)
 
-    def linesToSkip(): Range[Integer] = {
-      val element = maxElement match {
-        case (_: ScCaseClause) childOf (_ childOf (mc: ScMatchStmt)) => mc
-        case (_: ScCaseClauses) childOf (mc: ScMatchStmt) => mc
-        case _ => maxElement
-      }
-      val range = element.getTextRange
-      val startLine = doc.getLineNumber(range.getStartOffset)
-      val endLine = doc.getLineNumber(range.getEndOffset)
-      new Range[Integer](startLine, endLine)
+    val lineToSkip = new Range[Integer](line, line)
+    def intersectsWithLineRange(elem: PsiElement) = {
+      lineRange.intersects(elem.getTextRange)
     }
 
-    val collector = new TargetCollector(linesToSkip())
+    val collector = new TargetCollector(lineToSkip, intersectsWithLineRange)
     maxElement.accept(collector)
     maxElement.nextSiblings
-            .takeWhile(s => lineRange.intersects(s.getTextRange))
+            .takeWhile(intersectsWithLineRange)
             .foreach(_.accept(collector))
     collector.result.asJava
   }
@@ -110,10 +103,12 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
     }
   }
 
-  private class TargetCollector(noStopAtLines: Range[Integer]) extends ScalaRecursiveElementVisitor {
+  private class TargetCollector(noStopAtLines: Range[Integer], elementFilter: PsiElement => Boolean) extends ScalaRecursiveElementVisitor {
     val result = ArrayBuffer[SmartStepTarget]()
 
     override def visitNewTemplateDefinition(templ: ScNewTemplateDefinition): Unit = {
+      if (!elementFilter(templ)) return
+
       val extBl = templ.extendsBlock
       var label = ""
 
@@ -163,6 +158,8 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
     }
 
     override def visitExpression(expr: ScExpression) {
+      if (!elementFilter(expr)) return
+
       val implicits = expr.getImplicitConversions()._2
       implicits match {
         case Some(f: PsiMethod) if f.isPhysical => //synthetic conversions are created for implicit classes
@@ -193,6 +190,8 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
     }
 
     override def visitPattern(pat: ScPattern): Unit = {
+      if (!elementFilter(pat)) return
+
       val ref = pat match {
         case cp: ScConstructorPattern =>  Some(cp.ref)
         case ip: ScInfixPattern => Some(ip.refernece)
