@@ -28,11 +28,12 @@ import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScLiteralPattern, ScPattern, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDefinition, ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTemplateDefinition, ScTypeDefinition}
@@ -117,6 +118,16 @@ object ScalaRefactoringUtil {
       }
     }
     scType.recursiveUpdate(replaceSingleton)
+  }
+
+  def getTypeEement(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[ScTypeElement] = {
+    val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScTypeElement])
+
+    if (element == null || element.getTextRange.getEndOffset != endOffset || element.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs]) {
+      return None
+    }
+
+    Some(element)
   }
 
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, Array[ScType])] = {
@@ -255,7 +266,7 @@ object ScalaRefactoringUtil {
       result.toArray
     }
     element match {
-      case intrp: ScInterpolatedStringLiteral => 
+      case intrp: ScInterpolatedStringLiteral =>
         val prefix = intrp.reference.fold("")(_.refName)
         val fileText = intrp.getContainingFile.getText
         val text = fileText.substring(intrp.contentRange.getStartOffset, intrp.contentRange.getEndOffset)
@@ -300,6 +311,24 @@ object ScalaRefactoringUtil {
           }
         } else {
           occurrences ++= getExprOccurrences(element, child)
+        }
+      }
+    occurrences.toArray
+  }
+
+  def getTypeElementOccurrences(element: PsiElement, enclosingContainer: PsiElement): Array[ScTypeElement] = {
+    val occurrences: ArrayBuffer[ScTypeElement] = new ArrayBuffer[ScTypeElement]()
+    if (enclosingContainer == element) occurrences += enclosingContainer.asInstanceOf[ScTypeElement]
+    else
+      for (child <- enclosingContainer.getChildren) {
+        if (PsiEquivalenceUtil.areElementsEquivalent(child, element)) {
+          child match {
+            case x: ScTypeElement =>
+              occurrences += x
+            case _ =>
+          }
+        } else {
+          occurrences ++= getTypeElementOccurrences(element, child)
         }
       }
     occurrences.toArray
