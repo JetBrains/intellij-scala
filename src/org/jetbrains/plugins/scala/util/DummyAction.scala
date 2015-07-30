@@ -36,7 +36,8 @@ class DummyAction extends AnAction {
     implicit val currentEvent = e
 
     def applyExpansion(resolved: ResolvedMacroExpansion) = {
-        if (resolved.psiElement.isEmpty) throw new UnresolvedExpansion
+        if (resolved.psiElement.isEmpty)
+          throw new UnresolvedExpansion
         resolved.psiElement.get.getElement match {
           case (annot: ScAnnotation) => // TODO
               expandAnnotation(annot, resolved.expansion)
@@ -55,9 +56,10 @@ class DummyAction extends AnAction {
           }
           catch {
             case e: UnresolvedExpansion if !triedResolving =>
-              applyExpansions(tryResolveExpansionPlaces(expansions.map(_.expansion)), triedResolving = true)
+              applyExpansions(tryResolveExpansionPlace(x.expansion) :: xs, triedResolving = true)
             case e: UnresolvedExpansion if triedResolving =>
-              LOG.warn(s"unable to expand $x, cannot resolve place")
+              LOG.warn(s"unable to expand ${x.expansion.place}, cannot resolve place, skipping")
+              applyExpansions(xs)
           }
         case Nil =>
       }
@@ -93,13 +95,14 @@ class DummyAction extends AnAction {
     call.delete()
   }
 
-  def tryResolveExpansionPlaces(expansions: Seq[MacroExpansion])(implicit e: AnActionEvent): Seq[ResolvedMacroExpansion] = {
-    expansions.map { exp =>
-      ResolvedMacroExpansion(exp, getRealOwner(exp).map(new IdentitySmartPointer[PsiElement](_)))
-    }
+  def tryResolveExpansionPlace(expansion: MacroExpansion)(implicit e: AnActionEvent): ResolvedMacroExpansion = {
+    ResolvedMacroExpansion(expansion, getRealOwner(expansion).map(new IdentitySmartPointer[PsiElement](_)))
   }
 
-  // FIXME: handle macro calls with incorrect offset pointing to macro annotation
+  def tryResolveExpansionPlaces(expansions: Seq[MacroExpansion])(implicit e: AnActionEvent): Seq[ResolvedMacroExpansion] = {
+    expansions.map(tryResolveExpansionPlace)
+  }
+
   def getRealOwner(expansion: MacroExpansion)(implicit e: AnActionEvent): Option[PsiElement] = {
     val virtualFile = VirtualFileManager.getInstance().findFileByUrl("file://" + expansion.place.sourceFile)
     val psiFile = PsiManager.getInstance(e.getProject).findFile(virtualFile)
@@ -112,6 +115,15 @@ class DummyAction extends AnAction {
           case e: PsiElement => walkUp(e.getParent)
         }
         walkUp()
+      // handle macro calls with incorrect offset pointing to macro annotation
+      // most likely it means given call is located inside another macro expansion
+      case e: LeafPsiElement if expansion.place.macroApplication.matches("^[^\\)]+\\)$") =>
+        val pos = e.getContainingFile.getText.indexOf(expansion.place.macroApplication)
+        if (pos != -1)
+          Some(e.getContainingFile.findElementAt(pos))
+        else
+          None
+      // macro annotations
       case e: LeafPsiElement =>
         def walkUp(elem: PsiElement = e): Option[PsiElement] = elem match {
           case null => None
