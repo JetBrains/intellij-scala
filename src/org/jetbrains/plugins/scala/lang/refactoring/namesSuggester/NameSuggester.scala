@@ -72,7 +72,7 @@ object NameSuggester {
       names += name
   }
 
-  private def namesByType(tpe: ScType, withPlurals: Boolean = true, shortVersion: Boolean = true)
+  def namesByType(tpe: ScType, withPlurals: Boolean = true, shortVersion: Boolean = true)
                          (implicit validator: NameValidator): ArrayBuffer[String] = {
     val names = ArrayBuffer[String]()
     generateNamesByType(tpe, shortVersion)(names, validator, withPlurals)
@@ -171,7 +171,7 @@ object NameSuggester {
           case c if c.qualifiedName == eitherClassName && args.size == 2 =>
             addFromTwoTypes(args(0), args(1), "Or")
           case c if (isInheritor(c, baseMapClassName) || isInheritor(c, baseJavaMapClassName))
-                  && args.size == 2 =>
+            && args.size == 2 =>
             addFromTwoTypes(args(0), args(1), "To")
           case c if (isInheritor(c, baseCollectionClassName) || isInheritor(c, baseJavaCollectionClassName))
             && args.size == 1 =>
