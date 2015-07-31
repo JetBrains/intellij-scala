@@ -1177,6 +1177,7 @@ object ScalaEvaluatorBuilderUtil {
 
   def isGenerateClass(elem: PsiElement): Boolean = {
     elem match {
+      case newTd: ScNewTemplateDefinition if !DebuggerUtil.generatesAnonClass(newTd) => false
       case clazz: PsiClass => true
       case f: ScFunctionExpr => true
       case (_: ScExpression) childOf (_: ScForStatement) => true
