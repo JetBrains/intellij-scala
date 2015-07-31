@@ -7,7 +7,7 @@ package lang.completeStatement
  */
 class ScalaCompleteForStatementTest extends ScalaCompleteStatementTestBase {
 
-  def testForStatement() {
+  def testForStatement1() {
     val fileText =
       """
         |class B {
@@ -65,6 +65,7 @@ class ScalaCompleteForStatementTest extends ScalaCompleteStatementTestBase {
         |class B {
         |  def method() {
         |    for (<caret>) {
+        |
         |    }
         |  }
         |}
