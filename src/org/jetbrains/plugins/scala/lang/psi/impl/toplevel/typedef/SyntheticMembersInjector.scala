@@ -31,9 +31,22 @@ class SyntheticMembersInjector {
    * @return if this source requires companion object
    */
   def needsCompanionObject(source: ScTypeDefinition): Boolean = false
+
+  /**
+   * Generates non-companion classes with defined kind and fqn.
+   *
+   * @param source class or trait
+   * @return sequence of classes,
+   */
+  def additionalClassesToGenerate(source: ScTypeDefinition): Seq[(SyntheticMembersInjector.Kind, String)] = Seq.empty
 }
 
 object SyntheticMembersInjector {
+  type Kind = Kind.Value
+  object Kind extends Enumeration {
+    val Class, Object, Trait = Value
+  }
+
   val LOG = Logger.getInstance(getClass)
 
   val EP_NAME: ExtensionPointName[SyntheticMembersInjector] =

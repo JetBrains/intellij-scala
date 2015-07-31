@@ -133,8 +133,8 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     }
   }
 
-  override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = {
-    (if (isSyntheticObject) Seq.empty
+  override protected def syntheticMethodsWithOverrideImpl: Seq[PsiMethod] = {
+    if (isSyntheticObject) Seq.empty
     else ScalaPsiUtil.getCompanionModule(this) match {
       case Some(c: ScClass) if c.isCase =>
         val res = new ArrayBuffer[PsiMethod]
@@ -151,8 +151,10 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
         })
         res.toSeq
       case _ => Seq.empty
-    }) ++: SyntheticMembersInjector.inject(this)
+    }
   }
+
+  override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = SyntheticMembersInjector.inject(this)
 
   def fakeCompanionClass: Option[PsiClass] = {
     ScalaPsiUtil.getCompanionModule(this) match {
