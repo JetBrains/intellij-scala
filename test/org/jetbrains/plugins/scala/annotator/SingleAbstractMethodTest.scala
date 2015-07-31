@@ -178,7 +178,6 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
       """.stripMargin
     assertMatches(messages(code)) {
       case Error("(j => j)", typeMismatch()) :: Error("(j => j)", doesNotConform()) :: Error("j", doesNotConform()) :: Nil =>
-
     }
   }
 
@@ -354,6 +353,156 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
     checkCodeHasNoErrors(scalaCode, Some(javaCode))
   }
 
+  val etaExpansionPrefix: String =
+    """
+      |def a = () => println()
+      |def b() = () => println()
+      |def c = println()
+      |def d() = println()
+      |def e: () => Unit = () => println()
+      |def f(): () => Unit = () => println()
+      |def g(): Unit = println()
+      |def h(): Unit = println()
+      |
+    """.stripMargin
+
+  def testSAMEtaExpansion1(): Unit = {
+    val code = etaExpansionPrefix + "val a1: Runnable = a"
+    assertMatches(messages(code)) {
+      case Error("a", typeMismatch()) :: Error("a", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion2(): Unit = {
+    val code = etaExpansionPrefix + "val a2: Runnable = a()"
+    assertMatches(messages(code)) {
+      case Error("a()", typeMismatch()) :: Error("a()", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion3(): Unit = {
+    val code = etaExpansionPrefix + "val b1: Runnable = b"
+    checkCodeHasNoErrors(code)
+  }
+
+  def testSAMEtaExpansion4(): Unit = {
+    val code = etaExpansionPrefix + "val b2: Runnable = b()"
+    assertMatches(messages(code)) {
+      case Error("b()", typeMismatch()) :: Error("b()", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion5(): Unit = {
+    val code = etaExpansionPrefix + "val c1: Runnable = c"
+    assertMatches(messages(code)) {
+      case Error("c", typeMismatch()) :: Error("c", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion6(): Unit = {
+    val code = etaExpansionPrefix + "val c2: Runnable = c()"
+    assertMatches(messages(code)) {
+      case Error("()", doesNotTakeParameters()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion7(): Unit = {
+    val code = etaExpansionPrefix + "val d1: Runnable = d"
+    checkCodeHasNoErrors(code)
+  }
+
+  def testSAMEtaExpansion8(): Unit = {
+    val code = etaExpansionPrefix + "val d2: Runnable = d()"
+    assertMatches(messages(code)) {
+      case Error("d()", typeMismatch()) :: Error("d()", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion9(): Unit = {
+    val code = etaExpansionPrefix + "val e1: Runnable = e"
+    assertMatches(messages(code)) {
+      case Error("e", typeMismatch()) :: Error("e", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion10(): Unit = {
+    val code = etaExpansionPrefix + "val e2: Runnable = e()"
+    assertMatches(messages(code)) {
+      case Error("e()", typeMismatch()) :: Error("e()", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion11(): Unit = {
+    val code = etaExpansionPrefix + "val f1: Runnable = f"
+    checkCodeHasNoErrors(code)
+  }
+
+  def testSAMEtaExpansion12(): Unit = {
+    val code = etaExpansionPrefix + "val f2: Runnable = f()"
+    assertMatches(messages(code)) {
+      case Error("f()", typeMismatch()) :: Error("f()", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion13(): Unit = {
+    val code = etaExpansionPrefix + "val g1: Runnable = g"
+    checkCodeHasNoErrors(code)
+  }
+
+  def testSAMEtaExpansion14(): Unit = {
+    val code = etaExpansionPrefix + "val g2: Runnable = g()"
+    assertMatches(messages(code)) {
+      case Error("g()", typeMismatch()) :: Error("g()", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion15(): Unit = {
+    val code = etaExpansionPrefix + "val h1: Runnable = h"
+    checkCodeHasNoErrors(code)
+  }
+
+  def testSAMEtaExpansion16(): Unit = {
+    val code = etaExpansionPrefix + "val h2: Runnable = h()"
+    assertMatches(messages(code)) {
+      case Error("h()", typeMismatch()) :: Error("h()", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testEtaExpansionImplicit(): Unit = {
+    val code =
+      """
+        |class A
+        |class B
+        |implicit def a2b(a: A): B = new B
+        |
+        |abstract class C {
+        |  def foo(): B
+        |}
+        |
+        |def foo(): A = new A
+        |
+        |val u: C = foo
+        |
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
+  //similar to testEtaExpansion11
+  def testEtaExpansionUnitReturnWithParams(): Unit = {
+    val code =
+      """
+        |trait S {
+        |  def foo(i: Int): Unit
+        |}
+        |def ss(): Int => Unit = (i: Int) => Unit
+        |
+        |val s: S = ss
+      """.stripMargin
+    assertMatches(messages(code)) {
+      case Error("ss", typeMismatch()) :: Error("ss", doesNotConform()) :: Nil =>
+    }
+  }
+
   def checkCodeHasNoErrors(scalaCode: String, javaCode: Option[String] = None) {
     assertMatches(messages(scalaCode, javaCode)) {
       case Nil =>
@@ -393,6 +542,7 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
   val doesNotConform = ContainsPattern("doesn't conform to expected type")
   val typeMismatch = ContainsPattern("Type mismatch")
   val cannotResolveReference = ContainsPattern("Cannot resolve reference")
+  val doesNotTakeParameters = ContainsPattern("does not take parameters")
 
   case class ContainsPattern(fr: String) {
     def unapply(s: String) = s.contains(fr)
