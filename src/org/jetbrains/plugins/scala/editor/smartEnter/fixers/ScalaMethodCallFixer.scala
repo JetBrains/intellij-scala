@@ -16,10 +16,10 @@ class ScalaMethodCallFixer extends ScalaFixer {
   def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
     val args = psiElement match {
       case call: ScMethodCall => call.args
-      case _ => return NoOp()
+      case _ => return NoOperation
     }
 
-    if (args.lastChild.exists(_.getText == ")")) return NoOp()
+    if (args.lastChild.exists(_.getText == ")")) return NoOperation
 
     var endOffset: Int = -1
     var child = args.firstChild.orNull

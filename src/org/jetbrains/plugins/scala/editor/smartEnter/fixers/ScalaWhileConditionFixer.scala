@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScWhileStmt}
 class ScalaWhileConditionFixer extends ScalaFixer {
   def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
     val whileStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScWhileStmt], false)
-    if (whileStatement == null) return NoOp()
+    if (whileStatement == null) return NoOperation
 
     val doc = editor.getDocument
     val leftParenthesis = whileStatement.getLeftParenthesis.orNull
@@ -53,7 +53,7 @@ class ScalaWhileConditionFixer extends ScalaFixer {
       case Some(cond) if rightParenthesis == null =>
         doc.insertString(cond.getTextRange.getEndOffset, ")")
         WithReformat(0)
-      case _ => NoOp()
+      case _ => NoOperation
     }
   }
 }

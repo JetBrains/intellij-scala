@@ -81,5 +81,5 @@ trait ScalaFixer {
   trait OperationPerformed
   case class WithEnter(moveBy: Int) extends OperationPerformed
   case class WithReformat(moveBy: Int) extends OperationPerformed
-  case class NoOp() extends OperationPerformed
+  case object NoOperation extends OperationPerformed
 }
