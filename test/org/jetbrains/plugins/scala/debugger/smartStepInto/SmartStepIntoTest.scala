@@ -408,12 +408,11 @@ class SmartStepIntoTest extends SmartStepIntoTestBase {
     addBreakpoint("Sample.scala", 3)
     runDebugger("Sample") {
       waitForBreakpoint()
-      checkSmartStepTargets("update(Function1<Object, Object>)", "incr(int)", "id(T)", "decr(int)")
+      checkSmartStepTargets("update(Function1<Object, Object>)", "incr(int)", "update(Function1<Object, Object>)", "id(T)", "update(Function1<Object, Object>)", "decr(int)")
       checkSmartStepInto("id(T)", "Sample.scala", "id", 9)
     }
     runDebugger("Sample") {
       waitForBreakpoint()
-      checkSmartStepTargets("update(Function1<Object, Object>)", "incr(int)", "id(T)", "decr(int)")
       checkSmartStepInto("decr(int)", "Sample.scala", "decr", 16)
     }
   }

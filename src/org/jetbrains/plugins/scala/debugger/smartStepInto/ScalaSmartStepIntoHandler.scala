@@ -69,7 +69,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
     maxElement.nextSiblings
             .takeWhile(intersectsWithLineRange)
             .foreach(_.accept(collector))
-    collector.result.asJava
+    collector.result.sortBy(_.getHighlightElement.getTextOffset).asJava
   }
   def isAvailable(position: SourcePosition): Boolean = {
     val file: PsiFile = position.getFile
