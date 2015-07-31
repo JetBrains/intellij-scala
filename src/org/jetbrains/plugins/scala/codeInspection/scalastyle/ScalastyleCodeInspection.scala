@@ -58,7 +58,7 @@ class ScalastyleCodeInspection extends LocalInspectionTool {
     if (!file.isInstanceOf[ScalaFile]) Array.empty
     else withConfiguration { configuration =>
       val scalaFile = file.asInstanceOf[ScalaFile]
-      val result = new ScalastyleChecker().checkFiles(configuration, Seq(new SourceSpec(file.getName, file.getText)))
+      val result = new ScalastyleChecker(None).checkFiles(configuration, Seq(new SourceSpec(file.getName, file.getText)))
       val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
 
       def atPosition(e: PsiElement, line: Int, column: Option[Int]): Boolean = {
