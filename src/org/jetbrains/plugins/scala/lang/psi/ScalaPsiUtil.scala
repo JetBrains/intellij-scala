@@ -650,6 +650,8 @@ object ScalaPsiUtil {
     }
   }
 
+  def isAnonExpression(expr: ScExpression): Boolean = isAnonymousExpression(expr)._1 >= 0
+
   def getModule(element: PsiElement): Module = {
     val index: ProjectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
     index.getModuleForFile(element.getContainingFile.getVirtualFile)
@@ -2050,7 +2052,17 @@ object ScalaPsiUtil {
 
   object MethodValue {
     def unapply(expr: ScExpression): Option[PsiMethod] = {
-      if (!expr.expectedType(false).exists(ScFunctionType.isFunctionType)) return None
+      if (!expr.expectedType(fromUnderscore = false).exists {
+        case ScFunctionType(_, _) => true
+        case expected if isSAMEnabled(expr) =>
+          toSAMType(expected, expr.getResolveScope) match {
+            case Some(_) => true
+            case _ => false
+          }
+        case _ => false
+      }) {
+        return None
+      }
       expr match {
         case ref: ScReferenceExpression if !ref.getParent.isInstanceOf[MethodInvocation] => referencedMethod(ref, canBeParameterless = false)
         case gc: ScGenericCall if !gc.getParent.isInstanceOf[MethodInvocation] => referencedMethod(gc, canBeParameterless = false)
