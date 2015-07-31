@@ -388,10 +388,10 @@ class SmartStepIntoTest extends SmartStepIntoTestBase {
       |object Sample {
       |  def main(args: Array[String]): Unit = {
       |    val a = new A(Seq(1, 2, 3))
-      |    a.update(incr).update(Sample.id[Int](_)).update(a.decr _)
+      |    a.update(incr(2) _).update(Sample.id[Int](_)).update(a.decr)
       |  }
       |
-      |  def incr(i: Int): Int = i + 1
+      |  def incr(i: Int)(j: Int): Int = i + j
       |
       |  def id[T](t: T) = t
       |
@@ -408,12 +408,16 @@ class SmartStepIntoTest extends SmartStepIntoTestBase {
     addBreakpoint("Sample.scala", 3)
     runDebugger("Sample") {
       waitForBreakpoint()
-      checkSmartStepTargets("update(Function1<Object, Object>)", "incr(int)", "update(Function1<Object, Object>)", "id(T)", "update(Function1<Object, Object>)", "decr(int)")
+      checkSmartStepTargets("update(Function1<Object, Object>)", "incr(int, int)", "update(Function1<Object, Object>)", "id(T)", "update(Function1<Object, Object>)", "decr(int)")
       checkSmartStepInto("id(T)", "Sample.scala", "id", 9)
     }
     runDebugger("Sample") {
       waitForBreakpoint()
       checkSmartStepInto("decr(int)", "Sample.scala", "decr", 16)
+    }
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      checkSmartStepInto("incr(int, int)", "Sample.scala", "incr", 7)
     }
   }
 
