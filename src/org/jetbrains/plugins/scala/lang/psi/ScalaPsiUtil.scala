@@ -2052,20 +2052,23 @@ object ScalaPsiUtil {
     def unapply(expr: ScExpression): Option[PsiMethod] = {
       if (!expr.expectedType(false).exists(ScFunctionType.isFunctionType)) return None
       expr match {
-        case ref: ScReferenceExpression if !ref.getParent.isInstanceOf[MethodInvocation] => referencedMethod(ref)
-        case gc: ScGenericCall if !gc.getParent.isInstanceOf[MethodInvocation] => referencedMethod(gc)
-        case us: ScUnderscoreSection => us.bindingExpr.flatMap(referencedMethod)
-        case ScMethodCall(invoked @(_: ScReferenceExpression | _: ScGenericCall), args) if args.forall(isSimpleUnderscore) => referencedMethod(invoked)
+        case ref: ScReferenceExpression if !ref.getParent.isInstanceOf[MethodInvocation] => referencedMethod(ref, canBeParameterless = false)
+        case gc: ScGenericCall if !gc.getParent.isInstanceOf[MethodInvocation] => referencedMethod(gc, canBeParameterless = false)
+        case us: ScUnderscoreSection => us.bindingExpr.flatMap(referencedMethod(_, canBeParameterless = true))
+        case ScMethodCall(invoked @(_: ScReferenceExpression | _: ScGenericCall | _: ScMethodCall), args)
+          if args.nonEmpty && args.forall(isSimpleUnderscore) => referencedMethod(invoked, canBeParameterless = false)
         case _ => None
       }
     }
 
     @tailrec
-    private def referencedMethod(expr: ScExpression): Option[PsiMethod] = {
+    private def referencedMethod(expr: ScExpression, canBeParameterless: Boolean): Option[PsiMethod] = {
       expr match {
+        case ref @ ResolvesTo(f: ScFunctionDefinition) if f.isParameterless && !canBeParameterless => None
         case ref @ ResolvesTo(m: PsiMethod) => Some(m)
-        case gc: ScGenericCall => referencedMethod(gc.referencedExpr)
-        case us: ScUnderscoreSection if us.bindingExpr.isDefined => referencedMethod(us.bindingExpr.get)
+        case gc: ScGenericCall => referencedMethod(gc.referencedExpr, canBeParameterless)
+        case us: ScUnderscoreSection if us.bindingExpr.isDefined => referencedMethod(us.bindingExpr.get, canBeParameterless)
+        case m: ScMethodCall => referencedMethod(m.deepestInvokedExpr, canBeParameterless = false)
         case _ => None
       }
     }
