@@ -6,7 +6,7 @@ package lang.completeStatement
  * @since 2/25/13
  */
 class ScalaCompleteIfConditionTest extends ScalaCompleteStatementTestBase {
-  def testIfCondition() {
+  def testIfCondition1() {
     val fileText =
       """
         |class B {
@@ -20,6 +20,7 @@ class ScalaCompleteIfConditionTest extends ScalaCompleteStatementTestBase {
         |class B {
         |  def method() {
         |    if (<caret>) {
+        |
         |    }
         |  }
         |}
@@ -42,6 +43,7 @@ class ScalaCompleteIfConditionTest extends ScalaCompleteStatementTestBase {
         |class B {
         |  def method() {
         |    if (<caret>) {
+        |
         |    }
         |  }
         |}
@@ -64,6 +66,7 @@ class ScalaCompleteIfConditionTest extends ScalaCompleteStatementTestBase {
         |class B {
         |  def method() {
         |    if (<caret>) {
+        |
         |    }
         |  }
         |}
@@ -168,7 +171,7 @@ class ScalaCompleteIfConditionTest extends ScalaCompleteStatementTestBase {
     checkScalaFileByText(fileText, resultText)
   }
 
-  def testIfConditionJava() {
+  def testIfConditionJava() { //WHAT THE _?!
     val fileText =
       """
         |class B {
