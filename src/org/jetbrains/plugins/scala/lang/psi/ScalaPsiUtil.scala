@@ -1526,7 +1526,7 @@ object ScalaPsiUtil {
   def getUnapplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     getMethodsForName(clazz, "unapply") ++ getMethodsForName(clazz, "unapplySeq") ++
     (clazz match {
-      case c: ScObject => c.syntheticMethodsNoOverride.filter(s => s.name == "unapply" || s.name == "unapplySeq").
+      case c: ScObject => c.allSynthetics.filter(s => s.name == "unapply" || s.name == "unapplySeq").
               map(new PhysicalSignature(_, ScSubstitutor.empty))
       case _ => Seq.empty[PhysicalSignature]
     })
