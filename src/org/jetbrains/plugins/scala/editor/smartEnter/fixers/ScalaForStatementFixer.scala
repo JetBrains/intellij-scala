@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScForStatemen
 class ScalaForStatementFixer extends ScalaFixer {
   def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
     val forStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScForStatement], false)
-    if (forStatement == null) return NoOp()
+    if (forStatement == null) return NoOperation
 
     val doc = editor.getDocument
     val leftParenthesis = forStatement.getLeftParenthesis.orNull
@@ -44,7 +44,7 @@ class ScalaForStatementFixer extends ScalaFixer {
         WithReformat(0)
       case Some(cond) if rightParenthesis != null && forStatement.body.exists(_.isInstanceOf[ScBlockExpr]) =>
         placeInWholeBlock(forStatement.body.get.asInstanceOf[ScBlockExpr], editor)
-      case _ => NoOp()
+      case _ => NoOperation
     }
   }
 }

@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement
 class ScalaMissingForBodyFixer  extends ScalaFixer {
   def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
     val forStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScForStatement], false)
-    if (forStatement == null) return NoOp()
+    if (forStatement == null) return NoOperation
 
     val doc = editor.getDocument
 
@@ -31,7 +31,7 @@ class ScalaMissingForBodyFixer  extends ScalaFixer {
 
         doc.insertString(eltToInsertAfter.getTextRange.getEndOffset, text)
         WithEnter(text.length - 1)
-      case Some(_) => NoOp()
+      case Some(_) => NoOperation
     }
   }
 }
