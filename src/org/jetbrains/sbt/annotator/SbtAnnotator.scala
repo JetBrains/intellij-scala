@@ -35,13 +35,13 @@ class SbtAnnotator extends Annotator {
         case exp: ScExpression => annotateTypeMismatch(exp)
         case element => annotateNonExpression(element)
       }
-      if (!is_0_13_7)
+      if (sbtVersionLessThan("0.13.7"))
         annotateMissingBlankLines()
     }
 
     private def annotateNonExpression(element: PsiElement): Unit = element match {
       case _: SbtFileImpl | _: ScImportStmt | _: PsiComment | _: PsiWhiteSpace =>
-      case _: ScFunctionDefinition | _: ScPatternDefinition if is_0_13 =>
+      case _: ScFunctionDefinition | _: ScPatternDefinition if !sbtVersionLessThan("0.13.0") =>
       case other => holder.createErrorAnnotation(other, SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions"))
     }
 
@@ -55,10 +55,10 @@ class SbtAnnotator extends Annotator {
         }
       }
 
-    private def findTypeByText(exp: ScExpression, text: String) =
+    private def findTypeByText(exp: ScExpression, text: String): Option[ScType] =
       Option(ScalaPsiElementFactory.createTypeFromText(text, exp.getContext, exp))
 
-    private def isTypeAllowed(expression: ScExpression, expressionType: ScType) =
+    private def isTypeAllowed(expression: ScExpression, expressionType: ScType): Boolean =
       SbtAnnotator.AllowedTypes.exists(typeStr => findTypeByText(expression, typeStr) exists (t => expressionType conforms t))
 
     private def annotateMissingBlankLines(): Unit =
@@ -68,11 +68,8 @@ class SbtAnnotator extends Annotator {
         case _ =>
       }
 
-    private def is_0_13: Boolean =
-      StringUtil.compareVersionNumbers(sbtVersion, "0.13.0") >= 0
-
-    private def is_0_13_7: Boolean =
-      StringUtil.compareVersionNumbers(sbtVersion, "0.13.7") >= 0
+    private def sbtVersionLessThan(version: String): Boolean =
+      StringUtil.compareVersionNumbers(sbtVersion, version) < 0
   }
 }
 
