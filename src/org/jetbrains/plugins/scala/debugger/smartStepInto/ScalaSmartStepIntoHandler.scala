@@ -13,6 +13,7 @@ import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.plugins.scala.codeInspection.collections.{MethodRepr, stripped}
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike}
@@ -168,6 +169,9 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
       }
 
       expr match {
+        case ScalaPsiUtil.MethodValue(m) =>
+          result += new MethodSmartStepTarget(m, null, expr, true, noStopAtLines)
+          return
         case FunExpressionTarget(stmts, presentation) =>
           result += new ScalaFunExprSmartStepTarget(expr, stmts, presentation, noStopAtLines)
           return //stop at function expression

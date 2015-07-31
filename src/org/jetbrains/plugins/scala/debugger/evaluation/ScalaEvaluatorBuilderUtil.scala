@@ -1186,7 +1186,7 @@ object ScalaEvaluatorBuilderUtil {
       case (g: ScGenerator) childOf (enums: ScEnumerators) if !enums.generators.headOption.contains(g) => true
       case e: ScEnumerator => true
       case (expr: ScExpression) childOf (argLisg: ScArgumentExprList) if ScalaPsiUtil.parameterOf(expr).exists(_.isByName) => true
-      case ref: ScReferenceExpression if ScalaPsiUtil.isMethodValue(ref) => true
+      case ScalaPsiUtil.MethodValue(_) => true
       case _ => false
     }
   }
