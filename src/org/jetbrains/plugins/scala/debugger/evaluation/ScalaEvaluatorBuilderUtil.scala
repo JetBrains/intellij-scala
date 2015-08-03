@@ -1171,8 +1171,9 @@ object ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def getContextClass(elem: PsiElement): PsiElement = {
-    elem.contexts.find(isGenerateClass).orNull
+  def getContextClass(elem: PsiElement, strict: Boolean = true): PsiElement = {
+    if (!strict && isGenerateClass(elem)) elem
+    else elem.contexts.find(isGenerateClass).orNull
   }
 
   def isGenerateClass(elem: PsiElement): Boolean = {
