@@ -11,8 +11,8 @@ import org.jetbrains.plugins.gradle.model.data.{ScalaCompileOptionsData, ScalaMo
 import org.jetbrains.plugins.scala.project.DebuggingInfoLevel
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.sbt.UsefulTestCaseHelper
-import org.jetbrains.sbt.project.data.service.{ProjectDataServiceTestCase, ExternalSystemDsl}
-import ExternalSystemDsl._
+import org.jetbrains.sbt.project.data.service.{ProjectDataServiceTestCase, ExternalSystemDataDsl}
+import ExternalSystemDataDsl._
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.SbtProjectSystem
 

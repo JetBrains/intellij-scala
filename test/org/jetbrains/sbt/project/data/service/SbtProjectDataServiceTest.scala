@@ -26,7 +26,7 @@ import org.jetbrains.sbt.settings.SbtSystemSettings
  */
 class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
 
-  import ExternalSystemDsl._
+  import ExternalSystemDataDsl._
 
   override def setUp(): Unit = {
     super.setUp()

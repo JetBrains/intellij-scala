@@ -14,7 +14,7 @@ import org.jetbrains.sbt.project.data.AndroidFacetNode
  */
 class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
 
-  import ExternalSystemDsl._
+  import ExternalSystemDataDsl._
 
   private def generateProject(proguardConfig: Seq[String]): DataNode[ProjectData] =
     new project {

@@ -35,7 +35,7 @@ import org.jetbrains.sbt.project.data._
  * @author Nikolay Obedin
  * @since 6/5/15.
  */
-object ExternalSystemDsl {
+object ExternalSystemDataDsl {
 
   class Attribute[T](val key: String)
 
