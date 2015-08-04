@@ -11,6 +11,10 @@ final case class InvalidRepository(repo: String)
   extends IOException(SbtBundle("sbt.resolverIndexer.invalidRepository", repo))
   with ResolverException
 
+final case class RemoteRepositoryHasNotBeenIndexed(repo: String)
+  extends IOException(SbtBundle("sbt.resolverIndexer.remoteRepositoryHasNotBeenIndexed", repo))
+  with ResolverException
+
 final case class CantCreateIndexDirectory(dir: File)
   extends IOException(SbtBundle("sbt.resolverIndexer.cantCreateIndexDir", dir))
   with ResolverException

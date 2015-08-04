@@ -8,6 +8,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
+import org.apache.lucene.store.LockReleaseFailedException
 
 import scala.collection.mutable
 
@@ -61,6 +62,7 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
             index.update(Some(progressIndicator))
           } catch {
             case exc : ResolverException => notifyWarning(exc.getMessage)
+            case exc : LockReleaseFailedException => notifyWarning(SbtBundle("sbt.resolverIndexer.luceneLockException", exc.getMessage))
           } finally {
             updatingIndexes synchronized {
               updatingIndexes -= index

@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package resolvers
 
-import java.io.{Closeable, File}
+import java.io.{Closeable, File, FileNotFoundException}
 
 import com.intellij.openapi.progress.ProgressIndicator
 import org.apache.maven.index._
@@ -9,9 +9,9 @@ import org.apache.maven.index.artifact.DefaultArtifactPackagingMapper
 import org.apache.maven.index.context.{IndexCreator, IndexUtils, IndexingContext}
 import org.apache.maven.index.incremental.DefaultIncrementalHandler
 import org.apache.maven.index.updater.{DefaultIndexUpdater, IndexUpdateRequest, WagonHelper}
-import org.apache.maven.wagon.Wagon
 import org.apache.maven.wagon.events.TransferEvent
 import org.apache.maven.wagon.observers.AbstractTransferListener
+import org.apache.maven.wagon.{ResourceDoesNotExistException, Wagon}
 import org.codehaus.plexus.DefaultPlexusContainer
 
 /**
@@ -64,12 +64,16 @@ class SbtMavenRepoIndexer private (val root: String, val indexDir: File) extends
       Thread.currentThread().setContextClassLoader(origClassLoader)
     }
 
-  def update(progressIndicator: Option[ProgressIndicator]) {
-    if (context.getRepositoryUrl == null)
-      updateLocal(progressIndicator)
-    else
-      updateRemote(progressIndicator)
-  }
+  def update(progressIndicator: Option[ProgressIndicator]): Unit =
+    try {
+      if (context.getRepositoryUrl == null)
+        updateLocal(progressIndicator)
+      else
+        updateRemote(progressIndicator)
+    } catch {
+      case exc : FileNotFoundException if exc.getCause.isInstanceOf[ResourceDoesNotExistException] =>
+        throw new RemoteRepositoryHasNotBeenIndexed(root)
+    }
 
   private def updateLocal(progressIndicator: Option[ProgressIndicator]) {
     val scannerListener = new ArtifactScanningListener {
