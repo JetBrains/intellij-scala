@@ -7,7 +7,10 @@ package types
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScSelfTypeElementStub
@@ -20,10 +23,11 @@ import scala.collection.mutable.ArrayBuffer
  * @author Alexander Podkhalyuzin
  */
 
-class ScSelfTypeElementImpl extends ScalaStubBasedElementImpl[ScSelfTypeElement] with ScSelfTypeElement {
-  def this(node: ASTNode) = {this (); setNode(node)}
+class ScSelfTypeElementImpl private (stub: StubElement[ScSelfTypeElement], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScSelfTypeElement {
+  def this(node: ASTNode) = {this(null, null, node)}
 
-  def this(stub: ScSelfTypeElementStub) = {this (); setStub(stub); setNullNode()}
+  def this(stub: ScSelfTypeElementStub) = {this(stub, ScalaElementTypes.SELF_TYPE, null)}
 
   override def toString: String = "SelfType: " + name
 
@@ -33,13 +37,12 @@ class ScSelfTypeElementImpl extends ScalaStubBasedElementImpl[ScSelfTypeElement]
     val parent = PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition])
     assert(parent != null)
     typeElement match {
-      case Some(ste) => {
+      case Some(ste) =>
         for {
           templateType <- parent.getType(ctx)
           selfType <- ste.getType(ctx)
           ct = ScCompoundType(Seq(templateType, selfType), Map.empty, Map.empty)
         } yield ct
-      }
       case None => parent.getType(ctx)
     }
   }

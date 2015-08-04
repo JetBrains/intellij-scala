@@ -7,10 +7,13 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScTypeAlias}
@@ -30,9 +33,10 @@ import scala.collection.mutable.ArrayBuffer
 * Date: 06.03.2008
 */
 
-class ScNewTemplateDefinitionImpl private () extends ScalaStubBasedElementImpl[ScTemplateDefinition] with ScNewTemplateDefinition with PsiClassFake {
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTemplateDefinitionStub) = {this(); setStub(stub); setNullNode()}
+class ScNewTemplateDefinitionImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScNewTemplateDefinition with PsiClassFake {
+  def this(node: ASTNode) = {this(null, null, node)}
+  def this(stub: ScTemplateDefinitionStub) = {this(stub, ScalaElementTypes.NEW_TEMPLATE, null)}
 
   override def toString: String = "NewTemplateDefinition"
 

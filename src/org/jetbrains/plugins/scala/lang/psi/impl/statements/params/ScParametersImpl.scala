@@ -8,6 +8,8 @@ package params
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -18,10 +20,11 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClausesStub
 * Date: 22.02.2008
 */
 
-class ScParametersImpl extends ScalaStubBasedElementImpl[ScParameters] with ScParameters {
+class ScParametersImpl private (stub: StubElement[ScParameters], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScParameters {
 
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScParamClausesStub) = {this(); setStub(stub); setNullNode()}
+  def this(node: ASTNode) = {this(null, null, node)}
+  def this(stub: ScParamClausesStub) = {this(stub, ScalaElementTypes.PARAM_CLAUSES, null)}
 
   override def toString: String = "Parameters"
 
