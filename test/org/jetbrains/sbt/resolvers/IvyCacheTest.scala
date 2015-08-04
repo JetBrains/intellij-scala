@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
  * @author Nikolay Obedin
  * @since 8/22/14.
  */
-class ResolverIvyCacheTest extends ResolverIndexingTestCase with UsefulTestCaseHelper {
+class IvyCacheTest extends IndexingTestCase with UsefulTestCaseHelper {
 
   import junit.framework.Assert._
 

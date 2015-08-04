@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
  * @author Nikolay Obedin
  * @since 8/1/14.
  */
-class ResolverIndexLocalIndexingTest extends ResolverIndexingTestCase with UsefulTestCaseHelper {
+class MavenRepoTest extends IndexingTestCase with UsefulTestCaseHelper {
 
   import junit.framework.Assert._
 
