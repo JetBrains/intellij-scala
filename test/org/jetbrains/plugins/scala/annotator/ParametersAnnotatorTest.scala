@@ -4,7 +4,8 @@ package annotator
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -56,14 +57,34 @@ class ParametersAnnotatorTest extends SimpleTestCase {
       case Error("(i: Int, js: Int* = 1)", "Parameter section with *-parameter cannot have default arguments") :: Nil =>
     }
   }
+
+  def testByName(): Unit = {
+    assertMatches(messages("def f(a: A)(implicit b: => B) {}")) {
+      case Error("b: => B", "implicit parameters may not be call-by-name") :: Nil =>
+    }
+    assertMatches(messages("case class D(a: A, b: => B)")) {
+      case Error("b: => B", "case class parameters may not be call-by-name") :: Nil =>
+    }
+    assertMatches(messages("class D(a: A, val b: => B)")) {
+      case Error("val b: => B", "'val' parameters may not be call-by-name") :: Nil =>
+    }
+    assertMatches(messages("class D(a: A, var b: => B)")) {
+      case Error("var b: => B", "'var' parameters may not be call-by-name") :: Nil =>
+    }
+  }
    
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
     val annotator = new ParametersAnnotator() {}
     val mock = new AnnotatorHolderMock
 
-    val function = (Header + code).parse.depthFirst.findByType(classOf[ScFunctionDefinition]).get
+    val owner = (Header + code).parse.depthFirst.filterByType(classOf[ScParameterOwner]).collectFirst {
+      case named: ScNamedElement if !Set("A", "B", "C").contains(named.name) => named
+    }.get
 
-    annotator.annotateParameters(function.paramClauses, mock)
+    annotator.annotateParameters(owner.clauses.get, mock)
+    for (p <- owner.parameters) {
+      annotator.annotateParameter(p, mock)
+    }
     mock.annotations
   }
 }
