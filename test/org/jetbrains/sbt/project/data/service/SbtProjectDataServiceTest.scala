@@ -1,6 +1,4 @@
-package org.jetbrains.sbt.project
-
-import java.util.Collections
+package org.jetbrains.sbt.project.data.service
 
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
@@ -11,25 +9,24 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.testFramework.{UsefulTestCase, IdeaTestUtil}
+import com.intellij.testFramework.{IdeaTestUtil, UsefulTestCase}
+import junit.framework.Assert._
 import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.sbt.project.ExternalSystemDsl._
+import org.jetbrains.sbt.project.data
 import org.jetbrains.sbt.project.data.SbtProjectNode
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
-
-import scala.collection.JavaConverters._
-
-import junit.framework.Assert._
 
 /**
  * @author Nikolay Obedin
  * @since 6/15/15.
  */
 class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
+
+  import ExternalSystemDsl._
 
   override def setUp(): Unit = {
     super.setUp()

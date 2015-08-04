@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.project
+package org.jetbrains.sbt.project.data.service
 
 import com.intellij.openapi.externalSystem.model.project.LibraryLevel
 import com.intellij.openapi.module.StdModuleTypes

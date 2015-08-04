@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.project
+package org.jetbrains.sbt.project.data.service
 
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.DataNode
@@ -8,7 +8,6 @@ import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataMan
 import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
 import com.intellij.openapi.roots.ex.ProjectRootManagerEx
 import com.intellij.testFramework.PlatformTestCase
-import com.intellij.testFramework.exceptionCases.AbstractExceptionCase
 
 /**
  * TestCase class to use when testing ProjectDataService implementations
