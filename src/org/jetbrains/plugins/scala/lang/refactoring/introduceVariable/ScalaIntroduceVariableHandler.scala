@@ -159,7 +159,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
         val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
         val occurrences: Array[ScTypeElement] = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, fileEncloser)
 
-        val validator = ScalaTypeValidator(this, project, editor, file, typeElement, occurrences.map(_.getTextRange))
+        val validator = ScalaTypeValidator(this, project, editor, file, typeElement, occurrences)
         def runWithDialog() {
           val dialog = getDialogForTypes(project, editor, typeElement.calcType, occurrences, declareVariable = false, validator)
           if (!dialog.isOK) {
