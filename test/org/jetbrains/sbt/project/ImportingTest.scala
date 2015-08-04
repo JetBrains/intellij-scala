@@ -55,5 +55,17 @@ class ImportingTest extends ExternalSystemImportingTestCase {
 
   private def doTest(): Unit = {
     importProject()
+    assertModules("simple", "simple-build")
+
+    assertContentRoots("simple", getProjectPath)
+    assertSources("simple", "src/main/java", "src/main/scala", "src/main/scala-2.10", "target/scala-2.10/src_managed/main")
+    assertTestSources("simple", "src/test/java", "src/test/scala", "src/test/scala-2.10", "target/scala-2.10/src_managed/test")
+    assertResources("simple", "src/main/resources", "target/scala-2.10/resource_managed/main")
+    assertTestResources("simple", "src/test/resources", "target/scala-2.10/resource_managed/test")
+    assertExcludes("simple", "target")
+
+    assertContentRoots("simple-build", getProjectPath + "/project")
+    assertSources("simple-build", "")
+    assertExcludes("simple-build", "project/target", "target")
   }
 }
