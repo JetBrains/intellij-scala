@@ -15,7 +15,7 @@ import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndexesManager};
  */
 class SbtModuleDataServiceTest extends ProjectDataServiceTestCase {
 
-  import ExternalSystemDsl._
+  import ExternalSystemDataDsl._
 
   private def generateProject(imports: Seq[String], resolvers: Set[SbtResolver]): DataNode[ProjectData] =
     new project {

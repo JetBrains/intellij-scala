@@ -27,7 +27,7 @@ import scala.collection.JavaConverters._
  */
 class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTestCaseHelper {
 
-  import ExternalSystemDsl._
+  import ExternalSystemDataDsl._
 
   override def setUp(): Unit = {
     super.setUp()
