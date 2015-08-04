@@ -645,8 +645,8 @@ object ScalaRefactoringUtil {
   def isInplaceAvailable(editor: Editor): Boolean =
     editor.getSettings.isVariableInplaceRenameEnabled && !ApplicationManager.getApplication.isUnitTestMode
 
-  def enclosingContainer(file: PsiFile, textRanges: TextRange*): PsiElement = {
-    Option(commonParent(file, textRanges: _*))
+  def enclosingContainer(parent:PsiElement):PsiElement = {
+    Option(parent)
             .map(elem => elem.firstChild.getOrElse(elem)) //to make enclosing container non-strict
             .flatMap(_.scopes.toStream.headOption).orNull
   }
