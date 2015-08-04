@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.debugger
 
 import java.util
+import java.util.Collections
 
 import com.intellij.debugger.SourcePosition
-import com.intellij.debugger.engine.FrameExtraVariablesProvider
 import com.intellij.debugger.engine.evaluation.{EvaluationContext, TextWithImports, TextWithImportsImpl}
+import com.intellij.debugger.engine.{DebuggerUtils, FrameExtraVariablesProvider}
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
@@ -39,6 +40,9 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
   override def collectVariables(sourcePosition: SourcePosition,
                                 evaluationContext: EvaluationContext,
                                 alreadyCollected: util.Set[String]): util.Set[TextWithImports] = {
+
+    val method = Try(evaluationContext.getFrameProxy.location().method()).toOption
+    if (method.isEmpty || DebuggerUtils.isSynthetic(method.get)) return Collections.emptySet()
 
     val result: mutable.SortedSet[String] = inReadAction {
       val element = sourcePosition.getElementAt
