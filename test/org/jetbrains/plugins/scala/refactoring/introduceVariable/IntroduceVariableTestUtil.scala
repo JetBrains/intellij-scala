@@ -24,20 +24,7 @@ object IntroduceVariableTestUtil {
 
   def getValidator(project: Project, editor: Editor, file: ScalaFile, startOffset: Int, endOffset: Int): ScalaVariableValidator = {
     val (expr: ScExpression, _) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).get
-
-    val fileEncloser = if (file.isScriptFile()) file
-    else {
-      var res: PsiElement = file.findElementAt(startOffset)
-      while (res.getParent != null && !res.getParent.isInstanceOf[ScTemplateBody]) res = res.getParent
-      if (res != null) res
-      else {
-        for (child <- file.getChildren) {
-          val textRange: TextRange = child.getTextRange
-          if (textRange.contains(startOffset)) res = child
-        }
-        res
-      }
-    }
+    val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
     val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
     // Getting settings
     val elemSeq = (for (occurence <- occurrences) yield file.findElementAt(occurence.getStartOffset)).toSeq ++
