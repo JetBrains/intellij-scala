@@ -1,0 +1,2 @@
+name := "simple"
+version := "SNAPSHOT"
