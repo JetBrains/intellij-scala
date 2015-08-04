@@ -1,11 +1,12 @@
-package org.jetbrains.sbt.project.data.service
+package org.jetbrains.sbt
+package project.data.service
 
 import com.intellij.openapi.externalSystem.model.project.LibraryLevel
 import com.intellij.openapi.module.StdModuleTypes
 import org.jetbrains.sbt.project.data._
 
 /**
- * DSL for runtime building of External System projects.
+ * DSL for building External System DataNodes in runtime.
  *
  * Example usage:
  *
@@ -37,7 +38,7 @@ import org.jetbrains.sbt.project.data._
  */
 object ExternalSystemDataDsl {
 
-  class Attribute[T](val key: String)
+  import DslUtils._
 
   trait ProjectAttribute
   trait ModuleAttribute
@@ -64,40 +65,6 @@ object ExternalSystemDataDsl {
 
   val arbitraryNodes =
     new Attribute[Seq[Node[_]]]("arbitraryNodes") with ProjectAttribute with ModuleAttribute with LibraryAttribute
-
-  class AttributeMap {
-    private var attributes = Map.empty[(Attribute[_], String), Any]
-    def get[T](attribute: Attribute[T])(implicit m: Manifest[T]): Option[T] =
-      attributes.get((attribute, m.toString)).map(_.asInstanceOf[T])
-    def getOrFail[T : Manifest](attribute: Attribute[T]): T =
-      get(attribute).getOrElse(throw new Error(s"Value for '${attribute.key}' is not found"))
-    def put[T](attribute: Attribute[T], value: T)(implicit m: Manifest[T]): Unit =
-      attributes = attributes + ((attribute, m.toString) -> value)
-  }
-
-  /**
-   * Assignment to specific attribute
-   * Implicit conversion to this class is used to create a fancy DSL
-   */
-  class AttributeDef[T : Manifest](attribute: Attribute[T], attributes: AttributeMap) {
-    def :=(newValue: => T): Unit =
-      attributes.put(attribute, newValue)
-  }
-
-  /**
-   * Appending and concatenating values of attributes that have sequential type
-   * Implicit conversion to this class is used to create a fancy DSL
-   */
-  class AttributeSeqDef[T](attribute: Attribute[Seq[T]], attributes: AttributeMap)(implicit m: Manifest[Seq[T]]) {
-    def +=(newValue: => T): Unit = {
-      val newSeq = attributes.get(attribute).getOrElse(Seq.empty) :+ newValue
-      attributes.put(attribute, newSeq)
-    }
-    def ++=(newSeq: => Seq[T]): Unit = {
-      val seqConcat = attributes.get(attribute).getOrElse(Seq.empty) ++ newSeq
-      attributes.put(attribute, seqConcat)
-    }
-  }
 
   class project {
 
