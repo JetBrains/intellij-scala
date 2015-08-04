@@ -22,11 +22,11 @@ class IvyCacheTest extends IndexingTestCase with UsefulTestCaseHelper {
 
   def testNonExistentIndexUpdate() = {
     if (SystemInfo.isWindows)
-      assertException[InvalidRepository](Some("Repository is absent or invalid: file:/C:/non-existent-dir")) {
+      assertException[InvalidRepository](Some(SbtBundle("sbt.resolverIndexer.invalidRepository","C:\\non-existent-dir"))) {
         createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Ivy, "Test repo", "C:\\non-existent-dir"))
       }
     else
-      assertException[InvalidRepository](Some("Repository is absent or invalid: file:/non-existent-dir")) {
+      assertException[InvalidRepository](Some(SbtBundle("sbt.resolverIndexer.invalidRepository","/non-existent-dir"))) {
         createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Ivy, "Test repo", "/non-existent-dir"))
       }
   }

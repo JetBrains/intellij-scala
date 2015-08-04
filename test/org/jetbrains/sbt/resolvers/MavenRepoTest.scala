@@ -21,12 +21,19 @@ class MavenRepoTest extends IndexingTestCase with UsefulTestCaseHelper {
 
   def testNonExistentIndexUpdate() = {
     if (SystemInfo.isWindows)
-      assertException[InvalidRepository](Some("Repository is absent or invalid: file:/C:/non-existent-dir")) {
+      assertException[InvalidRepository](Some(SbtBundle("sbt.resolverIndexer.invalidRepository","C:\\non-existent-dir"))) {
         createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/C:/non-existent-dir"))
       }
     else
-      assertException[InvalidRepository](Some("Repository is absent or invalid: file:/non-existent-dir")) {
+      assertException[InvalidRepository](Some(SbtBundle("sbt.resolverIndexer.invalidRepository","/non-existent-dir"))) {
         createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/non-existent-dir"))
       }
+  }
+
+  def testNonIndexedRepoUpdate() = {
+    val repoUrl = "http://dl.bintray.com/scalaz/releases/"
+    assertException[RemoteRepositoryHasNotBeenIndexed](Some(SbtBundle("sbt.resolverIndexer.remoteRepositoryHasNotBeenIndexed", repoUrl))) {
+      createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Maven, "Scalaz Bintray repo", repoUrl))
+    }
   }
 }
