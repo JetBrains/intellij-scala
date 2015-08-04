@@ -31,8 +31,8 @@ object ScalaVariableValidator {
             file: PsiFile,
             mainOccurence: TextRange,
             occurrences: Array[TextRange]): ScalaVariableValidator = {
-    val container = ScalaRefactoringUtil.enclosingContainer(file, occurrences: _*)
-    val containerOne = ScalaRefactoringUtil.enclosingContainer(file, mainOccurence)
+    val container = ScalaRefactoringUtil.enclosingContainer(ScalaRefactoringUtil.commonParent(file, occurrences: _*))
+    val containerOne = ScalaRefactoringUtil.enclosingContainer(ScalaRefactoringUtil.commonParent(file, mainOccurence))
     ScalaRefactoringUtil.getExpression(project, editor, file, mainOccurence.getStartOffset, mainOccurence.getEndOffset) match {
       case Some((expr, _)) => new ScalaVariableValidator(conflictsReporter, project, expr, occurrences.isEmpty, container, containerOne)
       case _ => null
@@ -45,8 +45,8 @@ object ScalaVariableValidator {
             file: PsiFile,
             element: PsiElement,
             occurrences: Array[TextRange]): ScalaVariableValidator = {
-    val container = ScalaRefactoringUtil.enclosingContainer(file, occurrences: _*)
-    val containerOne = ScalaRefactoringUtil.enclosingContainer(file, element.getTextRange)
+    val container = ScalaRefactoringUtil.enclosingContainer(ScalaRefactoringUtil.commonParent(file, occurrences: _*))
+    val containerOne = ScalaRefactoringUtil.enclosingContainer(element)
     new ScalaVariableValidator(conflictsReporter, project, element, occurrences.isEmpty, container, containerOne)
   }
 }

@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScClassParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -30,9 +31,9 @@ object ScalaTypeValidator {
             editor: Editor,
             file: PsiFile,
             element: PsiElement,
-            occurrences: Array[TextRange]): ScalaTypeValidator = {
-    val container = ScalaRefactoringUtil.enclosingContainer(file, occurrences: _*)
-    val containerOne = ScalaRefactoringUtil.enclosingContainer(file, element.getTextRange)
+            occurrences: Array[ScTypeElement]): ScalaTypeValidator = {
+    val container = ScalaRefactoringUtil.enclosingContainer(PsiTreeUtil.findCommonParent(occurrences: _*))
+    val containerOne = ScalaRefactoringUtil.enclosingContainer(element)
     new ScalaTypeValidator(conflictsReporter, project, element, occurrences.isEmpty, container, containerOne)
   }
 }
