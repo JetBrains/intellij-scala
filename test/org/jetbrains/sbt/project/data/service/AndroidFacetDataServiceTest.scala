@@ -1,6 +1,4 @@
-package org.jetbrains.sbt.project
-
-import java.io.File
+package org.jetbrains.sbt.project.data.service
 
 import com.intellij.facet.FacetManager
 import com.intellij.openapi.externalSystem.model.DataNode
@@ -8,7 +6,6 @@ import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.android.facet.AndroidFacet
-import org.jetbrains.sbt.UsefulTestCaseHelper
 import org.jetbrains.sbt.project.data.AndroidFacetNode
 
 /**
