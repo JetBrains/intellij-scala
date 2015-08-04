@@ -7,7 +7,7 @@ import java.net.URI
 
 sealed trait ResolverException
 
-final case class InvalidRepository(repo: URI)
+final case class InvalidRepository(repo: String)
   extends IOException(SbtBundle("sbt.resolverIndexer.invalidRepository", repo))
   with ResolverException
 

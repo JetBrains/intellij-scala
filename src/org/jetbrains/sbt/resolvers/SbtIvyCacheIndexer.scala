@@ -21,7 +21,7 @@ class SbtIvyCacheIndexer(val cacheDir: File) {
 
   private def listArtifacts(dir: File): Stream[ArtifactInfo] = {
     if (!dir.isDirectory)
-      throw new InvalidRepository(dir.getAbsoluteFile.toURI)
+      throw new InvalidRepository(dir.getAbsolutePath)
     val artifactsHere = dir.listFiles(ivyFileFilter).map(extractArtifact).flatten.toStream
     artifactsHere ++ dir.listFiles.toStream.filter(_.isDirectory).map(listArtifacts).flatten
   }
