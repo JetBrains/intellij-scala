@@ -9,8 +9,12 @@ import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
-import com.intellij.openapi.roots._
+import com.intellij.openapi.roots
+import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
+import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
+import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
+import com.intellij.util.PathUtil
 import junit.framework.Assert._
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
@@ -67,6 +71,7 @@ sealed trait MatchBase {
     assertProjectSdkEquals(expected)
     assertProjectLanguageLevelEquals(expected)
     assertProjectModulesEqual(expected)
+    assertProjectLibrariesEqual(expected)
   }
 
   def assertMatch[T](expected: Seq[T], actual: Seq[T]): Unit
@@ -78,20 +83,18 @@ sealed trait MatchBase {
 
   private def assertProjectSdkEquals(expected: project): Unit =
     expected.attributes.get(sdk).foreach { it =>
-      assertEquals(it, ProjectRootManager.getInstance(getProject).getProjectSdk)
+      assertEquals(it, roots.ProjectRootManager.getInstance(getProject).getProjectSdk)
     }
 
   private def assertProjectLanguageLevelEquals(expected: project): Unit =
     expected.attributes.get(languageLevel).foreach { it =>
-      assertEquals(it, LanguageLevelProjectExtension.getInstance(getProject).getLanguageLevel)
+      assertEquals(it, roots.LanguageLevelProjectExtension.getInstance(getProject).getLanguageLevel)
     }
 
   private def assertProjectModulesEqual(expected: project): Unit =
     expected.attributes.get(modules).foreach { expectedModules =>
       val actualModules = ModuleManager.getInstance(getProject).getModules
-      assertMatch(expectedModules.map(_.attributes.getOrFail(name)),
-                  actualModules.map(_.getName))
-
+      assertModuleNamesEqual(expectedModules, actualModules)
       expectedModules.foreach { module =>
         val actualModule = actualModules.find(module.attributes.getOrFail(name) == _.getName)
         assertModulesEqual(module, actualModule.get)
@@ -110,7 +113,7 @@ sealed trait MatchBase {
 
   private def assertModuleContentRootsEqual(module: Module)(expected: Seq[String]): Unit = {
     val expectedRoots = expected.map(VfsUtilCore.pathToUrl)
-    val actualRoots = ModuleRootManager.getInstance(module).getContentEntries.map(_.getUrl)
+    val actualRoots = roots.ModuleRootManager.getInstance(module).getContentEntries.map(_.getUrl)
     assertMatch(expectedRoots, actualRoots)
   }
 
@@ -124,7 +127,7 @@ sealed trait MatchBase {
     assertContentRootFoldersEqual(contentRoot, contentRoot.getExcludeFolders, expected)
   }
 
-  private def assertContentRootFoldersEqual(contentRoot: ContentEntry, actual: Seq[ContentFolder], expected: Seq[String]): Unit = {
+  private def assertContentRootFoldersEqual(contentRoot: roots.ContentEntry, actual: Seq[roots.ContentFolder], expected: Seq[String]): Unit = {
     val actualFolders = actual.map { folder =>
       val folderUrl = folder.getUrl
       if (folderUrl.startsWith(contentRoot.getUrl))
@@ -135,17 +138,48 @@ sealed trait MatchBase {
     assertMatch(expected, actualFolders)
   }
 
-  private def getSingleContentRoot(module: Module): ContentEntry = {
-    val contentRoots = ModuleRootManager.getInstance(module).getContentEntries
+  private def getSingleContentRoot(module: Module): roots.ContentEntry = {
+    val contentRoots = roots.ModuleRootManager.getInstance(module).getContentEntries
     assertEquals(s"Expected single content root, Got: $contentRoots", 1, contentRoots.length)
     contentRoots.head
   }
 
-  private def assertModuleDependenciesEqual(module: Module)(expected: Seq[module]): Unit = {
-    val actualNames = ModuleRootManager.getInstance(module).getModuleDependencies.map(_.getName)
+  private def assertModuleDependenciesEqual(module: Module)(expected: Seq[module]): Unit =
+    assertModuleNamesEqual(expected, roots.ModuleRootManager.getInstance(module).getModuleDependencies)
+
+  private def assertModuleNamesEqual(expected: Seq[module], actual: Seq[Module]): Unit = {
+    val actualNames = actual.map(_.getName)
     val expectedNames = expected.map(_.attributes.getOrFail(name))
     assertMatch(expectedNames, actualNames)
   }
+
+  private def assertProjectLibrariesEqual(expectedProject: project): Unit =
+    expectedProject.attributes.get(libraries).foreach { expectedLibraries =>
+      val actualLibraries = ProjectLibraryTable.getInstance(getProject).getLibraries
+      assertLibraryNamesEqual(expectedLibraries, actualLibraries)
+      expectedLibraries.foreach { library =>
+        val actualLibrary = actualLibraries.find(_.getName == library.attributes.getOrFail(name))
+        assertLibraryContentsEqual(library, actualLibrary.get)
+      }
+    }
+
+  private def assertLibraryNamesEqual(expected: Seq[library], actual: Seq[Library]): Unit = {
+    val actualNames = actual.map(_.getName)
+    val expectedNames = expected.map(_.attributes.getOrFail(name))
+    assertMatch(expectedNames, actualNames)
+  }
+
+  private def assertLibraryContentsEqual(expected: library, actual: Library): Unit = {
+    expected.attributes.get(classes).foreach(assertLibraryFilesEqual(actual, OrderRootType.CLASSES))
+    expected.attributes.get(ProjectStructureDsl.sources).foreach(assertLibraryFilesEqual(actual, OrderRootType.SOURCES))
+    expected.attributes.get(javadocs).foreach(assertLibraryFilesEqual(actual, JavadocOrderRootType.getInstance))
+  }
+
+  private def assertLibraryFilesEqual(lib: Library, fileType: OrderRootType)(expectedFiles: Seq[String]): Unit =
+    // TODO: support non-local library contents (if necessary)
+    // This implemetation works well only for local files; *.zip and other archives are not supported
+    // @dancingrobot84
+    assertMatch(expectedFiles, lib.getFiles(fileType).flatMap(f => Option(PathUtil.getLocalPath(f))))
 }
 
 trait InexactMatch extends MatchBase {
