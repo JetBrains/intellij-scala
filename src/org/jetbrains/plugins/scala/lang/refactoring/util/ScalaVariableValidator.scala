@@ -56,36 +56,11 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
                              selectedElement: PsiElement,
                              noOccurrences: Boolean,
                              enclosingContainerAll: PsiElement,
-                             enclosingOne: PsiElement) extends NameValidator {
-
-  def getProject(): Project = {
-    myProject
-  }
+                             enclosingOne: PsiElement)
+  extends ScalaValidator(conflictsReporter, myProject, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
 
 
-  def enclosingContainer(allOcc: Boolean): PsiElement =
-    if (allOcc) enclosingContainerAll else enclosingOne
-
-  def isOK(dialog: NamedDialog): Boolean = isOK(dialog.getEnteredName, dialog.isReplaceAllOccurrences)
-
-  def isOK(newName: String, isReplaceAllOcc: Boolean): Boolean = {
-    if (noOccurrences) return true
-    val conflicts = isOKImpl(newName, isReplaceAllOcc)
-    conflicts.isEmpty || conflictsReporter.reportConflicts(myProject, conflicts)
-  }
-
-  def isOKImpl(name: String, allOcc: Boolean): MultiMap[PsiElement, String] = {
-    val result = MultiMap.createSet[PsiElement, String]()
-    for {
-      (namedElem, message) <- findConflicts(name, allOcc)
-      if namedElem != selectedElement
-    } {
-      result.putValue(namedElem, message)
-    }
-    result
-  }
-
-  def findConflicts(name: String, allOcc: Boolean): Array[(PsiNamedElement, String)] = { //returns declaration and message
+  override def findConflicts(name: String, allOcc: Boolean): Array[(PsiNamedElement, String)] = { //returns declaration and message
     val container = enclosingContainer(allOcc)
     if (container == null) return Array()
     val buf = new ArrayBuffer[(PsiNamedElement, String)]
@@ -200,7 +175,7 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
     buf
   }
 
-  def validateName(name: String, increaseNumber: Boolean): String = {
+  override def validateName(name: String, increaseNumber: Boolean): String = {
     if (noOccurrences) return name
     var res = name
     if (isOKImpl(res, allOcc = false).isEmpty) return res

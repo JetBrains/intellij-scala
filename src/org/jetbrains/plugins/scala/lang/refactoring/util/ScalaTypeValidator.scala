@@ -2,24 +2,16 @@ package org.jetbrains.plugins.scala.lang.refactoring.util
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi._
-import com.intellij.util.containers.MultiMap
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.ResolvesTo
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScClassParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScClass, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
+import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
-import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -44,36 +36,10 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
                          selectedElement: PsiElement,
                          noOccurrences: Boolean,
                          enclosingContainerAll: PsiElement,
-                         enclosingOne: PsiElement) extends NameValidator {
+                         enclosingOne: PsiElement)
+  extends ScalaValidator(conflictsReporter, myProject, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
 
-  def getProject(): Project = {
-    myProject
-  }
-
-  def enclosingContainer(allOcc: Boolean): PsiElement =
-    if (allOcc) enclosingContainerAll else enclosingOne
-
-  def isOK(dialog: NamedDialog): Boolean = isOK(dialog.getEnteredName, dialog.isReplaceAllOccurrences)
-
-  private def isOK(newName: String, isReplaceAllOcc: Boolean): Boolean = {
-    if (noOccurrences) return true
-    val conflicts = isOKImpl(newName, isReplaceAllOcc)
-    conflicts.isEmpty || conflictsReporter.reportConflicts(myProject, conflicts)
-  }
-
-  //validator use upperCase of a given name
-  private def isOKImpl(name: String, allOcc: Boolean): MultiMap[PsiElement, String] = {
-    val result = MultiMap.createSet[PsiElement, String]()
-    for {
-      (namedElem, message) <- findConflicts(name, allOcc)
-      if namedElem != selectedElement
-    } {
-      result.putValue(namedElem, message)
-    }
-    result
-  }
-
-  private def findConflicts(name: String, allOcc: Boolean): Array[(PsiNamedElement, String)] = {
+  override def findConflicts(name: String, allOcc: Boolean): Array[(PsiNamedElement, String)] = {
     //returns declaration and message
     val container = enclosingContainer(allOcc)
     if (container == null) return Array()
@@ -105,7 +71,7 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
     processor.buf
   }
 
-  def validateName(name: String, increaseNumber: Boolean): String = {
+  override def validateName(name: String, increaseNumber: Boolean): String = {
     val newName = name.toUpperCase
     if (noOccurrences) return newName
     var res = newName
