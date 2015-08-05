@@ -6,7 +6,10 @@ package statements
 package params
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -20,16 +23,12 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
  * Date: 22.02.2008
  */
 
-class ScParameterClauseImpl extends ScalaStubBasedElementImpl[ScParameterClause] with ScParameterClause {
+class ScParameterClauseImpl private (stub: StubElement[ScParameterClause], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScParameterClause {
 
-  def this(node: ASTNode) = {
-    this (); setNode(node)
-  }
+  def this(node: ASTNode) = {this(null, null, node)}
 
-  def this(stub: ScParamClauseStub) = {
-    this (); setStub(stub); setNullNode()
-  }
-
+  def this(stub: ScParamClauseStub) = {this(stub, ScalaElementTypes.PARAM_CLAUSE, null)}
   override def toString: String = "ParametersClause"
 
   def parameters: Seq[ScParameter] = {

@@ -469,7 +469,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     val handledExnTypes = tryStmt.catchBlock match {
       case None => Nil
       case Some(cb) => cb.expression match {
-        case Some(b: ScBlockExpr) if b.isAnonymousFunction =>
+        case Some(b: ScBlockExpr) if b.hasCaseClauses =>
           for (t <- b.caseClauses.toSeq.flatMap(_.caseClauses)) yield CatchInfo(t)
         case _ => Nil
       }
@@ -506,7 +506,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
 
       def processCatch(fin: InstructionImpl) = tryStmt.catchBlock.map {cb =>
         cb.expression match {
-          case Some(b: ScBlockExpr) if b.isAnonymousFunction =>
+          case Some(b: ScBlockExpr) if b.hasCaseClauses =>
             for (cc <- b.caseClauses.toSeq.flatMap(_.caseClauses)) {
               myHead = tryStmtInstr
               cc.accept(this)

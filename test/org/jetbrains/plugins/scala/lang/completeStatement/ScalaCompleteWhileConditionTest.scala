@@ -21,6 +21,7 @@ class ScalaCompleteWhileConditionTest extends ScalaCompleteStatementTestBase {
         |class B {
         |  def method() {
         |    while (<caret>) {
+        |
         |    }
         |  }
         |}
@@ -43,6 +44,7 @@ class ScalaCompleteWhileConditionTest extends ScalaCompleteStatementTestBase {
         |class B {
         |  def method() {
         |    while (<caret>) {
+        |
         |    }
         |  }
         |}
@@ -65,6 +67,7 @@ class ScalaCompleteWhileConditionTest extends ScalaCompleteStatementTestBase {
         |class B {
         |  def method() {
         |    while (<caret>) {
+        |
         |    }
         |  }
         |}
@@ -80,6 +83,7 @@ class ScalaCompleteWhileConditionTest extends ScalaCompleteStatementTestBase {
         |class B {
         |  def method() {
         |    while (true<caret>) {
+        |
         |    }
         |  }
         |}
@@ -163,6 +167,26 @@ class ScalaCompleteWhileConditionTest extends ScalaCompleteStatementTestBase {
         |    while (<caret>) {
         |
         |    }
+        |  }
+        |}
+      """.stripMargin
+
+    checkScalaFileByText(fileText, resultText)
+  }
+
+  def testWhileCondition8() {
+    val fileText =
+      """
+        |object A {
+        |  while (true)<caret>
+        |}
+      """.stripMargin
+
+    val resultText =
+      """
+        |object A {
+        |  while (true) {
+        |    <caret>
         |  }
         |}
       """.stripMargin

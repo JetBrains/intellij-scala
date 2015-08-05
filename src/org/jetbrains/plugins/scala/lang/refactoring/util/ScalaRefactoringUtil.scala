@@ -867,14 +867,14 @@ object ScalaRefactoringUtil {
 
       val funDef = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionDefinition])
 
-      val isAnonFunBlock = candidate match {
-        case b: ScBlock if b.isAnonymousFunction => true
+      val isCaseClausesBlock = candidate match {
+        case b: ScBlock if b.hasCaseClauses => true
         case _ => false
       }
 
       if (funDef != null && PsiTreeUtil.isAncestor(candidate, funDef, true) && oneExprBody(funDef))
         funDef.body.get
-      else if (isAnonFunBlock) container(candidate.getContext, file)
+      else if (isCaseClausesBlock) container(candidate.getContext, file)
       else candidate
     }
   }

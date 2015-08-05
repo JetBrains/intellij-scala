@@ -192,7 +192,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
             val dependentSubst = new ScSubstitutor(() => {
               this.scalaLanguageLevel match {
                 case Some(level) if level < Scala_2_10 => Map.empty
-                case _ => c._4.toMap
+                case _ => cd._4.toMap
               }
             })
             dependentSubst.subst(cd._1)

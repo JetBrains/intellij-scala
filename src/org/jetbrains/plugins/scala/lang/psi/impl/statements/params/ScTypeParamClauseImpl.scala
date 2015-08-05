@@ -8,6 +8,8 @@ package params
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamClauseStub
@@ -20,9 +22,10 @@ import scala.collection.mutable.ArrayBuffer
 * @author Alexander Podkhalyuzin
 * @since 22.02.2008
 */
-class ScTypeParamClauseImpl extends ScalaStubBasedElementImpl[ScTypeParamClause] with ScTypeParamClause {
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTypeParamClauseStub) = {this(); setStub(stub); setNullNode()}
+class ScTypeParamClauseImpl private (stub: StubElement[ScTypeParamClause], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeParamClause {
+  def this(node: ASTNode) = {this(null, null, node)}
+  def this(stub: ScTypeParamClauseStub) = {this(stub, ScalaElementTypes.TYPE_PARAM_CLAUSE, null)}
 
   override def toString: String = "TypeParameterClause"
 
