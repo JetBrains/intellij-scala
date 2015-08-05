@@ -59,7 +59,7 @@
             </constraints>
             <properties>
               <selected value="false"/>
-              <text value="Kind Projector: Replace 'Lambda' with `λ`"/>
+              <text value="Kind Projector: Replace 'Lambda' with unicode symbol"/>
             </properties>
           </component>
         </children>

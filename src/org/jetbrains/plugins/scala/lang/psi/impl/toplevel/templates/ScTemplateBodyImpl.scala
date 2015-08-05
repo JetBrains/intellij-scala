@@ -7,6 +7,8 @@ package templates
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -23,10 +25,11 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateBodyStub
 * Time: 9:38:04
 */
 
-class ScTemplateBodyImpl extends ScalaStubBasedElementImpl[ScTemplateBody] with ScTemplateBody
+class ScTemplateBodyImpl private (stub: StubElement[ScTemplateBody], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTemplateBody
                                         with ScImportsHolder {
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTemplateBodyStub) = {this(); setStub(stub); setNullNode()}
+  def this(node: ASTNode) = {this(null, null, node)}
+  def this(stub: ScTemplateBodyStub) = {this(stub, ScalaElementTypes.TEMPLATE_BODY, null)}
 
   override def toString: String = "ScTemplateBody"
 

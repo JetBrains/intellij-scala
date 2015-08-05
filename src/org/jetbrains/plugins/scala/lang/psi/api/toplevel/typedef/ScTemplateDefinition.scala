@@ -138,7 +138,21 @@ import com.intellij.openapi.util.{Pair => IPair}
   def functions: Seq[ScFunction] = extendsBlock.functions
   def aliases: Seq[ScTypeAlias] = extendsBlock.aliases
 
-  def syntheticMethodsNoOverride: scala.Seq[PsiMethod] = {
+  def syntheticMethodsWithOverride: Seq[PsiMethod] = {
+    CachesUtil.get(this, CachesUtil.SYNTHETIC_MEMBERS_WITH_OVERRIDE_KEY,
+      new CachesUtil.MyProvider[ScTemplateDefinition, Seq[PsiMethod]](this, clazz => clazz.syntheticMethodsWithOverrideImpl)
+      (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
+  }
+
+  /**
+   * Implement it carefully to avoid recursion.
+   * @return
+   */
+  protected def syntheticMethodsWithOverrideImpl: Seq[PsiMethod] = Seq.empty
+
+  def allSynthetics: Seq[PsiMethod] = syntheticMethodsNoOverride ++ syntheticMethodsWithOverride
+
+  def syntheticMethodsNoOverride: Seq[PsiMethod] = {
     CachesUtil.get(this, CachesUtil.SYNTHETIC_MEMBERS_KEY,
       new CachesUtil.MyProvider[ScTemplateDefinition, Seq[PsiMethod]](this, clazz => clazz.syntheticMethodsNoOverrideImpl)
       (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))

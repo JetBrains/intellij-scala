@@ -6,6 +6,7 @@ package base
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
+import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -20,9 +21,10 @@ import scala.collection.mutable.ArrayBuffer
 * @author Alexander Podkhalyuzin
 * Date: 22.02.2008
 */
-class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with ScModifierList {
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScModifiersStub) = {this(); setStub(stub); setNullNode()}
+class ScModifierListImpl private (stub: StubElement[ScModifierList], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScModifierList {
+  def this(node: ASTNode) = {this(null, null, node)}
+  def this(stub: ScModifiersStub) = {this(stub, ScalaElementTypes.MODIFIERS, null)}
 
   override def toString: String = "Modifiers"
 
