@@ -7,6 +7,8 @@ package imports
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
@@ -17,9 +19,10 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorsStub
 * Date: 20.02.2008
 */
 
-class ScImportSelectorsImpl extends ScalaStubBasedElementImpl[ScImportSelectors] with ScImportSelectors {
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScImportSelectorsStub) = {this(); setStub(stub); setNullNode()}
+class ScImportSelectorsImpl private (stub: StubElement[ScImportSelectors], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScImportSelectors {
+  def this(node: ASTNode) = {this(null, null, node)}
+  def this(stub: ScImportSelectorsStub) = {this(stub, ScalaElementTypes.IMPORT_SELECTORS, null)}
 
   override def toString: String = "ImportSelectors"
 

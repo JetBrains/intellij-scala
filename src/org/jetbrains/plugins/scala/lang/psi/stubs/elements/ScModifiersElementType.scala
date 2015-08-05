@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScModifiersStubImpl
  * Date: 21.01.2009
  */
 
-class ScModifiersElementType[Func <: ScModifierList](debugName: String)
+class ScModifiersElementType(debugName: String)
         extends ScStubElementType[ScModifiersStub, ScModifierList](debugName) {
   def serialize(stub: ScModifiersStub, dataStream: StubOutputStream) {
     dataStream.writeBoolean(stub.hasExplicitModifiers)
