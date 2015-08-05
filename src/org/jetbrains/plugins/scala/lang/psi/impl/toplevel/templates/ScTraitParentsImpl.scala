@@ -6,6 +6,9 @@ package toplevel
 package templates
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateParentsStub
@@ -18,9 +21,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 * Date: 22.02.2008
 * Time: 9:22:37
 */
-class ScTraitParentsImpl extends ScalaStubBasedElementImpl[ScTemplateParents] with ScTraitParents {
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTemplateParentsStub) = {this(); setStub(stub); setNullNode()}
+class ScTraitParentsImpl private (stub: StubElement[ScTemplateParents], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTraitParents {
+  def this(node: ASTNode) = {this(null, null, node)}
+  def this(stub: ScTemplateParentsStub) = {this(stub, ScalaElementTypes.TRAIT_PARENTS, null)}
 
   override def toString: String = "TraitParents"
 
