@@ -105,6 +105,7 @@ sealed trait MatchBase {
     expected.attributes.get(resources).foreach(assertModuleContentFoldersEqual(actual, JavaResourceRootType.RESOURCE))
     expected.attributes.get(testResources).foreach(assertModuleContentFoldersEqual(actual, JavaResourceRootType.TEST_RESOURCE))
     expected.attributes.get(excluded).foreach(assertModuleExcludedFoldersEqual(actual))
+    expected.attributes.get(moduleDependencies).foreach(assertModuleDependenciesEqual(actual))
   }
 
   private def assertModuleContentRootsEqual(module: Module)(expected: Seq[String]): Unit = {
@@ -138,6 +139,12 @@ sealed trait MatchBase {
     val contentRoots = ModuleRootManager.getInstance(module).getContentEntries
     assertEquals(s"Expected single content root, Got: $contentRoots", 1, contentRoots.length)
     contentRoots.head
+  }
+
+  private def assertModuleDependenciesEqual(module: Module)(expected: Seq[module]): Unit = {
+    val actualNames = ModuleRootManager.getInstance(module).getModuleDependencies.map(_.getName)
+    val expectedNames = expected.map(_.attributes.getOrFail(name))
+    assertMatch(expectedNames, actualNames)
   }
 }
 

@@ -27,4 +27,24 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
       }
     })
   }
+
+  def testMultiModule(): Unit = {
+    importProject()
+    assertProjectsEqual(new project {
+      lazy val foo = new module {
+        name := "foo"
+        moduleDependencies += bar
+      }
+
+      lazy val bar = new module {
+        name := "bar"
+      }
+
+      val root = new module {
+        name := "multiModule"
+      }
+
+      modules := Seq(root, foo, bar)
+    })
+  }
 }
