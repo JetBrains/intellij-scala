@@ -1,15 +1,27 @@
 package org.jetbrains.sbt
 package project
 
+import java.io.File
+
 import ProjectStructureDsl._
 import org.jetbrains.plugins.scala.SlowTests
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[SlowTests]))
 class ProjectImportingTest extends ImportingTestCase with InexactMatch {
+
+  def ivyCacheDir: File = new File(System.getProperty("user.home")) / ".ivy2" / "cache"
+
   def testSimple(): Unit = {
     importProject()
     assertProjectsEqual(new project {
+      lazy val scalaLibrary = new library {
+        name := "SBT: org.scala-lang:scala-library:2.11.6:jar"
+        classes += (ivyCacheDir / "org.scala-lang" / "scala-library" / "jars" / "scala-library-2.11.6.jar").getAbsolutePath
+      }
+
+      libraries += scalaLibrary
+
       modules += new module {
         name := "simple"
         contentRoots += getProjectPath
