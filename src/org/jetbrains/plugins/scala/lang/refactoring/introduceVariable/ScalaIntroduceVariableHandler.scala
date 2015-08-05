@@ -394,44 +394,18 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       element.replace(replacement)
     }
 
+    //work on class(object) level
     def getParent(): PsiElement = {
       val commonParent: PsiElement = PsiTreeUtil.findCommonParent(occurrences: _*)
-
-      val nextParent: PsiElement = ScalaRefactoringUtil.nextParent(commonParent, file)
-
-      object inExtendsBlock {
-        def unapply(e: PsiElement): Option[ScExtendsBlock] = {
-          e match {
-            case extBl: ScExtendsBlock =>
-              Some(extBl)
-            case elem if PsiTreeUtil.getParentOfType(elem, classOf[ScClassParents]) != null =>
-              PsiTreeUtil.getParentOfType(elem, classOf[ScExtendsBlock]) match {
-                case _ childOf (_: ScNewTemplateDefinition) => None
-                case extBl => Some(extBl)
-              }
-            case _ => None
-          }
-        }
-      }
-
-      var needFormatting = false
       val parent = commonParent match {
-        case inExtendsBlock(extBl) =>
-          needFormatting = true
-          extBl.addEarlyDefinitions()
-        case _ =>
-          val container = ScalaRefactoringUtil.container(commonParent, file)
-          val needBraces = !commonParent.isInstanceOf[ScBlock] && ScalaRefactoringUtil.needBraces(commonParent, nextParent)
-          if (needBraces) {
-            val replaced = commonParent.replace(ScalaPsiElementFactory.createExpressionFromText("{" + commonParent.getText + "}", file.getManager))
-            replaced.getPrevSibling match {
-              case ws: PsiWhiteSpace if ws.getText.contains("\n") => ws.delete()
-              case _ =>
-            }
-            replaced
-          } else container
+        case templateBody: ScTemplateBody =>
+          templateBody
+        case _ => PsiTreeUtil.getParentOfType(commonParent, classOf[ScTemplateBody])
       }
-      parent
+      if (parent == null)
+        file
+      else
+        parent
     }
 
     def addTypeAliasDefinition(typeName: String, typeElement: ScTypeElement, parent: PsiElement) = {
@@ -443,8 +417,6 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       val definition = ScalaPsiElementFactory.createTypeAliasDefinitionFromText(s"type $typeName = $mtext", typeElement.getContext, typeElement)
       parent.addBefore(definition, getAhchor(parent, typeElement))
     }
-
-    val parent = getParent()
 
     addTypeAliasDefinition(typeName, occurrences(0), getParent())
     occurrences.foreach(replaceTypeElement(_, typeName))
