@@ -129,6 +129,9 @@ trait ScTypePsiTypeBridge {
           if (paramTopLevel && treatJavaObjectAsAny) types.Any
           else types.AnyRef
         }
+      case p: PsiIntersectionType =>
+        ScCompoundType(p.getConjuncts.map(create(_, project, scope, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)),
+          Map.empty, Map.empty)
       case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
     }
   }
