@@ -35,7 +35,6 @@ public class IntroduceVariableValidatorTest extends ActionTestBase {
 
   protected Editor myEditor;
   protected FileEditorManager fileEditorManager;
-  protected String newDocumentText;
   protected PsiFile myFile;
   private boolean replaceAllOccurences;
 
