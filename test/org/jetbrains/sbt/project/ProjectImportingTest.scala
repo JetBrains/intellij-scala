@@ -14,16 +14,14 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
 
   def testSimple(): Unit = {
     importProject()
-    assertProjectsEqual(new project {
-      lazy val scalaLibrary = new library {
-        name := "SBT: org.scala-lang:scala-library:2.11.6:jar"
+    assertProjectsEqual(new project("testSimple") {
+      lazy val scalaLibrary = new library("SBT: org.scala-lang:scala-library:2.11.6:jar") {
         classes += (ivyCacheDir / "org.scala-lang" / "scala-library" / "jars" / "scala-library-2.11.6.jar").getAbsolutePath
       }
 
       libraries += scalaLibrary
 
-      modules += new module {
-        name := "simple"
+      modules += new module("simple") {
         contentRoots += getProjectPath
         ProjectStructureDsl.sources := Seq("src/main/scala", "src/main/java")
         testSources := Seq("src/test/scala", "src/test/java")
@@ -32,8 +30,7 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
         excluded := Seq("target")
       }
 
-      modules += new module {
-        name := "simple-build"
+      modules += new module("simple-build") {
         ProjectStructureDsl.sources := Seq("")
         excluded := Seq("project/target", "target")
       }
@@ -42,19 +39,13 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
 
   def testMultiModule(): Unit = {
     importProject()
-    assertProjectsEqual(new project {
-      lazy val foo = new module {
-        name := "foo"
+    assertProjectsEqual(new project("testMultiModule") {
+      lazy val foo = new module("foo") {
         moduleDependencies += bar
       }
 
-      lazy val bar = new module {
-        name := "bar"
-      }
-
-      val root = new module {
-        name := "multiModule"
-      }
+      lazy val bar  = new module("bar")
+      lazy val root = new module("multiModule")
 
       modules := Seq(root, foo, bar)
     })
