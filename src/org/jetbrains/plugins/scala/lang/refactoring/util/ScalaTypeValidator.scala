@@ -54,12 +54,13 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
       override def execute(element: PsiElement, state: ResolveState): Boolean = {
         element match {
           case typeAlias: ScTypeAliasDefinition if typeAlias.getName == name =>
-            buf += (if (typeAlias.isLocal)
-              (typeAlias, messageForLocal(typeAlias.getName)) else (typeAlias, messageForMember(typeAlias.getName)))
+            buf += ((typeAlias, messageForTypeAliasMember(typeAlias.getName)))
+            true
+          case typeDecl: ScTypeAliasDeclaration if typeDecl.getName == name =>
+            buf += ((typeDecl, messageForTypeAliasMember(typeDecl.getName)))
             true
           case clazz: ScClass if clazz.getName == name =>
-            buf += (if (clazz.isLocal)
-              (clazz, messageForLocal(clazz.getName)) else (clazz, messageForMember(clazz.getName)))
+            buf += ((clazz, messageForClassMember(clazz.getName)))
             true
           case _ => true
         }
@@ -86,8 +87,8 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
     res
   }
 
-  private def messageForMember(name: String) = ScalaBundle.message("introduced.typealias.will.conflict.with.global", name)
+  private def messageForTypeAliasMember(name: String) = ScalaBundle.message("introduced.typealias.will.conflict.with.type.name", name)
 
-  private def messageForLocal(name: String) = ScalaBundle.message("introduced.typealias.will.conflict.with.local", name)
+  private def messageForClassMember(name: String) = ScalaBundle.message("introduced.typealias.will.conflict.with.class.name", name)
 }
 
