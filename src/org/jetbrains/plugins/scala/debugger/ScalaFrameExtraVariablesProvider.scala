@@ -9,7 +9,7 @@ import com.intellij.debugger.engine.{DebuggerUtils, FrameExtraVariablesProvider}
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, ResolveState}
+import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveState}
 import com.intellij.xdebugger.impl.breakpoints.XExpressionImpl
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.template.util.VariablesCompletionProcessor
@@ -17,8 +17,9 @@ import org.jetbrains.plugins.scala.debugger.evaluation.{ScalaCodeFragmentFactory
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScTypedPattern, ScWildcardPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScCatchBlock
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScCatchBlock, ScEnumerator, ScForStatement, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
@@ -83,8 +84,9 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
         }
         notInThisClass(funDef) || notInThisClass(lazyVal)
       case named if ScalaEvaluatorBuilderUtil.isNotUsedEnumerator(named, place) => false
-      case ScalaPsiUtil.inNameContext(cc: ScCaseClause) if isInCatchBlock(cc) => false //cannot evaluate catched exceptions in scala
-      case ScalaPsiUtil.inNameContext(LazyVal(_)) => false //don't add lazy vals as they can be computed too early
+      case inNameContext(cc: ScCaseClause) if isInCatchBlock(cc) => false //cannot evaluate catched exceptions in scala
+      case inNameContext(LazyVal(_)) => false //don't add lazy vals as they can be computed too early
+      case named if generatorNotFromBody(named, place) => tryEvaluate(named.name, place, evaluationContext).isSuccess
       case named if notUsedInCurrentClass(named, place) => tryEvaluate(named.name, place, evaluationContext).isSuccess
       case _ => true
     }
@@ -109,6 +111,15 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
     val contextClass = ScalaEvaluatorBuilderUtil.getContextClass(place, strict = false)
     val containingClass = ScalaEvaluatorBuilderUtil.getContextClass(named)
     contextClass != containingClass && ReferencesSearch.search(named, new LocalSearchScope(contextClass)).findFirst() == null
+  }
+
+  private def generatorNotFromBody(named: PsiNamedElement, place: PsiElement): Boolean = {
+    val forStmt = ScalaPsiUtil.nameContext(named) match {
+      case nc @ (_: ScEnumerator | _: ScGenerator) =>
+        Option(PsiTreeUtil.getParentOfType(nc, classOf[ScForStatement]))
+      case _ => None
+    }
+    forStmt.flatMap(_.enumerators).exists(_.isAncestorOf(named)) && forStmt.flatMap(_.body).exists(!_.isAncestorOf(place))
   }
 }
 
