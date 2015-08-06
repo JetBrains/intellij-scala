@@ -1,6 +1,7 @@
 package org.jetbrains.sbt
 package project
 
+import com.intellij.openapi.roots.DependencyScope
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.sbt.project.data.Sdk
 
@@ -17,6 +18,7 @@ object ProjectStructureDsl {
   trait ProjectAttribute
   trait ModuleAttribute
   trait LibraryAttribute
+  trait DependencyAttribute
 
   val libraries =
     new Attribute[Seq[library]]("libraries") with ProjectAttribute with ModuleAttribute
@@ -40,16 +42,21 @@ object ProjectStructureDsl {
   val excluded =
     new Attribute[Seq[String]]("excluded") with ModuleAttribute
   val moduleDependencies =
-    new Attribute[Seq[module]]("moduleDependencies") with ModuleAttribute
+    new Attribute[Seq[moduleDependency]]("moduleDependencies") with ModuleAttribute
   val libraryDependencies =
-    new Attribute[Seq[library]]("libraryDependencies") with ModuleAttribute
+    new Attribute[Seq[libraryDependency]]("libraryDependencies") with ModuleAttribute
 
   val classes =
     new Attribute[Seq[String]]("classes") with LibraryAttribute
   val javadocs =
     new Attribute[Seq[String]]("javadocs") with LibraryAttribute
 
-  trait Attributed {
+  val isExported =
+    new Attribute[Boolean]("isExported") with DependencyAttribute
+  val scope =
+    new Attribute[DependencyScope]("scope") with DependencyAttribute
+
+  sealed trait Attributed {
     protected val attributes = new AttributeMap
 
     def foreach[T : Manifest](attribute: Attribute[T])(body: T => Unit): Unit =
@@ -76,5 +83,20 @@ object ProjectStructureDsl {
     protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with LibraryAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
       new AttributeSeqDef(attribute, attributes)
   }
+
+  sealed trait dependency extends Attributed {
+    protected implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with DependencyAttribute): AttributeDef[T] =
+      new AttributeDef(attribute, attributes)
+  }
+
+  class moduleDependency(val module: module) extends dependency
+
+  implicit def module2moduleDependency(module: module): moduleDependency =
+    new moduleDependency(module)
+
+  class libraryDependency(val library: library) extends dependency
+
+  implicit def library2libraryDependency(library: library): libraryDependency =
+    new libraryDependency(library)
 }
 

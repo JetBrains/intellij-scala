@@ -149,8 +149,8 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
     contentRoots.head
   }
 
-  private def assertModuleDependenciesEqual(module: Module)(expected: Seq[module]): Unit =
-    assertNamesEqual(expected, roots.ModuleRootManager.getInstance(module).getModuleDependencies)
+  private def assertModuleDependenciesEqual(module: Module)(expected: Seq[moduleDependency]): Unit =
+    assertNamesEqual(expected.map(_.module), roots.ModuleRootManager.getInstance(module).getModuleDependencies)
 
   private def assertProjectLibrariesEqual(expectedProject: project): Unit =
     expectedProject.foreach(libraries) { expectedLibraries =>
