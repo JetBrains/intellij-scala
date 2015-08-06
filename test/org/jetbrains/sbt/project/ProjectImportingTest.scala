@@ -46,4 +46,16 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
 
       modules := Seq(root, foo, bar)
     })
+
+  def testUnmanagedDependency() = runTest(
+    new project("testUnmanagedDependency") {
+      modules += new module("unmanagedDependency") {
+        lazy val unmanagedLibrary = new library("SBT: unmanaged-jars") {
+          // classes += TODO
+        }
+        libraries += unmanagedLibrary
+        libraryDependencies += unmanagedLibrary
+      }
+    }
+  )
 }
