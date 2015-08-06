@@ -9,7 +9,8 @@ import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi._
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.CachedValueProvider.Result
+import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -1177,20 +1178,28 @@ object ScalaEvaluatorBuilderUtil {
   }
 
   def isGenerateClass(elem: PsiElement): Boolean = {
-    elem match {
-      case newTd: ScNewTemplateDefinition if !DebuggerUtil.generatesAnonClass(newTd) => false
-      case clazz: PsiClass => true
-      case f: ScFunctionExpr => true
-      case (_: ScExpression) childOf (_: ScForStatement) => true
-      case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
-      case b: ScBlockExpr if b.isAnonymousFunction => true
-      case (g: ScGuard) childOf (_: ScEnumerators) => true
-      case (g: ScGenerator) childOf (enums: ScEnumerators) if !enums.generators.headOption.contains(g) => true
-      case e: ScEnumerator => true
-      case (expr: ScExpression) childOf (argLisg: ScArgumentExprList) if ScalaPsiUtil.parameterOf(expr).exists(_.isByName) => true
-      case ScalaPsiUtil.MethodValue(_) => true
-      case _ => false
+    def isGenerateClassInner: Boolean = {
+      elem match {
+        case newTd: ScNewTemplateDefinition if !DebuggerUtil.generatesAnonClass(newTd) => false
+        case clazz: PsiClass => true
+        case f: ScFunctionExpr => true
+        case (_: ScExpression) childOf (_: ScForStatement) => true
+        case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
+        case b: ScBlockExpr if b.isAnonymousFunction => true
+        case (g: ScGuard) childOf (_: ScEnumerators) => true
+        case (g: ScGenerator) childOf (enums: ScEnumerators) if !enums.generators.headOption.contains(g) => true
+        case e: ScEnumerator => true
+        case (expr: ScExpression) childOf (argLisg: ScArgumentExprList) if ScalaPsiUtil.parameterOf(expr).exists(_.isByName) => true
+        case ScalaPsiUtil.MethodValue(_) => true
+        case _ => false
+      }
     }
+
+    val cacheProvider = new CachedValueProvider[Boolean] {
+      override def compute(): Result[Boolean] = Result.create(isGenerateClassInner, elem)
+    }
+
+    CachedValuesManager.getCachedValue(elem, cacheProvider)
   }
 
   def anonClassCount(elem: PsiElement): Int = { //todo: non irrefutable patterns?
