@@ -1,0 +1,5 @@
+//I
+object My{
+  val t:<all>Int<end> = 34
+}
+------
