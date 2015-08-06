@@ -15,7 +15,8 @@ import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.CachedValueProvider.Result
+import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
 import com.intellij.util.{Processor, Query}
 import com.sun.jdi._
 import com.sun.jdi.request.ClassPrepareRequest
@@ -104,7 +105,9 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
           if (qName != null) getDebugProcess.getVirtualMachineProxy.classesByName(qName)
           else util.Collections.emptyList[ReferenceType]
         case _ =>
-          val namePattern = new NamePattern(sourceImage)
+          val namePattern = NamePattern.forElement(sourceImage)
+          if (namePattern == null) return Collections.emptyList()
+
           filterAllClasses(c => namePattern.matches(c) && hasLocations(c, position))
       }
     }
@@ -471,7 +474,8 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
   }
 
   private def nameMatches(elem: PsiElement, refType: ReferenceType): Boolean = {
-    new NamePattern(elem).matches(refType)
+    val pattern = NamePattern.forElement(elem)
+    pattern != null && pattern.matches(refType)
   }
 
   private def findPsiClassByReferenceType(refType: ReferenceType): Option[PsiElement] = {
@@ -536,14 +540,11 @@ object ScalaPositionManager {
   }
 
   private class NamePattern(elem: PsiElement) {
-    private val generatesClass = ScalaEvaluatorBuilderUtil.isGenerateClass(elem)
-    private val classJVMNameParts: Seq[String] =
-      if (generatesClass) {
-        val forElem = partsFor(elem).toIterator
-        val forParents = elem.parentsInFile.flatMap(e => partsFor(e).map(_ + "$"))
-        (forElem ++ forParents).toSeq.reverse
-      }
-      else Seq.empty
+    private val classJVMNameParts: Seq[String] = {
+      val forElem = partsFor(elem).toIterator
+      val forParents = elem.parentsInFile.flatMap(e => partsFor(e).map(_ + "$"))
+      (forElem ++ forParents).toSeq.reverse
+    }
 
     private def partsFor(elem: PsiElement): Seq[String] = {
       elem match {
@@ -557,8 +558,6 @@ object ScalaPositionManager {
     }
 
     def matches(refType: ReferenceType): Boolean = {
-      if (!generatesClass) return false
-
       val name = refType.name()
 
       def checkParts(): Boolean = {
@@ -579,6 +578,18 @@ object ScalaPositionManager {
           name == qName
         case _ => checkParts()
       }
+    }
+  }
+
+  private object NamePattern {
+    def forElement(elem: PsiElement): NamePattern = {
+      if (!ScalaEvaluatorBuilderUtil.isGenerateClass(elem)) return null
+
+      val cacheProvider = new CachedValueProvider[NamePattern] {
+        override def compute(): Result[NamePattern] = Result.create(new NamePattern(elem), elem)
+      }
+
+      CachedValuesManager.getCachedValue(elem, cacheProvider)
     }
   }
 
