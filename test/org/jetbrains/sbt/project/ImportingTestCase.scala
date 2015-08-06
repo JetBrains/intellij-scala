@@ -34,7 +34,7 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
 
   import ImportingTestCase._
 
-  def assertMatch[T](expected: Seq[T], actual: Seq[T]): Unit
+  def assertMatch[T](what: String, expected: Seq[T], actual: Seq[T]): Unit
 
   def getTestProjectDir: File = {
     val testdataPath = TestUtils.getTestDataPath + "/sbt/projects"
@@ -116,7 +116,7 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
   private def assertProjectModulesEqual(expected: project): Unit =
     expected.foreach(modules) { expectedModules =>
       val actualModules = ModuleManager.getInstance(getProject).getModules.toSeq
-      assertNamesEqual(expectedModules, actualModules)
+      assertNamesEqual("Project module", expectedModules, actualModules)
       pairByName(expectedModules, actualModules).foreach((assertModulesEqual _).tupled)
     }
 
@@ -134,7 +134,7 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
   private def assertModuleContentRootsEqual(module: Module)(expected: Seq[String]): Unit = {
     val expectedRoots = expected.map(VfsUtilCore.pathToUrl)
     val actualRoots = roots.ModuleRootManager.getInstance(module).getContentEntries.map(_.getUrl)
-    assertMatch(expectedRoots, actualRoots)
+    assertMatch("Content root", expectedRoots, actualRoots)
   }
 
   private def assertModuleContentFoldersEqual(module: Module, folderType: JpsModuleSourceRootType[_])(expected: Seq[String]): Unit = {
@@ -155,7 +155,7 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
       else
         folderUrl
     }
-    assertMatch(expected, actualFolders)
+    assertMatch("Content folder", expected, actualFolders)
   }
 
   private def getSingleContentRoot(module: Module): roots.ContentEntry = {
@@ -166,13 +166,13 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
 
   private def assertModuleDependenciesEqual(module: Module)(expected: Seq[dependency[module]]): Unit = {
     val actualModuleEntries = roots.OrderEnumerator.orderEntries(module).moduleEntries
-    assertNamesEqual(expected.map(_.reference), actualModuleEntries.map(_.getModule))
+    assertNamesEqual("Module dependency", expected.map(_.reference), actualModuleEntries.map(_.getModule))
     pairByName(expected, actualModuleEntries).foreach((assertDependencyScopeAndExportedFlagEqual _).tupled)
   }
 
   private def assertLibraryDependenciesEqual(module: Module)(expected: Seq[dependency[library]]): Unit = {
     val actualLibraryEntries = roots.OrderEnumerator.orderEntries(module).libraryEntries
-    assertNamesEqual(expected.map(_.reference), actualLibraryEntries.map(_.getLibrary))
+    assertNamesEqual("Library dependency", expected.map(_.reference), actualLibraryEntries.map(_.getLibrary))
     pairByName(expected, actualLibraryEntries).foreach((assertDependencyScopeAndExportedFlagEqual _).tupled)
   }
 
@@ -184,7 +184,7 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
   private def assertProjectLibrariesEqual(expectedProject: project): Unit =
     expectedProject.foreach(libraries) { expectedLibraries =>
       val actualLibraries = ProjectLibraryTable.getInstance(getProject).getLibraries.toSeq
-      assertNamesEqual(expectedLibraries, actualLibraries)
+      assertNamesEqual("Project library", expectedLibraries, actualLibraries)
       pairByName(expectedLibraries, actualLibraries).foreach((assertLibraryContentsEqual _).tupled)
     }
 
@@ -198,10 +198,10 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
     // TODO: support non-local library contents (if necessary)
     // This implemetation works well only for local files; *.zip and other archives are not supported
     // @dancingrobot84
-    assertMatch(expectedFiles, lib.getFiles(fileType).flatMap(f => Option(PathUtil.getLocalPath(f))))
+    assertMatch("Library file", expectedFiles, lib.getFiles(fileType).flatMap(f => Option(PathUtil.getLocalPath(f))))
 
-  private def assertNamesEqual[T](expected: Seq[Named], actual: Seq[T])(implicit nameOf: HasName[T]): Unit =
-    assertMatch(expected.map(_.name), actual.map(s => nameOf(s)))
+  private def assertNamesEqual[T](what: String, expected: Seq[Named], actual: Seq[T])(implicit nameOf: HasName[T]): Unit =
+    assertMatch(what, expected.map(_.name), actual.map(s => nameOf(s)))
 
   private def pairByName[T <: Named, U](fst: Seq[T], snd: Seq[U])(implicit nameOf: HasName[U]): Seq[(T, U)] =
     fst.flatMap(f => snd.find(s => nameOf(s) == f.name).map((f, _)))
@@ -229,14 +229,14 @@ object ImportingTestCase {
 
 trait InexactMatch {
   self: ImportingTestCase =>
-  override def assertMatch[T](expected: Seq[T], actual: Seq[T]): Unit =
-    expected.foreach(it => assertTrue(s"$actual does not contain '$it'", actual.contains(it)))
+  override def assertMatch[T](what: String, expected: Seq[T], actual: Seq[T]): Unit =
+    expected.foreach(it => assertTrue(s"$what mismatch\nExpected [ ${expected.toList} ]\nActual   [ ${actual.toList} ]", actual.contains(it)))
 }
 
 trait ExactMatch {
   self: ImportingTestCase =>
-  override def assertMatch[T](expected: Seq[T], actual: Seq[T]): Unit = {
-    val errorMessage = s"Expected: $expected, Got: $actual"
+  override def assertMatch[T](what: String, expected: Seq[T], actual: Seq[T]): Unit = {
+    val errorMessage = s"$what mismatch\nExpected [ ${expected.toList} ]\nActual   [ ${actual.toList} ]"
     assertTrue(errorMessage, expected.forall(actual.contains))
     assertTrue(errorMessage, actual.forall(expected.contains))
   }
