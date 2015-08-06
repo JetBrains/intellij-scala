@@ -16,7 +16,7 @@ import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
 import com.intellij.util.{CommonProcessors, PathUtil}
-import junit.framework.Assert._
+import junit.framework.Assert.{assertTrue, fail}
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -46,7 +46,7 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
   def getProject: Project = myProject
 
   def assertProjectsEqual(expected: project): Unit = {
-    assertEquals(expected.name, getProject.getName)
+    assertEquals("Project name", expected.name, getProject.getName)
     assertProjectSdkEquals(expected)
     assertProjectLanguageLevelEquals(expected)
     assertProjectModulesEqual(expected)
@@ -108,10 +108,10 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
     Registry.get(SbtProjectSystem.Id + ExternalSystemConstants.USE_IN_PROCESS_COMMUNICATION_REGISTRY_KEY_SUFFIX).setValue(true)
 
   private def assertProjectSdkEquals(expected: project): Unit =
-    expected.foreach(sdk)(it => assertEquals(it, roots.ProjectRootManager.getInstance(getProject).getProjectSdk))
+    expected.foreach(sdk)(it => assertEquals("Project SDK", it, roots.ProjectRootManager.getInstance(getProject).getProjectSdk))
 
   private def assertProjectLanguageLevelEquals(expected: project): Unit =
-    expected.foreach(languageLevel)(it => assertEquals(it, roots.LanguageLevelProjectExtension.getInstance(getProject).getLanguageLevel))
+    expected.foreach(languageLevel)(it => assertEquals("Project language level", it, roots.LanguageLevelProjectExtension.getInstance(getProject).getLanguageLevel))
 
   private def assertProjectModulesEqual(expected: project): Unit =
     expected.foreach(modules) { expectedModules =>
@@ -177,8 +177,8 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
   }
 
   private def assertDependencyScopeAndExportedFlagEqual(expected: dependency[_], actual: roots.ExportableOrderEntry): Unit = {
-    expected.foreach(isExported)(it => assertEquals(it, actual.isExported))
-    expected.foreach(scope)(it => assertEquals(it, actual.getScope))
+    expected.foreach(isExported)(it => assertEquals("Dependency isExported flag", it, actual.isExported))
+    expected.foreach(scope)(it => assertEquals("Dependency scope", it, actual.getScope))
   }
 
   private def assertProjectLibrariesEqual(expectedProject: project): Unit =
@@ -202,6 +202,11 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
 
   private def assertNamesEqual[T](what: String, expected: Seq[Named], actual: Seq[T])(implicit nameOf: HasName[T]): Unit =
     assertMatch(what, expected.map(_.name), actual.map(s => nameOf(s)))
+
+  private def assertEquals[T](what: String, expected: T, actual: T): Unit = {
+    if (expected != null && !expected.equals(actual))
+      fail(s"$what mismatch\nExpected [ $expected ]\nActual   [ $actual ]")
+  }
 
   private def pairByName[T <: Named, U](fst: Seq[T], snd: Seq[U])(implicit nameOf: HasName[U]): Seq[(T, U)] =
     fst.flatMap(f => snd.find(s => nameOf(s) == f.name).map((f, _)))
