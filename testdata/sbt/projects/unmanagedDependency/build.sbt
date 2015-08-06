@@ -1,1 +1,1 @@
-lazy val unmanagedDependency = project
+lazy val unmanagedDependency = project.in(file("."))

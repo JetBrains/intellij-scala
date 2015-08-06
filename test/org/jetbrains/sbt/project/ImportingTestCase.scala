@@ -11,12 +11,11 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.roots
-import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
-import com.intellij.util.PathUtil
+import com.intellij.util.{CommonProcessors, PathUtil}
 import junit.framework.Assert._
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
@@ -32,6 +31,8 @@ import scala.collection.JavaConverters._
  * @since 8/4/15.
  */
 abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
+
+  import ImportingTestCase._
 
   def assertMatch[T](expected: Seq[T], actual: Seq[T]): Unit
 
@@ -77,6 +78,22 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
     setUpExternalSystemToPerformImportInIdeaProcess()
   }
 
+  private implicit val ideaModuleNameImplicit = new HasName[Module] {
+    override def apply(module: Module): String = module.getName
+  }
+
+  private implicit val ideaLibraryNameImplicit = new HasName[Library] {
+    override def apply(library: Library): String = library.getName
+  }
+
+  private implicit val ideaModuleEntryNameImplicit = new HasName[roots.ModuleOrderEntry] {
+    override def apply(entry: roots.ModuleOrderEntry): String = entry.getModuleName
+  }
+
+  private implicit val ideaLibraryEntryNameImplicit = new HasName[roots.LibraryOrderEntry] {
+    override def apply(entry: roots.LibraryOrderEntry): String = entry.getLibraryName
+  }
+
   private def setUpProjectDirectory(): Unit =
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(getTestProjectDir)
 
@@ -98,12 +115,9 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
 
   private def assertProjectModulesEqual(expected: project): Unit =
     expected.foreach(modules) { expectedModules =>
-      val actualModules = ModuleManager.getInstance(getProject).getModules
+      val actualModules = ModuleManager.getInstance(getProject).getModules.toSeq
       assertNamesEqual(expectedModules, actualModules)
-      expectedModules.foreach { module =>
-        val actualModule = actualModules.find(module.name == _.getName)
-        assertModulesEqual(module, actualModule.get)
-      }
+      pairByName(expectedModules, actualModules).foreach((assertModulesEqual _).tupled)
     }
 
   private def assertModulesEqual(expected: module, actual: Module): Unit = {
@@ -114,6 +128,7 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
     expected.foreach(testResources)(assertModuleContentFoldersEqual(actual, JavaResourceRootType.TEST_RESOURCE))
     expected.foreach(excluded)(assertModuleExcludedFoldersEqual(actual))
     expected.foreach(moduleDependencies)(assertModuleDependenciesEqual(actual))
+    expected.foreach(libraryDependencies)(assertLibraryDependenciesEqual(actual))
   }
 
   private def assertModuleContentRootsEqual(module: Module)(expected: Seq[String]): Unit = {
@@ -149,33 +164,67 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
     contentRoots.head
   }
 
-  private def assertModuleDependenciesEqual(module: Module)(expected: Seq[moduleDependency]): Unit =
-    assertNamesEqual(expected.map(_.module), roots.ModuleRootManager.getInstance(module).getModuleDependencies)
+  private def assertModuleDependenciesEqual(module: Module)(expected: Seq[dependency[module]]): Unit = {
+    val actualModuleEntries = roots.OrderEnumerator.orderEntries(module).moduleEntries
+    assertNamesEqual(expected.map(_.reference), actualModuleEntries.map(_.getModule))
+    pairByName(expected, actualModuleEntries).foreach((assertDependencyScopeAndExportedFlagEqual _).tupled)
+  }
+
+  private def assertLibraryDependenciesEqual(module: Module)(expected: Seq[dependency[library]]): Unit = {
+    val actualLibraryEntries = roots.OrderEnumerator.orderEntries(module).libraryEntries
+    assertNamesEqual(expected.map(_.reference), actualLibraryEntries.map(_.getLibrary))
+    pairByName(expected, actualLibraryEntries).foreach((assertDependencyScopeAndExportedFlagEqual _).tupled)
+  }
+
+  private def assertDependencyScopeAndExportedFlagEqual(expected: dependency[_], actual: roots.ExportableOrderEntry): Unit = {
+    expected.foreach(isExported)(it => assertEquals(it, actual.isExported))
+    expected.foreach(scope)(it => assertEquals(it, actual.getScope))
+  }
 
   private def assertProjectLibrariesEqual(expectedProject: project): Unit =
     expectedProject.foreach(libraries) { expectedLibraries =>
-      val actualLibraries = ProjectLibraryTable.getInstance(getProject).getLibraries
+      val actualLibraries = ProjectLibraryTable.getInstance(getProject).getLibraries.toSeq
       assertNamesEqual(expectedLibraries, actualLibraries)
-      expectedLibraries.foreach { library =>
-        val actualLibrary = actualLibraries.find(_.getName == library.name)
-        assertLibraryContentsEqual(library, actualLibrary.get)
-      }
+      pairByName(expectedLibraries, actualLibraries).foreach((assertLibraryContentsEqual _).tupled)
     }
 
   private def assertLibraryContentsEqual(expected: library, actual: Library): Unit = {
-    expected.foreach(classes)(assertLibraryFilesEqual(actual, OrderRootType.CLASSES))
-    expected.foreach(ProjectStructureDsl.sources)(assertLibraryFilesEqual(actual, OrderRootType.SOURCES))
-    expected.foreach(javadocs)(assertLibraryFilesEqual(actual, JavadocOrderRootType.getInstance))
+    expected.foreach(classes)(assertLibraryFilesEqual(actual, roots.OrderRootType.CLASSES))
+    expected.foreach(ProjectStructureDsl.sources)(assertLibraryFilesEqual(actual, roots.OrderRootType.SOURCES))
+    expected.foreach(javadocs)(assertLibraryFilesEqual(actual, roots.JavadocOrderRootType.getInstance))
   }
 
-  private def assertNamesEqual(expected: Seq[{def name: String}], actual: Seq[{def getName(): String}]): Unit =
-    assertMatch(expected.map(_.name), actual.map(_.getName()))
-
-  private def assertLibraryFilesEqual(lib: Library, fileType: OrderRootType)(expectedFiles: Seq[String]): Unit =
+  private def assertLibraryFilesEqual(lib: Library, fileType: roots.OrderRootType)(expectedFiles: Seq[String]): Unit =
     // TODO: support non-local library contents (if necessary)
     // This implemetation works well only for local files; *.zip and other archives are not supported
     // @dancingrobot84
     assertMatch(expectedFiles, lib.getFiles(fileType).flatMap(f => Option(PathUtil.getLocalPath(f))))
+
+  private def assertNamesEqual[T](expected: Seq[Named], actual: Seq[T])(implicit nameOf: HasName[T]): Unit =
+    assertMatch(expected.map(_.name), actual.map(s => nameOf(s)))
+
+  private def pairByName[T <: Named, U](fst: Seq[T], snd: Seq[U])(implicit nameOf: HasName[U]): Seq[(T, U)] =
+    fst.flatMap(f => snd.find(s => nameOf(s) == f.name).map((f, _)))
+}
+
+object ImportingTestCase {
+  implicit class RichOrderEnumerator(enumerator: roots.OrderEnumerator) {
+    def entries: Seq[roots.OrderEntry] = {
+      val processor = new CommonProcessors.CollectProcessor[roots.OrderEntry]
+      enumerator.forEach(processor)
+      processor.getResults.asScala.toSeq
+    }
+
+    def moduleEntries: Seq[roots.ModuleOrderEntry] =
+      entries.collect { case e : roots.ModuleOrderEntry => e}
+
+    def libraryEntries: Seq[roots.LibraryOrderEntry] =
+      entries.collect { case e : roots.LibraryOrderEntry => e }
+  }
+
+  trait HasName[T] {
+    def apply(obj: T): String
+  }
 }
 
 trait InexactMatch {
