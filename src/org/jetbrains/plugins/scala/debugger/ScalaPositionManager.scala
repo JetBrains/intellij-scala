@@ -100,6 +100,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     inReadAction {
       val sourceImage = findReferenceTypeSourceImage(position)
       sourceImage match {
+        case null => util.Collections.emptyList[ReferenceType]
         case td: ScTypeDefinition if !DebuggerUtil.isLocalClass(td) =>
           val qName = getSpecificNameForDebugger(td)
           if (qName != null) getDebugProcess.getVirtualMachineProxy.classesByName(qName)
@@ -222,6 +223,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     }
   }
 
+  @Nullable
   private def findReferenceTypeSourceImage(@NotNull position: SourcePosition): PsiElement = {
     val element = nonWhitespaceElement(position)
     findGeneratingClassParent(element)
