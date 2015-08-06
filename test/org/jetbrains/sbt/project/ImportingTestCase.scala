@@ -50,6 +50,11 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
     assertProjectLibrariesEqual(expected)
   }
 
+  def runTest(expected: project): Unit = {
+    importProject()
+    assertProjectsEqual(expected)
+  }
+
   override protected def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
 
   override protected def getExternalSystemConfigFileName: String = Sbt.BuildFile

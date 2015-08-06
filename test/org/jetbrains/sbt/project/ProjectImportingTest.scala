@@ -12,9 +12,8 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
 
   def ivyCacheDir: File = new File(System.getProperty("user.home")) / ".ivy2" / "cache"
 
-  def testSimple(): Unit = {
-    importProject()
-    assertProjectsEqual(new project("testSimple") {
+  def testSimple() = runTest(
+    new project("testSimple") {
       lazy val scalaLibrary = new library("SBT: org.scala-lang:scala-library:2.11.6:jar") {
         classes += (ivyCacheDir / "org.scala-lang" / "scala-library" / "jars" / "scala-library-2.11.6.jar").getAbsolutePath
       }
@@ -35,11 +34,9 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
         excluded := Seq("project/target", "target")
       }
     })
-  }
 
-  def testMultiModule(): Unit = {
-    importProject()
-    assertProjectsEqual(new project("testMultiModule") {
+  def testMultiModule() = runTest(
+    new project("testMultiModule") {
       lazy val foo = new module("foo") {
         moduleDependencies += bar
       }
@@ -49,5 +46,4 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
 
       modules := Seq(root, foo, bar)
     })
-  }
 }
