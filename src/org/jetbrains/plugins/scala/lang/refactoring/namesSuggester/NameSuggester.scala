@@ -181,8 +181,7 @@ object NameSuggester {
       }
     }
 
-    def addForNamedElement(named: PsiNamedElement) = {
-      val name = named.name
+    def addForNamedElementString(name: String) = {
       if (name != null && name.toUpperCase == name) {
         add(deleteNonLetterFromString(name).toLowerCase)
       } else if (name == "String") {
@@ -190,6 +189,11 @@ object NameSuggester {
       } else {
         generateCamelNames(name)
       }
+    }
+
+    def addForNamedElement(named: PsiNamedElement) = {
+      val name = named.name
+      addForNamedElementString(name)
     }
 
     typez match {
@@ -209,6 +213,7 @@ object NameSuggester {
       case ScTupleType(comps) => add("tuple")
       case ScFunctionType(ret, params) => addForFunctionType(ret, params)
       case ScDesignatorType(e) => addForNamedElement(e)
+      case ScTypeParameterType(name, typeParams, lowerType, upperType, ptp) => addForNamedElementString(name)
       case ScProjectionType(p, e, _) => addForNamedElement(e)
       case ScParameterizedType(tp, args) =>
         addForParameterizedType(tp, args)
