@@ -7,6 +7,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
@@ -54,13 +55,16 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
       override def execute(element: PsiElement, state: ResolveState): Boolean = {
         element match {
           case typeAlias: ScTypeAliasDefinition if typeAlias.getName == name =>
-            buf += ((typeAlias, messageForTypeAliasMember(typeAlias.getName)))
+            buf += ((typeAlias, messageForTypeAliasMember(name)))
             true
           case typeDecl: ScTypeAliasDeclaration if typeDecl.getName == name =>
-            buf += ((typeDecl, messageForTypeAliasMember(typeDecl.getName)))
+            buf += ((typeDecl, messageForTypeAliasMember(name)))
+            true
+          case typeParametr: ScTypeParam if typeParametr.getName == name=>
+            buf += ((typeParametr, messageForTypeAliasMember(name)))
             true
           case clazz: ScClass if clazz.getName == name =>
-            buf += ((clazz, messageForClassMember(clazz.getName)))
+            buf += ((clazz, messageForClassMember(name)))
             true
           case _ => true
         }
