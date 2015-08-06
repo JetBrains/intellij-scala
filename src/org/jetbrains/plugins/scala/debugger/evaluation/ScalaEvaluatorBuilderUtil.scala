@@ -664,16 +664,27 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
                                              ref: ScReferenceExpression): Evaluator = {
     val isLocalValue = DebuggerUtil.isLocalV(resolve)
 
+    def withOuterFieldEvaluator(containingClass: PsiElement, name: String, message: String) = {
+      val (innerClass, iterationCount) = findContextClass { e =>
+        e == null || {val nextClass = getContextClass(e); nextClass == null || nextClass == containingClass}
+      }
+      if (innerClass == null) throw EvaluationException(message)
+      val thisEval = new ScalaThisEvaluator(iterationCount)
+      val filter = ScalaFieldEvaluator.getFilter(innerClass)
+      new ScalaFieldEvaluator(thisEval, filter, name)
+    }
+
     def calcLocal(named: PsiNamedElement): Evaluator = {
       val labeledValue = resolve.getUserData(CodeFragmentFactoryContextWrapper.LABEL_VARIABLE_VALUE_KEY)
       if (labeledValue != null) return new IdentityEvaluator(labeledValue)
 
       val name = NameTransformer.encode(named.name)
+      val containingClass = getContextClass(named)
 
-      ScalaPsiUtil.nameContext(named) match {
+      val localVariableEvaluator: Evaluator = ScalaPsiUtil.nameContext(named) match {
         case param: ScParameter =>
           param.owner match {
-            case fun @ (_: ScFunction | _: ScFunctionExpr) => parameterEvaluator(fun, param)
+            case fun@(_: ScFunction | _: ScFunctionExpr) => parameterEvaluator(fun, param)
             case _ => throw EvaluationException(ScalaBundle.message("cannot.evaluate.parameter", param.name))
           }
         case caseCl: ScCaseClause => patternEvaluator(caseCl, named)
@@ -681,6 +692,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           throw EvaluationException(ScalaBundle.message("not.used.from.for.statement", name))
         case LazyVal(_) => localLazyValEvaluator(named)
         case _ => new ScalaLocalVariableEvaluator(name, fileName)
+      }
+
+      containingClass match {
+        case `contextClass` | _: ScGenerator | _: ScEnumerator => localVariableEvaluator
+        case _ if contextClass == null => localVariableEvaluator
+        case _ =>
+          val fieldEval = withOuterFieldEvaluator(containingClass, name, ScalaBundle.message("cannot.evaluate.local.variable", name))
+          new ScalaDuplexEvaluator(fieldEval, localVariableEvaluator)
       }
     }
 
@@ -692,13 +711,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       if (containingClass == contextClass) {
         fromVolatileObjectReference(new ScalaLocalVariableEvaluator(name, fileName))
       } else {
-        val (innerClass, iterationCount) = findContextClass { e =>
-          e == null || {val prevClass = getContextClass(e); prevClass == null || prevClass == containingClass}
-        }
-        if (innerClass == null) throw EvaluationException(ScalaBundle.message("cannot.evaluate.local.object", obj.name))
-        val thisEval = new ScalaThisEvaluator(iterationCount)
-        val filter = ScalaFieldEvaluator.getFilter(innerClass)
-        val fieldEval = new ScalaFieldEvaluator(thisEval, filter, name)
+        val fieldEval = withOuterFieldEvaluator(containingClass, name, ScalaBundle.message("cannot.evaluate.local.object", name))
         fromVolatileObjectReference(fieldEval)
       }
     }
