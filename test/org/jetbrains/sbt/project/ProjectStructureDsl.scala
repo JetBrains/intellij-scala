@@ -42,9 +42,9 @@ object ProjectStructureDsl {
   val excluded =
     new Attribute[Seq[String]]("excluded") with ModuleAttribute
   val moduleDependencies =
-    new Attribute[Seq[moduleDependency]]("moduleDependencies") with ModuleAttribute
+    new Attribute[Seq[dependency[module]]]("moduleDependencies") with ModuleAttribute
   val libraryDependencies =
-    new Attribute[Seq[libraryDependency]]("libraryDependencies") with ModuleAttribute
+    new Attribute[Seq[dependency[library]]]("libraryDependencies") with ModuleAttribute
 
   val classes =
     new Attribute[Seq[String]]("classes") with LibraryAttribute
@@ -63,40 +63,41 @@ object ProjectStructureDsl {
       attributes.get(attribute).foreach(body)
   }
 
-  class project(val name: String) extends Attributed{
+  trait Named {
+    val name: String
+  }
+
+  class project(val name: String) extends Attributed {
     protected implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with ProjectAttribute): AttributeDef[T] =
       new AttributeDef(attribute, attributes)
     protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ProjectAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
       new AttributeSeqDef(attribute, attributes)
   }
 
-  class module(val name: String) extends Attributed {
+  class module(val name: String) extends Attributed with Named {
     protected implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with ModuleAttribute): AttributeDef[T] =
       new AttributeDef(attribute, attributes)
     protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ModuleAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
       new AttributeSeqDef(attribute, attributes)
   }
 
-  class library(val name: String) extends Attributed {
+  class library(val name: String) extends Attributed with Named {
     protected implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with LibraryAttribute): AttributeDef[T] =
       new AttributeDef(attribute, attributes)
     protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with LibraryAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
       new AttributeSeqDef(attribute, attributes)
   }
 
-  sealed trait dependency extends Attributed {
+  class dependency[D <: Named](val reference: D) extends Attributed with Named {
+    override val name: String = reference.name
     protected implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with DependencyAttribute): AttributeDef[T] =
       new AttributeDef(attribute, attributes)
   }
 
-  class moduleDependency(val module: module) extends dependency
+  implicit def module2moduleDependency(module: module): dependency[module] =
+    new dependency(module)
 
-  implicit def module2moduleDependency(module: module): moduleDependency =
-    new moduleDependency(module)
-
-  class libraryDependency(val library: library) extends dependency
-
-  implicit def library2libraryDependency(library: library): libraryDependency =
-    new libraryDependency(library)
+  implicit def library2libraryDependency(library: library): dependency[library] =
+    new dependency(library)
 }
 

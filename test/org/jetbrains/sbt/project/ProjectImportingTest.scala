@@ -39,7 +39,7 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
   def testMultiModule() = runTest(
     new project("testMultiModule") {
       lazy val foo = new module("foo") {
-        moduleDependencies += new moduleDependency(bar) {
+        moduleDependencies += new dependency(bar) {
           isExported := true
         }
       }
