@@ -11,6 +11,7 @@ import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.roots
+import com.intellij.openapi.roots.impl.ModuleLibraryTable
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.util.registry.Registry
@@ -127,6 +128,7 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
     expected.foreach(excluded)(assertModuleExcludedFoldersEqual(actual))
     expected.foreach(moduleDependencies)(assertModuleDependenciesEqual(actual))
     expected.foreach(libraryDependencies)(assertLibraryDependenciesEqual(actual))
+    expected.foreach(libraries)(assertModuleLibrariesEqual(actual))
   }
 
   private def assertModuleContentRootsEqual(module: Module)(expected: Seq[String]): Unit = {
@@ -198,6 +200,12 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
     // @dancingrobot84
     assertMatch("Library file", expectedFiles, lib.getFiles(fileType).flatMap(f => Option(PathUtil.getLocalPath(f))))
 
+  private def assertModuleLibrariesEqual(module: Module)(expectedLibraries: Seq[library]): Unit = {
+    val actualLibraries = roots.OrderEnumerator.orderEntries(module).libraryEntries.filter(_.isModuleLevel).map(_.getLibrary)
+    assertNamesEqual("Module library", expectedLibraries, actualLibraries)
+    pairByName(expectedLibraries, actualLibraries).foreach((assertLibraryContentsEqual _).tupled)
+  }
+
   private def assertNamesEqual[T](what: String, expected: Seq[Named], actual: Seq[T])(implicit nameOf: HasName[T]): Unit =
     assertMatch(what, expected.map(_.name), actual.map(s => nameOf(s)))
 
@@ -206,8 +214,8 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
       fail(s"$what mismatch\nExpected [ $expected ]\nActual   [ $actual ]")
   }
 
-  private def pairByName[T <: Named, U](fst: Seq[T], snd: Seq[U])(implicit nameOf: HasName[U]): Seq[(T, U)] =
-    fst.flatMap(f => snd.find(s => nameOf(s) == f.name).map((f, _)))
+  private def pairByName[T <: Named, U](expected: Seq[T], actual: Seq[U])(implicit nameOf: HasName[U]): Seq[(T, U)] =
+    expected.flatMap(e => actual.find(a => nameOf(a) == e.name).map((e, _)))
 }
 
 object ImportingTestCase {
