@@ -27,6 +27,7 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
         resources := Seq("src/main/resources")
         testResources := Seq("src/test/resources")
         excluded := Seq("target")
+        libraryDependencies += scalaLibrary
       }
 
       modules += new module("simple-build") {
@@ -38,7 +39,9 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
   def testMultiModule() = runTest(
     new project("testMultiModule") {
       lazy val foo = new module("foo") {
-        moduleDependencies += bar
+        moduleDependencies += new moduleDependency(bar) {
+          isExported := true
+        }
       }
 
       lazy val bar  = new module("bar")
