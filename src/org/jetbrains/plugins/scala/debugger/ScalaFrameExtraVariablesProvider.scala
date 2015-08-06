@@ -47,20 +47,21 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
 
     val result: mutable.SortedSet[String] = inReadAction {
       val element = sourcePosition.getElementAt
+
       if (element == null) mutable.SortedSet()
-      else {
-        getVisibleVariables(element, evaluationContext).map(_.name).filter(!alreadyCollected.contains(_))
-      }
+      else getVisibleVariables(element, evaluationContext, alreadyCollected)
     }
     result.map(toTextWithImports).asJava
   }
 
-  private def getVisibleVariables(elem: PsiElement, evaluationContext: EvaluationContext) = {
+  private def getVisibleVariables(elem: PsiElement, evaluationContext: EvaluationContext, alreadyCollected: util.Set[String]) = {
     val completionProcessor = new CollectingProcessor(elem)
     PsiTreeUtil.treeWalkUp(completionProcessor, elem, null, ResolveState.initial)
     val sorted = mutable.SortedSet()(Ordering.by[ScalaResolveResult, Int](_.getElement.getTextRange.getStartOffset))
-    completionProcessor.candidates.filter(canEvaluate(_, elem, evaluationContext)).foreach(sorted += _)
-    sorted
+    completionProcessor.candidates
+      .filter(srr => !alreadyCollected.contains(srr.name))
+      .filter(canEvaluate(_, elem, evaluationContext)).foreach(sorted += _)
+    sorted.map(_.name)
   }
 
   private def toTextWithImports(s: String) = {
