@@ -36,17 +36,15 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
 
   def assertMatch[T](what: String, expected: Seq[T], actual: Seq[T]): Unit
 
-  def getTestProjectDir: File = {
+  def testProjectDir: File = {
     val testdataPath = TestUtils.getTestDataPath + "/sbt/projects"
     new File(testdataPath, getTestName(true))
   }
 
   def scalaPluginBuildOutputDir: File = new File("../../out/plugin/Scala")
 
-  def getProject: Project = myProject
-
   def assertProjectsEqual(expected: project): Unit = {
-    assertEquals("Project name", expected.name, getProject.getName)
+    assertEquals("Project name", expected.name, myProject.getName)
     assertProjectSdkEquals(expected)
     assertProjectLanguageLevelEquals(expected)
     assertProjectModulesEqual(expected)
@@ -95,7 +93,7 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
   }
 
   private def setUpProjectDirectory(): Unit =
-    myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(getTestProjectDir)
+    myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(testProjectDir)
 
   private def setUpSbtLauncherAndStructure(): Unit = {
     val systemSettings = SbtSystemSettings.getInstance(myProject)
@@ -108,14 +106,14 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
     Registry.get(SbtProjectSystem.Id + ExternalSystemConstants.USE_IN_PROCESS_COMMUNICATION_REGISTRY_KEY_SUFFIX).setValue(true)
 
   private def assertProjectSdkEquals(expected: project): Unit =
-    expected.foreach(sdk)(it => assertEquals("Project SDK", it, roots.ProjectRootManager.getInstance(getProject).getProjectSdk))
+    expected.foreach(sdk)(it => assertEquals("Project SDK", it, roots.ProjectRootManager.getInstance(myProject).getProjectSdk))
 
   private def assertProjectLanguageLevelEquals(expected: project): Unit =
-    expected.foreach(languageLevel)(it => assertEquals("Project language level", it, roots.LanguageLevelProjectExtension.getInstance(getProject).getLanguageLevel))
+    expected.foreach(languageLevel)(it => assertEquals("Project language level", it, roots.LanguageLevelProjectExtension.getInstance(myProject).getLanguageLevel))
 
   private def assertProjectModulesEqual(expected: project): Unit =
     expected.foreach(modules) { expectedModules =>
-      val actualModules = ModuleManager.getInstance(getProject).getModules.toSeq
+      val actualModules = ModuleManager.getInstance(myProject).getModules.toSeq
       assertNamesEqual("Project module", expectedModules, actualModules)
       pairByName(expectedModules, actualModules).foreach((assertModulesEqual _).tupled)
     }
@@ -183,7 +181,7 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
 
   private def assertProjectLibrariesEqual(expectedProject: project): Unit =
     expectedProject.foreach(libraries) { expectedLibraries =>
-      val actualLibraries = ProjectLibraryTable.getInstance(getProject).getLibraries.toSeq
+      val actualLibraries = ProjectLibraryTable.getInstance(myProject).getLibraries.toSeq
       assertNamesEqual("Project library", expectedLibraries, actualLibraries)
       pairByName(expectedLibraries, actualLibraries).foreach((assertLibraryContentsEqual _).tupled)
     }
