@@ -6,6 +6,7 @@ import java.io.File
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
+import com.intellij.openapi.externalSystem.util.ExternalSystemConstants
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
@@ -13,6 +14,7 @@ import com.intellij.openapi.roots
 import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.Library
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
 import com.intellij.util.PathUtil
 import junit.framework.Assert._
@@ -70,12 +72,23 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
 
   override protected def setUpInWriteAction(): Unit = {
     super.setUpInWriteAction()
+    setUpProjectDirectory()
+    setUpSbtLauncherAndStructure()
+    setUpExternalSystemToPerformImportInIdeaProcess()
+  }
+
+  private def setUpProjectDirectory(): Unit =
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(getTestProjectDir)
+
+  private def setUpSbtLauncherAndStructure(): Unit = {
     val systemSettings = SbtSystemSettings.getInstance(myProject)
     systemSettings.setCustomLauncherEnabled(true)
     systemSettings.setCustomLauncherPath(scalaPluginBuildOutputDir.getAbsolutePath + "/launcher/sbt-launch.jar")
     systemSettings.setCustomSbtStructureDir(scalaPluginBuildOutputDir.getAbsolutePath + "/launcher")
   }
+
+  private def setUpExternalSystemToPerformImportInIdeaProcess(): Unit =
+    Registry.get(SbtProjectSystem.Id + ExternalSystemConstants.USE_IN_PROCESS_COMMUNICATION_REGISTRY_KEY_SUFFIX).setValue(true)
 
   private def assertProjectSdkEquals(expected: project): Unit =
     expected.foreach(sdk)(it => assertEquals(it, roots.ProjectRootManager.getInstance(getProject).getProjectSdk))
