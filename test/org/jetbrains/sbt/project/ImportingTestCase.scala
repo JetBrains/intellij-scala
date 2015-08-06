@@ -31,6 +31,8 @@ import scala.collection.JavaConverters._
  */
 abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
 
+  def assertMatch[T](expected: Seq[T], actual: Seq[T]): Unit
+
   def getTestProjectDir: File = {
     val testdataPath = TestUtils.getTestDataPath + "/sbt/projects"
     new File(testdataPath, getTestName(true))
@@ -39,6 +41,14 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
   def scalaPluginBuildOutputDir: File = new File("../../out/plugin/Scala")
 
   def getProject: Project = myProject
+
+  def assertProjectsEqual(expected: project): Unit = {
+    assertEquals(expected.name, getProject.getName)
+    assertProjectSdkEquals(expected)
+    assertProjectLanguageLevelEquals(expected)
+    assertProjectModulesEqual(expected)
+    assertProjectLibrariesEqual(expected)
+  }
 
   override protected def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
 
@@ -61,54 +71,31 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase {
     systemSettings.setCustomLauncherPath(scalaPluginBuildOutputDir.getAbsolutePath + "/launcher/sbt-launch.jar")
     systemSettings.setCustomSbtStructureDir(scalaPluginBuildOutputDir.getAbsolutePath + "/launcher")
   }
-}
-
-sealed trait MatchBase {
-  self: ImportingTestCase =>
-
-  def assertProjectsEqual(expected: project): Unit = {
-    assertProjectNameEquals(expected)
-    assertProjectSdkEquals(expected)
-    assertProjectLanguageLevelEquals(expected)
-    assertProjectModulesEqual(expected)
-    assertProjectLibrariesEqual(expected)
-  }
-
-  def assertMatch[T](expected: Seq[T], actual: Seq[T]): Unit
-
-  private def assertProjectNameEquals(expected: project): Unit =
-    expected.attributes.get(name).foreach {
-      it => assertEquals(it, getProject.getName)
-    }
 
   private def assertProjectSdkEquals(expected: project): Unit =
-    expected.attributes.get(sdk).foreach { it =>
-      assertEquals(it, roots.ProjectRootManager.getInstance(getProject).getProjectSdk)
-    }
+    expected.foreach(sdk)(it => assertEquals(it, roots.ProjectRootManager.getInstance(getProject).getProjectSdk))
 
   private def assertProjectLanguageLevelEquals(expected: project): Unit =
-    expected.attributes.get(languageLevel).foreach { it =>
-      assertEquals(it, roots.LanguageLevelProjectExtension.getInstance(getProject).getLanguageLevel)
-    }
+    expected.foreach(languageLevel)(it => assertEquals(it, roots.LanguageLevelProjectExtension.getInstance(getProject).getLanguageLevel))
 
   private def assertProjectModulesEqual(expected: project): Unit =
-    expected.attributes.get(modules).foreach { expectedModules =>
+    expected.foreach(modules) { expectedModules =>
       val actualModules = ModuleManager.getInstance(getProject).getModules
-      assertModuleNamesEqual(expectedModules, actualModules)
+      assertNamesEqual(expectedModules, actualModules)
       expectedModules.foreach { module =>
-        val actualModule = actualModules.find(module.attributes.getOrFail(name) == _.getName)
+        val actualModule = actualModules.find(module.name == _.getName)
         assertModulesEqual(module, actualModule.get)
       }
     }
 
   private def assertModulesEqual(expected: module, actual: Module): Unit = {
-    expected.attributes.get(contentRoots).foreach(assertModuleContentRootsEqual(actual))
-    expected.attributes.get(ProjectStructureDsl.sources).foreach(assertModuleContentFoldersEqual(actual, JavaSourceRootType.SOURCE))
-    expected.attributes.get(testSources).foreach(assertModuleContentFoldersEqual(actual, JavaSourceRootType.TEST_SOURCE))
-    expected.attributes.get(resources).foreach(assertModuleContentFoldersEqual(actual, JavaResourceRootType.RESOURCE))
-    expected.attributes.get(testResources).foreach(assertModuleContentFoldersEqual(actual, JavaResourceRootType.TEST_RESOURCE))
-    expected.attributes.get(excluded).foreach(assertModuleExcludedFoldersEqual(actual))
-    expected.attributes.get(moduleDependencies).foreach(assertModuleDependenciesEqual(actual))
+    expected.foreach(contentRoots)(assertModuleContentRootsEqual(actual))
+    expected.foreach(ProjectStructureDsl.sources)(assertModuleContentFoldersEqual(actual, JavaSourceRootType.SOURCE))
+    expected.foreach(testSources)(assertModuleContentFoldersEqual(actual, JavaSourceRootType.TEST_SOURCE))
+    expected.foreach(resources)(assertModuleContentFoldersEqual(actual, JavaResourceRootType.RESOURCE))
+    expected.foreach(testResources)(assertModuleContentFoldersEqual(actual, JavaResourceRootType.TEST_RESOURCE))
+    expected.foreach(excluded)(assertModuleExcludedFoldersEqual(actual))
+    expected.foreach(moduleDependencies)(assertModuleDependenciesEqual(actual))
   }
 
   private def assertModuleContentRootsEqual(module: Module)(expected: Seq[String]): Unit = {
@@ -145,35 +132,26 @@ sealed trait MatchBase {
   }
 
   private def assertModuleDependenciesEqual(module: Module)(expected: Seq[module]): Unit =
-    assertModuleNamesEqual(expected, roots.ModuleRootManager.getInstance(module).getModuleDependencies)
-
-  private def assertModuleNamesEqual(expected: Seq[module], actual: Seq[Module]): Unit = {
-    val actualNames = actual.map(_.getName)
-    val expectedNames = expected.map(_.attributes.getOrFail(name))
-    assertMatch(expectedNames, actualNames)
-  }
+    assertNamesEqual(expected, roots.ModuleRootManager.getInstance(module).getModuleDependencies)
 
   private def assertProjectLibrariesEqual(expectedProject: project): Unit =
-    expectedProject.attributes.get(libraries).foreach { expectedLibraries =>
+    expectedProject.foreach(libraries) { expectedLibraries =>
       val actualLibraries = ProjectLibraryTable.getInstance(getProject).getLibraries
-      assertLibraryNamesEqual(expectedLibraries, actualLibraries)
+      assertNamesEqual(expectedLibraries, actualLibraries)
       expectedLibraries.foreach { library =>
-        val actualLibrary = actualLibraries.find(_.getName == library.attributes.getOrFail(name))
+        val actualLibrary = actualLibraries.find(_.getName == library.name)
         assertLibraryContentsEqual(library, actualLibrary.get)
       }
     }
 
-  private def assertLibraryNamesEqual(expected: Seq[library], actual: Seq[Library]): Unit = {
-    val actualNames = actual.map(_.getName)
-    val expectedNames = expected.map(_.attributes.getOrFail(name))
-    assertMatch(expectedNames, actualNames)
+  private def assertLibraryContentsEqual(expected: library, actual: Library): Unit = {
+    expected.foreach(classes)(assertLibraryFilesEqual(actual, OrderRootType.CLASSES))
+    expected.foreach(ProjectStructureDsl.sources)(assertLibraryFilesEqual(actual, OrderRootType.SOURCES))
+    expected.foreach(javadocs)(assertLibraryFilesEqual(actual, JavadocOrderRootType.getInstance))
   }
 
-  private def assertLibraryContentsEqual(expected: library, actual: Library): Unit = {
-    expected.attributes.get(classes).foreach(assertLibraryFilesEqual(actual, OrderRootType.CLASSES))
-    expected.attributes.get(ProjectStructureDsl.sources).foreach(assertLibraryFilesEqual(actual, OrderRootType.SOURCES))
-    expected.attributes.get(javadocs).foreach(assertLibraryFilesEqual(actual, JavadocOrderRootType.getInstance))
-  }
+  private def assertNamesEqual(expected: Seq[{def name: String}], actual: Seq[{def getName(): String}]): Unit =
+    assertMatch(expected.map(_.name), actual.map(_.getName()))
 
   private def assertLibraryFilesEqual(lib: Library, fileType: OrderRootType)(expectedFiles: Seq[String]): Unit =
     // TODO: support non-local library contents (if necessary)
@@ -182,13 +160,13 @@ sealed trait MatchBase {
     assertMatch(expectedFiles, lib.getFiles(fileType).flatMap(f => Option(PathUtil.getLocalPath(f))))
 }
 
-trait InexactMatch extends MatchBase {
+trait InexactMatch {
   self: ImportingTestCase =>
   override def assertMatch[T](expected: Seq[T], actual: Seq[T]): Unit =
     expected.foreach(it => assertTrue(s"$actual does not contain '$it'", actual.contains(it)))
 }
 
-trait ExactMatch extends MatchBase {
+trait ExactMatch {
   self: ImportingTestCase =>
   override def assertMatch[T](expected: Seq[T], actual: Seq[T]): Unit = {
     val errorMessage = s"Expected: $expected, Got: $actual"

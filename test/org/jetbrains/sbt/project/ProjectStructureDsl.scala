@@ -18,8 +18,6 @@ object ProjectStructureDsl {
   trait ModuleAttribute
   trait LibraryAttribute
 
-  val name =
-    new Attribute[String]("name") with ProjectAttribute with ModuleAttribute with LibraryAttribute
   val libraries =
     new Attribute[Seq[library]]("libraries") with ProjectAttribute with ModuleAttribute
   val modules =
@@ -51,27 +49,28 @@ object ProjectStructureDsl {
   val javadocs =
     new Attribute[Seq[String]]("javadocs") with LibraryAttribute
 
-  class project {
-    val attributes = new AttributeMap
+  trait Attributed {
+    protected val attributes = new AttributeMap
 
+    def foreach[T : Manifest](attribute: Attribute[T])(body: T => Unit): Unit =
+      attributes.get(attribute).foreach(body)
+  }
+
+  class project(val name: String) extends Attributed{
     protected implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with ProjectAttribute): AttributeDef[T] =
       new AttributeDef(attribute, attributes)
     protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ProjectAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
       new AttributeSeqDef(attribute, attributes)
   }
 
-  class module {
-    val attributes = new AttributeMap
-
+  class module(val name: String) extends Attributed {
     protected implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with ModuleAttribute): AttributeDef[T] =
       new AttributeDef(attribute, attributes)
     protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ModuleAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
       new AttributeSeqDef(attribute, attributes)
   }
 
-  class library {
-    val attributes = new AttributeMap
-
+  class library(val name: String) extends Attributed {
     protected implicit def defineAttribute[T : Manifest](attribute: Attribute[T] with LibraryAttribute): AttributeDef[T] =
       new AttributeDef(attribute, attributes)
     protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with LibraryAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
