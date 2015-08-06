@@ -54,7 +54,7 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
     new project("testUnmanagedDependency") {
       modules += new module("unmanagedDependency") {
         lazy val unmanagedLibrary = new library("SBT: unmanaged-jars") {
-          // classes += TODO
+          classes += (testProjectDir / "lib" / "unmanaged.jar").getAbsolutePath
         }
         libraries += unmanagedLibrary
         libraryDependencies += unmanagedLibrary
