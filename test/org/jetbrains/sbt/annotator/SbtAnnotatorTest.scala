@@ -28,19 +28,26 @@ import scala.collection.JavaConverters._
  * @since 7/23/15.
  */
 
-abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbt {
-  def sbtVersion: String
+class SbtAnnotatorTest extends AnnotatorTestBase with MockSbt {
+
+  def test_0_12_4: Unit = runTest("0.12.4", Expectations.sbt012)
+
+  def test_0_13_1: Unit = runTest("0.13.1", Expectations.sbt013)
+
+  def test_0_13_7: Unit = runTest("0.13.7", Expectations.sbt0137)
+
+  def testNullVersion: Unit = runTest(null, Expectations.sbt0137)
 
   override protected def setUp(): Unit = {
     super.setUp()
     addSbtAsModuleDependency(createBuildModule())
     addTestFileToModuleSources()
-    setUpSbtVersion()
+    setUpProjectSettings()
     inWriteAction(StartupManager.getInstance(getProject).asInstanceOf[StartupManagerImpl].startCacheUpdate())
   }
 
   override def loadTestFile(): SbtFileImpl = {
-    val fileName = getTestName(false) + ".sbt"
+    val fileName = "SbtAnnotator.sbt"
     val filePath = testdataPath + fileName
     val vfile = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     val psifile = PsiManager.getInstance(getProject).findFile(vfile)
@@ -51,11 +58,23 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbt {
   override def getTestProjectJdk: Sdk =
     JavaSdk.getInstance().createJdk("java sdk", TestUtils.getMockJdk, false)
 
-  protected def doTest(messages: Seq[Message]) {
+  private def runTest(sbtVersion: String, expectedMessages: Seq[Message]): Unit = {
+    setSbtVersion(sbtVersion)
+    val actualMessages = annotate().asJava
+    UsefulTestCase.assertSameElements(actualMessages, expectedMessages:_*)
+  }
+
+  private def setSbtVersion(sbtVersion: String): Unit = {
+    val projectSettings = SbtSystemSettings.getInstance(getProject).getLinkedProjectSettings(getProject.getBasePath)
+    assert(projectSettings != null)
+    projectSettings.setSbtVersion(sbtVersion)
+  }
+
+  private def annotate(): Seq[Message] = {
     val mock = new AnnotatorHolderMock
     val annotator = new SbtAnnotator
     annotator.annotate(loadTestFile(), mock)
-    UsefulTestCase.assertSameElements(mock.annotations.asJava, messages:_*)
+    mock.annotations
   }
 
   private def createBuildModule(): Module = inWriteAction {
@@ -65,9 +84,8 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbt {
     module
   }
 
-  private def setUpSbtVersion(): Unit = {
+  private def setUpProjectSettings(): Unit = {
     val projectSettings = SbtProjectSettings.default
-    projectSettings.sbtVersion = sbtVersion
     projectSettings.setExternalProjectPath(getProject.getBasePath)
     projectSettings.setModules(java.util.Collections.singleton(getModule.getModuleFilePath))
     SbtSystemSettings.getInstance(getProject).linkProject(projectSettings)
@@ -83,26 +101,6 @@ abstract class SbtAnnotatorTestBase extends AnnotatorTestBase with MockSbt {
     })
     preventLeakageOfVfsPointers()
   }
-}
-
-class SbtAnnotatorTest012 extends SbtAnnotatorTestBase {
-  override def sbtVersion = "0.12.4"
-  def testSbtAnnotator = doTest(Expectations.sbt012)
-}
-
-class SbtAnnotatorTest013 extends SbtAnnotatorTestBase {
-  override def sbtVersion = "0.13.1"
-  def testSbtAnnotator = doTest(Expectations.sbt013)
-}
-
-class SbtAnnotatorTest0137 extends SbtAnnotatorTestBase {
-  override def sbtVersion = "0.13.7"
-  def testSbtAnnotator = doTest(Expectations.sbt0137)
-}
-
-class SbtAnnotatorTestNullVersion extends SbtAnnotatorTestBase {
-  override def sbtVersion = null
-  def testSbtAnnotator = doTest(Expectations.sbt0137)
 }
 
 object Expectations {
