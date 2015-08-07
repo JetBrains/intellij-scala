@@ -76,6 +76,9 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     setTitle(REFACTORING_NAME);
     init();
     setUpDialog();
+    if (validator instanceof ScalaTypeValidator) {
+      setUpDialogForTypes();
+    }
     updateOkStatus();
   }
 
@@ -220,7 +223,6 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   }
 
   protected void doOKAction() {
-    // todo
     if (!validator.isOK(this)) {
       return;
     }
@@ -233,6 +235,13 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     super.doOKAction();
   }
 
+  protected void setUpDialogForTypes() {
+    setTitle(ScalaBundle.message("introduce.type.alias.title"));
+    myCbTypeSpec.setVisible(false);
+    declareVariableCheckBox.setVisible(false);
+    myTypeComboBox.setEnabled(true);
+    myTypeLabel.setText("Type");
+  }
 
   protected void doHelpAction() {
     HelpManager.getInstance().invokeHelp(HelpID.INTRODUCE_VARIABLE);
