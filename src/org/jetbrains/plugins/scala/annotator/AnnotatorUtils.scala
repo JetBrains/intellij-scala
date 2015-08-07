@@ -37,7 +37,7 @@ private[annotator] object AnnotatorUtils {
   }
 
   def checkConformance(expression: ScExpression, typeElement: ScTypeElement, holder: AnnotationHolder) {
-    expression.getTypeAfterImplicitConversion().tr.foreach {actual =>
+    expression.getTypeAfterImplicitConversion().typeResult.foreach {actual =>
       val expected = typeElement.calcType
       if (!actual.conforms(expected)) {
         val expr = expression match {

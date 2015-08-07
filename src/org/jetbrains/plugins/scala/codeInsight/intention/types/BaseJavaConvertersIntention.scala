@@ -30,9 +30,9 @@ abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElemen
   def isAvailable(p: Project, e: Editor, element: PsiElement): Boolean = {
     Option(getTargetExpression(element)) exists {
       scExpr =>
-        def properTargetCollection = isProperTargetCollection(scExpr.getTypeAfterImplicitConversion().tr)
+        def properTargetCollection = isProperTargetCollection(scExpr.getTypeAfterImplicitConversion().typeResult)
         def parentNonConvertedCollection = scExpr match {
-          case Parent(parent: ScExpression) => !isAlreadyConvertedCollection(parent.getTypeAfterImplicitConversion().tr)
+          case Parent(parent: ScExpression) => !isAlreadyConvertedCollection(parent.getTypeAfterImplicitConversion().typeResult)
           case _ => true
         }
         properTargetCollection && parentNonConvertedCollection

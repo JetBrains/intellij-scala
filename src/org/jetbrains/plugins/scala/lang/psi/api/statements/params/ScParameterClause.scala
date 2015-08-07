@@ -34,9 +34,7 @@ trait ScParameterClause extends ScalaPsiElement {
 
   def getSmartParameters: Seq[Parameter] = {
     effectiveParameters.map { param =>
-        new Parameter(param.name, param.deprecatedName, param.getType(TypingContext.empty).getOrNothing,
-          param.getType(TypingContext.empty).getOrNothing, param.isDefaultParam, param.isRepeatedParameter,
-          param.isCallByNameParameter, param.index, Some(param))
+        new Parameter(param)
     }
   }
 

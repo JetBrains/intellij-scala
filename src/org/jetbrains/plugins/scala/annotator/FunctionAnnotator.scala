@@ -118,10 +118,10 @@ trait FunctionAnnotator {
 
   private def typeOf(element: PsiElement): TypeResult[ScType] = element match {
     case r: ScReturnStmt => r.expr match {
-      case Some(e) => e.getTypeAfterImplicitConversion().tr
+      case Some(e) => e.getTypeAfterImplicitConversion().typeResult
       case None => Success(UnitType, None)
     }
-    case e: ScExpression => e.getTypeAfterImplicitConversion().tr
+    case e: ScExpression => e.getTypeAfterImplicitConversion().typeResult
     case _ => Success(AnyType, None)
   }
 }

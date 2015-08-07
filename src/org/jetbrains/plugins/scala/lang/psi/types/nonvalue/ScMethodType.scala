@@ -29,20 +29,22 @@ trait NonValueType extends ScType {
  * Some difference
  */
 case class Parameter(name: String, deprecatedName: Option[String], paramType: ScType, expectedType: ScType,
-                     isDefault: Boolean, isRepeated: Boolean,
-                     isByName: Boolean, index: Int = -1, psiParam: Option[PsiParameter] = None) {
-  def this(name: String, deprecatedName: Option[String], paramType: ScType, isDefault: Boolean, isRepeated: Boolean,
-           isByName: Boolean, index: Int) {
-    this(name, deprecatedName, paramType, paramType, isDefault, isRepeated, isByName, index)
+                     isDefault: Boolean, isRepeated: Boolean, isByName: Boolean,
+                     index: Int = -1, psiParam: Option[PsiParameter] = None, var defaultType: Option[ScType]) {
+
+  def this(name: String, deprecatedName: Option[String], paramType: ScType,
+           isDefault: Boolean, isRepeated: Boolean, isByName: Boolean, index: Int) {
+    this(name, deprecatedName, paramType, paramType, isDefault, isRepeated, isByName, index, defaultType = None)
   }
 
   def this(param: ScParameter) {
     this(param.name, param.deprecatedName, param.getType(TypingContext.empty).getOrAny, param.getType(TypingContext.empty).getOrAny,
-      param.isDefaultParam, param.isRepeatedParameter, param.isCallByNameParameter, param.index, Some(param))
+      param.isDefaultParameter, param.isRepeatedParameter, param.isCallByNameParameter, param.index, Some(param),
+      if (param.isDefaultParameter) Some(param.getDefaultExpressionInSource.get.getTypeAfterImplicitConversion().typeResult.get) else None)
   }
 
   def this(param: PsiParameter) {
-    this(param.getName, None, param.paramType, param.paramType, false, param.isVarArgs, false, param.index, Some(param))
+    this(param.getName, None, param.paramType, param.paramType, false, param.isVarArgs, false, param.index, Some(param), None)
   }
 
   def paramInCode: Option[ScParameter] = psiParam match {
@@ -51,7 +53,13 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
   }
 
   def nameInCode = psiParam.map(_.getName)
+
+  def TisDefault = isDefault || defaultType.nonEmpty
+
+//  def getDefault(scParameter: ScParameter): ScType =
+//    scParameter.getDefaultExpressionInSource.get.getTypeAfterImplicitConversion().typeResult.get
 }
+
 
 /**
  * Class representing type parameters in our type system. Can be constructed from psi.
