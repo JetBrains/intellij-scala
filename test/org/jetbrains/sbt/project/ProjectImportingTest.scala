@@ -61,4 +61,23 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
       }
     }
   )
+
+  def testSharedSources() = runTest(
+    new project("testSharedSources") {
+      lazy val sharedSourcesModule = new module("sharedSources-sources") {
+        contentRoots += getProjectPath + "/shared"
+        ProjectStructureDsl.sources += "src/main/scala"
+      }
+
+      lazy val foo = new module("foo") {
+        moduleDependencies += sharedSourcesModule
+      }
+
+      lazy val bar = new module("bar") {
+        moduleDependencies += sharedSourcesModule
+      }
+
+      modules := Seq(foo, bar, sharedSourcesModule)
+    }
+  )
 }
