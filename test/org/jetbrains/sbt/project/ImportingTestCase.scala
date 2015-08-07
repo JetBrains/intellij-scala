@@ -3,6 +3,7 @@ package project
 
 import java.io.File
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
@@ -50,7 +51,8 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase with Pr
     super.setUpInWriteAction()
     setUpProjectDirectory()
     setUpSbtLauncherAndStructure()
-    setUpExternalSystemToPerformImportInIdeaProcess()
+    if ("true".equals(System.getProperty("idea.debug.mode")))
+      setUpExternalSystemToPerformImportInIdeaProcess()
   }
 
   private def setUpProjectDirectory(): Unit =
