@@ -90,7 +90,7 @@ private[expr] object ExpectedTypes {
       }
       //see SLS[6.16]
       case cond: ScIfStmt if cond.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((types.Boolean, None))
-      case cond: ScIfStmt if cond.elseBranch != None => cond.expectedTypesEx(fromUnderscore = true)
+      case cond: ScIfStmt if cond.elseBranch.isDefined => cond.expectedTypesEx(fromUnderscore = true)
       //see SLA[6.22]
       case tb: ScTryBlock => tb.lastExpr match {
         case Some(e) if e == expr => tb.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(fromUnderscore = true)
@@ -142,10 +142,10 @@ private[expr] object ExpectedTypes {
                   case v: ScVariable =>
                     Array((subst.subst(named.asInstanceOf[ScTypedDefinition].
                       getType(TypingContext.empty).getOrAny), v.typeElement))
-                  case f: ScFunction if f.paramClauses.clauses.length == 0 =>
+                  case f: ScFunction if f.paramClauses.clauses.isEmpty =>
                     a.mirrorMethodCall match {
                       case Some(call) =>
-                        call.args.exprs(0).expectedTypesEx(fromUnderscore = fromUnderscore)
+                        call.args.exprs.head.expectedTypesEx(fromUnderscore = fromUnderscore)
                       case None => Array.empty
                     }
                   case p: ScParameter =>
@@ -319,7 +319,7 @@ private[expr] object ExpectedTypes {
             case Some(e) => checkIsUnderscore(e)
             case _ => false
           }
-        case _ => ScUnderScoreSectionUtil.underscores(expr).length != 0
+        case _ => !(ScUnderScoreSectionUtil.underscores(expr).length == 0)
       }
     }
 
@@ -340,8 +340,8 @@ private[expr] object ExpectedTypes {
                                   forApply: Boolean = false, isDynamicNamed: Boolean = false) {
     def applyForParams(params: Seq[Parameter]) {
       val p: (ScType, Option[ScTypeElement]) =
-        if (i >= params.length && params.length > 0 && params(params.length - 1).isRepeated)
-          (params(params.length - 1).paramType, params(params.length - 1).paramInCode.flatMap(_.typeElement))
+        if (i >= params.length && params.nonEmpty && params.last.isRepeated)
+          (params.last.paramType, params.last.paramInCode.flatMap(_.typeElement))
         else if (i >= params.length) (Nothing, None)
         else (params(i).paramType, params(i).paramInCode.flatMap(_.typeElement))
       expr match {
@@ -358,7 +358,7 @@ private[expr] object ExpectedTypes {
           } else {
             val lE = assign.getLExpression
             lE match {
-              case ref: ScReferenceExpression if ref.qualifier == None =>
+              case ref: ScReferenceExpression if ref.qualifier.isEmpty =>
                 val name = ref.refName
                 params.find(_.name == name) match {
                   case Some(param) => res += ((param.paramType, param.paramInCode.flatMap(_.typeElement)))
@@ -367,11 +367,11 @@ private[expr] object ExpectedTypes {
               case _ => res += p
             }
           }
-        case typedStmt: ScTypedStmt if typedStmt.isSequenceArg && params.length > 0 =>
+        case typedStmt: ScTypedStmt if typedStmt.isSequenceArg && params.nonEmpty =>
           val seqClass: Array[PsiClass] = ScalaPsiManager.instance(expr.getProject).
                   getCachedClasses(expr.getResolveScope, "scala.collection.Seq").filter(!_.isInstanceOf[ScObject])
           if (seqClass.length != 0) {
-            val tp = ScParameterizedType(ScType.designator(seqClass(0)), Seq(params(params.length - 1).paramType))
+            val tp = ScParameterizedType(ScType.designator(seqClass(0)), Seq(params.last.paramType))
             res += ((tp, None))
           }
         case _ => res += p
@@ -379,8 +379,8 @@ private[expr] object ExpectedTypes {
     }
     tp match {
       case Success(ScMethodType(_, params, _), _) =>
-        if (params.length == 1 && !params.apply(0).isRepeated && exprs.length > 1) {
-          params.apply(0).paramType match {
+        if (params.length == 1 && !params.head.isRepeated && exprs.length > 1) {
+          params.head.paramType match {
             case ScTupleType(args) => applyForParams(args.zipWithIndex.map {
               case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
             })
@@ -390,8 +390,8 @@ private[expr] object ExpectedTypes {
       case Success(t@ScTypePolymorphicType(ScMethodType(_, params, _), typeParams), _) =>
         val subst = t.abstractTypeSubstitutor
         val newParams = params.map(p => p.copy(paramType = subst.subst(p.paramType)))
-        if (newParams.length == 1 && !newParams.apply(0).isRepeated && exprs.length > 1) {
-          newParams.apply(0).paramType match {
+        if (newParams.length == 1 && !newParams.head.isRepeated && exprs.length > 1) {
+          newParams.head.paramType match {
             case ScTupleType(args) => applyForParams(args.zipWithIndex.map {
               case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
             })

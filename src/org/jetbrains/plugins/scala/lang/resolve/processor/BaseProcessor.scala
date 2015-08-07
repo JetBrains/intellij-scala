@@ -114,9 +114,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     classKind && getClassKindInner
   }
   def getClassKindInner = {
-    (kinds contains ResolveTargets.CLASS) ||
-            (kinds contains ResolveTargets.OBJECT) ||
-            (kinds contains ResolveTargets.METHOD)
+      (kinds contains ResolveTargets.CLASS) ||
+      (kinds contains ResolveTargets.OBJECT) ||
+      (kinds contains ResolveTargets.METHOD)
   }
 
   //java compatibility

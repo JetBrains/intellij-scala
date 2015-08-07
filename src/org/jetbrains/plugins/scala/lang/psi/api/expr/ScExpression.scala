@@ -42,7 +42,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
    * @param ignoreBaseTypes parameter to avoid value discarding, literal narrowing, widening
    *                        this parameter is useful for refactorings (introduce variable)
    */
-  def getTypeAfterImplicitConversion(checkImplicits: Boolean = true, isShape: Boolean = false,
+  def getTypeAfterImplicitConversion(checkImplicits: Boolean = true,
+                                     isShape: Boolean = false,
                                      expectedOption: Option[ScType] = None,
                                      ignoreBaseTypes: Boolean = false,
                                      fromUnderscore: Boolean = false): ExpressionTypeResult = {
@@ -62,11 +63,11 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
           if (expected == null) {
             ExpressionTypeResult(getTypeWithoutImplicits(TypingContext.empty, ignoreBaseTypes, fromUnderscore), Set.empty, None)
           } else {
-            val tr = getTypeWithoutImplicits(TypingContext.empty, ignoreBaseTypes, fromUnderscore)
-            def defaultResult: ExpressionTypeResult = ExpressionTypeResult(tr, Set.empty, None)
+            val typeResult = getTypeWithoutImplicits(TypingContext.empty, ignoreBaseTypes, fromUnderscore)
+            def defaultResult: ExpressionTypeResult = ExpressionTypeResult(typeResult, Set.empty, None)
             if (!checkImplicits) defaultResult //do not try implicit conversions for shape check
             else {
-              tr match {
+              typeResult match {
                 //if this result is ok, we do not need to think about implicits
                 case Success(tp, _) if tp.conforms(expected) => defaultResult
                 case Success(tp, _) =>
@@ -205,10 +206,10 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
             }
 
             res match {
-              case ScTypePolymorphicType(ScMethodType(retType, params, _), tp) if params.length == 0  &&
+              case ScTypePolymorphicType(ScMethodType(retType, params, _), tp) if params.isEmpty  &&
                       !ScUnderScoreSectionUtil.isUnderscore(this) =>
                 removeMethodType(retType, t => ScTypePolymorphicType(t, tp))
-              case ScMethodType(retType, params, _) if params.length == 0 &&
+              case ScMethodType(retType, params, _) if params.isEmpty &&
                       !ScUnderScoreSectionUtil.isUnderscore(this) =>
                 removeMethodType(retType)
               case _ =>
@@ -310,14 +311,16 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
         if (data != null) return Success(data, Some(this))
       case _ =>
     }
-    getTypeAfterImplicitConversion().tr
+    getTypeAfterImplicitConversion().typeResult
   }
-  def getTypeIgnoreBaseType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
+
+  def getTypeIgnoreBaseType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = getTypeAfterImplicitConversion(ignoreBaseTypes = true).typeResult
+
   def getTypeExt(ctx: TypingContext = TypingContext.empty): ScExpression.ExpressionTypeResult = getTypeAfterImplicitConversion()
 
   def getShape(ignoreAssign: Boolean = false): (ScType, String) = {
     this match {
-      case assign: ScAssignStmt if !ignoreAssign && assign.assignName != None =>
+      case assign: ScAssignStmt if !ignoreAssign && assign.assignName.isDefined =>
         (assign.getRExpression.map(_.getShape(ignoreAssign = true)._1).getOrElse(Nothing), assign.assignName.get)
       case expr: ScExpression =>
         ScalaPsiUtil.isAnonymousExpression(expr) match {
@@ -368,7 +371,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
       if (fromUnderscore) innerType(TypingContext.empty)
       else {
         val unders = ScUnderScoreSectionUtil.underscores(this)
-        if (unders.length == 0) innerType(TypingContext.empty)
+        if (unders.isEmpty) innerType(TypingContext.empty)
         else {
           val params = unders.zipWithIndex.map {
             case (u, index) =>
@@ -377,7 +380,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
           }
           val methType =
             new ScMethodType(getTypeAfterImplicitConversion(ignoreBaseTypes = ignoreBaseType,
-              fromUnderscore = true).tr.getOrAny,
+              fromUnderscore = true).typeResult.getOrAny,
               params, false)(getProject, getResolveScope)
           new Success(methType, Some(this))
         }
@@ -529,7 +532,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
           StdKinds.methodsOnly, isShapeResolve = true)
       applyProc.processType(tp, expr)
       var cand = applyProc.candidates
-      if (cand.length == 0 && call != None) {
+      if (cand.isEmpty && call.isDefined) {
         val expr = call.get.getEffectiveInvokedExpr
         ScalaPsiUtil.findImplicitConversion(expr, "apply", expr, applyProc, noImplicitsForArgs = false) match {
           case Some(res) =>
@@ -543,7 +546,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
           case _ =>
         }
       }
-      if (cand.length == 0 && ScalaPsiUtil.approveDynamic(tp, getProject, getResolveScope) && call.isDefined) {
+      if (cand.isEmpty && ScalaPsiUtil.approveDynamic(tp, getProject, getResolveScope) && call.isDefined) {
         cand = ScalaPsiUtil.processTypeForUpdateOrApplyCandidates(call.get, tp, isShape = true, isDynamic = true)
       }
       cand
@@ -558,7 +561,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 }
 
 object ScExpression {
-  case class ExpressionTypeResult(tr: TypeResult[ScType],
+  case class ExpressionTypeResult(typeResult: TypeResult[ScType],
                                   importsUsed: scala.collection.Set[ImportUsed],
                                   implicitFunction: Option[PsiNamedElement])
 

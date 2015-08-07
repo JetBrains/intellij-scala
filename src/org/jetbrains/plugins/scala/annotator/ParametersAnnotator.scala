@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
  * Pavel.Fatin, 15.06.2010
  */
 trait ParametersAnnotator {
+
   def annotateParameters(parameters: ScParameters, holder: AnnotationHolder): Unit = {
     def checkRepeatedParams() {
       parameters.clauses.foreach { cl =>
@@ -17,7 +18,7 @@ trait ParametersAnnotator {
           case _ =>
         }
         cl.parameters.lastOption match {
-          case Some(p) if p.isRepeatedParameter && cl.parameters.exists(_.isDefaultParam) =>
+          case Some(p) if p.isRepeatedParameter && cl.parameters.exists(_.isDefaultParameter) =>
             holder.createErrorAnnotation(cl, "Parameter section with *-parameter cannot have default arguments")
           case _ =>
         }
@@ -26,7 +27,7 @@ trait ParametersAnnotator {
 
     checkRepeatedParams()
   }
-  
+
   def annotateParameter(parameter: ScParameter, holder: AnnotationHolder): Unit = {
     parameter.owner match {
       case null =>

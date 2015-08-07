@@ -138,7 +138,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         }
         def applyToParameters(parameters: Seq[(Parameter, String)], subst: ScSubstitutor, canBeNaming: Boolean,
                               isImplicit: Boolean = false) {
-          if (parameters.length > 0) {
+          if (parameters.nonEmpty) {
             var k = 0
             val exprs: Seq[ScExpression] = getActualParameters(args)
             if (isImplicit) buffer.append("implicit ")
@@ -171,7 +171,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 }
               }
               if (k == index || (k == parameters.length - 1 && index >= parameters.length &&
-                      parameters(parameters.length - 1)._1.isRepeated)) {
+                      parameters.last._1.isRepeated)) {
                 buffer.append("<b>")
               }
               if (k < index && !isGrey) {
@@ -227,15 +227,15 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                 }
               }
               if (k == index || (k == parameters.length - 1 && index >= parameters.length &&
-                      parameters(parameters.length - 1)._1.isRepeated)) {
+                      parameters.last._1.isRepeated)) {
                 buffer.append("</b>")
               }
               k = k + 1
               if (k != parameters.length) buffer.append(", ")
             }
             if (!isGrey && exprs.length > parameters.length && index >= parameters.length) {
-              if (!namedMode && parameters(parameters.length - 1)._1.isRepeated) {
-                val paramType = parameters(parameters.length - 1)._1.paramType
+              if (!namedMode && parameters.last._1.isRepeated) {
+                val paramType = parameters.last._1.paramType
                 while (!isGrey && k < exprs.length.min(index)) {
                   if (k < index) {
                     for (exprType <- exprs(k).getType(TypingContext.empty)) {
@@ -253,7 +253,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
           case (a: AnnotationParameters, i: Int) =>
             val seq = a.seq
-            if (seq.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+            if (seq.isEmpty) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
               val paramsSeq: Seq[(Parameter, String)] = seq.zipWithIndex.map {
                 case (t, paramIndex) =>
@@ -268,9 +268,9 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             sign.method match {
               case method: ScFunction =>
                 val clauses = method.effectiveParameterClauses
-                if (clauses.length <= i || (i == -1 && clauses.length == 0)) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+                if (clauses.length <= i || (i == -1 && clauses.isEmpty)) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
                 else {
-                  val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses(0)
+                  val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses.head
                   val length = clause.effectiveParameters.length
                   val parameters: Seq[ScParameter] = if (i != -1) clause.effectiveParameters else clause.effectiveParameters.take(length - 1)
                   applyToParameters(parameters.map(param =>
