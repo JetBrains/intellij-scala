@@ -1,0 +1,9 @@
+//I
+object My{
+  val t: <begin>Int<end> = 23
+}
+-----------
+object My{
+  type I = Int
+  val t: I = 23
+}
