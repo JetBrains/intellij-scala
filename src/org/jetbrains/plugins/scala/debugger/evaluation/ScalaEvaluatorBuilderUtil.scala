@@ -1171,12 +1171,14 @@ object ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def getContextClass(elem: PsiElement): PsiElement = {
-    elem.contexts.find(isGenerateClass).orNull
+  def getContextClass(elem: PsiElement, strict: Boolean = true): PsiElement = {
+    if (!strict && isGenerateClass(elem)) elem
+    else elem.contexts.find(isGenerateClass).orNull
   }
 
   def isGenerateClass(elem: PsiElement): Boolean = {
     elem match {
+      case newTd: ScNewTemplateDefinition if !DebuggerUtil.generatesAnonClass(newTd) => false
       case clazz: PsiClass => true
       case f: ScFunctionExpr => true
       case (_: ScExpression) childOf (_: ScForStatement) => true
@@ -1186,7 +1188,7 @@ object ScalaEvaluatorBuilderUtil {
       case (g: ScGenerator) childOf (enums: ScEnumerators) if !enums.generators.headOption.contains(g) => true
       case e: ScEnumerator => true
       case (expr: ScExpression) childOf (argLisg: ScArgumentExprList) if ScalaPsiUtil.parameterOf(expr).exists(_.isByName) => true
-      case ref: ScReferenceExpression if ScalaPsiUtil.isMethodValue(ref) => true
+      case ScalaPsiUtil.MethodValue(_) => true
       case _ => false
     }
   }

@@ -209,7 +209,7 @@ object AnnotatorHighlighter {
           val fun = x.asInstanceOf[ScFunction]
           val clazz = fun.containingClass
           clazz match {
-            case o: ScObject if o.syntheticMethodsNoOverride.contains(fun) =>
+            case o: ScObject if o.allSynthetics.contains(fun) =>
               annotation.setTextAttributes(DefaultHighlighter.OBJECT_METHOD_CALL)
               return
             case _ =>

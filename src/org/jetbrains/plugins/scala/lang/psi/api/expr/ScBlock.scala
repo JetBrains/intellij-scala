@@ -32,7 +32,7 @@ import scala.collection.mutable
 trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImportsHolder {
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
-    if (isAnonymousFunction) {
+    if (hasCaseClauses) {
       val caseClauses = findChildByClassScala(classOf[ScCaseClauses])
       val clauses: Seq[ScCaseClause] = caseClauses.caseClauses
       val clausesType = clauses.foldLeft(types.Nothing: ScType)((tp, clause) => Bounds.lub(tp, clause.expr match {
@@ -149,7 +149,9 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
     } else superTypes(0)
   }
 
-  def isAnonymousFunction: Boolean = false
+  def hasCaseClauses: Boolean = false
+  def isInCatchBlock: Boolean = getContext.isInstanceOf[ScCatchBlock]
+  def isAnonymousFunction = hasCaseClauses && !isInCatchBlock
 
   def exprs: Seq[ScExpression] = findChildrenByClassScala(classOf[ScExpression]).toSeq
   def statements: Seq[ScBlockStatement] = findChildrenByClassScala(classOf[ScBlockStatement]).toSeq

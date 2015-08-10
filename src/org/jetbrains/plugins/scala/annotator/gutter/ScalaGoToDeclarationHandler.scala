@@ -107,7 +107,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
         }
 
         clazz match {
-          case td: ScTypeDefinition if td.syntheticMethodsNoOverride.contains(fun) => Seq(td)
+          case td: ScTypeDefinition if td.allSynthetics.contains(fun) => Seq(td)
           case _ => fun.getSyntheticNavigationElement match {
             case Some(element) => Seq(element)
             case None => Seq(element)

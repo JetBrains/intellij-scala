@@ -1,0 +1,2 @@
+val x: Int ${ScalaTypedHandler.unicodeCaseArrow} Int = i ${ScalaTypedHandler.unicodeCaseArrow}$CARET_MARKER
+val a = 1

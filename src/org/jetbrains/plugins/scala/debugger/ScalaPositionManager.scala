@@ -11,7 +11,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.DirectoryIndex
-import com.intellij.openapi.util.{Ref, TextRange}
+import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
@@ -27,20 +27,21 @@ import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingE
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaNamesUtil, ScalaRefactoringUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 
 /**
@@ -68,8 +69,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
         lineNumber = calcLineIndex(loc)
         if lineNumber >= 0
       } yield {
-        val methodName = location.method().name()
-        calcPosition(psiFile, lineNumber, methodName).getOrElse {
+        calcPosition(psiFile, location, lineNumber).getOrElse {
           SourcePosition.createFromLine(psiFile, lineNumber)
         }
       }
@@ -81,12 +81,6 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
 
   @NotNull
   def getAllClasses(@NotNull position: SourcePosition): util.List[ReferenceType] = {
-
-    def filterAllClasses(condition: ReferenceType => Boolean): util.List[ReferenceType] = {
-      import scala.collection.JavaConverters._
-      val allClasses = getDebugProcess.getVirtualMachineProxy.allClasses.asScala
-      allClasses.filter(condition).asJava
-    }
 
     def hasLocations(refType: ReferenceType, position: SourcePosition): Boolean = {
       try {
@@ -181,7 +175,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     val waitRequestor = new Ref[ClassPrepareRequestor](null)
     inReadAction {
       val sourceImage = findReferenceTypeSourceImage(position)
-      val insideMacro: Boolean = isInsideMacro(position)
+      val insideMacro: Boolean = isInsideMacro(nonWhitespaceElement(position))
       sourceImage match {
         case cl: ScClass if ValueClassType.isValueClass(cl) =>
           //there are no instances of value classes, methods from companion object are used
@@ -209,19 +203,25 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     }
   }
 
-  private def findReferenceTypeSourceImage(@NotNull position: SourcePosition): PsiElement = {
-    @tailrec
-    def findSuitableParent(element: PsiElement): PsiElement = {
-      element match {
-        case null => null
-        case elem if ScalaEvaluatorBuilderUtil.isGenerateClass(elem) => elem
-        case expr: ScExpression if isInsideMacro(position) => expr
-        case elem => findSuitableParent(elem.getParent)
-      }
-    }
+  private def filterAllClasses(condition: ReferenceType => Boolean): util.List[ReferenceType] = {
+    import scala.collection.JavaConverters._
+    val allClasses = getDebugProcess.getVirtualMachineProxy.allClasses.asScala
+    allClasses.filter(condition).asJava
+  }
 
+  @tailrec
+  private def findGeneratingClassParent(element: PsiElement): PsiElement = {
+    element match {
+      case null => null
+      case elem if ScalaEvaluatorBuilderUtil.isGenerateClass(elem) => elem
+      case expr: ScExpression if isInsideMacro(element) => expr
+      case elem => findGeneratingClassParent(elem.getParent)
+    }
+  }
+
+  private def findReferenceTypeSourceImage(@NotNull position: SourcePosition): PsiElement = {
     val element = nonWhitespaceElement(position)
-    findSuitableParent(element)
+    findGeneratingClassParent(element)
   }
 
   private def nonWhitespaceElement(@NotNull position: SourcePosition): PsiElement = {
@@ -249,8 +249,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     }
   }
 
-  private def isInsideMacro(position: SourcePosition): Boolean = {
-    val element: PsiElement = nonWhitespaceElement(position)
+  private def isInsideMacro(element: PsiElement): Boolean = {
     var call = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall])
     while (call != null) {
       call.getEffectiveInvokedExpr match {
@@ -281,16 +280,36 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     else None
   }
 
-  private def calcPosition(file: PsiFile, lineNumber: Int, methodName: String): Option[SourcePosition] = {
+  private def calcPosition(file: PsiFile, location: Location, lineNumber: Int): Option[SourcePosition] = {
+    def trivialChoice(elems: Seq[PsiElement]): Option[SourcePosition] = {
+      elems match {
+        case Seq() => None
+        case Seq(elem) => Some(SourcePosition.createFromElement(elem))
+      }
+    }
+
+    def ordinal(refType: ReferenceType): Option[Int] = {
+      val name = refType.name()
+      Try(name.substring(name.lastIndexOf('$') + 1).toInt).toOption
+    }
+
     val scFile = file match {
       case sf: ScalaFile if !sf.isCompiled => sf
       case _ => return None
     }
-    val exprs = expressionsOnLine(scFile, lineNumber)
-    def findDefaultArg = {
+
+    val possiblePositions = positionsOnLine(scFile, lineNumber)
+    if (possiblePositions.size <= 1) return trivialChoice(possiblePositions)
+
+    val methodName = location.method().name()
+
+    def findDefaultArg: Option[SourcePosition] = {
       try {
-        val paramNumber = methodName.substring(methodName.lastIndexOf("$") + 1).toInt - 1
-        val inDefaultParam = exprs.find {
+        val (start, index) = methodName.splitAt(methodName.lastIndexOf("$") + 1)
+        if (!start.endsWith("$default$")) return None
+
+        val paramNumber = index.toInt - 1
+        val inDefaultParam = possiblePositions.find {
           case e =>
             val scParameters = PsiTreeUtil.getParentOfType(e, classOf[ScParameters])
             if (scParameters != null) {
@@ -309,33 +328,51 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
       return findDefaultArg
     }
 
-    if (exprs.size == 1) return Some(SourcePosition.createFromElement(exprs.head))
+    val declaringType = location.declaringType()
+    val withMatchingName = possiblePositions.filter(elem => nameMatches(findGeneratingClassParent(elem), declaringType))
+    if (withMatchingName.size <= 1) return trivialChoice(withMatchingName)
 
-    val inMethodBody = exprs.find {
-      case e =>
-        val fun = PsiTreeUtil.getParentOfType(e, classOf[ScFunctionDefinition])
-        fun != null && fun.body.exists(PsiTreeUtil.isAncestor(_, e, false))
-    }
-    inMethodBody.map(SourcePosition.createFromElement)
+    val example = withMatchingName.head
+    val similarRefTypes = filterAllClasses(c => nameMatches(example, c) && !c.locationsOfLine(lineNumber + 1).isEmpty).asScala
+    val sorted = similarRefTypes.sortBy(ordinal)
+    val index = sorted.indexOf(declaringType)
+    withMatchingName.lift(index).map(SourcePosition.createFromElement)
   }
 
-  private def expressionsOnLine(file: ScalaFile, lineNumber: Int): Seq[ScExpression] = {
+  private def positionsOnLine(file: ScalaFile, lineNumber: Int): Seq[PsiElement] = {
     val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
     if (lineNumber >= document.getLineCount) return Seq.empty
     val startLine = document.getLineStartOffset(lineNumber)
     val endLine = document.getLineEndOffset(lineNumber)
-    val lineRange = new TextRange(startLine, endLine)
-    val commonParent = ScalaRefactoringUtil.commonParent(file, lineRange)
-    val exprs = ListBuffer[ScExpression]()
-    val collector = new ScalaRecursiveElementVisitor {
-      override def visitExpression(expr: ScExpression): Unit = {
-        if (lineRange.contains(expr.getTextRange.getStartOffset)) exprs += expr
-        else super.visitExpression(expr)
+
+    def elementsOnTheLine(file: ScalaFile, lineNumber: Int): Seq[PsiElement] = {
+      val result = ArrayBuffer[PsiElement]()
+      var elem = file.findElementAt(startLine)
+      while (elem.getTextOffset <= endLine) {
+        result += elem
+        elem = PsiTreeUtil.nextLeaf(elem, true)
       }
+      result
     }
-    commonParent.accept(collector)
-    exprs.toSeq
+
+    def findParent(element: PsiElement): Option[PsiElement] = {
+      val parentsOnTheLine = element.parents.filter(e => e.getTextOffset > startLine).toIndexedSeq
+      val lambda = parentsOnTheLine.find {
+        case _: ScTypeDefinition => false
+        case e if ScalaEvaluatorBuilderUtil.isGenerateClass(e) => true
+        case _ => false
+      }
+      val maxExpressionOrPattern = parentsOnTheLine.reverse.find {
+        case _: ScExpression => true
+        case _: ScConstructorPattern | _: ScInfixPattern => true
+        case _ => false
+      }
+      Seq(lambda, maxExpressionOrPattern).flatten.sortBy(_.getTextLength).headOption
+    }
+
+    elementsOnTheLine(file, lineNumber).flatMap(findParent).distinct
   }
+
 
   private def findScriptFile(location: Location): Option[PsiFile] = {
     try {

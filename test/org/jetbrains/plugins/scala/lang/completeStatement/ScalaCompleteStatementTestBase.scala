@@ -14,7 +14,7 @@ abstract class ScalaCompleteStatementTestBase extends ScalaCodeInsightTestBase {
 
   protected def configureAndCheckFile(fileText: String, resultText: String, fileName: String) {
     //We should change this setting in order to be sure EnterProcessor works without 'swap-settings-hack'
-    //@see org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor#moveCaretInsideBracesIfAny
+    //it was in org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor#moveCaretInsideBracesIfAny
     CodeStyleSettingsManager.getSettings(getProjectAdapter).KEEP_SIMPLE_BLOCKS_IN_ONE_LINE = true
 
     configureFromFileTextAdapter(fileName, fileText)

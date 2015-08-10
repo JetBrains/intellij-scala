@@ -6,6 +6,7 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.impl.source.tree.{LazyParseablePsiElement, SharedImplUtil}
+import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.extensions.inReadAction
@@ -92,8 +93,8 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
   }
 }
 
-abstract class ScalaStubBasedElementImpl[T <: PsiElement]
-        extends ScalaStubBaseElementImplJavaRawTypeHack[T] with ScalaPsiElement {
+abstract class ScalaStubBasedElementImpl[T <: PsiElement](stub: StubElement[T], nodeType: IElementType, node: ASTNode)
+        extends ScalaStubBaseElementImplJavaRawTypeHack[T](stub, nodeType, node) with ScalaPsiElement {
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)

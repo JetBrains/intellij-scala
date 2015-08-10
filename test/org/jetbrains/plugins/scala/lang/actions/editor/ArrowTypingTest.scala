@@ -1,9 +1,13 @@
 package org.jetbrains.plugins.scala
 package lang.actions.editor
 
+import java.io.File
+
+import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
  * User: Dmitry.Naydanov
@@ -11,6 +15,11 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
  */
 class ArrowTypingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   private var settings: ScalaCodeStyleSettings = null
+
+  private def convertLoadedString(str: String) =
+    str.replace("$CARET_MARKER", CARET_MARKER).replace("${ScalaTypedHandler.unicodeCaseArrow}", ScalaTypedHandler.unicodeCaseArrow)
+
+  override def getTestDataPath: String = TestUtils.getTestDataPath + "/actions/editor/arrows"
 
   override protected def setUp(): Unit = {
     super.setUp()
@@ -57,17 +66,10 @@ class ArrowTypingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testReplaceLambdaArrow() {
     settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = true
 
-    val before =
-      s"""
-         | val x: Int ${ScalaTypedHandler.unicodeCaseArrow} Int = i =$CARET_MARKER
-       """.stripMargin
+    val before1 = convertLoadedString(FileUtil.loadFile(new File(getTestDataPath + s"/${getTestName(true)}Before.test")))
+    val after1 = convertLoadedString(FileUtil.loadFile(new File(getTestDataPath + s"/${getTestName(true)}After.test")))
 
-    val after =
-      s"""
-         | val x: Int ${ScalaTypedHandler.unicodeCaseArrow} Int = i ${ScalaTypedHandler.unicodeCaseArrow}$CARET_MARKER
-       """.stripMargin
-
-    checkGeneratedTextAfterTyping(before, after, '>')
+    checkGeneratedTextAfterTyping(before1, after1, '>')
   }
 
   def testReplaceMapArrow() {
@@ -105,12 +107,8 @@ class ArrowTypingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testDontAddGtSign() {
     settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = true
 
-    val text =
-      s"""
-         | 123 match {
-         |   case 123 ${ScalaTypedHandler.unicodeCaseArrow}$CARET_MARKER
-         | }
-       """.stripMargin
+    val fileName = s"$getTestDataPath/${getTestName(true)}.test"
+    val text = convertLoadedString(FileUtil.loadFile(new File(fileName)))
 
     checkGeneratedTextAfterTyping(text, text, '>')
   }
