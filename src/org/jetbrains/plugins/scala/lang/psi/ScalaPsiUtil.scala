@@ -7,11 +7,10 @@ import java.lang.ref.WeakReference
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.module.{JavaModuleType, ModuleUtil, ModuleUtilCore, Module}
+import com.intellij.openapi.module.{JavaModuleType, Module, ModuleUtil}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
-import com.intellij.openapi.updateSettings.impl.pluginsAdvertisement.PluginsAdvertiser.Plugin
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
@@ -61,7 +60,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, 
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.project.{Version, ModuleExt, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -1526,7 +1525,7 @@ object ScalaPsiUtil {
   def getUnapplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     getMethodsForName(clazz, "unapply") ++ getMethodsForName(clazz, "unapplySeq") ++
     (clazz match {
-      case c: ScObject => c.syntheticMethodsNoOverride.filter(s => s.name == "unapply" || s.name == "unapplySeq").
+      case c: ScObject => c.allSynthetics.filter(s => s.name == "unapply" || s.name == "unapplySeq").
               map(new PhysicalSignature(_, ScSubstitutor.empty))
       case _ => Seq.empty[PhysicalSignature]
     })
@@ -2049,9 +2048,35 @@ object ScalaPsiUtil {
     }
   }
 
-  def isMethodValue(ref: ScReferenceExpression): Boolean = ref match {
-    case ResolvesTo(m: PsiMethod) if m.getParameterList.getParametersCount > 0 && !ref.getParent.isInstanceOf[MethodInvocation] => true
-    case _ => false
+  object MethodValue {
+    def unapply(expr: ScExpression): Option[PsiMethod] = {
+      if (!expr.expectedType(false).exists(ScFunctionType.isFunctionType)) return None
+      expr match {
+        case ref: ScReferenceExpression if !ref.getParent.isInstanceOf[MethodInvocation] => referencedMethod(ref, canBeParameterless = false)
+        case gc: ScGenericCall if !gc.getParent.isInstanceOf[MethodInvocation] => referencedMethod(gc, canBeParameterless = false)
+        case us: ScUnderscoreSection => us.bindingExpr.flatMap(referencedMethod(_, canBeParameterless = true))
+        case ScMethodCall(invoked @(_: ScReferenceExpression | _: ScGenericCall | _: ScMethodCall), args)
+          if args.nonEmpty && args.forall(isSimpleUnderscore) => referencedMethod(invoked, canBeParameterless = false)
+        case _ => None
+      }
+    }
+
+    @tailrec
+    private def referencedMethod(expr: ScExpression, canBeParameterless: Boolean): Option[PsiMethod] = {
+      expr match {
+        case ref @ ResolvesTo(f: ScFunctionDefinition) if f.isParameterless && !canBeParameterless => None
+        case ref @ ResolvesTo(m: PsiMethod) => Some(m)
+        case gc: ScGenericCall => referencedMethod(gc.referencedExpr, canBeParameterless)
+        case us: ScUnderscoreSection if us.bindingExpr.isDefined => referencedMethod(us.bindingExpr.get, canBeParameterless)
+        case m: ScMethodCall => referencedMethod(m.deepestInvokedExpr, canBeParameterless = false)
+        case _ => None
+      }
+    }
+    private def isSimpleUnderscore(expr: ScExpression) = expr match {
+      case _: ScUnderscoreSection => expr.getText == "_"
+      case typed: ScTypedStmt => Option(typed.expr).map(_.getText).contains("_")
+      case _ => false
+    }
   }
 
   /** Creates a synthetic parameter clause based on view and context bounds */

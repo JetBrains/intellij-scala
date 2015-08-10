@@ -539,6 +539,8 @@ abstract class AbstractTestRunConfiguration(val project: Project,
             def getRunConfigurationBase: RunConfigurationBase = config
         }
 
+        consoleProperties.setIdBasedTestTree(true)
+
         // console view
         val consoleView = SMTestRunnerConnectionUtil.createAndAttachConsole("Scala", processHandler, consoleProperties)
 

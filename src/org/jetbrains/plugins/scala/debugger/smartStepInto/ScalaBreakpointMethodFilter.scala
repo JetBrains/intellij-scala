@@ -5,8 +5,9 @@ import com.intellij.debugger.engine._
 import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.util.Range
 import com.sun.jdi.{Location, Method}
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, inReadAction}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -24,7 +25,10 @@ class ScalaBreakpointMethodFilter(psiMethod: Option[PsiMethod],
                                   exprLines: Range[Integer])
         extends BreakpointStepMethodFilter {
 
-  private val expectedSignature = psiMethod.map(JVMNameUtil.getJVMSignature)
+  private val expectedSignature = psiMethod.map {
+    case f: ScMethodLike => DebuggerUtil.getFunctionJVMSignature(f)
+    case m => JVMNameUtil.getJVMSignature(m)
+  }
 
   override def locationMatches(process: DebugProcessImpl, location: Location): Boolean = {
     def signatureMatches(method: Method): Boolean = {
