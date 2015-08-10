@@ -140,8 +140,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
             })
           if (nameId.getText != c.name) {
             val ref = ScalaPsiElementFactory.createReferenceFromText(c.name, getManager)
-            nameId.getNode.getTreeParent.replaceChild(nameId.getNode, ref.nameId.getNode)
-            return ref
+            return this.replace(ref).asInstanceOf[ScStableCodeReferenceElement].bindToElement(element)
           }
           val qname = c.qualifiedName
           val isPredefined = ScalaCodeStyleSettings.getInstance(getProject).hasImportWithPrefix(qname)
