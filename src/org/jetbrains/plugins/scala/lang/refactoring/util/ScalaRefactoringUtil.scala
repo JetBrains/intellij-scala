@@ -28,7 +28,7 @@ import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScLiteralPattern, ScPattern, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
@@ -587,12 +587,8 @@ object ScalaRefactoringUtil {
                         refactoringName: String, exprFilter: (ScExpression) => Boolean = e => true)(invokesNext: => Unit) {
 
     if (!editor.getSelectionModel.hasSelection) {
-      val offset = editor.getCaretModel.getOffset
-      val element: PsiElement = file.findElementAt(offset) match {
-        case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
-                w.getText.contains("\n") => file.findElementAt(offset - 1)
-        case p => p
-      }
+      val element: PsiElement = getElementOnCaretOffset(file, editor)
+
       def getExpressions: Array[ScExpression] = {
         val res = new ArrayBuffer[ScExpression]
         var parent = element
@@ -624,6 +620,59 @@ object ScalaRefactoringUtil {
       }
     }
     invokesNext
+  }
+
+  def afterTypeAliasChoosing(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
+                             refactoringName: String)(invokesNext: => Unit) {
+
+    if (!editor.getSelectionModel.hasSelection) {
+      val element: PsiElement = getElementOnCaretOffset(file, editor)
+
+      def getTypeElement: Array[ScTypeElement] = {
+        val res = new ArrayBuffer[ScTypeElement]
+        var parent = PsiTreeUtil.getParentOfType(element, classOf[ScTypeElement])
+        while (parent != null) {
+          parent match {
+            case st: ScSimpleTypeElement if st.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs] =>
+            case typeElement: ScTypeElement =>
+              res += typeElement
+            case _ =>
+          }
+          parent = PsiTreeUtil.getParentOfType(parent, classOf[ScTypeElement])
+        }
+        res.toArray
+      }
+
+      val typeElement = getTypeElement
+
+      def chooseTypeElement(typeElement: ScTypeElement) {
+        editor.getSelectionModel.setSelection(typeElement.getTextRange.getStartOffset, typeElement.getTextRange.getEndOffset)
+        invokesNext
+      }
+      if (typeElement.length == 0)
+        editor.getSelectionModel.selectLineAtCaret()
+      else if (typeElement.length == 1) {
+        chooseTypeElement(typeElement(0))
+        return
+      } else {
+        showChooser(editor, typeElement, (elem: ScTypeElement) =>
+          chooseTypeElement(elem), ScalaBundle.message("choose.type.element.for", refactoringName), (value: ScTypeElement) => {
+          getShortText(value)
+        })
+        return
+      }
+    }
+    invokesNext
+  }
+
+  private def getElementOnCaretOffset(file: PsiFile, editor: Editor): PsiElement = {
+    val offset = editor.getCaretModel.getOffset
+    val element: PsiElement = file.findElementAt(offset) match {
+      case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
+        w.getText.contains("\n") => file.findElementAt(offset - 1)
+      case p => p
+    }
+    element
   }
 
   def fileEncloser(startOffset: Int, file: PsiFile): PsiElement = {
