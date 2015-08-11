@@ -12,7 +12,7 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi._
 import org.jetbrains.plugin.scala.util.MacroExpansion
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -65,7 +65,17 @@ class DummyAction extends AnAction {
       }
     }
 
+    val sourceEditor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
+    val psiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(sourceEditor.getDocument)
+    val candidates = psiFile match {
+      case file: ScalaFile => findCandidatesInFile(file)
+      case _ => Seq.empty
+    }
+
     val expansions = deserializeExpansions(e)
+    val filtered = expansions.filter { exp =>
+      psiFile.getVirtualFile.getPath == exp.place.sourceFile
+    }
     val ensugared = expansions.map(e => MacroExpansion(e.place, ensugarExpansion(e.body)))
     val resolved = tryResolveExpansionPlaces(ensugared)
     inWriteCommandAction(e.getProject) {
@@ -74,14 +84,29 @@ class DummyAction extends AnAction {
     }
   }
 
+
+  //
+  def findCandidatesInFile(file: ScalaFile): Seq[ScalaPsiElement] = {
+    val buffer = scala.collection.mutable.ListBuffer[ScalaPsiElement]()
+    val visitor = new ScalaRecursiveElementVisitor {
+      override def visitAnnotation(annotation: ScAnnotation) = {
+        // TODO
+      }
+      override def visitMethodCallExpression(call: ScMethodCall) = {
+        // TODO
+      }
+    }
+    file.accept(visitor)
+    buffer.toSeq
+  }
+
   def expandAnnotation(place: ScAnnotation, expansion: MacroExpansion)(implicit e: AnActionEvent) = {
     // we can only macro-annotate scala code
     place.getParent.getParent match {
       case clazz: ScClass =>
         // FIXME: parse companion class as well(if present)
-        val newClazz = ScalaPsiElementFactory.createTemplateDefinitionFromText(expansion.body, clazz.getParent, clazz)
-        clazz.getParent.addAfter(newClazz, clazz)
-        clazz.delete()
+        val newClazz = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansion.body, PsiManager.getInstance(e.getProject))
+        clazz.replace(newClazz)
       case obj: ScObject => // TODO
       case fun: ScFunction => // TODO
       case param: ScParameter => // TODO
