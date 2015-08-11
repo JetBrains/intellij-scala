@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.util
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -26,6 +27,17 @@ object ScalaTypeValidator {
             element: PsiElement,
             occurrences: Array[ScTypeElement]): ScalaTypeValidator = {
     val container = ScalaRefactoringUtil.enclosingContainer(PsiTreeUtil.findCommonParent(occurrences: _*))
+    val containerOne = ScalaRefactoringUtil.enclosingContainer(element)
+    new ScalaTypeValidator(conflictsReporter, project, element, occurrences.isEmpty, container, containerOne)
+  }
+
+  def apply(conflictsReporter: ConflictsReporter,
+            project: Project,
+            editor: Editor,
+            file: PsiFile,
+            element: PsiElement,
+            occurrences: Array[TextRange]): ScalaTypeValidator = {
+    val container = ScalaRefactoringUtil.enclosingContainer(ScalaRefactoringUtil.commonParent(file, occurrences: _*))
     val containerOne = ScalaRefactoringUtil.enclosingContainer(element)
     new ScalaTypeValidator(conflictsReporter, project, element, occurrences.isEmpty, container, containerOne)
   }
