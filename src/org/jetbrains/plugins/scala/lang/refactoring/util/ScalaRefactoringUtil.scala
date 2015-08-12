@@ -28,7 +28,7 @@ import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScLiteralPattern, ScPattern, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
@@ -633,7 +633,12 @@ object ScalaRefactoringUtil {
         var parent = PsiTreeUtil.getParentOfType(element, classOf[ScTypeElement])
         while (parent != null) {
           parent match {
-            case st: ScSimpleTypeElement if st.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs] =>
+            case simpleType: ScSimpleTypeElement if simpleType.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs] =>
+            case typeInParenthesis: ScParenthesisedTypeElement =>
+              val inType = typeInParenthesis.typeElement
+              if (!inType.isEmpty && !res.contains(typeInParenthesis.typeElement.get)) {
+                res += typeInParenthesis.typeElement.get
+              }
             case typeElement: ScTypeElement =>
               res += typeElement
             case _ =>
