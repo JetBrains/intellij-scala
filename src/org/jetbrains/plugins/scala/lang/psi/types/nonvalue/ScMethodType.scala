@@ -132,7 +132,7 @@ object TypeParameter {
   val EMPTY_ARRAY: Array[TypeParameter] = Array.empty
 }
 
-case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
+case class ScMethodType (returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
                        (val project: Project, val scope: GlobalSearchScope) extends NonValueType {
 
   def visitType(visitor: ScalaTypeVisitor) {
