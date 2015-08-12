@@ -62,7 +62,7 @@ trait ScFun extends ScTypeParametersOwner {
   }
 
   def polymorphicType: ScType = {
-    if (typeParameters.length == 0) methodType
+    if (typeParameters.isEmpty) methodType
     else ScTypePolymorphicType(methodType, typeParameters.map(new TypeParameter(_)))
   }
 }
@@ -224,7 +224,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       case Some(x) => x
     }
     if (!hasParameterClause) return resultType
-    val res = if (clauses.length > 0)
+    val res = if (clauses.nonEmpty)
       clauses.foldRight[ScType](resultType){(clause: ScParameterClause, tp: ScType) =>
         new ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)(getProject, getResolveScope)
       }
@@ -236,7 +236,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
    * Returns internal type with type parameters.
    */
   def polymorphicType(result: Option[ScType] = None): ScType = {
-    if (typeParameters.length == 0) methodType(result)
+    if (typeParameters.isEmpty) methodType(result)
     else ScTypePolymorphicType(methodType(result), typeParameters.map(new TypeParameter(_)))
   }
 
@@ -531,8 +531,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def findDeepestSuperMethod: PsiMethod = {
     val s = superMethods
-    if (s.length == 0) null
-    else s(s.length - 1)
+    if (s.isEmpty) null
+    else s.last
   }
 
   def getReturnTypeElement = null

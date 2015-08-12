@@ -255,6 +255,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             val seq = a.seq
             if (seq.isEmpty) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
+              println("UpdateUI")
               val paramsSeq: Seq[(Parameter, String)] = seq.zipWithIndex.map {
                 case (t, paramIndex) =>
                   (new Parameter(t._1, None, t._2, t._3 != null, false, false, paramIndex),

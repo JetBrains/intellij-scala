@@ -222,7 +222,7 @@ object Compatibility {
     def createConformanceExtResult(problems: Seq[ApplicabilityProblem] = Seq.empty): ConformanceExtResult = {
       for {mt <- matchedTypes} {
         if (mt._2.toString == "Nothing") {
-          println("oop")
+//          println("oop")
         }
       }
       ConformanceExtResult(problems, undefSubst, defaultParameterUsed, matched, matchedTypes)
@@ -347,10 +347,7 @@ object Compatibility {
           for {defaultExpr <- defaultExprSource
                exprType <- param.defaultType} {
             val conforms = Conformance.conforms(paramType, exprType, checkWeak = true)
-            if (!conforms) {
-              throw new RuntimeException("Unexpected behaviour in Compatibility.checkConformanceExt with default")
-              // todo: highlight incorrect empty expr, like a f[Nothing](), when def f[T](t: T = "")
-            } else {
+            if (conforms) {
               matched ::=(param, defaultExpr)
               matchedTypes ::=(param, exprType)
               undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeak = true)
