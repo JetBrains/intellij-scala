@@ -45,22 +45,24 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
     val method = Try(evaluationContext.getFrameProxy.location().method()).toOption
     if (method.isEmpty || DebuggerUtils.isSynthetic(method.get)) return Collections.emptySet()
 
-    val result: mutable.SortedSet[String] = inReadAction {
-      val element = sourcePosition.getElementAt
-
-      if (element == null) mutable.SortedSet()
-      else getVisibleVariables(element, evaluationContext, alreadyCollected)
-    }
+    val element = inReadAction(sourcePosition.getElementAt)
+    val result = if (element == null) mutable.SortedSet[String]() else getVisibleVariables(element, evaluationContext, alreadyCollected)
     result.map(toTextWithImports).asJava
   }
 
   private def getVisibleVariables(elem: PsiElement, evaluationContext: EvaluationContext, alreadyCollected: util.Set[String]) = {
-    val completionProcessor = new CollectingProcessor(elem)
-    PsiTreeUtil.treeWalkUp(completionProcessor, elem, null, ResolveState.initial)
+    val initialCandidates = inReadAction {
+      val completionProcessor = new CollectingProcessor(elem)
+      PsiTreeUtil.treeWalkUp(completionProcessor, elem, null, ResolveState.initial)
+      completionProcessor.candidates
+        .filter(srr => !alreadyCollected.contains(srr.name))
+        .filter(canEvaluate(_, elem))
+    }
+    val candidates = initialCandidates.filter(canEvaluateLongNoReadAction(_, elem, evaluationContext))
     val sorted = mutable.SortedSet()(Ordering.by[ScalaResolveResult, Int](_.getElement.getTextRange.getStartOffset))
-    completionProcessor.candidates
-      .filter(srr => !alreadyCollected.contains(srr.name))
-      .filter(canEvaluate(_, elem, evaluationContext)).foreach(sorted += _)
+    inReadAction {
+      candidates.foreach(sorted += _)
+    }
     sorted.map(_.name)
   }
 
@@ -69,7 +71,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
     TextWithImportsImpl.fromXExpression(xExpr)
   }
 
-  private def canEvaluate(srr: ScalaResolveResult, place: PsiElement, evaluationContext: EvaluationContext) = {
+  private def canEvaluate(srr: ScalaResolveResult, place: PsiElement) = {
     srr.getElement match {
       case _: ScWildcardPattern => false
       case tp: ScTypedPattern if tp.name == "_" => false
@@ -87,6 +89,12 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
       case named if ScalaEvaluatorBuilderUtil.isNotUsedEnumerator(named, place) => false
       case inNameContext(cc: ScCaseClause) if isInCatchBlock(cc) => false //cannot evaluate catched exceptions in scala
       case inNameContext(LazyVal(_)) => false //don't add lazy vals as they can be computed too early
+      case _ => true
+    }
+  }
+
+  private def canEvaluateLongNoReadAction(srr: ScalaResolveResult, place: PsiElement, evaluationContext: EvaluationContext) = {
+    srr.getElement match {
       case named if generatorNotFromBody(named, place) => tryEvaluate(named.name, place, evaluationContext).isSuccess
       case named if notUsedInCurrentClass(named, place) => tryEvaluate(named.name, place, evaluationContext).isSuccess
       case _ => true
@@ -99,28 +107,34 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
 
   private def tryEvaluate(name: String, place: PsiElement, evaluationContext: EvaluationContext): Try[AnyRef] = {
     Try {
-      val twi = toTextWithImports(name)
-      val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(twi, place, evaluationContext.getProject)
-      val location = evaluationContext.getFrameProxy.location()
-      val sourcePosition = new ScalaPositionManager(evaluationContext.getDebugProcess).getSourcePosition(location)
-      val evaluator = ScalaEvaluatorBuilder.build(codeFragment, sourcePosition)
+      val evaluator = inReadAction {
+        val twi = toTextWithImports(name)
+        val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(twi, place, evaluationContext.getProject)
+        val location = evaluationContext.getFrameProxy.location()
+        val sourcePosition = new ScalaPositionManager(evaluationContext.getDebugProcess).getSourcePosition(location)
+        ScalaEvaluatorBuilder.build(codeFragment, sourcePosition)
+      }
       evaluator.evaluate(evaluationContext)
     }
   }
 
   private def notUsedInCurrentClass(named: PsiElement, place: PsiElement) = {
-    val contextClass = ScalaEvaluatorBuilderUtil.getContextClass(place, strict = false)
-    val containingClass = ScalaEvaluatorBuilderUtil.getContextClass(named)
-    contextClass != containingClass && ReferencesSearch.search(named, new LocalSearchScope(contextClass)).findFirst() == null
+    inReadAction {
+      val contextClass = ScalaEvaluatorBuilderUtil.getContextClass(place, strict = false)
+      val containingClass = ScalaEvaluatorBuilderUtil.getContextClass(named)
+      contextClass != containingClass && ReferencesSearch.search(named, new LocalSearchScope(contextClass)).findFirst() == null
+    }
   }
 
   private def generatorNotFromBody(named: PsiNamedElement, place: PsiElement): Boolean = {
-    val forStmt = ScalaPsiUtil.nameContext(named) match {
-      case nc @ (_: ScEnumerator | _: ScGenerator) =>
-        Option(PsiTreeUtil.getParentOfType(nc, classOf[ScForStatement]))
-      case _ => None
+    inReadAction {
+      val forStmt = ScalaPsiUtil.nameContext(named) match {
+        case nc@(_: ScEnumerator | _: ScGenerator) =>
+          Option(PsiTreeUtil.getParentOfType(nc, classOf[ScForStatement]))
+        case _ => None
+      }
+      forStmt.flatMap(_.enumerators).exists(_.isAncestorOf(named)) && forStmt.flatMap(_.body).exists(!_.isAncestorOf(place))
     }
-    forStmt.flatMap(_.enumerators).exists(_.isAncestorOf(named)) && forStmt.flatMap(_.body).exists(!_.isAncestorOf(place))
   }
 }
 
