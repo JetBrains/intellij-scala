@@ -1,0 +1,9 @@
+//TUPLE
+object My {
+  val t1:String Pair (<begin>List[Int] Pair Seq[Int]<end>) = ("abc",(List(5), Seq(123)))
+}
+--------------
+object My {
+  type TUPLE = List[Int] Pair Seq[Int]
+  val t1:String Pair TUPLE = ("abc",(List(5), Seq(123)))
+}
