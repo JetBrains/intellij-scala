@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.debugger
 
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.SourcePositionProvider
-import com.intellij.debugger.impl.{PositionUtil, DebuggerContextImpl}
+import com.intellij.debugger.impl.{DebuggerContextImpl, PositionUtil}
 import com.intellij.debugger.ui.tree.{FieldDescriptor, LocalVariableDescriptor, NodeDescriptor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
@@ -45,6 +45,7 @@ class ScalaSourcePositionProvider extends SourcePositionProvider {
   @tailrec
   private def resolveReferenceWithName(name: String, context: PsiElement): PsiElement = {
     if (!ScalaNamesUtil.isIdentifier(name)) return null
+    if (name == "$outer" || name.startsWith("x$")) return null
 
     val ref = ScalaPsiElementFactory.createExpressionWithContextFromText(name, context, context).asInstanceOf[ScReferenceExpression]
 
