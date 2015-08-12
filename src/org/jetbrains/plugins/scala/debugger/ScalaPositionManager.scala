@@ -353,6 +353,8 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     def elementsOnTheLine(file: ScalaFile, lineNumber: Int): Seq[PsiElement] = {
       val result = ArrayBuffer[PsiElement]()
       var elem = file.findElementAt(startLine)
+      if (elem == null) return Seq.empty
+
       while (elem.getTextOffset <= endLine) {
         result += elem
         elem = PsiTreeUtil.nextLeaf(elem, true)
