@@ -23,7 +23,7 @@ import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParenthesisedTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
@@ -446,6 +446,10 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
 
     def replaceTypeElement(element: ScTypeElement, name: String) = {
       val replacement = ScalaPsiElementFactory.createTypeElementFromText(name, element.getContext, element)
+      if (element.getParent.isInstanceOf[ScParenthesisedTypeElement]){
+        element.getNextSibling.delete()
+        element.getPrevSibling.delete()
+      }
       element.replace(replacement)
     }
 
