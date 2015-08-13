@@ -372,7 +372,12 @@ object Compatibility {
 
   def toParameter(p: ScParameter, substitutor: ScSubstitutor): Parameter = {
     val t = substitutor.subst(p.getType(TypingContext.empty).getOrNothing)
-    toParameter(p, t, if (p.isDefaultParameter) Some(substitutor.subst(getDefault(p).get)) else None)
+    toParameter(p, t, default = if (p.isDefaultParameter) {
+      getDefault(p) match {
+        case Some(scType) => Some(substitutor.subst(scType))
+        case None => None
+      }
+    } else None)
   }
 
   def toParameter(p: ScParameter, realType: ScType, default: Option[ScType] = None) = {
