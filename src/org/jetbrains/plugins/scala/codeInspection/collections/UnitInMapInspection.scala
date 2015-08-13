@@ -33,7 +33,8 @@ class UnitInMapInspection extends OperationOnCollectionInspection {
       }.filter(_.getTextLength > 0)
 
       unitTypeReturns.foreach { e =>
-        holder.registerProblem(e, InspectionBundle.message("expression.unit.return.in.map"), highlightType, fixes: _*)
+        if (e.isPhysical)
+          holder.registerProblem(e, InspectionBundle.message("expression.unit.return.in.map"), highlightType, fixes: _*)
       }
   }
 
