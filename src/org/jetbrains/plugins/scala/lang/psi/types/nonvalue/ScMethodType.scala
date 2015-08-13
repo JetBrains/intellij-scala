@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Failure, TypingContext}
 
 import scala.collection.immutable.{HashMap, HashSet}
 
@@ -40,7 +40,19 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
   def this(param: ScParameter) {
     this(param.name, param.deprecatedName, param.getType(TypingContext.empty).getOrAny, param.getType(TypingContext.empty).getOrAny,
       param.isDefaultParameter, param.isRepeatedParameter, param.isCallByNameParameter, param.index, Some(param),
-      if (param.isDefaultParameter) Some(param.getDefaultExpressionInSource.get.getTypeAfterImplicitConversion().typeResult.get) else None)
+      if (param.isDefaultParameter) {
+        param.getDefaultExpressionInSource match {
+          case Some(expr) => {
+            expr.getTypeAfterImplicitConversion().typeResult match {
+              case fail: Failure => None
+              case typeResult: TypeResult[ScType] => Some(typeResult.get)
+              case _ => None
+            }
+          }
+          case None => None
+        }
+      } else None
+    )
   }
 
   def this(param: PsiParameter) {
