@@ -4,6 +4,8 @@ import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
+import scala.util.Try
+
 /**
  * @author Nikolay.Tropin
  */
@@ -38,8 +40,8 @@ class InvocationTemplate(nameCondition: String => Boolean) {
           case _: ScReferenceExpression | _: ScMethodCall | _: ScGenericCall => s"${qual.getText}.apply"
           case _ => s"(${qual.getText}).apply"
         }
-        val ref = ScalaPsiElementFactory.createExpressionFromText(text, call).asInstanceOf[ScReferenceExpression]
-        if (refCondition(ref)) Some(qual, args)
+        val ref = Try(ScalaPsiElementFactory.createExpressionFromText(text, call).asInstanceOf[ScReferenceExpression]).toOption
+        if (ref.isDefined && refCondition(ref.get)) Some(qual, args)
         else None
       case MethodRepr(_, Some(MethodRepr(_, qualOpt, Some(ref), firstArgs)), None, secondArgs) if nameCondition(ref.refName) && refCondition(ref) => 
         Some(qualOpt.orNull, firstArgs ++ secondArgs)
