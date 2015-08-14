@@ -1,0 +1,11 @@
+//I
+val t:List[<begin>Int<end>] = List(45)
+
+if ( {
+  type I = Int
+  val my: I = 45
+}) {
+  println(11)
+}
+-------
+Introduced type alias conflicts with type name: I
