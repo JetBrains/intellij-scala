@@ -6,10 +6,13 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForStatement, ScWhileStmt, ScIfStmt, ScBlockExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScClass}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -56,36 +59,88 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
     //returns declaration and message
     val container = enclosingContainer(allOcc)
     if (container == null) return Array()
-    getForbiddenNames(container, name).toArray
+    val buf = new ArrayBuffer[(PsiNamedElement, String)]
+    buf ++= getForbiddenNames(container, name)
+    if (container.isInstanceOf[ScalaFile]) {
+      buf ++= getForbiddenNamesHelper(container, name)
+    }
+    buf.toArray
   }
 
+  //TODO maybe not the best way to handle with such matching
+  private def matchElement(element: PsiElement, name: String, buf: ArrayBuffer[(PsiNamedElement, String)]): Boolean = {
+    element match {
+      case typeAlias: ScTypeAliasDefinition if typeAlias.getName == name =>
+        buf += ((typeAlias, messageForTypeAliasMember(name)))
+        true
+      case typeDecl: ScTypeAliasDeclaration if typeDecl.getName == name =>
+        buf += ((typeDecl, messageForTypeAliasMember(name)))
+        true
+      case typeParametr: ScTypeParam if typeParametr.getName == name =>
+        buf += ((typeParametr, messageForTypeAliasMember(name)))
+        true
+      case clazz: ScClass =>
+        if (clazz.getName == name) {
+          buf += ((clazz, messageForClassMember(name)))
+        }
+        buf ++= getForbiddenNamesHelper(clazz, name)
+        true
+      case objectType: ScObject =>
+        if (objectType.getName == name) {
+          buf += ((objectType, messageForClassMember(name)))
+        }
+        buf ++= getForbiddenNamesHelper(objectType, name)
+        true
+      case fileType: ScalaFile =>
+        buf ++= getForbiddenNamesHelper(fileType, name)
+        true
+      case func: ScFunctionDefinition =>
+        buf ++= getForbiddenNamesHelper(func, name)
+        true
+      case funcBlock: ScBlockExpr =>
+        buf ++= getForbiddenNamesHelper(funcBlock, name)
+        true
+      case extendsBlock: ScExtendsBlock =>
+        buf ++= getForbiddenNamesHelper(extendsBlock, name)
+        true
+      case body: ScTemplateBody =>
+        buf ++= getForbiddenNamesHelper(body, name)
+        true
+      case ifStatement: ScIfStmt =>
+        buf ++= getForbiddenNamesHelper(ifStatement, name)
+        true
+      case whileStatement: ScWhileStmt =>
+        buf ++= getForbiddenNamesHelper(whileStatement, name)
+        true
+      case forStatement: ScForStatement =>
+        buf ++= getForbiddenNamesHelper(forStatement, name)
+        true
+      case _ => true
+    }
+  }
 
+  //traverse by typealias, classname, object, functions name that available in this point
   private def getForbiddenNames(position: PsiElement, name: String) = {
-    class FindTypeAliasProcessor extends BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
+    class FindTypeAliasProcessor extends BaseProcessor(ValueSet(ResolveTargets.CLASS, ResolveTargets.METHOD)) {
       val buf = new ArrayBuffer[(PsiNamedElement, String)]
 
       override def execute(element: PsiElement, state: ResolveState): Boolean = {
-        element match {
-          case typeAlias: ScTypeAliasDefinition if typeAlias.getName == name =>
-            buf += ((typeAlias, messageForTypeAliasMember(name)))
-            true
-          case typeDecl: ScTypeAliasDeclaration if typeDecl.getName == name =>
-            buf += ((typeDecl, messageForTypeAliasMember(name)))
-            true
-          case typeParametr: ScTypeParam if typeParametr.getName == name=>
-            buf += ((typeParametr, messageForTypeAliasMember(name)))
-            true
-          case clazz: ScClass if clazz.getName == name =>
-            buf += ((clazz, messageForClassMember(name)))
-            true
-          case _ => true
-        }
+        matchElement(element, name, buf)
       }
     }
 
     val processor = new FindTypeAliasProcessor
     PsiTreeUtil.treeWalkUp(processor, position, null, ResolveState.initial())
     processor.buf
+  }
+
+  //traverse
+  private def getForbiddenNamesHelper(commonParent: PsiElement, name: String): ArrayBuffer[(PsiNamedElement, String)] = {
+    val buf = new ArrayBuffer[(PsiNamedElement, String)]
+    for (child <- commonParent.getChildren) {
+      matchElement(child, name, buf)
+    }
+    buf
   }
 
   override def validateName(name: String, increaseNumber: Boolean): String = {
