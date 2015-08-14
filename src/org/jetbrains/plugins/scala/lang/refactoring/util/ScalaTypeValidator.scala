@@ -72,54 +72,41 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
   }
 
   //TODO maybe not the best way to handle with such matching
-  private def matchElement(element: PsiElement, name: String, buf: ArrayBuffer[(PsiNamedElement, String)]): Boolean = {
+  private def matchElement(element: PsiElement, name: String, buf: ArrayBuffer[(PsiNamedElement, String)]) = {
     element match {
       case typeAlias: ScTypeAliasDefinition if typeAlias.getName == name =>
         buf += ((typeAlias, messageForTypeAliasMember(name)))
-        true
       case typeDecl: ScTypeAliasDeclaration if typeDecl.getName == name =>
         buf += ((typeDecl, messageForTypeAliasMember(name)))
-        true
       case typeParametr: ScTypeParam if typeParametr.getName == name =>
         buf += ((typeParametr, messageForTypeAliasMember(name)))
-        true
       case clazz: ScClass =>
         if ((clazz.getName == name) && (PsiTreeUtil.getParentOfType(clazz, classOf[ScFunctionDefinition]) == null)) {
           buf += ((clazz, messageForClassMember(name)))
         }
         buf ++= getForbiddenNamesHelper(clazz, name)
-        true
       case objectType: ScObject =>
         if ((objectType.getName == name) && (PsiTreeUtil.getParentOfType(objectType, classOf[ScFunctionDefinition]) == null)) {
           buf += ((objectType, messageForClassMember(name)))
         }
         buf ++= getForbiddenNamesHelper(objectType, name)
-        true
       case fileType: ScalaFile =>
         buf ++= getForbiddenNamesHelper(fileType, name)
-        true
       case func: ScFunctionDefinition =>
         buf ++= getForbiddenNamesHelper(func, name)
-        true
       case funcBlock: ScBlockExpr =>
         buf ++= getForbiddenNamesHelper(funcBlock, name)
-        true
       case extendsBlock: ScExtendsBlock =>
         buf ++= getForbiddenNamesHelper(extendsBlock, name)
-        true
       case body: ScTemplateBody =>
         buf ++= getForbiddenNamesHelper(body, name)
-        true
       case ifStatement: ScIfStmt =>
         buf ++= getForbiddenNamesHelper(ifStatement, name)
-        true
       case whileStatement: ScWhileStmt =>
         buf ++= getForbiddenNamesHelper(whileStatement, name)
-        true
       case forStatement: ScForStatement =>
         buf ++= getForbiddenNamesHelper(forStatement, name)
-        true
-      case _ => true
+      case _ =>
     }
   }
 
