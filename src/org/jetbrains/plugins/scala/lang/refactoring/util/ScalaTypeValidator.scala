@@ -60,10 +60,14 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
     val container = enclosingContainer(allOcc)
     if (container == null) return Array()
     val buf = new ArrayBuffer[(PsiNamedElement, String)]
-    buf ++= getForbiddenNames(container, name)
+
     if (container.isInstanceOf[ScalaFile]) {
-      buf ++= getForbiddenNamesHelper(container, name)
+      buf ++= getForbiddenNames(container, name)
+    } else {
+      buf ++= getForbiddenNames(container.getContext, name)
     }
+
+    buf ++= getForbiddenNamesHelper(container, name)
     buf.toArray
   }
 
@@ -80,13 +84,13 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
         buf += ((typeParametr, messageForTypeAliasMember(name)))
         true
       case clazz: ScClass =>
-        if (clazz.getName == name) {
+        if ((clazz.getName == name) && (PsiTreeUtil.getParentOfType(clazz, classOf[ScFunctionDefinition]) == null)) {
           buf += ((clazz, messageForClassMember(name)))
         }
         buf ++= getForbiddenNamesHelper(clazz, name)
         true
       case objectType: ScObject =>
-        if (objectType.getName == name) {
+        if ((objectType.getName == name) && (PsiTreeUtil.getParentOfType(objectType, classOf[ScFunctionDefinition]) == null)) {
           buf += ((objectType, messageForClassMember(name)))
         }
         buf ++= getForbiddenNamesHelper(objectType, name)
@@ -119,13 +123,34 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
     }
   }
 
-  //traverse by typealias, classname, object, functions name that available in this point
+  //find conflicts on position level and above
   private def getForbiddenNames(position: PsiElement, name: String) = {
-    class FindTypeAliasProcessor extends BaseProcessor(ValueSet(ResolveTargets.CLASS, ResolveTargets.METHOD)) {
+    class FindTypeAliasProcessor extends BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
       val buf = new ArrayBuffer[(PsiNamedElement, String)]
 
       override def execute(element: PsiElement, state: ResolveState): Boolean = {
-        matchElement(element, name, buf)
+        element match {
+          case typeAlias: ScTypeAliasDefinition if typeAlias.getName == name =>
+            buf += ((typeAlias, messageForTypeAliasMember(name)))
+            true
+          case typeDecl: ScTypeAliasDeclaration if typeDecl.getName == name =>
+            buf += ((typeDecl, messageForTypeAliasMember(name)))
+            true
+          case typeParametr: ScTypeParam if typeParametr.getName == name =>
+            buf += ((typeParametr, messageForTypeAliasMember(name)))
+            true
+          case clazz: ScClass =>
+            if (clazz.getName == name) {
+              buf += ((clazz, messageForClassMember(name)))
+            }
+            true
+          case objectType: ScObject =>
+            if (objectType.getName == name) {
+              buf += ((objectType, messageForClassMember(name)))
+            }
+            true
+          case _ => true
+        }
       }
     }
 
@@ -134,7 +159,7 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
     processor.buf
   }
 
-  //traverse
+  //find conflict in ALL child from current Parent recursively
   private def getForbiddenNamesHelper(commonParent: PsiElement, name: String): ArrayBuffer[(PsiNamedElement, String)] = {
     val buf = new ArrayBuffer[(PsiNamedElement, String)]
     for (child <- commonParent.getChildren) {
