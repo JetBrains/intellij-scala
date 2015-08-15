@@ -1,8 +1,14 @@
 package org.jetbrains.plugins.hocon.lexer
 
+import org.jetbrains.plugins.hocon.TestSuiteCompanion
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.runner.RunWith
+import org.junit.runners.AllTests
 
+object HoconLexerTest extends TestSuiteCompanion[HoconLexerTest]
+
+@RunWith(classOf[AllTests])
 class HoconLexerTest extends BaseScalaFileSetTestCase(TestUtils.getTestDataPath + "/hocon/lexer/data") {
   def advance(lexer: HoconLexer) = {
     lexer.advance()
