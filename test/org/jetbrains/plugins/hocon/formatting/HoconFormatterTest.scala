@@ -8,10 +8,16 @@ import com.intellij.openapi.util.JDOMUtil
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import org.jetbrains.plugins.hocon.CommonUtil.TextRange
+import org.jetbrains.plugins.hocon.TestSuiteCompanion
 import org.jetbrains.plugins.scala.testcases.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
+import org.junit.runner.RunWith
+import org.junit.runners.AllTests
 
+object HoconFormatterTest extends TestSuiteCompanion[HoconFormatterTest]
+
+@RunWith(classOf[AllTests])
 class HoconFormatterTest extends ScalaFileSetTestCase(TestUtils.getTestDataPath + "/hocon/formatter/data") {
 
   protected def runTest(file: File) = {

@@ -6,11 +6,17 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.ElementManipulators
+import org.jetbrains.plugins.hocon.TestSuiteCompanion
 import org.jetbrains.plugins.hocon.psi.HString
 import org.jetbrains.plugins.scala.testcases.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
+import org.junit.runner.RunWith
+import org.junit.runners.AllTests
 
+object HStringManipulatorTest extends TestSuiteCompanion[HStringManipulatorTest]
+
+@RunWith(classOf[AllTests])
 class HStringManipulatorTest extends ScalaFileSetTestCase(TestUtils.getTestDataPath + "/hocon/stringManipulator/data") {
 
   protected def runTest(file: File) = {
