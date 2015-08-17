@@ -11,6 +11,7 @@ import com.intellij.execution.process.OSProcessHandler
 import org.jetbrains.sbt.project.structure.SbtRunner._
 
 import scala.collection.JavaConverters._
+import scala.util.matching.Regex
 import scala.xml.{Elem, XML}
 
 /**
@@ -160,24 +161,14 @@ object SbtRunner {
     case (acc, _) => acc
   }
 
-  private def implementationVersionOf(jar: File): Option[String] = {
-    readManifestAttributeFrom(jar, "Implementation-Version")
-  }
-
-  private def readManifestAttributeFrom(file: File, name: String): Option[String] = {
-    val jar = new JarFile(file)
-    try {
-      using(new BufferedInputStream(jar.getInputStream(new JarEntry("META-INF/MANIFEST.MF")))) { input =>
-        val manifest = new java.util.jar.Manifest(input)
-        val attributes = manifest.getMainAttributes
-        Option(attributes.getValue(name))
-      }
-    }
-    finally {
-      if (jar.isInstanceOf[Closeable]) {
-        jar.close()
-      }
-    }
+  private def implementationVersionOf(jar: File): Option[String] = { None
+    val appProperties = BootPropertiesReader(jar, sectionName = "app")
+    for {
+      name <- appProperties.find(_.name == "name").map(_.value)
+      versionStr <- appProperties.find(_.name == "version").map(_.value)
+      version <- parseVersionFromBootProperties(versionStr)
+      if name == "sbt"
+    } yield version
   }
 
   private def sbtVersionIn(directory: File): Option[String] = {
@@ -192,4 +183,72 @@ object SbtRunner {
       Option(properties.getProperty(name))
     }
   }
+
+  private def parseVersionFromBootProperties(versionStr: String): Option[String] = {
+    val substStart = "(?:\\$\\{sbt\\.version-)?"
+    val readStart = "(?:read\\(sbt\\.version\\)\\[)?"
+    val readEnd = "(?:\\])?"
+    val substEnd = "(?:\\})?"
+    val versionPattern = (substStart + readStart + "[0-9\\.]+" + readEnd + substEnd).r
+    versionStr match {
+      case versionPattern(version) => Some(version)
+      case _ => None
+    }
+  }
 }
+
+object BootPropertiesReader {
+
+  final case class Property(name: String, value: String)
+
+  final case class Section(name: String, properties: Seq[Property])
+
+  def apply(file: File, sectionName: String): Seq[Property] =
+    apply(file).find(_.name == sectionName).fold(Seq.empty[Property])(_.properties)
+
+  def apply(file: File): Seq[Section] = {
+    val jar = new JarFile(file)
+    try {
+      using(jar.getInputStream(new JarEntry("sbt/sbt.boot.properties"))) { input =>
+        val lines = scala.io.Source.fromInputStream(input).getLines()
+        readLines(lines)
+      }
+    }
+    finally {
+      if (jar.isInstanceOf[Closeable]) {
+        jar.close()
+      }
+    }
+  }
+
+  type ReaderState = (Seq[Section], Option[String], Seq[Property])
+
+  private val emptyReaderState: ReaderState = (Seq.empty, None, Seq.empty)
+
+  private def readLines(lines: Iterator[String]): Seq[Section] = {
+    val (prevSections, lastSection, lastProperties) =
+      lines.map(_.trim).foldLeft[ReaderState](emptyReaderState)((acc, line) => readLine(line, acc))
+    appendSection(prevSections, lastSection, lastProperties)
+  }
+
+  private def readLine(line: String, state: ReaderState): ReaderState = state match {
+    case (prevSections, lastSection, lastProperties) =>
+      if (line.startsWith("#")) {
+        state
+      } else if (line.startsWith("[")) {
+        val newSections = appendSection(prevSections, lastSection, lastProperties)
+        val braceEnd = line.indexOf(']')
+        val section = (braceEnd != 1).option(line.substring(1, braceEnd+1).trim)
+        (newSections, section, Seq.empty)
+      } else {
+        line.split(":", 2) match {
+          case Array(name, value) => (prevSections, lastSection, lastProperties :+ Property(name, value))
+          case _ => state
+        }
+      }
+  }
+
+  private def appendSection(sections: Seq[Section], sectionName: Option[String], properties: Seq[Property]): Seq[Section] =
+    sections ++ sectionName.map(name => Section(name, properties)).toSeq
+}
+
