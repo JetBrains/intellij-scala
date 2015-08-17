@@ -39,6 +39,17 @@ object ScalaTypeValidator {
             editor: Editor,
             file: PsiFile,
             element: PsiElement,
+            container: PsiElement,
+            noOccurrences: Boolean): ScalaTypeValidator = {
+    new ScalaTypeValidator(conflictsReporter, project, element, noOccurrences, container, container)
+  }
+
+
+  def apply(conflictsReporter: ConflictsReporter,
+            project: Project,
+            editor: Editor,
+            file: PsiFile,
+            element: PsiElement,
             occurrences: Array[TextRange]): ScalaTypeValidator = {
     val container = ScalaRefactoringUtil.enclosingContainer(ScalaRefactoringUtil.commonParent(file, occurrences: _*))
     val containerOne = ScalaRefactoringUtil.enclosingContainer(element)

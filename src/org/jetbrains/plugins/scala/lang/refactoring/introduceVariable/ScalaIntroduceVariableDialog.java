@@ -49,7 +49,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   private Project project;
   private ScType[] myTypes;
   private int occurrencesCount;
-  private ScalaValidator validator;
+  private ScalaVariableValidator validator;
   private String[] possibleNames;
 
   private LinkedHashMap<String, ScType> myTypeMap = null;
@@ -61,7 +61,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
   public ScalaIntroduceVariableDialog(Project project,
                                       ScType[] myTypes,
                                       int occurrencesCount,
-                                      ScalaValidator validator,
+                                      ScalaVariableValidator validator,
                                       String[] possibleNames) {
     super(project, true);
     this.project = project;
@@ -76,9 +76,6 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     setTitle(REFACTORING_NAME);
     init();
     setUpDialog();
-    if (validator instanceof ScalaTypeValidator) {
-      setUpDialogForTypes();
-    }
     updateOkStatus();
   }
 
@@ -235,13 +232,6 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     super.doOKAction();
   }
 
-  protected void setUpDialogForTypes() {
-    setTitle(ScalaBundle.message("introduce.type.alias.title"));
-    myCbTypeSpec.setVisible(false);
-    declareVariableCheckBox.setVisible(false);
-    myTypeComboBox.setEnabled(true);
-    myTypeLabel.setText("Type");
-  }
 
   protected void doHelpAction() {
     HelpManager.getInstance().invokeHelp(HelpID.INTRODUCE_VARIABLE);
