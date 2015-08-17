@@ -163,10 +163,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
         val typeElement: ScTypeElement = ScalaRefactoringUtil.getTypeEement(project, editor, file, startOffset, endOffset).
           getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.valid.type"), project, editor, REFACTORING_NAME))
 
-
-
-
         val possibleScopes = ScopeSuggester.suggestScopes(this, project, editor, file, typeElement)
+
+        if (possibleScopes.size() == 0) {
+          showErrorMessage(ScalaBundle.message("cannot.refactor.not.script.file"), project, editor, REFACTORING_NAME)
+        }
 
         def runWithDialog() {
           val dialog = getDialogForTypes(project, editor, typeElement, possibleScopes)
@@ -287,8 +288,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       PsiDocumentManager.getInstance(element.getProject).commitDocument(document)
       val newEnd = start + text.length
       editor.getCaretModel.moveToOffset(newEnd)
-      val decl = PsiTreeUtil.findElementOfClassAtOffset(file, start, classOf[ScMember], /*strictStart =*/false)
-      lazy val enum = PsiTreeUtil.findElementOfClassAtOffset(file, start, classOf[ScEnumerator], /*strictStart =*/false)
+      val decl = PsiTreeUtil.findElementOfClassAtOffset(file, start, classOf[ScMember], /*strictStart =*/ false)
+      lazy val enum = PsiTreeUtil.findElementOfClassAtOffset(file, start, classOf[ScEnumerator], /*strictStart =*/ false)
       Option(decl).getOrElse(enum)
     }
 
@@ -571,7 +572,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
     if (occurrences.length > 1)
       occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, occurrences.map(_.getTextRange), editor)
 
-    val dialog = new ScalaIntroduceTypeAliasDialog(project, typeElement.calcType, possibleScopes)
+    val dialog = new ScalaIntroduceTypeAliasDialog(project, editor, typeElement.calcType, possibleScopes)
     dialog.show()
     if (!dialog.isOK) {
       if (occurrences.length > 1) {
