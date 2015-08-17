@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForStatement, ScWhileStm
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScClass}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject, ScClass}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -91,16 +91,11 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
         buf += ((typeDecl, messageForTypeAliasMember(name)))
       case typeParametr: ScTypeParam if typeParametr.getName == name =>
         buf += ((typeParametr, messageForTypeAliasMember(name)))
-      case clazz: ScClass =>
-        if ((clazz.getName == name) && (PsiTreeUtil.getParentOfType(clazz, classOf[ScFunctionDefinition]) == null)) {
-          buf += ((clazz, messageForClassMember(name)))
+      case templateDefinition: ScTemplateDefinition =>
+        if ((templateDefinition.getName == name) && (PsiTreeUtil.getParentOfType(templateDefinition, classOf[ScFunctionDefinition]) == null)) {
+          buf += ((templateDefinition, messageForClassMember(name)))
         }
-        buf ++= getForbiddenNamesHelper(clazz, name)
-      case objectType: ScObject =>
-        if ((objectType.getName == name) && (PsiTreeUtil.getParentOfType(objectType, classOf[ScFunctionDefinition]) == null)) {
-          buf += ((objectType, messageForClassMember(name)))
-        }
-        buf ++= getForbiddenNamesHelper(objectType, name)
+        buf ++= getForbiddenNamesHelper(templateDefinition, name)
       case fileType: ScalaFile =>
         buf ++= getForbiddenNamesHelper(fileType, name)
       case func: ScFunctionDefinition =>
