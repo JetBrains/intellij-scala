@@ -123,7 +123,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
           String typeName = getName(fileText);
 
           introduceVariableHandler.runRefactoringForTypes(startOffset, endOffset, myFile, myEditor, typeElement,
-                  typeName, occurrences, replaceAllOccurences);
+                  typeName, occurrences, replaceAllOccurences, null);
 
           result = myEditor.getDocument().getText();
           result = result.substring(result.indexOf("\n") + 1);
