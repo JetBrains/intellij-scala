@@ -161,7 +161,7 @@ object SbtRunner {
     case (acc, _) => acc
   }
 
-  private def implementationVersionOf(jar: File): Option[String] = { None
+  private[structure] def implementationVersionOf(jar: File): Option[String] = {
     val appProperties = BootPropertiesReader(jar, sectionName = "app")
     for {
       name <- appProperties.find(_.name == "name").map(_.value)
