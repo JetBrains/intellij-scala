@@ -35,36 +35,6 @@ class DummyAction extends AnAction {
   override def actionPerformed(e: AnActionEvent): Unit = {
     implicit val currentEvent = e
 
-    def applyExpansion(resolved: ResolvedMacroExpansion) = {
-        if (resolved.psiElement.isEmpty)
-          throw new UnresolvedExpansion
-        resolved.psiElement.get.getElement match {
-          case (annot: ScAnnotation) => // TODO
-              expandAnnotation(annot, resolved.expansion)
-          case (mc: ScMethodCall) =>
-              expandMacroCall(mc, resolved.expansion)
-          case (other) => () // unreachable
-        }
-    }
-
-    def applyExpansions(expansions: Seq[ResolvedMacroExpansion], triedResolving: Boolean = false): Unit = {
-      expansions match {
-        case x::xs =>
-          try {
-            applyExpansion(x)
-            applyExpansions(xs)
-          }
-          catch {
-            case e: UnresolvedExpansion if !triedResolving =>
-              applyExpansions(tryResolveExpansionPlace(x.expansion) :: xs, triedResolving = true)
-            case e: UnresolvedExpansion if triedResolving =>
-              LOG.warn(s"unable to expand ${x.expansion.place}, cannot resolve place, skipping")
-              applyExpansions(xs)
-          }
-        case Nil =>
-      }
-    }
-
     val sourceEditor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
     val psiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(sourceEditor.getDocument)
     val candidates = psiFile match {
@@ -78,14 +48,29 @@ class DummyAction extends AnAction {
     }
     val ensugared = expansions.map(e => MacroExpansion(e.place, ensugarExpansion(e.body)))
     val resolved = tryResolveExpansionPlaces(ensugared)
+
+    // if macro is under cursor, expand it, otherwise expand all macros in current file
+    resolved
+      .find(_.expansion.place.line == sourceEditor.getCaretModel.getLogicalPosition.line+1)
+      .map(expandMacroUnderCursor)
+      .getOrElse(expandAllMacroInCurrentFile(resolved))
+  }
+
+
+  def expandMacroUnderCursor(expansion: ResolvedMacroExpansion)(implicit e: AnActionEvent) = {
     inWriteCommandAction(e.getProject) {
-      applyExpansions(resolved.toList)
+      applyExpansion(expansion)
       e.getProject
     }
   }
 
+  def expandAllMacroInCurrentFile(expansions: Seq[ResolvedMacroExpansion])(implicit e: AnActionEvent)  = {
+    inWriteCommandAction(e.getProject) {
+      applyExpansions(expansions.toList)
+      e.getProject
+    }
+  }
 
-  //
   def findCandidatesInFile(file: ScalaFile): Seq[ScalaPsiElement] = {
     val buffer = scala.collection.mutable.ListBuffer[ScalaPsiElement]()
     val visitor = new ScalaRecursiveElementVisitor {
@@ -98,6 +83,40 @@ class DummyAction extends AnAction {
     }
     file.accept(visitor)
     buffer.toSeq
+  }
+
+  def applyExpansion(resolved: ResolvedMacroExpansion)(implicit e: AnActionEvent): Unit = {
+    if (resolved.psiElement.isEmpty)
+      throw new UnresolvedExpansion
+    if (resolved.expansion.body.isEmpty) {
+      LOG.warn(s"got empty expansion at ${resolved.expansion.place}, skipping")
+      return
+    }
+    resolved.psiElement.get.getElement match {
+      case (annot: ScAnnotation) => // TODO
+        expandAnnotation(annot, resolved.expansion)
+      case (mc: ScMethodCall) =>
+        expandMacroCall(mc, resolved.expansion)
+      case (other) => () // unreachable
+    }
+  }
+
+  def applyExpansions(expansions: Seq[ResolvedMacroExpansion], triedResolving: Boolean = false)(implicit e: AnActionEvent): Unit = {
+    expansions match {
+      case x::xs =>
+        try {
+          applyExpansion(x)
+          applyExpansions(xs)
+        }
+        catch {
+          case exc: UnresolvedExpansion if !triedResolving =>
+            applyExpansions(tryResolveExpansionPlace(x.expansion) :: xs, triedResolving = true)
+          case exc: UnresolvedExpansion if triedResolving =>
+            LOG.warn(s"unable to expand ${x.expansion.place}, cannot resolve place, skipping")
+            applyExpansions(xs)
+        }
+      case Nil =>
+    }
   }
 
   def expandAnnotation(place: ScAnnotation, expansion: MacroExpansion)(implicit e: AnActionEvent) = {
