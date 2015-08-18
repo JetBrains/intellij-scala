@@ -2259,7 +2259,7 @@ object ScalaPsiUtil {
     }
   }
 
-  def addStatementBefore(stmt: ScBlockStatement, parent: PsiElement, anchorOpt: Option[PsiElement]): ScBlockStatement = {
+  private def addBefore[T <: PsiElement](element: T, parent: PsiElement, anchorOpt: Option[PsiElement]): T ={
     val anchor = anchorOpt match {
       case Some(a) => a
       case None =>
@@ -2269,7 +2269,7 @@ object ScalaPsiUtil {
     }
 
     def addBefore(e: PsiElement) = parent.addBefore(e, anchor)
-    def newLine: PsiElement = ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi
+    def newLine: PsiElement = ScalaPsiElementFactory.createNewLineNode(element.getManager).getPsi
 
     val anchorEndsLine = ScalaPsiUtil.isLineTerminator(anchor)
     if (anchorEndsLine) addBefore(newLine)
@@ -2277,12 +2277,20 @@ object ScalaPsiUtil {
     val anchorStartsLine = ScalaPsiUtil.isLineTerminator(anchor.getPrevSibling)
     if (!anchorStartsLine) addBefore(newLine)
 
-    val addedStmt = addBefore(stmt).asInstanceOf[ScBlockStatement]
+    val addedStmt = addBefore(element).asInstanceOf[T]
 
     if (!anchorEndsLine) addBefore(newLine)
     else anchor.replace(newLine)
 
     addedStmt
+  }
+
+  def addStatementBefore(stmt: ScBlockStatement, parent: PsiElement, anchorOpt: Option[PsiElement]): ScBlockStatement = {
+    addBefore[ScBlockStatement](stmt, parent, anchorOpt)
+  }
+
+  def addTypeAliasBefore(typeAlias: ScTypeAlias, parent: PsiElement, anchorOpt: Option[PsiElement]): ScTypeAlias = {
+    addBefore[ScTypeAlias](typeAlias, parent, anchorOpt)
   }
 
   def changeVisibility(member: ScModifierListOwner, newVisibility: String): Unit = {
