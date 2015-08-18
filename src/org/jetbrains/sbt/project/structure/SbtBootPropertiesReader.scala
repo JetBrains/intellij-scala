@@ -1,8 +1,8 @@
 package org.jetbrains.sbt
 package project.structure
 
-import java.io.{Closeable, File}
-import java.util.jar.JarFile
+import java.io.{BufferedInputStream, Closeable, File}
+import java.util.jar.{JarEntry, JarFile}
 
 /**
  * @author Nikolay Obedin
@@ -20,9 +20,11 @@ object SbtBootPropertiesReader {
   def apply(file: File): Seq[Section] = {
     val jar = new JarFile(file)
     try {
-      using(jar.getInputStream(jar.getJarEntry("sbt/sbt.boot.properties"))) { input =>
-        val lines = scala.io.Source.fromInputStream(input).getLines()
-        readLines(lines)
+      Option(jar.getEntry("sbt/sbt.boot.properties")).fold(Seq.empty[Section]) { entry =>
+        using(new BufferedInputStream(jar.getInputStream(entry))) { input =>
+          val lines = scala.io.Source.fromInputStream(input).getLines()
+          readLines(lines)
+        }
       }
     }
     finally {
