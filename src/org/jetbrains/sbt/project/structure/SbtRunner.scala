@@ -21,8 +21,6 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
                 customLauncher: Option[File], customStructureDir: Option[String]) {
   private val LauncherDir = getSbtLauncherDir
   private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
-  private val DefaultSbtVersion = "0.13.8"
-  private val SinceSbtVersion = "0.12.4"
 
   private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
 
@@ -40,11 +38,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
   }
 
   private def read0(directory: File, options: String)(listener: (String) => Unit): Either[Exception, Elem] = {
-    val sbtVersion = sbtVersionIn(directory)
-            .orElse(sbtVersionInBootPropertiesOf(SbtLauncher))
-            .orElse(implementationVersionOf(SbtLauncher))
-            .getOrElse(DefaultSbtVersion)
-
+    val sbtVersion = detectSbtVersion(directory, SbtLauncher)
     val majorSbtVersion = numbersOf(sbtVersion).take(2).mkString(".")
 
     if (compare(sbtVersion, SinceSbtVersion) < 0) {
@@ -155,6 +149,9 @@ object SbtRunner {
 
   def getDefaultLauncher = getSbtLauncherDir / "sbt-launch.jar"
 
+  private[structure] val DefaultSbtVersion = "0.13.8"
+  private val SinceSbtVersion = "0.12.4"
+
   private def numbersOf(version: String): Seq[String] = version.split("\\.").toSeq
 
   private def compare(v1: String, v2: String): Int = numbersOf(v1).zip(numbersOf(v2)).foldLeft(0) {
@@ -162,17 +159,24 @@ object SbtRunner {
     case (acc, _) => acc
   }
 
-  private def implementationVersionOf(jar: File): Option[String] = {
+  private[structure] def detectSbtVersion(directory: File, sbtLauncher: File): String =
+    sbtVersionIn(directory)
+      .orElse(sbtVersionInBootPropertiesOf(sbtLauncher))
+      .orElse(implementationVersionOf(sbtLauncher))
+      .getOrElse(DefaultSbtVersion)
+
+  private def implementationVersionOf(jar: File): Option[String] =
     readManifestAttributeFrom(jar, "Implementation-Version")
-  }
 
   private def readManifestAttributeFrom(file: File, name: String): Option[String] = {
     val jar = new JarFile(file)
     try {
-      using(new BufferedInputStream(jar.getInputStream(new JarEntry("META-INF/MANIFEST.MF")))) { input =>
-        val manifest = new java.util.jar.Manifest(input)
-        val attributes = manifest.getMainAttributes
-        Option(attributes.getValue(name))
+      Option(jar.getJarEntry("META-INF/MANIFEST.MF")).flatMap { entry =>
+        using(new BufferedInputStream(jar.getInputStream(entry))) { input =>
+          val manifest = new java.util.jar.Manifest(input)
+          val attributes = manifest.getMainAttributes
+          Option(attributes.getValue(name))
+        }
       }
     }
     finally {
@@ -182,7 +186,7 @@ object SbtRunner {
     }
   }
 
-  private[structure] def sbtVersionInBootPropertiesOf(jar: File): Option[String] = {
+  private def sbtVersionInBootPropertiesOf(jar: File): Option[String] = {
     val appProperties = SbtBootPropertiesReader(jar, sectionName = "app")
     for {
       name <- appProperties.find(_.name == "name").map(_.value)
