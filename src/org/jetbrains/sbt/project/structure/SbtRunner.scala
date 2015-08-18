@@ -186,17 +186,20 @@ object SbtRunner {
     }
   }
 
-  private def sbtVersionInBootPropertiesOf(jar: File): Option[String] = {
-    val appProperties = SbtBootPropertiesReader(jar, sectionName = "app")
+  private def sbtVersionInBootPropertiesOf(jar: File): Option[String] =
     for {
-      name <- appProperties.find(_.name == "name").map(_.value)
-      versionStr <- appProperties.find(_.name == "version").map(_.value)
-      version <- parseVersionFromBootProperties(versionStr)
+      appProperties <- SbtBootPropertiesReader.readSection(jar, sectionName = "app")
+      name <- appProperties.valueOf("name")
       if name == "sbt"
+      versionStr <- appProperties.valueOf("version")
+      version <- parseVersionFromBootProperties(versionStr)
     } yield version
-  }
 
   private def parseVersionFromBootProperties(versionStr: String): Option[String] = {
+    // `versionPattern` is intended to parse strings like these:
+    //   - ${sbt.version-read(sbt.version)[0.12.4]}
+    //   - read(sbt.version)[0.13.0]
+    //   - 0.13.9
     val substStart = "(?:\\$\\{sbt\\.version-)?"
     val readStart = "(?:read\\(sbt\\.version\\)\\[)?"
     val readEnd = "\\]?"
