@@ -187,9 +187,9 @@ object SbtRunner {
   private def parseVersionFromBootProperties(versionStr: String): Option[String] = {
     val substStart = "(?:\\$\\{sbt\\.version-)?"
     val readStart = "(?:read\\(sbt\\.version\\)\\[)?"
-    val readEnd = "(?:\\])?"
-    val substEnd = "(?:\\})?"
-    val versionPattern = (substStart + readStart + "[0-9\\.]+" + readEnd + substEnd).r
+    val readEnd = "\\]?"
+    val substEnd = "\\}?"
+    val versionPattern = (substStart + readStart + "([0-9\\.]+)" + readEnd + substEnd).r
     versionStr match {
       case versionPattern(version) => Some(version)
       case _ => None
@@ -209,7 +209,7 @@ object BootPropertiesReader {
   def apply(file: File): Seq[Section] = {
     val jar = new JarFile(file)
     try {
-      using(jar.getInputStream(new JarEntry("sbt/sbt.boot.properties"))) { input =>
+      using(jar.getInputStream(jar.getJarEntry("sbt/sbt.boot.properties"))) { input =>
         val lines = scala.io.Source.fromInputStream(input).getLines()
         readLines(lines)
       }
@@ -238,11 +238,11 @@ object BootPropertiesReader {
       } else if (line.startsWith("[")) {
         val newSections = appendSection(prevSections, lastSection, lastProperties)
         val braceEnd = line.indexOf(']')
-        val section = (braceEnd != 1).option(line.substring(1, braceEnd+1).trim)
+        val section = (braceEnd != 1).option(line.substring(1, braceEnd).trim)
         (newSections, section, Seq.empty)
       } else {
         line.split(":", 2) match {
-          case Array(name, value) => (prevSections, lastSection, lastProperties :+ Property(name, value))
+          case Array(name, value) => (prevSections, lastSection, lastProperties :+ Property(name.trim, value.trim))
           case _ => state
         }
       }
