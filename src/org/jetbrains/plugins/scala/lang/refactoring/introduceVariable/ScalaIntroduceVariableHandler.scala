@@ -23,6 +23,7 @@ import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParenthesisedTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -178,9 +179,13 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
           }
           val typeName: String = dialog.getEnteredName
           val replaceAllOccurrences: Boolean = dialog.isReplaceAllOccurrences
-          val newOccurrences = dialog.getSelectedScope.occurrences
+
+          val occurrences: OccurrenceHandler = OccurrenceHandler(typeElement,
+            dialog.getSelectedScope.occurrences, dialog.isReplaceAllOccurrences,
+            dialog.getSelectedScope.occInCompanionObj, dialog.isReplaceOccurrenceIncompanionObject)
+
           val parent = dialog.getSelectedScope.fileEncloser
-          runRefactoringForTypes(startOffset, endOffset, file, editor, typeElement, typeName, newOccurrences, replaceAllOccurrences, parent)
+          runRefactoringForTypes(startOffset, endOffset, file, editor, typeElement, typeName, occurrences, replaceAllOccurrences, parent)
         }
 
         val occurrences: Array[ScTypeElement] = possibleScopes.get(0).occurrences
@@ -194,7 +199,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
               import scala.collection.JavaConversions.asJavaCollection
               val suggestedNamesSet = new util.LinkedHashSet[String](suggestedNames.toIterable)
               val introduceRunnable: Computable[SmartPsiElementPointer[PsiElement]] =
-                introduceTypeAlias(startOffset, endOffset, file, editor, typeElement, occurrences, suggestedNames(0), replaceAllOccurrences);
+                introduceTypeAlias(startOffset, endOffset, file, editor, typeElement,
+                  OccurrenceHandler(typeElement, occurrences, replaceAllOccurrences), suggestedNames(0), replaceAllOccurrences);
 
               CommandProcessor.getInstance.executeCommand(project, new Runnable {
                 def run() {
@@ -441,21 +447,36 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
     SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(createdDeclaration)
   }
 
-  def runRefactoringForTypeInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor,
+    def runRefactoringForTypeInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor,
                                   typeElement: ScTypeElement, typeName: String,
-                                  occurrences_ : Array[ScTypeElement], replaceAllOccurrences: Boolean, suggestedParent: PsiElement) = {
+                                  occurrences: OccurrenceHandler, replaceAllOccurrences: Boolean, suggestedParent: PsiElement) = {
 
-    val occurrences: Array[ScTypeElement] = if (!replaceAllOccurrences) {
-      Array[ScTypeElement](typeElement)
-    } else occurrences_
-
-    def replaceTypeElement(element: ScTypeElement, name: String) = {
-      val replacement = ScalaPsiElementFactory.createTypeElementFromText(name, element.getContext, element)
-      if (element.getParent.isInstanceOf[ScParenthesisedTypeElement]) {
-        element.getNextSibling.delete()
-        element.getPrevSibling.delete()
+    def replaceTypeElement(occurrences: OccurrenceHandler, name: String, typeAlias: PsiElement) = {
+      def replaceHelper(typeElement: Option[ScTypeElement]): Option[PsiElement] = {
+        if (typeElement.isDefined) {
+          val value = typeElement.get
+          val replacement = ScalaPsiElementFactory.createTypeElementFromText(name, value.getContext, value)
+          //remove parethesis around typeElement
+          if (value.getParent.isInstanceOf[ScParenthesisedTypeElement]) {
+            value.getNextSibling.delete()
+            value.getPrevSibling.delete()
+          }
+          Option(value.replace(replacement))
+        } else {
+          None
+        }
       }
-      element.replace(replacement)
+
+      occurrences.getUsualOccurrences.foreach((x: ScTypeElement) => replaceHelper(Option(x)))
+
+      val result = replaceHelper(occurrences.getCompanionObjOccurrences.headOption)
+      if (result.isDefined) {
+        result.get.getFirstChild.asInstanceOf[ScStableCodeReferenceElement].bindToElement(typeAlias)
+      }
+
+      if (occurrences.getCompanionObjOccurrences.length > 1) {
+        occurrences.getCompanionObjOccurrences.tail.foreach((x: ScTypeElement) => replaceHelper(Option(x)))
+      }
     }
 
     //work on class(object) level
@@ -463,7 +484,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       if (suggestedParent != null) {
         return suggestedParent
       }
-      val commonParent: PsiElement = PsiTreeUtil.findCommonParent(occurrences: _*)
+      val commonParent: PsiElement = PsiTreeUtil.findCommonParent(occurrences.getAllOccurrences: _*)
       val parent = commonParent match {
         case templateBody: ScTemplateBody =>
           templateBody
@@ -486,14 +507,14 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       result
     }
 
-    val psiElement: PsiElement = addTypeAliasDefinition(typeName, occurrences(0), getParent)
-    occurrences.foreach(replaceTypeElement(_, typeName))
+    val psiElement: PsiElement = addTypeAliasDefinition(typeName, occurrences.getAllOccurrences(0), getParent)
+    replaceTypeElement(occurrences, typeName, psiElement)
     SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(psiElement)
   }
 
   def runRefactoringForTypes(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor,
                              typeElement: ScTypeElement, typeName: String,
-                             occurrences_ : Array[ScTypeElement], replaceAllOccurrences: Boolean, parent: PsiElement) = {
+                             occurrences_ : OccurrenceHandler, replaceAllOccurrences: Boolean, parent: PsiElement) = {
     val runnable = new Runnable() {
       def run() {
         runRefactoringForTypeInside(startOffset, endOffset, file, editor,
@@ -530,7 +551,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
   }
 
   def introduceTypeAlias(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, typeElement: ScTypeElement,
-                         occurrences_ : Array[ScTypeElement], typeName: String,
+                         occurrences_ : OccurrenceHandler, typeName: String,
                          replaceAllOccurrences: Boolean): Computable[SmartPsiElementPointer[PsiElement]] = {
 
     new Computable[SmartPsiElementPointer[PsiElement]]() {
@@ -572,7 +593,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
     if (occurrences.length > 1)
       occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, occurrences.map(_.getTextRange), editor)
 
-    val dialog = new ScalaIntroduceTypeAliasDialog(project, editor, typeElement.calcType, possibleScopes)
+    val dialog = new ScalaIntroduceTypeAliasDialog(project, typeElement.calcType, possibleScopes)
     dialog.show()
     if (!dialog.isOK) {
       if (occurrences.length > 1) {
