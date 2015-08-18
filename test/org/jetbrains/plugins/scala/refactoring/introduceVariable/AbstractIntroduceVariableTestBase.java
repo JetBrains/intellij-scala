@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.OccurrenceHandler;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.util.TestUtils;
@@ -112,18 +113,18 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
         result = myEditor.getDocument().getText();
       } else if (element instanceof ScTypeElement){
-        Option optionType = ScalaRefactoringUtil.getTypeEement(getProject(), myEditor, myFile, startOffset, endOffset);
+        Option<ScTypeElement> optionType = ScalaRefactoringUtil.getTypeEement(getProject(), myEditor, myFile, startOffset, endOffset);
         if (optionType.isEmpty()){
           result = "Selected block should be presented as type element";
         } else {
-          ScTypeElement typeElement = (ScTypeElement) optionType.get();
+          ScTypeElement typeElement = optionType.get();
           PsiElement fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, myFile);
 
           ScTypeElement[] occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, fileEncloser);
           String typeName = getName(fileText);
 
           introduceVariableHandler.runRefactoringForTypes(startOffset, endOffset, myFile, myEditor, typeElement,
-                  typeName, occurrences, replaceAllOccurences, null);
+                  typeName, OccurrenceHandler.apply(typeElement, occurrences, replaceAllOccurences), replaceAllOccurences, null);
 
           result = myEditor.getDocument().getText();
           result = result.substring(result.indexOf("\n") + 1);
