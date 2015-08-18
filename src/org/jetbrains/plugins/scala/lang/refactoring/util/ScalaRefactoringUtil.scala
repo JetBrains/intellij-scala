@@ -316,7 +316,7 @@ object ScalaRefactoringUtil {
     occurrences.toArray
   }
 
-  def getTypeElementOccurrences(element: PsiElement, enclosingContainer: PsiElement): Array[ScTypeElement] = {
+  def getTypeElementOccurrences(element: ScTypeElement, enclosingContainer: PsiElement): Array[ScTypeElement] = {
     val occurrences: ArrayBuffer[ScTypeElement] = new ArrayBuffer[ScTypeElement]()
     if (enclosingContainer == element) occurrences += enclosingContainer.asInstanceOf[ScTypeElement]
     else
