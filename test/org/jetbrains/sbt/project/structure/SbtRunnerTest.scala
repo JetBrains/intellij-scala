@@ -43,7 +43,7 @@ class SbtRunnerTest extends UsefulTestCase {
   private def doTestLauncherVersionDetection(sbtVersion: String): Unit = {
     val sbtLaunchJar = getSbtLaunchJarForVersion(sbtVersion)
     assertTrue(s"$sbtLaunchJar is not found. Make sure it is downloaded by Ivy.", sbtLaunchJar.exists())
-    val actualVersion = SbtRunner.implementationVersionOf(sbtLaunchJar).orNull
+    val actualVersion = SbtRunner.sbtVersionInBootPropertiesOf(sbtLaunchJar).orNull
     assertEquals(sbtVersion, actualVersion)
   }
 
