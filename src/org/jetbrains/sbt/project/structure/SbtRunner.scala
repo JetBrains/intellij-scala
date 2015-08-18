@@ -41,6 +41,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
 
   private def read0(directory: File, options: String)(listener: (String) => Unit): Either[Exception, Elem] = {
     val sbtVersion = sbtVersionIn(directory)
+            .orElse(sbtVersionInBootPropertiesOf(SbtLauncher))
             .orElse(implementationVersionOf(SbtLauncher))
             .getOrElse(DefaultSbtVersion)
 
@@ -161,7 +162,27 @@ object SbtRunner {
     case (acc, _) => acc
   }
 
-  private[structure] def implementationVersionOf(jar: File): Option[String] = {
+  private def implementationVersionOf(jar: File): Option[String] = {
+    readManifestAttributeFrom(jar, "Implementation-Version")
+  }
+
+  private def readManifestAttributeFrom(file: File, name: String): Option[String] = {
+    val jar = new JarFile(file)
+    try {
+      using(new BufferedInputStream(jar.getInputStream(new JarEntry("META-INF/MANIFEST.MF")))) { input =>
+        val manifest = new java.util.jar.Manifest(input)
+        val attributes = manifest.getMainAttributes
+        Option(attributes.getValue(name))
+      }
+    }
+    finally {
+      if (jar.isInstanceOf[Closeable]) {
+        jar.close()
+      }
+    }
+  }
+
+  private[structure] def sbtVersionInBootPropertiesOf(jar: File): Option[String] = {
     val appProperties = SbtBootPropertiesReader(jar, sectionName = "app")
     for {
       name <- appProperties.find(_.name == "name").map(_.value)
@@ -169,6 +190,18 @@ object SbtRunner {
       version <- parseVersionFromBootProperties(versionStr)
       if name == "sbt"
     } yield version
+  }
+
+  private def parseVersionFromBootProperties(versionStr: String): Option[String] = {
+    val substStart = "(?:\\$\\{sbt\\.version-)?"
+    val readStart = "(?:read\\(sbt\\.version\\)\\[)?"
+    val readEnd = "\\]?"
+    val substEnd = "\\}?"
+    val versionPattern = (substStart + readStart + "([0-9\\.]+)" + readEnd + substEnd).r
+    versionStr match {
+      case versionPattern(version) => Some(version)
+      case _ => None
+    }
   }
 
   private def sbtVersionIn(directory: File): Option[String] = {
@@ -181,18 +214,6 @@ object SbtRunner {
       val properties = new Properties()
       properties.load(input)
       Option(properties.getProperty(name))
-    }
-  }
-
-  private def parseVersionFromBootProperties(versionStr: String): Option[String] = {
-    val substStart = "(?:\\$\\{sbt\\.version-)?"
-    val readStart = "(?:read\\(sbt\\.version\\)\\[)?"
-    val readEnd = "\\]?"
-    val substEnd = "\\}?"
-    val versionPattern = (substStart + readStart + "([0-9\\.]+)" + readEnd + substEnd).r
-    versionStr match {
-      case versionPattern(version) => Some(version)
-      case _ => None
     }
   }
 }
