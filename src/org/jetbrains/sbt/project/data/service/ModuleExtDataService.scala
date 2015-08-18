@@ -41,7 +41,6 @@ class ModuleExtDataService(val helper: ProjectStructureHelper)
 
   private def configureScalaSdk(module: Module, scalaLibraries: Seq[Library], compilerVersion: Version, compilerClasspath: Seq[File]): Unit =
     if (scalaLibraries.nonEmpty) {
-      // TODO Why SBT's scala-libary module version sometimes differs from SBT's declared scalaVersion?
       val scalaLibrary = scalaLibraries
               .find(_.scalaVersion.contains(compilerVersion))
               .orElse(scalaLibraries.find(_.scalaVersion.exists(_.toLanguageLevel == compilerVersion.toLanguageLevel)))
