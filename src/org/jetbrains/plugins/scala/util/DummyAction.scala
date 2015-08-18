@@ -134,7 +134,7 @@ class DummyAction extends AnAction {
   }
 
   def expandMacroCall(call: ScMethodCall, expansion: MacroExpansion)(implicit e: AnActionEvent) = {
-    val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(s"{${expansion.body}}", PsiManager.getInstance(e.getProject))
+    val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(s"${expansion.body}", PsiManager.getInstance(e.getProject))
     call.getParent.addAfter(blockImpl, call)
     call.delete()
   }
