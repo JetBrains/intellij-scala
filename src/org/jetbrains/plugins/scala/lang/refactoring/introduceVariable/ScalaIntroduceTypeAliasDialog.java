@@ -36,12 +36,14 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
     private JLabel myNameLabel;
     private JCheckBox myCbReplaceAllOccurences;
     private JTextField myTypeTextField;
+    private JCheckBox myReplaceCompanionObjectOcc;
     private JButton buttonOK;
     private JButton buttonCancel;
 
     private Project project;
     private ScType myType;
     private int occurrencesCount;
+    private int companionObjOccCount;
     private ScalaValidator validator;
     private String[] possibleNames;
     private ArrayList<ScopeItem> possibleScopes;
@@ -57,6 +59,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         this.project = project;
         this.myType = myType;
         this.occurrencesCount = possibleScopes.get(0).occurrences().length;
+        this.companionObjOccCount = possibleScopes.get(0).occInCompanionObj().length;
         this.validator = possibleScopes.get(0).validator();
         this.possibleNames = possibleScopes.get(0).possibleNames();
         this.possibleScopes = possibleScopes;
@@ -119,13 +122,22 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
     }
 
     private void setUpOccurrences() {
+        myCbReplaceAllOccurences.setSelected(false);
         if (occurrencesCount > 1) {
-            myCbReplaceAllOccurences.setSelected(false);
             myCbReplaceAllOccurences.setEnabled(true);
             myCbReplaceAllOccurences.setText("Replace all occurrences (" + occurrencesCount + " occurrences)");
         } else {
-            myCbReplaceAllOccurences.setSelected(false);
             myCbReplaceAllOccurences.setEnabled(false);
+        }
+    }
+
+    private void setUpCompanionObjOcc() {
+        myReplaceCompanionObjectOcc.setSelected(false);
+        if (companionObjOccCount > 0) {
+            myReplaceCompanionObjectOcc.setEnabled(true);
+            myReplaceCompanionObjectOcc.setText("Replace occurrences available from companion object (" + companionObjOccCount + " occurrences)");
+        } else {
+            myReplaceCompanionObjectOcc.setEnabled(false);
         }
     }
 
@@ -147,13 +159,16 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         contentPane = new JPanel();
         contentPane.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
         final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel1.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
         contentPane.add(panel1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         myCbReplaceAllOccurences = new JCheckBox();
         myCbReplaceAllOccurences.setText("Replace all occurrences");
         myCbReplaceAllOccurences.setMnemonic('A');
         myCbReplaceAllOccurences.setDisplayedMnemonicIndex(8);
         panel1.add(myCbReplaceAllOccurences, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        myReplaceCompanionObjectOcc = new JCheckBox();
+        myReplaceCompanionObjectOcc.setText("Replace occurrences available from companion object");
+        panel1.add(myReplaceCompanionObjectOcc, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
         contentPane.add(panel2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -197,6 +212,9 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
                 ScopeItem item = (ScopeItem) event.getItem();
                 PsiElement[] occurrences = item.occurrences();
                 occurrencesCount = occurrences.length;
+                companionObjOccCount = item.occInCompanionObj().length;
+
+                setUpCompanionObjOcc();
                 setUpOccurrences();
                 validator = item.validator();
                 possibleNames = item.possibleNames();
@@ -233,6 +251,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         myTypeTextField.setText(myType.presentableText());
 
         // Replace occurences
+        setUpCompanionObjOcc();
         setUpOccurrences();
     }
 
@@ -252,6 +271,11 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
     public boolean isReplaceAllOccurrences() {
         return myCbReplaceAllOccurences.isSelected();
     }
+
+    public boolean isReplaceOccurrenceIncompanionObject() {
+        return myReplaceCompanionObjectOcc.isSelected();
+    }
+
 
     @Nullable
     public String getEnteredName() {
