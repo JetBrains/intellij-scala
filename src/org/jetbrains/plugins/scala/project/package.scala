@@ -1,21 +1,24 @@
 package org.jetbrains.plugins.scala
 
 import java.io.File
+
+import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots._
+import com.intellij.openapi.roots.impl.libraries.{LibraryEx, ProjectLibraryTable}
+import com.intellij.openapi.roots.libraries.Library
+import com.intellij.openapi.roots.ui.configuration.libraryEditor.{ExistingLibraryEditor, NewLibraryEditor}
+import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore}
+import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.util.CommonProcessors.CollectProcessor
 import com.intellij.util.Processor
-import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerSettings, ScalaCompilerConfiguration}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 
 import scala.annotation.tailrec
-import com.intellij.psi.{PsiFile, PsiElement}
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.module.{ModuleUtilCore, ModuleManager, Module}
-import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.roots.impl.libraries.{ProjectLibraryTable, LibraryEx}
-import com.intellij.openapi.roots._
-import com.intellij.openapi.roots.ui.configuration.libraryEditor.{NewLibraryEditor, ExistingLibraryEditor}
-import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore}
 import scala.collection.immutable.HashSet
+import scala.collection.JavaConverters._
 import scala.util.matching.Regex
-import extensions._
 
 /**
  * @author Pavel Fatin
@@ -92,6 +95,12 @@ package object project {
       })
 
       libraries
+    }
+
+    def scalaLibraries: Seq[Library] = {
+      val collector = new CollectProcessor[Library]()
+      OrderEnumerator.orderEntries(module).librariesOnly().forEachLibrary(collector)
+      collector.getResults.asScala.filter(_.getName.contains(ScalaLibraryName)).toSeq
     }
 
     def attach(library: Library) {
