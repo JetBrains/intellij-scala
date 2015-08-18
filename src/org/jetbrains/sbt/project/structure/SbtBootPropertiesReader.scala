@@ -12,12 +12,12 @@ object SbtBootPropertiesReader {
 
   final case class Property(name: String, value: String)
 
-  final case class Section(name: String, properties: Seq[Property])
+  final case class Section(name: String, properties: Seq[Property]) {
+    def valueOf(propertyName: String): Option[String] =
+      properties.find(_.name == propertyName).map(_.value)
+  }
 
-  def apply(file: File, sectionName: String): Seq[Property] =
-    apply(file).find(_.name == sectionName).fold(Seq.empty[Property])(_.properties)
-
-  def apply(file: File): Seq[Section] = {
+  def readAll(file: File): Seq[Section] = {
     val jar = new JarFile(file)
     try {
       Option(jar.getEntry("sbt/sbt.boot.properties")).fold(Seq.empty[Section]) { entry =>
@@ -33,6 +33,9 @@ object SbtBootPropertiesReader {
       }
     }
   }
+
+  def readSection(file: File, sectionName: String): Option[Section] =
+    readAll(file).find(_.name == sectionName)
 
   type ReaderState = (Seq[Section], Option[String], Seq[Property])
 
