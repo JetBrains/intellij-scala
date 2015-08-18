@@ -32,7 +32,7 @@ class ModuleExtDataService(val helper: ProjectStructureHelper)
       data = sdkNode.getData
     } {
       module.configureScalaCompilerSettingsFrom("SBT", data.scalacOptions)
-      data.scalaVersion.foreach(version => configureScalaSdk(module, project.scalaLibraries, version, data.scalacClasspath))
+      data.scalaVersion.foreach(version => configureScalaSdk(module, module.scalaLibraries, version, data.scalacClasspath))
       configureOrInheritSdk(module, data.jdk)
       configureLanguageLevel(module, data.javacOptions)
       configureJavacOptions(module, data.javacOptions)
@@ -43,7 +43,7 @@ class ModuleExtDataService(val helper: ProjectStructureHelper)
     if (scalaLibraries.nonEmpty) {
       // TODO Why SBT's scala-libary module version sometimes differs from SBT's declared scalaVersion?
       val scalaLibrary = scalaLibraries
-              .find(_.scalaVersion == Some(compilerVersion))
+              .find(_.scalaVersion.contains(compilerVersion))
               .orElse(scalaLibraries.find(_.scalaVersion.exists(_.toLanguageLevel == compilerVersion.toLanguageLevel)))
               .getOrElse(throw new ExternalSystemException("Cannot find project Scala library " +
                            compilerVersion.number + " for module " + module.getName))
