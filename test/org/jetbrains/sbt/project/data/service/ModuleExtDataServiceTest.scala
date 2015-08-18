@@ -148,6 +148,37 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
     assertEquals("1.8", compilerConfiguration.getBytecodeTargetLevel(getModule))
   }
 
+  def testScalaSdkForEvictedVersion: Unit = {
+    import org.jetbrains.plugins.scala.project._
+
+    val evictedVersion = "2.11.2"
+    val newVersion = "2.11.6"
+
+    val projectData = new project {
+      name := getProject.getName
+      ideDirectoryPath := getProject.getBasePath
+      linkedProjectPath := getProject.getBasePath
+      arbitraryNodes += new SbtProjectNode(Seq.empty, None, Seq.empty, "", getProject.getBasePath)
+
+      val evictedScalaLibrary = new library { name := s"org.scala-lang:scala-library:$evictedVersion" }
+      val newScalaLibrary = new library { name := s"org.scala-lang:scala-library:$newVersion" }
+      libraries ++= Seq(evictedScalaLibrary, newScalaLibrary)
+
+      modules += new javaModule {
+        name := "Module 1"
+        moduleFileDirectoryPath := getProject.getBasePath + "/module1"
+        externalConfigPath := getProject.getBasePath + "/module1"
+        libraryDependencies += newScalaLibrary
+        arbitraryNodes += new ModuleExtNode(Some(Version(evictedVersion)), Seq.empty, Seq.empty, None, Seq.empty)
+      }
+    }.build.toDataNode
+
+    importProjectData(projectData)
+
+    val isLibrarySetUp = ProjectLibraryTable.getInstance(getProject).getLibraries.filter(_.getName.contains(newVersion)).exists(_.isScalaSdk)
+    assertTrue("Scala library is not set up", isLibrarySetUp)
+  }
+
   private def generateScalaProject(scalaVersion: String, scalaLibraryVersion: Option[String], scalacOptions: Seq[String]): DataNode[ProjectData] =
     generateProject(Some(scalaVersion), scalaLibraryVersion, scalacOptions, None, Seq.empty)
 
