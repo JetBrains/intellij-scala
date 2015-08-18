@@ -497,14 +497,15 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
     }
 
     def addTypeAliasDefinition(typeName: String, typeElement: ScTypeElement, parent: PsiElement) = {
-      def getAhchor(parent: PsiElement, firstOccurrence: PsiElement): PsiElement = {
-        parent.getChildren.find(_.getTextRange.contains(firstOccurrence.getTextRange)).getOrElse(parent.getFirstChild)
+      def getAhchor(parent: PsiElement, firstOccurrence: PsiElement): Some[PsiElement] = {
+        Some(parent.getChildren.find(_.getTextRange.contains(firstOccurrence.getTextRange))
+          .getOrElse(parent.getFirstChild))
       }
 
       val mtext = typeElement.getText
-      val definition = ScalaPsiElementFactory.createTypeAliasDefinitionFromText(s"type $typeName = $mtext", typeElement.getContext, typeElement)
-      val result = parent.addBefore(definition, getAhchor(parent, typeElement))
-      result
+      val definition = ScalaPsiElementFactory
+        .createTypeAliasDefinitionFromText(s"type $typeName = $mtext", typeElement.getContext, typeElement)
+      ScalaPsiUtil.addTypeAliasBefore(definition, parent, getAhchor(parent, typeElement))
     }
 
     val psiElement: PsiElement = addTypeAliasDefinition(typeName, occurrences.getAllOccurrences(0), getParent)
