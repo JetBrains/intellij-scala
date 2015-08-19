@@ -16,6 +16,30 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 
 class OverridingAnnotatorTest extends SimpleTestCase {
   final val Header = "\n"
+
+  def testSyntheticUnapply(): Unit = {
+    assertMatches(messages(
+      """
+        |trait Test {
+        |  trait Tree
+        |  trait Name
+        |  abstract class SelectExtractor {
+        |    def apply(qualifier: Tree, name: Name): Select
+        |    def unapply(select: Select): Option[(Tree, Name)]
+        |  }
+        |  case class Select(qualifier: Tree, name: Name)
+        |    extends Tree {
+        |  }
+        |  object Select extends SelectExtractor {} // object creation impossible, unapply not defined...
+        |
+        |  def test(t: Tree) = t match {
+        |    case Select(a, b) => // cannot resolve extractor
+        |  }
+        |}
+      """.stripMargin)) {
+      case Nil =>
+    }
+  }
   
   def testPrivateVal() {
     assertMatches(messages(

@@ -13,17 +13,17 @@ import scala.collection.JavaConverters._
 abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
 
   protected val handler = new ScalaSmartStepIntoHandler
-  protected var targets: Set[SmartStepTarget] = null
+  protected var targets: Seq[SmartStepTarget] = null
 
-  def availableSmartStepTargets(): Set[SmartStepTarget] = managed {
+  def availableSmartStepTargets(): Seq[SmartStepTarget] = managed {
     inReadAction {
-      handler.findSmartStepTargets(currentSourcePosition).asScala.toSet
+      handler.findSmartStepTargets(currentSourcePosition).asScala
     }
   }
 
   def checkSmartStepTargets(expected: String*): Unit = {
     targets = availableSmartStepTargets()
-    Assert.assertEquals("Wrong set of smart step targets:", expected.toSet, targets.map(_.getPresentation))
+    Assert.assertEquals("Wrong set of smart step targets:", expected, targets.map(_.getPresentation))
   }
 
   def checkSmartStepInto(target: String, source: String, methodName: String, line: Int) = {

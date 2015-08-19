@@ -9,8 +9,9 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
-import com.intellij.psi.util.{PsiTreeUtil, PsiModificationTracker}
-import org.jetbrains.plugins.scala.caches.CachesUtil
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -22,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, PhysicalSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
 import scala.collection.mutable
@@ -32,7 +33,8 @@ import scala.collection.mutable.ArrayBuffer
  * @author Alexander.Podkhalyuzin
  */
 
-class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
+class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
+  extends ScTypeDefinitionImpl(stub, nodeType, node) with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
@@ -46,8 +48,8 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     else Array.empty
   }
 
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTemplateDefinitionStub) = {this(); setStub(stub); setNullNode()}
+  def this(node: ASTNode) = {this(null, null, node)}
+  def this(stub: ScTemplateDefinitionStub) = {this(stub, ScalaElementTypes.CLASS_DEF, null)}
 
   override def toString: String = "ScClass: " + name
 
@@ -125,6 +127,22 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
       this.processPsiMethodsForNode(new SignatureNodes.Node(new PhysicalSignature(synthetic, ScSubstitutor.empty),
         ScSubstitutor.empty),
         isStatic = false, isInterface = isInterface)(res += _, names += _)
+    }
+
+
+    if (isCase) { //for Scala this is done in ScalaOIUtil.isProductAbstractMethod, for Java we do it here
+      val caseClassGeneratedFunctions = Array(
+        "def canEqual(that: Any): Boolean = ???",
+        "def equals(that: Any): Boolean = ???",
+        "def productArity: Int = ???",
+        "def productElement(n: Int): Any = ???"
+      )
+
+      caseClassGeneratedFunctions.foreach { funText =>
+        val fun: ScFunction = ScalaPsiElementFactory.createMethodWithContext(funText, this, this)
+        fun.setSynthetic(this)
+        res += fun
+      }
     }
 
     ScalaPsiUtil.getCompanionModule(this) match {

@@ -11,7 +11,8 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -30,10 +31,11 @@ import scala.collection.mutable.ArrayBuffer
  * Date: 20.02.2008
  */
 
-class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with ScPackaging with ScImportsHolder with ScDeclarationSequenceHolder {
-  def this(node: ASTNode) = {this (); setNode(node)}
+class ScPackagingImpl private (stub: StubElement[ScPackageContainer], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScPackaging with ScImportsHolder with ScDeclarationSequenceHolder {
+  def this(node: ASTNode) = {this(null, null, node)}
 
-  def this(stub: ScPackageContainerStub) = {this (); setStub(stub); setNullNode()}
+  def this(stub: ScPackageContainerStub) = {this(stub, ScalaElementTypes.PACKAGING, null)}
 
   def fullPackageName: String = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
 
@@ -127,7 +129,7 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
     if (DumbService.getInstance(getProject).isDumb) return true
 
     //If stub is not null, then we are not trying to resolve packaging reference.
-    if (getStub != null || reference != Some(lastParent)) {
+    if (getStub != null || !reference.contains(lastParent)) {
       val pName = (if (prefix.length == 0) "" else prefix + ".") + getPackageName
       ProgressManager.checkCanceled()
       val p = ScPackageImpl(JavaPsiFacade.getInstance(getProject).findPackage(pName))

@@ -260,11 +260,13 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                 else None
             }
           case fun: ScFunction if !PsiTreeUtil.isContextAncestor(fun, place, false) =>
+            if (isImplicitConversion && (fun.name == "conforms" || fun.name == "$conforms") &&
+              fun.containingClass != null && fun.containingClass.qualifiedName == "scala.Predef") return None
             if (!fun.hasTypeParameters && withLocalTypeInference) return None
 
             val oneImplicit = fun.effectiveParameterClauses.length == 1 && fun.effectiveParameterClauses.head.isImplicit
             //to avoid checking implicit functions in case of simple implicit parameter search
-            if (!oneImplicit && fun.effectiveParameterClauses.length > 0) {
+            if (!oneImplicit && fun.effectiveParameterClauses.nonEmpty) {
               clazz match {
                 case Some(cl) =>
                   val clause = fun.paramClauses.clauses.head
@@ -385,12 +387,12 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                     else {
                       val coreTypeForTp = coreType(tp)
                       doComputations(coreElement.getOrElse(place), (tp: Object, searches: Seq[Object]) => {
-                        searches.find {
+                        !searches.exists {
                           case t: ScType if tp.isInstanceOf[ScType] =>
                             if (Equivalence.equivInner(t, tp.asInstanceOf[ScType], new ScUndefinedSubstitutor(), falseUndef = false)._1) true
                             else dominates(tp.asInstanceOf[ScType], t)
                           case _ => false
-                        } == None
+                        }
                       }, coreTypeForTp, compute(), IMPLICIT_PARAM_TYPES_KEY) match {
                         case Some(res) => res
                         case None =>
@@ -436,7 +438,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                     else checkType(substedFunType)
                   } else if (noReturnType) Some(c, ScSubstitutor.empty) else {
                     substedFunType match {
-                      case ScFunctionType(ret, params) if params.length == 0 =>
+                      case ScFunctionType(ret, params) if params.isEmpty =>
                         if (!ret.conforms(tp)) None
                         else if (checkFast) Some(c, ScSubstitutor.empty)
                         else checkType(ret)

@@ -21,7 +21,7 @@ object Constructor {
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, isAnnotation = false)
   def parse(builder: ScalaPsiBuilder, isAnnotation: Boolean): Boolean = {
     val constrMarker = builder.mark
-    if ((!isAnnotation && !AnnotType.parse(builder, isPattern = false)) ||
+    if ((!isAnnotation && !AnnotType.parse(builder, isPattern = false, multipleSQBrackets = false)) ||
       (isAnnotation && !SimpleType.parse(builder, isPattern = false))) {
       constrMarker.drop()
       return false

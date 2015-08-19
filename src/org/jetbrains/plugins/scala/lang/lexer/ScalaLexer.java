@@ -60,6 +60,13 @@ public class ScalaLexer extends Lexer {
   public final String XML_BEGIN_PATTERN = "<\\w";
   private int xmlSteps = -1;
 
+  /* We need to store it as in some cases (e.g. when we have uninterrupted xml elements sequence like '<a></a>')
+   * when the last xml element was located in 'locateToken()' there is no way to determine from xml state/xml tags stack
+   * that the lexer was inside xml. That means the lexer isn't able to patch state => the state can be == 0 =>
+   * any incremental stuff (highlighting etc) can start lexical analysis from this position with 0 state => we get wrong token sequence
+   */
+  private IElementType previousToken = null;
+
   public ScalaLexer() {
     this(false);
   }
@@ -87,7 +94,7 @@ public class ScalaLexer extends Lexer {
     locateToken();
     int state = 0;
     if (myLayeredTagStack.size() > 0) state = 239;
-    if (myXmlState != 0) state = 239;
+    if (myXmlState != 0 || isXmlTokenType(previousToken)) state = 239;
     int scalaState = myScalaPlainLexer.getState();
     if (scalaState != 0) state = 239;
     return state;
@@ -100,6 +107,8 @@ public class ScalaLexer extends Lexer {
   }
 
   private void locateToken() {
+    previousToken = myTokenType;
+
     if (myTokenType == null) {
       IElementType type = myCurrentLexer.getTokenType();
       int start = myCurrentLexer.getTokenStart();
@@ -305,6 +314,9 @@ public class ScalaLexer extends Lexer {
     return myBufferEnd;
   }
 
+  private boolean isXmlTokenType(IElementType tpe) {
+    return tpe != null && ScalaXmlTokenTypes.XML_ELEMENTS().contains(tpe);
+  }
 
   private static class MyState implements LexerState {
 
@@ -348,7 +360,7 @@ public class ScalaLexer extends Lexer {
     }
   }
 
-  protected static enum TAG_STATE {
+  protected enum TAG_STATE {
     UNDEFINED, EMPTY, NONEMPTY
   }
 

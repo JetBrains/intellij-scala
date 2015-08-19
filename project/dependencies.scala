@@ -5,7 +5,7 @@ object Versions {
   val scalaVersion = "2.11.6"
   val ideaVersion = "142.3926.1"
   val sbtStructureVersion = "4.1.1"
-  val luceneVersion = "4.3.0"
+  val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
   val wagonVersion = "2.6"
@@ -62,7 +62,7 @@ object Dependencies {
   val mavenIndexerCore = "org.apache.maven.indexer" % "indexer-core" % "6.0"
   val mavenModel = "org.apache.maven" % "maven-model" % "3.0.5"
 
-
+  val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
 }
 
 object DependencyGroups {

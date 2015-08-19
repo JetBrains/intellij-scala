@@ -87,20 +87,20 @@ class LibraryDependencyNode(val data: LibraryDependencyData)
 
 class SbtProjectNode(val data: SbtProjectData)
   extends Node[SbtProjectData] {
-  def this(basePackages: Seq[String], jdk: Option[SbtProjectData.Sdk], javacOptions: Seq[String], sbtVersion: String, projectPath: String) {
+  def this(basePackages: Seq[String], jdk: Option[Sdk], javacOptions: Seq[String], sbtVersion: String, projectPath: String) {
     this(new SbtProjectData(SbtProjectSystem.Id, basePackages, jdk, javacOptions, sbtVersion, projectPath))
   }
 
   protected def key = SbtProjectData.Key
 }
 
-class ScalaSdkNode(val data: ScalaSdkData)
-  extends Node[ScalaSdkData] {
-  def this(scalaVersion: Version, basePackage: String, compilerClasspath: Seq[File], compilerOptions: Seq[String]) {
-    this(new ScalaSdkData(SbtProjectSystem.Id, scalaVersion, basePackage, compilerClasspath, compilerOptions))
+class ModuleExtNode(val data: ModuleExtData)
+  extends Node[ModuleExtData] {
+  def this(scalaVersion: Option[Version], scalacClasspath: Seq[File], scalacOptions: Seq[String], jdk: Option[Sdk], javacOptions: Seq[String]) {
+    this(new ModuleExtData(SbtProjectSystem.Id, scalaVersion, scalacClasspath, scalacOptions, jdk, javacOptions))
   }
 
-  protected def key = ScalaSdkData.Key
+  protected def key = ModuleExtData.Key
 }
 
 class AndroidFacetNode(val data: AndroidFacetData)

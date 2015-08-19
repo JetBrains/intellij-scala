@@ -11,7 +11,8 @@ object Common {
       scalaVersion := Versions.scalaVersion,
       unmanagedSourceDirectories in Compile += baseDirectory.value / "src",
       unmanagedSourceDirectories in Test += baseDirectory.value / "test",
-      unmanagedResourceDirectories in Compile += baseDirectory.value / "resources"
+      unmanagedResourceDirectories in Compile += baseDirectory.value / "resources",
+      libraryDependencies += Dependencies.junitInterface
     )
 
   def newProject(projectName: String): Project =
@@ -23,4 +24,16 @@ object Common {
     }
     (sdkPathFinder * globFilter("*.jar")).classpath
   }
+
+  def filterTestClasspath(classpath: Def.Classpath): Def.Classpath =
+    classpath.filterNot(_.data.getName.endsWith("lucene-core-2.4.1.jar"))
+
+  val slowTestsCategory: String =
+    "org.jetbrains.plugins.scala.SlowTests"
+
+  val testConfigDir: File =
+    Path.userHome / ".IdeaData" / "IDEA-15" / "scala" / "test-config"
+
+  val testSystemDir: File =
+    Path.userHome / ".IdeaData" / "IDEA-15" / "scala" / "test-system"
 }

@@ -12,6 +12,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.psi.JavaPsiFacade
+import com.intellij.util.PlatformUtils
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.project._
 
 import scala.collection.mutable
@@ -24,6 +26,8 @@ class ScalaApplicationUsagesCollector extends AbstractApplicationUsagesCollector
   override def getProjectUsages(project: Project): util.Set[UsageDescriptor] = {
     extensions.inReadAction {
       val set: mutable.HashSet[UsageDescriptor] = new mutable.HashSet[UsageDescriptor]
+
+      if (ScalaPsiUtil.kindProjectorPluginEnabled(project)) set += new UsageDescriptor("Compiler plugin: Kind Projector", 1)
 
       //collecting Scala version
       var scala_version: Option[String] = None
@@ -50,7 +54,7 @@ class ScalaApplicationUsagesCollector extends AbstractApplicationUsagesCollector
       }
 
 
-      val isPlayInstalled = PluginManager.isPluginInstalled(PluginId.getId("com.intellij.scala.play2template"))
+      val isPlayInstalled = PlatformUtils.isIdeaUltimate
 
       if (scala_version.isDefined) {
         checkLibrary("scalaz", "Scalaz")
@@ -76,6 +80,7 @@ class ScalaApplicationUsagesCollector extends AbstractApplicationUsagesCollector
         checkLibrary("scala.scalajs", "ScalaJS")
         checkLibrary("net.liftweb", "Lift Framework")
         checkLibrary("spray", "Spray")
+        checkLibrary("monocle", "Monocle")
 
         java_version.foreach {
           case version: String => set += new UsageDescriptor(s"Java version: $version", 1)
