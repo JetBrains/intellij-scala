@@ -32,7 +32,7 @@ class ModuleExtDataService(val helper: ProjectStructureHelper)
       data = sdkNode.getData
     } {
       module.configureScalaCompilerSettingsFrom("SBT", data.scalacOptions)
-      data.scalaVersion.foreach(version => configureScalaSdk(module, module.scalaLibraries, version, data.scalacClasspath))
+      data.scalaVersion.foreach(version => configureScalaSdk(module, module.scalaLibraries.toSeq, version, data.scalacClasspath))
       configureOrInheritSdk(module, data.jdk)
       configureLanguageLevel(module, data.javacOptions)
       configureJavacOptions(module, data.javacOptions)

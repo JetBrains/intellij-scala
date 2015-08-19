@@ -83,25 +83,13 @@ package object project {
     }
 
     def libraries: Set[Library] = {
-      var libraries = HashSet.empty[Library]
-
-      val enumerator = ModuleRootManager.getInstance(module).orderEntries().librariesOnly()
-
-      enumerator.forEachLibrary(new Processor[Library] {
-        override def process(library: Library) = {
-          libraries += library
-          true
-        }
-      })
-
-      libraries
-    }
-
-    def scalaLibraries: Seq[Library] = {
       val collector = new CollectProcessor[Library]()
       OrderEnumerator.orderEntries(module).librariesOnly().forEachLibrary(collector)
-      collector.getResults.asScala.filter(_.getName.contains(ScalaLibraryName)).toSeq
+      collector.getResults.asScala.filter(_.getName.contains(ScalaLibraryName)).toSet
     }
+
+    def scalaLibraries: Set[Library] =
+      libraries.filter(_.getName.contains(ScalaLibraryName))
 
     def attach(library: Library) {
       val model = ModuleRootManager.getInstance(module).getModifiableModel
