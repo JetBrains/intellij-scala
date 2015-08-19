@@ -372,6 +372,8 @@ package object collections {
 
   def isSeq(expr: ScExpression): Boolean = isCollection("scala.collection.GenSeq", expr)
 
+  def isIndexedSeq(expr: ScExpression): Boolean = isCollection("scala.collection.IndexedSeq", expr)
+
   def isMap(expr: ScExpression): Boolean = isCollection("scala.collection.GenMap", expr)
 
   def isSortedSet(expr: ScExpression) = isCollection("scala.collection.SortedSet", expr)

@@ -189,6 +189,11 @@ object TypeDefinitionMembers {
         }
       }
 
+      for (method <- template.syntheticMethodsWithOverride if method.getParameterList.getParametersCount == 0) {
+        val sig = new PhysicalSignature(method, subst)
+        addSignature(sig)
+      }
+
       if (!base) {
         for (method <- template.syntheticMethodsNoOverride if method.getParameterList.getParametersCount == 0) {
           val sig = new PhysicalSignature(method, subst)
@@ -437,7 +442,10 @@ object TypeDefinitionMembers {
         }
       }
 
-
+      for (method <- template.syntheticMethodsWithOverride) {
+        val sig = new PhysicalSignature(method, subst)
+        addSignature(sig)
+      }
 
       if (!base) {
         for (member <- template.syntheticMethodsNoOverride) {

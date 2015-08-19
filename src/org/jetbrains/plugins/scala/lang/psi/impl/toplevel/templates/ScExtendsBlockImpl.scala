@@ -9,6 +9,7 @@ package templates
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
 import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -32,10 +33,11 @@ import scala.collection.mutable.ListBuffer
  * @author AlexanderPodkhalyuzin
  * Date: 20.02.2008
  */
-class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with ScExtendsBlock {
-  def this(node: ASTNode) = {this (); setNode(node)}
+class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScExtendsBlock {
+  def this(node: ASTNode) = {this(null, null, node)}
 
-  def this(stub: ScExtendsBlockStub) = {this (); setStub(stub); setNullNode()}
+  def this(stub: ScExtendsBlockStub) = {this(stub, ScalaElementTypes.EXTENDS_BLOCK, null)}
 
   override def toString: String = "ExtendsBlock"
 

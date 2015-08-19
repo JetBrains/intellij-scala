@@ -26,6 +26,8 @@ class InvalidRepoException(what: String) extends Exception(what)
 object ScalaPluginUpdater {
   private val LOG = Logger.getInstance(getClass)
 
+  def pluginDescriptor = ScalaPluginVersionVerifier.getPluginDescriptor
+
   val baseUrl = "https://plugins.jetbrains.com/plugins/%s/1347"
 
   // *_OLD versions are for legacy repository format.
@@ -60,13 +62,23 @@ object ScalaPluginUpdater {
   val updGroupId = "ScalaPluginUpdate"
   val GROUP = new NotificationGroup(updGroupId, NotificationDisplayType.STICKY_BALLOON, true)
 
+  // save plugin version before patching to restore it when switching back
+  var savedPluginVersion = ""
+
   @throws(classOf[InvalidRepoException])
   def doUpdatePluginHosts(branch: ScalaApplicationSettings.pluginBranch) = {
     if(currentRepo(branch).isEmpty)
       throw new InvalidRepoException(s"Branch $branch is unavailable for IDEA version $currentVersion")
 
     // update hack - set plugin version to 0 when downgrading
-    if (getScalaPluginBranch.compareTo(branch) > 0) ScalaPluginUpdater.patchPluginVersion()
+    // also unpatch it back if user changed mind about downgrading
+    if (getScalaPluginBranch.compareTo(branch) > 0) {
+      savedPluginVersion = pluginDescriptor.getVersion
+      patchPluginVersion("0.0.0")
+    } else if (savedPluginVersion.nonEmpty) {
+      patchPluginVersion(savedPluginVersion)
+      savedPluginVersion = ""
+    }
 
     val updateSettings = UpdateSettings.getInstance()
     updateSettings.getStoredPluginHosts.remove(currentRepo(EAP))
@@ -105,9 +117,8 @@ object ScalaPluginUpdater {
   def pluginIsRelease = !pluginIsEap && !pluginIsNightly
 
   def uninstallPlugin() = {
-    val descriptor = ScalaPluginVersionVerifier.getPluginDescriptor
-    val pluginId: PluginId = descriptor.getPluginId
-    descriptor.setDeleted(true)
+    val pluginId: PluginId = pluginDescriptor.getPluginId
+    pluginDescriptor.setDeleted(true)
 
     try {
       PluginInstaller.prepareToUninstall(pluginId)
@@ -157,7 +168,7 @@ object ScalaPluginUpdater {
     url.foreach(u => invokeLater {
       try {
         val resp = XML.load(u)
-        val text = (resp \\ "idea-plugin" \\ "idea-version" \\ "@since-build").text
+        val text = ((resp \\ "idea-plugin").head \ "idea-version" \ "@since-build").text
         val remoteBuildNumber = BuildNumber.fromString(text)
         if (localBuildNumber.compareTo(remoteBuildNumber) < 0)
           suggestIdeaUpdate(branch.toString, text)
@@ -221,30 +232,30 @@ object ScalaPluginUpdater {
 
   // this hack uses fake plugin.xml deserialization to downgrade plugin version
   // at least it's not using reflection
-  def patchPluginVersion() = {
+  def patchPluginVersion(newVersion: String) = {
     import scala.xml._
     val versionPatcher = new RewriteRule {
       override def transform(n: Node): NodeSeq = n match {
-        case <version>{_}</version> => <version>{"0.0.0"}</version>
+        case <version>{_}</version> => <version>{newVersion}</version>
         case <include/> => NodeSeq.Empty // relative path includes break temp file parsing
         case other => other
       }
     }
-    val descriptor = ScalaPluginVersionVerifier.getPluginDescriptor
     val stream = getClass.getClassLoader.getResource("META-INF/plugin.xml").openStream()
     val document = new RuleTransformer(versionPatcher).transform(XML.load(stream))
     val tempFile = File.createTempFile("plugin", "xml")
     XML.save(tempFile.getAbsolutePath, document.head)
-    descriptor.readExternal(tempFile.toURI.toURL)
+    pluginDescriptor.readExternal(tempFile.toURI.toURL)
     tempFile.delete()
   }
 
+  @deprecated
   def patchPluginVersionReflection() = {
     // crime of reflection goes below - workaround until force updating is available
     try {
       val hack: Field = classOf[IdeaPluginDescriptorImpl].getDeclaredField("myVersion")
       hack.setAccessible(true)
-      hack.set(ScalaPluginVersionVerifier.getPluginDescriptor, "0.0.0")
+      hack.set(pluginDescriptor, "0.0.0")
     }
     catch {
       case _: NoSuchFieldException | _: IllegalAccessException  =>

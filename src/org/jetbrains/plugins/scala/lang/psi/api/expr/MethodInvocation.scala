@@ -148,7 +148,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       case _ =>
     }
 
-    val withExpectedType = useExpectedType && expectedType() != None //optimization to avoid except
+    val withExpectedType = useExpectedType && expectedType().isDefined //optimization to avoid except
 
     if (useExpectedType) nonValueType = updateAccordingToExpectedType(nonValueType, check = true)
 
@@ -175,25 +175,25 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         setApplicabilityProblemsVar(c._2)
         setMatchedParametersVar(c._3)
         val dependentSubst = new ScSubstitutor(() => {
-          val level = this.languageLevel
-          if (level >= Scala_2_10) {
-            c._4.toMap
-          } else Map.empty
+          this.scalaLanguageLevel match {
+            case Some(level) if level < Scala_2_10 => Map.empty
+            case _ => c._4.toMap
+          }
         })
         dependentSubst.subst(c._1)
       }
-      if (!c._2.isEmpty) {
+      if (c._2.nonEmpty) {
         ScalaPsiUtil.tuplizy(exprs, getResolveScope, getManager, ScalaPsiUtil.firstLeaf(this)).map {e =>
           val cd = fun(e)
-          if (!cd._2.isEmpty) tail
+          if (cd._2.nonEmpty) tail
           else {
             setApplicabilityProblemsVar(cd._2)
             setMatchedParametersVar(cd._3)
             val dependentSubst = new ScSubstitutor(() => {
-              val level = this.languageLevel
-              if (level >= Scala_2_10) {
-                cd._4.toMap
-              } else Map.empty
+              this.scalaLanguageLevel match {
+                case Some(level) if level < Scala_2_10 => Map.empty
+                case _ => cd._4.toMap
+              }
             })
             dependentSubst.subst(cd._1)
           }

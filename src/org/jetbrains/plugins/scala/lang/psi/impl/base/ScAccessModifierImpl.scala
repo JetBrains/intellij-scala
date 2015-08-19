@@ -7,10 +7,13 @@ package base
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageContainer
@@ -24,9 +27,10 @@ import scala.collection.mutable.ArrayBuffer
 * Date: 07.03.2008
 */
 
-class ScAccessModifierImpl extends ScalaStubBasedElementImpl[ScAccessModifier] with ScAccessModifier {
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScAccessModifierStub) = {this(); setStub(stub); setNullNode()}
+class ScAccessModifierImpl private (stub: StubElement[ScAccessModifier], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScAccessModifier {
+  def this(node: ASTNode) = {this(null, null, node)}
+  def this(stub: ScAccessModifierStub) = {this(stub, ScalaElementTypes.ACCESS_MODIFIER, null)}
 
   override def toString: String = "AccessModifier"
 

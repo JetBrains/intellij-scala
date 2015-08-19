@@ -8,9 +8,10 @@ import java.util
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
@@ -128,12 +129,17 @@ trait ScTypePsiTypeBridge {
           if (paramTopLevel && treatJavaObjectAsAny) types.Any
           else types.AnyRef
         }
+      case p: PsiIntersectionType =>
+        ScCompoundType(p.getConjuncts.map(create(_, project, scope, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)),
+          Map.empty, Map.empty)
       case _ => throw new IllegalArgumentException("psi type " + psiType + " should not be converted to scala type")
     }
   }
 
   def toPsi(_t: ScType, project: Project, scope: GlobalSearchScope, noPrimitives: Boolean = false,
             skolemToWildcard: Boolean = false): PsiType = {
+    def isValueType(cl: ScClass): Boolean = cl.superTypes.contains(AnyVal) && cl.parameters.length == 1
+
     def createType(c: PsiClass, subst: PsiSubstitutor = PsiSubstitutor.EMPTY): PsiType = {
       val psiType = JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
       if (c.hasTypeParameters) psiType.rawType()
@@ -169,6 +175,12 @@ trait ScTypePsiTypeBridge {
       case ScCompoundType(Seq(typez, _*), _, _) => toPsi(typez, project, scope)
       case ScDesignatorType(c: ScTypeDefinition) if ScType.baseTypesQualMap.contains(c.qualifiedName) =>
         toPsi(ScType.baseTypesQualMap.get(c.qualifiedName).get, project, scope, noPrimitives, skolemToWildcard)
+      case ScDesignatorType(valType: ScClass) if isValueType(valType) =>
+        valType.parameters.head.getRealParameterType(TypingContext.empty) match {
+          case Success(tp, _) if !(noPrimitives && ScalaEvaluatorBuilderUtil.isPrimitiveScType(tp)) =>
+            toPsi(tp, project, scope, noPrimitives, skolemToWildcard)
+          case _ => createType(valType)
+        }
       case ScDesignatorType(c: PsiClass) => createType(c)
       case ScParameterizedType(ScDesignatorType(c: PsiClass), args) =>
         if (c.qualifiedName == "scala.Array" && args.length == 1)

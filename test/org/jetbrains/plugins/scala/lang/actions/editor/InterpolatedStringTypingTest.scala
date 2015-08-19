@@ -58,4 +58,18 @@ class InterpolatedStringTypingTest extends ScalaLightCodeInsightFixtureTestAdapt
 
     checkGeneratedTextAfterTyping(text, assumedStub, '{')
   }
+
+  def testInsertBrace() {
+    val text = s""" val a = s"($$$CARET_MARKER)" """
+    val assumed = s""" val a = s"($${$CARET_MARKER})" """
+
+    checkGeneratedTextAfterTyping(text, assumed, '{')
+  }
+
+  def testInsertBraceInvalidCode() {
+    val text = s""" val a = s"blah-blah $$$CARET_MARKER """
+    val assumed = s""" val a = s"blah-blah $${$CARET_MARKER} """
+
+    checkGeneratedTextAfterTyping(text, assumed, '{')
+  }
 }

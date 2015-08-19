@@ -57,5 +57,4 @@ object FunExpressionTarget {
   }
 
   private def text(e: ScExpression) = parameterNameAndType(e).getOrElse(shorten(e.getText))
-
 }

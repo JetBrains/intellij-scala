@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala
 package lang.completeStatement
 
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
-
 /**
  * @author Ksenia.Sautina
  * @since 1/28/13
  */
-class ScalaCompleteMethodCallTest extends ScalaCodeInsightTestBase {
-
+class ScalaCompleteMethodCallTest extends ScalaCompleteStatementTestBase {
   def testMethodCall() {
     val fileText =
       """
@@ -27,8 +24,6 @@ class ScalaCompleteMethodCallTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 }

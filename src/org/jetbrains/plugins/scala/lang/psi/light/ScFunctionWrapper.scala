@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 
@@ -113,6 +113,7 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
   override def hasModifierProperty(name: String): Boolean = {
     name match {
       case "abstract" if isInterface => true
+      case "final" if containingClass.isInstanceOf[ScTrait] => false //fix for SCL-5824
       case _ => super.hasModifierProperty(name)
     }
   }

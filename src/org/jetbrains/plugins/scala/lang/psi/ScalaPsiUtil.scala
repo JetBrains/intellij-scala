@@ -7,7 +7,7 @@ import java.lang.ref.WeakReference
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{JavaModuleType, Module, ModuleUtil}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
@@ -488,7 +488,7 @@ object ScalaPsiUtil {
   }
 
   def processTypeForUpdateOrApplyCandidates(call: MethodInvocation, tp: ScType, isShape: Boolean,
-                                            noImplicits: Boolean, isDynamic: Boolean): Array[ScalaResolveResult] = {
+                                            isDynamic: Boolean): Array[ScalaResolveResult] = {
     val isUpdate = call.isUpdateCall
     val methodName =
       if (isDynamic) ResolvableReferenceExpression.getDynamicNameForMethodInvocation(call)
@@ -540,9 +540,9 @@ object ScalaPsiUtil {
       candidates = processor.candidatesS
     }
 
-    if (!noImplicits && candidates.forall(!_.isApplicable())) {
+    if (!isDynamic && candidates.forall(!_.isApplicable())) {
       //should think about implicit conversions
-      findImplicitConversion(expr, methodName, call, processor, noImplicitsForArgs = false) match {
+      findImplicitConversion(expr, methodName, call, processor, noImplicitsForArgs = candidates.nonEmpty) match {
         case Some(res) =>
           ProgressManager.checkCanceled()
           val function = res.element
@@ -564,8 +564,8 @@ object ScalaPsiUtil {
   def processTypeForUpdateOrApply(tp: ScType, call: MethodInvocation, isShape: Boolean):
       Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[ScalaResolveResult])] = {
 
-    def checkCandidates(withImplicits: Boolean, withDynamic: Boolean = false): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[ScalaResolveResult])] = {
-      val candidates: Array[ScalaResolveResult] = processTypeForUpdateOrApplyCandidates(call, tp, isShape, noImplicits = !withImplicits, isDynamic = withDynamic)
+    def checkCandidates(withDynamic: Boolean = false): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[ScalaResolveResult])] = {
+      val candidates: Array[ScalaResolveResult] = processTypeForUpdateOrApplyCandidates(call, tp, isShape, isDynamic = withDynamic)
       PartialFunction.condOpt(candidates) {
         case Array(r@ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor)) =>
           def update(tp: ScType): ScType = {
@@ -590,10 +590,7 @@ object ScalaPsiUtil {
       }
     }
 
-    checkCandidates(withImplicits = false).orElse(checkCandidates(withImplicits = true)).orElse {
-        //let's check dynamic type
-        checkCandidates(withImplicits = false, withDynamic = true)
-    }
+    checkCandidates(withDynamic = false).orElse(checkCandidates(withDynamic = true))
   }
 
   /**
@@ -1528,7 +1525,7 @@ object ScalaPsiUtil {
   def getUnapplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     getMethodsForName(clazz, "unapply") ++ getMethodsForName(clazz, "unapplySeq") ++
     (clazz match {
-      case c: ScObject => c.syntheticMethodsNoOverride.filter(s => s.name == "unapply" || s.name == "unapplySeq").
+      case c: ScObject => c.allSynthetics.filter(s => s.name == "unapply" || s.name == "unapplySeq").
               map(new PhysicalSignature(_, ScSubstitutor.empty))
       case _ => Seq.empty[PhysicalSignature]
     })
@@ -2051,6 +2048,37 @@ object ScalaPsiUtil {
     }
   }
 
+  object MethodValue {
+    def unapply(expr: ScExpression): Option[PsiMethod] = {
+      if (!expr.expectedType(false).exists(ScFunctionType.isFunctionType)) return None
+      expr match {
+        case ref: ScReferenceExpression if !ref.getParent.isInstanceOf[MethodInvocation] => referencedMethod(ref, canBeParameterless = false)
+        case gc: ScGenericCall if !gc.getParent.isInstanceOf[MethodInvocation] => referencedMethod(gc, canBeParameterless = false)
+        case us: ScUnderscoreSection => us.bindingExpr.flatMap(referencedMethod(_, canBeParameterless = true))
+        case ScMethodCall(invoked @(_: ScReferenceExpression | _: ScGenericCall | _: ScMethodCall), args)
+          if args.nonEmpty && args.forall(isSimpleUnderscore) => referencedMethod(invoked, canBeParameterless = false)
+        case _ => None
+      }
+    }
+
+    @tailrec
+    private def referencedMethod(expr: ScExpression, canBeParameterless: Boolean): Option[PsiMethod] = {
+      expr match {
+        case ref @ ResolvesTo(f: ScFunctionDefinition) if f.isParameterless && !canBeParameterless => None
+        case ref @ ResolvesTo(m: PsiMethod) => Some(m)
+        case gc: ScGenericCall => referencedMethod(gc.referencedExpr, canBeParameterless)
+        case us: ScUnderscoreSection if us.bindingExpr.isDefined => referencedMethod(us.bindingExpr.get, canBeParameterless)
+        case m: ScMethodCall => referencedMethod(m.deepestInvokedExpr, canBeParameterless = false)
+        case _ => None
+      }
+    }
+    private def isSimpleUnderscore(expr: ScExpression) = expr match {
+      case _: ScUnderscoreSection => expr.getText == "_"
+      case typed: ScTypedStmt => Option(typed.expr).map(_.getText).contains("_")
+      case _ => false
+    }
+  }
+
   /** Creates a synthetic parameter clause based on view and context bounds */
   def syntheticParamClause(paramOwner: ScTypeParametersOwner, paramClauses: ScParameters, classParam: Boolean): Option[ScParameterClause] = {
     if (paramOwner == null) return None
@@ -2270,6 +2298,28 @@ object ScalaPsiUtil {
   }
 
   /**
+   * @see https://github.com/non/kind-projector
+   */
+  def kindProjectorPluginEnabled(e: PsiElement): Boolean = {
+    val plugins = e.module match {
+      case Some(mod) => mod.scalaCompilerSettings.plugins
+      case _ => ScalaCompilerConfiguration.instanceIn(e.getProject).defaultProfile.getSettings.plugins
+    }
+    plugins.exists(_.contains("kind-projector"))
+  }
+
+  /**
+   * @see https://github.com/non/kind-projector
+   */
+  def kindProjectorPluginEnabled(p: Project): Boolean = {
+    val modules = ModuleUtil.getModulesOfType(p, JavaModuleType.getModuleType)
+    import collection.JavaConversions._
+    modules.exists { mod =>
+      mod.hasScala && mod.scalaCompilerSettings.plugins.exists(_.contains("kind-projector"))
+    }
+  }
+
+  /**
    * Should we check if it's a Single Abstract Method?
    * In 2.11 works with -Xexperimental
    * In 2.12 works by default
@@ -2338,11 +2388,11 @@ object ScalaPsiUtil {
               val params: Array[ScType] = method.getParameterList.getParameters.map {
                 param: PsiParameter => ScType.create(param.getTypeElement.getType, project, scope)
               }
-              Some(ScFunctionType(returnType, params)(project, scope))
+              val result = ScFunctionType(returnType, params)(project, scope)
+              Some(sub.subst(result))
             } else None
         }
       case None => None
     }
   }
-
 }

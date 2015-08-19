@@ -64,6 +64,7 @@ import gnu.trove.TIntArrayList;
 import org.intellij.lang.annotations.JdkConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.actions.ShowTypeInfoAction;
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
@@ -123,6 +124,13 @@ public class MouseHoverHandler extends AbstractProjectComponent {
       Editor editor = e.getEditor();
       if (editor.getProject() != null && editor.getProject() != myProject) return;
       PsiFile psiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(editor.getDocument());
+
+      if (psiFile != null && psiFile.getViewProvider().getBaseLanguage() != ScalaLanguage.Instance) {
+        PsiFile scalaFile = psiFile.getViewProvider().getPsi(ScalaLanguage.Instance);
+        if (scalaFile == null) return;
+        psiFile = scalaFile;
+      }
+
       Point point = new Point(mouseEvent.getPoint());
       if (PsiDocumentManager.getInstance(myProject).isCommitted(editor.getDocument())) {
         // when document is committed, try to check injected stuff - it's fast
@@ -158,6 +166,7 @@ public class MouseHoverHandler extends AbstractProjectComponent {
       myTooltipAlarm.addRequest(new Runnable() {
         @Override
         public void run() {
+          if (HintManager.getInstance().hasShownHintsThatWillHideByOtherHint(true)) return;
           myTooltipProvider = new TooltipProvider(finalEditor, pos);
           myTooltipProvider.execute(browseMode);
         }

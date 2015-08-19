@@ -9,7 +9,7 @@ import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys, ProjectSyste
  */
 class SbtProjectData(val owner: ProjectSystemId,
                        val basePackages: Seq[String],
-                       val jdk: Option[SbtProjectData.Sdk],
+                       val jdk: Option[Sdk],
                        val javacOptions: Seq[String],
                        val sbtVersion: String,
                        val projectPath: String) extends AbstractExternalEntityData(owner)
@@ -17,8 +17,4 @@ class SbtProjectData(val owner: ProjectSystemId,
 object SbtProjectData {
   val Key: Key[SbtProjectData] = new Key(classOf[SbtProjectData].getName,
     ProjectKeys.MODULE.getProcessingWeight + 1)
-
-  trait Sdk
-  case class Jdk(version: String) extends Sdk
-  case class Android(version: String) extends Sdk
 }

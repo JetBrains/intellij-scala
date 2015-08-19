@@ -4,7 +4,7 @@ package refactoring.rename3
 import java.io.File
 import java.util
 
-import com.intellij.codeInsight.TargetElementUtilBase
+import com.intellij.codeInsight.{TargetElementUtil, TargetElementUtilBase}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.text.StringUtil
@@ -111,9 +111,9 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
   private def moduleAdapter = getModuleAdapter
 
   private def doRename(editor: Editor, file: PsiFile, newName: String): String = {
-    val element = TargetElementUtilBase.findTargetElement(
+    val element = TargetElementUtil.findTargetElement(
       InjectedLanguageUtil.getEditorForInjectedLanguageNoCommit(editor, file),
-      TargetElementUtilBase.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtilBase.ELEMENT_NAME_ACCEPTED)
+      TargetElementUtil.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtil.ELEMENT_NAME_ACCEPTED)
     assert(element != null, "Reference is not specified.")
     val searchInComments = element.getText != null && element.getText.contains("Comments")
     var oldName: String = ""
@@ -125,6 +125,8 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
       }
     }
     PsiDocumentManager.getInstance(getProjectAdapter).commitAllDocuments()
+    val document = PsiDocumentManager.getInstance(getProjectAdapter).getDocument(file)
+    PsiDocumentManager.getInstance(getProjectAdapter).doPostponedOperationsAndUnblockDocument(document)
     FileDocumentManager.getInstance.saveAllDocuments()
     oldName
   }
