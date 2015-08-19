@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ValueC
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.util.Try
 
 /**
  * User: Alefas
@@ -313,6 +314,10 @@ object DebuggerUtil {
     }
 
     override def getDisplayName(debugProcess: DebugProcessImpl): String = getName(debugProcess)
+  }
+
+  def isScala(refType: ReferenceType): Boolean = {
+    Try(refType.sourceName().endsWith(".scala")).getOrElse(true)
   }
 
   def jvmClassAtPosition(sourcePosition: SourcePosition, debugProcess: DebugProcess): Option[ReferenceType] = {
