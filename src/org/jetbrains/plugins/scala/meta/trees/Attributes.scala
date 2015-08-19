@@ -23,10 +23,8 @@ trait Attributes {
         .dropRight(1)
         .foldLeft(rootPackagePrefix) {
           (parent, name) => h.Prefix.Type(m.Type.Singleton(
-            m.Term.Name(name, denot =
-              h.Denotation.Single(parent, fqnameToSymbol(fqn.substring(0, fqn.indexOf(name) + name.length), toDrop = 0)))
-          )
-        )
+            m.Term.Name(name).withDenot(h.Denotation.Single(parent, fqnameToSymbol(fqn.substring(0, fqn.indexOf(name) + name.length), toDrop = 0)))
+          ))
       }
     }
 
@@ -76,14 +74,14 @@ trait Attributes {
 
     def withDenot[P <: PsiElement](elem: Option[P]): T = {
       val denotatedTree = ptree match {
-        case ptree: m.Name.Anonymous => ptree.copy(denot = denot(elem))
-        case ptree: m.Name.Indeterminate => ptree.copy(denot = denot(elem))
-        case ptree: m.Term.Name => ptree.copy(denot = denot(elem), typing = ptree.typing)
-        case ptree: m.Type.Name => ptree.copy(denot = denot(elem))
+        case ptree: m.Name.Anonymous => ptree.withDenot(denot(elem))
+        case ptree: m.Name.Indeterminate => ptree.withDenot(denot(elem))
+        case ptree: m.Term.Name => ptree.withDenot(denot(elem)).withTyping(ptree.typing)
+        case ptree: m.Type.Name => ptree.withDenot(denot(elem))
         // TODO: some ctor refs don't have corresponding constructor symbols in Scala (namely, ones for traits)
         // in these cases, our lsym is going to be a symbol of the trait in question
         // we need to account for that in `symbolTable.convert` and create a constructor symbol of our own
-        case ptree: m.Ctor.Name => ptree.copy(denot = denot(elem), typing = ptree.typing)
+        case ptree: m.Ctor.Name => ptree.withDenot(denot(elem)).withTyping(ptree.typing)
         case _ => unreachable
       }
       denotatedTree.asInstanceOf[T]

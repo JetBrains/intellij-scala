@@ -58,7 +58,7 @@ trait Namer {
     val resolved = toTermName(c)
     resolved match {
       case n@m.Term.Name(value) =>
-        m.Ctor.Ref.Name(value).copy(denot = n.denot, expansion = n.expansion, typing = n.typing)
+        m.Ctor.Ref.Name(value).withDenot(n.denot).withExpansion(n.expansion).withTyping(n.typing)
       case other => unreachable
     }
   }
