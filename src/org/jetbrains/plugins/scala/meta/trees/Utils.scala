@@ -12,7 +12,7 @@ trait Utils {
 
   val LOG = Logger.getInstance(this.getClass)
   
-  val rootPackageName = m.Term.Name("_root_", denot = h.Denotation.Single(h.Prefix.Zero, h.Symbol.RootPackage))
+  val rootPackageName = m.Term.Name("_root_").withDenot(denot = h.Denotation.Single(h.Prefix.Zero, h.Symbol.RootPackage))
   val rootPackagePrefix = h.Prefix.Type(m.Type.Singleton(rootPackageName))
 
   class UnmatchedTree(msg: String) extends RuntimeException(msg)
@@ -33,7 +33,7 @@ trait Utils {
           case m.Type.Existential(ptpe, pquants) => m.Pat.Type.Existential(loop(ptpe), pquants)
           case m.Type.Annotate(ptpe, pannots) => m.Pat.Type.Annotate(loop(ptpe), pannots)
           case m.Type.Placeholder(_) => m.Pat.Type.Wildcard() // FIXME: wtf? is it supposed to convert this way?
-          case ptpe: m.Type.Placeholder => ptpe
+          case ptpe: m.Pat.Type.Placeholder => ptpe
           case ptpe: m.Lit => ptpe
         }
       }

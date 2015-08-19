@@ -32,5 +32,6 @@ class Context(val project: Project) extends semantic.Context {
   override def parents(member: Member): Seq[Member] = ???
   override def children(member: Member): Seq[Member] = ???
 
-  var wtf: Member = _
+
+  override def domain = ???
 }

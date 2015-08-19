@@ -28,4 +28,6 @@ class Context extends semantic.Context {
   override def children(member: Member): Seq[Member] = ???
 
   override def dialect = ???
+
+  override def domain = ???
 }
