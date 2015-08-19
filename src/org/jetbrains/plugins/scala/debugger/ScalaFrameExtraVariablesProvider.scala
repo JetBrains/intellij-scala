@@ -6,8 +6,8 @@ import java.util.Collections
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.evaluation.{EvaluationContext, TextWithImports, TextWithImportsImpl}
 import com.intellij.debugger.engine.{DebuggerUtils, FrameExtraVariablesProvider}
-import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveState}
 import com.intellij.xdebugger.impl.breakpoints.XExpressionImpl
@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScCatchBlock, ScEnumerator, ScForStatement, ScGenerator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -26,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 
 /**
@@ -118,11 +120,31 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
     }
   }
 
-  private def notUsedInCurrentClass(named: PsiElement, place: PsiElement) = {
+  private def notUsedInCurrentClass(named: PsiElement, place: PsiElement): Boolean = {
     inReadAction {
       val contextClass = ScalaEvaluatorBuilderUtil.getContextClass(place, strict = false)
       val containingClass = ScalaEvaluatorBuilderUtil.getContextClass(named)
-      contextClass != containingClass && ReferencesSearch.search(named, new LocalSearchScope(contextClass)).findFirst() == null
+      if (contextClass == containingClass) return false
+
+      val placesToSearch = ArrayBuffer[PsiElement]()
+      contextClass.accept(new ScalaRecursiveElementVisitor() {
+        override def visitFunctionDefinition(fun: ScFunctionDefinition): Unit = {
+          placesToSearch += fun
+        }
+
+        override def visitPatternDefinition(pat: ScPatternDefinition): Unit = {
+          pat match {
+            case LazyVal(_) => placesToSearch += pat
+            case _ =>
+          }
+        }
+      })
+      val scopes = placesToSearch.map(new LocalSearchScope(_).asInstanceOf[SearchScope])
+      if (scopes.isEmpty) true
+      else {
+        val searchScope = scopes.reduce(_ union _)
+        ReferencesSearch.search(named, searchScope).findFirst() == null
+      }
     }
   }
 
