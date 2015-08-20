@@ -64,7 +64,7 @@ class ScalaClassWithObscureFieldsRenderer extends ClassRenderer {
     }
 
     if (XDebuggerSettingsManager.getInstance.getDataViewSettings.isSortValues) {
-      children.sort(NodeManagerImpl.getNodeComparator)
+      util.Collections.sort(children, NodeManagerImpl.getNodeComparator)
     }
 
     builder.setChildren(children)
