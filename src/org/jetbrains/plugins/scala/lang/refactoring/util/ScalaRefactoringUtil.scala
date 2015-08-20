@@ -336,13 +336,13 @@ object ScalaRefactoringUtil {
   }
 
   def getOccurrencesInInheritors(typeElement: ScTypeElement,
-                                 currentClass: ScClass,
+                                 currentElement: ScTemplateDefinition,
                                  conflictsReporter: ConflictsReporter,
                                  project: Project,
                                  editor: Editor): (Array[ScTypeElement], Array[ScalaTypeValidator]) = {
 
-    val scope: GlobalSearchScope = GlobalSearchScope.allScope(currentClass.getProject)
-    val inheritors = ScalaStubsUtil.getClassInheritors(currentClass, scope)
+    val scope: GlobalSearchScope = GlobalSearchScope.allScope(currentElement.getProject)
+    val inheritors = ScalaStubsUtil.getClassInheritors(currentElement, scope)
 
     def helper(classObject: ScTemplateDefinition,
                occurrencesRes: mutable.MutableList[Array[ScTypeElement]],
