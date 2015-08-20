@@ -336,7 +336,7 @@ object ScalaRefactoringUtil {
   }
 
   def getOccurrencesInInheritors(typeElement: ScTypeElement,
-                                 currentElement: ScTemplateDefinition,
+                                 currentElement: ScTypeDefinition,
                                  conflictsReporter: ConflictsReporter,
                                  project: Project,
                                  editor: Editor): (Array[ScTypeElement], Array[ScalaTypeValidator]) = {

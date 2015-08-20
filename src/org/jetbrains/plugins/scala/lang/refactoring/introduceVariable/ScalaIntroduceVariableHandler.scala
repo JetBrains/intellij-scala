@@ -181,9 +181,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
           val replaceAllOccurrences: Boolean = dialog.isReplaceAllOccurrences
 
           val occurrences: OccurrenceHandler = OccurrenceHandler(typeElement,
-            dialog.getSelectedScope.occurrences, dialog.isReplaceAllOccurrences,
-            dialog.getSelectedScope.occInCompanionObj, dialog.isReplaceOccurrenceIncompanionObject,
-            dialog.getSelectedScope.occurrencesFromInheretins, true)
+            dialog.isReplaceAllOccurrences,
+            dialog.isReplaceOccurrenceIncompanionObject,
+            dialog.isReplaceOccurrenceInInheritors, dialog.getSelectedScope)
 
           val parent = dialog.getSelectedScope.fileEncloser
           runRefactoringForTypes(startOffset, endOffset, file, editor, typeElement, typeName, occurrences,
@@ -202,7 +202,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
               val suggestedNamesSet = new util.LinkedHashSet[String](suggestedNames.toIterable)
               val introduceRunnable: Computable[SmartPsiElementPointer[PsiElement]] =
                 introduceTypeAlias(startOffset, endOffset, file, editor, typeElement,
-                  OccurrenceHandler(typeElement, occurrences, replaceAllOccurrences), suggestedNames(0), replaceAllOccurrences);
+                  OccurrenceHandler(typeElement, occurrences, replaceAllOccurrences), suggestedNames(0), replaceAllOccurrences)
 
               CommandProcessor.getInstance.executeCommand(project, new Runnable {
                 def run() {
@@ -449,36 +449,30 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
     SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(createdDeclaration)
   }
 
-    def runRefactoringForTypeInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor,
+  def runRefactoringForTypeInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor,
                                   typeElement: ScTypeElement, typeName: String,
                                   occurrences: OccurrenceHandler, replaceAllOccurrences: Boolean, suggestedParent: PsiElement) = {
 
     def replaceTypeElement(occurrences: OccurrenceHandler, name: String, typeAlias: PsiElement) = {
-      def replaceHelper(typeElement: Option[ScTypeElement]): Option[PsiElement] = {
-        if (typeElement.isDefined) {
-          val value = typeElement.get
-          val replacement = ScalaPsiElementFactory.createTypeElementFromText(name, value.getContext, value)
-          //remove parethesis around typeElement
-          if (value.getParent.isInstanceOf[ScParenthesisedTypeElement]) {
-            value.getNextSibling.delete()
-            value.getPrevSibling.delete()
-          }
-          Option(value.replace(replacement))
-        } else {
-          None
+      def replaceHelper(typeElement: ScTypeElement): PsiElement = {
+        val replacement = ScalaPsiElementFactory.createTypeElementFromText(name, typeElement.getContext, typeElement)
+        //remove parethesis around typeElement
+        if (typeElement.getParent.isInstanceOf[ScParenthesisedTypeElement]) {
+          typeElement.getNextSibling.delete()
+          typeElement.getPrevSibling.delete()
         }
+        typeElement.replace(replacement)
       }
 
-      occurrences.getUsualOccurrences.foreach((x: ScTypeElement) => replaceHelper(Option(x)))
-      occurrences.getExtendedOccurrences.foreach((x: ScTypeElement) => replaceHelper(Option(x)))
+      occurrences.getUsualOccurrences.foreach(replaceHelper)
+      occurrences.getExtendedOccurrences.foreach(replaceHelper)
 
-      val result = replaceHelper(occurrences.getCompanionObjOccurrences.headOption)
-      if (result.isDefined) {
-        result.get.getFirstChild.asInstanceOf[ScStableCodeReferenceElement].bindToElement(typeAlias)
-      }
+      //do needed imports & avoid typealias conflicts
+      val occFromCompnionObject =
+        occurrences.getCompanionObjOccurrences.map(replaceHelper)
 
-      if (occurrences.getCompanionObjOccurrences.length > 1) {
-        occurrences.getCompanionObjOccurrences.tail.foreach((x: ScTypeElement) => replaceHelper(Option(x)))
+      if (!occFromCompnionObject.isEmpty) {
+        occFromCompnionObject.foreach(_.getFirstChild.asInstanceOf[ScStableCodeReferenceElement].bindToElement(typeAlias))
       }
     }
 
