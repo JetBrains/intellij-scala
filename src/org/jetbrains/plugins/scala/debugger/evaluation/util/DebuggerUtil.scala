@@ -316,8 +316,8 @@ object DebuggerUtil {
     override def getDisplayName(debugProcess: DebugProcessImpl): String = getName(debugProcess)
   }
 
-  def isScala(refType: ReferenceType): Boolean = {
-    Try(refType.sourceName().endsWith(".scala")).getOrElse(true)
+  def isScala(refType: ReferenceType, default: Boolean = true): Boolean = {
+    Try(refType.sourceName().endsWith(".scala")).getOrElse(default)
   }
 
   def jvmClassAtPosition(sourcePosition: SourcePosition, debugProcess: DebugProcess): Option[ReferenceType] = {

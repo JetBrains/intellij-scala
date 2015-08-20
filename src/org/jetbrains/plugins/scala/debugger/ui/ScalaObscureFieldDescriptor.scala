@@ -46,7 +46,7 @@ class ScalaObscureFieldDescriptor(delegate: FieldDescriptor, project: Project)
 
     field.declaringType() match {
       case ct: ClassType =>
-        val traits = ct.allInterfaces().asScala.filter(DebuggerUtil.isScala)
+        val traits = ct.allInterfaces().asScala.filter(DebuggerUtil.isScala(_))
         traits.exists(hasMethodForField)
       case _ => false
     }
