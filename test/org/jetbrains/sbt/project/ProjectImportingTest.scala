@@ -5,12 +5,13 @@ import java.io.File
 
 import ProjectStructureDsl._
 import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[SlowTests]))
 class ProjectImportingTest extends ImportingTestCase with InexactMatch {
 
-  def ivyCacheDir: File = new File(System.getProperty("user.home")) / ".ivy2" / "cache"
+  def ivyCacheDir: File = new File(TestUtils.getIvyCachePath)
 
   def testSimple() = runTest(
     new project("testSimple") {
