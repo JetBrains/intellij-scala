@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem;
 import org.jetbrains.plugins.scala.lang.refactoring.util.*;
 import scala.Tuple2;
@@ -93,7 +94,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
     }
 
     protected void doOKAction() {
-        ScTemplateDefinition classOrTrait = PsiTreeUtil.getParentOfType(currentScope.fileEncloser(), ScClass.class, ScTrait.class);
+        ScTypeDefinition classOrTrait = PsiTreeUtil.getParentOfType(currentScope.fileEncloser(), ScClass.class, ScTrait.class);
         if (classOrTrait != null) {
             if (!handleInheritedClasses(classOrTrait)) {
                 return;
@@ -322,6 +323,10 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         return myReplaceCompanionObjectOcc.isSelected();
     }
 
+    public boolean isReplaceOccurrenceInInheritors() {
+        return myReplaceInInheritors.isSelected();
+    }
+
 
     @Nullable
     public String getEnteredName() {
@@ -341,7 +346,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
     }
 
     //return false if there is conflict in validator
-    private boolean handleInheritedClasses(ScTemplateDefinition currentElement) {
+    private boolean handleInheritedClasses(ScTypeDefinition currentElement) {
         if (myReplaceInInheritors.isSelected()) {
             ScopeItem selectedScope = getSelectedScope();
 

@@ -4,31 +4,23 @@ package refactoring
 package introduceVariable
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem
 
 
 /**
  * Created by Kate Ustyuzhanina on 8/18/15.
  */
 object OccurrenceHandler {
-  def apply(typeElement: ScTypeElement, usualOccurrence: Array[ScTypeElement], isReplaceAllUsual: Boolean,
-            companiomObjOccurrence: Array[ScTypeElement], isReplaceInCompanion: Boolean,
-            extendedClassOccurrence: Array[ScTypeElement], isReplaceInExtendedClasses: Boolean): OccurrenceHandler = {
-    new OccurrenceHandler(typeElement, usualOccurrence, isReplaceAllUsual,
-      companiomObjOccurrence, isReplaceInCompanion,
-      extendedClassOccurrence, isReplaceInExtendedClasses)
-  }
-
-  def apply(typeElement: ScTypeElement, usualOccurrence: Array[ScTypeElement], isReplaceAllUsual: Boolean,
-            companiomObjOccurrence: Array[ScTypeElement], isReplaceInCompanion: Boolean): OccurrenceHandler = {
-    new OccurrenceHandler(typeElement, usualOccurrence, isReplaceAllUsual,
-      companiomObjOccurrence, isReplaceInCompanion,
-      Array[ScTypeElement](), false)
-  }
-
   def apply(typeElement: ScTypeElement,
             usualOccurrence: Array[ScTypeElement], isReplaceAllUsual: Boolean): OccurrenceHandler = {
     new OccurrenceHandler(typeElement, usualOccurrence, isReplaceAllUsual,
       Array[ScTypeElement](), false, Array[ScTypeElement](), false)
+  }
+
+  def apply(typeElement: ScTypeElement, isReplaceAllUsual: Boolean, isReplaceOccurrenceIncompanionObject: Boolean,
+            isReplaceOccurrenceInInheritors: Boolean, scopeItem: ScopeItem): OccurrenceHandler  = {
+    new OccurrenceHandler(typeElement, scopeItem.occurrences, isReplaceAllUsual, scopeItem.occInCompanionObj,
+      isReplaceOccurrenceIncompanionObject, scopeItem.occurrencesFromInheretors, isReplaceOccurrenceInInheritors)
   }
 }
 
