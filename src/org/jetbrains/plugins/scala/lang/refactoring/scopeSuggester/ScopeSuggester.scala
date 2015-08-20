@@ -98,11 +98,11 @@ class ScopeItem(name: String,
   val occInCompanionObj: Array[ScTypeElement] = inOccInCompanionObj
   val validator: ScalaValidator = inValidator
   val possibleNames: Array[String] = inAvailablenames
-  var occurrencesFromInheretins: Array[ScTypeElement] = Array[ScTypeElement]()
+  var occurrencesFromInheretors: Array[ScTypeElement] = Array[ScTypeElement]()
 
   def setInheretedOccurrences(occurrences: Array[ScTypeElement]) = {
     if (occurrences != null) {
-      occurrencesFromInheretins = occurrences
+      occurrencesFromInheretors = occurrences
     }
   }
 
