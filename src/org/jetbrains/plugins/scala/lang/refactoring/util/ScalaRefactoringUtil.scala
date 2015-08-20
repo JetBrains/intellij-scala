@@ -20,7 +20,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import com.intellij.psi._
-import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.HelpID
@@ -28,7 +28,7 @@ import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScLiteralPattern, ScPattern, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParenthesisedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
@@ -39,6 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -62,13 +63,13 @@ object ScalaRefactoringUtil {
     var end = editor.getSelectionModel.getSelectionEnd
     if (start == end) return
     while (file.findElementAt(start).isInstanceOf[PsiWhiteSpace] ||
-            (file.findElementAt(start).isInstanceOf[PsiComment] && trimComments) ||
-            file.getText.charAt(start) == '\n' ||
-            file.getText.charAt(start) == ' ') start = start + 1
+      (file.findElementAt(start).isInstanceOf[PsiComment] && trimComments) ||
+      file.getText.charAt(start) == '\n' ||
+      file.getText.charAt(start) == ' ') start = start + 1
     while (file.findElementAt(end - 1).isInstanceOf[PsiWhiteSpace] ||
-            (file.findElementAt(end - 1).isInstanceOf[PsiComment] && trimComments) ||
-            file.getText.charAt(end - 1) == '\n' ||
-            file.getText.charAt(end - 1) == ' ') end = end - 1
+      (file.findElementAt(end - 1).isInstanceOf[PsiComment] && trimComments) ||
+      file.getText.charAt(end - 1) == '\n' ||
+      file.getText.charAt(end - 1) == ' ') end = end - 1
     editor.getSelectionModel.setSelection(start, end)
   }
 
@@ -219,7 +220,7 @@ object ScalaRefactoringUtil {
       case ref: ScReferenceExpression =>
         ref.resolve() match {
           case fun: ScFunction if fun.paramClauses.clauses.length > 0 &&
-                  fun.paramClauses.clauses.head.isImplicit => copyExpr
+            fun.paramClauses.clauses.head.isImplicit => copyExpr
           case fun: ScFunction if !fun.parameters.isEmpty => liftMethod
           case meth: PsiMethod if !meth.getParameterList.getParameters.isEmpty => liftMethod
           case _ => copyExpr
@@ -332,6 +333,37 @@ object ScalaRefactoringUtil {
         }
       }
     occurrences.toArray
+  }
+
+  def getOccurrencesInInheritors(typeElement: ScTypeElement,
+                                 currentClass: ScClass,
+                                 conflictsReporter: ConflictsReporter,
+                                 project: Project,
+                                 editor: Editor): (Array[ScTypeElement], Array[ScalaTypeValidator]) = {
+
+    val scope: GlobalSearchScope = GlobalSearchScope.allScope(currentClass.getProject)
+    val inheritors = ScalaStubsUtil.getClassInheritors(currentClass, scope)
+
+    def helper(classObject: ScTemplateDefinition,
+               occurrencesRes: mutable.MutableList[Array[ScTypeElement]],
+               validatorsRes: mutable.MutableList[ScalaTypeValidator]) = {
+
+      val occurrences = getTypeElementOccurrences(typeElement, classObject)
+      val validator = ScalaTypeValidator(conflictsReporter, project, editor, typeElement.getContainingFile,
+        typeElement, classObject, occurrences.isEmpty)
+      occurrencesRes += occurrences
+      validatorsRes += validator
+    }
+
+    val collectedOccurrences: mutable.MutableList[Array[ScTypeElement]] = mutable.MutableList()
+    val collectedValidators: mutable.MutableList[ScalaTypeValidator] = mutable.MutableList()
+
+    inheritors.foreach((x: ScTemplateDefinition) => helper(x, collectedOccurrences, collectedValidators))
+
+    val occurrences: Array[ScTypeElement] = collectedOccurrences.foldLeft(Array[ScTypeElement]())((a, b) => a ++ b)
+    val validators: Array[ScalaTypeValidator] = collectedValidators.toArray
+
+    (occurrences, validators)
   }
 
 

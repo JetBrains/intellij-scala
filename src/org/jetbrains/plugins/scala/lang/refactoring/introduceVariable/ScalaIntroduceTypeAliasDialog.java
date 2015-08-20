@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable;
 
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.EditorComboBoxEditor;
 import com.intellij.ui.EditorComboBoxRenderer;
 import com.intellij.ui.EditorTextField;
@@ -15,9 +17,11 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
-import org.jetbrains.plugins.scala.lang.psi.types.ScType;
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem;
 import org.jetbrains.plugins.scala.lang.refactoring.util.*;
+import scala.Tuple2;
 
 import javax.swing.*;
 import javax.swing.event.EventListenerList;
@@ -25,7 +29,9 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.EventListener;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
+import java.util.Map;
+
 
 public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements NamedDialog {
     private JPanel contentPane;
@@ -37,32 +43,42 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
     private JCheckBox myCbReplaceAllOccurences;
     private JTextField myTypeTextField;
     private JCheckBox myReplaceCompanionObjectOcc;
+    private JCheckBox myReplaceInInheritors;
     private JButton buttonOK;
     private JButton buttonCancel;
 
     private Project project;
-    private ScType myType;
+    private ScTypeElement myTypeElement;
     private int occurrencesCount;
     private int companionObjOccCount;
     private ScalaValidator validator;
     private String[] possibleNames;
-    private ArrayList<ScopeItem> possibleScopes;
-    private LinkedHashMap<String, ScType> myTypeMap = null;
     private EventListenerList myListenerList = new EventListenerList();
+    private ConflictsReporter conflictsReporter;
+    private Editor editor;
+    private ScopeItem currentScope;
+    private Map<ScopeItem, Tuple2<ScTypeElement[], ScalaTypeValidator[]>> inheritanceDataMap;
 
     private static final String REFACTORING_NAME = ScalaBundle.message("introduce.type.alias.title");
 
     public ScalaIntroduceTypeAliasDialog(Project project,
-                                         ScType myType,
-                                         ArrayList<ScopeItem> possibleScopes) {
+                                         ScTypeElement myTypeElement,
+                                         ArrayList<ScopeItem> possibleScopes,
+                                         ConflictsReporter conflictReporter,
+                                         Editor editor) {
         super(project, true);
         this.project = project;
-        this.myType = myType;
-        this.occurrencesCount = possibleScopes.get(0).occurrences().length;
-        this.companionObjOccCount = possibleScopes.get(0).occInCompanionObj().length;
-        this.validator = possibleScopes.get(0).validator();
-        this.possibleNames = possibleScopes.get(0).possibleNames();
-        this.possibleScopes = possibleScopes;
+        this.myTypeElement = myTypeElement;
+        this.currentScope = possibleScopes.get(0);
+        this.occurrencesCount = currentScope.occurrences().length;
+        this.companionObjOccCount = currentScope.occInCompanionObj().length;
+        this.validator = currentScope.validator();
+        this.possibleNames = currentScope.possibleNames();
+        this.conflictsReporter = conflictReporter;
+        this.editor = editor;
+        this.inheritanceDataMap = new HashMap<ScopeItem, Tuple2<ScTypeElement[], ScalaTypeValidator[]>>();
+
+
         setUpNameComboBox(possibleNames);
         setUpScopeComboBox(possibleScopes);
 
@@ -72,6 +88,17 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         init();
         setUpDialog();
         updateOkStatus();
+    }
+
+    protected void doOKAction() {
+        if (!handleInheritedClasses(PsiTreeUtil.getParentOfType(currentScope.fileEncloser(), ScClass.class))) {
+            return;
+        }
+
+        if (!validator.isOK(this)) {
+            return;
+        }
+        super.doOKAction();
     }
 
     private void setUpNameComboBox(String[] possibleNames) {
@@ -159,7 +186,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         contentPane = new JPanel();
         contentPane.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
         final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel1.setLayout(new GridLayoutManager(3, 1, new Insets(0, 0, 0, 0), -1, -1));
         contentPane.add(panel1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         myCbReplaceAllOccurences = new JCheckBox();
         myCbReplaceAllOccurences.setText("Replace all occurrences");
@@ -168,7 +195,10 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         panel1.add(myCbReplaceAllOccurences, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myReplaceCompanionObjectOcc = new JCheckBox();
         myReplaceCompanionObjectOcc.setText("Replace occurrences available from companion object");
-        panel1.add(myReplaceCompanionObjectOcc, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(myReplaceCompanionObjectOcc, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        myReplaceInInheritors = new JCheckBox();
+        myReplaceInInheritors.setText("Replace occurences in class inheritors");
+        panel1.add(myReplaceInInheritors, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new GridLayoutManager(3, 2, new Insets(0, 0, 0, 0), -1, -1));
         contentPane.add(panel2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -216,6 +246,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
 
                 setUpCompanionObjOcc();
                 setUpOccurrences();
+                setUpReplaceInInheritors(item.scopeName());
                 validator = item.validator();
                 possibleNames = item.possibleNames();
                 updateNameComboBox(possibleNames);
@@ -248,7 +279,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         myCbReplaceAllOccurences.setFocusable(false);
         myNameLabel.setLabelFor(myNameComboBox);
         myTypeLabel.setLabelFor(myTypeTextField);
-        myTypeTextField.setText(myType.presentableText());
+        myTypeTextField.setText(myTypeElement.calcType().presentableText());
 
         // Replace occurences
         setUpCompanionObjOcc();
@@ -260,6 +291,14 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
 
         for (ScopeItem scope : elements) {
             myScopeCombobox.addItem(scope);
+        }
+    }
+
+    private void setUpReplaceInInheritors(String scopeName) {
+        if (scopeName.substring(0, 5).equals("class")) {
+            myReplaceInInheritors.setEnabled(true);
+        } else {
+            myReplaceInInheritors.setEnabled(false);
         }
     }
 
@@ -289,9 +328,39 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
 
     public ScopeItem getSelectedScope() {
         if (myScopeCombobox.getSelectedItem() instanceof ScopeItem) {
-            return (ScopeItem) myScopeCombobox.getSelectedItem();
+            return currentScope = (ScopeItem) myScopeCombobox.getSelectedItem();
         }
-
         return null;
+    }
+
+    //return false if there is conflict in validator
+    private boolean handleInheritedClasses(ScClass currentClass) {
+        if (myReplaceInInheritors.isSelected()) {
+            ScopeItem selectedScope = getSelectedScope();
+
+            if (selectedScope == null) {
+                return true;
+            }
+
+            Tuple2<ScTypeElement[], ScalaTypeValidator[]> inheritors;
+            if (inheritanceDataMap.containsKey(selectedScope)) {
+                inheritors = inheritanceDataMap.get(selectedScope);
+            } else {
+                inheritors = ScalaRefactoringUtil.getOccurrencesInInheritors(myTypeElement, currentClass,
+                        conflictsReporter, project, editor);
+                inheritanceDataMap.put(selectedScope, inheritors);
+            }
+
+            selectedScope.setInheretedOccurrences(inheritors._1());
+
+            for (ScalaTypeValidator validator : inheritors._2()) {
+                if (!validator.isOK(this)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        return true;
     }
 }

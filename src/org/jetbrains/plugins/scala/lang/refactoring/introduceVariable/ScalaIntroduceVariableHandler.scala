@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.{ScopeItem, ScopeSuggester}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{IntroduceException, showErrorMessage}
-import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil, ScalaTypeValidator, ScalaVariableValidator}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil, ScalaVariableValidator}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
@@ -182,10 +182,12 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
 
           val occurrences: OccurrenceHandler = OccurrenceHandler(typeElement,
             dialog.getSelectedScope.occurrences, dialog.isReplaceAllOccurrences,
-            dialog.getSelectedScope.occInCompanionObj, dialog.isReplaceOccurrenceIncompanionObject)
+            dialog.getSelectedScope.occInCompanionObj, dialog.isReplaceOccurrenceIncompanionObject,
+            dialog.getSelectedScope.occurrencesFromInheretins, true)
 
           val parent = dialog.getSelectedScope.fileEncloser
-          runRefactoringForTypes(startOffset, endOffset, file, editor, typeElement, typeName, occurrences, replaceAllOccurrences, parent)
+          runRefactoringForTypes(startOffset, endOffset, file, editor, typeElement, typeName, occurrences,
+            replaceAllOccurrences, parent)
         }
 
         val occurrences: Array[ScTypeElement] = possibleScopes.get(0).occurrences
@@ -468,6 +470,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       }
 
       occurrences.getUsualOccurrences.foreach((x: ScTypeElement) => replaceHelper(Option(x)))
+      occurrences.getExtendedOccurrences.foreach((x: ScTypeElement) => replaceHelper(Option(x)))
 
       val result = replaceHelper(occurrences.getCompanionObjOccurrences.headOption)
       if (result.isDefined) {
@@ -594,7 +597,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
     if (occurrences.length > 1)
       occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, occurrences.map(_.getTextRange), editor)
 
-    val dialog = new ScalaIntroduceTypeAliasDialog(project, typeElement.calcType, possibleScopes)
+    val dialog = new ScalaIntroduceTypeAliasDialog(project, typeElement, possibleScopes, this, editor)
     dialog.show()
     if (!dialog.isOK) {
       if (occurrences.length > 1) {
