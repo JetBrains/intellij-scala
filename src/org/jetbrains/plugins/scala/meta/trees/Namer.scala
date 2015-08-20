@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.meta.trees
 
-import com.intellij.psi.{PsiMethod, PsiClass, PsiElement, PsiPackage}
+import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiPackage}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.language.postfixOps
 import scala.meta.internal.{ast => m, semantic => h}

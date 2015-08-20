@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.meta.trees
 
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -18,36 +19,15 @@ trait TreeAdapter {
 
   def ideaToMeta(tree: ScalaPsiElement): m.Tree = {
     tree match {
-      case t: ScValueDeclaration =>
-        m.Decl.Val(convertMods(t), Seq(t.getIdList.fieldIds map { it => m.Pat.Var.Term(toTermName(it))}:_*), toType(t.typeElement.get.calcType))
-      case t: ScVariableDeclaration =>
-        m.Decl.Var(convertMods(t), Seq(t.getIdList.fieldIds map { it => m.Pat.Var.Term(toTermName(it))}:_*), toType(t.typeElement.get.calcType))
-      case t: ScTypeAliasDeclaration =>
-        m.Decl.Type(convertMods(t), toTypeName(t), Seq(t.typeParameters map toType: _*), typeBounds(t))
-      case t: ScTypeAliasDefinition =>
-        m.Defn.Type(convertMods(t), toTypeName(t), Seq(t.typeParameters map toType:_*), toType(t.aliasedType))
-      case t: ScFunctionDeclaration =>
-        m.Decl.Def(convertMods(t), toTermName(t), Seq(t.typeParameters map toType:_*), Seq(t.paramClauses.clauses.map(convertParamClause):_*), returnType(t.returnType))
-      case t: ScPatternDefinition =>
-        patternDefinition(t)
-      case t: ScVariableDefinition =>
-        def pattern(bp: patterns.ScBindingPattern) = m.Pat.Var.Term(toTermName(bp))
-        m.Defn.Var(convertMods(t), Seq(t.bindings.map(pattern):_*), t.declaredType.map(toType), expression(t.expr))
-      case t: ScFunctionDefinition =>
-        m.Defn.Def(convertMods(t), toTermName(t),
-          Seq(t.typeParameters map toType:_*),
-          Seq(t.paramClauses.clauses.map(convertParamClause):_*),
-          t.definedReturnType.map(toType).toOption,
-          expression(t.body).get
-        )
-      case t: ScMacroDefinition =>
-        m.Defn.Macro(
-          convertMods(t), toTermName(t),
-          Seq(t.typeParameters map toType:_*),
-          Seq(t.paramClauses.clauses.map(convertParamClause):_*),
-          t.definedReturnType.map(toType).get,
-          expression(t.body).get
-        )
+      case t: ScValueDeclaration => toVal(t)
+      case t: ScVariableDeclaration => toVar(t)
+      case t: ScTypeAliasDeclaration => toTypeDecl(t)
+      case t: ScTypeAliasDefinition => toTypeDefn(t)
+      case t: ScFunctionDeclaration => toFunDecl(t)
+      case t: ScPatternDefinition => toPatternDefinition(t)
+      case t: ScVariableDefinition => toVarDefn(t)
+      case t: ScFunctionDefinition => toFunDefn(t)
+      case t: ScMacroDefinition => toMacroDefn(t)
       case t: ScTrait => toTrait(t)
       case t: ScClass => toClass(t)
       case t: ScObject => toObject(t)
@@ -55,6 +35,50 @@ trait TreeAdapter {
       case t: p.toplevel.imports.ScImportStmt => m.Import(Seq(t.importExprs.map(imports):_*))
       case other => other ?!
     }
+  }
+
+  def toMacroDefn(t: ScMacroDefinition): m.Defn.Macro = {
+    m.Defn.Macro(
+      convertMods(t), toTermName(t),
+      Seq(t.typeParameters map toType: _*),
+      Seq(t.paramClauses.clauses.map(convertParamClause): _*),
+      t.definedReturnType.map(toType).get,
+      expression(t.body).get
+    )
+  }
+
+  def toFunDefn(t: ScFunctionDefinition): m.Defn.Def = {
+    m.Defn.Def(convertMods(t), toTermName(t),
+      Seq(t.typeParameters map toType: _*),
+      Seq(t.paramClauses.clauses.map(convertParamClause): _*),
+      t.definedReturnType.map(toType).toOption,
+      expression(t.body).get
+    )
+  }
+
+  def toVarDefn(t: ScVariableDefinition): m.Defn.Var = {
+    def pattern(bp: ScBindingPattern) = m.Pat.Var.Term(toTermName(bp))
+    m.Defn.Var(convertMods(t), Seq(t.bindings.map(pattern): _*), t.declaredType.map(toType), expression(t.expr))
+  }
+
+  def toFunDecl(t: ScFunctionDeclaration): m.Decl.Def = {
+    m.Decl.Def(convertMods(t), toTermName(t), Seq(t.typeParameters map toType: _*), Seq(t.paramClauses.clauses.map(convertParamClause): _*), returnType(t.returnType))
+  }
+
+  def toTypeDefn(t: ScTypeAliasDefinition): m.Defn.Type = {
+    m.Defn.Type(convertMods(t), toTypeName(t), Seq(t.typeParameters map toType: _*), toType(t.aliasedType))
+  }
+
+  def toTypeDecl(t: ScTypeAliasDeclaration): m.Decl.Type = {
+    m.Decl.Type(convertMods(t), toTypeName(t), Seq(t.typeParameters map toType: _*), typeBounds(t))
+  }
+
+  def toVar(t: ScVariableDeclaration): m.Decl.Var = {
+    m.Decl.Var(convertMods(t), Seq(t.getIdList.fieldIds map { it => m.Pat.Var.Term(toTermName(it)) }: _*), toType(t.typeElement.get.calcType))
+  }
+
+  def toVal(t: ScValueDeclaration): m.Decl.Val = {
+    m.Decl.Val(convertMods(t), Seq(t.getIdList.fieldIds map { it => m.Pat.Var.Term(toTermName(it)) }: _*), toType(t.typeElement.get.calcType))
   }
 
   def toTrait(t: ScTrait) = m.Defn.Trait(
@@ -259,7 +283,7 @@ trait TreeAdapter {
     }
   }
 
-  def patternDefinition(t: ScPatternDefinition): m.Tree = {
+  def toPatternDefinition(t: ScPatternDefinition): m.Tree = {
     def pattern(bp: patterns.ScBindingPattern): m.Pat = {
       m.Pat.Var.Term(toTermName(bp))
     }
