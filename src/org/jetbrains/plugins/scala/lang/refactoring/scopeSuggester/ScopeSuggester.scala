@@ -7,12 +7,14 @@ import java.util
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.{PsiClass, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ConflictsReporter, ScalaRefactoringUtil, ScalaTypeValidator, ScalaValidator}
 
@@ -96,6 +98,13 @@ class ScopeItem(name: String,
   val occInCompanionObj: Array[ScTypeElement] = inOccInCompanionObj
   val validator: ScalaValidator = inValidator
   val possibleNames: Array[String] = inAvailablenames
+  var occurrencesFromInheretins: Array[ScTypeElement] = Array[ScTypeElement]()
+
+  def setInheretedOccurrences(occurrences: Array[ScTypeElement]) = {
+    if (occurrences != null) {
+      occurrencesFromInheretins = occurrences
+    }
+  }
 
   override def toString: String = name
 }
