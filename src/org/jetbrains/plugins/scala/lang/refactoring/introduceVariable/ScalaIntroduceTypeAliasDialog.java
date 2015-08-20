@@ -19,6 +19,8 @@ import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem;
 import org.jetbrains.plugins.scala.lang.refactoring.util.*;
 import scala.Tuple2;
@@ -91,13 +93,17 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
     }
 
     protected void doOKAction() {
-        if (!handleInheritedClasses(PsiTreeUtil.getParentOfType(currentScope.fileEncloser(), ScClass.class))) {
-            return;
+        ScTemplateDefinition classOrTrait = PsiTreeUtil.getParentOfType(currentScope.fileEncloser(), ScClass.class, ScTrait.class);
+        if (classOrTrait != null) {
+            if (!handleInheritedClasses(classOrTrait)) {
+                return;
+            }
         }
 
         if (!validator.isOK(this)) {
             return;
         }
+
         super.doOKAction();
     }
 
@@ -295,7 +301,8 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
     }
 
     private void setUpReplaceInInheritors(String scopeName) {
-        if (scopeName.substring(0, 5).equals("class")) {
+        String type = scopeName.substring(0, 5);
+        if (type.equals("class") || type.equals("trait")) {
             myReplaceInInheritors.setEnabled(true);
         } else {
             myReplaceInInheritors.setEnabled(false);
@@ -334,7 +341,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
     }
 
     //return false if there is conflict in validator
-    private boolean handleInheritedClasses(ScClass currentClass) {
+    private boolean handleInheritedClasses(ScTemplateDefinition currentElement) {
         if (myReplaceInInheritors.isSelected()) {
             ScopeItem selectedScope = getSelectedScope();
 
@@ -346,7 +353,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
             if (inheritanceDataMap.containsKey(selectedScope)) {
                 inheritors = inheritanceDataMap.get(selectedScope);
             } else {
-                inheritors = ScalaRefactoringUtil.getOccurrencesInInheritors(myTypeElement, currentClass,
+                inheritors = ScalaRefactoringUtil.getOccurrencesInInheritors(myTypeElement, currentElement,
                         conflictsReporter, project, editor);
                 inheritanceDataMap.put(selectedScope, inheritors);
             }
