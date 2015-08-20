@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.debugger
 
 import com.intellij.debugger.NoDataException
-import com.intellij.debugger.engine.{ExtraSteppingFilter, SuspendContext}
+import com.intellij.debugger.engine.{DebuggerUtils, ExtraSteppingFilter, SuspendContext}
 import com.intellij.psi.util.PsiTreeUtil
 import com.sun.jdi.Location
 import com.sun.jdi.request.StepRequest
@@ -33,7 +33,7 @@ class ScalaSyntheticSteppingFilter extends ExtraSteppingFilter {
 
     if (name == "<init>") return false
 
-    if (location.method().isSynthetic) return true
+    if (DebuggerUtils.isSynthetic(location.method())) return true
 
     inReadAction {
       val sourcePosition =
