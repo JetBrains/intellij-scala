@@ -10,3 +10,4 @@ abstract class TreeConverter extends TreeAdapter
                     with Attributes
                     with Utils
                     with EnvironmentProvider
+                    with TreeConverterBuilder
