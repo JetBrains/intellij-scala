@@ -189,18 +189,14 @@ object SbtRunner {
       name <- appProperties.get("name")
       if name == "sbt"
       versionStr <- appProperties.get("version")
-      version <- parseVersionFromBootProperties(versionStr)
+      version <- "\\d+(\\.\\d+)+".r.findFirstIn(versionStr)
     } yield version
   }
 
   private def readSectionFromBootPropertiesOf(launcherFile: File, sectionName: String): Map[String, String] = {
-    def findSectionName(line: String): Option[String] = {
-      val Section = "^\\s*\\[(\\w+)\\]".r.unanchored
-      Section.findFirstMatchIn(line).map(_.group(1))
-    }
+    val Property = "^\\s*(\\w+)\\s*:(.+)".r.unanchored
 
     def findProperty(line: String): Option[(String, String)] = {
-      val Property = "^\\s*(\\w+)\\s*:(.+)".r.unanchored
       line match {
         case Property(name, value) => Some((name, value.trim))
         case _ => None
@@ -212,26 +208,13 @@ object SbtRunner {
       Option(jar.getEntry("sbt/sbt.boot.properties")).fold(Map.empty[String, String]) { entry =>
         val lines = scala.io.Source.fromInputStream(jar.getInputStream(entry)).getLines()
         val sectionLines = lines
-          .dropWhile(l => !findSectionName(l).contains(sectionName)).drop(1)
-          .takeWhile(l => findSectionName(l).isEmpty)
+          .dropWhile(_.trim != s"[$sectionName]").drop(1)
+          .takeWhile(!_.trim.startsWith("["))
         sectionLines.flatMap(findProperty).toMap
       }
     } finally {
       jar.close()
     }
-  }
-
-  private def parseVersionFromBootProperties(versionStr: String): Option[String] = {
-    // `Version` is intended to parse strings like these:
-    //   - ${sbt.version-read(sbt.version)[0.12.4]}
-    //   - read(sbt.version)[0.13.0]
-    //   - 0.13.9
-    val substStart = "(?:\\$\\{sbt\\.version-)?"
-    val readStart = "(?:read\\(sbt\\.version\\)\\[)?"
-    val readEnd = "\\]?"
-    val substEnd = "\\}?"
-    val Version = (substStart + readStart + "([0-9\\.]+)" + readEnd + substEnd).r
-    Version.findFirstMatchIn(versionStr).map(_.group(1))
   }
 
   private def sbtVersionIn(directory: File): Option[String] = {
