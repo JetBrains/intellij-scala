@@ -186,17 +186,46 @@ object SbtRunner {
     }
   }
 
-  private def sbtVersionInBootPropertiesOf(jar: File): Option[String] =
+  private def sbtVersionInBootPropertiesOf(jar: File): Option[String] = {
+    val appProperties = readSectionFromBootPropertiesOf(jar, sectionName = "app")
     for {
-      appProperties <- SbtBootPropertiesReader.readSection(jar, sectionName = "app")
-      name <- appProperties.valueOf("name")
+      name <- appProperties.get("name")
       if name == "sbt"
-      versionStr <- appProperties.valueOf("version")
+      versionStr <- appProperties.get("version")
       version <- parseVersionFromBootProperties(versionStr)
     } yield version
+  }
+
+  private def readSectionFromBootPropertiesOf(launcherFile: File, sectionName: String): Map[String, String] = {
+    def findSectionName(line: String): Option[String] = {
+      val Section = "^\\s*\\[(\\w+)\\]".r.unanchored
+      Section.findFirstMatchIn(line).map(_.group(1))
+    }
+
+    def findProperty(line: String): Option[(String, String)] = {
+      val Property = "^\\s*(\\w+)\\s*:(.+)".r.unanchored
+      line match {
+        case Property(name, value) => Some((name, value.trim))
+        case _ => None
+      }
+    }
+
+    val jar = new JarFile(launcherFile)
+    try {
+      Option(jar.getEntry("sbt/sbt.boot.properties")).fold(Map.empty[String, String]) { entry =>
+        val lines = scala.io.Source.fromInputStream(jar.getInputStream(entry)).getLines()
+        val sectionLines = lines
+          .dropWhile(l => !findSectionName(l).contains(sectionName)).drop(1)
+          .takeWhile(l => findSectionName(l).isEmpty)
+        sectionLines.flatMap(findProperty).toMap
+      }
+    } finally {
+      jar.close()
+    }
+  }
 
   private def parseVersionFromBootProperties(versionStr: String): Option[String] = {
-    // `versionPattern` is intended to parse strings like these:
+    // `Version` is intended to parse strings like these:
     //   - ${sbt.version-read(sbt.version)[0.12.4]}
     //   - read(sbt.version)[0.13.0]
     //   - 0.13.9
@@ -204,11 +233,8 @@ object SbtRunner {
     val readStart = "(?:read\\(sbt\\.version\\)\\[)?"
     val readEnd = "\\]?"
     val substEnd = "\\}?"
-    val versionPattern = (substStart + readStart + "([0-9\\.]+)" + readEnd + substEnd).r
-    versionStr match {
-      case versionPattern(version) => Some(version)
-      case _ => None
-    }
+    val Version = (substStart + readStart + "([0-9\\.]+)" + readEnd + substEnd).r
+    Version.findFirstMatchIn(versionStr).map(_.group(1))
   }
 
   private def sbtVersionIn(directory: File): Option[String] = {
