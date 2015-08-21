@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.meta.trees
 
 import com.intellij.psi.{PsiClass, PsiPackage, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
 import scala.collection.immutable.Seq
@@ -61,6 +62,7 @@ trait TypeAdapter {
       case t: typedef.ScTemplateDefinition =>
         val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
         toType(s.subst(t.getType(TypingContext.empty).get)) // FIXME: what about typing context?
+//      case t: ScFunction => m.Type.Function(t.pa)
       case t: packaging.ScPackaging => m.Type.Singleton(toTermName(t.reference.get))
       case t: PsiPackage if t.getName == null => m.Type.Singleton(rootPackageName)
       case t: PsiPackage => m.Type.Singleton(toTermName(t))
@@ -72,21 +74,21 @@ trait TypeAdapter {
   def toType(tp: ptype.ScType): m.Type = {
 
     tp match {
-      case t: ScParameterizedType =>
+      case t: ptype.ScParameterizedType =>
         m.Type.Apply(toType(t.designator), Seq(t.typeArgs.map(toType):_*))
-      case t: ScThisType =>
-        toTypeName(t.clazz).withDenot(t.clazz)
-      case t: ScProjectionType =>
+      case t: ptype.ScThisType =>
+        toTypeName(t.clazz)
+      case t: ptype.ScProjectionType =>
         t.projected match {
-          case tt: ScThisType =>
+          case tt: ptype.ScThisType =>
             m.Type.Select(toTermName(tt.clazz), toTypeName(t.actualElement))
           case _ =>
             m.Type.Project(toType(t.projected), toTypeName(t.actualElement))
         }
-      case t: ScDesignatorType =>
-        toTypeName(t.element).withDenot(t.element)
-      case t: StdType =>
-        m.Type.Name(t.name) // FIXME: should we even attach denotations to std types?
+      case t: ptype.ScDesignatorType =>
+        toTypeName(t.element)
+      case t: ptype.StdType =>
+        toTypeName(t)
       case t: ptype.ScType =>
         LOG.warn(s"Unknown type: ${t.getClass} - ${t.canonicalText}")
         m.Type.Name(t.canonicalText)
