@@ -1,10 +1,13 @@
 package org.jetbrains.plugins.scala.meta.trees
 
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiPackage}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.{StdType, ScalaTypeVisitor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
 
 import scala.language.postfixOps
@@ -18,6 +21,8 @@ trait Namer {
       // TODO: what to resolve apply/update methods to?
     case sf: ScFunction if sf.name == "apply" || sf.name == "update" =>
       m.Term.Name(sf.containingClass.name).withDenot(sf).withTyping(h.Typing.Specified(sf.returnType.map(toType).get))
+    case sf: ScFunction =>
+      m.Term.Name(sf.name).withDenot(sf).withTyping(h.Typing.Specified(sf.returnType.map(toType).get))
     case ne: ScNamedElement =>
       m.Term.Name(ne.name).withDenot(ne)
     case re: ScReferenceExpression =>
@@ -50,6 +55,18 @@ trait Namer {
     case se: impl.toplevel.synthetic.SyntheticNamedElement =>
       throw new ScalaMetaException(s"Synthetic elements not implemented") // FIXME: find a way to resolve synthetic elements
     case other => other ?!
+  }
+
+  def toTypeName(tp: ScType): m.Type.Name = {
+    var res: m.Type.Name = null
+    val visitor = new ScalaTypeVisitor {
+      override def visitStdType(x: StdType) = {
+        val clazz = ScalaPsiManager.instance(getCurrentProject).getCachedClass(GlobalSearchScope.allScope(getCurrentProject), s"scala.${x.name}")
+        res = m.Type.Name(x.name).withDenot(clazz)
+      }
+    }
+    tp.visitType(visitor)
+    if (res != null) res else throw new ScalaMetaException(s"failed to convert type $tp")
   }
 
   def toCtorName(c: ScConstructor): m.Term.Ref = {
