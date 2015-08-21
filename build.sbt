@@ -144,7 +144,16 @@ lazy val testDownloader =
       "org.scalatest" % "scalatest_2.11" % "2.1.7",
       "org.scalatest" % "scalatest_2.10" % "1.9.2",
       "com.chuusai" % "shapeless_2.11" % "2.0.0"
-    )
+    ),
+    update <<= update.dependsOn(update.in(sbtLaunchTestDownloader))
+  )
+
+lazy val sbtLaunchTestDownloader =
+  newProject("sbtLaunchTestDownloader")
+  .settings(
+    autoScalaLibrary := false,
+    conflictManager := ConflictManager.all,
+    libraryDependencies ++= DependencyGroups.sbtLaunchTestDownloader
   )
 
 // Testing keys and settings
