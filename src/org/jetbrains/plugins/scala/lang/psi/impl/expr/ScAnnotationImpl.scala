@@ -9,8 +9,11 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.Comparing
 import com.intellij.psi._
 import com.intellij.psi.meta.PsiMetaData
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -22,9 +25,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 * Date: 07.03.2008
 */
 
-class ScAnnotationImpl extends ScalaStubBasedElementImpl[ScAnnotation] with ScAnnotation with PsiAnnotationParameterList{
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScAnnotationStub) = {this(); setStub(stub); setNullNode()}
+class ScAnnotationImpl private (stub: StubElement[ScAnnotation], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScAnnotation with PsiAnnotationParameterList{
+  def this(node: ASTNode) = {this(null, null, node)}
+  def this(stub: ScAnnotationStub) = {this(stub, ScalaElementTypes.ANNOTATION, null)}
 
   override def toString: String = "Annotation"
 

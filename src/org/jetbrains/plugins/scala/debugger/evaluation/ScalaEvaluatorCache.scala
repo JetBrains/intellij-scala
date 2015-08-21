@@ -31,6 +31,7 @@ class ScalaEvaluatorCache(project: Project) extends AbstractProjectComponent(pro
   def clear() {
     cachedEvaluators.values.foreach(_.clear())
     cachedEvaluators.clear()
+    cachedStamp.clear()
   }
 
   def get(position: SourcePosition, element: PsiElement): Option[ExpressionEvaluator] = {

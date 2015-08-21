@@ -451,7 +451,7 @@ object ScalaDocumentationProvider {
       case function: ScFunction =>
         val parents = function.findSuperMethods()
         var returnTag: String = null
-        val needReturnTag = function.getReturnType != null && function.getReturnType.getCanonicalText != "void"
+        val needReturnTag = function.getReturnType != null && !function.hasUnitResultType
 
         for (parent <- parents) {
           processProbablyJavaDocCommentWithOwner(parent)
@@ -811,10 +811,6 @@ object ScalaDocumentationProvider {
               macroFinder.getMacroBody(element.getText.stripPrefix("$")).map(a => result append a).getOrElse(result append s"[Cannot find macro: ${element.getText}]")
             } catch {
               case ee: Exception =>
-                println(ee.getMessage)
-                ee.printStackTrace()
-                val a = ee
-                val b = a
             }
             case _ => result.append(element.getText)
           }

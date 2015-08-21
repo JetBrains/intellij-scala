@@ -6,8 +6,11 @@ package statements
 package params
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
@@ -19,13 +22,12 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers.DummyASTNode
 * Date: 22.02.2008
 */
 
-class ScClassParameterImpl(node: ASTNode) extends ScParameterImpl(node) with ScClassParameter {
+class ScClassParameterImpl private (stub: StubElement[ScParameter], nodeType: IElementType, node: ASTNode)
+  extends ScParameterImpl(stub, nodeType, node) with ScClassParameter {
 
-  def this(stub: ScParameterStub) = {
-    this(DummyASTNode)
-    setStub(stub)
-    setNullNode()
-  }
+  def this(node: ASTNode) = {this(null, null, node)}
+
+  def this(stub: ScParameterStub) = {this(stub, ScalaElementTypes.CLASS_PARAM, null)}
 
   override def toString: String = "ClassParameter: " + name
 

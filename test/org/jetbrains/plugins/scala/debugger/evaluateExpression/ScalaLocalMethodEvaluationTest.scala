@@ -358,4 +358,47 @@ class ScalaLocalMethodEvaluationTest extends ScalaDebuggerTestCase {
       evalEquals("outer()", "startaadefault2")
     }
   }
+
+  def testWithFieldsFromOtherThread(): Unit = {
+    addFileToProject("Sample.scala",
+    """object Sample {
+      |  val field = "field"
+      |  def main(args: Array[String]) {
+      |    def localFun1() = "localFun1"
+      |
+      |    val inMain = "inMain"
+      |    val inMainNotUsed = ":("
+      |    inOtherThread {
+      |      def localFun2 = "localFun2"
+      |
+      |      val inFirst = "inFirst"
+      |      var inFirstVar = "inFirstVar"
+      |      val inFirstVarNotUsed = ":("
+      |      inOtherThread {
+      |        val local = "local"
+      |        inMain + inFirst + inFirstVar
+      |        "stop here"
+      |      }
+      |    }
+      |  }
+      |
+      |  def inOtherThread(action: => Unit) = {
+      |    new Thread {
+      |      override def run(): Unit = action
+      |    }.start()
+      |  }
+      |}
+    """.stripMargin.trim)
+    addBreakpoint("Sample.scala", 16)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("field", "field")
+      evalEquals("inMain", "inMain")
+      evalEquals("inFirst", "inFirst")
+      evalEquals("inFirstVar", "inFirstVar")
+      evalEquals("local", "local")
+      evalEquals("localFun2", "localFun2")
+      evalEquals("localFun1()", "localFun1")
+    }
+  }
 }

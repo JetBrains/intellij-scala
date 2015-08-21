@@ -1,4 +1,4 @@
-package org.jetbrains.sbt.project
+package org.jetbrains.sbt.project.data.service
 
 import java.io.File
 
@@ -12,7 +12,7 @@ import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModuleRootManager}
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.testFramework.{UsefulTestCase, IdeaTestUtil}
+import com.intellij.testFramework.{IdeaTestUtil, UsefulTestCase}
 import junit.framework.Assert._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{DebuggingInfoLevel, Version}
@@ -27,7 +27,7 @@ import scala.collection.JavaConverters._
  */
 class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTestCaseHelper {
 
-  import ExternalSystemDsl._
+  import ExternalSystemDataDsl._
 
   override def setUp(): Unit = {
     super.setUp()

@@ -8,15 +8,12 @@ import com.intellij.ProjectTopics
 import com.intellij.compiler.CompilerTestUtil
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.roots._
-import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.testFramework.{ModuleTestCase, PsiTestUtil, VfsTestUtil}
-import com.intellij.util.Processor
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import junit.framework.Assert
@@ -26,7 +23,6 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.template.Artifact
 import org.jetbrains.plugins.scala.util.TestUtils
 
-import scala.collection.immutable.HashSet
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -127,11 +123,15 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
         }
       }
     })
-    while (!semaphore.waitFor(100)) {
+    val maxCompileTime = 600
+    var i = 0
+    while (!semaphore.waitFor(100) && i < maxCompileTime) {
       if (SwingUtilities.isEventDispatchThread) {
         UIUtil.dispatchAllInvocationEvents()
       }
+      i += 1
     }
+    Assert.assertTrue(s"Too long compilation of test data for ${getClass.getSimpleName}.test${getTestName(false)}", i < maxCompileTime)
     callback.throwException()
     callback.getMessages
   }

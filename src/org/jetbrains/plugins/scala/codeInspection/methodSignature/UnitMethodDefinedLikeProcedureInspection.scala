@@ -6,6 +6,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.InsertReturnTypeAndEquals
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
  * Nikolay.Tropin
@@ -14,10 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 class UnitMethodDefinedLikeProcedureInspection
         extends AbstractMethodSignatureInspection(InspectionBundle.message("unit.method.like.procedure.id"),
           InspectionBundle.message("unit.method.like.procedure.name")) {
-
+  
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case funDef: ScFunctionDefinition
-      if funDef.hasUnitResultType && !funDef.hasAssign && !funDef.isSecondaryConstructor =>
+      if funDef.hasUnitResultType && !funDef.hasAssign && !funDef.isSecondaryConstructor && IntentionAvailabilityChecker.checkInspection(this, funDef) =>
       holder.registerProblem(funDef.nameId, getDisplayName, new InsertReturnTypeAndEquals(funDef))
   }
   

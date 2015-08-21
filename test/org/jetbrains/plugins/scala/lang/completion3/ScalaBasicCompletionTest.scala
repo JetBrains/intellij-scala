@@ -1005,6 +1005,28 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     checkResultByText(resultText)
   }
 
+  def testStringSimpleFunctionParameter() {
+    val fileText =
+      """
+        |object Z {
+        |  def xxx(yyy: Int) = "$<caret>"
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |object Z {
+        |  def xxx(yyy: Int) = s"$yyy<caret>"
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "yyy").get)
+
+    checkResultByText(resultText)
+  }
+
   def testStringNeedBraces() {
     val fileText =
       """

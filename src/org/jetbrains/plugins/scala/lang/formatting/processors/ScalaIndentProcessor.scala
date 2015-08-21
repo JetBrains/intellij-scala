@@ -188,7 +188,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         settings.CLASS_BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
       case _: ScExtendsBlock => Indent.getNoneIndent //Template body
       case cl: ScParameterClause if  scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS =>
-        if (child.getElementType == ScalaTokenTypes.tRPARENTHESIS) Indent.getNoneIndent
+        if (child.getElementType == ScalaTokenTypes.tRPARENTHESIS ||
+                child.getElementType == ScalaTokenTypes.tLPARENTHESIS) Indent.getNoneIndent
         else {
           val parent = node.getTreeParent
           if (parent != null && parent.getPsi.isInstanceOf[ScParameters] && parent.getTreeParent != null) {
@@ -198,6 +199,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           }
           Indent.getNormalIndent
         }
+      case cl: ScParameterClause if child.getElementType == ScalaTokenTypes.tRPARENTHESIS ||
+              child.getElementType == ScalaTokenTypes.tLPARENTHESIS => Indent.getNoneIndent
       case _: ScParenthesisedExpr | _: ScParenthesisedPattern | _: ScParenthesisedExpr =>
         Indent.getContinuationWithoutFirstIndent(settings.ALIGN_MULTILINE_PARENTHESIZED_EXPRESSION)
       case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.debugger
 
 import com.intellij.debugger.engine.SyntheticTypeComponentProvider
 import com.sun.jdi.{Method, ReferenceType, TypeComponent}
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
 import scala.collection.JavaConverters._
 
@@ -11,6 +12,9 @@ import scala.collection.JavaConverters._
  */
 class ScalaSyntheticProvider extends SyntheticTypeComponentProvider {
   override def isSynthetic(typeComponent: TypeComponent): Boolean = {
+    val isScala = DebuggerUtil.isScala(typeComponent.declaringType(), default = false)
+    if (!isScala) return false
+
     typeComponent match {
       case m: Method if m.isConstructor && isAnonFun(m.declaringType()) => true
       case m: Method if m.name() == "apply" && hasSpecializationMethod(m.declaringType()) => true
