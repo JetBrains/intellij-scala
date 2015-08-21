@@ -16,7 +16,7 @@ import scala.meta.internal.{ast=>m}
 trait MemberAdapter {
   self: TreeConverter =>
 
-  def defns(name: m.Name): Seq[Member] = {
+  def getDefns(name: m.Name): Seq[Member] = {
     val psi = name.denot.symbols.map(fromSymbol)
     val members = scala.collection.mutable.ListBuffer[Member]()
     val visitor = new ScalaElementVisitor {
@@ -41,6 +41,8 @@ trait MemberAdapter {
     members.toStream
   }
 
-  def members(name: m.Name): Seq[Member] = ???
+  def members(name: m.Name): Seq[Member] = {
+???
+  }
 
 }
