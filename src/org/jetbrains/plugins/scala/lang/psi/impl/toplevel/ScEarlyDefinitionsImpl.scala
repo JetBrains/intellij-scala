@@ -6,7 +6,10 @@ package toplevel
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, ResolveState}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -17,9 +20,10 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScEarlyDefinitionsStub
 * Date: 22.02.2008
 */
 
-class ScEarlyDefinitionsImpl private () extends ScalaStubBasedElementImpl[ScEarlyDefinitions] with ScEarlyDefinitions {
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScEarlyDefinitionsStub) = {this(); setStub(stub); setNullNode()}
+class ScEarlyDefinitionsImpl private (stub: StubElement[ScEarlyDefinitions], nodeType: IElementType, node: ASTNode)
+extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScEarlyDefinitions {
+  def this(node: ASTNode) = {this(null, null, node)}
+  def this(stub: ScEarlyDefinitionsStub) = {this(stub, ScalaElementTypes.EARLY_DEFINITIONS, null)}
   override def toString: String = "EarlyDefinitions"
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,

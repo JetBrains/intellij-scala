@@ -1953,7 +1953,7 @@ object ScalaPsiUtil {
       case _ =>
         exp.getParent match {
           case parenth: ScParenthesisedExpr => parameterOf(parenth)
-          case block: ScBlock => parameterOf(block)
+          case block: ScBlock if block.statements == Seq(exp) => parameterOf(block)
           case ie: ScInfixExpr if exp == (if (ie.isLeftAssoc) ie.lOp else ie.rOp) =>
             ie.operation match {
               case ResolvesTo(f: ScFunction) => f.parameters.headOption.map(p => new Parameter(p))
@@ -2024,30 +2024,13 @@ object ScalaPsiUtil {
     e.parentsInFile.takeWhile(!_.isScope).findByType(classOf[ScPatternDefinition]).isDefined
   }
 
-  def isByNameArgument(expr: ScExpression): Boolean = {
-    expr.getContext match {
-      case x: ScArgumentExprList => x.getContext match {
-        case mc: ScMethodCall =>
-          mc.matchedParameters.find(_._1 == expr).map(_._2) match {
-            case Some(param) if param.isByName => true
-            case _ => false
-          }
-        case _ => false
-      }
-      //todo: maybe it's better to check for concrete parameter if parameters count more than one
-      case inf: ScInfixExpr if expr == inf.getArgExpr =>
-        val op = inf.operation
-        op.bind() match {
-          case Some(ScalaResolveResult(fun: ScFunction, _)) =>
-            fun.clauses.exists(clause => {
-              val clauses = clause.clauses
-              if (clauses.length == 0) false
-              else !clauses(0).parameters.forall(p => !p.isCallByNameParameter)
-            })
-          case _ => false
-        }
-      case _ => false
+  def isByNameArgument(expr: ScExpression) = {
+    val isCanonical = expr match {
+      case _: ScParenthesisedExpr => false
+      case ScBlock(expr: ScExpression) => false
+      case _ => true
     }
+    isCanonical && ScalaPsiUtil.parameterOf(expr).exists(_.isByName)
   }
 
   object MethodValue {

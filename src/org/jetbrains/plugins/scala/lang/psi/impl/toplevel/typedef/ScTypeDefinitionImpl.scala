@@ -11,6 +11,7 @@ package typedef
 
 import javax.swing.Icon
 
+import com.intellij.lang.ASTNode
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.navigation._
 import com.intellij.openapi.editor.colors._
@@ -19,6 +20,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl._
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import com.intellij.util.VisibilityIcons
 import org.jetbrains.plugins.scala.conversion.JavaToScala
@@ -41,7 +43,8 @@ import scala.annotation.tailrec
 import scala.collection.Seq
 import scala.reflect.NameTransformer
 
-abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplateDefinition] with ScTypeDefinition with PsiClassFake {
+abstract class ScTypeDefinitionImpl protected (stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
+extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition with PsiClassFake {
   override def hasTypeParameters: Boolean = typeParameters.length > 0
 
   override def add(element: PsiElement): PsiElement = {
