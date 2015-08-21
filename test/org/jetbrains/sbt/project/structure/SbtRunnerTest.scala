@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package project.structure
 
-import java.io.{FileOutputStream, File}
+import java.io.{BufferedOutputStream, FileOutputStream, File}
 import java.util.jar.JarOutputStream
 import java.util.zip.ZipEntry
 
@@ -83,7 +83,7 @@ class SbtRunnerTest extends UsefulTestCase {
 
   private def generateJarFileWithEntries(entries: (String, String)*): File = {
     val launcherFile = FileUtil.createTempFile("mockLauncher", ".jar", true)
-    using(new JarOutputStream(new FileOutputStream(launcherFile))) { out =>
+    using(new JarOutputStream(new BufferedOutputStream(new FileOutputStream(launcherFile)))) { out =>
       entries.foreach { case (name, contents) =>
         out.putNextEntry(new ZipEntry(name))
         out.write(contents.getBytes)
