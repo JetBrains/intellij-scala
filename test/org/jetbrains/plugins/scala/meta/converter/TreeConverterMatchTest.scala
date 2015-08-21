@@ -1,11 +1,9 @@
-package org.jetbrains.plugins.scala.meta
+package org.jetbrains.plugins.scala.meta.converter
 
-import org.junit.Ignore
+import org.jetbrains.plugins.scala.meta.TreeConverterTestBaseWithLibrary
 
 import scala.meta.internal.ast._
-
 import scala.{Seq => _}
-import scala.collection.immutable.Seq
 
 class TreeConverterMatchTest extends TreeConverterTestBaseWithLibrary {
 

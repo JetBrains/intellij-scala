@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.scala.meta
+package org.jetbrains.plugins.scala.meta.converter
 
-import scala.meta.internal.ast._
+import org.jetbrains.plugins.scala.meta.TreeConverterTestBaseNoLibrary
 
 class TreeConverterIntegrationTest extends TreeConverterTestBaseNoLibrary {
 
