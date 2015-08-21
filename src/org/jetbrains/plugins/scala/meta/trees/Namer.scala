@@ -17,7 +17,7 @@ trait Namer {
   def toTermName(elem: PsiElement): m.Term.Name = elem match {
       // TODO: what to resolve apply/update methods to?
     case sf: ScFunction if sf.name == "apply" || sf.name == "update" =>
-      m.Term.Name(sf.containingClass.name).withDenot(sf)
+      m.Term.Name(sf.containingClass.name).withDenot(sf).withTyping(h.Typing.Specified(sf.returnType.map(toType).get))
     case ne: ScNamedElement =>
       m.Term.Name(ne.name).withDenot(ne)
     case re: ScReferenceExpression =>
