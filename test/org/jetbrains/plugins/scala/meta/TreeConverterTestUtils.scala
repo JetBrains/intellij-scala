@@ -55,9 +55,16 @@ trait TreeConverterTestUtils {
   }
 
   def doTest(text: String, tree: Tree) = {
-    val converted = convert(text)
-    assert(structuralEquals(converted, tree), s"$converted <=> $tree")
-    assert(converted.toString() == tree.toString(), s"TEXT: $converted <=> $tree")
+    try {
+      val converted = convert(text)
+      assert(structuralEquals(converted, tree), s"$converted <=> $tree")
+      assert(converted.toString() == tree.toString(), s"TEXT: $converted <=> $tree")
+    }
+    catch {
+      case ex: Exception =>
+        ex.printStackTrace()
+        org.junit.Assert.fail(ex.getMessage)
+    }
   }
 
   protected def convert(text: String): Tree = {
