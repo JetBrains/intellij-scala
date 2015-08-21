@@ -503,4 +503,18 @@ object DebuggerUtil {
       case _ => true
     }
   }
+
+  def getContainingMethod(elem: PsiElement): Option[PsiElement] = {
+    (Iterator(elem) ++ elem.parentsInFile).collectFirst {
+      case c if ScalaEvaluatorBuilderUtil.isGenerateClass(c) => c
+      case m: PsiMethod => m
+      case ChildOf(f: ScalaFile) if f.isScriptFile() => f
+    }
+  }
+
+  def inTheMethod(pos: SourcePosition, method: PsiElement): Boolean = {
+    val elem: PsiElement = pos.getElementAt
+    if (elem == null) return false
+    getContainingMethod(elem).contains(method)
+  }
 }
