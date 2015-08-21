@@ -38,7 +38,6 @@
         <refactoring.moveAllClassesInFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassesInFileHandler" order="last"/>
         <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>
         <editorTabTitleProvider implementation="org.jetbrains.plugins.scala.editor.PackageObjectEditorTabTitleProvider"/>
-        <debugger.javaDebugAware implementation="org.jetbrains.plugins.scala.debugger.ScalaJavaDebugAware"/>
         <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory"/>
         <debugger.positionManagerFactory implementation="org.jetbrains.plugins.scala.debugger.ScalaPositionManagerFactory"/>
         <debuggerEditorTextProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEditorTextProvider"/>
@@ -49,6 +48,9 @@
         <debugger.frameExtraVarsProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaFrameExtraVariablesProvider"/>
         <debugger.extraSteppingFilter implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticSteppingFilter"/>
         <debugger.sourcePositionProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSourcePositionProvider"/>
+        <debugger.javaBreakpointHandlerFactory implementation="org.jetbrains.plugins.scala.debugger.breakpoints.ScalaBreakpointHandlerFactory"/>
+        <debugger.sourcePositionHighlighter implementation="org.jetbrains.plugins.scala.debugger.ScalaSourcePositionHighlighter"/>
+        <xdebugger.breakpointType implementation="org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType"/>
         <generation.topLevelFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.impl.ScalaFactoryProvider"/>
         <generation.toStringClassFilter implementation="org.jetbrains.plugins.scala.codeInsight.generation.GenerateToStringScalaClassFilter"/>
         <treeCopyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport"/>

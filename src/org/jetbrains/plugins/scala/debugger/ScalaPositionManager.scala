@@ -6,7 +6,7 @@ import java.util.Collections
 
 import com.intellij.debugger.engine.{CompoundPositionManager, DebugProcess, DebugProcessImpl}
 import com.intellij.debugger.requests.ClassPrepareRequestor
-import com.intellij.debugger.{NoDataException, PositionManager, SourcePosition}
+import com.intellij.debugger.{MultiRequestPositionManager, NoDataException, PositionManager, SourcePosition}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
@@ -42,13 +42,14 @@ import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 
 /**
  * @author ilyas
  */
-class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
+class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager with MultiRequestPositionManager {
   def getDebugProcess = debugProcess
 
   @Nullable
@@ -146,9 +147,11 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     }
   }
 
-  @Nullable
   def createPrepareRequest(@NotNull requestor: ClassPrepareRequestor, @NotNull position: SourcePosition): ClassPrepareRequest = {
+    throw new IllegalStateException("This class implements MultiRequestPositionManager, corresponding createPrepareRequests version should be used")
+  }
 
+  override def createPrepareRequests(requestor: ClassPrepareRequestor, position: SourcePosition): util.List[ClassPrepareRequest] = {
     def isLocalOrUnderDelayedInit(definition: PsiClass): Boolean = {
       def isDelayed = definition match {
         case obj: ScObject =>
@@ -173,31 +176,38 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
       notLocalEnclosingTypeDefinition(element)
     }
 
-    checkScalaFile(position)
+    def createPrepareRequest(position: SourcePosition): ClassPrepareRequest = {
+      val qName = new Ref[String](null)
+      val waitRequestor = new Ref[ClassPrepareRequestor](null)
+      inReadAction {
+        val sourceImage = findReferenceTypeSourceImage(position)
+        val insideMacro: Boolean = isInsideMacro(nonWhitespaceElement(position))
+        sourceImage match {
+          case cl: ScClass if ValueClassType.isValueClass(cl) =>
+            //there are no instances of value classes, methods from companion object are used
+            qName.set(getSpecificNameForDebugger(cl) + "$")
+          case typeDef: ScTypeDefinition if !isLocalOrUnderDelayedInit(typeDef) =>
+            val specificName = getSpecificNameForDebugger(typeDef)
+            qName.set(if (insideMacro) specificName + "*" else specificName)
+          case _ =>
+            findEnclosingTypeDefinition.foreach(typeDef => qName.set(typeDef.getQualifiedNameForDebugger + "*"))
+        }
+        // Enclosing type definition is not found
+        if (qName.get == null) {
+          qName.set(SCRIPT_HOLDER_CLASS_NAME + "*")
+        }
+        waitRequestor.set(new ScalaPositionManager.MyClassPrepareRequestor(position, requestor))
+      }
 
-    val qName = new Ref[String](null)
-    val waitRequestor = new Ref[ClassPrepareRequestor](null)
-    inReadAction {
-      val sourceImage = findReferenceTypeSourceImage(position)
-      val insideMacro: Boolean = isInsideMacro(nonWhitespaceElement(position))
-      sourceImage match {
-        case cl: ScClass if ValueClassType.isValueClass(cl) =>
-          //there are no instances of value classes, methods from companion object are used
-          qName.set(getSpecificNameForDebugger(cl) + "$")
-        case typeDef: ScTypeDefinition if !isLocalOrUnderDelayedInit(typeDef) =>
-          val specificName = getSpecificNameForDebugger(typeDef)
-          qName.set(if (insideMacro) specificName + "*" else specificName)
-        case _ =>
-          findEnclosingTypeDefinition.foreach(typeDef => qName.set(typeDef.getQualifiedNameForDebugger + "*"))
-      }
-      // Enclosing type definition is not found
-      if (qName.get == null) {
-        qName.set(SCRIPT_HOLDER_CLASS_NAME + "*")
-      }
-      waitRequestor.set(new ScalaPositionManager.MyClassPrepareRequestor(position, requestor))
+      getDebugProcess.getRequestsManager.createClassPrepareRequest(waitRequestor.get, qName.get)
     }
 
-    getDebugProcess.getRequestsManager.createClassPrepareRequest(waitRequestor.get, qName.get)
+    checkScalaFile(position)
+
+    val possiblePositions = inReadAction {
+      positionsOnLine(position.getFile, position.getLine).map(SourcePosition.createFromElement)
+    }
+    possiblePositions.map(createPrepareRequest).asJava
   }
 
   private def checkScalaFile(@NotNull position: SourcePosition): Unit = {
@@ -344,43 +354,6 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
     withMatchingName.lift(index).map(SourcePosition.createFromElement)
   }
 
-  private def positionsOnLine(file: ScalaFile, lineNumber: Int): Seq[PsiElement] = {
-    val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
-    if (lineNumber >= document.getLineCount) return Seq.empty
-    val startLine = document.getLineStartOffset(lineNumber)
-    val endLine = document.getLineEndOffset(lineNumber)
-
-    def elementsOnTheLine(file: ScalaFile, lineNumber: Int): Seq[PsiElement] = {
-      val result = ArrayBuffer[PsiElement]()
-      var elem = file.findElementAt(startLine)
-      if (elem == null) return Seq.empty
-
-      while (elem.getTextOffset <= endLine) {
-        result += elem
-        elem = PsiTreeUtil.nextLeaf(elem, true)
-      }
-      result
-    }
-
-    def findParent(element: PsiElement): Option[PsiElement] = {
-      val parentsOnTheLine = element.parents.filter(e => e.getTextOffset > startLine).toIndexedSeq
-      val lambda = parentsOnTheLine.find {
-        case _: ScTypeDefinition => false
-        case e if ScalaEvaluatorBuilderUtil.isGenerateClass(e) => true
-        case _ => false
-      }
-      val maxExpressionOrPattern = parentsOnTheLine.reverse.find {
-        case _: ScExpression => true
-        case _: ScConstructorPattern | _: ScInfixPattern => true
-        case _ => false
-      }
-      Seq(lambda, maxExpressionOrPattern).flatten.sortBy(_.getTextLength).headOption
-    }
-
-    elementsOnTheLine(file, lineNumber).flatMap(findParent).distinct
-  }
-
-
   private def findScriptFile(location: Location): Option[PsiFile] = {
     try {
       val refType = location.declaringType()
@@ -511,6 +484,59 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager {
 object ScalaPositionManager {
   private val LOG: Logger = Logger.getInstance("#com.intellij.debugger.engine.PositionManagerImpl")
   private val SCRIPT_HOLDER_CLASS_NAME: String = "Main$$anon$1"
+
+  def positionsOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
+    val scFile = file match {
+      case sf: ScalaFile => sf
+      case _ => return Seq.empty
+    }
+    val cacheProvider = new CachedValueProvider[mutable.HashMap[Int, Seq[PsiElement]]] {
+      override def compute(): Result[mutable.HashMap[Int, Seq[PsiElement]]] = Result.create(mutable.HashMap[Int, Seq[PsiElement]](), file)
+    }
+
+    CachedValuesManager.getCachedValue(file, cacheProvider).getOrElseUpdate(lineNumber, positionsOnLineInner(scFile, lineNumber))
+  }
+
+  private def positionsOnLineInner(file: ScalaFile, lineNumber: Int): Seq[PsiElement] = {
+    val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
+    if (lineNumber >= document.getLineCount) return Seq.empty
+    val startLine = document.getLineStartOffset(lineNumber)
+    val endLine = document.getLineEndOffset(lineNumber)
+
+    def elementsOnTheLine(file: ScalaFile, lineNumber: Int): Seq[PsiElement] = {
+      val result = ArrayBuffer[PsiElement]()
+      var elem = file.findElementAt(startLine)
+
+      while (elem != null && elem.getTextOffset <= endLine) {
+        result += elem
+        elem = PsiTreeUtil.nextLeaf(elem, true)
+      }
+      result
+    }
+
+    def findParent(element: PsiElement): Option[PsiElement] = {
+      val parentsOnTheLine = element.parents.takeWhile(e => e.getTextOffset > startLine).toIndexedSeq
+      val lambda = parentsOnTheLine.find(isLambda)
+      val maxExpressionOrPattern = parentsOnTheLine.reverse.find {
+        case _: ScExpression => true
+        case _: ScConstructorPattern | _: ScInfixPattern => true
+        case _ => false
+      }
+      Seq(lambda, maxExpressionOrPattern).flatten.sortBy(_.getTextLength).headOption
+    }
+
+    elementsOnTheLine(file, lineNumber).flatMap(findParent).distinct
+  }
+
+  def isLambda(element: PsiElement) = element match {
+    case _: ScTypeDefinition => false
+    case e if ScalaEvaluatorBuilderUtil.isGenerateClass(e) => true
+    case _ => false
+  }
+
+  def lambdasOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
+    positionsOnLine(file, lineNumber).filter(isLambda)
+  }
 
   private def getSpecificNameForDebugger(td: ScTypeDefinition): String = {
     val name = td.getQualifiedNameForDebugger
