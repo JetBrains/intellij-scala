@@ -11,7 +11,7 @@ class TreeConverterTestBase extends ScalaLightCodeInsightFixtureTestAdapter with
 
   def fixture = myFixture
 
-  val converter = new Context(fixture.getProject) {
+  val context = new Context(fixture.getProject) {
     override def getCurrentProject: Project = myFixture.getProject
   }
   def testOk() = () // to get rid of no tests found spam in IDEA junit runner

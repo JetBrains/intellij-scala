@@ -17,7 +17,7 @@ trait TreeConverterTestUtils {
 
   def fixture: CodeInsightTestFixture // we need to go deeper
 
-  val converter: Context
+  val context: Context
 
   val startToken = "//start"
 
@@ -62,7 +62,7 @@ trait TreeConverterTestUtils {
 
   protected def convert(text: String): Tree = {
     val psi = psiFromText(text)
-    converter.ideaToMeta(psi)
+    context.ideaToMeta(psi)
   }
 
   def parseTextToFile(@Language("Scala") str: String): ScalaFile = {

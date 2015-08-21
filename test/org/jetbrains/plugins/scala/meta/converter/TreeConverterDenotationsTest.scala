@@ -62,7 +62,7 @@ class TreeConverterDenotationsTest extends TreeConverterTestBaseWithLibrary {
       """.stripMargin)
     tree match {
       case m.Term.Apply(fun, args) => fun match {
-        case m.Term.Select(qual, name) => converter.fromSymbol(name.denot.symbols.head)
+        case m.Term.Select(qual, name) => context.fromSymbol(name.denot.symbols.head)
       }
     }
   }
