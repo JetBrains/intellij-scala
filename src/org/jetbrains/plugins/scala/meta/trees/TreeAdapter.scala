@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, api => p, types =>
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
 import scala.meta.internal.ast.Term.Param
-import scala.meta.internal.{ast => m}
+import scala.meta.internal.{ast => m, semantic => h}
 import scala.{Seq => _}
 
 trait TreeAdapter {
@@ -38,6 +38,8 @@ trait TreeAdapter {
   }
 
   def toMacroDefn(t: ScMacroDefinition): m.Defn.Macro = {
+    if (t.definedReturnType.isEmpty)
+      unreachable("Macro definition must have return type defined")
     m.Defn.Macro(
       convertMods(t), toTermName(t),
       Seq(t.typeParameters map toType: _*),
