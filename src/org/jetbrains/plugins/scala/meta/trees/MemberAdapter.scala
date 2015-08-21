@@ -41,8 +41,17 @@ trait MemberAdapter {
     members.toStream
   }
 
-  def members(name: m.Name): Seq[Member] = {
-???
+  def getMembers(name: m.Name): Seq[Member] = {
+    def getMembers(clazz: PsiClass): Seq[Member] = {
+      clazz match {
+        case c: ScTemplateDefinition =>
+          c.members
+          ???
+      }
+    }
+    val psi = name.denot.symbols.map(fromSymbol)
+
+    ???
   }
 
 }

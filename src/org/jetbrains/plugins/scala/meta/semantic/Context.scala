@@ -11,14 +11,9 @@ import scala.meta.internal.semantic.Typing
 import scala.meta.internal.{ast => m}
 import scala.{Seq => _}
 
-class Context(val project: Project) extends TreeConverter with semantic.Context {
+class Context(project: =>Project) extends TreeConverter with semantic.Context {
 
   override def getCurrentProject = project
-
-  override def findFileByPath(path: String) = {
-    val virtualFile = VirtualFileManager.getInstance().findFileByUrl(path)
-    PsiManager.getInstance(project).findFile(virtualFile)
-  }
 
   override def dialect = scala.meta.dialects.Scala211
 
@@ -55,7 +50,12 @@ class Context(val project: Project) extends TreeConverter with semantic.Context 
     }
   }
 
-  override def members(tpe: Type): Seq[Member] = ???
+  override def members(tpe: Type): Seq[Member] = {
+    tpe match {
+      case tp@m.Type.Name(value) => getMembers(tp)
+      case other => unreachable(s"Can't get members from non-name type: $tpe")
+    }
+  }
 
   override def isSubType(tpe1: Type, tpe2: Type): Boolean = ???
 
