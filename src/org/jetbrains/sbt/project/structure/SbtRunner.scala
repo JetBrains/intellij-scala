@@ -172,17 +172,14 @@ object SbtRunner {
     val jar = new JarFile(file)
     try {
       Option(jar.getJarEntry("META-INF/MANIFEST.MF")).flatMap { entry =>
-        using(new BufferedInputStream(jar.getInputStream(entry))) { input =>
-          val manifest = new java.util.jar.Manifest(input)
-          val attributes = manifest.getMainAttributes
-          Option(attributes.getValue(name))
-        }
+        val input = new BufferedInputStream(jar.getInputStream(entry))
+        val manifest = new java.util.jar.Manifest(input)
+        val attributes = manifest.getMainAttributes
+        Option(attributes.getValue(name))
       }
     }
     finally {
-      if (jar.isInstanceOf[Closeable]) {
-        jar.close()
-      }
+      jar.close()
     }
   }
 
