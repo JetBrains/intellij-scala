@@ -309,7 +309,7 @@ object DebuggerUtil {
       jvmClassAtPosition(position, process) match {
         case Some(refType) => refType.methodsByName("<init>").get(0).signature()
         case None =>
-          throw EvaluationException(DebuggerBundle.message("error.class.not.loaded", getDisplayName(process)))
+          throw EvaluationException(DebuggerBundle.message("error.class.not.loaded", inReadAction(clazz.qualifiedName)))
       }
     }
 
