@@ -28,6 +28,7 @@ trait TreeAdapter {
       case t: ScVariableDefinition => toVarDefn(t)
       case t: ScFunctionDefinition => toFunDefn(t)
       case t: ScMacroDefinition => toMacroDefn(t)
+      case t: ScPrimaryConstructor => ctor(Some(t))
       case t: ScTrait => toTrait(t)
       case t: ScClass => toClass(t)
       case t: ScObject => toObject(t)
@@ -54,7 +55,7 @@ trait TreeAdapter {
       Seq(t.typeParameters map toType: _*),
       Seq(t.paramClauses.clauses.map(convertParamClause): _*),
       t.definedReturnType.map(toType).toOption,
-      expression(t.body).get
+      expression(t.body).getOrElse(m.Term.Block(Nil))
     )
   }
 
@@ -172,7 +173,7 @@ trait TreeAdapter {
     val ctor = t.extendsBlock.templateParents match {
       case Some(parents: p.toplevel.templates.ScClassParents) =>
         parents.constructor match {
-          case Some(ctr) => toCtor(ctr)
+          case Some(ctr) => toCtor(ctr).asInstanceOf[m.Ctor.Call]
           case None => unreachable(s"no constructor found in class ${t.qualifiedName}")
         }
       case None => unreachable(s"Class ${t.qualifiedName} has no parents")
