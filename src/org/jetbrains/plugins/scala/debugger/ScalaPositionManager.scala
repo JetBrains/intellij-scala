@@ -84,10 +84,13 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
   @NotNull
   def getAllClasses(@NotNull position: SourcePosition): util.List[ReferenceType] = {
 
+    checkScalaFile(position)
+    val file = position.getFile
+
     def hasLocations(refType: ReferenceType, position: SourcePosition): Boolean = {
       try {
-        if (!position.getFile.isPhysical) { //may be generated in compiling evaluator
-        val generatedClassName = position.getFile.getUserData(ScalaCompilingEvaluator.classNameKey)
+        if (!file.isPhysical) { //may be generated in compiling evaluator
+        val generatedClassName = file.getUserData(ScalaCompilingEvaluator.classNameKey)
           generatedClassName != null && refType.name().contains(generatedClassName)
         }
         else locationsOfLine(refType, position).size > 0
@@ -96,23 +99,24 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
       }
     }
 
-    checkScalaFile(position)
-
+    val possiblePositions = positionsOnLine(file, position.getLine)
+    val exactClasses = ArrayBuffer[ReferenceType]()
+    val namePatterns = ArrayBuffer[NamePattern]()
     inReadAction {
-      val sourceImage = findReferenceTypeSourceImage(position)
-      sourceImage match {
-        case null => util.Collections.emptyList[ReferenceType]
+      val sourceImages = possiblePositions.map(findGeneratingClassParent)
+      sourceImages.foreach {
+        case null =>
         case td: ScTypeDefinition if !DebuggerUtil.isLocalClass(td) =>
           val qName = getSpecificNameForDebugger(td)
-          if (qName != null) getDebugProcess.getVirtualMachineProxy.classesByName(qName)
-          else util.Collections.emptyList[ReferenceType]
-        case _ =>
-          val namePattern = NamePattern.forElement(sourceImage)
-          if (namePattern == null) return Collections.emptyList()
-
-          filterAllClasses(c => namePattern.matches(c) && hasLocations(c, position))
+          if (qName != null)
+            exactClasses ++= getDebugProcess.getVirtualMachineProxy.classesByName(qName).asScala
+        case elem =>
+          val namePattern = NamePattern.forElement(elem)
+          namePatterns ++= Option(namePattern)
       }
     }
+    val foundWithPattern = filterAllClasses(c => namePatterns.exists(_.matches(c)) && hasLocations(c, position))
+    (exactClasses ++ foundWithPattern).distinct.asJava
   }
 
   @NotNull
@@ -217,10 +221,9 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     }
   }
 
-  private def filterAllClasses(condition: ReferenceType => Boolean): util.List[ReferenceType] = {
+  private def filterAllClasses(condition: ReferenceType => Boolean): Seq[ReferenceType] = {
     import scala.collection.JavaConverters._
-    val allClasses = getDebugProcess.getVirtualMachineProxy.allClasses.asScala
-    allClasses.filter(condition).asJava
+    getDebugProcess.getVirtualMachineProxy.allClasses.asScala.filter(condition)
   }
 
   @tailrec
@@ -348,7 +351,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     if (withMatchingName.size <= 1) return trivialChoice(withMatchingName)
 
     val example = withMatchingName.head
-    val similarRefTypes = filterAllClasses(c => nameMatches(example, c) && !c.locationsOfLine(lineNumber + 1).isEmpty).asScala
+    val similarRefTypes = filterAllClasses(c => nameMatches(example, c) && !c.locationsOfLine(lineNumber + 1).isEmpty)
     val sorted = similarRefTypes.sortBy(ordinal)
     val index = sorted.indexOf(declaringType)
     withMatchingName.lift(index).map(SourcePosition.createFromElement)
@@ -498,34 +501,37 @@ object ScalaPositionManager {
   }
 
   private def positionsOnLineInner(file: ScalaFile, lineNumber: Int): Seq[PsiElement] = {
-    val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
-    if (lineNumber >= document.getLineCount) return Seq.empty
-    val startLine = document.getLineStartOffset(lineNumber)
-    val endLine = document.getLineEndOffset(lineNumber)
+    inReadAction {
+      val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
+      if (lineNumber >= document.getLineCount) return Seq.empty
+      val startLine = document.getLineStartOffset(lineNumber)
+      val endLine = document.getLineEndOffset(lineNumber)
 
-    def elementsOnTheLine(file: ScalaFile, lineNumber: Int): Seq[PsiElement] = {
-      val result = ArrayBuffer[PsiElement]()
-      var elem = file.findElementAt(startLine)
+      def elementsOnTheLine(file: ScalaFile, lineNumber: Int): Seq[PsiElement] = {
+        val result = ArrayBuffer[PsiElement]()
+        var elem = file.findElementAt(startLine)
 
-      while (elem != null && elem.getTextOffset <= endLine) {
-        result += elem
-        elem = PsiTreeUtil.nextLeaf(elem, true)
+        while (elem != null && elem.getTextOffset <= endLine) {
+          result += elem
+          elem = PsiTreeUtil.nextLeaf(elem, true)
+        }
+        result
       }
-      result
-    }
 
-    def findParent(element: PsiElement): Option[PsiElement] = {
-      val parentsOnTheLine = element.parents.takeWhile(e => e.getTextOffset > startLine).toIndexedSeq
-      val lambda = parentsOnTheLine.find(isLambda)
-      val maxExpressionOrPattern = parentsOnTheLine.reverse.find {
-        case _: ScExpression => true
-        case _: ScConstructorPattern | _: ScInfixPattern => true
-        case _ => false
+      def findParent(element: PsiElement): Option[PsiElement] = {
+        val parentsOnTheLine = element.parents.takeWhile(e => e.getTextOffset > startLine).toIndexedSeq
+        val lambda = parentsOnTheLine.find(isLambda)
+        val maxExpressionPatternOrTypeDef = parentsOnTheLine.reverse.find {
+          case _: ScExpression => true
+          case _: ScConstructorPattern | _: ScInfixPattern => true
+          case _: ScTypeDefinition => true
+          case _ => false
+        }
+        Seq(lambda, maxExpressionPatternOrTypeDef).flatten.sortBy(_.getTextLength).headOption
       }
-      Seq(lambda, maxExpressionOrPattern).flatten.sortBy(_.getTextLength).headOption
-    }
 
-    elementsOnTheLine(file, lineNumber).flatMap(findParent).distinct
+      elementsOnTheLine(file, lineNumber).flatMap(findParent).distinct
+    }
   }
 
   def isLambda(element: PsiElement) = element match {
