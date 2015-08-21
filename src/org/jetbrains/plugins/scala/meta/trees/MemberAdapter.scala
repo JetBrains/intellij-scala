@@ -42,16 +42,14 @@ trait MemberAdapter {
   }
 
   def getMembers(name: m.Name): Seq[Member] = {
-    def getMembers(clazz: PsiClass): Seq[Member] = {
+    def getMembers(clazz: PsiElement): Seq[Member] = {
       clazz match {
         case c: ScTemplateDefinition =>
-          c.members
-          ???
+          c.members.toStream.map(ideaToMeta(_).asInstanceOf[Member])
       }
     }
     val psi = name.denot.symbols.map(fromSymbol)
-
-    ???
+    psi.map(getMembers).flatten
   }
 
 }
