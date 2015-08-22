@@ -11,42 +11,48 @@ import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
 import scala.meta.internal.{ast => m, semantic => h}
+import org.scalameta.collections._
 import scala.{Seq => _}
 
 trait TypeAdapter {
   self: TreeConverter =>
 
-  def toType(tp: ScTypeElement): m.Type = {
+  private val typeCache = TwoWayCache[ptype.ScType, m.Type]()
+  private val typeElementCache = TwoWayCache[ScTypeElement, m.Type]()
+  private val psiElementTypeChache = TwoWayCache[PsiElement, m.Type]()
 
-    tp match {
-      case t: ScSimpleTypeElement =>
-        t.reference match {
-          case Some(reference) =>
-            reference.bind() match {
-              case Some(result) => toTypeName(result.element)
-              case None => m.Type.Placeholder(m.Type.Bounds(None, None))
-            }
-          case None =>  m.Type.Placeholder(m.Type.Bounds(None, None))
-        }
-      case t: ScFunctionalTypeElement =>
-        toType(t.paramTypeElement) match {
-          case m.Type.Tuple(elements) => m.Type.Function(elements, toType(t.returnTypeElement.get))
-          case param => m.Type.Function(Seq(param), toType(t.returnTypeElement.get))
-        }
-      case t: ScParameterizedTypeElement =>
-        m.Type.Apply(toType(t.typeElement.calcType), t.typeArgList.typeArgs.toStream.map(toType))
-      case t: ScTupleTypeElement =>
-        m.Type.Tuple(Seq(t.components.map(toType):_*))
-      case t: ScWildcardTypeElement =>
-        m.Type.Placeholder(typeBounds(t))
-      case t: ScParenthesisedTypeElement =>
-        t.typeElement match {
-          case Some(t: ScInfixTypeElement) => m.Type.ApplyInfix(toType(t.lOp), toTypeName(t.ref), toType(t.rOp.get))
-          case _ => unreachable
-        }
-      case t: ScTypeVariableTypeElement => throw new ScalaMetaException("i cannot into type variables")
-      case other => other ?!
-    }
+  def toType(tp: ScTypeElement): m.Type = {
+    typeElementCache.getOrElseUpdate(tp, {
+      tp match {
+        case t: ScSimpleTypeElement =>
+          t.reference match {
+            case Some(reference) =>
+              reference.bind() match {
+                case Some(result) => toTypeName(result.element)
+                case None => m.Type.Placeholder(m.Type.Bounds(None, None))
+              }
+            case None => m.Type.Placeholder(m.Type.Bounds(None, None))
+          }
+        case t: ScFunctionalTypeElement =>
+          toType(t.paramTypeElement) match {
+            case m.Type.Tuple(elements) => m.Type.Function(elements, toType(t.returnTypeElement.get))
+            case param => m.Type.Function(Seq(param), toType(t.returnTypeElement.get))
+          }
+        case t: ScParameterizedTypeElement =>
+          m.Type.Apply(toType(t.typeElement.calcType), t.typeArgList.typeArgs.toStream.map(toType))
+        case t: ScTupleTypeElement =>
+          m.Type.Tuple(Seq(t.components.map(toType): _*))
+        case t: ScWildcardTypeElement =>
+          m.Type.Placeholder(typeBounds(t))
+        case t: ScParenthesisedTypeElement =>
+          t.typeElement match {
+            case Some(t: ScInfixTypeElement) => m.Type.ApplyInfix(toType(t.lOp), toTypeName(t.ref), toType(t.rOp.get))
+            case _ => unreachable
+          }
+        case t: ScTypeVariableTypeElement => throw new ScalaMetaException("i cannot into type variables")
+        case other => other ?!
+      }
+    })
   }
 
   def toType(tr: TypeResult[ptype.ScType]): m.Type = {
@@ -58,41 +64,43 @@ trait TypeAdapter {
   }
 
   def toType(elem: PsiElement): m.Type = {
-    elem match {
-      case t: typedef.ScTemplateDefinition =>
-        val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
-        toType(s.subst(t.getType(TypingContext.empty).get)) // FIXME: what about typing context?
-//      case t: ScFunction => m.Type.Function(t.pa)
-      case t: packaging.ScPackaging => m.Type.Singleton(toTermName(t.reference.get))
-      case t: PsiPackage if t.getName == null => m.Type.Singleton(rootPackageName)
-      case t: PsiPackage => m.Type.Singleton(toTermName(t))
-      case t: PsiClass => m.Type.Name(t.getName).withDenot(t)
-      case other => other ?!
-    }
+    psiElementTypeChache.getOrElseUpdate(elem, {
+      elem match {
+        case t: typedef.ScTemplateDefinition =>
+          val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
+          toType(s.subst(t.getType(TypingContext.empty).get)) // FIXME: what about typing context?
+        case t: packaging.ScPackaging => m.Type.Singleton(toTermName(t.reference.get))
+        case t: PsiPackage if t.getName == null => m.Type.Singleton(rootPackageName)
+        case t: PsiPackage => m.Type.Singleton(toTermName(t))
+        case t: PsiClass => m.Type.Name(t.getName).withDenot(t)
+        case other => other ?!
+      }
+    })
   }
 
   def toType(tp: ptype.ScType): m.Type = {
-
-    tp match {
-      case t: ptype.ScParameterizedType =>
-        m.Type.Apply(toType(t.designator), Seq(t.typeArgs.map(toType):_*))
-      case t: ptype.ScThisType =>
-        toTypeName(t.clazz)
-      case t: ptype.ScProjectionType =>
-        t.projected match {
-          case tt: ptype.ScThisType =>
-            m.Type.Select(toTermName(tt.clazz), toTypeName(t.actualElement))
-          case _ =>
-            m.Type.Project(toType(t.projected), toTypeName(t.actualElement))
-        }
-      case t: ptype.ScDesignatorType =>
-        toTypeName(t.element)
-      case t: ptype.StdType =>
-        toTypeName(t)
-      case t: ptype.ScType =>
-        LOG.warn(s"Unknown type: ${t.getClass} - ${t.canonicalText}")
-        m.Type.Name(t.canonicalText)
-    }
+    typeCache.getOrElseUpdate(tp, {
+      tp match {
+        case t: ptype.ScParameterizedType =>
+          m.Type.Apply(toType(t.designator), Seq(t.typeArgs.map(toType): _*))
+        case t: ptype.ScThisType =>
+          toTypeName(t.clazz)
+        case t: ptype.ScProjectionType =>
+          t.projected match {
+            case tt: ptype.ScThisType =>
+              m.Type.Select(toTermName(tt.clazz), toTypeName(t.actualElement))
+            case _ =>
+              m.Type.Project(toType(t.projected), toTypeName(t.actualElement))
+          }
+        case t: ptype.ScDesignatorType =>
+          toTypeName(t.element)
+        case t: ptype.StdType =>
+          toTypeName(t)
+        case t: ptype.ScType =>
+          LOG.warn(s"Unknown type: ${t.getClass} - ${t.canonicalText}")
+          m.Type.Name(t.canonicalText)
+      }
+    })
   }
 
   def toType(tp: p.statements.params.ScTypeParam): m.Type.Param = {
