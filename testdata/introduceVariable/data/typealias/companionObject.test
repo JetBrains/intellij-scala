@@ -1,0 +1,17 @@
+//D
+object My {
+  val t: <companion>Double<end> = 45.0
+}
+
+class My {
+  val p: Double =  45.3
+}
+--------------
+object My {
+  type D = Double
+  val t: D = 45.0
+}
+
+class My {
+  val p: My.D =  45.3
+}
