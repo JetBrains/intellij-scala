@@ -35,21 +35,13 @@ class OccurrenceHandler(typeElement: ScTypeElement, usualOccurrence: Array[ScTyp
     }
   }
 
-  def getCompanionObjOccurrences = {
-    getOccurrences(companiomObjOccurrence, isReplaceInCompanion)
-  }
+  def getCompanionObjOccurrences = getOccurrences(companiomObjOccurrence, isReplaceInCompanion)
 
-  def getExtendedOccurrences = {
-    getOccurrences(extendedClassOccurrence, isReplaceInExtendedClasses)
-  }
+  def getExtendedOccurrences = getOccurrences(extendedClassOccurrence, isReplaceInExtendedClasses)
 
-  def getOccurrencesCount = {
-    usualOccurrence.length + companiomObjOccurrence.length + extendedClassOccurrence.length
-  }
+  def getOccurrencesCount = getAllOccurrences.length
 
-  def getAllOccurrences = {
-    usualOccurrence ++ companiomObjOccurrence ++ extendedClassOccurrence
-  }
+  def getAllOccurrences = getCompanionObjOccurrences ++ getExtendedOccurrences ++ getUsualOccurrences
 
   private def getOccurrences(occ: Array[ScTypeElement], needAll: Boolean): Array[ScTypeElement] = {
     if (needAll) {
