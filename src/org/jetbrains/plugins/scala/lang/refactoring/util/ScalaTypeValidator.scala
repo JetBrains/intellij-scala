@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
@@ -23,17 +24,6 @@ import scala.collection.mutable.ArrayBuffer
  * Created by Kate Ustyuzhanina on 8/3/15.
  */
 object ScalaTypeValidator {
-  def apply(conflictsReporter: ConflictsReporter,
-            project: Project,
-            editor: Editor,
-            file: PsiFile,
-            element: PsiElement,
-            occurrences: Array[ScTypeElement]): ScalaTypeValidator = {
-    val container = ScalaRefactoringUtil.enclosingContainer(PsiTreeUtil.findCommonParent(occurrences: _*))
-    val containerOne = ScalaRefactoringUtil.enclosingContainer(element)
-    new ScalaTypeValidator(conflictsReporter, project, element, occurrences.isEmpty, container, containerOne)
-  }
-
   def apply(conflictsReporter: ConflictsReporter,
             project: Project,
             editor: Editor,
@@ -72,11 +62,7 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
     if (container == null) return Array()
     val buf = new ArrayBuffer[(PsiNamedElement, String)]
 
-    if (container.isInstanceOf[ScalaFile]) {
-      buf ++= getForbiddenNames(container, name)
-    } else {
-      buf ++= getForbiddenNames(container, name)
-    }
+    buf ++= getForbiddenNames(container, name)
 
     //    val parent = container.getContext
     buf ++= getForbiddenNamesInBlock(container, name)
@@ -107,6 +93,8 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
       case body: ScTemplateBody =>
         buf ++= getForbiddenNamesInBlock(body, name)
       case expression: ScExpression =>
+        buf ++= getForbiddenNamesInBlock(expression, name)
+      case expression: ScPackaging =>
         buf ++= getForbiddenNamesInBlock(expression, name)
       case _ =>
     }
@@ -150,17 +138,7 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
 
   override def validateName(name: String, increaseNumber: Boolean): String = {
     val newName = name.toUpperCase
-    if (noOccurrences) return newName
-    var res = newName
-    if (isOKImpl(res, allOcc = false).isEmpty) return res
-    if (!increaseNumber) return ""
-    var i = 1
-    res = newName + i
-    while (!isOKImpl(res, allOcc = true).isEmpty) {
-      i = i + 1
-      res = newName + i
-    }
-    res
+    super.validateName(newName, increaseNumber)
   }
 
   private def messageForTypeAliasMember(name: String) =

@@ -23,13 +23,12 @@ import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParenthesisedTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
@@ -453,9 +452,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
                                   typeElement: ScTypeElement, typeName: String,
                                   occurrences: OccurrenceHandler, replaceAllOccurrences: Boolean, suggestedParent: PsiElement) = {
 
-    def replaceTypeElement(occurrences: OccurrenceHandler, name: String, typeAlias: PsiElement) = {
-      def replaceHelper(typeElement: ScTypeElement): PsiElement = {
-        val replacement = ScalaPsiElementFactory.createTypeElementFromText(name, typeElement.getContext, typeElement)
+    def replaceTypeElement(occurrences: OccurrenceHandler, name: String, typeAlias: ScTypeAlias) = {
+      def replaceHelper(typeElement: ScTypeElement, inName: String): PsiElement = {
+        val replacement = ScalaPsiElementFactory.createTypeElementFromText(inName, typeElement.getContext, typeElement)
         //remove parethesis around typeElement
         if (typeElement.getParent.isInstanceOf[ScParenthesisedTypeElement]) {
           typeElement.getNextSibling.delete()
@@ -464,33 +463,20 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
         typeElement.replace(replacement)
       }
 
-      occurrences.getUsualOccurrences.foreach(replaceHelper)
-      occurrences.getExtendedOccurrences.foreach(replaceHelper)
+      occurrences.getUsualOccurrences.foreach(replaceHelper(_, name))
+      occurrences.getExtendedOccurrences.foreach(replaceHelper(_, name))
 
-      //do needed imports & avoid typealias conflicts
-      val occFromCompnionObject =
-        occurrences.getCompanionObjOccurrences.map(replaceHelper)
 
-      if (!occFromCompnionObject.isEmpty) {
-        occFromCompnionObject.foreach(_.getFirstChild.asInstanceOf[ScStableCodeReferenceElement].bindToElement(typeAlias))
-      }
-    }
+      //repace occurrences with Name: ObjectName.TypeAliasName
+      if (occurrences.getCompanionObjOccurrences.length > 0) {
+        val className: String = typeAlias.getContainingClass match {
+          case typeObject: ScObject =>
+            typeObject.name
+        }
 
-    //work on class(object) level
-    def getParent: PsiElement = {
-      if (suggestedParent != null) {
-        return suggestedParent
+        occurrences.getCompanionObjOccurrences.foreach(replaceHelper(_,
+          className + "." + typeAlias.getName))
       }
-      val commonParent: PsiElement = PsiTreeUtil.findCommonParent(occurrences.getAllOccurrences: _*)
-      val parent = commonParent match {
-        case templateBody: ScTemplateBody =>
-          templateBody
-        case _ => PsiTreeUtil.getParentOfType(commonParent, classOf[ScTemplateBody])
-      }
-      if (parent == null)
-        file
-      else
-        parent
     }
 
     def addTypeAliasDefinition(typeName: String, typeElement: ScTypeElement, parent: PsiElement) = {
@@ -509,9 +495,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       ScalaPsiUtil.addTypeAliasBefore(definition, parent, getAhchor(parent, typeElement))
     }
 
-    val psiElement: PsiElement = addTypeAliasDefinition(typeName, occurrences.getAllOccurrences(0), getParent)
-    replaceTypeElement(occurrences, typeName, psiElement)
-    SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(psiElement)
+    val typeAlias = addTypeAliasDefinition(typeName, occurrences.getAllOccurrences(0), suggestedParent)
+    replaceTypeElement(occurrences, typeName, typeAlias)
+    SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(typeAlias.asInstanceOf[PsiElement])
   }
 
   def runRefactoringForTypes(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor,
