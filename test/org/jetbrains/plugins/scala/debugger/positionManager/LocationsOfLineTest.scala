@@ -65,7 +65,7 @@ class LocationsOfLineTest extends PositionManagerTestBase {
       |    val list = List(1, 2)
       |    ${offsetMarker}Some(1).getOrElse(${offsetMarker}2)
       |    ${offsetMarker}list.filter(${offsetMarker}_ < 10).map(${offsetMarker}x => "aaa" + x)
-      |    $offsetMarker.foreach(${offsetMarker}println)
+      |       .foreach(${offsetMarker}println)
       |    ""$bp
       |  }
       |}""",
@@ -74,7 +74,6 @@ class LocationsOfLineTest extends PositionManagerTestBase {
       Set(Loc("Main$", "main", 5)),
       Set(Loc("Main$$anonfun$main$2", "apply", 5), Loc("Main$$anonfun$main$2", "<init>", 5)),
       Set(Loc("Main$$anonfun$main$3", "apply", 5), Loc("Main$$anonfun$main$3", "<init>", 5)),
-      Set(Loc("Main$", "main", 6)),
       Set(Loc("Main$$anonfun$main$4", "apply", 6), Loc("Main$$anonfun$main$4", "<init>", 6))
     )
   }

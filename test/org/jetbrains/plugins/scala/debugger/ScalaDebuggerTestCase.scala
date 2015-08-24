@@ -17,14 +17,17 @@ import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.process.{ProcessAdapter, ProcessEvent, ProcessHandler, ProcessListener}
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
 import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiCodeFragment
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.concurrency.Semaphore
+import com.intellij.xdebugger.XDebuggerManager
+import com.intellij.xdebugger.breakpoints.XBreakpointType
 import com.sun.jdi.VoidValue
+import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
+import org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert
@@ -39,7 +42,7 @@ import scala.util.{Failure, Success, Try}
 
 abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
-  private val breakpoints: mutable.Set[(String, Int)] = mutable.Set.empty
+  private val breakpoints: mutable.Set[(String, Int, Integer)] = mutable.Set.empty
 
   protected def runDebugger(mainClass: String, debug: Boolean = false)(callback: => Unit) {
     var processHandler: ProcessHandler = null
@@ -108,20 +111,24 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
         createResumeCommand(getDebugProcess.getSuspendManager.getPausedContext))
   }
 
-  protected def addBreakpoint(fileName: String, line: Int) {
-    breakpoints += ((fileName, line))
+  protected def addBreakpoint(fileName: String, line: Int, lambdaOrdinal: Integer = -1) {
+    breakpoints += ((fileName, line, lambdaOrdinal))
   }
 
   private def addBreakpoints() {
     breakpoints.foreach {
-      case (fileName, line) =>
+      case (fileName, line, ordinal) =>
         val ioFile = new File(srcDir, fileName)
         val file = getVirtualFile(ioFile)
         UsefulTestCase.edt(new Runnable {
           def run() {
-            val document = FileDocumentManager.getInstance().getDocument(file)
-            val breakpointManager = DebuggerManagerEx.getInstanceEx(getProject).getBreakpointManager
-            breakpointManager.addLineBreakpoint(document, line)
+            val xBreakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
+            val properties = new JavaLineBreakpointProperties
+            properties.setLambdaOrdinal(ordinal)
+            val breakpointType = XBreakpointType.EXTENSION_POINT_NAME.findExtension(classOf[ScalaLineBreakpointType])
+            inWriteAction {
+              xBreakpointManager.addLineBreakpoint(breakpointType, file.getUrl, line, properties)
+            }
           }
         })
     }
