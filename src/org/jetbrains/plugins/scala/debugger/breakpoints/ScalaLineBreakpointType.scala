@@ -75,6 +75,9 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
 
     if (ScalaPositionManager.positionsOnLine(file, line).size <= 1) return emptyList
 
+    val lambdas = ScalaPositionManager.lambdasOnLine(file, line)
+    if (lambdas.isEmpty) return emptyList
+
     var res: List[JavaLineBreakpointType#JavaBreakpointVariant] = List(new JavaBreakpointVariant(position)) //all variants
 
     val elementAtLine = SourcePosition.createFromLine(file, line).getElementAt
@@ -82,7 +85,6 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
       case Some(e) => e
       case None => return emptyList
     }
-    val lambdas = ScalaPositionManager.lambdasOnLine(file, line)
 
     if (!lambdas.contains(startMethod))
       res = res :+ new ExactScalaBreakpointVariant(position, startMethod, -1)
