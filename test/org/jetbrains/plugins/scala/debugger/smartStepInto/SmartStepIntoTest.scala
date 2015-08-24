@@ -282,7 +282,7 @@ class SmartStepIntoTest extends SmartStepIntoTestBase {
     }
     runDebugger("Sample") {
       waitForBreakpoint()
-      checkSmartStepInto("u: => String", "Sample.scala", "apply", 13)
+      checkSmartStepInto("u: => String", "Sample.scala", "apply", 14)
     }
   }
 
