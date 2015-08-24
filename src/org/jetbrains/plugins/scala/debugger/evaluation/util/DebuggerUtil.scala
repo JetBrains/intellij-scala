@@ -9,6 +9,7 @@ import com.intellij.openapi.util.Computable
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.sun.jdi.{ObjectReference, ReferenceType, Value}
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ScalaEvaluatorBuilderUtil}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
@@ -506,8 +507,9 @@ object DebuggerUtil {
 
   def getContainingMethod(elem: PsiElement): Option[PsiElement] = {
     (Iterator(elem) ++ elem.parentsInFile).collectFirst {
-      case c if ScalaEvaluatorBuilderUtil.isGenerateClass(c) => c
+      case c if ScalaPositionManager.isLambda(c) => c
       case m: PsiMethod => m
+      case tb: ScTemplateBody => tb
       case ChildOf(f: ScalaFile) if f.isScriptFile() => f
     }
   }
