@@ -226,16 +226,6 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     getDebugProcess.getVirtualMachineProxy.allClasses.asScala.filter(condition)
   }
 
-  @tailrec
-  private def findGeneratingClassParent(element: PsiElement): PsiElement = {
-    element match {
-      case null => null
-      case elem if ScalaEvaluatorBuilderUtil.isGenerateClass(elem) => elem
-      case expr: ScExpression if isInsideMacro(element) => expr
-      case elem => findGeneratingClassParent(elem.getParent)
-    }
-  }
-
   @Nullable
   private def findReferenceTypeSourceImage(@NotNull position: SourcePosition): PsiElement = {
     val element = nonWhitespaceElement(position)
@@ -265,19 +255,6 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
         case t: Throwable => firstElement
       }
     }
-  }
-
-  private def isInsideMacro(element: PsiElement): Boolean = {
-    var call = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall])
-    while (call != null) {
-      call.getEffectiveInvokedExpr match {
-        case resRef: ResolvableReferenceElement =>
-          if (resRef.resolve().isInstanceOf[ScMacroDefinition]) return true
-        case _ =>
-      }
-      call = PsiTreeUtil.getParentOfType(call, classOf[ScMethodCall])
-    }
-    false
   }
 
   private def customLineNumber(location: Location): Option[Int] = {
@@ -535,13 +512,36 @@ object ScalaPositionManager {
   }
 
   def isLambda(element: PsiElement) = element match {
-    case _: ScTypeDefinition => false
+    case _: ScTemplateDefinition => false
     case e if ScalaEvaluatorBuilderUtil.isGenerateClass(e) => true
     case _ => false
   }
 
   def lambdasOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
     positionsOnLine(file, lineNumber).filter(isLambda)
+  }
+
+  @tailrec
+  def findGeneratingClassParent(element: PsiElement): PsiElement = {
+    element match {
+      case null => null
+      case elem if ScalaEvaluatorBuilderUtil.isGenerateClass(elem) => elem
+      case expr: ScExpression if isInsideMacro(element) => expr
+      case elem => findGeneratingClassParent(elem.getParent)
+    }
+  }
+
+  private def isInsideMacro(element: PsiElement): Boolean = {
+    var call = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall])
+    while (call != null) {
+      call.getEffectiveInvokedExpr match {
+        case resRef: ResolvableReferenceElement =>
+          if (resRef.resolve().isInstanceOf[ScMacroDefinition]) return true
+        case _ =>
+      }
+      call = PsiTreeUtil.getParentOfType(call, classOf[ScMethodCall])
+    }
+    false
   }
 
   private def getSpecificNameForDebugger(td: ScTypeDefinition): String = {

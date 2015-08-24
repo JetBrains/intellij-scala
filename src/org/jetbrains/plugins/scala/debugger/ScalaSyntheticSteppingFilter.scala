@@ -2,14 +2,13 @@ package org.jetbrains.plugins.scala.debugger
 
 import com.intellij.debugger.NoDataException
 import com.intellij.debugger.engine.{DebuggerUtils, ExtraSteppingFilter, SuspendContext}
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.PsiElement
 import com.sun.jdi.Location
 import com.sun.jdi.request.StepRequest
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 /**
  * @author Nikolay.Tropin
@@ -45,14 +44,14 @@ class ScalaSyntheticSteppingFilter extends ExtraSteppingFilter {
 
       if (!sourcePosition.getFile.getLanguage.is(ScalaLanguage.Instance)) return false
 
-      val classInSource = PsiTreeUtil.getParentOfType(sourcePosition.getElementAt, classOf[ScTemplateDefinition], true)
+      val classInSource = ScalaPositionManager.findGeneratingClassParent(sourcePosition.getElementAt)
       if (classInSource == null) return false
 
       !existsInSource(name, classInSource)
     }
   }
 
-  private def existsInSource(name: String, td: ScTemplateDefinition): Boolean = {
+  private def existsInSource(name: String, td: PsiElement): Boolean = {
     td.depthFirst(elem => elem == td || !ScalaEvaluatorBuilderUtil.isGenerateClass(elem)).exists {
       case fun: ScFunction if fun.isLocal => name.startsWith(fun.name)
       case fun: ScFunction => fun.name == name
