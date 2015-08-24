@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
@@ -508,7 +508,7 @@ object ScalaPositionManager {
         val lambda = parentsOnTheLine.find(isLambda)
         val maxExpressionPatternOrTypeDef = parentsOnTheLine.reverse.find {
           case _: ScExpression => true
-          case _: ScConstructorPattern | _: ScInfixPattern => true
+          case _: ScConstructorPattern | _: ScInfixPattern | _: ScBindingPattern => true
           case _: ScTypeDefinition => true
           case _ => false
         }
