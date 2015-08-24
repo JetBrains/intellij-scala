@@ -175,20 +175,6 @@ class ScalaVariableValidator(conflictsReporter: ConflictsReporter,
     buf
   }
 
-  override def validateName(name: String, increaseNumber: Boolean): String = {
-    if (noOccurrences) return name
-    var res = name
-    if (isOKImpl(res, allOcc = false).isEmpty) return res
-    if (!increaseNumber) return ""
-    var i = 1
-    res = name + i
-    while (!isOKImpl(res, allOcc = true).isEmpty) {
-      i = i + 1
-      res = name + i
-    }
-    res
-  }
-
   private def messageForMember(name: String) = ScalaBundle.message("introduced.variable.will.conflict.with.field", name)
   private def messageForLocal(name: String) = ScalaBundle.message("introduced.variable.will.conflict.with.local", name)
   private def messageForParameter(name: String) = ScalaBundle.message("introduced.variable.will.conflict.with.parameter", name)

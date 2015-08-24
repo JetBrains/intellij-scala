@@ -51,12 +51,12 @@ object ScopeSuggester {
         case _ =>
           PsiTreeUtil.getParentOfType(parent, classOf[ScTemplateDefinition]) match {
             case classType: ScClass =>
-              "class " + classType.getName
+              "class " + classType.name
             case objectType: ScObject =>
               occInCompanionObj = getOccurrencesFromCompanionObject(curerntElement, objectType)
-              "object " + objectType.getName.substring(0, objectType.getName.length - 1)
+              "object " + objectType.name
             case traitType: ScTrait =>
-              "trait " + traitType.getName
+              "trait " + traitType.name
           }
       }
 
@@ -83,11 +83,11 @@ object ScopeSuggester {
   private def getOccurrencesFromCompanionObject(typeElement: ScTypeElement,
                                                 objectType: ScObject): Array[ScTypeElement] = {
     val parent: PsiElement = objectType.getParent
-    val name = objectType.getName.substring(0, objectType.getName.length - 1)
+    val name = objectType.name
     val companion = parent.getChildren.find({
-      case classType: ScClass if classType.getName == name =>
+      case classType: ScClass if classType.name == name =>
         true
-      case traitType: ScTrait if traitType.getName == name =>
+      case traitType: ScTrait if traitType.name == name =>
         true
       case _ => false
     })
