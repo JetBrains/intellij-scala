@@ -26,7 +26,8 @@ import org.jetbrains.plugins.scala.debugger.ScalaPositionManager._
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingEvaluator
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, inReadAction}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
@@ -489,7 +490,14 @@ object ScalaPositionManager {
         var elem = file.findElementAt(startLine)
 
         while (elem != null && elem.getTextOffset <= endLine) {
-          result += elem
+          elem match {
+            case ChildOf(_: ScUnitExpr) | ChildOf(ScBlock()) =>
+              result += elem
+            case ElementType(t) if ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(t) ||
+                ScalaTokenTypes.BRACES_TOKEN_SET.contains(t) =>
+            case _ =>
+              result += elem
+          }
           elem = PsiTreeUtil.nextLeaf(elem, true)
         }
         result
