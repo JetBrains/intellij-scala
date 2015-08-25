@@ -503,6 +503,49 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
     }
   }
 
+  def testOverrideImplementSAM(): Unit = {
+    val code =
+      """
+        |val s: Bar = () => 2
+        |
+        |abstract class Foo {
+        |  def foo(): Int
+        |}
+        |
+        |abstract class Bar extennds Foo
+        |
+      """.stripMargin
+
+    checkCodeHasNoErrors(code)
+  }
+
+  def testOverrideImplementSAM2(): Unit = {
+    val code =
+      """
+        |val s: Bar = () => 2
+        |
+        |abstract class Foo {
+        |  def foo2(): Int
+        |}
+        |
+        |abstract class Bar extends Foo {
+        |  def foo1(): String = ""
+        |}
+        |
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
+  def testSAMComparable(): Unit = {
+    val code =
+      """
+        |import java.util.Comparator
+        |
+        |val comp: Comparator[String] = (o1, o2) => o1.compareTo(o2)
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
   def checkCodeHasNoErrors(scalaCode: String, javaCode: Option[String] = None) {
     assertMatches(messages(scalaCode, javaCode)) {
       case Nil =>

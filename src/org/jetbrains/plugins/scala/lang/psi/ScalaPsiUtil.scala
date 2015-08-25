@@ -2352,7 +2352,9 @@ object ScalaPsiUtil {
       case Some((cl, sub)) =>
         cl match {
           case templDef: ScTemplateDefinition => //it's a Scala class or trait
-            val abst = templDef.functions.filter(_.isAbstractMember)
+            val abst: Seq[ScFunction] = templDef.allMethods.toSeq.collect {
+              case PhysicalSignature(fun: ScFunction, _) if fun.isAbstractMember => fun
+            }
             val constrValid = templDef match { //if it's a class check its constructor
               case cla: ScClass => constructorValidForSAM(cla.constructors)
               case tr: ScTrait => true
@@ -2378,7 +2380,17 @@ object ScalaPsiUtil {
               }
             } else None
           case _ => //it's a Java abstract class or interface
-            val abst: Array[PsiMethod] = cl.getMethods.filter(_.getModifierList.hasModifierProperty("abstract"))
+            def overridesConcreteMethod(method: PsiMethod): Boolean = {
+              method.findSuperMethods().exists(!_.hasAbstractModifier)
+            }
+
+            val abst: Array[PsiMethod] = cl.getMethods.filter {
+              case method if method.hasAbstractModifier => true
+              case _ => false
+            } match {
+              case array if array.length > 0 => array.filterNot(overridesConcreteMethod)
+              case any => any
+            }
             //must have exactly one abstract member and SAM must be monomorphic
             val valid = abst.length == 1 && !abst.head.hasTypeParameters && constructorValidForSAM(cl.getConstructors)
             if (valid) {
