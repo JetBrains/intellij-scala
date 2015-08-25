@@ -8,7 +8,7 @@ import com.intellij.debugger.ui.impl.watch.ValueDescriptorImpl
 import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, DescriptorLabelListener, NodeRendererImpl}
 import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptor, ValueDescriptor}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiExpression
+import com.intellij.psi.{PsiElement, PsiExpression}
 import com.sun.jdi.{ObjectReference, Type, Value}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 
@@ -39,7 +39,7 @@ class RuntimeRefRenderer extends NodeRendererImpl {
     renderer.isExpandable(descr.getValue, evaluationContext, parentDescriptor)
   }
 
-  override def getChildValueExpression(node: DebuggerTreeNode, context: DebuggerContext): PsiExpression = {
+  override def getChildValueExpression(node: DebuggerTreeNode, context: DebuggerContext): PsiElement = {
     val descr = unwrappedDescriptor(node.getParent.asInstanceOf[ValueDescriptor].getValue, context.getProject)
     val renderer = delegateRenderer(context.getDebugProcess, descr)
     renderer.getChildValueExpression(node, context)
