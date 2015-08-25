@@ -2052,6 +2052,11 @@ object ScalaPsiUtil {
         case us: ScUnderscoreSection => us.bindingExpr.flatMap(referencedMethod(_, canBeParameterless = true))
         case ScMethodCall(invoked @(_: ScReferenceExpression | _: ScGenericCall | _: ScMethodCall), args)
           if args.nonEmpty && args.forall(isSimpleUnderscore) => referencedMethod(invoked, canBeParameterless = false)
+        case mc: ScMethodCall if !mc.getParent.isInstanceOf[ScMethodCall] =>
+          referencedMethod(mc, canBeParameterless = false).filter {
+            case f: ScFunction if f.paramClauses.clauses.size > numberOfArgumentClauses(mc) => true
+            case _ => false
+          }
         case _ => None
       }
     }
@@ -2071,6 +2076,12 @@ object ScalaPsiUtil {
       case _: ScUnderscoreSection => expr.getText == "_"
       case typed: ScTypedStmt => Option(typed.expr).map(_.getText).contains("_")
       case _ => false
+    }
+    private def numberOfArgumentClauses(mc: ScMethodCall): Int = {
+      mc.getEffectiveInvokedExpr match {
+        case m: ScMethodCall => 1 + numberOfArgumentClauses(m)
+        case _ => 1
+      }
     }
   }
 
