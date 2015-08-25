@@ -14,7 +14,7 @@ class EmptyParenMethodOverridenAsParameterlessInspection extends AbstractMethodS
   def actionFor(holder: ProblemsHolder) = {
     case f: ScFunction if f.isParameterless =>
       f.superMethods.headOption match { // f.superMethod returns None for some reason
-        case Some(method: ScFunction) if method.isEmptyParen =>
+        case Some(method: ScFunction) if !method.isInCompiledFile && method.isEmptyParen =>
           holder.registerProblem(f.nameId, getDisplayName, new AddEmptyParentheses(f))
         case _ =>
       }
