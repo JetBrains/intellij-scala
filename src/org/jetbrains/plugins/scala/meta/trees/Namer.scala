@@ -22,7 +22,7 @@ trait Namer {
     case sf: ScFunction if sf.name == "apply" || sf.name == "update" =>
       m.Term.Name(sf.containingClass.name).withDenot(sf).withTyping(h.Typing.Specified(sf.returnType.map(toType).get))
     case sf: ScFunction =>
-      m.Term.Name(sf.name).withDenot(sf).withTyping(h.Typing.Specified(sf.returnType.map(toType).get))
+      m.Term.Name(sf.name).withDenot(sf).withTyping(h.Typing.Specified(toType(sf)))
     case ne: ScNamedElement =>
       m.Term.Name(ne.name).withDenot(ne)
     case re: ScReferenceExpression =>

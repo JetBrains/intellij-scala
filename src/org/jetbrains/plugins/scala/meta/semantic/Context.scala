@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala.meta.semantic
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.psi.PsiManager
+import com.intellij.psi.{PsiClass, PsiManager}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.meta.trees.TreeConverter
 
 import scala.collection.immutable.Seq
@@ -53,6 +54,13 @@ class Context(project: =>Project) extends TreeConverter with semantic.Context {
   override def members(tpe: Type): Seq[Member] = {
     tpe match {
       case tp@m.Type.Name(value) => getMembers(tp)
+      case tp:m.Type.Function => ???
+        // TODO: what should we even return in case of function?
+        // Scala's FunctionN type via Type.Name? Or type.Function? In second case we can't have a bijective map
+        // since Type.Function doesn't capture origin's name
+//        Seq(
+//          m.Defn.Def(Seq.empty, "apply", tp.params)
+//        )
       case other => unreachable(s"Can't get members from non-name type: $tpe")
     }
   }
@@ -69,7 +77,22 @@ class Context(project: =>Project) extends TreeConverter with semantic.Context {
 
   override def dealias(tpe: Type): Type = ???
 
-  override def parents(member: Member): Seq[Member] = ???
+  override def parents(member: Member): Seq[Member] = {
+    val name = member match {
+      case t@m.Defn.Class(_, name, _, _, _) => name
+      case t@m.Defn.Object(_, name, _, _)   => name
+      case t@m.Defn.Trait(_, name, _, _, _) => name
+      case other => unreachable(s"Can't get parents of a non-class tree: $other")
+    }
+    val psi = name.denot.symbols.map(fromSymbol)
+    val parents = psi.map {
+      case t: ScTemplateDefinition =>
+        t.supers.map(ideaToMeta(_).asInstanceOf[m.Member])
+      case t: PsiClass => t.getSupers.map(ideaToMeta(_).asInstanceOf[m.Member]).toSeq
+      case other => unreachable(s"Can't get parents of a non-class psi: $other")
+    }
+    parents.flatten
+  }
 
   override def children(member: Member): Seq[Member] = ???
 

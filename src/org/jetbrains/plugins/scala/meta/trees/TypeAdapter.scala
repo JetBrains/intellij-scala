@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.meta.trees
 
-import com.intellij.psi.{PsiClass, PsiPackage, PsiElement}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
@@ -70,6 +70,7 @@ trait TypeAdapter {
           val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
           toType(s.subst(t.getType(TypingContext.empty).get)) // FIXME: what about typing context?
         case t: packaging.ScPackaging => m.Type.Singleton(toTermName(t.reference.get))
+        case t: ScFunction => m.Type.Function(Seq(t.paramTypes.map(toType(_).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType))
         case t: PsiPackage if t.getName == null => m.Type.Singleton(rootPackageName)
         case t: PsiPackage => m.Type.Singleton(toTermName(t))
         case t: PsiClass => m.Type.Name(t.getName).withDenot(t)
@@ -103,14 +104,24 @@ trait TypeAdapter {
     })
   }
 
-  def toType(tp: p.statements.params.ScTypeParam): m.Type.Param = {
+  def toTypeParams(tp: p.statements.params.ScTypeParam): m.Type.Param = {
     m.Type.Param(
       if(tp.isCovariant) m.Mod.Covariant() :: Nil else if(tp.isContravariant) m.Mod.Contravariant() :: Nil else Nil,
       if (tp.name != "_") m.Type.Name(tp.name) else m.Name.Anonymous(),
-      Seq(tp.typeParameters.map(toType):_*),
+      Seq(tp.typeParameters.map(toTypeParams):_*),
       typeBounds(tp),
       viewBounds(tp),
       contextBounds(tp)
+    )
+  }
+
+  def toTypeParams(tp: PsiTypeParameter): m.Type.Param = {
+    m.Type.Param(
+      m.Mod.Covariant() :: Nil,
+      m.Type.Name(tp.getName),
+      Seq(tp.getTypeParameters.map(toTypeParams):_*),
+      m.Type.Bounds(None, None),
+      Seq.empty, Seq.empty
     )
   }
 
