@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.meta.trees
 
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -17,7 +18,7 @@ import scala.{Seq => _}
 trait TreeAdapter {
   self: TreeConverter =>
 
-  def ideaToMeta(tree: ScalaPsiElement): m.Tree = {
+  def ideaToMeta(tree: PsiElement): m.Tree = {
     tree match {
       case t: ScValueDeclaration => toVal(t)
       case t: ScVariableDeclaration => toVar(t)
@@ -34,6 +35,10 @@ trait TreeAdapter {
       case t: ScObject => toObject(t)
       case t: ScExpression => expression(Some(t)).get
       case t: p.toplevel.imports.ScImportStmt => m.Import(Seq(t.importExprs.map(imports):_*))
+
+      case t: PsiClass => toClass(t)
+      case t: PsiMethod => ???
+
       case other => other ?!
     }
   }
@@ -43,7 +48,7 @@ trait TreeAdapter {
       unreachable("Macro definition must have return type defined")
     m.Defn.Macro(
       convertMods(t), toTermName(t),
-      Seq(t.typeParameters map toType: _*),
+      Seq(t.typeParameters map toTypeParams: _*),
       Seq(t.paramClauses.clauses.map(convertParamClause): _*),
       t.definedReturnType.map(toType).get,
       expression(t.body).get
@@ -52,11 +57,16 @@ trait TreeAdapter {
 
   def toFunDefn(t: ScFunctionDefinition): m.Defn.Def = {
     m.Defn.Def(convertMods(t), toTermName(t),
-      Seq(t.typeParameters map toType: _*),
+      Seq(t.typeParameters map toTypeParams: _*),
       Seq(t.paramClauses.clauses.map(convertParamClause): _*),
       t.definedReturnType.map(toType).toOption,
       expression(t.body).getOrElse(m.Term.Block(Nil))
     )
+  }
+
+  // Java conversion - beware: we cannot convert java method bodies, so just return a lazy ???
+  def toMethodDefn(t: PsiMethod): m.Defn.Def = {
+    ???
   }
 
   def toVarDefn(t: ScVariableDefinition): m.Defn.Var = {
@@ -65,15 +75,15 @@ trait TreeAdapter {
   }
 
   def toFunDecl(t: ScFunctionDeclaration): m.Decl.Def = {
-    m.Decl.Def(convertMods(t), toTermName(t), Seq(t.typeParameters map toType: _*), Seq(t.paramClauses.clauses.map(convertParamClause): _*), returnType(t.returnType))
+    m.Decl.Def(convertMods(t), toTermName(t), Seq(t.typeParameters map toTypeParams: _*), Seq(t.paramClauses.clauses.map(convertParamClause): _*), returnType(t.returnType))
   }
 
   def toTypeDefn(t: ScTypeAliasDefinition): m.Defn.Type = {
-    m.Defn.Type(convertMods(t), toTypeName(t), Seq(t.typeParameters map toType: _*), toType(t.aliasedType))
+    m.Defn.Type(convertMods(t), toTypeName(t), Seq(t.typeParameters map toTypeParams: _*), toType(t.aliasedType))
   }
 
   def toTypeDecl(t: ScTypeAliasDeclaration): m.Decl.Type = {
-    m.Decl.Type(convertMods(t), toTypeName(t), Seq(t.typeParameters map toType: _*), typeBounds(t))
+    m.Decl.Type(convertMods(t), toTypeName(t), Seq(t.typeParameters map toTypeParams: _*), typeBounds(t))
   }
 
   def toVar(t: ScVariableDeclaration): m.Decl.Var = {
@@ -87,7 +97,7 @@ trait TreeAdapter {
   def toTrait(t: ScTrait) = m.Defn.Trait(
     convertMods(t),
     toTypeName(t),
-    Seq(t.typeParameters map toType:_*),
+    Seq(t.typeParameters map toTypeParams:_*),
     m.Ctor.Primary(Nil, m.Ctor.Ref.Name("this"), Nil),
     template(t.extendsBlock)
   )
@@ -95,9 +105,17 @@ trait TreeAdapter {
   def toClass(c: ScClass) = m.Defn.Class(
     convertMods(c),
     toTypeName(c),
-    Seq(c.typeParameters map toType:_*),
+    Seq(c.typeParameters map toTypeParams:_*),
     ctor(c.constructor),
     template(c.extendsBlock)
+  )
+
+  def toClass(c: PsiClass) = m.Defn.Class(
+    convertMods(c.getModifierList),
+    toTypeName(c),
+    Seq(c.getTypeParameters map toTypeParams:_*),
+    ctor(c),
+    template(c.getAllMethods)
   )
 
   def toObject(o: ScObject) = m.Defn.Object(
@@ -112,6 +130,12 @@ trait TreeAdapter {
       case Some(ctor) => m.Ctor.Primary(convertMods(ctor), toPrimaryCtorName(ctor), Seq(ctor.parameterList.clauses.map(convertParamClause):_*))
       case None => unreachable("no primary constructor in class")
     }
+  }
+
+  // FIXME: we don't have explicit information on what ctor has been used, so just select first one
+  def ctor(c: PsiClass): m.Ctor.Primary = {
+//    m.Ctor.Primary(Seq.empty, m.Ctor.Ref.Name(c.getName).withDenot())
+    ???
   }
 
   def caseClause(c: patterns.ScCaseClause): m.Case = {
@@ -166,6 +190,11 @@ trait TreeAdapter {
       case (None, None)       => None
     }
     m.Template(early, parents, self, stats)
+  }
+
+  // Java conversion
+  def template(arr: Array[PsiMethod]): m.Template = {
+    ???
   }
 
   def newTemplate(t: ScTemplateDefinition): m.Template = {
@@ -326,6 +355,15 @@ trait TreeAdapter {
     }
     val overrideMod = if (t.hasModifierProperty("override")) Seq(m.Mod.Override()) else Nil
     overrideMod ++ common ++ classParam
+  }
+
+  // Java conversion
+  def convertMods(t: PsiModifierList): Seq[m.Mod] = {
+    val mods = scala.collection.mutable.ListBuffer[m.Mod]()
+    if (t.hasModifierProperty("private"))    mods += m.Mod.Private
+    if (t.hasModifierProperty("protected"))  mods += m.Mod.Protected
+    if (t.hasModifierProperty("abstract"))   mods += m.Mod.Abstract
+    Seq(mods:_*)
   }
 
   def convertParamClause(paramss: params.ScParameterClause): Seq[Param] = {
