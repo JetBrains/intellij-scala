@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.Remov
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.resolve.processor.CollectMethodsProcessor
 
 /**
  * Pavel Fatin
@@ -23,7 +24,7 @@ class JavaAccessorMethodCalledAsEmptyParenInspection extends AbstractMethodSigna
           case _ => if (call.argumentExpressions.isEmpty) {
             e.resolve() match {
               case _: ScalaPsiElement => // do nothing
-              case (m: PsiMethod) if m.isAccessor =>
+              case (m: PsiMethod) if m.isAccessor && !isOverloadedMethod(e) =>
                 holder.registerProblem(e.nameId, getDisplayName, new RemoveCallParentheses(call))
               case _ =>
             }
@@ -31,5 +32,11 @@ class JavaAccessorMethodCalledAsEmptyParenInspection extends AbstractMethodSigna
         }
       case _ =>
     }
+  }
+
+  private def isOverloadedMethod(ref: ScReferenceExpression) = {
+    val processor = new CollectMethodsProcessor(ref, ref.refName)
+    ref.bind().flatMap(_.fromType).forall(processor.processType(_, ref))
+    processor.candidatesS.size > 1
   }
 }
