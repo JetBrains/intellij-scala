@@ -495,8 +495,12 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
 
     def addTypeAliasDefinition(typeName: String, typeElement: ScTypeElement, parent: PsiElement) = {
       def getAhchor(parent: PsiElement, firstOccurrence: PsiElement): Some[PsiElement] = {
+        val children = parent.getChildren
+
         Some(parent.getChildren.find(_.getTextRange.contains(firstOccurrence.getTextRange))
-          .getOrElse(parent.getFirstChild))
+          .getOrElse(if (parent.getFirstChild.getText != "{") parent.getFirstChild
+          else if (children.isEmpty) parent.getLastChild
+          else children.apply(0)))
       }
 
       val mtext = typeElement.getText
