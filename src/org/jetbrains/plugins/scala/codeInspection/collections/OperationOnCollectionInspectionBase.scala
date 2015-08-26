@@ -10,7 +10,7 @@ import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.PsiElement
-import com.intellij.ui.{AnActionButton, AnActionButtonRunnable, ListScrollingUtil, ToolbarDecorator}
+import com.intellij.ui._
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -93,7 +93,7 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
     def checkBoxesPanel(): JComponent = {
       val innerPanel = new JPanel()
       innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.Y_AXIS))
-      for (i <- 0 until possibleSimplificationTypes.length) {
+      for (i <- possibleSimplificationTypes.indices) {
         val enabled: Array[java.lang.Boolean] = getSimplificationTypesEnabled
         val checkBox = new JCheckBox(possibleSimplificationTypes(i).description, enabled(i))
         checkBox.getModel.addChangeListener(new ChangeListener {
@@ -128,7 +128,7 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
           JListCompatibility.add(listModel, index, pattern)
           resetValues()
           patternJBList.setSelectedValue (pattern, true)
-          ListScrollingUtil.ensureIndexIsVisible(patternJBList, index, 0)
+          ScrollingUtil.ensureIndexIsVisible(patternJBList, index, 0)
           IdeFocusManager.getGlobalInstance.requestFocus(patternJBList, false)
         }
 
