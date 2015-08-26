@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.EditorComboBoxEditor;
@@ -18,8 +19,9 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem;
@@ -257,8 +259,20 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
                 validator = item.validator();
                 possibleNames = item.possibleNames();
                 updateNameComboBox(possibleNames);
+
+                if ((item.fileEncloser() == null) && (item.scopeName().substring(0, 7).equals("package"))) {
+                    item.setFileEncloser(getPackageObjectBody());
+                }
             }
         }
+    }
+
+    private ScTemplateBody getPackageObjectBody() {
+        PsiDirectory dir = myTypeElement.getContainingFile().getContainingDirectory();
+        ScTypeDefinition packageObject = (ScTypeDefinition)
+                ScalaDirectoryService.createClassFromTemplate(dir, "package", "Package Object", false);
+        return
+                PsiTreeUtil.getChildOfType(PsiTreeUtil.getChildOfType(packageObject, ScExtendsBlock.class), ScTemplateBody.class);
     }
 
     class DataChangedListener implements EventListener {
