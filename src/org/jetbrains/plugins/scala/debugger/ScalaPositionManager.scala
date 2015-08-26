@@ -4,7 +4,7 @@ package debugger
 import java.util
 import java.util.Collections
 
-import com.intellij.debugger.engine.{CompoundPositionManager, DebugProcess, DebugProcessImpl}
+import com.intellij.debugger.engine._
 import com.intellij.debugger.requests.ClassPrepareRequestor
 import com.intellij.debugger.{MultiRequestPositionManager, NoDataException, PositionManager, SourcePosition}
 import com.intellij.openapi.diagnostic.Logger
@@ -68,7 +68,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     val position =
       for {
         loc <- location.toOption
-        psiFile <- getPsiFileByLocation(getDebugProcess.getProject, loc).toOption
+        psiFile <- getPsiFileByReferenceType(getDebugProcess.getProject, loc.declaringType).toOption
         lineNumber = calcLineIndex(loc)
         if lineNumber >= 0
       } yield {
@@ -335,12 +335,11 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     withMatchingName.lift(index).map(SourcePosition.createFromElement)
   }
 
-  private def findScriptFile(location: Location): Option[PsiFile] = {
+  private def findScriptFile(refType: ReferenceType): Option[PsiFile] = {
     try {
-      val refType = location.declaringType()
       val name = refType.name()
       if (name.startsWith(SCRIPT_HOLDER_CLASS_NAME)) {
-        val sourceName = location.sourceName
+        val sourceName = refType.sourceName
         val files = FilenameIndex.getFilesByName(getDebugProcess.getProject, sourceName, getDebugProcess.getSearchScope)
         files.headOption
       }
@@ -369,7 +368,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
   }
 
   @Nullable
-  private def getPsiFileByLocation(project: Project, location: Location): PsiFile = {
+  private def getPsiFileByReferenceType(project: Project, refType: ReferenceType): PsiFile = {
 
     def qualName(refType: ReferenceType): String = {
       val originalQName = refType.name.replace('/', '.')
@@ -416,11 +415,9 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
       result.get
     }
 
-    if (location == null) return null
-    val refType = location.declaringType
     if (refType == null) return null
 
-    val scriptFile = findScriptFile(location)
+    val scriptFile = findScriptFile(refType)
     if (scriptFile.isDefined) return scriptFile.get
 
     val qName = qualName(refType)
@@ -447,8 +444,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
 
     try {
       val project = getDebugProcess.getProject
-      val location = refType.allLineLocations().get(0)
-      val file = getPsiFileByLocation(project, location)
+      val file = getPsiFileByReferenceType(project, refType)
       val document = PsiDocumentManager.getInstance(project).getDocument(file)
 
       file.depthFirst.collectFirst {
