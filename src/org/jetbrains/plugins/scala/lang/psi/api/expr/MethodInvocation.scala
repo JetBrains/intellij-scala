@@ -304,7 +304,6 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
   private def setMatchedParametersVar(seq: Seq[(Parameter, ScExpression)]) {
     val modCount: Long = getManager.getModificationTracker.getModificationCount
-    matchedParametersCache = null
     putUserData(MethodInvocation.MATCHED_PARAMETERS_VAR_KEY, (modCount, seq))
   }
 
