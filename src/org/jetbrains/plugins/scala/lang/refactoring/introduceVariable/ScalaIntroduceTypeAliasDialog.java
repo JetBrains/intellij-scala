@@ -75,10 +75,10 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         this.project = project;
         this.myTypeElement = myTypeElement;
         this.currentScope = possibleScopes.get(0);
-        this.occurrencesCount = currentScope.occurrences().length;
-        this.companionObjOccCount = currentScope.occInCompanionObj().length;
-        this.validator = currentScope.validator();
-        this.possibleNames = currentScope.possibleNames();
+        this.occurrencesCount = currentScope.usualOccurrences().length;
+        this.companionObjOccCount = currentScope.occurrencesInCompanion().length;
+        this.validator = currentScope.typeValidator();
+        this.possibleNames = currentScope.availableNames();
         this.conflictsReporter = conflictReporter;
         this.editor = editor;
         this.inheritanceDataMap = new HashMap<ScopeItem, Tuple2<ScTypeElement[], ScalaTypeValidator[]>>();
@@ -249,31 +249,24 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         public void itemStateChanged(ItemEvent event) {
             if (event.getStateChange() == ItemEvent.SELECTED) {
                 ScopeItem item = (ScopeItem) event.getItem();
-                PsiElement[] occurrences = item.occurrences();
+                PsiElement[] occurrences = item.usualOccurrences();
                 occurrencesCount = occurrences.length;
-                companionObjOccCount = item.occInCompanionObj().length;
+                companionObjOccCount = item.occurrencesInCompanion().length;
 
                 setUpCompanionObjOcc();
                 setUpOccurrences();
-                setUpReplaceInInheritors(item.scopeName());
-                validator = item.validator();
-                possibleNames = item.possibleNames();
+                setUpReplaceInInheritors(item.name());
+                validator = item.typeValidator();
+                possibleNames = item.availableNames();
                 updateNameComboBox(possibleNames);
 
-                if ((item.fileEncloser() == null) && (item.scopeName().substring(0, 7).equals("package"))) {
-                    item.setFileEncloser(getPackageObjectBody());
+                if ((item.fileEncloser() == null) && (item.name().substring(0, 7).equals("package"))) {
+                    item.setFileEncloser(ScalaRefactoringUtil.getPackageObjectBody(myTypeElement));
                 }
             }
         }
     }
 
-    private ScTemplateBody getPackageObjectBody() {
-        PsiDirectory dir = myTypeElement.getContainingFile().getContainingDirectory();
-        ScTypeDefinition packageObject = (ScTypeDefinition)
-                ScalaDirectoryService.createClassFromTemplate(dir, "package", "Package Object", false);
-        return
-                PsiTreeUtil.getChildOfType(PsiTreeUtil.getChildOfType(packageObject, ScExtendsBlock.class), ScTemplateBody.class);
-    }
 
     class DataChangedListener implements EventListener {
         void dataChanged() {
