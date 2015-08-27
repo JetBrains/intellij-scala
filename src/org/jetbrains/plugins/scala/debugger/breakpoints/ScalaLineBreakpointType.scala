@@ -78,13 +78,13 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
     val lambdas = ScalaPositionManager.lambdasOnLine(file, line)
     if (lambdas.isEmpty) return emptyList
 
-    var res: List[JavaLineBreakpointType#JavaBreakpointVariant] = List(new JavaBreakpointVariant(position)) //all variants
-
     val elementAtLine = SourcePosition.createFromLine(file, line).getElementAt
     val startMethod = DebuggerUtil.getContainingMethod(elementAtLine) match {
       case Some(e) => e
       case None => return emptyList
     }
+
+    var res: List[JavaLineBreakpointType#JavaBreakpointVariant] = List()
 
     if (!lambdas.contains(startMethod))
       res = res :+ new ExactScalaBreakpointVariant(position, startMethod, -1)
@@ -94,7 +94,9 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
       res = res :+ new ExactScalaBreakpointVariant(XSourcePositionImpl.createByElement(lambda), lambda, ordinal)
       ordinal += 1
     }
-    res.asJava
+
+    if (res.size == 1) return emptyList
+    (new JavaBreakpointVariant(position) +: res).asJava //adding all variants
   }
 
   override def matchesPosition(@NotNull breakpoint: LineBreakpoint[_], @NotNull position: SourcePosition): Boolean = {
