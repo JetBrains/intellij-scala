@@ -13,6 +13,7 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiPackage}
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
@@ -99,7 +100,7 @@ object ScopeSuggester {
   }
 
   private def handlePackage(typeElement: ScTypeElement, packageName: String, conflictsReporter: ConflictsReporter,
-                             project: Project, editor: Editor): ScopeItem = {
+                            project: Project, editor: Editor): ScopeItem = {
 
     val projectSearchScope = GlobalSearchScope.projectScope(typeElement.getProject)
     val packageReal = ScPackageImpl.findPackage(typeElement.getProject, packageName)
@@ -115,10 +116,14 @@ object ScopeSuggester {
 
     val processor = new Processor[PsiFile] {
       override def process(file: PsiFile): Boolean = {
-        val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, file)
-        allOcurrences += occurrences
-        allValidators += ScalaTypeValidator(conflictsReporter, project, editor, file, typeElement, file, occurrences.isEmpty)
-        true
+        if (packageObject.isDefined && (packageObject.get.getContainingFile == file)) {
+          true
+        } else {
+          val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, file)
+          allOcurrences += occurrences
+          allValidators += ScalaTypeValidator(conflictsReporter, project, editor, file, typeElement, file, occurrences.isEmpty)
+          true
+        }
       }
     }
 
@@ -137,19 +142,16 @@ object ScopeSuggester {
   }
 }
 
-class ScopeItem(name: String,
-                encloser: PsiElement,
-                inOccurrences: Array[ScTypeElement],
-                inOccInCompanionObj: Array[ScTypeElement],
-                inValidator: ScalaValidator,
-                inAvailablenames: Array[String]) {
-  var fileEncloser: PsiElement = encloser
-  val scopeName: String = name
-  val occurrences: Array[ScTypeElement] = inOccurrences
-  val occInCompanionObj: Array[ScTypeElement] = inOccInCompanionObj
-  val validator: ScalaValidator = inValidator
-  val possibleNames: Array[String] = inAvailablenames
+class ScopeItem(val name: String,
+                var fileEncloser: PsiElement,
+                var usualOccurrences: Array[ScTypeElement],
+                var occurrencesInCompanion: Array[ScTypeElement],
+                val typeValidator: ScalaValidator,
+                val availableNames: Array[String]) {
+
   var occurrencesFromInheretors: Array[ScTypeElement] = Array[ScTypeElement]()
+
+  var typeAlias: ScTypeAlias = null
 
   def setFileEncloser(encloser: PsiElement): Unit = {
     if (fileEncloser == null) {
@@ -160,6 +162,12 @@ class ScopeItem(name: String,
   def setInheretedOccurrences(occurrences: Array[ScTypeElement]) = {
     if (occurrences != null) {
       occurrencesFromInheretors = occurrences
+    }
+  }
+
+  def setTypeAlias(inTypeAlias: ScTypeAlias) = {
+    if (inTypeAlias != null) {
+      typeAlias = inTypeAlias
     }
   }
 
