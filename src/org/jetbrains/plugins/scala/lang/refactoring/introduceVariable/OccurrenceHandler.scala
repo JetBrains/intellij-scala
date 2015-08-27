@@ -19,7 +19,7 @@ object OccurrenceHandler {
 
   def apply(typeElement: ScTypeElement, isReplaceAllUsual: Boolean, isReplaceOccurrenceIncompanionObject: Boolean,
             isReplaceOccurrenceInInheritors: Boolean, scopeItem: ScopeItem): OccurrenceHandler  = {
-    new OccurrenceHandler(typeElement, scopeItem.occurrences, isReplaceAllUsual, scopeItem.occInCompanionObj,
+    new OccurrenceHandler(typeElement, scopeItem.usualOccurrences, isReplaceAllUsual, scopeItem.occurrencesInCompanion,
       isReplaceOccurrenceIncompanionObject, scopeItem.occurrencesFromInheretors, isReplaceOccurrenceInInheritors)
   }
 }

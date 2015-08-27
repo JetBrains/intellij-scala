@@ -92,7 +92,8 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
             TargetElementUtilBase.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtilBase.ELEMENT_NAME_ACCEPTED)
           myElementToRename = element match {
             case null => null
-            case named: PsiNamedElement if named.getClass == clazz => named
+            case named: PsiNamedElement
+              if named.getClass == clazz => named
             case _ =>
               RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, myEditor) match {
                 case named: PsiNamedElement if named.getClass == clazz => named
