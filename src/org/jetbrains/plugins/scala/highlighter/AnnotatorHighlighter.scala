@@ -229,7 +229,8 @@ object AnnotatorHighlighter {
         }
       case x: PsiMethod =>
         if (x.isConstructor) {
-          annotateCollection(PsiTreeUtil.getParentOfType(x, classOf[PsiClass]))
+          val clazz: PsiClass = PsiTreeUtil.getParentOfType(x, classOf[PsiClass])
+          if (clazz != null) annotateCollection(clazz)
         }
         if (x.getModifierList != null && x.getModifierList.hasModifierProperty("static")) {
           annotation.setTextAttributes(DefaultHighlighter.OBJECT_METHOD_CALL)
