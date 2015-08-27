@@ -65,6 +65,7 @@ class ScalaCompletionContributor extends CompletionContributor {
           val offset = parameters.getOffset
           val offsetInString = offset - interpolated.getTextRange.getStartOffset
           val res = ScalaCompletionContributor.getStartEndPointForInterpolatedString(interpolated, offset, offsetInString)
+          if (res.isEmpty) return
           val (exprStartInString, endPoint) = res.get
           val stringText = interpolated.getText
           val newInterpolated =
