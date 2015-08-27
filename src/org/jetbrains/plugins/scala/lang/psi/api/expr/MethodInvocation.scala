@@ -62,16 +62,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    * @return map of expressions and parameters
    */
   def matchedParameters: Seq[(ScExpression, Parameter)] = {
-    var res = matchedParametersCache
-    if (res == null) {
-      res = matchedParametersInner.map(a => a.swap).filter(a => a._1 != null) //todo: catch when expression is null
-      matchedParametersCache = res
-    }
-    res
+    matchedParametersInner.map(a => a.swap).filter(a => a._1 != null) //todo: catch when expression is null
   }
-
-  @volatile
-  private var matchedParametersCache: Seq[(ScExpression, Parameter)] = null
 
   /**
    * @return map of expressions and parameters
@@ -331,7 +323,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     putUserData(MethodInvocation.APPLY_OR_UPDATE_KEY, (modCount, opt))
   }
 
-  private def getUpdatableUserData[Res](key: Key[(Long, Res)])(default: =>Res): Res = {
+  private def getUpdatableUserData[Res](key: Key[(Long, Res)])(default: => Res): Res = {
     val modCount = getManager.getModificationTracker.getModificationCount
     def getData = Option(getUserData(key)).getOrElse(-1L, default)
     getData match {
