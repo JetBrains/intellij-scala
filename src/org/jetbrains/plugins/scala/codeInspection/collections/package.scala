@@ -336,8 +336,8 @@ package object collections {
             nameFitToPatterns(obj.qualifiedName, patterns)
           case member: ScMember =>
             val clazz = member.containingClass
-            if (clazz == null) false
-            else nameFitToPatterns(clazz.qualifiedName, patterns)
+            if (clazz == null || clazz.qualifiedName == null) false
+            else nameFitToPatterns(clazz.qu-9086 FalifiedName, patterns)
           case _ => false
         }
       case _ => false
