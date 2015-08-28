@@ -178,7 +178,6 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
       """.stripMargin
     assertMatches(messages(code)) {
       case Error("(j => j)", typeMismatch()) :: Error("(j => j)", doesNotConform()) :: Error("j", doesNotConform()) :: Nil =>
-
     }
   }
 
@@ -278,17 +277,291 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
     checkCodeHasNoErrors(code)
   }
 
-  def checkCodeHasNoErrors(code: String) {
+  def testSAMMethodReference(): Unit = {
+    val code =
+      """
+        |trait F[T, R] {
+        |  def apply(a: T): R
+        |}
+        |
+        |def len(s: String): Int  = s.length
+        |
+        |val f: F[String, Int] = len
+        |
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
+  def testExistentialBounds(): Unit = {
+    val code =
+      """
+        |trait Blargle[T] {
+        |  def foo(a: T): String
+        |}
+        |
+        |def f(b: Blargle[_ >: Int]) = -1
+        |f(s => s.toString)
+        |
+        |def g[T](b: Blargle[_ >: T]) = -1
+        |g((s: String) => s)
+        |
+        |trait Blergh[T] {
+        |  def foo(): T
+        |}
+        |
+        |def h[T](b: Blergh[_ <: T]) = -1
+        |h(() => "")
+        |def i(b: Blergh[_ <: String]) = -1
+        |i(() => "")
+        |
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
+  def testOverload(): Unit = {
+    val code =
+      """
+        |trait SAMOverload[A] {
+        |  def foo(s: A): Int = ???
+        |}
+        |
+        |def f[T](s: T): Unit = ()
+        |def f[T](s: T, a: SAMOverload[_ >: T]) = ()
+        |f("", (s: String) => 2)
+        |
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
+  def testJavaSAM(): Unit = {
+    val scalaCode = "new ObservableCopy(1).mapFunc(x => x + 1)"
+    val javaCode =
+      """
+        |public interface Func1<T, R> {
+        |    R call(T t);
+        |}
+        |
+        |public class ObservableCopy<T> {
+        |    public ObservableCopy(T t) {}
+        |
+        |    public final <R> ObservableCopy<R> mapFunc(Func1<? super T, ? extends R> func) {
+        |        return null;
+        |    }
+        |}
+        |
+      """.stripMargin
+    checkCodeHasNoErrors(scalaCode, Some(javaCode))
+  }
+
+  val etaExpansionPrefix: String =
+    """
+      |def a = () => println()
+      |def b() = () => println()
+      |def c = println()
+      |def d() = println()
+      |def e: () => Unit = () => println()
+      |def f(): () => Unit = () => println()
+      |def g(): Unit = println()
+      |def h(): Unit = println()
+      |
+    """.stripMargin
+
+  def testSAMEtaExpansion1(): Unit = {
+    val code = etaExpansionPrefix + "val a1: Runnable = a"
     assertMatches(messages(code)) {
+      case Error("a", typeMismatch()) :: Error("a", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion2(): Unit = {
+    val code = etaExpansionPrefix + "val a2: Runnable = a()"
+    assertMatches(messages(code)) {
+      case Error("a()", typeMismatch()) :: Error("a()", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion3(): Unit = {
+    val code = etaExpansionPrefix + "val b1: Runnable = b"
+    checkCodeHasNoErrors(code)
+  }
+
+  def testSAMEtaExpansion4(): Unit = {
+    val code = etaExpansionPrefix + "val b2: Runnable = b()"
+    assertMatches(messages(code)) {
+      case Error("b()", typeMismatch()) :: Error("b()", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion5(): Unit = {
+    val code = etaExpansionPrefix + "val c1: Runnable = c"
+    assertMatches(messages(code)) {
+      case Error("c", typeMismatch()) :: Error("c", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion6(): Unit = {
+    val code = etaExpansionPrefix + "val c2: Runnable = c()"
+    assertMatches(messages(code)) {
+      case Error("()", doesNotTakeParameters()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion7(): Unit = {
+    val code = etaExpansionPrefix + "val d1: Runnable = d"
+    checkCodeHasNoErrors(code)
+  }
+
+  def testSAMEtaExpansion8(): Unit = {
+    val code = etaExpansionPrefix + "val d2: Runnable = d()"
+    assertMatches(messages(code)) {
+      case Error("d()", typeMismatch()) :: Error("d()", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion9(): Unit = {
+    val code = etaExpansionPrefix + "val e1: Runnable = e"
+    assertMatches(messages(code)) {
+      case Error("e", typeMismatch()) :: Error("e", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion10(): Unit = {
+    val code = etaExpansionPrefix + "val e2: Runnable = e()"
+    assertMatches(messages(code)) {
+      case Error("e()", typeMismatch()) :: Error("e()", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion11(): Unit = {
+    val code = etaExpansionPrefix + "val f1: Runnable = f"
+    checkCodeHasNoErrors(code)
+  }
+
+  def testSAMEtaExpansion12(): Unit = {
+    val code = etaExpansionPrefix + "val f2: Runnable = f()"
+    assertMatches(messages(code)) {
+      case Error("f()", typeMismatch()) :: Error("f()", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion13(): Unit = {
+    val code = etaExpansionPrefix + "val g1: Runnable = g"
+    checkCodeHasNoErrors(code)
+  }
+
+  def testSAMEtaExpansion14(): Unit = {
+    val code = etaExpansionPrefix + "val g2: Runnable = g()"
+    assertMatches(messages(code)) {
+      case Error("g()", typeMismatch()) :: Error("g()", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testSAMEtaExpansion15(): Unit = {
+    val code = etaExpansionPrefix + "val h1: Runnable = h"
+    checkCodeHasNoErrors(code)
+  }
+
+  def testSAMEtaExpansion16(): Unit = {
+    val code = etaExpansionPrefix + "val h2: Runnable = h()"
+    assertMatches(messages(code)) {
+      case Error("h()", typeMismatch()) :: Error("h()", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testEtaExpansionImplicit(): Unit = {
+    val code =
+      """
+        |class A
+        |class B
+        |implicit def a2b(a: A): B = new B
+        |
+        |abstract class C {
+        |  def foo(): B
+        |}
+        |
+        |def foo(): A = new A
+        |
+        |val u: C = foo
+        |
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
+  //similar to testEtaExpansion11
+  def testEtaExpansionUnitReturnWithParams(): Unit = {
+    val code =
+      """
+        |trait S {
+        |  def foo(i: Int): Unit
+        |}
+        |def ss(): Int => Unit = (i: Int) => Unit
+        |
+        |val s: S = ss
+      """.stripMargin
+    assertMatches(messages(code)) {
+      case Error("ss", typeMismatch()) :: Error("ss", doesNotConform()) :: Nil =>
+    }
+  }
+
+  def testOverrideImplementSAM(): Unit = {
+    val code =
+      """
+        |val s: Bar = () => 2
+        |
+        |abstract class Foo {
+        |  def foo(): Int
+        |}
+        |
+        |abstract class Bar extennds Foo
+        |
+      """.stripMargin
+
+    checkCodeHasNoErrors(code)
+  }
+
+  def testOverrideImplementSAM2(): Unit = {
+    val code =
+      """
+        |val s: Bar = () => 2
+        |
+        |abstract class Foo {
+        |  def foo2(): Int
+        |}
+        |
+        |abstract class Bar extends Foo {
+        |  def foo1(): String = ""
+        |}
+        |
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
+  def testSAMComparable(): Unit = {
+    val code =
+      """
+        |import java.util.Comparator
+        |
+        |val comp: Comparator[String] = (o1, o2) => o1.compareTo(o2)
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
+  def checkCodeHasNoErrors(scalaCode: String, javaCode: Option[String] = None) {
+    assertMatches(messages(scalaCode, javaCode)) {
       case Nil =>
     }
   }
 
-  def messages(code: String): List[Message] = {
+  def messages(@Language("Scala") scalaCode: String, javaCode: Option[String] = None): List[Message] = {
+    javaCode match {
+      case Some(s) => configureFromFileTextAdapter("dummy.java", s)
+      case _ =>
+    }
+
     val annotator = new ScalaAnnotator() {}
     val mock = new AnnotatorHolderMock
 
-    val parse: ScalaFile = parseText(code)
+    val parse: ScalaFile = parseText(scalaCode)
 
     parse.depthFirst.foreach(annotator.annotate(_, mock))
 
@@ -312,6 +585,7 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
   val doesNotConform = ContainsPattern("doesn't conform to expected type")
   val typeMismatch = ContainsPattern("Type mismatch")
   val cannotResolveReference = ContainsPattern("Cannot resolve reference")
+  val doesNotTakeParameters = ContainsPattern("does not take parameters")
 
   case class ContainsPattern(fr: String) {
     def unapply(s: String) = s.contains(fr)

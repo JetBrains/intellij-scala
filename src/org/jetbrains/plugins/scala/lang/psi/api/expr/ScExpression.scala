@@ -10,10 +10,9 @@ import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, SafeCheckException}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
@@ -21,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
@@ -70,13 +68,27 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 //if this result is ok, we do not need to think about implicits
                 case Success(tp, _) if tp.conforms(expected) => defaultResult
                 case Success(tp, _) =>
-                  if (ScalaPsiUtil.isSAMEnabled(this) && ScFunctionType.isFunctionType(tp)) {
-                    ScalaPsiUtil.toSAMType(expected, getResolveScope) match {
-                      case Some(methodType) if tp.conforms(methodType) =>
-                        return ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None)
-                      case _ =>
-                    }
+                  def checkForSAM(): Option[ExpressionTypeResult] = {
+                    if (ScalaPsiUtil.isSAMEnabled(this) && ScFunctionType.isFunctionType(tp)) {
+                      ScalaPsiUtil.toSAMType(expected, getResolveScope) match {
+                        case Some(methodType) if tp.conforms(methodType) =>
+                          Some(ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None))
+                        case _ => None
+                      }
+                    } else None
                   }
+
+                  val possibleSAMres = this match {
+                    case MethodValue(_) => checkForSAM() //eta expansion happened
+                    case ScFunctionExpr(_, _) if fromUnderscore => checkForSAM()
+                    case _ if !fromUnderscore && ScalaPsiUtil.isAnonExpression(this) => checkForSAM()
+                    case _ => None
+                  }
+                  possibleSAMres match {
+                    case Some(r) => return r
+                    case _ =>
+                  }
+
                   val functionType = ScFunctionType(expected, Seq(tp))(getProject, getResolveScope)
                   val results = new ImplicitCollector(this, functionType, functionType, None,
                     isImplicitConversion = true, isExtensionConversion = false).collect()
@@ -183,19 +195,17 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
             def removeMethodType(retType: ScType, updateType: ScType => ScType = t => t) {
               def updateRes(exp: Option[ScType]) {
+
                 exp match {
                   case Some(expected) =>
                     expected.removeAbstracts match {
                       case ScFunctionType(_, params) =>
-                      case _ =>
-                        expected.isAliasType match {
-                          case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) =>
-                            ta.aliasedType match {
-                              case Success(ScFunctionType(_, _), _) =>
-                              case _ => res = updateType(retType)
-                            }
+                      case expected if ScalaPsiUtil.isSAMEnabled(this) =>
+                        ScalaPsiUtil.toSAMType(expected, getResolveScope) match {
+                          case Some(_) =>
                           case _ => res = updateType(retType)
                         }
+                      case _ => res = updateType(retType)
                     }
                   case _ => res = updateType(retType)
                 }
