@@ -32,8 +32,10 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
@@ -582,7 +584,7 @@ object ScalaPositionManager {
   private class NamePattern(elem: PsiElement) {
     private val classJVMNameParts: Seq[String] = {
       val forElem = partsFor(elem).toIterator
-      val forParents = elem.parentsInFile.flatMap(e => partsFor(e).map(_ + "$"))
+      val forParents = elem.parentsInFile.flatMap(e => partsFor(e))
       (forElem ++ forParents).toSeq.reverse
     }
 
@@ -591,10 +593,24 @@ object ScalaPositionManager {
         case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) => Seq("$anon")
         case newTd: ScNewTemplateDefinition => Seq.empty
         case td: ScTypeDefinition => Seq(ScalaNamesUtil.toJavaName(td.name))
-        case _ if ScalaEvaluatorBuilderUtil.isGenerateClass(elem) =>
-          (1 to ScalaEvaluatorBuilderUtil.anonClassCount(elem)).map(_ => "$anonfun")
+        case _ if ScalaEvaluatorBuilderUtil.isGenerateClass(elem) => partsForAnonfun(elem)
         case _ => Seq.empty
       }
+    }
+
+    private def partsForAnonfun(elem: PsiElement): Seq[String] = {
+      val anonfunCount = ScalaEvaluatorBuilderUtil.anonClassCount(elem)
+      val lastParts = Seq.fill(anonfunCount - 1)(Seq("$apply", "$anonfun")).flatten
+      val containingClass = findGeneratingClassParent(elem.getParent)
+      val owner = PsiTreeUtil.getParentOfType(elem, classOf[ScFunctionDefinition], classOf[ScTemplateBody], classOf[ScEarlyDefinitions],
+        classOf[ScPatternDefinition], classOf[ScVariableDefinition])
+      val firstParts =
+        if (PsiTreeUtil.isAncestor(owner, containingClass, true)) Seq("$anonfun")
+        else owner match {
+          case fun: ScFunctionDefinition => Seq(s"$$${fun.name}", "$anonfun")
+          case _ => Seq("$anonfun")
+        }
+      lastParts ++ firstParts
     }
 
     def matches(refType: ReferenceType): Boolean = {
