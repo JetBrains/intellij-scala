@@ -8,12 +8,13 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
+import scala.annotation.tailrec
 import scala.collection.immutable.{HashMap, HashSet, Map}
 
 /**
@@ -110,8 +111,8 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   private def followed(s: ScSubstitutor, level: Int): ScSubstitutor = {
     if (level > ScSubstitutor.followLimit)
       throw new RuntimeException("Too much followers for substitutor: " + this.toString)
-    if (follower == null && tvMap.size + aliasesMap.size  == 0 && updateThisType == None && !myDependentMethodTypesFunDefined) s
-    else if (s.getFollower == null && s.tvMap.size + s.aliasesMap.size == 0 && s.updateThisType == None && !s.myDependentMethodTypesFunDefined) this
+    if (follower == null && tvMap.size + aliasesMap.size  == 0 && updateThisType.isEmpty && !myDependentMethodTypesFunDefined) s
+    else if (s.getFollower == null && s.tvMap.size + s.aliasesMap.size == 0 && s.updateThisType.isEmpty && !s.myDependentMethodTypesFunDefined) this
     else {
       val res = new ScSubstitutor(tvMap, aliasesMap, updateThisType,
         if (follower != null) follower followed (s, level + 1) else s)
@@ -130,7 +131,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   }
 
   private def extractTpt(tpt: ScTypeParameterType, t: ScType): ScType = {
-    if (tpt.args.length == 0) t
+    if (tpt.args.isEmpty) t
     else t match {
       case ScParameterizedType(designator, _) => designator
       case _ => t
@@ -330,7 +331,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
           case tpt: ScTypeParameterType =>
             tvMap.get((tpt.name, tpt.getId)) match {
               case Some(param: ScParameterizedType) if pt != param =>
-                if (tpt.args.length == 0) {
+                if (tpt.args.isEmpty) {
                   substInternal(param) //to prevent types like T[A][A]
                 } else {
                   ScParameterizedType(param.designator, typeArgs.map(substInternal))
@@ -344,7 +345,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
           case u: ScUndefinedType =>
             tvMap.get((u.tpt.name, u.tpt.getId)) match {
               case Some(param: ScParameterizedType) if pt != param =>
-                if (u.tpt.args.length == 0) {
+                if (u.tpt.args.isEmpty) {
                   substInternal(param) //to prevent types like T[A][A]
                 } else {
                   ScParameterizedType(param.designator, typeArgs map substInternal)
@@ -358,7 +359,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
           case u: ScAbstractType =>
             tvMap.get((u.tpt.name, u.tpt.getId)) match {
               case Some(param: ScParameterizedType) if pt != param =>
-                if (u.tpt.args.length == 0) {
+                if (u.tpt.args.isEmpty) {
                   substInternal(param) //to prevent types like T[A][A]
                 } else {
                   ScParameterizedType(param.designator, typeArgs map substInternal)
@@ -714,7 +715,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
             case None =>
           }
 
-          if (tvMap.get(name) == None) {
+          if (tvMap.get(name).isEmpty) {
             tvMap += ((name, Nothing))
           }
           tvMap.get(name)
