@@ -277,25 +277,8 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
   }
 
   private def calcPosition(file: PsiFile, location: Location, lineNumber: Int): Option[SourcePosition] = {
-    def trivialChoice(elems: Seq[PsiElement]): Option[SourcePosition] = {
-      elems match {
-        case Seq() => None
-        case Seq(elem) => Some(SourcePosition.createFromElement(elem))
-      }
-    }
-
-    def ordinal(refType: ReferenceType): Option[Int] = {
-      val name = refType.name()
-      Try(name.substring(name.lastIndexOf('$') + 1).toInt).toOption
-    }
-
-    val scFile = file match {
-      case sf: ScalaFile if !sf.isCompiled => sf
-      case _ => return None
-    }
-
-    val possiblePositions = positionsOnLine(scFile, lineNumber)
-    if (possiblePositions.size <= 1) return trivialChoice(possiblePositions)
+    val possiblePositions = positionsOnLine(file, lineNumber)
+    if (possiblePositions.size <= 1) return possiblePositions.headOption.map(SourcePosition.createFromElement)
 
     val methodName = location.method().name()
 
@@ -325,14 +308,8 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     }
 
     val declaringType = location.declaringType()
-    val withMatchingName = possiblePositions.filter(elem => nameMatches(findGeneratingClassParent(elem), declaringType))
-    if (withMatchingName.size <= 1) return trivialChoice(withMatchingName)
-
-    val example = withMatchingName.head
-    val similarRefTypes = filterAllClasses(c => nameMatches(example, c) && !c.locationsOfLine(lineNumber + 1).isEmpty)
-    val sorted = similarRefTypes.sortBy(ordinal)
-    val index = sorted.indexOf(declaringType)
-    withMatchingName.lift(index).map(SourcePosition.createFromElement)
+    val generatingPsiElem = findPsiClassByReferenceType(declaringType)
+    possiblePositions.find(p => generatingPsiElem.contains(findGeneratingClassParent(p))).map(SourcePosition.createFromElement)
   }
 
   private def findScriptFile(refType: ReferenceType): Option[PsiFile] = {
@@ -418,14 +395,14 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     if (refType == null) return null
 
     val scriptFile = findScriptFile(refType)
-    if (scriptFile.isDefined) return scriptFile.get
+    scriptFile.getOrElse {
+      val qName = qualName(refType)
 
-    val qName = qualName(refType)
-
-    if (!ScalaMacroDebuggingUtil.isEnabled)
-      findClassByQualName(qName).map(_.getNavigationElement.getContainingFile).orNull
-    else
-      searchForMacroDebugging(qName)
+      if (!ScalaMacroDebuggingUtil.isEnabled)
+        findClassByQualName(qName).map(_.getNavigationElement.getContainingFile).orNull
+      else
+        searchForMacroDebugging(qName)
+    }
   }
 
   private def nameMatches(elem: PsiElement, refType: ReferenceType): Boolean = {
@@ -434,27 +411,92 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
   }
 
   private def findPsiClassByReferenceType(refType: ReferenceType): Option[PsiElement] = {
-    def checkLines(elem: PsiElement, document: Document) = {
-      val refTypeLines = refType.allLineLocations().asScala.map(_.lineNumber() - 1).toSet
+    val project = getDebugProcess.getProject
+
+    val refTypeLineNumbers = refType.allLineLocations().asScala.map(_.lineNumber() - 1)
+    if (refTypeLineNumbers.isEmpty) return None
+
+    val firtsRefTypeLine = refTypeLineNumbers.min
+    val lastRefTypeLine = refTypeLineNumbers.max
+    val refTypeLines = firtsRefTypeLine to lastRefTypeLine
+
+    val file = getPsiFileByReferenceType(project, refType)
+    if (file == null) return None
+
+    val document = PsiDocumentManager.getInstance(project).getDocument(file)
+    if (document == null) return None
+
+    val containerTry = Try {
+      val firstOffset = document.getLineStartOffset(firtsRefTypeLine)
+      val endOffset = document.getLineEndOffset(lastRefTypeLine)
+      val startElem = file.findElementAt(firstOffset)
+      val commonParent = startElem.parentsInFile.find(_.getTextRange.getEndOffset > endOffset)
+      commonParent.map(findGeneratingClassParent)
+    }
+    val container = containerTry.toOption.flatten.getOrElse(file)
+
+    def elementLineRange(elem: PsiElement, document: Document) = {
       val startLine = document.getLineNumber(elem.getTextRange.getStartOffset)
       val endLine = document.getLineNumber(elem.getTextRange.getEndOffset)
-      val docLines = Range.inclusive(startLine, endLine).toSet
-      refTypeLines.intersect(docLines).nonEmpty //very loose check because sometimes first line for <init> method is after range of the class
+      startLine to endLine
     }
 
-    try {
-      val project = getDebugProcess.getProject
-      val file = getPsiFileByReferenceType(project, refType)
-      val document = PsiDocumentManager.getInstance(project).getDocument(file)
+    def checkLines(elem: PsiElement, document: Document) = {
+      val lineRange = elementLineRange(elem, document)
+      //intersection, very loose check because sometimes first line for <init> method is after range of the class
+      firtsRefTypeLine <= lineRange.end && lastRefTypeLine >= lineRange.start
+    }
 
-      file.depthFirst.collectFirst {
+    def findCandidates(): Seq[PsiElement] = {
+      container.depthFirst.collect {
         case elem if ScalaEvaluatorBuilderUtil.isGenerateClass(elem) && checkLines(elem, document) && nameMatches(elem, refType) => elem
-      }
+      }.toIndexedSeq
+    }
 
+    def filterWithSignature(candidates: Seq[PsiElement]) = {
+      val applySignature = refType.methodsByName("apply").asScala.find(m => !m.isSynthetic).map(_.signature())
+      if (applySignature.isEmpty) candidates
+      else {
+        candidates.filter(l => applySignature == DebuggerUtil.lambdaJVMSignature(l))
+      }
     }
-    catch {
-      case t: Throwable => None
+
+    val candidates = findCandidates()
+
+    if (candidates.size <= 1) return candidates.headOption
+
+    if (refTypeLines.size > 1) {
+      val withExactlySameLines = candidates.filter(elementLineRange(_, document) == refTypeLines)
+      if (withExactlySameLines.size == 1) return withExactlySameLines.headOption
     }
+
+    if (candidates.exists(!isLambda(_))) return candidates.headOption
+
+    val filteredWithSignature = filterWithSignature(candidates)
+    if (filteredWithSignature.size == 1) return filteredWithSignature.headOption
+
+    val byContainingClasses = filteredWithSignature.groupBy(c => findGeneratingClassParent(c.getParent))
+    if (byContainingClasses.size > 1) {
+      findContainingClass(refType) match {
+        case Some(e) => return byContainingClasses.get(e).flatMap(_.headOption)
+        case None =>
+      }
+    }
+    filteredWithSignature.headOption
+  }
+
+  private def findContainingClass(refType: ReferenceType): Option[PsiElement] = {
+    def classesByName(s: String) = {
+      val vm = getDebugProcess.getVirtualMachineProxy
+      vm.classesByName(s).asScala
+    }
+
+    val name = refType.name()
+    val index = name.lastIndexOf("$$")
+    if (index < 0) return None
+
+    val containingName = name.substring(0, index)
+    classesByName(containingName).headOption.flatMap(findPsiClassByReferenceType)
   }
 }
 
@@ -510,7 +552,6 @@ object ScalaPositionManager {
         }
         Seq(lambda, maxExpressionPatternOrTypeDef).flatten.sortBy(_.getTextLength).headOption
       }
-
       elementsOnTheLine(file, lineNumber).flatMap(findParent).distinct
     }
   }
@@ -650,5 +691,4 @@ object ScalaPositionManager {
       CachedValuesManager.getCachedValue(elem, cacheProvider)
     }
   }
-
 }

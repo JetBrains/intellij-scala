@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ValueClassType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScSubstitutor, ScType, ValueClassType}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -208,6 +208,22 @@ object DebuggerUtil {
       case clazz: PsiClass => JVMNameUtil.getJVMRawText("()V")
       case _ => JVMNameUtil.getJVMRawText("()V")
     }
+  }
+
+  def lambdaJVMSignature(lambda: PsiElement): Option[String] = {
+    val (argumentTypes, returnType) = lambda match {
+      case expr @ ExpressionType(tp) if ScalaPsiUtil.isByNameArgument(expr) => (Seq.empty, tp)
+      case ExpressionType(ScFunctionType(retT, argTypes)) => (argTypes, retT)
+      case _ => return None
+    }
+    val trueReturnType = returnType match {
+      case ValueClassType(inner) => inner
+      case _ => returnType
+    }
+
+    val paramText = argumentTypes.map(getJVMStringForType(_, isParam = true)).mkString("(", "", ")")
+    val returnTypeText = getJVMStringForType(trueReturnType, isParam = false)
+    Some(paramText + returnTypeText)
   }
 
   private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor) = param match {
