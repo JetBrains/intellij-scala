@@ -6,6 +6,7 @@ import java.util.Collections
 
 import com.intellij.debugger.engine._
 import com.intellij.debugger.requests.ClassPrepareRequestor
+import com.intellij.debugger.settings.DebuggerSettings
 import com.intellij.debugger.{MultiRequestPositionManager, NoDataException, PositionManager, SourcePosition}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
@@ -66,6 +67,8 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
         case e: InternalError => -1
       }
     }
+
+    if (shouldSkip(location)) return null
 
     val position =
       for {
@@ -129,8 +132,8 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
       allLocations.filter { l =>
         val custom = customLineNumber(l)
         custom.isDefined && custom.contains(line - 1)
-      }.asJava
-    }
+      }
+  }
 
     checkScalaFile(position)
 
@@ -140,14 +143,9 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
         if (getDebugProcess.getVirtualMachineProxy.versionHigher("1.4"))
           refType.locationsOfLine(DebugProcess.JAVA_STRATUM, null, line)
         else refType.locationsOfLine(line)
-      val nonCustomizedJvm = jvmLocations.asScala.filter(l => customLineNumber(l).isEmpty).asJava
+      val nonCustomizedJvm = jvmLocations.asScala.filter(l => customLineNumber(l).isEmpty)
       val customized = findCustomizedLocations(line)
-      val size = nonCustomizedJvm.size + customized.size
-
-      val all = new util.ArrayList[Location](size)
-      all.addAll(nonCustomizedJvm)
-      all.addAll(customized)
-      all
+      (nonCustomizedJvm ++ customized).filter(!shouldSkip(_)).asJava
     }
     catch {
       case e: AbsentInformationException => Collections.emptyList()
@@ -558,6 +556,10 @@ object ScalaPositionManager {
       case _: ScTrait => s"$name$$class"
       case _ => name
     }
+  }
+
+  private def shouldSkip(location: Location) = {
+    DebuggerSettings.getInstance().SKIP_SYNTHETIC_METHODS && DebuggerUtils.isSynthetic(location.method())
   }
 
   private class MyClassPrepareRequestor(position: SourcePosition, requestor: ClassPrepareRequestor) extends ClassPrepareRequestor {
