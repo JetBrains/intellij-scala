@@ -154,4 +154,19 @@ class ExactBreakpointTest extends ExactBreakpointTestBase {
 
     checkStopResumeSeveralTimes(Breakpoint(7, null), Breakpoint(9, null))("val x = ...", "Seq(1)", "_ > 0", "Seq(1).map...", "x => x + 1", "_ > 10")
   }
+
+  def testNewTemplateDefinitionAsLambda(): Unit = {
+    addFileToProject(
+      """object Sample {
+        |  def main(args: Array[String]) {
+        |    Seq("a").map(new StringBuilder(10, _)).map(_.toString).map(new AAA(_))
+        |  }
+        |}
+        |
+        |class AAA(s: String)
+      """
+    )
+    checkVariants(2, "All", "line in function main", "new StringBuilder(10, _)", "_.toString", "new AAA(_)")
+    checkStopResumeSeveralTimes(Breakpoint(2, null))("Seq(\"a\")...", "new StringBuilder(...", "_.toString", "new AAA(_)")
+  }
 }
