@@ -822,7 +822,7 @@
                          shortName="DeprecatedViewBound" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection"
-                         displayName="Convert expression to Single Abstract Method (SAM)" groupName="Scala: General"
+                         displayName="Convert expression to Single Abstract Method (SAM)" groupPath="Scala" groupName="General"
                          shortName="ConvertExpressionToSAM" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
