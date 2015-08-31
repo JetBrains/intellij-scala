@@ -22,20 +22,25 @@ object InspectionsUtil {
   val MethodSignature = "Scala: Method signature"
 
   def isExpressionOfType(className: String, expr: ScExpression): Boolean = {
-    def parameterizedTypeFromClassName(fqn: String, project: Project): Option[ScType] = {
+    val exprType = expr.getType().getOrAny
+    conformsToTypeFromClass(exprType, className, expr.getProject)
+  }
+
+  def conformsToTypeFromClass(scType: ScType, className: String, project: Project): Boolean = {
+    def typeFromClassName(fqn: String, project: Project): Option[ScType] = {
       val clazz = JavaPsiFacade.getInstance(project).findClass(fqn, GlobalSearchScope.allScope(project))
       Option(clazz).map { c =>
         val designatorType = ScDesignatorType(c)
-        val undefines = c.getTypeParameters.toSeq.map(ptp =>
-          ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
-        )
-        ScParameterizedType(designatorType, undefines)
+        c.getTypeParameters.toSeq match {
+          case Seq() => designatorType
+          case params =>
+            val undefines = params.map(p => ScUndefinedType(new ScTypeParameterType(p, ScSubstitutor.empty)))
+            ScParameterizedType(designatorType, undefines)
+        }
       }
     }
 
-    val scType = parameterizedTypeFromClassName(className, expr.getProject)
-    val exprType = expr.getType().getOrAny
-    if (exprType == StdType.NULL || exprType == StdType.NOTHING) false
-    else scType.exists(exprType.conforms(_))
+    if (scType == StdType.NULL || scType == StdType.NOTHING) false
+    else typeFromClassName(className, project).exists(scType.conforms(_))
   }
 }
