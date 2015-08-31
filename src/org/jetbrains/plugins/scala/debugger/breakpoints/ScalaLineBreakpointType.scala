@@ -25,9 +25,11 @@ import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions.{Both, ElementType}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
 import scala.collection.JavaConverters._
@@ -53,7 +55,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
         case ElementType(ScalaTokenTypes.kPACKAGE | ScalaTokenTypes.kIMPORT) => false
         case ws: PsiWhiteSpace => true
         case _ if PsiTreeUtil.getParentOfType(e, classOf[PsiComment]) != null => true
-        case _ if PsiTreeUtil.getParentOfType(e, classOf[ScExpression]) != null =>
+        case _ if PsiTreeUtil.getParentOfType(e, classOf[ScExpression], classOf[ScConstructorPattern], classOf[ScInfixPattern], classOf[ScClass]) != null =>
           result = true
           false
         case _ => true
@@ -79,15 +81,14 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
     if (lambdas.isEmpty) return emptyList
 
     val elementAtLine = SourcePosition.createFromLine(file, line).getElementAt
-    val startMethod = DebuggerUtil.getContainingMethod(elementAtLine) match {
-      case Some(e) => e
-      case None => return emptyList
-    }
 
     var res: List[JavaLineBreakpointType#JavaBreakpointVariant] = List()
 
-    if (!lambdas.contains(startMethod))
-      res = res :+ new ExactScalaBreakpointVariant(position, startMethod, -1)
+    DebuggerUtil.getContainingMethod(elementAtLine) match {
+      case Some(startMethod) if !lambdas.contains(startMethod) =>
+        res = res :+ new ExactScalaBreakpointVariant(position, startMethod, -1)
+      case _ =>
+    }
 
     var ordinal: Int = 0
     for ((lambda, ord) <- lambdas.zipWithIndex) {
@@ -173,12 +174,16 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
     override def getText: String = {
       if (isLambda) super.getText
       else {
-        val ending = element match {
-          case Both(f: ScFunction, named: ScNamedElement) => s"function ${named.name}"
-          case f: ScalaFile => "containing file"
-          case _ => "containing block"
+        element match {
+          case c: ScClass => s"constructor of ${c.name}"
+          case ed: ScEarlyDefinitions =>
+            val clazz = PsiTreeUtil.getParentOfType(ed, classOf[ScTypeDefinition])
+            if (clazz != null) s"early definitions of ${clazz.name}"
+            else "line in containing block"
+          case Both(f: ScFunction, named: ScNamedElement) => s"line in function ${named.name}"
+          case f: ScalaFile => "line in containing file"
+          case _ => "line in containing block"
         }
-        s"line in $ending"
       }
     }
 

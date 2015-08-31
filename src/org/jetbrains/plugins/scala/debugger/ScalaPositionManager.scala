@@ -265,8 +265,15 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
       inReadAction {
         findPsiClassByReferenceType(declType) match {
           case Some(c) =>
-            val doc = PsiDocumentManager.getInstance(getDebugProcess.getProject).getDocument(c.getContainingFile)
-            Some(doc.getLineNumber(c.getTextOffset))
+            val containingFile = c.getContainingFile
+            val linePosition = SourcePosition.createFromLine(containingFile, location.lineNumber() - 1)
+            val elem = nonWhitespaceElement(linePosition)
+            val parent = PsiTreeUtil.getParentOfType(elem, classOf[ScBlockStatement], classOf[ScEarlyDefinitions])
+            if (parent != null && PsiTreeUtil.isAncestor(c, parent, false)) None
+            else {
+              val doc = PsiDocumentManager.getInstance(getDebugProcess.getProject).getDocument(containingFile)
+              Some(doc.getLineNumber(c.getTextOffset))
+            }
           case None => None
         }
       }

@@ -526,7 +526,9 @@ object DebuggerUtil {
       case c if ScalaPositionManager.isLambda(c) => c
       case m: PsiMethod => m
       case tb: ScTemplateBody => tb
+      case ed: ScEarlyDefinitions => ed
       case ChildOf(f: ScalaFile) if f.isScriptFile() => f
+      case c: ScClass => c
     }
   }
 
