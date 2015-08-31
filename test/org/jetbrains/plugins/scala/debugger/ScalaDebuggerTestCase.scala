@@ -63,6 +63,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
       }
     })
     callback
+    clearBreakpoints()
     getDebugProcess.stop(true)
     processHandler.destroyProcess()
   }
@@ -106,9 +107,9 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     DebuggerManagerEx.getInstanceEx(getProject).getContext.getDebuggerSession
   }
 
-  private def resume() {
-    getDebugProcess.getManagerThread.invoke(getDebugProcess.
-        createResumeCommand(getDebugProcess.getSuspendManager.getPausedContext))
+  protected def resume() {
+    val resumeCommand = getDebugProcess.createResumeCommand(suspendContext)
+    getDebugProcess.getManagerThread.invokeAndWait(resumeCommand)
   }
 
   protected def addBreakpoint(fileName: String, line: Int, lambdaOrdinal: Integer = -1) {
@@ -125,25 +126,48 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
             val xBreakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
             val properties = new JavaLineBreakpointProperties
             properties.setLambdaOrdinal(ordinal)
-            val breakpointType = XBreakpointType.EXTENSION_POINT_NAME.findExtension(classOf[ScalaLineBreakpointType])
             inWriteAction {
-              xBreakpointManager.addLineBreakpoint(breakpointType, file.getUrl, line, properties)
+              xBreakpointManager.addLineBreakpoint(scalaLineBreakpointType, file.getUrl, line, properties)
             }
           }
         })
     }
+    breakpoints.clear()
   }
 
+  private def clearBreakpoints(): Unit = {
+    UsefulTestCase.edt(new Runnable {
+      def run() {
+        val xBreakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
+        inWriteAction {
+          xBreakpointManager.getAllBreakpoints.foreach(xBreakpointManager.removeBreakpoint)
+        }
+      }
+    })
+  }
+
+  protected def scalaLineBreakpointType = XBreakpointType.EXTENSION_POINT_NAME.findExtension(classOf[ScalaLineBreakpointType])
+
   protected def waitForBreakpoint(): SuspendContextImpl =  {
+    val (suspendContext, processTerminated) = waitForBreakpointInner()
+
+    assert(suspendContext != null, "too long process, terminated=" + processTerminated)
+    suspendContext
+  }
+
+  protected def processTerminatedNoBreakpoints(): Boolean = {
+    val (_, processTerminated) = waitForBreakpointInner()
+    processTerminated
+  }
+
+  private def waitForBreakpointInner(): (SuspendContextImpl, Boolean) = {
     var i = 0
     def processTerminated: Boolean = getDebugProcess.getExecutionResult.getProcessHandler.isProcessTerminated
     while (i < 1000 && suspendContext == null && !processTerminated) {
       Thread.sleep(10)
       i += 1
     }
-
-    assert(suspendContext != null, "too long process, terminated=" + processTerminated)
-    suspendContext
+    (suspendContext, processTerminated)
   }
 
   protected def managed[T >: Null](callback: => T): T = {
@@ -227,3 +251,5 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     }
   }
 }
+
+case class Loc(className: String, methodName: String, line: Int)
