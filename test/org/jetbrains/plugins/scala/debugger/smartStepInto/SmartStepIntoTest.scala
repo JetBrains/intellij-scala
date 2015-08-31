@@ -40,10 +40,12 @@ class SmartStepIntoTest extends SmartStepIntoTestBase {
       checkSmartStepTargets("new A(int)", "id1()", "id2()", "asString()")
       checkSmartStepInto("new A(int)", "A.scala", "<init>", 1)
     }
+    addBreakpoint("Sample.scala", 2)
     runDebugger("Sample") {
       waitForBreakpoint()
       checkSmartStepInto("id1()", "A.scala", "id1", 6)
     }
+    addBreakpoint("Sample.scala", 2)
     runDebugger("Sample") {
       waitForBreakpoint()
       checkSmartStepInto("id2()", "A.scala", "id2", 11)
@@ -76,6 +78,7 @@ class SmartStepIntoTest extends SmartStepIntoTestBase {
       checkSmartStepTargets("new A(int)", "id1()", "asString()")
       checkSmartStepInto("new A(int)", "Sample.scala", "<init>", 6)
     }
+    addBreakpoint("Sample.scala", 2)
     runDebugger("Sample") {
       waitForBreakpoint()
       checkSmartStepInto("id1()", "Sample.scala", "id1", 9)
@@ -111,6 +114,7 @@ class SmartStepIntoTest extends SmartStepIntoTestBase {
       checkSmartStepTargets("foo(A, A)", "new A(int)", "id()")
       checkSmartStepInto("new A(int)", "Sample.scala", "<init>", 11)
     }
+    addBreakpoint("Sample.scala", 6)
     runDebugger("Sample") {
       waitForBreakpoint()
       checkSmartStepInto("id()", "Sample.scala", "id", 14)
@@ -145,6 +149,7 @@ class SmartStepIntoTest extends SmartStepIntoTestBase {
       checkSmartStepTargets("add(A)", "A.apply(int)")
       checkSmartStepInto("add(A)", "Sample.scala", "add", 12)
     }
+    addBreakpoint("Sample.scala", 4)
     runDebugger("Sample") {
       waitForBreakpoint()
       checkSmartStepInto("A.apply(int)", "Sample.scala", "apply", 17)
@@ -212,6 +217,7 @@ class SmartStepIntoTest extends SmartStepIntoTestBase {
       checkSmartStepTargets("execute(Processor)", "new Processor()", "new Processor.execute()")
       checkSmartStepInto("new Processor()", "Sample.scala", "<init>", 6)
     }
+    addBreakpoint("Sample.scala", 5)
     runDebugger("Sample") {
       waitForBreakpoint()
       checkSmartStepInto("new Processor.execute()", "Sample.scala", "execute", 10)
@@ -246,6 +252,7 @@ class SmartStepIntoTest extends SmartStepIntoTestBase {
       checkSmartStepTargets("execute(Processor)", "new Processor()", "new Processor.execute()")
       checkSmartStepInto("new Processor()", "Sample.scala", "<init>", 6)
     }
+    addBreakpoint("Sample.scala", 5)
     runDebugger("Sample") {
       waitForBreakpoint()
       checkSmartStepInto("new Processor.execute()", "Sample.scala", "execute", 10)
@@ -280,6 +287,7 @@ class SmartStepIntoTest extends SmartStepIntoTestBase {
       checkSmartStepTargets("inTryBlock(String)", "u: => String")
       checkSmartStepInto("inTryBlock(String)", "Sample.scala", "inTryBlock", 5)
     }
+    addBreakpoint("Sample.scala", 12)
     runDebugger("Sample") {
       waitForBreakpoint()
       checkSmartStepInto("u: => String", "Sample.scala", "apply", 14)
@@ -411,10 +419,12 @@ class SmartStepIntoTest extends SmartStepIntoTestBase {
       checkSmartStepTargets("update(Function1<Object, Object>)", "incr(int, int)", "update(Function1<Object, Object>)", "id(T)", "update(Function1<Object, Object>)", "decr(int)")
       checkSmartStepInto("id(T)", "Sample.scala", "id", 9)
     }
+    addBreakpoint("Sample.scala", 3)
     runDebugger("Sample") {
       waitForBreakpoint()
       checkSmartStepInto("decr(int)", "Sample.scala", "decr", 16)
     }
+    addBreakpoint("Sample.scala", 3)
     runDebugger("Sample") {
       waitForBreakpoint()
       checkSmartStepInto("incr(int, int)", "Sample.scala", "incr", 7)
