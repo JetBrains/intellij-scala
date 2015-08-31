@@ -431,7 +431,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
       val endOffset = document.getLineEndOffset(lastRefTypeLine)
       val startElem = file.findElementAt(firstOffset)
       val commonParent = startElem.parentsInFile.find(_.getTextRange.getEndOffset > endOffset)
-      commonParent.map(findGeneratingClassParent)
+      commonParent.flatMap(cp => Option(findGeneratingClassParent(cp)))
     }
     val container = containerTry.toOption.flatten.getOrElse(file)
 
