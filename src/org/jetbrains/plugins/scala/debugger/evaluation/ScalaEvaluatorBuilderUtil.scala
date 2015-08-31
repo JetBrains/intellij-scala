@@ -1174,11 +1174,11 @@ object ScalaEvaluatorBuilderUtil {
   def isGenerateClass(elem: PsiElement): Boolean = {
     def isGenerateClassInner: Boolean = {
       elem match {
+        case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
         case newTd: ScNewTemplateDefinition if !DebuggerUtil.generatesAnonClass(newTd) => false
         case clazz: PsiClass => true
         case f: ScFunctionExpr => true
         case (_: ScExpression) childOf (_: ScForStatement) => true
-        case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
         case b: ScBlockExpr if b.isAnonymousFunction => true
         case (g: ScGuard) childOf (_: ScEnumerators) => true
         case (g: ScGenerator) childOf (enums: ScEnumerators) if !enums.generators.headOption.contains(g) => true

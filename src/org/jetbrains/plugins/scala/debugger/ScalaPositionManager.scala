@@ -36,7 +36,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
@@ -564,6 +563,7 @@ object ScalaPositionManager {
   }
 
   def isLambda(element: PsiElement) = element match {
+    case newTd: ScNewTemplateDefinition if ScUnderScoreSectionUtil.underscores(newTd).nonEmpty => true
     case _: ScTemplateDefinition => false
     case e if ScalaEvaluatorBuilderUtil.isGenerateClass(e) => true
     case _ => false
@@ -640,6 +640,7 @@ object ScalaPositionManager {
 
     private def partsFor(elem: PsiElement): Seq[String] = {
       elem match {
+        case newTd: ScNewTemplateDefinition if ScUnderScoreSectionUtil.underscores(newTd).nonEmpty => partsForAnonfun(newTd)
         case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) => Seq("$anon")
         case newTd: ScNewTemplateDefinition => Seq.empty
         case td: ScTypeDefinition => Seq(ScalaNamesUtil.toJavaName(td.name))
@@ -652,7 +653,7 @@ object ScalaPositionManager {
       val anonfunCount = ScalaEvaluatorBuilderUtil.anonClassCount(elem)
       val lastParts = Seq.fill(anonfunCount - 1)(Seq("$apply", "$anonfun")).flatten
       val containingClass = findGeneratingClassParent(elem.getParent)
-      val owner = PsiTreeUtil.getParentOfType(elem, classOf[ScFunctionDefinition], classOf[ScTemplateBody], classOf[ScEarlyDefinitions],
+      val owner = PsiTreeUtil.getParentOfType(elem, classOf[ScFunctionDefinition], classOf[ScTypeDefinition],
         classOf[ScPatternDefinition], classOf[ScVariableDefinition])
       val firstParts =
         if (PsiTreeUtil.isAncestor(owner, containingClass, true)) Seq("$anonfun")
