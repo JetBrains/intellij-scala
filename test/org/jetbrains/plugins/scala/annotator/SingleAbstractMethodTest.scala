@@ -512,7 +512,7 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
         |  def foo(): Int
         |}
         |
-        |abstract class Bar extennds Foo
+        |abstract class Bar extends Foo
         |
       """.stripMargin
 
