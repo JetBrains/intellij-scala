@@ -31,7 +31,7 @@ abstract class AbstractTestFramework extends JavaTestFramework {
 
   def getSetUpMethodFileTemplateDescriptor: FileTemplateDescriptor = null
 
-  override def getLibraryPath: String = ""
+  override def getLibraryPath: String = null
 
   def getIcon: Icon = Icons.SCALA_TEST
 
