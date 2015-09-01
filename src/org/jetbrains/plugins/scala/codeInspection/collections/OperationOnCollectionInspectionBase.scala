@@ -4,6 +4,7 @@ package codeInspection.collections
 import java.awt.{Component, GridLayout}
 import java.util
 import javax.swing._
+import javax.swing.border
 import javax.swing.event.{ChangeEvent, ChangeListener}
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
