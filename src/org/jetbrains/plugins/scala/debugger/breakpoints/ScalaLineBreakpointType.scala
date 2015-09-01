@@ -68,6 +68,10 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
   @NotNull
   override def computeVariants(@NotNull project: Project, @NotNull position: XSourcePosition): JList[JavaLineBreakpointType#JavaBreakpointVariant] = {
     val emptyList = Collections.emptyList[JavaLineBreakpointType#JavaBreakpointVariant]
+
+    val dumbService = DumbService.getInstance(project)
+    if (dumbService.isDumb) return emptyList
+
     val file = PsiManager.getInstance(project).findFile(position.getFile) match {
       case null => return emptyList
       case sf: ScalaFile => sf
