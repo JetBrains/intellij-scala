@@ -1179,7 +1179,7 @@ object ScalaEvaluatorBuilderUtil {
         case clazz: PsiClass => true
         case f: ScFunctionExpr => true
         case (_: ScExpression) childOf (_: ScForStatement) => true
-        case b: ScBlockExpr if b.isAnonymousFunction => true
+        case (cc: ScCaseClauses) childOf (b: ScBlockExpr) if b.isAnonymousFunction => true
         case (g: ScGuard) childOf (_: ScEnumerators) => true
         case (g: ScGenerator) childOf (enums: ScEnumerators) if !enums.generators.headOption.contains(g) => true
         case e: ScEnumerator => true
