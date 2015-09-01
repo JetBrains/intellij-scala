@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.debugger
 
 import com.intellij.debugger.engine.SyntheticTypeComponentProvider
-import com.sun.jdi.{Method, ReferenceType, TypeComponent}
+import com.sun.jdi.{Field, Method, ReferenceType, TypeComponent}
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
 import scala.collection.JavaConverters._
@@ -19,6 +19,7 @@ class ScalaSyntheticProvider extends SyntheticTypeComponentProvider {
       case m: Method if m.isConstructor && isAnonFun(m.declaringType()) => true
       case m: Method if m.name() == "apply" && hasSpecializationMethod(m.declaringType()) => true
       case m: Method if isDefaultArg(m) => true
+      case f: Field if f.name().startsWith("bitmap$") => true
       case _ => false
     }
   }
