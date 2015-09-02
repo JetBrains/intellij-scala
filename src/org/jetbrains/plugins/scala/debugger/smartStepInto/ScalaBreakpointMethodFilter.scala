@@ -5,11 +5,13 @@ import com.intellij.debugger.engine._
 import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.util.Range
 import com.sun.jdi.{Location, Method}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, inReadAction}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -86,17 +88,33 @@ object ScalaBreakpointMethodFilter {
   }
 
   def from(psiMethod: Option[PsiMethod], first: Option[PsiElement], last: Option[PsiElement], exprLines: Range[Integer]): Option[ScalaBreakpointMethodFilter] = {
-    val firstPos = first.map(SourcePosition.createFromElement)
-    val lastPos = last.map(SourcePosition.createFromElement)
+    val firstPos = first.flatMap(createSourcePosition)
+    val lastPos = last.flatMap(createSourcePosition)
     Some(new ScalaBreakpointMethodFilter(psiMethod, firstPos, lastPos, exprLines))
   }
 
+  @Nullable
   private def stmtsForTemplate(tp: ScTemplateDefinition): Seq[ScBlockStatement] = {
     val membersAndExprs = tp.extendsBlock.templateBody.toSeq
             .flatMap(tb => tb.members ++ tb.exprs)
     membersAndExprs.collect {
       case x @ (_: ScPatternDefinition | _: ScVariableDefinition | _: ScExpression) => x.asInstanceOf[ScBlockStatement]
     }.sortBy(_.getTextOffset)
+  }
+  
+  private def createSourcePosition(elem: PsiElement): Option[SourcePosition] = {
+    elem match {
+      case _: ScAnnotationsHolder | _: ScCommentOwner =>
+        val firstSignificant = elem.children.find {
+          case ElementType(t) if ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(t) => false
+          case _: ScAnnotations => false
+          case e if e.getTextLength == 0 => false
+          case _ => true
+        }
+        firstSignificant.map(SourcePosition.createFromElement)
+      case _ => Some(SourcePosition.createFromElement(elem))
+    }
+
   }
 
 }

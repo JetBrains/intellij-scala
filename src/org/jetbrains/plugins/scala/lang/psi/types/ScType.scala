@@ -67,7 +67,7 @@ trait ScType {
         (true, ScTypeVariable(s.name))
       case t => (false, t)
     })
-    if (wildcards.length > 0) {
+    if (wildcards.nonEmpty) {
       ScExistentialType(quantified, wildcards.toList).simplify()
     } else quantified
   }
@@ -210,6 +210,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     "scala.AnyVal" -> AnyVal
   )
 
+  @tailrec
   def extractClass(t: ScType, project: Option[Project] = None): Option[PsiClass] = {
     t match {
       case p@ScParameterizedType(t1, _) => extractClass(t1, project) //performance improvement
@@ -402,6 +403,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
    *
    * nested(foo.methodType(...), 1) => MethodType(retType = Boolean, params = Seq(String))
    */
+  @tailrec
   def nested(tpe: ScType, n: Int): Option[ScType] = {
     if (n == 0) Some(tpe)
     else tpe match {

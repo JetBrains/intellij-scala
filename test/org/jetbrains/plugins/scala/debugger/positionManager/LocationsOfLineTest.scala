@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.positionManager
 
+import org.jetbrains.plugins.scala.debugger.Loc
+
 /**
  * @author Nikolay.Tropin
  */
@@ -63,19 +65,15 @@ class LocationsOfLineTest extends PositionManagerTestBase {
     s"""object Main {
       |  def main(args: Array[String]): Unit = {
       |    val list = List(1, 2)
-      |    ${offsetMarker}Some(1).getOrElse(${offsetMarker}2)
-      |    ${offsetMarker}list.filter(${offsetMarker}_ < 10).map(${offsetMarker}x => "aaa" + x)
-      |    $offsetMarker.foreach(${offsetMarker}println)
+      |    ${offsetMarker}Some(1).getOrElse(2)
+      |    ${offsetMarker}list.filter(_ < 10).map(x => "aaa" + x)
+      |       .foreach(${offsetMarker}println)
       |    ""$bp
       |  }
       |}""",
-      Set(Loc("Main$", "main", 4)),
-      Set(Loc("Main$$anonfun$main$1", "apply", 4), Loc("Main$$anonfun$main$1", "<init>", 4), Loc("Main$$anonfun$main$1", "apply$mcI$sp", 4)),
-      Set(Loc("Main$", "main", 5)),
-      Set(Loc("Main$$anonfun$main$2", "apply", 5), Loc("Main$$anonfun$main$2", "<init>", 5)),
-      Set(Loc("Main$$anonfun$main$3", "apply", 5), Loc("Main$$anonfun$main$3", "<init>", 5)),
-      Set(Loc("Main$", "main", 6)),
-      Set(Loc("Main$$anonfun$main$4", "apply", 6), Loc("Main$$anonfun$main$4", "<init>", 6))
+      Set(Loc("Main$", "main", 4), Loc("Main$$anonfun$main$1", "apply$mcI$sp", 4)),
+      Set(Loc("Main$", "main", 5), Loc("Main$$anonfun$main$2", "apply$mcZI$sp", 5), Loc("Main$$anonfun$main$3", "apply", 5)),
+      Set(Loc("Main$$anonfun$main$4", "apply", 6))
     )
   }
 
@@ -130,7 +128,7 @@ class LocationsOfLineTest extends PositionManagerTestBase {
       Set(Loc("Main$This$1", "foo", 6)),
       Set(Loc("Main$This$1$$anon$1", "<init>", 6)),
       Set(Loc("Main$This$1$$anon$1", "run", 8)),
-      Set(Loc("Main$This$1$$anon$1$$anonfun$1", "<init>", 8)),
+      Set(Loc("Main$This$1$$anon$1", "run", 8)),
       Set(Loc("Main$This$1$$anon$1$$anonfun$1", "apply", 9)),
       Set(Loc("Main$", "main", 18))
     )
