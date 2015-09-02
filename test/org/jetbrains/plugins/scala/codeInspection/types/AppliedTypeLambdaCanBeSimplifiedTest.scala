@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.types
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.{AppliedTypeLambdaCanBeSimplifiedInspection, KindProjectorSimplifyTypeProjectionInspection}
+import org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.AppliedTypeLambdaCanBeSimplifiedInspection
 import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaLightInspectionFixtureTestAdapter}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
@@ -34,15 +34,15 @@ class AppliedTypeLambdaCanBeSimplifiedTest extends ScalaLightInspectionFixtureTe
   }
 
   def testKindProjectorFunctionSyntax(): Unit = {
-    val text = s"def a: ${START}Lambda[A => (A, A)][Int]$END)"
+    val text = s"def a: ${START}Lambda[A => (A, A)][Int]$END"
     check(text)
-    val code = "def a: Lamda[A => (A, A)][Int]"
+    val code = "def a: Lambda[A => (A, A)][Int]"
     val res = "def a: (Int, Int)"
     testFix(code, res)
   }
 
   def testKindProjectorInlineSyntax(): Unit = {
-    val text = s"def a: ${START}Either[+?, -?][String, Int]$END)"
+    val text = s"def a: ${START}Either[+?, -?][String, Int]$END"
     check(text)
     val code = "def a: Either[+?, -?][String, Int]"
     val res = "def a: Either[String, Int]"

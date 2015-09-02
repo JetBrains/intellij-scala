@@ -403,6 +403,10 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL5023() {doTest()}
 
+  def testSCL5029() {doTest()}
+
+  def testSCL5030() {doTest()}
+
   def testSCL5033() {doTest()}
 
   def testSCL5048() {doTest()}
@@ -414,6 +418,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL5060() {doTest()}
 
   def testSCL5081() {doTest()}
+
+  def testSCL5104() {doTest()}
 
   def testSCL5144() {doTest()}
 
