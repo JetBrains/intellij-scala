@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.template.util.VariablesCompletionProcessor
 import org.jetbrains.plugins.scala.debugger.evaluation.{ScalaCodeFragmentFactory, ScalaEvaluatorBuilder, ScalaEvaluatorBuilderUtil}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
+import org.jetbrains.plugins.scala.debugger.ui.ScalaParameterNameAdjuster
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
@@ -57,7 +58,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
       val completionProcessor = new CollectingProcessor(elem)
       PsiTreeUtil.treeWalkUp(completionProcessor, elem, null, ResolveState.initial)
       completionProcessor.candidates
-        .filter(srr => !alreadyCollected.contains(srr.name))
+        .filter(srr => !alreadyCollected.asScala.map(ScalaParameterNameAdjuster.fixName).contains(srr.name))
         .filter(canEvaluate(_, elem))
     }
     val candidates = initialCandidates.filter(canEvaluateLongNoReadAction(_, elem, evaluationContext))
