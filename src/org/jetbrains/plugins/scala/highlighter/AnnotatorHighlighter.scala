@@ -272,12 +272,9 @@ object AnnotatorHighlighter {
             val annotation = holder.createInfoAnnotation(element, null)
             annotation.setTextAttributes(DefaultHighlighter.TRAIT)
           case x: ScBindingPattern =>
-            var parent: PsiElement = x
-            while (parent != null && !(parent.isInstanceOf[ScValue] || parent.isInstanceOf[ScVariable]))
-              parent = getParentByStub(parent)
-            parent match {
+            x.nameContext match {
               case r@(_: ScValue | _: ScVariable) =>
-                getParentByStub(parent) match {
+                getParentByStub(r) match {
                   case _: ScTemplateBody | _: ScEarlyDefinitions =>
                     val annotation = holder.createInfoAnnotation(element, null)
                     r match {
@@ -297,6 +294,12 @@ object AnnotatorHighlighter {
                       case _ =>
                     }
                 }
+              case _: ScCaseClause =>
+                val annotation = holder.createInfoAnnotation(element, null)
+                annotation.setTextAttributes(DefaultHighlighter.PATTERN)
+              case _: ScGenerator | _: ScEnumerator =>
+                val annotation = holder.createInfoAnnotation(element, null)
+                annotation.setTextAttributes(DefaultHighlighter.GENERATOR)
               case _ =>
             }
           case _: ScFunctionDefinition | _: ScFunctionDeclaration =>
