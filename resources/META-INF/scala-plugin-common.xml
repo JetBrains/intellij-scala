@@ -1305,9 +1305,9 @@
                 description="Extract trait from the selected class">
           <add-to-group group-id="IntroduceActionsGroup"/>
         </action>
-        <action id="Scala.DummyAction"
-            class="org.jetbrains.plugins.scala.util.DummyAction"
-            description="Stub for lazy people, who want to test some stuff">
+        <action id="Scala.MacroExpand"
+            class="org.jetbrains.plugins.scala.util.MacroExpandAction"
+            description="Expand macro application under cursor">
             <keyboard-shortcut first-keystroke="ctrl alt shift Z" keymap="$default"/>
         </action>
       </actions>
