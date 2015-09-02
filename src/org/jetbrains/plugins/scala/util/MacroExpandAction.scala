@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.util
 
-import java.io.{EOFException, FileInputStream, ObjectInputStream, File}
+import java.io._
 import java.util.regex.Pattern
 
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
@@ -23,9 +23,7 @@ import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, executeOnPo
 import scala.annotation.tailrec
 
 
-// Stub for lazy people, who want to test some stuff on a key press
-// but too lazy to implement new action/modify existing one.
-class DummyAction extends AnAction {
+class MacroExpandAction extends AnAction {
 
   case class ResolvedMacroExpansion(expansion: MacroExpansion, psiElement: Option[SmartPsiElementPointer[PsiElement]])
   class UnresolvedExpansion extends Exception
@@ -46,7 +44,7 @@ class DummyAction extends AnAction {
     val filtered = expansions.filter { exp =>
       psiFile.getVirtualFile.getPath == exp.place.sourceFile
     }
-    val ensugared = expansions.map(e => MacroExpansion(e.place, ensugarExpansion(e.body)))
+    val ensugared = filtered.map(e => MacroExpansion(e.place, ensugarExpansion(e.body)))
     val resolved = tryResolveExpansionPlaces(ensugared)
 
     // if macro is under cursor, expand it, otherwise expand all macros in current file
@@ -203,7 +201,8 @@ class DummyAction extends AnAction {
       "\\<init\\>"          -> "this",    // replace constructor names
       " *\\<[a-z]+\\> *"    -> "",        // remove compiler attributes
       "super\\.this\\(\\);" -> "this();", // replace super constructor calls
-      "def this\\(\\) = \\{\\s*this\\(\\);\\s*\\(\\)\\s*\\};" -> "" // remove invalid super constructor calls
+      "def this\\(\\) = \\{\\s*this\\(\\);\\s*\\(\\)\\s*\\};" -> "", // remove invalid super constructor calls
+      "_root_."             -> ""         // _root_ package is obsolete
     )
 
     applyRules(rules)
@@ -212,7 +211,7 @@ class DummyAction extends AnAction {
   def deserializeExpansions(implicit event: AnActionEvent): Seq[MacroExpansion] = {
     val file = new File(PathManager.getSystemPath + s"/expansion-${event.getProject.getName}")
     if (!file.exists()) return Seq.empty
-    val fs = new FileInputStream(file)
+    val fs = new BufferedInputStream(new FileInputStream(file))
     val os = new ObjectInputStream(fs)
     val res = scala.collection.mutable.ListBuffer[MacroExpansion]()
     while (fs.available() > 0) {
