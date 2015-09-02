@@ -827,6 +827,10 @@
                          displayName="Convert expression to Single Abstract Method (SAM)" groupPath="Scala" groupName="General"
                          shortName="ConvertExpressionToSAM" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.monads.NestedStatefulMonadsInspection"
+                         displayName="Nested stateful monads" groupPath="Scala" groupName="General"
+                         shortName="NestedStatefulMonads" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
                         displayName="All Errors Tool" groupPath="Scala" groupName="General"
                         shortName="ScalaAllErrors" level="WARNING"
