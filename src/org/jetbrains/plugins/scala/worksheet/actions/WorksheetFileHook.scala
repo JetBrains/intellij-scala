@@ -9,7 +9,7 @@ import javax.swing.{JCheckBox, JPanel}
 
 import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.{ProjectComponent, ServiceManager}
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor._
 import com.intellij.openapi.project.DumbService.DumbModeListener
