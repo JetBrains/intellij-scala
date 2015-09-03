@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12_M2}
 
 
 /**
@@ -8,7 +8,10 @@ import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
  * Date: 17.10.11
  */
 
-class ScalaMethodEvaluationTest extends ScalaDebuggerTestCase {
+class ScalaMethodEvaluationTest extends ScalaMethodEvaluationTestBase with ScalaVersion_2_11
+class ScalaMethodEvaluationTest_2_12_M2 extends ScalaMethodEvaluationTestBase with ScalaVersion_2_12_M2
+
+abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   def testBigIntAndSorted() {
     addFileToProject("Sample.scala",
       """

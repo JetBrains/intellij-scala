@@ -1,11 +1,15 @@
 package org.jetbrains.plugins.scala.debugger.positionManager
 
-import org.jetbrains.plugins.scala.debugger.Loc
+import org.jetbrains.plugins.scala.debugger.{Loc, ScalaVersion_2_11, ScalaVersion_2_12_M2}
 
 /**
  * @author Nikolay.Tropin
  */
-class LocationsOfLineTest extends PositionManagerTestBase {
+
+class LocationOfLineTest extends LocationsOfLineTestBase with ScalaVersion_2_11
+class LocationOfLineTest_2_12_M2 extends LocationsOfLineTestBase with ScalaVersion_2_12_M2
+
+abstract class LocationsOfLineTestBase extends PositionManagerTestBase {
   val noLocations = Set.empty[Loc]
 
   def testSimple(): Unit = {

@@ -29,9 +29,7 @@ import scala.collection.mutable.ListBuffer
  * Nikolay.Tropin
  * 2/26/14
  */
-abstract class ScalaCompilerTestBase extends ModuleTestCase {
-
-  protected var compilerVersion: Option[String] = null
+abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
 
   protected def useExternalCompiler: Boolean = true
 
@@ -63,15 +61,13 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
     }
   }
 
-  protected val compilerDirectorySuffix = ""
-  
   protected def addScalaSdk(loadReflect: Boolean = true) {
     ScalaLoader.loadScala()
     val cl = SyntheticClasses.get(getProject)
     if (!cl.isClassesRegistered) cl.registerClasses()
 
     val root = TestUtils.getTestDataPath.replace("\\", "/") + "/scala-compiler/" +
-            (if (compilerDirectorySuffix != "") compilerDirectorySuffix + "/" else "")
+            (if (scalaVersion != "") scalaVersion + "/" else "")
     
     VfsRootAccess.allowRootAccess(root)
 
@@ -90,7 +86,24 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
     }
   }
 
-  override protected def getTestProjectJdk: Sdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
+  override protected def getTestProjectJdk: Sdk = {
+    val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
+
+    if (scalaVersion.startsWith("2.12")) {
+      val mockJdk8Name = "mock java 1.8"
+
+      def addMockJdk8(): Sdk = {
+        val path = TestUtils.getTestDataPath.replace("\\", "/") + "/mockJDK1.8/jre"
+        val jdk = JavaSdk.getInstance.createJdk(mockJdk8Name, path)
+        inWriteAction(jdkTable.addJdk(jdk))
+        jdk
+      }
+      Option(jdkTable.findJdk(mockJdk8Name)).getOrElse(addMockJdk8())
+    }
+    else {
+      jdkTable.getInternalJdk
+    }
+  }
 
   protected def forceFSRescan() = BuildManager.getInstance.clearState(myProject)
 

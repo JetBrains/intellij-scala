@@ -1,9 +1,15 @@
 package org.jetbrains.plugins.scala.debugger.positionManager
 
+import org.jetbrains.plugins.scala.debugger.{ScalaVersion_2_11, ScalaVersion_2_12_M2}
+
 /**
  * @author Nikolay.Tropin
  */
-class GetAllClassesTest extends PositionManagerTestBase {
+
+class GetAllClassesTest extends GetAllClassesTestBase with ScalaVersion_2_11
+class GetAllClassesTest_2_12_M2 extends GetAllClassesTestBase with ScalaVersion_2_12_M2
+
+abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   def testSimple(): Unit = {
     checkGetAllClasses(
     s"""
