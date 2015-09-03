@@ -562,12 +562,7 @@ object ScalaPositionManager {
     }
   }
 
-  def isLambda(element: PsiElement) = element match {
-    case newTd: ScNewTemplateDefinition if ScUnderScoreSectionUtil.underscores(newTd).nonEmpty => true
-    case _: ScTemplateDefinition => false
-    case e if ScalaEvaluatorBuilderUtil.isGenerateClass(e) => true
-    case _ => false
-  }
+  def isLambda(element: PsiElement) = ScalaEvaluatorBuilderUtil.isGenerateAnonfun(element)
 
   def lambdasOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
     positionsOnLine(file, lineNumber).filter(isLambda)
@@ -640,11 +635,9 @@ object ScalaPositionManager {
 
     private def partsFor(elem: PsiElement): Seq[String] = {
       elem match {
-        case newTd: ScNewTemplateDefinition if ScUnderScoreSectionUtil.underscores(newTd).nonEmpty => partsForAnonfun(newTd)
+        case e if ScalaEvaluatorBuilderUtil.isGenerateAnonfun(e) => partsForAnonfun(e)
         case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) => Seq("$anon")
-        case newTd: ScNewTemplateDefinition => Seq.empty
         case td: ScTypeDefinition => Seq(ScalaNamesUtil.toJavaName(td.name))
-        case _ if ScalaEvaluatorBuilderUtil.isGenerateClass(elem) => partsForAnonfun(elem)
         case _ => Seq.empty
       }
     }
