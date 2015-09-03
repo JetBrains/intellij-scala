@@ -159,14 +159,14 @@ class ExactBreakpointTest extends ExactBreakpointTestBase {
     addFileToProject(
       """object Sample {
         |  def main(args: Array[String]) {
-        |    Seq("a").map(new StringBuilder(10, _)).map(_.toString).map(new AAA(_))
+        |    Seq("a").map(new AAA(_)).filter(_ => false).headOption.getOrElse(new AAA("1"))
         |  }
         |}
         |
         |class AAA(s: String)
       """
     )
-    checkVariants(2, "All", "line in function main", "new StringBuilder(10, _)", "_.toString", "new AAA(_)")
-    checkStopResumeSeveralTimes(Breakpoint(2, null))("Seq(\"a\")...", "new StringBuilder(...", "_.toString", "new AAA(_)")
+    checkVariants(2, "All", "line in function main", "new AAA(_)", "_ => false", "new AAA(\"1\")")
+    checkStopResumeSeveralTimes(Breakpoint(2, null))("Seq(\"a\")...", "new AAA(_)", "_ => false", "new AAA(\"1\")")
   }
 }

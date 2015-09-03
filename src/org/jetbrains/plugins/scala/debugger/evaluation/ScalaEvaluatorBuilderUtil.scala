@@ -1172,28 +1172,46 @@ object ScalaEvaluatorBuilderUtil {
   }
 
   def isGenerateClass(elem: PsiElement): Boolean = {
-    def isGenerateClassInner: Boolean = {
+    def isGenerateNonAnonfunClass: Boolean = {
       elem match {
-        case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
         case newTd: ScNewTemplateDefinition if !DebuggerUtil.generatesAnonClass(newTd) => false
         case clazz: PsiClass => true
+        case _ => false
+      }
+    }
+
+    isGenerateAnonfun(elem) || isGenerateNonAnonfunClass
+  }
+
+  def isGenerateAnonfun(elem: PsiElement): Boolean = {
+    def isGenerateAnonfunWithCache: Boolean = {
+      def computation = elem match {
+        case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
+        case e: ScExpression if ScalaPsiUtil.isByNameArgument(e) => true
+        case ScalaPsiUtil.MethodValue(_) => true
+        case _ => false
+      }
+
+      def cacheProvider = new CachedValueProvider[Boolean] {
+        override def compute(): Result[Boolean] = Result.create(computation, elem)
+      }
+
+      CachedValuesManager.getCachedValue(elem, cacheProvider)
+    }
+
+    def isGenerateAnonfunSimple: Boolean = {
+      elem match {
         case f: ScFunctionExpr => true
         case (_: ScExpression) childOf (_: ScForStatement) => true
         case (cc: ScCaseClauses) childOf (b: ScBlockExpr) if b.isAnonymousFunction => true
         case (g: ScGuard) childOf (_: ScEnumerators) => true
         case (g: ScGenerator) childOf (enums: ScEnumerators) if !enums.generators.headOption.contains(g) => true
         case e: ScEnumerator => true
-        case expr: ScExpression if ScalaPsiUtil.isByNameArgument(expr) => true
-        case ScalaPsiUtil.MethodValue(_) => true
         case _ => false
       }
     }
 
-    val cacheProvider = new CachedValueProvider[Boolean] {
-      override def compute(): Result[Boolean] = Result.create(isGenerateClassInner, elem)
-    }
-
-    CachedValuesManager.getCachedValue(elem, cacheProvider)
+    isGenerateAnonfunSimple || isGenerateAnonfunWithCache
   }
 
   def anonClassCount(elem: PsiElement): Int = { //todo: non irrefutable patterns?
