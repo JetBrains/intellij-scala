@@ -1,13 +1,17 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12_M2}
 
 /**
  * Nikolay.Tropin
  * 8/2/13
  */
-class InAnonFunEvaluationTest extends ScalaDebuggerTestCase{
+
+class InAnonFunEvaluationTest extends InAnonFunEvaluationTestBase with ScalaVersion_2_11
+class InAnonFunEvaluationTest_2_12_M2 extends InAnonFunEvaluationTestBase with ScalaVersion_2_12_M2
+
+abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
 
   def testFunctionValue() {
     addFileToProject("Sample.scala",
