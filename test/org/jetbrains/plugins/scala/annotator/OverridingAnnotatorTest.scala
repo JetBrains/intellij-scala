@@ -173,6 +173,26 @@ class OverridingAnnotatorTest extends SimpleTestCase {
     }
   }
 
+  //SCL-3258
+  def testOverrideVarWithFunctions(): Unit = {
+    val code =
+      """
+        |
+        |abstract class Parent {
+        |  var id: Int
+        |}
+        |
+        |class Child extends Parent {
+        |  def id = 0
+        |  def id_=(v: Int) {
+        |  }
+        |}
+      """.stripMargin
+    assertMatches(messages(code)) {
+      case Nil =>
+    }
+  }
+
   def messages(code: String): List[Message] = {
     val annotator = new OverridingAnnotator() {}
     val mock = new AnnotatorHolderMock
