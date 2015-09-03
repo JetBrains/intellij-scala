@@ -278,6 +278,22 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     assertNoErrors(messagesFromScalaCode(scalaCode, javaCode))
   }
 
+  def testSCL3498ExistentialTypesFromJava(): Unit = {
+    val javaCode =
+      """
+        |public @interface Transactional {
+        |    Class<? extends Throwable>[] noRollbackFor() default {};
+        |}
+      """.stripMargin
+    val scalaCode =
+      """
+        |@Transactional(noRollbackFor = Array(classOf[RuntimeException])) // expected Array[Class[_ <: Throwable] found Array[Class[RuntimeException]]
+        |class A
+      """.stripMargin
+
+    assertNoErrors(messagesFromScalaCode(scalaCode, javaCode))
+  }
+
   def messagesFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     myFixture.addFileToProject("dummy.scala", scalaFileText)
     val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
