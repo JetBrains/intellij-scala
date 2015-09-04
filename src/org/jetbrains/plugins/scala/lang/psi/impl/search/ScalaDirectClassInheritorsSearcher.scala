@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
  */
 
 class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectClassInheritorsSearch.SearchParameters] {
-  def execute(queryParameters: GDirectClassInheritorsSearch.SearchParameters, consumer: Processor[PsiClass]): Boolean = {
+  def execute(queryParameters: DirectClassInheritorsSearch.SearchParameters, consumer: Processor[PsiClass]): Boolean = {
     val clazz = queryParameters.getClassToProcess
     val globalScope = queryParameters.getScope match {case x: GlobalSearchScope => x case _ => return true}
     ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
