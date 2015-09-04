@@ -4,7 +4,7 @@
     <option name="USE_PROJECT_PROFILE" value="true" />
     <version value="1.0" />
     <list size="7">
-      <item index="0" class="java.lang.String" itemvalue="UNUSED ENTRY" />
+      <item index="0" class="java.lang.String" itemvalue="GITIGNORE.UNUSED_ENTRY" />
       <item index="1" class="java.lang.String" itemvalue="TYPO" />
       <item index="2" class="java.lang.String" itemvalue="WEAK WARNING" />
       <item index="3" class="java.lang.String" itemvalue="WARNING" />
