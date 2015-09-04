@@ -351,6 +351,9 @@ object Compatibility {
               matched ::=(param, defaultExpr)
               matchedTypes ::=(param, exprType)
               undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeak = true)
+            } else {
+              // todo: try to do catch situations like [Nothing](s: String) and highlight it
+              return createConformanceExtResult(Seq(new ElementApplicabilityProblem(defaultExprSource.get, exprType, paramType)))
             }
           }
         }
@@ -467,8 +470,6 @@ object Compatibility {
           val part = obligatory.takeRight(shortage).map { p =>
             val t = p.getType(TypingContext.empty).getOrAny
             toParameter(p, t)
-//            new Parameter(p.name, p.deprecatedName, t, t, p.isDefaultParam, p.isRepeatedParameter,
-//              p.isCallByNameParameter, p.index, Some(p))
           }
           return ConformanceExtResult(part.map(new MissedValueParameter(_)))
         }

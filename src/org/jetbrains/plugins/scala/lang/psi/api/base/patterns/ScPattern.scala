@@ -141,7 +141,7 @@ trait ScPattern extends ScalaPsiElement {
     bind match {
       case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.name == "unapply" &&
               fun.parameters.length == 1 =>
-        val subst = if (fun.typeParameters.length == 0) substitutor else {
+        val subst = if (fun.typeParameters.isEmpty) substitutor else {
           var undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
             s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
               substitutor))))
@@ -151,7 +151,7 @@ trait ScPattern extends ScalaPsiElement {
               undefSubst = undefSubst.followed(new ScSubstitutor(ScThisType(clazz)))
             case _ =>
           }
-          val funType = undefSubst.subst(fun.parameters(0).getType(TypingContext.empty) match {
+          val funType = undefSubst.subst(fun.parameters.head.getType(TypingContext.empty) match {
             case Success(tp, _) => tp
             case _ => return None
           })
@@ -180,11 +180,11 @@ trait ScPattern extends ScalaPsiElement {
         None
       case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.name == "unapplySeq" &&
               fun.parameters.length == 1 =>
-        val subst = if (fun.typeParameters.length == 0) substitutor else {
+        val subst = if (fun.typeParameters.isEmpty) substitutor else {
          val undefSubst = substitutor followed fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
            s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
              substitutor))))
-         val funType = undefSubst.subst(fun.parameters(0).getType(TypingContext.empty) match {
+         val funType = undefSubst.subst(fun.parameters.head.getType(TypingContext.empty) match {
            case Success(tp, _) => tp
            case _ => return None
          })
@@ -196,9 +196,9 @@ trait ScPattern extends ScalaPsiElement {
         fun.returnType match {
           case Success(rt, _) =>
             val args = ScPattern.extractorParameters(subst.subst(rt), this, ScPattern.isOneArgCaseClassMethod(fun))
-            if (args.length == 0) return None
+            if (args.isEmpty) return None
             if (i < args.length - 1) return Some(subst.subst(args(i)))
-            val lastArg = args(args.length - 1)
+            val lastArg = args.last
             (Seq(lastArg) ++ BaseTypes.get(lastArg)).find({
               case ScParameterizedType(des, seqArgs) if seqArgs.length == 1 && (ScType.extractClass(des) match {
                 case Some(clazz) if clazz.qualifiedName == "scala.collection.Seq" => true
@@ -209,7 +209,7 @@ trait ScPattern extends ScalaPsiElement {
               case Some(seq@ScParameterizedType(des, seqArgs)) =>
                 this match {
                   case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] => return Some(subst.subst(seq))
-                  case _ => return Some(subst.subst(seqArgs(0)))
+                  case _ => return Some(subst.subst(seqArgs.head))
                 }
               case _ => return None
             }
@@ -361,7 +361,7 @@ object ScPattern {
     val cp = new CompletionProcessor(StdKinds.methodRef, place, forName = Some(name))
     cp.processType(tp, place)
     cp.candidatesS.flatMap {
-      case ScalaResolveResult(fun: ScFunction, subst) if fun.parameters.length == 0 && fun.name == name =>
+      case ScalaResolveResult(fun: ScFunction, subst) if fun.parameters.isEmpty && fun.name == name =>
         Seq(subst.subst(fun.returnType.getOrAny))
       case ScalaResolveResult(b: ScBindingPattern, subst) if b.name == name =>
         Seq(subst.subst(b.getType(TypingContext.empty).getOrAny))
@@ -423,7 +423,7 @@ object ScPattern {
                       filter(identity).fold(Seq(tp))(_ => productChance)
                   }
                 }
-                args(0) match {
+                args.head match {
                   case tp if isOneArgCaseClass => Seq(tp)
                   case ScTupleType(comps) => comps
                   case tp => checkProduct(tp)
