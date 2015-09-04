@@ -294,6 +294,36 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     assertNoErrors(messagesFromScalaCode(scalaCode, javaCode))
   }
 
+  def testResolvePublicJavaFieldSameNameAsMethod(): Unit = {
+    val scalaCode =
+      """
+        |package SCL3679
+        |
+        |object ResolvePublicJavaFieldSameNameAsMethod {
+        |  def main(args: Array[String]) {
+        |    println("foo")
+        |    new ResolvePublicJavaFieldSameNameAsMethodJavaClass().hasIsCompressed
+        |  }
+        |}
+      """.stripMargin
+
+    val javaCode =
+      """
+        |package SCL3679;
+        |
+        |public class ResolvePublicJavaFieldSameNameAsMethodJavaClass {
+        |    public boolean hasIsCompressed;
+        |    public boolean hasIsCompressed() {
+        |        System.out.println("In the method!");
+        |        return hasIsCompressed;
+        |    }
+        |
+        |}
+      """.stripMargin
+
+    assertNoErrors(messagesFromScalaCode(scalaCode, javaCode))
+  }
+
   def messagesFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     myFixture.addFileToProject("dummy.scala", scalaFileText)
     val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
