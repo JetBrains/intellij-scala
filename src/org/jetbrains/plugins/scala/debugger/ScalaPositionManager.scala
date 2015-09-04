@@ -602,7 +602,8 @@ object ScalaPositionManager {
   }
 
   private def shouldSkip(location: Location) = {
-    DebuggerSettings.getInstance().SKIP_SYNTHETIC_METHODS && DebuggerUtils.isSynthetic(location.method())
+    val syntheticProvider = SyntheticTypeComponentProvider.EP_NAME.findExtension(classOf[ScalaSyntheticProvider])
+    DebuggerSettings.getInstance().SKIP_SYNTHETIC_METHODS && syntheticProvider.isSynthetic(location.method())
   }
 
   private class MyClassPrepareRequestor(position: SourcePosition, requestor: ClassPrepareRequestor) extends ClassPrepareRequestor {
