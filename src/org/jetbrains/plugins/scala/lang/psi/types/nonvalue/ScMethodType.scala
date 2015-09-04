@@ -6,6 +6,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiParameter, PsiTypeParameter}
 import org.jetbrains.plugins.scala.extensions.PsiParameterExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -66,10 +67,6 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
 
   def nameInCode = psiParam.map(_.getName)
 
-  def TisDefault = isDefault || defaultType.nonEmpty
-
-//  def getDefault(scParameter: ScParameter): ScType =
-//    scParameter.getDefaultExpressionInSource.get.getTypeAfterImplicitConversion().typeResult.get
 }
 
 
