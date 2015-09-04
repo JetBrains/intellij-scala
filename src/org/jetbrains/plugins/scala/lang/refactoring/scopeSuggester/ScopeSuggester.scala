@@ -121,7 +121,8 @@ object ScopeSuggester {
         } else {
           val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, file)
           allOcurrences += occurrences
-          allValidators += ScalaTypeValidator(conflictsReporter, project, editor, file, typeElement, file, occurrences.isEmpty)
+          val parent = if (file.asInstanceOf[ScalaFile].isScriptFile()) file else PsiTreeUtil.findChildOfType(file, classOf[ScTemplateBody])
+          allValidators += ScalaTypeValidator(conflictsReporter, project, editor, file, typeElement, parent, occurrences.isEmpty)
           true
         }
       }
