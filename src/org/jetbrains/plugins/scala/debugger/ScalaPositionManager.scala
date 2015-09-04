@@ -105,10 +105,15 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     }
 
     val possiblePositions = positionsOnLine(file, position.getLine)
+
     val exactClasses = ArrayBuffer[ReferenceType]()
-    val namePatterns = ArrayBuffer[NamePattern]()
+    val namePatterns = mutable.Set[NamePattern]()
     inReadAction {
-      val sourceImages = possiblePositions.map(findGeneratingClassParent)
+      val onTheLine = possiblePositions.map(findGeneratingClassParent)
+      if (onTheLine.isEmpty) return Collections.emptyList()
+      val nonLambdaParents = onTheLine.head.parentsInFile.filter(p => ScalaEvaluatorBuilderUtil.isGenerateNonAnonfunClass(p))
+
+      val sourceImages = onTheLine ++ nonLambdaParents
       sourceImages.foreach {
         case null =>
         case td: ScTypeDefinition if !DebuggerUtil.isLocalClass(td) =>
@@ -283,39 +288,54 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
   }
 
   private def calcPosition(file: PsiFile, location: Location, lineNumber: Int): Option[SourcePosition] = {
-    val possiblePositions = positionsOnLine(file, lineNumber)
-    if (possiblePositions.size <= 1) return possiblePositions.headOption.map(SourcePosition.createFromElement)
+    def calcElement(): Option[PsiElement] = {
+      val possiblePositions = positionsOnLine(file, lineNumber)
+      if (possiblePositions.size <= 1) return possiblePositions.headOption
 
-    val methodName = location.method().name()
+      val currentMethod = location.method()
+      val methodName = currentMethod.name()
 
-    def findDefaultArg: Option[SourcePosition] = {
-      try {
-        val (start, index) = methodName.splitAt(methodName.lastIndexOf("$") + 1)
-        if (!start.endsWith("$default$")) return None
+      def findDefaultArg: Option[PsiElement] = {
+        try {
+          val (start, index) = methodName.splitAt(methodName.lastIndexOf("$") + 1)
+          if (!start.endsWith("$default$")) return None
 
-        val paramNumber = index.toInt - 1
-        val inDefaultParam = possiblePositions.find {
-          case e =>
-            val scParameters = PsiTreeUtil.getParentOfType(e, classOf[ScParameters])
-            if (scParameters != null) {
-              val param = scParameters.params(paramNumber)
-              param.isDefaultParam && param.isAncestorOf(e)
-            }
-            else false
+          val paramNumber = index.toInt - 1
+          possiblePositions.find {
+            case e =>
+              val scParameters = PsiTreeUtil.getParentOfType(e, classOf[ScParameters])
+              if (scParameters != null) {
+                val param = scParameters.params(paramNumber)
+                param.isDefaultParam && param.isAncestorOf(e)
+              }
+              else false
+          }
+        } catch {
+          case e: Exception => None
         }
-        inDefaultParam.map(SourcePosition.createFromElement)
-      } catch {
-        case e: Exception => None
+      }
+
+      val declaringType = location.declaringType()
+
+      def findPsiElementForIndyLambda(): Option[PsiElement] = {
+        val lambdas = lambdasOnLine(file, lineNumber)
+        val methods = indyLambdaMethodsOnLine(declaringType, lineNumber)
+        val methodsToLambdas = methods.zip(lambdas).toMap
+        methodsToLambdas.get(currentMethod)
+      }
+
+      if (methodName.contains("$default$")) {
+        return findDefaultArg
+      }
+
+      if (isIndyLambda(currentMethod)) findPsiElementForIndyLambda()
+      else {
+        val generatingPsiElem = findPsiClassByReferenceType(declaringType)
+        possiblePositions.find(p => generatingPsiElem.contains(findGeneratingClassParent(p)))
       }
     }
 
-    if (methodName.contains("$default$")) {
-      return findDefaultArg
-    }
-
-    val declaringType = location.declaringType()
-    val generatingPsiElem = findPsiClassByReferenceType(declaringType)
-    possiblePositions.find(p => generatingPsiElem.contains(findGeneratingClassParent(p))).map(SourcePosition.createFromElement)
+    calcElement().map(SourcePosition.createFromElement)
   }
 
   private def findScriptFile(refType: ReferenceType): Option[PsiFile] = {
@@ -566,6 +586,24 @@ object ScalaPositionManager {
 
   def lambdasOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
     positionsOnLine(file, lineNumber).filter(isLambda)
+  }
+
+  def isIndyLambda(m: Method): Boolean = {
+    val name = m.name()
+    val lastDollar = name.lastIndexOf('$')
+    lastDollar > 0 && name.substring(0, lastDollar).endsWith("$anonfun")
+  }
+
+  def indyLambdaMethodsOnLine(refType: ReferenceType, lineNumber: Int): Seq[Method] = {
+    def ordinal(m: Method) = {
+      val name = m.name()
+      val lastDollar = name.lastIndexOf('$')
+      Try(name.substring(lastDollar + 1).toInt).getOrElse(-1)
+    }
+
+    val all = refType.methods().asScala.filter(isIndyLambda)
+    val onLine = all.filter(m => Try(!m.locationsOfLine(lineNumber + 1).isEmpty).getOrElse(false))
+    onLine.sortBy(ordinal)
   }
 
   @tailrec
