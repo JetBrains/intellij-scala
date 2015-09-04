@@ -1171,23 +1171,28 @@ object ScalaEvaluatorBuilderUtil {
     else elem.contexts.find(isGenerateClass).orNull
   }
 
-  def isGenerateClass(elem: PsiElement): Boolean = {
-    def isGenerateNonAnonfunClass: Boolean = {
-      elem match {
-        case newTd: ScNewTemplateDefinition if !DebuggerUtil.generatesAnonClass(newTd) => false
-        case clazz: PsiClass => true
-        case _ => false
-      }
-    }
+  def isGenerateClass(elem: PsiElement): Boolean = isGenerateAnonfun(elem) || isGenerateNonAnonfunClass(elem)
 
-    isGenerateAnonfun(elem) || isGenerateNonAnonfunClass
+  def isGenerateNonAnonfunClass(elem: PsiElement): Boolean = {
+    elem match {
+      case newTd: ScNewTemplateDefinition if !DebuggerUtil.generatesAnonClass(newTd) => false
+      case clazz: PsiClass => true
+      case _ => false
+    }
   }
 
   def isGenerateAnonfun(elem: PsiElement): Boolean = {
     def isGenerateAnonfunWithCache: Boolean = {
+      def argumentWithExpectedFunctionalType(expr: ScExpression) = {
+        ScalaPsiUtil.parameterOf(expr) match {
+          case Some(p) => p.isByName || ScFunctionType.isFunctionType(p.paramType)
+          case _ => false
+        }
+      }
+
       def computation = elem match {
         case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
-        case e: ScExpression if ScalaPsiUtil.isByNameArgument(e) => true
+        case e: ScExpression if argumentWithExpectedFunctionalType(e) => true
         case ScalaPsiUtil.MethodValue(_) => true
         case _ => false
       }
