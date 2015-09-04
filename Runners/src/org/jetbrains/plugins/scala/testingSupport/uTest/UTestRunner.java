@@ -5,7 +5,6 @@ import scala.Option;
 import scala.collection.*;
 import scala.collection.immutable.Nil$;
 import scala.collection.mutable.Buffer;
-import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future$;
 import scala.runtime.BoxedUnit;
 import utest.framework.Result;
@@ -20,8 +19,6 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.Map;
 import java.util.Set;
-
-import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
 
 public class UTestRunner {
 
@@ -103,7 +100,9 @@ public class UTestRunner {
           UTestPath resTestPath = testPath.append(resSeq);
           boolean isLeafTest = leafTests.contains(resTestPath);
 
-          reporter.reportFinished(resTestPath, result, !isLeafTest, childrenCount);
+          if (leafTests.contains(resTestPath)) {
+            reporter.reportFinished(resTestPath, result, !isLeafTest, childrenCount);
+          }
           return BoxedUnit.UNIT;
         }
       }
@@ -112,7 +111,7 @@ public class UTestRunner {
     try {
       runAsyncMethod.invoke(testTree, reportFunction, path, Nil$.MODULE$,
           runAsyncMethod.getName().equals("runAsync") ? Option.empty() : Future$.MODULE$.successful(Option.empty()),
-          ExecutionContext.Implicits$.MODULE$.global());
+          utest.ExecutionContext.RunNow$.MODULE$);
     } catch (IllegalAccessException e) {
       System.out.println(errorMessage + e);
     } catch (InvocationTargetException e) {

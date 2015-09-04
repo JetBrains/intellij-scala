@@ -28,7 +28,6 @@ public class UTestReporter {
   private AtomicInteger idHolder = new AtomicInteger();
   private final Map<UTestPath, Integer> testPathToId = new HashMap<UTestPath, Integer>();
   private final Map<String, Integer> fqnToMethodCount = new HashMap<String, Integer>();
-  private final Map<UTestPath, List<UTestPath>> testToAncestors = new HashMap<UTestPath, List<UTestPath>>();
   private final Map<UTestPath, Integer> testToClosedChildren = new HashMap<UTestPath, Integer>();
 
   protected int getNextId() {
@@ -68,7 +67,7 @@ public class UTestReporter {
       reportStartedInner(testName, id, parentId, getLocationHint(testPath.getQualifiedClassName(), testPath.getMethod(), testName), isScope);
     } else {
       if (!isStarted(parent)) {
-        openAncestors(testPath);
+        reportStarted(parent, true);
       }
       int parentId = testPathToId.get(parent);
       int id = getNextId();
@@ -76,23 +75,6 @@ public class UTestReporter {
       reportStartedInner(testName, id, parentId, getLocationHint(testPath.getQualifiedClassName(), testPath.getMethod(), testName), isScope);
     }
   }
-
-  private void openAncestors(UTestPath start) {
-    List<UTestPath> ancestors = new LinkedList<UTestPath>();
-    UTestPath parent = start.parent();
-    do {
-      ancestors.add(parent);
-      parent = parent.parent();
-    } while (parent != null && !isStarted(parent));
-    Collections.reverse(ancestors);
-    //now, open scopes for all the ancestors
-    for (UTestPath ancestor: ancestors) {
-      reportStarted(ancestor, true);
-    }
-    Collections.reverse(ancestors);
-    testToAncestors.put(start, ancestors);
-  }
-
 
   public void reportFinished(UTestPath testPath, Result result, boolean isScope,
                              Map<UTestPath, Integer> childrenCount) {
@@ -130,13 +112,7 @@ public class UTestReporter {
         reportScopeOrTestFinished(testPath, isScope, result);
       }
     }
-    //now, close all the dummy scopes that can not be closed by a separate reportFinished call
-    List<UTestPath> ancestors = testToAncestors.get(testPath);
-    if (ancestors != null) {
-      for (UTestPath ancestor: ancestors) {
-          reportFinished(ancestor, null, true, childrenCount);
-      }
-    } else {
+    if (parent != null) {
       reportFinished(parent, null, true, childrenCount);
     }
   }
