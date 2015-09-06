@@ -6,7 +6,7 @@ package impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.reference.SoftReference
+import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
@@ -23,11 +23,11 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
   private var name: StringRef = _
   private var declaration: Boolean = false
   private var typeElementText: StringRef = _
-  private var myTypeElement: SoftReference[ScTypeElement] = new SoftReference(null)
+  private var myTypeElement: SofterReference[ScTypeElement] = null
   private var lowerTypeElementText: StringRef = _
-  private var myLowerTypeElement: SoftReference[ScTypeElement] = new SoftReference(null)
+  private var myLowerTypeElement: SofterReference[ScTypeElement] = null
   private var upperTypeElementText: StringRef = _
-  private var myUpperTypeElement: SoftReference[ScTypeElement] = new SoftReference(null)
+  private var myUpperTypeElement: SofterReference[ScTypeElement] = null
   private var local: Boolean = false
   private var _stableQualifier: Boolean = false
 
@@ -52,33 +52,39 @@ extends StubBaseWrapper[ScTypeAlias](parent, elemType) with ScTypeAliasStub {
   def isDeclaration = declaration
 
   def getTypeElement: ScTypeElement = {
-    val typeElement = myTypeElement.get
-    if (typeElement != null && (typeElement.getContext eq getPsi)) return typeElement
+    if (myTypeElement != null) {
+      val typeElement = myTypeElement.get
+      if (typeElement != null && (typeElement.getContext eq getPsi)) return typeElement
+    }
     if (getTypeElementText == "") return null
     val res: ScTypeElement = ScalaPsiElementFactory.createTypeElementFromText(getTypeElementText, getPsi, null)
-    myTypeElement = new SoftReference[ScTypeElement](res)
+    myTypeElement = new SofterReference[ScTypeElement](res)
     res
   }
 
   def getTypeElementText: String = typeElementText.toString
 
   def getUpperBoundTypeElement: ScTypeElement = {
-    val upperTypeElement = myUpperTypeElement.get
-    if (upperTypeElement != null && (upperTypeElement.getContext eq getPsi)) return upperTypeElement
+    if (myUpperTypeElement != null) {
+      val upperTypeElement = myUpperTypeElement.get
+      if (upperTypeElement != null && (upperTypeElement.getContext eq getPsi)) return upperTypeElement
+    }
     if (getUpperBoundElementText == "") return null
     val res: ScTypeElement = ScalaPsiElementFactory.createTypeElementFromText(getUpperBoundElementText, getPsi, null)
-    myUpperTypeElement = new SoftReference[ScTypeElement](res)
+    myUpperTypeElement = new SofterReference[ScTypeElement](res)
     res
   }
 
   def getUpperBoundElementText: String = upperTypeElementText.toString
 
   def getLowerBoundTypeElement: ScTypeElement = {
-    val lowerTypeElement = myLowerTypeElement.get
-    if (lowerTypeElement != null && (lowerTypeElement.getContext eq getPsi)) return lowerTypeElement
+    if (myLowerTypeElement != null) {
+      val lowerTypeElement = myLowerTypeElement.get
+      if (lowerTypeElement != null && (lowerTypeElement.getContext eq getPsi)) return lowerTypeElement
+    }
     if (getLowerBoundElementText == "") return null
     val res: ScTypeElement = ScalaPsiElementFactory.createTypeElementFromText(getLowerBoundElementText, getPsi, null)
-    myLowerTypeElement = new SoftReference[ScTypeElement](res)
+    myLowerTypeElement = new SofterReference[ScTypeElement](res)
     res
   }
 
