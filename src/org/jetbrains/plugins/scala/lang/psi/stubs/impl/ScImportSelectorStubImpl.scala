@@ -7,7 +7,7 @@ package impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.reference.SoftReference
+import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
@@ -23,7 +23,7 @@ class ScImportSelectorStubImpl[ParentPsi <: PsiElement](parent: StubElement[Pare
   extends StubBaseWrapper[ScImportSelector](parent, elemType) with ScImportSelectorStub {
   var referenceText: StringRef = _
   var name: StringRef = _
-  private var myReference: SoftReference[ScStableCodeReferenceElement] = new SoftReference[ScStableCodeReferenceElement](null)
+  private var myReference: SofterReference[ScStableCodeReferenceElement] = null
   var aliasImport: Boolean = false
 
   def this(parent : StubElement[ParentPsi],
@@ -38,12 +38,14 @@ class ScImportSelectorStubImpl[ParentPsi <: PsiElement](parent: StubElement[Pare
   def isAliasedImport: Boolean = aliasImport
 
   def reference: ScStableCodeReferenceElement = {
-    val referenceElement = myReference.get
-    if (referenceElement != null && (referenceElement.getContext eq getPsi)) return myReference.get
+    if (myReference != null) {
+      val referenceElement = myReference.get
+      if (referenceElement != null && (referenceElement.getContext eq getPsi)) return myReference.get
+    }
     val res =
       if (referenceText == StringRef.fromString("")) null
       else ScalaPsiElementFactory.createReferenceFromText(StringRef.toString(referenceText), getPsi, null)
-    myReference = new SoftReference[ScStableCodeReferenceElement](res)
+    myReference = new SofterReference[ScStableCodeReferenceElement](res)
     res
   }
 

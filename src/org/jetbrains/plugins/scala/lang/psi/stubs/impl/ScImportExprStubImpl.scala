@@ -7,7 +7,7 @@ package impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.reference.SoftReference
+import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
@@ -24,8 +24,7 @@ class ScImportExprStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPs
 
   var referenceText: StringRef = StringRef.fromString("")
   var singleWildcard: Boolean = _
-  private var myReference: SoftReference[Option[ScStableCodeReferenceElement]] =
-    new SoftReference[Option[ScStableCodeReferenceElement]](null)
+  private var myReference: SofterReference[Option[ScStableCodeReferenceElement]] = null
 
   def this(parent : StubElement[ParentPsi],
           elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement], refText: String,
@@ -36,19 +35,19 @@ class ScImportExprStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPs
   }
 
   def reference: Option[ScStableCodeReferenceElement] = {
-    val referenceElement = myReference.get
-    if (referenceElement != null && (referenceElement.isEmpty || (referenceElement.get.getContext eq getPsi))) {
-      return referenceElement
+    if (myReference != null) {
+      val referenceElement = myReference.get
+      if (referenceElement != null && (referenceElement.isEmpty || (referenceElement.get.getContext eq getPsi))) {
+        return referenceElement
+      }
     }
     val res =
       if (referenceText == StringRef.fromString("")) None
       else {
         val psi = ScalaPsiElementFactory.createReferenceFromText(StringRef.toString(referenceText), getPsi, null)
-        if (psi != null) {
-          Some(psi)
-        } else None
+        Option(psi)
       }
-    myReference = new SoftReference[Option[ScStableCodeReferenceElement]](res)
+    myReference = new SofterReference[Option[ScStableCodeReferenceElement]](res)
     res
   }
 

@@ -7,7 +7,7 @@ package impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.reference.SoftReference
+import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
@@ -23,7 +23,7 @@ class ScAnnotationStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPs
         extends StubBaseWrapper[ScAnnotation](parent, elemType) with ScAnnotationStub {
   var name: StringRef = StringRef.fromString("")
   private var typeText: StringRef = _
-  private var myTypeElement: SoftReference[ScTypeElement] = new SoftReference[ScTypeElement](null)
+  private var myTypeElement: SofterReference[ScTypeElement] = null
 
   def this(parent : StubElement[ParentPsi],
           elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
@@ -36,10 +36,12 @@ class ScAnnotationStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPs
   def getName: String = StringRef.toString(name)
   def getTypeText: String = StringRef.toString(typeText)
   def getTypeElement: ScTypeElement = {
-    val typeElement = myTypeElement.get
-    if (typeElement != null && (typeElement.getContext eq getPsi)) return typeElement
+    if (myTypeElement != null) {
+      val typeElement = myTypeElement.get
+      if (typeElement != null && (typeElement.getContext eq getPsi)) return typeElement
+    }
     val res: ScTypeElement = ScalaPsiElementFactory.createTypeElementFromText(getTypeText, getPsi, null)
-    myTypeElement = new SoftReference[ScTypeElement](res)
+    myTypeElement = new SofterReference[ScTypeElement](res)
     res
   }
 }
