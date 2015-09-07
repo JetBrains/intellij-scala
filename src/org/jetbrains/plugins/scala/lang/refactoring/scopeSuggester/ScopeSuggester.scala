@@ -19,8 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util._
-
+import com.intellij.openapi.util.text.StringUtil
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 
 /**
@@ -102,6 +103,39 @@ object ScopeSuggester {
   private def handlePackage(typeElement: ScTypeElement, packageName: String, conflictsReporter: ConflictsReporter,
                             project: Project, editor: Editor): ScopeItem = {
 
+
+    def getFilesToSearchIn(currentPackage: PsiPackage): Array[PsiFile] = {
+      def oneRound(word: String, bufResult: ArrayBuffer[ArrayBuffer[PsiFile]]) = {
+        val buffer = new ArrayBuffer[PsiFile]()
+
+        val processor = new Processor[PsiFile] {
+          override def process(file: PsiFile): Boolean = {
+            buffer += file
+            true
+          }
+        }
+
+        val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(typeElement.getProject)
+        helper.processAllFilesWithWord(word, PackageScope.packageScope(currentPackage, false), processor, true)
+        bufResult += buffer
+      }
+
+      val typeName = typeElement.calcType.presentableText
+      var words = Array[String]()
+      words = StringUtil.getWordsIn(typeName).toArray(words)
+
+      val resultBuffer = new ArrayBuffer[ArrayBuffer[PsiFile]]()
+      words.foreach(oneRound(_, resultBuffer))
+
+      var intersectionResult = resultBuffer(0)
+      def intersect(inBuffer: ArrayBuffer[PsiFile]) = {
+        intersectionResult = intersectionResult.intersect(inBuffer)
+      }
+
+      resultBuffer.foreach((element: ArrayBuffer[PsiFile]) => intersect(element))
+      intersectionResult.toList.reverse.toArray
+    }
+
     val projectSearchScope = GlobalSearchScope.projectScope(typeElement.getProject)
     val packageReal = ScPackageImpl.findPackage(typeElement.getProject, packageName)
     val packageObject = packageReal.findPackageObject(projectSearchScope)
@@ -114,22 +148,16 @@ object ScopeSuggester {
     val allOcurrences: mutable.MutableList[Array[ScTypeElement]] = mutable.MutableList()
     val allValidators: mutable.MutableList[ScalaTypeValidator] = mutable.MutableList()
 
-    val processor = new Processor[PsiFile] {
-      override def process(file: PsiFile): Boolean = {
-        if (packageObject.isDefined && (packageObject.get.getContainingFile == file)) {
-          true
-        } else {
-          val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, file)
-          allOcurrences += occurrences
-          val parent = if (file.asInstanceOf[ScalaFile].isScriptFile()) file else PsiTreeUtil.findChildOfType(file, classOf[ScTemplateBody])
-          allValidators += ScalaTypeValidator(conflictsReporter, project, editor, file, typeElement, parent, occurrences.isEmpty)
-          true
-        }
+    def handleOneFile(file: PsiFile) {
+      if (packageObject.get.getContainingFile != file) {
+        val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, file)
+        allOcurrences += occurrences
+        val parent = if (file.asInstanceOf[ScalaFile].isScriptFile()) file else PsiTreeUtil.findChildOfType(file, classOf[ScTemplateBody])
+        allValidators += ScalaTypeValidator(conflictsReporter, project, editor, file, typeElement, parent, occurrences.isEmpty)
       }
     }
 
-    val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(typeElement.getProject)
-    helper.processAllFilesWithWord(typeElement.calcType.canonicalText, PackageScope.packageScope(packageReal, false), processor, true)
+    getFilesToSearchIn(packageReal).foreach(handleOneFile)
 
     val occurrences = allOcurrences.foldLeft(Array[ScTypeElement]())((a, b) => a ++ b)
     val validator = ScalaCompositeValidator(allValidators.toList, conflictsReporter, project, typeElement,
