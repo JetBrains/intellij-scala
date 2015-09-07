@@ -231,8 +231,11 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 
   private def getScaladocTask(text: String, offset: Int): (Document, Project, PsiElement, Int) => Unit = {
     import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
-    if (offset < 3 || text.length < offset) {
-      return null
+    if (offset < 3 || text.length < offset) return null
+    
+    text.charAt(offset) match {
+      case ' '|'\n'|'\t'|'\r'|''' =>
+      case _ => return null
     }
 
     if (text.substring(offset - 3, offset) == "'''") {
