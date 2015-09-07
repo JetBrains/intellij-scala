@@ -32,7 +32,7 @@ trait AssignmentAnnotator {
             def checkVariable() {
               left.getType(TypingContext.empty).foreach { lType =>
                 right.foreach { expression =>
-                  expression.getTypeAfterImplicitConversion().tr.foreach { rType =>
+                  expression.getTypeAfterImplicitConversion().typeResult.foreach { rType =>
                     if(!rType.conforms(lType)) {
                       val annotation = holder.createErrorAnnotation(expression,
                         "Type mismatch, expected: %s, actual: %s".format(lType.presentableText, rType.presentableText))

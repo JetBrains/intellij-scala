@@ -1552,7 +1552,7 @@ object ScalaPsiUtil {
       if (element == null) return null
       element.getParent
     }
-    while (el != null && classes.find(_.isInstance(el)) == None) el = el.getParent
+    while (el != null && !classes.exists(_.isInstance(el))) el = el.getParent
     el
   }
 

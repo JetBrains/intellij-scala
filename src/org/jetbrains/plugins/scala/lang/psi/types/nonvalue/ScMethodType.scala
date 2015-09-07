@@ -6,10 +6,11 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiParameter, PsiTypeParameter}
 import org.jetbrains.plugins.scala.extensions.PsiParameterExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Failure, TypingContext}
 
 import scala.collection.immutable.{HashMap, HashSet}
 
@@ -29,20 +30,34 @@ trait NonValueType extends ScType {
  * Some difference
  */
 case class Parameter(name: String, deprecatedName: Option[String], paramType: ScType, expectedType: ScType,
-                     isDefault: Boolean, isRepeated: Boolean,
-                     isByName: Boolean, index: Int = -1, psiParam: Option[PsiParameter] = None) {
-  def this(name: String, deprecatedName: Option[String], paramType: ScType, isDefault: Boolean, isRepeated: Boolean,
-           isByName: Boolean, index: Int) {
-    this(name, deprecatedName, paramType, paramType, isDefault, isRepeated, isByName, index)
+                     isDefault: Boolean, isRepeated: Boolean, isByName: Boolean,
+                     index: Int = -1, psiParam: Option[PsiParameter] = None, var defaultType: Option[ScType]) {
+
+  def this(name: String, deprecatedName: Option[String], paramType: ScType,
+           isDefault: Boolean, isRepeated: Boolean, isByName: Boolean, index: Int) {
+    this(name, deprecatedName, paramType, paramType, isDefault, isRepeated, isByName, index, defaultType = None)
   }
 
   def this(param: ScParameter) {
     this(param.name, param.deprecatedName, param.getType(TypingContext.empty).getOrAny, param.getType(TypingContext.empty).getOrAny,
-      param.isDefaultParam, param.isRepeatedParameter, param.isCallByNameParameter, param.index, Some(param))
+      param.isDefaultParameter, param.isRepeatedParameter, param.isCallByNameParameter, param.index, Some(param),
+      if (param.isDefaultParameter) {
+        param.getDefaultExpressionInSource match {
+          case Some(expr) => {
+            expr.getTypeAfterImplicitConversion().typeResult match {
+              case fail: Failure => None
+              case typeResult: TypeResult[ScType] => Some(typeResult.get)
+              case _ => None
+            }
+          }
+          case None => None
+        }
+      } else None
+    )
   }
 
   def this(param: PsiParameter) {
-    this(param.getName, None, param.paramType, param.paramType, false, param.isVarArgs, false, param.index, Some(param))
+    this(param.getName, None, param.paramType, param.paramType, false, param.isVarArgs, false, param.index, Some(param), None)
   }
 
   def paramInCode: Option[ScParameter] = psiParam match {
@@ -51,7 +66,9 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
   }
 
   def nameInCode = psiParam.map(_.getName)
+
 }
+
 
 /**
  * Class representing type parameters in our type system. Can be constructed from psi.
@@ -124,7 +141,7 @@ object TypeParameter {
   val EMPTY_ARRAY: Array[TypeParameter] = Array.empty
 }
 
-case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
+case class ScMethodType (returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
                        (val project: Project, val scope: GlobalSearchScope) extends NonValueType {
 
   def visitType(visitor: ScalaTypeVisitor) {

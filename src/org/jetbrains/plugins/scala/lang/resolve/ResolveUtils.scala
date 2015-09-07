@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Failure, Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, types}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
@@ -86,6 +86,18 @@ object ResolveUtils {
       }).toSeq)(m.getProject, scope)
 
   def javaMethodType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope, returnType: Option[ScType] = None): ScMethodType = {
+    // todo remove it
+    def getDefault(scParameter: ScParameter) : Option[ScType] =
+      scParameter.getDefaultExpressionInSource match {
+        case Some(expr) => {
+          expr.getTypeAfterImplicitConversion().typeResult match {
+            case fail: Failure => None
+            case typeResult: TypeResult[ScType] => Some(typeResult.get)
+          }
+        }
+        case None => None
+      }
+
     val retType: ScType = (m, returnType) match {
       case (f: FakePsiMethod, None) => s.subst(f.retType)
       case (_, None) => s.subst(ScType.create(m.getReturnType, m.getProject, scope))
@@ -97,7 +109,7 @@ object ResolveUtils {
         case _ =>
           m.getParameterList.getParameters.map { param =>
             val scType = s.subst(param.exactParamType())
-            new Parameter("", None, scType, scType, false, param.isVarArgs, false, param.index, Some(param))
+            new Parameter("", None, scType, scType, false, param.isVarArgs, false, param.index, Some(param), None)
           }
       }, false)(m.getProject, scope)
   }

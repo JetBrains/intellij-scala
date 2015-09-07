@@ -299,7 +299,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
             val scParameters = PsiTreeUtil.getParentOfType(e, classOf[ScParameters])
             if (scParameters != null) {
               val param = scParameters.params(paramNumber)
-              param.isDefaultParam && param.isAncestorOf(e)
+              param.isDefaultParameter && param.isAncestorOf(e)
             }
             else false
         }

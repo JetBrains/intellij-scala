@@ -225,18 +225,20 @@ object InferUtil {
             case ScMethodType(inter, _, innerImpl) if innerImpl && !fromImplicitParameters => inter
             case _ => internal
           }
+          //todo I REPLACE
           val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(m,
-            Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
+            Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false, defaultType = None)),
             Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(innerInternal.inferValueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check, filterTypeParams = filterTypeParams)
           nonValueType = Success(update, Some(expr)) //here should work in different way:
         }
         updateRes(expectedType.get)
       //todo: Something should be unified, that's bad to have fromImplicitParameters parameter.
+      //todo I REPLACE
       case Success(ScTypePolymorphicType(internal, typeParams), _) if expectedType != None && fromImplicitParameters =>
         def updateRes(expected: ScType) {
           nonValueType = Success(ScalaPsiUtil.localTypeInference(internal,
-            Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
+            Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false, defaultType = None)),
               Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check,
             filterTypeParams = filterTypeParams), Some(expr)) //here should work in different way:
@@ -263,7 +265,7 @@ object InferUtil {
 
           expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(dummyExpr, expectedRet))
 
-          new ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
+          new ScMethodType(updatedResultType.typeResult.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
         case Some(tp) if !fromSAM && ScalaPsiUtil.isSAMEnabled(expr) =>
           ScalaPsiUtil.toSAMType(tp, expr.getResolveScope) match {
             case Some(ScFunctionType(retTp, _)) if retTp.equiv(Unit) =>

@@ -566,7 +566,7 @@ object ScalaDocumentationProvider {
       (if (param.isCallByNameParameter) s"$arrow " else "") + typeToString(t)
     }))
     if (param.isRepeatedParameter) buffer.append("*")
-    if (param.isDefaultParam) {
+    if (param.isDefaultParameter) {
       buffer.append(" = ")
       param.getDefaultExpressionInSource   match {
         case Some(expr) =>
