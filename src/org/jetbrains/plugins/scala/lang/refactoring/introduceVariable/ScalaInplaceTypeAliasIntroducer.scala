@@ -7,6 +7,7 @@ import com.intellij.psi.{PsiNamedElement, PsiDocumentManager, PsiElement}
 import com.intellij.refactoring.RefactoringActionHandler
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberInplaceRenamer
 import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem
@@ -21,33 +22,17 @@ import scala.collection.mutable.ArrayBuffer
 
 
 object ScalaInplaceTypeAliasIntroducer {
-  var elements: ArrayBuffer[ScopeItem] = new ArrayBuffer[ScopeItem]()
-
-
-
-  def apply(scNamedElement: ScNamedElement,
+   def apply(scNamedElement: ScNamedElement,
             substituted: PsiElement,
             editor: Editor,
             initialName: String,
             oldName: String,
             scopeItem: ScopeItem): ScalaInplaceTypeAliasIntroducer = {
 
-    elements += scopeItem
-    println("in elements length " + elements.length)
-
+    IntroduceTypeAliasData.addScopeElement(scopeItem)
     new ScalaInplaceTypeAliasIntroducer(scNamedElement, substituted, editor, initialName, oldName, scopeItem)
   }
-
-  var text = ("", 0)
-
-  def setRevertInfo(inText: String, offset: Int): Unit = {
-    if (text._1 == "") {
-      text = (inText, offset)
-    }
-  }
 }
-
-import ScalaInplaceTypeAliasIntroducer._
 
 class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
                                       substituted: PsiElement,
@@ -67,7 +52,7 @@ class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
   }
 
   override def revertState(): Unit = {
-    if (elements.length > 1) {
+    if (IntroduceTypeAliasData.revertToInitial) {
       val runnable = new Runnable() {
         def run() {
           scopeItem.fileEncloser.getNode.removeChild(myElementToRename.getNode)
@@ -80,31 +65,31 @@ class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
 
     CommandProcessor.getInstance.executeCommand(myProject, new Runnable {
       def run() {
-        val revertInfo = if (elements.length > 1) {
-          ScalaRefactoringUtil.RevertInfo(text._1, text._2)
+        val revertInfo = if (IntroduceTypeAliasData.revertToInitial) {
+          ScalaRefactoringUtil.RevertInfo(IntroduceTypeAliasData.initialInfo._1, IntroduceTypeAliasData.initialInfo._2)
         }
         else {
           editor.getUserData(ScalaMemberInplaceRenamer.REVERT_INFO)
         }
-        val document = myEditor.getDocument
+        val document = editor.getDocument
         if (revertInfo != null) {
           extensions.inWriteAction {
             document.replaceString(0, document.getTextLength, revertInfo.fileText)
             PsiDocumentManager.getInstance(myProject).commitDocument(document)
           }
           val offset = revertInfo.caretOffset
-          myEditor.getCaretModel.moveToOffset(offset)
-          myEditor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
-          PsiDocumentManager.getInstance(myEditor.getProject).commitDocument(document)
+          editor.getCaretModel.moveToOffset(offset)
+          editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
+          PsiDocumentManager.getInstance(editor.getProject).commitDocument(document)
           val clazz = myElementToRename.getClass
-          val element = TargetElementUtilBase.findTargetElement(myEditor,
+          val element = TargetElementUtilBase.findTargetElement(editor,
             TargetElementUtilBase.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtilBase.ELEMENT_NAME_ACCEPTED)
           myElementToRename = element match {
             case null => null
             case named: PsiNamedElement
               if named.getClass == clazz => named
             case _ =>
-              RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, myEditor) match {
+              RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, editor) match {
                 case named: PsiNamedElement if named.getClass == clazz => named
                 case _ => null
               }
@@ -115,7 +100,5 @@ class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
         }
       }
     }, getCommandName, null)
-
-    elements.clear()
   }
 }
