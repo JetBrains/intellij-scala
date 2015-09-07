@@ -639,6 +639,10 @@ object ScalaDocumentationProvider {
       val res = new StringBuilder("@")
       val constr: ScConstructor = elem.constructor
       res.append(typeToString(constr.typeElement.getType(TypingContext.empty).getOrAny))
+      
+      val attrs = elem.annotationExpr.getAnnotationParameters
+      if (attrs.nonEmpty) res append attrs.map(_.getText).mkString("(", ", " ,")")
+      
       res.toString()
     }
     for (ann <- elem.annotations) {
