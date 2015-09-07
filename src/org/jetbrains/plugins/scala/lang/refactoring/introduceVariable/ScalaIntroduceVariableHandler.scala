@@ -6,6 +6,7 @@ package introduceVariable
 
 import java.util
 
+import com.intellij.codeInsight.TargetElementUtilBase
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
@@ -33,6 +34,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{ScProjectionType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberInplaceRenamer
 import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.{ScopeItem, ScopeSuggester}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{IntroduceException, showErrorMessage}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil, ScalaVariableValidator}
@@ -165,22 +167,22 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
         val typeElement: ScTypeElement = ScalaRefactoringUtil.getTypeEement(project, editor, file, startOffset, endOffset).
           getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.valid.type"), project, editor, REFACTORING_NAME))
 
-        var possibleScopes: util.ArrayList[ScopeItem] = null
+        if (IntroduceTypeAliasData.possibleScopes == null) {
+          IntroduceTypeAliasData.setPossibleScopes(ScopeSuggester.suggestScopes(this, project, editor, file, typeElement))
+        }
 
-        possibleScopes = ScopeSuggester.suggestScopes(this, project, editor, file, typeElement)
-
-
-        if (possibleScopes.size() == 0) {
+        if (IntroduceTypeAliasData.possibleScopes.isEmpty) {
           showErrorMessage(ScalaBundle.message("cannot.refactor.not.script.file"), project, editor, REFACTORING_NAME)
         }
 
         def runWithDialog() {
-          val dialog = getDialogForTypes(project, editor, typeElement, possibleScopes)
+          val dialog = getDialogForTypes(project, editor, typeElement, IntroduceTypeAliasData.possibleScopes)
           if (!dialog.isOK) {
             occurrenceHighlighters.foreach(_.dispose())
             occurrenceHighlighters = Seq.empty
             return
           }
+
           val typeName: String = dialog.getEnteredName
           val replaceAllOccurrences: Boolean = dialog.isReplaceAllOccurrences
 
@@ -192,6 +194,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
           val parent = dialog.getSelectedScope.fileEncloser
           runRefactoringForTypes(startOffset, endOffset, file, editor, typeElement, typeName, occurrences,
             replaceAllOccurrences, parent)
+          IntroduceTypeAliasData.clearData
         }
 
         // replace all occurrences, don't replace occurences available from companion object or inheritors
@@ -199,12 +202,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
         def runInplace() = {
           def handleScope(scopeItem: ScopeItem, needReplacement: Boolean) {
             val replaceAllOccurrences = true
-            val suggestedNames = NameSuggester.namesByType(typeElement.calcType)(scopeItem.typeValidator)
+            val suggestedNames = scopeItem.availableNames
             import scala.collection.JavaConversions.asJavaCollection
             val suggestedNamesSet = new util.LinkedHashSet[String](suggestedNames.toIterable)
-
-            //temprorary decision
-            //we don't know about occurrences from companionObject or in inheritors now
 
             val allOccurrences = OccurrenceHandler(typeElement, replaceAllOccurrences, false, false, scopeItem)
 
@@ -220,7 +220,6 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
               } else {
                 null
               }
-
 
             CommandProcessor.getInstance.executeCommand(project, new Runnable {
               def run() {
@@ -255,14 +254,16 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
                   editor.getCaretModel.moveToOffset(mtypeElement.getTextOffset)
                   editor.getSelectionModel.removeSelection()
                   if (ScalaRefactoringUtil.isInplaceAvailable(editor)) {
+
                     PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
                     PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
-                    //                      val checkedExpr = if (expr.isValid) expr else null
+
                     val typeAliasIntroducer =
                       ScalaInplaceTypeAliasIntroducer(namedElement, namedElement, editor, namedElement.getName,
                         namedElement.getName, scopeItem)
 
-                    if (!typeAliasIntroducer.performInplaceRefactoring(suggestedNamesSet)) {
+                    val needModalDialog = typeAliasIntroducer.performInplaceRefactoring(suggestedNamesSet)
+                    if (!needModalDialog) {
                       runWithDialog()
                     }
                   }
@@ -271,21 +272,20 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
             }, REFACTORING_NAME, null)
           }
 
-
-
-          val elements = ScalaInplaceTypeAliasIntroducer.elements
-          val scope = if (elements.nonEmpty) {
+          val elements = IntroduceTypeAliasData.scopeElements
+          val currentScope = if (elements.nonEmpty) {
             elements.last
           } else {
             null
           }
 
-          if ((StartMarkAction.canStart(project) != null) && (scope != null)) {
-            handleScope(scope, needReplacement = false)
+          if ((StartMarkAction.canStart(project) != null) && (currentScope != null)) {
+            handleScope(currentScope, needReplacement = false)
           } else {
             var array = Array[ScopeItem]()
-            array = possibleScopes.toArray(array)
-            ScalaInplaceTypeAliasIntroducer.setRevertInfo(editor.getDocument.getText, editor.getCaretModel.getOffset)
+            array = IntroduceTypeAliasData.possibleScopes.toArray(array)
+
+            IntroduceTypeAliasData.setInintialInfo(editor.getDocument.getText, editor.getCaretModel.getOffset)
 
             ScalaRefactoringUtil.afterScopeChoosing(project, editor, file, array, "type alias") {
               scopeItem =>
