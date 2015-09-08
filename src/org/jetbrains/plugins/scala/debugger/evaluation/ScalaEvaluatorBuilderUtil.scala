@@ -1158,7 +1158,7 @@ object ScalaEvaluatorBuilderUtil {
 
   @tailrec
   final def isStable(o: ScObject): Boolean = {
-    val context = getContextClass(o)
+    val context = PsiTreeUtil.getParentOfType(o, classOf[ScTemplateDefinition], classOf[ScExpression])
     if (context == null) return true
     context match {
       case o: ScObject => isStable(o)
