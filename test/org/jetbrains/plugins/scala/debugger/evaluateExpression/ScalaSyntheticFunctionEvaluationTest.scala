@@ -47,8 +47,6 @@ abstract class ScalaSyntheticFunctionEvaluationTestBase extends ScalaDebuggerTes
       evalEquals("5 % 2", "1")
       evalEquals("1 << 2", "4")
       evalEquals("\"1\" + 1", "11")
-      evalEquals("List[Int](1, 2)", "List(1, 2)")
-      evalEquals("List(1, 2)", "List(1, 2)")
     }
   }
 

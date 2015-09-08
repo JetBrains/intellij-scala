@@ -11,7 +11,44 @@ import scala.collection.JavaConverters._
  * @author Nikolay.Tropin
  */
 class SmartStepIntoTest extends SmartStepIntoTestBase with ScalaVersion_2_11
-class SmartStepIntoTest_2_12_M2 extends SmartStepIntoTestBase with ScalaVersion_2_12_M2
+
+class SmartStepIntoTest_2_12_M2 extends SmartStepIntoTestBase with ScalaVersion_2_12_M2 {
+
+  override def testByNameArgument(): Unit = {
+    addFileToProject("Sample.scala",
+      """
+        |object Sample {
+        |
+        |  def inTryBlock(u: => String): Unit = {
+        |    try {
+        |      u
+        |    }
+        |    catch {
+        |      case t: Throwable =>
+        |    }
+        |  }
+        |
+        |  def main(args: Array[String]) {
+        |    inTryBlock { //stop here
+        |      val s = "a"
+        |      s + "aaa"
+        |    }
+        |  }
+        |}""".stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 12)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      checkSmartStepTargets("inTryBlock(String)", "u: => String")
+      checkSmartStepInto("inTryBlock(String)", "Sample.scala", "inTryBlock", 5)
+    }
+    addBreakpoint("Sample.scala", 12)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      checkSmartStepInto("u: => String", "Sample.scala", "Sample$$$anonfun$1", 14)
+    }
+  }
+}
 
 abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
 

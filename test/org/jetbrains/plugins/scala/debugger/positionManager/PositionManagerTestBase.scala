@@ -22,7 +22,6 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
   //fileText should contain object Main with method main
   protected def checkGetAllClasses(fileText: String, expectedClassNames: String*) = {
     val sourcePositions = setupFileAndCreateSourcePositions(fileText.stripMargin.trim.replace("\r",""))
-    Assert.assertEquals("Wrong number of expected class names: ", sourcePositions.size, expectedClassNames.size)
 
     runDebugger("Main") {
       waitForBreakpoint()
