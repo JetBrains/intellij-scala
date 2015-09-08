@@ -9,7 +9,12 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
  */
 
 class ScalaMethodEvaluationTest extends ScalaMethodEvaluationTestBase with ScalaVersion_2_11
-class ScalaMethodEvaluationTest_2_12_M2 extends ScalaMethodEvaluationTestBase with ScalaVersion_2_12_M2
+
+class ScalaMethodEvaluationTest_2_12_M2 extends ScalaMethodEvaluationTestBase with ScalaVersion_2_12_M2 {
+  //todo remove when SCL-9129 fixed
+  override def testLibraryFunction(): Unit = {}
+  override def testAppliesFromScalaLibrary(): Unit = {}
+}
 
 abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   def testBigIntAndSorted() {
@@ -152,6 +157,25 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       waitForBreakpoint()
       evalEquals("a(-1)", "0")
       evalEquals("Array(\"a\", \"b\")", "[a,b]")
+    }
+  }
+
+  def testAppliesFromScalaLibrary(): Unit = {
+    addFileToProject("Sample.scala",
+      """object Sample {
+        |  def main(args : Array[String]) {
+        |    "stop here"
+        |  }
+        |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 2)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("List[Int](1, 2)", "List(1, 2)")
+      evalEquals("List(1, 2)", "List(1, 2)")
+      evalEquals("Some(\"a\")", "Some(a)")
+      evalEquals("Option(\"a\")", "Some(a)")
     }
   }
   

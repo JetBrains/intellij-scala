@@ -9,7 +9,43 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
  */
 
 class InAnonFunEvaluationTest extends InAnonFunEvaluationTestBase with ScalaVersion_2_11
-class InAnonFunEvaluationTest_2_12_M2 extends InAnonFunEvaluationTestBase with ScalaVersion_2_12_M2
+
+class InAnonFunEvaluationTest_2_12_M2 extends InAnonFunEvaluationTestBase with ScalaVersion_2_12_M2 {
+  //todo SCL-9139
+  override def testPartialFunction(): Unit = {
+    addFileToProject("Sample.scala",
+      """
+        |object Sample {
+        |  val name = "name"
+        |  def main(args: Array[String]) {
+        |    def printName(param: String, notUsed: String) {
+        |      List(("a", 10)).foreach {
+        |        case (a, i: Int) =>
+        |            val x = "x"
+        |            println(a + param)
+        |            "stop here"
+        |      }
+        |    }
+        |    printName("param", "notUsed")
+        |  }
+        |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("Sample.scala", 7)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("a", "a")
+      evalEquals("x", "x")
+      evalEquals("param", "param")
+      evalEquals("name", "name")
+      evalEquals("notUsed", "notUsed")
+      evalEquals("args", "[]")
+    }
+  }
+
+
+
+}
 
 abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
 

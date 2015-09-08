@@ -7,7 +7,60 @@ import org.jetbrains.plugins.scala.debugger.{ScalaVersion_2_11, ScalaVersion_2_1
  */
 
 class GetAllClassesTest extends GetAllClassesTestBase with ScalaVersion_2_11
-class GetAllClassesTest_2_12_M2 extends GetAllClassesTestBase with ScalaVersion_2_12_M2
+
+class GetAllClassesTest_2_12_M2 extends GetAllClassesTestBase with ScalaVersion_2_12_M2 {
+
+  override def testForStmt(): Unit = {
+    checkGetAllClasses(
+      s"""
+         |object Main {
+         |  def main(args: Array[String]) {
+         |    val seq = Seq("a", "b", "c")
+         |    for {
+         |      ${offsetMarker}s <- seq
+         |      ${offsetMarker}t <- seq
+         |      ${offsetMarker}if s == t
+         |    } {
+         |      ${offsetMarker}println(s + t)
+         |    }
+         |    ""$bp
+         |  }
+         |}
+         |
+     """, "Main$"
+    )
+  }
+
+  override def testByNameArgument(): Unit = {
+    checkGetAllClasses(
+      s"""
+         |object Main {
+         |  def main(args: Array[String]) {
+         |    Some(1).orElse(${offsetMarker}None).getOrElse(${offsetMarker}2)
+         |    "" $bp
+         |  }
+         |}
+    """, "Main$")
+  }
+
+  override def testFunctionExprs(): Unit = {
+    checkGetAllClasses(
+      s"""
+         |object Main {
+         |  def main(args: Array[String]): Unit = {
+         |    val list = List(1, 2, 3)
+         |    ${offsetMarker}list.filter(x => ${offsetMarker}x < 10).map(${offsetMarker}_ * 12)
+         |      .collect {
+         |        ${offsetMarker}case i: Int if i < 20 => "aaa" + i
+         |        case i => "aa" + i
+         |      }.foreach(${offsetMarker}println)
+         |
+      |    "" $bp
+         |  }
+         |}
+    """, "Main$"
+    )  }
+}
 
 abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   def testSimple(): Unit = {

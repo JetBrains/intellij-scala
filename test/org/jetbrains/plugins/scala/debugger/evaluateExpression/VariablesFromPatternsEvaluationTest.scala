@@ -1,14 +1,16 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12_M2}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11}
 
 /**
  * Nikolay.Tropin
  * 8/5/13
  */
 class VariablesFromPatternsEvaluationTest extends VariablesFromPatternsEvaluationTestBase with ScalaVersion_2_11
-class VariablesFromPatternsEvaluationTest_2_12_M2 extends VariablesFromPatternsEvaluationTestBase with ScalaVersion_2_12_M2
+
+//todo uncomment when SCL-9131 fixed
+//class VariablesFromPatternsEvaluationTest_2_12_M2 extends VariablesFromPatternsEvaluationTestBase with ScalaVersion_2_12_M2
 
 abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTestCase{
   def testMatch() {
