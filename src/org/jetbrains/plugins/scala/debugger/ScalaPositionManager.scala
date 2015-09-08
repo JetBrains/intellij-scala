@@ -55,6 +55,12 @@ import scala.util.Try
 class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager with MultiRequestPositionManager {
   def getDebugProcess = debugProcess
 
+  debugProcess.addDebugProcessListener(new DebugProcessAdapter {
+    override def processDetached(process: DebugProcess, closedByUser: Boolean): Unit = {
+      isCompiledWithIndyLambdasCache.clear()
+    }
+  })
+
   @Nullable
   def getSourcePosition(@Nullable location: Location): SourcePosition = {
     def calcLineIndex(location: Location): Int = {
@@ -530,6 +536,8 @@ object ScalaPositionManager {
   private val LOG: Logger = Logger.getInstance("#com.intellij.debugger.engine.PositionManagerImpl")
   private val SCRIPT_HOLDER_CLASS_NAME: String = "Main$$anon$1"
 
+  private val isCompiledWithIndyLambdasCache = mutable.HashMap[PsiFile, Boolean]()
+
   def positionsOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
     val scFile = file match {
       case sf: ScalaFile => sf
@@ -606,6 +614,8 @@ object ScalaPositionManager {
     onLine.sortBy(ordinal)
   }
 
+  def isCompiledWithIndyLambdas(file: PsiFile) = isCompiledWithIndyLambdasCache.getOrElse(file, false)
+
   @tailrec
   def findGeneratingClassParent(element: PsiElement): PsiElement = {
     element match {
@@ -645,13 +655,18 @@ object ScalaPositionManager {
   }
 
   private class MyClassPrepareRequestor(position: SourcePosition, requestor: ClassPrepareRequestor) extends ClassPrepareRequestor {
-   private val sourceName = position.getFile.getName
+   private val sourceFile = position.getFile
+   private val sourceName = sourceFile.getName
    private def sourceNameOf(refType: ReferenceType): Option[String] = Try(refType.sourceName()).toOption
 
    def processClassPrepare(debuggerProcess: DebugProcess, referenceType: ReferenceType) {
       val positionManager: CompoundPositionManager = debuggerProcess.asInstanceOf[DebugProcessImpl].getPositionManager
 
      if (!sourceNameOf(referenceType).contains(sourceName)) return
+
+     if (referenceType.methods().asScala.exists(isIndyLambda)) {
+       isCompiledWithIndyLambdasCache.update(sourceFile, true)
+     }
 
       if (positionManager.locationsOfLine(referenceType, position).size > 0) {
         requestor.processClassPrepare(debuggerProcess, referenceType)

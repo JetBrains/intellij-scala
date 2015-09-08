@@ -11,6 +11,7 @@ import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -1170,7 +1171,11 @@ object ScalaEvaluatorBuilderUtil {
     else elem.contexts.find(isGenerateClass).orNull
   }
 
-  def isGenerateClass(elem: PsiElement): Boolean = isGenerateAnonfun(elem) || isGenerateNonAnonfunClass(elem)
+  def isGenerateClass(elem: PsiElement): Boolean = {
+    if (ScalaPositionManager.isCompiledWithIndyLambdas(elem.getContainingFile))
+      isGenerateNonAnonfunClass(elem) || isAnonfunInsideSuperCall(elem)
+    else isGenerateNonAnonfunClass(elem) || isGenerateAnonfun(elem)
+  }
 
   def isGenerateNonAnonfunClass(elem: PsiElement): Boolean = {
     elem match {
@@ -1178,6 +1183,20 @@ object ScalaEvaluatorBuilderUtil {
       case clazz: PsiClass => true
       case _ => false
     }
+  }
+
+  def isAnonfunInsideSuperCall(elem: PsiElement) = {
+    def isInsideSuperCall(td: ScTypeDefinition) = {
+      val extBlock = td.extendsBlock
+      PsiTreeUtil.getParentOfType(elem, classOf[ScEarlyDefinitions], classOf[ScConstructor]) match {
+        case ed: ScEarlyDefinitions if ed.getParent == extBlock => true
+        case c: ScConstructor if c.getParent.getParent == extBlock => true
+        case _ => false
+      }
+    }
+
+    val containingClass = PsiTreeUtil.getParentOfType(elem, classOf[ScTypeDefinition])
+    isGenerateAnonfun(elem) && isInsideSuperCall(containingClass)
   }
 
   def isGenerateAnonfun(elem: PsiElement): Boolean = {
