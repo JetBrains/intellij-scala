@@ -216,6 +216,8 @@ trait ApplicationAnnotator {
     ref match {
       case (exp: ScReferenceExpression) childOf (_: ScMethodCall) =>
         annotation.registerFix(new CreateMethodQuickFix(exp))
+        if (ref.refName.headOption.exists(_.isUpper))
+          annotation.registerFix(new CreateCaseClassQuickFix(exp))
       case (exp: ScReferenceExpression) childOf (infix: ScInfixExpr) if infix.operation == exp =>
         annotation.registerFix(new CreateMethodQuickFix(exp))
       case (exp: ScReferenceExpression) childOf ((_: ScGenericCall) childOf (_: ScMethodCall)) =>
@@ -234,6 +236,7 @@ trait ApplicationAnnotator {
       case stRef: ScStableCodeReferenceElement =>
         annotation.registerFix(new CreateTraitQuickFix(stRef))
         annotation.registerFix(new CreateClassQuickFix(stRef))
+        annotation.registerFix(new CreateCaseClassQuickFix(stRef))
       case _ =>
     }
   }
