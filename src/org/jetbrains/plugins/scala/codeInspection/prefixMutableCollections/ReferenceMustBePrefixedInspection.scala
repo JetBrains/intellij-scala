@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.Refer
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
@@ -24,7 +25,7 @@ class ReferenceMustBePrefixedInspection extends AbstractInspection(id, displayNa
       ref.bind() match {
         case Some(r: ScalaResolveResult) if r.nameShadow.isEmpty =>
           r.getActualElement match {
-            case clazz: PsiClass =>
+            case clazz: PsiClass if ScalaPsiUtil.hasStablePath(clazz) =>
               val qualName = clazz.qualifiedName
               if (ScalaCodeStyleSettings.getInstance(holder.getProject).hasImportWithPrefix(qualName)) {
                 holder.registerProblem(ref, getDisplayName, new AddPrefixFix(ref, clazz))
