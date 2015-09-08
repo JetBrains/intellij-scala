@@ -251,7 +251,7 @@
               </component>
             </children>
           </grid>
-          <grid id="ff810" layout-manager="GridLayoutManager" row-count="5" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="ff810" layout-manager="GridLayoutManager" row-count="6" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="9" left="9" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title="Worksheet"/>
@@ -261,7 +261,7 @@
             <children>
               <vspacer id="2a166">
                 <constraints>
-                  <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <grid row="5" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
               <component id="851c9" class="javax.swing.JCheckBox" binding="runWorksheetInTheCheckBox" default-binding="true">
@@ -303,6 +303,14 @@
                 </constraints>
                 <properties>
                   <text value="Use &quot;eclipse compatibility&quot; mode"/>
+                </properties>
+              </component>
+              <component id="5ee6e" class="javax.swing.JCheckBox" binding="treatScalaScratchFilesCheckBox" default-binding="true">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Treat Scala scratch files as worksheet files"/>
                 </properties>
               </component>
             </children>
