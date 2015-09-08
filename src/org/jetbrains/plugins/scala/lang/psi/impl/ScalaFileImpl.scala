@@ -7,6 +7,7 @@ package impl
 import java.util
 
 import com.intellij.extapi.psi.PsiFileBase
+import com.intellij.ide.scratch.{ScratchRootType, ScratchFileService}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.LanguageFileType
@@ -186,7 +187,11 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   }
 
   def isWorksheetFile: Boolean = {
-    this.getVirtualFile != null && this.getVirtualFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION
+    val vFile = getVirtualFile
+    
+    vFile != null && (vFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION ||
+      ScratchFileService.getInstance().getRootType(vFile).isInstanceOf[ScratchRootType] && 
+        ScalaProjectSettings.getInstance(getProject).isTreatScratchFilesAsWorksheet )
   }
 
 

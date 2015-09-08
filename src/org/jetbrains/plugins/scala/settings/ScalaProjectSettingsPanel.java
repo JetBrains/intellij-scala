@@ -57,6 +57,7 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox useEclipseCompatibilityModeCheckBox;
   private JTextField scalaTestDefaultSuperClass;
   private JCheckBox useOldImplicitConversionCheckBox;
+  private JCheckBox treatScalaScratchFilesCheckBox;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private Project myProject;
 
@@ -105,6 +106,7 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setInProcessMode(runWorksheetInTheCheckBox.isSelected());
     scalaProjectSettings.setInteractiveMode(worksheetInteractiveModeCheckBox.isSelected());
     scalaProjectSettings.setUseEclipseCompatibility(useEclipseCompatibilityModeCheckBox.isSelected());
+    scalaProjectSettings.setTreatScratchFilesAsWorksheet(treatScalaScratchFilesCheckBox.isSelected());
 
     scalaProjectSettings.setSearchAllSymbols(searchAllSymbolsIncludeCheckBox.isSelected());
     scalaProjectSettings.setEnableJavaToScalaConversion(enableConversionOnCopyCheckBox.isSelected());
@@ -174,6 +176,8 @@ public class ScalaProjectSettingsPanel {
     if (scalaProjectSettings.isInteractiveMode() != worksheetInteractiveModeCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isUseEclipseCompatibility() != useEclipseCompatibilityModeCheckBox.isSelected())
       return true;
+    if (scalaProjectSettings.isTreatScratchFilesAsWorksheet() != treatScalaScratchFilesCheckBox.isSelected())
+      return true;
 
     if (scalaProjectSettings.isSearchAllSymbols() !=
         searchAllSymbolsIncludeCheckBox.isSelected()) return true;
@@ -233,6 +237,7 @@ public class ScalaProjectSettingsPanel {
     setValue(runWorksheetInTheCheckBox, scalaProjectSettings.isInProcessMode());
     setValue(worksheetInteractiveModeCheckBox, scalaProjectSettings.isInteractiveMode());
     setValue(useEclipseCompatibilityModeCheckBox, scalaProjectSettings.isUseEclipseCompatibility());
+    setValue(treatScalaScratchFilesCheckBox, scalaProjectSettings.isTreatScratchFilesAsWorksheet());
 
     setValue(searchAllSymbolsIncludeCheckBox, scalaProjectSettings.isSearchAllSymbols());
     setValue(enableConversionOnCopyCheckBox, scalaProjectSettings.isEnableJavaToScalaConversion());
@@ -384,10 +389,10 @@ public class ScalaProjectSettingsPanel {
     searchAllSymbolsIncludeCheckBox.setText("Search all symbols (include locals)");
     panel3.add(searchAllSymbolsIncludeCheckBox, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel4 = new JPanel();
-    panel4.setLayout(new GridLayoutManager(5, 2, new Insets(9, 9, 0, 0), -1, -1));
+    panel4.setLayout(new GridLayoutManager(6, 2, new Insets(9, 9, 0, 0), -1, -1));
     tabbedPane1.addTab("Worksheet", panel4);
     final Spacer spacer3 = new Spacer();
-    panel4.add(spacer3, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    panel4.add(spacer3, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     runWorksheetInTheCheckBox = new JCheckBox();
     runWorksheetInTheCheckBox.setSelected(true);
     runWorksheetInTheCheckBox.setText("Run worksheet in the compiler process");
@@ -403,6 +408,9 @@ public class ScalaProjectSettingsPanel {
     useEclipseCompatibilityModeCheckBox = new JCheckBox();
     useEclipseCompatibilityModeCheckBox.setText("Use \"eclipse compatibility\" mode");
     panel4.add(useEclipseCompatibilityModeCheckBox, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    treatScalaScratchFilesCheckBox = new JCheckBox();
+    treatScalaScratchFilesCheckBox.setText("Treat Scala scratch files as worksheet files");
+    panel4.add(treatScalaScratchFilesCheckBox, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel5 = new JPanel();
     panel5.setLayout(new GridLayoutManager(2, 2, new Insets(9, 9, 0, 0), -1, -1));
     tabbedPane1.addTab("Base packages", panel5);
