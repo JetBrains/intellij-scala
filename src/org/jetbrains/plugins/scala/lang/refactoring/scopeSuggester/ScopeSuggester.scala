@@ -183,8 +183,9 @@ class ScopeItem(val name: String,
   var occurrencesFromInheretors: Array[ScTypeElement] = Array[ScTypeElement]()
 
   var typeAlias: ScTypeAlias = null
+  var typeAliasFile: PsiFile = null
   var occurrencesRanges: Array[TextRange] = Array[TextRange]()
-  var typeAliasOffset:TextRange = null
+  var typeAliasOffset: TextRange = null
 
   def computeRanges() = {
     occurrencesRanges = usualOccurrences.map(_.getTextRange)
@@ -209,6 +210,7 @@ class ScopeItem(val name: String,
   def setTypeAlias(inTypeAlias: ScTypeAlias) = {
     if (inTypeAlias != null) {
       typeAlias = inTypeAlias
+      typeAliasFile = typeAlias.getContainingFile
     }
   }
 
