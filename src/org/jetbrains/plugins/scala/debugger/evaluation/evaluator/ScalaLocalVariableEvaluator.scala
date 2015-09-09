@@ -7,7 +7,7 @@ import com.intellij.debugger.jdi.{LocalVariableProxyImpl, StackFrameProxyImpl}
 import com.intellij.debugger.ui.impl.watch.{LocalVariableDescriptorImpl, NodeDescriptorImpl}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import com.sun.jdi.{InternalException, ObjectReference, Type, Value}
+import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
@@ -35,7 +35,11 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
     myMethodName = name
   }
 
-  private def sourceName(frameProxy: StackFrameProxyImpl) = frameProxy.location().sourceName()
+  private def sourceName(frameProxy: StackFrameProxyImpl) =
+    try frameProxy.location().sourceName()
+    catch {
+      case e: AbsentInformationException => ""
+    }
 
   def evaluate(context: EvaluationContextImpl): AnyRef = {
 

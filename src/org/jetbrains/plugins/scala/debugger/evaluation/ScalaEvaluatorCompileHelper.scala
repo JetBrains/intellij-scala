@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit
 
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.impl.{DebuggerManagerAdapter, DebuggerSession}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -31,6 +32,8 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
   private val tempFiles = mutable.Set[File]()
 
   override def projectOpened(): Unit = {
+    if (ApplicationManager.getApplication.isUnitTestMode) return
+
     DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(
       new DebuggerManagerAdapter {
         override def sessionAttached(session: DebuggerSession): Unit = {

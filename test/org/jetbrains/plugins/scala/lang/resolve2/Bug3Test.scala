@@ -35,6 +35,7 @@ class Bug3Test extends ResolveTestBase {
   def testSCL3592A() {doTest()}
   def testSCL3592B() {doTest()}
   def testSCL3592C() {doTest()}
+  def testSCL3707() {doTest()}
   def testSCL3773() {doTest()}
   def testSCL3840() {doTest()}
   def testSCL3846() {doTest()}
@@ -47,6 +48,7 @@ class Bug3Test extends ResolveTestBase {
   def testSCL4023() {doTest()}
   def testSCL4035() {doTest()}
   def testSCL4039() {doTest()}
+  def testSCL4063() {doTest()}
   def testSCL4179A() {doTest()}
   def testSCL4179B() {doTest()}
   def testSCL4200() {doTest()}

@@ -3,6 +3,8 @@ package lang
 package resolve
 
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.roots.{ProjectRootManager, ProjectRootModificationTracker}
+import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
 import org.jetbrains.plugins.scala.caches.CachesUtil
@@ -31,9 +33,27 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   private object ShapesResolver extends StableCodeReferenceElementResolver(this, true, false, false)
   private object ShapesResolverAllConstructors extends StableCodeReferenceElementResolver(this, true, true, false)
 
+  @volatile
+  private var resolveResult: Array[ResolveResult] = Array.empty
+  @volatile
+  private var resolveResultCount: Long = -1L
+
   def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
-    CachesUtil.getMappedWithRecursionPreventingWithRollback[ResolvableStableCodeReferenceElement, Boolean, Array[ResolveResult]](
-      this, incomplete, CachesUtil.RESOLVE_KEY, Resolver.resolve, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
+    ScalaPsiUtil.fileContext(this) match {
+      case s: ScalaFile if s.isCompiled =>
+        val count = ProjectRootManager.getInstance(getProject).getModificationCount
+        if (count == resolveResultCount) resolveResult
+        else {
+          val res = Resolver.resolve(this, incomplete)
+          resolveResult = res
+          resolveResultCount = count
+          res
+        }
+      case _=>
+        CachesUtil.getMappedWithRecursionPreventingWithRollback[ResolvableStableCodeReferenceElement, Boolean, Array[ResolveResult]](
+          this, incomplete, CachesUtil.RESOLVE_KEY, Resolver.resolve, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
+    }
+
   }
 
   protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement) {
@@ -113,7 +133,9 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
         x = true
         //todo: improve checking for this and super
         val refText: String = ref.getText
-        if (!refText.contains("this") && !refText.contains("super") && refText.contains(".")) {
+        if (!refText.contains("this") && !refText.contains("super") && (
+          refText.contains(".") || ref.getContext.isInstanceOf[ScStableCodeReferenceElement]
+          )) {
           //so this is full qualified reference => findClass, or findPackage
           val facade = JavaPsiFacade.getInstance(getProject)
           val manager = ScalaPsiManager.instance(getProject)
@@ -126,6 +148,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
           if (filtered.nonEmpty) return filtered.toArray
         }
+
       case _ =>
     }
 

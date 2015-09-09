@@ -11,6 +11,7 @@ import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -181,7 +182,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def stableObjectEvaluator(qual: String): ScalaFieldEvaluator = {
     val jvm = JVMNameUtil.getJVMRawText(qual)
-    new ScalaFieldEvaluator(new TypeEvaluator(jvm), ref => ref.name() == qual, "MODULE$")
+    new ScalaFieldEvaluator(new TypeEvaluator(jvm), "MODULE$")
   }
 
   def stableObjectEvaluator(obj: ScObject): Evaluator = {
@@ -324,7 +325,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         if (argEvaluators.length == 1) new ScalaArrayAccessEvaluator(qualEval, argEvaluators(0))
         else throw EvaluationException(message)
       case "length" =>
-        if (argEvaluators.isEmpty) new ScalaFieldEvaluator(qualEval, _ => true, "length")
+        if (argEvaluators.isEmpty) new ScalaFieldEvaluator(qualEval, "length")
         else throw EvaluationException(message)
       case "clone" =>
         if (argEvaluators.isEmpty) new ScalaMethodEvaluator(qualEval, "clone", null/*todo*/, Nil)
@@ -487,14 +488,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         if (field.hasModifierPropertyScala("static")) {
           val eval = new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(field)))
           val name = field.name
-          new ScalaFieldEvaluator(eval, ref => true,name)
+          new ScalaFieldEvaluator(eval, name)
         } else {
           val qualEvaluator = ScalaEvaluator(qual)
-          new ScalaFieldEvaluator(qualEvaluator, ScalaFieldEvaluator.getFilter(getContextClass(field)), field.name)
+          new ScalaFieldEvaluator(qualEvaluator, field.name)
         }
       case None =>
         val evaluator = thisOrImportedQualifierEvaluator(ref)
-        new ScalaFieldEvaluator(evaluator, ScalaFieldEvaluator.getFilter(getContextClass(field)), field.name)
+        new ScalaFieldEvaluator(evaluator, field.name)
     }
   }
 
@@ -670,8 +671,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       }
       if (innerClass == null) throw EvaluationException(message)
       val thisEval = new ScalaThisEvaluator(iterationCount)
-      val filter = ScalaFieldEvaluator.getFilter(innerClass)
-      new ScalaFieldEvaluator(thisEval, filter, name)
+      new ScalaFieldEvaluator(thisEval, name)
     }
 
     def calcLocal(named: PsiNamedElement): Evaluator = {
@@ -704,7 +704,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
 
     def calcLocalObject(obj: ScObject) = {
-      def fromVolatileObjectReference(eval: Evaluator) = new ScalaFieldEvaluator(eval, ref => true, "elem")
+      def fromVolatileObjectReference(eval: Evaluator) = new ScalaFieldEvaluator(eval, "elem")
 
       val containingClass = getContextClass(obj)
       val name = NameTransformer.encode(obj.name) + "$module"
@@ -732,13 +732,13 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case cp: ScClassParameter if cp.isCallByNameParameter =>
         val qualEval = qualifierEvaluator(qualifier, ref)
         val name = NameTransformer.encode(cp.name)
-        val fieldEval = new ScalaFieldEvaluator(qualEval, _ => true, name, true)
+        val fieldEval = new ScalaFieldEvaluator(qualEval, name, true)
         new ScalaMethodEvaluator(fieldEval, "apply", null, Nil)
       case privateThisField(named) =>
         val named = resolve.asInstanceOf[ScNamedElement]
         val qualEval = qualifierEvaluator(qualifier, ref)
         val name = NameTransformer.encode(named.name)
-        new ScalaFieldEvaluator(qualEval, _ => true, name, true)
+        new ScalaFieldEvaluator(qualEval, name, true)
       case cp: ScClassParameter if qualifier.isEmpty && ValueClassType.isValueClass(cp.containingClass) =>
         //methods of value classes have hidden argument with underlying value
         new ScalaLocalVariableEvaluator("$this", fileName)
@@ -769,7 +769,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         //unresolved symbol => try to resolve it dynamically
         val name = NameTransformer.encode(ref.refName)
         val fieldOrVarEval = qualifier match {
-          case Some(qual) => new ScalaFieldEvaluator(ScalaEvaluator(qual), ref => true, name)
+          case Some(qual) => new ScalaFieldEvaluator(ScalaEvaluator(qual), name)
           case None => new ScalaLocalVariableEvaluator(name, fileName)
         }
         new ScalaDuplexEvaluator(fieldOrVarEval, unresolvedMethodEvaluator(ref, Seq.empty))
@@ -857,7 +857,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
                 new ScalaMethodEvaluator(extractEval, "get", null, Seq.empty)
               else if (pattern.subpatterns.length > 1) {
                 val getEval = new ScalaMethodEvaluator(extractEval, "get", null, Seq.empty)
-                new ScalaFieldEvaluator(getEval, x => true, s"_${nextPatternIndex + 1}")
+                new ScalaFieldEvaluator(getEval, s"_${nextPatternIndex + 1}")
               }
               else throw EvaluationException(ScalaBundle.message("unapply.without.arguments"))
             } else if (funName == "unapplySeq") {
@@ -888,7 +888,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           evaluateSubpatternFromPattern(exprEval, withoutPars, subPattern)
         case tuple: ScTuplePattern =>
           val nextPattern = tuple.subpatterns(nextPatternIndex)
-          val newEval = new ScalaFieldEvaluator(exprEval, x => true, s"_${nextPatternIndex + 1}")
+          val newEval = new ScalaFieldEvaluator(exprEval, s"_${nextPatternIndex + 1}")
           evaluateSubpatternFromPattern(newEval, nextPattern, subPattern)
         case constr: ScConstructorPattern =>
           val ref: ScStableCodeReferenceElement = constr.ref
@@ -1036,7 +1036,7 @@ object ScalaEvaluatorBuilderUtil {
   }
 
   def unitEvaluator(): Evaluator = {
-    new ScalaFieldEvaluator(BOXED_UNIT, _ => true, "UNIT")
+    new ScalaFieldEvaluator(BOXED_UNIT, "UNIT")
   }
 
   def unaryEvaluator(eval: Evaluator, boxesRunTimeName: String): Evaluator = {
@@ -1158,7 +1158,7 @@ object ScalaEvaluatorBuilderUtil {
 
   @tailrec
   final def isStable(o: ScObject): Boolean = {
-    val context = getContextClass(o)
+    val context = PsiTreeUtil.getParentOfType(o, classOf[ScTemplateDefinition], classOf[ScExpression])
     if (context == null) return true
     context match {
       case o: ScObject => isStable(o)
@@ -1172,28 +1172,69 @@ object ScalaEvaluatorBuilderUtil {
   }
 
   def isGenerateClass(elem: PsiElement): Boolean = {
-    def isGenerateClassInner: Boolean = {
-      elem match {
+    if (ScalaPositionManager.isCompiledWithIndyLambdas(elem.getContainingFile))
+      isGenerateNonAnonfunClass(elem) || isAnonfunInsideSuperCall(elem)
+    else isGenerateNonAnonfunClass(elem) || isGenerateAnonfun(elem)
+  }
+
+  def isGenerateNonAnonfunClass(elem: PsiElement): Boolean = {
+    elem match {
+      case newTd: ScNewTemplateDefinition if !DebuggerUtil.generatesAnonClass(newTd) => false
+      case clazz: PsiClass => true
+      case _ => false
+    }
+  }
+
+  def isAnonfunInsideSuperCall(elem: PsiElement) = {
+    def isInsideSuperCall(td: ScTypeDefinition) = {
+      val extBlock = td.extendsBlock
+      PsiTreeUtil.getParentOfType(elem, classOf[ScEarlyDefinitions], classOf[ScConstructor]) match {
+        case ed: ScEarlyDefinitions if ed.getParent == extBlock => true
+        case c: ScConstructor if c.getParent.getParent == extBlock => true
+        case _ => false
+      }
+    }
+
+    val containingClass = PsiTreeUtil.getParentOfType(elem, classOf[ScTypeDefinition])
+    isGenerateAnonfun(elem) && isInsideSuperCall(containingClass)
+  }
+
+  def isGenerateAnonfun(elem: PsiElement): Boolean = {
+    def isGenerateAnonfunWithCache: Boolean = {
+      def argumentWithExpectedFunctionalType(expr: ScExpression) = {
+        ScalaPsiUtil.parameterOf(expr) match {
+          case Some(p) => p.isByName || ScFunctionType.isFunctionType(p.paramType)
+          case _ => false
+        }
+      }
+
+      def computation = elem match {
         case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
-        case newTd: ScNewTemplateDefinition if !DebuggerUtil.generatesAnonClass(newTd) => false
-        case clazz: PsiClass => true
+        case e: ScExpression if argumentWithExpectedFunctionalType(e) => true
+        case ScalaPsiUtil.MethodValue(_) => true
+        case _ => false
+      }
+
+      def cacheProvider = new CachedValueProvider[Boolean] {
+        override def compute(): Result[Boolean] = Result.create(computation, elem)
+      }
+
+      CachedValuesManager.getCachedValue(elem, cacheProvider)
+    }
+
+    def isGenerateAnonfunSimple: Boolean = {
+      elem match {
         case f: ScFunctionExpr => true
         case (_: ScExpression) childOf (_: ScForStatement) => true
         case (cc: ScCaseClauses) childOf (b: ScBlockExpr) if b.isAnonymousFunction => true
         case (g: ScGuard) childOf (_: ScEnumerators) => true
         case (g: ScGenerator) childOf (enums: ScEnumerators) if !enums.generators.headOption.contains(g) => true
         case e: ScEnumerator => true
-        case expr: ScExpression if ScalaPsiUtil.isByNameArgument(expr) => true
-        case ScalaPsiUtil.MethodValue(_) => true
         case _ => false
       }
     }
 
-    val cacheProvider = new CachedValueProvider[Boolean] {
-      override def compute(): Result[Boolean] = Result.create(isGenerateClassInner, elem)
-    }
-
-    CachedValuesManager.getCachedValue(elem, cacheProvider)
+    isGenerateAnonfunSimple || isGenerateAnonfunWithCache
   }
 
   def anonClassCount(elem: PsiElement): Int = { //todo: non irrefutable patterns?
