@@ -55,8 +55,6 @@ import scala.util.Try
 class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager with MultiRequestPositionManager {
   private val refTypeToFileCache = mutable.WeakHashMap[ReferenceType, PsiFile]()
 
-  def getDebugProcess = debugProcess
-
   debugProcess.addDebugProcessListener(new DebugProcessAdapter {
     override def processDetached(process: DebugProcess, closedByUser: Boolean): Unit = {
       isCompiledWithIndyLambdasCache.clear()
@@ -67,7 +65,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
   @Nullable
   def getSourcePosition(@Nullable location: Location): SourcePosition = {
     def calcLineIndex(location: Location): Int = {
-      LOG.assertTrue(getDebugProcess != null)
+      LOG.assertTrue(debugProcess != null)
       try {
         customLineNumber(location).getOrElse(location.lineNumber - 1)
       }
@@ -81,7 +79,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     val position =
       for {
         loc <- location.toOption
-        psiFile <- getPsiFileByReferenceType(getDebugProcess.getProject, loc.declaringType).toOption
+        psiFile <- getPsiFileByReferenceType(debugProcess.getProject, loc.declaringType).toOption
         lineNumber = calcLineIndex(loc)
         if lineNumber >= 0
       } yield {
@@ -128,7 +126,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
         case td: ScTypeDefinition if !DebuggerUtil.isLocalClass(td) =>
           val qName = getSpecificNameForDebugger(td)
           if (qName != null)
-            exactClasses ++= getDebugProcess.getVirtualMachineProxy.classesByName(qName).asScala
+            exactClasses ++= debugProcess.getVirtualMachineProxy.classesByName(qName).asScala
         case elem =>
           val namePattern = NamePattern.forElement(elem)
           namePatterns ++= Option(namePattern)
@@ -153,7 +151,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     try {
       val line: Int = position.getLine + 1
       val jvmLocations: util.List[Location] =
-        if (getDebugProcess.getVirtualMachineProxy.versionHigher("1.4"))
+        if (debugProcess.getVirtualMachineProxy.versionHigher("1.4"))
           refType.locationsOfLine(DebugProcess.JAVA_STRATUM, null, line)
         else refType.locationsOfLine(line)
       val nonCustomizedJvm = jvmLocations.asScala.filter(l => customLineNumber(l).isEmpty)
@@ -217,7 +215,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
         waitRequestor.set(new ScalaPositionManager.MyClassPrepareRequestor(position, requestor))
       }
 
-      getDebugProcess.getRequestsManager.createClassPrepareRequest(waitRequestor.get, qName.get)
+      debugProcess.getRequestsManager.createClassPrepareRequest(waitRequestor.get, qName.get)
     }
 
     checkScalaFile(position)
@@ -237,7 +235,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
 
   private def filterAllClasses(condition: ReferenceType => Boolean): Seq[ReferenceType] = {
     import scala.collection.JavaConverters._
-    getDebugProcess.getVirtualMachineProxy.allClasses.asScala.filter(condition)
+    debugProcess.getVirtualMachineProxy.allClasses.asScala.filter(condition)
   }
 
   @Nullable
@@ -284,7 +282,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
             val parent = PsiTreeUtil.getParentOfType(elem, classOf[ScBlockStatement], classOf[ScEarlyDefinitions])
             if (parent != null && PsiTreeUtil.isAncestor(c, parent, false)) None
             else {
-              val doc = PsiDocumentManager.getInstance(getDebugProcess.getProject).getDocument(containingFile)
+              val doc = PsiDocumentManager.getInstance(debugProcess.getProject).getDocument(containingFile)
               Some(doc.getLineNumber(c.getTextOffset))
             }
           case None => None
@@ -352,7 +350,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
       val name = refType.name()
       if (name.startsWith(SCRIPT_HOLDER_CLASS_NAME)) {
         val sourceName = refType.sourceName
-        val files = FilenameIndex.getFilesByName(getDebugProcess.getProject, sourceName, getDebugProcess.getSearchScope)
+        val files = FilenameIndex.getFilesByName(debugProcess.getProject, sourceName, debugProcess.getSearchScope)
         files.headOption
       }
       else None
@@ -363,14 +361,14 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
   }
 
   private def findClassByQualName(qName: String): Option[PsiClass] = {
-    val project = getDebugProcess.getProject
+    val project = debugProcess.getProject
     val cacheManager = ScalaShortNamesCacheManager.getInstance(project)
     val packageSuffix = ".package$"
     val classes =
       if (qName.endsWith(packageSuffix))
         Seq(cacheManager.getPackageObjectByName(qName.stripSuffix(packageSuffix), GlobalSearchScope.allScope(project)))
       else
-        cacheManager.getClassesByFQName(qName, getDebugProcess.getSearchScope)
+        cacheManager.getClassesByFQName(qName, debugProcess.getSearchScope)
 
     val clazz =
       if (classes.length == 1) classes.headOption
@@ -456,7 +454,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
   }
 
   private def findPsiClassByReferenceType(refType: ReferenceType): Option[PsiElement] = {
-    val project = getDebugProcess.getProject
+    val project = debugProcess.getProject
 
     val refTypeLineNumbers = refType.allLineLocations().asScala.map(_.lineNumber() - 1)
     if (refTypeLineNumbers.isEmpty) return None
@@ -532,7 +530,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
 
   private def findContainingClass(refType: ReferenceType): Option[PsiElement] = {
     def classesByName(s: String) = {
-      val vm = getDebugProcess.getVirtualMachineProxy
+      val vm = debugProcess.getVirtualMachineProxy
       vm.classesByName(s).asScala
     }
 
