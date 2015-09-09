@@ -7,6 +7,7 @@ import java.util
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.search.{GlobalSearchScope, PackageScope, PsiSearchHelper}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiPackage}
@@ -149,7 +150,8 @@ object ScopeSuggester {
     val allValidators: mutable.MutableList[ScalaTypeValidator] = mutable.MutableList()
 
     def handleOneFile(file: PsiFile) {
-      if (packageObject.get.getContainingFile != file) {
+      if (packageObject.isDefined && packageObject.get.getContainingFile == file) {
+      } else {
         val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, file)
         allOcurrences += occurrences
         val parent = if (file.asInstanceOf[ScalaFile].isScriptFile()) file else PsiTreeUtil.findChildOfType(file, classOf[ScTemplateBody])
@@ -181,6 +183,16 @@ class ScopeItem(val name: String,
   var occurrencesFromInheretors: Array[ScTypeElement] = Array[ScTypeElement]()
 
   var typeAlias: ScTypeAlias = null
+  var occurrencesRanges: Array[TextRange] = Array[TextRange]()
+  var typeAliasOffset:TextRange = null
+
+  def computeRanges() = {
+    occurrencesRanges = usualOccurrences.map(_.getTextRange)
+  }
+
+  def computeTypeAliasOffset() = {
+    typeAliasOffset = typeAlias.getTextRange
+  }
 
   def setFileEncloser(encloser: PsiElement): Unit = {
     if (fileEncloser == null) {
