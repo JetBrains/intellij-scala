@@ -53,11 +53,14 @@ import scala.util.Try
  * @author ilyas
  */
 class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager with MultiRequestPositionManager {
+  private val refTypeToFileCache = mutable.WeakHashMap[ReferenceType, PsiFile]()
+
   def getDebugProcess = debugProcess
 
   debugProcess.addDebugProcessListener(new DebugProcessAdapter {
     override def processDetached(process: DebugProcess, closedByUser: Boolean): Unit = {
       isCompiledWithIndyLambdasCache.clear()
+      refTypeToFileCache.clear()
     }
   })
 
@@ -426,15 +429,25 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
 
     if (refType == null) return null
 
-    val scriptFile = findScriptFile(refType)
-    scriptFile.getOrElse {
-      val qName = qualName(refType)
+    def findFile() = {
+      val scriptFile = findScriptFile(refType)
+      val file = scriptFile.getOrElse {
+        val qName = qualName(refType)
 
-      if (!ScalaMacroDebuggingUtil.isEnabled)
-        findClassByQualName(qName).map(_.getNavigationElement.getContainingFile).orNull
-      else
-        searchForMacroDebugging(qName)
+        if (!ScalaMacroDebuggingUtil.isEnabled)
+          findClassByQualName(qName).map(_.getNavigationElement.getContainingFile).orNull
+        else
+          searchForMacroDebugging(qName)
+      }
+
+      if (refType.methods().asScala.exists(isIndyLambda)) {
+        isCompiledWithIndyLambdasCache.update(file, true)
+      }
+
+      file
     }
+
+    refTypeToFileCache.getOrElseUpdate(refType, findFile())
   }
 
   private def nameMatches(elem: PsiElement, refType: ReferenceType): Boolean = {
@@ -660,13 +673,9 @@ object ScalaPositionManager {
    private def sourceNameOf(refType: ReferenceType): Option[String] = Try(refType.sourceName()).toOption
 
    def processClassPrepare(debuggerProcess: DebugProcess, referenceType: ReferenceType) {
-      val positionManager: CompoundPositionManager = debuggerProcess.asInstanceOf[DebugProcessImpl].getPositionManager
+     val positionManager: CompoundPositionManager = debuggerProcess.asInstanceOf[DebugProcessImpl].getPositionManager
 
      if (!sourceNameOf(referenceType).contains(sourceName)) return
-
-     if (referenceType.methods().asScala.exists(isIndyLambda)) {
-       isCompiledWithIndyLambdasCache.update(sourceFile, true)
-     }
 
       if (positionManager.locationsOfLine(referenceType, position).size > 0) {
         requestor.processClassPrepare(debuggerProcess, referenceType)
