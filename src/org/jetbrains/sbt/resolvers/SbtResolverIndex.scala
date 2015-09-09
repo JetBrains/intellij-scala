@@ -91,7 +91,7 @@ class SbtResolverIndex private (val kind: SbtResolver.Kind.Value, val root: Stri
   private def ensureIndexDir() {
     indexDir.mkdirs()
     if (!indexDir.exists || !indexDir.isDirectory)
-      throw new RuntimeException(SbtBundle("sbt.resolverIndexer.cantCreateIndexDir", indexDir.absolutePath))
+      throw new CantCreateIndexDirectory(indexDir)
   }
 
   private def createPersistentMap(file: File) =
@@ -135,7 +135,7 @@ object SbtResolverIndex {
 
     val indexVersion = props.getProperty(Keys.VERSION)
     if (indexVersion != CURRENT_INDEX_VERSION)
-      throw new RuntimeException(SbtBundle("sbt.resolverIndexer.indexVersionMismatch", propFile.absolutePath))
+      throw new IndexVersionMismatch(propFile)
 
     val root = props.getProperty(Keys.ROOT)
     val timestamp = props.getProperty(Keys.UPDATE_TIMESTAMP).toLong

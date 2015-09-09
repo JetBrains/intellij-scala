@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
  * @author Nikolay Obedin
  * @since 8/1/14.
  */
-class ResolverIndexLocalIndexingTest extends ResolverIndexingTestCase with UsefulTestCaseHelper {
+class MavenRepoTest extends IndexingTestCase with UsefulTestCaseHelper {
 
   import junit.framework.Assert._
 
@@ -21,12 +21,19 @@ class ResolverIndexLocalIndexingTest extends ResolverIndexingTestCase with Usefu
 
   def testNonExistentIndexUpdate() = {
     if (SystemInfo.isWindows)
-      assertException[IOException](Some("Repository directory \\non-existent-dir does not exist")) {
-        createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/non-existent-dir"))
+      assertException[InvalidRepository](Some(SbtBundle("sbt.resolverIndexer.invalidRepository","C:\\non-existent-dir"))) {
+        createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/C:/non-existent-dir"))
       }
     else
-      assertException[IOException](Some("Repository directory /non-existent-dir does not exist")) {
+      assertException[InvalidRepository](Some(SbtBundle("sbt.resolverIndexer.invalidRepository","/non-existent-dir"))) {
         createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/non-existent-dir"))
       }
+  }
+
+  def testNonIndexedRepoUpdate() = {
+    val repoUrl = "http://dl.bintray.com/scalaz/releases/"
+    assertException[RemoteRepositoryHasNotBeenIndexed](Some(SbtBundle("sbt.resolverIndexer.remoteRepositoryHasNotBeenIndexed", repoUrl))) {
+      createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Maven, "Scalaz Bintray repo", repoUrl))
+    }
   }
 }
