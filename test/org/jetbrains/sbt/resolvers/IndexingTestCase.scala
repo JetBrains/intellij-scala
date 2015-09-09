@@ -9,7 +9,7 @@ import junit.framework.Assert._
  * @author Nikolay Obedin
  * @since 6/9/15.
  */
-abstract class ResolverIndexingTestCase extends ScalaFixtureTestCase {
+abstract class IndexingTestCase extends ScalaFixtureTestCase {
 
   var storingManager: SbtResolverIndexesManager = null
 

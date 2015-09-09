@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
  * @author Nikolay Obedin
  * @since 7/28/14.
  */
-class ResolverIndexSerializationTest extends ScalaFixtureTestCase {
+class IndexSerializationTest extends ScalaFixtureTestCase {
 
   import _root_.junit.framework.Assert._
 
