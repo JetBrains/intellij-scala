@@ -1,12 +1,22 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
+import java.util
+
 import com.intellij.codeInsight.TargetElementUtilBase
+import com.intellij.codeInsight.template.impl.TemplateManagerImpl
 import com.intellij.openapi.command.CommandProcessor
-import com.intellij.openapi.editor.{ScrollType, Editor}
-import com.intellij.psi.{PsiNamedElement, PsiDocumentManager, PsiElement}
+import com.intellij.openapi.command.impl.StartMarkAction
+import com.intellij.openapi.editor.{Editor, ScrollType}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.psi.search.SearchScope
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi._
 import com.intellij.refactoring.RefactoringActionHandler
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
+import com.intellij.refactoring.rename.inplace.InplaceRefactoring
 import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberInplaceRenamer
@@ -14,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
-import scala.collection.mutable.ArrayBuffer
 
 /**
  * Created by Kate Ustyuzhanina on 8/10/15.
@@ -22,15 +31,20 @@ import scala.collection.mutable.ArrayBuffer
 
 
 object ScalaInplaceTypeAliasIntroducer {
-   def apply(scNamedElement: ScNamedElement,
+  def apply(scNamedElement: ScNamedElement,
             substituted: PsiElement,
             editor: Editor,
             initialName: String,
             oldName: String,
-            scopeItem: ScopeItem): ScalaInplaceTypeAliasIntroducer = {
+            scopeItem: ScopeItem,
+            file: PsiFile): ScalaInplaceTypeAliasIntroducer = {
 
     IntroduceTypeAliasData.addScopeElement(scopeItem)
-    new ScalaInplaceTypeAliasIntroducer(scNamedElement, substituted, editor, initialName, oldName, scopeItem)
+    if (IntroduceTypeAliasData.scopeElements.size < 2) {
+      IntroduceTypeAliasData.scopeElements.last.computeRanges()
+      IntroduceTypeAliasData.scopeElements.last.computeTypeAliasOffset()
+    }
+    new ScalaInplaceTypeAliasIntroducer(scNamedElement, substituted, editor, initialName, oldName, scopeItem, file)
   }
 }
 
@@ -39,7 +53,8 @@ class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
                                       editor: Editor,
                                       initialName: String,
                                       oldName: String,
-                                      scopeItem: ScopeItem) extends ScalaMemberInplaceRenamer(scNamedElement, substituted, editor, initialName, oldName) {
+                                      scopeItem: ScopeItem,
+                                      file: PsiFile) extends ScalaMemberInplaceRenamer(scNamedElement, substituted, editor, initialName, oldName) {
 
   override def setAdvertisementText(text: String) = {
     myAdvertisementText = "Press ctrl + alt + v" + " to show dialog with more options"
@@ -51,15 +66,9 @@ class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
     true
   }
 
+
+  //if revert to initial file before TemplateState.gototheend  - get error
   override def revertState(): Unit = {
-    if (IntroduceTypeAliasData.revertToInitial) {
-      val runnable = new Runnable() {
-        def run() {
-          scopeItem.fileEncloser.getNode.removeChild(myElementToRename.getNode)
-        }
-      }
-      ScalaUtils.runWriteAction(runnable, editor.getProject, "Introduce Type Alias")
-    }
 
     if (myOldName == null) return
 
@@ -69,20 +78,35 @@ class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
           ScalaRefactoringUtil.RevertInfo(IntroduceTypeAliasData.initialInfo._1, IntroduceTypeAliasData.initialInfo._2)
         }
         else {
-          editor.getUserData(ScalaMemberInplaceRenamer.REVERT_INFO)
+          myEditor.getUserData(ScalaMemberInplaceRenamer.REVERT_INFO)
         }
-        val document = editor.getDocument
+        val document = myEditor.getDocument
         if (revertInfo != null) {
           extensions.inWriteAction {
+            val textLength = document.getTextLength
             document.replaceString(0, document.getTextLength, revertInfo.fileText)
+            val diff = textLength - revertInfo.fileText.length
+            val q:String = " "*diff
+            document.insertString(revertInfo.fileText.length, q)
             PsiDocumentManager.getInstance(myProject).commitDocument(document)
           }
+
+//          if (IntroduceTypeAliasData.revertToInitial && myElementToRename.getContainingFile != file) {
+//            val runnable = new Runnable() {
+//              def run() {
+//                  scopeItem.fileEncloser.getNode.removeChild(myElementToRename.getNode)
+//              }
+//            }
+//            ScalaUtils.runWriteAction(runnable, editor.getProject, "Introduce Type Alias")
+//            PsiDocumentManager.getInstance(myProject).commitDocument(editor.getDocument)
+//          }
+
           val offset = revertInfo.caretOffset
-          editor.getCaretModel.moveToOffset(offset)
-          editor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
-          PsiDocumentManager.getInstance(editor.getProject).commitDocument(document)
+          myEditor.getCaretModel.moveToOffset(offset)
+          myEditor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
+          PsiDocumentManager.getInstance(myEditor.getProject).commitDocument(document)
           val clazz = myElementToRename.getClass
-          val element = TargetElementUtilBase.findTargetElement(editor,
+          val element = TargetElementUtilBase.findTargetElement(myEditor,
             TargetElementUtilBase.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtilBase.ELEMENT_NAME_ACCEPTED)
           myElementToRename = element match {
             case null => null
@@ -100,5 +124,30 @@ class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
         }
       }
     }, getCommandName, null)
+
+
   }
+
+
+  override def collectRefs(referencesSearchScope: SearchScope): util.Collection[PsiReference] = {
+//    super.collectRefs(referencesSearchScope)
+    val ranges = IntroduceTypeAliasData.scopeElements.head.occurrencesRanges
+    val typeElements = ranges.map((x: TextRange) => PsiTreeUtil.findElementOfClassAtOffset(file, x.getStartOffset, classOf[ScTypeElement], true))
+    val q = typeElements.map((x: ScTypeElement) => PsiTreeUtil.getChildOfAnyType(x, classOf[ScStableCodeReferenceElement]))
+
+    import scala.collection.JavaConversions.asJavaCollection
+    new util.ArrayList[PsiReference](q.toIterable)
+  }
+
+  override def finish(success: Boolean) = {
+    super.finish(success)
+    if (StartMarkAction.canStart(editor.getProject) != null) {
+//      IntroduceTypeAliasData.clearData()
+      println("clear")
+    }
+
+    //    IntroduceTypeAliasData.clearData
+  }
+
+
 }
