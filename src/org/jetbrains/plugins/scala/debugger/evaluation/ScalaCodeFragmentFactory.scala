@@ -45,7 +45,11 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
         semaphore.down()
         val nameRef = new AtomicReference[PsiClass]
         val worker = new ScalaRuntimeTypeEvaluator(null, expr, debuggerContext, ProgressManager.getInstance.getProgressIndicator) {
-          protected def typeCalculationFinished(@Nullable psiClass: PsiClass) {
+          override def typeCalculationFinished(psiType: PsiType): Unit = {
+            val psiClass = psiType match {
+              case tp: PsiClassType => tp.resolve()
+              case _ => null
+            }
             nameRef.set(psiClass)
             semaphore.up()
           }
