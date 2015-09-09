@@ -6,6 +6,7 @@ package introduceVariable
 
 import java.util
 
+import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
@@ -17,6 +18,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util._
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{xml => _, _}
 import com.intellij.refactoring.RefactoringActionHandler
@@ -165,9 +167,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
         val typeElement: ScTypeElement = ScalaRefactoringUtil.getTypeEement(project, editor, file, startOffset, endOffset).
           getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.valid.type"), project, editor, REFACTORING_NAME))
 
-//        if ((StartMarkAction.canStart(project) == null) && IntroduceTypeAliasData.isData) {
-//          IntroduceTypeAliasData.clearData()
-//        }
+
+        //clear data on startRefactoring, if there is no marks, but there is some data
+        if ((StartMarkAction.canStart(project) == null) && IntroduceTypeAliasData.isData) {
+          IntroduceTypeAliasData.clearData()
+        }
 
         if (IntroduceTypeAliasData.possibleScopes == null) {
           IntroduceTypeAliasData.setPossibleScopes(ScopeSuggester.suggestScopes(this, project, editor, file, typeElement))
@@ -177,12 +181,13 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
           showErrorMessage(ScalaBundle.message("cannot.refactor.not.script.file"), project, editor, REFACTORING_NAME)
         }
 
-        def runWithDialog() {
-          val typeElementHelper = if (!typeElement.isValid) {
+        def runWithDialog(fromInplace: Boolean) {
+          val typeElementHelper = if (fromInplace) {
             PsiTreeUtil.findElementOfClassAtOffset(file, editor.getCaretModel.getOffset, classOf[ScTypeElement], false)
           } else {
             typeElement
           }
+
           val dialog = getDialogForTypes(project, editor, typeElementHelper, IntroduceTypeAliasData.possibleScopes)
           if (!dialog.isOK) {
             occurrenceHighlighters.foreach(_.dispose())
@@ -201,13 +206,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
           val parent = dialog.getSelectedScope.fileEncloser
           runRefactoringForTypes(startOffset, endOffset, file, editor, typeElementHelper, typeName, occurrences,
             replaceAllOccurrences, parent)
-          IntroduceTypeAliasData.clearData()
         }
 
         // replace all occurrences, don't replace occurences available from companion object or inheritors
         // suggest to choose scope
         def runInplace() = {
-
           def handleScope(scopeItem: ScopeItem, needReplacement: Boolean) {
             val replaceAllOccurrences = true
             val suggestedNames = scopeItem.availableNames
@@ -223,49 +226,28 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
             }
 
             val introduceRunnable: Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] =
-              if (needReplacement) {
-                introduceTypeAlias(startOffset, endOffset, file, editor, typeElement,
-                  allOccurrences, suggestedNames(0), replaceAllOccurrences, scopeItem.fileEncloser, scopeItem)
-              } else {
-                null
-              }
+              introduceTypeAlias(startOffset, endOffset, file, editor, typeElement,
+                allOccurrences, suggestedNames(0), replaceAllOccurrences, scopeItem.fileEncloser, scopeItem)
 
 
             CommandProcessor.getInstance.executeCommand(project, new Runnable {
               def run() {
-                val computable = if (needReplacement) {
-                  ApplicationManager.getApplication.runWriteAction(introduceRunnable)
-                }
-                else {
-                  null
-                }
+                val computable = ApplicationManager.getApplication.runWriteAction(introduceRunnable)
 
-                val namedElement: ScNamedElement = if (needReplacement) {
+                val namedElement: ScNamedElement =
                   computable._1.getElement match {
                     case typeAlias: ScTypeAliasDefinition =>
                       typeAlias
                     case _ => null
                   }
-                } else {
-                  if (scopeItem.name.substring(0, 7) == "package") {
-                    scopeItem.typeAlias
-                  } else {
-                    IntroduceTypeAliasData.getNamedElement(file)
-                  }
-                }
 
-                val mtypeElement = if (needReplacement) {
-                  computable._2.getElement match {
-                    case typeElement: ScTypeElement =>
-                      typeElement
-                    case _ => null
-                  }
-                } else {
-                  typeElement
+                val mtypeElement = computable._2.getElement match {
+                  case typeElement: ScTypeElement =>
+                    typeElement
+                  case _ => null
                 }
 
                 if (mtypeElement != null && mtypeElement.isValid) {
-
                   editor.getCaretModel.moveToOffset(mtypeElement.getTextOffset)
                   editor.getSelectionModel.removeSelection()
                   if (ScalaRefactoringUtil.isInplaceAvailable(editor)) {
@@ -277,18 +259,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
                       ScalaInplaceTypeAliasIntroducer(namedElement, namedElement, editor, namedElement.getName,
                         namedElement.getName, scopeItem, file)
 
-                    val needModalDialog = typeAliasIntroducer.performInplaceRefactoring(suggestedNamesSet)
-
-                    println("MODAL " +  needModalDialog)
-                    if (!needModalDialog) {
-                      runWithDialog()
-                    }
+                    typeAliasIntroducer.performInplaceRefactoring(suggestedNamesSet)
                   }
                 }
               }
             }, REFACTORING_NAME, null)
-
-
           }
 
           val elements = IntroduceTypeAliasData.scopeElements
@@ -298,12 +273,20 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
             null
           }
 
+          //need open odal dialog in inplace mode
           if ((StartMarkAction.canStart(project) != null) && (currentScope != null)) {
-            handleScope(currentScope, needReplacement = false)
+            val templateState: TemplateState = TemplateManagerImpl.getTemplateState(InjectedLanguageUtil.getTopLevelEditor(editor))
+            if (templateState != null) {
+              templateState.cancelTemplate()
+            }
+
+            ScalaInplaceTypeAliasIntroducer.revertState(editor, file != IntroduceTypeAliasData.scopeElements.head.typeAliasFile,
+              IntroduceTypeAliasData.scopeElements.head, IntroduceTypeAliasData.getNamedElement)
+
+            runWithDialog(fromInplace = true)
           } else {
             var array = Array[ScopeItem]()
             array = IntroduceTypeAliasData.possibleScopes.toArray(array)
-
             IntroduceTypeAliasData.setInintialInfo(editor.getDocument.getText, editor.getCaretModel.getOffset)
 
             ScalaRefactoringUtil.afterScopeChoosing(project, editor, file, array, "type alias") {
@@ -315,10 +298,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
           }
         }
 
-
-
         if (ScalaRefactoringUtil.isInplaceAvailable(editor)) runInplace()
-        else runWithDialog()
+        else runWithDialog(fromInplace = false)
       }
 
       PsiTreeUtil.getParentOfType(file.findElementAt(startOffset), classOf[ScExpression], classOf[ScTypeElement]) match {
