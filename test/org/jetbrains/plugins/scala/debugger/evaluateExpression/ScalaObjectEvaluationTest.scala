@@ -1,13 +1,16 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12_M2}
 
 /**
  * User: Alefas
  * Date: 15.10.11
  */
 
-class ScalaObjectEvaluationTest extends ScalaDebuggerTestCase {
+class ScalaObjectEvaluationTest extends ScalaObjectEvaluationTestBase with ScalaVersion_2_11
+class ScalaObjectEvaluationTest_2_12_M2 extends ScalaObjectEvaluationTestBase with ScalaVersion_2_12_M2
+
+abstract class ScalaObjectEvaluationTestBase extends ScalaDebuggerTestCase {
   def testSimpleObject() {
     addFileToProject("Sample.scala",
       """

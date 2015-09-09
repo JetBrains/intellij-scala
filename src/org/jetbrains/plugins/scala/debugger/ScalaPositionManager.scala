@@ -55,6 +55,12 @@ import scala.util.Try
 class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager with MultiRequestPositionManager {
   def getDebugProcess = debugProcess
 
+  debugProcess.addDebugProcessListener(new DebugProcessAdapter {
+    override def processDetached(process: DebugProcess, closedByUser: Boolean): Unit = {
+      isCompiledWithIndyLambdasCache.clear()
+    }
+  })
+
   @Nullable
   def getSourcePosition(@Nullable location: Location): SourcePosition = {
     def calcLineIndex(location: Location): Int = {
@@ -105,10 +111,15 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     }
 
     val possiblePositions = positionsOnLine(file, position.getLine)
+
     val exactClasses = ArrayBuffer[ReferenceType]()
-    val namePatterns = ArrayBuffer[NamePattern]()
+    val namePatterns = mutable.Set[NamePattern]()
     inReadAction {
-      val sourceImages = possiblePositions.map(findGeneratingClassParent)
+      val onTheLine = possiblePositions.map(findGeneratingClassParent)
+      if (onTheLine.isEmpty) return Collections.emptyList()
+      val nonLambdaParents = onTheLine.head.parentsInFile.filter(p => ScalaEvaluatorBuilderUtil.isGenerateNonAnonfunClass(p))
+
+      val sourceImages = onTheLine ++ nonLambdaParents
       sourceImages.foreach {
         case null =>
         case td: ScTypeDefinition if !DebuggerUtil.isLocalClass(td) =>
@@ -283,39 +294,54 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
   }
 
   private def calcPosition(file: PsiFile, location: Location, lineNumber: Int): Option[SourcePosition] = {
-    val possiblePositions = positionsOnLine(file, lineNumber)
-    if (possiblePositions.size <= 1) return possiblePositions.headOption.map(SourcePosition.createFromElement)
+    def calcElement(): Option[PsiElement] = {
+      val possiblePositions = positionsOnLine(file, lineNumber)
+      if (possiblePositions.size <= 1) return possiblePositions.headOption
 
-    val methodName = location.method().name()
+      val currentMethod = location.method()
+      val methodName = currentMethod.name()
 
-    def findDefaultArg: Option[SourcePosition] = {
-      try {
-        val (start, index) = methodName.splitAt(methodName.lastIndexOf("$") + 1)
-        if (!start.endsWith("$default$")) return None
+      def findDefaultArg: Option[PsiElement] = {
+        try {
+          val (start, index) = methodName.splitAt(methodName.lastIndexOf("$") + 1)
+          if (!start.endsWith("$default$")) return None
 
-        val paramNumber = index.toInt - 1
-        val inDefaultParam = possiblePositions.find {
-          case e =>
-            val scParameters = PsiTreeUtil.getParentOfType(e, classOf[ScParameters])
-            if (scParameters != null) {
-              val param = scParameters.params(paramNumber)
-              param.isDefaultParam && param.isAncestorOf(e)
-            }
-            else false
+          val paramNumber = index.toInt - 1
+          possiblePositions.find {
+            case e =>
+              val scParameters = PsiTreeUtil.getParentOfType(e, classOf[ScParameters])
+              if (scParameters != null) {
+                val param = scParameters.params(paramNumber)
+                param.isDefaultParam && param.isAncestorOf(e)
+              }
+              else false
+          }
+        } catch {
+          case e: Exception => None
         }
-        inDefaultParam.map(SourcePosition.createFromElement)
-      } catch {
-        case e: Exception => None
+      }
+
+      val declaringType = location.declaringType()
+
+      def findPsiElementForIndyLambda(): Option[PsiElement] = {
+        val lambdas = lambdasOnLine(file, lineNumber)
+        val methods = indyLambdaMethodsOnLine(declaringType, lineNumber)
+        val methodsToLambdas = methods.zip(lambdas).toMap
+        methodsToLambdas.get(currentMethod)
+      }
+
+      if (methodName.contains("$default$")) {
+        return findDefaultArg
+      }
+
+      if (isIndyLambda(currentMethod)) findPsiElementForIndyLambda()
+      else {
+        val generatingPsiElem = findPsiClassByReferenceType(declaringType)
+        possiblePositions.find(p => generatingPsiElem.contains(findGeneratingClassParent(p)))
       }
     }
 
-    if (methodName.contains("$default$")) {
-      return findDefaultArg
-    }
-
-    val declaringType = location.declaringType()
-    val generatingPsiElem = findPsiClassByReferenceType(declaringType)
-    possiblePositions.find(p => generatingPsiElem.contains(findGeneratingClassParent(p))).map(SourcePosition.createFromElement)
+    calcElement().map(SourcePosition.createFromElement)
   }
 
   private def findScriptFile(refType: ReferenceType): Option[PsiFile] = {
@@ -510,6 +536,8 @@ object ScalaPositionManager {
   private val LOG: Logger = Logger.getInstance("#com.intellij.debugger.engine.PositionManagerImpl")
   private val SCRIPT_HOLDER_CLASS_NAME: String = "Main$$anon$1"
 
+  private val isCompiledWithIndyLambdasCache = mutable.HashMap[PsiFile, Boolean]()
+
   def positionsOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
     val scFile = file match {
       case sf: ScalaFile => sf
@@ -562,16 +590,31 @@ object ScalaPositionManager {
     }
   }
 
-  def isLambda(element: PsiElement) = element match {
-    case newTd: ScNewTemplateDefinition if ScUnderScoreSectionUtil.underscores(newTd).nonEmpty => true
-    case _: ScTemplateDefinition => false
-    case e if ScalaEvaluatorBuilderUtil.isGenerateClass(e) => true
-    case _ => false
-  }
+  def isLambda(element: PsiElement) = ScalaEvaluatorBuilderUtil.isGenerateAnonfun(element)
 
   def lambdasOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
     positionsOnLine(file, lineNumber).filter(isLambda)
   }
+
+  def isIndyLambda(m: Method): Boolean = {
+    val name = m.name()
+    val lastDollar = name.lastIndexOf('$')
+    lastDollar > 0 && name.substring(0, lastDollar).endsWith("$anonfun")
+  }
+
+  def indyLambdaMethodsOnLine(refType: ReferenceType, lineNumber: Int): Seq[Method] = {
+    def ordinal(m: Method) = {
+      val name = m.name()
+      val lastDollar = name.lastIndexOf('$')
+      Try(name.substring(lastDollar + 1).toInt).getOrElse(-1)
+    }
+
+    val all = refType.methods().asScala.filter(isIndyLambda)
+    val onLine = all.filter(m => Try(!m.locationsOfLine(lineNumber + 1).isEmpty).getOrElse(false))
+    onLine.sortBy(ordinal)
+  }
+
+  def isCompiledWithIndyLambdas(file: PsiFile) = isCompiledWithIndyLambdasCache.getOrElse(file, false)
 
   @tailrec
   def findGeneratingClassParent(element: PsiElement): PsiElement = {
@@ -607,17 +650,23 @@ object ScalaPositionManager {
   }
 
   private def shouldSkip(location: Location) = {
-    DebuggerSettings.getInstance().SKIP_SYNTHETIC_METHODS && DebuggerUtils.isSynthetic(location.method())
+    val syntheticProvider = SyntheticTypeComponentProvider.EP_NAME.findExtension(classOf[ScalaSyntheticProvider])
+    DebuggerSettings.getInstance().SKIP_SYNTHETIC_METHODS && syntheticProvider.isSynthetic(location.method())
   }
 
   private class MyClassPrepareRequestor(position: SourcePosition, requestor: ClassPrepareRequestor) extends ClassPrepareRequestor {
-   private val sourceName = position.getFile.getName
+   private val sourceFile = position.getFile
+   private val sourceName = sourceFile.getName
    private def sourceNameOf(refType: ReferenceType): Option[String] = Try(refType.sourceName()).toOption
 
    def processClassPrepare(debuggerProcess: DebugProcess, referenceType: ReferenceType) {
       val positionManager: CompoundPositionManager = debuggerProcess.asInstanceOf[DebugProcessImpl].getPositionManager
 
      if (!sourceNameOf(referenceType).contains(sourceName)) return
+
+     if (referenceType.methods().asScala.exists(isIndyLambda)) {
+       isCompiledWithIndyLambdasCache.update(sourceFile, true)
+     }
 
       if (positionManager.locationsOfLine(referenceType, position).size > 0) {
         requestor.processClassPrepare(debuggerProcess, referenceType)
@@ -640,11 +689,9 @@ object ScalaPositionManager {
 
     private def partsFor(elem: PsiElement): Seq[String] = {
       elem match {
-        case newTd: ScNewTemplateDefinition if ScUnderScoreSectionUtil.underscores(newTd).nonEmpty => partsForAnonfun(newTd)
+        case e if ScalaEvaluatorBuilderUtil.isGenerateAnonfun(e) => partsForAnonfun(e)
         case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) => Seq("$anon")
-        case newTd: ScNewTemplateDefinition => Seq.empty
         case td: ScTypeDefinition => Seq(ScalaNamesUtil.toJavaName(td.name))
-        case _ if ScalaEvaluatorBuilderUtil.isGenerateClass(elem) => partsForAnonfun(elem)
         case _ => Seq.empty
       }
     }

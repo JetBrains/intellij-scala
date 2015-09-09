@@ -7,6 +7,7 @@ import javax.swing.SwingUtilities
 import com.intellij.ProjectTopics
 import com.intellij.compiler.CompilerTestUtil
 import com.intellij.compiler.server.BuildManager
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
@@ -17,6 +18,7 @@ import com.intellij.testFramework.{ModuleTestCase, PsiTestUtil, VfsTestUtil}
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import junit.framework.Assert
+import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.project._
@@ -29,9 +31,7 @@ import scala.collection.mutable.ListBuffer
  * Nikolay.Tropin
  * 2/26/14
  */
-abstract class ScalaCompilerTestBase extends ModuleTestCase {
-
-  protected var compilerVersion: Option[String] = null
+abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
 
   protected def useExternalCompiler: Boolean = true
 
@@ -63,15 +63,13 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
     }
   }
 
-  protected val compilerDirectorySuffix = ""
-  
   protected def addScalaSdk(loadReflect: Boolean = true) {
     ScalaLoader.loadScala()
     val cl = SyntheticClasses.get(getProject)
     if (!cl.isClassesRegistered) cl.registerClasses()
 
     val root = TestUtils.getTestDataPath.replace("\\", "/") + "/scala-compiler/" +
-            (if (compilerDirectorySuffix != "") compilerDirectorySuffix + "/" else "")
+            (if (scalaVersion != "") scalaVersion + "/" else "")
     
     VfsRootAccess.allowRootAccess(root)
 
@@ -90,7 +88,24 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
     }
   }
 
-  override protected def getTestProjectJdk: Sdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
+  override protected def getTestProjectJdk: Sdk = {
+    val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
+
+    if (scalaVersion.startsWith("2.12")) {
+      val mockJdk8Name = "mock java 1.8"
+
+      def addMockJdk8(): Sdk = {
+        val path = TestUtils.getTestDataPath.replace("\\", "/") + "/mockJDK1.8/jre"
+        val jdk = JavaSdk.getInstance.createJdk(mockJdk8Name, path)
+        inWriteAction(jdkTable.addJdk(jdk))
+        jdk
+      }
+      Option(jdkTable.findJdk(mockJdk8Name)).getOrElse(addMockJdk8())
+    }
+    else {
+      jdkTable.getInternalJdk
+    }
+  }
 
   protected def forceFSRescan() = BuildManager.getInstance.clearState(myProject)
 
@@ -101,6 +116,8 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase {
   }
 
   protected def make(): List[String] = {
+    ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED = false
+    ApplicationManager.getApplication.saveSettings()
     val semaphore: Semaphore = new Semaphore
     semaphore.down()
     val callback = new ErrorReportingCallback(semaphore)

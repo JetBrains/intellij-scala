@@ -6,6 +6,7 @@ import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.util.Range
 import com.sun.jdi.{Location, Method}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -48,7 +49,7 @@ class ScalaBreakpointMethodFilter(psiMethod: Option[PsiMethod],
     val method: Method = location.method
     psiMethod match {
       case None => //is created for fun expression
-        method.name == "apply" || method.name.startsWith("apply$")
+        method.name == "apply" || method.name.startsWith("apply$") || ScalaPositionManager.isIndyLambda(method)
       case Some(m) =>
         val javaName = inReadAction(if (m.isConstructor) "<init>" else ScalaNamesUtil.toJavaName(m.name))
         javaName == method.name && signatureMatches(method)

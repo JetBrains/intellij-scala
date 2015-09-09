@@ -1,13 +1,21 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12_M2}
 
 /**
  * Nikolay.Tropin
  * 12/9/13
  */
-class ScalaImportedEvaluationTest extends ScalaDebuggerTestCase{
+
+class ScalaImportedEvaluationTest extends ScalaImportedEvaluationTestBase with ScalaVersion_2_11
+
+class ScalaImportedEvaluationTest_2_12_M2 extends ScalaImportedEvaluationTestBase with ScalaVersion_2_12_M2 {
+  //todo java compiler does not work with mock jdk 1.8
+  override def testImportJava() {}
+}
+
+abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase{
   def testImportFromObject() {
     addFileToProject("Sample.scala",
       """
@@ -103,7 +111,7 @@ class ScalaImportedEvaluationTest extends ScalaDebuggerTestCase{
         |
         |class A {
         |  class B {
-        |    val y = List(1, 2, 3)
+        |    val y = Seq(1, 2, 3)
         |  }
         |
         |  val x = "abc"
