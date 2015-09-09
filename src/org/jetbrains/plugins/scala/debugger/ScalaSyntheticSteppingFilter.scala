@@ -44,7 +44,7 @@ class ScalaSyntheticSteppingFilter extends ExtraSteppingFilter {
 
       if (!sourcePosition.getFile.getLanguage.is(ScalaLanguage.Instance)) return false
 
-      val classInSource = ScalaPositionManager.findGeneratingClassParent(sourcePosition.getElementAt)
+      val classInSource = ScalaPositionManager.findGeneratingClassOrMethodParent(sourcePosition.getElementAt)
       if (classInSource == null) return false
 
       !existsInSource(name, classInSource)

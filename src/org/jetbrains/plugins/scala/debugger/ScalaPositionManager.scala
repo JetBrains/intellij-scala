@@ -116,7 +116,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     val exactClasses = ArrayBuffer[ReferenceType]()
     val namePatterns = mutable.Set[NamePattern]()
     inReadAction {
-      val onTheLine = possiblePositions.map(findGeneratingClassParent)
+      val onTheLine = possiblePositions.map(findGeneratingClassOrMethodParent)
       if (onTheLine.isEmpty) return Collections.emptyList()
       val nonLambdaParents = onTheLine.head.parentsInFile.filter(p => ScalaEvaluatorBuilderUtil.isGenerateNonAnonfunClass(p))
 
@@ -241,7 +241,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
   @Nullable
   private def findReferenceTypeSourceImage(@NotNull position: SourcePosition): PsiElement = {
     val element = nonWhitespaceElement(position)
-    findGeneratingClassParent(element)
+    findGeneratingClassOrMethodParent(element)
   }
 
   private def nonWhitespaceElement(@NotNull position: SourcePosition): PsiElement = {
@@ -274,7 +274,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     def lineForConstructor: Option[Int] = {
       val declType = location.declaringType()
       inReadAction {
-        findPsiClassByReferenceType(declType) match {
+        findElementByReferenceType(declType) match {
           case Some(c) =>
             val containingFile = c.getContainingFile
             val linePosition = SourcePosition.createFromLine(containingFile, location.lineNumber() - 1)
@@ -337,8 +337,8 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
 
       if (isIndyLambda(currentMethod)) findPsiElementForIndyLambda()
       else {
-        val generatingPsiElem = findPsiClassByReferenceType(declaringType)
-        possiblePositions.find(p => generatingPsiElem.contains(findGeneratingClassParent(p)))
+        val generatingPsiElem = findElementByReferenceType(declaringType)
+        possiblePositions.find(p => generatingPsiElem.contains(findGeneratingClassOrMethodParent(p)))
       }
     }
 
@@ -453,7 +453,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     pattern != null && pattern.matches(refType)
   }
 
-  private def findPsiClassByReferenceType(refType: ReferenceType): Option[PsiElement] = {
+  private def findElementByReferenceType(refType: ReferenceType): Option[PsiElement] = {
     val project = debugProcess.getProject
 
     val refTypeLineNumbers = refType.allLineLocations().asScala.map(_.lineNumber() - 1)
@@ -474,7 +474,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
       val endOffset = document.getLineEndOffset(lastRefTypeLine)
       val startElem = file.findElementAt(firstOffset)
       val commonParent = startElem.parentsInFile.find(_.getTextRange.getEndOffset > endOffset)
-      commonParent.flatMap(cp => Option(findGeneratingClassParent(cp)))
+      commonParent.flatMap(cp => Option(findGeneratingClassOrMethodParent(cp)))
     }
     val container = containerTry.toOption.flatten.getOrElse(file)
 
@@ -518,7 +518,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     val filteredWithSignature = filterWithSignature(candidates)
     if (filteredWithSignature.size == 1) return filteredWithSignature.headOption
 
-    val byContainingClasses = filteredWithSignature.groupBy(c => findGeneratingClassParent(c.getParent))
+    val byContainingClasses = filteredWithSignature.groupBy(c => findGeneratingClassOrMethodParent(c.getParent))
     if (byContainingClasses.size > 1) {
       findContainingClass(refType) match {
         case Some(e) => return byContainingClasses.get(e).flatMap(_.headOption)
@@ -539,7 +539,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     if (index < 0) return None
 
     val containingName = name.substring(0, index)
-    classesByName(containingName).headOption.flatMap(findPsiClassByReferenceType)
+    classesByName(containingName).headOption.flatMap(findElementByReferenceType)
   }
 }
 
@@ -628,12 +628,12 @@ object ScalaPositionManager {
   def isCompiledWithIndyLambdas(file: PsiFile) = isCompiledWithIndyLambdasCache.getOrElse(file, false)
 
   @tailrec
-  def findGeneratingClassParent(element: PsiElement): PsiElement = {
+  def findGeneratingClassOrMethodParent(element: PsiElement): PsiElement = {
     element match {
       case null => null
-      case elem if ScalaEvaluatorBuilderUtil.isGenerateClass(elem) => elem
+      case elem if ScalaEvaluatorBuilderUtil.isGenerateClass(elem) || isLambda(elem) => elem
       case expr: ScExpression if isInsideMacro(element) => expr
-      case elem => findGeneratingClassParent(elem.getParent)
+      case elem => findGeneratingClassOrMethodParent(elem.getParent)
     }
   }
 
@@ -706,7 +706,7 @@ object ScalaPositionManager {
     private def partsForAnonfun(elem: PsiElement): Seq[String] = {
       val anonfunCount = ScalaEvaluatorBuilderUtil.anonClassCount(elem)
       val lastParts = Seq.fill(anonfunCount - 1)(Seq("$apply", "$anonfun")).flatten
-      val containingClass = findGeneratingClassParent(elem.getParent)
+      val containingClass = findGeneratingClassOrMethodParent(elem.getParent)
       val owner = PsiTreeUtil.getParentOfType(elem, classOf[ScFunctionDefinition], classOf[ScTypeDefinition],
         classOf[ScPatternDefinition], classOf[ScVariableDefinition])
       val firstParts =
