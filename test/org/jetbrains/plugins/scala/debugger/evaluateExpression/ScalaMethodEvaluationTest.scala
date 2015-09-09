@@ -12,8 +12,8 @@ class ScalaMethodEvaluationTest extends ScalaMethodEvaluationTestBase with Scala
 
 class ScalaMethodEvaluationTest_2_12_M2 extends ScalaMethodEvaluationTestBase with ScalaVersion_2_12_M2 {
   //todo remove when SCL-9129 fixed
-  override def testLibraryFunction(): Unit = {}
-  override def testAppliesFromScalaLibrary(): Unit = {}
+//  override def testLibraryFunction(): Unit = {}
+//  override def testAppliesFromScalaLibrary(): Unit = {}
 }
 
 abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
