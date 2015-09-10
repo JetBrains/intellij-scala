@@ -67,7 +67,9 @@ object ScopeSuggester {
       val validator = ScalaTypeValidator(conflictsReporter, project, editor, file, curerntElement, parent, occurrences.isEmpty)
       val possibleNames = NameSuggester.namesByType(curerntElement.calcType)(validator)
 
-      result = result :+ new ScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toList.reverse.toArray)
+      val scope = new ScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toList.reverse.toArray)
+      scope.computeRanges()
+      result = result :+ scope
       parent = getParent(parent, isScriptFile)
     }
 
@@ -169,6 +171,7 @@ object ScopeSuggester {
     val result = new ScopeItem("package " + packageName, fileEncloser, occurrences, Array[ScTypeElement](),
       validator, possibleNames.toList.reverse.toArray)
 
+    result.computeRanges()
     result
   }
 }
@@ -212,6 +215,26 @@ class ScopeItem(val name: String,
       typeAlias = inTypeAlias
       typeAliasFile = typeAlias.getContainingFile
     }
+  }
+
+  def redefineUsualOccurrences(file:PsiFile): Unit = {
+    def findOneOccurrence(range: TextRange): ScTypeElement = {
+      PsiTreeUtil.findElementOfClassAtRange(file, range.getStartOffset, range.getEndOffset, classOf[ScTypeElement])
+    }
+
+    usualOccurrences = occurrencesRanges.map(findOneOccurrence)
+  }
+
+  def copy(): ScopeItem = {
+    val item = new ScopeItem(name, fileEncloser, usualOccurrences, occurrencesInCompanion, typeValidator, availableNames)
+    item.typeAlias = typeAlias
+    item.typeAliasFile = typeAliasFile
+    item.occurrencesRanges = occurrencesRanges
+    item.typeAliasOffset = typeAliasOffset
+    item.occurrencesFromInheretors = occurrencesFromInheretors
+    item.computeRanges()
+    item.computeTypeAliasOffset()
+    item
   }
 
   override def toString: String = name
