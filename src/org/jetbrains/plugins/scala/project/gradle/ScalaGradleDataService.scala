@@ -5,11 +5,13 @@ import java.io.File
 import java.util
 
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException, ProjectKeys}
+import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationSource, NotificationCategory, NotificationData}
 import com.intellij.openapi.externalSystem.service.project.{PlatformFacade, ProjectStructureHelper}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.gradle.model.data.ScalaModelData
+import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.sbt.project.data.service.{SafeProjectStructureHelper, AbstractDataService}
 
@@ -35,17 +37,23 @@ class ScalaGradleDataService(val helper: ProjectStructureHelper)
       compilerClasspath = scalaNode.getData.getScalaClasspath.asScala.toSeq
     } {
       module.configureScalaCompilerSettingsFrom("Gradle", compilerOptions)
-      configureScalaSdk(module, project.scalaLibraries, compilerClasspath)
+      configureScalaSdk(project, module, project.scalaLibraries, compilerClasspath)
     }
 
-  private def configureScalaSdk(module: Module, scalaLibraries: Seq[Library], compilerClasspath: Seq[File]): Unit = {
-    val compilerVersion =
-      findScalaLibraryIn(compilerClasspath).flatMap(getVersionFromJar)
-        .getOrElse(throw new ExternalSystemException("Cannot determine Scala compiler version for module " + module.getName))
+  private def configureScalaSdk(project: Project, module: Module, scalaLibraries: Seq[Library], compilerClasspath: Seq[File]): Unit = {
+    val compilerVersionOption = findScalaLibraryIn(compilerClasspath).flatMap(getVersionFromJar)
+    if (compilerVersionOption.isEmpty) {
+      showWarning(project, ScalaBundle.message("gradle.dataService.scalaVersionCantBeDetected", module.getName))
+      return
+    }
+    val compilerVersion = compilerVersionOption.get
 
-    val scalaLibrary =
-        scalaLibraries.find(_.scalaVersion == Some(compilerVersion))
-          .getOrElse(throw new ExternalSystemException("Cannot find project Scala library " + compilerVersion.number + " for module " + module.getName))
+    val scalaLibraryOption = scalaLibraries.find(_.scalaVersion.contains(compilerVersion))
+    if (scalaLibraryOption.isEmpty) {
+      showWarning(project, ScalaBundle.message("gradle.dataService.scalaLibraryIsNotFound", compilerVersion.number, module.getName))
+      return
+    }
+    val scalaLibrary = scalaLibraryOption.get
 
     if (!scalaLibrary.isScalaSdk) {
       val languageLevel = scalaLibrary.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
@@ -84,4 +92,9 @@ private object ScalaGradleDataService {
   private def isEmpty(s: String) = s == null || s.isEmpty
 
   private def include(b: Boolean, s: String): Seq[String] = if (b) Seq(s) else Seq.empty
+
+  private def showWarning(project: Project, message: String): Unit = {
+    val notification = new NotificationData("Gradle Sync", message, NotificationCategory.WARNING, NotificationSource.PROJECT_SYNC);
+    ExternalSystemNotificationManager.getInstance(project).showNotification(GradleConstants.SYSTEM_ID, notification);
+  }
 }

@@ -5,7 +5,8 @@ import java.io.File
 import java.util
 
 import com.intellij.compiler.CompilerConfiguration
-import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
+import com.intellij.openapi.externalSystem.model.DataNode
+import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
 import com.intellij.openapi.externalSystem.service.project.ProjectStructureHelper
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -13,6 +14,8 @@ import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModifiableRootModel, ModuleRootManager, ModuleRootModificationUtil}
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.sbt.project.SbtProjectSystem
 
 import scala.collection.JavaConverters._
 
@@ -32,24 +35,29 @@ class ModuleExtDataService(val helper: ProjectStructureHelper)
       data = sdkNode.getData
     } {
       module.configureScalaCompilerSettingsFrom("SBT", data.scalacOptions)
-      data.scalaVersion.foreach(version => configureScalaSdk(module, module.scalaLibraries.toSeq, version, data.scalacClasspath))
+      data.scalaVersion.foreach(version => configureScalaSdk(project, module, version, data.scalacClasspath))
       configureOrInheritSdk(module, data.jdk)
       configureLanguageLevel(module, data.javacOptions)
       configureJavacOptions(module, data.javacOptions)
     }
   }
 
-  private def configureScalaSdk(module: Module, scalaLibraries: Seq[Library], compilerVersion: Version, compilerClasspath: Seq[File]): Unit =
+  private def configureScalaSdk(project: Project, module: Module, compilerVersion: Version, compilerClasspath: Seq[File]): Unit = {
+    val scalaLibraries = module.scalaLibraries
     if (scalaLibraries.nonEmpty) {
       val scalaLibrary = scalaLibraries
-              .find(_.scalaVersion.contains(compilerVersion))
-              .orElse(scalaLibraries.find(_.scalaVersion.exists(_.toLanguageLevel == compilerVersion.toLanguageLevel)))
-              .getOrElse(throw new ExternalSystemException("Cannot find project Scala library " +
-                           compilerVersion.number + " for module " + module.getName))
+        .find(_.scalaVersion.contains(compilerVersion))
+        .orElse(scalaLibraries.find(_.scalaVersion.exists(_.toLanguageLevel == compilerVersion.toLanguageLevel)))
 
-      if (!scalaLibrary.isScalaSdk)
-        scalaLibrary.convertToScalaSdkWith(scalaLibrary.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default), compilerClasspath)
+      scalaLibrary match {
+        case Some(library) if !library.isScalaSdk =>
+          library.convertToScalaSdkWith(library.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default), compilerClasspath)
+        case None =>
+          showWarning(project, SbtBundle("sbt.dataService.scalaLibraryIsNotFound", compilerVersion.number, module.getName))
+        case _ => // do nothing
+      }
     }
+  }
 
   private def configureOrInheritSdk(module: Module, sdk: Option[Sdk]): Unit = {
     ModuleRootModificationUtil.setSdkInherited(module)
@@ -79,6 +87,12 @@ class ModuleExtDataService(val helper: ProjectStructureHelper)
     } {
       compilerSettings.setBytecodeTargetLevel(module, targetValue)
     }
+  }
+
+  private def showWarning(project: Project, message: String): Unit = {
+    val notification = new NotificationData(SbtBundle("sbt.notificationGroupTitle"), message, NotificationCategory.WARNING, NotificationSource.PROJECT_SYNC)
+    notification.setBalloonGroup(SbtBundle("sbt.notificationGroupName"))
+    ExternalSystemNotificationManager.getInstance(project).showNotification(SbtProjectSystem.Id, notification)
   }
 
   def doRemoveData(toRemove: util.Collection[_ <: Library], project: Project) {}
