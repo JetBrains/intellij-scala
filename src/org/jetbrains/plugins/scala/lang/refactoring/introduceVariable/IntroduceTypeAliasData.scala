@@ -12,24 +12,25 @@ import scala.collection.mutable.ArrayBuffer
  * Created by Kate Ustyuzhanina on 9/7/15.
  */
 object IntroduceTypeAliasData {
-  val scopeElements: ArrayBuffer[ScopeItem] = new ArrayBuffer[ScopeItem]()
+  var currentScope: ScopeItem = null
   var initialInfo: (String, Int) = ("", 0)
   var possibleScopes: util.ArrayList[ScopeItem] = null
   var isReverted = false
 
   def clearData(): Unit = {
-    scopeElements.clear()
+    currentScope = null
     initialInfo = ("", 0)
     possibleScopes = null
     isReverted = false
   }
 
   def isData:Boolean = {
-    scopeElements.length != 0 || initialInfo != ("", 0) || possibleScopes != null
+    currentScope != null || initialInfo != ("", 0) || possibleScopes != null
   }
 
   def addScopeElement(item: ScopeItem): Unit = {
-    scopeElements += item
+    val elementCopy = item.copy()
+    currentScope = elementCopy
   }
 
   def setInintialInfo(inText: String, caretPosition: Int): Unit = {
@@ -43,14 +44,12 @@ object IntroduceTypeAliasData {
   }
 
   def getNamedElement: ScTypeAlias = {
-    val element = PsiTreeUtil.findElementOfClassAtOffset(scopeElements.last.typeAliasFile,
-      scopeElements.last.typeAliasOffset.getStartOffset, classOf[ScTypeAlias], false)
+    val element = PsiTreeUtil.findElementOfClassAtOffset(currentScope.typeAliasFile,
+      currentScope.typeAliasOffset.getStartOffset, classOf[ScTypeAlias], false)
     if (element != null) {
       element.asInstanceOf[ScTypeAlias]
     }
     element
   }
-
-  def revertToInitial = scopeElements.size > 1
 
 }
