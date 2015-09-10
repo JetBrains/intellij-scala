@@ -3,9 +3,11 @@ package org.jetbrains.sbt.project.data.service
 import java.io.File
 
 import com.intellij.compiler.CompilerConfiguration
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
+import com.intellij.openapi.externalSystem.service.notification.{NotificationCategory, NotificationSource}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots
 import com.intellij.openapi.projectRoots.ProjectJdkTable
@@ -17,6 +19,7 @@ import junit.framework.Assert._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{DebuggingInfoLevel, Version}
 import org.jetbrains.sbt.UsefulTestCaseHelper
+import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data._
 
 import scala.collection.JavaConverters._
@@ -37,10 +40,10 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
   def testWithoutScalaLibrary(): Unit =
     importProjectData(generateScalaProject("2.11.5", None, Seq.empty))
 
-  def testWithIncompatibleScalaLibrary(): Unit =
-    assertException[ExternalSystemException](Some("Cannot find project Scala library 2.11.5 for module Module 1")) {
-      importProjectData(generateScalaProject("2.11.5", Some("2.10.4"), Seq.empty))
-    }
+  def testWithIncompatibleScalaLibrary(): Unit = {
+    importProjectData(generateScalaProject("2.11.5", Some("2.10.4"), Seq.empty))
+    assertNotificationsCount(NotificationSource.PROJECT_SYNC, NotificationCategory.WARNING, SbtProjectSystem.Id, 1)
+  }
 
   def testWithCompatibleScalaLibrary(): Unit = {
     doTestAndCheckScalaSdk("2.11.1", "2.11.5")
