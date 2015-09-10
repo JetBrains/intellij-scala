@@ -26,7 +26,7 @@ import com.intellij.refactoring.introduce.inplace.OccurrencesChooser
 import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock, ScTemplateBody}
@@ -184,6 +184,16 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
         def runWithDialog(fromInplace: Boolean) {
           val typeElementHelper = if (fromInplace) {
             PsiTreeUtil.findElementOfClassAtOffset(file, editor.getCaretModel.getOffset, classOf[ScTypeElement], false)
+            match {
+              case simpleType: ScSimpleTypeElement =>
+                if (simpleType.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs]) {
+                  PsiTreeUtil.getParentOfType(simpleType, classOf[ScParameterizedTypeElement])
+                } else {
+                  simpleType
+                }
+              case typeElement: ScTypeElement =>
+                typeElement
+            }
           } else {
             typeElement
           }
@@ -198,6 +208,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
           val typeName: String = dialog.getEnteredName
           val replaceAllOccurrences: Boolean = dialog.isReplaceAllOccurrences
 
+          dialog.getSelectedScope.redefineUsualOccurrences(file)
           val occurrences: OccurrenceHandler = OccurrenceHandler(typeElementHelper,
             dialog.isReplaceAllOccurrences,
             dialog.isReplaceOccurrenceIncompanionObject,
@@ -266,12 +277,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
             }, REFACTORING_NAME, null)
           }
 
-          val elements = IntroduceTypeAliasData.scopeElements
-          val currentScope = if (elements.nonEmpty) {
-            elements.last
-          } else {
-            null
-          }
+          val currentScope = IntroduceTypeAliasData.currentScope
 
           //need open odal dialog in inplace mode
           if ((StartMarkAction.canStart(project) != null) && (currentScope != null)) {
@@ -280,8 +286,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
               templateState.cancelTemplate()
             }
 
-            ScalaInplaceTypeAliasIntroducer.revertState(editor, file != IntroduceTypeAliasData.scopeElements.head.typeAliasFile,
-              IntroduceTypeAliasData.scopeElements.head, IntroduceTypeAliasData.getNamedElement)
+            ScalaInplaceTypeAliasIntroducer.revertState(editor, file != IntroduceTypeAliasData.currentScope.typeAliasFile,
+              IntroduceTypeAliasData.currentScope, IntroduceTypeAliasData.getNamedElement)
 
             runWithDialog(fromInplace = true)
           } else {

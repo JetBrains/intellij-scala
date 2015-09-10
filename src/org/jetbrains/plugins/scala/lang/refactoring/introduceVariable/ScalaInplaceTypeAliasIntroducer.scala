@@ -32,10 +32,8 @@ object ScalaInplaceTypeAliasIntroducer {
             file: PsiFile): ScalaInplaceTypeAliasIntroducer = {
 
     IntroduceTypeAliasData.addScopeElement(scopeItem)
-    if (IntroduceTypeAliasData.scopeElements.size < 2) {
-      IntroduceTypeAliasData.scopeElements.last.computeRanges()
-      IntroduceTypeAliasData.scopeElements.last.computeTypeAliasOffset()
-    }
+    IntroduceTypeAliasData.currentScope.computeRanges()
+    IntroduceTypeAliasData.currentScope.computeTypeAliasOffset()
     new ScalaInplaceTypeAliasIntroducer(scNamedElement, substituted, editor, initialName, oldName, scopeItem, file)
   }
 
@@ -93,7 +91,7 @@ class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
 
   //we need't find fresh reference because we have their offsets
   override def collectRefs(referencesSearchScope: SearchScope): util.Collection[PsiReference] = {
-    val ranges = IntroduceTypeAliasData.scopeElements.head.occurrencesRanges
+    val ranges = IntroduceTypeAliasData.currentScope.occurrencesRanges
     val typeElements = ranges.map((x: TextRange) => PsiTreeUtil.findElementOfClassAtOffset(file, x.getStartOffset, classOf[ScTypeElement], true))
     val q = typeElements.map((x: ScTypeElement) => PsiTreeUtil.getChildOfAnyType(x, classOf[ScStableCodeReferenceElement]))
     import scala.collection.JavaConversions.asJavaCollection
