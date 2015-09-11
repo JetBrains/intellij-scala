@@ -6,14 +6,11 @@ package util
 import _root_.java.awt.Component
 import _root_.javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import java.util
-import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel}
-import javax.swing.{BoxLayout, JCheckBox, JPanel}
 
 import _root_.com.intellij.codeInsight.unwrap.ScopeHighlighter
 import _root_.com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, LightweightWindowEvent}
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
-import com.intellij.ide.util.treeView.AbstractTreeBuilder
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
@@ -23,13 +20,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.ReadonlyStatusHandler
 import com.intellij.psi._
-import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.HelpID
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import com.intellij.ui.NonFocusableCheckBox
-import com.intellij.ui.treeStructure.Tree
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScLiteralPattern, ScPattern, ScReferencePattern}
@@ -38,9 +33,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLitera
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition, ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -48,7 +43,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.OccurrenceHandler
 import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.JListCompatibility
@@ -99,7 +93,7 @@ object ScalaRefactoringUtil {
     }
     if (hasNlToken) e = ScalaPsiElementFactory.createExpressionFromText(text.substring(0, i + 1), e.getManager)
     e.getParent match {
-      case x: ScMethodCall if x.args.exprs.size > 0 =>
+      case x: ScMethodCall if x.args.exprs.nonEmpty =>
         ScalaPsiElementFactory.createExpressionFromText(e.getText + " _", e.getManager)
       case _ => e
     }
@@ -128,10 +122,15 @@ object ScalaRefactoringUtil {
     scType.recursiveUpdate(replaceSingleton)
   }
 
+  def typeInRightPart(typeElement: ScTypeElement): Boolean = {
+    PsiTreeUtil.getParentOfType(typeElement, classOf[ScTemplateParents]) != null
+  }
+
   def getTypeEement(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[ScTypeElement] = {
     val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScTypeElement])
 
-    if (element == null || element.getTextRange.getEndOffset != endOffset || element.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs]) {
+    if (element == null || element.getTextRange.getEndOffset != endOffset || element.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs]
+      || typeInRightPart(element)) {
       return None
     }
 
@@ -226,10 +225,10 @@ object ScalaRefactoringUtil {
     expr match {
       case ref: ScReferenceExpression =>
         ref.resolve() match {
-          case fun: ScFunction if fun.paramClauses.clauses.length > 0 &&
+          case fun: ScFunction if fun.paramClauses.clauses.nonEmpty &&
             fun.paramClauses.clauses.head.isImplicit => copyExpr
-          case fun: ScFunction if !fun.parameters.isEmpty => liftMethod
-          case meth: PsiMethod if !meth.getParameterList.getParameters.isEmpty => liftMethod
+          case fun: ScFunction if fun.parameters.nonEmpty => liftMethod
+          case meth: PsiMethod if meth.getParameterList.getParameters.nonEmpty => liftMethod
           case _ => copyExpr
         }
       case _ => copyExpr
@@ -286,7 +285,7 @@ object ScalaRefactoringUtil {
         val filter: ScLiteral => Boolean = {
           case toCheck: ScInterpolatedStringLiteral =>
             toCheck.reference.fold("")(_.refName) == prefix && toCheck.depthFirst.forall {
-              case ref: ScReferenceExpression => refNameToResolved.get(ref.refName) == Some(ref.resolve())
+              case ref: ScReferenceExpression => refNameToResolved.get(ref.refName).contains(ref.resolve())
               case _ => true
             }
           case _ => false
@@ -312,7 +311,7 @@ object ScalaRefactoringUtil {
           child match {
             case x: ScExpression =>
               x.getParent match {
-                case y: ScMethodCall if y.args.exprs.size == 0 => occurrences += y
+                case y: ScMethodCall if y.args.exprs.isEmpty => occurrences += y
                 case _ => occurrences += x
               }
             case _ =>
@@ -331,8 +330,8 @@ object ScalaRefactoringUtil {
       for (child <- enclosingContainer.getChildren) {
         if (PsiEquivalenceUtil.areElementsEquivalent(child, element)) {
           child match {
-            case x: ScTypeElement =>
-              occurrences += x
+            case typeElement: ScTypeElement if !typeInRightPart(typeElement) =>
+              occurrences += typeElement
             case _ =>
           }
         } else {
@@ -555,8 +554,8 @@ object ScalaRefactoringUtil {
 
   def getPackageObjectBody(typeElement: ScTypeElement): ScTemplateBody = {
     val dir: PsiDirectory = typeElement.getContainingFile.getContainingDirectory
-    val packageObject: ScTypeDefinition = ScalaDirectoryService.createClassFromTemplate(dir, "package", "Package Object", false).asInstanceOf[ScTypeDefinition]
-    return PsiTreeUtil.getChildOfType(PsiTreeUtil.getChildOfType(packageObject, classOf[ScExtendsBlock]), classOf[ScTemplateBody])
+    val packageObject: ScTypeDefinition = ScalaDirectoryService.createClassFromTemplate(dir, "package", "Package Object", askToDefineVariables = false).asInstanceOf[ScTypeDefinition]
+    PsiTreeUtil.getChildOfType(PsiTreeUtil.getChildOfType(packageObject, classOf[ScExtendsBlock]), classOf[ScTemplateBody])
   }
 
   def getShortText(expr: ScalaPsiElement): String = {
@@ -585,7 +584,7 @@ object ScalaRefactoringUtil {
         builder.append("[...]")
       case i: ScIfStmt =>
         builder.append("if (...) {...}")
-        if (i.elseBranch != None) builder.append(" else {...}")
+        if (i.elseBranch.isDefined) builder.append(" else {...}")
       case i: ScInfixExpr =>
         builder.append(getShortText(i.lOp))
         builder.append(" ")
@@ -601,7 +600,7 @@ object ScalaRefactoringUtil {
         builder.append(" match {...}")
       case m: ScMethodCall =>
         builder.append(getShortText(m.getInvokedExpr))
-        if (m.argumentExpressions.length == 0) builder.append("()")
+        if (m.argumentExpressions.isEmpty) builder.append("()")
         else builder.append("(...)")
       case n: ScNewTemplateDefinition =>
         builder.append("new ")
@@ -611,7 +610,7 @@ object ScalaRefactoringUtil {
         }
         for (tp <- types) {
           builder.append(ScType.presentableText(tp))
-          if (tp != types(types.length - 1)) builder.append(" with ")
+          if (tp != types.last) builder.append(" with ")
         }
         n.extendsBlock.templateBody match {
           case Some(tb) => builder.append(" {...}")
@@ -653,14 +652,14 @@ object ScalaRefactoringUtil {
         }
       case t: ScTryStmt =>
         builder.append("try {...}")
-        if (t.catchBlock != None) builder.append(" catch {...}")
-        if (t.finallyBlock != None) builder.append(" finally {...}")
+        if (t.catchBlock.isDefined) builder.append(" catch {...}")
+        if (t.finallyBlock.isDefined) builder.append(" finally {...}")
       case t: ScTuple =>
         builder.append("(")
         val exprs = t.exprs
         for (expr <- exprs) {
           builder.append(getShortText(expr))
-          if (expr != exprs.apply(exprs.length - 1)) builder.append(", ")
+          if (expr != exprs.last) builder.append(", ")
         }
         builder.append(")")
       case t: ScTypedStmt =>
@@ -671,7 +670,7 @@ object ScalaRefactoringUtil {
           case _ => "..."
         })
       case u: ScUnderscoreSection =>
-        if (u.bindingExpr == None) builder.append("_")
+        if (u.bindingExpr.isEmpty) builder.append("_")
         else {
           builder.append(getShortText(u.bindingExpr.get))
           builder.append(" _")
@@ -748,7 +747,7 @@ object ScalaRefactoringUtil {
             case simpleType: ScSimpleTypeElement if simpleType.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs] =>
             case typeInParenthesis: ScParenthesisedTypeElement =>
               val inType = typeInParenthesis.typeElement
-              if (!inType.isEmpty && !res.contains(typeInParenthesis.typeElement.get)) {
+              if (inType.isDefined && !res.contains(typeInParenthesis.typeElement.get)) {
                 res += typeInParenthesis.typeElement.get
               }
             case typeElement: ScTypeElement =>
@@ -1050,7 +1049,7 @@ object ScalaRefactoringUtil {
       case finBl: ScFinallyBlock if finBl.expression.orNull == parExpr => true
       case fE: ScFunctionExpr =>
         fE.getContext match {
-          case be: ScBlock if be.lastExpr == Some(fE) => false
+          case be: ScBlock if be.lastExpr.contains(fE) => false
           case _ => true
         }
       case _ => false
@@ -1078,6 +1077,7 @@ object ScalaRefactoringUtil {
     result
   }
 
+  @tailrec
   def container(element: PsiElement, file: PsiFile): PsiElement = {
     def oneExprBody(fun: ScFunctionDefinition): Boolean = fun.body match {
       case Some(_: ScBlock) => false
