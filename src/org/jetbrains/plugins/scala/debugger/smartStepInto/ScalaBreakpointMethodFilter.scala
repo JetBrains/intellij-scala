@@ -9,7 +9,6 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -89,8 +88,8 @@ object ScalaBreakpointMethodFilter {
   }
 
   def from(psiMethod: Option[PsiMethod], first: Option[PsiElement], last: Option[PsiElement], exprLines: Range[Integer]): Option[ScalaBreakpointMethodFilter] = {
-    val firstPos = first.flatMap(createSourcePosition)
-    val lastPos = last.flatMap(createSourcePosition)
+    val firstPos = first.map(createSourcePosition)
+    val lastPos = last.map(createSourcePosition)
     Some(new ScalaBreakpointMethodFilter(psiMethod, firstPos, lastPos, exprLines))
   }
 
@@ -103,19 +102,9 @@ object ScalaBreakpointMethodFilter {
     }.sortBy(_.getTextOffset)
   }
   
-  private def createSourcePosition(elem: PsiElement): Option[SourcePosition] = {
-    elem match {
-      case _: ScAnnotationsHolder | _: ScCommentOwner =>
-        val firstSignificant = elem.children.find {
-          case ElementType(t) if ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(t) => false
-          case _: ScAnnotations => false
-          case e if e.getTextLength == 0 => false
-          case _ => true
-        }
-        firstSignificant.map(SourcePosition.createFromElement)
-      case _ => Some(SourcePosition.createFromElement(elem))
-    }
-
+  private def createSourcePosition(elem: PsiElement): SourcePosition = {
+    val significantElem = DebuggerUtil.getSignificantElement(elem)
+    SourcePosition.createFromElement(significantElem)
   }
 
 }
