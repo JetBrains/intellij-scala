@@ -86,12 +86,12 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
         val process = processBuilder.start()
         using(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
           sbtCommands.foreach(writer.println)
+          val result = handle(process, listener)
+          result.map { output =>
+            (structureFile.length > 0).either(
+              XML.load(structureFile.toURI.toURL))(SbtException.fromSbtLog(output))
+          }.getOrElse(Left(new ImportCancelledException))
         }
-        val result = handle(process, listener)
-        result.map { output =>
-          (structureFile.length > 0).either(
-            XML.load(structureFile.toURI.toURL))(SbtException.fromSbtLog(output))
-        }.getOrElse(Left(new ImportCancelledException))
       } catch {
         case e: Exception => Left(e)
       }
