@@ -8,7 +8,6 @@ import com.intellij.debugger.engine._
 import com.intellij.debugger.requests.ClassPrepareRequestor
 import com.intellij.debugger.settings.DebuggerSettings
 import com.intellij.debugger.{MultiRequestPositionManager, NoDataException, PositionManager, SourcePosition}
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.DirectoryIndex
@@ -64,23 +63,13 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
 
   @Nullable
   def getSourcePosition(@Nullable location: Location): SourcePosition = {
-    def calcLineIndex(location: Location): Int = {
-      LOG.assertTrue(debugProcess != null)
-      try {
-        customLineNumber(location).getOrElse(location.lineNumber - 1)
-      }
-      catch {
-        case e: InternalError => -1
-      }
-    }
-
-    if (shouldSkip(location)) return null
+    if (LocationLineManager.shouldSkip(location)) return null
 
     val position =
       for {
         loc <- location.toOption
         psiFile <- getPsiFileByReferenceType(debugProcess.getProject, loc.declaringType).toOption
-        lineNumber = calcLineIndex(loc)
+        lineNumber = LocationLineManager.lineNumber(location)
         if lineNumber >= 0
       } yield {
         calcPosition(psiFile, location, lineNumber).getOrElse {
@@ -138,25 +127,12 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
 
   @NotNull
   def locationsOfLine(@NotNull refType: ReferenceType, @NotNull position: SourcePosition): util.List[Location] = {
-    def findCustomizedLocations(line: Int) = {
-      val allLocations = refType.allLineLocations().asScala
-      allLocations.filter { l =>
-        val custom = customLineNumber(l)
-        custom.isDefined && custom.contains(line - 1)
-      }
-  }
 
     checkScalaFile(position)
 
     try {
-      val line: Int = position.getLine + 1
-      val jvmLocations: util.List[Location] =
-        if (debugProcess.getVirtualMachineProxy.versionHigher("1.4"))
-          refType.locationsOfLine(DebugProcess.JAVA_STRATUM, null, line)
-        else refType.locationsOfLine(line)
-      val nonCustomizedJvm = jvmLocations.asScala.filter(l => customLineNumber(l).isEmpty)
-      val customized = findCustomizedLocations(line)
-      (nonCustomizedJvm ++ customized).filter(!shouldSkip(_)).asJava
+      val line: Int = position.getLine
+      LocationLineManager.locationsOfLine(refType, line).asJava
     }
     catch {
       case e: AbsentInformationException => Collections.emptyList()
@@ -267,31 +243,6 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
         case t: Throwable => firstElement
       }
     }
-  }
-
-  private def customLineNumber(location: Location): Option[Int] = {
-    //scalac sometimes generates very strange line numbers for <init> method
-    def lineForConstructor: Option[Int] = {
-      val declType = location.declaringType()
-      inReadAction {
-        findElementByReferenceType(declType) match {
-          case Some(c) =>
-            val containingFile = c.getContainingFile
-            val linePosition = SourcePosition.createFromLine(containingFile, location.lineNumber() - 1)
-            val elem = nonWhitespaceElement(linePosition)
-            val parent = PsiTreeUtil.getParentOfType(elem, classOf[ScBlockStatement], classOf[ScEarlyDefinitions])
-            if (parent != null && PsiTreeUtil.isAncestor(c, parent, false)) None
-            else {
-              val doc = PsiDocumentManager.getInstance(debugProcess.getProject).getDocument(containingFile)
-              Some(doc.getLineNumber(c.getTextOffset))
-            }
-          case None => None
-        }
-      }
-    }
-
-    if (location.method.isConstructor && location.method.location == location) lineForConstructor
-    else None
   }
 
   private def calcPosition(file: PsiFile, location: Location, lineNumber: Int): Option[SourcePosition] = {
@@ -541,10 +492,90 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     val containingName = name.substring(0, index)
     classesByName(containingName).headOption.flatMap(findElementByReferenceType)
   }
+
+  object LocationLineManager {
+    private val syntheticProvider = SyntheticTypeComponentProvider.EP_NAME.findExtension(classOf[ScalaSyntheticProvider])
+
+    private val customizedLocationsCache = mutable.WeakHashMap[Location, Int]()
+    private val lineToCustomizedLocationCache = mutable.WeakHashMap[(ReferenceType, Int), Seq[Location]]()
+    private val seenRefTypes = mutable.Set[ReferenceType]()
+
+    def lineNumber(location: Location): Int = {
+      checkAndUpdateCaches(location.declaringType())
+      customizedLocationsCache.getOrElse(location, location.lineNumber() - 1)
+    }
+
+    def shouldSkip(location: Location): Boolean = {
+      val synth = DebuggerSettings.getInstance().SKIP_SYNTHETIC_METHODS && syntheticProvider.isSynthetic(location.method())
+      synth || lineNumber(location) < 0
+    }
+
+    def locationsOfLine(refType: ReferenceType, line: Int) = {
+      val jvmLocations: util.List[Location] =
+        if (debugProcess.getVirtualMachineProxy.versionHigher("1.4"))
+          refType.locationsOfLine(DebugProcess.JAVA_STRATUM, null, line + 1)
+        else refType.locationsOfLine(line + 1)
+
+      checkAndUpdateCaches(refType)
+
+      val nonCustomized = jvmLocations.asScala.filterNot(customizedLocationsCache.contains)
+      val customized = customizedLocations(refType, line)
+      (nonCustomized ++ customized).filter(!LocationLineManager.shouldSkip(_))
+    }
+
+    private def customizedLocations(refType: ReferenceType, line: Int): Seq[Location] = {
+      lineToCustomizedLocationCache.getOrElse((refType, line), Seq.empty)
+    }
+
+    private def checkAndUpdateCaches(refType: ReferenceType) = {
+      if (!seenRefTypes.contains(refType)) inReadAction(computeCustomizedLocationsFor(refType))
+    }
+
+    private def putToCaches(location: Location, customLine: Int): Unit = {
+      customizedLocationsCache.put(location, customLine)
+
+      val key = (location.declaringType(), customLine)
+      val old = lineToCustomizedLocationCache.getOrElse(key, Seq.empty)
+      lineToCustomizedLocationCache.update(key, (old :+ location).sortBy(_.codeIndex()))
+    }
+
+
+    private def computeCustomizedLocationsFor(refType: ReferenceType): Unit = {
+      seenRefTypes += refType
+
+      val generatingElem = findElementByReferenceType(refType).orNull
+      if (generatingElem == null) return
+      val containingFile = generatingElem.getContainingFile
+      if (containingFile == null) return
+      val document = PsiDocumentManager.getInstance(debugProcess.getProject).getDocument(containingFile)
+      if (document == null) return
+
+      //scalac sometimes generates very strange line numbers for <init> method
+      def customizeLineForConstructors(): Unit = {
+        def shouldCustomize(location: Location) = {
+          val linePosition = SourcePosition.createFromLine(containingFile, location.lineNumber() - 1)
+          val elem = nonWhitespaceElement(linePosition)
+          val parent = PsiTreeUtil.getParentOfType(elem, classOf[ScBlockStatement], classOf[ScEarlyDefinitions])
+          parent == null || !PsiTreeUtil.isAncestor(generatingElem, parent, false)
+        }
+
+        val methods = refType.methodsByName("<init>").asScala
+        for {
+          location <- methods.map(_.location())
+          if shouldCustomize(location)
+        } {
+          val significantElem = DebuggerUtil.getSignificantElement(generatingElem)
+          val lineNumber = document.getLineNumber(significantElem.getTextOffset)
+          putToCaches(location, lineNumber)
+        }
+      }
+
+      customizeLineForConstructors()
+    }
+  }
 }
 
 object ScalaPositionManager {
-  private val LOG: Logger = Logger.getInstance("#com.intellij.debugger.engine.PositionManagerImpl")
   private val SCRIPT_HOLDER_CLASS_NAME: String = "Main$$anon$1"
 
   private val isCompiledWithIndyLambdasCache = mutable.HashMap[PsiFile, Boolean]()
@@ -658,11 +689,6 @@ object ScalaPositionManager {
       case _: ScTrait => s"$name$$class"
       case _ => name
     }
-  }
-
-  private def shouldSkip(location: Location) = {
-    val syntheticProvider = SyntheticTypeComponentProvider.EP_NAME.findExtension(classOf[ScalaSyntheticProvider])
-    DebuggerSettings.getInstance().SKIP_SYNTHETIC_METHODS && syntheticProvider.isSynthetic(location.method())
   }
 
   private class MyClassPrepareRequestor(position: SourcePosition, requestor: ClassPrepareRequestor) extends ClassPrepareRequestor {
