@@ -157,16 +157,26 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
         }
       }
 
+      def processType(name: String): Option[(PsiNamedElement, ScSubstitutor)] = {
+        import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
+        val proc = resolveProcessor(ValueSet(CLASS), name)
+        proc.processType(projected, resolvePlace, ResolveState.initial)
+        val candidates = proc.candidates
+        if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
+          val defaultSubstitutor = emptySubst followed candidates(0).substitutor
+          if (superReference) {
+            ScalaPsiUtil.superTypeMembersAndSubstitutors(candidates(0).element).find {
+              _.info == element
+            } match {
+              case Some(node) =>
+                Some(element, defaultSubstitutor followed node.substitutor)
+              case _ => Some(element, defaultSubstitutor)
+            }
+          } else Some(candidates(0).element, defaultSubstitutor)
+        } else None
+      }
       element match {
-        case a: ScTypeAlias =>
-          val name = a.name
-          import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-          val proc = resolveProcessor(ValueSet(CLASS), name)
-          proc.processType(projected, resolvePlace, ResolveState.initial)
-          val candidates = proc.candidates
-          if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
-            Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
-          } else None
+        case a: ScTypeAlias => processType(a.name)
         case d: ScTypedDefinition if d.isStable =>
           val name = d.name
           import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
@@ -175,26 +185,11 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
           proc.processType(projected, resolvePlace, ResolveState.initial)
           val candidates = proc.candidates
           if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
+            //todo: superMemberSubstitutor? However I don't know working example for this case
             Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
           } else None
-        case d: ScTypeDefinition =>
-          val name = d.name
-          import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-          val proc = resolveProcessor(ValueSet(CLASS), name) //ScObject in ScTypedDefinition case.
-          proc.processType(projected, resolvePlace, ResolveState.initial)
-          val candidates = proc.candidates
-          if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
-            Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
-          } else None
-        case d: PsiClass =>
-          val name = d.getName
-          import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-          val proc = resolveProcessor(ValueSet(CLASS), name) //ScObject in ScTypedDefinition case.
-          proc.processType(projected, resolvePlace, ResolveState.initial)
-          val candidates = proc.candidates
-          if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
-            Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
-          } else None
+        case d: ScTypeDefinition => processType(d.name)
+        case d: PsiClass => processType(d.getName)
         case _ => None
       }
     }
@@ -206,8 +201,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
           (element, ScSubstitutor.empty)
         )
 
-    if (superReference) (element, actualSubst)
-    else (actualElement, actualSubst)
+    (actualElement, actualSubst)
   }
 
   def actualElement: PsiNamedElement = actual._1
