@@ -58,6 +58,7 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     override def processDetached(process: DebugProcess, closedByUser: Boolean): Unit = {
       isCompiledWithIndyLambdasCache.clear()
       refTypeToFileCache.clear()
+      LocationLineManager.clear()
     }
   })
 
@@ -500,6 +501,12 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     private val lineToCustomizedLocationCache = mutable.WeakHashMap[(ReferenceType, Int), Seq[Location]]()
     private val seenRefTypes = mutable.Set[ReferenceType]()
 
+    def clear(): Unit = {
+      customizedLocationsCache.clear()
+      lineToCustomizedLocationCache.clear()
+      seenRefTypes.clear()
+    }
+
     def lineNumber(location: Location): Int = {
       checkAndUpdateCaches(location.declaringType())
       customizedLocationsCache.getOrElse(location, location.lineNumber() - 1)
@@ -538,7 +545,6 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
       val old = lineToCustomizedLocationCache.getOrElse(key, Seq.empty)
       lineToCustomizedLocationCache.update(key, (old :+ location).sortBy(_.codeIndex()))
     }
-
 
     private def computeCustomizedLocationsFor(refType: ReferenceType): Unit = {
       seenRefTypes += refType
