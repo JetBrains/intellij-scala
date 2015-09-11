@@ -1372,9 +1372,9 @@ object ScalaPsiUtil {
   def getEmptyModifierList(manager: PsiManager): PsiModifierList =
     new LightModifierList(manager, ScalaFileType.SCALA_LANGUAGE)
 
-  def adjustTypes(element: PsiElement, addImports: Boolean = true) {
+  def adjustTypes(element: PsiElement, addImports: Boolean = true, useTypeAliases: Boolean = true) {
     def adjustTypesChildren(): Unit = {
-      element.children.foreach(adjustTypes(_, addImports))
+      element.children.foreach(adjustTypes(_, addImports, useTypeAliases))
     }
 
     def replaceStablePath(ref: ScReferenceElement, name: String, qualName: Option[String], toBind: PsiElement): PsiElement = {
@@ -1464,7 +1464,7 @@ object ScalaPsiUtil {
             named match {
               case clazz: PsiClass =>
                 availableTypeAliasFor(clazz, element) match {
-                  case Some(ta) => replaceStablePath(stableRef, ta.name, None, ta)
+                  case Some(ta) if !ta.isAncestorOf(stableRef) && useTypeAliases => replaceStablePath(stableRef, ta.name, None, ta)
                   case _ => replaceStablePath(stableRef, clazz.name, Option(clazz.qualifiedName), clazz)
                 }
               case typeAlias: ScTypeAlias => replaceStablePath(stableRef, typeAlias.name, None, typeAlias)
