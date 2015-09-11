@@ -27,7 +27,7 @@ addCommandAlias("packagePluginZip", "pluginCompressor/package")
 
 lazy val scalaCommunity: Project =
   newProject("scalaCommunity", file("."))
-  .dependsOn(compilerSettings, runners % "test->test;compile->compile")
+  .dependsOn(compilerSettings, scalap, runners % "test->test;compile->compile")
   .enablePlugins(SbtIdeaPlugin)
   .settings(
     ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
@@ -35,7 +35,7 @@ lazy val scalaCommunity: Project =
     scalacOptions in Global += "-target:jvm-1.6",
     libraryDependencies ++= DependencyGroups.scalaCommunity,
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
-    unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "scalap", "nailgun", "scalastyle"),
+    unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun", "scalastyle"),
     ideaInternalPlugins := Seq(
       "copyright",
       "gradle",
@@ -47,7 +47,7 @@ lazy val scalaCommunity: Project =
       "junit",
       "properties"
     ),
-    ideaInternalPluginsJars <<= (ideaInternalPluginsJars).map { classpath =>
+    ideaInternalPluginsJars <<= ideaInternalPluginsJars.map { classpath =>
       classpath.filterNot(_.data.getName.contains("lucene-core"))
     },
     aggregate.in(updateIdea) := false,
@@ -94,11 +94,15 @@ lazy val nailgunRunners =
   .dependsOn(scalaRunner)
   .settings(unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"))
 
+lazy val scalap =
+  newProject("scalap", file("scalap"))
+    .settings(libraryDependencies ++= DependencyGroups.scalap)
+
 // Utility projects
 
 lazy val ideaRunner =
   newProject("ideaRunner", file("idea-runner"))
-  .dependsOn(Seq(compilerSettings, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners).map(_ % Provided): _*)
+  .dependsOn(Seq(compilerSettings, scalaRunner, runners, scalaCommunity, jpsPlugin, nailgunRunners, scalap).map(_ % Provided): _*)
   .settings(
     autoScalaLibrary := false,
     unmanagedJars in Compile := ideaMainJars.in(scalaCommunity).value,
@@ -216,6 +220,8 @@ lazy val pluginPackager =
       val lib = Seq(
         Artifact(pack.in(scalaCommunity, Compile).value,
           "lib/scala-plugin.jar"),
+        Artifact(pack.in(scalap, Compile).value,
+          "lib/scalap.jar"),
         Artifact(pack.in(compilerSettings, Compile).value,
           "lib/compiler-settings.jar"),
         Artifact(pack.in(nailgunRunners, Compile).value,
@@ -226,8 +232,6 @@ lazy val pluginPackager =
           "lib/scala-plugin-runners.jar"),
         Library(Dependencies.scalaLibrary,
           "lib/scala-library.jar"),
-        Directory(sdkDirectory.value / "scalap",
-          "lib"),
         Directory(sdkDirectory.value / "scalastyle",
           "lib")
       ) ++
