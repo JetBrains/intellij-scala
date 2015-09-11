@@ -2,11 +2,9 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import java.util
 
-import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem
-import scala.collection.mutable.ArrayBuffer
 
 /**
  * Created by Kate Ustyuzhanina on 9/7/15.

@@ -56,7 +56,14 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
   private var occurrenceHighlighters = Seq.empty[RangeHighlighter]
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
-    val element = PsiTreeUtil.findElementOfClassAtOffset(file, editor.getCaretModel.getOffset, classOf[ScTypeElement], false)
+    def getElement(offset: Int) = PsiTreeUtil.findElementOfClassAtOffset(file, offset, classOf[ScTypeElement], false)
+    val offset = editor.getCaretModel.getOffset
+
+    val element = file.findElementAt(offset) match {
+      case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
+        w.getText.contains(" ") => getElement(offset - 1)
+      case _ => getElement(offset)
+    }
 
     if (element != null) {
       ScalaRefactoringUtil.afterTypeAliasChoosing(project, editor, file, dataContext, "Introduce Type Alias") {
@@ -517,7 +524,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
 
   def runRefactoringForTypeInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor,
                                   typeElement: ScTypeElement, typeName: String,
-                                  occurrences: OccurrenceHandler, replaceAllOccurrences: Boolean, suggestedParent: PsiElement, scopeItem: ScopeItem):
+                                  occurrences: OccurrenceHandler, replaceAllOccurrences: Boolean,
+                                  suggestedParent: PsiElement, scopeItem: ScopeItem):
   (SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])
   = {
     def addTypeAliasDefinition(typeName: String, typeElement: ScTypeElement, parent: PsiElement) = {
@@ -530,11 +538,14 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
           else children.apply(0)))
       }
 
-      val mtext = typeElement.getText
+      val mtext = typeElement.calcType.canonicalText
+
       val definition = ScalaPsiElementFactory
         .createTypeAliasDefinitionFromText(s"type $typeName = $mtext", typeElement.getContext, typeElement)
-      ScalaPsiUtil.addTypeAliasBefore(definition, parent, getAhchor(parent, typeElement))
-      //      definition
+
+      val resultTypeAlias = ScalaPsiUtil.addTypeAliasBefore(definition, parent, getAhchor(parent, typeElement))
+      ScalaPsiUtil.adjustTypes(resultTypeAlias)
+      resultTypeAlias
     }
 
     val typeAlias = addTypeAliasDefinition(typeName, occurrences.getAllOccurrences(0), suggestedParent)
