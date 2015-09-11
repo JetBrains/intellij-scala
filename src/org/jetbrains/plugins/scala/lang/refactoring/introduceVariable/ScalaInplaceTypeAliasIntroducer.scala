@@ -9,9 +9,11 @@ import com.intellij.psi._
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.RefactoringActionHandler
+import com.intellij.refactoring.rename.inplace.VariableInplaceRenameHandler
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberInplaceRenamer
 import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem
@@ -84,17 +86,24 @@ class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
   }
 
   override def startsOnTheSameElement(handler: RefactoringActionHandler, element: PsiElement): Boolean = {
-    //    getVariable eq element
-    //    elements.apply(0).usualOccurrences.apply(0) == element
-    true
+    def checkEquals(typeAliasDefinition: ScTypeAliasDefinition) = {
+      IntroduceTypeAliasData.getNamedElement == element
+    }
+
+    element match  {
+      case typeAliasDefinition: ScTypeAliasDefinition =>
+        checkEquals(typeAliasDefinition) && handler.isInstanceOf[ScalaIntroduceVariableHandler]
+      case _ => false
+    }
   }
 
+  //TODO to find occurrence we need its file
   //we need't find fresh reference because we have their offsets
-  override def collectRefs(referencesSearchScope: SearchScope): util.Collection[PsiReference] = {
-    val ranges = IntroduceTypeAliasData.currentScope.occurrencesRanges
-    val typeElements = ranges.map((x: TextRange) => PsiTreeUtil.findElementOfClassAtOffset(file, x.getStartOffset, classOf[ScTypeElement], true))
-    val q = typeElements.map((x: ScTypeElement) => PsiTreeUtil.getChildOfAnyType(x, classOf[ScStableCodeReferenceElement]))
-    import scala.collection.JavaConversions.asJavaCollection
-    new util.ArrayList[PsiReference](q.toIterable)
-  }
+  //  override def collectRefs(referencesSearchScope: SearchScope): util.Collection[PsiReference] = {
+  //    val ranges = IntroduceTypeAliasData.currentScope.occurrencesRanges
+  //    val typeElements = ranges.map((x: TextRange) => PsiTreeUtil.findElementOfClassAtRange(file, x.getStartOffset,x.getEndOffset, classOf[ScTypeElement]))
+  //    val q = typeElements.map((x: ScTypeElement) => PsiTreeUtil.getChildOfAnyType(x, classOf[ScStableCodeReferenceElement]))
+  //    import scala.collection.JavaConversions.asJavaCollection
+  //    new util.ArrayList[PsiReference](q.toIterable)
+  //  }
 }
