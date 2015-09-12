@@ -98,6 +98,10 @@ lazy val scalap =
   newProject("scalap", file("scalap"))
     .settings(libraryDependencies ++= DependencyGroups.scalap)
 
+lazy val scalaDevPlugin =
+  newProject("scalaDevPlugin", file("SDK/scalaDevPlugin"))
+  .settings(unmanagedJars in Compile := ideaMainJars.in(scalaCommunity).value)
+
 // Utility projects
 
 lazy val ideaRunner =
@@ -258,3 +262,7 @@ lazy val pluginCompressor =
       artifactPath.value
     }
   )
+
+TaskKey[Unit]("buildDevPlugin") := {
+  (packageBin in (scalaDevPlugin, Compile)).value
+}
