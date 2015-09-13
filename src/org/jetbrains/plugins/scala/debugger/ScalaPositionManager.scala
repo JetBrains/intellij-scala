@@ -424,7 +424,8 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
   private def findElementByReferenceTypeInner(refType: ReferenceType): Option[PsiElement] = {
     val project = debugProcess.getProject
 
-    val refTypeLineNumbers = refType.allLineLocations().asScala.map(_.lineNumber() - 1)
+    val allLocations = Try(refType.allLineLocations().asScala).getOrElse(Seq.empty)
+    val refTypeLineNumbers = allLocations.map(_.lineNumber() - 1)
     if (refTypeLineNumbers.isEmpty) return None
 
     val firtsRefTypeLine = refTypeLineNumbers.min
@@ -533,11 +534,15 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
       synth || lineNumber(location) < 0
     }
 
-    def locationsOfLine(refType: ReferenceType, line: Int) = {
+    def locationsOfLine(refType: ReferenceType, line: Int): Seq[Location] = {
       val jvmLocations: util.List[Location] =
-        if (debugProcess.getVirtualMachineProxy.versionHigher("1.4"))
-          refType.locationsOfLine(DebugProcess.JAVA_STRATUM, null, line + 1)
-        else refType.locationsOfLine(line + 1)
+        try {
+          if (debugProcess.getVirtualMachineProxy.versionHigher("1.4"))
+            refType.locationsOfLine(DebugProcess.JAVA_STRATUM, null, line + 1)
+          else refType.locationsOfLine(line + 1)
+        } catch {
+          case aie: AbsentInformationException => return Seq.empty
+        }
 
       checkAndUpdateCaches(refType)
 
