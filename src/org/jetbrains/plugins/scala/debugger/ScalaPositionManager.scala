@@ -736,10 +736,21 @@ object ScalaPositionManager {
   }
 
   private class NamePattern(elem: PsiElement) {
+    private val sourceName = elem.getContainingFile.getName
+    private val exactName: Option[String] = {
+      elem match {
+        case td: ScTypeDefinition if !DebuggerUtil.isLocalClass(td) =>
+          Some(getSpecificNameForDebugger(td))
+        case _ => None
+      }
+    }
     private val classJVMNameParts: Seq[String] = {
-      val forElem = partsFor(elem).toIterator
-      val forParents = elem.parentsInFile.flatMap(e => partsFor(e))
-      (forElem ++ forParents).toSeq.reverse
+      if (exactName.isDefined) Seq.empty
+      else {
+        val forElem = partsFor(elem).toIterator
+        val forParents = elem.parentsInFile.flatMap(e => partsFor(e))
+        (forElem ++ forParents).toSeq.reverse
+      }
     }
 
     private def partsFor(elem: PsiElement): Seq[String] = {
@@ -766,26 +777,27 @@ object ScalaPositionManager {
       lastParts ++ firstParts
     }
 
+    private def checkParts(name: String): Boolean = {
+      var nameTail = name
+      for (part <- classJVMNameParts) {
+        val index = nameTail.indexOf(part)
+        if (index >= 0) {
+          nameTail = nameTail.substring(index + part.length)
+        }
+        else return false
+      }
+      nameTail.indexOf("$anon") == -1
+    }
+
     def matches(refType: ReferenceType): Boolean = {
+      val refTypeSourceName = Try(refType.sourceName()).getOrElse("")
+      if (refTypeSourceName != sourceName) return false
+
       val name = refType.name()
 
-      def checkParts(): Boolean = {
-        var nameTail = name
-        for (part <- classJVMNameParts) {
-          val index = nameTail.indexOf(part)
-          if (index >= 0) {
-            nameTail = nameTail.substring(index + part.length)
-          }
-          else return false
-        }
-        nameTail.indexOf("$anon") == -1
-      }
-
-      elem match {
-        case td: ScTypeDefinition if !DebuggerUtil.isLocalClass(td) =>
-          val qName = getSpecificNameForDebugger(td)
-          name == qName
-        case _ => checkParts()
+      exactName match {
+        case Some(qName) => qName == name
+        case None => checkParts(name)
       }
     }
   }
