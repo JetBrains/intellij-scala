@@ -86,6 +86,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
         val process = processBuilder.start()
         using(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
           sbtCommands.foreach(writer.println)
+          writer.flush()
           val result = handle(process, listener)
           result.map { output =>
             (structureFile.length > 0).either(
