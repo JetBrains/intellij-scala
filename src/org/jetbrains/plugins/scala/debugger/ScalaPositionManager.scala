@@ -53,11 +53,13 @@ import scala.util.Try
  */
 class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager with MultiRequestPositionManager {
   private val refTypeToFileCache = mutable.WeakHashMap[ReferenceType, PsiFile]()
+  private val refTypeToElementCache = mutable.WeakHashMap[ReferenceType, Option[SmartPsiElementPointer[PsiElement]]]()
 
   debugProcess.addDebugProcessListener(new DebugProcessAdapter {
     override def processDetached(process: DebugProcess, closedByUser: Boolean): Unit = {
       isCompiledWithIndyLambdasCache.clear()
       refTypeToFileCache.clear()
+      refTypeToElementCache.clear()
       LocationLineManager.clear()
     }
   })
@@ -406,6 +408,20 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
   }
 
   private def findElementByReferenceType(refType: ReferenceType): Option[PsiElement] = {
+    def createPointer(elem: PsiElement) =
+      SmartPointerManager.getInstance(debugProcess.getProject).createSmartPsiElementPointer(elem)
+
+    refTypeToElementCache.get(refType) match {
+      case Some(Some(p)) if p.getElement != null => Some(p.getElement)
+      case Some(Some(_)) | None =>
+        val found = findElementByReferenceTypeInner(refType)
+        refTypeToElementCache.update(refType, found.map(createPointer))
+        found
+      case Some(None) => None
+    }
+  }
+
+  private def findElementByReferenceTypeInner(refType: ReferenceType): Option[PsiElement] = {
     val project = debugProcess.getProject
 
     val refTypeLineNumbers = refType.allLineLocations().asScala.map(_.lineNumber() - 1)
