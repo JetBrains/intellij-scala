@@ -9,15 +9,10 @@ import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.CharsetToolkit.UTF8
-import com.intellij.openapi.vfs.newvfs.persistent.PersistentFS
-import com.intellij.openapi.vfs.newvfs.{ManagingFS, FileAttribute}
-import com.intellij.openapi.vfs.{CharsetToolkit, VirtualFile, VirtualFileWithId}
+import com.intellij.openapi.vfs.newvfs.FileAttribute
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import com.intellij.reference.SoftReference
 
-import scala.reflect.internal.pickling.ByteCodecs
-import scala.tools.scalap.scalax.rules.scalasig.ClassFileParser._
-import scala.tools.scalap.scalax.rules.scalasig._
 import scalap.Decompiler
 
 /**
@@ -26,7 +21,7 @@ import scalap.Decompiler
 object DecompilerUtil {
   protected val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.decompiler.DecompilerUtil")
 
-  val DECOMPILER_VERSION = 265
+  val DECOMPILER_VERSION = 266
   private val SCALA_DECOMPILER_FILE_ATTRIBUTE = new FileAttribute("_is_scala_compiled_new_key_", DECOMPILER_VERSION, true)
   private val SCALA_DECOMPILER_KEY = new Key[SoftReference[DecompilationResult]]("Is Scala File Key")
 

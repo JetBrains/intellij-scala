@@ -375,8 +375,6 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
   }
 
   def printMethod(level: Int, m: MethodSymbol, indent: () => Unit) {
-    def cont {print(" = { /* compiled code */ }")}
-
     val n = m.name
     if (underObject(m) && n == CONSTRUCTOR_NAME) return
     if (underTrait(m) && n == INIT_NAME) return
@@ -397,7 +395,9 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
     n match {
       case CONSTRUCTOR_NAME =>
         print("this")
-        printMethodType(m.infoType, printResult = false)(cont)
+        printMethodType(m.infoType, printResult = false) {
+          print(" = { /* compiled code */ }")
+        }
       case name =>
         val nn = processName(name)
         print(nn)
@@ -550,14 +550,14 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
                   case MethodType(resultType, _) => false
                   case NullaryMethodType(resultType) => false
                   case PolyType(typeRef, symbols) =>
-                    checkContainsSelf(Some(typeRef), parent) || symbols.exists(_ == parent)
+                    checkContainsSelf(Some(typeRef), parent) || symbols.contains(parent)
                   case PolyTypeWithCons(typeRef, symbols, _) =>
-                    checkContainsSelf(Some(typeRef), parent) || symbols.exists(_ == parent)
+                    checkContainsSelf(Some(typeRef), parent) || symbols.contains(parent)
                   case AnnotatedType(typeRef, _) => checkContainsSelf(Some(typeRef), parent)
                   case AnnotatedWithSelfType(typeRef, symbol, _) =>
                     checkContainsSelf(Some(typeRef), parent) || symbol == parent
                   case ExistentialType(typeRef, symbols) =>
-                    checkContainsSelf(Some(typeRef), parent) || symbols.exists(_ == parent)
+                    checkContainsSelf(Some(typeRef), parent) || symbols.contains(parent)
                   case _ => false
                 }
               case None => false
@@ -566,7 +566,12 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
           val prefixStr = (prefix, symbol, toString(prefix)) match {
             case (NoPrefixType, _, _) => ""
             case (ThisType(objectSymbol), _, _) if objectSymbol.isModule && !objectSymbol.isStable =>
-              processName(objectSymbol.name) + "."
+              val name: String = objectSymbol.name
+              objectSymbol match {
+                case classSymbol: ClassSymbol if name == "package" =>
+                  processName(classSymbol.symbolInfo.owner.name) + "."
+                case _ => processName(name) + "."
+              }
             case (ThisType(packSymbol), _, _) if !packSymbol.isType =>
               processName(packSymbol.path) + "."
             case (ThisType(classSymbol: ClassSymbol), _, _) if refinementClass(classSymbol) => ""
