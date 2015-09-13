@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <component name="ArtifactManager">
   <artifact build-on-make="true" name="ScalaPlugins">
     <output-path>$PROJECT_DIR$/out/plugin/Scala</output-path>
@@ -33,7 +32,6 @@
         <element id="archive" name="scala-nailgun-runner.jar">
           <element id="module-output" name="nailgunRunners" />
         </element>
-        <element id="dir-copy" path="$PROJECT_DIR$/SDK/scalap" />
         <element id="dir-copy" path="$PROJECT_DIR$/SDK/scalastyle" />
         <element id="library" level="project" name="SBT: org.codehaus.plexus:plexus-container-default:1.5.5:jar" />
         <element id="library" level="project" name="SBT: org.apache.httpcomponents:httpclient:4.3.1:jar" />
@@ -46,7 +44,6 @@
         <element id="library" level="project" name="SBT: commons-lang:commons-lang:2.6:jar" />
         <element id="library" level="project" name="SBT: jakarta-regexp:jakarta-regexp:1.4:jar" />
         <element id="library" level="project" name="SBT: org.atteo:evo-inflector:1.2:jar" />
-        <element id="library" level="project" name="SBT: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.2:jar" />
         <element id="library" level="project" name="SBT: org.codehaus.plexus:plexus-utils:3.0.8:jar" />
         <element id="library" level="project" name="SBT: org.scala-lang.modules:scala-xml_2.11:1.0.2:jar" />
         <element id="library" level="project" name="SBT: org.sonatype.sisu:sisu-guice:3.0.3:no_aop:jar" />
@@ -56,22 +53,26 @@
         <element id="library" level="project" name="SBT: org.apache.maven.wagon:wagon-http-shared:2.6:jar" />
         <element id="library" level="project" name="SBT: org.apache.maven.wagon:wagon-http:2.6:jar" />
         <element id="library" level="project" name="SBT: org.apache.maven.wagon:wagon-provider-api:2.6:jar" />
-        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-core:4.3.0:jar" />
-        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-highlighter:4.3.0:jar" />
-        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-memory:4.3.0:jar" />
-        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-queries:4.3.0:jar" />
         <element id="library" level="project" name="SBT: org.apache.maven.indexer:indexer-core:6.0:jar" />
         <element id="library" level="project" name="SBT: org.apache.maven:maven-model:3.0.5:jar" />
         <element id="library" level="project" name="SBT: org.eclipse.aether:aether-api:1.0.0.v20140518:jar" />
         <element id="library" level="project" name="SBT: org.eclipse.aether:aether-util:1.0.0.v20140518:jar" />
-        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-analyzers-common:4.3.0:jar" />
-        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-queryparser:4.3.0:jar" />
-        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-sandbox:4.3.0:jar" />
         <element id="library" level="project" name="SBT: org.apache.httpcomponents:httpcore:4.3.1:jar" />
         <element id="library" level="project" name="SBT: org.scala-lang:scala-library:2.11.6:jar" />
         <element id="library" level="project" name="SBT: org.scala-lang:scala-reflect:2.11.6:jar" />
         <element id="library" level="project" name="SBT: org.scalatest:scalatest-finders-patched:0.9.6:jar" />
         <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:4.1.1:jar" />
+        <element id="library" level="project" name="SBT: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4:jar" />
+        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-analyzers-common:4.8.1:jar" />
+        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-core:4.8.1:jar" />
+        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-highlighter:4.8.1:jar" />
+        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-memory:4.8.1:jar" />
+        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-queries:4.8.1:jar" />
+        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-queryparser:4.8.1:jar" />
+        <element id="library" level="project" name="SBT: org.apache.lucene:lucene-sandbox:4.8.1:jar" />
+        <element id="archive" name="scalap.jar">
+          <element id="module-output" name="scalap" />
+        </element>
       </element>
       <element id="directory" name="launcher">
         <element id="library" level="project" name="SBT: org.scala-sbt:sbt-launch:0.13.8:jar" />
