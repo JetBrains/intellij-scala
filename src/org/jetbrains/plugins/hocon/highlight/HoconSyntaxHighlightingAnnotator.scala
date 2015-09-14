@@ -3,7 +3,6 @@ package org.jetbrains.plugins.hocon.highlight
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.hocon.HoconConstants
-import org.jetbrains.plugins.hocon.parser.HoconPsiParser
 
 class HoconSyntaxHighlightingAnnotator extends Annotator {
 
@@ -37,14 +36,14 @@ class HoconSyntaxHighlightingAnnotator extends Annotator {
           holder.createInfoAnnotation(element, null).setTextAttributes(HoconHighlighterColors.IncludeModifierParens)
         }
 
-      case String if parentType == Key && firstChildType == UnquotedString =>
+      case KeyPart if firstChildType == UnquotedString =>
         val textAttributesKey = element.getParent.getParent.getNode.getElementType match {
           case Path => HoconHighlighterColors.SubstitutionKey
           case KeyedField.extractor() => HoconHighlighterColors.EntryKey
         }
         holder.createInfoAnnotation(element, null).setTextAttributes(textAttributesKey)
 
-      case Period if Path.contains(parentType) =>
+      case Period if parentType == Path || parentType == PrefixedField =>
         holder.createInfoAnnotation(element, null).setTextAttributes(HoconHighlighterColors.PathSeparator)
 
       case _ =>

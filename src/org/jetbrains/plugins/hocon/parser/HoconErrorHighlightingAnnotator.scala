@@ -44,7 +44,7 @@ class HoconErrorHighlightingAnnotator extends Annotator {
 
               validateConcatenation(constrainingToken, child.getTreeNext)
 
-            case (String, String) |
+            case (StringValue, StringValue) |
                  (Object, Object) |
                  (Array, Array) |
                  (null, _) =>

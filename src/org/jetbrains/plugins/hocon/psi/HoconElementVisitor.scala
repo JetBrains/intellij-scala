@@ -9,15 +9,19 @@ class HoconElementVisitor extends PsiElementVisitor {
 
   def visitHValue(element: HValue) = visitHoconElement(element)
 
-  def visitHLiteral(element: HLiteral) = visitHValue(element)
+  def visitHNull(element: HNull) = visitHValue(element)
 
-  def visitHNull(element: HNull) = visitHLiteral(element)
+  def visitHBoolean(element: HBoolean) = visitHValue(element)
 
-  def visitHBoolean(element: HBoolean) = visitHLiteral(element)
+  def visitHNumber(element: HNumber) = visitHValue(element)
 
-  def visitHNumber(element: HNumber) = visitHLiteral(element)
+  def visitHString(element: HString) = visitHoconElement(element)
 
-  def visitHString(element: HString) = visitHLiteral(element)
+  def visitHStringValue(element: HStringValue) = visitHString(element)
+
+  def visitHKeyPart(element: HKeyPart) = visitHString(element)
+
+  def visitHIncludeTarget(element: HIncludeTarget) = visitHString(element)
 
   def visitHObject(element: HObject) = visitHValue(element)
 

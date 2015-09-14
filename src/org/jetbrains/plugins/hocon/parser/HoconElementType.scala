@@ -116,9 +116,19 @@ object HoconElementType {
   val UnquotedString = new HoconElementType("UNQUOTED_STRING")
 
   /**
-   * String value - either an unquoted, quoted or multiline string.
+   * Encapsulates either an unquoted, quoted or multiline string - in value context.
    */
-  val String = new HoconElementType("STRING")
+  val StringValue = new HoconElementType("STRING_VALUE")
+
+  /**
+   * Quoted string in `include` clause context.
+   */
+  val IncludeTarget = new HoconElementType("INCLUDE_TARGET")
+
+  /**
+   * Encapsulates either an unquoted, quoted or multiline string - in key context.
+   */
+  val KeyPart = new HoconElementType("KEY_PART")
 
   /**
    * Literal numeric value.

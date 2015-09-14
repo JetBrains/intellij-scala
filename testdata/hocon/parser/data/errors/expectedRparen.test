@@ -7,7 +7,7 @@ HOCON_FILE
       PsiWhiteSpace(' ')
       HIncluded(INCLUDED)
         PsiElement(UNQUOTED_CHARS)('file(')
-        HString(STRING)
+        HIncludeTarget(INCLUDE_TARGET)
           PsiElement(QUOTED_STRING)('"stuff"')
         PsiErrorElement:expected ')'
           <empty list>

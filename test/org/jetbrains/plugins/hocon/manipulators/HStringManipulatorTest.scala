@@ -23,13 +23,16 @@ class HStringManipulatorTest extends ScalaFileSetTestCase(TestUtils.getTestDataP
     import org.jetbrains.plugins.hocon.HoconTestUtils._
 
     val fileContents = new String(FileUtil.loadFileText(file, "UTF-8")).replaceAllLiterally("\r", "")
-    val Array(input, newContentInBrackets, expectedResult) = fileContents.split("-{5,}", 3).map(_.trim)
-    val newContent = newContentInBrackets.stripPrefix("[").stripSuffix("]")
+    val Array(input, positionAndNewContents, expectedResult) = fileContents.split("-{5,}", 3).map(_.trim)
+    val Array(positionStr, newContentsInBrackets) = positionAndNewContents.split(",")
+    val position = positionStr.toInt
+    val newContent = newContentsInBrackets.stripPrefix("[").stripSuffix("]")
 
     val psiFile = createPseudoPhysicalHoconFile(getProject, input)
 
     def editAction() = ApplicationManager.getApplication.runWriteAction(try {
-      val string = psiFile.toplevelEntries.objectFields.next().endingValue.get.asInstanceOf[HString]
+      val string = Iterator.iterate(psiFile.findElementAt(position))(_.getParent)
+        .collectFirst({ case hs: HString => hs }).get
       val manipulator = ElementManipulators.getManipulator(string)
       val range = manipulator.getRangeInElement(string)
       manipulator.handleContentChange(string, range, newContent)

@@ -7,7 +7,7 @@ HOCON_FILE
     HObjectField(OBJECT_FIELD)
       HValuedField(VALUED_FIELD)
         HKey(KEY)
-          HString(STRING)
+          HKeyPart(KEY_PART)
             HUnquotedString(UNQUOTED_STRING)
               PsiElement(UNQUOTED_CHARS)('list')
         PsiElement(EQUALS)('=')

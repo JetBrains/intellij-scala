@@ -1,5 +1,5 @@
 k = "value
 -----
-other
+5,[other]
 -----
 k = "other

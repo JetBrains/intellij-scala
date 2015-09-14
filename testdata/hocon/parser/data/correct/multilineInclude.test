@@ -12,7 +12,7 @@ HOCON_FILE
       HIncluded(INCLUDED)
         PsiElement(UNQUOTED_CHARS)('file(')
         PsiWhiteSpace('\n')
-        HString(STRING)
+        HIncludeTarget(INCLUDE_TARGET)
           PsiElement(QUOTED_STRING)('"stuff"')
         PsiWhiteSpace('\n')
         PsiElement(UNQUOTED_CHARS)(')')

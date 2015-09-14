@@ -1,5 +1,5 @@
 k = simple
 -----
-[   other   ]
+5,[   other   ]
 -----
 k = "   other   "
