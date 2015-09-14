@@ -193,7 +193,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
           showErrorMessage(ScalaBundle.message("cannot.refactor.not.script.file"), project, editor, REFACTORING_NAME)
         }
 
-        def runWithDialog(fromInplace: Boolean) {
+        def runWithDialog(fromInplace: Boolean, mainScope: ScopeItem) {
           val typeElementHelper = if (fromInplace) {
             PsiTreeUtil.findElementOfClassAtOffset(file, editor.getCaretModel.getOffset, classOf[ScTypeElement], false)
             match {
@@ -210,7 +210,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
             typeElement
           }
 
-          val dialog = getDialogForTypes(project, editor, typeElementHelper, IntroduceTypeAliasData.possibleScopes)
+          val dialog = getDialogForTypes(project, editor, typeElementHelper, IntroduceTypeAliasData.possibleScopes, mainScope)
           if (!dialog.isOK) {
             occurrenceHighlighters.foreach(_.dispose())
             occurrenceHighlighters = Seq.empty
@@ -302,7 +302,8 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
             ScalaInplaceTypeAliasIntroducer.revertState(editor, file != IntroduceTypeAliasData.currentScope.typeAliasFile,
               IntroduceTypeAliasData.currentScope, IntroduceTypeAliasData.getNamedElement)
 
-            runWithDialog(fromInplace = true)
+
+            runWithDialog(fromInplace = true, IntroduceTypeAliasData.currentScope)
           } else {
             var array = Array[ScopeItem]()
             array = IntroduceTypeAliasData.possibleScopes.toArray(array)
@@ -318,7 +319,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
         }
 
         if (ScalaRefactoringUtil.isInplaceAvailable(editor)) runInplace()
-        else runWithDialog(fromInplace = false)
+        else runWithDialog(fromInplace = false, null)
       }
 
       PsiTreeUtil.getParentOfType(file.findElementAt(startOffset), classOf[ScExpression], classOf[ScTypeElement]) match {
@@ -664,14 +665,14 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
   }
 
   protected def getDialogForTypes(project: Project, editor: Editor, typeElement: ScTypeElement,
-                                  possibleScopes: util.ArrayList[ScopeItem]): ScalaIntroduceTypeAliasDialog = {
+                                  possibleScopes: util.ArrayList[ScopeItem], mainScope: ScopeItem): ScalaIntroduceTypeAliasDialog = {
 
     // Add occurrences highlighting
     val occurrences = possibleScopes.get(0).usualOccurrences
     if (occurrences.length > 1)
       occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, occurrences.map(_.getTextRange), editor)
 
-    val dialog = new ScalaIntroduceTypeAliasDialog(project, typeElement, possibleScopes, this, editor)
+    val dialog = new ScalaIntroduceTypeAliasDialog(project, typeElement, possibleScopes, mainScope, this, editor)
     dialog.show()
     if (!dialog.isOK) {
       if (occurrences.length > 1) {
