@@ -21,7 +21,7 @@ object HoconTokenSets {
   val KeyEnding = PathEnding | Period
   val ValueUnquotedChars = UnquotedChars | Period
   val SimpleValuePart = UnquotedChars | Period | StringLiteral
-  val PathStart = UnquotedChars | StringLiteral | Period | BadCharacter
+  val PathStart = UnquotedChars | StringLiteral | Period | Dollar | BadCharacter
   val SubstitutionPathStart = PathStart | KeyValueSeparator
   val ValueStart = SimpleValuePart | LBrace | LBracket | Dollar | KeyValueSeparator | BadCharacter
   val ObjectEntryStart = PathStart | UnquotedChars

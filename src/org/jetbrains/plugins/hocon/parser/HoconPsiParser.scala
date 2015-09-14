@@ -336,7 +336,7 @@ class HoconPsiParser extends PsiParser {
             parseObject()
           } else if (matches(LBracket)) {
             parseArray()
-          } else if (matches(Dollar)) {
+          } else if (matches(Dollar) && builder.lookAhead(1) == SubLBrace) {
             parseSubstitution()
           } else if (matches(ValueUnquotedChars)) {
             parseUnquotedString(ValueUnquotedChars.noNewLine, partCount == 0, ValueEnding.orNewLineOrEof)
