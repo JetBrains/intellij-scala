@@ -314,6 +314,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
     }
 
     private void setUpReplaceInInheritors(String scopeName) {
+        myReplaceInInheritors.setSelected(false);
         String type = scopeName.substring(0, 5);
         if (type.equals("class") || type.equals("trait")) {
             myReplaceInInheritors.setEnabled(true);
