@@ -7,10 +7,8 @@ import org.jetbrains.plugins.hocon.lang.HoconFileType
 import org.jetbrains.plugins.hocon.parser.HoconElementType.HoconFileElementType
 
 class HoconPsiFile(provider: FileViewProvider) extends PsiFileImpl(HoconFileElementType, HoconFileElementType, provider) {
-  def accept(visitor: PsiElementVisitor): Unit = visitor match {
-    case hoconVisitor: HoconElementVisitor => hoconVisitor.visitHoconFile(this)
-    case _ => visitor.visitFile(this)
-  }
+  def accept(visitor: PsiElementVisitor): Unit =
+    visitor.visitFile(this)
 
   def getFileType: FileType =
     HoconFileType
