@@ -22,7 +22,7 @@ class ScalaWithIfElseConditionSurrounder extends ScalaExpressionSurrounder {
   override def isApplicable(elements: Array[PsiElement]): Boolean = {
     if (elements.length != 1) return false
     elements(0) match {
-      case x: ScExpression if x.getType(TypingContext.empty).getOrAny == psi.types.Boolean => return true
+      case x: ScExpression if x.getTypeIgnoreBaseType(TypingContext.empty).getOrAny == psi.types.Boolean => return true
       case _ => return false
     }
   }
