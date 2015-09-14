@@ -65,10 +65,20 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       case _ => getElement(offset)
     }
 
+    //clear data on startRefactoring, if there is no marks, but there is some data
+    if ((StartMarkAction.canStart(project) == null) && IntroduceTypeAliasData.isData) {
+      IntroduceTypeAliasData.clearData()
+    }
+
     if (element != null) {
-      ScalaRefactoringUtil.afterTypeAliasChoosing(project, editor, file, dataContext, "Introduce Type Alias") {
-        ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
-        invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
+      if (IntroduceTypeAliasData.isData) {
+        val typeElement = IntroduceTypeAliasData.typeElementRanges
+        invoke(project, editor, file, typeElement.getStartOffset, typeElement.getEndOffset)
+      } else {
+        ScalaRefactoringUtil.afterTypeAliasChoosing(project, editor, file, dataContext, "Introduce Type Alias") {
+          ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
+          invoke(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
+        }
       }
     } else {
       val canBeIntroduced: ScExpression => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
@@ -175,11 +185,6 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
           getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.valid.type"), project, editor, REFACTORING_NAME))
 
 
-        //clear data on startRefactoring, if there is no marks, but there is some data
-        if ((StartMarkAction.canStart(project) == null) && IntroduceTypeAliasData.isData) {
-          IntroduceTypeAliasData.clearData()
-        }
-
         if (IntroduceTypeAliasData.possibleScopes == null) {
           IntroduceTypeAliasData.setPossibleScopes(ScopeSuggester.suggestScopes(this, project, editor, file, typeElement))
         }
@@ -273,6 +278,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
                     PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
                     PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
 
+                    IntroduceTypeAliasData.typeElementRanges = mtypeElement.getTextRange
                     val typeAliasIntroducer =
                       ScalaInplaceTypeAliasIntroducer(namedElement, namedElement, editor, namedElement.getName,
                         namedElement.getName, scopeItem, file)

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import java.util
 
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem
@@ -14,6 +15,7 @@ object IntroduceTypeAliasData {
   var initialInfo: (String, Int) = ("", 0)
   var possibleScopes: util.ArrayList[ScopeItem] = null
   var isReverted = false
+  var typeElementRanges:TextRange = null
 
   def clearData(): Unit = {
     currentScope = null
