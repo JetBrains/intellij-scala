@@ -69,6 +69,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
     public ScalaIntroduceTypeAliasDialog(Project project,
                                          ScTypeElement myTypeElement,
                                          ArrayList<ScopeItem> possibleScopes,
+                                         ScopeItem mainScope,
                                          ConflictsReporter conflictReporter,
                                          Editor editor) {
         super(project, true);
@@ -85,7 +86,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
 
 
         setUpNameComboBox(possibleNames);
-        setUpScopeComboBox(possibleScopes);
+        setUpScopeComboBox(possibleScopes, mainScope);
 
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -293,7 +294,6 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         myCbReplaceAllOccurences.setFocusable(false);
         myNameLabel.setLabelFor(myNameComboBox);
         myTypeLabel.setLabelFor(myTypeTextField);
-        System.out.println(myTypeElement.isValid());
         myTypeTextField.setText(myTypeElement.calcType().presentableText());
 
         // Replace occurences
@@ -301,11 +301,15 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         setUpOccurrences();
     }
 
-    private void setUpScopeComboBox(ArrayList<ScopeItem> elements) {
+    private void setUpScopeComboBox(ArrayList<ScopeItem> elements, ScopeItem mainScope) {
         myScopeCombobox.addItemListener(new ScopeItemChangeListener());
 
         for (ScopeItem scope : elements) {
             myScopeCombobox.addItem(scope);
+        }
+
+        if (mainScope != null) {
+            myScopeCombobox.setSelectedItem(mainScope);
         }
     }
 
