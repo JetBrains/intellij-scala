@@ -18,6 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTemplateBodyImpl
+import org.jetbrains.plugins.scala.lang.psi.types.{ScProjectionType, ScTypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util._
 import com.intellij.openapi.util.text.StringUtil
@@ -46,8 +48,9 @@ object ScopeSuggester {
     var parent = getParent(curerntElement, isScriptFile)
 
 
+    var noContinue = false
     var result: List[ScopeItem] = List()
-    while (parent != null) {
+    while (parent != null && !noContinue) {
       var occInCompanionObj: Array[ScTypeElement] = Array[ScTypeElement]()
       val name = parent match {
         case fileType: ScalaFile => "file " + fileType.getName
@@ -61,6 +64,15 @@ object ScopeSuggester {
             case traitType: ScTrait =>
               "trait " + traitType.name
           }
+      }
+
+      //parent != null here
+      //check can we use upper scope
+      noContinue = curerntElement.calcType match {
+        case projectionType: ScProjectionType
+          if parent.asInstanceOf[ScTemplateBody].isAncestorOf(projectionType.actualElement) =>
+          true
+        case _ => false
       }
 
       val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(curerntElement, parent)
@@ -78,9 +90,12 @@ object ScopeSuggester {
       case scalaFile: ScalaFile =>
         scalaFile.getPackageName
     }
-    if (!packageName.equals("")) {
+
+    //forbid to use typeParameter type outside the class
+    if (!packageName.equals("") && !curerntElement.calcType.isInstanceOf[ScTypeParameterType] && !noContinue) {
       result = result :+ handlePackage(curerntElement, packageName, conflictsReporter, project, editor)
     }
+
     import scala.collection.JavaConversions.asJavaCollection
     new util.ArrayList[ScopeItem](result.toIterable)
   }
@@ -217,7 +232,7 @@ class ScopeItem(val name: String,
     }
   }
 
-  def redefineUsualOccurrences(file:PsiFile): Unit = {
+  def redefineUsualOccurrences(file: PsiFile): Unit = {
     def findOneOccurrence(range: TextRange): ScTypeElement = {
       PsiTreeUtil.findElementOfClassAtRange(file, range.getStartOffset, range.getEndOffset, classOf[ScTypeElement])
     }
