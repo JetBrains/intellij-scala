@@ -59,15 +59,16 @@ object TestConfigurationUtil {
   }
 
   private def getStaticTestNameElement(element: PsiElement, allowSymbolLiterals: Boolean): Option[Any] = {
-    val noArgMethods = Seq("toLowerCase", "trim")
+    val noArgMethods = Seq("toLowerCase", "trim", "toString")
     val oneArgMethods = Seq("stripSuffix", "stripPrefix", "substring")
     val twoArgMethods = Seq("replace", "substring")
 
-    def proessNoArgMethods(refExpr: ScReferenceExpression) = refExpr.smartQualifier.
+    def processNoArgMethods(refExpr: ScReferenceExpression) = refExpr.smartQualifier.
       flatMap(getStaticTestNameRaw(_, allowSymbolLiterals)).flatMap{ expr =>
       refExpr.refName match {
         case "toLowerCase" => Some(expr.toLowerCase)
         case "trim" => Some(expr.trim)
+        case "toString" => Some(expr)
         case _ => None
       }
     }
@@ -78,7 +79,7 @@ object TestConfigurationUtil {
       case literal: ScLiteral if allowSymbolLiterals && literal.isSymbol && literal.getValue.isInstanceOf[Symbol] =>
         Some(escapeTestName(literal.getValue.asInstanceOf[Symbol].name))
       case literal: ScLiteral if literal.getValue.isInstanceOf[Number] =>
-        Some(literal.getValue)
+        Some(literal.getValue.toString)
       case p: ScParenthesisedExpr => p.expr.flatMap(getStaticTestNameRaw(_, allowSymbolLiterals))
       case infixExpr: ScInfixExpr =>
         infixExpr.getInvokedExpr match {
@@ -90,7 +91,7 @@ object TestConfigurationUtil {
         methodCall.getInvokedExpr match {
           case refExpr: ScReferenceExpression if noArgMethods.contains(refExpr.refName) &&
             methodCall.argumentExpressions.isEmpty =>
-            proessNoArgMethods(refExpr)
+            processNoArgMethods(refExpr)
           case refExpr: ScReferenceExpression if oneArgMethods.contains(refExpr.refName) &&
             methodCall.argumentExpressions.size == 1 =>
             def helper(anyExpr: Any, arg: Any): Option[Any] = (anyExpr, refExpr.refName, arg) match {
@@ -122,7 +123,7 @@ object TestConfigurationUtil {
       case refExpr: ScReferenceExpression if refExpr.getText == "+" =>
         getStaticTestNameRaw(refExpr.getParent, allowSymbolLiterals)
       case refExpr: ScReferenceExpression if noArgMethods.contains(refExpr.refName) =>
-        proessNoArgMethods(refExpr)
+        processNoArgMethods(refExpr)
       case refExpr: ScReferenceExpression =>
         refExpr.advancedResolve.map(_.getActualElement) match {
           case Some(refPattern: ScReferencePattern) =>
