@@ -29,7 +29,7 @@ class HStringManipulatorTest extends ScalaFileSetTestCase(TestUtils.getTestDataP
     val psiFile = createPseudoPhysicalHoconFile(getProject, input)
 
     def editAction() = ApplicationManager.getApplication.runWriteAction(try {
-      val string = psiFile.toplevelEntries.fields.toList.head.value.get.asInstanceOf[HString]
+      val string = psiFile.toplevelEntries.objectFields.next().endingValue.get.asInstanceOf[HString]
       val manipulator = ElementManipulators.getManipulator(string)
       val range = manipulator.getRangeInElement(string)
       manipulator.handleContentChange(string, range, newContent)

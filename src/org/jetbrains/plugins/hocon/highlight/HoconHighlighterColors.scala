@@ -2,7 +2,7 @@ package org.jetbrains.plugins.hocon.highlight
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import com.intellij.openapi.editor.colors.TextAttributesKey
-import com.intellij.openapi.editor.{HighlighterColors, DefaultLanguageHighlighterColors => DLHC}
+import com.intellij.openapi.editor.{DefaultLanguageHighlighterColors => DLHC, HighlighterColors}
 
 object HoconHighlighterColors {
   final val BadCharacter = key("HOCON_BAD_CHARACTER", HighlighterColors.BAD_CHARACTER)
@@ -19,7 +19,7 @@ object HoconHighlighterColors {
   final val Braces = key("HOCON_OBJECT_BRACES", DLHC.BRACES)
   final val IncludeModifierParens = key("HOCON_INCLUDE_MODIFIER_PARENS", DLHC.PARENTHESES)
   final val SubBraces = key("HOCON_SUBSTITUTION_BRACES", DLHC.BRACES)
-  final val PathValueSeparator = key("HOCON_PATH_VALUE_SEPARATOR", DLHC.OPERATION_SIGN)
+  final val KeyValueSeparator = key("HOCON_KEY_VALUE_SEPARATOR", DLHC.OPERATION_SIGN)
   final val Comma = key("HOCON_COMMA", DLHC.COMMA)
   final val Include = key("HOCON_INCLUDE", DLHC.KEYWORD)
   final val IncludeModifier = key("HOCON_INCLUDE_MODIFIER", HighlightInfoType.STATIC_METHOD.getAttributesKey)
@@ -27,7 +27,7 @@ object HoconHighlighterColors {
   final val OptionalSubstitutionSign = key("HOCON_OPTIONAL_SUBSTITUTION_SIGN", DLHC.OPERATION_SIGN)
   final val UnquotedString = key("HOCON_UNQUOTED_STRING", DLHC.IDENTIFIER)
   final val PathSeparator = key("PATH_SEPARATOR", DLHC.DOT)
-  final val FieldKey = key("FIELD_KEY", DLHC.INSTANCE_METHOD)
+  final val EntryKey = key("ENTRY_KEY", DLHC.INSTANCE_METHOD)
   final val SubstitutionKey = key("SUBSTITUTION_KEY", DLHC.INSTANCE_FIELD)
 
   private def key(name: String, prototype: TextAttributesKey) =

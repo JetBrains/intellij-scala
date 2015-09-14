@@ -51,47 +51,60 @@ sealed abstract class HoconPsiElement(ast: ASTNode) extends ASTWrapperPsiElement
     }
 }
 
-sealed trait HValue extends HoconPsiElement
-
-sealed trait HLiteral extends HValue with PsiLiteral
-
-sealed trait HObjectEntry extends HoconPsiElement
-
 final class HObjectEntries(ast: ASTNode) extends HoconPsiElement(ast) {
   def entries = findChildren[HObjectEntry]
 
-  def fields = findChildren[HObjectField]
+  def objectFields = findChildren[HObjectField]
 
   def includes = findChildren[HInclude]
 
   override def accept(visitor: HoconElementVisitor) = visitor.visitHObjectEntries(this)
 }
 
+sealed trait HObjectEntry extends HoconPsiElement
+
 final class HObjectField(ast: ASTNode) extends HoconPsiElement(ast) with HObjectEntry {
-  def bareField = getChild[HBareObjectField]
-
-  def docComments = nonWhitespaceChildren
-          .takeWhile(_.getNode.getElementType == HoconTokenType.HashComment)
-          .map(ch => ch.asInstanceOf[PsiComment])
-
-  def path = bareField.path
-
-  def value = bareField.value
-
-  def separator = bareField.separator
+  def keyedField = getChild[HKeyedField]
+  
+  def endingValue = keyedField.endingField.endingValue
 
   override def accept(visitor: HoconElementVisitor) = visitor.visitHObjectField(this)
 }
 
-final class HBareObjectField(ast: ASTNode) extends HoconPsiElement(ast) {
-  def path = getChild[HPath]
+sealed trait HKeyedField extends HoconPsiElement {
+  def key = findChild[HKey]
+
+  def startingField: HKeyedField = getParent match {
+    case prefixedEntry: HPrefixedField => prefixedEntry.startingField
+    case _ => this
+  }
+
+  def endingField: HValuedField
+
+  def endingValue = endingField.value
+}
+
+final class HPrefixedField(ast: ASTNode) extends HoconPsiElement(ast) with HKeyedField {
+  def subField = getChild[HKeyedField]
+
+  def endingField = subField.endingField
+
+  override def accept(visitor: HoconElementVisitor) = visitor.visitHPrefixedField(this)
+}
+
+final class HValuedField(ast: ASTNode) extends HoconPsiElement(ast) with HKeyedField {
+  def docComments = startingField.nonWhitespaceChildren
+    .takeWhile(_.getNode.getElementType == HoconTokenType.HashComment)
+    .map(ch => ch.asInstanceOf[PsiComment])
 
   def value = findChild[HValue]
 
-  def separator = Option(findChildByType[PsiElement](HoconTokenSets.PathValueSeparator))
-          .map(_.getNode.getElementType.asInstanceOf[HoconTokenType])
+  def separator = Option(findChildByType[PsiElement](HoconTokenSets.KeyValueSeparator))
+    .map(_.getNode.getElementType.asInstanceOf[HoconTokenType])
 
-  override def accept(visitor: HoconElementVisitor) = visitor.visitHBareObjectField(this)
+  def endingField = this
+
+  override def accept(visitor: HoconElementVisitor) = visitor.visitHValuedField(this)
 }
 
 final class HInclude(ast: ASTNode) extends HoconPsiElement(ast) with HObjectEntry {
@@ -142,6 +155,8 @@ final class HPath(ast: ASTNode) extends HoconPsiElement(ast) {
   override def accept(visitor: HoconElementVisitor) = visitor.visitHPath(this)
 }
 
+sealed trait HValue extends HoconPsiElement
+
 final class HObject(ast: ASTNode) extends HoconPsiElement(ast) with HValue {
   def entries = getChild[HObjectEntries]
 
@@ -159,6 +174,8 @@ final class HSubstitution(ast: ASTNode) extends HoconPsiElement(ast) with HValue
 final class HConcatenation(ast: ASTNode) extends HoconPsiElement(ast) with HValue {
   override def accept(visitor: HoconElementVisitor) = visitor.visitHConcatenation(this)
 }
+
+sealed trait HLiteral extends HValue with PsiLiteral
 
 final class HNull(ast: ASTNode) extends HoconPsiElement(ast) with HLiteral {
   def getValue: Object = null
@@ -227,12 +244,12 @@ final class HString(ast: ASTNode) extends HoconPsiElement(ast) with HLiteral wit
 
   def isIncludeTarget =
     stringType == HoconTokenType.QuotedString &&
-            getParent.getNode.getElementType == HoconElementType.Included
+      getParent.getNode.getElementType == HoconElementType.Included
 
   def getFileReferences =
     if (isIncludeTarget)
       getParent.asInstanceOf[HIncluded].fileReferenceSet
-              .map(_.getAllReferences).getOrElse(FileReference.EMPTY)
+        .map(_.getAllReferences).getOrElse(FileReference.EMPTY)
     else
       FileReference.EMPTY
 

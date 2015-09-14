@@ -14,16 +14,16 @@ object HoconTokenSets {
   val Comment = HashComment | DoubleSlashComment
   val WhitespaceOrComment = Whitespace | Comment
   val StringLiteral = QuotedString | MultilineString
-  val PathValueSeparator = Colon | Equals | PlusEquals
+  val KeyValueSeparator = Colon | Equals | PlusEquals
   val ArrayElementsEnding = RBracket | RBrace
   val ValueEnding = Comma | RBrace | RBracket
-  val PathEnding = PathValueSeparator | LBrace | SubRBrace | ValueEnding
+  val PathEnding = KeyValueSeparator | LBrace | SubRBrace | ValueEnding
   val KeyEnding = PathEnding | Period
   val ValueUnquotedChars = UnquotedChars | Period
   val SimpleValuePart = UnquotedChars | Period | StringLiteral
   val PathStart = UnquotedChars | StringLiteral | Period | BadCharacter
-  val SubstitutionPathStart = PathStart | PathValueSeparator
-  val ValueStart = SimpleValuePart | LBrace | LBracket | Dollar | PathValueSeparator | BadCharacter
+  val SubstitutionPathStart = PathStart | KeyValueSeparator
+  val ValueStart = SimpleValuePart | LBrace | LBracket | Dollar | KeyValueSeparator | BadCharacter
   val ObjectEntryStart = PathStart | UnquotedChars
 
   case class Matcher(tokenSet: TokenSet, requireNoNewLine: Boolean, matchNewLine: Boolean, matchEof: Boolean) {

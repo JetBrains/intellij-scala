@@ -5,12 +5,11 @@ HOCON_FILE
     PsiElement(LBRACE)('{')
     HObjectEntries(OBJECT_ENTRIES)
       HObjectField(OBJECT_FIELD)
-        HBareObjectField(BARE_OBJECT_FIELD)
-          HPath(FIELD_PATH)
-            HKey(KEY)
-              HString(STRING)
-                HUnquotedString(UNQUOTED_STRING)
-                  PsiElement(UNQUOTED_CHARS)('a')
+        HValuedField(VALUED_FIELD)
+          HKey(KEY)
+            HString(STRING)
+              HUnquotedString(UNQUOTED_STRING)
+                PsiElement(UNQUOTED_CHARS)('a')
           PsiErrorElement:expected ':', '=', '+=' or object
             <empty list>
     PsiElement(RBRACE)('}')
