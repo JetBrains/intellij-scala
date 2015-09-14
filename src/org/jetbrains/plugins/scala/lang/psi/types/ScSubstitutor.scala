@@ -8,20 +8,22 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
-import scala.annotation.tailrec
 import scala.collection.immutable.{HashMap, HashSet, Map}
 
 /**
 * @author ven
 */
 object ScSubstitutor {
-  val empty: ScSubstitutor = new ScSubstitutor()
+  val empty: ScSubstitutor = EmptySubstitutor
+  object EmptySubstitutor extends ScSubstitutor {
+    override def toString: String = "Empty substitutor"
+  }
 
   val key: Key[ScSubstitutor] = Key.create("scala substitutor key")
 
@@ -31,7 +33,8 @@ object ScSubstitutor {
 class ScSubstitutor(val tvMap: Map[(String, String), ScType],
                     val aliasesMap: Map[String, Suspension[ScType]],
                     val updateThisType: Option[ScType]) {
-  def this() = this(Map.empty, Map.empty, None)
+  //use ScSubstitutor.empty instead
+  private[ScSubstitutor] def this() = this(Map.empty, Map.empty, None)
 
   def this(updateThisType: ScType) {
     this(Map.empty, Map.empty, Some(updateThisType))
