@@ -46,7 +46,7 @@ class HoconColorSettingsPage extends ColorSettingsPage {
     "braces" -> HHC.Braces,
     "imparens" -> HHC.IncludeModifierParens,
     "substbraces" -> HHC.SubBraces,
-    "pathvalueseparator" -> HHC.PathValueSeparator,
+    "pathvalueseparator" -> HHC.KeyValueSeparator,
     "comma" -> HHC.Comma,
     "include" -> HHC.Include,
     "inclmod" -> HHC.IncludeModifier,
@@ -54,7 +54,7 @@ class HoconColorSettingsPage extends ColorSettingsPage {
     "optsubstsign" -> HHC.OptionalSubstitutionSign,
     "unquotedstring" -> HHC.UnquotedString,
     "dot" -> HHC.PathSeparator,
-    "key" -> HHC.FieldKey,
+    "key" -> HHC.EntryKey,
     "substkey" -> HHC.SubstitutionKey
   ).asJava
 
@@ -87,7 +87,7 @@ object HoconColorSettingsPage {
     "Braces" -> HHC.Braces,
     "Include modifier parens" -> HHC.IncludeModifierParens,
     "Substitution braces" -> HHC.SubBraces,
-    "Path-value separator ('=', ':', '+=')" -> HHC.PathValueSeparator,
+    "Path-value separator ('=', ':', '+=')" -> HHC.KeyValueSeparator,
     "Comma" -> HHC.Comma,
     "Include keyword" -> HHC.Include,
     "Include modifier" -> HHC.IncludeModifier,
@@ -95,7 +95,7 @@ object HoconColorSettingsPage {
     "Optional substitution sign" -> HHC.OptionalSubstitutionSign,
     "Unquoted string" -> HHC.UnquotedString,
     "Path separator" -> HHC.PathSeparator,
-    "Key" -> HHC.FieldKey,
+    "Key" -> HHC.EntryKey,
     "Key in substitution" -> HHC.SubstitutionKey
   ).map({
     case (displayName, key) => new AttributesDescriptor(displayName, key)

@@ -31,11 +31,15 @@ class HoconElementVisitor extends PsiElementVisitor {
 
   def visitHObjectField(element: HObjectField) = visitHObjectEntry(element)
 
+  def visitHKeyedField(element: HKeyedField) = visitHoconElement(element)
+
+  def visitHPrefixedField(element: HPrefixedField) = visitHKeyedField(element)
+
+  def visitHValuedField(element: HValuedField) = visitHKeyedField(element)
+
   def visitHInclude(element: HInclude) = visitHObjectEntry(element)
 
   def visitHObjectEntries(element: HObjectEntries) = visitHoconElement(element)
-
-  def visitHBareObjectField(element: HBareObjectField) = visitHoconElement(element)
 
   def visitHIncluded(element: HIncluded) = visitHoconElement(element)
 

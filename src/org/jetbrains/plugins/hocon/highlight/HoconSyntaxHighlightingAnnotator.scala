@@ -39,8 +39,8 @@ class HoconSyntaxHighlightingAnnotator extends Annotator {
 
       case String if parentType == Key && firstChildType == UnquotedString =>
         val textAttributesKey = element.getParent.getParent.getNode.getElementType match {
-          case FieldPath => HoconHighlighterColors.FieldKey
-          case SubstitutionPath => HoconHighlighterColors.SubstitutionKey
+          case Path => HoconHighlighterColors.SubstitutionKey
+          case KeyedField.extractor() => HoconHighlighterColors.EntryKey
         }
         holder.createInfoAnnotation(element, null).setTextAttributes(textAttributesKey)
 

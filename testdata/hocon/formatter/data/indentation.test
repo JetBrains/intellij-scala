@@ -26,6 +26,9 @@ longkey =
  key = value
 }
       ]
+some."long"path.here = {
+     obj = 20
+          }
 }
 -----
 obj {
@@ -48,4 +51,7 @@ obj {
       key = value
     }
   ]
+  some."long"path.here = {
+    obj = 20
+  }
 }

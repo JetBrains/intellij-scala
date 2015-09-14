@@ -19,8 +19,8 @@ class HoconBlock(formatter: HoconFormatter, node: ASTNode, indent: Indent, wrap:
   // children of this block
   private val wrapCache = {
     val pathValueSeparatorType =
-      if (node.getElementType == HoconElementType.BareObjectField)
-        node.childrenIterator.map(_.getElementType).find(HoconTokenSets.PathValueSeparator.contains)
+      if (node.getElementType == HoconElementType.ValuedField)
+        node.childrenIterator.map(_.getElementType).find(HoconTokenSets.KeyValueSeparator.contains)
       else None
     new formatter.WrapCache(pathValueSeparatorType)
   }
