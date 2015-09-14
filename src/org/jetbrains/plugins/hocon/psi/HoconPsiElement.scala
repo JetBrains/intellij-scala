@@ -17,6 +17,11 @@ import org.jetbrains.plugins.hocon.ref.IncludedFileReferenceSet
 import scala.reflect.{ClassTag, classTag}
 
 sealed abstract class HoconPsiElement(ast: ASTNode) extends ASTWrapperPsiElement(ast) {
+  type Parent <: PsiElement
+
+  def parent: Parent =
+    getParent.asInstanceOf[Parent]
+
   override def accept(visitor: PsiElementVisitor) = visitor match {
     case hoconVisitor: HoconElementVisitor => accept(hoconVisitor)
     case _ => super.accept(visitor)
@@ -51,7 +56,16 @@ sealed abstract class HoconPsiElement(ast: ASTNode) extends ASTWrapperPsiElement
     }
 }
 
+sealed trait HInnerElement extends HoconPsiElement {
+  type Parent <: HoconPsiElement
+}
+
 final class HObjectEntries(ast: ASTNode) extends HoconPsiElement(ast) {
+  def forParent[T](forFile: HoconPsiFile => T, forObject: HObject => T) = parent match {
+    case file: HoconPsiFile => forFile(file)
+    case obj: HObject => forObject(obj)
+  }
+
   def entries = findChildren[HObjectEntry]
 
   def objectFields = findChildren[HObjectField]
@@ -61,23 +75,32 @@ final class HObjectEntries(ast: ASTNode) extends HoconPsiElement(ast) {
   override def accept(visitor: HoconElementVisitor) = visitor.visitHObjectEntries(this)
 }
 
-sealed trait HObjectEntry extends HoconPsiElement
+sealed trait HObjectEntry extends HoconPsiElement with HInnerElement {
+  type Parent = HObjectEntries
+}
 
 final class HObjectField(ast: ASTNode) extends HoconPsiElement(ast) with HObjectEntry {
+  def docComments = nonWhitespaceChildren
+    .takeWhile(_.getNode.getElementType == HoconTokenType.HashComment)
+    .map(ch => ch.asInstanceOf[PsiComment])
+
   def keyedField = getChild[HKeyedField]
-  
+
   def endingValue = keyedField.endingField.endingValue
 
   override def accept(visitor: HoconElementVisitor) = visitor.visitHObjectField(this)
 }
 
-sealed trait HKeyedField extends HoconPsiElement {
+sealed trait HKeyedField extends HoconPsiElement with HInnerElement {
+  def forParent[T](forKeyedParent: HKeyedField => T, forObjectField: HObjectField => T): T = parent match {
+    case kf: HKeyedField => forKeyedParent(kf)
+    case of: HObjectField => forObjectField(of)
+  }
+
   def key = findChild[HKey]
 
-  def startingField: HKeyedField = getParent match {
-    case prefixedEntry: HPrefixedField => prefixedEntry.startingField
-    case _ => this
-  }
+  def startingField: HKeyedField =
+    forParent(_.startingField, _ => this)
 
   def endingField: HValuedField
 
@@ -93,10 +116,6 @@ final class HPrefixedField(ast: ASTNode) extends HoconPsiElement(ast) with HKeye
 }
 
 final class HValuedField(ast: ASTNode) extends HoconPsiElement(ast) with HKeyedField {
-  def docComments = startingField.nonWhitespaceChildren
-    .takeWhile(_.getNode.getElementType == HoconTokenType.HashComment)
-    .map(ch => ch.asInstanceOf[PsiComment])
-
   def value = findChild[HValue]
 
   def separator = Option(findChildByType[PsiElement](HoconTokenSets.KeyValueSeparator))
@@ -113,15 +132,16 @@ final class HInclude(ast: ASTNode) extends HoconPsiElement(ast) with HObjectEntr
   override def accept(visitor: HoconElementVisitor) = visitor.visitHInclude(this)
 }
 
-final class HIncluded(ast: ASTNode) extends HoconPsiElement(ast) {
+final class HIncluded(ast: ASTNode) extends HoconPsiElement(ast) with HInnerElement {
+  type Parent = HInclude
+
   def qualifier = getFirstChild.getNode.getElementType match {
     case HoconTokenType.UnquotedChars =>
       Some(getFirstChild.getText)
     case _ => None
   }
 
-  def target =
-    findChild[HString].filter(_.stringType == HoconTokenType.QuotedString)
+  def target = findChild[HIncludeTarget]
 
   def fileReferenceSet = target.flatMap { hs =>
     val strVal = hs.stringValue
@@ -143,11 +163,23 @@ final class HIncluded(ast: ASTNode) extends HoconPsiElement(ast) {
     visitor.visitHIncluded(this)
 }
 
-final class HKey(ast: ASTNode) extends HoconPsiElement(ast) {
+final class HKey(ast: ASTNode) extends HoconPsiElement(ast) with HInnerElement {
+  def forParent[T](forPath: HPath => T, forKeyedField: HKeyedField => T): T = parent match {
+    case path: HPath => forPath(path)
+    case keyedField: HKeyedField => forKeyedField(keyedField)
+  }
+
+  def parts = findChildren[HKeyPart]
+
   override def accept(visitor: HoconElementVisitor) = visitor.visitHKey(this)
 }
 
-final class HPath(ast: ASTNode) extends HoconPsiElement(ast) {
+final class HPath(ast: ASTNode) extends HoconPsiElement(ast) with HInnerElement {
+  def forParent[T](forPath: HPath => T, forSubstitution: HSubstitution => T): T = parent match {
+    case path: HPath => forPath(path)
+    case subst: HSubstitution => forSubstitution(subst)
+  }
+
   def prefix = findChild[HPath]
 
   def key = findChild[HKey]
@@ -155,7 +187,14 @@ final class HPath(ast: ASTNode) extends HoconPsiElement(ast) {
   override def accept(visitor: HoconElementVisitor) = visitor.visitHPath(this)
 }
 
-sealed trait HValue extends HoconPsiElement
+sealed trait HValue extends HoconPsiElement with HInnerElement {
+  def forParent[T](forValuedField: HValuedField => T, forArray: HArray => T, forConcatenation: HConcatenation => T): T =
+    parent match {
+      case vf: HValuedField => forValuedField(vf)
+      case arr: HArray => forArray(arr)
+      case conc: HConcatenation => forConcatenation(conc)
+    }
+}
 
 final class HObject(ast: ASTNode) extends HoconPsiElement(ast) with HValue {
   def entries = getChild[HObjectEntries]
@@ -175,15 +214,15 @@ final class HConcatenation(ast: ASTNode) extends HoconPsiElement(ast) with HValu
   override def accept(visitor: HoconElementVisitor) = visitor.visitHConcatenation(this)
 }
 
-sealed trait HLiteral extends HValue with PsiLiteral
+sealed trait HLiteralValue extends HValue with PsiLiteral
 
-final class HNull(ast: ASTNode) extends HoconPsiElement(ast) with HLiteral {
+final class HNull(ast: ASTNode) extends HoconPsiElement(ast) with HLiteralValue {
   def getValue: Object = null
 
   override def accept(visitor: HoconElementVisitor) = visitor.visitHNull(this)
 }
 
-final class HBoolean(ast: ASTNode) extends HoconPsiElement(ast) with HLiteral {
+final class HBoolean(ast: ASTNode) extends HoconPsiElement(ast) with HLiteralValue {
   def getValue: Object = jl.Boolean.valueOf(booleanValue)
 
   def booleanValue = getText.toBoolean
@@ -191,7 +230,7 @@ final class HBoolean(ast: ASTNode) extends HoconPsiElement(ast) with HLiteral {
   override def accept(visitor: HoconElementVisitor) = visitor.visitHBoolean(this)
 }
 
-final class HNumber(ast: ASTNode) extends HoconPsiElement(ast) with HLiteral {
+final class HNumber(ast: ASTNode) extends HoconPsiElement(ast) with HLiteralValue {
   def getValue: Object = numberValue
 
   def numberValue: jl.Number =
@@ -212,7 +251,7 @@ final class HUnquotedString(ast: ASTNode) extends HoconPsiElement(ast) {
   override def accept(visitor: HoconElementVisitor) = visitor.visitHUnquotedString(this)
 }
 
-final class HString(ast: ASTNode) extends HoconPsiElement(ast) with HLiteral with ContributedReferenceHost {
+sealed trait HString extends HInnerElement with PsiLiteral with ContributedReferenceHost {
   def stringType = getFirstChild.getNode.getElementType
 
   def getValue: Object = stringValue
@@ -242,20 +281,28 @@ final class HString(ast: ASTNode) extends HoconPsiElement(ast) with HLiteral wit
       true
   }
 
-  def isIncludeTarget =
-    stringType == HoconTokenType.QuotedString &&
-      getParent.getNode.getElementType == HoconElementType.Included
-
-  def getFileReferences =
-    if (isIncludeTarget)
-      getParent.asInstanceOf[HIncluded].fileReferenceSet
-        .map(_.getAllReferences).getOrElse(FileReference.EMPTY)
-    else
-      FileReference.EMPTY
-
   override def getReferences =
     PsiReferenceService.getService.getContributedReferences(this)
+}
+
+final class HStringValue(ast: ASTNode) extends HoconPsiElement(ast) with HString with HLiteralValue {
+  override def accept(visitor: HoconElementVisitor) =
+    visitor.visitHStringValue(this)
+}
+
+final class HKeyPart(ast: ASTNode) extends HoconPsiElement(ast) with HString {
+  type Parent = HKey
 
   override def accept(visitor: HoconElementVisitor) =
-    visitor.visitHString(this)
+    visitor.visitHKeyPart(this)
+}
+
+final class HIncludeTarget(ast: ASTNode) extends HoconPsiElement(ast) with HString {
+  type Parent = HIncluded
+
+  def getFileReferences =
+    parent.fileReferenceSet.map(_.getAllReferences).getOrElse(FileReference.EMPTY)
+
+  override def accept(visitor: HoconElementVisitor) =
+    visitor.visitHIncludeTarget(this)
 }

@@ -1,5 +1,5 @@
 k = simple
 -----
-[ab$cd]
+5,[ab$cd]
 -----
 k = "ab$cd"

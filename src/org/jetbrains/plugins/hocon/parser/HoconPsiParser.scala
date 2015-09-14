@@ -111,7 +111,7 @@ class HoconPsiParser extends PsiParser {
       errorUntil(Empty.orEof, "expected end of file", onlyNonEmpty = true)
     }
 
-    def parseStringLiteral(): Unit = {
+    def parseStringLiteral(stringType: HoconElementType): Unit = {
       val marker = builder.mark()
 
       val unclosedQuotedString = builder.getTokenType == QuotedString &&
@@ -126,7 +126,7 @@ class HoconPsiParser extends PsiParser {
         builder.error("unclosed multiline string")
       }
 
-      marker.done(String)
+      marker.done(stringType)
     }
 
     def parseObject() = {
@@ -178,7 +178,7 @@ class HoconPsiParser extends PsiParser {
       val marker = builder.mark()
 
       if (matches(QuotedString)) {
-        parseStringLiteral()
+        parseStringLiteral(IncludeTarget)
       } else if (IncludeQualifiers.exists(matchesUnquoted)) {
         val qualifier = builder.getTokenText
         advanceLexer()
@@ -186,13 +186,13 @@ class HoconPsiParser extends PsiParser {
           if (qualifier == UrlQualifier) {
             try {
               new URL(unquote(builder.getTokenText))
-              parseStringLiteral()
+              parseStringLiteral(IncludeTarget)
             } catch {
               case e: MalformedURLException =>
                 tokenError(if (e.getMessage != null) e.getMessage else "malformed URL")
             }
           } else {
-            parseStringLiteral()
+            parseStringLiteral(IncludeTarget)
           }
           if (matchesUnquoted(")")) {
             advanceLexer()
@@ -272,9 +272,9 @@ class HoconPsiParser extends PsiParser {
       def parseKeyParts(first: Boolean): Unit = {
         if (!matches(KeyEnding.orNewLineOrEof)) {
           if (matches(UnquotedChars)) {
-            parseUnquotedString(UnquotedChars.noNewLine, first, PathEnding.orNewLineOrEof)
+            parseUnquotedString(KeyPart, UnquotedChars.noNewLine, first, PathEnding.orNewLineOrEof)
           } else if (matches(StringLiteral)) {
-            parseStringLiteral()
+            parseStringLiteral(KeyPart)
           } else {
             tokenError("key must be a concatenation of unquoted, quoted or multiline strings " +
               "(characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted)")
@@ -291,7 +291,7 @@ class HoconPsiParser extends PsiParser {
       setEdgeTokenBinders(marker, first, matches(PathEnding.orNewLineOrEof))
     }
 
-    def parseUnquotedString(matcher: Matcher, nonGreedyLeft: Boolean, nonGreedyRightMatcher: Matcher): Unit = {
+    def parseUnquotedString(stringType: HoconElementType, matcher: Matcher, nonGreedyLeft: Boolean, nonGreedyRightMatcher: Matcher): Unit = {
       val stringMarker = builder.mark()
       val marker = builder.mark()
       suppressNewLine()
@@ -300,7 +300,7 @@ class HoconPsiParser extends PsiParser {
       }
       marker.done(UnquotedString)
       setEdgeTokenBinders(marker, nonGreedyLeft, matches(nonGreedyRightMatcher))
-      stringMarker.done(String)
+      stringMarker.done(stringType)
       setEdgeTokenBinders(stringMarker, nonGreedyLeft, matches(nonGreedyRightMatcher))
     }
 
@@ -339,9 +339,9 @@ class HoconPsiParser extends PsiParser {
           } else if (matches(Dollar) && builder.lookAhead(1) == SubLBrace) {
             parseSubstitution()
           } else if (matches(ValueUnquotedChars)) {
-            parseUnquotedString(ValueUnquotedChars.noNewLine, partCount == 0, ValueEnding.orNewLineOrEof)
+            parseUnquotedString(StringValue, ValueUnquotedChars.noNewLine, partCount == 0, ValueEnding.orNewLineOrEof)
           } else if (matches(StringLiteral)) {
-            parseStringLiteral()
+            parseStringLiteral(StringValue)
           } else {
             tokenError("characters $ \" { } [ ] : = , + # ` ^ ? ! @ * & \\ are forbidden unquoted")
           }
