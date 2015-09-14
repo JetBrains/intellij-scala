@@ -1,8 +1,8 @@
-*$^&@+?`\
+*^$&@+?`\
 -----
 BAD_CHARACTER {*}
-BAD_CHARACTER {$}
 BAD_CHARACTER {^}
+DOLLAR {$}
 BAD_CHARACTER {&}
 BAD_CHARACTER {@}
 BAD_CHARACTER {+}

@@ -1,7 +1,7 @@
 $ {something}
 ${ ?something}
 -----
-BAD_CHARACTER {$}
+DOLLAR {$}
 INLINE_WHITESPACE { }
 LBRACE {{}
 UNQUOTED_CHARS {something}
