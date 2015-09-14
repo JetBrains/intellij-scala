@@ -655,6 +655,9 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.deprecation.ScalaDeprecationInspection"
                          displayName="Scala Deprecation" groupPath="Scala" groupName="General" shortName="ScalaDeprecation"
                          id="ScalaDeprecation" level="WARNING" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.deprecation.ScalaDeprecatedIdentifierInspection"
+                         displayName="Deprecated identifier" groupPath="Scala" groupName="General" shortName="ScalaDeprecatedIdentifier"
+                         id="ScalaDeprecatedIdentifier" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.CaseClassParamInspection"
                          displayName="Case Class Parameter" groupPath="Scala" groupName="General" shortName="CaseClassParam"
                          id="CaseClassParam" level="WARNING" enabledByDefault="true" language="Scala"/>
