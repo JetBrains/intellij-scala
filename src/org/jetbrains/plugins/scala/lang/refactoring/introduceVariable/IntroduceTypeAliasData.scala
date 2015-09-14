@@ -29,8 +29,8 @@ object IntroduceTypeAliasData {
   }
 
   def addScopeElement(item: ScopeItem): Unit = {
-    val elementCopy = item.copy()
-    currentScope = elementCopy
+//    val elementCopy = item.copy()
+    currentScope = item
   }
 
   def setInintialInfo(inText: String, caretPosition: Int): Unit = {
