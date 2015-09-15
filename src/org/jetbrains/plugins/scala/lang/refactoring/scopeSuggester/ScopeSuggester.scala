@@ -10,6 +10,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.search.{GlobalSearchScope, PackageScope, PsiSearchHelper}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiPackage}
+import com.intellij.ui.LanguageTextField.DocumentCreator
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -189,10 +190,11 @@ object ScopeSuggester {
 
 class ScopeItem(val name: String,
                 var fileEncloser: PsiElement,
-                var usualOccurrences: Array[ScTypeElement],
-                var occurrencesInCompanion: Array[ScTypeElement],
+                val usualOccurrences: Array[ScTypeElement],
+                val occurrencesInCompanion: Array[ScTypeElement],
                 val typeValidator: ScalaValidator,
                 val availableNames: Array[String]) {
+
 
   var occurrencesFromInheretors: Array[ScTypeElement] = Array[ScTypeElement]()
 
@@ -226,26 +228,6 @@ class ScopeItem(val name: String,
       typeAlias = inTypeAlias
       typeAliasFile = typeAlias.getContainingFile
     }
-  }
-
-  def redefineUsualOccurrences(file: PsiFile): Unit = {
-    def findOneOccurrence(range: TextRange): ScTypeElement = {
-      PsiTreeUtil.findElementOfClassAtRange(file, range.getStartOffset, range.getEndOffset, classOf[ScTypeElement])
-    }
-
-    usualOccurrences = occurrencesRanges.map(findOneOccurrence)
-  }
-
-  def copy(): ScopeItem = {
-    val item = new ScopeItem(name, fileEncloser, usualOccurrences, occurrencesInCompanion, typeValidator, availableNames)
-    item.typeAlias = typeAlias
-    item.typeAliasFile = typeAliasFile
-    item.occurrencesRanges = occurrencesRanges
-    item.typeAliasOffset = typeAliasOffset
-    item.occurrencesFromInheretors = occurrencesFromInheretors
-    item.computeRanges()
-    item.computeTypeAliasOffset()
-    item
   }
 
   override def toString: String = name

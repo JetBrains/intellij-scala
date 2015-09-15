@@ -797,7 +797,7 @@ object ScalaRefactoringUtil {
   }
 
 
-  def replaceTypeElement(occurrences: Array[ScTypeElement], name: String): Array[ScTypeElement] = {
+  def replaceTypeElements(occurrences: Array[ScTypeElement], name: String) = {
     def replaceHelper(typeElement: ScTypeElement, inName: String): ScTypeElement = {
       val replacement = ScalaPsiElementFactory.createTypeElementFromText(inName, typeElement.getContext, typeElement)
       //remove parethesis around typeElement
@@ -814,7 +814,7 @@ object ScalaRefactoringUtil {
       }
     }
 
-    occurrences.map(replaceHelper(_, name))
+    occurrences.transform(replaceHelper(_, name))
   }
 
   private def getElementOnCaretOffset(file: PsiFile, editor: Editor): PsiElement = {
