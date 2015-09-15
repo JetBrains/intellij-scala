@@ -1220,7 +1220,8 @@ object ScalaEvaluatorBuilderUtil {
         override def compute(): Result[Boolean] = Result.create(computation, elem)
       }
 
-      CachedValuesManager.getCachedValue(elem, cacheProvider)
+      if (elem == null) false
+      else CachedValuesManager.getCachedValue(elem, cacheProvider)
     }
 
     def isGenerateAnonfunSimple: Boolean = {
