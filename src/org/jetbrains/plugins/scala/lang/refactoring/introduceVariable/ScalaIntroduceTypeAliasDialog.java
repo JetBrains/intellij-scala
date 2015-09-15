@@ -68,14 +68,14 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
 
     public ScalaIntroduceTypeAliasDialog(Project project,
                                          ScTypeElement myTypeElement,
-                                         ArrayList<ScopeItem> possibleScopes,
+                                         ScopeItem[] possibleScopes,
                                          ScopeItem mainScope,
                                          ConflictsReporter conflictReporter,
                                          Editor editor) {
         super(project, true);
         this.project = project;
         this.myTypeElement = myTypeElement;
-        this.currentScope = possibleScopes.get(0);
+        this.currentScope = possibleScopes[0];
         this.occurrencesCount = currentScope.usualOccurrences().length;
         this.companionObjOccCount = currentScope.occurrencesInCompanion().length;
         this.validator = currentScope.typeValidator();
@@ -301,7 +301,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         setUpOccurrences();
     }
 
-    private void setUpScopeComboBox(ArrayList<ScopeItem> elements, ScopeItem mainScope) {
+    private void setUpScopeComboBox(ScopeItem[] elements, ScopeItem mainScope) {
         myScopeCombobox.addItemListener(new ScopeItemChangeListener());
 
         for (ScopeItem scope : elements) {

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem
 object IntroduceTypeAliasData {
   var currentScope: ScopeItem = null
   var initialInfo: (String, Int) = ("", 0)
-  var possibleScopes: util.ArrayList[ScopeItem] = null
+  var possibleScopes: Array[ScopeItem] = null
   var isReverted = false
   var typeElementRanges:TextRange = null
 
@@ -39,7 +39,7 @@ object IntroduceTypeAliasData {
     }
   }
 
-  def setPossibleScopes(inPossibleScopes: util.ArrayList[ScopeItem]): Unit = {
+  def setPossibleScopes(inPossibleScopes: Array[ScopeItem]): Unit = {
     possibleScopes = inPossibleScopes
   }
 
