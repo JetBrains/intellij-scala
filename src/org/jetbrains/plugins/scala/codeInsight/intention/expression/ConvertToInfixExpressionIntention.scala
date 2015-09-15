@@ -104,17 +104,21 @@ class ConvertToInfixExpressionIntention extends PsiElementBaseIntentionAction {
       case false =>  invokedExprBuilder.append(" ").append(argsBuilder)
     }
 
-    val infixExpr = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
-    infixExpr.asInstanceOf[ScInfixExpr].getBaseExpr.replaceExpression(exprA, removeParenthesis = true)
-    infixExpr.asInstanceOf[ScInfixExpr].getArgExpr.replaceExpression(exprB, removeParenthesis = true)
+    val text = expr.toString()
+    ScalaPsiElementFactory.createExpressionFromText(text, element.getManager) match {
+      case infixExpr: ScInfixExpr =>
+        infixExpr.asInstanceOf[ScInfixExpr].getBaseExpr.replaceExpression(exprA, removeParenthesis = true)
+        infixExpr.asInstanceOf[ScInfixExpr].getArgExpr.replaceExpression(exprB, removeParenthesis = true)
 
-    val size = infixExpr.asInstanceOf[ScInfixExpr].operation.nameId.getTextRange.getStartOffset -
-            infixExpr.getTextRange.getStartOffset
+        val size = infixExpr.asInstanceOf[ScInfixExpr].operation.nameId.getTextRange.getStartOffset -
+          infixExpr.getTextRange.getStartOffset
 
-    inWriteAction {
-      methodCallExpr.replaceExpression(infixExpr, removeParenthesis = true)
-      editor.getCaretModel.moveToOffset(start + diff + size)
-      PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+        inWriteAction {
+          methodCallExpr.replaceExpression(infixExpr, removeParenthesis = true)
+          editor.getCaretModel.moveToOffset(start + diff + size)
+          PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+        }
+      case x => throw new IllegalStateException(s"$text should be infix expression")
     }
   }
 
