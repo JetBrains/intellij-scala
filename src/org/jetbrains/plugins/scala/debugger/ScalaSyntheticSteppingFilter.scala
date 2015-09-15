@@ -28,6 +28,8 @@ class ScalaSyntheticSteppingFilter extends ExtraSteppingFilter {
     val name = location.method().name()
     if (name.endsWith("$lzycompute")) return false //should step into the body of a lazy val
 
+    if (positionManager.LocationLineManager.shouldSkip(location)) return true
+
     if (name == "apply") return false
 
     if (name == "<init>") return false
