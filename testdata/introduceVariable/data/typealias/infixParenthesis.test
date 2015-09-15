@@ -4,6 +4,6 @@ object My {
 }
 --------------
 object My {
-  type TUPLE = List[Int] Pair Seq[Int]
+  type TUPLE = (List[Int], Seq[Int])
   val t1:String Pair TUPLE = ("abc",(List(5), Seq(123)))
 }

@@ -41,7 +41,7 @@ class OccurrenceHandler(typeElement: ScTypeElement, usualOccurrence: Array[ScTyp
 
   def getOccurrencesCount = getAllOccurrences.length
 
-  def getAllOccurrences = getCompanionObjOccurrences ++ getExtendedOccurrences ++ getUsualOccurrences
+  def getAllOccurrences = getUsualOccurrences ++ getCompanionObjOccurrences ++ getExtendedOccurrences
 
   private def getOccurrences(occ: Array[ScTypeElement], needAll: Boolean): Array[ScTypeElement] = {
     if (needAll) {
