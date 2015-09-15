@@ -32,24 +32,32 @@ object ScClsStubBuilder {
   }
 
   private def canBeProcessed(file: VirtualFile, bytes: => Array[Byte]): Boolean = {
-    val name: String = file.getNameWithoutExtension
-    if (name.contains("$")) {
-      val parent: VirtualFile = file.getParent
-      @tailrec
-      def checkName(name: String): Boolean = {
-        val child: VirtualFile = parent.findChild(name + ".class")
-        if (child != null) {
-          val res = DecompilerUtil.isScalaFile(child)
-          if (res) return true //let's handle it separately to avoid giving it for Java.
-        }
-        val index = name.lastIndexOf("$")
-        if (index == -1) return false
-        var newName = name.substring(0, index)
-        while (newName.endsWith("$")) newName = newName.dropRight(1)
-        checkName(newName)
+    if (DecompilerUtil.isScalaFile(file, bytes)) return true
+    val fileName: String = file.getNameWithoutExtension
+    val parent = file.getParent
+
+    def split(str: String): Option[(String, String)] = {
+      val index = str.indexOf('$')
+      if (index == -1) None
+      else Some(str.substring(0, index), str.substring(index + 1, str.length))
+    }
+
+    @tailrec
+    def go(prefix: String, suffix: String): Boolean = {
+      if (!prefix.endsWith("$")) {
+        val child = parent.findChild(prefix + ".class")
+        if (child != null && DecompilerUtil.isScalaFile(child)) return true
       }
-      checkName(name)
-    } else DecompilerUtil.isScalaFile(file, bytes)
+      split(suffix) match {
+        case Some((suffixPrefix, suffixSuffix)) => go(prefix + "$" + suffixPrefix, suffixSuffix)
+        case _ => false
+      }
+    }
+
+    split(fileName) match {
+      case Some((prefix, suffix)) => go(prefix, suffix)
+      case _ => false
+    }
   }
 }
 
