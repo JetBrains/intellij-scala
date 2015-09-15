@@ -3,11 +3,10 @@ package lang
 package refactoring
 package scopeSuggester
 
-import java.util
-
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.search.{GlobalSearchScope, PackageScope, PsiSearchHelper}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiPackage}
@@ -18,11 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTemplateBodyImpl
 import org.jetbrains.plugins.scala.lang.psi.types.{ScProjectionType, ScTypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util._
-import com.intellij.openapi.util.text.StringUtil
+
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -35,7 +33,7 @@ object ScopeSuggester {
                     project: Project,
                     editor: Editor,
                     file: PsiFile,
-                    curerntElement: ScTypeElement): util.ArrayList[ScopeItem] = {
+                    curerntElement: ScTypeElement): Array[ScopeItem] = {
 
     def getParent(element: PsiElement, isScriptFile: Boolean): PsiElement = {
       if (isScriptFile)
@@ -47,9 +45,8 @@ object ScopeSuggester {
     val isScriptFile = curerntElement.getContainingFile.asInstanceOf[ScalaFile].isScriptFile()
     var parent = getParent(curerntElement, isScriptFile)
 
-
     var noContinue = false
-    var result: List[ScopeItem] = List()
+    var result: ArrayBuffer[ScopeItem] = new ArrayBuffer[ScopeItem]()
     while (parent != null && !noContinue) {
       var occInCompanionObj: Array[ScTypeElement] = Array[ScTypeElement]()
       val name = parent match {
@@ -96,8 +93,7 @@ object ScopeSuggester {
       result = result :+ handlePackage(curerntElement, packageName, conflictsReporter, project, editor)
     }
 
-    import scala.collection.JavaConversions.asJavaCollection
-    new util.ArrayList[ScopeItem](result.toIterable)
+    result.toArray
   }
 
   private def getOccurrencesFromCompanionObject(typeElement: ScTypeElement,

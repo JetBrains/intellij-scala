@@ -305,11 +305,9 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
 
             runWithDialog(fromInplace = true, IntroduceTypeAliasData.currentScope)
           } else {
-            var array = Array[ScopeItem]()
-            array = IntroduceTypeAliasData.possibleScopes.toArray(array)
-            IntroduceTypeAliasData.setInintialInfo(editor.getDocument.getText, editor.getCaretModel.getOffset)
 
-            ScalaRefactoringUtil.afterScopeChoosing(project, editor, file, array, "type alias") {
+            IntroduceTypeAliasData.setInintialInfo(editor.getDocument.getText, editor.getCaretModel.getOffset)
+            ScalaRefactoringUtil.afterScopeChoosing(project, editor, file, IntroduceTypeAliasData.possibleScopes, "type alias") {
               scopeItem =>
                 if (!scopeItem.usualOccurrences.isEmpty) {
                   handleScope(scopeItem, needReplacement = true)
@@ -537,12 +535,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
   = {
     def addTypeAliasDefinition(typeName: String, typeElement: ScTypeElement, parent: PsiElement) = {
       def getAhchor(parent: PsiElement, firstOccurrence: PsiElement): Some[PsiElement] = {
-        val children = parent.getChildren
-
-        Some(parent.getChildren.find(_.getTextRange.contains(firstOccurrence.getTextRange))
-          .getOrElse(if (parent.getFirstChild.getText != "{") parent.getFirstChild
-          else if (children.isEmpty) parent.getLastChild
-          else children.apply(0)))
+        Some(parent.getChildren.find(_.getTextRange.contains(firstOccurrence.getTextRange)).getOrElse(parent.getLastChild))
       }
 
       val mtext = typeElement.calcType.canonicalText
@@ -665,10 +658,10 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
   }
 
   protected def getDialogForTypes(project: Project, editor: Editor, typeElement: ScTypeElement,
-                                  possibleScopes: util.ArrayList[ScopeItem], mainScope: ScopeItem): ScalaIntroduceTypeAliasDialog = {
+                                  possibleScopes: Array[ScopeItem], mainScope: ScopeItem): ScalaIntroduceTypeAliasDialog = {
 
     // Add occurrences highlighting
-    val occurrences = possibleScopes.get(0).usualOccurrences
+    val occurrences = possibleScopes.apply(0).usualOccurrences
     if (occurrences.length > 1)
       occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, occurrences.map(_.getTextRange), editor)
 

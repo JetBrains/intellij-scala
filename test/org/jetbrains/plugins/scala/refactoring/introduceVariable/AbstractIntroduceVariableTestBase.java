@@ -160,7 +160,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
           ScTypeElement typeElement = optionType.get();
           String typeName = getName(fileText);
 
-          ArrayList<ScopeItem> scopes = ScopeSuggester.suggestScopes(introduceVariableHandler, getProject(),
+          ScopeItem[] scopes = ScopeSuggester.suggestScopes(introduceVariableHandler, getProject(),
                   myEditor, myFile, typeElement);
 
 //          if (replaceOccurrencesFromInheritors) {
@@ -176,10 +176,10 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 //          }
 
           OccurrenceHandler occurrences = OccurrenceHandler.apply(typeElement, replaceAllOccurences,
-                  replaceCompanionObjOccurrences, replaceOccurrencesFromInheritors, scopes.get(0));
+                  replaceCompanionObjOccurrences, replaceOccurrencesFromInheritors, scopes[0]);
 
           introduceVariableHandler.runRefactoringForTypes(startOffset, endOffset, myFile, myEditor, typeElement,
-                  typeName, occurrences, replaceAllOccurences, scopes.get(0).fileEncloser());
+                  typeName, occurrences, replaceAllOccurences, scopes[0].fileEncloser());
 
           result = removeTypenameComment(myEditor.getDocument().getText());
         }
