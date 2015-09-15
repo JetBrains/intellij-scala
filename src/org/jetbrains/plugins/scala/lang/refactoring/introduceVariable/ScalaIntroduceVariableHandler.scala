@@ -12,7 +12,7 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.command.impl.StartMarkAction
-import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util._
@@ -217,18 +217,14 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
             return
           }
 
-          val typeName: String = dialog.getEnteredName
-          val replaceAllOccurrences: Boolean = dialog.isReplaceAllOccurrences
-
-          dialog.getSelectedScope.redefineUsualOccurrences(file)
           val occurrences: OccurrenceHandler = OccurrenceHandler(typeElementHelper,
             dialog.isReplaceAllOccurrences,
             dialog.isReplaceOccurrenceIncompanionObject,
             dialog.isReplaceOccurrenceInInheritors, dialog.getSelectedScope)
 
           val parent = dialog.getSelectedScope.fileEncloser
-          runRefactoringForTypes(startOffset, endOffset, file, editor, typeElementHelper, typeName, occurrences,
-            replaceAllOccurrences, parent)
+          runRefactoringForTypes(startOffset, endOffset, file, editor, typeElementHelper, dialog.getEnteredName, occurrences,
+            dialog.isReplaceAllOccurrences, parent)
         }
 
         // replace all occurrences, don't replace occurences available from companion object or inheritors
@@ -544,41 +540,27 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
         .createTypeAliasDefinitionFromText(s"type $typeName = $mtext", typeElement.getContext, typeElement)
 
       val resultTypeAlias = ScalaPsiUtil.addTypeAliasBefore(definition, parent, getAhchor(parent, typeElement))
-      ScalaPsiUtil.adjustTypes(resultTypeAlias)
+      ScalaPsiUtil.adjustTypes(resultTypeAlias, useTypeAliases = false)
       resultTypeAlias
     }
 
     val typeAlias = addTypeAliasDefinition(typeName, occurrences.getAllOccurrences(0), suggestedParent)
 
-    val replacedTypeElement = ScalaRefactoringUtil.replaceTypeElement(Array(typeElement), typeName).apply(0)
-    if (scopeItem == null) {
-      ScalaRefactoringUtil.replaceTypeElement(occurrences.getUsualOccurrences, typeName)
-      ScalaRefactoringUtil.replaceTypeElement(occurrences.getExtendedOccurrences, typeName)
-    } else {
+    val replacedTypeElement = ScalaRefactoringUtil.replaceTypeElements(Array(typeElement), typeName).apply(0)
+    if (scopeItem != null) {
       scopeItem.setTypeAlias(typeAlias)
-
-      val ab = new ArrayBuffer[ScTypeElement]()
-      for (el <- occurrences.getUsualOccurrences) {
-        if (el != typeElement) {
-          ab += el
-        }
-      }
-      scopeItem.usualOccurrences = ScalaRefactoringUtil.replaceTypeElement(ab.toList.reverse.toArray, typeName)
-      scopeItem.usualOccurrences = scopeItem.usualOccurrences :+ replacedTypeElement
-      scopeItem.occurrencesFromInheretors = ScalaRefactoringUtil.replaceTypeElement(occurrences.getExtendedOccurrences, typeName)
     }
+
+    ScalaRefactoringUtil.replaceTypeElements(occurrences.getUsualOccurrences, typeName)
+    ScalaRefactoringUtil.replaceTypeElements(occurrences.getExtendedOccurrences, typeName)
 
     val className = PsiTreeUtil.getParentOfType(suggestedParent, classOf[ScObject]) match {
       case objectType: ScObject =>
         objectType.name
       case _ => ""
     }
-    if (scopeItem != null) {
-      scopeItem.occurrencesInCompanion = ScalaRefactoringUtil.replaceTypeElement(occurrences.getCompanionObjOccurrences, className + "." + typeName)
-    } else {
-      ScalaRefactoringUtil.replaceTypeElement(occurrences.getCompanionObjOccurrences, className + "." + typeName)
-    }
 
+    ScalaRefactoringUtil.replaceTypeElements(occurrences.getCompanionObjOccurrences, className + "." + typeName)
 
     (SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(typeAlias.asInstanceOf[PsiElement]),
       SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(replacedTypeElement))
