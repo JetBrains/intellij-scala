@@ -2,8 +2,11 @@ package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import java.util
 
+import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem
 
@@ -14,22 +17,20 @@ object IntroduceTypeAliasData {
   var currentScope: ScopeItem = null
   var initialInfo: (String, Int) = ("", 0)
   var possibleScopes: Array[ScopeItem] = null
-  var isReverted = false
-  var typeElementRanges:TextRange = null
+  var typeElementRanges: TextRange = null
 
   def clearData(): Unit = {
     currentScope = null
     initialInfo = ("", 0)
     possibleScopes = null
-    isReverted = false
   }
 
-  def isData:Boolean = {
-    currentScope != null || initialInfo != ("", 0) || possibleScopes != null
+  def isData: Boolean = {
+    currentScope != null || initialInfo !=("", 0) || possibleScopes != null
   }
 
   def addScopeElement(item: ScopeItem): Unit = {
-//    val elementCopy = item.copy()
+    //    val elementCopy = item.copy()
     currentScope = item
   }
 
@@ -41,6 +42,10 @@ object IntroduceTypeAliasData {
 
   def setPossibleScopes(inPossibleScopes: Array[ScopeItem]): Unit = {
     possibleScopes = inPossibleScopes
+  }
+
+  def getTypeElement(file: PsiFile): ScTypeElement ={
+    PsiTreeUtil.findElementOfClassAtRange(file, typeElementRanges.getStartOffset, typeElementRanges.getEndOffset, classOf[ScTypeElement])
   }
 
   def getNamedElement: ScTypeAlias = {
