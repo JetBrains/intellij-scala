@@ -222,4 +222,42 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase{
       evalEquals("true.naoborot()", "false")
     }
   }
+
+  def testImportedFromOuterThis(): Unit = {
+    addFileToProject("Sample.scala",
+      """object Sample {
+        |  def main(args: Array[String]) {
+        |    val o = new OuterThis
+        |    val b = new o.B()
+        |    b.bar()
+        |  }
+        |}
+        |
+        |class OuterThis {
+        |
+        |  val g = new GGG
+        |  import g._
+        |
+        |  class B {
+        |    def bar() = {
+        |      val f = foo()
+        |      "stop here"
+        |    }
+        |  }
+        |}
+        |
+        |class GGG {
+        |  def foo() = 1
+        |}
+      """.stripMargin.trim)
+    addBreakpoint("Sample.scala", 16)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("foo()", "1")
+      evalStartsWith("g", "GGG")
+      evalStartsWith("OuterThis.this", "OuterThis")
+      evalStartsWith("B.this", "OuterThis$B")
+      evalStartsWith("this", "OuterThis$B")
+    }
+  }
 }

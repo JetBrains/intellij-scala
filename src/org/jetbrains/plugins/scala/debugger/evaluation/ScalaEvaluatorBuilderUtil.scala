@@ -63,7 +63,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         def exprToEvaluate(p: ScProjectionType): String = p.projected match {
           case ScDesignatorType(elem) => elem.name + "." + p.actualElement.name
           case projected: ScProjectionType => exprToEvaluate(projected) + "." + projected.actualElement.name
-          case ScThisType(_) => "this." + p.actualElement.name
+          case ScThisType(cl) if contextClass == cl => s"this.${p.actualElement.name}"
+          case ScThisType(cl) => s"${cl.name}.this.${p.actualElement.name}"
           case _ => throw EvaluationException(message)
         }
         val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprToEvaluate(p), ref.getContext, ref)
@@ -129,7 +130,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         val refName = ref.refName
         val (result, iters) = findContextClass {
           case null => true
-          case cl: PsiClass if cl.name != null && cl.name != refName => true
+          case cl: PsiClass if cl.name != null && cl.name == refName => true
           case _ => false
         }
 
