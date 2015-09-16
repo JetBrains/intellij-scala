@@ -75,7 +75,7 @@ abstract class SbtImportNotificationProvider(project: Project, notifications: Ed
             ProjectRootManagerEx.getInstanceEx(project).mergeRootsChangesDuring(new Runnable {
               def run() {
                 val dataManager: ProjectDataManager = ServiceManager.getService(classOf[ProjectDataManager])
-                dataManager.importData[ProjectData](externalProject.getKey, Collections.singleton(externalProject), project, false)
+                dataManager.importData[ProjectData](Collections.singleton(externalProject), project, false)
               }
             })
           }
