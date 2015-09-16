@@ -89,7 +89,7 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
     }
 
     if (size == 0) PsiClass.EMPTY_ARRAY
-    else if (size == 1) Array[PsiClass](res(0))
+    else if (size == 1) Array[PsiClass](lastClass)
     else res.toArray
   }
 
