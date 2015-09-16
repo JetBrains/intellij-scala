@@ -837,6 +837,10 @@
                          displayName="Nested stateful monads" groupPath="Scala" groupName="General"
                          shortName="NestedStatefulMonads" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.delayedInit.FieldFromDelayedInitInspection"
+                         displayName="Field from DelayedInit" groupPath="Scala" groupName="General"
+                         shortName="FieldFromDelayedInit" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
                         displayName="All Errors Tool" groupPath="Scala" groupName="General"
                         shortName="ScalaAllErrors" level="WARNING"
