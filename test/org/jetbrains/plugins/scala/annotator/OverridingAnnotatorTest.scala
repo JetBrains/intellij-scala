@@ -193,6 +193,28 @@ class OverridingAnnotatorTest extends SimpleTestCase {
     }
   }
 
+  //SCL-4036
+  def testDefOverrideValVar(): Unit = {
+    val code =
+    """
+      |object ppp {
+      |class A {
+      |  val foo = 42
+      |  var bar = 24
+      |}
+      |
+      |class B extends A {
+      |  override def foo = 999
+      |  override def bar = 1000
+      |}
+      |}
+    """.stripMargin
+    assertMatches(messages(code)) {
+      case List(Error("foo", "method foo needs to be a stable, immutable value"),
+                Error("bar", "method bar cannot override a mutable variable")) =>
+    }
+  }
+
   def messages(code: String): List[Message] = {
     val annotator = new OverridingAnnotator() {}
     val mock = new AnnotatorHolderMock
