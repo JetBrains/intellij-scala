@@ -90,7 +90,7 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
 
     if (size == 0) PsiClass.EMPTY_ARRAY
     else if (size == 1) Array[PsiClass](res(0))
-    else res.toArray9158
+    else res.toArray
   }
 
   def processMethodsWithName(name: String, scope: GlobalSearchScope, processor: Processor[PsiMethod]): Boolean = {
