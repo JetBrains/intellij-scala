@@ -18,7 +18,7 @@
     <id>org.jetbrains.scaladev</id>
     <name>ScalaPlugin Development Tools</name>
     <description>Automatically attaches IDEA sources for plugin project</description>
-    <version>0.0.1</version>
+    <version>0.0.3</version>
     <vendor url="http://www.jetbrains.com">JetBrains Inc.</vendor>
     <idea-version since-build="142.4400" until-build="143.0"/>
 
@@ -27,5 +27,10 @@
             <implementation-class>org.jetbrains.plugins.scaladev.IdeaSourcesAttach</implementation-class>
         </component>
     </project-components>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <externalSystemTaskNotificationListener implementation="org.jetbrains.plugins.scaladev.ExternalSystemRefreshListener"/>
+    </extensions>
+
 
 </idea-plugin>
