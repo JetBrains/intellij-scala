@@ -93,7 +93,8 @@ sealed trait HKeyedField extends HoconPsiElement with HInnerElement with HScope 
     case of: HObjectField => forObjectField(of)
   }
 
-  def validKey = findChild[HKey].filter(_.isValidKey)
+  def key = findChild[HKey]
+  def validKey = key.filter(_.isValidKey)
 
   /**
    * Goes up the tree in order to determine full path under which this keyed field is defined.
@@ -231,7 +232,6 @@ final class HKey(ast: ASTNode) extends HoconPsiElement(ast) with HInnerElement {
 
   def stringValue = allChildren.collect {
     case keyPart: HKeyPart => keyPart.stringValue
-    case err: PsiErrorElement => ""
     case other => other.getText
   }.mkString
 

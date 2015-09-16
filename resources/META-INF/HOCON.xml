@@ -35,5 +35,6 @@
 
     <highlightUsagesHandlerFactory
         implementation="org.jetbrains.plugins.hocon.highlight.HoconHighlightUsagesHandlerFactory"/>
+    <breadcrumbsInfoProvider implementation="org.jetbrains.plugins.hocon.misc.HoconBreadcrumbsInfoProvider"/>
   </extensions>
 </idea-plugin>
