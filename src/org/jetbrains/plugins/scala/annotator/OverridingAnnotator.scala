@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.{AddModifierQuickFix, AddModifierWithValOrVarQuickFix, RemoveModifierQuickFix}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -161,18 +161,24 @@ trait OverridingAnnotator {
       }
       member match {
         case f: ScFunctionDefinition =>
+          def annotVal() = {
+            val annotation = holder.createErrorAnnotation(member.nameId,
+              ScalaBundle.message("member.cannot.override.val", member.name))
+            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+          }
+          def annotVar() = {
+            val annotation = holder.createErrorAnnotation(member.nameId,
+              ScalaBundle.message("member.cannot.override.var", member.name))
+            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+          }
           for (signature <- superSignatures) {
             signature match {
               case s:Signature =>
                 s.namedElement match {
-                  case rp: ScReferencePattern if rp.isVal =>
-                    val annotation = holder.createErrorAnnotation(member.nameId,
-                      ScalaBundle.message("member.cannot.override.val", member.name))
-                    annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-                  case rp: ScReferencePattern if rp.isVar =>
-                    val annotation = holder.createErrorAnnotation(member.nameId,
-                      ScalaBundle.message("member.cannot.override.var", member.name))
-                    annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+                  case rp: ScBindingPattern if rp.isVal => annotVal()
+                  case rp: ScBindingPattern if rp.isVar => annotVar()
+                  case cp: ScClassParameter if cp.isVal => annotVal()
+                  case cp: ScClassParameter if cp.isVar => annotVar()
                   case _ =>
                 }
               case _ =>
