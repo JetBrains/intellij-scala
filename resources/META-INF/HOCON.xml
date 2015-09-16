@@ -32,5 +32,8 @@
     <localInspection language="HOCON"
                      implementationClass="org.jetbrains.plugins.hocon.ref.HoconIncludeResolutionInspection"
                      displayName="HOCON include resolution" groupName="HOCON" enabledByDefault="true" level="WARNING"/>
+
+    <highlightUsagesHandlerFactory
+        implementation="org.jetbrains.plugins.hocon.highlight.HoconHighlightUsagesHandlerFactory"/>
   </extensions>
 </idea-plugin>
