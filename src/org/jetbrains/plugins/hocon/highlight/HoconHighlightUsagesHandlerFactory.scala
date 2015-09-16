@@ -1,0 +1,66 @@
+package org.jetbrains.plugins.hocon.highlight
+
+import com.intellij.codeInsight.highlighting.{HighlightUsagesHandlerBase, HighlightUsagesHandlerFactoryBase}
+import com.intellij.openapi.editor.Editor
+import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.util.Consumer
+import org.jetbrains.plugins.hocon.JavaInterop._
+import org.jetbrains.plugins.hocon.psi._
+
+import scala.collection.JavaConverters._
+
+class HoconHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactoryBase {
+  def createHighlightUsagesHandler(editor: Editor, file: PsiFile, target: PsiElement) =
+    Iterator.iterate(target)(_.getParent).takeWhile(_ != null)
+      .collectFirst({ case hkey: HKey => new HoconHighlightKeyUsagesHandler(editor, file, hkey) })
+      .orNull
+}
+
+class HoconHighlightKeyUsagesHandler(editor: Editor, psiFile: PsiFile, hkey: HKey)
+  extends HighlightUsagesHandlerBase[HKey](editor, psiFile) {
+
+  def computeUsages(targets: JList[HKey]) = {
+    def findPaths(el: PsiElement): Iterator[HPath] = el match {
+      case path: HPath => Iterator(path)
+      case hoconFile: HoconPsiFile => findPaths(hoconFile.toplevelEntries)
+      case _: HInclude | _: HLiteralValue => Iterator.empty
+      case hoconElement: HoconPsiElement => hoconElement.nonWhitespaceChildren.flatMap(findPaths)
+      case _ => Iterator.empty
+    }
+    val allValidPathsInFile = findPaths(psiFile).map(_.startingValidKeys).toList
+
+    val foundKeys = targets.iterator.asScala.flatMap(_.allKeysFromToplevel).flatMap {
+      case keys@(firstKey :: _) =>
+        def fromFields(scopes: Iterator[HScope], keys: List[HKey]): Iterator[HKey] = keys match {
+          case Nil => Iterator.empty
+          case List(lastKey) =>
+            scopes.flatMap(_.directKeyedFields).flatMap(_.validKey).filter(_.stringValue == lastKey.stringValue)
+          case nextKey :: restOfKeys =>
+            fromFields(scopes.flatMap(_.directSubScopes(nextKey.stringValue)), restOfKeys)
+        }
+        def fromPath(keys: List[HKey], pathKeys: List[HKey]): Option[HKey] = (keys, pathKeys) match {
+          case (key :: Nil, pathKey :: _) if key.stringValue == pathKey.stringValue =>
+            Some(pathKey)
+          case (key :: rest, pathKey :: pathRest) if key.stringValue == pathKey.stringValue =>
+            fromPath(rest, pathRest)
+          case _ => None
+        }
+        fromFields(Iterator(firstKey.enclosingEntries), keys) ++
+          allValidPathsInFile.flatMap(pathKeys => fromPath(keys, pathKeys))
+      case Nil =>
+        Iterator.empty
+    }
+    foundKeys.foreach(key =>
+      key.forParent(path => myReadUsages, field => myWriteUsages).add(key.getTextRange))
+
+    // don't highlight if there is only one occurrence
+    if(myReadUsages.size + myWriteUsages.size == 1) {
+      myReadUsages.clear()
+      myWriteUsages.clear()
+    }
+  }
+
+  def getTargets = JList(hkey)
+  def selectTargets(targets: JList[HKey], selectionConsumer: Consumer[JList[HKey]]) =
+    selectionConsumer.consume(targets)
+}
