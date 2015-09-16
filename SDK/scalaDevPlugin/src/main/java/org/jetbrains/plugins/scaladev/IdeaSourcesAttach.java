@@ -27,14 +27,24 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
 
     private Logger LOG = Logger.getInstance(this.getClass());
 
+    public final static String NAME = "IdeaSourcesAttach";
+
     @NotNull
     @Override
     public String getComponentName() {
-        return "IdeaSourcesAttach";
+        return NAME;
     }
 
     @Override
     public void projectOpened() {
+        try {
+            attachIdeaSources();
+        } catch (Exception e) {
+            LOG.error(e);
+        }
+    }
+
+    public void attachIdeaSources() {
         if (!myProject.getName().toLowerCase().contains("scala")) return;
         final Set<LibraryOrderEntry> libs = needsAttaching(getIntellijJars());
         LOG.info("Got " + libs.size() + " total IDEA libraries with missing source roots");
