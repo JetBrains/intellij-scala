@@ -405,7 +405,7 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
                   @Override
                   public void run() {
                     ServiceManager.getService(ProjectDataManager.class).importData(
-                      externalProject.getKey(), Collections.singleton(externalProject), myProject, true);
+                      Collections.singleton(externalProject), myProject, true);
                   }
                 });
               }
