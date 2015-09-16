@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * Nikolay.Tropin
@@ -25,13 +26,13 @@ class ScalaMethodFilter(function: ScMethodLike, callingExpressionLines: Range[In
   }
   val funName = function match {
     case c: ScMethodLike if c.isConstructor => "<init>"
-    case fun: ScFunction => fun.name
+    case fun: ScFunction => ScalaNamesUtil.toJavaName(fun.name)
     case _ => "!unknownName!"
   }
 
   override def locationMatches(process: DebugProcessImpl, location: Location): Boolean = {
     val method = location.method()
-    if (!method.name.startsWith(funName)) return false
+    if (!method.name.contains(funName)) return false
     if (myTargetMethodSignature != null && method.signature() != myTargetMethodSignature.getName(process)) false
     else DebuggerUtilsEx.isAssignableFrom(myDeclaringClassName.getName(process), location.declaringType)
   }
