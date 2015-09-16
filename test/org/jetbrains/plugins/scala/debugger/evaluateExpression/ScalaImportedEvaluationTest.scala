@@ -10,10 +10,7 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
 
 class ScalaImportedEvaluationTest extends ScalaImportedEvaluationTestBase with ScalaVersion_2_11
 
-class ScalaImportedEvaluationTest_2_12_M2 extends ScalaImportedEvaluationTestBase with ScalaVersion_2_12_M2 {
-  //todo java compiler does not work with mock jdk 1.8
-  override def testImportJava() {}
-}
+class ScalaImportedEvaluationTest_2_12_M2 extends ScalaImportedEvaluationTestBase with ScalaVersion_2_12_M2
 
 abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase{
   def testImportFromObject() {

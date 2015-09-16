@@ -216,6 +216,8 @@ object WorksheetSourceProcessor {
       appendPsiLineInfo(imp, lineNums)
       importsProcessed += imp
     }
+    
+    @inline def variableInstanceName(name: String) = if (name startsWith "`") s"`get$$$$instance$$$$${name.stripPrefix("`")}" else s"get$$$$instance$$$$$name"
 
     def processLocalImport(imp: ScImportStmt): Boolean = {
       if (imp.importExprs.length < 1) return false
@@ -238,7 +240,7 @@ object WorksheetSourceProcessor {
           val qualifierName = lastQualifier.qualName
           val lineNums = psiToLineNumbers(imp)
           val memberName = if (el.isInstanceOf[ScValue] || el.isInstanceOf[ScVariable]) //variable to avoid weird errors
-            s"get$$$$instance$$$$$qualifierName" else qualifierName
+            variableInstanceName(qualifierName) else qualifierName
 
           objectRes append
             s";{val $qualifierName = $instanceName.$memberName; $printMethodName($macroPrinterName.printImportInfo({$text;}))}\n"
@@ -316,7 +318,7 @@ object WorksheetSourceProcessor {
           valDef.bindings foreach {
             case p =>
               val pName = p.name
-              val defName = s"get$$$$instance$$$$$pName"
+              val defName = variableInstanceName(pName) 
 
               classRes append s"def $defName = $pName;$END_GENERATED_MARKER"
               objectRes append (printMethodName + "(\"" + startText + pName + ": \" + " + withTempVar(defName) + ")\n")

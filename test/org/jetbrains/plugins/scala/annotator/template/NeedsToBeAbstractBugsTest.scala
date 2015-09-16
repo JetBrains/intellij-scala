@@ -4,19 +4,20 @@ package template
 
 
 class NeedsToBeAbstractBugsTest extends AnnotatorTestBase(NeedsToBeAbstract) {
-  def testSCL2981() {
+
+  def testSCL2981(): Unit = {
     assertMatches(messages("trait A { type T; def t(p: T)}; class B extends A { type T = Int; def t(p: T) = ()}")) {
       case Nil =>
     }
   }
 
-  def testSCL3515() {
+  def testSCL3515(): Unit = {
     assertMatches(messages("trait A { type T}; class B extends A")) {
       case Nil =>
     }
   }
 
-  def testSCL3514() {
+  def testSCL3514(): Unit = {
     val code = """
 trait M[X]
 abstract class A {
@@ -29,6 +30,21 @@ class B extends A {
   def bar[A: M] = ()
 }
     """
+    assertMatches(messages(code)) {
+      case Nil =>
+    }
+  }
+
+  def testSCL4258(): Unit = {
+    val code =
+      """
+        |abstract class Parent {
+        |  def m(p: T forSome {type T})
+        |}
+        |class Child extends Parent {
+        |  def m(p: T forSome {type T}) { }
+        |}
+      """.stripMargin
     assertMatches(messages(code)) {
       case Nil =>
     }

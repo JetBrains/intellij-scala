@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 class ScalaWithTryFinallySurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
-    return "try {\n" + super.getTemplateAsString(elements) + "\n}\nfinally a"
+    return "try {\n" + super.getTemplateAsString(elements) + "\n} finally a"
   }
 
   override def getTemplateDescription = "try / finally"

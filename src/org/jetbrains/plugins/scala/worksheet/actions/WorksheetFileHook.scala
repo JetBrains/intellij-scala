@@ -165,6 +165,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
     
     private def isPluggable(file: VirtualFile): Boolean = {
       if (ScalaFileType.WORKSHEET_EXTENSION == file.getExtension) return true
+      if (!file.isValid) return false
       
       PsiManager.getInstance(project).findFile(file) match {
         case _: ScalaFile if ScratchFileService.getInstance().getRootType(file).isInstanceOf[ScratchRootType] => true

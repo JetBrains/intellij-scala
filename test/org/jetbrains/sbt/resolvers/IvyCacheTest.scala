@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
  * @author Nikolay Obedin
  * @since 8/22/14.
  */
-class ResolverIvyCacheTest extends ResolverIndexingTestCase with UsefulTestCaseHelper {
+class IvyCacheTest extends IndexingTestCase with UsefulTestCaseHelper {
 
   import junit.framework.Assert._
 
@@ -22,11 +22,11 @@ class ResolverIvyCacheTest extends ResolverIndexingTestCase with UsefulTestCaseH
 
   def testNonExistentIndexUpdate() = {
     if (SystemInfo.isWindows)
-      assertException[IOException](Some("C:\\non-existent-dir is not a valid Ivy cache directory")) {
+      assertException[InvalidRepository](Some(SbtBundle("sbt.resolverIndexer.invalidRepository","C:\\non-existent-dir"))) {
         createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Ivy, "Test repo", "C:\\non-existent-dir"))
       }
     else
-      assertException[IOException](Some("/non-existent-dir is not a valid Ivy cache directory")) {
+      assertException[InvalidRepository](Some(SbtBundle("sbt.resolverIndexer.invalidRepository","/non-existent-dir"))) {
         createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Ivy, "Test repo", "/non-existent-dir"))
       }
   }
