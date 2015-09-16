@@ -10,11 +10,7 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
 
 class ScalaMethodEvaluationTest extends ScalaMethodEvaluationTestBase with ScalaVersion_2_11
 
-class ScalaMethodEvaluationTest_2_12_M2 extends ScalaMethodEvaluationTestBase with ScalaVersion_2_12_M2 {
-  //todo remove when SCL-9129 fixed
-  override def testLibraryFunction(): Unit = {}
-  override def testAppliesFromScalaLibrary(): Unit = {}
-}
+class ScalaMethodEvaluationTest_2_12_M2 extends ScalaMethodEvaluationTestBase with ScalaVersion_2_12_M2
 
 abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   def testBigIntAndSorted() {

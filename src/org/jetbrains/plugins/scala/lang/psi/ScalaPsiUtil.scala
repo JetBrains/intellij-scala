@@ -1332,22 +1332,25 @@ object ScalaPsiUtil {
   }
 
   def superTypeMembers(element: PsiNamedElement, withSelfType: Boolean = false): Seq[PsiNamedElement] = {
-    val empty = Seq.empty
+    superTypeMembersAndSubstitutors(element, withSelfType).map(_.info)
+  }
+
+  def superTypeMembersAndSubstitutors(element: PsiNamedElement, withSelfType: Boolean = false): Seq[TypeDefinitionMembers.TypeNodes.Node] = {
     val clazz: ScTemplateDefinition = nameContext(element) match {
       case e @ (_: ScTypeAlias | _: ScTrait | _: ScClass) if e.getParent.isInstanceOf[ScTemplateBody] => e.asInstanceOf[ScMember].containingClass
-      case _ => return empty
+      case _ => return Seq.empty
     }
-    if (clazz == null) return empty
+    if (clazz == null) return Seq.empty
     val types = if (withSelfType) TypeDefinitionMembers.getSelfTypeTypes(clazz) else TypeDefinitionMembers.getTypes(clazz)
     val sigs = types.forName(element.name)._1
     val t = (sigs.get(element): @unchecked) match {
       //partial match
-      case Some(x) if !withSelfType || x.info == element => x.supers.map {_.info}
+      case Some(x) if !withSelfType || x.info == element => x.supers
       case Some(x) =>
-        x.supers.map { _.info }.filter { _ != element } :+ x.info
+        x.supers.filter { _.info != element } :+ x
       case None =>
         throw new RuntimeException("internal error: could not find type matching: \n%s\n\nin class: \n%s".format(
-        element.getText, clazz.getText
+          element.getText, clazz.getText
         ))
     }
     t

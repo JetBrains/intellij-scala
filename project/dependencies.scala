@@ -21,8 +21,9 @@ object Dependencies {
 
   val scalaLibrary = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect = "org.scala-lang" % "scala-reflect" % scalaVersion
+  val scalaCompiler = "org.scala-lang" % "scala-compiler" % scalaVersion
   val scalaXml = "org.scala-lang.modules" %% "scala-xml" % "1.0.2"
-  val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2"
+  val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
   val sbtStructureCore = "org.jetbrains" % "sbt-structure-core_2.11" % sbtStructureVersion
   val evoInflector = "org.atteo" % "evo-inflector" % "1.2"
   val scalatestFindersPatched = "org.scalatest" % "scalatest-finders-patched" % "0.9.6"
@@ -124,6 +125,12 @@ object DependencyGroups {
     evoInflector,
     scalatestFindersPatched
   ) ++ mavenIndexer
+
+  val scalap = Seq(
+    scalaLibrary,
+    scalaReflect,
+    scalaCompiler
+  )
 
   val scalaRunner = Seq(
     "org.specs2" %% "specs2" % "2.3.11" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")

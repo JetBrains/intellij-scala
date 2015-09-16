@@ -8,10 +8,7 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
  */
 
 class ScalaFieldEvaluationTest extends ScalaFieldEvaluationTestBase with ScalaVersion_2_11
-class ScalaFieldEvaluationTest_2_12_M2 extends ScalaFieldEvaluationTestBase with ScalaVersion_2_12_M2 {
-  //todo java compiler does not work with mock jdk 1.8
-  override def testSimpleJava(): Unit = {}
-}
+class ScalaFieldEvaluationTest_2_12_M2 extends ScalaFieldEvaluationTestBase with ScalaVersion_2_12_M2
 
 abstract class ScalaFieldEvaluationTestBase extends ScalaDebuggerTestCase {
   def testStaticScalaFromPackObj() {

@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package resolvers
 
-import java.io.{Closeable, File}
+import java.io.{Closeable, File, FileNotFoundException}
 
 import com.intellij.openapi.progress.ProgressIndicator
 import org.apache.maven.index._
@@ -9,9 +9,9 @@ import org.apache.maven.index.artifact.DefaultArtifactPackagingMapper
 import org.apache.maven.index.context.{IndexCreator, IndexUtils, IndexingContext}
 import org.apache.maven.index.incremental.DefaultIncrementalHandler
 import org.apache.maven.index.updater.{DefaultIndexUpdater, IndexUpdateRequest, WagonHelper}
-import org.apache.maven.wagon.Wagon
 import org.apache.maven.wagon.events.TransferEvent
 import org.apache.maven.wagon.observers.AbstractTransferListener
+import org.apache.maven.wagon.{ResourceDoesNotExistException, Wagon}
 import org.codehaus.plexus.DefaultPlexusContainer
 
 /**
@@ -23,7 +23,7 @@ class SbtMavenRepoIndexer private (val root: String, val indexDir: File) extends
 
   indexDir.mkdirs()
   if (!indexDir.exists || !indexDir.isDirectory)
-    throw new RuntimeException(SbtBundle("sbt.resolverIndexer.cantCreateMavenIndexDir", indexDir.absolutePath))
+    throw new CantCreateIndexDirectory(indexDir)
 
   // This lines are absolutely necessary
   // Otherwise Plexus container won't find maven-indexer interfaces' implementations
@@ -47,6 +47,8 @@ class SbtMavenRepoIndexer private (val root: String, val indexDir: File) extends
   private var context = {
     val repoUrl = if (root.startsWith("file:")) null else root
     val repoDir = if (root.startsWith("file:")) new File(root.substring(5)) else null
+    if (repoDir != null && !repoDir.isDirectory)
+      throw new InvalidRepository(repoDir.getAbsolutePath)
     indexer.createIndexingContext(
       root.shaDigest, root.shaDigest,
       repoDir, indexDir,
@@ -54,19 +56,24 @@ class SbtMavenRepoIndexer private (val root: String, val indexDir: File) extends
     )
   }
 
+  def close(): Unit =
+    try {
+      indexer.closeIndexingContext(context, false)
+    } finally {
+      container.dispose()
+      Thread.currentThread().setContextClassLoader(origClassLoader)
+    }
 
-  def close() {
-    indexer.closeIndexingContext(context, false)
-    container.dispose()
-    Thread.currentThread().setContextClassLoader(origClassLoader)
-  }
-
-  def update(progressIndicator: Option[ProgressIndicator]) {
-    if (context.getRepositoryUrl == null)
-      updateLocal(progressIndicator)
-    else
-      updateRemote(progressIndicator)
-  }
+  def update(progressIndicator: Option[ProgressIndicator]): Unit =
+    try {
+      if (context.getRepositoryUrl == null)
+        updateLocal(progressIndicator)
+      else
+        updateRemote(progressIndicator)
+    } catch {
+      case exc : FileNotFoundException if exc.getCause.isInstanceOf[ResourceDoesNotExistException] =>
+        throw new RemoteRepositoryHasNotBeenIndexed(root)
+    }
 
   private def updateLocal(progressIndicator: Option[ProgressIndicator]) {
     val scannerListener = new ArtifactScanningListener {

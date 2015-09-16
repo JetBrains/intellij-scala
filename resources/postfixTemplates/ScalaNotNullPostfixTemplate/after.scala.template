@@ -1,0 +1,7 @@
+object Example {
+  def foo(o: AnyRef) {
+    if (o != null) {
+      <spot></spot>
+    }
+  }
+}

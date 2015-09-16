@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12_M2}
 
 /**
  * Nikolay.Tropin
@@ -9,8 +9,7 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
  */
 class VariablesFromPatternsEvaluationTest extends VariablesFromPatternsEvaluationTestBase with ScalaVersion_2_11
 
-//todo uncomment when SCL-9131 fixed
-//class VariablesFromPatternsEvaluationTest_2_12_M2 extends VariablesFromPatternsEvaluationTestBase with ScalaVersion_2_12_M2
+class VariablesFromPatternsEvaluationTest_2_12_M2 extends VariablesFromPatternsEvaluationTestBase with ScalaVersion_2_12_M2
 
 abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTestCase{
   def testMatch() {

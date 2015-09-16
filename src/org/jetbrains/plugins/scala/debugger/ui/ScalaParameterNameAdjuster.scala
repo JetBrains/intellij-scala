@@ -13,6 +13,7 @@ import scala.util.Try
 class ScalaParameterNameAdjuster extends NodeDescriptorNameAdjuster {
   override def isApplicable(descriptor: NodeDescriptor): Boolean = {
     descriptor match {
+      case vd: LocalVariableDescriptorImpl if vd.getName == "$this" => false
       case vd: LocalVariableDescriptorImpl =>
         ScalaParameterNameAdjuster.isScalaArgument(vd.getLocalVariable) && vd.getName.contains("$")
       case _ => false
