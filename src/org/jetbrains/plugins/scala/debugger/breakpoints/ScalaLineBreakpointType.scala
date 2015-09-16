@@ -108,7 +108,7 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
     val method = getContainingMethod(breakpoint)
     if (method == null) return false
 
-    if (!breakpoint.isInstanceOf[RunToCursorBreakpoint[_]] && lambdaOrdinal(breakpoint) == null) return true
+    if (!breakpoint.isInstanceOf[RunToCursorBreakpoint] && lambdaOrdinal(breakpoint) == null) return true
 
     DebuggerUtil.inTheMethod(position, method)
   }
