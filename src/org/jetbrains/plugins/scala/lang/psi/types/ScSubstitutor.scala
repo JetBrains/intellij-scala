@@ -20,8 +20,7 @@ import scala.collection.immutable.{HashMap, HashSet, Map}
 * @author ven
 */
 object ScSubstitutor {
-  val empty: ScSubstitutor = EmptySubstitutor
-  object EmptySubstitutor extends ScSubstitutor {
+  val empty: ScSubstitutor = new ScSubstitutor() {
     override def toString: String = "Empty substitutor"
   }
 
