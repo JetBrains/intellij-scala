@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
-import java.util
-
-import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
@@ -11,31 +8,41 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem
 
 /**
- * Created by Kate Ustyuzhanina on 9/7/15.
+ * Created by Kate Ustyuzhanina
+ * on 9/7/15
  */
 object IntroduceTypeAliasData {
   var currentScope: ScopeItem = null
-  var initialInfo: (String, Int) = ("", 0)
+  var initialInfo: (String, Int) = null
   var possibleScopes: Array[ScopeItem] = null
   var typeElementRanges: TextRange = null
+  var typeAliasInfo: (PsiFile, TextRange) = null
+
+  def setTypeAlias(inTypeAlias: ScTypeAlias) = {
+    if (inTypeAlias != null) {
+      typeAliasInfo = (inTypeAlias.getContainingFile, inTypeAlias.getTextRange)
+    }
+  }
 
   def clearData(): Unit = {
     currentScope = null
-    initialInfo = ("", 0)
+    initialInfo = null
     possibleScopes = null
+    typeElementRanges = null
+    typeAliasInfo = null
   }
 
   def isData: Boolean = {
-    currentScope != null || initialInfo !=("", 0) || possibleScopes != null
+    currentScope != null || initialInfo != null || possibleScopes != null ||
+      typeElementRanges != null || typeAliasInfo != null
   }
 
   def addScopeElement(item: ScopeItem): Unit = {
-    //    val elementCopy = item.copy()
     currentScope = item
   }
 
   def setInintialInfo(inText: String, caretPosition: Int): Unit = {
-    if (initialInfo._1 == "") {
+    if (initialInfo == null) {
       initialInfo = (inText, caretPosition)
     }
   }
@@ -44,17 +51,18 @@ object IntroduceTypeAliasData {
     possibleScopes = inPossibleScopes
   }
 
-  def getTypeElement(file: PsiFile): ScTypeElement ={
+  def getTypeElement(file: PsiFile): ScTypeElement = {
     PsiTreeUtil.findElementOfClassAtRange(file, typeElementRanges.getStartOffset, typeElementRanges.getEndOffset, classOf[ScTypeElement])
   }
 
   def getNamedElement: ScTypeAlias = {
-    val element = PsiTreeUtil.findElementOfClassAtOffset(currentScope.typeAliasFile,
-      currentScope.typeAliasOffset.getStartOffset, classOf[ScTypeAlias], false)
-    if (element != null) {
-      element.asInstanceOf[ScTypeAlias]
-    }
-    element
-  }
+    val element = PsiTreeUtil.findElementOfClassAtOffset(typeAliasInfo._1,
+      typeAliasInfo._2.getStartOffset, classOf[ScTypeAlias], false)
 
+    element match {
+      case typeAlias: ScTypeAlias =>
+        typeAlias
+      case _ => null
+    }
+  }
 }
