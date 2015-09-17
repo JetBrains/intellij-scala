@@ -25,20 +25,23 @@ class SyntheticMembersInjector {
   def injectFunctions(source: ScTypeDefinition): Seq[String] = Seq.empty
 
   /**
+   * This method allows to add custom inner classes or objects to any class, object or trait.
+   * This includes synthetic companion object.
+   *
+   * Context for this inner will be class. So inner types and imports of this class
+   * will not be available. But you can use anything outside of
+   * @param source class to inject functions
+   * @return sequence of inners text
+   */
+  def injectInners(source: ScTypeDefinition): Seq[String] = Seq.empty
+
+  /**
    * Use this method to mark class or trait, that it requires companion object.
    * Note that object as source is not possible.
    * @param source class or trait
    * @return if this source requires companion object
    */
   def needsCompanionObject(source: ScTypeDefinition): Boolean = false
-
-  /**
-   * Generates non-companion classes with defined kind and fqn.
-   *
-   * @param source class or trait
-   * @return sequence of classes,
-   */
-  def additionalClassesToGenerate(source: ScTypeDefinition): Seq[(SyntheticMembersInjector.Kind, String)] = Seq.empty
 }
 
 object SyntheticMembersInjector {
@@ -66,6 +69,27 @@ object SyntheticMembersInjector {
       function.setSynthetic(context)
       function.syntheticContainingClass = Some(source)
       buffer += function
+    } catch {
+      case e: Throwable =>
+        LOG.error(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
+    }
+    buffer
+  }
+
+  def injectInners(source: ScTypeDefinition): Seq[ScTypeDefinition] = {
+    val buffer = new ArrayBuffer[ScTypeDefinition]()
+    for {
+      injector <- EP_NAME.getExtensions
+      template <- injector.injectInners(source)
+    } try {
+      val context = source match {
+        case o: ScObject if o.isSyntheticObject => o.fakeCompanionClassOrCompanionClass
+        case _ => source
+      }
+      val td = ScalaPsiElementFactory.createTypeDefinitionWithContext(template, context, source)
+      td.syntheticContainingClass = Some(source)
+      td.setSynthetic(context)
+      buffer += td
     } catch {
       case e: Throwable =>
         LOG.error(s"Error during parsing template from injector: ${injector.getClass.getName}", e)

@@ -931,6 +931,13 @@ object ScalaPsiElementFactory {
     }
   }
 
+  def createTypeDefinitionWithContext(text: String, context: PsiElement, child: PsiElement): ScTypeDefinition = {
+    createElementWithContext(text, context, child, TmplDef.parse(_)) match {
+      case td: ScTypeDefinition => td
+      case _ => null
+    }
+  }
+
   def createReferenceFromText(text: String, context: PsiElement, child: PsiElement): ScStableCodeReferenceElement = {
     createElementWithContext(text, context, child, StableId.parse(_, ScalaElementTypes.REFERENCE)) match {
       case ref: ScStableCodeReferenceElement => ref

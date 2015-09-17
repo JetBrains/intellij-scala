@@ -194,6 +194,13 @@ object TypeDefinitionMembers {
         addSignature(sig)
       }
 
+      for (td <- template.syntheticTypeDefinitions) {
+        td match {
+          case obj: ScObject => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+          case _ =>
+        }
+      }
+
       if (!base) {
         for (method <- template.syntheticMethodsNoOverride if method.getParameterList.getParametersCount == 0) {
           val sig = new PhysicalSignature(method, subst)
@@ -263,6 +270,10 @@ object TypeDefinitionMembers {
           case td: ScTypeDefinition if nonBridge(place, td) => map addToMap (td, new Node(td, subst))
           case _ =>
         }
+      }
+
+      for (td <- template.syntheticTypeDefinitions if !td.isObject) {
+        map addToMap (td, new Node(td, subst))
       }
     }
 
@@ -445,6 +456,13 @@ object TypeDefinitionMembers {
       for (method <- template.syntheticMethodsWithOverride) {
         val sig = new PhysicalSignature(method, subst)
         addSignature(sig)
+      }
+
+      for (td <- template.syntheticTypeDefinitions) {
+        td match {
+          case obj: ScObject => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+          case _ =>
+        }
       }
 
       if (!base) {
