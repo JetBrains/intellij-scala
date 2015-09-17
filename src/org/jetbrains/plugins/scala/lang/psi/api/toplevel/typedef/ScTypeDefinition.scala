@@ -22,6 +22,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     with NavigationItem with PsiClass with ScTypeParametersOwner with Iconable with ScDocCommentOwner
     with ScAnnotationsHolder with ScCommentOwner {
+  private var synthNavElement: Option[PsiElement] = None
+  var syntheticContainingClass: Option[ScTypeDefinition] = None
+  def setSynthetic(navElement: PsiElement) {
+    synthNavElement = Some(navElement)
+  }
+  def isSynthetic: Boolean = synthNavElement.nonEmpty
 
   def isCase: Boolean = false
 
@@ -57,6 +63,9 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
   override def isEquivalentTo(another: PsiElement): Boolean = {
     PsiClassImplUtil.isClassEquivalentTo(this, another)
   }
+
+
+  override def syntheticTypeDefinitionsImpl: Seq[ScTypeDefinition] = SyntheticMembersInjector.injectInners(this)
 
   @volatile
   private var fakeModule: Option[ScObject] = null
