@@ -6,7 +6,6 @@ import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.EditorComboBoxEditor;
@@ -19,8 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
@@ -32,7 +29,6 @@ import javax.swing.*;
 import javax.swing.event.EventListenerList;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Map;
@@ -256,14 +252,10 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
 
                 setUpCompanionObjOcc();
                 setUpOccurrences();
-                setUpReplaceInInheritors(item.name());
+                setUpReplaceInInheritors(item);
                 validator = item.typeValidator();
                 possibleNames = item.availableNames();
                 updateNameComboBox(possibleNames);
-
-                if ((item.fileEncloser() == null) && (item.name().substring(0, 7).equals("package"))) {
-                    item.setFileEncloser(ScalaRefactoringUtil.getPackageObjectBody(myTypeElement));
-                }
             }
         }
     }
@@ -313,10 +305,9 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         }
     }
 
-    private void setUpReplaceInInheritors(String scopeName) {
+    private void setUpReplaceInInheritors(ScopeItem scope) {
         myReplaceInInheritors.setSelected(false);
-        String type = scopeName.substring(0, 5);
-        if (type.equals("class") || type.equals("trait")) {
+        if (scope.isClass() || scope.isTrait()) {
             myReplaceInInheritors.setEnabled(true);
         } else {
             myReplaceInInheritors.setEnabled(false);

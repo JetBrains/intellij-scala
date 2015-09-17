@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.refactoring.introduceVariable;
 
-import com.intellij.ide.DataManager;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
@@ -16,9 +14,6 @@ import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.OccurrenceHandler;
@@ -26,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntro
 import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem;
 import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeSuggester;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaTypeValidator;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.Assert;
 import scala.Option;
@@ -34,7 +28,6 @@ import scala.Some;
 import scala.Tuple2;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -178,8 +171,8 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
           OccurrenceHandler occurrences = OccurrenceHandler.apply(typeElement, replaceAllOccurences,
                   replaceCompanionObjOccurrences, replaceOccurrencesFromInheritors, scopes[0]);
 
-          introduceVariableHandler.runRefactoringForTypes(startOffset, endOffset, myFile, myEditor, typeElement,
-                  typeName, occurrences, replaceAllOccurences, scopes[0].fileEncloser());
+          introduceVariableHandler.runRefactoringForTypes(myFile, myEditor, typeElement,
+                  typeName, occurrences, scopes[0].fileEncloser(),scopes[0].isPackage());
 
           result = removeTypenameComment(myEditor.getDocument().getText());
         }

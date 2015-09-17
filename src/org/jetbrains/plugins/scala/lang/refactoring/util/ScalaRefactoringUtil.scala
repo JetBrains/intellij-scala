@@ -64,13 +64,13 @@ object ScalaRefactoringUtil {
     var end = editor.getSelectionModel.getSelectionEnd
     if (start == end) return
     while (file.findElementAt(start).isInstanceOf[PsiWhiteSpace] ||
-      (file.findElementAt(start).isInstanceOf[PsiComment] && trimComments) ||
-      file.getText.charAt(start) == '\n' ||
-      file.getText.charAt(start) == ' ') start = start + 1
+            (file.findElementAt(start).isInstanceOf[PsiComment] && trimComments) ||
+            file.getText.charAt(start) == '\n' ||
+            file.getText.charAt(start) == ' ') start = start + 1
     while (file.findElementAt(end - 1).isInstanceOf[PsiWhiteSpace] ||
-      (file.findElementAt(end - 1).isInstanceOf[PsiComment] && trimComments) ||
-      file.getText.charAt(end - 1) == '\n' ||
-      file.getText.charAt(end - 1) == ' ') end = end - 1
+            (file.findElementAt(end - 1).isInstanceOf[PsiComment] && trimComments) ||
+            file.getText.charAt(end - 1) == '\n' ||
+            file.getText.charAt(end - 1) == ' ') end = end - 1
     editor.getSelectionModel.setSelection(start, end)
   }
 
@@ -126,15 +126,23 @@ object ScalaRefactoringUtil {
     PsiTreeUtil.getParentOfType(typeElement, classOf[ScTemplateParents]) != null
   }
 
-  def getTypeEement(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[ScTypeElement] = {
-    val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScTypeElement])
-
-    if (element == null || element.getTextRange.getEndOffset != endOffset || element.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs]
+  def checkTypeElement(element: ScTypeElement): Option[ScTypeElement] = {
+    if (element == null || element.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs]
       || typeInRightPart(element)) {
       return None
     }
 
     Some(element)
+  }
+
+  def getTypeEement(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[ScTypeElement] = {
+    val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScTypeElement])
+
+    if (element.getTextRange.getEndOffset != endOffset) {
+      None
+    } else {
+      checkTypeElement(element)
+    }
   }
 
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, Array[ScType])] = {
@@ -488,6 +496,8 @@ object ScalaRefactoringUtil {
 
   def showTypeAliasChooser[T](editor: Editor, elements: Array[T], pass: T => Unit, title: String,
                               elementName: T => String) {
+
+
     class Selection {
       val selectionModel = editor.getSelectionModel
       val (start, end) = (selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
@@ -529,10 +539,6 @@ object ScalaRefactoringUtil {
         highlighter.dropHighlight()
         val index: Int = list.getSelectedIndex
         if (index < 0) return
-        val element: T = model.get(index).asInstanceOf[T]
-        val toExtract: util.ArrayList[PsiElement] = new util.ArrayList[PsiElement]
-        //        toExtract.add(toHighlight(element))
-        //        highlighter.highlight(toHighlight(element), toExtract)
       }
     })
 
@@ -552,7 +558,7 @@ object ScalaRefactoringUtil {
     }).createPopup.showInBestPositionFor(editor)
   }
 
-  def getPackageObjectBody(typeElement: ScTypeElement): ScTemplateBody = {
+  def createAndGetPackageObjectBody(typeElement: ScTypeElement): ScTemplateBody = {
     val dir: PsiDirectory = typeElement.getContainingFile.getContainingDirectory
     val packageObject: ScTypeDefinition = ScalaDirectoryService.createClassFromTemplate(dir, "package", "Package Object", askToDefineVariables = false).asInstanceOf[ScTypeDefinition]
     PsiTreeUtil.getChildOfType(PsiTreeUtil.getChildOfType(packageObject, classOf[ScExtendsBlock]), classOf[ScTemplateBody])
@@ -685,7 +691,7 @@ object ScalaRefactoringUtil {
 
   private[refactoring] def getLineText(editor: Editor): String = {
     val lineNumber = Option(editor.getSelectionModel.getSelectionEndPosition.getLine)
-      .getOrElse(editor.getCaretModel.getLogicalPosition.line)
+            .getOrElse(editor.getCaretModel.getLogicalPosition.line)
     if (lineNumber >= editor.getDocument.getLineCount) return ""
     val lineStart = editor.visualToLogicalPosition(new VisualPosition(lineNumber, 0))
     val nextLineStart = editor.visualToLogicalPosition(new VisualPosition(lineNumber + 1, 0))
@@ -708,7 +714,7 @@ object ScalaRefactoringUtil {
   }
 
   def afterExpressionChoosing(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
-                              refactoringName: String, exprFilter: (ScExpression) => Boolean = e => true)(invokesNext: => Unit) {
+                        refactoringName: String, exprFilter: (ScExpression) => Boolean = e => true)(invokesNext: => Unit) {
 
     if (!editor.getSelectionModel.hasSelection) {
       val offset = editor.getCaretModel.getOffset
@@ -738,8 +744,8 @@ object ScalaRefactoringUtil {
     invokesNext
   }
 
-  def afterTypeAliasChoosing(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
-                             refactoringName: String)(invokesNext: => Unit) {
+  def afterTypeElementChoosing(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
+                               refactoringName: String)(invokesNext: (ScTypeElement) => Unit) {
 
     if (!editor.getSelectionModel.hasSelection) {
       val element: PsiElement = getElementOnCaretOffset(file, editor)
@@ -767,8 +773,7 @@ object ScalaRefactoringUtil {
       val typeElement = getTypeElement
 
       def chooseTypeElement(typeElement: ScTypeElement) {
-        editor.getSelectionModel.setSelection(typeElement.getTextRange.getStartOffset, typeElement.getTextRange.getEndOffset)
-        invokesNext
+        invokesNext(typeElement)
       }
       if (typeElement.length == 0)
         editor.getSelectionModel.selectLineAtCaret()
@@ -783,7 +788,6 @@ object ScalaRefactoringUtil {
         return
       }
     }
-    invokesNext
   }
 
   def afterScopeChoosing(project: Project, editor: Editor, file: PsiFile, scopes: Array[ScopeItem],
@@ -822,6 +826,8 @@ object ScalaRefactoringUtil {
     val element: PsiElement = file.findElementAt(offset) match {
       case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
         w.getText.contains("\n") => file.findElementAt(offset - 1)
+      case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
+        w.getText.contains(" ") => file.findElementAt(offset - 1)
       case p => p
     }
     element
@@ -852,8 +858,8 @@ object ScalaRefactoringUtil {
   }
 
   def commonParent(file: PsiFile, textRanges: TextRange*): PsiElement = {
-    val elemSeq = (for (occurence <- textRanges) yield file.findElementAt(occurence.getStartOffset)).toSeq ++
-      (for (occurence <- textRanges) yield file.findElementAt(occurence.getEndOffset - 1)).toSeq
+    val elemSeq = (for (occurence <- textRanges) yield file.findElementAt(occurence.getStartOffset)) ++
+      (for (occurence <- textRanges) yield file.findElementAt(occurence.getEndOffset - 1))
     PsiTreeUtil.findCommonParent(elemSeq: _*)
   }
 
@@ -932,7 +938,7 @@ object ScalaRefactoringUtil {
     val parent = leaf.getParent
     parent match {
       case null =>
-      case ChildOf(pars@ScParenthesisedExpr(inner)) if !ScalaPsiUtil.needParentheses(pars, inner) =>
+      case ChildOf(pars @ ScParenthesisedExpr(inner)) if !ScalaPsiUtil.needParentheses(pars, inner) =>
         val textRange = pars.getTextRange
         val afterWord = textRange.getStartOffset > 0 && {
           val prevElemType = file.findElementAt(textRange.getStartOffset - 1).getNode.getElementType
@@ -940,7 +946,7 @@ object ScalaRefactoringUtil {
         }
         shift = pars.getTextRange.getStartOffset - inner.getTextRange.getStartOffset + (if (afterWord) 1 else 0)
         document.replaceString(textRange.getStartOffset, textRange.getEndOffset, (if (afterWord) " " else "") + newString)
-      case ChildOf(ScPostfixExpr(_, `parent`)) =>
+      case ChildOf(ScPostfixExpr(_, `parent`))=>
         //This case for block argument expression
         val textRange = parent.getTextRange
         document.replaceString(textRange.getStartOffset, textRange.getEndOffset, "(" + newString + ")")
@@ -982,8 +988,8 @@ object ScalaRefactoringUtil {
     val newExpr = PsiTreeUtil.findElementOfClassAtRange(file, newStart, newEnd, classOf[ScExpression])
     val newPattern = PsiTreeUtil.findElementOfClassAtOffset(file, newStart, classOf[ScPattern], true)
     Option(newExpr).orElse(Option(newPattern))
-      .map(elem => document.createRangeMarker(elem.getTextRange))
-      .getOrElse(throw new IntroduceException)
+            .map(elem => document.createRangeMarker(elem.getTextRange))
+            .getOrElse(throw new IntroduceException)
   }
 
 
@@ -998,9 +1004,9 @@ object ScalaRefactoringUtil {
     val body = extendsBlock.templateBody
     val earlyDefs = extendsBlock.earlyDefinitions
     (earlyDefs ++ body)
-      .flatMap(_.children)
-      .filter(child => child.isInstanceOf[ScBlockStatement] || child.isInstanceOf[ScMember])
-      .toSeq
+            .flatMap(_.children)
+            .filter(child => child.isInstanceOf[ScBlockStatement] || child.isInstanceOf[ScMember])
+            .toSeq
   }
 
   @tailrec
@@ -1072,7 +1078,7 @@ object ScalaRefactoringUtil {
           case ScPrefixExpr(`ref`, _) =>
           case _ =>
             val newRef = ScalaPsiElementFactory.createExpressionFromText(ref.getText, position)
-              .asInstanceOf[ScReferenceExpression]
+                    .asInstanceOf[ScReferenceExpression]
             result &= ref.resolve() == newRef.resolve()
         }
         super.visitReferenceExpression(ref)
