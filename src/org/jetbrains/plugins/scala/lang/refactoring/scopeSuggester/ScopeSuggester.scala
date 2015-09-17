@@ -10,11 +10,9 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.search.{GlobalSearchScope, PackageScope, PsiSearchHelper}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiPackage}
-import com.intellij.ui.LanguageTextField.DocumentCreator
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
@@ -27,7 +25,8 @@ import scala.collection.mutable.ArrayBuffer
 
 
 /**
- * Created by Kate Ustyuzhanina on 8/12/15.
+ * Created by Kate Ustyuzhanina
+ * on 8/12/15
  */
 object ScopeSuggester {
   def suggestScopes(conflictsReporter: ConflictsReporter,
@@ -78,7 +77,6 @@ object ScopeSuggester {
       val possibleNames = NameSuggester.namesByType(curerntElement.calcType)(validator)
 
       val scope = new ScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toList.reverse.toArray)
-      scope.computeRanges()
       result = result :+ scope
       parent = getParent(parent, isScriptFile)
     }
@@ -183,13 +181,12 @@ object ScopeSuggester {
     val result = new ScopeItem("package " + packageName, fileEncloser, occurrences, Array[ScTypeElement](),
       validator, possibleNames.toList.reverse.toArray)
 
-    result.computeRanges()
     result
   }
 }
 
 class ScopeItem(val name: String,
-                var fileEncloser: PsiElement,
+                val fileEncloser: PsiElement,
                 val usualOccurrences: Array[ScTypeElement],
                 val occurrencesInCompanion: Array[ScTypeElement],
                 val typeValidator: ScalaValidator,
@@ -197,25 +194,7 @@ class ScopeItem(val name: String,
 
 
   var occurrencesFromInheretors: Array[ScTypeElement] = Array[ScTypeElement]()
-
-  var typeAlias: ScTypeAlias = null
-  var typeAliasFile: PsiFile = null
-  var occurrencesRanges: Array[TextRange] = Array[TextRange]()
-  var typeAliasOffset: TextRange = null
-
-  def computeRanges() = {
-    occurrencesRanges = usualOccurrences.map(_.getTextRange)
-  }
-
-  def computeTypeAliasOffset() = {
-    typeAliasOffset = typeAlias.getTextRange
-  }
-
-  def setFileEncloser(encloser: PsiElement): Unit = {
-    if (fileEncloser == null) {
-      fileEncloser = encloser
-    }
-  }
+  var usualOccurrencesRanges = usualOccurrences.map((x: ScTypeElement) => (x.getTextRange, x.getContainingFile))
 
   def setInheretedOccurrences(occurrences: Array[ScTypeElement]) = {
     if (occurrences != null) {
@@ -223,11 +202,28 @@ class ScopeItem(val name: String,
     }
   }
 
-  def setTypeAlias(inTypeAlias: ScTypeAlias) = {
-    if (inTypeAlias != null) {
-      typeAlias = inTypeAlias
-      typeAliasFile = typeAlias.getContainingFile
-    }
+  def isPackage: Boolean = {
+    name.substring(0, 7) == "package"
+  }
+
+  def isTrait: Boolean = {
+    name.substring(0, 5) == "trait"
+  }
+
+  def isClass: Boolean = {
+    name.substring(0, 5) == "class"
+  }
+
+  def isObject: Boolean = {
+    name.substring(0, 6) == "object"
+  }
+
+  def revalidate(newName: String): ScopeItem = {
+    val revalidatedOccurrences = usualOccurrencesRanges.map((x: (TextRange, PsiFile)) =>
+      PsiTreeUtil.findElementOfClassAtRange(x._2, x._1.getStartOffset, x._1.getEndOffset, classOf[ScTypeElement]))
+
+    new ScopeItem(name, fileEncloser,
+      revalidatedOccurrences, occurrencesInCompanion, typeValidator, if (newName != "") newName +: availableNames else availableNames)
   }
 
   override def toString: String = name
