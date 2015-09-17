@@ -23,11 +23,19 @@ class KindProjectorSimplifyTypeProjectionTest extends ScalaLightInspectionFixtur
     defaultProfile.setSettings(newSettings)
   }
 
-  def testEither(): Unit = {
+  def testEitherInline(): Unit = {
     val code = s"def a: $START({type A[Beta] = Either[Int, Beta]})#A$END"
     check(code)
     val text = "def a: ({type A[Beta] = Either[Int, Beta]})#A"
-    val res = "def a: Lambda[Beta => Either[Int, Beta]]"
+    val res = "def a: Either[Int, ?]"
+    testFix(text, res)
+  }
+
+  def testParametersWrongOrder(): Unit = {
+    val code = s"def a: $START({type L[A, B] = Either[B, A]})#L$END"
+    check(code)
+    val text = "def a: ({type L[A, B] = Either[B, A]})#L"
+    val res = "def a: Lambda[(A, B) => Either[B, A]] "
     testFix(text, res)
   }
 
@@ -35,7 +43,7 @@ class KindProjectorSimplifyTypeProjectionTest extends ScalaLightInspectionFixtur
     val code = s"def a: $START({type A[-Alpha, +Gamma] = Function2[Alpha, String, Gamma]})#A$END"
     check(code)
     val text = "def a: ({type A[-Alpha, +Gamma] = Function2[Alpha, String, Gamma]})#A"
-    val res = "def a: Lambda[(`-Alpha`, `+Gamma`) => (Alpha, String) => Gamma]"
+    val res = "def a: Function2[-?, String, +?]"
     testFix(text, res)
   }
 
@@ -105,6 +113,30 @@ class KindProjectorSimplifyTypeProjectionTest extends ScalaLightInspectionFixtur
   def testAliasNoParam(): Unit = {
     val code = "def a: ({type Lambda$ = String})#Lambda$"
     checkTextHasNoErrors(code)
+  }
+
+  def testTupleInline(): Unit = {
+    val code = s"def a: $START({type R[A] = Tuple2[A, Double]})#R$END"
+    check(code)
+    val text = "def a: ({type R[A] = Tuple2[A, Double]})#R"
+    val res = "def a: Tuple2[?, Double]"
+    testFix(text, res)
+  }
+
+  def testHigherKindInline(): Unit = {
+    val code = s"def d: $START({type R[F[_], +B] = Either[F, B]})#R$END"
+    check(code)
+    val text = "def d: ({type R[F[_], +B] = Either[F, B]})#R"
+    val res = "def d: Either[?[_], +?]"
+    testFix(text, res)
+  }
+
+  def testTypeBoundsNoInline(): Unit = {
+    val code = s"def w: $START({type R[A <: String] = List[A]})#R$END"
+    check(code)
+    val text = "def w: ({type R[A <: String] = List[A]})#R"
+    val res = "def w: Lambda[`A <: String` => List[A]]"
+    testFix(text, res)
   }
 
   def testFix(text: String, res: String): Unit = testFix(text, res, annotation)

@@ -1,9 +1,67 @@
 package org.jetbrains.plugins.scala.debugger.positionManager
 
+import org.jetbrains.plugins.scala.debugger.{Loc, ScalaVersion_2_11, ScalaVersion_2_12_M2}
+
 /**
  * @author Nikolay.Tropin
  */
-class LocationsOfLineTest extends PositionManagerTestBase {
+
+class LocationOfLineTest extends LocationsOfLineTestBase with ScalaVersion_2_11
+
+class LocationOfLineTest_2_12_M2 extends LocationsOfLineTestBase with ScalaVersion_2_12_M2 {
+  override def testLambdas(): Unit = {
+    checkLocationsOfLine(
+      s"""object Main {
+          |  def main(args: Array[String]): Unit = {
+          |    val list = List(1, 2)
+          |    ${offsetMarker}Some(1).getOrElse(2)
+          |    ${offsetMarker}list.filter(_ < 10).map(x => "aaa" + x)
+          |       .foreach(${offsetMarker}println)
+          |    ""$bp
+          |  }
+          |}""",
+      Set(Loc("Main$", "main", 4), Loc("Main$", "Main$$$anonfun$1", 4)),
+      Set(Loc("Main$", "main", 5), Loc("Main$", "Main$$$anonfun$2", 5), Loc("Main$", "Main$$$anonfun$3", 5)),
+      Set(Loc("Main$", "Main$$$anonfun$4", 6))
+    )
+  }
+
+  override def testMultilevel(): Unit = {
+    checkLocationsOfLine(
+      s"""object Main {
+          |  def main(args: Array[String]) {
+          |    ${offsetMarker}class This {
+          |      ${offsetMarker}val x = 1
+          |      def foo() {
+          |        ${offsetMarker}val runnable = ${offsetMarker}new Runnable {
+          |          def run() {
+          |            ${offsetMarker}val x = $offsetMarker() => {
+          |              ${offsetMarker}This.this.x
+          |              "stop here"$bp
+          |            }
+          |            x()
+          |          }
+          |        }
+          |        runnable.run()
+          |      }
+          |    }
+          |    ${offsetMarker}new This().foo()
+          |  }
+          |}""",
+      Set(Loc("Main$This$1", "<init>", 18)),  //location for constructor is customized
+      Set(Loc("Main$This$1", "<init>", 4)),
+      Set(Loc("Main$This$1", "foo", 6)),
+      Set(Loc("Main$This$1$$anon$1", "<init>", 6)),
+      Set(Loc("Main$This$1$$anon$1", "run", 8)),
+      Set(Loc("Main$This$1$$anon$1", "run", 8)),
+      Set(Loc("Main$This$1$$anon$1", "Main$This$1$$anon$1$$$anonfun$1", 9)),
+      Set(Loc("Main$", "main", 18))
+    )
+
+  }
+}
+
+abstract class LocationsOfLineTestBase extends PositionManagerTestBase {
   val noLocations = Set.empty[Loc]
 
   def testSimple(): Unit = {
@@ -63,19 +121,15 @@ class LocationsOfLineTest extends PositionManagerTestBase {
     s"""object Main {
       |  def main(args: Array[String]): Unit = {
       |    val list = List(1, 2)
-      |    ${offsetMarker}Some(1).getOrElse(${offsetMarker}2)
-      |    ${offsetMarker}list.filter(${offsetMarker}_ < 10).map(${offsetMarker}x => "aaa" + x)
-      |    $offsetMarker.foreach(${offsetMarker}println)
+      |    ${offsetMarker}Some(1).getOrElse(2)
+      |    ${offsetMarker}list.filter(_ < 10).map(x => "aaa" + x)
+      |       .foreach(${offsetMarker}println)
       |    ""$bp
       |  }
       |}""",
-      Set(Loc("Main$", "main", 4)),
-      Set(Loc("Main$$anonfun$main$1", "apply", 4), Loc("Main$$anonfun$main$1", "<init>", 4), Loc("Main$$anonfun$main$1", "apply$mcI$sp", 4)),
-      Set(Loc("Main$", "main", 5)),
-      Set(Loc("Main$$anonfun$main$2", "apply", 5), Loc("Main$$anonfun$main$2", "<init>", 5)),
-      Set(Loc("Main$$anonfun$main$3", "apply", 5), Loc("Main$$anonfun$main$3", "<init>", 5)),
-      Set(Loc("Main$", "main", 6)),
-      Set(Loc("Main$$anonfun$main$4", "apply", 6), Loc("Main$$anonfun$main$4", "<init>", 6))
+      Set(Loc("Main$", "main", 4), Loc("Main$$anonfun$main$1", "apply$mcI$sp", 4)),
+      Set(Loc("Main$", "main", 5), Loc("Main$$anonfun$main$2", "apply$mcZI$sp", 5), Loc("Main$$anonfun$main$3", "apply", 5)),
+      Set(Loc("Main$$anonfun$main$4", "apply", 6))
     )
   }
 
@@ -130,7 +184,7 @@ class LocationsOfLineTest extends PositionManagerTestBase {
       Set(Loc("Main$This$1", "foo", 6)),
       Set(Loc("Main$This$1$$anon$1", "<init>", 6)),
       Set(Loc("Main$This$1$$anon$1", "run", 8)),
-      Set(Loc("Main$This$1$$anon$1$$anonfun$1", "<init>", 8)),
+      Set(Loc("Main$This$1$$anon$1", "run", 8)),
       Set(Loc("Main$This$1$$anon$1$$anonfun$1", "apply", 9)),
       Set(Loc("Main$", "main", 18))
     )

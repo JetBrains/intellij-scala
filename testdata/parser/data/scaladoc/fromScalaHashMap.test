@@ -94,28 +94,36 @@ ScalaFile
       PsiElement(DOC_WHITESPACE)('  ')
     DocTag
       PsiElement(DOC_TAG_NAME)('@define')
+      PsiElement(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue: Coll
+        PsiElement(DOC_TAG_VALUE_TOKEN)('Coll')
       PsiElement(DOC_WHITESPACE)(' ')
-      PsiElement(DOC_COMMENT_DATA)('Coll immutable.HashMap')
+      PsiElement(DOC_COMMENT_DATA)('immutable.HashMap')
       PsiElement(DOC_WHITESPACE)('\n ')
       PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
       PsiElement(DOC_WHITESPACE)('  ')
     DocTag
       PsiElement(DOC_TAG_NAME)('@define')
+      PsiElement(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue: coll
+        PsiElement(DOC_TAG_VALUE_TOKEN)('coll')
       PsiElement(DOC_WHITESPACE)(' ')
-      PsiElement(DOC_COMMENT_DATA)('coll immutable hash map')
+      PsiElement(DOC_COMMENT_DATA)('immutable hash map')
       PsiElement(DOC_WHITESPACE)('\n ')
       PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
       PsiElement(DOC_WHITESPACE)('  ')
     DocTag
       PsiElement(DOC_TAG_NAME)('@define')
-      PsiElement(DOC_WHITESPACE)(' ')
-      PsiElement(DOC_COMMENT_DATA)('mayNotTerminateInf')
+      PsiElement(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue: mayNotTerminateInf
+        PsiElement(DOC_TAG_VALUE_TOKEN)('mayNotTerminateInf')
       PsiElement(DOC_WHITESPACE)('\n ')
       PsiElement(DOC_COMMENT_LEADING_ASTERISKS)('*')
       PsiElement(DOC_WHITESPACE)('  ')
     DocTag
       PsiElement(DOC_TAG_NAME)('@define')
-      PsiElement(DOC_WHITESPACE)(' ')
-      PsiElement(DOC_COMMENT_DATA)('willNotTerminateInf')
+      PsiElement(DOC_COMMENT_DATA)(' ')
+      ScalaDocTagValue: willNotTerminateInf
+        PsiElement(DOC_TAG_VALUE_TOKEN)('willNotTerminateInf')
       PsiElement(DOC_WHITESPACE)('\n ')
     PsiElement(DOC_COMMENT_END)('*/')

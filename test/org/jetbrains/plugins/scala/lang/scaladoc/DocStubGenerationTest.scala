@@ -66,11 +66,18 @@ class DocStubGenerationTest extends ScalaDocEnterActionTestBase {
     checkGeneratedTextFromString(header + standartDocCommentStart, testText, stub, s => s.substring(header.length))
   }
 
-  //  def testOverrideJava() {
-  //    val stub = "   /**\n    * \n    * @return a string representation of this collection\n    */"
-  //    checkStubFromText(" abstract class A[E] extends java.util.AbstractCollection[E] {\n",
-  //      " override def toString: Boolean = { null }\n} ", stub)
-  //  }
+  def testScl9049() {
+    val testText = "def fooboobar(i: Int)(j: String) { }"
+    val assumed =
+      """/**
+        | * 
+        | * @param i
+        | * @param j
+        | */
+        |""".stripMargin
+
+    checkGeneratedTextFromString(standartDocCommentStart, testText, assumed + testText)
+  }
 }
 
 

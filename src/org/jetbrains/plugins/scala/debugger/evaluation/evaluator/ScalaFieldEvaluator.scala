@@ -1,55 +1,20 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.DebuggerBundle
-import com.intellij.debugger.engine.JVMNameUtil
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
 import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.ui.impl.watch.{FieldDescriptorImpl, NodeDescriptorImpl}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiAnonymousClass, PsiClass, PsiElement}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
  * User: Alefas
  * Date: 12.10.11
  */
-object ScalaFieldEvaluator {
-  def getFilter(clazz: PsiElement): ReferenceType => Boolean = {
-    clazz match {
-      case a: ScNewTemplateDefinition => ref => true
-      case a: PsiAnonymousClass => ref => true
-      case e: ScExpression => ref => true
-      case td: ScTypeDefinition =>
-        if (DebuggerUtil.isLocalClass(td)) {
-          val fqn = td.getQualifiedNameForDebugger
-          ref => {
-            val refName = ref.name()
-            val index = refName.lastIndexOf(fqn)
-            if (index < 0) false
-            else {
-              val suffix = refName.substring(index + fqn.length())
-              suffix.find(c => c != '$' && !c.isDigit) == None
-            }
-          }
-        } else {
-          val fqn = td.getQualifiedNameForDebugger
-          ref => ref.name() == fqn
-        }
-      case p: PsiClass =>
-        val name = JVMNameUtil.getNonAnonymousClassName(p)
-        if (name == null) ref => true
-        else ref => ref.name() == name
-      case _ => ref => true
-    }
-  }
-}
-
-case class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType => Boolean, _fieldName: String,
+case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
                           classPrivateThisField: Boolean = false) extends Evaluator {
   private var myEvaluatedQualifier: AnyRef = null
   private var myEvaluatedField: Field = null
@@ -81,9 +46,9 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType
   private def findField(t: Type, context: EvaluationContextImpl): Field = {
     t match {
       case cls: ClassType =>
-        if (filter(cls)) {
-          return fieldByName(cls, fieldName)
-        }
+        val foundInClass = fieldByName(cls, fieldName)
+        if (foundInClass != null) return foundInClass
+
         import scala.collection.JavaConversions._
         for (interfaceType <- cls.interfaces) {
           val field: Field = findField(interfaceType, context)
@@ -93,9 +58,9 @@ case class ScalaFieldEvaluator(objectEvaluator: Evaluator, filter: ReferenceType
         }
         return findField(cls.superclass, context)
       case iface: InterfaceType =>
-        if (filter(iface)) {
-          return fieldByName(iface, fieldName)
-        }
+        val foundInInteface = fieldByName(iface, fieldName)
+        if (foundInInteface != null) return foundInInteface
+
         import scala.collection.JavaConversions._
         for (interfaceType <- iface.superinterfaces) {
           val field: Field = findField(interfaceType, context)

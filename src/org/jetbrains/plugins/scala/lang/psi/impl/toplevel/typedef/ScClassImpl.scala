@@ -9,6 +9,8 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -31,7 +33,8 @@ import scala.collection.mutable.ArrayBuffer
  * @author Alexander.Podkhalyuzin
  */
 
-class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
+class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
+  extends ScTypeDefinitionImpl(stub, nodeType, node) with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
@@ -45,8 +48,8 @@ class ScClassImpl extends ScTypeDefinitionImpl with ScClass with ScTypeParameter
     else Array.empty
   }
 
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTemplateDefinitionStub) = {this(); setStub(stub); setNullNode()}
+  def this(node: ASTNode) = {this(null, null, node)}
+  def this(stub: ScTemplateDefinitionStub) = {this(stub, ScalaElementTypes.CLASS_DEF, null)}
 
   override def toString: String = "ScClass: " + name
 

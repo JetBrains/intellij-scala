@@ -99,5 +99,5 @@ class EditorStub extends Editor {
 
   def getInsets: Insets = null
 
-  override def offsetToVisualPosition(i: Int, b: Boolean): VisualPosition = null
+  override def offsetToVisualPosition(i: Int, b: Boolean, b1: Boolean): VisualPosition = null
 }

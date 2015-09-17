@@ -8,9 +8,12 @@ import com.intellij.ide.util.EditSourceUtil
 import com.intellij.lang.ASTNode
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -24,9 +27,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Any, Nothing}
 * Time: 9:54:54
 */
 
-class ScTypeAliasDeclarationImpl extends ScalaStubBasedElementImpl[ScTypeAlias] with ScTypeAliasDeclaration {
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScTypeAliasStub) = {this(); setStub(stub); setNullNode()}
+class ScTypeAliasDeclarationImpl private (stub: StubElement[ScTypeAlias], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeAliasDeclaration {
+  def this(node: ASTNode) = {this(null, null, node)}
+  def this(stub: ScTypeAliasStub) = {this(stub, ScalaElementTypes.TYPE_DECLARATION, null)}
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 

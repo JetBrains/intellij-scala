@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Alexander Podkhalyuzin
@@ -146,7 +147,7 @@ public class JavaSpecs2Runner {
 
     if (hasNoStartMethod) {
       try {
-        MyNotifierRunner myNotifierRunner = new MyNotifierRunner(new JavaSpecs2Notifier());
+        MyNotifierRunner myNotifierRunner = new MyNotifierRunner(notifier);
         Method method = myNotifierRunner.getClass().getMethod("start", String[].class);
         method.invoke(myNotifierRunner, runnerArgsArray);
       } catch (NoClassDefFoundError e) {

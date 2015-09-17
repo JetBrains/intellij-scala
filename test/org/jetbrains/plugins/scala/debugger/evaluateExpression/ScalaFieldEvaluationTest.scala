@@ -1,13 +1,19 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12_M2}
 
 /**
  * User: Alefas
  * Date: 17.10.11
  */
 
-class ScalaFieldEvaluationTest extends ScalaDebuggerTestCase {
+class ScalaFieldEvaluationTest extends ScalaFieldEvaluationTestBase with ScalaVersion_2_11
+class ScalaFieldEvaluationTest_2_12_M2 extends ScalaFieldEvaluationTestBase with ScalaVersion_2_12_M2 {
+  //todo java compiler does not work with mock jdk 1.8
+  override def testSimpleJava(): Unit = {}
+}
+
+abstract class ScalaFieldEvaluationTestBase extends ScalaDebuggerTestCase {
   def testStaticScalaFromPackObj() {
     addFileToProject("Sample.scala",
       """

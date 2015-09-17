@@ -9,6 +9,8 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
@@ -35,9 +37,10 @@ import scala.collection.mutable
  * Date: 20.02.2008
  */
 
-class ScImportStmtImpl extends ScalaStubBasedElementImpl[ScImportStmt] with ScImportStmt {
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScImportStmtStub) = {this(); setStub(stub); setNullNode()}
+class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScImportStmt {
+  def this(node: ASTNode) = {this(null, null, node)}
+  def this(stub: ScImportStmtStub) = {this(stub, ScalaElementTypes.IMPORT_STMT, null)}
 
   override def toString: String = "ScImportStatement"
 

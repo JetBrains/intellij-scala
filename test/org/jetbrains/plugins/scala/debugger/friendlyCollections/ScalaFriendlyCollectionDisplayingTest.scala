@@ -6,16 +6,16 @@ import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationCon
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.impl.FrameVariablesTree
 import com.intellij.debugger.ui.impl.watch.{DebuggerTree, LocalVariableDescriptorImpl, NodeDescriptorImpl}
-import com.intellij.debugger.ui.tree.render.{ClassRenderer, ArrayRenderer, ChildrenBuilder, DescriptorLabelListener}
+import com.intellij.debugger.ui.tree.render.{ArrayRenderer, ChildrenBuilder, ClassRenderer, DescriptorLabelListener}
 import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptorFactory, NodeManager, ValueDescriptor}
-import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
 import org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11}
 
 /**
  * User: Dmitry Naydanov
  * Date: 9/5/12
  */
-class ScalaFriendlyCollectionDisplayingTest extends ScalaDebuggerTestCase {
+class ScalaFriendlyCollectionDisplayingTest extends ScalaDebuggerTestCase with ScalaVersion_2_11 {
   private val COMMON_FILE_NAME = "dummy.scala"
   private val UNIQUE_ID = "uniqueID"
 

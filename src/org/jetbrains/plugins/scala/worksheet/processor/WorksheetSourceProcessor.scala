@@ -78,6 +78,7 @@ object WorksheetSourceProcessor {
     val packStmt = packOpt map ("package " + _ + " ; ") getOrElse ""
 
     val importStmts = mutable.ArrayBuffer[String]()
+    val importsProcessed = mutable.HashSet[ScImportStmt]()
 
     @inline def withCompilerVersion[T](if210: =>T, if211: => T, dflt: =>T) = Option(RunWorksheetAction getModuleFor srcFile) flatMap {
       case module => module.scalaSdk.flatMap(_.compilerVersion).collect {
@@ -203,7 +204,9 @@ object WorksheetSourceProcessor {
       appendAll(psi, lineNum)
     }
     
-    @inline def processImport(imp: ScImportStmt) = {
+    @inline def processImport(imp: ScImportStmt): Unit = {
+      if (importsProcessed contains imp) return 
+      
       val text = imp.getText
       val lineNums = psiToLineNumbers(imp)
 
@@ -211,6 +214,7 @@ object WorksheetSourceProcessor {
 
       importStmts += (text + insertNlsFromWs(imp))
       appendPsiLineInfo(imp, lineNums)
+      importsProcessed += imp
     }
 
     def processLocalImport(imp: ScImportStmt): Boolean = {
@@ -260,7 +264,7 @@ object WorksheetSourceProcessor {
 
     val root  = if (!isForObject(srcFile)) srcFile else {
       ((null: PsiElement) /: srcFile.getChildren) {
-        case (a, imp: ScImportStmt) => 
+        case (a, imp: ScImportStmt) =>
           processImport(imp)
           a
         case (null, obj: ScObject) =>

@@ -1,15 +1,13 @@
 package org.jetbrains.plugins.scala
 package lang.completeStatement
 
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
-
 /**
  * @author Ksenia.Sautina
  * @since 2/25/13
  */
-class ScalaCompleteForStatementTest extends ScalaCodeInsightTestBase {
+class ScalaCompleteForStatementTest extends ScalaCompleteStatementTestBase {
 
-  def testForStatement() {
+  def testForStatement1() {
     val fileText =
       """
         |class B {
@@ -28,9 +26,7 @@ class ScalaCompleteForStatementTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testForStatement2() {
@@ -52,9 +48,7 @@ class ScalaCompleteForStatementTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testForStatement3() {
@@ -71,14 +65,13 @@ class ScalaCompleteForStatementTest extends ScalaCodeInsightTestBase {
         |class B {
         |  def method() {
         |    for (<caret>) {
+        |
         |    }
         |  }
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testForStatement4() {
@@ -102,9 +95,7 @@ class ScalaCompleteForStatementTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testForStatement5() {
@@ -127,9 +118,7 @@ class ScalaCompleteForStatementTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testForStatement6() {
@@ -155,9 +144,7 @@ class ScalaCompleteForStatementTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testForStatement7() {
@@ -180,9 +167,7 @@ class ScalaCompleteForStatementTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
 

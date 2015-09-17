@@ -4,6 +4,7 @@ package editor.documentationProvider
 import com.intellij.codeInsight.javadoc.JavaDocUtil
 import com.intellij.lang.documentation.CodeDocumentationProvider
 import com.intellij.lang.java.JavaDocumentationProvider
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.IndexNotReadyException
@@ -25,11 +26,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.{PresentationUtil, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{PresentationUtil, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
@@ -88,10 +88,20 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
   }
 
   def generateDoc(element: PsiElement, originalElement: PsiElement): String = {
-    if (!element.getContainingFile.isInstanceOf[ScalaFile]) return null
+    val containingFile = element.getContainingFile
+    
+    if (!containingFile.isInstanceOf[ScalaFile]) {
+      if (element.isInstanceOf[ScalaPsiElement])
+        debugMessage("Asked to build doc for a scala element, but it is in non scala file (1)", element)
+      
+      return null
+    }
 
     val docedElement = getDocedElement(element)
-    if (docedElement == null) return null
+    if (docedElement == null) {
+      debugMessage("No actual doc owner found for element (2)", element)
+      return null
+    }
 
     val e = docedElement.getNavigationElement
 
@@ -128,7 +138,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         buffer.append("</PRE>")
         buffer.append(parseDocComment(clazz))
 
-        return "<html><body>" + buffer.toString + "</body></html>"
+        "<html><body>" + buffer.toString + "</body></html>"
       case fun: ScFunction =>
         val buffer: StringBuilder = new StringBuilder("")
         buffer.append(parseClassUrl(fun))
@@ -144,7 +154,8 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         buffer.append(parseType(fun, ScType.urlText))
         buffer.append("</PRE>")
         buffer.append(parseDocComment(fun))
-        return "<html><body>" + buffer.toString + "</body></html>"
+        
+        "<html><body>" + buffer.toString + "</body></html>"
       case decl: ScDeclaredElementsHolder if decl.isInstanceOf[ScValue] || decl.isInstanceOf[ScVariable] =>
         val buffer: StringBuilder = new StringBuilder("")
         decl match {case decl: ScMember => buffer.append(parseClassUrl(decl)) case _ =>}
@@ -160,7 +171,8 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         } )
         buffer.append("</PRE>")
         decl match {case doc: ScDocCommentOwner => buffer.append(parseDocComment(doc)) case _ =>}
-        return "<html><body>" + buffer.toString + "</body></html>"
+        
+        "<html><body>" + buffer.toString + "</body></html>"
       case param: ScParameter =>
         val buffer: StringBuilder = new StringBuilder("")
         buffer.append("<PRE>")
@@ -173,7 +185,8 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         })
         buffer.append("<b>" + escapeHtml(param.name) + "</b>")
         buffer.append(parseType(param, ScType.urlText))
-        return "<html><body>" + buffer.toString + "</body></html>"
+        
+        "<html><body>" + buffer.toString + "</body></html>"
       case typez: ScTypeAlias =>
         val buffer: StringBuilder = new StringBuilder("")
         buffer.append(parseClassUrl(typez))
@@ -190,7 +203,8 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         }
         buffer.append("</PRE>")
         buffer.append(parseDocComment(typez))
-        return "<html><body>" + buffer.toString + "</body></html>"
+        
+        "<html><body>" + buffer.toString + "</body></html>"
       case pattern: ScBindingPattern =>
         val buffer: StringBuilder = new StringBuilder("")
         buffer.append("<PRE>")
@@ -202,10 +216,10 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
             case co: PsiDocCommentOwner => buffer.append(parseDocComment(co, withDescription = false))
             case _ =>
           }
-        return "<html><body>" + buffer.toString + "</body></html>"
-      case _ =>
+        
+        "<html><body>" + buffer.toString + "</body></html>"
+      case _ => null
     }
-    null
   }
 
   def findExistingDocComment(contextElement: PsiComment): PsiComment = {
@@ -241,6 +255,18 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 }
 
 object ScalaDocumentationProvider {
+  private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider")
+  
+  private def debugMessage(msg: String, elem: PsiElement) {
+    val footer = if (!elem.isValid) {
+      s"[Invalid Element: ${elem.getNode} ${elem.getClass.getName}]"
+    } else if (elem.getContainingFile == null) {
+      s"[Element: ${elem.getNode} ${elem.getClass.getName}] [File: NULL]"
+    } else s"[Element: ${elem.getNode} ${elem.getClass.getName}] [File: ${elem.getContainingFile.getName}] [Language: ${elem.getContainingFile.getLanguage}]"
+
+    LOG debug s"[ScalaDocProvider] [ $msg ] $footer"
+  }
+  
   val replaceWikiScheme = Map("__" -> "u>", "'''" -> "b>", "''" -> "i>", "`" -> "tt>", ",," -> "sub>", "^" -> "sup>")
 
   private class MacroFinder(comment: ScDocComment) {
@@ -451,7 +477,7 @@ object ScalaDocumentationProvider {
       case function: ScFunction =>
         val parents = function.findSuperMethods()
         var returnTag: String = null
-        val needReturnTag = function.getReturnType != null && function.getReturnType.getCanonicalText != "void"
+        val needReturnTag = function.getReturnType != null && !function.hasUnitResultType
 
         for (parent <- parents) {
           processProbablyJavaDocCommentWithOwner(parent)
@@ -613,6 +639,10 @@ object ScalaDocumentationProvider {
       val res = new StringBuilder("@")
       val constr: ScConstructor = elem.constructor
       res.append(typeToString(constr.typeElement.getType(TypingContext.empty).getOrAny))
+      
+      val attrs = elem.annotationExpr.getAnnotationParameters
+      if (attrs.nonEmpty) res append attrs.map(_.getText).mkString("(", ", " ,")")
+      
       res.toString()
     }
     for (ann <- elem.annotations) {
@@ -811,10 +841,6 @@ object ScalaDocumentationProvider {
               macroFinder.getMacroBody(element.getText.stripPrefix("$")).map(a => result append a).getOrElse(result append s"[Cannot find macro: ${element.getText}]")
             } catch {
               case ee: Exception =>
-                println(ee.getMessage)
-                ee.printStackTrace()
-                val a = ee
-                val b = a
             }
             case _ => result.append(element.getText)
           }
@@ -1003,5 +1029,5 @@ object ScalaDocumentationProvider {
       case _ => parameter.name + ": " +
         ScType.presentableText(subst.subst(parameter.getType(TypingContext.empty).getOrAny))}) +
         (if (parameter.isRepeatedParameter) "*" else "")
-  }
+  }  
 }
