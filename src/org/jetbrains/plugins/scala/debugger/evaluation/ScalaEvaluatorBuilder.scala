@@ -5,6 +5,7 @@ import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.engine.evaluation.expression._
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -28,7 +29,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     val scalaFragment = codeFragment match {
       case sf: ScalaCodeFragment => sf
-      case _ => throw EvaluationException("Non-scala code fragment in scala evaluator builder")
+      case _ => throw EvaluationException(ScalaBundle.message("non-scala.code.fragment"))
     }
 
     val project = position.getFile.getProject
@@ -73,7 +74,7 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
 
   import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil._
 
-  val contextClass = _contextClass.getOrElse(getContextClass(position.getElementAt))
+  val contextClass = _contextClass.getOrElse(getContextClass(position.getElementAt, strict = false))
 
   private var myResult: Evaluator = null
 
@@ -110,7 +111,7 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
   override def visitExprInParent(expr: ScParenthesisedExpr) {
     expr.expr match {
       case Some(ex) => myResult = ScalaEvaluator(ex)
-      case None => throw EvaluationException(s"Invalid expression in parentheses: ${expr.getText}")
+      case None => throw EvaluationException(ScalaBundle.message("invalid.expression.in.parentheses", expr.getText))
     }
     super.visitExprInParent(expr)
   }
@@ -144,11 +145,11 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
   override def visitIfStatement(stmt: ScIfStmt) {
     val condEvaluator = stmt.condition match {
       case Some(cond) => ScalaEvaluator(cond)
-      case None => throw EvaluationException("Cannot evaluate if statement without condition")
+      case None => throw EvaluationException(ScalaBundle.message("if.statement.without.condition"))
     }
     val ifBranch = stmt.thenBranch match {
       case Some(th) => ScalaEvaluator(th)
-      case None => throw EvaluationException("Cannot evaluate if statement without if branch")
+      case None => throw EvaluationException(ScalaBundle.message("if.statement.without.if.branch"))
     }
     val elseBranch = stmt.elseBranch.map(ScalaEvaluator(_))
     myResult = new ScalaIfEvaluator(condEvaluator, ifBranch, elseBranch)
@@ -158,7 +159,7 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
   override def visitLiteral(l: ScLiteral) {
     myResult = l match {
       case interpolated: ScInterpolatedStringLiteral if interpolated.getType == InterpolatedStringType.FORMAT =>
-        throw EvaluationException("Formatted string interpolator f\"...\" is not supported in scala 2.11")
+        throw EvaluationException(ScalaBundle.message("formatted.interpolator.not.supported"))
       case interpolated: ScInterpolatedStringLiteral =>
         val evaluatorOpt = interpolated.getStringContextExpression.map(ScalaEvaluator(_))
         evaluatorOpt.getOrElse(ScalaLiteralEvaluator(l))
@@ -174,11 +175,11 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
   override def visitWhileStatement(ws: ScWhileStmt) {
     val condEvaluator = ws.condition match {
       case Some(cond) => ScalaEvaluator(cond)
-      case None => throw EvaluationException("Cannot evaluate while statement without condition")
+      case None => throw EvaluationException(ScalaBundle.message("while.statement.without.condition"))
     }
     val iterationEvaluator = ws.body match {
       case Some(body) => ScalaEvaluator(body)
-      case None => throw EvaluationException("Cannot evaluate while statement without body")
+      case None => throw EvaluationException(ScalaBundle.message("while.statement.without.body"))
     }
 
     myResult = new WhileStatementEvaluator(condEvaluator, iterationEvaluator, null)
@@ -189,12 +190,12 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
     val condEvaluator = stmt.condition match {
       case Some(cond) => ScalaEvaluator(cond)
       case None =>
-        throw EvaluationException("Cannot evaluate do statement without condition")
+        throw EvaluationException(ScalaBundle.message("do.statement.without.condition"))
     }
     val iterationEvaluator = stmt.getExprBody match {
       case Some(body) => ScalaEvaluator(body)
       case None =>
-        throw EvaluationException("Cannot evaluate do statement without body")
+        throw EvaluationException(ScalaBundle.message("do.statement.without.body"))
     }
     myResult = new ScalaDoStmtEvaluator(condEvaluator, iterationEvaluator)
     super.visitDoStatement(stmt)
@@ -278,6 +279,7 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
           throw new NeedCompilationException("Update method is not supported")
         }
       }
+      val message = ScalaBundle.message("cannot.evaluate.method", call.getText)
       call.getInvokedExpr match {
         case ref: ScReferenceExpression =>
           myResult = methodCallEvaluator(parentCall, call.argumentExpressions ++ collected, matchedParameters ++ call.matchedParametersMap)
@@ -295,13 +297,13 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
                   val typeArgsText = gen.typeArgs.fold("")(_.getText)
                   val expr = applyCall(ref.getText, s"$typeArgsText${call.args.getText}$tailString")
                   myResult = ScalaEvaluator(expr)
-                case _ => throw EvaluationException("Method call is invalid")
+                case _ => throw EvaluationException(message)
               }
             case _ =>
-              throw EvaluationException("Method call is invalid")
+              throw EvaluationException(message)
 
           }
-        case _ => throw EvaluationException("Method call is invalid")
+        case _ => throw EvaluationException(message)
       }
     }
 
@@ -313,7 +315,7 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
             q.replaceExpression(expr, removeParenthesis = false)
             myResult = ScalaEvaluator(copy)
           case _ =>
-            val message = s"Cannot evaluate method call with implicitly converted qualifier:\n ${parentCall.getText}"
+            val message = ScalaBundle.message("method.call.implicitly.converted.qualifier", parentCall.getText)
             throw EvaluationException(message)
         }
       case _ =>

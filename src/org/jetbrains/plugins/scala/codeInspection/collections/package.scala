@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.codeInspection
 
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
-import com.intellij.psi.{JavaPsiFacade, PsiElement, PsiMethod, PsiType}
+import com.intellij.psi.{PsiElement, PsiMethod, PsiType}
+import org.jetbrains.plugins.scala.codeInspection.InspectionsUtil.isExpressionOfType
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.nameFitToPatterns
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_9
@@ -145,7 +144,7 @@ package object collections {
     }
   }
 
-  val returnsBoolean = new FunctionExpressionWithReturnTypeTemplate(types.Boolean)
+  val returnsBoolean = new FunctionExpressionWithReturnTypeTemplate(StdType.BOOLEAN)
 
   object binaryOperation {
     def unapply(expr: ScExpression): Option[String] = {
@@ -336,7 +335,7 @@ package object collections {
             nameFitToPatterns(obj.qualifiedName, patterns)
           case member: ScMember =>
             val clazz = member.containingClass
-            if (clazz == null) false
+            if (clazz == null || clazz.qualifiedName == null) false
             else nameFitToPatterns(clazz.qualifiedName, patterns)
           case _ => false
         }
@@ -361,26 +360,19 @@ package object collections {
 
   def isArray(expr: ScExpression): Boolean = isOfClassFrom(expr, Array("scala.Array"))
 
-  def isCollection(className: String, expr: ScExpression): Boolean = {
-    val collectionType = collectionTypeFromClassName(className, expr.getProject)
-    val exprType = expr.getType().getOrAny
-    if (exprType == StdType.NULL || exprType == StdType.NOTHING) false
-    else collectionType.exists(exprType.conforms(_))
-  }
+  def isSet(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.GenSet", expr)
 
-  def isSet(expr: ScExpression): Boolean = isCollection("scala.collection.GenSet", expr)
+  def isSeq(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.GenSeq", expr)
 
-  def isSeq(expr: ScExpression): Boolean = isCollection("scala.collection.GenSeq", expr)
+  def isIndexedSeq(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.IndexedSeq", expr)
 
-  def isIndexedSeq(expr: ScExpression): Boolean = isCollection("scala.collection.IndexedSeq", expr)
+  def isMap(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.GenMap", expr)
 
-  def isMap(expr: ScExpression): Boolean = isCollection("scala.collection.GenMap", expr)
+  def isSortedSet(expr: ScExpression) = isExpressionOfType("scala.collection.SortedSet", expr)
 
-  def isSortedSet(expr: ScExpression) = isCollection("scala.collection.SortedSet", expr)
+  def isSortedMap(expr: ScExpression) = isExpressionOfType("scala.collection.SortedMap", expr)
 
-  def isSortedMap(expr: ScExpression) = isCollection("scala.collection.SortedMap", expr)
-
-  def isIterator(expr: ScExpression) = isCollection("scala.collection.Iterator", expr)
+  def isIterator(expr: ScExpression) = isExpressionOfType("scala.collection.Iterator", expr)
 
   private val sideEffectsCollectionMethods = Set("append", "appendAll", "clear", "insert", "insertAll",
     "prepend", "prependAll", "reduceToSize", "remove", "retain",
@@ -458,17 +450,6 @@ package object collections {
       case _ => expr.getTextRange.getEndOffset
     }
     TextRange.create(startOffset, endOffset).shiftRight( - parent.getTextOffset)
-  }
-
-  def collectionTypeFromClassName(fqn: String, project: Project): Option[ScType] = {
-    val clazz = JavaPsiFacade.getInstance(project).findClass(fqn, GlobalSearchScope.allScope(project))
-    Option(clazz).map { c =>
-      val designatorType = ScDesignatorType(c)
-      val undefines = c.getTypeParameters.toSeq.map(ptp =>
-        ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
-      )
-      ScParameterizedType(designatorType, undefines)
-    }
   }
 
   @tailrec

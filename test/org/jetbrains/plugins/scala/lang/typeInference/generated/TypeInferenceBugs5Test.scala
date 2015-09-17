@@ -73,6 +73,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL3074() {doTest()}
 
+  def testSCL3288() {doTest()}
+
   def testSCL2381A() {doTest()}
 
   def testSCL2381B() {doTest()}
@@ -96,6 +98,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL2777A() {doTest()}
 
   def testSCL2777B() {doTest()}
+
+  def testSCL3063(): Unit = {doTest()}
 
   def testSCL2806() {doTest()}
 
@@ -171,6 +175,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL3429() {doTest()}
 
+  def testSCL3455() {doTest()}
+
   def testSCL3460() {doTest()}
 
   def testSCL3468() {doTest()}
@@ -245,6 +251,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL3865() {doTest()}
 
+  def testSCL3877() {doTest()}
+
   def testSCL3893() {doTest()}
 
   def testSCL3908A() {doTest()}
@@ -262,6 +270,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL4052() {doTest()}
 
   def testSCL4065() {doTest()}
+
+  def testSCL4077() {doTest()}
 
   def testSCL4092() {doTest()}
 
@@ -403,6 +413,10 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL5023() {doTest()}
 
+  def testSCL5029() {doTest()}
+
+  def testSCL5030() {doTest()}
+
   def testSCL5033() {doTest()}
 
   def testSCL5048() {doTest()}
@@ -415,11 +429,17 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL5081() {doTest()}
 
+  def testSCL5104() {doTest()}
+
   def testSCL5144() {doTest()}
+
+  def testSCL5159() {doTest()}
 
   def testSCL5180() {doTest()}
 
   def testSCL5185() {doTest()}
+
+  def testSCL5192() {doTest()}
 
   def testSCL5193() {doTest()}
 
@@ -434,6 +454,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL5269() {doTest()}
 
   def testSCL5303() {doTest()}
+
+  def testSCL5356() {doTest()}
 
   def testSCL5337() {doTest()}
 
@@ -670,6 +692,10 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL8359(): Unit = doTest()
 
   def testSCL8398(): Unit = doTest()
+
+  def testSCL8989(): Unit = doTest()
+
+  def testSCL8995(): Unit = doTest()
 
   def testSOE() {doTest()}
 

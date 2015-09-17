@@ -329,6 +329,25 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
     generateNested(fileText, "C", "boo", test)
   }
+  
+  def testAnnotationArgs() {
+    val fileText =
+      """
+        | @deprecated("use 'foo' instead", "1.2.3")
+        | @throws(classOf[Exception])
+        | def boo() {} 
+      """
+    
+    val expected =
+      """<html><body><PRE>@<a href="psi_element://scala.deprecated"><code>deprecated</code></a>("use 'foo' instead", "1.2.3")
+        |@<a href="psi_element://scala.throws"><code>throws</code></a>[<a href="psi_element://scala"><code>scala</code></a>.Exception](classOf[Exception])
+        |def <b>boo</b>(): Unit</PRE></body></html>""".stripMargin
+
+    configureFromFileTextAdapter("dummy.scala", fileText.stripMargin('|').replaceAll("\r", "").trim())
+    val element = getFileAdapter.getLastChild
+    val generated = QuickDocTest.quickDocGenerator.generateDoc(element, element)
+    Assert.assertEquals(expected, generated)
+  }
 }
 
 

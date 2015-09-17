@@ -18,7 +18,6 @@ import com.intellij.xdebugger.impl.frame.XValueMarkers
 import com.intellij.xdebugger.impl.ui.tree.ValueMarkup
 import com.intellij.xdebugger.{XDebugSession, XDebuggerManager}
 import com.sun.jdi.{ObjectReference, Value}
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -45,7 +44,11 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
         semaphore.down()
         val nameRef = new AtomicReference[PsiClass]
         val worker = new ScalaRuntimeTypeEvaluator(null, expr, debuggerContext, ProgressManager.getInstance.getProgressIndicator) {
-          protected def typeCalculationFinished(@Nullable psiClass: PsiClass) {
+          override def typeCalculationFinished(psiType: PsiType): Unit = {
+            val psiClass = psiType match {
+              case tp: PsiClassType => tp.resolve()
+              case _ => null
+            }
             nameRef.set(psiClass)
             semaphore.up()
           }

@@ -5,10 +5,13 @@ import com.intellij.debugger.engine._
 import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.util.Range
 import com.sun.jdi.{Location, Method}
-import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, inReadAction}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -24,7 +27,10 @@ class ScalaBreakpointMethodFilter(psiMethod: Option[PsiMethod],
                                   exprLines: Range[Integer])
         extends BreakpointStepMethodFilter {
 
-  private val expectedSignature = psiMethod.map(JVMNameUtil.getJVMSignature)
+  private val expectedSignature = psiMethod.map {
+    case f: ScMethodLike => DebuggerUtil.getFunctionJVMSignature(f)
+    case m => JVMNameUtil.getJVMSignature(m)
+  }
 
   override def locationMatches(process: DebugProcessImpl, location: Location): Boolean = {
     def signatureMatches(method: Method): Boolean = {
@@ -42,7 +48,7 @@ class ScalaBreakpointMethodFilter(psiMethod: Option[PsiMethod],
     val method: Method = location.method
     psiMethod match {
       case None => //is created for fun expression
-        method.name == "apply" || method.name.startsWith("apply$")
+        method.name == "apply" || method.name.startsWith("apply$") || ScalaPositionManager.isIndyLambda(method)
       case Some(m) =>
         val javaName = inReadAction(if (m.isConstructor) "<init>" else ScalaNamesUtil.toJavaName(m.name))
         javaName == method.name && signatureMatches(method)
@@ -82,17 +88,23 @@ object ScalaBreakpointMethodFilter {
   }
 
   def from(psiMethod: Option[PsiMethod], first: Option[PsiElement], last: Option[PsiElement], exprLines: Range[Integer]): Option[ScalaBreakpointMethodFilter] = {
-    val firstPos = first.map(SourcePosition.createFromElement)
-    val lastPos = last.map(SourcePosition.createFromElement)
+    val firstPos = first.map(createSourcePosition)
+    val lastPos = last.map(createSourcePosition)
     Some(new ScalaBreakpointMethodFilter(psiMethod, firstPos, lastPos, exprLines))
   }
 
+  @Nullable
   private def stmtsForTemplate(tp: ScTemplateDefinition): Seq[ScBlockStatement] = {
     val membersAndExprs = tp.extendsBlock.templateBody.toSeq
             .flatMap(tb => tb.members ++ tb.exprs)
     membersAndExprs.collect {
       case x @ (_: ScPatternDefinition | _: ScVariableDefinition | _: ScExpression) => x.asInstanceOf[ScBlockStatement]
     }.sortBy(_.getTextOffset)
+  }
+  
+  private def createSourcePosition(elem: PsiElement): SourcePosition = {
+    val significantElem = DebuggerUtil.getSignificantElement(elem)
+    SourcePosition.createFromElement(significantElem)
   }
 
 }

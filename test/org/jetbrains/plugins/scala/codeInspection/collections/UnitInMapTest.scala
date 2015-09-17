@@ -55,4 +55,8 @@ class UnitInMapTest extends OperationsOnCollectionInspectionTest {
          |}
        """.stripMargin)
   }
+
+  def testFunctionToFunctionToUnit(): Unit = {
+    checkTextHasNoErrors(s"Seq(1, 2).map(x => $START() => println(x)$END)")
+  }
 }

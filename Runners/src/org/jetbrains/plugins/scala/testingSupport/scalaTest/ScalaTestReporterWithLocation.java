@@ -62,7 +62,7 @@ public class ScalaTestReporterWithLocation implements Reporter {
       RunStarting r = (RunStarting) event;
       treeBuilder.initRun(r);
       int testCount = r.testCount();
-      System.out.println("##teamcity[testCount count='" + testCount + "']");
+      System.out.println("\n##teamcity[testCount count='" + testCount + "']");
     } else if (event instanceof TestStarting) {
       TestStarting testStarting = ((TestStarting) event);
       String testText = testStarting.testText();

@@ -650,6 +650,8 @@ object ScalaPsiUtil {
     }
   }
 
+  def isAnonExpression(expr: ScExpression): Boolean = isAnonymousExpression(expr)._1 >= 0
+
   def getModule(element: PsiElement): Module = {
     val index: ProjectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
     index.getModuleForFile(element.getContainingFile.getVirtualFile)
@@ -1330,22 +1332,25 @@ object ScalaPsiUtil {
   }
 
   def superTypeMembers(element: PsiNamedElement, withSelfType: Boolean = false): Seq[PsiNamedElement] = {
-    val empty = Seq.empty
+    superTypeMembersAndSubstitutors(element, withSelfType).map(_.info)
+  }
+
+  def superTypeMembersAndSubstitutors(element: PsiNamedElement, withSelfType: Boolean = false): Seq[TypeDefinitionMembers.TypeNodes.Node] = {
     val clazz: ScTemplateDefinition = nameContext(element) match {
       case e @ (_: ScTypeAlias | _: ScTrait | _: ScClass) if e.getParent.isInstanceOf[ScTemplateBody] => e.asInstanceOf[ScMember].containingClass
-      case _ => return empty
+      case _ => return Seq.empty
     }
-    if (clazz == null) return empty
+    if (clazz == null) return Seq.empty
     val types = if (withSelfType) TypeDefinitionMembers.getSelfTypeTypes(clazz) else TypeDefinitionMembers.getTypes(clazz)
     val sigs = types.forName(element.name)._1
     val t = (sigs.get(element): @unchecked) match {
       //partial match
-      case Some(x) if !withSelfType || x.info == element => x.supers.map {_.info}
+      case Some(x) if !withSelfType || x.info == element => x.supers
       case Some(x) =>
-        x.supers.map { _.info }.filter { _ != element } :+ x.info
+        x.supers.filter { _.info != element } :+ x
       case None =>
         throw new RuntimeException("internal error: could not find type matching: \n%s\n\nin class: \n%s".format(
-        element.getText, clazz.getText
+          element.getText, clazz.getText
         ))
     }
     t
@@ -1525,7 +1530,7 @@ object ScalaPsiUtil {
   def getUnapplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
     getMethodsForName(clazz, "unapply") ++ getMethodsForName(clazz, "unapplySeq") ++
     (clazz match {
-      case c: ScObject => c.syntheticMethodsNoOverride.filter(s => s.name == "unapply" || s.name == "unapplySeq").
+      case c: ScObject => c.allSynthetics.filter(s => s.name == "unapply" || s.name == "unapplySeq").
               map(new PhysicalSignature(_, ScSubstitutor.empty))
       case _ => Seq.empty[PhysicalSignature]
     })
@@ -1951,7 +1956,7 @@ object ScalaPsiUtil {
       case _ =>
         exp.getParent match {
           case parenth: ScParenthesisedExpr => parameterOf(parenth)
-          case block: ScBlock => parameterOf(block)
+          case block: ScBlock if block.statements == Seq(exp) => parameterOf(block)
           case ie: ScInfixExpr if exp == (if (ie.isLeftAssoc) ie.lOp else ie.rOp) =>
             ie.operation match {
               case ResolvesTo(f: ScFunction) => f.parameters.headOption.map(p => new Parameter(p))
@@ -2022,35 +2027,65 @@ object ScalaPsiUtil {
     e.parentsInFile.takeWhile(!_.isScope).findByType(classOf[ScPatternDefinition]).isDefined
   }
 
-  def isByNameArgument(expr: ScExpression): Boolean = {
-    expr.getContext match {
-      case x: ScArgumentExprList => x.getContext match {
-        case mc: ScMethodCall =>
-          mc.matchedParameters.find(_._1 == expr).map(_._2) match {
-            case Some(param) if param.isByName => true
+  def isByNameArgument(expr: ScExpression) = {
+    val isCanonical = expr match {
+      case _: ScParenthesisedExpr => false
+      case ScBlock(expr: ScExpression) => false
+      case _ => true
+    }
+    isCanonical && ScalaPsiUtil.parameterOf(expr).exists(_.isByName)
+  }
+
+  object MethodValue {
+    def unapply(expr: ScExpression): Option[PsiMethod] = {
+      if (!expr.expectedType(fromUnderscore = false).exists {
+        case ScFunctionType(_, _) => true
+        case expected if isSAMEnabled(expr) =>
+          toSAMType(expected, expr.getResolveScope) match {
+            case Some(_) => true
             case _ => false
           }
         case _ => false
+      }) {
+        return None
       }
-      //todo: maybe it's better to check for concrete parameter if parameters count more than one
-      case inf: ScInfixExpr if expr == inf.getArgExpr =>
-        val op = inf.operation
-        op.bind() match {
-          case Some(ScalaResolveResult(fun: ScFunction, _)) =>
-            fun.clauses.exists(clause => {
-              val clauses = clause.clauses
-              if (clauses.length == 0) false
-              else !clauses(0).parameters.forall(p => !p.isCallByNameParameter)
-            })
-          case _ => false
-        }
+      expr match {
+        case ref: ScReferenceExpression if !ref.getParent.isInstanceOf[MethodInvocation] => referencedMethod(ref, canBeParameterless = false)
+        case gc: ScGenericCall if !gc.getParent.isInstanceOf[MethodInvocation] => referencedMethod(gc, canBeParameterless = false)
+        case us: ScUnderscoreSection => us.bindingExpr.flatMap(referencedMethod(_, canBeParameterless = true))
+        case ScMethodCall(invoked @(_: ScReferenceExpression | _: ScGenericCall | _: ScMethodCall), args)
+          if args.nonEmpty && args.forall(isSimpleUnderscore) => referencedMethod(invoked, canBeParameterless = false)
+        case mc: ScMethodCall if !mc.getParent.isInstanceOf[ScMethodCall] =>
+          referencedMethod(mc, canBeParameterless = false).filter {
+            case f: ScFunction if f.paramClauses.clauses.size > numberOfArgumentClauses(mc) => true
+            case _ => false
+          }
+        case _ => None
+      }
+    }
+
+    @tailrec
+    private def referencedMethod(expr: ScExpression, canBeParameterless: Boolean): Option[PsiMethod] = {
+      expr match {
+        case ref @ ResolvesTo(f: ScFunctionDefinition) if f.isParameterless && !canBeParameterless => None
+        case ref @ ResolvesTo(m: PsiMethod) => Some(m)
+        case gc: ScGenericCall => referencedMethod(gc.referencedExpr, canBeParameterless)
+        case us: ScUnderscoreSection if us.bindingExpr.isDefined => referencedMethod(us.bindingExpr.get, canBeParameterless)
+        case m: ScMethodCall => referencedMethod(m.deepestInvokedExpr, canBeParameterless = false)
+        case _ => None
+      }
+    }
+    private def isSimpleUnderscore(expr: ScExpression) = expr match {
+      case _: ScUnderscoreSection => expr.getText == "_"
+      case typed: ScTypedStmt => Option(typed.expr).map(_.getText).contains("_")
       case _ => false
     }
-  }
-
-  def isMethodValue(ref: ScReferenceExpression): Boolean = ref match {
-    case ResolvesTo(m: PsiMethod) if m.getParameterList.getParametersCount > 0 && !ref.getParent.isInstanceOf[MethodInvocation] => true
-    case _ => false
+    private def numberOfArgumentClauses(mc: ScMethodCall): Int = {
+      mc.getEffectiveInvokedExpr match {
+        case m: ScMethodCall => 1 + numberOfArgumentClauses(m)
+        case _ => 1
+      }
+    }
   }
 
   /** Creates a synthetic parameter clause based on view and context bounds */
@@ -2323,7 +2358,7 @@ object ScalaPsiUtil {
    * @see SCL-6140
    * @see https://github.com/scala/scala/pull/3018/
    */
-  def toSAMType(expected: ScType, scope: GlobalSearchScope): Option[ScType] = {
+  def toSAMType(expected: ScType, scalaScope: GlobalSearchScope): Option[ScType] = {
 
     def constructorValidForSAM(constructors: Array[PsiMethod]): Boolean = {
       //primary constructor (if any) must be public, no-args, not overloaded
@@ -2339,7 +2374,9 @@ object ScalaPsiUtil {
       case Some((cl, sub)) =>
         cl match {
           case templDef: ScTemplateDefinition => //it's a Scala class or trait
-            val abst = templDef.functions.filter(_.isAbstractMember)
+            val abst: Seq[ScFunction] = templDef.allMethods.toSeq.collect {
+              case PhysicalSignature(fun: ScFunction, _) if fun.isAbstractMember => fun
+            }
             val constrValid = templDef match { //if it's a class check its constructor
               case cla: ScClass => constructorValidForSAM(cla.constructors)
               case tr: ScTrait => true
@@ -2353,28 +2390,92 @@ object ScalaPsiUtil {
                 !abst.head.hasTypeParameters
 
             if (valid) {
-              abst.head.getType() match {
-                case Success(tp, _) => Some(sub.subst(tp))
+              val fun = abst.head
+              fun.getType() match {
+                case Success(tp, _) =>
+                  val subbed = sub.subst(tp)
+                  extrapolateWildcardBounds(subbed, expected, fun.getProject, scalaScope) match {
+                    case s@Some(_) => s
+                    case _ => Some(subbed)
+                  }
                 case _ => None
               }
             } else None
           case _ => //it's a Java abstract class or interface
-            val abst: Array[PsiMethod] = cl.getMethods.filter(_.getModifierList.hasModifierProperty("abstract"))
+            def overridesConcreteMethod(method: PsiMethod): Boolean = {
+              method.findSuperMethods().exists(!_.hasAbstractModifier)
+            }
+
+            val abst: Array[PsiMethod] = cl.getMethods.filter {
+              case method if method.hasAbstractModifier => true
+              case _ => false
+            } match {
+              case array if array.length > 0 => array.filterNot(overridesConcreteMethod)
+              case any => any
+            }
             //must have exactly one abstract member and SAM must be monomorphic
             val valid = abst.length == 1 && !abst.head.hasTypeParameters && constructorValidForSAM(cl.getConstructors)
             if (valid) {
               //need to generate ScType for Java method
               val method = abst.head
               val project = method.getProject
-              val returnType: ScType = ScType.create(method.getReturnType, project, scope)
+              val returnType: ScType = ScType.create(method.getReturnType, project, scalaScope)
               val params: Array[ScType] = method.getParameterList.getParameters.map {
-                param: PsiParameter => ScType.create(param.getTypeElement.getType, project, scope)
+                param: PsiParameter => ScType.create(param.getTypeElement.getType, project, scalaScope)
               }
-              val result = ScFunctionType(returnType, params)(project, scope)
-              Some(sub.subst(result))
+              val fun = ScFunctionType(returnType, params)(project, scalaScope)
+              val subbed = sub.subst(fun)
+              extrapolateWildcardBounds(subbed, expected, project, scalaScope) match {
+                case s@Some(_) => s
+                case _ => Some(subbed)
+              }
             } else None
         }
       case None => None
+    }
+  }
+
+  /**
+   * In some cases existential bounds can be simplified without losing precision
+   *
+   * trait Comparinator[T] { def compare(a: T, b: T): Int }
+   *
+   * trait Test {
+   *   def foo(a: Comparinator[_ >: String]): Int
+   * }
+   *
+   * can be simplified to:
+   *
+   * trait Test {
+   *   def foo(a: Comparinator[String]): Int
+   * }
+   *
+   * @see https://github.com/scala/scala/pull/4101
+   * @see SCL-8956
+   */
+  private def extrapolateWildcardBounds(tp: ScType, expected: ScType, proj: Project, scope: GlobalSearchScope): Option[ScType] = {
+    expected match {
+      case ScExistentialType(ScParameterizedType(expectedDesignator, _), wildcards) =>
+        tp match {
+          case ScFunctionType(retTp, params) =>
+            def convertParameter(tpArg: ScType, variance: Int): ScType = {
+              wildcards.find(_.name == tpArg.canonicalText) match {
+                case Some(wildcard) =>
+                  (wildcard.lowerBound, wildcard.upperBound) match {
+                    case (lo, Any) if variance == ScTypeParam.Contravariant => lo
+                    case (Nothing, hi) if variance == ScTypeParam.Covariant => hi
+                    case _ => tpArg
+                  }
+                case _ => tpArg
+              }
+            }
+            //parameter clauses are contravariant positions, return types are covariant positions
+            val newParams = params.map(convertParameter(_, ScTypeParam.Contravariant))
+            val newRetTp = convertParameter(retTp, ScTypeParam.Covariant)
+            Some(ScFunctionType(newRetTp, newParams)(proj, scope))
+          case _ => None
+        }
+      case _ => None
     }
   }
 }

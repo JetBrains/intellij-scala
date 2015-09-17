@@ -15,5 +15,5 @@ abstract class Scalatest2_10_2_2_1_Base extends ScalaTestTestCase {
     addIvyCacheLibrary("scalaTest", "org.scalatest/scalatest_2.10/bundles", "scalatest_2.10-2.2.1.jar")
   }
 
-  override protected val compilerDirectorySuffix: String = "2.10"
+  override protected val scalaVersion: String = "2.10"
 }

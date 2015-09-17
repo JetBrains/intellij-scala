@@ -37,7 +37,10 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
 
   def nameId: PsiElement
 
-  def refName: String = nameId.getText
+  def refName: String = {
+    assert(nameId != null, s"nameId is null for reference with text $getText; parent: ${getParent.getText}")
+    nameId.getText
+  }
 
   private def isBackQuoted = {
     val id: PsiElement = nameId

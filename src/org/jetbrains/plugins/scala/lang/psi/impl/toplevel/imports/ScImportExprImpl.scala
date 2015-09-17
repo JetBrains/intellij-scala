@@ -6,6 +6,8 @@ package toplevel
 package imports
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -20,7 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportExprStub
 * Date: 20.02.2008
  */
 
-class ScImportExprImpl extends ScalaStubBasedElementImpl[ScImportExpr] with ScImportExpr {
+class ScImportExprImpl private (stub: StubElement[ScImportExpr], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScImportExpr {
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
@@ -28,8 +31,8 @@ class ScImportExprImpl extends ScalaStubBasedElementImpl[ScImportExpr] with ScIm
     }
   }
 
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScImportExprStub) = {this(); setStub(stub); setNullNode()}
+  def this(node: ASTNode) = {this(null, null, node)}
+  def this(stub: ScImportExprStub) = {this(stub, ScalaElementTypes.IMPORT_EXPR, null)}
 
   override def toString: String = "ImportExpression"
 

@@ -17,19 +17,23 @@ import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.process.{ProcessAdapter, ProcessEvent, ProcessHandler, ProcessListener}
 import com.intellij.execution.runners.{ExecutionEnvironmentBuilder, ProgramRunner}
 import com.intellij.execution.ui.RunContentDescriptor
-import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiCodeFragment
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.concurrency.Semaphore
+import com.intellij.xdebugger.XDebuggerManager
+import com.intellij.xdebugger.breakpoints.XBreakpointType
 import com.sun.jdi.VoidValue
+import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
+import org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert
 
 import scala.collection.mutable
+import scala.util.{Failure, Success, Try}
 
 /**
  * User: Alefas
@@ -38,7 +42,7 @@ import scala.collection.mutable
 
 abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
-  private val breakpoints: mutable.Set[(String, Int)] = mutable.Set.empty
+  private val breakpoints: mutable.Set[(String, Int, Integer)] = mutable.Set.empty
 
   protected def runDebugger(mainClass: String, debug: Boolean = false)(callback: => Unit) {
     var processHandler: ProcessHandler = null
@@ -59,6 +63,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
       }
     })
     callback
+    clearBreakpoints()
     getDebugProcess.stop(true)
     processHandler.destroyProcess()
   }
@@ -102,40 +107,67 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     DebuggerManagerEx.getInstanceEx(getProject).getContext.getDebuggerSession
   }
 
-  private def resume() {
-    getDebugProcess.getManagerThread.invoke(getDebugProcess.
-        createResumeCommand(getDebugProcess.getSuspendManager.getPausedContext))
+  protected def resume() {
+    val resumeCommand = getDebugProcess.createResumeCommand(suspendContext)
+    getDebugProcess.getManagerThread.invokeAndWait(resumeCommand)
   }
 
-  protected def addBreakpoint(fileName: String, line: Int) {
-    breakpoints += ((fileName, line))
+  protected def addBreakpoint(fileName: String, line: Int, lambdaOrdinal: Integer = -1) {
+    breakpoints += ((fileName, line, lambdaOrdinal))
   }
 
   private def addBreakpoints() {
     breakpoints.foreach {
-      case (fileName, line) =>
+      case (fileName, line, ordinal) =>
         val ioFile = new File(srcDir, fileName)
         val file = getVirtualFile(ioFile)
         UsefulTestCase.edt(new Runnable {
           def run() {
-            val document = FileDocumentManager.getInstance().getDocument(file)
-            val breakpointManager = DebuggerManagerEx.getInstanceEx(getProject).getBreakpointManager
-            breakpointManager.addLineBreakpoint(document, line)
+            val xBreakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
+            val properties = new JavaLineBreakpointProperties
+            properties.setLambdaOrdinal(ordinal)
+            inWriteAction {
+              xBreakpointManager.addLineBreakpoint(scalaLineBreakpointType, file.getUrl, line, properties)
+            }
           }
         })
     }
+    breakpoints.clear()
   }
 
+  private def clearBreakpoints(): Unit = {
+    UsefulTestCase.edt(new Runnable {
+      def run() {
+        val xBreakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
+        inWriteAction {
+          xBreakpointManager.getAllBreakpoints.foreach(xBreakpointManager.removeBreakpoint)
+        }
+      }
+    })
+  }
+
+  protected def scalaLineBreakpointType = XBreakpointType.EXTENSION_POINT_NAME.findExtension(classOf[ScalaLineBreakpointType])
+
   protected def waitForBreakpoint(): SuspendContextImpl =  {
+    val (suspendContext, processTerminated) = waitForBreakpointInner()
+
+    assert(suspendContext != null, "too long process, terminated=" + processTerminated)
+    suspendContext
+  }
+
+  protected def processTerminatedNoBreakpoints(): Boolean = {
+    val (_, processTerminated) = waitForBreakpointInner()
+    processTerminated
+  }
+
+  private def waitForBreakpointInner(): (SuspendContextImpl, Boolean) = {
     var i = 0
     def processTerminated: Boolean = getDebugProcess.getExecutionResult.getProcessHandler.isProcessTerminated
     while (i < 1000 && suspendContext == null && !processTerminated) {
       Thread.sleep(10)
       i += 1
     }
-
-    assert(suspendContext != null, "too long process, terminated=" + processTerminated)
-    suspendContext
+    (suspendContext, processTerminated)
   }
 
   protected def managed[T >: Null](callback: => T): T = {
@@ -176,12 +208,15 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
           codeFragment.forceResolveScope(GlobalSearchScope.allScope(getProject))
           DebuggerUtils.checkSyntax(codeFragment)
           val evaluatorBuilder: EvaluatorBuilder = factory.getEvaluatorBuilder
-          val evaluator = evaluatorBuilder.build(codeFragment, currentSourcePosition)
 
-          val value = evaluator.evaluate(ctx)
+          val value = Try {
+            val evaluator = evaluatorBuilder.build(codeFragment, currentSourcePosition)
+            evaluator.evaluate(ctx)
+          }
           val res = value match {
-            case v: VoidValue => "undefined"
-            case _ => DebuggerUtils.getValueAsString(ctx, value)
+            case Success(v: VoidValue) => "undefined"
+            case Success(v) => DebuggerUtils.getValueAsString(ctx, v)
+            case Failure(e: EvaluateException) => e.getMessage
           }
           semaphore.up()
           res
@@ -216,3 +251,5 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     }
   }
 }
+
+case class Loc(className: String, methodName: String, line: Int)
