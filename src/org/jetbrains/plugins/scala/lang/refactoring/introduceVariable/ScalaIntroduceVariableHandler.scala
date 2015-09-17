@@ -55,13 +55,12 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
     def getElement(offset: Int) = PsiTreeUtil.findElementOfClassAtOffset(file, offset, classOf[ScTypeElement], false)
-    var offset = editor.getCaretModel.getOffset
+    val offset = editor.getCaretModel.getOffset
 
     val element = file.findElementAt(offset) match {
       case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
         w.getText.contains(" ") =>
-        offset -= 1
-        getElement(offset)
+        getElement(offset - 1)
       case _ => getElement(offset)
     }
 
