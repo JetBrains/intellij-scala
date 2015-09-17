@@ -79,4 +79,15 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
       modules := Seq(foo, bar, sharedSourcesModule)
     }
   )
+
+  def testExcludedDirectories() = runTest(
+    new project("testExcludedDirectories") {
+      modules += new module("root") {
+        excluded := Seq(
+          "directory-to-exclude-1",
+          "directory/to/exclude/2"
+        )
+      }
+    }
+  )
 }
