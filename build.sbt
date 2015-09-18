@@ -1,5 +1,6 @@
 import Keys.{`package` => pack}
 import Common._
+import sbt.Keys.{`package` => pack}
 
 // Global build settings
 
@@ -27,7 +28,7 @@ addCommandAlias("packagePluginZip", "pluginCompressor/package")
 
 lazy val scalaCommunity: Project =
   newProject("scalaCommunity", file("."))
-  .dependsOn(compilerSettings, scalap, runners % "test->test;compile->compile")
+  .dependsOn(compilerSettings, scalap, runners % "test->test;compile->compile", macroAnnotations)
   .enablePlugins(SbtIdeaPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
   .settings(
@@ -36,7 +37,8 @@ lazy val scalaCommunity: Project =
     scalacOptions in Global += "-target:jvm-1.6",
     libraryDependencies ++= DependencyGroups.scalaCommunity,
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
-    unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"),
+    unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun", "scalastyle"),
+    addCompilerPlugin(Dependencies.macroParadise),
     ideaInternalPlugins := Seq(
       "copyright",
       "gradle",
@@ -89,6 +91,13 @@ lazy val scalap =
 lazy val scalaDevPlugin =
   newProject("scalaDevPlugin", file("SDK/scalaDevPlugin"))
   .settings(unmanagedJars in Compile := ideaMainJars.in(scalaCommunity).value)
+
+lazy val macroAnnotations =
+  newProject("macroAnnotations", file("macroAnnotations"))
+  .settings(Seq(
+    addCompilerPlugin(Dependencies.macroParadise),
+    libraryDependencies ++= Seq(Dependencies.scalaReflect, Dependencies.scalaCompiler)
+  ): _*)
 
 // Utility projects
 
