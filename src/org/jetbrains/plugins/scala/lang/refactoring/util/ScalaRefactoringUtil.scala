@@ -138,7 +138,7 @@ object ScalaRefactoringUtil {
   def getTypeEement(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[ScTypeElement] = {
     val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScTypeElement])
 
-    if (element.getTextRange.getEndOffset != endOffset) {
+    if (element == null || element.getTextRange.getEndOffset != endOffset || element.getTextRange.getStartOffset != startOffset) {
       None
     } else {
       checkTypeElement(element)
