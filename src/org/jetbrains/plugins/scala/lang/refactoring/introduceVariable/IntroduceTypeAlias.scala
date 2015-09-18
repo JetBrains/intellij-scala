@@ -168,8 +168,11 @@ trait IntroduceTypeAlias {
           ScalaInplaceTypeAliasIntroducer.revertState(editor, IntroduceTypeAliasData.currentScope, IntroduceTypeAliasData.getNamedElement)
 
           runWithDialog(fromInplace = true, IntroduceTypeAliasData.currentScope, enteredName)
+          IntroduceTypeAliasData.clearData()
         } else {
-          IntroduceTypeAliasData.setInintialInfo(editor.getDocument.getText, inTypeElement.getTextRange.getStartOffset)
+          val revertInfo = ScalaRefactoringUtil.RevertInfo(file.getText, editor.getCaretModel.getOffset)
+          editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
+
           afterScopeChoosing(project, editor, file, IntroduceTypeAliasData.possibleScopes, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
             scopeItem =>
               if (!scopeItem.usualOccurrences.isEmpty) {
@@ -212,9 +215,6 @@ trait IntroduceTypeAlias {
       ScalaPsiUtil.adjustTypes(resultTypeAlias, useTypeAliases = false)
       resultTypeAlias
     }
-
-    val revertInfo = ScalaRefactoringUtil.RevertInfo(file.getText, editor.getCaretModel.getOffset)
-    editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
 
     val parent = if (suggestedParent == null & isPackage) {
       createAndGetPackageObjectBody(typeElement)
