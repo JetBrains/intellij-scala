@@ -143,7 +143,6 @@ trait IntroduceTypeAlias {
                   PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
                   PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
 
-                  IntroduceTypeAliasData.typeElementRanges = mtypeElement.getTextRange
                   val typeAliasIntroducer =
                     ScalaInplaceTypeAliasIntroducer(namedElement, namedElement, editor, namedElement.getName,
                       namedElement.getName, scopeItem)
@@ -213,6 +212,9 @@ trait IntroduceTypeAlias {
       ScalaPsiUtil.adjustTypes(resultTypeAlias, useTypeAliases = false)
       resultTypeAlias
     }
+
+    val revertInfo = ScalaRefactoringUtil.RevertInfo(file.getText, editor.getCaretModel.getOffset)
+    editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
 
     val parent = if (suggestedParent == null & isPackage) {
       createAndGetPackageObjectBody(typeElement)
