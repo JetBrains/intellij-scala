@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.command.undo.UndoManager
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.psi._
 import com.intellij.refactoring.RefactoringActionHandler
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeItem
 import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberInplaceRenamer
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.util.ScalaUtils
@@ -41,8 +41,7 @@ object ScalaInplaceTypeAliasIntroducer {
 
     CommandProcessor.getInstance.executeCommand(myProject, new Runnable {
       def run() {
-        val revertInfo = ScalaRefactoringUtil.RevertInfo(IntroduceTypeAliasData.initialInfo._1, IntroduceTypeAliasData.initialInfo._2)
-
+        val revertInfo = myEditor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)
         val document = myEditor.getDocument
         if (revertInfo != null) {
           extensions.inWriteAction {
@@ -86,5 +85,22 @@ class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
 
   override def revertState(): Unit = {
     //do nothing. we don't need to revert state
+  }
+
+  protected override def moveOffsetAfter(success: Boolean): Unit = {
+    if (success) {
+      // don't know about element to refactor place
+    }
+    else if (myInsertedName != null && !UndoManager.getInstance(myProject).isUndoInProgress && !IntroduceTypeAliasData.isData) {
+      val revertInfo = myEditor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)
+      if (revertInfo != null) {
+        extensions.inWriteAction {
+          val myFile: PsiFile = PsiDocumentManager.getInstance(myEditor.getProject).getPsiFile(myEditor.getDocument)
+          myEditor.getDocument.replaceString(0, myFile.getTextLength, revertInfo.fileText)
+        }
+        myEditor.getCaretModel.moveToOffset(revertInfo.caretOffset)
+        myEditor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
+      }
+    }
   }
 }
