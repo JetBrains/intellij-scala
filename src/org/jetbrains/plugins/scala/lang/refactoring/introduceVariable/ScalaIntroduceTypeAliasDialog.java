@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
-import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeItem;
 import org.jetbrains.plugins.scala.lang.refactoring.util.*;
 import scala.Tuple2;
 

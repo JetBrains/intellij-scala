@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package scopeSuggester
+package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
