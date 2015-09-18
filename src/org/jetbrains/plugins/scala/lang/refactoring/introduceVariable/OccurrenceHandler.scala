@@ -4,7 +4,6 @@ package refactoring
 package introduceVariable
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeItem
 
 
 /**

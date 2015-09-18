@@ -37,7 +37,6 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
         file.findElementAt(offset) match {
           case w: PsiElement if w.getTextRange.getStartOffset == offset &&
             (w.getText.matches("\\W") || w.getText.contains("\n")) =>
-            editor.getCaretModel.moveToOffset(offset - 1)
             Option(getElement(offset - 1))
           case _ => Option(getElement(offset))
         }

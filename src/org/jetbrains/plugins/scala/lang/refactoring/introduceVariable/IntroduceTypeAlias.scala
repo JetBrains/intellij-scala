@@ -62,7 +62,8 @@ trait IntroduceTypeAlias {
 
       def runWithDialog(fromInplace: Boolean, mainScope: ScopeItem, enteredName: String = "") {
         val typeElementHelper = if (fromInplace) {
-          PsiTreeUtil.findElementOfClassAtOffset(file, editor.getCaretModel.getOffset, classOf[ScTypeElement], false)
+          val range = IntroduceTypeAliasData.initialInfo._2
+          PsiTreeUtil.findElementOfClassAtRange(file, range.getStartOffset, range.getEndOffset, classOf[ScTypeElement])
           match {
             case simpleType: ScSimpleTypeElement =>
               if (simpleType.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs]) {
@@ -170,9 +171,7 @@ trait IntroduceTypeAlias {
           runWithDialog(fromInplace = true, IntroduceTypeAliasData.currentScope, enteredName)
           IntroduceTypeAliasData.clearData()
         } else {
-          val revertInfo = ScalaRefactoringUtil.RevertInfo(file.getText, editor.getCaretModel.getOffset)
-          editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
-
+          IntroduceTypeAliasData.setInintialInfo(editor.getDocument.getText, inTypeElement.getTextRange)
           afterScopeChoosing(project, editor, file, IntroduceTypeAliasData.possibleScopes, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
             scopeItem =>
               if (!scopeItem.usualOccurrences.isEmpty) {
@@ -215,6 +214,9 @@ trait IntroduceTypeAlias {
       ScalaPsiUtil.adjustTypes(resultTypeAlias, useTypeAliases = false)
       resultTypeAlias
     }
+
+    val revertInfo = ScalaRefactoringUtil.RevertInfo(file.getText, editor.getCaretModel.getOffset)
+    editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
 
     val parent = if (suggestedParent == null & isPackage) {
       createAndGetPackageObjectBody(typeElement)
