@@ -62,7 +62,7 @@ trait IntroduceTypeAlias {
 
       def runWithDialog(fromInplace: Boolean, mainScope: ScopeItem, enteredName: String = "") {
         val typeElementHelper = if (fromInplace) {
-          val range = IntroduceTypeAliasData.initialInfo._2
+          val range = IntroduceTypeAliasData.initialTypeElement
           PsiTreeUtil.findElementOfClassAtRange(file, range.getStartOffset, range.getEndOffset, classOf[ScTypeElement])
           match {
             case simpleType: ScSimpleTypeElement =>
@@ -159,6 +159,7 @@ trait IntroduceTypeAlias {
 
         //need open odal dialog in inplace mode
         if ((StartMarkAction.canStart(project) != null) && (currentScope != null)) {
+          IntroduceTypeAliasData.isCallModalDialogInProgress = true
           val templateState: TemplateState = TemplateManagerImpl.getTemplateState(InjectedLanguageUtil.getTopLevelEditor(editor))
 
           if (templateState != null) {
@@ -171,7 +172,7 @@ trait IntroduceTypeAlias {
           runWithDialog(fromInplace = true, IntroduceTypeAliasData.currentScope, enteredName)
           IntroduceTypeAliasData.clearData()
         } else {
-          IntroduceTypeAliasData.setInintialInfo(editor.getDocument.getText, inTypeElement.getTextRange)
+          IntroduceTypeAliasData.setInintialInfo(inTypeElement.getTextRange)
           afterScopeChoosing(project, editor, file, IntroduceTypeAliasData.possibleScopes, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
             scopeItem =>
               if (!scopeItem.usualOccurrences.isEmpty) {
