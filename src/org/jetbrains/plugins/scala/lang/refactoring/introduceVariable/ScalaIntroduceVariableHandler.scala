@@ -57,25 +57,34 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
     def getElement(offset: Int) = PsiTreeUtil.findElementOfClassAtOffset(file, offset, classOf[ScTypeElement], false)
     val offset = editor.getCaretModel.getOffset
 
-    val element = file.findElementAt(offset) match {
-      case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
-        w.getText.contains(" ") =>
-        getElement(offset - 1)
-      case _ => getElement(offset)
+    def getRealElement = {
+      if (editor.getSelectionModel.hasSelection) {
+        ScalaRefactoringUtil.getTypeEement(project, editor, file, editor.getSelectionModel.getSelectionStart,
+          editor.getSelectionModel.getSelectionEnd)
+      } else {
+        file.findElementAt(offset) match {
+          case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
+            w.getText.contains(" ") =>
+            Option(getElement(offset - 1))
+          case _ => Option(getElement(offset))
+        }
+      }
     }
+
+    val element = getRealElement
 
     //clear data on startRefactoring, if there is no marks, but there is some data
     if ((StartMarkAction.canStart(project) == null) && IntroduceTypeAliasData.isData) {
       IntroduceTypeAliasData.clearData()
     }
 
-    if (element != null) {
+    if (element.isDefined) {
       if (IntroduceTypeAliasData.isData) {
-        invokeTypeElement(project, editor, file, element.asInstanceOf[ScTypeElement])
+        invokeTypeElement(project, editor, file, element.get)
       } else {
-        ScalaRefactoringUtil.afterTypeElementChoosing(project, editor, file, dataContext, "Introduce Type Alias") {
-          ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
+        ScalaRefactoringUtil.afterTypeElementChoosing(project, editor, file, dataContext, element.get, "Introduce Type Alias") {
           typeElement =>
+            ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
             invokeTypeElement(project, editor, file, typeElement)
         }
       }
@@ -201,7 +210,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
         showErrorMessage(ScalaBundle.message("cannot.refactor.not.script.file"), project, editor, REFACTORING_NAME)
       }
 
-      def runWithDialog(fromInplace: Boolean, mainScope: ScopeItem, enteredName:String = "") {
+      def runWithDialog(fromInplace: Boolean, mainScope: ScopeItem, enteredName: String = "") {
         val typeElementHelper = if (fromInplace) {
           PsiTreeUtil.findElementOfClassAtOffset(file, editor.getCaretModel.getOffset, classOf[ScTypeElement], false)
           match {
