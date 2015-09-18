@@ -773,6 +773,7 @@ object ScalaRefactoringUtil {
       val typeElement = getTypeElement
 
       def chooseTypeElement(typeElement: ScTypeElement) {
+        editor.getSelectionModel.setSelection(typeElement.getTextRange.getStartOffset, typeElement.getTextRange.getEndOffset)
         invokesNext(typeElement)
       }
       if (typeElement.length == 0)
@@ -798,7 +799,7 @@ object ScalaRefactoringUtil {
       invokesNext(item)
     }
     showTypeAliasChooser(editor, scopes, (elem: ScopeItem) => chooseScopeItem(elem),
-      ScalaBundle.message("choose.type.element.for", refactoringName), (elem: ScopeItem) => elem.toString)
+      ScalaBundle.message("choose.scope.for", refactoringName), (elem: ScopeItem) => elem.toString)
   }
 
 
