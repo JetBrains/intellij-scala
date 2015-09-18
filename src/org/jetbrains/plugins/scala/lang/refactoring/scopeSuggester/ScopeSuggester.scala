@@ -74,9 +74,11 @@ object ScopeSuggester {
 
       val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(curerntElement, parent)
       val validator = ScalaTypeValidator(conflictsReporter, project, editor, file, curerntElement, parent, occurrences.isEmpty)
-      val possibleNames = NameSuggester.namesByType(curerntElement.calcType)(validator)
 
-      val scope = new ScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toList.reverse.toArray)
+      val possibleNames = NameSuggester.suggestNamesByType(curerntElement.calcType)
+        .map((value:String) => validator.validateName(value, increaseNumber = true))
+
+      val scope = new ScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toArray)
       result = result :+ scope
       parent = getParent(parent, isScriptFile)
     }
@@ -151,6 +153,7 @@ object ScopeSuggester {
 
     val projectSearchScope = GlobalSearchScope.projectScope(typeElement.getProject)
     val packageReal = ScPackageImpl.findPackage(typeElement.getProject, packageName)
+
     val packageObject = packageReal.findPackageObject(projectSearchScope)
 
     val fileEncloser = if (packageObject.isDefined)
@@ -177,9 +180,11 @@ object ScopeSuggester {
     val validator = ScalaCompositeValidator(allValidators.toList, conflictsReporter, project, typeElement,
       occurrences.isEmpty, fileEncloser, fileEncloser)
 
-    val possibleNames = NameSuggester.namesByType(typeElement.calcType)(validator)
+    val possibleNames = NameSuggester.suggestNamesByType(typeElement.calcType)
+      .map((value:String) => validator.validateName(value, increaseNumber = true))
+
     val result = new ScopeItem("package " + packageName, fileEncloser, occurrences, Array[ScTypeElement](),
-      validator, possibleNames.toList.reverse.toArray)
+      validator, possibleNames.toArray)
 
     result
   }
