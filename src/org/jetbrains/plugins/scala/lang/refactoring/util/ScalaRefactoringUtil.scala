@@ -740,7 +740,7 @@ object ScalaRefactoringUtil {
   }
 
   def afterTypeElementChoosing(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
-                               refactoringName: String)(invokesNext: (ScTypeElement) => Unit) {
+                               currentSelectedElement: ScTypeElement, refactoringName: String)(invokesNext: (ScTypeElement) => Unit) {
 
     if (!editor.getSelectionModel.hasSelection) {
       val element: PsiElement = getElementOnCaretOffset(file, editor)
@@ -783,6 +783,7 @@ object ScalaRefactoringUtil {
         return
       }
     }
+    invokesNext(currentSelectedElement)
   }
 
   def afterScopeChoosing(project: Project, editor: Editor, file: PsiFile, scopes: Array[ScopeItem],
