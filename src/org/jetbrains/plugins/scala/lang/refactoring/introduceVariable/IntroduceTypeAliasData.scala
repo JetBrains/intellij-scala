@@ -5,7 +5,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeItem
 
 /**
  * Created by Kate Ustyuzhanina

@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -43,7 +43,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
@@ -486,82 +485,11 @@ object ScalaRefactoringUtil {
       override def beforeShown(event: LightweightWindowEvent): Unit = {
         selection.addHighlighter()
       }
-
       override def onClosed(event: LightweightWindowEvent) {
         highlighter.dropHighlight()
         selection.removeHighlighter()
       }
     }).createPopup.showInBestPositionFor(editor)
-  }
-
-  def showTypeAliasChooser[T](editor: Editor, elements: Array[T], pass: T => Unit, title: String,
-                              elementName: T => String) {
-
-
-    class Selection {
-      val selectionModel = editor.getSelectionModel
-      val (start, end) = (selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
-      val scheme = editor.getColorsScheme
-      val textAttributes = new TextAttributes
-      textAttributes.setForegroundColor(scheme.getColor(EditorColors.SELECTION_FOREGROUND_COLOR))
-      textAttributes.setBackgroundColor(scheme.getColor(EditorColors.SELECTION_BACKGROUND_COLOR))
-      var selectionHighlighter: RangeHighlighter = null
-      val markupModel = editor.getMarkupModel
-
-      def addHighlighter() = if (selectionHighlighter == null) {
-        selectionHighlighter = markupModel.addRangeHighlighter(start, end, HighlighterLayer.SELECTION + 1,
-          textAttributes, HighlighterTargetArea.EXACT_RANGE)
-      }
-
-      def removeHighlighter() = if (selectionHighlighter != null) markupModel.removeHighlighter(selectionHighlighter)
-    }
-
-    val selection = new Selection
-    val highlighter: ScopeHighlighter = new ScopeHighlighter(editor)
-    val model = JListCompatibility.createDefaultListModel()
-    for (element <- elements) {
-      JListCompatibility.addElement(model, element)
-    }
-    val list = JListCompatibility.createJListFromModel(model)
-    JListCompatibility.setCellRenderer(list, new DefaultListCellRendererAdapter {
-      def getListCellRendererComponentAdapter(container: JListCompatibility.JListContainer,
-                                              value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
-        val rendererComponent: Component = getSuperListCellRendererComponent(container.getList, value, index, isSelected, cellHasFocus)
-        val element: T = value.asInstanceOf[T]
-        //        if (element.isValid) {
-        setText(elementName(element))
-        //        }
-        rendererComponent
-      }
-    })
-    list.addListSelectionListener(new ListSelectionListener {
-      def valueChanged(e: ListSelectionEvent) {
-        highlighter.dropHighlight()
-        val index: Int = list.getSelectedIndex
-        if (index < 0) return
-      }
-    })
-
-    JBPopupFactory.getInstance.createListPopupBuilder(list).setTitle(title).setMovable(false).setResizable(false).setRequestFocus(true).setItemChoosenCallback(new Runnable {
-      def run() {
-        pass(list.getSelectedValue.asInstanceOf[T])
-      }
-    }).addListener(new JBPopupAdapter {
-      override def beforeShown(event: LightweightWindowEvent): Unit = {
-        selection.addHighlighter()
-      }
-
-      override def onClosed(event: LightweightWindowEvent) {
-        highlighter.dropHighlight()
-        selection.removeHighlighter()
-      }
-    }).createPopup.showInBestPositionFor(editor)
-  }
-
-  def createAndGetPackageObjectBody(typeElement: ScTypeElement): ScTemplateBody = {
-    val dir: PsiDirectory = typeElement.getContainingFile.getContainingDirectory
-    val packageObject: ScTypeDefinition = ScalaDirectoryService.createClassFromTemplate(dir, "package", "Package Object", askToDefineVariables = false).asInstanceOf[ScTypeDefinition]
-    PsiTreeUtil.getChildOfType(PsiTreeUtil.getChildOfType(packageObject, classOf[ScExtendsBlock]), classOf[ScTemplateBody])
   }
 
   def getShortText(expr: ScalaPsiElement): String = {
@@ -785,37 +713,6 @@ object ScalaRefactoringUtil {
       }
     }
     invokesNext(currentSelectedElement)
-  }
-
-  def afterScopeChoosing(project: Project, editor: Editor, file: PsiFile, scopes: Array[ScopeItem],
-                         refactoringName: String)(invokesNext: (ScopeItem) => Unit) {
-
-    def chooseScopeItem(item: ScopeItem): Unit = {
-      invokesNext(item)
-    }
-    showTypeAliasChooser(editor, scopes, (elem: ScopeItem) => chooseScopeItem(elem),
-      ScalaBundle.message("choose.scope.for", refactoringName), (elem: ScopeItem) => elem.toString)
-  }
-
-
-  def replaceTypeElements(occurrences: Array[ScTypeElement], name: String) = {
-    def replaceHelper(typeElement: ScTypeElement, inName: String): ScTypeElement = {
-      val replacement = ScalaPsiElementFactory.createTypeElementFromText(inName, typeElement.getContext, typeElement)
-      //remove parethesis around typeElement
-      if (typeElement.getParent.isInstanceOf[ScParenthesisedTypeElement]) {
-        typeElement.getNextSibling.delete()
-        typeElement.getPrevSibling.delete()
-      }
-
-      //avoid replacing typeelement that was replaced
-      if (typeElement.calcType.presentableText == inName) {
-        typeElement
-      } else {
-        typeElement.replace(replacement).asInstanceOf[ScTypeElement]
-      }
-    }
-
-    occurrences.transform(replaceHelper(_, name))
   }
 
   private def getElementOnCaretOffset(file: PsiFile, editor: Editor): PsiElement = {
