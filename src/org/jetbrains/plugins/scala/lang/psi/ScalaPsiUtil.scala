@@ -1428,21 +1428,25 @@ object ScalaPsiUtil {
     }
 
     def availableTypeAliasFor(clazz: PsiClass, position: PsiElement): Option[ScTypeAliasDefinition] = {
-      class FindTypeAliasProcessor extends BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
-        var collected: Option[ScTypeAliasDefinition] = None
+      if (!useTypeAliases){
+        None
+      } else {
+        class FindTypeAliasProcessor extends BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
+          var collected: Option[ScTypeAliasDefinition] = None
 
-        override def execute(element: PsiElement, state: ResolveState): Boolean = {
-          element match {
-            case ta: ScTypeAliasDefinition if ta.isAliasFor(clazz) && !ta.isImplementation =>
-              collected = Some(ta)
-              false
-            case _ => true
+          override def execute(element: PsiElement, state: ResolveState): Boolean = {
+            element match {
+              case ta: ScTypeAliasDefinition if ta.isAliasFor(clazz) && !ta.isImplementation =>
+                collected = Some(ta)
+                false
+              case _ => true
+            }
           }
         }
+        val processor = new FindTypeAliasProcessor
+        PsiTreeUtil.treeWalkUp(processor, position, null, ResolveState.initial())
+        processor.collected
       }
-      val processor = new FindTypeAliasProcessor
-      PsiTreeUtil.treeWalkUp(processor, position, null, ResolveState.initial())
-      processor.collected
     }
 
     if (element == null) return
@@ -1469,7 +1473,7 @@ object ScalaPsiUtil {
             named match {
               case clazz: PsiClass =>
                 availableTypeAliasFor(clazz, element) match {
-                  case Some(ta) if !ta.isAncestorOf(stableRef) && useTypeAliases => replaceStablePath(stableRef, ta.name, None, ta)
+                  case Some(ta) if !ta.isAncestorOf(stableRef) => replaceStablePath(stableRef, ta.name, None, ta)
                   case _ => replaceStablePath(stableRef, clazz.name, Option(clazz.qualifiedName), clazz)
                 }
               case typeAlias: ScTypeAlias => replaceStablePath(stableRef, typeAlias.name, None, typeAlias)
