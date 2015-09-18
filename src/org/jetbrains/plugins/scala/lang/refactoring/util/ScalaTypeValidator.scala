@@ -137,7 +137,7 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
   }
 
   override def validateName(name: String, increaseNumber: Boolean): String = {
-    val newName = name.toUpperCase
+    val newName = name.capitalize
     super.validateName(newName, increaseNumber)
   }
 
