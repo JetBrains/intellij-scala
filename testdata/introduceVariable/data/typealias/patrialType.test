@@ -1,4 +1,4 @@
-//INTS
+//Ints
 object My {
   val t: <begin>List<end>[Int] = List(4)
 }
