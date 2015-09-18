@@ -306,10 +306,10 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
             templateState.cancelTemplate()
           }
 
-          val enteredName = IntroduceTypeAliasData.getNamedElement
+          val enteredName = IntroduceTypeAliasData.getNamedElement.getName
           ScalaInplaceTypeAliasIntroducer.revertState(editor, IntroduceTypeAliasData.currentScope, IntroduceTypeAliasData.getNamedElement)
 
-          runWithDialog(fromInplace = true, IntroduceTypeAliasData.currentScope, enteredName.getName)
+          runWithDialog(fromInplace = true, IntroduceTypeAliasData.currentScope, enteredName)
         } else {
           IntroduceTypeAliasData.setInintialInfo(editor.getDocument.getText, inTypeElement.getTextRange.getStartOffset)
           ScalaRefactoringUtil.afterScopeChoosing(project, editor, file, IntroduceTypeAliasData.possibleScopes, "type alias") {
