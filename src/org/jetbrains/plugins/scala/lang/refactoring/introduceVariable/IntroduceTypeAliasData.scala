@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
  */
 object IntroduceTypeAliasData {
   var currentScope: ScopeItem = null
-  var initialInfo: (String, Int) = null
   var possibleScopes: Array[ScopeItem] = null
   var typeAliasInfo: (PsiFile, TextRange) = null
 
@@ -23,23 +22,16 @@ object IntroduceTypeAliasData {
 
   def clearData(): Unit = {
     currentScope = null
-    initialInfo = null
     possibleScopes = null
     typeAliasInfo = null
   }
 
   def isData: Boolean = {
-    currentScope != null || initialInfo != null || possibleScopes != null || typeAliasInfo != null
+    currentScope != null || possibleScopes != null || typeAliasInfo != null
   }
 
   def addScopeElement(item: ScopeItem): Unit = {
     currentScope = item
-  }
-
-  def setInintialInfo(inText: String, caretPosition: Int): Unit = {
-    if (initialInfo == null) {
-      initialInfo = (inText, caretPosition)
-    }
   }
 
   def setPossibleScopes(inPossibleScopes: Array[ScopeItem]): Unit = {
