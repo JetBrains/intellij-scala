@@ -676,11 +676,11 @@ object ScalaRefactoringUtil {
                                currentSelectedElement: ScTypeElement, refactoringName: String)(invokesNext: (ScTypeElement) => Unit) {
 
     if (!editor.getSelectionModel.hasSelection) {
-      val element: PsiElement = getElementOnCaretOffset(file, editor)
+      val element: PsiElement = currentSelectedElement
 
       def getTypeElement: Array[ScTypeElement] = {
         val res = new ArrayBuffer[ScTypeElement]
-        var parent = PsiTreeUtil.getParentOfType(element, classOf[ScTypeElement])
+        var parent = element
         while (parent != null) {
           parent match {
             case simpleType: ScSimpleTypeElement if simpleType.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs] =>
@@ -704,8 +704,9 @@ object ScalaRefactoringUtil {
         editor.getSelectionModel.setSelection(typeElement.getTextRange.getStartOffset, typeElement.getTextRange.getEndOffset)
         invokesNext(typeElement)
       }
-      if (typeElement.length == 0)
+      if (typeElement.length == 0) {
         editor.getSelectionModel.selectLineAtCaret()
+      }
       else if (typeElement.length == 1) {
         chooseTypeElement(typeElement(0))
         return
