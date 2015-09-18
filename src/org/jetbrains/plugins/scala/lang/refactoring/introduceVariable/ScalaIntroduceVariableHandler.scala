@@ -49,9 +49,10 @@ import scala.collection.JavaConverters._
  */
 
 class ScalaIntroduceVariableHandler extends RefactoringActionHandler with DialogConflictsReporter {
-
-  val REFACTORING_NAME = ScalaBundle.message("introduce.variable.title")
   private var occurrenceHighlighters = Seq.empty[RangeHighlighter]
+
+  val INTRODUCE_VARIABLE_REFACTORING_NAME = ScalaBundle.message("introduce.variable.title")
+  val INTRODUCE_TYPEALIAS_REFACTORING_NAME = ScalaBundle.message("introduce.type.alias.title")
 
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
     def getElement(offset: Int) = PsiTreeUtil.findElementOfClassAtOffset(file, offset, classOf[ScTypeElement], false)
@@ -82,7 +83,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       if (IntroduceTypeAliasData.isData) {
         invokeTypeElement(project, editor, file, element.get)
       } else {
-        ScalaRefactoringUtil.afterTypeElementChoosing(project, editor, file, dataContext, element.get, "Introduce Type Alias") {
+        ScalaRefactoringUtil.afterTypeElementChoosing(project, editor, file, dataContext, element.get, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
           typeElement =>
             ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
             invokeTypeElement(project, editor, file, typeElement)
@@ -90,7 +91,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       }
     } else {
       val canBeIntroduced: ScExpression => Boolean = ScalaRefactoringUtil.checkCanBeIntroduced(_)
-      ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, "Introduce Variable", canBeIntroduced) {
+      ScalaRefactoringUtil.afterExpressionChoosing(project, editor, file, dataContext, INTRODUCE_VARIABLE_REFACTORING_NAME, canBeIntroduced) {
         ScalaRefactoringUtil.trimSpacesAndComments(editor, file)
         invokeExpression(project, editor, file, editor.getSelectionModel.getSelectionStart, editor.getSelectionModel.getSelectionEnd)
       }
@@ -98,16 +99,15 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
   }
 
   def invokeExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int) {
-
     try {
       UsageTrigger.trigger(ScalaBundle.message("introduce.variable.id"))
 
       PsiDocumentManager.getInstance(project).commitAllDocuments()
-      ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
+      ScalaRefactoringUtil.checkFile(file, project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME)
       val (expr: ScExpression, types: Array[ScType]) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
-        getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
+        getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME))
 
-      ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessage(_, project, editor, REFACTORING_NAME))
+      ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessage(_, project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME))
 
       val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
       val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
@@ -162,12 +162,12 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
                     val checkedExpr = if (expr.isValid) expr else null
                     val variableIntroducer =
                       new ScalaInplaceVariableIntroducer(project, editor, checkedExpr, types, namedElement,
-                        REFACTORING_NAME, replaceAll, asVar, forceInferType)
+                        INTRODUCE_VARIABLE_REFACTORING_NAME, replaceAll, asVar, forceInferType)
                     variableIntroducer.performInplaceRefactoring(suggestedNamesSet)
                   }
                 }
               }
-            }, REFACTORING_NAME, null)
+            }, INTRODUCE_VARIABLE_REFACTORING_NAME, null)
           }
         }
 
@@ -196,10 +196,10 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       UsageTrigger.trigger(ScalaBundle.message("introduce.variable.id"))
 
       PsiDocumentManager.getInstance(project).commitAllDocuments()
-      ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
+      ScalaRefactoringUtil.checkFile(file, project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
 
       val typeElement: ScTypeElement = ScalaRefactoringUtil.checkTypeElement(inTypeElement).
-        getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.valid.type"), project, editor, REFACTORING_NAME))
+        getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.valid.type"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME))
 
 
       if (IntroduceTypeAliasData.possibleScopes == null) {
@@ -207,7 +207,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       }
 
       if (IntroduceTypeAliasData.possibleScopes.isEmpty) {
-        showErrorMessage(ScalaBundle.message("cannot.refactor.not.script.file"), project, editor, REFACTORING_NAME)
+        showErrorMessage(ScalaBundle.message("cannot.refactor.not.script.file"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
       }
 
       def runWithDialog(fromInplace: Boolean, mainScope: ScopeItem, enteredName: String = "") {
@@ -302,7 +302,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
                 }
               }
             }
-          }, REFACTORING_NAME, null)
+          }, INTRODUCE_TYPEALIAS_REFACTORING_NAME, null)
         }
 
         val currentScope = IntroduceTypeAliasData.currentScope
@@ -321,7 +321,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
           runWithDialog(fromInplace = true, IntroduceTypeAliasData.currentScope, enteredName)
         } else {
           IntroduceTypeAliasData.setInintialInfo(editor.getDocument.getText, inTypeElement.getTextRange.getStartOffset)
-          ScalaRefactoringUtil.afterScopeChoosing(project, editor, file, IntroduceTypeAliasData.possibleScopes, "type alias") {
+          ScalaRefactoringUtil.afterScopeChoosing(project, editor, file, IntroduceTypeAliasData.possibleScopes, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
             scopeItem =>
               if (!scopeItem.usualOccurrences.isEmpty) {
                 //handle packageObject in modal dialog because we can't change name & call refactoring
@@ -592,7 +592,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
         runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, parent, isPackage)
       }
     }
-    ScalaUtils.runWriteAction(runnable, editor.getProject, REFACTORING_NAME)
+    ScalaUtils.runWriteAction(runnable, editor.getProject, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
     editor.getSelectionModel.removeSelection()
   }
 
@@ -606,7 +606,7 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       }
     }
 
-    ScalaUtils.runWriteAction(runnable, editor.getProject, REFACTORING_NAME)
+    ScalaUtils.runWriteAction(runnable, editor.getProject, INTRODUCE_VARIABLE_REFACTORING_NAME)
     editor.getSelectionModel.removeSelection()
   }
 
@@ -678,12 +678,12 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
 
   def runTest(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int, replaceAll: Boolean) {
     PsiDocumentManager.getInstance(project).commitAllDocuments()
-    ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
+    ScalaRefactoringUtil.checkFile(file, project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME)
 
     val (expr: ScExpression, types: Array[ScType]) = ScalaRefactoringUtil.getExpression(project, editor, file, startOffset, endOffset).
-      getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
+      getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME))
 
-    ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessage(_, project, editor, REFACTORING_NAME))
+    ScalaRefactoringUtil.checkCanBeIntroduced(expr, showErrorMessage(_, project, editor, INTRODUCE_VARIABLE_REFACTORING_NAME))
 
     val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
     val occurrences: Array[TextRange] = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(expr), fileEncloser)
