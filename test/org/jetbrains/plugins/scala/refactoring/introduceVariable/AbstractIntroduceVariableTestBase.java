@@ -18,8 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticCla
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.OccurrenceHandler;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler;
-import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeItem;
-import org.jetbrains.plugins.scala.lang.refactoring.scopeSuggester.ScopeSuggester;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeItem;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeSuggester;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.Assert;
@@ -69,8 +69,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
     if (!(fileText.indexOf("//") == 0)) {
       junit.framework.Assert.assertTrue("Typename to validator should be in first comment statement.", false);
     }
-    String result = fileText.substring(2, fileText.indexOf("\n")).replaceAll("\\W", "");
-    return result;
+    return fileText.substring(2, fileText.indexOf("\n")).replaceAll("\\W", "");
   }
 
   private String removeTypenameComment(String fileText) {
