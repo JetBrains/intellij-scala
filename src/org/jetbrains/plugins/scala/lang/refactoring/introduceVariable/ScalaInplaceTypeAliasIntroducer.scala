@@ -90,7 +90,7 @@ class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
     if (success) {
       // don't know about element to refactor place
     }
-    else if (myInsertedName != null && !UndoManager.getInstance(myProject).isUndoInProgress && !IntroduceTypeAliasData.isData) {
+    else if (myInsertedName != null && !UndoManager.getInstance(myProject).isUndoInProgress && !IntroduceTypeAliasData.isCallModalDialogInProgress) {
       val revertInfo = myEditor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)
       if (revertInfo != null) {
         extensions.inWriteAction {
