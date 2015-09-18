@@ -222,8 +222,14 @@ class ScopeItem(val name: String,
     val revalidatedOccurrences = usualOccurrencesRanges.map((x: (TextRange, PsiFile)) =>
       PsiTreeUtil.findElementOfClassAtRange(x._2, x._1.getStartOffset, x._1.getEndOffset, classOf[ScTypeElement]))
 
+    val newNames = if ((newName == "") || availableNames.contains(newName)) {
+      availableNames
+    } else {
+      newName +: availableNames
+    }
+
     new ScopeItem(name, fileEncloser,
-      revalidatedOccurrences, occurrencesInCompanion, typeValidator, if (newName != "") newName +: availableNames else availableNames)
+      revalidatedOccurrences, occurrencesInCompanion, typeValidator, newNames)
   }
 
   override def toString: String = name
