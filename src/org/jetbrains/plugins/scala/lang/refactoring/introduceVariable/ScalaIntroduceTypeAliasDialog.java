@@ -21,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeItem;
 import org.jetbrains.plugins.scala.lang.refactoring.util.*;
 import scala.Tuple2;
 
@@ -107,6 +106,10 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         super.doOKAction();
     }
 
+    public JComponent getPreferredFocusedComponent() {
+        return myNameComboBox;
+    }
+
     private void setUpNameComboBox(String[] possibleNames) {
 
         final EditorComboBoxEditor comboEditor = new StringComboboxEditor(project, ScalaFileType.SCALA_FILE_TYPE, myNameComboBox);
@@ -127,13 +130,13 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         );
 
         ((EditorTextField) myNameComboBox.getEditor().getEditorComponent()).addDocumentListener(new DocumentListener() {
-                                                                                                    public void beforeDocumentChange(DocumentEvent event) {
-                                                                                                    }
+            public void beforeDocumentChange(DocumentEvent event) {
+            }
 
-                                                                                                    public void documentChanged(DocumentEvent event) {
-                                                                                                        fireNameDataChanged();
-                                                                                                    }
-                                                                                                }
+            public void documentChanged(DocumentEvent event) {
+                fireNameDataChanged();
+            }
+        }
         );
 
         contentPane.registerKeyboardAction(new ActionListener() {
