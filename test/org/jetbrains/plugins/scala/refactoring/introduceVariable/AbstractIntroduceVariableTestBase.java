@@ -145,7 +145,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
         result = myEditor.getDocument().getText();
       } else if (element instanceof ScTypeElement){
-        Option<ScTypeElement> optionType = ScalaRefactoringUtil.getTypeEement(getProject(), myEditor, myFile, startOffset, endOffset);
+        Option<ScTypeElement> optionType = ScalaRefactoringUtil.getTypeElement(getProject(), myEditor, myFile, startOffset, endOffset);
         if (optionType.isEmpty()){
           result = "Selected block should be presented as type element";
         } else {
