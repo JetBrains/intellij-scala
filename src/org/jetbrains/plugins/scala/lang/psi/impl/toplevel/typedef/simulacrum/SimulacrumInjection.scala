@@ -1,13 +1,15 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.simulacrum
 
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScAnnotation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector.Kind
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 /**
  * @author Alefas
@@ -34,8 +36,8 @@ class SimulacrumInjection extends SyntheticMembersInjector {
   override def injectInners(source: ScTypeDefinition): Seq[String] = {
     source match {
       case obj: ScObject =>
-        obj.fakeCompanionClassOrCompanionClass match {
-          case clazz: ScTypeDefinition if clazz.findAnnotation("simulacrum.typeclass") != null  && clazz.typeParameters.length == 1 =>
+        ScalaPsiUtil.getCompanionModule(obj) match {
+          case Some(clazz) if clazz.findAnnotation("simulacrum.typeclass") != null  && clazz.typeParameters.length == 1 =>
             val tpName = clazz.typeParameters.head.name
             val clazzTpt = new ScTypeParameterType(clazz.typeParameters.head, ScSubstitutor.empty)
             val ops = clazz.functions.flatMap {
@@ -52,7 +54,19 @@ class SimulacrumInjection extends SyntheticMembersInjector {
                               case Some(l: ScLiteral) if l.isString =>
                                 l.getValue match {
                                   case value: String =>
-                                    Seq(value) //todo: alias
+                                    args.exprs match {
+                                      case Seq(_, second) =>
+                                        second match {
+                                          case l: ScLiteral if l.getValue == true => Seq(value, f.name)
+                                          case a: ScAssignStmt =>
+                                            a.getRExpression match {
+                                              case Some(l: ScLiteral) if l.getValue == true => Seq(value, f.name)
+                                              case _ => Seq(value)
+                                            }
+                                          case _ => Seq(value)
+                                        }
+                                      case _ => Seq(value)
+                                    }
                                   case _ => Seq(f.name)
                                 }
                               case _ => Seq(f.name)
@@ -82,14 +96,25 @@ class SimulacrumInjection extends SyntheticMembersInjector {
                  |}
                """.stripMargin
 
-            val AllOpsSupers = clazz.superTypes.flatMap {
-              case ScParameterizedType(classType, Seq(tp)) if tp.equiv(clazzTpt) =>
-                ScType.extractClass(classType, Some(clazz.getProject)) match {
-                  case Some(cl: ScTypeDefinition) => Seq(s" with ${cl.qualifiedName}.AllOps[$tpName]") //todo: what about inner classes?
+            val AllOpsSupers = clazz.extendsBlock.templateParents.toSeq.flatMap(parents => parents.typeElements.flatMap {
+              case te =>
+                te.getType(TypingContext.empty) match {
+                  case Success(ScParameterizedType(classType, Seq(tp)), _) if tp.equiv(clazzTpt) =>
+                    def fromType: Seq[String] = {
+                      ScType.extractClass(classType, Some(clazz.getProject)) match {
+                        case Some(cl: ScTypeDefinition) => Seq(s" with ${cl.qualifiedName}.AllOps[$tpName]")
+                        case _ => Seq.empty
+                      }
+                    }
+                    //in most cases we have to resolve exactly the same reference
+                    //but with .AllOps it will go into companion object
+                    (for {
+                      ScParameterizedTypeElement(pte, _) <- Option(te)
+                      ScSimpleTypeElement(Some(ref)) <- Option(pte)
+                    } yield Seq(s" with ${ref.getText}.AllOps[$tpName]")).getOrElse(fromType)
                   case _ => Seq.empty
                 }
-              case _ => Seq.empty
-            }.mkString
+            }).mkString
 
             val AllOpsTrait =
               s"""trait AllOps[$tpName] extends $className.Ops[$tpName]$AllOpsSupers {
