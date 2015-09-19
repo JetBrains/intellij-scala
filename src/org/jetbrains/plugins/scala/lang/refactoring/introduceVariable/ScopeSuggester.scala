@@ -30,7 +30,7 @@ object ScopeSuggester {
                     project: Project,
                     editor: Editor,
                     file: PsiFile,
-                    curerntElement: ScTypeElement): Array[ScopeItem] = {
+                    currentElement: ScTypeElement): Array[ScopeItem] = {
 
     def getParent(element: PsiElement, isScriptFile: Boolean): PsiElement = {
       if (isScriptFile)
@@ -39,8 +39,8 @@ object ScopeSuggester {
         PsiTreeUtil.getParentOfType(element, classOf[ScTemplateBody])
     }
 
-    val isScriptFile = curerntElement.getContainingFile.asInstanceOf[ScalaFile].isScriptFile()
-    var parent = getParent(curerntElement, isScriptFile)
+    val isScriptFile = currentElement.getContainingFile.asInstanceOf[ScalaFile].isScriptFile()
+    var parent = getParent(currentElement, isScriptFile)
 
     var noContinue = false
     var result: ArrayBuffer[ScopeItem] = new ArrayBuffer[ScopeItem]()
@@ -53,7 +53,7 @@ object ScopeSuggester {
             case classType: ScClass =>
               "class " + classType.name
             case objectType: ScObject =>
-              occInCompanionObj = getOccurrencesFromCompanionObject(curerntElement, objectType)
+              occInCompanionObj = getOccurrencesFromCompanionObject(currentElement, objectType)
               "object " + objectType.name
             case traitType: ScTrait =>
               "trait " + traitType.name
@@ -62,17 +62,17 @@ object ScopeSuggester {
 
       //parent != null here
       //check can we use upper scope
-      noContinue = curerntElement.calcType match {
+      noContinue = currentElement.calcType match {
         case projectionType: ScProjectionType
           if parent.asInstanceOf[ScTemplateBody].isAncestorOf(projectionType.actualElement) =>
           true
         case _ => false
       }
 
-      val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(curerntElement, parent)
-      val validator = ScalaTypeValidator(conflictsReporter, project, editor, file, curerntElement, parent, occurrences.isEmpty)
+      val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(currentElement, parent)
+      val validator = ScalaTypeValidator(conflictsReporter, project, editor, file, currentElement, parent, occurrences.isEmpty)
 
-      val possibleNames = NameSuggester.suggestNamesByType(curerntElement.calcType)
+      val possibleNames = NameSuggester.suggestNamesByType(currentElement.calcType)
         .map((value:String) => validator.validateName(value, increaseNumber = true))
 
       val scope = new ScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toArray)
@@ -81,14 +81,14 @@ object ScopeSuggester {
     }
 
     //gathering occurrences in current package
-    val packageName = curerntElement.getContainingFile match {
+    val packageName = currentElement.getContainingFile match {
       case scalaFile: ScalaFile =>
         scalaFile.getPackageName
     }
 
     //forbid to use typeParameter type outside the class
-    if (!packageName.equals("") && !curerntElement.calcType.isInstanceOf[ScTypeParameterType] && !noContinue) {
-      result = result :+ handlePackage(curerntElement, packageName, conflictsReporter, project, editor)
+    if (!packageName.equals("") && !currentElement.calcType.isInstanceOf[ScTypeParameterType] && !noContinue) {
+      result = result :+ handlePackage(currentElement, packageName, conflictsReporter, project, editor)
     }
 
     result.toArray
