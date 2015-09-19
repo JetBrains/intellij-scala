@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.lang.completion.postfix.templates
 import com.intellij.codeInsight.template.postfix.templates.PostfixTemplateWithExpressionSelector
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.{SelectorConditions, AncestorSelector}
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.SelectorType._
+import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.{AncestorSelector, SelectorConditions}
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler
 
 /**
@@ -16,7 +16,7 @@ class ScalaIntorduceVariablePostfixTemplate extends PostfixTemplateWithExpressio
   override def expandForChooseExpression(expression: PsiElement, editor: Editor): Unit = {
     val range = expression.getTextRange
     editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
-    new ScalaIntroduceVariableHandler().invoke(expression.getProject, editor, expression.getContainingFile,
+    new ScalaIntroduceVariableHandler().invokeExpression(expression.getProject, editor, expression.getContainingFile,
       expression.getTextRange.getStartOffset, expression.getTextRange.getEndOffset)
   }
 }
