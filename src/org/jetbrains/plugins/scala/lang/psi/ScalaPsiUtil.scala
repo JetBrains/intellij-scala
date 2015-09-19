@@ -1407,7 +1407,7 @@ object ScalaPsiUtil {
           if (resolved != null && PsiEquivalenceUtil.areElementsEquivalent(resolved, named)) {
             //cannot use newRef because of bug with indentation
             val refToReplace = ScalaPsiElementFactory.createReferenceFromText(named.name, ref.getManager)
-            adjustTypes(ref.replace(refToReplace), addImports)
+            adjustTypes(ref.replace(refToReplace), addImports, useTypeAliases)
           }
           else adjustTypesChildren()
         case _ => adjustTypesChildren()
@@ -1420,7 +1420,7 @@ object ScalaPsiUtil {
           val withoutAliases = ScType.removeAliasDefinitions(tp, implementationsOnly = true)
           if (withoutAliases != tp) {
             val newTypeElem = ScalaPsiElementFactory.createTypeElementFromText(withoutAliases.canonicalText, te.getManager)
-            adjustTypes(te.replace(newTypeElem), addImports)
+            adjustTypes(te.replace(newTypeElem), addImports, useTypeAliases)
           }
           else adjustTypesChildren()
         case _ => adjustTypesChildren()
@@ -1428,9 +1428,8 @@ object ScalaPsiUtil {
     }
 
     def availableTypeAliasFor(clazz: PsiClass, position: PsiElement): Option[ScTypeAliasDefinition] = {
-      if (!useTypeAliases){
-        None
-      } else {
+      if (!useTypeAliases) None
+      else {
         class FindTypeAliasProcessor extends BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
           var collected: Option[ScTypeAliasDefinition] = None
 
@@ -1458,7 +1457,7 @@ object ScalaPsiUtil {
       case tp: ScTypeProjection if tp.typeElement.getText.endsWith(".type") =>
         val newText = tp.typeElement.getText.stripSuffix(".type") + "." + tp.refName
         val newTypeElem = ScalaPsiElementFactory.createTypeElementFromText(newText, tp.getManager)
-        adjustTypes(tp.replace(newTypeElem), addImports)
+        adjustTypes(tp.replace(newTypeElem), addImports, useTypeAliases)
       case te: ScTypeElement =>
         expandTypeAliasesIfPossible(te)
       case stableRef: ScStableCodeReferenceElement =>
