@@ -1,24 +1,52 @@
 package org.jetbrains.plugins.hocon.includes
 
-import com.intellij.openapi.roots.ModuleRootManager
-import com.intellij.testFramework.LightPlatformTestCase
-import org.jetbrains.plugins.hocon.HoconLightPlatformCodeInsightTestCase
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.{TokenType, PsiComment, PsiFile, PsiManager}
+import com.intellij.testFramework.UsefulTestCase
+import org.jetbrains.plugins.hocon.lexer.{HoconTokenType, HoconTokenSets}
+import org.jetbrains.plugins.hocon.psi.{HIncludeTarget, HoconPsiFile}
+import org.jetbrains.plugins.scala.extensions._
+import org.junit.Assert._
 
-class HoconIncludeResolutionTest extends HoconLightPlatformCodeInsightTestCase {
+/**
+ * @author ghik
+ */
+trait HoconIncludeResolutionTest {
+  this: UsefulTestCase =>
 
-  import LightPlatformTestCase._
+  protected def project: Project
 
-  override protected def rootPath = baseRootPath + "includes/"
+  protected def contentRoots: Array[VirtualFile]
 
-  def testSimpleInclude(): Unit = {
-    val mrm = ModuleRootManager.getInstance(getModule)
-    val psim = getPsiManager
+  private def findFile(path: String): VirtualFile =
+    contentRoots.iterator.flatMap(_.findFileByRelativePath(path).toOption)
+      .toStream.headOption.getOrElse(throw new Exception("Could not find file " + path))
 
-    val contentRoot = mrm.getContentRoots.head
-    val firstFile = psim.findFile(contentRoot.findChild("first.conf"))
-    val secondFile = psim.findFile(contentRoot.findChild("second.conf"))
+  protected def findHoconFile(path: String): PsiFile =
+    PsiManager.getInstance(project).findFile(findFile(path)).asOptionOf[HoconPsiFile]
+      .getOrElse(throw new Exception("Could not find HOCON file " + path))
 
-    assert(secondFile.findReferenceAt(12).resolve() == firstFile)
-    assert(secondFile.findReferenceAt(30).resolve() == firstFile)
+  protected def checkFile(path: String): Unit = {
+    val psiFile = findHoconFile(path)
+
+    psiFile.depthFirst.foreach {
+      case it: HIncludeTarget =>
+        val prevComments = it.parent.parent.prevSiblings
+          .filter(e => e.getNode.getElementType != TokenType.WHITE_SPACE)
+          .takeWhile(e => e.getNode.getElementType == HoconTokenType.HashComment)
+          .toVector.reverse
+
+        val expectedFiles = prevComments.map(_.getText.stripPrefix("#")).mkString(",")
+          .split(',').iterator.map(_.trim).filter(_.nonEmpty).map(findFile).toSet
+
+        val actualFiles = it.getFileReferences.last.multiResolve(false).iterator
+          .map(_.getElement.asInstanceOf[PsiFile].getVirtualFile).toSet
+
+        assertEquals(it.parent.getText, expectedFiles, actualFiles)
+
+      case _ =>
+    }
   }
+
 }
