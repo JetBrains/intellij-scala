@@ -121,27 +121,22 @@ object ScalaRefactoringUtil {
     scType.recursiveUpdate(replaceSingleton)
   }
 
-  def typeInRightPart(typeElement: ScTypeElement): Boolean = {
+  def inTemplateParents(typeElement: ScTypeElement): Boolean = {
     PsiTreeUtil.getParentOfType(typeElement, classOf[ScTemplateParents]) != null
   }
 
   def checkTypeElement(element: ScTypeElement): Option[ScTypeElement] = {
-    if (element == null || element.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs]
-      || typeInRightPart(element)) {
-      return None
+    Option(element).filter {
+      case e if e.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs] => false
+      case e if inTemplateParents(e) => false
+      case _ => true
     }
-
-    Some(element)
   }
 
-  def getTypeEement(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[ScTypeElement] = {
+  def getTypeElement(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[ScTypeElement] = {
     val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScTypeElement])
 
-    if (element == null || element.getTextRange.getEndOffset != endOffset || element.getTextRange.getStartOffset != startOffset) {
-      None
-    } else {
-      checkTypeElement(element)
-    }
+    Option(element).filter(_.getTextRange.getEndOffset == endOffset).flatMap(checkTypeElement)
   }
 
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, Array[ScType])] = {
@@ -337,7 +332,7 @@ object ScalaRefactoringUtil {
       for (child <- enclosingContainer.getChildren) {
         if (PsiEquivalenceUtil.areElementsEquivalent(child, element)) {
           child match {
-            case typeElement: ScTypeElement if !typeInRightPart(typeElement) =>
+            case typeElement: ScTypeElement if !inTemplateParents(typeElement) =>
               occurrences += typeElement
             case _ =>
           }
