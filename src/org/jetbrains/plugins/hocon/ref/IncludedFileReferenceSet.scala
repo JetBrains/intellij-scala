@@ -32,7 +32,7 @@ import scala.collection.JavaConverters._
  * This constraint is also reflected by appropriate completion filter.
  */
 class IncludedFileReferenceSet(text: String, element: PsiElement, absolute: Boolean)
-        extends FileReferenceSet(text, element, 1, null, true) {
+  extends FileReferenceSet(text, element, 1, null, true) {
 
   setEmptyPathAllowed(false)
 
@@ -48,7 +48,7 @@ class IncludedFileReferenceSet(text: String, element: PsiElement, absolute: Bool
   override def getReferenceCompletionFilter: Condition[PsiFileSystemItem] =
     new Condition[PsiFileSystemItem] {
       def value(item: PsiFileSystemItem): Boolean = item.isDirectory ||
-              item.getName.endsWith(ConfExt) || item.getName.endsWith(JsonExt) || item.getName.endsWith(PropsExt)
+        item.getName.endsWith(ConfExt) || item.getName.endsWith(JsonExt) || item.getName.endsWith(PropsExt)
     }
 
   override def computeDefaultContexts: ju.Collection[PsiFileSystemItem] = {
@@ -76,15 +76,14 @@ class IncludedFileReferenceSet(text: String, element: PsiElement, absolute: Bool
 
     if (pkgName == null) return empty
 
-    val allScopes = pfi.getOrderEntriesForFile(parent).iterator.asScala.map { oe =>
-      val withTests = pfi.isInTestSourceContent(parent) || (oe match {
-        case eoe: ExportableOrderEntry => eoe.getScope == DependencyScope.TEST
-        case _ => false
-      })
-      oe.getOwnerModule.getModuleWithDependenciesAndLibrariesScope(withTests)
+    val allScopes = pfi.getOrderEntriesForFile(parent).iterator.asScala.collect {
+      case msoe: ModuleSourceOrderEntry =>
+        msoe.getOwnerModule.getModuleRuntimeScope(pfi.isInTestSourceContent(parent))
+      case loe: LibraryOrderEntry =>
+        loe.getOwnerModule.getModuleRuntimeScope(loe.getScope == DependencyScope.TEST)
     }
 
-    val scope = if (allScopes.nonEmpty) allScopes.reduce(_ union _) else GlobalSearchScope.EMPTY_SCOPE
+    val scope = allScopes.reduceOption(_ union _).getOrElse(GlobalSearchScope.EMPTY_SCOPE)
 
     // If there are any source roots with package prefix and that package is a subpackage of
     // including file's package, they will be omitted because `getDirectoriesByPackageName` doesn't find them.
@@ -93,18 +92,18 @@ class IncludedFileReferenceSet(text: String, element: PsiElement, absolute: Bool
     // straight away negates my efforts by explicitly ignoring package prefixes - not sure why.
     // TODO: possibly fix this in some other way?
     DirectoryIndex.getInstance(proj).getDirectoriesByPackageName(pkgName, false).iterator.asScala
-            .filter(scope.contains).flatMap(dir => Option(psiManager.findDirectory(dir)))
-            .toJList
+      .filter(scope.contains).flatMap(dir => Option(psiManager.findDirectory(dir)))
+      .toJList
   }
 
 }
 
 class IncludedFileReference(refSet: FileReferenceSet, range: TextRange, index: Int, text: String)
-        extends FileReference(refSet, range, index, text) {
+  extends FileReference(refSet, range, index, text) {
 
   private def lacksExtension(text: String) =
     isLast && text.nonEmpty && text != "." && text != ".." && text != "/" &&
-            !text.endsWith(ConfExt) && !text.endsWith(JsonExt) && !text.endsWith(PropsExt)
+      !text.endsWith(ConfExt) && !text.endsWith(JsonExt) && !text.endsWith(PropsExt)
 
 
   override def innerResolveInContext(text: String, context: PsiFileSystemItem, result: ju.Collection[ResolveResult],
