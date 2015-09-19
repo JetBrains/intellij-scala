@@ -1,9 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.ExtensionPointName
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import com.intellij.openapi.project.DumbService
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.collection.mutable.ArrayBuffer
@@ -62,7 +66,7 @@ object SyntheticMembersInjector {
       template <- injector.injectFunctions(source)
     } try {
       val context = source match {
-        case o: ScObject if o.isSyntheticObject => o.fakeCompanionClassOrCompanionClass
+        case o: ScObject if o.isSyntheticObject => ScalaPsiUtil.getCompanionModule(o).getOrElse(source)
         case _ => source
       }
       val function = ScalaPsiElementFactory.createMethodWithContext(template, context, source)
@@ -83,12 +87,21 @@ object SyntheticMembersInjector {
       template <- injector.injectInners(source)
     } try {
       val context = source match {
-        case o: ScObject if o.isSyntheticObject => o.fakeCompanionClassOrCompanionClass
+        case o: ScObject if o.isSyntheticObject => ScalaPsiUtil.getCompanionModule(o).getOrElse(source)
         case _ => source
       }
       val td = ScalaPsiElementFactory.createTypeDefinitionWithContext(template, context, source)
       td.syntheticContainingClass = Some(source)
-      td.setSynthetic(context)
+      def updateSynthetic(element: ScMember): Unit = {
+        element match {
+          case td: ScTypeDefinition =>
+            td.setSynthetic(context)
+            td.members.foreach(updateSynthetic)
+          case fun: ScFunction => fun.setSynthetic(context)
+          case _ => //todo: ?
+        }
+      }
+      updateSynthetic(td)
       buffer += td
     } catch {
       case e: Throwable =>
@@ -97,5 +110,8 @@ object SyntheticMembersInjector {
     buffer
   }
 
-  def needsCompanion(source: ScTypeDefinition): Boolean = EP_NAME.getExtensions.exists(_.needsCompanionObject(source))
+  def needsCompanion(source: ScTypeDefinition): Boolean = {
+    if (DumbService.getInstance(source.getProject).isDumb) return false
+    EP_NAME.getExtensions.exists(_.needsCompanionObject(source))
+  }
 }

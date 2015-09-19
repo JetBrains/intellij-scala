@@ -170,9 +170,9 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
       case c: PsiClass if !c.isInterface => true
       case _ => false
     } match {
-      case Some(s: ScSyntheticClass) if Some(s) == AnyVal.asClass(getProject) => //do nothing
-      case Some(s: ScSyntheticClass) if Some(s) == AnyRef.asClass(getProject) ||
-        Some(s) == Any.asClass(getProject) =>
+      case Some(s: ScSyntheticClass) if AnyVal.asClass(getProject).contains(s) => //do nothing
+      case Some(s: ScSyntheticClass) if AnyRef.asClass(getProject).contains(s) ||
+        Any.asClass(getProject).contains(s) =>
         buffer -= s
         if (javaObjectClass != null)
           buffer += javaObjectClass
