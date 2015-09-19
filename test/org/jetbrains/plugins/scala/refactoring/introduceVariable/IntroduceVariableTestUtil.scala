@@ -50,7 +50,7 @@ object IntroduceVariableTestUtil {
   }
 
   def getTypeValidator(project: Project, editor: Editor, file: ScalaFile, startOffset: Int, endOffset: Int): ScalaTypeValidator = {
-    val typeElement = ScalaRefactoringUtil.getTypeEement(project, editor, file, startOffset, endOffset).get
+    val typeElement = ScalaRefactoringUtil.getTypeElement(project, editor, file, startOffset, endOffset).get
 
     val fileEncloser = ScalaRefactoringUtil.fileEncloser(startOffset, file)
     val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, fileEncloser)

@@ -57,7 +57,7 @@ trait IntroduceTypeAlias {
       }
 
       if (IntroduceTypeAliasData.possibleScopes.isEmpty) {
-        showErrorMessage(ScalaBundle.message("cannot.refactor.not.script.file"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
+        showErrorMessage(ScalaBundle.message("cannot.refactor.scope.not.found"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
       }
 
       def runWithDialog(fromInplace: Boolean, mainScope: ScopeItem, enteredName: String = "") {
