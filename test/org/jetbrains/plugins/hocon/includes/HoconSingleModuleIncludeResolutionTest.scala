@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.hocon.includes
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.testFramework.LightPlatformTestCase
-import org.jetbrains.plugins.hocon.HoconLightPlatformCodeInsightTestCase
+import org.jetbrains.plugins.hocon.HoconLightMultiFileTestCase
 
-class HoconSingleModuleIncludeResolutionTest extends HoconLightPlatformCodeInsightTestCase with HoconIncludeResolutionTest {
+class HoconSingleModuleIncludeResolutionTest extends HoconLightMultiFileTestCase with HoconIncludeResolutionTest {
 
   protected def project: Project = LightPlatformTestCase.getProject
 

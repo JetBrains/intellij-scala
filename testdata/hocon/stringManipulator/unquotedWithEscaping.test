@@ -1,6 +1,6 @@
-k = simple
+k = <caret>simple
 -----
-5,[multi
+[multi
 line]
 -----
 k = "multi\nline"

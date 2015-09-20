@@ -2,9 +2,9 @@ package org.jetbrains.plugins.hocon.includes
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{TokenType, PsiComment, PsiFile, PsiManager}
+import com.intellij.psi.{PsiFile, PsiManager, TokenType}
 import com.intellij.testFramework.UsefulTestCase
-import org.jetbrains.plugins.hocon.lexer.{HoconTokenType, HoconTokenSets}
+import org.jetbrains.plugins.hocon.lexer.HoconTokenType
 import org.jetbrains.plugins.hocon.psi.{HIncludeTarget, HoconPsiFile}
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert._

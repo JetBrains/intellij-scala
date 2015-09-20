@@ -25,5 +25,6 @@ object JavaInterop {
     def apply[A](values: A*): JList[A] =
       JavaConversions.seqAsJavaList(values)
   }
+
 }
 

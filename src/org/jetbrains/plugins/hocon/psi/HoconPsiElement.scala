@@ -94,6 +94,7 @@ sealed trait HKeyedField extends HoconPsiElement with HInnerElement with HScope 
   }
 
   def key = findChild[HKey]
+
   def validKey = key.filter(_.isValidKey)
 
   /**

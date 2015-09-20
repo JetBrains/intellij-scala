@@ -1,6 +1,6 @@
-k = """value"""
+k = """<caret>value"""
 -----
-8,[some
+[some
 multi
 line
 text]
