@@ -98,6 +98,21 @@ class IncludedFileReferenceSet(text: String, element: PsiElement, absolute: Bool
 
 }
 
+object IncludedFileReference {
+  val ResolveResultOrdering = Ordering.by { rr: ResolveResult =>
+    rr.getElement match {
+      case file: PsiFile =>
+        val name = file.getName
+        if (name.endsWith(ConfExt)) 0
+        else if (name.endsWith(JsonExt)) 1
+        else if (name.endsWith(PropsExt)) 2
+        else 3
+      case _ =>
+        3
+    }
+  }
+}
+
 class IncludedFileReference(refSet: FileReferenceSet, range: TextRange, index: Int, text: String)
   extends FileReference(refSet, range, index, text) {
 
@@ -105,6 +120,15 @@ class IncludedFileReference(refSet: FileReferenceSet, range: TextRange, index: I
     isLast && text.nonEmpty && text != "." && text != ".." && text != "/" &&
       !text.endsWith(ConfExt) && !text.endsWith(JsonExt) && !text.endsWith(PropsExt)
 
+
+  override def innerResolve(caseSensitive: Boolean, containingFile: PsiFile): Array[ResolveResult] = {
+    val result = super.innerResolve(caseSensitive, containingFile)
+
+    // Sort the files so that .conf files come first, .json files after then and .properties files at the end
+    // This is to mimic Typesafe Config which merges included files in exactly that order.
+    ju.Arrays.sort(result, IncludedFileReference.ResolveResultOrdering)
+    result
+  }
 
   override def innerResolveInContext(text: String, context: PsiFileSystemItem, result: ju.Collection[ResolveResult],
                                      caseSensitive: Boolean) =
