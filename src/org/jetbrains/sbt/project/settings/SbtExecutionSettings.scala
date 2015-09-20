@@ -15,4 +15,5 @@ class SbtExecutionSettings(val vmExecutable: File,
                            val customSbtStructureDir: Option[String],
                            val jdk: Option[String],
                            val resolveClassifiers: Boolean,
-                           val resolveSbtClassifiers: Boolean) extends ExternalSystemExecutionSettings
+                           val resolveSbtClassifiers: Boolean,
+                           val cachedUpdate: Boolean) extends ExternalSystemExecutionSettings
