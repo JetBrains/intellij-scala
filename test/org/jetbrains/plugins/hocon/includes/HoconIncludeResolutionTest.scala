@@ -6,6 +6,7 @@ import com.intellij.psi.{PsiFile, PsiManager, TokenType}
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.hocon.lexer.HoconTokenType
 import org.jetbrains.plugins.hocon.psi.{HIncludeTarget, HoconPsiFile}
+import org.jetbrains.plugins.hocon.ref.IncludedFileReference
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert._
 
@@ -40,7 +41,14 @@ trait HoconIncludeResolutionTest {
         val expectedFiles = prevComments.map(_.getText.stripPrefix("#")).mkString(",")
           .split(',').iterator.map(_.trim).filter(_.nonEmpty).map(findFile).toSet
 
-        val actualFiles = it.getFileReferences.last.multiResolve(false).iterator
+        val resolveResults = it.getFileReferences.last.multiResolve(false)
+        resolveResults.sliding(2).foreach {
+          case Array(rr1, rr2) =>
+            assertTrue(IncludedFileReference.ResolveResultOrdering.lteq(rr1, rr2))
+          case _ =>
+        }
+
+        val actualFiles = resolveResults.iterator
           .map(_.getElement.asInstanceOf[PsiFile].getVirtualFile).toSet
 
         assertEquals(it.parent.getText, expectedFiles, actualFiles)
