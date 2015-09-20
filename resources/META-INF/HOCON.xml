@@ -7,7 +7,7 @@
                            implementationClass="org.jetbrains.plugins.hocon.parser.HoconParserDefinition"/>
     <lang.braceMatcher language="HOCON" implementationClass="org.jetbrains.plugins.hocon.misc.HoconBraceMatcher"/>
     <lang.foldingBuilder language="HOCON" implementationClass="org.jetbrains.plugins.hocon.misc.HoconFoldingBuilder"/>
-    <quoteHandler fileType="HOCON" className="org.jetbrains.plugins.hocon.misc.HoconQuoteHandler"/>
+    <quoteHandler fileType="HOCON" className="org.jetbrains.plugins.hocon.editor.HoconQuoteHandler"/>
     <annotator language="HOCON"
                implementationClass="org.jetbrains.plugins.hocon.highlight.HoconSyntaxHighlightingAnnotator"/>
     <annotator language="HOCON"
@@ -21,7 +21,7 @@
         implementation="org.jetbrains.plugins.hocon.codestyle.HoconLanguageCodeStyleSettingsProvider"/>
     <lang.formatter language="HOCON"
                     implementationClass="org.jetbrains.plugins.hocon.formatting.HoconFormattingModelBuilder"/>
-    <lang.commenter language="HOCON" implementationClass="org.jetbrains.plugins.hocon.misc.HoconCommenter"/>
+    <lang.commenter language="HOCON" implementationClass="org.jetbrains.plugins.hocon.editor.HoconCommenter"/>
     <lang.elementManipulator forClass="org.jetbrains.plugins.hocon.psi.HString"
                              implementationClass="org.jetbrains.plugins.hocon.manipulators.HStringManipulator"/>
     <psi.referenceContributor implementation="org.jetbrains.plugins.hocon.ref.HoconReferenceContributor"/>
@@ -36,5 +36,9 @@
     <highlightUsagesHandlerFactory
         implementation="org.jetbrains.plugins.hocon.highlight.HoconHighlightUsagesHandlerFactory"/>
     <breadcrumbsInfoProvider implementation="org.jetbrains.plugins.hocon.misc.HoconBreadcrumbsInfoProvider"/>
+
+    <enterHandlerDelegate implementation="org.jetbrains.plugins.hocon.editor.EnterInHashCommentHandler" />
+    <enterHandlerDelegate implementation="org.jetbrains.plugins.hocon.editor.HoconEnterBetweenBracesHandler" />
+    <joinLinesHandler implementation="org.jetbrains.plugins.hocon.editor.HoconCommentJoinLinesHandler"/>
   </extensions>
 </idea-plugin>
