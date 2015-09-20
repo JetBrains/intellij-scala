@@ -4,8 +4,8 @@ import java.io.File
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{ProjectRootManager, DependencyScope, LibraryOrderEntry, ModuleRootManager}
-import com.intellij.openapi.vfs.{VirtualFile, LocalFileSystem}
+import com.intellij.openapi.roots.{DependencyScope, LibraryOrderEntry, ModuleRootManager}
+import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
 import com.intellij.testFramework.fixtures._
@@ -21,6 +21,7 @@ class HoconMultiModuleIncludeResolutionTest extends UsefulTestCase with HoconInc
   private val testdataPath = "testdata/hocon/includes/multimodule"
 
   protected def project: Project = fixture.getProject
+
   protected def contentRoots: Array[VirtualFile] =
     Array(LocalFileSystem.getInstance.findFileByPath(testdataPath))
 

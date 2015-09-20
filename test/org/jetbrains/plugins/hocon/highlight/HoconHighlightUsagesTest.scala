@@ -6,6 +6,7 @@ import com.intellij.testFramework.fixtures.LightPlatformCodeInsightFixtureTestCa
  * @author ghik
  */
 class HoconHighlightUsagesTest extends LightPlatformCodeInsightFixtureTestCase {
+
   import org.junit.Assert._
 
   override def getTestDataPath: String = "testdata/hocon/highlight/usages"
