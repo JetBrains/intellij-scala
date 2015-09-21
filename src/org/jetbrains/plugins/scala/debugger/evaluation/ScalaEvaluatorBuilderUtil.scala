@@ -689,7 +689,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             case _ => throw EvaluationException(ScalaBundle.message("cannot.evaluate.parameter", param.name))
           }
         case caseCl: ScCaseClause => patternEvaluator(caseCl, named)
-        case _: ScGenerator | _: ScEnumerator if isNotUsedEnumerator(named, position.getElementAt) =>
+        case _: ScGenerator | _: ScEnumerator if position != null && isNotUsedEnumerator(named, position.getElementAt) =>
           throw EvaluationException(ScalaBundle.message("not.used.from.for.statement", name))
         case LazyVal(_) => localLazyValEvaluator(named)
         case _ => new ScalaLocalVariableEvaluator(name, fileName)
