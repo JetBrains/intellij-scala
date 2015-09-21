@@ -75,6 +75,10 @@ class CachedTest extends CachedTestBase {
 
       thread1.start() //this thread should be waiting on acquiring the lock
       thread2.start() //this thread should be waiting outside synchronize block
+      while (thread1.getState != Thread.State.WAITING && thread2.getState != Thread.State.WAITING) {
+        //busy waiting is bad, but this is in a test, so it is fine. Should put a timeout here?
+        Thread.`yield`()
+      }
       Foo.allThreadsStartedLock.unlock()
       (thread1, thread2)
     }
