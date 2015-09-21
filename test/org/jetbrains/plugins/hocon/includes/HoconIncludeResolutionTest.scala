@@ -33,10 +33,9 @@ trait HoconIncludeResolutionTest {
 
     psiFile.depthFirst.foreach {
       case it: HIncludeTarget =>
-        val prevComments = it.parent.parent.prevSiblings
-          .filter(e => e.getNode.getElementType != TokenType.WHITE_SPACE)
+        val prevComments = it.parent.parent.nonWhitespaceChildren
           .takeWhile(e => e.getNode.getElementType == HoconTokenType.HashComment)
-          .toVector.reverse
+          .toVector
 
         val references = it.getFileReferences
 

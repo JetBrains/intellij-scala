@@ -31,20 +31,23 @@ class HoconPsiParser extends PsiParser {
       override def getEdgePosition(tokens: ju.List[IElementType], atStreamEdge: Boolean, getter: TokenTextGetter) = {
 
         @tailrec
-        def docCommentsStart(acc: Int, i: Int): Int = {
-          lazy val token = tokens.get(i)
-          lazy val hashCommentStartingLine =
-            token == HashComment && (atStreamEdge || (i > 0 && tokens.get(i - 1) == LineBreakingWhitespace))
-          lazy val whitespaceAfterHashComment =
-            i > 0 && tokens.get(i - 1) == HashComment && token == LineBreakingWhitespace &&
-              getter.get(i).charIterator.count(_ == '\n') <= 1
+        def goThrough(commentToken: IElementType, resultSoFar: Int, i: Int): Int = {
+          def token = tokens.get(i)
+          def text = getter.get(i)
 
-          if (i >= tokens.size || !WhitespaceOrComment.contains(token)) acc
-          else if (hashCommentStartingLine || whitespaceAfterHashComment) docCommentsStart(acc, i + 1)
-          else docCommentsStart(i + 1, i + 1)
+          def entireLineComment =
+            token == commentToken && (if (i > 0) tokens.get(i - 1) == LineBreakingWhitespace else atStreamEdge)
+          def noBlankLineWhitespace =
+            Whitespace.contains(token) && text.charIterator.count(_ == '\n') <= 1
+
+          if (i < 0) resultSoFar
+          else if (noBlankLineWhitespace) goThrough(commentToken, resultSoFar, i - 1)
+          else if (entireLineComment) goThrough(commentToken, i, i - 1)
+          else resultSoFar
         }
 
-        docCommentsStart(0, 0)
+        val dsCommentsStart = goThrough(DoubleSlashComment, tokens.size, tokens.size - 1)
+        goThrough(HashComment, dsCommentsStart, dsCommentsStart - 1)
       }
     }
 
@@ -167,11 +170,11 @@ class HoconPsiParser extends PsiParser {
 
     def parseInclude() = {
       val marker = builder.mark()
-
       advanceLexer()
       parseIncluded()
-
       marker.done(Include)
+
+      marker.setCustomEdgeTokenBinders(DocumentationCommentsBinder, WhitespacesBinders.DEFAULT_RIGHT_BINDER)
     }
 
     def parseIncluded(): Unit = {
