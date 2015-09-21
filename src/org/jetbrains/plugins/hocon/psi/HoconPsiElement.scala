@@ -46,7 +46,7 @@ sealed abstract class HoconPsiElement(ast: ASTNode) extends ASTWrapperPsiElement
     Iterator.iterate(getNextSibling)(_.getNextSibling).takeWhile(_ != null)
 
   def nonWhitespaceChildren =
-    allChildren.filterNot(ch => HoconTokenSets.Whitespace.contains(ch.getNode.getElementType))
+    allChildren.filterNot(ch => ch.getNode.getElementType == TokenType.WHITE_SPACE)
 
   def findChildren[T <: HoconPsiElement : ClassTag] =
     allChildren.collect {
