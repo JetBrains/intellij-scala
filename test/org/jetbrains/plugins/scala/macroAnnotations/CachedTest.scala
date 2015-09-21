@@ -37,7 +37,6 @@ class CachedTest extends CachedTestBase {
       @volatile
       var cachedFunctionHasBeenRan: Boolean = false
 
-      //volatile should not be needed, since the main thread waits for all others to finish, but let's keep it here for extra safety
       @volatile
       var assertsFailed = 0
 
@@ -45,6 +44,7 @@ class CachedTest extends CachedTestBase {
 
       @Cached(synchronized = true)
       def runSyncronized(): Unit = {
+
         allThreadsStartedLock.lock()
         try {
           Assert.assertTrue(!cachedFunctionHasBeenRan)
@@ -87,5 +87,18 @@ class CachedTest extends CachedTestBase {
     t1.join()
     t2.join()
     Assert.assertEquals(0, Foo.assertsFailed)
+  }
+
+  def testModificationTrackers(): Unit = {
+    object Foo extends Managed {
+      @Cached(modificationCount = ModCount.OutOfCodeBlockModificationCount)
+      def currentTime: Long = System.currentTimeMillis()
+    }
+
+    val firstRes = Foo.currentTime
+    Thread.sleep(1)
+    Assert.assertEquals(firstRes, Foo.currentTime)
+    Foo.getManager.getModificationTracker.incOutOfCodeBlockModificationCounter()
+    Assert.assertTrue(firstRes < Foo.currentTime)
   }
 }
