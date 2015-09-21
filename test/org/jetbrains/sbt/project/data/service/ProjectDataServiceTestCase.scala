@@ -4,7 +4,7 @@ import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectSystemId}
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationSource}
-import com.intellij.openapi.externalSystem.service.project.PlatformFacade
+import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProviderImpl
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
 import com.intellij.openapi.roots.ex.ProjectRootManagerEx
@@ -23,8 +23,7 @@ abstract class ProjectDataServiceTestCase extends PlatformTestCase {
         ProjectRootManagerEx.getInstanceEx(getProject).mergeRootsChangesDuring(new Runnable() {
           override def run(): Unit = {
             val projectDataManager = ServiceManager.getService(classOf[ProjectDataManager])
-            val platformFacade = ServiceManager.getService(classOf[PlatformFacade])
-            projectDataManager.importData(projectData, getProject, platformFacade, true)
+            projectDataManager.importData(projectData, getProject, new IdeModifiableModelsProviderImpl(getProject), true);
           }
         })
     })
