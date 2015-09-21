@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.hocon
 
 import scala.collection.JavaConversions
+import scala.collection.convert.{DecorateAsJava, DecorateAsScala}
 
-object JavaInterop {
+object JavaInterop extends DecorateAsJava with DecorateAsScala {
   type JIterator[A] = java.util.Iterator[A]
   type JIterable[A] = java.lang.Iterable[A]
   type JCollection[A] = java.util.Collection[A]
