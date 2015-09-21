@@ -1,4 +1,5 @@
-package org.jetbrains.sbt.settings
+package org.jetbrains.sbt
+package settings
 
 import java.util
 
@@ -7,7 +8,9 @@ import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSetti
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.psi.PsiElement
 import com.intellij.util.containers.ContainerUtilRt
 import com.intellij.util.xmlb.annotations.AbstractCollection
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener, SbtProjectSettingsListenerAdapter, SbtTopic}
@@ -97,23 +100,17 @@ class SbtSystemSettings(project: Project)
 
   def copyExtraSettingsFrom(settings: SbtSystemSettings) {}
 
-  def getLinkedProjectSettings(module: Module): SbtProjectSettings = {
-    val linkedSettings = getLinkedProjectsSettings.asScala
-    linkedSettings.foldLeft(null.asInstanceOf[SbtProjectSettings]) { (acc, settings) =>
-      // TODO: This is a workaround based on assumption that IDEA module's .iml file will
-      // always be located in the same dir where linked project's build.sbt file is.
-      // What we really need is a way of tracking linked projects which will
-      // allow retrieval of their settings using Module object, because linked projects
-      // are IDEA's modules after all.
-      // It's either our bug or External system's missing feature.
-      // @dancingrobot84
-      if (settings.getModules.asScala.exists { m => FileUtil.isAncestor(m, module.getModuleFilePath, false) }
-              || FileUtil.isAncestor(settings.getExternalProjectPath, module.getModuleFilePath, false))
-        settings
-      else
-        acc
-    }
-  }
+  def getLinkedProjectSettings(module: Module): Option[SbtProjectSettings] =
+    Option(ExternalSystemApiUtil.getExternalRootProjectPath(module)).safeMap(getLinkedProjectSettings)
+
+  def getLinkedProjectSettings(element: PsiElement): Option[SbtProjectSettings] =
+    for {
+      virtualFile <- Option(element.getContainingFile).safeMap(_.getVirtualFile)
+      projectFileIndex = ProjectRootManager.getInstance(element.getProject).getFileIndex
+      module <- Option(projectFileIndex.getModuleForFile(virtualFile))
+      if project == element.getProject
+      projectSettings <- getLinkedProjectSettings(module)
+    } yield projectSettings
 
   override def getLinkedProjectSettings(linkedProjectPath: String): SbtProjectSettings =
     Option(super.getLinkedProjectSettings(linkedProjectPath))
