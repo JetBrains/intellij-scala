@@ -85,7 +85,7 @@ package object project {
     def libraries: Set[Library] = {
       val collector = new CollectProcessor[Library]()
       OrderEnumerator.orderEntries(module).librariesOnly().forEachLibrary(collector)
-      collector.getResults.asScala.filter(_.getName.contains(ScalaLibraryName)).toSet
+      collector.getResults.asScala.toSet
     }
 
     def scalaLibraries: Set[Library] =
