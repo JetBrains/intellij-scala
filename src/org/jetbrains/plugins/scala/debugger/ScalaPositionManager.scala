@@ -110,9 +110,12 @@ class ScalaPositionManager(debugProcess: DebugProcess) extends PositionManager w
     inReadAction {
       val onTheLine = possiblePositions.map(findGeneratingClassOrMethodParent)
       if (onTheLine.isEmpty) return Collections.emptyList()
-      val nonLambdaParents = onTheLine.head.parentsInFile.filter(p => ScalaEvaluatorBuilderUtil.isGenerateNonAnonfunClass(p))
+      val nonLambdaParent =
+        if (isCompiledWithIndyLambdas(file))
+          onTheLine.head.parentsInFile.find(p => ScalaEvaluatorBuilderUtil.isGenerateNonAnonfunClass(p))
+        else None
 
-      val sourceImages = onTheLine ++ nonLambdaParents
+      val sourceImages = onTheLine ++ nonLambdaParent
       sourceImages.foreach {
         case null =>
         case td: ScTypeDefinition if !DebuggerUtil.isLocalClass(td) =>
