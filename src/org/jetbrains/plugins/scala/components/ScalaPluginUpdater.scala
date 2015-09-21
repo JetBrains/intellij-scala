@@ -94,8 +94,10 @@ object ScalaPluginUpdater {
   @throws(classOf[InvalidRepoException])
   def doUpdatePluginHostsAndCheck(branch: ScalaApplicationSettings.pluginBranch) = {
     doUpdatePluginHosts(branch)
-    UpdateChecker.updateAndShowResult()
-      .doWhenDone(toRunnable(postCheckIdeaCompatibility(branch)))
+    if(UpdateSettings.getInstance().isCheckNeeded) {
+      UpdateChecker.updateAndShowResult()
+        .doWhenDone(toRunnable(postCheckIdeaCompatibility(branch)))
+    }
   }
 
   def getScalaPluginBranch: ScalaApplicationSettings.pluginBranch = {
