@@ -1202,16 +1202,10 @@ object ScalaEvaluatorBuilderUtil {
 
   def isGenerateAnonfun(elem: PsiElement): Boolean = {
     def isGenerateAnonfunWithCache: Boolean = {
-      def argumentWithExpectedFunctionalType(expr: ScExpression) = {
-        ScalaPsiUtil.parameterOf(expr) match {
-          case Some(p) => p.isByName || ScFunctionType.isFunctionType(p.paramType)
-          case _ => false
-        }
-      }
 
       def computation = elem match {
         case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
-        case e: ScExpression if argumentWithExpectedFunctionalType(e) => true
+        case e: ScExpression if ScalaPsiUtil.isByNameArgument(e) || ScalaPsiUtil.isArgumentOfFunctionType(e) => true
         case ScalaPsiUtil.MethodValue(_) => true
         case _ => false
       }
