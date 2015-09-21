@@ -74,7 +74,9 @@ class CachedTest extends CachedTestBase {
       thread2.setUncaughtExceptionHandler(eh)
 
       thread1.start() //this thread should be waiting on acquiring the lock
-      thread2.start() //this thread should be waiting outside synchronize block
+      thread2.start() //this thread should be waiting outside synchronized block
+      //NOTE: we are not guaranteed which thread will be waiting where. They might switch, but that's still fine
+
       while (thread1.getState != Thread.State.WAITING && thread2.getState != Thread.State.WAITING) {
         //busy waiting is bad, but this is in a test, so it is fine. Should put a timeout here?
         Thread.`yield`()
@@ -100,5 +102,23 @@ class CachedTest extends CachedTestBase {
     Assert.assertEquals(firstRes, Foo.currentTime)
     Foo.getManager.getModificationTracker.incOutOfCodeBlockModificationCounter()
     Assert.assertTrue(firstRes < Foo.currentTime)
+  }
+
+  def testWithParameters(): Unit = {
+    object Foo extends Managed {
+      @Cached
+      def currentTime(a: Int, b: Int): Long = System.currentTimeMillis()
+    }
+
+    val firstRes = Foo.currentTime(0, 0)
+    Thread.sleep(1)
+    Assert.assertEquals(firstRes, Foo.currentTime(0, 0))
+    Assert.assertTrue(firstRes < Foo.currentTime(1, 0))
+    Assert.assertTrue(firstRes < Foo.currentTime(0, 1))
+    Foo.getManager.getModificationTracker.incCounter()
+    val secondRes = Foo.currentTime(0, 0)
+    Assert.assertTrue(firstRes < secondRes)
+    Thread.sleep(1)
+    Assert.assertEquals(secondRes, Foo.currentTime(0, 0))
   }
 }

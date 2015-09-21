@@ -21,7 +21,6 @@ object CachedMacro {
 
     def parameters: (Boolean, ModCount.Value) = {
       val raw: String = showRaw(c.prefix.tree)
-      println(raw)
       c.prefix.tree match {
         case q"new Cached(..$params)" =>
           var synch: Option[Boolean] = None
@@ -46,43 +45,78 @@ object CachedMacro {
 
     //todo: caching two function with the same name
     //todo: cache with parameters
+    //todo: support recursion guard
     annottees.toList match {
-      case d@DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil if params.forall(_.isEmpty) =>
-        //it's an empty parameter function
+      case d@DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
+        println(retTp)
+        if (retTp.toString() == "<type ?>") {
+          abort("You must specify return type")
+        }
 
         val (synchronized, modCount) = parameters
+        val flattennedParams = params.flatten
+
 
         val cacheVarName = TermName(name.toString + "Cache_")
         val modCountVarName = TermName(name.toString + "ModCount_")
+        val mapName = TermName(name.toString + "CacheMap")
+
+        val retTpOpt = tq"Option[$retTp]"
+        val fields = if (flattennedParams.isEmpty) {
+          q"""
+            @volatile
+            private var $cacheVarName: Option[$retTp] = None
+            @volatile
+            private var $modCountVarName: Long = 0L
+
+          """
+        } else {
+          //has parameters, so we have to use a map
+          q"""
+            private val $mapName =
+              com.intellij.util.containers.ContainerUtil.newConcurrentMap[(..${flattennedParams.map(_.tpt)}), ($retTp, Long)]()
+          """
+        }
+
+        val paramNames = flattennedParams.map(_.name)
 
         val functionContents = q"""
             val modCount = getManager.getModificationTracker.${TermName(modCount.toString)}
+            ..${if (flattennedParams.nonEmpty) {
+                q"""
+                  var ($cacheVarName, $modCountVarName) = Option($mapName.get(..$paramNames)) match {
+                    case Some((res, count)) => (Some(res), count)
+                    case _ => (None, 0L)
+                  }
+                """
+              } else q""
+            }
             if ($cacheVarName.isDefined && $modCountVarName == modCount) $cacheVarName.get
             else {
               $cacheVarName = Some(calc())
               $modCountVarName = modCount
+              ..${if (flattennedParams.nonEmpty) {
+                q"$mapName.put((..$paramNames), ($cacheVarName.get, $modCountVarName))"
+                } else q""
+              }
               $cacheVarName.get
             }
           """
         val res = q"""
-
-          @volatile
-          var $cacheVarName: Option[$retTp] = None
-
-          @volatile
-          var $modCountVarName: Long = 0L
-
-          $mods def $name[..$tpParams](): $retTp = {
+          ..$fields
+          $mods def $name[..$tpParams](...$params): $retTp = {
             def calc(): $retTp = $rhs
 
-            ${ if (synchronized) q"synchronized { $functionContents }" else functionContents }
+            ..${ if (synchronized) q"synchronized { $functionContents }" else functionContents }
           }
 
           """
-        println(res)
+        if (flattennedParams.nonEmpty) {
+          println(res)
+        }
         c.Expr(res)
       case _ =>
-        c.abort(c.enclosingPosition, "You can only annotate one function!")
+        abort("You can only annotate one function!")
     }
   }
 }
