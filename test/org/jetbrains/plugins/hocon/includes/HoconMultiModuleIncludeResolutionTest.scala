@@ -4,12 +4,13 @@ import java.io.File
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{DependencyScope, LibraryOrderEntry, ModuleRootManager}
+import com.intellij.openapi.roots.{DependencyScope, LibraryOrderEntry, ModuleRootManager, OrderRootType}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
 import com.intellij.testFramework.fixtures._
 import org.jetbrains.jps.model.java.JavaSourceRootType
+import org.jetbrains.plugins.hocon.JavaInterop._
 import org.jetbrains.plugins.scala.extensions._
 
 /**
@@ -36,8 +37,14 @@ class HoconMultiModuleIncludeResolutionTest extends UsefulTestCase with HoconInc
     val moduleFixtures = moduleDirs.map { dir =>
       val builder = fixtureBuilder.addModule(classOf[JavaModuleFixtureBuilder[ModuleFixture]])
       builder.addContentRoot(dir.getPath)
-      builder.addLibrary(dir.getName + "lib", new File(dir, "lib").getPath)
-      builder.addLibrary(dir.getName + "testlib", new File(dir, "testlib").getPath)
+
+      def subpath(name: String) = new File(dir, name).getPath
+      def libMapping(lib: String) =
+        Map(OrderRootType.CLASSES -> lib, OrderRootType.SOURCES -> (lib + "src"))
+          .mapValues(s => Array(subpath(s))).asJava
+
+      builder.addLibrary(dir.getName + "lib", libMapping("lib"))
+      builder.addLibrary(dir.getName + "testlib", libMapping("testlib"))
       (dir.getName, builder.getFixture)
     }.toMap
 
@@ -104,6 +111,18 @@ class HoconMultiModuleIncludeResolutionTest extends UsefulTestCase with HoconInc
     checkFile("modA/lib/including.conf")
   }
 
+  def testIncludeInLibrarySources(): Unit = {
+    checkFile("modC/libsrc/including.conf")
+  }
+
+  def testIncludeInLibrarySourcesFromModuleDependency(): Unit = {
+    checkFile("modB/libsrc/including.conf")
+  }
+
+  def testIncludeInLibrarySourcesFromTransitiveModuleDependency(): Unit = {
+    checkFile("modA/libsrc/including.conf")
+  }
+
   def testIncludeInTestsFromLibrary(): Unit = {
     checkFile("modC/testsrc/including.conf")
   }
@@ -126,5 +145,21 @@ class HoconMultiModuleIncludeResolutionTest extends UsefulTestCase with HoconInc
 
   def testIncludeInTestLibraryFromTransitiveModuleDependency(): Unit = {
     checkFile("modA/testlib/including.conf")
+  }
+
+  def testIncludeInTestLibrarySources(): Unit = {
+    checkFile("modC/testlibsrc/including.conf")
+  }
+
+  def testIncludeInTestLibrarySourcesFromModuleDependency(): Unit = {
+    checkFile("modB/testlibsrc/including.conf")
+  }
+
+  def testIncludeInTestLibrarySourcesFromTransitiveModuleDependency(): Unit = {
+    checkFile("modA/testlibsrc/including.conf")
+  }
+
+  def testIncludeFromNonSourceDirectory(): Unit = {
+    checkFile("modC/other/including.conf")
   }
 }

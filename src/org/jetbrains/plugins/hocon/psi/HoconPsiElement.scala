@@ -4,6 +4,7 @@ import java.{lang => jl}
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReference
@@ -13,6 +14,7 @@ import org.jetbrains.plugins.hocon.HoconConstants._
 import org.jetbrains.plugins.hocon.lexer.{HoconTokenSets, HoconTokenType}
 import org.jetbrains.plugins.hocon.parser.HoconElementType
 import org.jetbrains.plugins.hocon.ref.IncludedFileReferenceSet
+import org.jetbrains.plugins.scala.extensions._
 
 import scala.reflect.{ClassTag, classTag}
 
@@ -196,21 +198,32 @@ final class HIncluded(ast: ASTNode) extends HoconPsiElement(ast) with HInnerElem
 
   def target = findChild[HIncludeTarget]
 
-  def fileReferenceSet = target.flatMap { hs =>
-    val strVal = hs.stringValue
-    def refSet(absolute: Boolean) =
-      new IncludedFileReferenceSet(strVal, hs, absolute)
+  def fileReferenceSet =
+    for {
+      hs <- target
+      vf <- getContainingFile.getOriginalFile.getVirtualFile.toOption
+      rs <- {
+        val strVal = hs.stringValue
 
-    // com.typesafe.config.impl.SimpleIncluder#includeWithoutFallback
-    qualifier match {
-      case Some(ClasspathQualifier) =>
-        Some(refSet(absolute = true))
-      case None if !isValidUrl(strVal) =>
-        Some(refSet(absolute = false))
-      case _ =>
-        None
-    }
-  }
+        val (absolute, forcedAbsolute, fromClasspath) = qualifier match {
+          case Some(ClasspathQualifier) => (true, true, true)
+          case None if !isValidUrl(strVal) =>
+            val pfi = ProjectRootManager.getInstance(getProject).getFileIndex
+            val fromClasspath = pfi.isInSource(vf) || pfi.isInLibraryClasses(vf)
+            (strVal.trim.startsWith("/"), false, fromClasspath)
+          case _ => (true, true, false)
+        }
+
+        // Include resolution is enabled for:
+        // - classpath() includes anywhere
+        // - unqualified includes in classpath (source or library) files
+        // - relative unqualified includes in non-classpath files
+        if (!absolute || fromClasspath)
+          Some(new IncludedFileReferenceSet(strVal, hs, forcedAbsolute, fromClasspath))
+        else
+          None
+      }
+    } yield rs
 }
 
 final class HKey(ast: ASTNode) extends HoconPsiElement(ast) with HInnerElement {

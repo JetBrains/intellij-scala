@@ -38,21 +38,27 @@ trait HoconIncludeResolutionTest {
           .takeWhile(e => e.getNode.getElementType == HoconTokenType.HashComment)
           .toVector.reverse
 
-        val expectedFiles = prevComments.map(_.getText.stripPrefix("#")).mkString(",")
-          .split(',').iterator.map(_.trim).filter(_.nonEmpty).map(findFile).toSet
+        val references = it.getFileReferences
 
-        val resolveResults = it.getFileReferences.last.multiResolve(false)
-        resolveResults.sliding(2).foreach {
-          case Array(rr1, rr2) =>
-            assertTrue(IncludedFileReference.ResolveResultOrdering.lteq(rr1, rr2))
-          case _ =>
+        if (prevComments.nonEmpty) {
+          assertTrue("No references in " + it.parent.getText, references.nonEmpty)
+          val resolveResults = references.last.multiResolve(false)
+          resolveResults.sliding(2).foreach {
+            case Array(rr1, rr2) =>
+              assertTrue(IncludedFileReference.ResolveResultOrdering.lteq(rr1, rr2))
+            case _ =>
+          }
+
+          val expectedFiles = prevComments.map(_.getText.stripPrefix("#")).mkString(",")
+            .split(',').iterator.map(_.trim).filter(_.nonEmpty).map(findFile).toSet
+
+          val actualFiles = resolveResults.iterator
+            .map(_.getElement.asInstanceOf[PsiFile].getVirtualFile).toSet
+
+          assertEquals(it.parent.getText, expectedFiles, actualFiles)
+        } else {
+          assertTrue("Expected no references in " + it.parent.getText, references.isEmpty)
         }
-
-        val actualFiles = resolveResults.iterator
-          .map(_.getElement.asInstanceOf[PsiFile].getVirtualFile).toSet
-
-        assertEquals(it.parent.getText, expectedFiles, actualFiles)
-
       case _ =>
     }
   }

@@ -8,7 +8,6 @@ import org.jetbrains.plugins.hocon.JavaInterop._
 import org.jetbrains.plugins.hocon.psi._
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
 
 class HoconHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactoryBase {
   def createHighlightUsagesHandler(editor: Editor, file: PsiFile, target: PsiElement) =
