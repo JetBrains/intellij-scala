@@ -47,10 +47,10 @@ private object ScalaGradleDataService {
         compilerClasspath = scalaNode.getData.getScalaClasspath.asScala.toSeq
       } {
         module.configureScalaCompilerSettingsFrom("Gradle", compilerOptions)
-        configureScalaSdk(module, getScalaLibraries, compilerClasspath)
+        configureScalaSdk(module, compilerClasspath)
       }
 
-    private def configureScalaSdk(module: Module, scalaLibraries: Set[Library], compilerClasspath: Seq[File]): Unit = {
+    private def configureScalaSdk(module: Module, compilerClasspath: Seq[File]): Unit = {
       val compilerVersionOption = findScalaLibraryIn(compilerClasspath).flatMap(getVersionFromJar)
       if (compilerVersionOption.isEmpty) {
         showWarning(ScalaBundle.message("gradle.dataService.scalaVersionCantBeDetected", module.getName))
@@ -58,7 +58,7 @@ private object ScalaGradleDataService {
       }
       val compilerVersion = compilerVersionOption.get
 
-      val scalaLibraryOption = scalaLibraries.find(_.scalaVersion.contains(compilerVersion))
+      val scalaLibraryOption = getScalaLibraries.find(_.scalaVersion.contains(compilerVersion))
       if (scalaLibraryOption.isEmpty) {
         showWarning(ScalaBundle.message("gradle.dataService.scalaLibraryIsNotFound", compilerVersion.number, module.getName))
         return

@@ -31,7 +31,8 @@ object SdkUtils {
   def allAndroidSdks: Seq[projectRoots.Sdk] =
     inReadAction(ProjectJdkTable.getInstance().getSdksOfType(AndroidSdkType.getInstance()).asScala)
 
-  def allJdks: Seq[projectRoots.Sdk] = inReadAction(ProjectJdkTable.getInstance.getSdksOfType(JavaSdk.getInstance).asScala)
+  def allJdks: Seq[projectRoots.Sdk] =
+    inReadAction(ProjectJdkTable.getInstance.getSdksOfType(JavaSdk.getInstance).asScala)
 
   def defaultJavaLanguageLevelIn(jdk: projectRoots.Sdk): Option[LanguageLevel] = {
     val JavaLanguageLevels = Map(
@@ -75,7 +76,6 @@ object SdkUtils {
     matchingSdks.headOption
   }
 
-  private def findJdkByHome(homeFile: File): Option[projectRoots.Sdk] = {
+  private def findJdkByHome(homeFile: File): Option[projectRoots.Sdk] =
     allJdks.find(jdk => FileUtil.comparePaths(homeFile.getCanonicalPath, jdk.getHomePath) == 0)
-  }
 }
