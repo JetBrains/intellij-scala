@@ -4,6 +4,7 @@ package project
 import java.io.File
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
@@ -22,6 +23,8 @@ import org.jetbrains.sbt.settings.SbtSystemSettings
  */
 abstract class ImportingTestCase extends ExternalSystemImportingTestCase with ProjectStructureMatcher {
 
+  val Log = Logger.getInstance(this.getClass)
+
   def testProjectDir: File = {
     val testdataPath = TestUtils.getTestDataPath + "/sbt/projects"
     new File(testdataPath, getTestName(true))
@@ -30,6 +33,8 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase with Pr
   def scalaPluginBuildOutputDir: File = new File("../../out/plugin/Scala")
 
   def runTest(expected: project): Unit = {
+    Log.warn(s"Importing project from $testProjectDir")
+    Log.assertTrue(testProjectDir.isDirectory, s"Test project in $testProjectDir is not found!")
     importProject()
     assertProjectsEqual(expected, myProject)
   }
