@@ -90,7 +90,7 @@ object ModuleExtDataService {
         targetValue <- javacOptions.lift(targetPos + 1)
         compilerSettings = CompilerConfiguration.getInstance(module.getProject)
       } {
-        compilerSettings.setBytecodeTargetLevel(module, targetValue)
+        executeProjectChangeAction(compilerSettings.setBytecodeTargetLevel(module, targetValue))
       }
     }
 

@@ -7,7 +7,8 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.project.data.SbtModuleData
 import org.jetbrains.sbt.project.module.SbtModule
-import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndex, SbtResolverIndexesManager}
+import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndexesManager}
+import org.jetbrains.plugins.scala.extensions._
 
 /**
  * @author Pavel Fatin
@@ -47,11 +48,9 @@ object SbtModuleDataService {
 
     private def updateLocalResolvers(resolvers: Set[SbtResolver]): Unit = {
       val localResolvers = resolvers.filter { resolver =>
-        resolver.associatedIndex.exists { index =>
-          index.isLocal && index.timestamp == SbtResolverIndex.NO_TIMESTAMP
-        }
+        resolver.associatedIndex.exists(_.isLocal)
       }
-      SbtResolverIndexesManager().update(localResolvers.toSeq)
+      invokeLater(SbtResolverIndexesManager().update(localResolvers.toSeq))
     }
   }
 }
