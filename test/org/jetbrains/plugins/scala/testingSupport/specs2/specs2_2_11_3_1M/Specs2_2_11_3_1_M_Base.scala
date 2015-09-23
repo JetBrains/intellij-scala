@@ -27,6 +27,6 @@ trait Specs2_2_11_3_1_M_Base extends Specs2TestCase {
 //    addLibrary("scodec", "scodec", "scodec-bits_2.11-1.1.0-SNAPSHOT.jar", "scodec-core_2.11-1.7.0-SNAPSHOT.jar")
   }
 
-  override protected val compilerDirectorySuffix: String = "2.11"
+  override protected val scalaVersion: String = "2.11"
 
 }

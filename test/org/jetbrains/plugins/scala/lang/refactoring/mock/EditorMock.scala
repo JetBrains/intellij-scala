@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.mock
 
 import com.intellij.openapi.editor.impl.DocumentImpl
-import com.intellij.openapi.editor.{CaretModel, Document, LogicalPosition, SelectionModel}
+import com.intellij.openapi.editor._
 
 /**
  * Pavel Fatin
@@ -25,4 +25,6 @@ class EditorMock(text: String, offset: Int) extends EditorStub {
 
   override def getCaretModel: CaretModel =
     new CaretModelMock(offset, offsetToLogicalPosition(offset))
+
+  override def offsetToVisualPosition(i: Int, b: Boolean, b1: Boolean): VisualPosition = null
 }

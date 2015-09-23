@@ -1,0 +1,15 @@
+object A {
+    def foo(r: Runnable) {r.run()}
+
+    foo(new Runnable {
+        override def run(): Unit = (<caret>)
+    })
+}
+-----
+object A {
+    def foo(r: Runnable) {r.run()}
+
+    foo(new Runnable {
+        override def run(): Unit = <caret>
+    })
+}

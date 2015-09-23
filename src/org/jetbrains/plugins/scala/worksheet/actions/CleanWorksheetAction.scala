@@ -29,12 +29,15 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 class CleanWorksheetAction() extends AnAction with TopComponentAction {
 
   def actionPerformed(e: AnActionEvent) {
-    val editor: Editor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
+    val project = e.getProject
+    if (project == null) return //EA-72055
+    
+    val editor: Editor = FileEditorManager.getInstance(project).getSelectedTextEditor
     val file: VirtualFile = CommonDataKeys.VIRTUAL_FILE.getData(e.getDataContext)
     
     if (editor == null || file == null) return
 
-    val psiFile: PsiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(editor.getDocument)
+    val psiFile: PsiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     val viewer =  WorksheetViewerInfo.getViewer(editor)
     
     if (psiFile == null || viewer == null) return
@@ -47,7 +50,7 @@ class CleanWorksheetAction() extends AnAction with TopComponentAction {
       inWriteAction {
         CleanWorksheetAction.resetScrollModel(viewer)
         
-        CleanWorksheetAction.cleanWorksheet(psiFile.getNode, editor, viewer, e.getProject)
+        CleanWorksheetAction.cleanWorksheet(psiFile.getNode, editor, viewer, project)
 
         parent.remove(splitPane)
         parent.add(editor.getComponent, BorderLayout.CENTER)

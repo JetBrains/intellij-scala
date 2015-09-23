@@ -1,13 +1,18 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12_M2}
 
 /**
  * Nikolay.Tropin
  * 12/9/13
  */
-class ScalaImportedEvaluationTest extends ScalaDebuggerTestCase{
+
+class ScalaImportedEvaluationTest extends ScalaImportedEvaluationTestBase with ScalaVersion_2_11
+
+class ScalaImportedEvaluationTest_2_12_M2 extends ScalaImportedEvaluationTestBase with ScalaVersion_2_12_M2
+
+abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase{
   def testImportFromObject() {
     addFileToProject("Sample.scala",
       """
@@ -103,7 +108,7 @@ class ScalaImportedEvaluationTest extends ScalaDebuggerTestCase{
         |
         |class A {
         |  class B {
-        |    val y = List(1, 2, 3)
+        |    val y = Seq(1, 2, 3)
         |  }
         |
         |  val x = "abc"
@@ -215,6 +220,44 @@ class ScalaImportedEvaluationTest extends ScalaDebuggerTestCase{
       evalEquals("bar(i1)", "1")
       evalEquals("2.triple()", "6")
       evalEquals("true.naoborot()", "false")
+    }
+  }
+
+  def testImportedFromOuterThis(): Unit = {
+    addFileToProject("Sample.scala",
+      """object Sample {
+        |  def main(args: Array[String]) {
+        |    val o = new OuterThis
+        |    val b = new o.B()
+        |    b.bar()
+        |  }
+        |}
+        |
+        |class OuterThis {
+        |
+        |  val g = new GGG
+        |  import g._
+        |
+        |  class B {
+        |    def bar() = {
+        |      val f = foo()
+        |      "stop here"
+        |    }
+        |  }
+        |}
+        |
+        |class GGG {
+        |  def foo() = 1
+        |}
+      """.stripMargin.trim)
+    addBreakpoint("Sample.scala", 16)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("foo()", "1")
+      evalStartsWith("g", "GGG")
+      evalStartsWith("OuterThis.this", "OuterThis")
+      evalStartsWith("B.this", "OuterThis$B")
+      evalStartsWith("this", "OuterThis$B")
     }
   }
 }

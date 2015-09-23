@@ -4,9 +4,12 @@ package psi
 package impl
 package statements
 
+import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -19,7 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
  * @author ilyas
  */
 
-abstract class ScFunctionImpl extends ScalaStubBasedElementImpl[ScFunction] with ScMember
+abstract class ScFunctionImpl protected (stub: StubElement[ScFunction], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScMember
 with ScFunction with ScTypeParametersOwner {
   override def isStable = false
 

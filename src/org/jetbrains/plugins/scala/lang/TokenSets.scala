@@ -8,13 +8,13 @@ package lang
 import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.util.MemberElementTypesExtension
 
 object TokenSets {
-
-  val WHITESPACE_OR_COMMENT_SET = TokenSet.create(tWHITE_SPACE_IN_LINE, tLINE_COMMENT, tBLOCK_COMMENT, tDOC_COMMENT)
+  val WHITESPACE_OR_COMMENT_SET = TokenSet.create(tWHITE_SPACE_IN_LINE, tLINE_COMMENT, tBLOCK_COMMENT, tDOC_COMMENT, SCALA_DOC_COMMENT)
 
   val MODIFIERS = TokenSet.create(ScalaTokenTypes.kCASE, ScalaTokenTypes.kABSTRACT, ScalaTokenTypes.kLAZY,
     ScalaTokenTypes.kIMPLICIT, ScalaTokenTypes.kFINAL, ScalaTokenTypes.kOVERRIDE, ScalaTokenTypes.kPROTECTED,

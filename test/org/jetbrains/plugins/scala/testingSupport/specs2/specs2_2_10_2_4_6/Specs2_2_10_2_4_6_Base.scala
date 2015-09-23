@@ -17,5 +17,5 @@ trait Specs2_2_10_2_4_6_Base extends Specs2TestCase {
     addIvyCacheLibrary("scalaz-concurrent", "org.scalaz/scalaz-concurrent_2.10/bundles", "scalaz-concurrent_2.10-7.1.0.jar")
   }
 
-  override protected val compilerDirectorySuffix: String = "2.10"
+  override protected val scalaVersion: String = "2.10"
 }

@@ -225,31 +225,24 @@ class MyScaladocParsing(private val psiBuilder: PsiBuilder) extends ScalaDocElem
     import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing._
 
     val marker = builder.mark()
-    if (isInInlinedTag) {
-      ParserUtils.getToken(builder, DOC_INLINE_TAG_START)
-    }
+    if (isInInlinedTag) ParserUtils.getToken(builder, DOC_INLINE_TAG_START)
 
     assert(builder.getTokenType eq DOC_TAG_NAME, builder.getTokenText + "  "
             + builder.getTokenType + "  " + builder.getCurrentOffset)
+
     val tagName = builder.getTokenText
-    if (!isEndOfComment) {
-      builder.advanceLexer()
-    } else {
-      builder.error("Unexpected end of tag body")
-    }
+    if (!isEndOfComment) builder.advanceLexer() else builder.error("Unexpected end of tag body")
     
-    if (isInInlinedTag) {
-      builder.error("Inline tag")
-    } else {
+    if (isInInlinedTag) builder.error("Inline tag") else {
       tagName match {
         case THROWS_TAG => 
           if (!isEndOfComment) {
             builder.advanceLexer()
           }
           StableId.parse(new ScalaPsiBuilderImpl(builder), true, DOC_TAG_VALUE_TOKEN)
-        case PARAM_TAG | TYPE_PARAM_TAG =>
+        case PARAM_TAG | TYPE_PARAM_TAG | DEFINE_TAG =>
           if (!ParserUtils.lookAhead(builder, builder.getTokenType, DOC_TAG_VALUE_TOKEN)) builder.error("Missing tag param")
-        case SEE_TAG | AUTHOR_TAG | NOTE_TAG | RETURN_TAG | DEFINE_TAG | SINCE_TAG | VERSION_TAG |
+        case SEE_TAG | AUTHOR_TAG | NOTE_TAG | RETURN_TAG | SINCE_TAG | VERSION_TAG |
              USECASE_TAG | EXAMPLE_TAG | TODO_TAG | INHERITDOC_TAG =>
           //do nothing
         case _ =>

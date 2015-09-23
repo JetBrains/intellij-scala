@@ -8,9 +8,12 @@ package patterns
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer._
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
@@ -24,7 +27,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, Typi
  * @author Alexander Podkhalyuzin
  * Date: 28.02.2008
  */
-class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScReferencePattern] with ScReferencePattern with ContributedReferenceHost {
+class ScReferencePatternImpl private (stub: StubElement[ScReferencePattern], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScReferencePattern with ContributedReferenceHost {
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
       case visitor: ScalaElementVisitor => super.accept(visitor)
@@ -32,8 +36,8 @@ class ScReferencePatternImpl private () extends ScalaStubBasedElementImpl[ScRefe
     }
   }
 
-  def this(node: ASTNode) = {this(); setNode(node)}
-  def this(stub: ScReferencePatternStub) = {this(); setStub(stub); setNullNode()}
+  def this(node: ASTNode) = {this(null, null, node)}
+  def this(stub: ScReferencePatternStub) = {this(stub, ScalaElementTypes.REFERENCE_PATTERN, null)}
 
   override def isIrrefutableFor(t: Option[ScType]): Boolean = true
 

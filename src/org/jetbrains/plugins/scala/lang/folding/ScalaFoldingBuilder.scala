@@ -5,6 +5,7 @@ package folding
 import com.intellij.lang.ASTNode
 import com.intellij.lang.folding.{FoldingBuilder, FoldingDescriptor}
 import com.intellij.openapi.editor.{Document, FoldingGroup}
+import com.intellij.openapi.project.PossiblyDumbAware
 import com.intellij.openapi.util._
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -34,7 +35,7 @@ import _root_.scala.collection.mutable._
 @author Ilya Sergey
 */
 
-class ScalaFoldingBuilder extends FoldingBuilder {
+class ScalaFoldingBuilder extends FoldingBuilder with PossiblyDumbAware {
 
   import org.jetbrains.plugins.scala.lang.folding.ScalaFoldingUtil._
 
@@ -468,6 +469,7 @@ class ScalaFoldingBuilder extends FoldingBuilder {
       node.getText.startsWith(WorksheetFoldingBuilder.LINE_PREFIX))
   }
 
+  override def isDumbAware: Boolean = true
 }
 
 private[folding] object ScalaFoldingUtil {

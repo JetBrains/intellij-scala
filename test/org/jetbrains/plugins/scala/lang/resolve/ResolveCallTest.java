@@ -95,4 +95,10 @@ public class ResolveCallTest extends ScalaResolveTestCase {
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScFunctionDefinition);
   }
+
+  public void testSCL3458() {
+    PsiReference ref = findReferenceAtCaret();
+    PsiElement resolved = ref.resolve();
+    assertTrue(resolved instanceof ScFunctionDefinition);
+  }
 }

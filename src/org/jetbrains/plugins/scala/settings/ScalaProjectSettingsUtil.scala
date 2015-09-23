@@ -7,7 +7,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationBundle
 import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.wm.IdeFocusManager
-import com.intellij.ui.{AnActionButton, AnActionButtonRunnable, ListScrollingUtil, ToolbarDecorator}
+import com.intellij.ui._
 import com.intellij.util.IconUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -71,7 +71,7 @@ object ScalaProjectSettingsUtil {
       if (index < 0) return
       JListCompatibility.add(listModel, index, pattern)
       patternJBList.getList.setSelectedValue(pattern, true)
-      ListScrollingUtil.ensureIndexIsVisible(patternJBList.getList, index, 0)
+      ScrollingUtil.ensureIndexIsVisible(patternJBList.getList, index, 0)
       IdeFocusManager.getGlobalInstance.requestFocus(patternJBList.getList, false)
     }
 
@@ -94,7 +94,7 @@ object ScalaProjectSettingsUtil {
       val index = patternJBList.getList.getSelectedIndex
       JListCompatibility.add(listModel, index + 1, pattern)
       patternJBList.getList.setSelectedValue(pattern, true)
-      ListScrollingUtil.ensureIndexIsVisible(patternJBList.getList, index, 0)
+      ScrollingUtil.ensureIndexIsVisible(patternJBList.getList, index, 0)
       IdeFocusManager.getGlobalInstance.requestFocus(patternJBList.getList, false)
     }
 
@@ -121,7 +121,7 @@ object ScalaProjectSettingsUtil {
           listModel.remove(index)
           val to = if (index == size - 1) index - 1 else index
           patternJBList.getList.setSelectedIndex(to)
-          ListScrollingUtil.ensureIndexIsVisible(patternJBList.getList, to, 0)
+          ScrollingUtil.ensureIndexIsVisible(patternJBList.getList, to, 0)
           IdeFocusManager.getGlobalInstance.requestFocus(patternJBList.getList, false)
         }
       }

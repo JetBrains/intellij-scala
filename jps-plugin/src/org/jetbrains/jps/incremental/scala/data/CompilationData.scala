@@ -7,12 +7,12 @@ import java.util.Collections
 
 import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.incremental.java.JavaBuilder
-import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
 import org.jetbrains.jps.incremental.scala.model.CompileOrder
+import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import org.jetbrains.jps.{ModuleChunk, ProjectPaths}
-import org.jetbrains.plugin.scala.compiler. NameHashing
+import org.jetbrains.plugin.scala.compiler.NameHashing
 
 import scala.collection.JavaConverters._
 
@@ -154,7 +154,7 @@ object CompilationData {
       JavaModuleBuildTargetType.ALL_TYPES.asScala.flatMap(buildTargetIndex.getAllTargets(_).asScala)
     }
 
-    targets.filterNot { target =>
+    targets.distinct.filterNot { target =>
       val chunk = new ModuleChunk(Collections.singleton(target))
       ChunkExclusionService.isExcluded(chunk)
     }

@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.DebuggerBundle
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
-import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluateExceptionUtil, EvaluationContextImpl}
+import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl}
 import com.intellij.debugger.jdi.{LocalVariableProxyImpl, StackFrameProxyImpl}
 import com.intellij.debugger.ui.impl.watch.{LocalVariableDescriptorImpl, NodeDescriptorImpl}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import com.sun.jdi.{ObjectReference, InternalException, Type, Value}
+import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
@@ -18,6 +18,8 @@ import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
 class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Evaluator {
   import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaLocalVariableEvaluator.LOG
+  private val depthOfSearch = 20
+
   private val myName: String = DebuggerUtil.withoutBackticks(name)
   private val mySourceName: String = DebuggerUtil.withoutBackticks(sourceName)
   private var myContext: EvaluationContextImpl = null
@@ -33,24 +35,54 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
     myMethodName = name
   }
 
-  private def sourceName(frameProxy: StackFrameProxyImpl) = frameProxy.location().sourceName()
+  private def sourceName(frameProxy: StackFrameProxyImpl) =
+    try frameProxy.location().sourceName()
+    catch {
+      case e: AbsentInformationException => ""
+    }
 
   def evaluate(context: EvaluationContextImpl): AnyRef = {
-    var frameProxy: StackFrameProxyImpl = context.getFrameProxy
-    lazy val threadProxy = frameProxy.threadProxy()
-    if (frameProxy == null) {
-      throw EvaluationException(DebuggerBundle.message("evaluation.error.no.stackframe"))
+
+    def saveContextAndGetValue(framePr: StackFrameProxyImpl, local: LocalVariableProxyImpl) = {
+      myEvaluatedVariable = local
+      myContext = context
+      Some(framePr.getValue(local))
     }
-    def evaluate: Option[AnyRef] = {
-      def saveContextAndGetValue(framePr: StackFrameProxyImpl, local: LocalVariableProxyImpl) = {
-        myEvaluatedVariable = local
-        myContext = context
-        Some(frameProxy.getValue(local))
+
+    val startFrame = context.getFrameProxy
+    val threadProxy = startFrame.threadProxy()
+    val startIndex = startFrame.getFrameIndex
+    val lastIndex = threadProxy.frameCount() - 1
+    val upperBound = Math.min(lastIndex, startIndex + depthOfSearch)
+
+    def evaluateWithFrames(evaluationStrategy: StackFrameProxyImpl => Option[AnyRef]): Option[AnyRef] = {
+      for (frameIndex <- startIndex to upperBound) {
+        val frameProxy = threadProxy.frame(frameIndex)
+        if (sourceName(frameProxy) == mySourceName) {
+          try {
+            evaluationStrategy(frameProxy) match {
+              case Some(x) => return Some(x)
+              case _ =>
+            }
+          }
+          catch {
+            case e: EvaluateException =>
+              myEvaluatedVariable = null
+              myContext = null
+          }
+        }
       }
-      var local: LocalVariableProxyImpl = frameProxy.visibleVariableByName(myName)
-      if (local != null) return saveContextAndGetValue(frameProxy, local)
+      None
+    }
+
+    def withSimpleName(frameProxy: StackFrameProxyImpl) : Option[AnyRef] = {
+      val local: LocalVariableProxyImpl = frameProxy.visibleVariableByName(myName)
+      Option(local).flatMap(saveContextAndGetValue(frameProxy, _))
+    }
+
+    def withDollar(frameProxy: StackFrameProxyImpl): Option[AnyRef] = {
       for (i <- 1 to 2) {
-        local = frameProxy.visibleVariableByName(myName + "$" + i)
+        val local = frameProxy.visibleVariableByName(myName + "$" + i)
         if (local != null) return saveContextAndGetValue(frameProxy, local)
       }
       val locals = frameProxy.visibleVariables()
@@ -60,60 +92,39 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
       }
       None
     }
-    def evaluateWithFrames(): AnyRef = {
-      var frameIndex = frameProxy.getFrameIndex
-      val lastIndex = threadProxy.frameCount() - 1
-      while (frameIndex < lastIndex) {
-        frameProxy = threadProxy.frame(frameIndex)
-        evaluate match {
-          case Some(x) if sourceName(frameProxy) == mySourceName => return x
-          case _ => frameIndex += 1
-        }
-      }
-      throw EvaluateExceptionUtil.
-              createEvaluateException(DebuggerBundle.message("evaluation.error.local.variable.missing", myName))
-    }
 
-    def parameterWithIndex(index: Int, frameProxy: StackFrameProxyImpl): Option[AnyRef] = {
-      def inNextFrame: Option[AnyRef] = {
-        val frameIndex = frameProxy.getFrameIndex
-        if (frameIndex < threadProxy.frameCount() - 1) {
-          parameterWithIndex(myParameterIndex, threadProxy.frame(frameIndex + 1))
-        } else None
-      }
-      if (frameProxy == null || index < 0) None
+    def parameterByIndex(frameProxy: StackFrameProxyImpl) = {
+      if (frameProxy == null || myParameterIndex < 0) None
       else {
         val frameMethodName = frameProxy.location().method().name()
-        val frameSourceName = sourceName(frameProxy)
-        if ((myMethodName == null && mySourceName == null) || (frameMethodName.startsWith(myMethodName) && mySourceName == frameSourceName)) {
+        if ((myMethodName == null) || frameMethodName.startsWith(myMethodName)) {
           try {
             val values = frameProxy.getArgumentValues
-            if (values != null && !values.isEmpty && index >= 0 && index < values.size()) {
-              Some(values.get(index))
+            if (values != null && !values.isEmpty && myParameterIndex >= 0 && myParameterIndex < values.size()) {
+              Some(values.get(myParameterIndex))
             } else {
               None
             }
           }
-          catch {case ignore: InternalException => inNextFrame}
-        } else inNextFrame
+          catch {case ignore: InternalException => None}
+        } else None
       }
     }
 
-    try {
-      evaluate.getOrElse(
-        throw EvaluationException(DebuggerBundle.message("evaluation.error.local.variable.missing", myName)))
+    if (context.getFrameProxy == null) {
+      throw EvaluationException(DebuggerBundle.message("evaluation.error.no.stackframe"))
     }
-    catch {
-      case e: EvaluateException =>
-        try {
-          parameterWithIndex(myParameterIndex ,frameProxy).getOrElse(evaluateWithFrames())
-        }
-        catch {
-          case e: EvaluateException =>
-            myEvaluatedVariable = null
-            myContext = null
-            throw e
-        }
+
+    val result = evaluateWithFrames(withSimpleName)
+      .orElse(evaluateWithFrames(parameterByIndex))
+      .orElse(evaluateWithFrames(withDollar))
+
+    result match {
+      case Some(x) => x
+      case None =>
+        myEvaluatedVariable = null
+        myContext = null
+        throw EvaluationException(DebuggerBundle.message("evaluation.error.local.variable.missing", myName))
     }
   }
 

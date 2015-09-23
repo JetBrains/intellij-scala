@@ -7,6 +7,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScClass}
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.junit.Assert
 
@@ -26,6 +27,16 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     val element = getFileAdapter.getLastChild
 
     generateByElement(element, assumedText)
+  }
+
+  private def generateNested(fileText: String, className: String, elementName: String, assumedTest: String) {
+    configureFromFileTextAdapter("dummy.scala", fileText.stripMargin('|').replaceAll("\r", "").trim())
+    getFileAdapter.asInstanceOf[ScalaFile].getClasses find {
+      case a => a.getName == className
+    } flatMap  (clazz => clazz.asInstanceOf[ScTemplateDefinition].members.find(_.getName == elementName)) map {
+      case m: ScFunctionWrapper => generateByElement(m.function, assumedTest)
+      case member: ScMember => generateByElement(member, assumedTest)
+    } getOrElse Assert.assertTrue(false)
   }
 
   def testSimpleSyntax() {
@@ -227,6 +238,10 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   def testInheritdoc() {
     val fileText =
       """
+        |/**
+        | *
+        | * @define THIS A
+        | */
         |class A {
         | /**
         |  * The function f defined in $THIS returns some integer without no special property. (previously defined in $PARENT)
@@ -235,6 +250,12 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
         |  */
         | def f(i: Int) = 3
         |}
+        |
+        |/**
+        | *
+        | * @define THIS B
+        | * @define PARENT A
+        | */
         |class B extends A {
         | /**
         |  * &&
@@ -248,18 +269,84 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     val test =
       """
         |    
-        |    The function f defined in $THIS returns some integer without no special property. (previously defined in $PARENT)
+        |    The function f defined in B returns some integer without no special property. (previously defined in A)
         |    
         |    Some notes on implementation performance, the function runs in O(1).
         |    <br>
         |<DD><DL><DT><b>Parameters:</b><DD><code>i</code> - An important parameter""".stripMargin.replaceAll("\r", "")
 
+
+    generateNested(fileText, "B", "f", test)
+  }
+
+  def testMacroSimple() {
+    val fileText =
+      """
+        |/**
+        | * @define THIS A
+        | */
+        |trait A {
+        |
+        |  /**
+        |   *&& Function defined in $THIS &&
+        |   */
+        |  def boo()
+        |}
+      """.stripMargin
+    val test =
+      " Function defined in A "
+
+    generateNested(fileText, "A", "boo", test)
+  }
+
+  def testMacroComplicated() {
+    val fileText =
+      """
+        |trait A {
+        |  /**
+        |   * @define THAT A
+        |   */
+        |  def boo() = 1
+        |}
+        |
+        |/**
+        | * @define THIS B
+        | */
+        |trait B {
+        |}
+        |
+        |class C extends A with B {
+        |
+        |  /**
+        |   *&& aa $THIS bb &&
+        |   */
+        |  override def boo() = 2
+        |}
+        |
+      """.stripMargin
+
+    val test = " aa B bb "
+
+    generateNested(fileText, "C", "boo", test)
+  }
+  
+  def testAnnotationArgs() {
+    val fileText =
+      """
+        | @deprecated("use 'foo' instead", "1.2.3")
+        | @throws(classOf[Exception])
+        | def boo() {} 
+      """
+    
+    val expected =
+      """<html><body><PRE>@<a href="psi_element://scala.deprecated"><code>deprecated</code></a>("use 'foo' instead", "1.2.3")
+        |@<a href="psi_element://scala.throws"><code>throws</code></a>[<a href="psi_element://scala"><code>scala</code></a>.Exception](classOf[Exception])
+        |def <b>boo</b>(): Unit</PRE></body></html>""".stripMargin
+
     configureFromFileTextAdapter("dummy.scala", fileText.stripMargin('|').replaceAll("\r", "").trim())
-    getFileAdapter.asInstanceOf[ScalaFile].getClasses find {
-      case a => a.getName == "B"
-    } flatMap  (_.findMethodsByName("f", false).headOption) map {
-      case m: ScFunctionWrapper => generateByElement(m.function, test)
-    } getOrElse Assert.assertTrue(false)
+    val element = getFileAdapter.getLastChild
+    val generated = QuickDocTest.quickDocGenerator.generateDoc(element, element)
+    Assert.assertEquals(expected, generated)
   }
 }
 

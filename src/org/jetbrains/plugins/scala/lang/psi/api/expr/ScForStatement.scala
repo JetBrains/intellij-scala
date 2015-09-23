@@ -28,3 +28,9 @@ trait ScForStatement extends ScExpression {
   def getRightParenthesis : Option[PsiElement]
   override def accept(visitor: ScalaElementVisitor) = visitor.visitForExpression(this)
 }
+
+object ScForStatement {
+  def unapply(forStmt: ScForStatement): Option[(ScEnumerators, ScExpression)] = {
+    forStmt.enumerators.zip(forStmt.body).headOption
+  }
+}
