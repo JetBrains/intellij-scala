@@ -4,9 +4,9 @@ import java.util
 
 import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl}
 import com.intellij.debugger.settings.NodeRendererSettings
-import com.intellij.debugger.ui.impl.FrameVariablesTree
-import com.intellij.debugger.ui.impl.watch.{DebuggerTree, LocalVariableDescriptorImpl, NodeDescriptorImpl}
-import com.intellij.debugger.ui.tree.render.{ClassRenderer, ArrayRenderer, ChildrenBuilder, DescriptorLabelListener}
+import com.intellij.debugger.ui.impl.ThreadsDebuggerTree
+import com.intellij.debugger.ui.impl.watch._
+import com.intellij.debugger.ui.tree.render._
 import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptorFactory, NodeManager, ValueDescriptor}
 import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
 import org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer
@@ -22,7 +22,7 @@ class ScalaFriendlyCollectionDisplayingTest extends ScalaDebuggerTestCase {
   private def getStringRep(variableName: String): (String, List[String]) = {
     import scala.collection.JavaConversions._
 
-    val frameTree = new FrameVariablesTree(getProject)
+    val frameTree = new ThreadsDebuggerTree(getProject)
     var testVariableChildren: util.List[DebuggerTreeNode] = null
 
     val testVariable = managed[LocalVariableDescriptorImpl] {
@@ -106,10 +106,10 @@ class ScalaFriendlyCollectionDisplayingTest extends ScalaDebuggerTestCase {
       """
         |object Main {
         |  def main(args: Array[String]) {
-        |    val lst = List(1, 2, 3, 4, 5, 6) 
+        |    val lst = List(1, 2, 3, 4, 5, 6)
         |    val a = 1 //3 - bp here
         |  }
-        |}  
+        |}
       """.replace("\r", "").stripMargin.trim, 3, "lst", 6, "scala.collection.immutable.$colon$colon")
   }
 
