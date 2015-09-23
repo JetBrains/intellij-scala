@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{SyntheticMembersInjector, TypeDefinitionMembers}
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
@@ -162,6 +162,15 @@ import com.intellij.openapi.util.{Pair => IPair}
 
   def typeDefinitions: Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
 
+  def syntheticTypeDefinitions: Seq[ScTypeDefinition] = {
+    CachesUtil.get(this, CachesUtil.SYNTHETIC_TYPE_DEFINITONS_KEY,
+      new CachesUtil.MyProvider[ScTemplateDefinition, Seq[ScTypeDefinition]](this,
+        clazz => clazz.syntheticTypeDefinitionsImpl)
+      (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
+  }
+
+  def syntheticTypeDefinitionsImpl: Seq[ScTypeDefinition] = Seq.empty
+
   def selfTypeElement: Option[ScSelfTypeElement] = {
     val qual = qualifiedName
     if (qual != null && (qual == "scala.Predef" || qual == "scala")) return None
@@ -175,7 +184,7 @@ import com.intellij.openapi.util.{Pair => IPair}
 
   def allTypeAliases = TypeDefinitionMembers.getTypes(this).allFirstSeq().flatMap(n => n.map {
     case (_, x) => (x.info, x.substitutor)
-  })
+  }) ++ syntheticTypeDefinitions.filter(!_.isObject).map((_, ScSubstitutor.empty))
 
   def allTypeAliasesIncludingSelfType = {
     selfType match {

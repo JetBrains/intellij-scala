@@ -6,17 +6,24 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase;
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile;
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.OccurrenceData;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeItem;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeSuggester;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.Assert;
+import scala.Option;
 import scala.Some;
 import scala.Tuple2;
 
@@ -30,9 +37,9 @@ import java.io.IOException;
 
 abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
-
-
   protected static final String ALL_MARKER = "<all>";
+  protected static final String COMPANION_MARKER = "<companion>";
+  protected static final String INHERITORS_MARKER = "<inheritors>";
 
   protected Editor myEditor;
   protected FileEditorManager fileEditorManager;
@@ -41,6 +48,8 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
 
   protected boolean replaceAllOccurences = false;
+  protected boolean replaceCompanionObjOccurrences = false;
+  protected boolean replaceOccurrencesFromInheritors = false;
 
   public AbstractIntroduceVariableTestBase(String DATA_PATH) {
     super(System.getProperty("path") != null ?
@@ -49,8 +58,24 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
     );
     replaceAllOccurences = System.getProperty("replaceAll") != null &&
             Boolean.parseBoolean(System.getProperty("path"));
+    replaceCompanionObjOccurrences = System.getProperty("replaceCompanion") != null &&
+            Boolean.parseBoolean(System.getProperty("path"));
+    replaceOccurrencesFromInheritors = System.getProperty("replaceInheritors") != null &&
+            Boolean.parseBoolean(System.getProperty("path"));
   }
 
+
+  private String getName(String fileText) {
+    if (!(fileText.indexOf("//") == 0)) {
+      junit.framework.Assert.assertTrue("Typename to validator should be in first comment statement.", false);
+    }
+    return fileText.substring(2, fileText.indexOf("\n")).replaceAll("\\W", "");
+  }
+
+  private String removeTypenameComment(String fileText) {
+    int begin = fileText.indexOf("//");
+    return fileText.substring(0, begin) + fileText.substring(fileText.indexOf("\n", begin) + 1);
+  }
 
   private String processFile(final PsiFile file) throws IncorrectOperationException, InvalidDataException, IOException {
     final SyntheticClasses syntheticClasses = getProject().getComponent(SyntheticClasses.class);
@@ -59,15 +84,32 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
     }
     String result = "";
     String fileText = file.getText();
+
+
     int startOffset = fileText.indexOf(TestUtils.BEGIN_MARKER);
-    if (startOffset < 0) {
-      startOffset = fileText.indexOf(ALL_MARKER);
-      replaceAllOccurences = true;
-      fileText = removeAllMarker(fileText);
-    } else {
+    if (startOffset >= 0) {
       replaceAllOccurences = false;
       fileText = TestUtils.removeBeginMarker(fileText);
+    } else {
+      startOffset = fileText.indexOf(COMPANION_MARKER);
+      if (startOffset >= 0) {
+        replaceCompanionObjOccurrences = true;
+        fileText = removeMarker(fileText, COMPANION_MARKER);
+      } else {
+        startOffset = fileText.indexOf(INHERITORS_MARKER);
+        if (startOffset >= 0) {
+          replaceOccurrencesFromInheritors = true;
+          fileText = removeMarker(fileText, INHERITORS_MARKER);
+        } else {
+          startOffset = fileText.indexOf(ALL_MARKER);
+          if (startOffset >= 0) {
+            replaceAllOccurences = true;
+            fileText = removeMarker(fileText, ALL_MARKER);
+          }
+        }
+      }
     }
+
     int endOffset = fileText.indexOf(TestUtils.END_MARKER);
     fileText = TestUtils.removeEndMarker(fileText);
     myFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
@@ -84,23 +126,59 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
       ScalaIntroduceVariableHandler introduceVariableHandler = new ScalaIntroduceVariableHandler();
 
       Assert.assertTrue(myFile instanceof ScalaFile);
-      ScExpression selectedExpr = null;
-      ScType[] types = null;
-      if (ScalaRefactoringUtil.getExpression(getProject(), myEditor, myFile, startOffset, endOffset) instanceof Some) {
-        Some temp = (Some) ScalaRefactoringUtil.getExpression(getProject(), myEditor, myFile, startOffset, endOffset);
-        selectedExpr = IntroduceVariableTestUtil.extract1((Tuple2<ScExpression, ScType[]>) temp.get());
-        types = IntroduceVariableTestUtil.extract2((Tuple2<ScExpression, ScType[]>) temp.get());
+      PsiElement element = PsiTreeUtil.getParentOfType(myFile.findElementAt(startOffset), ScExpression.class, ScTypeElement.class);
+      if (element instanceof ScExpression){
+        ScExpression selectedExpr = null;
+        ScType[] types = null;
+        if (ScalaRefactoringUtil.getExpression(getProject(), myEditor, myFile, startOffset, endOffset) instanceof Some) {
+          Some temp = (Some) ScalaRefactoringUtil.getExpression(getProject(), myEditor, myFile, startOffset, endOffset);
+          selectedExpr = IntroduceVariableTestUtil.extract1((Tuple2<ScExpression, ScType[]>) temp.get());
+          types = IntroduceVariableTestUtil.extract2((Tuple2<ScExpression, ScType[]>) temp.get());
+        }
+        Assert.assertNotNull("Selected expression reference points to null", selectedExpr);
+
+        TextRange[] occurences = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(selectedExpr), myFile);
+        String varName = "value";
+
+        introduceVariableHandler.runRefactoring(startOffset, endOffset, myFile, myEditor, selectedExpr,
+                occurences, varName, types[0], replaceAllOccurences, false);
+
+        result = myEditor.getDocument().getText();
+      } else if (element instanceof ScTypeElement){
+        Option<ScTypeElement> optionType = ScalaRefactoringUtil.getTypeElement(getProject(), myEditor, myFile, startOffset, endOffset);
+        if (optionType.isEmpty()){
+          result = "Selected block should be presented as type element";
+        } else {
+          ScTypeElement typeElement = optionType.get();
+          String typeName = getName(fileText);
+
+          ScopeItem[] scopes = ScopeSuggester.suggestScopes(introduceVariableHandler, getProject(),
+                  myEditor, myFile, typeElement);
+
+//          if (replaceOccurrencesFromInheritors) {
+//            ScTypeDefinition classOrTrait = PsiTreeUtil.getParentOfType(scopes.get(0).fileEncloser(), ScClass.class, ScTrait.class);
+//            System.out.println(classOrTrait == null);
+//            if (classOrTrait != null) {
+//              Tuple2<ScTypeElement[], ScalaTypeValidator[]> inheritors =
+//                ScalaRefactoringUtil.getOccurrencesInInheritors(typeElement, classOrTrait,
+//                      introduceVariableHandler, getProject(), myEditor);
+//
+//              scopes.get(0).setInheretedOccurrences(inheritors._1());
+//            }
+//          }
+
+          OccurrenceData occurrences = OccurrenceData.apply(typeElement, replaceAllOccurences,
+                  replaceCompanionObjOccurrences, replaceOccurrencesFromInheritors, scopes[0]);
+
+          introduceVariableHandler.runRefactoringForTypes(myFile, myEditor, typeElement,
+                  typeName, occurrences, scopes[0].fileEncloser(),scopes[0].isPackage());
+
+          result = removeTypenameComment(myEditor.getDocument().getText());
+        }
+      } else {
+        Assert.assertTrue("Element should be typeElement or Expression", false);
       }
-      Assert.assertNotNull("Selected expression reference points to null", selectedExpr);
 
-      TextRange[] occurences = ScalaRefactoringUtil.getOccurrenceRanges(ScalaRefactoringUtil.unparExpr(selectedExpr), myFile);
-      String varName = "value";
-
-      introduceVariableHandler.runRefactoring(startOffset, endOffset, myFile, myEditor, selectedExpr,
-          occurences, varName, types[0], replaceAllOccurences, false);
-
-
-      result = myEditor.getDocument().getText();
       //int caretOffset = myEditor.getCaretModel().getOffset();
       //result = result.substring(0, caretOffset) + TestUtils.CARET_MARKER + result.substring(caretOffset);
     } finally {
@@ -119,12 +197,9 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
     return processFile(psiFile);
   }
 
-
-
-  protected String removeAllMarker(String text) {
-    int index = text.indexOf(ALL_MARKER);
+  protected String removeMarker(String text, String marker) {
+    int index = text.indexOf(marker);
     myOffset = index - 1;
-    return text.substring(0, index) + text.substring(index + ALL_MARKER.length());
+    return text.substring(0, index) + text.substring(index + marker.length());
   }
-
 }

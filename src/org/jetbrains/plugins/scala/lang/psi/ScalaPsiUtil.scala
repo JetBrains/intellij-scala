@@ -1377,9 +1377,9 @@ object ScalaPsiUtil {
   def getEmptyModifierList(manager: PsiManager): PsiModifierList =
     new LightModifierList(manager, ScalaFileType.SCALA_LANGUAGE)
 
-  def adjustTypes(element: PsiElement, addImports: Boolean = true) {
+  def adjustTypes(element: PsiElement, addImports: Boolean = true, useTypeAliases: Boolean = true) {
     def adjustTypesChildren(): Unit = {
-      element.children.foreach(adjustTypes(_, addImports))
+      element.children.foreach(adjustTypes(_, addImports, useTypeAliases))
     }
 
     def replaceStablePath(ref: ScReferenceElement, name: String, qualName: Option[String], toBind: PsiElement): PsiElement = {
@@ -1407,7 +1407,7 @@ object ScalaPsiUtil {
           if (resolved != null && PsiEquivalenceUtil.areElementsEquivalent(resolved, named)) {
             //cannot use newRef because of bug with indentation
             val refToReplace = ScalaPsiElementFactory.createReferenceFromText(named.name, ref.getManager)
-            adjustTypes(ref.replace(refToReplace), addImports)
+            adjustTypes(ref.replace(refToReplace), addImports, useTypeAliases)
           }
           else adjustTypesChildren()
         case _ => adjustTypesChildren()
@@ -1420,7 +1420,7 @@ object ScalaPsiUtil {
           val withoutAliases = ScType.removeAliasDefinitions(tp, implementationsOnly = true)
           if (withoutAliases != tp) {
             val newTypeElem = ScalaPsiElementFactory.createTypeElementFromText(withoutAliases.canonicalText, te.getManager)
-            adjustTypes(te.replace(newTypeElem), addImports)
+            adjustTypes(te.replace(newTypeElem), addImports, useTypeAliases)
           }
           else adjustTypesChildren()
         case _ => adjustTypesChildren()
@@ -1428,21 +1428,24 @@ object ScalaPsiUtil {
     }
 
     def availableTypeAliasFor(clazz: PsiClass, position: PsiElement): Option[ScTypeAliasDefinition] = {
-      class FindTypeAliasProcessor extends BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
-        var collected: Option[ScTypeAliasDefinition] = None
+      if (!useTypeAliases) None
+      else {
+        class FindTypeAliasProcessor extends BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
+          var collected: Option[ScTypeAliasDefinition] = None
 
-        override def execute(element: PsiElement, state: ResolveState): Boolean = {
-          element match {
-            case ta: ScTypeAliasDefinition if ta.isAliasFor(clazz) && !ta.isImplementation =>
-              collected = Some(ta)
-              false
-            case _ => true
+          override def execute(element: PsiElement, state: ResolveState): Boolean = {
+            element match {
+              case ta: ScTypeAliasDefinition if ta.isAliasFor(clazz) && !ta.isImplementation =>
+                collected = Some(ta)
+                false
+              case _ => true
+            }
           }
         }
+        val processor = new FindTypeAliasProcessor
+        PsiTreeUtil.treeWalkUp(processor, position, null, ResolveState.initial())
+        processor.collected
       }
-      val processor = new FindTypeAliasProcessor
-      PsiTreeUtil.treeWalkUp(processor, position, null, ResolveState.initial())
-      processor.collected
     }
 
     if (element == null) return
@@ -1454,7 +1457,7 @@ object ScalaPsiUtil {
       case tp: ScTypeProjection if tp.typeElement.getText.endsWith(".type") =>
         val newText = tp.typeElement.getText.stripSuffix(".type") + "." + tp.refName
         val newTypeElem = ScalaPsiElementFactory.createTypeElementFromText(newText, tp.getManager)
-        adjustTypes(tp.replace(newTypeElem), addImports)
+        adjustTypes(tp.replace(newTypeElem), addImports, useTypeAliases)
       case te: ScTypeElement =>
         expandTypeAliasesIfPossible(te)
       case stableRef: ScStableCodeReferenceElement =>
@@ -1469,7 +1472,7 @@ object ScalaPsiUtil {
             named match {
               case clazz: PsiClass =>
                 availableTypeAliasFor(clazz, element) match {
-                  case Some(ta) => replaceStablePath(stableRef, ta.name, None, ta)
+                  case Some(ta) if !ta.isAncestorOf(stableRef) => replaceStablePath(stableRef, ta.name, None, ta)
                   case _ => replaceStablePath(stableRef, clazz.name, Option(clazz.qualifiedName), clazz)
                 }
               case typeAlias: ScTypeAlias => replaceStablePath(stableRef, typeAlias.name, None, typeAlias)
@@ -1555,7 +1558,7 @@ object ScalaPsiUtil {
       if (element == null) return null
       element.getParent
     }
-    while (el != null && classes.find(_.isInstance(el)) == None) el = el.getParent
+    while (el != null && !classes.exists(_.isInstance(el))) el = el.getParent
     el
   }
 
@@ -2259,7 +2262,7 @@ object ScalaPsiUtil {
     }
   }
 
-  def addStatementBefore(stmt: ScBlockStatement, parent: PsiElement, anchorOpt: Option[PsiElement]): ScBlockStatement = {
+  private def addBefore[T <: PsiElement](element: T, parent: PsiElement, anchorOpt: Option[PsiElement]): T ={
     val anchor = anchorOpt match {
       case Some(a) => a
       case None =>
@@ -2269,7 +2272,7 @@ object ScalaPsiUtil {
     }
 
     def addBefore(e: PsiElement) = parent.addBefore(e, anchor)
-    def newLine: PsiElement = ScalaPsiElementFactory.createNewLineNode(stmt.getManager).getPsi
+    def newLine: PsiElement = ScalaPsiElementFactory.createNewLineNode(element.getManager).getPsi
 
     val anchorEndsLine = ScalaPsiUtil.isLineTerminator(anchor)
     if (anchorEndsLine) addBefore(newLine)
@@ -2277,12 +2280,20 @@ object ScalaPsiUtil {
     val anchorStartsLine = ScalaPsiUtil.isLineTerminator(anchor.getPrevSibling)
     if (!anchorStartsLine) addBefore(newLine)
 
-    val addedStmt = addBefore(stmt).asInstanceOf[ScBlockStatement]
+    val addedStmt = addBefore(element).asInstanceOf[T]
 
     if (!anchorEndsLine) addBefore(newLine)
     else anchor.replace(newLine)
 
     addedStmt
+  }
+
+  def addStatementBefore(stmt: ScBlockStatement, parent: PsiElement, anchorOpt: Option[PsiElement]): ScBlockStatement = {
+    addBefore[ScBlockStatement](stmt, parent, anchorOpt)
+  }
+
+  def addTypeAliasBefore(typeAlias: ScTypeAlias, parent: PsiElement, anchorOpt: Option[PsiElement]): ScTypeAlias = {
+    addBefore[ScTypeAlias](typeAlias, parent, anchorOpt)
   }
 
   def changeVisibility(member: ScModifierListOwner, newVisibility: String): Unit = {
