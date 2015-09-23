@@ -2,85 +2,102 @@ package org.jetbrains.sbt.project.data
 package service
 
 import java.io.File
-import java.util
 
 import com.intellij.compiler.CompilerConfiguration
-import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
-import com.intellij.openapi.externalSystem.service.project.ProjectStructureHelper
+import com.intellij.openapi.externalSystem.model.DataNode
+import com.intellij.openapi.externalSystem.model.project.ProjectData
+import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
+import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.LanguageLevelModuleExtensionImpl
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModifiableRootModel, ModuleRootManager, ModuleRootModificationUtil}
-import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.project._
-
-import scala.collection.JavaConverters._
+import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.sbt.project.SbtProjectSystem
 
 /**
  * @author Pavel Fatin
  */
-class ModuleExtDataService(val helper: ProjectStructureHelper)
-  extends AbstractDataService[ModuleExtData, Library](ModuleExtData.Key)
-  with SafeProjectStructureHelper {
+class ModuleExtDataService extends AbstractDataService[ModuleExtData, Library](ModuleExtData.Key) {
+  override def createImporter(toImport: Seq[DataNode[ModuleExtData]],
+                              projectData: ProjectData,
+                              project: Project,
+                              modelsProvider: IdeModifiableModelsProvider): Importer[ModuleExtData] =
+    new ModuleExtDataService.Importer(toImport, projectData, project, modelsProvider)
+}
 
-  def doImportData(toImport: util.Collection[DataNode[ModuleExtData]], project: Project) =
-    toImport.asScala.foreach(doImport(_, project))
+object ModuleExtDataService {
+  private class Importer(dataToImport: Seq[DataNode[ModuleExtData]],
+                         projectData: ProjectData,
+                         project: Project,
+                         modelsProvider: IdeModifiableModelsProvider)
+      extends AbstractImporter[ModuleExtData](dataToImport, projectData, project, modelsProvider) {
 
-  private def doImport(sdkNode: DataNode[ModuleExtData], project: Project): Unit = {
-    for {
-      module <- getIdeModuleByNode(sdkNode, project)
-      data = sdkNode.getData
-    } {
-      module.configureScalaCompilerSettingsFrom("SBT", data.scalacOptions)
-      data.scalaVersion.foreach(version => configureScalaSdk(module, project.scalaLibraries, version, data.scalacClasspath))
-      configureOrInheritSdk(module, data.jdk)
-      configureLanguageLevel(module, data.javacOptions)
-      configureJavacOptions(module, data.javacOptions)
-    }
-  }
+    override def importData(): Unit =
+      dataToImport.foreach(doImport)
 
-  private def configureScalaSdk(module: Module, scalaLibraries: Seq[Library], compilerVersion: Version, compilerClasspath: Seq[File]): Unit =
-    if (scalaLibraries.nonEmpty) {
-      // TODO Why SBT's scala-libary module version sometimes differs from SBT's declared scalaVersion?
-      val scalaLibrary = scalaLibraries
-              .find(_.scalaVersion == Some(compilerVersion))
-              .orElse(scalaLibraries.find(_.scalaVersion.exists(_.toLanguageLevel == compilerVersion.toLanguageLevel)))
-              .getOrElse(throw new ExternalSystemException("Cannot find project Scala library " +
-                           compilerVersion.number + " for module " + module.getName))
-
-      if (!scalaLibrary.isScalaSdk)
-        scalaLibrary.convertToScalaSdkWith(scalaLibrary.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default), compilerClasspath)
+    private def doImport(dataNode: DataNode[ModuleExtData]): Unit = {
+      for {
+        module <- getIdeModuleByNode(dataNode)
+        data = dataNode.getData
+      } {
+        module.configureScalaCompilerSettingsFrom("SBT", data.scalacOptions)
+        data.scalaVersion.foreach(version => configureScalaSdk(module, version, data.scalacClasspath))
+        configureOrInheritSdk(module, data.jdk)
+        configureLanguageLevel(module, data.javacOptions)
+        configureJavacOptions(module, data.javacOptions)
+      }
     }
 
-  private def configureOrInheritSdk(module: Module, sdk: Option[Sdk]): Unit = {
-    ModuleRootModificationUtil.setSdkInherited(module)
-    sdk.flatMap(SdkUtils.findProjectSdk).foreach(it => ModuleRootModificationUtil.setModuleSdk(module, it))
-  }
+    private def configureScalaSdk(module: Module, compilerVersion: Version, compilerClasspath: Seq[File]): Unit = {
+      val scalaLibraries = getScalaLibraries(module)
+      if (scalaLibraries.nonEmpty) {
+        val scalaLibrary = scalaLibraries
+          .find(_.scalaVersion.contains(compilerVersion))
+          .orElse(scalaLibraries.find(_.scalaVersion.exists(_.toLanguageLevel == compilerVersion.toLanguageLevel)))
 
-  private def configureLanguageLevel(module: Module, javacOptions: Seq[String]): Unit = {
-    val moduleSdk = Option(ModuleRootManager.getInstance(module).getSdk)
-    val languageLevel = SdkUtils.javaLanguageLevelFrom(javacOptions)
-      .orElse(moduleSdk.flatMap(SdkUtils.defaultJavaLanguageLevelIn))
-    languageLevel.foreach { level =>
-      ModuleRootModificationUtil.updateModel(module, new Consumer[ModifiableRootModel] {
-        override def consume(model: ModifiableRootModel): Unit = {
-          val extension = model.getModuleExtension(classOf[LanguageLevelModuleExtensionImpl])
-          extension.setLanguageLevel(level)
-          extension.commit()
+        scalaLibrary match {
+          case Some(library) if !library.isScalaSdk =>
+            convertToScalaSdk(library, library.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default), compilerClasspath)
+          case None =>
+            showWarning(SbtBundle("sbt.dataService.scalaLibraryIsNotFound", compilerVersion.number, module.getName))
+          case _ => // do nothing
         }
-      })
+      }
+    }
+
+    private def configureOrInheritSdk(module: Module, sdk: Option[Sdk]): Unit = {
+      val model = getModifiableRootModel(module)
+      model.inheritSdk()
+      sdk.flatMap(SdkUtils.findProjectSdk).foreach(model.setSdk)
+    }
+
+    private def configureLanguageLevel(module: Module, javacOptions: Seq[String]): Unit = {
+      val model = getModifiableRootModel(module)
+      val moduleSdk = Option(model.getSdk)
+      val languageLevel = SdkUtils.javaLanguageLevelFrom(javacOptions)
+        .orElse(moduleSdk.flatMap(SdkUtils.defaultJavaLanguageLevelIn))
+      languageLevel.foreach { level =>
+        val extension = model.getModuleExtension(classOf[LanguageLevelModuleExtensionImpl])
+        extension.setLanguageLevel(level)
+      }
+    }
+
+    private def configureJavacOptions(module: Module, javacOptions: Seq[String]): Unit = {
+      for {
+        targetPos <- Option(javacOptions.indexOf("-target")).filterNot(_ == -1)
+        targetValue <- javacOptions.lift(targetPos + 1)
+        compilerSettings = CompilerConfiguration.getInstance(module.getProject)
+      } {
+        executeProjectChangeAction(compilerSettings.setBytecodeTargetLevel(module, targetValue))
+      }
+    }
+
+    private def showWarning(message: String): Unit = {
+      val notification = new NotificationData(SbtBundle("sbt.notificationGroupTitle"), message, NotificationCategory.WARNING, NotificationSource.PROJECT_SYNC)
+      notification.setBalloonGroup(SbtBundle("sbt.notificationGroupName"))
+      ExternalSystemNotificationManager.getInstance(project).showNotification(SbtProjectSystem.Id, notification)
     }
   }
-
-  private def configureJavacOptions(module: Module, javacOptions: Seq[String]): Unit = {
-    for {
-      targetPos <- Option(javacOptions.indexOf("-target")).filterNot(_ == -1)
-      targetValue <- javacOptions.lift(targetPos + 1)
-      compilerSettings = CompilerConfiguration.getInstance(module.getProject)
-    } {
-      compilerSettings.setBytecodeTargetLevel(module, targetValue)
-    }
-  }
-
-  def doRemoveData(toRemove: util.Collection[_ <: Library], project: Project) {}
 }

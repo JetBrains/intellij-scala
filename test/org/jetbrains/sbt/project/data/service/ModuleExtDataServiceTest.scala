@@ -3,9 +3,11 @@ package org.jetbrains.sbt.project.data.service
 import java.io.File
 
 import com.intellij.compiler.CompilerConfiguration
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
+import com.intellij.openapi.externalSystem.service.notification.{NotificationCategory, NotificationSource}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots
 import com.intellij.openapi.projectRoots.ProjectJdkTable
@@ -17,6 +19,7 @@ import junit.framework.Assert._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{DebuggingInfoLevel, Version}
 import org.jetbrains.sbt.UsefulTestCaseHelper
+import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data._
 
 import scala.collection.JavaConverters._
@@ -37,10 +40,10 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
   def testWithoutScalaLibrary(): Unit =
     importProjectData(generateScalaProject("2.11.5", None, Seq.empty))
 
-  def testWithIncompatibleScalaLibrary(): Unit =
-    assertException[ExternalSystemException](Some("Cannot find project Scala library 2.11.5 for module Module 1")) {
-      importProjectData(generateScalaProject("2.11.5", Some("2.10.4"), Seq.empty))
-    }
+  def testWithIncompatibleScalaLibrary(): Unit = {
+    importProjectData(generateScalaProject("2.11.5", Some("2.10.4"), Seq.empty))
+    assertNotificationsCount(NotificationSource.PROJECT_SYNC, NotificationCategory.WARNING, SbtProjectSystem.Id, 1)
+  }
 
   def testWithCompatibleScalaLibrary(): Unit = {
     doTestAndCheckScalaSdk("2.11.1", "2.11.5")
@@ -146,6 +149,37 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
 
     val compilerConfiguration = CompilerConfiguration.getInstance(getProject)
     assertEquals("1.8", compilerConfiguration.getBytecodeTargetLevel(getModule))
+  }
+
+  def testScalaSdkForEvictedVersion: Unit = {
+    import org.jetbrains.plugins.scala.project._
+
+    val evictedVersion = "2.11.2"
+    val newVersion = "2.11.6"
+
+    val projectData = new project {
+      name := getProject.getName
+      ideDirectoryPath := getProject.getBasePath
+      linkedProjectPath := getProject.getBasePath
+      arbitraryNodes += new SbtProjectNode(Seq.empty, None, Seq.empty, "", getProject.getBasePath)
+
+      val evictedScalaLibrary = new library { name := s"org.scala-lang:scala-library:$evictedVersion" }
+      val newScalaLibrary = new library { name := s"org.scala-lang:scala-library:$newVersion" }
+      libraries ++= Seq(evictedScalaLibrary, newScalaLibrary)
+
+      modules += new javaModule {
+        name := "Module 1"
+        moduleFileDirectoryPath := getProject.getBasePath + "/module1"
+        externalConfigPath := getProject.getBasePath + "/module1"
+        libraryDependencies += newScalaLibrary
+        arbitraryNodes += new ModuleExtNode(Some(Version(evictedVersion)), Seq.empty, Seq.empty, None, Seq.empty)
+      }
+    }.build.toDataNode
+
+    importProjectData(projectData)
+
+    val isLibrarySetUp = ProjectLibraryTable.getInstance(getProject).getLibraries.filter(_.getName.contains(newVersion)).exists(_.isScalaSdk)
+    assertTrue("Scala library is not set up", isLibrarySetUp)
   }
 
   private def generateScalaProject(scalaVersion: String, scalaLibraryVersion: Option[String], scalacOptions: Seq[String]): DataNode[ProjectData] =

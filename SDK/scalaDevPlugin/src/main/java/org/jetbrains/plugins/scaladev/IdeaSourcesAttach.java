@@ -46,7 +46,7 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
 
     public void attachIdeaSources() {
         if (!myProject.getName().toLowerCase().contains("scala")) return;
-        final Set<LibraryOrderEntry> libs = needsAttaching(getIntellijJars());
+        final Set<LibraryOrderEntry> libs = getLibsWithoutSourceRoots();
         LOG.info("Got " + libs.size() + " total IDEA libraries with missing source roots");
         if (libs.isEmpty()) return;
         LibraryOrderEntry pivot = null;
@@ -68,7 +68,9 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
         new Task.Backgroundable(myProject, "Attaching Idea Sources", true) {
             @Override
             public void run(@NotNull ProgressIndicator indicator) {
+                setTitle("Scanning for Sources Archive");
                 final Collection<VirtualFile> roots = PathUIUtils.JAVA_SOURCE_ROOT_DETECTOR.detectRoots(zip, indicator);
+                setTitle("Attaching Source Roots");
                 for (LibraryOrderEntry lib : libs) {
                     final Library library = lib.getLibrary();
                     if (library != null && library.getUrls(OrderRootType.SOURCES).length == 0) {
@@ -83,6 +85,10 @@ public class IdeaSourcesAttach extends AbstractProjectComponent {
                 LOG.info("Finished attaching IDEA sources");
             }
         }.queue();
+    }
+
+    public Set<LibraryOrderEntry> getLibsWithoutSourceRoots() {
+        return needsAttaching(getIntellijJars());
     }
 
     private HashSet<LibraryOrderEntry> getIntellijJars() {
