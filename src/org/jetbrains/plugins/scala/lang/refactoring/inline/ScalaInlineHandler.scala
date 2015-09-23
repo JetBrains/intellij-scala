@@ -15,7 +15,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiNamedElement, PsiElement, PsiReference}
+import com.intellij.psi._
 import com.intellij.refactoring.HelpID
 import com.intellij.refactoring.util.{CommonRefactoringUtil, RefactoringMessageDialog}
 import com.intellij.usageView.UsageInfo
@@ -27,10 +27,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement,
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScProjectionType, ScTypeParameterType, ScFunctionType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
@@ -102,7 +103,7 @@ class ScalaInlineHandler extends InlineHandler {
             case expression: ScExpression =>
               val oldValue = expression match {
                 case _ childOf (_: ScInterpolatedStringLiteral) =>
-                 s"{" + replacementValue + "}"
+                  s"{" + replacementValue + "}"
                 case _ =>
                   replacementValue
               }
@@ -172,15 +173,29 @@ class ScalaInlineHandler extends InlineHandler {
       } else settings
     }
 
-    def isSimpleTypeAlias(typeAlias: ScTypeAlias): Boolean =
-      typeAlias.typeParameters.isEmpty
+    def isSimpleTypeAlias(typeAlias: ScTypeAliasDefinition): Boolean = {
+      typeAlias.aliasedTypeElement.depthFirst.forall {
+        case t: ScTypeElement =>
+          t.calcType match {
+            case part: ScTypeParameterType => false
+            case part: ScProjectionType if !ScalaPsiUtil.hasStablePath(part.element) =>
+              false
+            case _ => true
+          }
+        case _ => true
+      }
+    }
 
+    def isParametrizedTypeAlias(typeAlias: ScTypeAliasDefinition): Boolean =
+      !typeAlias.typeParameters.isEmpty
 
     UsageTrigger.trigger(ScalaBundle.message("inline.id"))
 
     element match {
       case typedDef: ScTypedDefinition if ScFunctionType.unapply(typedDef.getType().getOrAny).exists(_._2.nonEmpty) =>
         showErrorHint(ScalaBundle.message("cannot.inline.anonymous.function"), "element")
+      case named: ScNamedElement if named.getContainingFile != PsiDocumentManager.getInstance(editor.getProject).getPsiFile(editor.getDocument) =>
+        showErrorHint(ScalaBundle.message("cannot.inline.different.files"), "element")
       case named: ScNamedElement if !usedInSameClassOnly(named) =>
         showErrorHint(ScalaBundle.message("cannot.inline.used.outside.class"), "member")
       case bp: ScBindingPattern =>
@@ -199,7 +214,7 @@ class ScalaInlineHandler extends InlineHandler {
       case funDef: ScFunctionDefinition if funDef.body.isDefined && funDef.parameters.isEmpty =>
         if (funDef.isLocal) getSettings(funDef, "Method", "local method")
         else getSettings(funDef, "Method", "method")
-      case typeAlias: ScTypeAliasDefinition if !isSimpleTypeAlias(typeAlias) =>
+      case typeAlias: ScTypeAliasDefinition if isParametrizedTypeAlias(typeAlias) || !isSimpleTypeAlias(typeAlias) =>
         showErrorHint(ScalaBundle.message("cannot.inline.notsimple.typealias"), "Type Alias")
       case typeAlias: ScTypeAliasDefinition =>
         getSettings(typeAlias, "Type Alias", "type alias")

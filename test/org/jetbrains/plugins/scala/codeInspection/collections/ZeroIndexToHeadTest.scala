@@ -30,4 +30,12 @@ class ZeroIndexToHeadTest extends OperationsOnCollectionInspectionTest {
       "val arr = Array(Seq(1, 2)); arr(0)(0)",
       "val arr = Array(Seq(1, 2)); arr(0).head")
   }
+
+  def testIndexedSeq(): Unit = {
+    checkTextHasNoErrors("scala.collection.IndexedSeq(1, 2)(0)", hint, inspectionClass)
+    checkTextHasNoErrors(
+      """import scala.collection.immutable.Vector
+        |Vector(1, 2)(0)""".stripMargin, hint, inspectionClass)
+    checkTextHasNoErrors("scala.collection.mutable.ArrayBuffer(1, 2)(0)", hint, inspectionClass)
+  }
 }

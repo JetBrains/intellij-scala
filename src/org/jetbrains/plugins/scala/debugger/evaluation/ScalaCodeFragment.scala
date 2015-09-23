@@ -12,6 +12,8 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
 
 import scala.collection.mutable.HashSet
@@ -50,7 +52,7 @@ class ScalaCodeFragment(project: Project, text: String) extends {
   }
 
   def addImportsFromString(imports: String) {
-    this.imports ++= imports.split(',')
+    this.imports ++= imports.split(',').filter(_.nonEmpty)
   }
 
   def setVisibilityChecker(checker: VisibilityChecker) {}
@@ -77,14 +79,22 @@ class ScalaCodeFragment(project: Project, text: String) extends {
     imports += path
     myManager.beforeChange(false)
     val project: Project = myManager.getProject
-    val document: Document = PsiDocumentManager.getInstance(project).getDocument(this)
+    val psiDocumentManager = PsiDocumentManager.getInstance(project)
+    val document: Document = psiDocumentManager.getDocument(this)
     UndoManager.getInstance(project).undoableActionPerformed(
       new ScalaCodeFragment.ImportClassUndoableAction(path, document, imports)
     )
-    //todo: that's a hack, how to remove it?..
-    PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(document)
-    document.insertString(0, "a")
-    document.deleteString(0, 1)
+    val newRef = ref match {
+      case st: ScStableCodeReferenceElement if st.resolve() == null =>
+        Some(ScalaPsiElementFactory.createReferenceFromText(st.getText, st.getParent, st))
+      case expr: ScReferenceExpression if expr.resolve() == null =>
+        Some(ScalaPsiElementFactory.createExpressionFromText(expr.getText, expr).asInstanceOf[ScReferenceExpression])
+      case _ => None
+    }
+    newRef match {
+      case Some(r) if r.resolve() != null => ref.replace(r)
+      case _ =>
+    }
   }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,

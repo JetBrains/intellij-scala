@@ -166,6 +166,7 @@ public class MouseHoverHandler extends AbstractProjectComponent {
       myTooltipAlarm.addRequest(new Runnable() {
         @Override
         public void run() {
+          if (HintManager.getInstance().hasShownHintsThatWillHideByOtherHint(true)) return;
           myTooltipProvider = new TooltipProvider(finalEditor, pos);
           myTooltipProvider.execute(browseMode);
         }

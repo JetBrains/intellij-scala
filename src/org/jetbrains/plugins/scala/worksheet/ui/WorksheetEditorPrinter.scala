@@ -268,6 +268,7 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
   }
 
   private def commitDocument(doc: Document) {
+    if (project.isDisposed) return //EA-70786
     PsiDocumentManager getInstance project commitDocument doc
   }
   

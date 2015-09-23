@@ -31,8 +31,13 @@ abstract class IdeClient(compilerName: String,
 
     val sourcePath = source.map(file => file.getPath)
 
-    context.processMessage(new CompilerMessage(name, kind, text, sourcePath.orNull,
-      -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
+    context.getProjectDescriptor.getProject.getName
+    if (kind == Kind.WARNING && ScalaReflectMacroExpansionParser.isMacroMessage(text)) {
+      ScalaReflectMacroExpansionParser.processMessage(text)
+    } else {
+      context.processMessage(new CompilerMessage(name, kind, text, sourcePath.orNull,
+        -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
+    }
   }
 
   def trace(exception: Throwable) {

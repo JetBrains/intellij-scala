@@ -21,6 +21,8 @@ class JavaToScalaConversionStatementsTest extends JavaToScalaConversionTestBase 
 
   def testIncrement() = doTest()
 
+  def testIntersectionType() = doTest()
+
   def testOnlyIf() = doTest()
 
   def testParseInt() = doTest()

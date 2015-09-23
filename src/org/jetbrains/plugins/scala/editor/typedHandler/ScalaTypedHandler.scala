@@ -200,7 +200,8 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
     
     if (element.getNode.getElementType == tLBRACE && 
-      Option(element.getParent.getPrevSibling).exists(_.getNode.getElementType == tINTERPOLATED_STRING_INJECTION)) {
+      Option(element.getParent.getPrevSibling).exists(_.getNode.getElementType == tINTERPOLATED_STRING_INJECTION) &&
+      (element.getNextSibling == null || element.getNextSibling.getNode.getElementType != tRBRACE)) {
       insertAndCommit(offset, "}", document, project)
     }
   }
@@ -230,8 +231,11 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 
   private def getScaladocTask(text: String, offset: Int): (Document, Project, PsiElement, Int) => Unit = {
     import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler._
-    if (offset < 3 || text.length < offset) {
-      return null
+    if (offset < 3 || text.length < offset) return null
+    
+    text.charAt(offset) match {
+      case ' '|'\n'|'\t'|'\r'|''' =>
+      case _ => return null
     }
 
     if (text.substring(offset - 3, offset) == "'''") {

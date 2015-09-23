@@ -72,7 +72,7 @@ case class JavaArrayType(arg: ScType) extends ValueType {
       case JavaArrayType(arg2) => Equivalence.equivInner (arg, arg2, uSubst, falseUndef)
       case ScParameterizedType(des, args) if args.length == 1 =>
         ScType.extractClass(des) match {
-          case Some(td) if td.qualifiedName == "scala.Array" => Equivalence.equivInner(arg, args(0), uSubst, falseUndef)
+          case Some(td) if td.qualifiedName == "scala.Array" => Equivalence.equivInner(arg, args.head, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
       case _ => (false, uSubst)
@@ -277,12 +277,12 @@ class ScParameterizedType private (val designator : ScType, val typeArgs : Seq[S
 
   override def typeDepth: Int = {
     val depths = typeArgs.map(_.typeDepth)
-    if (depths.length == 0) designator.typeDepth //todo: shouldn't be possible
+    if (depths.isEmpty) designator.typeDepth //todo: shouldn't be possible
     else designator.typeDepth.max(depths.max + 1)
   }
 
   override def isFinalType: Boolean = designator.isFinalType && !typeArgs.exists {
-    case tp: ScTypeParameterType => tp.isConravariant || tp.isCovariant
+    case tp: ScTypeParameterType => tp.isContravariant || tp.isCovariant
     case _ => false
   }
 
@@ -364,7 +364,7 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
     }
   }
 
-  def isConravariant = {
+  def isContravariant = {
     param match {
       case tp: ScTypeParam => tp.isContravariant
       case _ => false
@@ -399,7 +399,7 @@ private[types] object CyclicHelper {
   def compute[R](pn1: PsiNamedElement, pn2: PsiNamedElement)(fun: () => R): Option[R] = {
     import org.jetbrains.plugins.scala.caches.ScalaRecursionManager._
     doComputationsForTwoElements(pn1, pn2, (p: Object, searches: Seq[Object]) => {
-      searches.find(_ == p) == None
+      !searches.contains(p)
     }, pn2, pn1, fun(), CYCLIC_HELPER_KEY)
   }
 }

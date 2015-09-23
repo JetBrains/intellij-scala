@@ -554,6 +554,19 @@ object ScalaRefactoringUtil {
     editor.getDocument.getText.substring(start, end)
   }
 
+  def getExpressions(element: PsiElement): Array[ScExpression] = {
+    val res = new ArrayBuffer[ScExpression]
+    var parent = element
+    while (parent != null && !parent.getText.contains("\n")) {
+      parent match {
+        case expr: ScExpression => res += expr
+        case _ =>
+      }
+      parent = parent.getParent
+    }
+    res.toArray
+  }
+
   def afterExpressionChoosing(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
                         refactoringName: String, exprFilter: (ScExpression) => Boolean = e => true)(invokesNext: => Unit) {
 
@@ -564,19 +577,7 @@ object ScalaRefactoringUtil {
                 w.getText.contains("\n") => file.findElementAt(offset - 1)
         case p => p
       }
-      def getExpressions: Array[ScExpression] = {
-        val res = new ArrayBuffer[ScExpression]
-        var parent = element
-        while (parent != null && !parent.getText.contains("\n")) {
-          parent match {
-            case expr: ScExpression => res += expr
-            case _ =>
-          }
-          parent = parent.getParent
-        }
-        res.toArray
-      }
-      val expressions = getExpressions.filter(exprFilter)
+      val expressions = getExpressions(element).filter(exprFilter)
       def chooseExpression(expr: ScExpression) {
         editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset, expr.getTextRange.getEndOffset)
         invokesNext
@@ -867,14 +868,14 @@ object ScalaRefactoringUtil {
 
       val funDef = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionDefinition])
 
-      val isAnonFunBlock = candidate match {
-        case b: ScBlock if b.isAnonymousFunction => true
+      val isCaseClausesBlock = candidate match {
+        case b: ScBlock if b.hasCaseClauses => true
         case _ => false
       }
 
       if (funDef != null && PsiTreeUtil.isAncestor(candidate, funDef, true) && oneExprBody(funDef))
         funDef.body.get
-      else if (isAnonFunBlock) container(candidate.getContext, file)
+      else if (isCaseClausesBlock) container(candidate.getContext, file)
       else candidate
     }
   }

@@ -3,9 +3,9 @@ import sbt._
 
 object Versions {
   val scalaVersion = "2.11.6"
-  val ideaVersion = "142.3230.1"
-  val sbtStructureVersion = "4.1.0"
-  val luceneVersion = "4.3.0"
+  val ideaVersion = "142.4675.3"
+  val sbtStructureVersion = "4.1.1"
+  val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
   val wagonVersion = "2.6"
@@ -21,8 +21,9 @@ object Dependencies {
 
   val scalaLibrary = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect = "org.scala-lang" % "scala-reflect" % scalaVersion
+  val scalaCompiler = "org.scala-lang" % "scala-compiler" % scalaVersion
   val scalaXml = "org.scala-lang.modules" %% "scala-xml" % "1.0.2"
-  val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2"
+  val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
   val sbtStructureCore = "org.jetbrains" % "sbt-structure-core_2.11" % sbtStructureVersion
   val evoInflector = "org.atteo" % "evo-inflector" % "1.2"
   val scalatestFindersPatched = "org.scalatest" % "scalatest-finders-patched" % "0.9.6"
@@ -125,6 +126,12 @@ object DependencyGroups {
     scalatestFindersPatched
   ) ++ mavenIndexer
 
+  val scalap = Seq(
+    scalaLibrary,
+    scalaReflect,
+    scalaCompiler
+  )
+
   val scalaRunner = Seq(
     "org.specs2" %% "specs2" % "2.3.11" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
   )
@@ -134,6 +141,12 @@ object DependencyGroups {
     "org.scalatest" % "scalatest_2.11" % "2.2.1" % "provided",
     "com.lihaoyi" %% "utest" % "0.1.3" % "provided"
   )
+
+  val sbtLaunchTestDownloader =
+    Seq("0.12.4", "0.13.0", "0.13.1", "0.13.2",
+        "0.13.5", "0.13.6", "0.13.7", "0.13.8",
+        "0.13.9")
+      .map(v => "org.scala-sbt" % "sbt-launch" % v)
 
   val testDownloader = Seq(
     "org.scalatest" % "scalatest_2.11" % "2.2.1",

@@ -7,8 +7,7 @@ class a {
   try {
     ABC
     deF
-  }
-  catch {
+  } catch {
     case  =>
   }
 }
