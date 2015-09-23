@@ -1,0 +1,15 @@
+//I
+object My{
+  class A{
+    val j:<begin>Int<end> = 23
+  }
+
+  def foo(){
+    class I{
+      def q(){
+        12
+      }
+    }
+  }
+}
+-------

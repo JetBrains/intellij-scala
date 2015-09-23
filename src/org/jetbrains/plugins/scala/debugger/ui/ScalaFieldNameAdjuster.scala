@@ -14,7 +14,7 @@ class ScalaFieldNameAdjuster extends NodeDescriptorNameAdjuster {
 
   override def isApplicable(descriptor: NodeDescriptor): Boolean = {
     descriptor match {
-      case fd: FieldDescriptor =>
+      case fd: FieldDescriptor if fd.getObject != null =>
         DebuggerUtil.isScala(fd.getObject.referenceType()) && isObscureName(fd.getField.name())
       case _ => false
     }

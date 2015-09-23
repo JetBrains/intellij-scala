@@ -1,0 +1,13 @@
+//I
+object My{
+  val t: <all>Int<end> = 45
+  class A{
+    val j:Int = 23
+  }
+
+  def foo(){
+    type I = Int
+  }
+}
+------
+Introduced type alias conflicts with type name: I
