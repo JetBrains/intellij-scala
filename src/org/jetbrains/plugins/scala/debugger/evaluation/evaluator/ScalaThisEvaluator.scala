@@ -5,6 +5,7 @@ import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
 import com.intellij.debugger.jdi.{LocalVariableProxyImpl, StackFrameProxyImpl}
 import com.sun.jdi.{AbsentInformationException, ObjectReference, Value}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 
 /**
@@ -57,6 +58,7 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
         thisRef = getOuterObject(thisRef)
         idx += 1
       }
+      if (thisRef == null) throw EvaluationException(ScalaBundle.message("outer.this.not.available"))
       objRef = thisRef
     }
     if (objRef == null) {

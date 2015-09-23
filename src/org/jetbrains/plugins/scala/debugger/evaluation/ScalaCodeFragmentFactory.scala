@@ -18,7 +18,6 @@ import com.intellij.xdebugger.impl.frame.XValueMarkers
 import com.intellij.xdebugger.impl.ui.tree.ValueMarkup
 import com.intellij.xdebugger.{XDebugSession, XDebuggerManager}
 import com.sun.jdi.{ObjectReference, Value}
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression

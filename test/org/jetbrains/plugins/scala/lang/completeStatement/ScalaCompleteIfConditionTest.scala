@@ -185,7 +185,7 @@ class ScalaCompleteIfConditionTest extends ScalaCompleteStatementTestBase {
         |class B {
         |    public static void main(String[] args) {
         |        if (<caret>) {
-        |        }
+        |        } 
         |    }
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()

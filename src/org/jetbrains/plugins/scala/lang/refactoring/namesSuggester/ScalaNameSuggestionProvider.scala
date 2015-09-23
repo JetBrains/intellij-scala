@@ -23,7 +23,6 @@ class ScalaNameSuggestionProvider extends NameSuggestionProvider {
   def completeName(element: PsiElement, nameSuggestionContext: PsiElement, prefix: String): util.Collection[LookupElement] = null
 
   def getSuggestedNames(element: PsiElement, nameSuggestionContext: PsiElement, result: util.Set[String]): SuggestedNameInfo = {
-    result.clear()
     val names = element match {
       case clazz: ScTemplateDefinition => Seq[String](clazz.name)
       case typed: ScTypedDefinition => typed.name +: NameSuggester.suggestNamesByType(typed.getType(TypingContext.empty).getOrAny).toSeq

@@ -21,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
 import static com.intellij.psi.xml.XmlTokenType.*;
-import static org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes.*;
 
 /**
  * @author ilyas
@@ -254,4 +253,5 @@ public interface ScalaTokenTypes {
 
   TokenSet IDENTIFIER_TOKEN_SET = TokenSet.create(tIDENTIFIER);
   TokenSet STRING_LITERAL_TOKEN_SET = TokenSet.create(tSTRING, tWRONG_STRING, tMULTILINE_STRING, tINTERPOLATED_MULTILINE_STRING, tINTERPOLATED_STRING);
+  TokenSet BRACES_TOKEN_SET = TokenSet.create(tLSQBRACKET, tRSQBRACKET, tLBRACE, tRBRACE, tLPARENTHESIS, tRPARENTHESIS);
 }

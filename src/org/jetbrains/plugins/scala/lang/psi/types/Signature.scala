@@ -239,6 +239,10 @@ object PhysicalSignature {
         Seq.empty
     }
   }
+
+  def unapply(signature: PhysicalSignature): Option[(PsiMethod, ScSubstitutor)] = {
+    Some(signature.method, signature.substitutor)
+  }
 }
 
 class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)

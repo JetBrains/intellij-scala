@@ -9,15 +9,16 @@ import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 
 import com.intellij.ProjectTopics
 import com.intellij.openapi.components.ProjectComponent
-import com.intellij.openapi.project.{DumbService, DumbServiceImpl, Project}
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.openapi.util.{Key, LowMemoryWatcher}
 import com.intellij.psi._
 import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiManagerEx}
 import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.psi.stubs.StubIndex
-import com.intellij.util.{ArrayUtil, SofterReference}
+import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.util.containers.WeakValueHashMap
+import com.intellij.util.{ArrayUtil, SofterReference}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
@@ -372,33 +373,43 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   def getComponentName = "ScalaPsiManager"
   def disposeComponent() {}
   def initComponent() {
-    PsiManager.getInstance(project).asInstanceOf[PsiManagerEx].registerRunnableToRunOnAnyChange(new Runnable {
-      override def run() {
-        syntheticPackages.clear()
-      }
-    })
+    def clearOnChange(): Unit = {
+      compoundTypesParameterslessNodes.clear()
+      compoundTypesSignatureNodes.clear()
+      compoundTypesTypeNodes.clear()
+      Conformance.cache.clear()
+      Equivalence.cache.clear()
+      ScParameterizedType.substitutorCache.clear()
+      ScalaPsiUtil.collectImplicitObjectsCache.clear()
+      ImplicitCollector.cache.clear()
+    }
 
-    PsiManager.getInstance(project).asInstanceOf[PsiManagerEx].registerRunnableToRunOnChange(new Runnable {
-      def run() {
-        implicitObjectMap.clear()
-        packageMap.clear()
-        classMap.clear()
-        classesMap.clear()
-        classFacadeMap.clear()
-        classesFacadeMap.clear()
-        inheritorsMap.clear()
-        scalaPackageClassesMap.clear()
-        javaPackageClassNamesMap.clear()
-        scalaPackageClassNamesMap.clear()
-        compoundTypesParameterslessNodes.clear()
-        compoundTypesSignatureNodes.clear()
-        compoundTypesTypeNodes.clear()
-        Conformance.cache.clear()
-        Equivalence.cache.clear()
-        ScParameterizedType.substitutorCache.clear()
-        ScalaPsiUtil.collectImplicitObjectsCache.clear()
-        ImplicitCollector.cache.clear()
+    def clearOnOutOfCodeBlockChange(): Unit = {
+      implicitObjectMap.clear()
+      packageMap.clear()
+      classMap.clear()
+      classesMap.clear()
+      classFacadeMap.clear()
+      classesFacadeMap.clear()
+      inheritorsMap.clear()
+      scalaPackageClassesMap.clear()
+      javaPackageClassNamesMap.clear()
+      scalaPackageClassNamesMap.clear()
+      syntheticPackages.clear()
+    }
+
+    project.getMessageBus.connect.subscribe(PsiModificationTracker.TOPIC, new PsiModificationTracker.Listener {
+      def modificationCountChanged() {
+        clearOnChange()
+        val count = PsiModificationTracker.SERVICE.getInstance(project).getOutOfCodeBlockModificationCount
+        if (outOfCodeBlockModCount != count) {
+          outOfCodeBlockModCount = count
+          clearOnOutOfCodeBlockChange()
+        }
       }
+      
+      @volatile
+      private var outOfCodeBlockModCount: Long = 0L
     })
 
     project.getMessageBus.connect.subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
@@ -406,36 +417,13 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       }
 
       def rootsChanged(event: ModuleRootEvent) {
-        implicitObjectMap.clear()
-        classMap.clear()
-        packageMap.clear()
-        classesMap.clear()
-        classFacadeMap.clear()
-        classesFacadeMap.clear()
-        inheritorsMap.clear()
-        scalaPackageClassesMap.clear()
-        javaPackageClassNamesMap.clear()
-        scalaPackageClassNamesMap.clear()
-        compoundTypesParameterslessNodes.clear()
-        compoundTypesSignatureNodes.clear()
-        compoundTypesTypeNodes.clear()
-        Conformance.cache.clear()
-        Equivalence.cache.clear()
-        ScParameterizedType.substitutorCache.clear()
-        ScalaPsiUtil.collectImplicitObjectsCache.clear()
-        ImplicitCollector.cache.clear()
+        clearOnChange()
+        clearOnOutOfCodeBlockChange()
       }
     })
 
     LowMemoryWatcher.register(new Runnable {
       def run(): Unit = {
-        implicitObjectMap.clear()
-        classMap.clear()
-        packageMap.clear()
-        classesMap.clear()
-        classFacadeMap.clear()
-        classesFacadeMap.clear()
-        inheritorsMap.clear()
         scalaPackageClassesMap.clear()
         javaPackageClassNamesMap.clear()
         scalaPackageClassNamesMap.clear()

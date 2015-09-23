@@ -32,7 +32,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       case _ => throw EvaluationException(ScalaBundle.message("non-scala.code.fragment"))
     }
 
-    val project = position.getFile.getProject
+    val project = codeFragment.getProject
 
     val cache = ScalaEvaluatorCache.getInstance(project)
     val cached: Option[ExpressionEvaluator] = {
@@ -68,13 +68,16 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
 private[evaluation] class NeedCompilationException(message: String) extends EvaluateException(message)
 
-private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextClass: Option[PsiClass] = null)
+private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextClass: Option[PsiClass] = None)
                                                  (implicit val position: SourcePosition)
         extends ScalaElementVisitor with ScalaEvaluatorBuilderUtil {
 
   import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil._
 
-  val contextClass = _contextClass.getOrElse(getContextClass(position.getElementAt, strict = false))
+  val contextClass = _contextClass.getOrElse {
+    if (position == null) null
+    else getContextClass(position.getElementAt, strict = false)
+  }
 
   private var myResult: Evaluator = null
 

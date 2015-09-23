@@ -6,7 +6,8 @@ package impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.reference.SoftReference
+import com.intellij.util.SofterReference
+import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -26,8 +27,8 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
   private var annotations: Array[StringRef] = Array[StringRef]()
   private var typeText: StringRef = _
   private var bodyText: StringRef = _
-  private var myReturnTypeElement: SoftReference[Option[ScTypeElement]] = new SoftReference[Option[ScTypeElement]](null)
-  private var myBodyExpression: SoftReference[Option[ScExpression]] = new SoftReference[Option[ScExpression]](null)
+  private var myReturnTypeElement: SofterReference[Option[ScTypeElement]] = null
+  private var myBodyExpression: SofterReference[Option[ScExpression]] = null
   private var assign: Boolean = false
   private var _implicit: Boolean = false
   private var local: Boolean = false
@@ -71,26 +72,30 @@ extends StubBaseWrapper[ScFunction](parent, elemType) with ScFunctionStub {
   def getAnnotations: Array[String] = annotations.map(StringRef.toString)
 
   def getReturnTypeElement: Option[ScTypeElement] = {
-    val returnTypeElement = myReturnTypeElement.get
-    if (returnTypeElement != null && (returnTypeElement.isEmpty || (returnTypeElement.get.getContext eq getPsi))) {
-      return returnTypeElement
+    if (myReturnTypeElement != null) {
+      val returnTypeElement = myReturnTypeElement.get
+      if (returnTypeElement != null && (returnTypeElement.isEmpty || (returnTypeElement.get.getContext eq getPsi))) {
+        return returnTypeElement
+      }
     }
     val res: Option[ScTypeElement] =
       if (getReturnTypeText != "") {
         Some(ScalaPsiElementFactory.createTypeElementFromText(getReturnTypeText, getPsi, null))
       } else None
-    myReturnTypeElement = new SoftReference[Option[ScTypeElement]](res)
+    myReturnTypeElement = new SofterReference[Option[ScTypeElement]](res)
     res
   }
 
   def getBodyExpression: Option[ScExpression] = {
-    val body = myBodyExpression.get
-    if (body != null && (body.isEmpty || (body.get.getContext eq getPsi))) return body
+    if (myBodyExpression != null) {
+      val body = myBodyExpression.get
+      if (body != null && (body.isEmpty || (body.get.getContext eq getPsi))) return body
+    }
     val res: Option[ScExpression] =
       if (getBodyText != "") {
         Some(ScalaPsiElementFactory.createExpressionWithContextFromText(getBodyText, getPsi, null))
       } else None
-    myBodyExpression = new SoftReference[Option[ScExpression]](res)
+    myBodyExpression = new SofterReference[Option[ScExpression]](res)
     res
   }
 

@@ -1,0 +1,8 @@
+//Ints
+class A {
+  def INTS(i:<begin>List[Int]<end>, j:Int):Double = {
+    val q:Int = 34
+    23
+  }
+}
+-----

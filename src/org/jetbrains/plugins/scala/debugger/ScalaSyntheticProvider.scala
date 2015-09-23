@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.debugger
 
 import com.intellij.debugger.engine.SyntheticTypeComponentProvider
-import com.sun.jdi.{Method, ReferenceType, TypeComponent}
+import com.sun.jdi._
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
 import scala.collection.JavaConverters._
 
@@ -11,11 +12,19 @@ import scala.collection.JavaConverters._
  */
 class ScalaSyntheticProvider extends SyntheticTypeComponentProvider {
   override def isSynthetic(typeComponent: TypeComponent): Boolean = {
+    val isScala = DebuggerUtil.isScala(typeComponent.declaringType(), default = false)
+    if (!isScala) return false
+
     typeComponent match {
       case m: Method if m.isConstructor && isAnonFun(m.declaringType()) => true
       case m: Method if m.name() == "apply" && hasSpecializationMethod(m.declaringType()) => true
       case m: Method if isDefaultArg(m) => true
-      case _ => false
+      case m: Method if m.name().endsWith("$adapted") => true
+      case m: Method if ScalaPositionManager.isIndyLambda(m) => false
+      case f: Field if f.name().startsWith("bitmap$") => true
+      case _ =>
+        val machine: VirtualMachine = typeComponent.virtualMachine
+        machine != null && machine.canGetSyntheticAttribute && typeComponent.isSynthetic
     }
   }
 

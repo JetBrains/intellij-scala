@@ -3,8 +3,8 @@ package debugger.evaluation
 
 import com.intellij.debugger.codeinsight.RuntimeTypeEvaluator
 import com.intellij.debugger.engine.ContextUtil
-import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, TextWithImportsImpl, EvaluationContextImpl}
 import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluator
+import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, EvaluationContextImpl, TextWithImportsImpl}
 import com.intellij.debugger.impl.DebuggerContextImpl
 import com.intellij.debugger.{DebuggerBundle, DebuggerInvocationUtil, EvaluatingComputable}
 import com.intellij.openapi.application.{AccessToken, ReadAction}
@@ -20,6 +20,7 @@ import com.sun.jdi.{ClassType, Type, Value}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -46,7 +47,9 @@ abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: P
     })
     val value: Value = evaluator.evaluate(evaluationContext)
     if (value != null) {
-      Option(getCastableRuntimeType(project, value)).map(new PsiImmediateClassType(_, PsiSubstitutor.EMPTY)).orNull
+      inReadAction {
+        Option(getCastableRuntimeType(project, value)).map(new PsiImmediateClassType(_, PsiSubstitutor.EMPTY)).orNull
+      }
     } else throw EvaluationException(DebuggerBundle.message("evaluation.error.surrounded.expression.null"))
   }
 }

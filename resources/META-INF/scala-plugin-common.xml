@@ -17,10 +17,9 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
-        <syntheticMemberInjector
-                implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MonocleInjector"/>
-        <syntheticMemberInjector
-                implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.QuasiQuotesInjector"/>
+        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MonocleInjector"/>
+        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.QuasiQuotesInjector"/>
+        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.simulacrum.SimulacrumInjection"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -38,16 +37,21 @@
         <refactoring.moveAllClassesInFileHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.MoveScalaClassesInFileHandler" order="last"/>
         <statementUpDownMover implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaStatementMover"/>
         <editorTabTitleProvider implementation="org.jetbrains.plugins.scala.editor.PackageObjectEditorTabTitleProvider"/>
-        <debugger.javaDebugAware implementation="org.jetbrains.plugins.scala.debugger.ScalaJavaDebugAware"/>
         <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory"/>
         <debugger.positionManagerFactory implementation="org.jetbrains.plugins.scala.debugger.ScalaPositionManagerFactory"/>
         <debuggerEditorTextProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEditorTextProvider"/>
-        <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.ListLikeCollectionNodeRenderer"/>
+        <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.NonStrictCollectionsRenderer"/>
         <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.RuntimeRefRenderer"/>
+        <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer"/>
         <debugger.syntheticProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticProvider"/>
         <debugger.frameExtraVarsProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaFrameExtraVariablesProvider"/>
         <debugger.extraSteppingFilter implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticSteppingFilter"/>
         <debugger.sourcePositionProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSourcePositionProvider"/>
+        <debugger.javaBreakpointHandlerFactory implementation="org.jetbrains.plugins.scala.debugger.breakpoints.ScalaBreakpointHandlerFactory"/>
+        <debugger.sourcePositionHighlighter implementation="org.jetbrains.plugins.scala.debugger.ScalaSourcePositionHighlighter"/>
+        <debugger.nodeNameAdjuster implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaFieldNameAdjuster"/>
+        <debugger.nodeNameAdjuster implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaParameterNameAdjuster"/>
+        <xdebugger.breakpointType implementation="org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType"/>
         <generation.topLevelFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.impl.ScalaFactoryProvider"/>
         <generation.toStringClassFilter implementation="org.jetbrains.plugins.scala.codeInsight.generation.GenerateToStringScalaClassFilter"/>
         <treeCopyHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeUtilSupport"/>
@@ -241,6 +245,7 @@
         <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.SuggestScalaVariableNameMacro"/>
+        <codeInsight.template.postfixTemplateProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.postfix.templates.ScalaPostfixTemplateProvider"/>
 
         <testCreator language="Scala" implementationClass="org.jetbrains.plugins.scala.testingSupport.ScalaTestCreator"/>
         <testGenerator language="Scala" implementationClass="org.jetbrains.plugins.scala.testingSupport.ScalaTestGenerator"/>
@@ -325,6 +330,7 @@
 
         <quoteHandler fileType="Scala" className="org.jetbrains.plugins.scala.lang.editor.ScalaQuoteHandler"/>
 
+        <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaAttributeValueSelectioner"/>
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaWordSelectioner"/>
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaLiteralSelectioner"/>
         <extendWordSelectionHandler implementation="org.jetbrains.plugins.scala.editor.selectioner.ScalaSemicolonSelectioner"/>
@@ -650,6 +656,9 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.deprecation.ScalaDeprecationInspection"
                          displayName="Scala Deprecation" groupPath="Scala" groupName="General" shortName="ScalaDeprecation"
                          id="ScalaDeprecation" level="WARNING" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.deprecation.ScalaDeprecatedIdentifierInspection"
+                         displayName="Deprecated identifier" groupPath="Scala" groupName="General" shortName="ScalaDeprecatedIdentifier"
+                         id="ScalaDeprecatedIdentifier" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.CaseClassParamInspection"
                          displayName="Case Class Parameter" groupPath="Scala" groupName="General" shortName="CaseClassParam"
                          id="CaseClassParam" level="WARNING" enabledByDefault="true" language="Scala"/>
@@ -821,8 +830,16 @@
                          shortName="DeprecatedViewBound" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection"
-                         displayName="Convert expression to Single Abstract Method (SAM)" groupName="Scala: General"
+                         displayName="Convert expression to Single Abstract Method (SAM)" groupPath="Scala" groupName="General"
                          shortName="ConvertExpressionToSAM" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.monads.NestedStatefulMonadsInspection"
+                         displayName="Nested stateful monads" groupPath="Scala" groupName="General"
+                         shortName="NestedStatefulMonads" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.delayedInit.FieldFromDelayedInitInspection"
+                         displayName="Field from DelayedInit" groupPath="Scala" groupName="General"
+                         shortName="FieldFromDelayedInit" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
                         displayName="All Errors Tool" groupPath="Scala" groupName="General"
@@ -1297,6 +1314,11 @@
                 class="org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTraitAction" text="_Trait..."
                 description="Extract trait from the selected class">
           <add-to-group group-id="IntroduceActionsGroup"/>
+        </action>
+        <action id="Scala.MacroExpand"
+            class="org.jetbrains.plugins.scala.util.MacroExpandAction"
+            description="Expand macro application under cursor">
+            <keyboard-shortcut first-keystroke="ctrl alt shift Z" keymap="$default"/>
         </action>
       </actions>
 

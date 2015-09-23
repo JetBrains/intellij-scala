@@ -18,6 +18,7 @@ package org.jetbrains.plugins.scala;
 import com.intellij.lang.Language;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.fileTypes.ex.FileTypeIdentifiableByVirtualFile;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -65,6 +66,6 @@ public class ScalaFileType extends LanguageFileType implements FileTypeIdentifia
   // while FileTypeManager contains no .scala pattern)
   @Override
   public boolean isMyFileType(@NotNull VirtualFile virtualFile) {
-    return virtualFile.getName().endsWith(".scala");
+    return StringUtil.endsWith(virtualFile.getNameSequence(), ".scala");
   }
 }

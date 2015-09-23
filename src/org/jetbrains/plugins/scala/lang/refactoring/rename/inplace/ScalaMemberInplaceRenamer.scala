@@ -153,9 +153,10 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
     }
   }
 
-  override def getNameIdentifier: PsiElement = {
-    if (!myElementToRename.isPhysical) null
-    else super.getNameIdentifier
+  override def getNameIdentifier: PsiElement = myElementToRename match {
+    case lightPsi: PsiNamedElement if !lightPsi.isPhysical => null
+    case nameIdentifierOwner: PsiNameIdentifierOwner if myElementToRename.getContainingFile.getViewProvider.getAllFiles.size() > 1 => nameIdentifierOwner.getNameIdentifier
+    case _ => super.getNameIdentifier
   }
 }
 object ScalaMemberInplaceRenamer {

@@ -7,7 +7,7 @@ package impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.reference.SoftReference
+import com.intellij.util.SofterReference
 import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
@@ -23,7 +23,7 @@ class ScTemplateParentsStubImpl[ParentPsi <: PsiElement](parent: StubElement[Par
                                                   elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
         extends StubBaseWrapper[ScTemplateParents](parent, elemType) with ScTemplateParentsStub {
   private var typesString: Seq[StringRef] = Seq.empty
-  private var types: SoftReference[Seq[ScTypeElement]] = new SoftReference(null)
+  private var types: SofterReference[Seq[ScTypeElement]] = null
   private var constructor: Option[StringRef] = None
 
   def this(parent: StubElement[ParentPsi],
@@ -43,16 +43,18 @@ class ScTemplateParentsStubImpl[ParentPsi <: PsiElement](parent: StubElement[Par
     getTemplateParentsTypeElements.map(_.getType(TypingContext.empty).getOrAny)
 
   def getTemplateParentsTypeElements: Seq[ScTypeElement] = {
-    val typeElements = types.get
-    if (typeElements != null && typeElements.forall { elem =>
-      val context = elem.getContext
-      context.eq(getPsi) || (context.getContext != null && context.getContext.eq(getPsi))
-    }) return typeElements
+    if (types != null) {
+      val typeElements = types.get
+      if (typeElements != null && typeElements.forall { elem =>
+        val context = elem.getContext
+        context.eq(getPsi) || (context.getContext != null && context.getContext.eq(getPsi))
+      }) return typeElements
+    }
     val res: Seq[ScTypeElement] =
       constructor.map(s =>
         ScalaPsiElementFactory.createConstructorTypeElementFromText(StringRef.toString(s), getPsi, null)).toSeq ++
         getTemplateParentsTypesTexts.map(ScalaPsiElementFactory.createTypeElementFromText(_, getPsi, null))
-    types = new SoftReference(res)
+    types = new SofterReference(res)
     res
   }
 }

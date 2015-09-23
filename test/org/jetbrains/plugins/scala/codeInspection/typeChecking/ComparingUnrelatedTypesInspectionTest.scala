@@ -146,4 +146,12 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaLightInspectionFixtureT
     checkTextHasNoErrors("def foo(x: Some[_]) { x == Some(1) }")
     checkTextHasError(s"def foo(x: Some[_]) { ${START}x == Seq(1)$END }")
   }
+
+  def testNumeric(): Unit = {
+    checkTextHasNoErrors("BigInt(1) == 1")
+    checkTextHasNoErrors("BigInt(1) == 1L")
+    checkTextHasNoErrors("BigInt(1) == new java.lang.Integer(1)")
+    checkTextHasError(s"${START}BigInt(1) == true$END")
+    checkTextHasError(s"${START}BigInt(1) == 1.toString$END")
+  }
 }

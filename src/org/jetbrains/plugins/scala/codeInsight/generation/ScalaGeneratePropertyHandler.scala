@@ -51,7 +51,7 @@ class ScalaGeneratePropertyHandler extends LanguageCodeInsightActionHandler {
     val getter_0 = createDefinition(getterText)
 
     val setterText =
-      s"""$modifiers def ${name}_(value: $typeText): Unit = {
+      s"""$modifiers def ${name}_=(value: $typeText): Unit = {
         |  _$name = value
         |}""".stripMargin.replace("\r", "")
     val setter_0 = createDefinition(setterText)
