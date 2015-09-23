@@ -47,7 +47,7 @@ class EmptyParenMethodAccessedAsParameterlessInspection extends AbstractMethodSi
 
   private def check(e: ScReferenceExpression, holder: ProblemsHolder, callType: TypeResult[ScType]) {
     e.resolve() match {
-      case (f: ScFunction) if f.isEmptyParen =>
+      case (f: ScFunction) if !f.isInCompiledFile && f.isEmptyParen =>
         callType.toOption match {
           case Some(ScFunctionType(_, Seq())) =>
           // might have been eta-expanded to () => A, so don't worn.

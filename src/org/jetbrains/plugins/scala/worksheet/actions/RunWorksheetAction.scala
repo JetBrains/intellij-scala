@@ -186,7 +186,9 @@ object RunWorksheetAction {
   }
 
   def getModuleFor(file: PsiFile): Module = file.getVirtualFile match {
-    case _: VirtualFileWithId => ProjectFileIndex.SERVICE getInstance file.getProject getModuleForFile file.getVirtualFile
+    case _: VirtualFileWithId => 
+      Option(ProjectFileIndex.SERVICE getInstance file.getProject getModuleForFile 
+        file.getVirtualFile) getOrElse file.getProject.anyScalaModule.map(_.module).orNull
     case _ => file.getProject.anyScalaModule.map(_.module).orNull
   }
 }

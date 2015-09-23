@@ -304,7 +304,7 @@ object ScalaPsiElementFactory {
   }
 
   def createScalaFile(manager: PsiManager): ScalaFile = ScalaPsiElementFactory.parseFile("", manager)
-  
+
   def parseFile(text: String, manager: PsiManager): ScalaFile = {
     val factory = PsiFileFactory.getInstance(manager.getProject)
     val name = DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension
@@ -318,7 +318,7 @@ object ScalaPsiElementFactory {
   def parseElement(text: String, manager: PsiManager): PsiElement = {
     parseFile(text, manager).getFirstChild
   }
-  
+
   def createPackaging(name: String, manager: PsiManager): PsiElement = {
     parseFile("package %s".format(name), manager).getFirstChild
   }
@@ -931,6 +931,13 @@ object ScalaPsiElementFactory {
     }
   }
 
+  def createTypeDefinitionWithContext(text: String, context: PsiElement, child: PsiElement): ScTypeDefinition = {
+    createElementWithContext(text, context, child, TmplDef.parse(_)) match {
+      case td: ScTypeDefinition => td
+      case _ => null
+    }
+  }
+
   def createReferenceFromText(text: String, context: PsiElement, child: PsiElement): ScStableCodeReferenceElement = {
     createElementWithContext(text, context, child, StableId.parse(_, ScalaElementTypes.REFERENCE)) match {
       case ref: ScStableCodeReferenceElement => ref
@@ -1013,7 +1020,7 @@ object ScalaPsiElementFactory {
       case cce: ClassCastException => throw new IncorrectOperationException("wrong type element to parse: " + text)
     }
   }
-  
+
   def createColon(manager: PsiManager): PsiElement = {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
@@ -1109,6 +1116,13 @@ object ScalaPsiElementFactory {
     }
   }
 
+  def createTypeAliasDefinitionFromText(text: String, context: PsiElement, child: PsiElement): ScTypeAliasDefinition = {
+    createElementWithContext(text, context, child, Def.parse(_)) match {
+      case typeAlias: ScTypeAliasDefinition => typeAlias
+      case _ => null
+    }
+  }
+
   def createBlockCommentFromText(text: String, manager: PsiManager): PsiComment = {
     createScalaFile("/*" + text + "*/" + " class a { }", manager).typeDefinitions(0).simpleComment.get
   }
@@ -1144,9 +1158,9 @@ object ScalaPsiElementFactory {
             get.getNode.getChildren(null)(1).getChildren(null)(2).getPsi
   }
 
-  def createDocTag(text: String, manager: PsiManager): PsiElement = 
+  def createDocTag(text: String, manager: PsiManager): PsiElement =
     createScalaFile(s"/**$text*/ class a", manager).typeDefinitions(0).docComment.get.getNode.getChildren(null)(1).getPsi
-  
+
   def createDocTagName(name: String, manager: PsiManager): PsiElement = {
     createScalaFile("/**@" + name + " qwerty */", manager).typeDefinitions(0).docComment.
             get.getNode.getChildren(null)(1).getChildren(null)(0).getPsi

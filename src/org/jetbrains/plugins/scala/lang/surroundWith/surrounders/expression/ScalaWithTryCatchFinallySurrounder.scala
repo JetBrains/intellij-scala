@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 class ScalaWithTryCatchFinallySurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
     val arrow = if (elements.length == 0) "=>" else ScalaPsiUtil.functionArrow(elements(0).getProject)
-    "try {\n" + super.getTemplateAsString(elements) + s"\n}\ncatch {\n case _ $arrow \n}\n finally {}"
+    "try {\n" + super.getTemplateAsString(elements) + s"\n} catch {\n case _ $arrow \n} finally {}"
   }
 
   override def getTemplateDescription = "try / catch / finally"

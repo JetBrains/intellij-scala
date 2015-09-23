@@ -1,0 +1,7 @@
+object A {
+  ({<caret>})
+}
+-----
+object A {
+  (<caret>)
+}

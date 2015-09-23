@@ -8,6 +8,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
+import org.apache.lucene.store.LockReleaseFailedException
 
 import scala.collection.mutable
 
@@ -46,43 +47,48 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
 
     var indexesToUpdate = Seq.empty[SbtResolverIndex]
     updatingIndexes synchronized {
-      indexesToUpdate = resolvers filter { r => updatingIndexes.find { r.root == _.root }.isEmpty } map add
+      indexesToUpdate = resolvers.filterNot(r => updatingIndexes.exists(r.root == _.root)).map(add)
       updatingIndexes ++= indexesToUpdate
     }
 
     if (indexesToUpdate.isEmpty) return
 
     ProgressManager.getInstance().run(new Task.Backgroundable(null, "Indexing resolvers") {
-      def run(progressIndicator: ProgressIndicator) {
-        try {
-          indexesToUpdate.foreach { index =>
-            progressIndicator.setFraction(0.0)
-            progressIndicator.setText(index.root)
+      def run(progressIndicator: ProgressIndicator): Unit =
+        indexesToUpdate.foreach { index =>
+          progressIndicator.setFraction(0.0)
+          progressIndicator.setText(index.root)
+          try {
             index.update(Some(progressIndicator))
+          } catch {
+            case exc : ResolverException => notifyWarning(exc.getMessage)
+            case exc : LockReleaseFailedException => notifyWarning(SbtBundle("sbt.resolverIndexer.luceneLockException", exc.getMessage))
+          } finally {
             updatingIndexes synchronized {
               updatingIndexes -= index
             }
           }
-        } finally {
-            updatingIndexes synchronized { updatingIndexes --= indexesToUpdate }
         }
-      }
     })
   }
-
 
   private def loadIndexes() {
     indexesDir.mkdirs()
     if (!indexesDir.exists || !indexesDir.isDirectory) {
-      notifyError(SbtBundle("sbt.resolverIndexer.cantCreateIndexesDir", indexesDir.absolutePath))
+      notifyWarning(SbtBundle("sbt.resolverIndexer.cantCreateIndexesDir", indexesDir.absolutePath))
       return
     }
 
     val indices = indexesDir.listFiles()
     if (indices == null) return
-    indices foreach { indexDir => if (indexDir.isDirectory) {
-        val index = SbtResolverIndex.load(indexDir)
-        indexes.add(index)
+    indices foreach { indexDir =>
+      if (indexDir.isDirectory) {
+        try {
+          val index = SbtResolverIndex.load(indexDir)
+          indexes.add(index)
+        } catch {
+          case exc : ResolverException => notifyWarning(exc.getMessage)
+        }
       }
     }
   }
@@ -93,10 +99,11 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
 object SbtResolverIndexesManager {
   val DEFAULT_INDEXES_DIR = new File(PathManager.getSystemPath) / "sbt" / "indexes"
 
-  def notifyWarn(msg: String) =
-    Notifications.Bus.notify(new Notification("sbt", "Resolver Indexer", msg, NotificationType.WARNING))
-  def notifyError(msg: String) =
-    Notifications.Bus.notify(new Notification("sbt", "Resolver Indexer", msg, NotificationType.ERROR))
+  def notifyWarning(msg: String) = {
+    val notification = new Notification("sbt", "Resolver Indexer", msg, NotificationType.WARNING)
+    notification.setImportant(false)
+    Notifications.Bus.notify(notification)
+  }
 
   def apply() = ServiceManager.getService(classOf[SbtResolverIndexesManager])
 }

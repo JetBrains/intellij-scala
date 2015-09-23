@@ -26,7 +26,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 
-import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -266,7 +265,14 @@ object InferUtil {
 
           new ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
         case Some(tp) if !fromSAM && ScalaPsiUtil.isSAMEnabled(expr) =>
-          applyImplicitViewToResult(mt, ScalaPsiUtil.toSAMType(tp, expr.getResolveScope), fromSAM = true)
+          ScalaPsiUtil.toSAMType(tp, expr.getResolveScope) match {
+            case Some(ScFunctionType(retTp, _)) if retTp.equiv(Unit) =>
+              //example:
+              //def f(): () => Unit = () => println()
+              //val f1: Runnable = f
+              ScFunctionType(Unit, Seq.empty)(expr.getProject, expr.getResolveScope)
+            case _ => applyImplicitViewToResult(mt, ScalaPsiUtil.toSAMType(tp, expr.getResolveScope), fromSAM = true)
+          }
         case _ => mt
       }
     }

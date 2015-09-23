@@ -5,6 +5,5 @@ class a {
 class a {
   try {
     tt
-  }
-  finally
+  } finally
 }

@@ -35,6 +35,7 @@ class StringToMultilineStringIntention extends PsiElementBaseIntentionAction {
 
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
+    if (!element.isValid) return
     val lit: ScLiteral = PsiTreeUtil.getParentOfType(element, classOf[ScLiteral], false)
     if (lit == null || !lit.isString) return
     if (!FileModificationService.getInstance.preparePsiElementForWrite(element)) return

@@ -78,6 +78,7 @@ object WorksheetSourceProcessor {
     val packStmt = packOpt map ("package " + _ + " ; ") getOrElse ""
 
     val importStmts = mutable.ArrayBuffer[String]()
+    val importsProcessed = mutable.HashSet[ScImportStmt]()
 
     @inline def withCompilerVersion[T](if210: =>T, if211: => T, dflt: =>T) = Option(RunWorksheetAction getModuleFor srcFile) flatMap {
       case module => module.scalaSdk.flatMap(_.compilerVersion).collect {
@@ -203,7 +204,9 @@ object WorksheetSourceProcessor {
       appendAll(psi, lineNum)
     }
     
-    @inline def processImport(imp: ScImportStmt) = {
+    @inline def processImport(imp: ScImportStmt): Unit = {
+      if (importsProcessed contains imp) return 
+      
       val text = imp.getText
       val lineNums = psiToLineNumbers(imp)
 
@@ -211,7 +214,10 @@ object WorksheetSourceProcessor {
 
       importStmts += (text + insertNlsFromWs(imp))
       appendPsiLineInfo(imp, lineNums)
+      importsProcessed += imp
     }
+    
+    @inline def variableInstanceName(name: String) = if (name startsWith "`") s"`get$$$$instance$$$$${name.stripPrefix("`")}" else s"get$$$$instance$$$$$name"
 
     def processLocalImport(imp: ScImportStmt): Boolean = {
       if (imp.importExprs.length < 1) return false
@@ -234,7 +240,7 @@ object WorksheetSourceProcessor {
           val qualifierName = lastQualifier.qualName
           val lineNums = psiToLineNumbers(imp)
           val memberName = if (el.isInstanceOf[ScValue] || el.isInstanceOf[ScVariable]) //variable to avoid weird errors
-            s"get$$$$instance$$$$$qualifierName" else qualifierName
+            variableInstanceName(qualifierName) else qualifierName
 
           objectRes append
             s";{val $qualifierName = $instanceName.$memberName; $printMethodName($macroPrinterName.printImportInfo({$text;}))}\n"
@@ -260,7 +266,7 @@ object WorksheetSourceProcessor {
 
     val root  = if (!isForObject(srcFile)) srcFile else {
       ((null: PsiElement) /: srcFile.getChildren) {
-        case (a, imp: ScImportStmt) => 
+        case (a, imp: ScImportStmt) =>
           processImport(imp)
           a
         case (null, obj: ScObject) =>
@@ -312,7 +318,7 @@ object WorksheetSourceProcessor {
           valDef.bindings foreach {
             case p =>
               val pName = p.name
-              val defName = s"get$$$$instance$$$$$pName"
+              val defName = variableInstanceName(pName) 
 
               classRes append s"def $defName = $pName;$END_GENERATED_MARKER"
               objectRes append (printMethodName + "(\"" + startText + pName + ": \" + " + withTempVar(defName) + ")\n")

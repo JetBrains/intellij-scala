@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.debugger.positionManager
 
 import com.intellij.debugger.SourcePosition
 import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.psi.PsiManager
+import com.intellij.psi.{PsiFile, PsiManager}
 import com.sun.jdi.Location
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaPositionManager}
+import org.jetbrains.plugins.scala.debugger.{Loc, ScalaDebuggerTestCase, ScalaPositionManager}
 import org.jetbrains.plugins.scala.extensions
 import org.junit.Assert
 
@@ -22,7 +22,6 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
   //fileText should contain object Main with method main
   protected def checkGetAllClasses(fileText: String, expectedClassNames: String*) = {
     val sourcePositions = setupFileAndCreateSourcePositions(fileText.stripMargin.trim.replace("\r",""))
-    Assert.assertEquals("Wrong number of expected class names: ", sourcePositions.size, expectedClassNames.size)
 
     runDebugger("Main") {
       waitForBreakpoint()
@@ -88,8 +87,11 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
     val vFile = VfsUtil.findFileByIoFile(getFileInSrc(fileName), false)
     val psiFile = psiManager.findFile(vFile)
 
-    offsets.map(SourcePosition.createFromOffset(psiFile,_))
+    offsets.map(createLineSourcePositionFromOffset(psiFile, _))
+  }
+
+  private def createLineSourcePositionFromOffset(file: PsiFile, offset: Int) = {
+    val fromOffset = SourcePosition.createFromOffset(file, offset)
+    SourcePosition.createFromLine(file, fromOffset.getLine)
   }
 }
-
-case class Loc(className: String, methodName: String, line: Int)

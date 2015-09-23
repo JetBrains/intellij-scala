@@ -1,9 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.ExtensionPointName
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import com.intellij.openapi.project.DumbService
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.collection.mutable.ArrayBuffer
@@ -25,20 +29,23 @@ class SyntheticMembersInjector {
   def injectFunctions(source: ScTypeDefinition): Seq[String] = Seq.empty
 
   /**
+   * This method allows to add custom inner classes or objects to any class, object or trait.
+   * This includes synthetic companion object.
+   *
+   * Context for this inner will be class. So inner types and imports of this class
+   * will not be available. But you can use anything outside of
+   * @param source class to inject functions
+   * @return sequence of inners text
+   */
+  def injectInners(source: ScTypeDefinition): Seq[String] = Seq.empty
+
+  /**
    * Use this method to mark class or trait, that it requires companion object.
    * Note that object as source is not possible.
    * @param source class or trait
    * @return if this source requires companion object
    */
   def needsCompanionObject(source: ScTypeDefinition): Boolean = false
-
-  /**
-   * Generates non-companion classes with defined kind and fqn.
-   *
-   * @param source class or trait
-   * @return sequence of classes,
-   */
-  def additionalClassesToGenerate(source: ScTypeDefinition): Seq[(SyntheticMembersInjector.Kind, String)] = Seq.empty
 }
 
 object SyntheticMembersInjector {
@@ -59,7 +66,7 @@ object SyntheticMembersInjector {
       template <- injector.injectFunctions(source)
     } try {
       val context = source match {
-        case o: ScObject if o.isSyntheticObject => o.fakeCompanionClassOrCompanionClass
+        case o: ScObject if o.isSyntheticObject => ScalaPsiUtil.getCompanionModule(o).getOrElse(source)
         case _ => source
       }
       val function = ScalaPsiElementFactory.createMethodWithContext(template, context, source)
@@ -73,5 +80,38 @@ object SyntheticMembersInjector {
     buffer
   }
 
-  def needsCompanion(source: ScTypeDefinition): Boolean = EP_NAME.getExtensions.exists(_.needsCompanionObject(source))
+  def injectInners(source: ScTypeDefinition): Seq[ScTypeDefinition] = {
+    val buffer = new ArrayBuffer[ScTypeDefinition]()
+    for {
+      injector <- EP_NAME.getExtensions
+      template <- injector.injectInners(source)
+    } try {
+      val context = source match {
+        case o: ScObject if o.isSyntheticObject => ScalaPsiUtil.getCompanionModule(o).getOrElse(source)
+        case _ => source
+      }
+      val td = ScalaPsiElementFactory.createTypeDefinitionWithContext(template, context, source)
+      td.syntheticContainingClass = Some(source)
+      def updateSynthetic(element: ScMember): Unit = {
+        element match {
+          case td: ScTypeDefinition =>
+            td.setSynthetic(context)
+            td.members.foreach(updateSynthetic)
+          case fun: ScFunction => fun.setSynthetic(context)
+          case _ => //todo: ?
+        }
+      }
+      updateSynthetic(td)
+      buffer += td
+    } catch {
+      case e: Throwable =>
+        LOG.error(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
+    }
+    buffer
+  }
+
+  def needsCompanion(source: ScTypeDefinition): Boolean = {
+    if (DumbService.getInstance(source.getProject).isDumb) return false
+    EP_NAME.getExtensions.exists(_.needsCompanionObject(source))
+  }
 }

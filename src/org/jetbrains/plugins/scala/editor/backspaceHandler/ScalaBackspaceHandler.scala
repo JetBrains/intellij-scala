@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala
 package editor.backspaceHandler
 
+import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.editorActions.BackspaceHandlerDelegate
+import com.intellij.codeInsight.highlighting.BraceMatchingUtil
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
@@ -89,5 +92,55 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
             element.getText == "'''" && element.getPrevSibling != null && element.getPrevSibling.getText == "'")
   }
 
-  def charDeleted(c: Char, file: PsiFile, editor: Editor): Boolean = false
+  /*
+    In some cases with nested braces (like '{()}' ) IDEA can't properly handle backspace action due to 
+    bag in BraceMatchingUtil (it looks for every lbrace/rbrace token regardless of they are a pair or not)
+    So we have to fix it in our handler
+   */
+  def charDeleted(c: Char, file: PsiFile, editor: Editor): Boolean = {
+    val document = editor.getDocument
+    val offset = editor.getCaretModel.getOffset
+    
+    if (!CodeInsightSettings.getInstance.AUTOINSERT_PAIR_BRACKET || offset >= document.getTextLength) return false
+    
+    val c1 = document.getImmutableCharSequence.charAt(offset)
+    
+    def hasLeft: Option[Boolean] = {
+      val iterator = editor.asInstanceOf[EditorEx].getHighlighter.createIterator(offset)
+
+      val fileType = file.getFileType
+      if (fileType != ScalaFileType.SCALA_FILE_TYPE) return None
+      val txt = document.getImmutableCharSequence
+      
+      val tpe = iterator.getTokenType
+      if (tpe == null) return None
+
+      val matcher = BraceMatchingUtil.getBraceMatcher(fileType, tpe)
+      if (matcher == null) return None
+      
+      val stack = scala.collection.mutable.Stack[IElementType]()
+      
+      iterator.retreat()
+      while (iterator.getTokenType != null && iterator.getStart > 0) {
+        if (matcher.isRBraceToken(iterator, txt, fileType)) stack push iterator.getTokenType 
+          else if (matcher.isLBraceToken(iterator, txt, fileType)) {
+          if (stack.isEmpty || !matcher.isPairBraces(iterator.getTokenType, stack.pop())) return Some(false)
+        }
+        
+        iterator.retreat()
+      }
+      
+      if (stack.isEmpty) Some(true) else None
+    }
+    
+    @inline def fixBrace():Unit = if (hasLeft.exists(!_)) extensions.inWriteAction { document.deleteString(offset, offset + 1) }
+    
+    (c, c1) match {
+      case ('{', '}') => fixBrace()
+      case ('(', ')') => fixBrace()
+      case _ => 
+    }
+    
+    false
+  }
 }

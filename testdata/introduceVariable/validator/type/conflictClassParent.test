@@ -1,0 +1,14 @@
+//I
+class A {
+
+  class B {
+    type I = Int
+  }
+
+  class C extends B {
+    val t: <begin>Int<end> = 45
+  }
+
+}
+-------
+Introduced type alias conflicts with type name: I

@@ -9,26 +9,29 @@ import com.intellij.openapi.util.Computable
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.sun.jdi.{ObjectReference, ReferenceType, Value}
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ScalaEvaluatorBuilderUtil}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor, ScReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotations, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ValueClassType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScSubstitutor, ScType, ValueClassType}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.util.Try
 
 /**
  * User: Alefas
@@ -208,6 +211,22 @@ object DebuggerUtil {
     }
   }
 
+  def lambdaJVMSignature(lambda: PsiElement): Option[String] = {
+    val (argumentTypes, returnType) = lambda match {
+      case expr @ ExpressionType(tp) if ScalaPsiUtil.isByNameArgument(expr) => (Seq.empty, tp)
+      case ExpressionType(ScFunctionType(retT, argTypes)) => (argTypes, retT)
+      case _ => return None
+    }
+    val trueReturnType = returnType match {
+      case ValueClassType(inner) => inner
+      case _ => returnType
+    }
+
+    val paramText = argumentTypes.map(getJVMStringForType(_, isParam = true)).mkString("(", "", ")")
+    val returnTypeText = getJVMStringForType(trueReturnType, isParam = false)
+    Some(paramText + returnTypeText)
+  }
+
   private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor) = param match {
       case p: ScParameter if p.isRepeatedParameter => "Lscala/collection/Seq;"
       case p: ScParameter if p.isCallByNameParameter => "Lscala/Function0;"
@@ -308,11 +327,15 @@ object DebuggerUtil {
       jvmClassAtPosition(position, process) match {
         case Some(refType) => refType.methodsByName("<init>").get(0).signature()
         case None =>
-          throw EvaluationException(DebuggerBundle.message("error.class.not.loaded", getDisplayName(process)))
+          throw EvaluationException(DebuggerBundle.message("error.class.not.loaded", inReadAction(clazz.qualifiedName)))
       }
     }
 
     override def getDisplayName(debugProcess: DebugProcessImpl): String = getName(debugProcess)
+  }
+
+  def isScala(refType: ReferenceType, default: Boolean = true): Boolean = {
+    Try(refType.sourceName().endsWith(".scala")).getOrElse(default)
   }
 
   def jvmClassAtPosition(sourcePosition: SourcePosition, debugProcess: DebugProcess): Option[ReferenceType] = {
@@ -496,6 +519,37 @@ object DebuggerUtil {
         isLocalClass(parent)
       case _: ScPackaging | _: ScalaFile => false
       case _ => true
+    }
+  }
+
+  def getContainingMethod(elem: PsiElement): Option[PsiElement] = {
+    (Iterator(elem) ++ elem.parentsInFile).collectFirst {
+      case c if ScalaPositionManager.isLambda(c) => c
+      case m: PsiMethod => m
+      case tb: ScTemplateBody => tb
+      case ed: ScEarlyDefinitions => ed
+      case ChildOf(f: ScalaFile) if f.isScriptFile() => f
+      case c: ScClass => c
+    }
+  }
+
+  def inTheMethod(pos: SourcePosition, method: PsiElement): Boolean = {
+    val elem: PsiElement = pos.getElementAt
+    if (elem == null) return false
+    getContainingMethod(elem).contains(method)
+  }
+
+  def getSignificantElement(elem: PsiElement): PsiElement = {
+    elem match {
+      case _: ScAnnotationsHolder | _: ScCommentOwner =>
+        val firstSignificant = elem.children.find {
+          case ElementType(t) if ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(t) => false
+          case _: ScAnnotations => false
+          case e if e.getTextLength == 0 => false
+          case _ => true
+        }
+        firstSignificant.getOrElse(elem)
+      case _ => elem
     }
   }
 }

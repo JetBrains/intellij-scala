@@ -97,6 +97,8 @@ public class ScalaLexer extends Lexer {
     if (myXmlState != 0 || isXmlTokenType(previousToken)) state = 239;
     int scalaState = myScalaPlainLexer.getState();
     if (scalaState != 0) state = 239;
+    // work-around for the strange advance()-related assumption / behavior in locateToken()
+    if (myTokenStart == 0) return 0;
     return state;
   }
 
