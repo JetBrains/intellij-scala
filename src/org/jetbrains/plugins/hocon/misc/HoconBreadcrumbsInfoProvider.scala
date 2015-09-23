@@ -9,7 +9,7 @@ class HoconBreadcrumbsInfoProvider extends BreadcrumbsInfoProvider {
   def getElementTooltip(e: PsiElement) = null
 
   def getElementInfo(e: PsiElement) = e match {
-    case kf: HKeyedField => kf.key.map(_.stringValue).filter(_.nonEmpty).getOrElse(" ")
+    case kf: HKeyedField => kf.key.map(_.stringValue).getOrElse("")
     case _ => ""
   }
 
