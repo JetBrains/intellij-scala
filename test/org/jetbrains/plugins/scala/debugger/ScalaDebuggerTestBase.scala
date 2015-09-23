@@ -46,7 +46,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
 
   override def setUpModule(): Unit = {
     if (needMake) super.setUpModule()
-    else myModule = loadModule(getImlFile)
+    else myModule = loadModule(getImlFile.getAbsolutePath)
 
     PlatformTestCase.myFilesToDelete.remove(getImlFile)
   }
