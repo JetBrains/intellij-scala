@@ -39,6 +39,7 @@
 
     <enterHandlerDelegate implementation="org.jetbrains.plugins.hocon.editor.EnterInHashCommentHandler" />
     <enterHandlerDelegate implementation="org.jetbrains.plugins.hocon.editor.HoconEnterBetweenBracesHandler" />
-    <joinLinesHandler implementation="org.jetbrains.plugins.hocon.editor.HoconCommentJoinLinesHandler"/>
+    <joinLinesHandler implementation="org.jetbrains.plugins.hocon.editor.HoconCommentJoinLinesHandler" />
+    <statementUpDownMover implementation="org.jetbrains.plugins.hocon.editor.HoconObjectEntryMover" />
   </extensions>
 </idea-plugin>

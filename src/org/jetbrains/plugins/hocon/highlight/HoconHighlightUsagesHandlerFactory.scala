@@ -22,7 +22,7 @@ class HoconHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactoryBa
 class HoconHighlightKeyUsagesHandler(editor: Editor, psiFile: PsiFile, hkey: HKey)
   extends HighlightUsagesHandlerBase[HKey](editor, psiFile) {
 
-  def computeUsages(targets: JList[HKey]) = {
+  def computeUsages(targets: JList[HKey]): Unit = {
     def findPaths(el: PsiElement): Iterator[HPath] = el match {
       case path: HPath => Iterator(path)
       case hoconFile: HoconPsiFile => findPaths(hoconFile.toplevelEntries)
