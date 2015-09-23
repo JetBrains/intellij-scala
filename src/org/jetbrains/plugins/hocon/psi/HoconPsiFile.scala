@@ -2,7 +2,7 @@ package org.jetbrains.plugins.hocon.psi
 
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.psi.impl.source.PsiFileImpl
-import com.intellij.psi.{FileViewProvider, PsiElementVisitor}
+import com.intellij.psi.{FileViewProvider, PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.hocon.lang.HoconFileType
 import org.jetbrains.plugins.hocon.parser.HoconElementType.HoconFileElementType
 
@@ -21,5 +21,10 @@ class HoconPsiFile(provider: FileViewProvider) extends PsiFileImpl(HoconFileElem
   def toplevelObject = getFirstChild match {
     case obj: HObject => Some(obj)
     case _ => None
+  }
+
+  def elementsAt(offset: Int): Iterator[PsiElement] = {
+    val leaf = findElementAt(offset)
+    Iterator.iterate(leaf)(_.getParent).takeWhile(e => e != null && (e ne this))
   }
 }

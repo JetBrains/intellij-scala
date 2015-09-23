@@ -25,6 +25,9 @@ abstract class HoconFileSetTestCase(subpath: String)
 
   protected def transform(data: Seq[String]): String
 
+  protected def preprocessData(parts: Seq[String]): Seq[String] =
+    parts
+
   private def trimNewLines(str: String) = {
     val preTrimmed = str.substring(str.prefixLength(_ == '\n'))
     val endingNewlines = preTrimmed.reverseIterator.takeWhile(_ == '\n').length
@@ -33,7 +36,7 @@ abstract class HoconFileSetTestCase(subpath: String)
 
   protected def runTest(file: File): Unit = {
     val fileContents = new String(FileUtil.loadFileText(file, "UTF-8")).replaceAllLiterally("\r", "")
-    val allParts = fileContents.split("-{5,}").map(trimNewLines).toSeq
+    val allParts = preprocessData(fileContents.split("-{5,}").map(trimNewLines).toSeq)
     Assert.assertTrue(allParts.nonEmpty)
     val data = allParts.init
     val expectedResult = allParts.last
