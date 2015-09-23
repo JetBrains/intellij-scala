@@ -140,9 +140,16 @@ trait ScTypePsiTypeBridge {
             skolemToWildcard: Boolean = false): PsiType = {
     def isValueType(cl: ScClass): Boolean = cl.superTypes.contains(AnyVal) && cl.parameters.length == 1
 
-    def createType(c: PsiClass, subst: PsiSubstitutor = PsiSubstitutor.EMPTY): PsiType = {
+    def outerClassHasTypeParameters(proj: ScProjectionType): Boolean = {
+      ScType.extractClass(proj.projected) match {
+        case Some(outer) => outer.hasTypeParameters
+        case _ => false
+      }
+    }
+
+    def createType(c: PsiClass, subst: PsiSubstitutor = PsiSubstitutor.EMPTY, raw: Boolean = false): PsiType = {
       val psiType = JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
-      if (c.hasTypeParameters) psiType.rawType()
+      if (c.hasTypeParameters || raw) psiType.rawType()
       else psiType
     }
 
@@ -184,7 +191,7 @@ trait ScTypePsiTypeBridge {
       case ScDesignatorType(c: PsiClass) => createType(c)
       case ScParameterizedType(ScDesignatorType(c: PsiClass), args) =>
         if (c.qualifiedName == "scala.Array" && args.length == 1)
-          new PsiArrayType(toPsi(args(0), project, scope))
+          new PsiArrayType(toPsi(args.head, project, scope))
         else {
           val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY) {
             case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope, noPrimitives = true, skolemToWildcard = true))
@@ -193,11 +200,11 @@ trait ScTypePsiTypeBridge {
         }
       case ScParameterizedType(proj@ScProjectionType(pr, element, _), args) => proj.actualElement match {
         case c: PsiClass =>
-          if (c.qualifiedName == "scala.Array" && args.length == 1) new PsiArrayType(toPsi(args(0), project, scope))
+          if (c.qualifiedName == "scala.Array" && args.length == 1) new PsiArrayType(toPsi(args.head, project, scope))
           else {
             val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY)
             {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope, skolemToWildcard = true))}
-            JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
+            createType(c, subst, raw = outerClassHasTypeParameters(proj))
           }
         case a: ScTypeAliasDefinition =>
           a.aliasedType(TypingContext.empty) match {
@@ -209,11 +216,11 @@ trait ScTypePsiTypeBridge {
       }
       case ScParameterizedType(tpt: ScTypeParameterType, _) => EmptySubstitutor.getInstance().substitute(tpt.param)
       case JavaArrayType(arg) => new PsiArrayType(toPsi(arg, project, scope))
-      case proj@ScProjectionType(pr, element, _) => proj.actualElement match {
+      case proj@ScProjectionType(_, _, _) => proj.actualElement match {
         case clazz: PsiClass =>
           clazz match {
             case syn: ScSyntheticClass => toPsi(syn.t, project, scope)
-            case _ => createType(clazz)
+            case _ => createType(clazz, raw = outerClassHasTypeParameters(proj))
           }
         case elem: ScTypeAliasDefinition =>
           elem.aliasedType(TypingContext.empty) match {

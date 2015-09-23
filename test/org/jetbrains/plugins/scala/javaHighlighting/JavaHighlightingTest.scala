@@ -324,6 +324,45 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     assertNoErrors(messagesFromScalaCode(scalaCode, javaCode))
   }
 
+  def testGenericsPlainInnerClass(): Unit = {
+    val scalaCode =
+      """
+        |trait FSM[S, D] {
+        |  final class TransformHelper {}
+        |  final def transform(): TransformHelper = ???
+        |}
+        |
+        |
+        |abstract class Base[S, D] extends FSM[S, D]
+      """.stripMargin
+    val javaCode =
+      """
+        |public class SCL8866A extends Base<String, String> {}
+      """.stripMargin
+    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, javaClassName = "SCL8866A"))
+  }
+
+  def testGenericsParameterizedInnerClass(): Unit = {
+    val scalaCode =
+      """
+        |abstract class FSM[S, D] {
+        |  class TransformHelper[T]
+        |  def transform(): TransformHelper[Int] = ???
+        |}
+        |
+        |abstract class Base extends FSM[Int, String] {
+        |  override def transform(): TransformHelper[Int] = ???
+        |}
+      """.stripMargin
+    val javaCode =
+      """
+        |public class SCL8866B extends Base {
+        |
+        |}
+      """.stripMargin
+    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "SCL8866B"))
+  }
+
   def messagesFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     myFixture.addFileToProject("dummy.scala", scalaFileText)
     val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
