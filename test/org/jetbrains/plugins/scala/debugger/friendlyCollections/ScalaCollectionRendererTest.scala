@@ -4,8 +4,8 @@ import java.util
 
 import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl}
 import com.intellij.debugger.settings.NodeRendererSettings
-import com.intellij.debugger.ui.impl.FrameVariablesTree
-import com.intellij.debugger.ui.impl.watch.{DebuggerTree, LocalVariableDescriptorImpl, NodeDescriptorImpl}
+import com.intellij.debugger.ui.impl.ThreadsDebuggerTree
+import com.intellij.debugger.ui.impl.watch._
 import com.intellij.debugger.ui.tree.render._
 import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptorFactory, NodeManager, ValueDescriptor}
 import com.intellij.openapi.util.Disposer
@@ -23,7 +23,7 @@ class ScalaCollectionRendererTest extends ScalaDebuggerTestCase with ScalaVersio
   private def renderLabelAndChildren(variableName: String): (String, List[String]) = {
     import scala.collection.JavaConversions._
 
-    val frameTree = new FrameVariablesTree(getProject)
+    val frameTree = new ThreadsDebuggerTree(getProject)
     Disposer.register(getTestRootDisposable, frameTree)
     var testVariableChildren: util.List[DebuggerTreeNode] = null
 
