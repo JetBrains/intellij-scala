@@ -2030,13 +2030,18 @@ object ScalaPsiUtil {
     e.parentsInFile.takeWhile(!_.isScope).findByType(classOf[ScPatternDefinition]).isDefined
   }
 
+  private def isCanonicalArg(expr: ScExpression) = expr match {
+    case _: ScParenthesisedExpr => false
+    case ScBlock(expr: ScExpression) => false
+    case _ => true
+  }
+
   def isByNameArgument(expr: ScExpression) = {
-    val isCanonical = expr match {
-      case _: ScParenthesisedExpr => false
-      case ScBlock(expr: ScExpression) => false
-      case _ => true
-    }
-    isCanonical && ScalaPsiUtil.parameterOf(expr).exists(_.isByName)
+    isCanonicalArg(expr) && ScalaPsiUtil.parameterOf(expr).exists(_.isByName)
+  }
+
+  def isArgumentOfFunctionType(expr: ScExpression) = {
+    isCanonicalArg(expr) && parameterOf(expr).exists(p => ScFunctionType.isFunctionType(p.paramType))
   }
 
   object MethodValue {
