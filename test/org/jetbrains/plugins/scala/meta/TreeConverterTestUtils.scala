@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
-import org.jetbrains.plugins.scala.meta.semantic.Context
+import org.jetbrains.plugins.scala.meta.semantic.IDEAContext
 
 import scala.meta.internal.ast.Tree
 
@@ -17,7 +17,7 @@ trait TreeConverterTestUtils {
 
   def fixture: CodeInsightTestFixture // we need to go deeper
 
-  val context: Context
+  val context: IDEAContext
 
   val startToken = "//start"
 

@@ -181,7 +181,7 @@ object ScalaMacroDebuggingUtil {
         //        extensions.inWriteAction {
         WriteCommandAction.runWriteCommandAction(project, new Runnable {
           override def run() {
-            implicit val context = new org.jetbrains.plugins.scala.meta.semantic.Context(macroCall.getProject)
+            implicit val context = new org.jetbrains.plugins.scala.meta.semantic.IDEAContext(macroCall.getProject)
             val macroExpansion =
               """
                 |val eval$1: String = "world"
