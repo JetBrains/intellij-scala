@@ -37,11 +37,8 @@ object Common {
   val testSystemDir: File =
     Path.userHome / ".IdeaData" / "IDEA-15" / "scala" / "test-system"
 
-  def ivyCacheDir: File =
-    Option(System.getProperty("sbt.ivy.home")) match {
-      case Some(path) => file(path) / "cache"
-      case None       => Path.userHome / ".ivy2" / "cache"
-    }
+  def ivyHomeDir: File =
+    Option(System.getProperty("sbt.ivy.home")).fold(Path.userHome / ".ivy2")(file)
 
   def commonTestSettings(packagedPluginDir: SettingKey[File]): Seq[Setting[_]] = Seq(
     fork in Test := true,
@@ -53,7 +50,7 @@ object Common {
       "-ea",
       s"-Didea.system.path=$testSystemDir",
       s"-Didea.config.path=$testConfigDir",
-      s"-Dsbt.ivy.home=${ivyCacheDir.getParentFile}",
+      s"-Dsbt.ivy.home=$ivyHomeDir",
       s"-Dplugin.path=${packagedPluginDir.value}"
     ),
     envVars in Test += "NO_FS_ROOTS_ACCESS_CHECK" -> "yes",
