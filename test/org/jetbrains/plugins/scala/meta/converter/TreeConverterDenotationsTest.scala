@@ -7,6 +7,7 @@ import scala.meta._
 class TreeConverterDenotationsTest extends TreeConverterTestBaseWithLibrary {
 
   def doTest(text: String, expected: String) = {
+    implicit val c = context
     val converted = convert(text)
     val got = converted.show[Semantics].trim
     org.junit.Assert.assertEquals(expected.trim, got)

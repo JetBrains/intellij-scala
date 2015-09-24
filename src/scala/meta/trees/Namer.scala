@@ -20,9 +20,9 @@ trait Namer {
   def toTermName(elem: PsiElement): m.Term.Name = elem match {
       // TODO: what to resolve apply/update methods to?
     case sf: ScFunction if sf.name == "apply" || sf.name == "update" =>
-      m.Term.Name(sf.containingClass.name).withDenot(sf).withTyping(h.Typing.Specified(sf.returnType.map(toType).get))
+      m.Term.Name(sf.containingClass.name).withDenot(sf)
     case sf: ScFunction =>
-      m.Term.Name(sf.name).withDenot(sf).withTyping(h.Typing.Specified(toType(sf)))
+      m.Term.Name(sf.name).withDenot(sf)
     case ne: ScNamedElement =>
       m.Term.Name(ne.name).withDenot(ne)
     case re: ScReferenceExpression =>
@@ -74,7 +74,7 @@ trait Namer {
     val resolved = toTermName(c)
     resolved match {
       case n@m.Term.Name(value) =>
-        m.Ctor.Ref.Name(value).withDenot(n.denot).withExpansion(n.expansion).withTyping(n.typing)
+        m.Ctor.Ref.Name(value).withAttrs(n.denot)
       case other => unreachable
     }
   }

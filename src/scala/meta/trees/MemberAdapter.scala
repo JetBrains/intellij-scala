@@ -37,7 +37,7 @@ trait MemberAdapter {
         members += toMacroDefn(fun)
       }
     }
-    psi.map(_.accept(visitor))
+    psi.foreach(_.accept(visitor))
     members.toStream
   }
 
@@ -49,7 +49,7 @@ trait MemberAdapter {
       }
     }
     val psi = name.denot.symbols.map(fromSymbol)
-    psi.map(getMembers).flatten
+    psi.flatMap(getMembers)
   }
 
 }
