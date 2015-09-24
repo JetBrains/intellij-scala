@@ -44,6 +44,7 @@ import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.reflect.NameTransformer
 import scala.util.Try
 
 /**
@@ -250,12 +251,14 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   }
 
   private def calcPosition(file: PsiFile, location: Location, lineNumber: Int): Option[SourcePosition] = {
+    val currentMethod = location.method()
+    if (!isAnonfun(currentMethod)) return Some(SourcePosition.createFromLine(file, lineNumber))
+
     def calcElement(): Option[PsiElement] = {
+      val methodName = currentMethod.name()
+
       val possiblePositions = positionsOnLine(file, lineNumber)
       if (possiblePositions.size <= 1) return possiblePositions.headOption
-
-      val currentMethod = location.method()
-      val methodName = currentMethod.name()
 
       def findDefaultArg: Option[PsiElement] = {
         try {
@@ -504,11 +507,11 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       vm.classesByName(s).asScala
     }
 
-    val name = refType.name()
+    val name = NameTransformer.decode(refType.name())
     val index = name.lastIndexOf("$$")
     if (index < 0) return None
 
-    val containingName = name.substring(0, index)
+    val containingName = NameTransformer.encode(name.substring(0, index))
     classesByName(containingName).headOption.flatMap(findElementByReferenceType)
   }
 }
@@ -580,6 +583,20 @@ object ScalaPositionManager {
     val name = m.name()
     val lastDollar = name.lastIndexOf('$')
     lastDollar > 0 && name.substring(0, lastDollar).endsWith("$anonfun")
+  }
+
+  def isAnonfun(m: Method): Boolean = {
+    def isAnonfunType(refType: ReferenceType) = {
+      val name = NameTransformer.decode(refType.name())
+      val separator = "$$"
+      val index = name.lastIndexOf(separator)
+      if (index < 0) false
+      else {
+        val lastPart = name.substring(index + separator.length)
+        lastPart.startsWith("anonfun")
+      }
+    }
+    isIndyLambda(m) || m.name.startsWith("apply") && isAnonfunType(m.declaringType())
   }
 
   def indyLambdaMethodsOnLine(refType: ReferenceType, lineNumber: Int): Seq[Method] = {
