@@ -12,7 +12,7 @@ import scala.meta.internal.semantic.Typing
 import scala.meta.internal.{ast => m}
 import scala.{Seq => _}
 
-class Context(project: =>Project) extends TreeConverter with semantic.Context {
+class IDEAContext(project: =>Project) extends TreeConverter with semantic.Context {
 
   override def getCurrentProject = project
 
