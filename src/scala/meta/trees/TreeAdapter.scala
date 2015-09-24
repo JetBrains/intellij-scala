@@ -360,9 +360,9 @@ trait TreeAdapter {
   // Java conversion
   def convertMods(t: PsiModifierList): Seq[m.Mod] = {
     val mods = scala.collection.mutable.ListBuffer[m.Mod]()
-    if (t.hasModifierProperty("private"))    mods += m.Mod.Private
-    if (t.hasModifierProperty("protected"))  mods += m.Mod.Protected
-    if (t.hasModifierProperty("abstract"))   mods += m.Mod.Abstract
+    if (t.hasModifierProperty("private"))    mods += m.Mod.Private(m.Name.Indeterminate.apply("this"))
+    if (t.hasModifierProperty("protected"))  mods += m.Mod.Protected(m.Name.Indeterminate.apply("this"))
+    if (t.hasModifierProperty("abstract"))   mods += m.Mod.Abstract()
     Seq(mods:_*)
   }
 

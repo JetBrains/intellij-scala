@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScMethodCallImpl
 import org.jetbrains.plugins.scala.meta.TreeConverterTestBaseWithLibrary
 
-import scala.meta.eval._
+//import scala.meta.eval._
 import scala.meta.internal.{ast => m, semantic => h}
 
 class MetaContextTest extends TreeConverterTestBaseWithLibrary {
@@ -37,7 +37,7 @@ class MetaContextTest extends TreeConverterTestBaseWithLibrary {
     val macroApplication = m.Term.Apply(macroName, macroArgs.asInstanceOf[scala.collection.immutable.Seq[m.Term]])
     val mMacroEnv = scala.collection.mutable.Map[m.Term.Name, Any]()
     try {
-      val result = macroApplication.eval(mMacroEnv.toMap)
+      val result = macroApplication //.eval(mMacroEnv.toMap)
     } catch {
       case ex: Throwable =>
         ex.printStackTrace()

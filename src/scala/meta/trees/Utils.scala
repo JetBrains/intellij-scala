@@ -12,7 +12,7 @@ trait Utils {
 
   val LOG = Logger.getInstance(this.getClass)
   
-  val rootPackageName = m.Term.Name("_root_").withDenot(denot = h.Denotation.Single(h.Prefix.Zero, h.Symbol.RootPackage))
+  val rootPackageName = m.Term.Name("_root_").withAttrs(denot = h.Denotation.Single(h.Prefix.Zero, h.Symbol.RootPackage))
   val rootPackagePrefix = h.Prefix.Type(m.Type.Singleton(rootPackageName))
 
   class UnmatchedTree(msg: String) extends RuntimeException(msg)
