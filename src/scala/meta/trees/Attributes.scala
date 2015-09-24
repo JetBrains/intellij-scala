@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.meta.trees
+package scala.meta.trees
 
 import com.intellij.psi.{PsiMethod, PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base._

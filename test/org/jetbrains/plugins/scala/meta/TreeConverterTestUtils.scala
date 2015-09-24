@@ -9,9 +9,9 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
-import org.jetbrains.plugins.scala.meta.semantic.IDEAContext
 
 import scala.meta.internal.ast.Tree
+import scala.meta.semantic.IDEAContext
 
 trait TreeConverterTestUtils {
 
