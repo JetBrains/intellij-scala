@@ -1,15 +1,15 @@
-package org.jetbrains.plugins.scala.meta.semantic
+package scala.meta.semantic
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.{PsiClass, PsiManager}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.meta.trees.TreeConverter
 
 import scala.collection.immutable.Seq
 import scala.meta._
 import scala.meta.internal.semantic.Typing
 import scala.meta.internal.{ast => m}
+import scala.meta.trees.TreeConverter
 import scala.{Seq => _}
 
 class IDEAContext(project: =>Project) extends TreeConverter with semantic.Context {

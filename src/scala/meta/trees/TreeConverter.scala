@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.scala.meta.trees
+package scala.meta.trees
 
-import org.jetbrains.plugins.scala.meta.EnvironmentProvider
+import scala.meta.EnvironmentProvider
 
 abstract class TreeConverter extends TreeAdapter
                     with TypeAdapter

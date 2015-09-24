@@ -4,8 +4,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.{PsiFile, PsiManager}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.meta.semantic.IDEAContext
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
+
+import scala.meta.semantic.IDEAContext
 
 class TreeConverterTestBase extends ScalaLightCodeInsightFixtureTestAdapter with TreeConverterTestUtils {
 

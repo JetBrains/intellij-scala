@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.meta
+package scala.meta
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFileManager

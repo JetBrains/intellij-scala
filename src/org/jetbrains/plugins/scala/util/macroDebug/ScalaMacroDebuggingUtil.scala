@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.meta.semantic.IDEAContext
 
 /**
  * User: Dmitry Naydanov
@@ -181,7 +182,7 @@ object ScalaMacroDebuggingUtil {
         //        extensions.inWriteAction {
         WriteCommandAction.runWriteCommandAction(project, new Runnable {
           override def run() {
-            implicit val context = new org.jetbrains.plugins.scala.meta.semantic.IDEAContext(macroCall.getProject)
+            implicit val context = new IDEAContext(macroCall.getProject)
             val macroExpansion =
               """
                 |val eval$1: String = "world"

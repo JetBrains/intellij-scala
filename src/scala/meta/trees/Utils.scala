@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.meta.trees
+package scala.meta.trees
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
