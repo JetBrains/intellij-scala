@@ -53,7 +53,7 @@ object Common {
       "-ea",
       s"-Didea.system.path=$testSystemDir",
       s"-Didea.config.path=$testConfigDir",
-      s"-Dsbt.ivy.home=$ivyCacheDir",
+      s"-Dsbt.ivy.home=${ivyCacheDir.getParentFile}",
       s"-Dplugin.path=${packagedPluginDir.value}"
     ),
     envVars in Test += "NO_FS_ROOTS_ACCESS_CHECK" -> "yes",
