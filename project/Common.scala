@@ -36,4 +36,27 @@ object Common {
 
   val testSystemDir: File =
     Path.userHome / ".IdeaData" / "IDEA-15" / "scala" / "test-system"
+
+  def ivyCacheDir: File =
+    Option(System.getProperty("sbt.ivy.home")) match {
+      case Some(path) => file(path) / "cache"
+      case None       => Path.userHome / ".ivy2" / "cache"
+    }
+
+  def commonTestSettings(packagedPluginDir: SettingKey[File]): Seq[Setting[_]] = Seq(
+    fork in Test := true,
+    parallelExecution := false,
+    javaOptions in Test := Seq(
+      "-Xms128m",
+      "-Xmx4096m",
+      "-XX:MaxPermSize=350m",
+      "-ea",
+      s"-Didea.system.path=$testSystemDir",
+      s"-Didea.config.path=$testConfigDir",
+      s"-Dsbt.ivy.home=$ivyCacheDir",
+      s"-Dplugin.path=${packagedPluginDir.value}"
+    ),
+    envVars in Test += "NO_FS_ROOTS_ACCESS_CHECK" -> "yes",
+    fullClasspath in Test <<= fullClasspath.in(Test).map(filterTestClasspath)
+  )
 }
