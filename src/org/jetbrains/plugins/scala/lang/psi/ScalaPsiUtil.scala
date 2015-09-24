@@ -1740,7 +1740,7 @@ object ScalaPsiUtil {
   *
   * *********
   * ScTuple in ScInfixExpr should be treated specially because of auto-tupling
-  * Underscore functions in ScInfixExpression do need parentheses
+  * Underscore functions in sugar calls and reference expressions do need parentheses
   * ScMatchStmt in ScGuard do need parentheses
   *
   ********** other cases (1 - need parentheses, 0 - does not need parentheses *****
@@ -1833,7 +1833,8 @@ object ScalaPsiUtil {
         case _ if expr.getText == "_" => false
         case (_: ScTuple | _: ScBlock | _: ScXmlExpr   , _) => false
         case (infix: ScInfixExpr                       , tuple: ScTuple) => tupleInInfixNeedParentheses(infix, from, tuple)
-        case (infix: ScInfixExpr                       , elem: PsiElement) if ScUnderScoreSectionUtil.isUnderscoreFunction(elem) => true
+        case (_: ScSugarCallExpr |
+              _: ScReferenceExpression                 , elem: PsiElement) if ScUnderScoreSectionUtil.isUnderscoreFunction(elem) => true
         case (_                                        , _: ScReferenceExpression | _: ScMethodCall |
                                                          _: ScGenericCall | _: ScLiteral | _: ScTuple |
                                                          _: ScXmlExpr | _: ScParenthesisedExpr | _: ScUnitExpr |
