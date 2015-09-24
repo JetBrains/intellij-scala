@@ -33,8 +33,6 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase with Pr
   def scalaPluginBuildOutputDir: File = new File("../../out/plugin/Scala")
 
   def runTest(expected: project): Unit = {
-    Log.warn(s"Importing project from $testProjectDir")
-    Log.assertTrue(testProjectDir.isDirectory, s"Test project in $testProjectDir is not found!")
     importProject()
     assertProjectsEqual(expected, myProject)
   }
@@ -68,6 +66,9 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase with Pr
     systemSettings.setCustomLauncherEnabled(true)
     systemSettings.setCustomLauncherPath(scalaPluginBuildOutputDir.getAbsolutePath + "/launcher/sbt-launch.jar")
     systemSettings.setCustomSbtStructureDir(scalaPluginBuildOutputDir.getAbsolutePath + "/launcher")
+    Option(System.getProperty("sbt.ivy.home")).foreach { ivyHome =>
+      systemSettings.vmParameters += s" -Dsbt.ivy.home=$ivyHome"
+    }
   }
 
   private def setUpExternalSystemToPerformImportInIdeaProcess(): Unit =
