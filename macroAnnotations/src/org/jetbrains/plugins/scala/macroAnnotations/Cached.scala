@@ -8,6 +8,5 @@ import scala.language.experimental.macros
  * Date: 9/18/15.
  */
 class Cached(synchronized: Boolean = false, modificationCount: ModCount.Value = ModCount.ModificationCount) extends StaticAnnotation {
-
-  def macroTransform(annottees: Any*) = macro CachedMacro.impl
+  def macroTransform(annottees: Any*) = macro CachedMacro.cachedImpl
 }
