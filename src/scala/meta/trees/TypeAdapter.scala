@@ -69,11 +69,11 @@ trait TypeAdapter {
         case t: typedef.ScTemplateDefinition =>
           val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
           toType(s.subst(t.getType(TypingContext.empty).get)) // FIXME: what about typing context?
-        case t: packaging.ScPackaging => m.Type.Singleton(toTermName(t.reference.get))
-        case t: ScFunction => m.Type.Function(Seq(t.paramTypes.map(toType(_).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType))
-        case t: PsiPackage if t.getName == null => m.Type.Singleton(rootPackageName)
-        case t: PsiPackage => m.Type.Singleton(toTermName(t))
-        case t: PsiClass => m.Type.Name(t.getName).withDenot(t)
+        case t: packaging.ScPackaging => m.Type.Singleton(toTermName(t.reference.get)).setTypechecked
+        case t: ScFunction => m.Type.Function(Seq(t.paramTypes.map(toType(_).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType)).setTypechecked
+        case t: PsiPackage if t.getName == null => m.Type.Singleton(rootPackageName).setTypechecked
+        case t: PsiPackage => m.Type.Singleton(toTermName(t)).setTypechecked
+        case t: PsiClass => m.Type.Name(t.getName).withDenot(t).setTypechecked
         case other => other ?!
       }
     })
@@ -83,15 +83,15 @@ trait TypeAdapter {
     typeCache.getOrElseUpdate(tp, {
       tp match {
         case t: ptype.ScParameterizedType =>
-          m.Type.Apply(toType(t.designator), Seq(t.typeArgs.map(toType): _*))
+          m.Type.Apply(toType(t.designator), Seq(t.typeArgs.map(toType): _*)).setTypechecked
         case t: ptype.ScThisType =>
-          toTypeName(t.clazz)
+          toTypeName(t.clazz).setTypechecked
         case t: ptype.ScProjectionType =>
           t.projected match {
             case tt: ptype.ScThisType =>
-              m.Type.Select(toTermName(tt.clazz), toTypeName(t.actualElement))
+              m.Type.Select(toTermName(tt.clazz), toTypeName(t.actualElement)).setTypechecked
             case _ =>
-              m.Type.Project(toType(t.projected), toTypeName(t.actualElement))
+              m.Type.Project(toType(t.projected), toTypeName(t.actualElement)).setTypechecked
           }
         case t: ptype.ScDesignatorType =>
           toTypeName(t.element)
@@ -99,7 +99,7 @@ trait TypeAdapter {
           toTypeName(t)
         case t: ptype.ScType =>
           LOG.warn(s"Unknown type: ${t.getClass} - ${t.canonicalText}")
-          m.Type.Name(t.canonicalText)
+          m.Type.Name(t.canonicalText).setTypechecked
       }
     })
   }
@@ -107,22 +107,22 @@ trait TypeAdapter {
   def toTypeParams(tp: p.statements.params.ScTypeParam): m.Type.Param = {
     m.Type.Param(
       if(tp.isCovariant) m.Mod.Covariant() :: Nil else if(tp.isContravariant) m.Mod.Contravariant() :: Nil else Nil,
-      if (tp.name != "_") m.Type.Name(tp.name) else m.Name.Anonymous(),
+      if (tp.name != "_") toTypeName(tp) else m.Name.Anonymous(),
       Seq(tp.typeParameters.map(toTypeParams):_*),
       typeBounds(tp),
       viewBounds(tp),
       contextBounds(tp)
-    )
+    ).setTypechecked
   }
 
   def toTypeParams(tp: PsiTypeParameter): m.Type.Param = {
     m.Type.Param(
       m.Mod.Covariant() :: Nil,
-      m.Type.Name(tp.getName),
+      toTypeName(tp),
       Seq(tp.getTypeParameters.map(toTypeParams):_*),
       m.Type.Bounds(None, None),
       Seq.empty, Seq.empty
-    )
+    ).setTypechecked
   }
 
   def viewBounds(tp: ScTypeBoundsOwner): Seq[m.Type] = {
@@ -134,7 +134,7 @@ trait TypeAdapter {
   }
 
   def typeBounds(tp: ScTypeBoundsOwner): m.Type.Bounds = {
-    m.Type.Bounds(tp.lowerTypeElement.map(toType), tp.upperTypeElement.map(toType))
+    m.Type.Bounds(tp.lowerTypeElement.map(toType), tp.upperTypeElement.map(toType)).setTypechecked
   }
 
   def returnType(tr: ptype.result.TypeResult[ptype.ScType]): m.Type = {
@@ -143,7 +143,7 @@ trait TypeAdapter {
       case Success(t, elem) => toType(t)
       case Failure(cause, place) =>
         LOG.warn(s"Failed to infer return type($cause) at ${place.map(_.getText).getOrElse("UNKNOWN")}")
-        m.Type.Name("Unit")
+        m.Type.Name("Unit").setTypechecked
     }
   }
 }

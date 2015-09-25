@@ -45,11 +45,11 @@ trait Namer {
 
   def toTypeName(elem: PsiElement): m.Type.Name = elem match {
     case ne: ScNamedElement =>
-      m.Type.Name(ne.name).withDenot(ne)
+      m.Type.Name(ne.name).withDenot(ne).setTypechecked
     case re: ScReferenceExpression =>
       toTypeName(re.resolve())
     case sc: impl.toplevel.synthetic.ScSyntheticClass =>
-      m.Type.Name(sc.className).withDenot(sc)
+      m.Type.Name(sc.className).withDenot(sc).setTypechecked
     case cr: ScStableCodeReferenceElement =>
       toTypeName(cr.resolve())
     case se: impl.toplevel.synthetic.SyntheticNamedElement =>

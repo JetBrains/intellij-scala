@@ -17,14 +17,16 @@ trait Attributes {
 
   protected implicit class RichAttributesTree[T <: m.Tree](ptree: T) {
 
-    def fqnameToPrefix(fqn: String) = {
+    def fqnameToPrefix(fqn: String): h.Prefix = {
       fqn
         .split('.')
         .dropRight(1)
         .foldLeft(rootPackagePrefix) {
           (parent, name) => h.Prefix.Type(m.Type.Singleton(
-            m.Term.Name(name).withAttrs(h.Denotation.Single(parent, fqnameToSymbol(fqn.substring(0, fqn.indexOf(name) + name.length), toDrop = 0)))
-          ))
+            m.Term.Name(name).withAttrs(denot = h.Denotation.Single(parent, fqnameToSymbol(fqn.substring(0, fqn.indexOf(name) + name.length), toDrop = 0)),
+                                        typingLike = h.Typing.Nonrecursive(m.Type.Singleton(m.Term.Name(name)).setTypechecked))
+            ).setTypechecked
+          )
       }
     }
 
