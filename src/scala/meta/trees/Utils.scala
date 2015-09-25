@@ -12,8 +12,8 @@ trait Utils {
 
   val LOG = Logger.getInstance(this.getClass)
   
-  val rootPackageName = m.Term.Name("_root_").withAttrs(denot = h.Denotation.Single(h.Prefix.Zero, h.Symbol.RootPackage))
-  val rootPackagePrefix = h.Prefix.Type(m.Type.Singleton(rootPackageName))
+  val rootPackageName = m.Term.Name("_root_").withAttrs(denot = h.Denotation.Single(h.Prefix.Zero, h.Symbol.RootPackage), typingLike = h.Typing.Recursive)
+  val rootPackagePrefix = h.Prefix.Type(m.Type.Singleton(rootPackageName).setTypechecked)
 
   class UnmatchedTree(msg: String) extends RuntimeException(msg)
 
