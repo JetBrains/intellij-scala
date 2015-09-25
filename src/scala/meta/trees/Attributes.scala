@@ -37,7 +37,7 @@ trait Attributes {
         elem.get match {
             //reference has a prefix
           case cr: ScStableCodeReferenceElement if cr.qualifier.isDefined =>
-            h.Denotation.Single(h.Prefix.Type(m.Type.Singleton(toTermName(cr.qualifier.get))), toSymbol(cr))
+            h.Denotation.Single(h.Prefix.Type(m.Type.Singleton(toTermName(cr.qualifier.get)).setTypechecked), toSymbol(cr))
           case cr: ScStableCodeReferenceElement =>
             h.Denotation.Single(h.Prefix.Zero, toSymbol(cr))
           case td: ScFieldId =>
@@ -72,13 +72,17 @@ trait Attributes {
         }
     }
 
+    def typing[P <: PsiElement](elem: Option[P]): h.Typing = {
+      h.Typing.Zero // TODO
+    }
+
     def withDenot[P <: PsiElement](elem: P): T = withDenot(Some(elem))
 
     def withDenot[P <: PsiElement](elem: Option[P]): T = {
       val denotatedTree = ptree match {
         case ptree: m.Name.Anonymous => ptree.withAttrs(denot(elem))
         case ptree: m.Name.Indeterminate => ptree.withAttrs(denot(elem))
-        case ptree: m.Term.Name => ptree.withAttrs(denot = denot(elem))
+        case ptree: m.Term.Name => ptree.withAttrs(denot = denot(elem), typingLike = typing(elem))
         case ptree: m.Type.Name => ptree.withAttrs(denot(elem))
         // TODO: some ctor refs don't have corresponding constructor symbols in Scala (namely, ones for traits)
         // in these cases, our lsym is going to be a symbol of the trait in question
