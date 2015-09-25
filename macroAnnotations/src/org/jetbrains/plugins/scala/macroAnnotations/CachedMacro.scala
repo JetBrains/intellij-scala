@@ -110,7 +110,7 @@ object CachedMacro {
     annottees.toList match {
       case d@DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
         val annotationParameters: List[Tree] = c.prefix.tree match {
-          case q"new CachedWithRecursionGuard(..$params)" => params
+          case q"new CachedWithRecursionGuard(..$params)" if params.length == 2 => params
           case _ => abort("Wrong annotation parameters!")
         }
         val flatParams = params.flatten
@@ -120,7 +120,7 @@ object CachedMacro {
         val key = annotationParameters(1)
 
         val parameterDefinitions: List[c.universe.Tree] = flatParams.zipWithIndex.map {
-          case (param, i) => //q"val ${param.name} = data.${Ident(TermName("_" + i))}"
+          case (param, i) =>
             ValDef(NoMods, param.name, param.tpt, q"data.${TermName("_" + (i + 1))}")
         }
 
@@ -144,6 +144,31 @@ object CachedMacro {
         val res = c.Expr(DefDef(mods, name, tpParams, params, retTp, updatedRhs))
         println(res)
         res
+      case _ => abort("You can only annotate one function!")
+    }
+  }
+
+  def cachedInsidePsiElementImpl(c: whitebox.Context)(annottees: c.Tree*): c.Expr[Any] = {
+    import c.universe._
+    def abort(s: String) = c.abort(c.enclosingPosition, s)
+
+    annottees.toList match {
+      case d@DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
+        val annotationParameters: List[Tree] = c.prefix.tree match {
+          case q"new CachedInsidePsiElement(..$params)" if params.length == 3 => params
+          case _ => abort("Wrong annotation parameters!")
+        }
+        val cachesUtilFQN = q"org.jetbrains.plugins.scala.caches.CachesUtil"
+
+        val elem = annotationParameters.head
+        val key = annotationParameters(1)
+        val dependencyItem = annotationParameters.last
+        val updatedRhs = q"""
+          $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.MyProvider($elem, (elem: Any) => $rhs)($dependencyItem))
+          """
+        val res = DefDef(mods, name, tpParams, params, retTp, updatedRhs)
+        println(res)
+        c.Expr(res)
       case _ => abort("You can only annotate one function!")
     }
   }

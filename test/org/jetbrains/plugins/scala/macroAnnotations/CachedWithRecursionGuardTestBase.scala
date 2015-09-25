@@ -2,10 +2,9 @@ package org.jetbrains.plugins.scala.macroAnnotations
 
 import com.intellij.mock.MockPsiElement
 import com.intellij.openapi.util.Key
+import com.intellij.psi.util.CachedValue
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.caches.CachesUtil._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInfixExprImpl
 
 /**
  * Author: Svyatoslav Ilinskiy
@@ -21,4 +20,5 @@ class CachedWithRecursionGuardTestBase extends ScalaFixtureTestCase {
 
 object CachedWithRecursionGuardTestBase {
   val FAKE_KEY: MappedKey[(Option[Int], Int), String] = Key.create("fake.key")
+  val FAKE_KEY2: Key[CachedValue[Long]] = Key.create("fake.key.2")
 }
