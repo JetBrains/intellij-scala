@@ -43,7 +43,7 @@ class CachedTest extends CachedTestBase {
       val allThreadsStartedLock: ReentrantLock = new ReentrantLock()
 
       @Cached(synchronized = true)
-      def runSyncronized(): Unit = {
+      def runSynchronized(): Unit = {
 
         allThreadsStartedLock.lock()
         try {
@@ -58,10 +58,10 @@ class CachedTest extends CachedTestBase {
     def setUpThreads(): (Thread, Thread) = {
       Foo.allThreadsStartedLock.lock()
       val thread1 = new Thread(new Runnable {
-        override def run(): Unit = Foo.runSyncronized()
+        override def run(): Unit = Foo.runSynchronized()
       })
       val thread2 = new Thread(new Runnable {
-        override def run(): Unit = Foo.runSyncronized()
+        override def run(): Unit = Foo.runSynchronized()
       })
 
       val eh = new UncaughtExceptionHandler {

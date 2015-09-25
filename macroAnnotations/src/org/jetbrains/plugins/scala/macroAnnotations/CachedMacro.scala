@@ -10,7 +10,7 @@ import scala.reflect.macros.whitebox
 object CachedMacro {
   val debug: Boolean = true
 
-  def impl(c: whitebox.Context)(annottees: c.Tree*): c.Expr[Any] = {
+  def cachedImpl(c: whitebox.Context)(annottees: c.Tree*): c.Expr[Any] = {
     import c.universe._
 
     def abort(message: String) = c.abort(c.enclosingPosition, message)
@@ -39,9 +39,6 @@ object CachedMacro {
 
 
     //todo: caching two function with the same name
-    //todo: support recursion guard
-    //todo: store data inside the PsiElement?
-    //todo: use SoftReferences?
     annottees.toList match {
       case d@DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
         println(retTp)
@@ -102,6 +99,51 @@ object CachedMacro {
           println(res)
         }
         c.Expr(res)
+      case _ => abort("You can only annotate one function!")
+    }
+  }
+
+  def cachedWithRecursionGuardImpl(c: whitebox.Context)(annottees: c.Tree*): c.Expr[Any] = {
+    import c.universe._
+    def abort(s: String) = c.abort(c.enclosingPosition, s)
+
+    annottees.toList match {
+      case d@DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
+        val annotationParameters: List[Tree] = c.prefix.tree match {
+          case q"new CachedWithRecursionGuard(..$params)" => params
+          case _ => abort("Wrong annotation parameters!")
+        }
+        val flatParams = params.flatten
+        val parameterTypes = flatParams.map(_.tpt)
+        val parameterNames: List[c.universe.TermName] = flatParams.map(_.name)
+        val cachesUtilFQN = q"org.jetbrains.plugins.scala.caches.CachesUtil"
+        val key = annotationParameters(1)
+
+        val parameterDefinitions: List[c.universe.Tree] = flatParams.zipWithIndex.map {
+          case (param, i) => //q"val ${param.name} = data.${Ident(TermName("_" + i))}"
+            ValDef(NoMods, param.name, param.tpt, q"data.${TermName("_" + (i + 1))}")
+        }
+
+        val builder = q"""
+          (a: Any, data: Data) => {
+            ..$parameterDefinitions
+            $rhs
+          }
+          """
+            val defaultValue = annotationParameters(2)
+        val dependencyItem = annotationParameters(3)
+
+
+        val updatedRhs = q"""
+          type Data = (..$parameterTypes)
+          val data = (..$parameterNames)
+
+          $cachesUtilFQN.getMappedWithRecursionPreventingWithRollback(${annotationParameters.head}, data, $key,
+            $builder, $defaultValue, $dependencyItem)
+          """
+        val res = c.Expr(DefDef(mods, name, tpParams, params, retTp, updatedRhs))
+        println(res)
+        res
       case _ => abort("You can only annotate one function!")
     }
   }
