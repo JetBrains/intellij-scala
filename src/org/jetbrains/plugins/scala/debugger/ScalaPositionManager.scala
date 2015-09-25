@@ -51,17 +51,9 @@ import scala.util.Try
  * @author ilyas
  */
 class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManager with MultiRequestPositionManager with LocationLineManager {
-  private val refTypeToFileCache = mutable.WeakHashMap[ReferenceType, PsiFile]()
-  private val refTypeToElementCache = mutable.WeakHashMap[ReferenceType, Option[SmartPsiElementPointer[PsiElement]]]()
 
-  debugProcess.addDebugProcessListener(new DebugProcessAdapter {
-    override def processDetached(process: DebugProcess, closedByUser: Boolean): Unit = {
-      isCompiledWithIndyLambdasCache.clear()
-      refTypeToFileCache.clear()
-      refTypeToElementCache.clear()
-      clearLocationLineCaches()
-    }
-  })
+  protected val caches = ScalaPositionManagerCaches.instance(debugProcess)
+  import caches._
 
   @Nullable
   def getSourcePosition(@Nullable location: Location): SourcePosition = {
@@ -746,4 +738,42 @@ object ScalaPositionManager {
       CachedValuesManager.getCachedValue(elem, cacheProvider)
     }
   }
+
+  private[debugger] class ScalaPositionManagerCaches(debugProcess: DebugProcess) {
+
+    debugProcess.addDebugProcessListener(new DebugProcessAdapter {
+      override def processDetached(process: DebugProcess, closedByUser: Boolean): Unit = {
+        clear()
+      }
+    })
+
+    val refTypeToFileCache = mutable.WeakHashMap[ReferenceType, PsiFile]()
+    val refTypeToElementCache = mutable.WeakHashMap[ReferenceType, Option[SmartPsiElementPointer[PsiElement]]]()
+
+    val customizedLocationsCache = mutable.WeakHashMap[Location, Int]()
+    val lineToCustomizedLocationCache = mutable.WeakHashMap[(ReferenceType, Int), Seq[Location]]()
+    val seenRefTypes = mutable.Set[ReferenceType]()
+
+    def clear(): Unit = {
+      ScalaPositionManagerCaches.isCompiledWithIndyLambdasCache.clear()
+
+      refTypeToFileCache.clear()
+      refTypeToElementCache.clear()
+
+      customizedLocationsCache.clear()
+      lineToCustomizedLocationCache.clear()
+      seenRefTypes.clear()
+    }
+  }
+
+  private[debugger] object ScalaPositionManagerCaches {
+    private val cachesMap = mutable.WeakHashMap[DebugProcess, ScalaPositionManagerCaches]()
+
+    private val isCompiledWithIndyLambdasCache = mutable.HashSet[PsiFile]()
+
+    def instance(debugProcess: DebugProcess) = {
+      cachesMap.getOrElseUpdate(debugProcess, new ScalaPositionManagerCaches(debugProcess))
+    }
+  }
+
 }
