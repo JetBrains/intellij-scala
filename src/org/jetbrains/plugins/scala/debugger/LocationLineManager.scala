@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement,
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 
 import scala.collection.JavaConverters._
-import scala.collection.mutable
 import scala.util.Try
 
 /**
@@ -24,11 +23,9 @@ import scala.util.Try
 trait LocationLineManager {
   self: ScalaPositionManager =>
 
-  private val syntheticProvider = SyntheticTypeComponentProvider.EP_NAME.findExtension(classOf[ScalaSyntheticProvider])
+  import self.caches._
 
-  private val customizedLocationsCache = mutable.WeakHashMap[Location, Int]()
-  private val lineToCustomizedLocationCache = mutable.WeakHashMap[(ReferenceType, Int), Seq[Location]]()
-  private val seenRefTypes = mutable.Set[ReferenceType]()
+  private val syntheticProvider = SyntheticTypeComponentProvider.EP_NAME.findExtension(classOf[ScalaSyntheticProvider])
 
   def clearLocationLineCaches(): Unit = {
     customizedLocationsCache.clear()
