@@ -1,9 +1,10 @@
-package org.jetbrains.plugins.scala.meta.context
+package scala.meta.context
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScMethodCallImpl
-import org.jetbrains.plugins.scala.meta.TreeConverterTestBaseWithLibrary
+
+import scala.meta.TreeConverterTestBaseWithLibrary
 
 //import scala.meta.eval._
 import scala.meta.internal.{ast => m, semantic => h}

@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala.meta.converter
-
-import org.jetbrains.plugins.scala.meta.TreeConverterTestBaseWithLibrary
+package scala.meta.converter
 
 import scala.meta._
 
