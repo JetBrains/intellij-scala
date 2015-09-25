@@ -98,7 +98,7 @@ trait LocationLineManager {
         parent == null || !PsiTreeUtil.isAncestor(generatingElem, parent, false)
       }
 
-      val methods = refType.methodsByName("<init>").asScala
+      val methods = refType.methodsByName("<init>").asScala.filter(_.declaringType() == refType)
       for {
         location <- methods.map(_.location())
         if shouldCustomize(location)
