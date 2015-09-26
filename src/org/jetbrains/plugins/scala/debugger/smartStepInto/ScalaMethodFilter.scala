@@ -5,6 +5,7 @@ import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Range
 import com.sun.jdi.Location
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -33,8 +34,16 @@ class ScalaMethodFilter(function: ScMethodLike, callingExpressionLines: Range[In
   override def locationMatches(process: DebugProcessImpl, location: Location): Boolean = {
     val method = location.method()
     if (!method.name.contains(funName)) return false
-    if (myTargetMethodSignature != null && method.signature() != myTargetMethodSignature.getName(process)) false
-    else DebuggerUtilsEx.isAssignableFrom(myDeclaringClassName.getName(process), location.declaringType)
+
+    val className = myDeclaringClassName.getName(process)
+    val locationTypeName = location.declaringType().name()
+
+    if (locationTypeName.endsWith("$class")) className == locationTypeName.stripSuffix("$class")
+    else if (myTargetMethodSignature != null && method.signature() != myTargetMethodSignature.getName(process)) false
+    else {
+      DebuggerUtilsEx.isAssignableFrom(locationTypeName, location.declaringType) &&
+        !ScalaPositionManager.shouldSkip(location, process)
+    }
   }
 
   override def getCallingExpressionLines = callingExpressionLines
