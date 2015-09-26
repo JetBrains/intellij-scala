@@ -167,7 +167,7 @@ abstract class ScTypeDefinitionImpl extends ScalaStubBasedElementImpl[ScTemplate
     containingClass == null && PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition]) != null
   }
 
-  def nameId = findChildByType(ScalaTokenTypes.tIDENTIFIER)
+  def nameId = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 

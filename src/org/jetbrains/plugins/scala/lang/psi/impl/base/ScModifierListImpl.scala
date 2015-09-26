@@ -125,7 +125,7 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
         val node = ScalaPsiElementFactory.createModifierFromText("override", getManager)
         addBefore(node)
       }
-        else getNode.removeChild(findChildByType(ScalaTokenTypes.kOVERRIDE).getNode)
+        else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kOVERRIDE).getNode)
       case "private" => if (value) {
         val node = ScalaPsiElementFactory.createModifierFromText("private", getManager)
         addBefore(node)
@@ -150,32 +150,32 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
         val node = ScalaPsiElementFactory.createModifierFromText("final", getManager)
         addBefore(node)
       }
-        else getNode.removeChild(findChildByType(ScalaTokenTypes.kFINAL).getNode)
+        else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kFINAL).getNode)
       case "implicit" => if (value) {
         val node = ScalaPsiElementFactory.createModifierFromText("implicit", getManager)
         addBefore(node)
       }
-        else getNode.removeChild(findChildByType(ScalaTokenTypes.kIMPLICIT).getNode)
+        else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kIMPLICIT).getNode)
       case "abstract" => if (value) {
         val node = ScalaPsiElementFactory.createModifierFromText("abstract", getManager)
         addBefore(node)
       }
-        else getNode.removeChild(findChildByType(ScalaTokenTypes.kABSTRACT).getNode)
+        else getNode.removeChild(findChildByType[PsiElement][PsiElement](ScalaTokenTypes.kABSTRACT).getNode)
       case "sealed" => if (value) {
         val node = ScalaPsiElementFactory.createModifierFromText("sealed", getManager)
         addBefore(node)
       }
-        else getNode.removeChild(findChildByType(ScalaTokenTypes.kSEALED).getNode)
+        else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kSEALED).getNode)
       case "lazy" => if (value) {
         val node = ScalaPsiElementFactory.createModifierFromText("lazy", getManager)
         addBefore(node)
       }
-        else getNode.removeChild(findChildByType(ScalaTokenTypes.kLAZY).getNode)
+        else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kLAZY).getNode)
       case "case" => if (value) {
         val node = ScalaPsiElementFactory.createModifierFromText("case", getManager)
         addAfter(node)
       }
-        else getNode.removeChild(findChildByType(ScalaTokenTypes.kCASE).getNode)
+        else getNode.removeChild(findChildByType[PsiElement](ScalaTokenTypes.kCASE).getNode)
       case _ => return
     }
   }
@@ -225,7 +225,7 @@ class ScModifierListImpl extends ScalaStubBasedElementImpl[ScModifierList] with 
         val stub = getStub
         if (stub != null) {
           stub.asInstanceOf[ScModifiersStub].getModifiers.exists(_ == prop2String(prop))
-        } else findChildByType(prop) != null
+        } else findChildByType[PsiElement](prop) != null
       }
     }
   }

@@ -5,7 +5,7 @@ import java.lang.reflect.Field
 import javax.swing.event.HyperlinkEvent
 
 import com.intellij.ide.IdeBundle
-import com.intellij.ide.plugins.{IdeaPluginDescriptorImpl, PluginInstaller, PluginManagerMain, PluginManagerUISettings}
+import com.intellij.ide.plugins._
 import com.intellij.notification._
 import com.intellij.openapi.application.ex.ApplicationInfoEx
 import com.intellij.openapi.application.impl.ApplicationInfoImpl
@@ -37,13 +37,16 @@ object ScalaPluginUpdater {
     if (getScalaPluginBranch.compareTo(branch) > 0) ScalaPluginUpdater.patchPluginVersion()
 
     val updateSettings = UpdateSettings.getInstance()
-    updateSettings.myPluginHosts.remove(eapRepo)
-    updateSettings.myPluginHosts.remove(nightlyRepo)
+    
+    val pluginHosts = updateSettings.getPluginHosts
+    
+    pluginHosts.remove(eapRepo)
+    pluginHosts.remove(nightlyRepo)
 
     branch match {
       case Release => // leave default plugin repository
-      case EAP     => updateSettings.myPluginHosts.add(eapRepo)
-      case Nightly => updateSettings.myPluginHosts.add(nightlyRepo)
+      case EAP     => pluginHosts.add(eapRepo)
+      case Nightly => pluginHosts.add(nightlyRepo)
     }
   }
 
@@ -61,12 +64,12 @@ object ScalaPluginUpdater {
 
   def pluginIsEap = {
     val updateSettings = UpdateSettings.getInstance()
-    updateSettings.myPluginHosts.contains(eapRepo)
+    updateSettings.getPluginHosts.contains(eapRepo)
   }
 
   def pluginIsNightly = {
     val updateSettings = UpdateSettings.getInstance()
-    updateSettings.myPluginHosts.contains(nightlyRepo)
+    updateSettings.getPluginHosts.contains(nightlyRepo)
   }
 
   def pluginIsRelease = !pluginIsEap && !pluginIsNightly
@@ -78,7 +81,7 @@ object ScalaPluginUpdater {
 
     try {
       PluginInstaller.prepareToUninstall(pluginId)
-      val installedPlugins: JDOMExternalizableStringList = PluginManagerUISettings.getInstance.getInstalledPlugins
+      val installedPlugins = InstalledPluginsState.getInstance().getInstalledPlugins
       val pluginIdString: String = pluginId.getIdString
       while (installedPlugins.contains(pluginIdString)) {
         installedPlugins.remove(pluginIdString)
@@ -148,7 +151,7 @@ object ScalaPluginUpdater {
               notification.expire()
               event.getDescription match {
                 case "No" => // do nothing, will ask next time
-                case "Yes" => UpdateSettings.getInstance().UPDATE_CHANNEL_TYPE = ChannelStatus.EAP_CODE
+                case "Yes" => UpdateSettings.getInstance().setUpdateChannelType(ChannelStatus.EAP_CODE)
                 case "Ignore" => appSettings.ASK_PLATFORM_UPDATE = false
               }
             }

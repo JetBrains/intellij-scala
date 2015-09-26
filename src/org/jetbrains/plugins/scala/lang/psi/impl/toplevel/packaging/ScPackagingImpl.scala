@@ -164,15 +164,15 @@ class ScPackagingImpl extends ScalaStubBasedElementImpl[ScPackageContainer] with
 
   def getBodyText: String = {
     if (isExplicit) {
-      val startOffset = findChildByType(ScalaTokenTypes.tLBRACE).getTextRange.getEndOffset - getTextRange.getStartOffset
+      val startOffset = findChildByType[PsiElement](ScalaTokenTypes.tLBRACE).getTextRange.getEndOffset - getTextRange.getStartOffset
       val text = getText
       val endOffset = if (text.apply(text.length - 1) == '}') {text.length - 1} else text.length
       text.substring(startOffset, endOffset)
     } else {
       val text = getText
       val endOffset = text.length
-      var ref = findChildByType(ScalaElementTypes.REFERENCE)
-      if (ref == null) ref = findChildByType(ScalaTokenTypes.kPACKAGE)
+      var ref = findChildByType[PsiElement](ScalaElementTypes.REFERENCE)
+      if (ref == null) ref = findChildByType[PsiElement](ScalaTokenTypes.kPACKAGE)
       if (ref == null) return getText
       val startOffset = ref.getTextRange.getEndOffset + 1 -
               getTextRange.getStartOffset

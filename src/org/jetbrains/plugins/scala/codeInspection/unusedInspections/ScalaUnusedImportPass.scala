@@ -12,12 +12,14 @@ import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.intention.impl.config.QuickFixFactoryImpl
 import com.intellij.lang.annotation.{AnnotationSession, HighlightSeverity}
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.command.undo.UndoManager
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.{Comparing, Key}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiModificationTracker
-import com.intellij.util.Processor
+import com.intellij.util.{DocumentUtil, Processor}
 import org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -67,7 +69,7 @@ class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Doc
       if (myOptimizeImportsRunnable != null &&
         ScalaApplicationSettings.getInstance().OPTIMIZE_IMPORTS_ON_THE_FLY &&
         ScalaUnusedImportPass.timeToOptimizeImports(file) && file.isWritable) {
-        QuickFixFactoryImpl.invokeOnTheFlyImportOptimizer(myOptimizeImportsRunnable, file, editor)
+        ScalaUnusedImportPass.invokeOnTheFlyImportOptimizer(myOptimizeImportsRunnable, file)
       }
     }
   }
@@ -104,5 +106,35 @@ object ScalaUnusedImportPass {
       def process(error: HighlightInfo): Boolean = false //todo: only unresolved ref issues?
     })
     hasErrorsExceptUnresolvedImports
+  }
+
+  def invokeOnTheFlyImportOptimizer(runnable: Runnable, psiFile: PsiFile) {
+    val project = psiFile.getProject
+    val document = PsiDocumentManager.getInstance(project).getDocument(psiFile)
+    
+    if (document == null) return 
+    
+    val stamp = document.getModificationStamp
+    
+    ApplicationManager.getApplication.invokeLater(new Runnable {
+      override def run() {
+        if (project.isDisposed || document.getModificationStamp != stamp) return 
+        
+        val undoManager = UndoManager.getInstance(project)
+        if (undoManager.isUndoInProgress || undoManager.isRedoInProgress) return 
+        
+        PsiDocumentManager.getInstance(project).commitAllDocuments()
+        val beforeText = psiFile.getText
+        
+        val oldStamp = document.getModificationStamp
+        DocumentUtil.writeInRunUndoTransparentAction(runnable)
+        if (oldStamp != document.getModificationStamp) {
+          val afterText = psiFile.getText
+          if (Comparing.strEqual(beforeText, afterText)) {
+            //hmm, no.
+          }
+        }
+      }
+    })
   }
 }

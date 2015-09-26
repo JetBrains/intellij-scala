@@ -215,7 +215,7 @@ object IntentionUtils {
     val values = new ArrayBuffer[String]
     values += MakeExplicitAction.MAKE_EXPLICIT
     if (secondPart.contains(function)) values += MakeExplicitAction.MAKE_EXPLICIT_STATICALLY
-    val base = new BaseListPopupStep[String](null, values.toArray) {
+    val base = new BaseListPopupStep[String](null, values.toArray: _*) {
       override def getTextFor(value: String): String = value
 
       override def onChosen(selectedValue: String, finalChoice: Boolean): PopupStep[_] = {

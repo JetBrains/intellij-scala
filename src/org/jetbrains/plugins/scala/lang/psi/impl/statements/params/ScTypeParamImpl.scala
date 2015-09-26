@@ -64,7 +64,7 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
     if (stub != null) {
       return stub.asInstanceOf[ScTypeParamStub].isCovariant
     }
-    findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+    findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
       case null => false
       case x => x.getText == "+"
     }
@@ -75,7 +75,7 @@ class ScTypeParamImpl extends ScalaStubBasedElementImpl[ScTypeParam] with ScType
     if (stub != null) {
       return stub.asInstanceOf[ScTypeParamStub].isContravariant
     }
-    findChildByType(ScalaTokenTypes.tIDENTIFIER) match {
+    findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
       case null => false
       case x => x.getText == "-"
     }
