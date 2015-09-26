@@ -615,6 +615,10 @@ object ScalaPositionManager {
     }
   }
 
+  def shouldSkip(location: Location, debugProcess: DebugProcess) = {
+    new ScalaPositionManager(debugProcess).shouldSkip(location)
+  }
+
   private def isInsideMacro(element: PsiElement): Boolean = {
     var call = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall])
     while (call != null) {

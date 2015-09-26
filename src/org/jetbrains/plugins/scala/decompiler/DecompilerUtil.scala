@@ -183,5 +183,14 @@ object DecompilerUtil {
     val lstore_1 = 0x40.toByte
     val lstore_2 = 0x41.toByte
     val lstore_3 = 0x42.toByte
+
+    val invokeStatic = 0xB8.toByte
+
+    val areturn = 0xB0.toByte
+    val dreturn = 0xAF.toByte
+    val freturn = 0xAE.toByte
+    val ireturn = 0xAC.toByte
+    val lreturn = 0xAD.toByte
+    val voidReturn = 0xB1.toByte
   }
 }
