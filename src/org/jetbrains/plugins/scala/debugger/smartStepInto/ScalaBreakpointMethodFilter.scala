@@ -51,7 +51,7 @@ class ScalaBreakpointMethodFilter(psiMethod: Option[PsiMethod],
         method.name == "apply" || method.name.startsWith("apply$") || ScalaPositionManager.isIndyLambda(method)
       case Some(m) =>
         val javaName = inReadAction(if (m.isConstructor) "<init>" else ScalaNamesUtil.toJavaName(m.name))
-        javaName == method.name && signatureMatches(method)
+        javaName == method.name && signatureMatches(method) && !ScalaPositionManager.shouldSkip(location, process)
 
     }
   }
