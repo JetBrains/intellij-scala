@@ -66,8 +66,14 @@ class HoconLexer extends LexerBase {
     _ => true
 
   def onContents(state: State) = state match {
-    case Initial => Value
-    case SubStarting | SubStarted => Substitution
+    case Initial | SubStarting => Value
+    case SubStarted => Substitution
+    case _ => state
+  }
+
+  def onDollar(state: State) = state match {
+    case Initial | Value => SubStarting
+    case SubStarted => Substitution
     case _ => state
   }
 
@@ -81,10 +87,10 @@ class HoconLexer extends LexerBase {
 
   val matchers = List(
     WhitespaceMatcher,
-    new RegexTokenMatcher( """\$(?=\{)""".r, Dollar, notSubstitution, forceState(SubStarting)),
+    new RegexTokenMatcher( """\$""".r, Dollar, always, onDollar),
     new LiteralTokenMatcher("{", SubLBrace, isAnyOf(SubStarting), forceState(SubStarted)),
     new LiteralTokenMatcher("?", QMark, isAnyOf(SubStarted), forceState(Substitution)),
-    new LiteralTokenMatcher("}", SubRBrace, isAnyOf(SubStarting, SubStarted, Substitution), forceState(Value)),
+    new LiteralTokenMatcher("}", SubRBrace, isAnyOf(SubStarted, Substitution), forceState(Value)),
     new LiteralTokenMatcher("{", LBrace, always, forceState(Initial)),
     new LiteralTokenMatcher("}", RBrace, always, forceState(Value)),
     new LiteralTokenMatcher("[", LBracket, always, forceState(Initial)),
@@ -167,7 +173,8 @@ class HoconLexer extends LexerBase {
 
     def newState(state: State, newLine: Boolean) = state match {
       case _ if newLine => Initial
-      case SubStarting | SubStarted => Substitution
+      case SubStarting => Value
+      case SubStarted => Substitution
       case _ => state
     }
   }
