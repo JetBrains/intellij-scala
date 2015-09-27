@@ -15,7 +15,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
 import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
-import com.intellij.testFramework.LightVirtualFile
+import com.intellij.testFramework.{LightVirtualFile, UsefulTestCase}
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.lang.completion
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -60,7 +60,7 @@ abstract class CompletionTestBase extends completion.CompletionTestBase {
   override def chechResult(got: Array[String], _expected: String) {
     import scala.collection.JavaConversions._
     val expected = _expected.split("\n")
-    assertContainsElements[String](got.toSet.toSeq, expected.toSeq)
+    UsefulTestCase.assertContainsElements[String](got.toSet.toSeq, expected.toSeq)
   }
 
   override def setUp() {
