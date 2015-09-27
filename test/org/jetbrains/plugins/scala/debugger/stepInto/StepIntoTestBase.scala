@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.stepInto
 
+import com.intellij.debugger.settings.DebuggerSettings
 import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12_M2}
 
 /**
@@ -315,6 +316,42 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
       waitForBreakpoint()
       doStepInto()
       checkLocation("Sample.scala", "foo", 10)
+    }
+  }
+
+  def testSimpleGetters(): Unit = {
+    DebuggerSettings.getInstance().SKIP_GETTERS = true
+    addFileToProject("Sample.scala",
+      """object Sample {
+        |  val z = 0
+        |
+        |  def main(args: Array[String]) {
+        |    val x = new Sample
+        |    x.getA
+        |    sum(x.z, x.gB)
+        |  }
+        |
+        |  def sum(i1: Int, i2: Int) = i1 + i2
+        |}
+        |
+        |class Sample {
+        |  val a = 0
+        |  var b = 1
+        |
+        |  def getA = a
+        |  def gB = this.b
+        |  def z = Sample.z
+        |}
+      """.stripMargin.trim)
+    addBreakpoint("Sample.scala", 5)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      doStepInto()
+      checkLocation("Sample.scala", "main", 7)
+
+      doStepInto()
+      checkLocation("Sample.scala", "sum", 10)
+      DebuggerSettings.getInstance().SKIP_GETTERS = false
     }
   }
 }
