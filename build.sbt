@@ -1,5 +1,5 @@
-import Keys.{`package` => pack}
 import Common._
+import sbt.Keys.{`package` => pack}
 
 // Global build settings
 
@@ -35,7 +35,7 @@ lazy val scalaCommunity: Project =
     scalacOptions in Global += "-target:jvm-1.6",
     libraryDependencies ++= DependencyGroups.scalaCommunity,
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
-    unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun", "scalastyle"),
+    unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"),
     ideaInternalPlugins := Seq(
       "copyright",
       "gradle",
@@ -235,9 +235,7 @@ lazy val pluginPackager =
             pack.in(scalaRunner, Compile).value),
           "lib/scala-plugin-runners.jar"),
         Library(Dependencies.scalaLibrary,
-          "lib/scala-library.jar"),
-        Directory(sdkDirectory.value / "scalastyle",
-          "lib")
+          "lib/scala-library.jar")
       ) ++
         crossLibraries.map { lib =>
           Library(lib.copy(name = lib.name + "_2.11"), s"lib/${lib.name}.jar")
