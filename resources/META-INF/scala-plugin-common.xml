@@ -46,6 +46,7 @@
         <debugger.syntheticProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticProvider"/>
         <debugger.frameExtraVarsProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaFrameExtraVariablesProvider"/>
         <debugger.extraSteppingFilter implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticSteppingFilter"/>
+        <debugger.simplePropertyGetterProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSimpleGetterProvider"/>
         <debugger.sourcePositionProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSourcePositionProvider"/>
         <debugger.javaBreakpointHandlerFactory implementation="org.jetbrains.plugins.scala.debugger.breakpoints.ScalaBreakpointHandlerFactory"/>
         <debugger.sourcePositionHighlighter implementation="org.jetbrains.plugins.scala.debugger.ScalaSourcePositionHighlighter"/>
