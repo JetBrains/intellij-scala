@@ -48,7 +48,7 @@ class MetaContextTest extends TreeConverterTestBaseWithLibrary {
 
   def testParents1() {
     implicit val semanticContext = context
-    val tree = convert("")
+//    val tree = convert("")
   }
 
 }
