@@ -23,11 +23,12 @@ class IDEAContext(project: =>Project) extends TreeConverter with semantic.Contex
       case Typing.Zero => throw new SemanticException(s"implementation restriction: internal cache has no type associated with $tree")
       case Typing.Nonrecursive(tpe) => tpe
     }
-    val tpe = tree match {
-      case t: m.Term => requireTyped(t.typing)
-      case t: m.Term.Param => requireTyped(t.typing)
-    }
-    tpe.asInstanceOf[Type]
+//    val tpe = tree match {
+//      case t: m.Term => requireTyped(t.typing)
+//      case t: m.Term.Param => requireTyped(t.typing())
+//    }
+//    tpe.asInstanceOf[Type]
+    ???
   }
 
   override def defns(ref: Ref): Seq[Member] = {
