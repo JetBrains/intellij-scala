@@ -7,7 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.{StdType, ScalaTypeVisitor, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypeVisitor, StdType}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
 
 import scala.language.postfixOps
@@ -74,9 +75,13 @@ trait Namer {
     val resolved = toTermName(c)
     resolved match {
       case n@m.Term.Name(value) =>
-        m.Ctor.Ref.Name(value).withAttrs(n.denot)
+        m.Ctor.Ref.Name(value).withAttrs(n.denot, typingLike = toType(c))
       case other => unreachable
     }
+  }
+
+  def toParamName(param: Parameter): m.Term.Param.Name = {
+    m.Term.Name(param.name).withAttrs(h.Denotation.Zero).setTypechecked // TODO: param denotation
   }
 
   def toPrimaryCtorName(t: ScPrimaryConstructor) = {

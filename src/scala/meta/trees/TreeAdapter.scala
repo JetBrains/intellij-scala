@@ -252,11 +252,23 @@ trait TreeAdapter {
     }
   }
 
-  def callArgs(e: ScExpression) = {
+  def callArgs(e: ScExpression): m.Term.Arg = {
     e match {
       case t: ScAssignStmt => m.Term.Arg.Named(toTermName(t.getLExpression), expression(t.getRExpression).get)
       case t: ScUnderscoreSection => m.Term.Placeholder()
       case other => expression(e)
+    }
+  }
+
+//  def callParams(e: ScExpression): m.Term.Param = {
+//    m.Term.Param()
+//  }
+
+  def toParams(argss: Seq[ScArgumentExprList]): Seq[Seq[m.Term.Param]] = {
+    argss.toStream map { args =>
+      args.matchedParameters.getOrElse(Seq.empty).toStream map { case (expr, param) =>
+        m.Term.Param(param.psiParam.map(p => convertMods(p.getModifierList)).getOrElse(Seq.empty), toParamName(param), Some(toType(param.paramType)), None)
+      }
     }
   }
 

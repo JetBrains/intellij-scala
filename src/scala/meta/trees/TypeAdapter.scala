@@ -1,10 +1,11 @@
 package scala.meta.trees
 
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
-import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeParameterType, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
@@ -70,6 +71,7 @@ trait TypeAdapter {
           val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
           toType(s.subst(t.getType(TypingContext.empty).get)) // FIXME: what about typing context?
         case t: packaging.ScPackaging => m.Type.Singleton(toTermName(t.reference.get)).setTypechecked
+        case t: ScConstructor => m.Type.Method(toParams(t.arguments.toStream), toType(t.newTemplate.get.getType(TypingContext.empty)))
         case t: ScFunction => m.Type.Function(Seq(t.paramTypes.map(toType(_).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType)).setTypechecked
         case t: PsiPackage if t.getName == null => m.Type.Singleton(rootPackageName).setTypechecked
         case t: PsiPackage => m.Type.Singleton(toTermName(t)).setTypechecked
@@ -97,9 +99,11 @@ trait TypeAdapter {
           toTypeName(t.element)
         case t: ptype.StdType =>
           toTypeName(t)
+//        case t: ScTypeParameterType =>
+//          ??? //TODO
         case t: ptype.ScType =>
           LOG.warn(s"Unknown type: ${t.getClass} - ${t.canonicalText}")
-          m.Type.Name(t.canonicalText).setTypechecked
+          m.Type.Name(t.canonicalText).withAttrs(h.Denotation.Zero)
       }
     })
   }
