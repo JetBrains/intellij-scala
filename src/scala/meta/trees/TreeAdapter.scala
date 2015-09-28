@@ -205,6 +205,7 @@ trait TreeAdapter {
           case Some(ctr) => toCtor(ctr).asInstanceOf[m.Ctor.Call]
           case None => unreachable(s"no constructor found in class ${t.qualifiedName}")
         }
+      case Some(other) => unreachable(s"Got something else instead of template parents: $other")
       case None => unreachable(s"Class ${t.qualifiedName} has no parents")
     }
     val self    = t.selfType match {
