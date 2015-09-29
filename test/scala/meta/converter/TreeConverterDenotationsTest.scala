@@ -15,13 +15,16 @@ class TreeConverterDenotationsTest extends TreeConverterTestBaseWithLibrary {
     doTest(
       "scala.collection.immutable.List()",
       """
-        |Term.Apply(Term.Select(Term.Select(Term.Select(Term.Name("scala")[1], Term.Name("collection")[2]), Term.Name("immutable")[3]), Term.Name("List")[4]), Nil)
-        |[1] Type.Singleton(Term.Name("_root_")[5])::scala
-        |[2] Type.Singleton(Term.Name("scala")[1])::scala.collection
-        |[3] Type.Singleton(Term.Name("collection")[2])::scala.collection.immutable
-        |[4] Type.Name("List")[6]::scala.collection.immutable#List.apply(Lscala/collection/Seq;)Lscala/collection/immutable/List;
-        |[5] 0::_root_
-        |[6] Type.Singleton(Term.Name("immutable")[3])::scala.collection.immutable#List
+        |Type.Name("List")[1]
+        |[1] {1}::scala.collection.immutable#List
+        |[2] {2}::scala.collection.immutable
+        |[3] {3}::scala.collection
+        |[4] {4}::scala
+        |[5] {0}::_root_
+        |{1} Type.Singleton(Term.Name("immutable")[2]{1}<>)
+        |{2} Type.Singleton(Term.Name("collection")[3]{2}<>)
+        |{3} Type.Singleton(Term.Name("scala")[4]{3}<>)
+        |{4} Type.Singleton(Term.Name("_root_")[5]{4}<>)
       """.stripMargin
     )
   }
