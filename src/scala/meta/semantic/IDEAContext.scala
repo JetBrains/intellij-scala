@@ -1,15 +1,15 @@
 package scala.meta.semantic
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.{PsiClass, PsiManager}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 import scala.collection.immutable.Seq
 import scala.meta._
-import scala.meta.internal.semantic.Typing
 import scala.meta.internal.{ast => m}
 import scala.meta.trees.TreeConverter
 import scala.{Seq => _}
@@ -26,7 +26,12 @@ class IDEAContext(project: =>Project) extends TreeConverter with semantic.Contex
     psi.lastExpr match {
       case Some(expr: ScExpression) => toType(expr.getType())
       case Some(other) => other ?!
-      case None => unreachable
+      case None => psi.lastStatement match {
+        case Some(v: ScValue) => toType(v.getType(TypingContext.empty))
+        case Some(other) => other ?!
+        case None => unreachable
+
+      }
     }
   }
 
