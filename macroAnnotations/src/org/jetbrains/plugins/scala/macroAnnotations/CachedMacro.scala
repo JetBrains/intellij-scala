@@ -172,7 +172,8 @@ object CachedMacro {
           if (useOptionalProvider) TypeName("MyOptionalProvider")
           else TypeName("MyProvider")
 
-        val builder = q"new $cachesUtilFQN.$provider[$providerType, $retTp]($element, _ => $rhs)($dependencyItem)"
+        println(rhs)
+        val builder = q"new $cachesUtilFQN.$provider[$providerType, $retTp]($element, _ => {$rhs})($dependencyItem)"
         val updatedRhs = q"""
           $cachesUtilFQN.getWithRecursionPreventingWithRollback($element, $key, $builder, $defaultValue)
           """
@@ -198,7 +199,7 @@ object CachedMacro {
         val key = annotationParameters(1)
         val dependencyItem = annotationParameters.last
         val updatedRhs = q"""
-          $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.MyProvider($elem, _ => $rhs)($dependencyItem))
+          $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.MyProvider[Any, $retTp]($elem, _ => $rhs)($dependencyItem))
           """
         val res = DefDef(mods, name, tpParams, params, retTp, updatedRhs)
         println(res)
