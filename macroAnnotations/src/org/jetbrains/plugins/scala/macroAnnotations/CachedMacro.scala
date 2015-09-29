@@ -38,10 +38,9 @@ object CachedMacro {
     }
 
 
-    //todo: caching two function with the same name
+    //todo: caching two overloaded functions
     annottees.toList match {
       case d@DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
-        println(retTp)
         if (retTp.toString() == "<type ?>") {
           abort("You must specify return type")
         }
@@ -103,14 +102,14 @@ object CachedMacro {
     }
   }
 
-  def cachedWithRecursionGuardImpl(c: whitebox.Context)(annottees: c.Tree*): c.Expr[Any] = {
+  def cachedMappedWithRecursionGuardImpl(c: whitebox.Context)(annottees: c.Tree*): c.Expr[Any] = {
     import c.universe._
     def abort(s: String) = c.abort(c.enclosingPosition, s)
 
     annottees.toList match {
       case d@DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
         val annotationParameters: List[Tree] = c.prefix.tree match {
-          case q"new CachedWithRecursionGuard(..$params)" if params.length == 2 => params
+          case q"new CachedMappedWithRecursionGuard(..$params)" if params.length == 4 => params
           case _ => abort("Wrong annotation parameters!")
         }
         val flatParams = params.flatten
@@ -118,32 +117,68 @@ object CachedMacro {
         val parameterNames: List[c.universe.TermName] = flatParams.map(_.name)
         val cachesUtilFQN = q"org.jetbrains.plugins.scala.caches.CachesUtil"
         val key = annotationParameters(1)
-
         val parameterDefinitions: List[c.universe.Tree] = flatParams.zipWithIndex.map {
           case (param, i) =>
             ValDef(NoMods, param.name, param.tpt, q"data.${TermName("_" + (i + 1))}")
         }
 
         val builder = q"""
-          (a: Any, data: Data) => {
+          (any: Any, data: Data) => {
             ..$parameterDefinitions
             $rhs
           }
           """
-            val defaultValue = annotationParameters(2)
+        val element = annotationParameters.head
+        val defaultValue = annotationParameters(2)
         val dependencyItem = annotationParameters(3)
-
 
         val updatedRhs = q"""
           type Data = (..$parameterTypes)
           val data = (..$parameterNames)
 
-          $cachesUtilFQN.getMappedWithRecursionPreventingWithRollback(${annotationParameters.head}, data, $key,
-            $builder, $defaultValue, $dependencyItem)
+          $cachesUtilFQN.getMappedWithRecursionPreventingWithRollback($element, data, $key, $builder, $defaultValue, $dependencyItem)
           """
         val res = c.Expr(DefDef(mods, name, tpParams, params, retTp, updatedRhs))
         println(res)
         res
+      case _ => abort("You can only annotate one function!")
+    }
+  }
+
+  def cachedWithRecursionGuardImpl(c: whitebox.Context)(annottees: c.Tree*): c.Expr[Any] = {
+    import c.universe._
+    def abort(s: String) = c.abort(c.enclosingPosition, s)
+
+    annottees.toList match {
+      case d@DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
+        val cachesUtilFQN = q"org.jetbrains.plugins.scala.caches.CachesUtil"
+
+        val (annotationParameters: List[Tree], providerType, useOptionalProvider: Boolean) = c.prefix.tree match {
+          case q"new CachedWithRecursionGuard[$t](..$params)" if params.length == 4 => (params, t, false) //default parameter
+          case q"new CachedWithRecursionGuard[$t](..$params)" if params.length == 5 =>
+            val optional = params.last match {
+              case q"useOptionalProvider = $v" => c.eval[Boolean](c.Expr(v))
+              case q"$v" => c.eval[Boolean](c.Expr(v))
+            }
+            (params, t, optional)
+          case _ => abort("Wrong annotation parameters!")
+        }
+        val element = annotationParameters.head
+        val key = annotationParameters(1)
+        val defaultValue = annotationParameters(2)
+        val dependencyItem = annotationParameters(3)
+        println(dependencyItem)
+        val provider =
+          if (useOptionalProvider) TypeName("MyOptionalProvider")
+          else TypeName("MyProvider")
+
+        val builder = q"new $cachesUtilFQN.$provider[$providerType, $retTp]($element, _ => $rhs)($dependencyItem)"
+        val updatedRhs = q"""
+          $cachesUtilFQN.getWithRecursionPreventingWithRollback($element, $key, $builder, $defaultValue)
+          """
+        val res = DefDef(mods, name, tpParams, params, retTp, updatedRhs)
+        println(res)
+        c.Expr(res)
       case _ => abort("You can only annotate one function!")
     }
   }
@@ -159,12 +194,11 @@ object CachedMacro {
           case _ => abort("Wrong annotation parameters!")
         }
         val cachesUtilFQN = q"org.jetbrains.plugins.scala.caches.CachesUtil"
-
         val elem = annotationParameters.head
         val key = annotationParameters(1)
         val dependencyItem = annotationParameters.last
         val updatedRhs = q"""
-          $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.MyProvider($elem, (elem: Any) => $rhs)($dependencyItem))
+          $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.MyProvider($elem, _ => $rhs)($dependencyItem))
           """
         val res = DefDef(mods, name, tpParams, params, retTp, updatedRhs)
         println(res)

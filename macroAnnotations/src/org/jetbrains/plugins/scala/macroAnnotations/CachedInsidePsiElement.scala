@@ -4,6 +4,8 @@ import scala.annotation.StaticAnnotation
 import scala.language.experimental.macros
 
 /**
+ * This annotation makes the compiler generate code that calls CachesUtil.get(..,)
+ *
  * Author: Svyatoslav Ilinskiy
  * Date: 9/25/15.
  */
