@@ -21,36 +21,36 @@ trait Namer {
   def toTermName(elem: PsiElement): m.Term.Name = elem match {
       // TODO: what to resolve apply/update methods to?
     case sf: ScFunction if sf.name == "apply" || sf.name == "update" =>
-      m.Term.Name(sf.containingClass.name).withDenot(sf)
+      m.Term.Name(sf.containingClass.name).withAttrsFor(sf)
     case sf: ScFunction =>
-      m.Term.Name(sf.name).withDenot(sf)
+      m.Term.Name(sf.name).withAttrsFor(sf)
     case ne: ScNamedElement =>
-      m.Term.Name(ne.name).withDenot(ne)
+      m.Term.Name(ne.name).withAttrsFor(ne)
     case re: ScReferenceExpression =>
       toTermName(re.resolve())
     case cr: ScStableCodeReferenceElement =>
-      m.Term.Name(cr.refName).withDenot(cr)
+      m.Term.Name(cr.refName).withAttrsFor(cr)
     case se: impl.toplevel.synthetic.SyntheticNamedElement =>
       throw new ScalaMetaException(s"Synthetic elements not implemented") // FIXME: find a way to resolve synthetic elements
     case cs: ScConstructor =>
       toTermName(cs.reference.get)
     // Java stuff starts here
     case pp: PsiPackage =>
-      m.Term.Name(pp.getName).withDenot(pp)
+      m.Term.Name(pp.getName).withAttrsFor(pp)
     case pc: PsiClass =>
-      m.Term.Name(pc.getName).withDenot(pc)
+      m.Term.Name(pc.getName).withAttrsFor(pc)
     case pm: PsiMethod =>
-      m.Term.Name(pm.getName).withDenot(pm)
+      m.Term.Name(pm.getName).withAttrsFor(pm)
     case other => other ?!
   }
 
   def toTypeName(elem: PsiElement): m.Type.Name = elem match {
     case ne: ScNamedElement =>
-      m.Type.Name(ne.name).withDenot(ne).setTypechecked
+      m.Type.Name(ne.name).withAttrsFor(ne).setTypechecked
     case re: ScReferenceExpression =>
       toTypeName(re.resolve())
     case sc: impl.toplevel.synthetic.ScSyntheticClass =>
-      m.Type.Name(sc.className).withDenot(sc).setTypechecked
+      m.Type.Name(sc.className).withAttrsFor(sc).setTypechecked
     case cr: ScStableCodeReferenceElement =>
       toTypeName(cr.resolve())
     case se: impl.toplevel.synthetic.SyntheticNamedElement =>
@@ -63,7 +63,7 @@ trait Namer {
     val visitor = new ScalaTypeVisitor {
       override def visitStdType(x: StdType) = {
         val clazz = ScalaPsiManager.instance(getCurrentProject).getCachedClass(GlobalSearchScope.allScope(getCurrentProject), s"scala.${x.name}")
-        res = m.Type.Name(x.name).withDenot(clazz)
+        res = m.Type.Name(x.name).withAttrsFor(clazz)
       }
     }
     tp.visitType(visitor)
