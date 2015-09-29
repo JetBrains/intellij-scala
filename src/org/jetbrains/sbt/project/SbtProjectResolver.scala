@@ -157,11 +157,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val libs = modulesWithBinaries.map(createResolvedLibrary) ++ otherModuleIds.map(createUnresolvedLibrary)
 
-    if (modulesWithoutBinaries.isEmpty) return libs
+    val modulesWithDocumentation = modulesWithoutBinaries.filter(m => m.docs.nonEmpty || m.sources.nonEmpty)
+    if (modulesWithDocumentation.isEmpty) return libs
 
     val unmanagedSourceLibrary = new LibraryNode(Sbt.UnmanagedSourcesAndDocsName, true)
-    unmanagedSourceLibrary.addPaths(LibraryPathType.DOC, modulesWithoutBinaries.flatMap(_.docs).map(_.path))
-    unmanagedSourceLibrary.addPaths(LibraryPathType.SOURCE, modulesWithoutBinaries.flatMap(_.sources).map(_.path))
+    unmanagedSourceLibrary.addPaths(LibraryPathType.DOC, modulesWithDocumentation.flatMap(_.docs).map(_.path))
+    unmanagedSourceLibrary.addPaths(LibraryPathType.SOURCE, modulesWithDocumentation.flatMap(_.sources).map(_.path))
     libs :+ unmanagedSourceLibrary
   }
 
