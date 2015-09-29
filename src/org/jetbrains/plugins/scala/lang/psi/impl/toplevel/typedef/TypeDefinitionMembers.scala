@@ -11,6 +11,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
 import com.intellij.psi.util._
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil.MyOptionalProvider
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.convertMemberName
@@ -511,7 +512,7 @@ object TypeDefinitionMembers {
       case _ =>
     }
     get(clazz, parameterlessKey, new MyOptionalProvider(clazz, {clazz: PsiClass => ParameterlessNodes.build(clazz)})(
-      ScalaPsiUtil.getDependentItem(clazz)
+      CachesUtil.getDependentItem(clazz)
     ))
   }
 
@@ -525,7 +526,7 @@ object TypeDefinitionMembers {
       case _ =>
     }
     get(clazz, typesKey, new MyOptionalProvider(clazz, {clazz: PsiClass => TypeNodes.build(clazz)})(
-      ScalaPsiUtil.getDependentItem(clazz)
+      CachesUtil.getDependentItem(clazz)
     ))
   }
 
@@ -539,7 +540,7 @@ object TypeDefinitionMembers {
       case _ =>
     }
     val ans = get(clazz, signaturesKey, new MyOptionalProvider(clazz, {c: PsiClass => SignatureNodes.build(c)})(
-      ScalaPsiUtil.getDependentItem(clazz)
+      CachesUtil.getDependentItem(clazz)
     ))
     place.foreach {
       case _: ScInterpolatedPrefixReference =>
@@ -552,12 +553,12 @@ object TypeDefinitionMembers {
                 c match {
                   case o: ScObject =>
                     if (allowedNames.contains(o.name)) {
-                      val add = get(o, signaturesKey, new MyOptionalProvider(clazz, {c: PsiClass => SignatureNodes.build(c)})(ScalaPsiUtil.getDependentItem(o)))
+                      val add = get(o, signaturesKey, new MyOptionalProvider(clazz, {c: PsiClass => SignatureNodes.build(c)})(CachesUtil.getDependentItem(o)))
                       ans ++= add
                     }
                   case c: ScClass =>
                     if (allowedNames.contains(c.name)) {
-                      val add = get(c, signaturesKey, new MyOptionalProvider(clazz, {c: PsiClass => SignatureNodes.build(c)})(ScalaPsiUtil.getDependentItem(c)))
+                      val add = get(c, signaturesKey, new MyOptionalProvider(clazz, {c: PsiClass => SignatureNodes.build(c)})(CachesUtil.getDependentItem(c)))
                       ans ++= add
                     }
                   case _ =>

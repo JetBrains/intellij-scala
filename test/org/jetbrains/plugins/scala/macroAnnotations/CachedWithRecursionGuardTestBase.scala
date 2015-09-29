@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.caches.CachesUtil._
  * Author: Svyatoslav Ilinskiy
  * Date: 9/24/15.
  */
-class CachedWithRecursionGuardTestBase extends ScalaFixtureTestCase {
+abstract class CachedWithRecursionGuardTestBase extends ScalaFixtureTestCase {
   class CachedMockPsiElement extends MockPsiElement(getProject) {
     override def getProject = myFixture.getProject
 
@@ -21,4 +21,5 @@ class CachedWithRecursionGuardTestBase extends ScalaFixtureTestCase {
 object CachedWithRecursionGuardTestBase {
   val FAKE_KEY: MappedKey[(Option[Int], Int), String] = Key.create("fake.key")
   val FAKE_KEY2: Key[CachedValue[Long]] = Key.create("fake.key.2")
+  val FAKE_KEY3: Key[CachedValue[Either[Long, String]]] = Key.create("fake.key.2")
 }

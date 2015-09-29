@@ -2,10 +2,13 @@ package org.jetbrains.plugins.scala
 package caches
 
 
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.{Computable, Key, RecursionGuard, RecursionManager}
 import com.intellij.psi._
-import com.intellij.psi.util.{CachedValue, CachedValueProvider, CachedValuesManager, PsiTreeUtil}
+import com.intellij.psi.impl.compiled.ClsFileImpl
+import com.intellij.psi.util._
 import com.intellij.util.containers.ConcurrentHashMap
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
@@ -271,7 +274,25 @@ object CachesUtil {
     }
     result
   }
-  
+
+  def getDependentItem(element: PsiElement,
+                       dep_item: Object = PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT): Option[Object] = {
+    element.getContainingFile match {
+      case file: ScalaFile if file.isCompiled =>
+        if (!ProjectRootManager.getInstance(element.getProject).getFileIndex.isInContent(file.getVirtualFile)) {
+          return Some(dep_item)
+        }
+        var dir = file.getParent
+        while (dir != null) {
+          if (dir.getName == "scala-library.jar") return None
+          dir = dir.getParent
+        }
+        Some(ProjectRootManager.getInstance(element.getProject))
+      case cls: ClsFileImpl => Some(ProjectRootManager.getInstance(element.getProject))
+      case _ => Some(dep_item)
+    }
+  }
+
   private case class ProbablyRecursionException[Dom <: PsiElement, Data, T](elem: Dom,
                                                                             data: Data,
                                                                             key: Key[T],
