@@ -21,7 +21,7 @@ trait Namer {
   def toTermName(elem: PsiElement): m.Term.Name = elem match {
       // TODO: what to resolve apply/update methods to?
     case sf: ScFunction if sf.name == "apply" || sf.name == "update" =>
-      m.Term.Name(sf.containingClass.name).withAttrsFor(sf)
+      m.Term.Name(sf.containingClass.name).withAttrsFor(sf).setTypechecked
     case sf: ScFunction =>
       m.Term.Name(sf.name).withAttrsFor(sf)
     case ne: ScNamedElement =>
@@ -36,11 +36,11 @@ trait Namer {
       toTermName(cs.reference.get)
     // Java stuff starts here
     case pp: PsiPackage =>
-      m.Term.Name(pp.getName).withAttrsFor(pp)
+      m.Term.Name(pp.getName).withAttrsFor(pp).setTypechecked
     case pc: PsiClass =>
-      m.Term.Name(pc.getName).withAttrsFor(pc)
+      m.Term.Name(pc.getName).withAttrsFor(pc).setTypechecked
     case pm: PsiMethod =>
-      m.Term.Name(pm.getName).withAttrsFor(pm)
+      m.Term.Name(pm.getName).withAttrsFor(pm).setTypechecked
     case other => other ?!
   }
 

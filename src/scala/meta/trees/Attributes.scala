@@ -1,6 +1,7 @@
 package scala.meta.trees
 
-import com.intellij.psi.{PsiMethod, PsiClass, PsiElement}
+import com.intellij.psi.{PsiPackage, PsiMethod, PsiClass, PsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -24,7 +25,7 @@ trait Attributes {
         .foldLeft(rootPackagePrefix) {
           (parent, name) => h.Prefix.Type(m.Type.Singleton(
             m.Term.Name(name).withAttrs(denot = h.Denotation.Single(parent, fqnameToSymbol(fqn.substring(0, fqn.indexOf(name) + name.length), toDrop = 0)),
-                                        typingLike = h.Typing.Nonrecursive(m.Type.Singleton(m.Term.Name(name)).setTypechecked))
+                                        typingLike = h.Typing.Recursive)
             ).setTypechecked
           )
       }
@@ -73,7 +74,11 @@ trait Attributes {
     }
 
     def withTypingFor[P <: PsiElement](elem: Option[P]): h.Typing = {
-      h.Typing.Zero // TODO
+      elem match {
+        case Some(_: PsiPackage) | Some(_: ScPackage) | Some(_: ScObject) => h.Typing.Recursive
+        case Some(psi) => h.Typing.Nonrecursive(toType(psi))
+        case None      => h.Typing.Zero
+      }
     }
 
     def withAttrsFor[P <: PsiElement](elem: P): T = withAttrsFor(Some(elem))
