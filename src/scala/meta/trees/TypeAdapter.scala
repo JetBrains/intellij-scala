@@ -75,7 +75,7 @@ trait TypeAdapter {
         case t: ScFunction => m.Type.Function(Seq(t.paramTypes.map(toType(_).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType)).setTypechecked
         case t: PsiPackage if t.getName == null => m.Type.Singleton(rootPackageName).setTypechecked
         case t: PsiPackage => m.Type.Singleton(toTermName(t)).setTypechecked
-        case t: PsiClass => m.Type.Name(t.getName).withDenot(t).setTypechecked
+        case t: PsiClass => m.Type.Name(t.getName).withAttrsFor(t).setTypechecked
         case other => other ?!
       }
     })

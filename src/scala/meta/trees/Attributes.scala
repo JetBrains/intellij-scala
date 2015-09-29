@@ -72,17 +72,17 @@ trait Attributes {
         }
     }
 
-    def typing[P <: PsiElement](elem: Option[P]): h.Typing = {
+    def withTypingFor[P <: PsiElement](elem: Option[P]): h.Typing = {
       h.Typing.Zero // TODO
     }
 
-    def withDenot[P <: PsiElement](elem: P): T = withDenot(Some(elem))
+    def withAttrsFor[P <: PsiElement](elem: P): T = withAttrsFor(Some(elem))
 
-    def withDenot[P <: PsiElement](elem: Option[P]): T = {
+    def withAttrsFor[P <: PsiElement](elem: Option[P]): T = {
       val denotatedTree = ptree match {
         case ptree: m.Name.Anonymous => ptree.withAttrs(denot(elem))
         case ptree: m.Name.Indeterminate => ptree.withAttrs(denot(elem))
-        case ptree: m.Term.Name => ptree.withAttrs(denot = denot(elem), typingLike = typing(elem))
+        case ptree: m.Term.Name => ptree.withAttrs(denot = denot(elem), typingLike = withTypingFor(elem))
         case ptree: m.Type.Name => ptree.withAttrs(denot(elem))
         // TODO: some ctor refs don't have corresponding constructor symbols in Scala (namely, ones for traits)
         // in these cases, our lsym is going to be a symbol of the trait in question
