@@ -9,7 +9,7 @@ import com.intellij.debugger.engine.{DebuggerUtils, FrameExtraVariablesProvider}
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveState}
+import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement, ResolveState}
 import com.intellij.xdebugger.impl.breakpoints.XExpressionImpl
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.template.util.VariablesCompletionProcessor
@@ -21,9 +21,10 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScTypedPattern, ScWildcardPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScCatchBlock, ScEnumerator, ScForStatement, ScGenerator}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 import scala.collection.JavaConverters._
@@ -165,20 +166,29 @@ private class CollectingProcessor(element: PsiElement) extends VariablesCompleti
 
   val containingFile = element.getContainingFile
   val startOffset = element.getTextRange.getStartOffset
+  val containingBlock = PsiTreeUtil.getParentOfType(element, classOf[ScBlock], classOf[ScTemplateDefinition], classOf[PsiFile])
+  val usedNames: Set[String] =
+    if (containingBlock != null) {
+      containingBlock.depthFirst.collect {
+        case ref: ScReferenceExpression if ref.qualifier.isEmpty => ref.refName
+      }.toSet
+    }
+    else Set.empty
 
   override def execute(element: PsiElement, state: ResolveState): Boolean = {
     val result = super.execute(element, state)
 
-    candidatesSet.foreach(rr => if (!isBeforeAndInSameFile(rr)) candidatesSet -= rr)
+    candidatesSet.foreach(rr => if (!shouldShow(rr)) candidatesSet -= rr)
     result
   }
 
-  private def isBeforeAndInSameFile(candidate: ScalaResolveResult): Boolean = {
+  private def shouldShow(candidate: ScalaResolveResult): Boolean = {
     val candElem = candidate.getElement
     val candElemContext = ScalaPsiUtil.nameContext(candElem) match {
       case cc: ScCaseClause => cc.pattern.getOrElse(cc)
       case other => other
     }
-    candElem.getContainingFile == containingFile && candElemContext.getTextRange.getEndOffset < startOffset
+    def usedInContainingBlock = usedNames.contains(candElem.name)
+    candElem.getContainingFile == containingFile && candElemContext.getTextRange.getEndOffset < startOffset && usedInContainingBlock
   }
 }
