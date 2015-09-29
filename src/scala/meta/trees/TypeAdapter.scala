@@ -70,12 +70,18 @@ trait TypeAdapter {
         case t: typedef.ScTemplateDefinition =>
           val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
           toType(s.subst(t.getType(TypingContext.empty).get)) // FIXME: what about typing context?
-        case t: packaging.ScPackaging => m.Type.Singleton(toTermName(t.reference.get)).setTypechecked
-        case t: ScConstructor => m.Type.Method(toParams(t.arguments.toStream), toType(t.newTemplate.get.getType(TypingContext.empty)))
-        case t: ScFunction => m.Type.Function(Seq(t.paramTypes.map(toType(_).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType)).setTypechecked
-        case t: PsiPackage if t.getName == null => m.Type.Singleton(rootPackageName).setTypechecked
-        case t: PsiPackage => m.Type.Singleton(toTermName(t)).setTypechecked
-        case t: PsiClass => m.Type.Name(t.getName).withAttrsFor(t).setTypechecked
+        case t: packaging.ScPackaging =>
+          m.Type.Singleton(toTermName(t.reference.get)).setTypechecked
+        case t: ScConstructor =>
+          m.Type.Method(toParams(t.arguments.toStream), toType(t.newTemplate.get.getType(TypingContext.empty)))
+        case t: ScFunction =>
+          m.Type.Function(Seq(t.paramTypes.map(toType(_).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType)).setTypechecked
+        case t: PsiPackage if t.getName == null =>
+          m.Type.Singleton(rootPackageName).setTypechecked
+        case t: PsiPackage =>
+          m.Type.Singleton(toTermName(t)).setTypechecked
+        case t: PsiClass =>
+          m.Type.Name(t.getName).withAttrsFor(t).setTypechecked
         case other => other ?!
       }
     })
@@ -99,8 +105,8 @@ trait TypeAdapter {
           toTypeName(t.element)
         case t: ptype.StdType =>
           toTypeName(t)
-//        case t: ScTypeParameterType =>
-//          ??? //TODO
+        case t: ScTypeParameterType =>
+          m.Type.Name(t.name).withAttrsFor(t.param).setTypechecked
         case t: ptype.ScType =>
           LOG.warn(s"Unknown type: ${t.getClass} - ${t.canonicalText}")
           m.Type.Name(t.canonicalText).withAttrs(h.Denotation.Zero)
@@ -111,7 +117,7 @@ trait TypeAdapter {
   def toTypeParams(tp: p.statements.params.ScTypeParam): m.Type.Param = {
     m.Type.Param(
       if(tp.isCovariant) m.Mod.Covariant() :: Nil else if(tp.isContravariant) m.Mod.Contravariant() :: Nil else Nil,
-      if (tp.name != "_") toTypeName(tp) else m.Name.Anonymous(),
+      if (tp.name != "_") toTypeName(tp) else m.Name.Anonymous().withAttrsFor(tp).setTypechecked,
       Seq(tp.typeParameters.map(toTypeParams):_*),
       typeBounds(tp),
       viewBounds(tp),
