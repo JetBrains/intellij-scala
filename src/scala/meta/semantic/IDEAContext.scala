@@ -3,7 +3,9 @@ package scala.meta.semantic
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.{PsiClass, PsiManager}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 
 import scala.collection.immutable.Seq
 import scala.meta._
@@ -19,16 +21,13 @@ class IDEAContext(project: =>Project) extends TreeConverter with semantic.Contex
   override def dialect = dialects.Scala211
 
   override def typecheck(tree : Tree) : Tree = {
-    def requireTyped(typing: Typing) = typing match {
-      case Typing.Zero => throw new SemanticException(s"implementation restriction: internal cache has no type associated with $tree")
-      case Typing.Nonrecursive(tpe) => tpe
+    if (tree.isTypechecked) return tree
+    val psi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(tree.toString(), PsiManager.getInstance(project)).asInstanceOf[ScBlock]
+    psi.lastExpr match {
+      case Some(expr: ScExpression) => toType(expr.getType())
+      case Some(other) => other ?!
+      case None => unreachable
     }
-//    val tpe = tree match {
-//      case t: m.Term => requireTyped(t.typing)
-//      case t: m.Term.Param => requireTyped(t.typing())
-//    }
-//    tpe.asInstanceOf[Type]
-    ???
   }
 
   override def defns(ref: Ref): Seq[Member] = {
