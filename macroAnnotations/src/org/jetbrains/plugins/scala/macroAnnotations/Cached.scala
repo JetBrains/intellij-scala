@@ -10,22 +10,11 @@ import scala.language.experimental.macros
  * If an annotated function has no parameters, two fields will be generated: result and modCount
  *
  * CURRENTLY NOT SUPPORTED:
- *   1. Caching overloaded functions in the same scope will cause a name collision
- *   2. Passing non-named arguments to this annotation. For instance this will cause a compiler error:
- *      `
- *        &#064;Cached(false, ModCount.ModificationCount)
- *        def foo(): Int = ???
- *      `
- *
- *      You have to do the following:
- *      `
- *        &#064;Cached(synchronized = false, modificationCount = ModCount.ModificationCount)
- *        def foo(): Int = ???
- *      `
+ *   Caching overloaded functions in the same scope will cause a name collision
  *
  * Author: Svyatoslav Ilinskiy
  * Date: 9/18/15.
  */
-class Cached(synchronized: Boolean = false, modificationCount: ModCount.Value = ModCount.ModificationCount) extends StaticAnnotation {
+class Cached(synchronized: Boolean, modificationCount: ModCount.Value) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro CachedMacro.cachedImpl
 }

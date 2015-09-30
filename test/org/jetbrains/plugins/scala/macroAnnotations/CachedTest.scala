@@ -13,7 +13,7 @@ import org.junit.Assert
 class CachedTest extends CachedTestBase {
   def testNoParametersSingleThread(): Unit = {
     class Foo extends Managed {
-      @Cached(synchronized = false)
+      @Cached(synchronized = false, ModCount.ModificationCount)
       def currentTime(): Long = System.currentTimeMillis()
     }
 
@@ -42,7 +42,7 @@ class CachedTest extends CachedTestBase {
 
       val allThreadsStartedLock: ReentrantLock = new ReentrantLock()
 
-      @Cached(synchronized = true)
+      @Cached(synchronized = true, ModCount.ModificationCount)
       def runSynchronized(): Unit = {
 
         allThreadsStartedLock.lock()
@@ -93,7 +93,7 @@ class CachedTest extends CachedTestBase {
 
   def testModificationTrackers(): Unit = {
     object Foo extends Managed {
-      @Cached(modificationCount = ModCount.OutOfCodeBlockModificationCount)
+      @Cached(synchronized = false, modificationCount = ModCount.OutOfCodeBlockModificationCount)
       def currentTime: Long = System.currentTimeMillis()
     }
 
@@ -106,7 +106,7 @@ class CachedTest extends CachedTestBase {
 
   def testWithParameters(): Unit = {
     object Foo extends Managed {
-      @Cached
+      @Cached(synchronized = false, ModCount.ModificationCount)
       def currentTime(a: Int, b: Int): Long = System.currentTimeMillis()
     }
 

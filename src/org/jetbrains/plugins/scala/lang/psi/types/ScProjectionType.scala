@@ -135,7 +135,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
   private def actual: (PsiNamedElement, ScSubstitutor) = {
     @CachedMappedWithRecursionGuard(element, CachesUtil.PROJECTION_TYPE_ACTUAL_INNER, None,
       PsiModificationTracker.MODIFICATION_COUNT)
-    def actualInner(element: PsiNamedElement, projected: ScType): Option[(PsiNamedElement, ScSubstitutor)] = {
+    def actualInner(projected: ScType): Option[(PsiNamedElement, ScSubstitutor)] = {
       val emptySubst = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
       val resolvePlace = {
         def fromClazz(clazz: ScTypeDefinition): PsiElement = {
@@ -197,7 +197,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
       }
     }
 
-    val (actualElement, actualSubst) = actualInner(element, projected).getOrElse((element, ScSubstitutor.empty))
+    val (actualElement, actualSubst) = actualInner(projected).getOrElse((element, ScSubstitutor.empty))
 
     (actualElement, actualSubst)
   }
