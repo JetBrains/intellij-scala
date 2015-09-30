@@ -149,7 +149,7 @@ public class TestUtils {
   public static String getIvyCachePath() {
     String homePath = System.getProperty("user.home") + "\\.ivy2\\cache";
     String ivyCachePath = System.getProperty("sbt.ivy.home");
-    String result = ivyCachePath != null ? ivyCachePath : homePath;
+    String result = ivyCachePath != null ? ivyCachePath + "\\cache" : homePath;
     return result.replace("\\", "/");
   }
   

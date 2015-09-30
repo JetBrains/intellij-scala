@@ -29,6 +29,7 @@ lazy val scalaCommunity: Project =
   newProject("scalaCommunity", file("."))
   .dependsOn(compilerSettings, scalap, runners % "test->test;compile->compile")
   .enablePlugins(SbtIdeaPlugin)
+  .settings(commonTestSettings(packagedPluginDir):_*)
   .settings(
     ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
     javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6"),
@@ -51,20 +52,6 @@ lazy val scalaCommunity: Project =
       classpath.filterNot(_.data.getName.contains("lucene-core"))
     },
     aggregate.in(updateIdea) := false,
-    // jar hell workaround(ignore idea bundled lucene in test runtime)
-    fullClasspath in Test <<= fullClasspath.in(Test).map(filterTestClasspath),
-    fork in Test := true,
-    parallelExecution := false,
-    javaOptions in Test := Seq(
-      //  "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005",
-      "-Xms128m",
-      "-Xmx1024m",
-      "-XX:MaxPermSize=350m",
-      "-ea",
-      s"-Didea.system.path=$testSystemDir",
-      s"-Didea.config.path=$testConfigDir",
-      s"-Dplugin.path=${baseDirectory.value}/out/plugin/Scala"
-    ),
     test in Test <<= test.in(Test).dependsOn(setUpTestEnvironment),
     testOnly in Test <<= testOnly.in(Test).dependsOn(setUpTestEnvironment)
   )
@@ -96,6 +83,7 @@ lazy val nailgunRunners =
 
 lazy val scalap =
   newProject("scalap", file("scalap"))
+    .settings(commonTestSettings(packagedPluginDir):_*)
     .settings(libraryDependencies ++= DependencyGroups.scalap)
 
 lazy val scalaDevPlugin =
@@ -187,13 +175,16 @@ concurrentRestrictions in Global := Seq(
   Tags.limit(Tags.Test, 1)
 )
 
-
 // Packaging projects
+
+lazy val packagedPluginDir = settingKey[File]("Path to packaged, but not yet compressed plugin")
+
+packagedPluginDir in ThisBuild := baseDirectory.in(ThisBuild).value / "out" / "plugin" / "Scala"
 
 lazy val pluginPackager =
   newProject("pluginPackager")
   .settings(
-    artifactPath := baseDirectory.in(ThisBuild).value / "out" / "plugin" / "Scala",
+    artifactPath := packagedPluginDir.value,
     dependencyClasspath <<= (
       dependencyClasspath in (scalaCommunity, Compile),
       dependencyClasspath in (runners, Compile),
