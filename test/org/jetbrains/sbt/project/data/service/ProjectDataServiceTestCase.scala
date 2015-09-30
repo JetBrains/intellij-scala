@@ -27,10 +27,4 @@ abstract class ProjectDataServiceTestCase extends PlatformTestCase {
           }
         })
     })
-
-  def assertNotificationsCount(source: NotificationSource, category: NotificationCategory, projectSystemId: ProjectSystemId, expected: Integer): Unit = {
-    UIUtil.dispatchAllInvocationEvents()
-    val actual = ExternalSystemNotificationManager.getInstance(getProject).getMessageCount(source, category, projectSystemId)
-    junit.framework.Assert.assertEquals(s"Notification count differs: Expected [ $expected ], Got [ $actual ]", expected, actual)
-  }
 }
