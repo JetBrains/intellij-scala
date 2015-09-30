@@ -586,7 +586,7 @@ object ScalaPositionManager {
   private def positionsOnLineInner(file: ScalaFile, lineNumber: Int): Seq[PsiElement] = {
     inReadAction {
       val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
-      if (lineNumber >= document.getLineCount) return Seq.empty
+      if (document == null || lineNumber >= document.getLineCount) return Seq.empty
       val startLine = document.getLineStartOffset(lineNumber)
       val endLine = document.getLineEndOffset(lineNumber)
 
@@ -794,7 +794,7 @@ object ScalaPositionManager {
 
   private object NamePattern {
     def forElement(elem: PsiElement): NamePattern = {
-      if (!ScalaEvaluatorBuilderUtil.isGenerateClass(elem)) return null
+      if (elem == null || !ScalaEvaluatorBuilderUtil.isGenerateClass(elem)) return null
 
       val cacheProvider = new CachedValueProvider[NamePattern] {
         override def compute(): Result[NamePattern] = Result.create(new NamePattern(elem), elem)
