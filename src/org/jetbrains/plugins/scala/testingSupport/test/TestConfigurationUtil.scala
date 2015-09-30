@@ -63,15 +63,23 @@ object TestConfigurationUtil {
     val oneArgMethods = Seq("stripSuffix", "stripPrefix", "substring")
     val twoArgMethods = Seq("replace", "substring")
 
-    def processNoArgMethods(refExpr: ScReferenceExpression) = refExpr.smartQualifier.
-      flatMap(getStaticTestNameRaw(_, allowSymbolLiterals)).flatMap{ expr =>
-      refExpr.refName match {
-        case "toLowerCase" => Some(expr.toLowerCase)
-        case "trim" => Some(expr.trim)
-        case "toString" => Some(expr)
-        case _ => None
+    def processNoArgMethods(refExpr: ScReferenceExpression) =
+      if (refExpr.refName == "toString") {
+        //special handling for now, since only toString is allowed on integers
+        refExpr.smartQualifier.flatMap(getStaticTestNameElement(_, allowSymbolLiterals) match {
+          case Some(string: String) => Some(string)
+          case Some(number: Number) => Some(number.toString)
+          case _ => None
+        })
+      } else refExpr.smartQualifier.
+              flatMap(getStaticTestNameRaw(_, allowSymbolLiterals)).flatMap { expr =>
+        refExpr.refName match {
+          case "toLowerCase" => Some(expr.toLowerCase)
+          case "trim" => Some(expr.trim)
+          case "toString" => Some(expr)
+          case _ => None
+        }
       }
-    }
 
     element match {
       case literal: ScLiteral if literal.isString && literal.getValue.isInstanceOf[String] =>
@@ -79,7 +87,7 @@ object TestConfigurationUtil {
       case literal: ScLiteral if allowSymbolLiterals && literal.isSymbol && literal.getValue.isInstanceOf[Symbol] =>
         Some(escapeTestName(literal.getValue.asInstanceOf[Symbol].name))
       case literal: ScLiteral if literal.getValue.isInstanceOf[Number] =>
-        Some(literal.getValue.toString)
+        Some(literal.getValue)
       case p: ScParenthesisedExpr => p.expr.flatMap(getStaticTestNameRaw(_, allowSymbolLiterals))
       case infixExpr: ScInfixExpr =>
         infixExpr.getInvokedExpr match {
