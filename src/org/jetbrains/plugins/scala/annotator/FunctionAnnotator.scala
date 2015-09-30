@@ -3,13 +3,12 @@ package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
 import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.AddModifierQuickFix
 import org.jetbrains.plugins.scala.annotator.quickfix.{AddReturnTypeFix, RemoveElementQuickFix, ReportHighlightingErrorQuickFix}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{Any => AnyType, Unit => UnitType, Bounds, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{Any => AnyType, Bounds, ScType, ScTypePresentation, Unit => UnitType}
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -101,8 +100,8 @@ trait FunctionAnnotator {
 
       def typeMismatch() {
         if (typeAware) {
-          val key = if (explicitReturn) "return.type.does.not.conform" else "return.expression.does.not.conform"
-          val message = ScalaBundle.message(key, usageType.presentableText, functionType.presentableText)
+          val (usageTypeText, functionTypeText) = ScTypePresentation.different(usageType, functionType)
+          val message = ScalaBundle.message("type.mismatch.found.required", usageTypeText, functionTypeText)
           val returnExpression = if (explicitReturn) usage.asInstanceOf[ScReturnStmt].expr else None
           val expr = returnExpression.getOrElse(usage) match {
             case b: ScBlockExpr => b.getRBrace.map(_.getPsi).getOrElse(b)
