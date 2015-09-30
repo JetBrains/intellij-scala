@@ -80,8 +80,9 @@ trait ApplicationAnnotator {
                     if (expression != null)
                       for (t <- expression.getType(TypingContext.empty)) {
                         //TODO show parameter name
-                        val annotation = holder.createErrorAnnotation(expression,
-                          "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText)
+                        val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
+                        val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)
+                        val annotation = holder.createErrorAnnotation(expression, message)
                         annotation.registerFix(ReportHighlightingErrorQuickFix)
                         addCreateFromUsagesQuickFixes(reference, holder)
                       }
@@ -113,7 +114,8 @@ trait ApplicationAnnotator {
                   case WrongTypeParameterInferred => //todo: ?
                   case ExpectedTypeMismatch => //will be reported later
                   case ElementApplicabilityProblem(element, actual, expected) =>
-                    holder.createErrorAnnotation(element, ScalaBundle.message("return.expression.does.not.conform",
+                    val (actualType, expectedType) = ScTypePresentation.different(actual, expected)
+                    holder.createErrorAnnotation(element, ScalaBundle.message("type.mismatch.found.required",
                       actual.presentableText, expected.presentableText))
                   case a =>
                     holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
@@ -193,8 +195,9 @@ trait ApplicationAnnotator {
       case TypeMismatch(expression, expectedType) =>
         for(t <- expression.getType(TypingContext.empty)) {
           //TODO show parameter name
-          val annotation = holder.createErrorAnnotation(expression,
-            "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText)
+          val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
+          val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)
+          val annotation = holder.createErrorAnnotation(expression, message)
           annotation.registerFix(ReportHighlightingErrorQuickFix)
         }
       case MissedValueParameter(_) => // simultaneously handled above
