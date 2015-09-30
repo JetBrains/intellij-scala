@@ -30,7 +30,7 @@ import TestConfigurationUtil.isInheritor
 class ScalaTestConfigurationProducer extends {
   val confType = new ScalaTestConfigurationType
   val confFactory = confType.confFactory
-} with TestConfigurationProducer(confType) with AbstractTestConfigurationProducer {
+} with TestConfigurationProducer(confType) {
 
   override def suitePaths = List("org.scalatest.Suite")
 

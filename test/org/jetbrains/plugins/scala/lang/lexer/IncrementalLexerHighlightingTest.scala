@@ -135,6 +135,11 @@ class IncrementalLexerHighlightingTest extends ScalaLightCodeInsightFixtureTestA
 
     checkGeneratedTextAfterEnter(before, after)
   }
+  
+  def testInterpolatedString() {
+    val text = "s\"\"\"\n    ${if (true)" + CARET_MARKER + "}\n\n\"\"\"\n{}\nval a = 1"
+    genericTestHighlighting(text, ' ')
+  }
 
   def testBig() {
     val text =
