@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.macroAnnotations
 
+import org.jetbrains.plugins.scala.macroAnnotations.ModCount.ModCount
+
 import scala.annotation.StaticAnnotation
 import scala.language.experimental.macros
 
@@ -15,6 +17,6 @@ import scala.language.experimental.macros
  * Author: Svyatoslav Ilinskiy
  * Date: 9/18/15.
  */
-class Cached(synchronized: Boolean, modificationCount: ModCount.Value) extends StaticAnnotation {
+class Cached(synchronized: Boolean, modificationCount: ModCount, psiManager: Any) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro CachedMacro.cachedImpl
 }

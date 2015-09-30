@@ -30,7 +30,7 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
     case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
   }.toArray
 
-  @Cached(synchronized = false, modificationCount = ModCount.OutOfCodeBlockModificationCount)
+  @Cached(synchronized = false, modificationCount = ModCount.getOutOfCodeBlockModificationCount, getManager)
   def getUnderEqualsMethod: PsiMethod = {
     val hasModifierProperty: String => Boolean = nameContext match {
       case v: ScModifierListOwner => v.hasModifierProperty
@@ -40,7 +40,7 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
     new FakePsiMethod(this, name + "_=", typeArr2paramArr(Array[ScType](tType)), types.Unit, hasModifierProperty)
   }
 
-  @Cached(synchronized = false, modificationCount = ModCount.OutOfCodeBlockModificationCount)
+  @Cached(synchronized = false, modificationCount = ModCount.getOutOfCodeBlockModificationCount, getManager)
   def getGetBeanMethod: PsiMethod = {
     val hasModifierProperty: String => Boolean = nameContext match {
       case v: ScModifierListOwner => v.hasModifierProperty
@@ -50,7 +50,7 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
       this.getType(TypingContext.empty).getOrAny, hasModifierProperty)
   }
 
-  @Cached(synchronized = false, modificationCount = ModCount.OutOfCodeBlockModificationCount)
+  @Cached(synchronized = false, modificationCount = ModCount.getOutOfCodeBlockModificationCount, getManager)
   def getSetBeanMethod: PsiMethod = {
     val hasModifierProperty: String => Boolean = nameContext match {
       case v: ScModifierListOwner => v.hasModifierProperty
@@ -60,7 +60,7 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
     new FakePsiMethod(this, "set" + name.capitalize, typeArr2paramArr(Array[ScType](tType)), types.Unit, hasModifierProperty)
   }
 
-  @Cached(synchronized = false, modificationCount = ModCount.OutOfCodeBlockModificationCount)
+  @Cached(synchronized = false, modificationCount = ModCount.getOutOfCodeBlockModificationCount, getManager)
   def getIsBeanMethod: PsiMethod = {
     val hasModifierProperty: String => Boolean = nameContext match {
       case v: ScModifierListOwner => v.hasModifierProperty
@@ -70,7 +70,7 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
       this.getType(TypingContext.empty).getOrAny, hasModifierProperty)
   }
 
-  @Cached(synchronized = false, modificationCount = ModCount.OutOfCodeBlockModificationCount)
+  @Cached(synchronized = false, modificationCount = ModCount.getOutOfCodeBlockModificationCount, getManager)
   def getBeanMethods: Seq[PsiMethod] = {
     def valueSeq(v: ScAnnotationsHolder with ScModifierListOwner): Seq[PsiMethod] = {
       val beanProperty = ScalaPsiUtil.isBeanProperty(v)
@@ -101,13 +101,13 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
 
   import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 
-  @Cached(synchronized = false, modificationCount = ModCount.OutOfCodeBlockModificationCount)
+  @Cached(synchronized = false, modificationCount = ModCount.getOutOfCodeBlockModificationCount, getManager)
   def getTypedDefinitionWrapper(isStatic: Boolean, isInterface: Boolean, role: DefinitionRole,
                                 cClass: Option[PsiClass] = None): PsiTypedDefinitionWrapper = {
     new PsiTypedDefinitionWrapper(this, isStatic, isInterface, role, cClass)
   }
 
-  @Cached(synchronized = false, modificationCount = ModCount.OutOfCodeBlockModificationCount)
+  @Cached(synchronized = false, modificationCount = ModCount.getOutOfCodeBlockModificationCount, getManager)
   def getStaticTypedDefinitionWrapper(role: DefinitionRole, cClass: PsiClassWrapper): StaticPsiTypedDefinitionWrapper = {
     new StaticPsiTypedDefinitionWrapper(this, role, cClass)
   }

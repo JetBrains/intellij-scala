@@ -16,24 +16,23 @@ object CachedMacro {
 
     def abort(message: String) = c.abort(c.enclosingPosition, message)
 
-    def parameters: (Boolean, ModCount.Value) = {
+    def parameters: (Boolean, ModCount.Value, Tree) = {
       @tailrec
       def modCountParam(modCount: c.universe.Tree): ModCount.Value = modCount match {
         case q"modificationCount = $v" => modCountParam(v)
-        case q"ModCount.OutOfCodeBlockModificationCount" => ModCount.OutOfCodeBlockModificationCount
-        case q"ModCount.JavaStructureModificationCount" => ModCount.JavaStructureModificationCount
-        case q"ModCount.ModificationCount" => ModCount.ModificationCount
-        case _ => abort("Wrong modification count parameter!")
+        case q"ModCount.$v" => ModCount.withName(v.toString)
+        case q"$v" => ModCount.withName(v.toString)
       }
 
       c.prefix.tree match {
-        case q"new Cached(..$params)" if params.length == 2 =>
+        case q"new Cached(..$params)" if params.length == 3 =>
           val synch: Boolean = params.head match {
             case q"synchronized = $v" => c.eval[Boolean](c.Expr(v))
             case q"$v" => c.eval[Boolean](c.Expr(v))
           }
           val modCount: ModCount.Value = modCountParam(params(1))
-          (synch, modCount)
+          val manager = params(2)
+          (synch, modCount, manager)
         case _ => abort("Wrong parameters")
       }
     }
@@ -46,7 +45,7 @@ object CachedMacro {
           abort("You must specify return type")
         }
 
-        val (synchronized, modCount) = parameters
+        val (synchronized, modCount, manager) = parameters
         val flattennedParams = params.flatten
         val paramNames = flattennedParams.map(_.name)
         val cacheVarName = TermName(name.toString + "Cache_")
@@ -77,7 +76,7 @@ object CachedMacro {
         def putValuesIntoMap: c.universe.Tree = q"$mapName.put((..$paramNames), ($cacheVarName.get, $modCountVarName))"
 
         val functionContents = q"""
-            val modCount = getManager.getModificationTracker.${TermName(modCount.toString)}
+            val modCount = $manager.getModificationTracker.${TermName(modCount.toString)}
             ..${if (hasParameters) getValuesFromMap else EmptyTree}
             if ($cacheVarName.isDefined && $modCountVarName == modCount) $cacheVarName.get
             else {
@@ -236,7 +235,8 @@ object CachedMacro {
 }
 
 object ModCount extends Enumeration {
-  val ModificationCount = Value("getModificationCount")
-  val OutOfCodeBlockModificationCount = Value("getOutOfCodeBlockModificationCount")
-  val JavaStructureModificationCount = Value("getJavaStructureModificationTracker")
+  type ModCount = Value
+  val getModificationCount = Value("getModificationCount")
+  val getOutOfCodeBlockModificationCount = Value("getOutOfCodeBlockModificationCount")
+  val getJavaStructureModificationCount = Value("getJavaStructureModificationCount")
 }
