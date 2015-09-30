@@ -209,7 +209,7 @@ trait TreeAdapter {
       case None => unreachable(s"Class ${t.qualifiedName} has no parents")
     }
     val self    = t.selfType match {
-      case Some(tpe: ptype.ScType) => m.Term.Param(Nil, m.Term.Name("self"), Some(toType(tpe)), None)
+      case Some(tpe: ptype.ScType) => m.Term.Param(Nil, m.Term.Name("self"), Some(toType(tpe)), None).withAttrs(toType(tpe)).setTypechecked
       case None => m.Term.Param(Nil, m.Name.Anonymous(), None, None)
     }
     m.Template(early, Seq(ctor), self, None)
@@ -219,35 +219,48 @@ trait TreeAdapter {
     if (c.arguments.isEmpty)
       toCtorName(c)
     else {
-      val head = m.Term.Apply(toCtorName(c), Seq(c.arguments.head.exprs.map(callArgs): _*))
-      c.arguments.tail.foldLeft(head)((term, exprList) => m.Term.Apply(term, Seq(exprList.exprs.map(callArgs): _*)))
+      val head = m.Term.Apply(toCtorName(c), Seq(c.arguments.head.exprs.map(callArgs): _*)).withAttrs(toType(c)).setTypechecked
+      c.arguments.tail.foldLeft(head)((term, exprList) => m.Term.Apply(term, Seq(exprList.exprs.map(callArgs): _*)).withAttrs(toType(c)).setTypechecked)
     }
   }
 
   def expression(e: ScExpression): m.Term = {
     import p.expr._
     e match {
-      case t: ScLiteral => literal(t)
-      case t: ScUnitExpr => m.Lit.Unit()
-      case t: ScReturnStmt => m.Term.Return(expression(t.expr).get)
-      case t: ScBlock => m.Term.Block(Seq(t.statements.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*))
+      case t: ScLiteral =>
+        literal(t)
+      case t: ScUnitExpr =>
+        m.Lit.Unit().withAttrs(toType(e.getType())).setTypechecked
+      case t: ScReturnStmt =>
+        m.Term.Return(expression(t.expr).get).withAttrs(toType(e.getType())).setTypechecked
+      case t: ScBlock =>
+        m.Term.Block(Seq(t.statements.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*)).withAttrs(toType(e.getType())).setTypechecked
       case t: ScMethodCall =>
         ScSubstitutor.cacheSubstitutions = true
         val tp = t.getType()
         ScSubstitutor.cacheSubstitutions = false
-        val res = m.Term.Apply(expression(t.getInvokedExpr), Seq(t.args.exprs.map(callArgs):_*))
+        val res = m.Term.Apply(expression(t.getInvokedExpr), Seq(t.args.exprs.map(callArgs):_*)).withAttrs(toType(e.getType())).setTypechecked
         ScSubstitutor.cache.clear()
         res
-      case t: ScInfixExpr => m.Term.ApplyInfix(expression(t.getBaseExpr), toTermName(t.getInvokedExpr), Nil, Seq(expression(t.getArgExpr)))
-      case t: ScPrefixExpr => m.Term.ApplyUnary(toTermName(t.operation), expression(t.operand))
-      case t: ScIfStmt => m.Term.If(expression(t.condition.get),
-        t.thenBranch.map(expression).getOrElse(m.Lit.Unit()), t.elseBranch.map(expression).getOrElse(m.Lit.Unit()))
-      case t: ScMatchStmt => m.Term.Match(expression(t.expr.get), Seq(t.caseClauses.map(caseClause):_*))
+      case t: ScInfixExpr =>
+        m.Term.ApplyInfix(expression(t.getBaseExpr), toTermName(t.getInvokedExpr), Nil, Seq(expression(t.getArgExpr))).withAttrs(toType(e.getType())).setTypechecked
+      case t: ScPrefixExpr =>
+        m.Term.ApplyUnary(toTermName(t.operation), expression(t.operand)).withAttrs(toType(e.getType())).setTypechecked
+      case t: ScIfStmt =>
+        val unit = m.Lit.Unit().withAttrs(toType(e.getType())).setTypechecked
+        m.Term.If(expression(t.condition.get),
+          t.thenBranch.map(expression).getOrElse(unit), t.elseBranch.map(expression).getOrElse(unit)
+        ).withAttrs(toType(e.getType())).setTypechecked
+      case t: ScMatchStmt =>
+        m.Term.Match(expression(t.expr.get), Seq(t.caseClauses.map(caseClause):_*)).withAttrs(toType(e.getType())).setTypechecked
       case t: ScReferenceExpression if t.qualifier.isDefined =>
-        m.Term.Select(expression(t.qualifier.get), toTermName(t))
-      case t: ScReferenceExpression => toTermName(t)
-      case t: ScNewTemplateDefinition => m.Term.New(newTemplate(t))
-      case t: ScFunctionExpr => m.Term.Function(Seq(t.parameters.map(convertParam):_*), expression(t.result).get)
+        m.Term.Select(expression(t.qualifier.get), toTermName(t)).withAttrs(toType(e.getType())).setTypechecked
+      case t: ScReferenceExpression =>
+        toTermName(t)
+      case t: ScNewTemplateDefinition =>
+        m.Term.New(newTemplate(t)).withAttrs(toType(e.getType())).setTypechecked
+      case t: ScFunctionExpr =>
+        m.Term.Function(Seq(t.parameters.map(convertParam):_*), expression(t.result).get).withAttrs(toType(e.getType())).setTypechecked
       case other: ScalaPsiElement => other ?!
     }
   }
@@ -268,6 +281,7 @@ trait TreeAdapter {
     argss.toStream map { args =>
       args.matchedParameters.getOrElse(Seq.empty).toStream map { case (expr, param) =>
         m.Term.Param(param.psiParam.map(p => convertMods(p.getModifierList)).getOrElse(Seq.empty), toParamName(param), Some(toType(param.paramType)), None)
+          .withAttrs(toType(param.paramType)).setTypechecked
       }
     }
   }
@@ -313,7 +327,7 @@ trait TreeAdapter {
     import p.base.ScLiteral
 
     import m.Lit
-    l match {
+    val res = l match {
       case ScLiteral(i: Integer)              => Lit.Int(i)
       case ScLiteral(l: java.lang.Long)       => Lit.Long(l)
       case ScLiteral(f: java.lang.Float)      => Lit.Float(f)
@@ -326,6 +340,7 @@ trait TreeAdapter {
       case _ if l.isSymbol                    => Lit.Symbol(l.getValue.asInstanceOf[Symbol])
       case other => other ?!
     }
+    res.withAttrs(toType(l.getType())).setTypechecked
   }
 
   def toPatternDefinition(t: ScPatternDefinition): m.Tree = {
