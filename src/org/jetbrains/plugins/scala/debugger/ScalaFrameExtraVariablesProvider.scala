@@ -13,7 +13,8 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement, ResolveState}
 import com.intellij.xdebugger.impl.breakpoints.XExpressionImpl
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.template.util.VariablesCompletionProcessor
-import org.jetbrains.plugins.scala.debugger.evaluation.{ScalaCodeFragmentFactory, ScalaEvaluatorBuilder, ScalaEvaluatorBuilderUtil}
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingEvaluator
+import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ScalaCodeFragmentFactory, ScalaEvaluatorBuilder, ScalaEvaluatorBuilderUtil}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.debugger.ui.ScalaParameterNameAdjuster
 import org.jetbrains.plugins.scala.extensions._
@@ -116,7 +117,10 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
         val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(twi, place, evaluationContext.getProject)
         val location = evaluationContext.getFrameProxy.location()
         val sourcePosition = new ScalaPositionManager(evaluationContext.getDebugProcess).getSourcePosition(location)
-        ScalaEvaluatorBuilder.build(codeFragment, sourcePosition)
+        ScalaEvaluatorBuilder.build(codeFragment, sourcePosition) match {
+          case _: ScalaCompilingEvaluator => throw EvaluationException("Don't use compiling evaluator here")
+          case e => e
+        }
       }
       evaluator.evaluate(evaluationContext)
     }
