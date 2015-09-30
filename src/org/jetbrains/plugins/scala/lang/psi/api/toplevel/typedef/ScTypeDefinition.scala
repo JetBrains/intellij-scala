@@ -76,7 +76,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
       case _ =>
     }
 
-    @Cached(synchronized = true, modificationCount = ModCount.ModificationCount)
+    @Cached(synchronized = true, modificationCount = ModCount.getModificationCount, getManager)
     def calc(): Option[ScObject] = {
       val accessModifier = getModifierList.accessModifier.fold("")(_.modifierFormattedText + " ")
       val objText = this match {
