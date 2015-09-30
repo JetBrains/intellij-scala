@@ -21,14 +21,14 @@ import scala.collection.JavaConverters._
  * @author Nikolay Obedin
  * @since 8/12/14.
  */
-class SbtAndroidFacetDataService(platformFacade: PlatformFacade, helper: ProjectStructureHelper)
-        extends AbstractDataService[AndroidFacetData, AndroidFacet](AndroidFacetData.Key) {
+class SbtAndroidFacetDataService(platformFacade: PlatformFacade, val helper: ProjectStructureHelper)
+        extends AbstractDataService[AndroidFacetData, AndroidFacet](AndroidFacetData.Key)
+        with SafeProjectStructureHelper {
 
   def doImportData(toImport: util.Collection[DataNode[AndroidFacetData]], project: Project) {
     toImport.asScala.foreach { facetNode =>
-      val moduleData: ModuleData = facetNode.getData(ProjectKeys.MODULE)
       for {
-        module <- Option(helper.findIdeModule(moduleData.getExternalName, project))
+        module <- getIdeModuleByNode(facetNode, project)
         facetManager <- Option(FacetManager.getInstance(module))
         facet = Option(facetManager.getFacetByType(AndroidFacet.ID)).getOrElse(createFacet(module))
       } {

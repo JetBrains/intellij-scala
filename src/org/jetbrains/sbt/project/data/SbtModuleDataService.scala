@@ -16,26 +16,25 @@ import scala.collection.JavaConverters._
 /**
  * @author Pavel Fatin
  */
-class SbtModuleDataService(platformFacade: PlatformFacade, helper: ProjectStructureHelper)
-  extends AbstractDataService[SbtModuleData, Module](SbtModuleData.Key) {
+class SbtModuleDataService(platformFacade: PlatformFacade, val helper: ProjectStructureHelper)
+  extends AbstractDataService[SbtModuleData, Module](SbtModuleData.Key)
+  with SafeProjectStructureHelper {
 
   def doImportData(toImport: util.Collection[DataNode[SbtModuleData]], project: Project) {
     toImport.asScala.foreach { moduleNode =>
-      val moduleData = moduleNode.getData
+      for {
+        module <- getIdeModuleByNode(moduleNode, project)
+        moduleData = moduleNode.getData
+      } {
+        SbtModule.setImportsTo(module, moduleData.imports)
+        SbtModule.setResolversTo(module, moduleData.resolvers)
 
-      val module = {
-        val moduleData: ModuleData = moduleNode.getData(ProjectKeys.MODULE)
-        helper.findIdeModule(moduleData.getExternalName, project)
+        moduleData.resolvers foreach { _ => SbtResolverIndexesManager().add(_) }
+        val localResolvers = moduleData.resolvers.toSeq.filter {
+          _.associatedIndex.exists { i => i.isLocal && i.timestamp == SbtResolverIndex.NO_TIMESTAMP }
+        }
+        SbtResolverIndexesManager().update(localResolvers)
       }
-
-      SbtModule.setImportsTo(module, moduleData.imports)
-      SbtModule.setResolversTo(module, moduleData.resolvers)
-
-      moduleData.resolvers foreach { _ => SbtResolverIndexesManager().add(_) }
-      val localResolvers = moduleData.resolvers.toSeq.filter {
-        _.associatedIndex.exists { i => i.isLocal && i.timestamp == SbtResolverIndex.NO_TIMESTAMP }
-      }
-      SbtResolverIndexesManager().update(localResolvers)
     }
   }
 
