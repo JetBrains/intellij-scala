@@ -2,6 +2,7 @@ package scala.meta.trees
 
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod, PsiPackage}
+import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -55,6 +56,13 @@ trait Namer {
       toTypeName(cr.resolve())
     case se: impl.toplevel.synthetic.SyntheticNamedElement =>
       throw new ScalaMetaException(s"Synthetic elements not implemented") // FIXME: find a way to resolve synthetic elements
+    // Java stuff starts here
+    case pp: PsiPackage =>
+      m.Type.Name(pp.getName).withAttrsFor(pp).setTypechecked
+    case pc: PsiClass =>
+      m.Type.Name(pc.getName).withAttrsFor(pc).setTypechecked
+    case pm: PsiMethod =>
+      m.Type.Name(pm.getName).withAttrsFor(pm).setTypechecked
     case other => other ?!
   }
 
