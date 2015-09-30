@@ -12,8 +12,32 @@ trait Utils {
 
   val LOG = Logger.getInstance(this.getClass)
   
-  val rootPackageName = m.Term.Name("_root_").withAttrs(denot = h.Denotation.Single(h.Prefix.Zero, h.Symbol.RootPackage), typingLike = h.Typing.Recursive)
-  val rootPackagePrefix = h.Prefix.Type(m.Type.Singleton(rootPackageName).setTypechecked)
+
+  object std {
+
+    def scalaTypeName(name: String) = {
+      m.Type.Name(name).withAttrs(h.Denotation.Single(std.scalaPackagePrefix, h.Symbol.Global(std.scalaPackageSymbol, name, h.Signature.Type)))
+    }
+
+    val rootPackageName = m.Term.Name("_root_").withAttrs(denot = h.Denotation.Single(h.Prefix.Zero, h.Symbol.RootPackage), typingLike = h.Typing.Recursive)
+    val rootPackagePrefix = h.Prefix.Type(m.Type.Singleton(rootPackageName).setTypechecked)
+
+    val scalaPackageSymbol = h.Symbol.Global(h.Symbol.RootPackage, "scala", h.Signature.Term)
+    val scalaPackageName = m.Term.Name("scala").withAttrs(denot = h.Denotation.Single(rootPackagePrefix, scalaPackageSymbol), h.Typing.Recursive)
+    val scalaPackagePrefix = h.Prefix.Type(m.Type.Singleton(scalaPackageName).setTypechecked)
+
+    lazy val anyTypeName       = scalaTypeName("Any")
+    lazy val anyRefTypeName    = scalaTypeName("AnyRef")
+    lazy val anyValTypeName    = scalaTypeName("AnyVal")
+    lazy val nothingTypeName   = scalaTypeName("Nothing")
+    lazy val nullTypeName      = scalaTypeName("Null")
+    lazy val singletonTypeName = scalaTypeName("Singleton")
+
+    // boxed stuff
+//    lazy val intTypeName = scalaTypeName("Int")
+//    lazy val stringTypeName = scalaTypeName("String")
+    // ...
+  }
 
   class UnmatchedTree(msg: String) extends RuntimeException(msg)
 
