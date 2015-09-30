@@ -1102,6 +1102,10 @@
                          displayName="Unit return type in the argument of map" groupPath="Scala, Collections" groupName="Other"
                          shortName="UnitInMap" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.annotations.MultipleArgLists"
+                         displayName="Multiple arg lists in annotation constructor" groupPath="Scala" groupName="General"
+                         shortName="MultipleArgListsInAnnotation" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
 
 
         <!-- scaladoc inspections -->
