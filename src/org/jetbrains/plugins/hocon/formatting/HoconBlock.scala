@@ -11,7 +11,7 @@ import scala.collection.JavaConverters._
 
 
 class HoconBlock(formatter: HoconFormatter, node: ASTNode, indent: Indent, wrap: Wrap, alignment: Alignment)
-        extends AbstractBlock(node, wrap, alignment) {
+  extends AbstractBlock(node, wrap, alignment) {
 
   import org.jetbrains.plugins.hocon.CommonUtil._
 
@@ -19,8 +19,8 @@ class HoconBlock(formatter: HoconFormatter, node: ASTNode, indent: Indent, wrap:
   // children of this block
   private val wrapCache = {
     val pathValueSeparatorType =
-      if (node.getElementType == HoconElementType.BareObjectField)
-        node.childrenIterator.map(_.getElementType).find(HoconTokenSets.PathValueSeparator.contains)
+      if (node.getElementType == HoconElementType.ValuedField)
+        node.childrenIterator.map(_.getElementType).find(HoconTokenSets.KeyValueSeparator.contains)
       else None
     new formatter.WrapCache(pathValueSeparatorType)
   }
@@ -44,8 +44,8 @@ class HoconBlock(formatter: HoconFormatter, node: ASTNode, indent: Indent, wrap:
 
   lazy val children: Seq[Block] =
     formatter.getChildren(node)
-            .filterNot(n => n.getTextLength == 0 || n.getElementType == TokenType.WHITE_SPACE)
-            .map(createChildBlock).toVector
+      .filterNot(n => n.getTextLength == 0 || n.getElementType == TokenType.WHITE_SPACE)
+      .map(createChildBlock).toVector
 
   private def createChildBlock(child: ASTNode) =
     new HoconBlock(formatter, child,

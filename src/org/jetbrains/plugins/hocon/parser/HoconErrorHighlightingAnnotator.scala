@@ -22,7 +22,7 @@ class HoconErrorHighlightingAnnotator extends Annotator {
 
         Iterator.continually {
           val range = TextRange(lexer.getTokenStart, lexer.getTokenEnd)
-                  .shiftRight(element.getTextRange.getStartOffset)
+            .shiftRight(element.getTextRange.getStartOffset)
           val result = (lexer.getTokenType, range)
           lexer.advance()
           result
@@ -44,7 +44,7 @@ class HoconErrorHighlightingAnnotator extends Annotator {
 
               validateConcatenation(constrainingToken, child.getTreeNext)
 
-            case (String, String) |
+            case (StringValue, StringValue) |
                  (Object, Object) |
                  (Array, Array) |
                  (null, _) =>
