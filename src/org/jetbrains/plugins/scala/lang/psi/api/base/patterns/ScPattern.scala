@@ -22,8 +22,9 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
-import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
+import org.jetbrains.plugins.scala.project._
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Set
@@ -220,10 +221,105 @@ trait ScPattern extends ScalaPsiElement {
     }
   }
 
-  def expectedType: Option[ScType] = {
-    CachesUtil.get(this, CachesUtil.PATTERN_EXPECTED_TYPE,
-      new CachesUtil.MyProvider(this, (p: ScPattern) => p.innerExpectedType)
-      (PsiModificationTracker.MODIFICATION_COUNT))
+  @CachedInsidePsiElement(this, CachesUtil.PATTERN_EXPECTED_TYPE, PsiModificationTracker.MODIFICATION_COUNT)
+  def expectedType: Option[ScType] = getContext match {
+    case list : ScPatternList => list.getContext match {
+      case _var : ScVariable => Some(_var.getType(TypingContext.empty) match {
+        case Success(tp, _) => tp
+        case _ => return None
+      })
+      case _val : ScValue => Some(_val.getType(TypingContext.empty) match {
+        case Success(tp, _) => tp
+        case _ => return None
+      })
+    }
+    case argList : ScPatternArgumentList =>
+      argList.getContext match {
+        case constr : ScConstructorPattern =>
+          resolveReferenceToExtractor(constr.ref, constr.args.patterns.indexWhere(_ == this), constr.expectedType, argList.patterns.length)
+        case _ => None
+      }
+    case composite: ScCompositePattern => composite.expectedType
+    case infix: ScInfixPattern =>
+      val i = if (infix.leftPattern == this) 0 else {
+        if (this.isInstanceOf[ScTuplePattern]) return None
+        1
+      }
+      resolveReferenceToExtractor(infix.refernece, i, infix.expectedType, 2)
+    case par: ScParenthesisedPattern => par.expectedType
+    case patternList : ScPatterns => patternList.getContext match {
+      case tuple : ScTuplePattern =>
+        tuple.getContext match {
+          case infix: ScInfixPattern =>
+            if (infix.leftPattern != tuple) {
+              //so it's right pattern
+              val i = tuple.patternList match {
+                case Some(patterns: ScPatterns) => patterns.patterns.indexWhere(_ == this)
+                case _ => return None
+              }
+              return resolveReferenceToExtractor(infix.refernece, i + 1, infix.expectedType, tuple.patternList.get.patterns.length + 1)
+            }
+          case _ =>
+        }
+
+        tuple.expectedType.flatMap {
+          case ScTupleType(comps)                       =>
+            for ((t, p) <- comps.iterator.zip(patternList.patterns.iterator)) {
+              if (p == this) return Some(t)
+            }
+            None
+          case et0 if et0 == types.AnyRef || et0 == types.Any => Some(types.Any)
+          case _                                              => None
+        }
+      case _: ScXmlPattern =>
+        val nodeClass: PsiClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.xml.Node")
+        if (nodeClass == null) return None
+        this match {
+          case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] =>
+            val seqClass: PsiClass =
+              ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.collection.Seq")
+            if (seqClass == null) return None
+            Some(ScParameterizedType(ScDesignatorType(seqClass), Seq(ScDesignatorType(nodeClass))))
+          case _ => Some(ScDesignatorType(nodeClass))
+        }
+      case _ => None
+    }
+    case clause: ScCaseClause => clause.getContext/*clauses*/.getContext match {
+      case matchStat : ScMatchStmt => matchStat.expr match {
+        case Some(e) => Some(e.getType(TypingContext.empty).getOrAny)
+        case _ => None
+      }
+      case b: ScBlockExpr if b.getContext.isInstanceOf[ScCatchBlock] =>
+        val thr = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.Throwable")
+        if (thr != null) Some(ScType.designator(thr)) else None
+      case b : ScBlockExpr =>
+        b.expectedType(fromUnderscore = false) match {
+          case Some(et) =>
+            et.removeAbstracts match {
+              case ScFunctionType(_, Seq()) => Some(types.Unit)
+              case ScFunctionType(_, Seq(p0)) => Some(p0)
+              case ScFunctionType(_, params) =>
+                val tt = ScTupleType(params)(getProject, getResolveScope)
+                Some(tt)
+              case ScPartialFunctionType(_, param) => Some(param)
+              case _ => None
+            }
+          case None => None
+        }
+      case _ => None
+    }
+    case named: ScNamingPattern => named.expectedType
+    case gen: ScGenerator =>
+      val analog = getAnalog
+      if (analog != this) analog.expectedType
+      else None
+    case enum: ScEnumerator =>
+      if (enum.rvalue == null) return None
+      Some(enum.rvalue.getType(TypingContext.empty) match {
+        case Success(tp, _) => tp
+        case _ => return None
+      })
+    case _ => None
   }
 
   private def innerExpectedType: Option[ScType] = {

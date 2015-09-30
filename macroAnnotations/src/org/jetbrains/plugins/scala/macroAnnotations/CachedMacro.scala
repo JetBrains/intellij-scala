@@ -8,7 +8,7 @@ import scala.reflect.macros.whitebox
  * Date: 9/22/15.
  */
 object CachedMacro {
-  val debug: Boolean = true
+  val debug: Boolean = false
 
   def cachedImpl(c: whitebox.Context)(annottees: c.Tree*): c.Expr[Any] = {
     import c.universe._
@@ -94,9 +94,7 @@ object CachedMacro {
             ..${ if (synchronized) q"synchronized { $functionContents }" else functionContents }
           }
           """
-        if (hasParameters) {
-          println(res)
-        }
+        println(res)
         c.Expr(res)
       case _ => abort("You can only annotate one function!")
     }
@@ -108,6 +106,10 @@ object CachedMacro {
 
     annottees.toList match {
       case d@DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
+        if (retTp.toString() == "<type ?>") {
+          abort("You must specify return type")
+        }
+
         val annotationParameters: List[Tree] = c.prefix.tree match {
           case q"new CachedMappedWithRecursionGuard(..$params)" if params.length == 4 => params
           case _ => abort("Wrong annotation parameters!")
@@ -151,6 +153,10 @@ object CachedMacro {
 
     annottees.toList match {
       case d@DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
+        if (retTp.toString() == "<type ?>") {
+          abort("You must specify return type")
+        }
+
         val cachesUtilFQN = q"org.jetbrains.plugins.scala.caches.CachesUtil"
 
         val (annotationParameters: List[Tree], providerType, useOptionalProvider: Boolean) = c.prefix.tree match {
@@ -167,12 +173,9 @@ object CachedMacro {
         val key = annotationParameters(1)
         val defaultValue = annotationParameters(2)
         val dependencyItem = annotationParameters(3)
-        println(dependencyItem)
         val provider =
           if (useOptionalProvider) TypeName("MyOptionalProvider")
           else TypeName("MyProvider")
-
-        println(rhs)
         val builder = q"new $cachesUtilFQN.$provider[$providerType, $retTp]($element, _ => {$rhs})($dependencyItem)"
         val updatedRhs = q"""
           $cachesUtilFQN.getWithRecursionPreventingWithRollback($element, $key, $builder, $defaultValue)
@@ -190,16 +193,28 @@ object CachedMacro {
 
     annottees.toList match {
       case d@DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
-        val annotationParameters: List[Tree] = c.prefix.tree match {
-          case q"new CachedInsidePsiElement(..$params)" if params.length == 3 => params
+        if (retTp.toString() == "<type ?>") {
+          abort("You must specify return type")
+        }
+        val (annotationParameters: List[Tree], useOptionalProvider: Boolean) = c.prefix.tree match {
+          case q"new CachedInsidePsiElement(..$params)" if params.length == 3 => (params, false)
+          case q"new CachedInsidePsiElement(..$params)" if params.length == 4 =>
+            val optional = params.last match {
+              case q"useOptionalProvider = $v" => c.eval[Boolean](c.Expr(v))
+              case q"$v" => c.eval[Boolean](c.Expr(v))
+            }
+            (params, optional)
           case _ => abort("Wrong annotation parameters!")
         }
         val cachesUtilFQN = q"org.jetbrains.plugins.scala.caches.CachesUtil"
         val elem = annotationParameters.head
         val key = annotationParameters(1)
-        val dependencyItem = annotationParameters.last
+        val dependencyItem = annotationParameters(2)
+        val provider =
+          if (useOptionalProvider) TypeName("MyOptionalProvider")
+          else TypeName("MyProvider")
         val updatedRhs = q"""
-          $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.MyProvider[Any, $retTp]($elem, _ => $rhs)($dependencyItem))
+          $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.$provider[Any, $retTp]($elem, _ => $rhs)($dependencyItem))
           """
         val res = DefDef(mods, name, tpParams, params, retTp, updatedRhs)
         println(res)

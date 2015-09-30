@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
@@ -74,7 +75,7 @@ abstract class MixinNodes {
       val thisMap: NodesMap = toNodesMap(getOrElse(convertedName, new ArrayBuffer))
       val maps: List[NodesMap] = supersList.map(sup => toNodesMap(sup.getOrElse(convertedName, new ArrayBuffer)))
       val supers = mergeWithSupers(thisMap, mergeSupers(maps))
-      val list = supersList.map(_.privatesMap.getOrElse(convertedName, new ArrayBuffer[(T, Node)])).flatten
+      val list = supersList.flatMap(_.privatesMap.getOrElse(convertedName, new ArrayBuffer[(T, Node)]))
       val supersPrivates = toNodesSeq(list)
       val thisPrivates = toNodesSeq(privatesMap.getOrElse(convertedName, new ArrayBuffer[(T, Node)]).toList ::: list)
       val thisAllNodes = new AllNodes(thisMap, thisPrivates)
@@ -454,15 +455,42 @@ abstract class MixinNodes {
 
 object MixinNodes {
   def linearization(clazz: PsiClass): Seq[ScType] = {
-    clazz match {
-      case obj: ScObject if obj.isPackageObject && obj.qualifiedName == "scala" =>
-        return Seq(ScType.designator(obj))
-      case _ =>
+    @CachedWithRecursionGuard[PsiClass](clazz, CachesUtil.LINEARIZATION_KEY, Seq.empty, CachesUtil.getDependentItem(clazz), useOptionalProvider = true)
+    def inner(): Seq[ScType] = {
+      clazz match {
+        case obj: ScObject if obj.isPackageObject && obj.qualifiedName == "scala" =>
+          return Seq(ScType.designator(obj))
+        case _ =>
+      }
+
+      ProgressManager.checkCanceled()
+      val tp = {
+        def default =
+          if (clazz.getTypeParameters.isEmpty) ScType.designator(clazz)
+          else ScParameterizedType(ScType.designator(clazz), clazz.
+            getTypeParameters.map(tp => ScalaPsiManager.instance(clazz.getProject).typeVariable(tp)))
+        clazz match {
+          case td: ScTypeDefinition => td.getType(TypingContext.empty).getOrElse(default)
+          case _ => default
+        }
+      }
+      val supers: Seq[ScType] = {
+        clazz match {
+          case td: ScTemplateDefinition => td.superTypes
+          case clazz: PsiClass => clazz.getSuperTypes.map {
+            case ctp: PsiClassType =>
+              val cl = ctp.resolve()
+              if (cl != null && cl.qualifiedName == "java.lang.Object") ScDesignatorType(cl)
+              else ScType.create(ctp, clazz.getProject)
+            case ctp => ScType.create(ctp, clazz.getProject)
+          }.toSeq
+        }
+      }
+
+      generalLinearization(Some(clazz.getProject), tp, addTp = true, supers = supers)
     }
 
-    CachesUtil.getWithRecursionPreventingWithRollback(clazz, CachesUtil.LINEARIZATION_KEY,
-    new CachesUtil.MyOptionalProvider(clazz, (clazz: PsiClass) => linearizationInner(clazz))
-      (CachesUtil.getDependentItem(clazz)), Seq.empty)
+    inner()
   }
 
 
@@ -472,33 +500,6 @@ object MixinNodes {
     generalLinearization(None, compound, addTp = addTp, supers = comps)
   }
 
-  private def linearizationInner(clazz: PsiClass): Seq[ScType] = {
-    ProgressManager.checkCanceled()
-    val tp = {
-      def default =
-        if (clazz.getTypeParameters.length == 0) ScType.designator(clazz)
-        else ScParameterizedType(ScType.designator(clazz), clazz.
-          getTypeParameters.map(tp => ScalaPsiManager.instance(clazz.getProject).typeVariable(tp)))
-      clazz match {
-        case td: ScTypeDefinition => td.getType(TypingContext.empty).getOrElse(default)
-        case _ => default
-      }
-    }
-    val supers: Seq[ScType] = {
-      clazz match {
-        case td: ScTemplateDefinition => td.superTypes
-        case clazz: PsiClass => clazz.getSuperTypes.map {
-          case ctp: PsiClassType =>
-            val cl = ctp.resolve()
-            if (cl != null && cl.qualifiedName == "java.lang.Object") ScDesignatorType(cl)
-            else ScType.create(ctp, clazz.getProject)
-          case ctp => ScType.create(ctp, clazz.getProject)
-        }.toSeq
-      }
-    }
-
-    generalLinearization(Some(clazz.getProject), tp, addTp = true, supers = supers)
-  }
   
   private def generalLinearization(project: Option[Project], tp: ScType, addTp: Boolean, supers: Seq[ScType]): Seq[ScType] = {
     val buffer = new ListBuffer[ScType]
@@ -515,7 +516,7 @@ object MixinNodes {
         case Some(clazz) if clazz.qualifiedName != null && !set.contains(classString(clazz)) =>
           tp +=: buffer
           set += classString(clazz)
-        case Some(clazz) if clazz.getTypeParameters.length != 0 =>
+        case Some(clazz) if clazz.getTypeParameters.nonEmpty =>
           val i = buffer.indexWhere(newTp => {
             ScType.extractClass(newTp, Some(clazz.getProject)) match {
               case Some(newClazz) if ScEquivalenceUtil.areClassesEquivalent(newClazz, clazz) => true
