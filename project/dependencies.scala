@@ -3,7 +3,7 @@ import sbt._
 
 object Versions {
   val scalaVersion = "2.11.6"
-  val ideaVersion = "142.5047.6"
+  val ideaVersion = "142.5239.2"
   val sbtStructureVersion = "4.2.0"
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
@@ -64,6 +64,9 @@ object Dependencies {
   val mavenModel = "org.apache.maven" % "maven-model" % "3.0.5"
 
   val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
+
+  val scalastyle_2_11 = "org.scalastyle" % "scalastyle_2.11" % "0.7.0"
+  val scalariform_2_11 = "org.scalariform" % "scalariform_2.11" % "0.1.7"
 }
 
 object DependencyGroups {
@@ -111,6 +114,11 @@ object DependencyGroups {
     jsoup
   )
 
+  val scalastyle = Seq(
+    scalastyle_2_11,
+    scalariform_2_11
+  )
+
   val mavenIndexer = Seq(
     mavenIndexerCore,
     mavenModel
@@ -124,7 +132,7 @@ object DependencyGroups {
     sbtStructureCore,
     evoInflector,
     scalatestFindersPatched
-  ) ++ mavenIndexer
+  ) ++ mavenIndexer ++ scalastyle
 
   val scalap = Seq(
     scalaLibrary,

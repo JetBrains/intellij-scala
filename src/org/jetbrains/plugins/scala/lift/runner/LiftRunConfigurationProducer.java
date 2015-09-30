@@ -20,6 +20,7 @@ import org.jetbrains.idea.maven.project.MavenProjectsManager;
 import org.jetbrains.plugins.scala.util.ScalaUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -81,7 +82,7 @@ public class LiftRunConfigurationProducer extends RunConfigurationProducer<Maven
 
     if (artifact == null) return null;
 
-    MavenExplicitProfiles profiles = MavenProjectsManager.getInstance(project).getExplicitProfiles();
+    Collection<String> profiles = MavenProjectsManager.getInstance(project).getExplicitProfiles().getEnabledProfiles();
     List<String> goals = new ArrayList<String>();
 
     goals.add(JETTY_RUN);

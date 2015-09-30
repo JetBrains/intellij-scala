@@ -14,17 +14,10 @@ class HStringJavaClassReferenceProvider extends JavaClassReferenceProvider {
 
   private def isEligible(element: HString) = {
     val settings = HoconProjectSettings.getInstance(element.getProject)
-    lazy val parentElementType = element.getParent.getNode.getElementType
-
-    element.stringType match {
-      case UnquotedString =>
-        // do not detect Java class references on unquoted strings in keys
-        settings.classReferencesOnUnquotedStrings && parentElementType != Key
-      case QuotedString =>
-        // do not detect Java class references on include targets
-        settings.classReferencesOnQuotedStrings && parentElementType != Included
-      case _ =>
-        false
+    (element.getNode.getElementType, element.stringType) match {
+      case (StringValue, UnquotedString) => settings.classReferencesOnUnquotedStrings
+      case (StringValue | KeyPart, QuotedString) => settings.classReferencesOnQuotedStrings
+      case _ => false
     }
   }
 

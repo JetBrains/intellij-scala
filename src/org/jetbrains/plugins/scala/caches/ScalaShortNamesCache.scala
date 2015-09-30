@@ -32,12 +32,13 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
       res
     }
     val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
-    val res = new ArrayBuffer[PsiClass]
+    var res: ArrayBuffer[PsiClass] = null
     var size = 0
     var lastClass: PsiClass = null
 
     @inline
     def add(clz: PsiClass): Unit = {
+      if (res == null) res = new ArrayBuffer[PsiClass]()
       res += clz
       size += 1
       lastClass = clz
