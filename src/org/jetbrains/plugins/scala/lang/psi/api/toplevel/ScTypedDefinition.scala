@@ -6,7 +6,6 @@ package toplevel
 
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
-import com.intellij.util.containers.ConcurrentHashMap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -61,7 +60,7 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
     new FakePsiMethod(this, "set" + name.capitalize, typeArr2paramArr(Array[ScType](tType)), types.Unit, hasModifierProperty)
   }
 
-  @Cached(false, modificationCount = ModCount.OutOfCodeBlockModificationCount)
+  @Cached(synchronized = false, modificationCount = ModCount.OutOfCodeBlockModificationCount)
   def getIsBeanMethod: PsiMethod = {
     val hasModifierProperty: String => Boolean = nameContext match {
       case v: ScModifierListOwner => v.hasModifierProperty
@@ -71,7 +70,7 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
       this.getType(TypingContext.empty).getOrAny, hasModifierProperty)
   }
 
-  @Cached(false, modificationCount = ModCount.OutOfCodeBlockModificationCount)
+  @Cached(synchronized = false, modificationCount = ModCount.OutOfCodeBlockModificationCount)
   def getBeanMethods: Seq[PsiMethod] = {
     def valueSeq(v: ScAnnotationsHolder with ScModifierListOwner): Seq[PsiMethod] = {
       val beanProperty = ScalaPsiUtil.isBeanProperty(v)
@@ -101,34 +100,16 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
   }
 
   import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
-  private val typedDefinitionWrapper: ConcurrentHashMap[(Boolean, Boolean, DefinitionRole, Option[PsiClass]), (PsiTypedDefinitionWrapper, Long)] =
-    new ConcurrentHashMap()
 
-  @Cached(false, modificationCount = ModCount.OutOfCodeBlockModificationCount)
+  @Cached(synchronized = false, modificationCount = ModCount.OutOfCodeBlockModificationCount)
   def getTypedDefinitionWrapper(isStatic: Boolean, isInterface: Boolean, role: DefinitionRole,
                                 cClass: Option[PsiClass] = None): PsiTypedDefinitionWrapper = {
-    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-    val r = typedDefinitionWrapper.get(isStatic, isInterface, role, cClass)
-    if (r != null && r._2 == curModCount) {
-      return r._1
-    }
-    val res = new PsiTypedDefinitionWrapper(this, isStatic, isInterface, role, cClass)
-    typedDefinitionWrapper.put((isStatic, isInterface, role, cClass), (res, curModCount))
-    res
+    new PsiTypedDefinitionWrapper(this, isStatic, isInterface, role, cClass)
   }
 
-  private val staticTypedDefinitionWrapper: ConcurrentHashMap[(DefinitionRole, PsiClassWrapper), (StaticPsiTypedDefinitionWrapper, Long)] =
-    new ConcurrentHashMap()
-
+  @Cached(synchronized = false, modificationCount = ModCount.OutOfCodeBlockModificationCount)
   def getStaticTypedDefinitionWrapper(role: DefinitionRole, cClass: PsiClassWrapper): StaticPsiTypedDefinitionWrapper = {
-    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-    val r = staticTypedDefinitionWrapper.get(role, cClass)
-    if (r != null && r._2 == curModCount) {
-      return r._1
-    }
-    val res = new StaticPsiTypedDefinitionWrapper(this, role, cClass)
-    staticTypedDefinitionWrapper.put((role, cClass), (res, curModCount))
-    res
+    new StaticPsiTypedDefinitionWrapper(this, role, cClass)
   }
 
   def nameContext: PsiElement = ScalaPsiUtil.nameContext(this)

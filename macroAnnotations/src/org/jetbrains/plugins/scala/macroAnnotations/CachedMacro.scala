@@ -113,7 +113,7 @@ object CachedMacro {
 
         val (annotationParameters: List[Tree], dom) = c.prefix.tree match {
           //case q"new CachedMappedWithRecursionGuard[$t](..$params)" if params.length == 4 => (params, t)
-          case q"new CachedMappedWithRecursionGuard(..$params)" if params.length == 4 => (params, tq"PsiElement")
+          case q"new CachedMappedWithRecursionGuard(..$params)" if params.length == 4 => (params, tq"com.intellij.psi.PsiElement")
           case _ => abort("Wrong annotation parameters!")
         }
         val flatParams = params.flatten
