@@ -58,12 +58,22 @@ trait Namer {
     case other => other ?!
   }
 
-  def toTypeName(tp: ScType): m.Type.Name = {
+  def toStdTypeName(tp: ScType): m.Type.Name = {
     var res: m.Type.Name = null
     val visitor = new ScalaTypeVisitor {
       override def visitStdType(x: StdType) = {
-        val clazz = ScalaPsiManager.instance(getCurrentProject).getCachedClass(GlobalSearchScope.allScope(getCurrentProject), s"scala.${x.name}")
-        res = m.Type.Name(x.name).withAttrsFor(clazz)
+        res = x match {
+          case ptype.Any    => std.anyTypeName
+          case ptype.AnyRef => std.anyRefTypeName
+          case ptype.AnyVal => std.anyValTypeName
+          case ptype.Nothing=> std.nothingTypeName
+          case ptype.Null   => std.nullTypeName
+          case _ =>
+            val clazz = ScalaPsiManager.instance(getCurrentProject).getCachedClass(GlobalSearchScope.allScope(getCurrentProject), s"scala.${x.name}")
+            if (clazz != null)
+              m.Type.Name(x.name).withAttrsFor(clazz).setTypechecked
+            else null
+        }
       }
     }
     tp.visitType(visitor)

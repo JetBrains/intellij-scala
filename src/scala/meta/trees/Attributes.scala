@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
 
 import scala.language.postfixOps
@@ -22,7 +23,7 @@ trait Attributes {
       fqn
         .split('.')
         .dropRight(1)
-        .foldLeft(rootPackagePrefix) {
+        .foldLeft(std.rootPackagePrefix) {
           (parent, name) => h.Prefix.Type(m.Type.Singleton(
             m.Term.Name(name).withAttrs(denot = h.Denotation.Single(parent, fqnameToSymbol(fqn.substring(0, fqn.indexOf(name) + name.length), toDrop = 0)),
                                         typingLike = h.Typing.Recursive)
@@ -97,6 +98,6 @@ trait Attributes {
       }
       denotatedTree.asInstanceOf[T]
     }
-  }
 
+  }
 }
