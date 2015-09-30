@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.macroAnnotations
 
+import scala.annotation.tailrec
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
@@ -16,23 +17,23 @@ object CachedMacro {
     def abort(message: String) = c.abort(c.enclosingPosition, message)
 
     def parameters: (Boolean, ModCount.Value) = {
+      @tailrec
+      def modCountParam(modCount: c.universe.Tree): ModCount.Value = modCount match {
+        case q"modificationCount = $v" => modCountParam(v)
+        case q"ModCount.OutOfCodeBlockModificationCount" => ModCount.OutOfCodeBlockModificationCount
+        case q"ModCount.JavaStructureModificationCount" => ModCount.JavaStructureModificationCount
+        case q"ModCount.ModificationCount" => ModCount.ModificationCount
+        case _ => abort("Wrong modification count parameter!")
+      }
+
       c.prefix.tree match {
-        case q"new Cached(..$params)" =>
-          var synch: Option[Boolean] = None
-          var modCount: Option[ModCount.Value] = None
-          params.foreach {
-            case q"synchronized = $b" if synch.isEmpty =>
-              synch = Some(c.eval[Boolean](c.Expr(b)))
-            case q"modificationCount = ModCount.OutOfCodeBlockModificationCount" if modCount.isEmpty =>
-              modCount = Some(ModCount.OutOfCodeBlockModificationCount)
-            case q"modificationCount = ModCount.JavaStructureModificationCount" if modCount.isEmpty =>
-              modCount = Some(ModCount.JavaStructureModificationCount)
-            case q"modificationCount = ModCount.ModificationCount" if modCount.isEmpty=>
-              modCount = Some(ModCount.ModificationCount)
-            case q"$b" => abort("non-named parameters are not supported yet")
+        case q"new Cached(..$params)" if params.length == 2 =>
+          val synch: Boolean = params.head match {
+            case q"synchronized = $v" => c.eval[Boolean](c.Expr(v))
+            case q"$v" => c.eval[Boolean](c.Expr(v))
           }
-          (synch.getOrElse(false), modCount.getOrElse(ModCount.ModificationCount))
-        case q"new Cached()" => (false, ModCount.ModificationCount)
+          val modCount: ModCount.Value = modCountParam(params(1))
+          (synch, modCount)
         case _ => abort("Wrong parameters")
       }
     }
@@ -110,8 +111,9 @@ object CachedMacro {
           abort("You must specify return type")
         }
 
-        val annotationParameters: List[Tree] = c.prefix.tree match {
-          case q"new CachedMappedWithRecursionGuard(..$params)" if params.length == 4 => params
+        val (annotationParameters: List[Tree], dom) = c.prefix.tree match {
+          //case q"new CachedMappedWithRecursionGuard[$t](..$params)" if params.length == 4 => (params, t)
+          case q"new CachedMappedWithRecursionGuard(..$params)" if params.length == 4 => (params, tq"PsiElement")
           case _ => abort("Wrong annotation parameters!")
         }
         val flatParams = params.flatten
@@ -119,9 +121,12 @@ object CachedMacro {
         val parameterNames: List[c.universe.TermName] = flatParams.map(_.name)
         val cachesUtilFQN = q"org.jetbrains.plugins.scala.caches.CachesUtil"
         val key = annotationParameters(1)
-        val parameterDefinitions: List[c.universe.Tree] = flatParams.zipWithIndex.map {
-          case (param, i) =>
-            ValDef(NoMods, param.name, param.tpt, q"data.${TermName("_" + (i + 1))}")
+        val parameterDefinitions: List[c.universe.Tree] = flatParams match {
+          case List(param) => List(ValDef(NoMods, param.name, param.tpt, q"data"))
+          case _ => flatParams.zipWithIndex.map {
+            case (param, i) =>
+              ValDef(NoMods, param.name, param.tpt, q"data.${TermName("_" + (i + 1))}")
+          }
         }
 
         val builder = q"""
@@ -138,7 +143,7 @@ object CachedMacro {
           type Data = (..$parameterTypes)
           val data = (..$parameterNames)
 
-          $cachesUtilFQN.getMappedWithRecursionPreventingWithRollback($element, data, $key, $builder, $defaultValue, $dependencyItem)
+          $cachesUtilFQN.getMappedWithRecursionPreventingWithRollback[$dom, Data, $retTp]($element, data, $key, $builder, $defaultValue, $dependencyItem)
           """
         val res = c.Expr(DefDef(mods, name, tpParams, params, retTp, updatedRhs))
         println(res)

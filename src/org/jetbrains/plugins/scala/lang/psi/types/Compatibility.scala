@@ -35,7 +35,7 @@ import scala.collection.mutable.ArrayBuffer
 object Compatibility {
   @TestOnly
   var seqClass: Option[PsiClass] = None
-  
+
   def compatibleWithViewApplicability(l : ScType, r : ScType): Boolean = r conforms l
 
   case class Expression(expr: ScExpression) {
@@ -65,7 +65,7 @@ object Compatibility {
         if (isShape || !checkImplicits || place == null) return default
 
         @CachedMappedWithRecursionGuard(place, CachesUtil.TYPE_OF_SPECIAL_EXPR_AFTER_IMPLICIT_KEY, default, PsiModificationTracker.MODIFICATION_COUNT)
-        def eval(typez: ScType, expectedOption: Option[ScType]): (Success[ScType], Set[ImportUsed]) = {
+        def eval(typez: ScType, expectedOption: Option[ScType]): (TypeResult[ScType], Set[ImportUsed]) = {
           expectedOption match {
             case Some(expected) if typez.conforms(expected) => (Success(typez, None), Set.empty)
             case Some(expected) =>
@@ -121,8 +121,8 @@ object Compatibility {
                        checkWithImplicits: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     val r = checkConformanceExt(checkNames, parameters, exprs, checkWithImplicits, isShapesResolve = false)
     (r.problems.isEmpty, r.undefSubst)
-  }  
-  
+  }
+
   def clashedAssignmentsIn(exprs: Seq[Expression]): Seq[ScAssignStmt] = {
     val pairs = for(Expression(assignment @ NamedAssignStmt(name)) <- exprs) yield (name, assignment)
     val names = pairs.unzip._1
@@ -145,12 +145,12 @@ object Compatibility {
     var undefSubst = new ScUndefinedSubstitutor
 
     val clashedAssignments = clashedAssignmentsIn(exprs)
-        
+
     if(clashedAssignments.nonEmpty) {
       val problems = clashedAssignments.map(new ParameterSpecifiedMultipleTimes(_))
       return ConformanceExtResult(problems)
     }
-    
+
     //optimization:
     val hasRepeated = parameters.exists(_.isRepeated)
     val maxParams: Int = if(hasRepeated) scala.Int.MaxValue else parameters.length
@@ -161,7 +161,7 @@ object Compatibility {
       val arguments = exprs.takeRight(excess).map(_.expr)
       return ConformanceExtResult(arguments.map(ExcessArgument), undefSubst)
     }
-    
+
     val minParams = parameters.count(p => !p.isDefault && !p.isRepeated)
     if (exprs.length < minParams) {
       val count = minParams - exprs.length
@@ -174,9 +174,9 @@ object Compatibility {
       return ConformanceExtResult(problems.toSeq, undefSubst)
     }
 
-    if (parameters.length == 0) 
-      return ConformanceExtResult(if(exprs.length == 0) Seq.empty else Seq(new ApplicabilityProblem("5")), undefSubst)
-    
+    if (parameters.isEmpty)
+      return ConformanceExtResult(if(exprs.isEmpty) Seq.empty else Seq(new ApplicabilityProblem("5")), undefSubst)
+
     var k = 0
     var namedMode = false //todo: optimization, when namedMode enabled, exprs.length <= parameters.length
     val used = new Array[Boolean](parameters.length)
@@ -287,9 +287,9 @@ object Compatibility {
       }
       k = k + 1
     }
-    
+
     if(problems.nonEmpty) return ConformanceExtResult(problems.reverse, undefSubst, defaultParameterUsed, matched, matchedTypes)
-    
+
     if (exprs.length == parameters.length) return ConformanceExtResult(Seq.empty, undefSubst, defaultParameterUsed, matched, matchedTypes)
     else if (exprs.length > parameters.length) {
       if (namedMode)
@@ -313,9 +313,9 @@ object Compatibility {
       }
     }
     else {
-      if (exprs.length == parameters.length - 1 && !namedMode && parameters.last.isRepeated) 
+      if (exprs.length == parameters.length - 1 && !namedMode && parameters.last.isRepeated)
         return ConformanceExtResult(Seq.empty, undefSubst, defaultParameterUsed, matched, matchedTypes)
-      
+
       val missed = for ((parameter: Parameter, b) <- parameters.zip(used)
                         if !b && !parameter.isDefault) yield MissedValueParameter(parameter)
       defaultParameterUsed = parameters.zip(used).exists { case (param, bool) => !bool && param.isDefault}
@@ -338,7 +338,7 @@ object Compatibility {
   }
 
   // TODO refactor a lot of duplication out of this method 
-  def compatible(named: PsiNamedElement, 
+  def compatible(named: PsiNamedElement,
                  substitutor: ScSubstitutor,
                  argClauses: List[Seq[Expression]],
                  checkWithImplicits: Boolean,
