@@ -1,4 +1,3 @@
-import Keys.{`package` => pack}
 import Common._
 import sbt.Keys.{`package` => pack}
 
@@ -37,7 +36,7 @@ lazy val scalaCommunity: Project =
     scalacOptions in Global += "-target:jvm-1.6",
     libraryDependencies ++= DependencyGroups.scalaCommunity,
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
-    unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun", "scalastyle"),
+    unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"),
     addCompilerPlugin(Dependencies.macroParadise),
     ideaInternalPlugins := Seq(
       "copyright",
