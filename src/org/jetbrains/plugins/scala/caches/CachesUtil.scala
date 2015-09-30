@@ -96,7 +96,7 @@ object CachesUtil {
   val EFFECTIVE_PARAMETER_CLAUSE: Key[CachedValue[Seq[ScParameterClause]]] =
     Key.create("effective.parameter.clause.key")
   val PATTERN_EXPECTED_TYPE: Key[CachedValue[Option[ScType]]] = Key.create("pattern.expected.type.key")
-  val PROJECTION_TYPE_ACTUAL_INNER: Key[CachedValue[ConcurrentHashMap[ScType, Option[(PsiNamedElement, ScSubstitutor)]]]] =
+  val PROJECTION_TYPE_ACTUAL_INNER: Key[CachedValue[ConcurrentHashMap[(ScType, Boolean), Option[(PsiNamedElement, ScSubstitutor)]]]] =
     Key.create("projection.type.actual.inner.key")
 
   //keys for getUserData
