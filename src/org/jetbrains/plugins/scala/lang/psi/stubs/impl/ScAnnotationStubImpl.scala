@@ -18,20 +18,12 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
  * Date: 22.06.2009
  */
 
-class ScAnnotationStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                  elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
+class ScAnnotationStubImpl[ParentPsi <: PsiElement](parent : StubElement[ParentPsi],
+                                                    elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+                                                    name: StringRef = null, typeText: StringRef = null)
         extends StubBaseWrapper[ScAnnotation](parent, elemType) with ScAnnotationStub {
-  var name: StringRef = StringRef.fromString("")
-  private var typeText: StringRef = _
-  private var myTypeElement: SofterReference[ScTypeElement] = null
 
-  def this(parent : StubElement[ParentPsi],
-          elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          name: StringRef, typeText: StringRef) {
-    this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    this.name = name
-    this.typeText = typeText
-  }
+  private var myTypeElement: SofterReference[ScTypeElement] = null
 
   def getName: String = StringRef.toString(name)
   def getTypeText: String = StringRef.toString(typeText)
