@@ -2,6 +2,7 @@ package scala.meta.trees
 
 import com.intellij.debugger.engine.JVMNameUtil
 import com.intellij.psi.impl.file.PsiPackageImpl
+import com.intellij.psi.impl.source.DummyHolder
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
 import org.scalameta.collections._
 
+import scala.annotation.tailrec
 import scala.language.postfixOps
 import scala.meta.internal.{ast => m, semantic => h}
 
@@ -102,7 +104,17 @@ trait SymbolTable {
   }
 
   def toLocalSymbol(elem: PsiElement): h.Symbol = {
-    h.Symbol.Local(elem.getContainingFile.getVirtualFile.getUrl + localSymbolDelim + elem.getTextOffset)
+      @tailrec
+      def getFile(elem: PsiElement): PsiFile =  elem.getContainingFile match {
+        case _: DummyHolder => getFile(elem.getParent)
+        case _ => elem.getContainingFile
+      }
+      val url = try {
+        getFile(elem).getVirtualFile.getUrl
+      } catch {
+        case _: NullPointerException => "UNRESOLVED"
+      }
+      h.Symbol.Local(url + localSymbolDelim + elem.getTextOffset)
   }
 
   def fromSymbol(sym: h.Symbol): PsiElement = {
