@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, api => p, types => ptype}
 
 import scala.collection.immutable.Seq
@@ -209,8 +210,13 @@ trait TreeAdapter {
       case None        => unreachable(s"Class ${t.qualifiedName} has no parents")
     }
     val self    = t.selfType match {
-      case Some(tpe: ptype.ScType) => m.Term.Param(Nil, m.Term.Name("self"), Some(toType(tpe)), None).withAttrs(toType(tpe)).setTypechecked
-      case None                    => m.Term.Param(Nil, m.Name.Anonymous(), None, None)
+      case Some(tpe: ptype.ScType) =>
+        m.Term.Param(Nil, m.Term.Name("self").withAttrsFor(t).setTypechecked, Some(toType(tpe)), None)
+          .withAttrs(toType(tpe)).setTypechecked
+      case None                    =>
+        val denot = h.Denotation.Single(h.Prefix.Type(toType(t.getType(TypingContext.empty))), toLocalSymbol(t))
+        m.Term.Param(Nil, m.Name.Anonymous().withAttrs(denot).setTypechecked, None, None)
+          .withAttrs(toType(t.getType(TypingContext.empty))).setTypechecked
     }
     m.Template(early, Seq(ctor), self, None)
   }

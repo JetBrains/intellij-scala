@@ -57,7 +57,7 @@ trait SymbolTable {
   def toSymbol(elem: PsiElement): h.Symbol = {
     def convert = elem match {
       case _ if isLocal(elem) =>
-        h.Symbol.Local(elem.getContainingFile.getVirtualFile.getUrl + localSymbolDelim + elem.getTextOffset)
+        toLocalSymbol(elem)
       case sc: impl.toplevel.synthetic.ScSyntheticClass =>
         h.Symbol.Global(fqnameToSymbol(sc.getQualifiedName), sc.className, h.Signature.Type)
       case td: ScTypeDefinition if !td.qualifiedName.contains(".") => // empty package defn
@@ -99,6 +99,10 @@ trait SymbolTable {
       case _ => elem ?!
     }
     symbolCache.getOrElseUpdate(elem, convert)
+  }
+
+  def toLocalSymbol(elem: PsiElement): h.Symbol = {
+    h.Symbol.Local(elem.getContainingFile.getVirtualFile.getUrl + localSymbolDelim + elem.getTextOffset)
   }
 
   def fromSymbol(sym: h.Symbol): PsiElement = {
