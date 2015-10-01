@@ -6,9 +6,10 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.ComparingUnrelatedTypesInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionBundle}
-import org.jetbrains.plugins.scala.extensions.ResolvesTo
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
@@ -23,6 +24,26 @@ object ComparingUnrelatedTypesInspection {
   val inspectionId = "ComparingUnrelatedTypes"
 
   private val seqFunctions = Seq("contains", "indexOf", "lastIndexOf")
+
+  def cannotBeCompared(type1: ScType, type2: ScType): Boolean = {
+    val types = Seq(type1, type2).map(tryExtractSingletonType)
+    val Seq(unboxed1, unboxed2) =
+      if (types.contains(Null)) types else types.map(StdType.unboxedType)
+
+    if (isNumericType(unboxed1) && isNumericType(unboxed2)) return false
+
+    ComparingUtil.isNeverSubType(unboxed1, unboxed2) && ComparingUtil.isNeverSubType(unboxed2, unboxed1)
+  }
+
+  def isNumericType(tp: ScType) = {
+    tp match {
+      case Byte | Char | Short | Int | Long | Float | Double => true
+      case ScDesignatorType(c: ScClass) => c.supers.headOption.map(_.qualifiedName).contains("scala.math.ScalaNumber")
+      case _ => false
+    }
+  }
+
+  private def tryExtractSingletonType(tp: ScType): ScType = ScType.extractDesignatorSingletonType(tp).getOrElse(tp)
 }
 
 class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId, inspectionName){
@@ -41,7 +62,8 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         argType <- arg.getType()
         if cannotBeCompared(elemType, argType)
       } {
-        val message = s"$inspectionName: ${elemType.presentableText} and ${argType.presentableText}"
+        val (elemTypeText, argTypeText) = ScTypePresentation.different(elemType, argType)
+        val message = InspectionBundle.message("comparing.unrelated.types.hint", elemTypeText, argTypeText)
         holder.registerProblem(arg, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
     case IsInstanceOfCall(call)  =>
@@ -58,16 +80,6 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         holder.registerProblem(call, inspectionName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
   }
-
-  def cannotBeCompared(type1: ScType, type2: ScType): Boolean = {
-    val types = Seq(type1, type2).map(tryExtractSingletonType)
-    val Seq(unboxed1, unboxed2) =
-      if (types.contains(Null)) types else types.map(StdType.unboxedType)
-    ComparingUtil.isNeverSubType(unboxed1, unboxed2) && ComparingUtil.isNeverSubType(unboxed2, unboxed1)
-  }
-
-  private def tryExtractSingletonType(tp: ScType): ScType = ScType.extractDesignatorSingletonType(tp).getOrElse(tp)
-
 
   private def mayNeedHighlighting(fun: ScFunction): Boolean = {
     if (!seqFunctions.contains(fun.name)) return false

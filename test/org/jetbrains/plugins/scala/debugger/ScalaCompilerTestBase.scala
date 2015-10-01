@@ -97,10 +97,14 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
       def addMockJdk8(): Sdk = {
         val path = TestUtils.getTestDataPath.replace("\\", "/") + "/mockJDK1.8/jre"
         val jdk = JavaSdk.getInstance.createJdk(mockJdk8Name, path)
-        inWriteAction(jdkTable.addJdk(jdk))
+        val oldJdk = jdkTable.findJdk(mockJdk8Name)
+        inWriteAction {
+          if (oldJdk != null) jdkTable.removeJdk(oldJdk)
+          jdkTable.addJdk(jdk)
+        }
         jdk
       }
-      Option(jdkTable.findJdk(mockJdk8Name)).getOrElse(addMockJdk8())
+      addMockJdk8()
     }
     else {
       jdkTable.getInternalJdk
@@ -140,7 +144,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
         }
       }
     })
-    val maxCompileTime = 600
+    val maxCompileTime = 6000
     var i = 0
     while (!semaphore.waitFor(100) && i < maxCompileTime) {
       if (SwingUtilities.isEventDispatchThread) {

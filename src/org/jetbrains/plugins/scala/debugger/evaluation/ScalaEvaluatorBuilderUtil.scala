@@ -63,7 +63,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         def exprToEvaluate(p: ScProjectionType): String = p.projected match {
           case ScDesignatorType(elem) => elem.name + "." + p.actualElement.name
           case projected: ScProjectionType => exprToEvaluate(projected) + "." + projected.actualElement.name
-          case ScThisType(_) => "this." + p.actualElement.name
+          case ScThisType(cl) if contextClass == cl => s"this.${p.actualElement.name}"
+          case ScThisType(cl) => s"${cl.name}.this.${p.actualElement.name}"
           case _ => throw EvaluationException(message)
         }
         val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprToEvaluate(p), ref.getContext, ref)
@@ -129,7 +130,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         val refName = ref.refName
         val (result, iters) = findContextClass {
           case null => true
-          case cl: PsiClass if cl.name != null && cl.name != refName => true
+          case cl: PsiClass if cl.name != null && cl.name == refName => true
           case _ => false
         }
 
@@ -688,7 +689,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             case _ => throw EvaluationException(ScalaBundle.message("cannot.evaluate.parameter", param.name))
           }
         case caseCl: ScCaseClause => patternEvaluator(caseCl, named)
-        case _: ScGenerator | _: ScEnumerator if isNotUsedEnumerator(named, position.getElementAt) =>
+        case _: ScGenerator | _: ScEnumerator if position != null && isNotUsedEnumerator(named, position.getElementAt) =>
           throw EvaluationException(ScalaBundle.message("not.used.from.for.statement", name))
         case LazyVal(_) => localLazyValEvaluator(named)
         case _ => new ScalaLocalVariableEvaluator(name, fileName)
@@ -1201,16 +1202,10 @@ object ScalaEvaluatorBuilderUtil {
 
   def isGenerateAnonfun(elem: PsiElement): Boolean = {
     def isGenerateAnonfunWithCache: Boolean = {
-      def argumentWithExpectedFunctionalType(expr: ScExpression) = {
-        ScalaPsiUtil.parameterOf(expr) match {
-          case Some(p) => p.isByName || ScFunctionType.isFunctionType(p.paramType)
-          case _ => false
-        }
-      }
 
       def computation = elem match {
         case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
-        case e: ScExpression if argumentWithExpectedFunctionalType(e) => true
+        case e: ScExpression if ScalaPsiUtil.isByNameArgument(e) || ScalaPsiUtil.isArgumentOfFunctionType(e) => true
         case ScalaPsiUtil.MethodValue(_) => true
         case _ => false
       }
@@ -1219,7 +1214,8 @@ object ScalaEvaluatorBuilderUtil {
         override def compute(): Result[Boolean] = Result.create(computation, elem)
       }
 
-      CachedValuesManager.getCachedValue(elem, cacheProvider)
+      if (elem == null) false
+      else CachedValuesManager.getCachedValue(elem, cacheProvider)
     }
 
     def isGenerateAnonfunSimple: Boolean = {

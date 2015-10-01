@@ -24,14 +24,17 @@ object AnnotationExpr {
       annotExprMarker.drop()
       return false
     }
+    
     builder.getTokenType match {
-      case ScalaTokenTypes.tLBRACE => {
+      case ScalaTokenTypes.tLBRACE =>
         if (builder.twoNewlinesBeforeCurrentToken) {
           annotExprMarker.done(ScalaElementTypes.ANNOTATION_EXPR)
           return true
         }
+        
         builder.advanceLexer() //Ate }
         builder.enableNewlines
+        
         def foo() {
           while (NameValuePair.parse(builder)) {
             builder.getTokenType match {
@@ -44,15 +47,15 @@ object AnnotationExpr {
             }
           }
         }
-        ParserUtils.parseLoopUntilRBrace(builder, foo _)
+        
+        ParserUtils.parseLoopUntilRBrace(builder, foo)
         builder.restoreNewlinesState
         annotExprMarker.done(ScalaElementTypes.ANNOTATION_EXPR)
+        
         true
-      }
-      case _ => {
+      case _ =>
         annotExprMarker.done(ScalaElementTypes.ANNOTATION_EXPR)
         true
-      }
     }
   }
 }

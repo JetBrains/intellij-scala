@@ -26,9 +26,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
-import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.macroAnnotations.CachedMappedWithRecursionGuard
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
-
+import org.jetbrains.plugins.scala.project._
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Set, mutable}
@@ -79,27 +79,19 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
     buffer.toSeq
   }
 
+  @CachedMappedWithRecursionGuard(place, CachesUtil.IMPLICIT_MAP1_KEY, Seq.empty, PsiModificationTracker.MODIFICATION_COUNT)
   def implicitMapFirstPart(exp: Option[ScType] = None,
                   fromUnder: Boolean = false,
                   exprType: Option[ScType] = None): Seq[ImplicitResolveResult] = {
-    type Data = (Option[ScType], Boolean, Option[ScType])
-    val data = (exp, fromUnder, exprType)
-
-    CachesUtil.getMappedWithRecursionPreventingWithRollback(place, data, CachesUtil.IMPLICIT_MAP1_KEY,
-      (expr: PsiElement, data: Data) => buildImplicitMap(data._1, data._2, isFromCompanion = false, Seq.empty, data._3), Seq.empty,
-      PsiModificationTracker.MODIFICATION_COUNT)
+    buildImplicitMap(exp, fromUnder, isFromCompanion = false, Seq.empty, exprType)
   }
 
+  @CachedMappedWithRecursionGuard(place, CachesUtil.IMPLICIT_MAP2_KEY, Seq.empty, PsiModificationTracker.MODIFICATION_COUNT)
   def implicitMapSecondPart(exp: Option[ScType] = None,
                             fromUnder: Boolean = false,
                             args: Seq[ScType] = Seq.empty,
                             exprType: Option[ScType] = None): Seq[ImplicitResolveResult] = {
-    type Data = (Option[ScType], Boolean, Seq[ScType], Option[ScType])
-    val data = (exp, fromUnder, args, exprType)
-
-    CachesUtil.getMappedWithRecursionPreventingWithRollback(place, data, CachesUtil.IMPLICIT_MAP2_KEY,
-      (expr: PsiElement, data: Data) => buildImplicitMap(data._1, data._2, isFromCompanion = true, data._3, data._4), Seq.empty,
-      PsiModificationTracker.MODIFICATION_COUNT)
+    buildImplicitMap(exp, fromUnder, isFromCompanion = true, args, exprType)
   }
 
   private def buildImplicitMap(exp: Option[ScType],
@@ -163,14 +155,10 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
     result.toSeq
   }
 
+  @CachedMappedWithRecursionGuard(place, CachesUtil.IMPLICIT_SIMPLE_MAP_KEY, ArrayBuffer.empty,
+    PsiModificationTracker.MODIFICATION_COUNT)
   private def buildSimpleImplicitMap(fromUnder: Boolean, exprType: Option[ScType] = None): ArrayBuffer[ImplicitMapResult] = {
-    type Data = (Boolean, Option[ScType])
-    val data = (fromUnder, exprType)
-    import org.jetbrains.plugins.scala.caches.CachesUtil._
-
-    getMappedWithRecursionPreventingWithRollback[PsiElement, Data, ArrayBuffer[ImplicitMapResult]](place,
-      data, IMPLICIT_SIMPLE_MAP_KEY, (expr: PsiElement, data: Data) => buildSimpleImplicitMapInner(data._1, data._2),
-      ArrayBuffer.empty, PsiModificationTracker.MODIFICATION_COUNT)
+    buildSimpleImplicitMapInner(fromUnder, exprType)
   }
 
   private def buildSimpleImplicitMapInner(fromUnder: Boolean, exprType: Option[ScType] = None): ArrayBuffer[ImplicitMapResult] = {

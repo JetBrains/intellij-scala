@@ -4,6 +4,7 @@ package project
 import java.io.File
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
 import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
@@ -21,6 +22,8 @@ import org.jetbrains.sbt.settings.SbtSystemSettings
  * @since 8/4/15.
  */
 abstract class ImportingTestCase extends ExternalSystemImportingTestCase with ProjectStructureMatcher {
+
+  val Log = Logger.getInstance(this.getClass)
 
   def testProjectDir: File = {
     val testdataPath = TestUtils.getTestDataPath + "/sbt/projects"
@@ -63,6 +66,9 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase with Pr
     systemSettings.setCustomLauncherEnabled(true)
     systemSettings.setCustomLauncherPath(scalaPluginBuildOutputDir.getAbsolutePath + "/launcher/sbt-launch.jar")
     systemSettings.setCustomSbtStructureDir(scalaPluginBuildOutputDir.getAbsolutePath + "/launcher")
+    Option(System.getProperty("sbt.ivy.home")).foreach { ivyHome =>
+      systemSettings.vmParameters += s" -Dsbt.ivy.home=$ivyHome"
+    }
   }
 
   private def setUpExternalSystemToPerformImportInIdeaProcess(): Unit =

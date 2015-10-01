@@ -121,27 +121,22 @@ object ScalaRefactoringUtil {
     scType.recursiveUpdate(replaceSingleton)
   }
 
-  def typeInRightPart(typeElement: ScTypeElement): Boolean = {
+  def inTemplateParents(typeElement: ScTypeElement): Boolean = {
     PsiTreeUtil.getParentOfType(typeElement, classOf[ScTemplateParents]) != null
   }
 
   def checkTypeElement(element: ScTypeElement): Option[ScTypeElement] = {
-    if (element == null || element.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs]
-      || typeInRightPart(element)) {
-      return None
+    Option(element).filter {
+      case e if e.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs] => false
+      case e if inTemplateParents(e) => false
+      case _ => true
     }
-
-    Some(element)
   }
 
-  def getTypeEement(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[ScTypeElement] = {
+  def getTypeElement(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[ScTypeElement] = {
     val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScTypeElement])
 
-    if (element == null || element.getTextRange.getEndOffset != endOffset || element.getTextRange.getStartOffset != startOffset) {
-      None
-    } else {
-      checkTypeElement(element)
-    }
+    Option(element).filter(_.getTextRange.getEndOffset == endOffset).flatMap(checkTypeElement)
   }
 
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, Array[ScType])] = {
@@ -337,7 +332,7 @@ object ScalaRefactoringUtil {
       for (child <- enclosingContainer.getChildren) {
         if (PsiEquivalenceUtil.areElementsEquivalent(child, element)) {
           child match {
-            case typeElement: ScTypeElement if !typeInRightPart(typeElement) =>
+            case typeElement: ScTypeElement if !inTemplateParents(typeElement) =>
               occurrences += typeElement
             case _ =>
           }
@@ -628,25 +623,30 @@ object ScalaRefactoringUtil {
     editor.getDocument.getText.substring(start, end)
   }
 
+  def getExpressions(element: PsiElement): Array[ScExpression] = {
+    val res = new ArrayBuffer[ScExpression]
+    var parent = element
+    while (parent != null && !parent.getText.contains("\n")) {
+      parent match {
+        case expr: ScExpression => res += expr
+        case _ =>
+      }
+      parent = parent.getParent
+    }
+    res.toArray
+  }
+
   def afterExpressionChoosing(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext,
                         refactoringName: String, exprFilter: (ScExpression) => Boolean = e => true)(invokesNext: => Unit) {
 
     if (!editor.getSelectionModel.hasSelection) {
-      val element: PsiElement = getElementOnCaretOffset(file, editor)
-
-      def getExpressions: Array[ScExpression] = {
-        val res = new ArrayBuffer[ScExpression]
-        var parent = element
-        while (parent != null && !parent.getText.contains("\n")) {
-          parent match {
-            case expr: ScExpression => res += expr
-            case _ =>
-          }
-          parent = parent.getParent
-        }
-        res.toArray
+      val offset = editor.getCaretModel.getOffset
+      val element: PsiElement = file.findElementAt(offset) match {
+        case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
+                w.getText.contains("\n") => file.findElementAt(offset - 1)
+        case p => p
       }
-      val expressions = getExpressions.filter(exprFilter)
+      val expressions = getExpressions(element).filter(exprFilter)
       def chooseExpression(expr: ScExpression) {
         editor.getSelectionModel.setSelection(expr.getTextRange.getStartOffset, expr.getTextRange.getEndOffset)
         invokesNext

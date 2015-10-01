@@ -22,6 +22,7 @@ object InspectionsUtil {
   val MethodSignature = "Scala: Method signature"
 
   def isExpressionOfType(className: String, expr: ScExpression): Boolean = {
+    if (expr == null) return false
     val exprType = expr.getType().getOrAny
     conformsToTypeFromClass(exprType, className, expr.getProject)
   }

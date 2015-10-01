@@ -27,12 +27,13 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
   def cancel(): Unit =
     cancellationFlag.set(true)
 
-  def read(directory: File, download: Boolean, resolveClassifiers: Boolean, resolveSbtClassifiers: Boolean)
+  def read(directory: File, download: Boolean, resolveClassifiers: Boolean, resolveSbtClassifiers: Boolean, cachedUpdate: Boolean)
           (listener: (String) => Unit): Either[Exception, Elem] = {
 
     val options = download.seq("download") ++
             resolveClassifiers.seq("resolveClassifiers") ++
-            resolveSbtClassifiers.seq("resolveSbtClassifiers")
+            resolveSbtClassifiers.seq("resolveSbtClassifiers") ++
+            cachedUpdate.seq("cachedUpdate")
 
     checkFilePresence.fold(read0(directory, options.mkString(", "))(listener))(it => Left(new FileNotFoundException(it)))
   }
@@ -86,12 +87,13 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
         val process = processBuilder.start()
         using(new PrintWriter(new BufferedWriter(new OutputStreamWriter(process.getOutputStream, "UTF-8")))) { writer =>
           sbtCommands.foreach(writer.println)
+          writer.flush()
+          val result = handle(process, listener)
+          result.map { output =>
+            (structureFile.length > 0).either(
+              XML.load(structureFile.toURI.toURL))(SbtException.fromSbtLog(output))
+          }.getOrElse(Left(new ImportCancelledException))
         }
-        val result = handle(process, listener)
-        result.map { output =>
-          (structureFile.length > 0).either(
-            XML.load(structureFile.toURI.toURL))(SbtException.fromSbtLog(output))
-        }.getOrElse(Left(new ImportCancelledException))
       } catch {
         case e: Exception => Left(e)
       }

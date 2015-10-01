@@ -28,9 +28,14 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
     new ScalaElementVisitor {
       override def visitMethodCallExpression(mc: ScMethodCall) {
         if (mc == null || mc.args == null || mc.args.exprs.isEmpty) return
-        mc.getInvokedExpr match {
-          case ref: ScReferenceExpression => ref.resolve() match {
-            case fun: ScFunction if fun.parameters.size == 1 => return
+        if (isIgnoreSingleParameter) mc.getInvokedExpr match {
+          case ref: ScReferenceExpression => ref.bind() match {
+            case Some(srr) =>
+              val targets = Seq(srr.element) ++ srr.innerResolveResult.map(_.getElement)
+              if (targets.exists {
+                case fun: ScFunction => fun.parameters.size == 1
+                case _ => false
+              }) return
             case _ =>
           }
           case _ =>

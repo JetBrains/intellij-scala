@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.OccurrenceHandler;
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.OccurrenceData;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeItem;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeSuggester;
@@ -145,7 +145,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
         result = myEditor.getDocument().getText();
       } else if (element instanceof ScTypeElement){
-        Option<ScTypeElement> optionType = ScalaRefactoringUtil.getTypeEement(getProject(), myEditor, myFile, startOffset, endOffset);
+        Option<ScTypeElement> optionType = ScalaRefactoringUtil.getTypeElement(getProject(), myEditor, myFile, startOffset, endOffset);
         if (optionType.isEmpty()){
           result = "Selected block should be presented as type element";
         } else {
@@ -167,7 +167,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 //            }
 //          }
 
-          OccurrenceHandler occurrences = OccurrenceHandler.apply(typeElement, replaceAllOccurences,
+          OccurrenceData occurrences = OccurrenceData.apply(typeElement, replaceAllOccurences,
                   replaceCompanionObjOccurrences, replaceOccurrencesFromInheritors, scopes[0]);
 
           introduceVariableHandler.runRefactoringForTypes(myFile, myEditor, typeElement,

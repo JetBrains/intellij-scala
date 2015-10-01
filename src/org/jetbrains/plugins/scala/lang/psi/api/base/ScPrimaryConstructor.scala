@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.light.ScPrimaryConstructorWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -43,19 +44,14 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
    */
   def valueParameters: Seq[ScClassParameter] = parameters.filter((p: ScClassParameter) => p.isVal || p.isVar)
 
-  def effectiveParameterClauses: Seq[ScParameterClause] = {
-    CachesUtil.get(this, CachesUtil.EFFECTIVE_PARAMETER_CLAUSE,
-      new CachesUtil.MyProvider(this, (p: ScPrimaryConstructor) => p.effectiveParametersInner)
-      (PsiModificationTracker.MODIFICATION_COUNT))
-  }
-
   /**
-    * All classes must have one non-implicit parameter list. If this is not declared in in the code,
-    * it is assumed by the compiler.
-    *
-    * In addition, view and context bounds generate an additional implicit parameter section.
-    */
-  private def effectiveParametersInner: Seq[ScParameterClause] = {
+   * All classes must have one non-implicit parameter list. If this is not declared in in the code,
+   * it is assumed by the compiler.
+   *
+   * In addition, view and context bounds generate an additional implicit parameter section.
+   */
+  @CachedInsidePsiElement(this, CachesUtil.EFFECTIVE_PARAMETER_CLAUSE, PsiModificationTracker.MODIFICATION_COUNT)
+  def effectiveParameterClauses: Seq[ScParameterClause] = {
     def emptyParameterList: ScParameterClause =
       ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(getManager, parameterList)
     val clausesWithInitialEmpty = parameterList.clauses match {
@@ -84,12 +80,12 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
         if (parentClazz != null)
           ScProjectionType(ScThisType(parentClazz), clazz, superReference = false)
         else ScDesignatorType(clazz)
-      if (typeParameters.length == 0) designatorType
+      if (typeParameters.isEmpty) designatorType
       else {
         ScParameterizedType(designatorType, typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty)))
       }
     })
-    if (clauses.length == 0) return new ScMethodType(returnType, Seq.empty, false)(getProject, getResolveScope)
+    if (clauses.isEmpty) return new ScMethodType(returnType, Seq.empty, false)(getProject, getResolveScope)
     val res = clauses.foldRight[ScType](returnType){(clause: ScParameterClause, tp: ScType) =>
       new ScMethodType(tp, clause.getSmartParameters, clause.isImplicit)(getProject, getResolveScope)
     }
@@ -98,7 +94,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
 
   def polymorphicType: ScType = {
     val typeParameters = getParent.asInstanceOf[ScTypeDefinition].typeParameters
-    if (typeParameters.length == 0) methodType
+    if (typeParameters.isEmpty) methodType
     else ScTypePolymorphicType(methodType, typeParameters.map(new TypeParameter(_)))
   }
 

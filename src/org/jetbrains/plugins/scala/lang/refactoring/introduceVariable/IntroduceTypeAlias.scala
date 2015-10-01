@@ -57,7 +57,7 @@ trait IntroduceTypeAlias {
       }
 
       if (IntroduceTypeAliasData.possibleScopes.isEmpty) {
-        showErrorMessage(ScalaBundle.message("cannot.refactor.not.script.file"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
+        showErrorMessage(ScalaBundle.message("cannot.refactor.scope.not.found"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
       }
 
       def runWithDialog(fromInplace: Boolean, mainScope: ScopeItem, enteredName: String = "") {
@@ -94,7 +94,7 @@ trait IntroduceTypeAlias {
           return
         }
 
-        val occurrences: OccurrenceHandler = OccurrenceHandler(typeElementHelper,
+        val occurrences: OccurrenceData = OccurrenceData(typeElementHelper,
           dialog.isReplaceAllOccurrences,
           dialog.isReplaceOccurrenceIncompanionObject,
           dialog.isReplaceOccurrenceInInheritors, dialog.getSelectedScope)
@@ -112,7 +112,7 @@ trait IntroduceTypeAlias {
 
           import scala.collection.JavaConversions.asJavaCollection
           val suggestedNamesSet = new util.LinkedHashSet[String](suggestedNames.toIterable)
-          val allOccurrences = OccurrenceHandler(typeElement, replaceAllOccurrences, isReplaceOccurrenceIncompanionObject = false,
+          val allOccurrences = OccurrenceData(typeElement, replaceAllOccurrences, isReplaceOccurrenceIncompanionObject = false,
             isReplaceOccurrenceInInheritors = false, scopeItem)
 
           val introduceRunnable: Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] =
@@ -157,7 +157,7 @@ trait IntroduceTypeAlias {
 
         val currentScope = IntroduceTypeAliasData.currentScope
 
-        //need open odal dialog in inplace mode
+        //need open modal dialog in inplace mode
         if ((StartMarkAction.canStart(project) != null) && (currentScope != null)) {
           IntroduceTypeAliasData.isCallModalDialogInProgress = true
           val templateState: TemplateState = TemplateManagerImpl.getTemplateState(InjectedLanguageUtil.getTopLevelEditor(editor))
@@ -196,11 +196,13 @@ trait IntroduceTypeAlias {
     }
   }
 
-  def runRefactoringForTypeInside(file: PsiFile, editor: Editor,
-                                  typeElement: ScTypeElement, typeName: String,
-                                  occurrences: OccurrenceHandler, suggestedParent: PsiElement, isPackage: Boolean):
-  (SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])
-  = {
+  def runRefactoringForTypeInside(file: PsiFile,
+                                  editor: Editor,
+                                  typeElement: ScTypeElement,
+                                  typeName: String,
+                                  occurrences: OccurrenceData,
+                                  suggestedParent: PsiElement,
+                                  isPackage: Boolean): (SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement]) = {
     def addTypeAliasDefinition(typeName: String, typeElement: ScTypeElement, parent: PsiElement) = {
       def getAhchor(parent: PsiElement, firstOccurrence: PsiElement): Some[PsiElement] = {
         Some(parent.getChildren.find(_.getTextRange.contains(firstOccurrence.getTextRange)).getOrElse(parent.getLastChild))
@@ -247,7 +249,7 @@ trait IntroduceTypeAlias {
 
   def runRefactoringForTypes(file: PsiFile, editor: Editor,
                              typeElement: ScTypeElement, typeName: String,
-                             occurrences_ : OccurrenceHandler, parent: PsiElement, isPackage: Boolean) = {
+                             occurrences_ : OccurrenceData, parent: PsiElement, isPackage: Boolean) = {
     val runnable = new Runnable() {
       def run() {
         runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, parent, isPackage)
@@ -257,14 +259,17 @@ trait IntroduceTypeAlias {
     editor.getSelectionModel.removeSelection()
   }
 
-  def introduceTypeAlias(file: PsiFile, editor: Editor, typeElement: ScTypeElement,
-                         occurrences_ : OccurrenceHandler, typeName: String,
-                         replaceAllOccurrences: Boolean, parent: PsiElement, isPackage: Boolean):
-  Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] = {
+  def introduceTypeAlias(file: PsiFile,
+                         editor: Editor,
+                         typeElement: ScTypeElement,
+                         occurrences_ : OccurrenceData,
+                         typeName: String,
+                         replaceAllOccurrences: Boolean,
+                         parent: PsiElement,
+                         isPackage: Boolean): Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] = {
 
     new Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])]() {
-      def compute() = runRefactoringForTypeInside(file, editor, typeElement,
-        typeName, occurrences_, parent, isPackage)
+      def compute() = runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, parent, isPackage)
     }
   }
 

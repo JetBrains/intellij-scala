@@ -14,7 +14,6 @@ import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
-import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.scope.PsiScopeProcessor
@@ -128,23 +127,7 @@ object ScalaPsiUtil {
     }
   }
 
-  def getDependentItem(element: PsiElement,
-                       dep_item: Object = PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT): Option[Object] = {
-    element.getContainingFile match {
-      case file: ScalaFile if file.isCompiled =>
-        if (!ProjectRootManager.getInstance(element.getProject).getFileIndex.isInContent(file.getVirtualFile)) {
-          return Some(dep_item)
-        }
-        var dir = file.getParent
-        while (dir != null) {
-          if (dir.getName == "scala-library.jar") return None
-          dir = dir.getParent
-        }
-        Some(ProjectRootManager.getInstance(element.getProject))
-      case cls: ClsFileImpl => Some(ProjectRootManager.getInstance(element.getProject))
-      case _ => Some(dep_item)
-    }
-  }
+
 
   @tailrec
   def withEtaExpansion(expr: ScExpression): Boolean = {
@@ -1407,7 +1390,7 @@ object ScalaPsiUtil {
           if (resolved != null && PsiEquivalenceUtil.areElementsEquivalent(resolved, named)) {
             //cannot use newRef because of bug with indentation
             val refToReplace = ScalaPsiElementFactory.createReferenceFromText(named.name, ref.getManager)
-            adjustTypes(ref.replace(refToReplace), addImports)
+            adjustTypes(ref.replace(refToReplace), addImports, useTypeAliases)
           }
           else adjustTypesChildren()
         case _ => adjustTypesChildren()
@@ -1420,7 +1403,7 @@ object ScalaPsiUtil {
           val withoutAliases = ScType.removeAliasDefinitions(tp, implementationsOnly = true)
           if (withoutAliases != tp) {
             val newTypeElem = ScalaPsiElementFactory.createTypeElementFromText(withoutAliases.canonicalText, te.getManager)
-            adjustTypes(te.replace(newTypeElem), addImports)
+            adjustTypes(te.replace(newTypeElem), addImports, useTypeAliases)
           }
           else adjustTypesChildren()
         case _ => adjustTypesChildren()
@@ -1428,9 +1411,8 @@ object ScalaPsiUtil {
     }
 
     def availableTypeAliasFor(clazz: PsiClass, position: PsiElement): Option[ScTypeAliasDefinition] = {
-      if (!useTypeAliases){
-        None
-      } else {
+      if (!useTypeAliases) None
+      else {
         class FindTypeAliasProcessor extends BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
           var collected: Option[ScTypeAliasDefinition] = None
 
@@ -1458,7 +1440,7 @@ object ScalaPsiUtil {
       case tp: ScTypeProjection if tp.typeElement.getText.endsWith(".type") =>
         val newText = tp.typeElement.getText.stripSuffix(".type") + "." + tp.refName
         val newTypeElem = ScalaPsiElementFactory.createTypeElementFromText(newText, tp.getManager)
-        adjustTypes(tp.replace(newTypeElem), addImports)
+        adjustTypes(tp.replace(newTypeElem), addImports, useTypeAliases)
       case te: ScTypeElement =>
         expandTypeAliasesIfPossible(te)
       case stableRef: ScStableCodeReferenceElement =>
@@ -1559,7 +1541,7 @@ object ScalaPsiUtil {
       if (element == null) return null
       element.getParent
     }
-    while (el != null && classes.find(_.isInstance(el)) == None) el = el.getParent
+    while (el != null && !classes.exists(_.isInstance(el))) el = el.getParent
     el
   }
 
@@ -1741,7 +1723,7 @@ object ScalaPsiUtil {
   *
   * *********
   * ScTuple in ScInfixExpr should be treated specially because of auto-tupling
-  * Underscore functions in ScInfixExpression do need parentheses
+  * Underscore functions in sugar calls and reference expressions do need parentheses
   * ScMatchStmt in ScGuard do need parentheses
   *
   ********** other cases (1 - need parentheses, 0 - does not need parentheses *****
@@ -1834,7 +1816,8 @@ object ScalaPsiUtil {
         case _ if expr.getText == "_" => false
         case (_: ScTuple | _: ScBlock | _: ScXmlExpr   , _) => false
         case (infix: ScInfixExpr                       , tuple: ScTuple) => tupleInInfixNeedParentheses(infix, from, tuple)
-        case (infix: ScInfixExpr                       , elem: PsiElement) if ScUnderScoreSectionUtil.isUnderscoreFunction(elem) => true
+        case (_: ScSugarCallExpr |
+              _: ScReferenceExpression                 , elem: PsiElement) if ScUnderScoreSectionUtil.isUnderscoreFunction(elem) => true
         case (_                                        , _: ScReferenceExpression | _: ScMethodCall |
                                                          _: ScGenericCall | _: ScLiteral | _: ScTuple |
                                                          _: ScXmlExpr | _: ScParenthesisedExpr | _: ScUnitExpr |
@@ -2031,13 +2014,18 @@ object ScalaPsiUtil {
     e.parentsInFile.takeWhile(!_.isScope).findByType(classOf[ScPatternDefinition]).isDefined
   }
 
+  private def isCanonicalArg(expr: ScExpression) = expr match {
+    case _: ScParenthesisedExpr => false
+    case ScBlock(expr: ScExpression) => false
+    case _ => true
+  }
+
   def isByNameArgument(expr: ScExpression) = {
-    val isCanonical = expr match {
-      case _: ScParenthesisedExpr => false
-      case ScBlock(expr: ScExpression) => false
-      case _ => true
-    }
-    isCanonical && ScalaPsiUtil.parameterOf(expr).exists(_.isByName)
+    isCanonicalArg(expr) && ScalaPsiUtil.parameterOf(expr).exists(_.isByName)
+  }
+
+  def isArgumentOfFunctionType(expr: ScExpression) = {
+    isCanonicalArg(expr) && parameterOf(expr).exists(p => ScFunctionType.isFunctionType(p.paramType))
   }
 
   object MethodValue {

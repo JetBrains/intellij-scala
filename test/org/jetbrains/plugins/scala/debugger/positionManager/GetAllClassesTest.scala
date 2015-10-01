@@ -59,7 +59,28 @@ class GetAllClassesTest_2_12_M2 extends GetAllClassesTestBase with ScalaVersion_
          |  }
          |}
     """, "Main$"
-    )  }
+    )
+  }
+
+  override def testByNameParamInBlock(): Unit = {
+    checkGetAllClasses(
+      s"""object Main {
+          |    def main (args: Array[String]){
+          |      getOrElse(None) {
+          |        ""$offsetMarker
+          |      }
+          |      ""$bp
+          |    }
+          |
+        |    def getOrElse[T](o: Option[T])(default: => T): Unit = {
+          |      o.getOrElse(default)
+          |    }
+          |  }
+          |
+     """, "Main$"
+    )
+  }
+
 }
 
 abstract class GetAllClassesTestBase extends PositionManagerTestBase {
@@ -256,6 +277,25 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
       |    ""$bp
       |  }
       |}""", "Main$$anon$1"
+    )
+  }
+
+  def testByNameParamInBlock(): Unit = {
+    checkGetAllClasses(
+    s"""object Main {
+        |    def main (args: Array[String]){
+        |      getOrElse(None) {
+        |        ""$offsetMarker
+        |      }
+        |      ""$bp
+        |    }
+        |
+        |    def getOrElse[T](o: Option[T])(default: => T): Unit = {
+        |      o.getOrElse(default)
+        |    }
+        |  }
+        |
+     """, "Main$$anonfun$main$1"
     )
   }
 }
