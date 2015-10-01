@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
+import scala.annotation.tailrec
 import scala.collection.immutable.Seq
 import scala.meta._
 import scala.meta.internal.{ast => m}
@@ -20,19 +21,33 @@ class IDEAContext(project: =>Project) extends TreeConverter with semantic.Contex
 
   override def dialect = dialects.Scala211
 
-  override def typecheck(tree : Tree) : Tree = {
-    if (tree.isTypechecked) return tree
-    val psi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(tree.toString(), PsiManager.getInstance(project)).asInstanceOf[ScBlock]
-    psi.lastExpr match {
-      case Some(expr: ScExpression) => toType(expr.getType())
-      case Some(other) => other ?!
-      case None => psi.lastStatement match {
-        case Some(v: ScValue) => toType(v.getType(TypingContext.empty))
+  override def typecheck(tree : Tree): Tree = {
+    def doTypecheck(root: Tree) = {
+      val psi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(tree.toString(), PsiManager.getInstance(project)).asInstanceOf[ScBlock]
+      psi.lastExpr match {
+        case Some(expr: ScExpression) => toType(expr.getType())
         case Some(other) => other ?!
-        case None => unreachable
+        case None => psi.lastStatement match {
+          case Some(v: ScValue) => toType(v.getType(TypingContext.empty))
+          case Some(other) => other ?!
+          case None => unreachable
 
+        }
       }
     }
+
+    @tailrec
+    def walkUp(t: Tree): Tree = {
+      t.parent match {
+        case Some(t1) => walkUp(t1)
+        case None => t
+      }
+    }
+
+    if (tree.isTypechecked) return tree
+    val parent = walkUp(tree)
+    val typechecked = doTypecheck(parent)
+    typechecked.children(parent.children.indexOf(tree))
   }
 
   override def defns(ref: Ref): Seq[Member] = {
