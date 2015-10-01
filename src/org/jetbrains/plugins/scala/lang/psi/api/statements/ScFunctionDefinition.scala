@@ -110,7 +110,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
 
 object ScFunctionDefinition {
   object withBody {
-    def unapply(fun: ScFunctionDefinition): Option[ScExpression] = fun.body
+    def unapply(fun: ScFunctionDefinition): Option[ScExpression] = Option(fun).flatMap(_.body)
   }
 }
 

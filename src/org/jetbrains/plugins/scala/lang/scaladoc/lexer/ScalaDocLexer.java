@@ -136,7 +136,7 @@ public class ScalaDocLexer extends MergingLexerAdapter {
             myTokenEndOffset < myBufferEndOffset && (myBuffer.charAt(myTokenEndOffset) == '@' ||
                                                      myBuffer.charAt(myTokenEndOffset) == '{' ||
                                                      myBuffer.charAt(myTokenEndOffset) == '\"' ||
-                                                     myBuffer.charAt(myTokenEndOffset) == '<')) {
+                                                     myBuffer.charAt(myTokenEndOffset) == '<') && state != _ScalaDocLexer.COMMENT_INNER_CODE) {
           myFlex.yybegin(_ScalaDocLexer.COMMENT_DATA_START);
         }
 

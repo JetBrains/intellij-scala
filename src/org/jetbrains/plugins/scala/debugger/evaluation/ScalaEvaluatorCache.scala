@@ -35,6 +35,8 @@ class ScalaEvaluatorCache(project: Project) extends AbstractProjectComponent(pro
   }
 
   def get(position: SourcePosition, element: PsiElement): Option[ExpressionEvaluator] = {
+    if (position == null) return None
+
     val file = position.getFile
     val offset = position.getOffset
     if (!cachedStamp.get(file).contains(file.getModificationStamp)) {
@@ -56,12 +58,14 @@ class ScalaEvaluatorCache(project: Project) extends AbstractProjectComponent(pro
   }
 
   def add(position: SourcePosition, element: PsiElement, evaluator: ExpressionEvaluator): ExpressionEvaluator = {
-    val file = position.getFile
-    val offset = position.getOffset
-    cachedEvaluators.get((file, offset)) match {
-      case Some(map) => map += (element -> evaluator)
-      case None =>
-        cachedEvaluators += ((file, offset) -> mutable.HashMap(element -> evaluator))
+    if (position != null) {
+      val file = position.getFile
+      val offset = position.getOffset
+      cachedEvaluators.get((file, offset)) match {
+        case Some(map) => map += (element -> evaluator)
+        case None =>
+          cachedEvaluators += ((file, offset) -> mutable.HashMap(element -> evaluator))
+      }
     }
     evaluator
   }

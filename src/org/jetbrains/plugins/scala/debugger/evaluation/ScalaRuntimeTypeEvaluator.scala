@@ -15,10 +15,12 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PsiImmediateClassType
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.util.PsiUtil
 import com.sun.jdi.{ClassType, Type, Value}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -45,7 +47,9 @@ abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: P
     })
     val value: Value = evaluator.evaluate(evaluationContext)
     if (value != null) {
-      Option(getCastableRuntimeType(project, value)).map(new PsiImmediateClassType(_, PsiSubstitutor.EMPTY)).orNull
+      inReadAction {
+        Option(getCastableRuntimeType(project, value)).map(new PsiImmediateClassType(_, PsiSubstitutor.EMPTY)).orNull
+      }
     } else throw EvaluationException(DebuggerBundle.message("evaluation.error.surrounded.expression.null"))
   }
 }

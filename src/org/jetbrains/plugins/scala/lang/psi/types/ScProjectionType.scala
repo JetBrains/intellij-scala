@@ -9,7 +9,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScClassParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedMappedWithRecursionGuard
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.collection.immutable.HashSet
@@ -132,7 +133,9 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
   }
 
   private def actual: (PsiNamedElement, ScSubstitutor) = {
-    def actualInner(element: PsiNamedElement, projected: ScType): Option[(PsiNamedElement, ScSubstitutor)] = {
+      @CachedMappedWithRecursionGuard(element, CachesUtil.PROJECTION_TYPE_ACTUAL_INNER, None,
+        PsiModificationTracker.MODIFICATION_COUNT)
+      def actualInner(projected: ScType, superReference: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = {
       val emptySubst = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
       val resolvePlace = {
         def fromClazz(clazz: ScTypeDefinition): PsiElement = {
@@ -194,12 +197,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
       }
     }
 
-    val (actualElement, actualSubst) =
-      CachesUtil.getMappedWithRecursionPreventingWithRollback[PsiNamedElement, ScType, Option[(PsiNamedElement, ScSubstitutor)]](
-        element, projected, CachesUtil.PROJECTION_TYPE_ACTUAL_INNER, actualInner, None,
-        PsiModificationTracker.MODIFICATION_COUNT).getOrElse(
-          (element, ScSubstitutor.empty)
-        )
+    val (actualElement, actualSubst) = actualInner(projected, superReference).getOrElse(element, ScSubstitutor.empty)
 
     (actualElement, actualSubst)
   }

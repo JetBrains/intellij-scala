@@ -72,6 +72,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
     val useAutoImportCheckBox         = new JCheckBox(ExternalSystemBundle.message("settings.label.use.auto.import"))
     val createContentDirsCheckBox     = new JCheckBox(ExternalSystemBundle.message("settings.label.create.empty.content.root.directories"))
+    val cachedUpdateCheckBox          = new JCheckBox(SbtBundle("sbt.settings.cacheUpdateResults"))
 
     val step = new SdkSettingsStep(settingsStep, this, new Condition[SdkTypeId] {
       def value(t: SdkTypeId): Boolean = t != null && t.isInstanceOf[JavaSdk]
@@ -86,6 +87,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
         getExternalProjectSettings.setResolveSbtClassifiers(resolveSbtClassifiersCheckBox.isSelected)
         getExternalProjectSettings.setUseAutoImport(useAutoImportCheckBox.isSelected)
         getExternalProjectSettings.setCreateEmptyContentRootDirectories(createContentDirsCheckBox.isSelected)
+        getExternalProjectSettings.setCachedUpdate(cachedUpdateCheckBox.isSelected)
       }
     }
 
@@ -99,6 +101,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     settingsStep.addSettingsField("", createContentDirsCheckBox)
     settingsStep.addSettingsField("", resolveClassifiersCheckBox)
     settingsStep.addSettingsField("", resolveSbtClassifiersCheckBox)
+    settingsStep.addSettingsField("", cachedUpdateCheckBox)
 
     step
   }

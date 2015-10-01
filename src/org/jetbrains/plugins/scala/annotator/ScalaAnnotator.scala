@@ -4,7 +4,6 @@ package annotator
 import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection._
-import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.lang.annotation._
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.roots.ProjectFileIndex
@@ -46,7 +45,7 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
-import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
 import scala.collection.mutable.ArrayBuffer
@@ -493,8 +492,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                     val conformance = ScalaAnnotator.smartCheckConformance(expectedType, returnType)
                     if (!conformance) {
                       if (typeAware) {
-                        val error = ScalaBundle.message("expr.type.does.not.conform.expected.type",
-                          ScType.presentableText(returnType.getOrNothing), ScType.presentableText(expectedType.get))
+                        val (retTypeText, expectedTypeText) = ScTypePresentation.different(returnType.getOrNothing, expectedType.get)
+                        val error = ScalaBundle.message("expr.type.does.not.conform.expected.type", retTypeText, expectedTypeText)
                         val annotation: Annotation = holder.createErrorAnnotation(expr, error)
                         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                         typeElement match {
@@ -934,8 +933,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                     case _ => expr
                   }
 
-                  val error = ScalaBundle.message("expr.type.does.not.conform.expected.type",
-                    ScType.presentableText(exprType.getOrNothing), ScType.presentableText(expectedType.get))
+                  val (exprTypeText, expectedTypeText) = ScTypePresentation.different(exprType.getOrNothing, expectedType.get)
+                  val error = ScalaBundle.message("expr.type.does.not.conform.expected.type", exprTypeText, expectedTypeText)
                   val annotation: Annotation = holder.createErrorAnnotation(markedPsi, error)
                   annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
                   if (WrapInOptionQuickFix.isAvailable(expr, expectedType, exprType)) {

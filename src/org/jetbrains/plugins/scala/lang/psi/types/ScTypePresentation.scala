@@ -299,4 +299,10 @@ trait ScTypePresentation {
 
 object ScTypePresentation {
   val ABSTRACT_TYPE_PREFIX = "_"
+
+  def different(t1: ScType, t2: ScType): (String, String) = {
+    val (p1, p2) = (t1.presentableText, t2.presentableText)
+    if (p1 != p2) (p1, p2)
+    else (t1.canonicalText.replace("_root_.", ""), t2.canonicalText.replace("_root_.", ""))
+  }
 }
