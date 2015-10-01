@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypeVisitor, StdType}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
+import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 
 import scala.language.postfixOps
 import scala.meta.internal.{ast => m, semantic => h}
@@ -20,29 +21,30 @@ import scala.{Seq => _}
 trait Namer {
   self: TreeConverter =>
 
-  def toTermName(elem: PsiElement): m.Term.Name = elem match {
+  def toTermName(elem: PsiElement, insertExpansions: Boolean = true): m.Term.Name = elem match {
       // TODO: what to resolve apply/update methods to?
-    case sf: ScFunction if sf.name == "apply" || sf.name == "update" =>
-      m.Term.Name(sf.containingClass.name).withAttrsFor(sf).setTypechecked
+    case sf: ScFunction if insertExpansions && (sf.name == "apply" || sf.name == "update" || sf.name == "unapply") =>
+      toTermName(sf.containingClass).withExpansionFor(sf).setTypechecked
     case sf: ScFunction =>
       m.Term.Name(sf.name).withAttrsFor(sf)
     case ne: ScNamedElement =>
       m.Term.Name(ne.name).withAttrsFor(ne)
-    case re: ScReferenceExpression =>
-      toTermName(re.resolve())
-    case cr: ScStableCodeReferenceElement =>
-      m.Term.Name(cr.refName).withAttrsFor(cr)
+//    case re: ScReferenceExpression =>
+//      toTermName(re.resolve())
+    case cr: ResolvableReferenceElement  =>
+//      m.Term.Name(cr.refName).withAttrsFor(cr)
+      toTermName(cr.resolve())
     case se: impl.toplevel.synthetic.SyntheticNamedElement =>
       throw new ScalaMetaException(s"Synthetic elements not implemented") // FIXME: find a way to resolve synthetic elements
     case cs: ScConstructor =>
       toTermName(cs.reference.get)
     // Java stuff starts here
     case pp: PsiPackage =>
-      m.Term.Name(pp.getName).withAttrsFor(pp).setTypechecked
+      m.Term.Name(pp.getName).withAttrsFor(pp)
     case pc: PsiClass =>
-      m.Term.Name(pc.getName).withAttrsFor(pc).setTypechecked
+      m.Term.Name(pc.getName).withAttrsFor(pc)
     case pm: PsiMethod =>
-      m.Term.Name(pm.getName).withAttrsFor(pm).setTypechecked
+      m.Term.Name(pm.getName).withAttrsFor(pm)
     case other => other ?!
   }
 
@@ -58,7 +60,7 @@ trait Namer {
     case se: impl.toplevel.synthetic.SyntheticNamedElement =>
       throw new ScalaMetaException(s"Synthetic elements not implemented") // FIXME: find a way to resolve synthetic elements
     case _: PsiPackage | _: ScObject =>
-      unreachable("Package and Object types shoud be Singleton, not Name")
+      unreachable(s"Package and Object types shoud be Singleton, not Name: ${elem.getText}")
     // Java stuff starts here
     case pc: PsiClass =>
       m.Type.Name(pc.getName).withAttrsFor(pc).setTypechecked
