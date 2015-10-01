@@ -33,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.{DefaultListCellRendere
 import org.jetbrains.plugins.scala.util.{JListCompatibility, ScalaUtils}
 
 /**
- * Created by user 
+ * Created by Kate Ustyuzhanina
  * on 9/18/15
  */
 trait IntroduceTypeAlias {
@@ -196,7 +196,7 @@ trait IntroduceTypeAlias {
     }
   }
 
-  def runRefactoringForTypeInside(file: PsiFile,
+  private def runRefactoringForTypeInside(file: PsiFile,
                                   editor: Editor,
                                   typeElement: ScTypeElement,
                                   typeName: String,
@@ -259,7 +259,7 @@ trait IntroduceTypeAlias {
     editor.getSelectionModel.removeSelection()
   }
 
-  def introduceTypeAlias(file: PsiFile,
+  protected def introduceTypeAlias(file: PsiFile,
                          editor: Editor,
                          typeElement: ScTypeElement,
                          occurrences_ : OccurrenceData,
@@ -365,7 +365,7 @@ trait IntroduceTypeAlias {
     }).createPopup.showInBestPositionFor(editor)
   }
 
-  def createAndGetPackageObjectBody(typeElement: ScTypeElement): ScTemplateBody = {
+  protected def createAndGetPackageObjectBody(typeElement: ScTypeElement): ScTemplateBody = {
     val dir: PsiDirectory = typeElement.getContainingFile.getContainingDirectory
     val packageObject: ScTypeDefinition = ScalaDirectoryService.createClassFromTemplate(dir, "package", "Package Object", askToDefineVariables = false).asInstanceOf[ScTypeDefinition]
     PsiTreeUtil.getChildOfType(PsiTreeUtil.getChildOfType(packageObject, classOf[ScExtendsBlock]), classOf[ScTemplateBody])
