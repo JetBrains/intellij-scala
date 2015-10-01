@@ -185,8 +185,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 case Some(expected) =>
                   expected.removeAbstracts match {
                     case ScFunctionType(_, params) =>
-                    case exp if ScalaPsiUtil.isSAMEnabled(this) =>
-                      ScalaPsiUtil.toSAMType(exp, getResolveScope) match {
+                    case expect if ScalaPsiUtil.isSAMEnabled(this) =>
+                      ScalaPsiUtil.toSAMType(expect, getResolveScope) match {
                         case Some(_) =>
                         case _ => res = updateType(retType)
                       }
@@ -315,7 +315,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
   def getShape(ignoreAssign: Boolean = false): (ScType, String) = {
     this match {
-      case assign: ScAssignStmt if !ignoreAssign && assign.assignName != None =>
+      case assign: ScAssignStmt if !ignoreAssign && assign.assignName.isDefined =>
         (assign.getRExpression.map(_.getShape(ignoreAssign = true)._1).getOrElse(Nothing), assign.assignName.get)
       case expr: ScExpression =>
         ScalaPsiUtil.isAnonymousExpression(expr) match {
@@ -422,7 +422,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   @CachedMappedWithRecursionGuard(this, CachesUtil.EXPECTED_TYPES_KEY, Array.empty[(ScType, Option[ScTypeElement])],
     PsiModificationTracker.MODIFICATION_COUNT)
   def expectedTypesEx(fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
-    ExpectedTypes.expectedExprTypes(this, fromUnderscore)
+    ExpectedTypes.expectedExprTypes(this, fromUnderscore = fromUnderscore)
   }
 
   @CachedMappedWithRecursionGuard(this, CachesUtil.SMART_EXPECTED_TYPE, None, PsiModificationTracker.MODIFICATION_COUNT)
