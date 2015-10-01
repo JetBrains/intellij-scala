@@ -129,7 +129,7 @@ object CachedMacro {
         }
 
         val builder = q"""
-          (any: Any, data: Data) => {
+          def inner_(a: Any, data: Data): $retTp = {
             ..$parameterDefinitions
             $rhs
           }
@@ -142,7 +142,9 @@ object CachedMacro {
           type Data = (..$parameterTypes)
           val data = (..$parameterNames)
 
-          $cachesUtilFQN.getMappedWithRecursionPreventingWithRollback[$dom, Data, $retTp]($element, data, $key, $builder, $defaultValue, $dependencyItem)
+          $builder
+
+          $cachesUtilFQN.getMappedWithRecursionPreventingWithRollback[$dom, Data, $retTp]($element, data, $key, inner_, $defaultValue, $dependencyItem)
           """
         val res = c.Expr(DefDef(mods, name, tpParams, params, retTp, updatedRhs))
         println(res)
@@ -180,8 +182,10 @@ object CachedMacro {
         val provider =
           if (useOptionalProvider) TypeName("MyOptionalProvider")
           else TypeName("MyProvider")
-        val builder = q"new $cachesUtilFQN.$provider[$providerType, $retTp]($element, _ => {$rhs})($dependencyItem)"
+        val fun = q"def calc_(): $retTp = $rhs"
+        val builder = q"new $cachesUtilFQN.$provider[$providerType, $retTp]($element, _ => calc_())($dependencyItem)"
         val updatedRhs = q"""
+          $fun
           $cachesUtilFQN.getWithRecursionPreventingWithRollback($element, $key, $builder, $defaultValue)
           """
         val res = DefDef(mods, name, tpParams, params, retTp, updatedRhs)
@@ -218,7 +222,9 @@ object CachedMacro {
           if (useOptionalProvider) TypeName("MyOptionalProvider")
           else TypeName("MyProvider")
         val updatedRhs = q"""
-          $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.$provider[Any, $retTp]($elem, _ => $rhs)($dependencyItem))
+          def calc_(): $retTp = $rhs
+
+          $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.$provider[Any, $retTp]($elem, _ => calc_())($dependencyItem))
           """
         val res = DefDef(mods, name, tpParams, params, retTp, updatedRhs)
         println(res)
