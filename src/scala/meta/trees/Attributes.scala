@@ -3,6 +3,7 @@ package scala.meta.trees
 import com.intellij.psi.{PsiPackage, PsiMethod, PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -77,9 +78,19 @@ trait Attributes {
     def withTypingFor[P <: PsiElement](elem: Option[P]): h.Typing = {
       elem match {
         case Some(_: PsiPackage) | Some(_: ScPackage) | Some(_: ScObject) => h.Typing.Recursive
-        case Some(psi) => h.Typing.Nonrecursive(toType(psi))
+        case Some(psi) =>
+          val toType1 = toType(psi)  // eagerify type computation beacuse substitution caches are mutable
+          h.Typing.Nonrecursive(toType1)
         case None      => h.Typing.Zero
       }
+    }
+
+    def withExpansionFor[P <: PsiElement](elem: P): T = {
+      val expanded = ptree match {
+        case ptree: m.Term.Name => ptree.withExpansion(h.Expansion.Desugaring(toTermName(elem, insertExpansions = false)))
+        case _ => unreachable(s"Cannot expand $elem tree")
+      }
+      expanded.asInstanceOf[T]
     }
 
     def withAttrsFor[P <: PsiElement](elem: P): T = withAttrsFor(Some(elem))
@@ -88,7 +99,7 @@ trait Attributes {
       val denotatedTree = ptree match {
         case ptree: m.Name.Anonymous => ptree.withAttrs(denot(elem))
         case ptree: m.Name.Indeterminate => ptree.withAttrs(denot(elem))
-        case ptree: m.Term.Name => ptree.withAttrs(denot = denot(elem), typingLike = withTypingFor(elem))
+        case ptree: m.Term.Name => ptree.withAttrs(denot = denot(elem), typingLike = withTypingFor(elem)).setTypechecked
         case ptree: m.Type.Name => ptree.withAttrs(denot(elem))
         // TODO: some ctor refs don't have corresponding constructor symbols in Scala (namely, ones for traits)
         // in these cases, our lsym is going to be a symbol of the trait in question
