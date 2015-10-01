@@ -6,13 +6,13 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
@@ -21,8 +21,9 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * Created by Kate Ustyuzhanina on 8/3/15.
- */
+*  Created by Kate Ustyuzhanina
+*  on 8/3/15
+*/
 object ScalaTypeValidator {
   def apply(conflictsReporter: ConflictsReporter,
             project: Project,
@@ -71,32 +72,42 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
 
   //TODO maybe not the best way to handle with such matching
   private def matchElement(element: PsiElement, name: String, buf: ArrayBuffer[(PsiNamedElement, String)]) = {
-    element match {
+    element.depthFirst.forall  {
       case typeAlias: ScTypeAlias if typeAlias.getName == name =>
         buf += ((typeAlias, messageForTypeAliasMember(name)))
+        true
       case typeParametr: ScTypeParam if typeParametr.getName == name =>
         buf += ((typeParametr, messageForTypeAliasMember(name)))
+        true
       case typeDefinition: ScTypeDefinition =>
         if ((typeDefinition.getName == name) &&
           (PsiTreeUtil.getParentOfType(typeDefinition, classOf[ScFunctionDefinition]) == null)) {
           buf += ((typeDefinition, messageForClassMember(name)))
         }
         buf ++= getForbiddenNamesInBlock(typeDefinition, name)
+        true
       case fileType: ScalaFile =>
         buf ++= getForbiddenNamesInBlock(fileType, name)
+        true
       case func: ScFunctionDefinition =>
         buf ++= getForbiddenNamesInBlock(func, name)
+        true
       case funcBlock: ScBlockExpr =>
         buf ++= getForbiddenNamesInBlock(funcBlock, name)
+        true
       case extendsBlock: ScExtendsBlock =>
         buf ++= getForbiddenNamesInBlock(extendsBlock, name)
+        true
       case body: ScTemplateBody =>
         buf ++= getForbiddenNamesInBlock(body, name)
+        true
       case expression: ScExpression =>
         buf ++= getForbiddenNamesInBlock(expression, name)
+        true
       case expression: ScPackaging =>
         buf ++= getForbiddenNamesInBlock(expression, name)
-      case _ =>
+        true
+      case _ => true
     }
   }
 
