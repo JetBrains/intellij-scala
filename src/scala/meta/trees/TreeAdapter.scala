@@ -198,19 +198,19 @@ trait TreeAdapter {
   }
 
   def newTemplate(t: ScTemplateDefinition): m.Template = {
-    val early   = t.extendsBlock.earlyDefinitions map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*)) getOrElse Seq.empty
+    val early= t.extendsBlock.earlyDefinitions map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*)) getOrElse Seq.empty
     val ctor = t.extendsBlock.templateParents match {
       case Some(parents: p.toplevel.templates.ScClassParents) =>
         parents.constructor match {
           case Some(ctr) => toCtor(ctr).asInstanceOf[m.Ctor.Call]
-          case None => unreachable(s"no constructor found in class ${t.qualifiedName}")
+          case None      => unreachable(s"no constructor found in class ${t.qualifiedName}")
         }
       case Some(other) => unreachable(s"Got something else instead of template parents: $other")
-      case None => unreachable(s"Class ${t.qualifiedName} has no parents")
+      case None        => unreachable(s"Class ${t.qualifiedName} has no parents")
     }
     val self    = t.selfType match {
       case Some(tpe: ptype.ScType) => m.Term.Param(Nil, m.Term.Name("self"), Some(toType(tpe)), None).withAttrs(toType(tpe)).setTypechecked
-      case None => m.Term.Param(Nil, m.Name.Anonymous(), None, None)
+      case None                    => m.Term.Param(Nil, m.Name.Anonymous(), None, None)
     }
     m.Template(early, Seq(ctor), self, None)
   }
