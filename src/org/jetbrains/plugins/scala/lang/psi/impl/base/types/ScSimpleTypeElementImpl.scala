@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
 import scala.collection.immutable.HashMap
 
@@ -55,19 +56,13 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   protected def innerType(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true)
 
-  override def getTypeNoConstructor(ctx: TypingContext): TypeResult[ScType] = {
-    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.SIMPLE_TYPE_ELEMENT_TYPE_NO_CONSTRUCTOR_KEY,
-      new CachesUtil.MyProvider[ScSimpleTypeElement, TypeResult[ScType]](
-        this, elem => innerNonValueType(ctx, inferValueType = true, noConstructor = true)
-      )(PsiModificationTracker.MODIFICATION_COUNT), Failure("Recursive type of type element", Some(this)))
-  }
+  @CachedWithRecursionGuard[ScSimpleTypeElement](this, CachesUtil.SIMPLE_TYPE_ELEMENT_TYPE_NO_CONSTRUCTOR_KEY,
+    Failure("Recursive type of type element", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
+  override def getTypeNoConstructor(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true, noConstructor = true)
 
-  override def getNonValueType(ctx: TypingContext): TypeResult[ScType] = {
-    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.NON_VALUE_TYPE_ELEMENT_TYPE_KEY,
-        new CachesUtil.MyProvider[ScSimpleTypeElementImpl, TypeResult[ScType]](
-        this, elem => elem.innerNonValueType(ctx, inferValueType = false)
-      )(PsiModificationTracker.MODIFICATION_COUNT), Failure("Recursive non value type of type element", Some(this)))
-  }
+  @CachedWithRecursionGuard[ScSimpleTypeElement](this, CachesUtil.NON_VALUE_TYPE_ELEMENT_TYPE_KEY,
+    Failure("Recursive non value type of type element", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
+  override def getNonValueType(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = false)
 
   private def innerNonValueType(ctx: TypingContext, inferValueType: Boolean, noConstructor: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
