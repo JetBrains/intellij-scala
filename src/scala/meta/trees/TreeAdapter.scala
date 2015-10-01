@@ -245,7 +245,7 @@ trait TreeAdapter {
         ScSubstitutor.cacheSubstitutions = true
         val tp = t.getType()
         ScSubstitutor.cacheSubstitutions = false
-        val res = m.Term.Apply(expression(t.getInvokedExpr), Seq(t.args.exprs.map(callArgs):_*)).withAttrs(toType(e.getType())).setTypechecked
+        val res = m.Term.Apply(expression(t.getInvokedExpr), Seq(t.args.exprs.map(callArgs):_*)).withAttrs(toType(tp)).setTypechecked
         ScSubstitutor.cache.clear()
         res
       case t: ScInfixExpr =>
@@ -260,7 +260,7 @@ trait TreeAdapter {
       case t: ScMatchStmt =>
         m.Term.Match(expression(t.expr.get), Seq(t.caseClauses.map(caseClause):_*)).withAttrs(toType(e.getType())).setTypechecked
       case t: ScReferenceExpression if t.qualifier.isDefined =>
-        m.Term.Select(expression(t.qualifier.get), toTermName(t)).withAttrs(toType(e.getType())).setTypechecked
+        m.Term.Select(expression(t.qualifier.get), toTermName(t)).withAttrs(toType(e.getTypeWithCachedSubst)).setTypechecked
       case t: ScReferenceExpression =>
         toTermName(t)
       case t: ScNewTemplateDefinition =>
@@ -407,8 +407,10 @@ trait TreeAdapter {
   protected def convertParam(param: params.ScParameter): m.Term.Param = {
       val mods = convertMods(param) ++ (if (param.isImplicitParameter) Seq(m.Mod.Implicit()) else Seq.empty)
       if (param.isVarArgs)
-        m.Term.Param(mods, toTermName(param), param.typeElement.map(tp => m.Type.Arg.Repeated(toType(tp))), None)
+        m.Term.Param(mods, toTermName(param), param.typeElement.map(tp => m.Type.Arg.Repeated(toType(tp)).setTypechecked), None)
+          .withAttrs(toType(param.typeElement.get)).setTypechecked
       else
         m.Term.Param(mods, toTermName(param), param.typeElement.map(toType), None)
+          .withAttrs(toType(param.typeElement.get)).setTypechecked
   }
 }
