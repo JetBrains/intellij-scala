@@ -1,10 +1,13 @@
 package scala.meta.trees
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeParameterType, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
@@ -26,14 +29,8 @@ trait TypeAdapter {
     typeElementCache.getOrElseUpdate(tp, {
       tp match {
         case t: ScSimpleTypeElement =>
-          t.reference match {
-            case Some(reference) =>
-              reference.bind() match {
-                case Some(result) => toTypeName(result.element)
-                case None => m.Type.Placeholder(m.Type.Bounds(None, None))
-              }
-            case None => m.Type.Placeholder(m.Type.Bounds(None, None))
-          }
+          val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
+          toType(s.subst(t.getType().get))
         case t: ScFunctionalTypeElement =>
           toType(t.paramTypeElement) match {
             case m.Type.Tuple(elements) => m.Type.Function(elements, toType(t.returnTypeElement.get))
@@ -73,9 +70,23 @@ trait TypeAdapter {
         case t: packaging.ScPackaging =>
           m.Type.Singleton(toTermName(t.reference.get)).setTypechecked
         case t: ScConstructor =>
-          m.Type.Method(toParams(t.arguments.toStream), toType(t.newTemplate.get.getType(TypingContext.empty)))
+          m.Type.Method(toParams(Seq(t.arguments:_*)), toType(t.newTemplate.get.getType(TypingContext.empty))).setTypechecked
+        case t: ScPrimaryConstructor =>
+          m.Type.Method(Seq(t.parameterList.clauses.map(convertParamClause):_*), toType(t.containingClass)).setTypechecked
+        case t: ScFunctionDefinition =>
+          m.Type.Method(Seq(t.parameterList.clauses.map(convertParamClause):_*), toType(t.getTypeWithCachedSubst)).setTypechecked
         case t: ScFunction =>
           m.Type.Function(Seq(t.paramTypes.map(toType(_).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType)).setTypechecked
+        case t: ScParameter =>
+          val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
+          toType(s.subst(t.typeElement.get.getType().get))
+        case t: ScTypedDefinition =>
+          toType(t.getType(TypingContext.empty).get)
+        case t: ScReferenceElement =>
+          t.bind() match {
+            case Some(result) => toType(result.element)
+            case None => m.Type.Placeholder(m.Type.Bounds(None, None))
+          }
         case t: PsiPackage if t.getName == null =>
           m.Type.Singleton(std.rootPackageName).setTypechecked
         case t: PsiPackage =>
