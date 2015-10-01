@@ -2,10 +2,13 @@ package org.jetbrains.plugins.scala
 package caches
 
 
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.{Computable, Key, RecursionGuard, RecursionManager}
 import com.intellij.psi._
-import com.intellij.psi.util.{CachedValue, CachedValueProvider, CachedValuesManager, PsiTreeUtil}
+import com.intellij.psi.impl.compiled.ClsFileImpl
+import com.intellij.psi.util._
 import com.intellij.util.containers.ConcurrentHashMap
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
@@ -81,7 +84,7 @@ object CachesUtil {
     Key.create("type.without.implicits.without.underscore.key")
   val ALIASED_KEY: Key[CachedValue[TypeResult[ScType]]] = Key.create("alised.type.key")
   val SCRIPT_KEY: Key[CachedValue[java.lang.Boolean]] = Key.create("is.script.key")
-  val SCALA_PREDEFINED_KEY: Key[CachedValue[java.lang.Boolean]] = Key.create("scala.predefined.key")
+  val SCALA_PREDEFINED_KEY: Key[CachedValue[Boolean]] = Key.create("scala.predefined.key")
   val EXPR_TYPE_KEY: Key[CachedValue[ScType]] = Key.create("expr.type.key")
   val TYPE_KEY: Key[CachedValue[TypeResult[ScType]]] = Key.create("type.element.type.key")
   val PSI_RETURN_TYPE_KEY: Key[CachedValue[PsiType]] = Key.create("psi.return.type.key")
@@ -103,6 +106,14 @@ object CachesUtil {
   val NAMED_PARAM_KEY: Key[java.lang.Boolean] = Key.create("named.key")
   val PACKAGE_OBJECT_KEY: Key[(ScTypeDefinition, java.lang.Long)] = Key.create("package.object.key")
 
+  /**
+   * IMPORTANT:
+   * CachedWithRecursionGuard annotation relies on this method. If you delete this method a lot of the code will
+   * stop compiling even though the method is shown as unused.
+   * If you change this method in any way, please make sure it's consistent with CachedWithRecursionGuard.
+   *
+   * Do not use this method directly. You should use CachedWithRecursionGuard annotation instead
+   */
   def getWithRecursionPreventingWithRollback[Dom <: PsiElement, Result](e: Dom, key: Key[CachedValue[Result]],
                                                         provider: => MyProviderTrait[Dom, Result],
                                                         defaultValue: => Result): Result = {
@@ -164,6 +175,14 @@ object CachesUtil {
     computed.getValue
   }
 
+  /**
+   * IMPORTANT:
+   * CachedInsidePsiElement annotation relies on this method. If you delete this method a lot of the code will
+   * stop compiling even though the method is shown as unused.
+   * If you change this method in any way, please make sure it's consistent with CachedInsidePsiElement.
+   *
+   * Do not use this method directly. You should use CachedInsidePsiElement annotation instead
+   */
   def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]): T = {
     var computed: CachedValue[T] = e.getUserData(key)
     if (computed == null) {
@@ -206,6 +225,14 @@ object CachesUtil {
     } else guard
   }
 
+  /**
+   * IMPORTANT:
+   * CachedMappedWithRecursionGuard annotation relies on this method. If you delete this method a lot of the code will
+   * stop compiling even though the method is shown as unused.
+   * If you change this method in any way, please make sure it's consistent with CachedMappedWithRecursionGuard.
+   *
+   * Do not use this method directly. You should use CachedMappedWithRecursionGuard annotation instead
+   */
   def getMappedWithRecursionPreventingWithRollback[Dom <: PsiElement, Data, Result](e: Dom, data: Data,
                                                                         key: Key[CachedValue[ConcurrentHashMap[Data, Result]]],
                                                                         builder: (Dom, Data) => Result,
@@ -271,7 +298,25 @@ object CachesUtil {
     }
     result
   }
-  
+
+  def getDependentItem(element: PsiElement,
+                       dep_item: Object = PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT): Option[Object] = {
+    element.getContainingFile match {
+      case file: ScalaFile if file.isCompiled =>
+        if (!ProjectRootManager.getInstance(element.getProject).getFileIndex.isInContent(file.getVirtualFile)) {
+          return Some(dep_item)
+        }
+        var dir = file.getParent
+        while (dir != null) {
+          if (dir.getName == "scala-library.jar") return None
+          dir = dir.getParent
+        }
+        Some(ProjectRootManager.getInstance(element.getProject))
+      case cls: ClsFileImpl => Some(ProjectRootManager.getInstance(element.getProject))
+      case _ => Some(dep_item)
+    }
+  }
+
   private case class ProbablyRecursionException[Dom <: PsiElement, Data, T](elem: Dom,
                                                                             data: Data,
                                                                             key: Key[T],

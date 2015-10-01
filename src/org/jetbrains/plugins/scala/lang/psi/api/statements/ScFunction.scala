@@ -38,6 +38,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{Unit => UnitType, _}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 
 import scala.annotation.tailrec
 import scala.collection.Seq
@@ -308,11 +309,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def paramTypes: Seq[ScType] = parameters.map {_.getType(TypingContext.empty).getOrNothing}
 
-  def effectiveParameterClauses: Seq[ScParameterClause] = {
-    CachesUtil.get(this, CachesUtil.FUNCTION_EFFECTIVE_PARAMETER_CLAUSE_KEY,
-      new CachesUtil.MyProvider(this, (f: ScFunction) => f.paramClauses.clauses ++ f.syntheticParamClause)
-      (PsiModificationTracker.MODIFICATION_COUNT))
-  }
+  @CachedInsidePsiElement(this, CachesUtil.FUNCTION_EFFECTIVE_PARAMETER_CLAUSE_KEY, PsiModificationTracker.MODIFICATION_COUNT)
+  def effectiveParameterClauses: Seq[ScParameterClause] = paramClauses.clauses ++ syntheticParamClause
 
   private def syntheticParamClause: Option[ScParameterClause] = {
     val hasImplicit = clauses.exists(_.clauses.exists(_.isImplicit))
@@ -451,13 +449,10 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     if (DumbService.getInstance(getProject).isDumb || !SyntheticClasses.get(getProject).isClassesRegistered) {
       return null //no resolve during dumb mode or while synthetic classes is not registered
     }
-    CachesUtil.get(
-      this, CachesUtil.PSI_RETURN_TYPE_KEY,
-      new CachesUtil.MyProvider(this, {ic: ScFunction => ic.getReturnTypeImpl})
-      (PsiModificationTracker.MODIFICATION_COUNT)
-    )
+    getReturnTypeImpl
   }
 
+  @CachedInsidePsiElement(this, CachesUtil.PSI_RETURN_TYPE_KEY, PsiModificationTracker.MODIFICATION_COUNT)
   private def getReturnTypeImpl: PsiType = {
     val tp = getType(TypingContext.empty).getOrAny
     tp match {
