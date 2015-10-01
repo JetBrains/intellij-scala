@@ -102,7 +102,10 @@ trait TypeAdapter {
               m.Type.Project(toType(t.projected), toTypeName(t.actualElement)).setTypechecked
           }
         case t: ptype.ScDesignatorType =>
-          toTypeName(t.element)
+          if (t.element.isSingletonType)
+            toSingletonType(t.element)
+          else
+            toTypeName(t.element)
         case t: ptype.StdType =>
           toStdTypeName(t)
         case t: ScTypeParameterType =>
@@ -112,6 +115,10 @@ trait TypeAdapter {
           m.Type.Name(t.canonicalText).withAttrs(h.Denotation.Zero)
       }
     })
+  }
+
+  def toSingletonType(elem: PsiElement): m.Type.Singleton = {
+    m.Type.Singleton(toTermName(elem)).setTypechecked
   }
 
   def toTypeParams(tp: p.statements.params.ScTypeParam): m.Type.Param = {

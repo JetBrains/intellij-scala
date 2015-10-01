@@ -94,7 +94,7 @@ trait Attributes {
         // in these cases, our lsym is going to be a symbol of the trait in question
         // we need to account for that in `symbolTable.convert` and create a constructor symbol of our own
         case ptree: m.Ctor.Name => ptree.withAttrs(denot(elem))
-        case _ => unreachable
+        case _ => unreachable(s"Cannot denotate $elem tree")
       }
       denotatedTree.asInstanceOf[T]
     }

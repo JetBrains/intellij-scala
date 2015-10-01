@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypeVisitor, StdType}
@@ -56,9 +57,9 @@ trait Namer {
       toTypeName(cr.resolve())
     case se: impl.toplevel.synthetic.SyntheticNamedElement =>
       throw new ScalaMetaException(s"Synthetic elements not implemented") // FIXME: find a way to resolve synthetic elements
+    case _: PsiPackage | _: ScObject =>
+      unreachable("Package and Object types shoud be Singleton, not Name")
     // Java stuff starts here
-    case pp: PsiPackage =>
-      m.Type.Name(pp.getName).withAttrsFor(pp).setTypechecked
     case pc: PsiClass =>
       m.Type.Name(pc.getName).withAttrsFor(pc).setTypechecked
     case pm: PsiMethod =>

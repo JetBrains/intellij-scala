@@ -1,7 +1,9 @@
 package scala.meta.trees
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiPackage, PsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
 import scala.meta.internal.{ast => m, semantic => h}
@@ -67,6 +69,11 @@ trait Utils {
 
   implicit class RichPSI(psi: PsiElement) {
     def ?! = throw new ScalaMetaUnexpectedPSI(psi)
+    def isSingletonType = psi match {
+      case _: PsiPackage => true
+      case _: ScObject   => true
+      case _ => false
+    }
   }
 
   def unreachable = throw new ScalaMetaUnreachableException
