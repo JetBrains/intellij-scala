@@ -33,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLitera
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -63,13 +63,13 @@ object ScalaRefactoringUtil {
     var end = editor.getSelectionModel.getSelectionEnd
     if (start == end) return
     while (file.findElementAt(start).isInstanceOf[PsiWhiteSpace] ||
-            (file.findElementAt(start).isInstanceOf[PsiComment] && trimComments) ||
-            file.getText.charAt(start) == '\n' ||
-            file.getText.charAt(start) == ' ') start = start + 1
+      (file.findElementAt(start).isInstanceOf[PsiComment] && trimComments) ||
+      file.getText.charAt(start) == '\n' ||
+      file.getText.charAt(start) == ' ') start = start + 1
     while (file.findElementAt(end - 1).isInstanceOf[PsiWhiteSpace] ||
-            (file.findElementAt(end - 1).isInstanceOf[PsiComment] && trimComments) ||
-            file.getText.charAt(end - 1) == '\n' ||
-            file.getText.charAt(end - 1) == ' ') end = end - 1
+      (file.findElementAt(end - 1).isInstanceOf[PsiComment] && trimComments) ||
+      file.getText.charAt(end - 1) == '\n' ||
+      file.getText.charAt(end - 1) == ' ') end = end - 1
     editor.getSelectionModel.setSelection(start, end)
   }
 
@@ -137,6 +137,33 @@ object ScalaRefactoringUtil {
     val element = PsiTreeUtil.findElementOfClassAtRange(file, startOffset, endOffset, classOf[ScTypeElement])
 
     Option(element).filter(_.getTextRange.getEndOffset == endOffset).flatMap(checkTypeElement)
+  }
+
+  def isTypeContainsTypeParameter(typeElement: ScTypeElement): Boolean = {
+    typeElement.breadthFirst.forall {
+      case x: ScTypeElement if x.calcType.isInstanceOf[ScTypeParameterType] =>
+        return true
+      case _ => true
+    }
+    false
+  }
+
+  def isTypeAlias(typeElement: ScTypeElement):Boolean = {
+    typeElement.calcType match {
+      case projectionType: ScProjectionType =>
+        projectionType.element match {
+          case ta: ScTypeAlias =>
+            true
+          case _ => false
+        }
+      case designatorType: ScDesignatorType =>
+        designatorType.element match {
+          case ta: ScTypeAlias =>
+            true
+          case _ => false
+        }
+      case _ => false
+    }
   }
 
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, Array[ScType])] = {

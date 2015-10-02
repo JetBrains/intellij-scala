@@ -10,6 +10,7 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiPackage}
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
@@ -40,10 +41,21 @@ object ScopeSuggester {
     }
 
     val isScriptFile = currentElement.getContainingFile.asInstanceOf[ScalaFile].isScriptFile()
+
+    val isContainTypeParameter = ScalaRefactoringUtil.isTypeContainsTypeParameter(currentElement)
+    val elementOwner = PsiTreeUtil.getParentOfType(currentElement, classOf[ScTypeParametersOwner], true)
+    val isTypeAlias = ScalaRefactoringUtil.isTypeAlias(currentElement)
+
     var parent = getParent(currentElement, isScriptFile)
 
-    var noContinue = false
-    var result: ArrayBuffer[ScopeItem] = new ArrayBuffer[ScopeItem]()
+    //forbid to work with no template definition level
+    var noContinue = if ((isContainTypeParameter || isTypeAlias) && !elementOwner.isInstanceOf[ScTemplateDefinition]) {
+      true
+    } else {
+      false
+    }
+
+    val result: ArrayBuffer[ScopeItem] = new ArrayBuffer[ScopeItem]()
     while (parent != null && !noContinue) {
       var occInCompanionObj: Array[ScTypeElement] = Array[ScTypeElement]()
       val name = parent match {
@@ -64,9 +76,14 @@ object ScopeSuggester {
       //check can we use upper scope
       noContinue = currentElement.calcType match {
         case projectionType: ScProjectionType
+          //we can't use typeAlias outside scope where it was defined
           if parent.asInstanceOf[ScTemplateBody].isAncestorOf(projectionType.actualElement) =>
           true
         case _ => false
+      }
+
+      if (isContainTypeParameter && elementOwner.isAncestorOf(parent)) {
+        noContinue = true
       }
 
       val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(currentElement, parent)
@@ -76,7 +93,7 @@ object ScopeSuggester {
         .map((value:String) => validator.validateName(value, increaseNumber = true))
 
       val scope = new ScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toArray)
-      result = result :+ scope
+      result += scope
       parent = getParent(parent, isScriptFile)
     }
 
@@ -88,7 +105,7 @@ object ScopeSuggester {
 
     //forbid to use typeParameter type outside the class
     if (!packageName.equals("") && !currentElement.calcType.isInstanceOf[ScTypeParameterType] && !noContinue) {
-      result = result :+ handlePackage(currentElement, packageName, conflictsReporter, project, editor)
+      result += handlePackage(currentElement, packageName, conflictsReporter, project, editor)
     }
 
     result.toArray
@@ -178,7 +195,7 @@ object ScopeSuggester {
       occurrences.isEmpty, fileEncloser, fileEncloser)
 
     val possibleNames = NameSuggester.suggestNamesByType(typeElement.calcType)
-      .map((value:String) => validator.validateName(value, increaseNumber = true))
+      .map((value: String) => validator.validateName(value, increaseNumber = true))
 
     val result = new ScopeItem("package " + packageName, fileEncloser, occurrences, Array[ScTypeElement](),
       validator, possibleNames.toArray)
