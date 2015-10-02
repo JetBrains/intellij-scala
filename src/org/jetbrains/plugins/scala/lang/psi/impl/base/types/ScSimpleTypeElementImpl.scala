@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
 import scala.collection.immutable.HashMap
 
@@ -55,19 +56,13 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   protected def innerType(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true)
 
-  override def getTypeNoConstructor(ctx: TypingContext): TypeResult[ScType] = {
-    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.SIMPLE_TYPE_ELEMENT_TYPE_NO_CONSTRUCTOR_KEY,
-      new CachesUtil.MyProvider[ScSimpleTypeElement, TypeResult[ScType]](
-        this, elem => innerNonValueType(ctx, inferValueType = true, noConstructor = true)
-      )(PsiModificationTracker.MODIFICATION_COUNT), Failure("Recursive type of type element", Some(this)))
-  }
+  @CachedWithRecursionGuard[ScSimpleTypeElement](this, CachesUtil.SIMPLE_TYPE_ELEMENT_TYPE_NO_CONSTRUCTOR_KEY,
+    Failure("Recursive type of type element", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
+  override def getTypeNoConstructor(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true, noConstructor = true)
 
-  override def getNonValueType(ctx: TypingContext): TypeResult[ScType] = {
-    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.NON_VALUE_TYPE_ELEMENT_TYPE_KEY,
-        new CachesUtil.MyProvider[ScSimpleTypeElementImpl, TypeResult[ScType]](
-        this, elem => elem.innerNonValueType(ctx, inferValueType = false)
-      )(PsiModificationTracker.MODIFICATION_COUNT), Failure("Recursive non value type of type element", Some(this)))
-  }
+  @CachedWithRecursionGuard[ScSimpleTypeElement](this, CachesUtil.NON_VALUE_TYPE_ELEMENT_TYPE_KEY,
+    Failure("Recursive non value type of type element", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
+  override def getNonValueType(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = false)
 
   private def innerNonValueType(ctx: TypingContext, inferValueType: Boolean, noConstructor: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
@@ -89,12 +84,11 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       //todo remove it
       def getDefault(scParameter: ScParameter) : Option[ScType] =
         scParameter.getDefaultExpressionInSource match {
-          case Some(expr) => {
-            expr.getTypeAfterImplicitConversion().typeResult match {
+          case Some(expr) =>
+            expr.getTypeAfterImplicitConversion().tr match {
               case fail: Failure => None
               case typeResult: TypeResult[ScType] => Some(typeResult.get)
             }
-          }
           case None => None
         }
 
@@ -103,16 +97,16 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           (fun.effectiveParameterClauses.map(_.effectiveParameters.map { p =>
             val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
             new Parameter(p.name, p.deprecatedName,
-              paramType, paramType, p.isDefaultParameter,
-              p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p), if (p.isDefaultParameter) Some(subst.subst(getDefault(p).get)) else None)
+              paramType, paramType, p.isDefaultParam,
+              p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p), if (p.isDefaultParam) Some(subst.subst(getDefault(p).get)) else None)
           }),
             fun.parameterList.clauses.lastOption.exists(_.isImplicit))
         case f: ScPrimaryConstructor =>
           (f.effectiveParameterClauses.map(_.effectiveParameters.map { p =>
             val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
             new Parameter(p.name, p.deprecatedName,
-              paramType, paramType, p.isDefaultParameter,
-              p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p), if (p.isDefaultParameter) Some(subst.subst(getDefault(p).get)) else None)
+              paramType, paramType, p.isDefaultParam,
+              p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p), if (p.isDefaultParam) Some(subst.subst(getDefault(p).get)) else None)
           }),
             f.parameterList.clauses.lastOption.exists(_.isImplicit))
         case m: PsiMethod =>
@@ -451,6 +445,4 @@ object ScSimpleTypeElementImpl {
         }
     }
   }
-
-
 }

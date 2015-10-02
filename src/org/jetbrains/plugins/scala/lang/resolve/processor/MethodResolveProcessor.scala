@@ -203,6 +203,34 @@ object MethodResolveProcessor {
     }
 
     def checkFunction(fun: PsiNamedElement): ConformanceExtResult = {
+      def default(): ConformanceExtResult = {
+        fun match {
+          case fun: ScFunction if fun.paramClauses.clauses.isEmpty ||
+            fun.paramClauses.clauses.head.parameters.isEmpty ||
+            isUnderscore => ConformanceExtResult(problems)
+          case fun: ScFun if fun.paramClauses == Seq() || fun.paramClauses == Seq(Seq()) || isUnderscore =>
+            addExpectedTypeProblems()
+            ConformanceExtResult(problems)
+          case method: PsiMethod if method.getParameterList.getParameters.isEmpty ||
+            isUnderscore =>
+            addExpectedTypeProblems()
+            ConformanceExtResult(problems)
+          case _ =>
+            addExpectedTypeProblems()
+            problems += MissedParametersClause(null)
+            ConformanceExtResult(problems)
+        }
+      }
+
+      def processFunctionType(retType: ScType, params: Seq[ScType]): ConformanceExtResult = {
+        val args = params.map(new Expression(_))
+        val result = Compatibility.compatible(fun, substitutor, List(args), checkWithImplicits = false,
+        scope = ref.getResolveScope, isShapesResolve = isShapeResolve)
+        problems ++= result.problems
+        addExpectedTypeProblems(Some(retType))
+        result.copy(problems)
+      }
+
       fun match {
         case fun: ScFunction if fun.paramClauses.clauses.isEmpty =>
           addExpectedTypeProblems()
@@ -214,30 +242,13 @@ object MethodResolveProcessor {
       }
 
       expectedOption().map(_.removeAbstracts) match {
-        case Some(ScFunctionType(retType, params)) =>
-          val args = params.map(new Expression(_))
-          val result = Compatibility.compatible(fun, substitutor, List(args), checkWithImplicits = false,
-            scope = ref.getResolveScope, isShapesResolve = isShapeResolve)
-          problems ++= result.problems
-          addExpectedTypeProblems(Some(retType))
-          result.copy(problems)
-        case _ =>
-          fun match {
-            case fun: ScFunction if fun.paramClauses.clauses.isEmpty ||
-                    fun.paramClauses.clauses.head.parameters.isEmpty ||
-                    isUnderscore => ConformanceExtResult(problems)
-            case fun: ScFun if fun.paramClauses == Seq() || fun.paramClauses == Seq(Seq()) || isUnderscore =>
-              addExpectedTypeProblems()
-              ConformanceExtResult(problems)
-            case method: PsiMethod if method.getParameterList.getParameters.isEmpty ||
-                    isUnderscore =>
-              addExpectedTypeProblems()
-              ConformanceExtResult(problems)
-            case _ =>
-              addExpectedTypeProblems()
-              problems += MissedParametersClause(null)
-              ConformanceExtResult(problems)
+        case Some(ScFunctionType(retType, params)) => processFunctionType(retType, params)
+        case Some(tp: ScType) if ScalaPsiUtil.isSAMEnabled(fun) =>
+          ScalaPsiUtil.toSAMType(tp, fun.getResolveScope) match {
+            case Some(ScFunctionType(retType, params)) => processFunctionType(retType, params)
+            case _ => default()
           }
+        case _ => default()
       }
     }
 

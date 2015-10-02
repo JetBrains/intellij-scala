@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScDesignatorType, ScTypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScDesignatorType, ScTypeParameterType, _}
 
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
@@ -58,7 +58,8 @@ object PatternAnnotator {
 
     pattern match {
       case _: ScTypedPattern if exTp.isFinalType && freeTypeParams.isEmpty && !exTpMatchesPattp =>
-        val message = ScalaBundle.message("scrutinee.incompatible.pattern.type", exTp.presentableText, patType.presentableText)
+        val (exprTypeText, patTypeText) = ScTypePresentation.different(exprType, patType)
+        val message = ScalaBundle.message("scrutinee.incompatible.pattern.type", exprTypeText, patTypeText)
         holder.createErrorAnnotation(pattern, message)
         return
       case _: ScTypedPattern if Seq(Nothing, Null, AnyVal) contains patType =>
@@ -78,7 +79,8 @@ object PatternAnnotator {
           if (isNeverSubClass(cl1, cl2)) "" else ScalaBundle.message("erasure.warning")
         case _ => ""
       }
-      val message = ScalaBundle.message("fruitless.type.test", exprType.presentableText, patType.presentableText) + erasureWarn
+      val (exprTypeText, patTypeText) = ScTypePresentation.different(exprType, patType)
+      val message = ScalaBundle.message("fruitless.type.test", exprTypeText, patTypeText) + erasureWarn
       holder.createWarningAnnotation(pattern, message)
     }
   }

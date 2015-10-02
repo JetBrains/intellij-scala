@@ -5,7 +5,6 @@ package psi
 import com.intellij.codeInsight.hint.HintManager
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.{RecursionManager, Trinity}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.scope._
@@ -50,13 +49,6 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
     findChildrenByClassScala(classOf[ScImportStmt]).toSeq
   }
-  
-  @volatile
-  private var modCount: Long = 0L
-
-  private val updating: ThreadLocal[Boolean] = new ThreadLocal[Boolean]() {
-    override def initialValue(): Boolean = false
-  }
 
   override def processDeclarations(processor: PsiScopeProcessor,
       state : ResolveState,
@@ -73,44 +65,6 @@ trait ScImportsHolder extends ScalaPsiElement {
       }
     }
     true
-  }
-
-  /**
-   * This method is important to avoid SOE for long import lists.
-   * // 
-   * todo it became unused >1year ago   
-   */
-  private def updateResolveCaches() {
-    val curModCount = getManager.getModificationTracker.getModificationCount
-    if (curModCount == modCount || updating.get()) return
-    var updateModCount = true
-    updating.set(true)
-    try {
-      var child = ScalaPsiUtil.getFirstStubOrPsiElement(this)
-      while (child != null && updateModCount) {
-        child match {
-          case i: ScImportStmt =>
-            for (expr <- i.importExprs) {
-              expr.reference match {
-                case Some(ref) =>
-                  var qual = ref
-                  while (qual.qualifier != None) {
-                    qual = qual.qualifier.get
-                  }
-                  if (updateModCount && !ScImportsHolder.resolveCache.currentStack().contains(Trinity.create(ref, false, true)) &&
-                    !ScImportsHolder.resolveCache.currentStack().contains(Trinity.create(qual, false, true))) {
-                    ref.multiResolve(false) //fill resolve cache to avoid SOE
-                  } else updateModCount = false
-                case _ =>
-              }
-            }
-          case _ =>
-        }
-        child = ScalaPsiUtil.getNextStubOrPsiElement(child)
-      }
-    } finally updating.set(false)
-    if (updateModCount)
-      modCount = curModCount
   }
 
   def getImportsForLastParent(lastParent: PsiElement): Seq[ScImportStmt] = {
@@ -135,7 +89,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       for (child <- element.getChildren) {
         child match {
           case imp: ScImportExpr =>
-            if (/*!imp.singleWildcard && */imp.selectorSet == None) {
+            if (/*!imp.singleWildcard && */imp.selectorSet.isEmpty) {
               res += ImportExprUsed(imp)
             }
             else if (imp.singleWildcard) {
@@ -158,7 +112,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     for (child <- getChildren) {
       child match {
         case x: ScImportStmt => buf += x
-        case p: ScPackaging if !p.isExplicit && buf.length == 0 => return p.importStatementsInHeader
+        case p: ScPackaging if !p.isExplicit && buf.isEmpty => return p.importStatementsInHeader
         case _: ScTypeDefinition | _: ScPackaging => return buf.toSeq
         case _ =>
       }
@@ -418,7 +372,7 @@ trait ScImportsHolder extends ScalaPsiElement {
               val qualifier = expr.qualifier
               var firstQualifier = qualifier
               if (firstQualifier == null || firstQualifier.getText == "_root_") return
-              while (firstQualifier.qualifier != None) firstQualifier = firstQualifier.qualifier.get
+              while (firstQualifier.qualifier.isDefined) firstQualifier = firstQualifier.qualifier.get
               if (subPackages.map(_.name).contains(firstQualifier.getText)) {
                 var classPackageQualifier = getSplitQualifierElement(firstQualifier.resolve() match {
                   case pack: PsiPackage => pack.getQualifiedName
@@ -555,7 +509,7 @@ trait ScImportsHolder extends ScalaPsiElement {
                   }
                 }
                 treeWalkUp(this, place)
-                completionProcessor.candidatesS.size > 0
+                completionProcessor.candidatesS.nonEmpty
               }
               val nextImportContainsRef =
                 if (ref != null) PsiTreeUtil.isAncestor(im, ref, false) // See SCL-2925
@@ -701,8 +655,4 @@ trait ScImportsHolder extends ScalaPsiElement {
     remove(node)
     shortenWhitespace(prev)
   }
-}
-
-object ScImportsHolder {
-  private val resolveCache = RecursionManager.createGuard("resolveCache")
 }

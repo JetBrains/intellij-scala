@@ -52,7 +52,7 @@ case class ScExistentialType(quantified : ScType,
             case a: ScTypeAlias if a.getContext.isInstanceOf[ScExistentialClause] =>
               if (!rejected.contains(a.name)) {
                 wildcards.find(_.name == a.name) match {
-                  case Some(arg) => (true, unpacked.get(arg).getOrElse(tp), rejected)
+                  case Some(arg) => (true, unpacked.getOrElse(arg, tp), rejected)
                   case _ => (true, tp, rejected)
                 }
               } else (true, tp, rejected)
@@ -61,7 +61,7 @@ case class ScExistentialType(quantified : ScType,
           case ScTypeVariable(name) =>
             if (!rejected.contains(name)) {
               wildcards.find(_.name == name) match {
-                case Some(arg) => (true, unpacked.get(arg).getOrElse(tp), rejected)
+                case Some(arg) => (true, unpacked.getOrElse(arg, tp), rejected)
                 case _ => (true, tp, rejected)
               }
             } else (true, tp, rejected)
@@ -214,10 +214,11 @@ case class ScExistentialType(quantified : ScType,
           })
         case ScDesignatorType(elem) =>
           elem match {
-            case ta: ScTypeAlias if ta.getContext.isInstanceOf[ScExistentialClause] =>
-              wildcards.foreach(arg => if (arg.name == ta.name && !rejected.contains(arg.name)) {
-                res.update(arg, res.getOrElse(arg, Seq.empty[ScType]) ++ Seq(tp))
-              })
+            case ta: ScTypeAlias if ta.isExistentialTypeAlias =>
+              wildcards.foreach(arg =>
+                if (arg.name == ta.name && !rejected.contains(arg.name)) {
+                  res.update(arg, res.getOrElse(arg, Seq.empty[ScType]) ++ Seq(tp))
+                })
             case _ =>
           }
         case ScTypeVariable(name) =>
@@ -345,7 +346,7 @@ case class ScExistentialType(quantified : ScType,
           updateRecursive(arg.lowerBound, newSet, -variance), updateRecursive(arg.upperBound, newSet, variance))))
       case ScThisType(clazz) => tp
       case ScDesignatorType(element) => element match {
-        case a: ScTypeAlias if a.getContext.isInstanceOf[ScExistentialClause] =>
+        case a: ScTypeAlias if a.isExistentialTypeAlias =>
           if (!rejected.contains(a.name)) {
             wildcards.find(_.name == a.name) match {
               case Some(arg) => update(variance, arg, tp)

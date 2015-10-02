@@ -1,5 +1,0 @@
-k = simple
------
-[ab$cd]
------
-k = "ab$cd"

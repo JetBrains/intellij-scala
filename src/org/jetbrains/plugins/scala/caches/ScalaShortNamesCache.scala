@@ -32,14 +32,25 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
       res
     }
     val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
-    val res = new ArrayBuffer[PsiClass]
+    var res: ArrayBuffer[PsiClass] = null
+    var size = 0
+    var lastClass: PsiClass = null
+
+    @inline
+    def add(clz: PsiClass): Unit = {
+      if (res == null) res = new ArrayBuffer[PsiClass]()
+      res += clz
+      size += 1
+      lastClass = clz
+    }
+
     val classesIterator = classes.iterator
     while (classesIterator.hasNext) {
       val clazz = classesIterator.next()
       clazz match {
         case o: ScObject if isOkForJava(o) =>
           o.fakeCompanionClass match {
-            case Some(clz) => res += clz
+            case Some(clz) => add(clz)
             case _ =>
           }
         case _ =>
@@ -54,7 +65,7 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
         clazz match {
           case c: ScTypeDefinition if isOkForJava(c) =>
             c.fakeCompanionModule match {
-              case Some(o) => res += o
+              case Some(o) => add(o)
               case _ =>
             }
           case _ =>
@@ -68,16 +79,19 @@ class ScalaShortNamesCache(project: Project) extends PsiShortNamesCache {
         val clazz = classesIterator.next()
         clazz match {
           case c: ScTrait if isOkForJava(c) =>
-            res += c.fakeCompanionClass
+            add(c.fakeCompanionClass)
             c.fakeCompanionModule match {
-              case Some(o) => res += o
+              case Some(o) => add(o)
               case _ =>
             }
           case _ =>
         }
       }
     }
-    res.toArray
+
+    if (size == 0) PsiClass.EMPTY_ARRAY
+    else if (size == 1) Array[PsiClass](lastClass)
+    else res.toArray
   }
 
   def processMethodsWithName(name: String, scope: GlobalSearchScope, processor: Processor[PsiMethod]): Boolean = {

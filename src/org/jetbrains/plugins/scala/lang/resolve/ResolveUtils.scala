@@ -90,7 +90,7 @@ object ResolveUtils {
     def getDefault(scParameter: ScParameter) : Option[ScType] =
       scParameter.getDefaultExpressionInSource match {
         case Some(expr) => {
-          expr.getTypeAfterImplicitConversion().typeResult match {
+          expr.getTypeAfterImplicitConversion().tr match {
             case fail: Failure => None
             case typeResult: TypeResult[ScType] => Some(typeResult.get)
           }

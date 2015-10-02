@@ -72,5 +72,5 @@ trait ScArgumentExprList extends ScArguments {
 
   def addExprAfter(expr: ScExpression, anchor: PsiElement): ScArgumentExprList
 
-  def isBraceArgs: Boolean = findChild(classOf[ScBlock]) != None
+  def isBraceArgs: Boolean = findChild(classOf[ScBlock]).isDefined
 }

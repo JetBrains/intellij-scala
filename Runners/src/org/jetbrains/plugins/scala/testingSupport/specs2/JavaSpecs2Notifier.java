@@ -6,8 +6,8 @@ import org.specs2.reporter.Notifier;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.HashMap;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatCurrentTimestamp;
@@ -17,15 +17,20 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatCu
  */
 public class JavaSpecs2Notifier implements Notifier {
   public static boolean myShowProgressMessages = true;
-  private HashMap<String, Long> map = new HashMap<String, Long>();
 
-  private int id = 0;
+  private static final AtomicInteger id = new AtomicInteger(0);
 
-  private int getCurrentId() {return idStack.peek();}
+  private int getCurrentId() {
+    return idStack.peek();
+  }
 
   private int descend() {
+    if (idStack.isEmpty()) {
+      //attach to root
+      idStack.push(0);
+    }
     int oldId = idStack.peek();
-    idStack.push(++id);
+    idStack.push(id.incrementAndGet());
     return oldId;
   }
 
@@ -36,9 +41,6 @@ public class JavaSpecs2Notifier implements Notifier {
   private final Stack<Integer> idStack = new Stack<Integer>();
 
   public void specStart(String title, String location) {
-    if (idStack.isEmpty()) {
-      idStack.push(id);
-    }
     int parentId = descend();
     System.out.println("\n##teamcity[testSuiteStarted name='" + escapeString(title) + "'"+ TestRunnerUtil.parseLocation(location).toHint() +
         " nodeId='" + getCurrentId() + "' parentNodeId='" + parentId + "']");

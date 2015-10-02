@@ -108,6 +108,39 @@ class IncrementalLexerHighlightingTest extends ScalaLightCodeInsightFixtureTestA
     genericTestHighlighting(text, ',', ' ', '\r', '\r')
   }
 
+  /**
+   * That relates straight to incremental highlighting - see SCL-8958 itself and comment to
+   * [[org.jetbrains.plugins.scala.lang.lexer.ScalaLexer#previousToken]]
+   */
+  def testScl8958() {
+    val before =
+      s"""
+        |class Test {
+        |  val test1 = <div></div>
+        |}
+        |
+        |class Test2 {$CARET_MARKER}
+      """.stripMargin
+
+    val after =
+      s"""
+        |class Test {
+        |  val test1 = <div></div>
+        |}
+        |
+        |class Test2 {
+        |  $CARET_MARKER
+        |}
+      """.stripMargin
+
+    checkGeneratedTextAfterEnter(before, after)
+  }
+  
+  def testInterpolatedString() {
+    val text = "s\"\"\"\n    ${if (true)" + CARET_MARKER + "}\n\n\"\"\"\n{}\nval a = 1"
+    genericTestHighlighting(text, ' ')
+  }
+
   def testBig() {
     val text =
       s"""package es.fcc.bibl.bd

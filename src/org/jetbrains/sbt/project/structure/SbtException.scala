@@ -20,12 +20,12 @@ object SbtException {
   def fromSbtLog(log: String): SbtException = {
     val lines = log.lines.toSeq
 
-    if (lines.last.contains("unresolved dependency"))
+    if (lines.exists(_.startsWith("sbt.ResolveException")))
       return handleUnresolvedDeps(lines)
 
     trimLogIfNecessary(lines) match {
       case NotTrimmed =>
-        new SbtException(log)
+        new SbtException(SbtBundle("sbt.import.error", log))
       case Trimmed(whatsLeft) =>
         new SbtException(SbtBundle("sbt.import.errorLogIsTooLong", whatsLeft,
                           dumpLog(log).getAbsolutePath))
@@ -37,7 +37,7 @@ object SbtException {
       if (line.startsWith("[warn]")) {
         val trimmed = line.substring(6).trim
         if (trimmed.startsWith(":: ") && !trimmed.contains("UNRESOLVED DEPENDENCIES"))
-          acc + s"\t${trimmed.substring(2)}\n"
+          acc + s"<li>${trimmed.substring(2)}</li>"
         else
           acc
       } else

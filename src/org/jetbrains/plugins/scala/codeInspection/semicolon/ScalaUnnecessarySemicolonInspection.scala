@@ -32,7 +32,7 @@ class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
             val whitespaceOffset = endOffset(nextLeaf)
             val offset = startOffset(element)
             val text = file.getText
-            val textWithoutSemicolon = text.substring(0, offset) + text.substring(offset + 1)
+            val textWithoutSemicolon = text.take(offset) + text.drop(offset + 1)
             val newFile = ScalaPsiElementFactory.createScalaFile(textWithoutSemicolon, element.getManager)
             var elem1 = file.findElementAt(offset - 1)
             var elem2 = newFile.findElementAt(offset - 1)

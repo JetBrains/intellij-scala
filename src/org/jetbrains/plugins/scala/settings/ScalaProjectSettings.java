@@ -52,6 +52,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean IN_PROCESS_MODE = true;
   private boolean INTERACTIVE_MODE = true;
   private boolean USE_ECLIPSE_COMPATIBILITY = false;
+  private boolean TREAT_SCRATCH_AS_WORKSHEET = true;
 
   private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<String, String>();
 
@@ -264,6 +265,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     this.USE_ECLIPSE_COMPATIBILITY = USE_ECLIPSE_COMPATIBILITY;
   }
 
+  public boolean isTreatScratchFilesAsWorksheet() {
+    return TREAT_SCRATCH_AS_WORKSHEET;
+  }
+  
+  public void setTreatScratchFilesAsWorksheet(boolean b) {
+    TREAT_SCRATCH_AS_WORKSHEET = b;
+  }
+  
   public boolean isGenerateToStringWithFieldNames() { return GENERATE_TOSTRING_WITH_FIELD_NAMES; }
 
   public void setGenerateToStringWithFieldNames(boolean generateToStringWithFieldNames) {

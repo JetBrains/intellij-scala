@@ -49,7 +49,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     var warnings = new StringBuilder()
 
-    val xml = runner.read(new File(root), !isPreview, settings.resolveClassifiers, settings.resolveSbtClassifiers) { message =>
+    val xml = runner.read(new File(root), !isPreview, settings.resolveClassifiers, settings.resolveSbtClassifiers, settings.cachedUpdate) { message =>
       if (message.startsWith("[error] ") || message.startsWith("[warn] ")) {
         warnings ++= message
       }
@@ -82,8 +82,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val basePackages = projects.flatMap(_.basePackages).distinct
     val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
     val sbtVersion = data.sbtVersion
-    val projectJdk = project.android.map(android => SbtProjectData.Android(android.targetVersion))
-            .orElse(jdk.map(SbtProjectData.Jdk))
+    val projectJdk = project.android.map(android => Android(android.targetVersion))
+            .orElse(jdk.map(JdkByVersion))
 
     projectNode.add(new SbtProjectNode(basePackages, projectJdk, javacOptions, sbtVersion, root))
 
@@ -137,7 +137,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val moduleNode = createModule(project, moduleFilesDirectory)
       moduleNode.add(createContentRoot(project))
       moduleNode.addAll(createLibraryDependencies(project.dependencies.modules)(moduleNode, libraryNodes.map(_.data)))
-      moduleNode.addAll(project.scala.map(createScalaSdk(project, _)).toSeq)
+      moduleNode.add(createModuleExtData(project))
       moduleNode.addAll(project.android.map(createFacet(project, _)).toSeq)
       moduleNode.addAll(createUnmanagedDependencies(project.dependencies.jars)(moduleNode))
       unmanagedSourcesAndDocsLibrary foreach { lib =>
@@ -157,20 +157,23 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val libs = modulesWithBinaries.map(createResolvedLibrary) ++ otherModuleIds.map(createUnresolvedLibrary)
 
-    if (modulesWithoutBinaries.isEmpty) return libs
+    val modulesWithDocumentation = modulesWithoutBinaries.filter(m => m.docs.nonEmpty || m.sources.nonEmpty)
+    if (modulesWithDocumentation.isEmpty) return libs
 
     val unmanagedSourceLibrary = new LibraryNode(Sbt.UnmanagedSourcesAndDocsName, true)
-    unmanagedSourceLibrary.addPaths(LibraryPathType.DOC, modulesWithoutBinaries.flatMap(_.docs).map(_.path))
-    unmanagedSourceLibrary.addPaths(LibraryPathType.SOURCE, modulesWithoutBinaries.flatMap(_.sources).map(_.path))
+    unmanagedSourceLibrary.addPaths(LibraryPathType.DOC, modulesWithDocumentation.flatMap(_.docs).map(_.path))
+    unmanagedSourceLibrary.addPaths(LibraryPathType.SOURCE, modulesWithDocumentation.flatMap(_.sources).map(_.path))
     libs :+ unmanagedSourceLibrary
   }
 
-  private def createScalaSdk(project: sbtStructure.ProjectData, scala: sbtStructure.ScalaData): ScalaSdkNode = {
-    val basePackage = Some(project.organization).filter(_.contains(".")).mkString
-
-    val compilerClasspath = scala.compilerJar +: scala.libraryJar +: scala.extraJars
-
-    new ScalaSdkNode(Version(scala.version), basePackage, compilerClasspath, scala.options)
+  private def createModuleExtData(project: sbtStructure.ProjectData): ModuleExtNode = {
+    val scalaVersion = project.scala.map(s => Version(s.version))
+    val scalacClasspath = project.scala.fold(Seq.empty[File])(s => s.compilerJar +: s.libraryJar +: s.extraJars)
+    val scalacOptions = project.scala.fold(Seq.empty[String])(_.options)
+    val javacOptions = project.java.fold(Seq.empty[String])(_.options)
+    val jdk = project.android.map(android => Android(android.targetVersion))
+      .orElse(project.java.flatMap(java => java.home.map(JdkByHome)))
+    new ModuleExtNode(scalaVersion, scalacClasspath, scalacOptions, jdk, javacOptions)
   }
 
   private def createFacet(project: sbtStructure.ProjectData, android: sbtStructure.AndroidData): AndroidFacetNode = {

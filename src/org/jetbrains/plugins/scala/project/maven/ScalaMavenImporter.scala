@@ -5,12 +5,13 @@ import java.io.File
 import java.util
 
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
+import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.impl.libraries.LibraryEx.ModifiableModelEx
 import org.jdom.Element
-import org.jetbrains.idea.maven.importing.{MavenImporter, MavenModifiableModelsProvider, MavenRootModelAdapter}
+import org.jetbrains.idea.maven.importing.{MavenImporter, MavenRootModelAdapter}
 import org.jetbrains.idea.maven.model.{MavenArtifact, MavenArtifactInfo, MavenId, MavenPlugin}
 import org.jetbrains.idea.maven.project._
 import org.jetbrains.idea.maven.server.{MavenEmbedderWrapper, NativeMavenProjectHolder}
@@ -42,10 +43,9 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
   // exclude "default" plugins, should be done inside IDEA's MavenImporter itself
   override def isApplicable(mavenProject: MavenProject) = validConfigurationIn(mavenProject).isDefined
 
-  def preProcess(module: Module, mavenProject: MavenProject, changes: MavenProjectChanges,
-                 modifiableModelsProvider: MavenModifiableModelsProvider) {}
+  override def preProcess(module: Module, mavenProject: MavenProject, changes: MavenProjectChanges, modelsProvider: IdeModifiableModelsProvider) {}
 
-  def process(modelsProvider: MavenModifiableModelsProvider, module: Module,
+  override def process(modelsProvider: IdeModifiableModelsProvider, module: Module,
               rootModel: MavenRootModelAdapter, mavenModel: MavenProjectsTree, mavenProject: MavenProject,
               changes: MavenProjectChanges, mavenProjectToModuleName: util.Map[MavenProject, String],
               postTasks: util.List[MavenProjectsProcessorTask]) {
@@ -72,7 +72,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
         val languageLevel = compilerVersion.toLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
         val compilerClasspath = configuration.compilerClasspath.map(mavenProject.localPathTo)
 
-        val libraryModel = modelsProvider.getLibraryModel(scalaLibrary).asInstanceOf[LibraryEx.ModifiableModelEx]
+        val libraryModel = modelsProvider.getModifiableLibraryModel(scalaLibrary).asInstanceOf[LibraryEx.ModifiableModelEx]
         convertToScalaSdk(libraryModel, languageLevel, compilerClasspath)
       }
     }

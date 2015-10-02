@@ -110,7 +110,7 @@ private[expr] object ExpectedTypes {
       //see SLS[8.4]
       case c: ScCaseClause => c.getContext.getContext match {
         case m: ScMatchStmt => m.expectedTypesEx(fromUnderscore = true)
-        case b: ScBlockExpr if b.isAnonymousFunction && b.getContext.isInstanceOf[ScCatchBlock] =>
+        case b: ScBlockExpr if b.isInCatchBlock =>
           b.getContext.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(fromUnderscore = true)
         case b: ScBlockExpr if b.isAnonymousFunction =>
           b.expectedTypesEx(fromUnderscore = true).flatMap(tp => fromFunction(tp))

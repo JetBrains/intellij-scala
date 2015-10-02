@@ -9,6 +9,7 @@ package templates
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
 import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -21,8 +22,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScDesignatorType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScDesignatorType, _}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 
 import scala.annotation.tailrec
 import scala.collection.Seq
@@ -32,10 +34,11 @@ import scala.collection.mutable.ListBuffer
  * @author AlexanderPodkhalyuzin
  * Date: 20.02.2008
  */
-class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with ScExtendsBlock {
-  def this(node: ASTNode) = {this (); setNode(node)}
+class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: IElementType, node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScExtendsBlock {
+  def this(node: ASTNode) = {this(null, null, node)}
 
-  def this(stub: ScExtendsBlockStub) = {this (); setStub(stub); setNullNode()}
+  def this(stub: ScExtendsBlockStub) = {this(stub, ScalaElementTypes.EXTENDS_BLOCK, null)}
 
   override def toString: String = "ExtendsBlock"
 
@@ -74,21 +77,8 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     res
   }
 
+  @CachedInsidePsiElement(this, CachesUtil.EXTENDS_BLOCK_SUPER_TYPES_KEY, PsiModificationTracker.MODIFICATION_COUNT)
   def superTypes: List[ScType] = {
-    CachesUtil.get(this, CachesUtil.EXTENDS_BLOCK_SUPER_TYPES_KEY,
-      new CachesUtil.MyProvider(this, (expr: ScExtendsBlockImpl) => expr.superTypesInner)
-      (PsiModificationTracker.MODIFICATION_COUNT))
-  }
-
-  def isScalaObject: Boolean = {
-    getParentByStub match {
-      case clazz: PsiClass =>
-        clazz.qualifiedName == "scala.ScalaObject"
-      case _ => false
-    }
-  }
-
-  private def superTypesInner: List[ScType] = {
     val buffer = new ListBuffer[ScType]
     def addType(t: ScType) {
       t match {
@@ -141,45 +131,12 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     buffer.toList
   }
 
-  private def supersInner: Seq[PsiClass] = {
-    val buffer = new ListBuffer[PsiClass]
-    def addClass(t: PsiClass) {
-      buffer += t
-    }
-    templateParents match {
-      case Some(parents: ScTemplateParents) => parents.supers foreach {t => addClass(t)}
-      case _ =>
-    }
-    if (isUnderCaseClass) {
-      val prod = scalaProductClass
-      if (prod != null) buffer += prod
-      val ser = scalaSerializableClass
-      if (ser != null) buffer += ser
-    }
-    if (!isScalaObject) {
-      val obj = scalaObjectClass
-      if (obj != null && !obj.isDeprecated) buffer += obj
-    }
-    buffer.find {
-      case s: ScSyntheticClass => true
-      case o: ScObject => true
-      case t: ScTrait => false
-      case c: ScClass => true
-      case c: PsiClass if !c.isInterface => true
+  def isScalaObject: Boolean = {
+    getParentByStub match {
+      case clazz: PsiClass =>
+        clazz.qualifiedName == "scala.ScalaObject"
       case _ => false
-    } match {
-      case Some(s: ScSyntheticClass) if Some(s) == AnyVal.asClass(getProject) => //do nothing
-      case Some(s: ScSyntheticClass) if Some(s) == AnyRef.asClass(getProject) ||
-        Some(s) == Any.asClass(getProject) =>
-        buffer -= s
-        if (javaObjectClass != null)
-          buffer += javaObjectClass
-      case Some(clazz: PsiClass) => //do nothing
-      case _ =>
-        if (javaObjectClass != null)
-          buffer += javaObjectClass
     }
-    buffer.toSeq
   }
 
   private def scalaProductClass: PsiClass =
@@ -225,10 +182,46 @@ class ScExtendsBlockImpl extends ScalaStubBasedElementImpl[ScExtendsBlock] with 
     }
   }
 
+  @CachedInsidePsiElement(this, CachesUtil.EXTENDS_BLOCK_SUPERS_KEY, PsiModificationTracker.MODIFICATION_COUNT)
   def supers: Seq[PsiClass] = {
-    CachesUtil.get(this, CachesUtil.EXTENDS_BLOCK_SUPERS_KEY,
-      new CachesUtil.MyProvider(this, (expr: ScExtendsBlockImpl) => expr.supersInner)
-      (PsiModificationTracker.MODIFICATION_COUNT))
+    val buffer = new ListBuffer[PsiClass]
+    def addClass(t: PsiClass) {
+      buffer += t
+    }
+    templateParents match {
+      case Some(parents: ScTemplateParents) => parents.supers foreach {t => addClass(t)}
+      case _ =>
+    }
+    if (isUnderCaseClass) {
+      val prod = scalaProductClass
+      if (prod != null) buffer += prod
+      val ser = scalaSerializableClass
+      if (ser != null) buffer += ser
+    }
+    if (!isScalaObject) {
+      val obj = scalaObjectClass
+      if (obj != null && !obj.isDeprecated) buffer += obj
+    }
+    buffer.find {
+      case s: ScSyntheticClass => true
+      case o: ScObject => true
+      case t: ScTrait => false
+      case c: ScClass => true
+      case c: PsiClass if !c.isInterface => true
+      case _ => false
+    } match {
+      case Some(s: ScSyntheticClass) if AnyVal.asClass(getProject).contains(s) => //do nothing
+      case Some(s: ScSyntheticClass) if AnyRef.asClass(getProject).contains(s) ||
+        Any.asClass(getProject).contains(s) =>
+        buffer -= s
+        if (javaObjectClass != null)
+          buffer += javaObjectClass
+      case Some(clazz: PsiClass) => //do nothing
+      case _ =>
+        if (javaObjectClass != null)
+          buffer += javaObjectClass
+    }
+    buffer.toSeq
   }
 
   def directSupersNames: Seq[String] = {

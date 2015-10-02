@@ -3,8 +3,8 @@ package debugger.evaluation
 
 import com.intellij.debugger.codeinsight.RuntimeTypeEvaluator
 import com.intellij.debugger.engine.ContextUtil
-import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, TextWithImportsImpl, EvaluationContextImpl}
 import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluator
+import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, EvaluationContextImpl, TextWithImportsImpl}
 import com.intellij.debugger.impl.DebuggerContextImpl
 import com.intellij.debugger.{DebuggerBundle, DebuggerInvocationUtil, EvaluatingComputable}
 import com.intellij.openapi.application.{AccessToken, ReadAction}
@@ -13,11 +13,14 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
+import com.intellij.psi.impl.source.PsiImmediateClassType
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.util.PsiUtil
 import com.sun.jdi.{ClassType, Type, Value}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -32,7 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType.ExtractClass
 abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: PsiElement, context: DebuggerContextImpl, indicator: ProgressIndicator)
         extends RuntimeTypeEvaluator(editor, expression, context, indicator) {
 
-  override def evaluate(evaluationContext: EvaluationContextImpl): PsiClass = {
+  override def evaluate(evaluationContext: EvaluationContextImpl): PsiType = {
     val project: Project = evaluationContext.getProject
 
     val evaluator: ExpressionEvaluator = DebuggerInvocationUtil.commitAndRunReadAction(project, new EvaluatingComputable[ExpressionEvaluator] {
@@ -44,7 +47,9 @@ abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: P
     })
     val value: Value = evaluator.evaluate(evaluationContext)
     if (value != null) {
-      getCastableRuntimeType(project, value)
+      inReadAction {
+        Option(getCastableRuntimeType(project, value)).map(new PsiImmediateClassType(_, PsiSubstitutor.EMPTY)).orNull
+      }
     } else throw EvaluationException(DebuggerBundle.message("evaluation.error.surrounded.expression.null"))
   }
 }

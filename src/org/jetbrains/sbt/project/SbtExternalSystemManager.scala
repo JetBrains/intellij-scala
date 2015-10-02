@@ -133,7 +133,7 @@ object SbtExternalSystemManager {
     }
 
     new SbtExecutionSettings(vmExecutable, vmOptions, environment.toMap, customLauncher, customSbtStructureDir, projectJdkName,
-      projectSettings.resolveClassifiers, projectSettings.resolveSbtClassifiers)
+      projectSettings.resolveClassifiers, projectSettings.resolveSbtClassifiers, projectSettings.cachedUpdate)
   }
 
   private def proxyOptionsFor(http: HttpConfigurable): Seq[String] = {

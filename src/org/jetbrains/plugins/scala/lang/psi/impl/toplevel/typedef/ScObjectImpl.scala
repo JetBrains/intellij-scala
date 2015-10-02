@@ -12,10 +12,13 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightField
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.stubs.StubElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.{PsiModificationTracker, PsiUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -33,7 +36,8 @@ import scala.collection.mutable.ArrayBuffer
  * @author Alexander Podkhalyuzin
  * Date: 20.02.2008
  */
-class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDefinition {
+class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
+  extends ScTypeDefinitionImpl(stub, nodeType, node) with ScObject with ScTemplateDefinition {
   override def additionalJavaNames: Array[String] = {
     fakeCompanionClass match {
       case Some(c) => Array(c.getName)
@@ -68,9 +72,9 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     }
   }
 
-  def this(node: ASTNode) = {this (); setNode(node)}
+  def this(node: ASTNode) = {this(null, null, node)}
 
-  def this(stub: ScTemplateDefinitionStub) = {this (); setStub(stub); setNullNode()}
+  def this(stub: ScTemplateDefinitionStub) = {this(stub, ScalaElementTypes.OBJECT_DEF, null)}
 
   override def toString: String = (if (isPackageObject) "ScPackageObject: " else "ScObject: ") + name
 
@@ -133,8 +137,8 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
     }
   }
 
-  override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = {
-    (if (isSyntheticObject) Seq.empty
+  override protected def syntheticMethodsWithOverrideImpl: Seq[PsiMethod] = {
+    if (isSyntheticObject) Seq.empty
     else ScalaPsiUtil.getCompanionModule(this) match {
       case Some(c: ScClass) if c.isCase =>
         val res = new ArrayBuffer[PsiMethod]
@@ -151,8 +155,10 @@ class ScObjectImpl extends ScTypeDefinitionImpl with ScObject with ScTemplateDef
         })
         res.toSeq
       case _ => Seq.empty
-    }) ++: SyntheticMembersInjector.inject(this)
+    }
   }
+
+  override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = SyntheticMembersInjector.inject(this)
 
   def fakeCompanionClass: Option[PsiClass] = {
     ScalaPsiUtil.getCompanionModule(this) match {

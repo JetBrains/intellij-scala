@@ -46,7 +46,7 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
   }
 
   override def reset() {
-    val moduleSettings = Option(SbtSystemSettings.getInstance(state.getProject).getLinkedProjectSettings(getModel.getModule))
+    val moduleSettings = SbtSystemSettings.getInstance(state.getProject).getLinkedProjectSettings(getModel.getModule)
     myForm.sbtVersionTextField.setText(moduleSettings.map(_.sbtVersion).getOrElse(SbtBundle("sbt.settings.sbtVersionNotDetected")))
 
     modelWrapper.getModel.replaceAll(SbtModule.getImportsFrom(getModel.getModule).asJava)
