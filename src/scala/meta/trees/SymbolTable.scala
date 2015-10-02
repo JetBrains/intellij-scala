@@ -1,10 +1,10 @@
 package scala.meta.trees
 
 import com.intellij.debugger.engine.JVMNameUtil
+import com.intellij.psi._
 import com.intellij.psi.impl.file.PsiPackageImpl
 import com.intellij.psi.impl.source.DummyHolder
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._

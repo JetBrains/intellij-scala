@@ -1,21 +1,19 @@
 package scala.meta.trees
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeParameterType, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScTypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
+import org.scalameta.collections._
 
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
 import scala.meta.internal.{ast => m, semantic => h}
-import org.scalameta.collections._
 import scala.{Seq => _}
 
 trait TypeAdapter {
