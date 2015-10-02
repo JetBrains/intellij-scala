@@ -80,7 +80,7 @@ object CachedMacro {
             ..${if (hasParameters) getValuesFromMap else EmptyTree}
             if ($cacheVarName.isDefined && $modCountVarName == modCount) $cacheVarName.get
             else {
-              $cacheVarName = Some(calc())
+              $cacheVarName = Some(calc_())
               $modCountVarName = modCount
               ..${if (hasParameters) putValuesIntoMap else EmptyTree}
               $cacheVarName.get
@@ -89,7 +89,7 @@ object CachedMacro {
         val res = q"""
           ..$fields
           $mods def $name[..$tpParams](...$params): $retTp = {
-            def calc(): $retTp = $rhs
+            def calc_(): $retTp = $rhs
 
             ..${ if (synchronized) q"synchronized { $functionContents }" else functionContents }
           }
