@@ -7,24 +7,37 @@ class TreeConverterDenotationsTest extends TreeConverterTestBaseWithLibrary {
   def doTest(text: String, expected: String) = {
     implicit val c = context
     val converted = convert(text)
-    val got = converted.show[Semantics].trim
+    val got = converted.show[Semantics].trim.replaceAll("local#.+\\n", "(LOCAL)\n")
     org.junit.Assert.assertEquals(expected.trim, got)
   }
 
   def testListApply() {
     doTest(
-      "scala.collection.immutable.List()",
+      "scala.collection.immutable.List(42)",
       """
-        |Type.Name("List")[1]
-        |[1] {1}::scala.collection.immutable#List
-        |[2] {2}::scala.collection.immutable
-        |[3] {3}::scala.collection
-        |[4] {4}::scala
-        |[5] {0}::_root_
-        |{1} Type.Singleton(Term.Name("immutable")[2]{1}<>)
-        |{2} Type.Singleton(Term.Name("collection")[3]{2}<>)
-        |{3} Type.Singleton(Term.Name("scala")[4]{3}<>)
-        |{4} Type.Singleton(Term.Name("_root_")[5]{4}<>)
+        |Term.Apply(Term.Select(Term.Select(Term.Select(Term.Name("scala")[1]{1}<>, Term.Name("collection")[2]{2}<>){2}<>, Term.Name("immutable")[3]{3}<>){3}<>, Term.Name("List")[4]{4}<1>){5}<>, Seq(Lit.Int(42){6}<>)){7}<>
+        |[1] {8}::scala
+        |[2] {1}::scala.collection
+        |[3] {2}::scala.collection.immutable
+        |[4] {3}::scala.collection.immutable#List
+        |[5] {10}::scala.collection.immutable#List.apply(Lscala/collection/Seq;)Lscala/collection/immutable/List;
+        |[6] {1}::scala#Function1
+        |[7] {2}::scala.collection#Seq
+        |[8] {1}::scala#Nothing
+        |[9] {1}::scala#Int
+        |[10] {0}::_root_
+        |[11] {0}::(LOCAL)
+        |{1} Type.Singleton(Term.Name("scala")[1]{1}<>)
+        |{2} Type.Singleton(Term.Name("collection")[2]{2}<>)
+        |{3} Type.Singleton(Term.Name("immutable")[3]{3}<>)
+        |{4} Type.Singleton(Term.Name("List")[4]{4}<1>)
+        |{5} Type.Apply(Type.Name("Function1")[6], Seq(Type.Apply(Type.Name("Seq")[7], Seq(Type.Name("Nothing")[8])), Type.Apply(Type.Name("List")[4], Seq(Type.Name("Nothing")[8]))))
+        |{6} Type.Name("Int")[9]
+        |{7} Type.Apply(Type.Name("List")[4], Seq(Type.Name("Int")[9]))
+        |{8} Type.Singleton(Term.Name("_root_")[10]{8}<>)
+        |{9} Type.Method(Seq(Seq(Term.Param(Nil, Term.Name("xs")[11]{6}<>, Some(Type.Arg.Repeated(Type.Name("Int")[9])), None){6})), Type.Apply(Type.Name("Function1")[6], Seq(Type.Name("Int")[9], Type.Apply(Type.Name("List")[4], Seq(Type.Name("Int")[9])))))
+        |{10} Type.Singleton(Term.Name("List")[4]{10}<>)
+        |<1> Term.Name("apply")[5]{9}<>
       """.stripMargin
     )
   }
