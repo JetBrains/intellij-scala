@@ -17,7 +17,7 @@ class UnitInMapInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: Array[SimplificationType] = Array()
 
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case MethodRepr(call, _, Some(ref), Seq(lambdaWithBody(body)))
+    case MethodRepr(call, _, Some(ref), Seq(arg @ lambdaWithBody(body)))
       if ref.refName == "map" && checkResolve(ref, getLikeCollectionClasses) =>
 
       val isInBlock = call.getParent match {
@@ -28,12 +28,13 @@ class UnitInMapInspection extends OperationOnCollectionInspection {
         if (isInBlock) Seq(new ChangeReferenceNameQuickFix(InspectionBundle.message("use.foreach.instead.of.map"), ref, "foreach"))
         else Seq.empty
       val unitTypeReturns = body.calculateReturns().collect {
-        case expr @ ExpressionType(ft @ ScFunctionType(Unit, _)) if body.getType().getOrAny.equiv(ft) => expr
+        case expr @ ExpressionType(ft @ ScFunctionType(Unit, _)) if arg.getType().getOrAny.equiv(ft) => expr
         case expr @ ExpressionType(Unit) => expr
       }.filter(_.getTextLength > 0)
 
       unitTypeReturns.foreach { e =>
-        holder.registerProblem(e, InspectionBundle.message("expression.unit.return.in.map"), highlightType, fixes: _*)
+        if (e.isPhysical)
+          holder.registerProblem(e, InspectionBundle.message("expression.unit.return.in.map"), highlightType, fixes: _*)
       }
   }
 

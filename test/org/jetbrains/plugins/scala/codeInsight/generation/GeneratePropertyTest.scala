@@ -20,7 +20,7 @@ class GeneratePropertyTest extends ScalaGenerateTestBase {
                    |
                    |  def a: Int = _a
                    |
-                   |  def a_(value: Int): Unit = {
+                   |  def a_=(value: Int): Unit = {
                    |    _a = value
                    |  }
                    |}"""
@@ -38,7 +38,7 @@ class GeneratePropertyTest extends ScalaGenerateTestBase {
                    |
                    |  def a: Int = _a
                    |
-                   |  def a_(value: Int): Unit = {
+                   |  def a_=(value: Int): Unit = {
                    |    _a = value
                    |  }
                    |}"""
@@ -56,7 +56,7 @@ class GeneratePropertyTest extends ScalaGenerateTestBase {
                    |
                    |  protected def a: Int = _a
                    |
-                   |  protected def a_(value: Int): Unit = {
+                   |  protected def a_=(value: Int): Unit = {
                    |    _a = value
                    |  }
                    |}"""

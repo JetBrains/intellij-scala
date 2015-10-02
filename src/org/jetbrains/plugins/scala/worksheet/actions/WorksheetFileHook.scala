@@ -7,9 +7,10 @@ import java.util
 import javax.swing.event.{ChangeEvent, ChangeListener}
 import javax.swing.{JCheckBox, JPanel}
 
+import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
-import com.intellij.openapi.components.{ProjectComponent, ServiceManager}
+import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor._
 import com.intellij.openapi.project.DumbService.DumbModeListener
@@ -58,7 +59,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
         val vFile = file.getVirtualFile
         if (vFile == null) return
 
-        WorksheetFileHook getPanel vFile map {
+        WorksheetFileHook getPanel vFile foreach {
           case ref =>
             val panel = ref.get()
             if (panel != null) {
@@ -81,7 +82,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
     val editors = myFileEditorManager.getAllEditors(file)
 
     for (editor <- editors) {
-      WorksheetFileHook.getAndRemovePanel(file) map {
+      WorksheetFileHook.getAndRemovePanel(file) foreach {
         case ref =>
           val p = ref.get()
 
@@ -102,7 +103,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
 
         new CopyWorksheetAction().init(panel)
         new CleanWorksheetAction().init(panel)
-        if (run) new RunWorksheetAction().init(panel) else exec map (new StopWorksheetAction(_).init(panel))
+        if (run) new RunWorksheetAction().init(panel) else exec foreach (new StopWorksheetAction(_).init(panel))
       }
 
       myFileEditorManager.addTopComponent(editor, panel)
@@ -145,13 +146,13 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
   }
 
   private def cleanAndAdd(file: VirtualFile, action: Option[TopComponentAction]) {
-    WorksheetFileHook getPanel file map {
+    WorksheetFileHook getPanel file foreach {
       case panelRef =>
         val panel = panelRef.get()
         if (panel != null) {
           val c = panel getComponent 0
           if (c != null) panel remove c
-          action map (_.init(panel))
+          action foreach (_.init(panel))
         }
     }
   }
@@ -161,18 +162,28 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
       case txtEditor: TextEditor if txtEditor.getEditor != null => txtEditor.getEditor.getDocument
       case _ => null
     }
+    
+    private def isPluggable(file: VirtualFile): Boolean = {
+      if (ScalaFileType.WORKSHEET_EXTENSION == file.getExtension) return true
+      if (!file.isValid) return false
+      
+      PsiManager.getInstance(project).findFile(file) match {
+        case _: ScalaFile if ScratchFileService.getInstance().getRootType(file).isInstanceOf[ScratchRootType] => true
+        case _ => false
+      }
+    }
 
     override def selectionChanged(event: FileEditorManagerEvent) {}
 
     override def fileClosed(source: FileEditorManager, file: VirtualFile) {
-      if (ScalaFileType.WORKSHEET_EXTENSION == file.getExtension) {
-        val d = doc(source, file)
-        if (d != null) WorksheetAutoRunner.getInstance(source.getProject) removeListener d
-      }
+      if (!isPluggable(file)) return
+      
+      val d = doc(source, file)
+      if (d != null) WorksheetAutoRunner.getInstance(source.getProject) removeListener d
     }
 
     override def fileOpened(source: FileEditorManager, file: VirtualFile) {
-      if (ScalaFileType.WORKSHEET_EXTENSION != file.getExtension) return
+      if (!isPluggable(file)) return
 
       WorksheetFileHook.this.initTopComponent(file, run = true)
       loadEvaluationResult(source, file)
@@ -231,5 +242,5 @@ object WorksheetFileHook {
 
   private def getPanel(file: VirtualFile): Option[WeakReference[MyPanel]] = Option(file2panel get file)
 
-  def instance(project: Project) = ServiceManager.getService(project, classOf[WorksheetFileHook])
+  def instance(project: Project) = project.getComponent(classOf[WorksheetFileHook])
 }

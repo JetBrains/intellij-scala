@@ -1,18 +1,22 @@
 package org.jetbrains.plugins.scala.project.gradle
 
 import java.io.File
+import java.util
 
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException, Key}
+import com.intellij.openapi.externalSystem.service.notification.{NotificationCategory, NotificationSource}
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import org.jetbrains.plugins.gradle.model.data.{ScalaCompileOptionsData, ScalaModelData}
+import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.project.DebuggingInfoLevel
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.sbt.UsefulTestCaseHelper
-import org.jetbrains.sbt.project.ExternalSystemDsl._
+import org.jetbrains.sbt.project.data.service.{ProjectDataServiceTestCase, ExternalSystemDataDsl}
+import ExternalSystemDataDsl._
 import org.jetbrains.sbt.project.data._
-import org.jetbrains.sbt.project.{ProjectDataServiceTestCase, SbtProjectSystem}
+import org.jetbrains.sbt.project.SbtProjectSystem
 
 import scala.collection.JavaConverters._
 
@@ -47,35 +51,42 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase with UsefulT
           override protected val data: ScalaModelData = new ScalaModelData(SbtProjectSystem.Id)
           override protected def key: Key[ScalaModelData] = ScalaModelData.KEY
 
-          data.setScalaClasspath(scalaCompilerClasspath.asJava)
+          def asSerializableJavaSet[T](scalaSet: Set[T]): util.Set[T] = {
+            val classpath = new util.HashSet[T]()
+            util.Collections.addAll(classpath, scalaSet.toSeq:_*)
+            classpath
+          }
+
+          data.setScalaClasspath(asSerializableJavaSet(scalaCompilerClasspath))
           data.setScalaCompileOptions(compilerOptions.getOrElse(new ScalaCompileOptionsData))
           data.setTargetCompatibility("1.5")
         }
       }
     }.build.toDataNode
 
-  private val compilerVersionError = Some("Cannot determine Scala compiler version for module Module 1")
-  private val scalaLibraryError = Some("Cannot find project Scala library 2.10.4 for module Module 1")
+  def testEmptyScalaCompilerClasspath(): Unit = {
+    importProjectData(generateProject(None, Set.empty, None))
+    // FIXME: can't check notification count for Gradle because tool window is uninitialized
+    // assertNotificationsCount(NotificationSource.PROJECT_SYNC, NotificationCategory.WARNING, GradleConstants.SYSTEM_ID, 1)
+  }
 
-  def testEmptyScalaCompilerClasspath(): Unit =
-    assertException[ExternalSystemException](compilerVersionError) {
-      importProjectData(generateProject(None, Set.empty, None))
-    }
+  def testScalaCompilerClasspathWithoutScala(): Unit = {
+    importProjectData(generateProject(None, Set(new File("/tmp/test/not-a-scala-library.jar")), None))
+    // FIXME: can't check notification count for Gradle because tool window is uninitialized
+    // assertNotificationsCount(NotificationSource.PROJECT_SYNC, NotificationCategory.WARNING, GradleConstants.SYSTEM_ID, 1)
+  }
 
-  def testScalaCompilerClasspathWithoutScala(): Unit =
-    assertException[ExternalSystemException](compilerVersionError) {
-      importProjectData(generateProject(None, Set(new File("/tmp/test/not-a-scala-library.jar")), None))
-    }
+  def testWithoutScalaLibrary(): Unit = {
+    importProjectData(generateProject(None, Set(new File("/tmp/test/scala-library-2.10.4.jar")), None))
+    // FIXME: can't check notification count for Gradle because tool window is uninitialized
+    // assertNotificationsCount(NotificationSource.PROJECT_SYNC, NotificationCategory.WARNING, GradleConstants.SYSTEM_ID, 1)
+  }
 
-  def testWithoutScalaLibrary(): Unit =
-    assertException[ExternalSystemException](scalaLibraryError) {
-      importProjectData(generateProject(None, Set(new File("/tmp/test/scala-library-2.10.4.jar")), None))
-    }
-
-  def testWithDifferentVersionOfScalaLibrary(): Unit =
-    assertException[ExternalSystemException](scalaLibraryError) {
-      importProjectData(generateProject(Some("2.11.5"), Set(new File("/tmp/test/scala-library-2.10.4.jar")), None))
-    }
+  def testWithDifferentVersionOfScalaLibrary(): Unit = {
+    importProjectData(generateProject(Some("2.11.5"), Set(new File("/tmp/test/scala-library-2.10.4.jar")), None))
+    // FIXME: can't check notification count for Gradle because tool window is uninitialized
+    // assertNotificationsCount(NotificationSource.PROJECT_SYNC, NotificationCategory.WARNING, GradleConstants.SYSTEM_ID, 1)
+  }
 
   def testWithTheSameVersionOfScalaLibrary(): Unit = {
     importProjectData(generateProject(Some("2.10.4"), Set(new File("/tmp/test/scala-library-2.10.4.jar")), None))

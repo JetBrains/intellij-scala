@@ -9,12 +9,14 @@ import com.intellij.execution.application.{ApplicationConfiguration, Application
 import com.intellij.ide.highlighter.{ModuleFileType, ProjectFileType}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
+import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil}
 import com.intellij.testFramework.{PlatformTestCase, PsiTestUtil, UsefulTestCase}
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.util.TestUtils
 
 import scala.collection.mutable
+import scala.util.Try
 
 /**
  * @author Roman.Shein
@@ -46,7 +48,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
 
   override def setUpModule(): Unit = {
     if (needMake) super.setUpModule()
-    else myModule = loadModule(getImlFile)
+    else myModule = loadModule(getImlFile.getAbsolutePath)
 
     PlatformTestCase.myFilesToDelete.remove(getImlFile)
   }
@@ -81,11 +83,18 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
   }
 
   override protected def addFileToProject(fileName: String, fileText: String) {
+    def virtualFileExists(file: File) = {
+      Try(getVirtualFile(file).exists()).getOrElse(false)
+    }
+
     val file = getFileInSrc(fileName)
     if (needMake || !checkSourceFile(file, fileText)) {
       needMake = true
-      if (file.exists()) file.delete()
-      super.addFileToProject(fileName, fileText)
+      if (file.exists() || virtualFileExists(file)) {
+        val vFile = getVirtualFile(file)
+        inWriteAction(VfsUtil.saveText(vFile, fileText))
+      }
+      else super.addFileToProject(fileName, fileText)
     }
   }
 

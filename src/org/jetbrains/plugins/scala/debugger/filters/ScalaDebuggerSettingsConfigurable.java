@@ -37,6 +37,7 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
     final Boolean flag = settings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS;
     myIgnoreScalaMethods.setSelected(flag == null || flag.booleanValue());
     friendlyDisplayOfScalaCheckBox.setSelected(settings.FRIENDLY_COLLECTION_DISPLAY_ENABLED);
+    doNotExpandStreamsCheckBox.setSelected(settings.DO_NOT_DISPLAY_STREAMS);
     dontShowRuntimeRefs.setSelected(settings.DONT_SHOW_RUNTIME_REFS);
     friendlyDisplayOfScalaCheckBox.addActionListener(new ActionListener() {
       @Override

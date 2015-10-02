@@ -40,16 +40,15 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
 
   def this(param: ScParameter) {
     this(param.name, param.deprecatedName, param.getType(TypingContext.empty).getOrAny, param.getType(TypingContext.empty).getOrAny,
-      param.isDefaultParameter, param.isRepeatedParameter, param.isCallByNameParameter, param.index, Some(param),
-      if (param.isDefaultParameter) {
+      param.isDefaultParam, param.isRepeatedParameter, param.isCallByNameParameter, param.index, Some(param),
+      if (param.isDefaultParam) {
         param.getDefaultExpressionInSource match {
-          case Some(expr) => {
-            expr.getTypeAfterImplicitConversion().typeResult match {
+          case Some(expr) =>
+            expr.getTypeAfterImplicitConversion().tr match {
               case fail: Failure => None
               case typeResult: TypeResult[ScType] => Some(typeResult.get)
               case _ => None
             }
-          }
           case None => None
         }
       } else None

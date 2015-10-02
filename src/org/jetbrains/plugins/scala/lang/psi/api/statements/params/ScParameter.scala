@@ -165,7 +165,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
   @volatile
   private var defaultParamModCount: Long = 0L
 
-  def isDefaultParameter: Boolean = {
+  def isDefaultParam: Boolean = {
     @tailrec
     def check(param: ScParameter, visited: HashSet[ScParameter]): Boolean = {
       if (param.baseDefaultParam) return true

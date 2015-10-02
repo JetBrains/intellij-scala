@@ -9,7 +9,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScClassParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedMappedWithRecursionGuard
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.collection.immutable.HashSet
@@ -132,7 +133,9 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
   }
 
   private def actual: (PsiNamedElement, ScSubstitutor) = {
-    def actualInner(element: PsiNamedElement, projected: ScType): Option[(PsiNamedElement, ScSubstitutor)] = {
+      @CachedMappedWithRecursionGuard(element, CachesUtil.PROJECTION_TYPE_ACTUAL_INNER, None,
+        PsiModificationTracker.MODIFICATION_COUNT)
+      def actualInner(projected: ScType, superReference: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = {
       val emptySubst = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
       val resolvePlace = {
         def fromClazz(clazz: ScTypeDefinition): PsiElement = {
@@ -157,16 +160,26 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
         }
       }
 
+      def processType(name: String): Option[(PsiNamedElement, ScSubstitutor)] = {
+        import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
+        val proc = resolveProcessor(ValueSet(CLASS), name)
+        proc.processType(projected, resolvePlace, ResolveState.initial)
+        val candidates = proc.candidates
+        if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
+          val defaultSubstitutor = emptySubst followed candidates(0).substitutor
+          if (superReference) {
+            ScalaPsiUtil.superTypeMembersAndSubstitutors(candidates(0).element).find {
+              _.info == element
+            } match {
+              case Some(node) =>
+                Some(element, defaultSubstitutor followed node.substitutor)
+              case _ => Some(element, defaultSubstitutor)
+            }
+          } else Some(candidates(0).element, defaultSubstitutor)
+        } else None
+      }
       element match {
-        case a: ScTypeAlias =>
-          val name = a.name
-          import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-          val proc = resolveProcessor(ValueSet(CLASS), name)
-          proc.processType(projected, resolvePlace, ResolveState.initial)
-          val candidates = proc.candidates
-          if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
-            Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
-          } else None
+        case a: ScTypeAlias => processType(a.name)
         case d: ScTypedDefinition if d.isStable =>
           val name = d.name
           import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
@@ -175,39 +188,18 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
           proc.processType(projected, resolvePlace, ResolveState.initial)
           val candidates = proc.candidates
           if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
+            //todo: superMemberSubstitutor? However I don't know working example for this case
             Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
           } else None
-        case d: ScTypeDefinition =>
-          val name = d.name
-          import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-          val proc = resolveProcessor(ValueSet(CLASS), name) //ScObject in ScTypedDefinition case.
-          proc.processType(projected, resolvePlace, ResolveState.initial)
-          val candidates = proc.candidates
-          if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
-            Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
-          } else None
-        case d: PsiClass =>
-          val name = d.getName
-          import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-          val proc = resolveProcessor(ValueSet(CLASS), name) //ScObject in ScTypedDefinition case.
-          proc.processType(projected, resolvePlace, ResolveState.initial)
-          val candidates = proc.candidates
-          if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
-            Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
-          } else None
+        case d: ScTypeDefinition => processType(d.name)
+        case d: PsiClass => processType(d.getName)
         case _ => None
       }
     }
 
-    val (actualElement, actualSubst) =
-      CachesUtil.getMappedWithRecursionPreventingWithRollback[PsiNamedElement, ScType, Option[(PsiNamedElement, ScSubstitutor)]](
-        element, projected, CachesUtil.PROJECTION_TYPE_ACTUAL_INNER, actualInner, None,
-        PsiModificationTracker.MODIFICATION_COUNT).getOrElse(
-          (element, ScSubstitutor.empty)
-        )
+    val (actualElement, actualSubst) = actualInner(projected, superReference).getOrElse(element, ScSubstitutor.empty)
 
-    if (superReference) (element, actualSubst)
-    else (actualElement, actualSubst)
+    (actualElement, actualSubst)
   }
 
   def actualElement: PsiNamedElement = actual._1

@@ -1,14 +1,12 @@
 package org.jetbrains.plugins.scala
 package lang.completeStatement
 
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
-
 /**
  * @author Ksenia.Sautina
  * @since 2/25/13
  */
-class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
-  def testIfCondition() {
+class ScalaCompleteIfConditionTest extends ScalaCompleteStatementTestBase {
+  def testIfCondition1() {
     val fileText =
       """
         |class B {
@@ -22,14 +20,13 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |class B {
         |  def method() {
         |    if (<caret>) {
+        |
         |    }
         |  }
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testIfCondition2() {
@@ -46,14 +43,13 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |class B {
         |  def method() {
         |    if (<caret>) {
+        |
         |    }
         |  }
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testIfCondition3() {
@@ -70,14 +66,13 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |class B {
         |  def method() {
         |    if (<caret>) {
+        |
         |    }
         |  }
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testIfCondition4() {
@@ -101,9 +96,7 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testIfCondition5() {
@@ -126,9 +119,7 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testIfCondition6() {
@@ -154,9 +145,7 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
   def testIfCondition7() {
@@ -179,12 +168,10 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.scala", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkScalaFileByText(fileText, resultText)
   }
 
-  def testIfConditionJava() {
+  def testIfConditionJava() { //WHAT THE _?!
     val fileText =
       """
         |class B {
@@ -198,14 +185,12 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |class B {
         |    public static void main(String[] args) {
         |        if (<caret>) {
-        |        }
+        |        } 
         |    }
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.java", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkJavaFileByText(fileText, resultText)
   }
 
   def testIfCondition2Java() {
@@ -227,8 +212,6 @@ class ScalaCompleteIfConditionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    configureFromFileTextAdapter("dummy.java", fileText)
-    invokeSmartEnter()
-    checkResultByText(resultText)
+    checkJavaFileByText(fileText, resultText)
   }
 }

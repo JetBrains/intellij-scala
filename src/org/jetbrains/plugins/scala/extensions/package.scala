@@ -57,6 +57,7 @@ package object extensions {
       repr.getName match {
         case "getInstance" => false // TODO others?
         case name if name.startsWith("getAnd") && name.charAt("getAnd".length).isUpper => false
+        case name if name.startsWith("getOr") && name.charAt("getOr".length).isUpper => false
         case AccessorNamePattern() => true
         case _ => false
       }

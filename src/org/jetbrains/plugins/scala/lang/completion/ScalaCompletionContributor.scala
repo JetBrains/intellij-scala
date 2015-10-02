@@ -56,7 +56,7 @@ class ScalaCompletionContributor extends CompletionContributor {
           val position = parameters.getPosition
           val offsetInString = parameters.getOffset - position.getTextRange.getStartOffset + 1
           val interpolated =
-            ScalaPsiElementFactory.createExpressionFromText("s" + position.getText, position.getContext.getContext)
+            ScalaPsiElementFactory.createExpressionFromText("s" + position.getText, position.getContext)
           (interpolated.findElementAt(offsetInString), true, false)
         case ScalaTokenTypes.tINTERPOLATED_STRING | ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING =>
           val position = parameters.getPosition.getParent
@@ -65,12 +65,13 @@ class ScalaCompletionContributor extends CompletionContributor {
           val offset = parameters.getOffset
           val offsetInString = offset - interpolated.getTextRange.getStartOffset
           val res = ScalaCompletionContributor.getStartEndPointForInterpolatedString(interpolated, offset, offsetInString)
+          if (res.isEmpty) return
           val (exprStartInString, endPoint) = res.get
           val stringText = interpolated.getText
           val newInterpolated =
             ScalaPsiElementFactory.createExpressionFromText(stringText.substring(0, exprStartInString) + "{" +
               stringText.substring(exprStartInString, endPoint) + "}" +
-              stringText.substring(endPoint), position.getContext.getContext)
+              stringText.substring(endPoint), position.getContext)
           (newInterpolated.findElementAt(offsetInString + 1), false, true)
         case _ => return
       }
@@ -251,16 +252,20 @@ class ScalaCompletionContributor extends CompletionContributor {
         case ref: PsiElement => ref.getText
         case ref: PsiReference => ref.getElement.getText //this case for anonymous method in ScAccessModifierImpl
       }
-      val rest = ref match {
-        case ref: PsiElement => text.substring(offset - ref.getTextRange.getStartOffset + 1)
-        case ref: PsiReference => text.substring(offset - ref.getElement.getTextRange.getStartOffset + 1)
-      }
       val id = if (isOpChar(text(text.length - 1))) {
         "+++++++++++++++++++++++"
-      } else if (ScalaNamesUtil.isKeyword(rest)) {
-        CompletionUtil.DUMMY_IDENTIFIER
       } else {
-        CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
+        val rest = ref match {
+          case ref: PsiElement => text.substring(offset - ref.getTextRange.getStartOffset + 1)
+          case ref: PsiReference =>
+            val from = offset - ref.getElement.getTextRange.getStartOffset + 1
+            if (from < text.length && from >= 0) text.substring(from) else ""
+        }
+        if (ScalaNamesUtil.isKeyword(rest)) {
+          CompletionUtil.DUMMY_IDENTIFIER
+        } else {
+          CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
+        }
       }
       context.setDummyIdentifier(
         if (ref.getElement != null &&

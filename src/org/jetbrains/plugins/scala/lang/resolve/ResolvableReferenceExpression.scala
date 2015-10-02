@@ -4,7 +4,7 @@ package resolve
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import com.intellij.psi.util.{PsiTreeUtil, PsiModificationTracker}
+import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor._
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, CachedWithRecursionGuard}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -34,21 +35,20 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object ShapesResolver extends ReferenceExpressionResolver(true)
 
   def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
-    if (resolveFunction != null) return resolveFunction()
-    CachesUtil.getMappedWithRecursionPreventingWithRollback[ResolvableReferenceExpression, Boolean, Array[ResolveResult]](
-      this, incomplete, CachesUtil.RESOLVE_KEY, Resolver.resolve, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
+    @CachedMappedWithRecursionGuard(this, CachesUtil.RESOLVE_KEY, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
+    def multiResolveInner(incomplete: Boolean): Array[ResolveResult] = Resolver.resolve(this, incomplete)
+    if (resolveFunction != null) resolveFunction()
+    else multiResolveInner(incomplete)
   }
 
   def shapeResolve: Array[ResolveResult] = {
-    ProgressManager.checkCanceled()
-    if (shapeResolveFunction != null) return shapeResolveFunction()
-    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.REF_EXPRESSION_SHAPE_RESOLVE_KEY,
-      new CachesUtil.MyProvider(this, (expr: ResolvableReferenceExpression) => expr.shapeResolveInner)
-      (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
-  }
+    @CachedWithRecursionGuard[ResolvableReferenceExpression](this, CachesUtil.REF_EXPRESSION_SHAPE_RESOLVE_KEY,
+      Array.empty[ResolveResult], PsiModificationTracker.MODIFICATION_COUNT)
+    def shapeResolveInner: Array[ResolveResult] = ShapesResolver.resolve(this, incomplete = false)
 
-  private def shapeResolveInner: Array[ResolveResult] = {
-    ShapesResolver.resolve(this, incomplete = false)
+    ProgressManager.checkCanceled()
+    if (shapeResolveFunction != null) shapeResolveFunction()
+    else shapeResolveInner
   }
 
   def isAssignmentOperator = {

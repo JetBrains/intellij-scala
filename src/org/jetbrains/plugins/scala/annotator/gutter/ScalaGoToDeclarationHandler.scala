@@ -92,32 +92,14 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     element match {
       case null => Seq.empty
       case fun: ScFunction =>
-        val clazz = fun.containingClass
-        if (fun.name == "copy" && fun.isSyntheticCopy) {
-          clazz match {
-            case td: ScClass if td.isCase =>
-              return Seq(td)
-            case _ =>
-          }
-        }
-        ScalaPsiUtil.getCompanionModule(clazz) match {
-          case Some(td: ScTypeDefinition) if td.fakeCompanionModule.isDefined =>
-            return Seq(td)
-          case _ =>
-        }
-
-        clazz match {
-          case td: ScTypeDefinition if td.syntheticMethodsNoOverride.contains(fun) => Seq(td)
-          case _ => fun.getSyntheticNavigationElement match {
-            case Some(element) => Seq(element)
-            case None => Seq(element)
-          }
-        }
-      case o: ScObject =>
-        ScalaPsiUtil.getCompanionModule(o) match {
-          case Some(td: ScTypeDefinition) if td.fakeCompanionModule.isDefined => Seq(td)
+        Seq(fun.getSyntheticNavigationElement.getOrElse(element))
+      case td: ScTypeDefinition if td.isSynthetic =>
+        td.syntheticContainingClass match {
+          case Some(containingClass) => Seq(containingClass)
           case _ => Seq(element)
         }
+      case o: ScObject if o.isSyntheticObject =>
+        Seq(ScalaPsiUtil.getCompanionModule(o).getOrElse(element))
       case param: ScParameter =>
         ScalaPsiUtil.parameterForSyntheticParameter(param).map(Seq[PsiElement](_)).getOrElse(Seq[PsiElement](element))
       case _ => Seq(element)

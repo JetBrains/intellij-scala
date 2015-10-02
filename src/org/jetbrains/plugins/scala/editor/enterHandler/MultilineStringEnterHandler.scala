@@ -128,7 +128,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
       val wasSingleLine = literal.getText.indexOf("\n") == literal.getText.lastIndexOf("\n")
       val lines = literal.getText.split("\n")
 
-      val marginCharOpt = selectBySettings[Option[Char]](None)(Some(marginChar))
+      val marginCharOpt = if (needAddByType(literal)) selectBySettings[Option[Char]](None)(Some(marginChar)) else None
 
       if (wasSingleLine || lines.length == 3 &&
       (lines(0).endsWith("(") && lines(2).trim.startsWith(")") || lines(0).endsWith("{") && lines(2).trim.startsWith("}"))) {
@@ -140,7 +140,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
         }
         val needInsertNLBefore = (!trimmedStartLine.startsWith(firstMLQuote) || inConcatenation.isDefined) && quotesOnNewLine
 
-        selectBySettings()(insertStripMargin(document, literal, marginChar))
+        selectBySettings()(if (needAddByType(literal)) insertStripMargin(document, literal, marginChar))
 
         val prevIndent =
           if (inConcatenation.isDefined) inConcatenation.map { expr =>

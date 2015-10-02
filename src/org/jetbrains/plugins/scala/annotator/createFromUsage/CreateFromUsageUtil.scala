@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
+import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTupleTypeElement}
@@ -52,6 +53,7 @@ object CreateFromUsageUtil {
     ref.getParent match {
       case p: ScPattern =>
         paramsText(patternArgs(p))
+      case MethodRepr(_, _, _, args) => paramsText(args) //for case class
       case _ =>
         val fromConstrArguments = PsiTreeUtil.getParentOfType(ref, classOf[ScConstructor]) match {
           case ScConstructor(simple: ScSimpleTypeElement, args) if ref.getParent == simple => args

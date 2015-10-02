@@ -26,7 +26,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 
-import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -226,7 +225,6 @@ object InferUtil {
             case ScMethodType(inter, _, innerImpl) if innerImpl && !fromImplicitParameters => inter
             case _ => internal
           }
-          //todo I REPLACE
           val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(m,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false, defaultType = None)),
             Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(innerInternal.inferValueType))),
@@ -235,7 +233,6 @@ object InferUtil {
         }
         updateRes(expectedType.get)
       //todo: Something should be unified, that's bad to have fromImplicitParameters parameter.
-      //todo I REPLACE
       case Success(ScTypePolymorphicType(internal, typeParams), _) if expectedType != None && fromImplicitParameters =>
         def updateRes(expected: ScType) {
           nonValueType = Success(ScalaPsiUtil.localTypeInference(internal,
@@ -266,9 +263,16 @@ object InferUtil {
 
           expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(dummyExpr, expectedRet))
 
-          new ScMethodType(updatedResultType.typeResult.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
+          new ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
         case Some(tp) if !fromSAM && ScalaPsiUtil.isSAMEnabled(expr) =>
-          applyImplicitViewToResult(mt, ScalaPsiUtil.toSAMType(tp, expr.getResolveScope), fromSAM = true)
+          ScalaPsiUtil.toSAMType(tp, expr.getResolveScope) match {
+            case Some(ScFunctionType(retTp, _)) if retTp.equiv(Unit) =>
+              //example:
+              //def f(): () => Unit = () => println()
+              //val f1: Runnable = f
+              ScFunctionType(Unit, Seq.empty)(expr.getProject, expr.getResolveScope)
+            case _ => applyImplicitViewToResult(mt, ScalaPsiUtil.toSAMType(tp, expr.getResolveScope), fromSAM = true)
+          }
         case _ => mt
       }
     }

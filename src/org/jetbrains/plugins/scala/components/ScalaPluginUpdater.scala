@@ -94,8 +94,10 @@ object ScalaPluginUpdater {
   @throws(classOf[InvalidRepoException])
   def doUpdatePluginHostsAndCheck(branch: ScalaApplicationSettings.pluginBranch) = {
     doUpdatePluginHosts(branch)
-    UpdateChecker.updateAndShowResult()
-      .doWhenDone(toRunnable(postCheckIdeaCompatibility(branch)))
+    if(UpdateSettings.getInstance().isCheckNeeded) {
+      UpdateChecker.updateAndShowResult()
+        .doWhenDone(toRunnable(postCheckIdeaCompatibility(branch)))
+    }
   }
 
   def getScalaPluginBranch: ScalaApplicationSettings.pluginBranch = {
@@ -168,7 +170,7 @@ object ScalaPluginUpdater {
     url.foreach(u => invokeLater {
       try {
         val resp = XML.load(u)
-        val text = (resp \\ "idea-plugin" \\ "idea-version" \\ "@since-build").text
+        val text = ((resp \\ "idea-plugin").head \ "idea-version" \ "@since-build").text
         val remoteBuildNumber = BuildNumber.fromString(text)
         if (localBuildNumber.compareTo(remoteBuildNumber) < 0)
           suggestIdeaUpdate(branch.toString, text)

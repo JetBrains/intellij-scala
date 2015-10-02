@@ -62,16 +62,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    * @return map of expressions and parameters
    */
   def matchedParameters: Seq[(ScExpression, Parameter)] = {
-    var res = matchedParametersCache
-    if (res == null) {
-      res = matchedParametersInner.map(a => a.swap).filter(a => a._1 != null) //todo: catch when expression is null
-      matchedParametersCache = res
-    }
-    res
+    matchedParametersInner.map(a => a.swap).filter(a => a._1 != null) //todo: catch when expression is null
   }
-
-  @volatile
-  private var matchedParametersCache: Seq[(ScExpression, Parameter)] = null
 
   /**
    * @return map of expressions and parameters
@@ -192,7 +184,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
             val dependentSubst = new ScSubstitutor(() => {
               this.scalaLanguageLevel match {
                 case Some(level) if level < Scala_2_10 => Map.empty
-                case _ => c._4.toMap
+                case _ => cd._4.toMap
               }
             })
             dependentSubst.subst(cd._1)
@@ -208,8 +200,8 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
       val applyFunction = functionClass.flatMap(_.functions.find(_.name == "apply"))
       params.mapWithIndex {
         case (tp, i) =>
-          //todo I REPLACE
-        new Parameter("v" + (i + 1), None, tp, tp, false, false, false, i, applyFunction.map(_.parameters.apply(i)), defaultType = None)
+        new Parameter("v" + (i + 1), None, tp, tp, false, false, false, i, applyFunction.map(_.parameters.apply(i)),
+          defaultType = None)
       }
     }
 
@@ -313,7 +305,6 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
   private def setMatchedParametersVar(seq: Seq[(Parameter, ScExpression)]) {
     val modCount: Long = getManager.getModificationTracker.getModificationCount
-    matchedParametersCache = null
     putUserData(MethodInvocation.MATCHED_PARAMETERS_VAR_KEY, (modCount, seq))
   }
 
@@ -332,7 +323,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     putUserData(MethodInvocation.APPLY_OR_UPDATE_KEY, (modCount, opt))
   }
 
-  private def getUpdatableUserData[Res](key: Key[(Long, Res)])(default: =>Res): Res = {
+  private def getUpdatableUserData[Res](key: Key[(Long, Res)])(default: => Res): Res = {
     val modCount = getManager.getModificationTracker.getModificationCount
     def getData = Option(getUserData(key)).getOrElse(-1L, default)
     getData match {
