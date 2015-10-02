@@ -1,17 +1,15 @@
 package scala.meta.trees
 
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariableDefinition, ScFunctionDefinition, ScMacroDefinition, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.rearranger.ScalaArrangementVisitor
 
-import scala.meta._
-import scala.{Seq => _}
 import scala.collection.immutable.Seq
-import scala.meta.internal.{ast=>m}
+import scala.meta._
+import scala.meta.internal.{ast => m}
+import scala.{Seq => _}
 
 trait MemberAdapter {
   self: TreeConverter =>

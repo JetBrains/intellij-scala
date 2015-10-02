@@ -2,7 +2,7 @@ package scala.meta
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.psi.{PsiManager, PsiFile}
+import com.intellij.psi.{PsiFile, PsiManager}
 
 trait EnvironmentProvider {
   def findFileByPath(path: String): PsiFile = {

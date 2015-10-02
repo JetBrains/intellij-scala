@@ -1,14 +1,13 @@
 package scala.meta.trees
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.psi.{PsiPackage, PsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
+import com.intellij.psi.{PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
 import scala.meta.internal.{ast => m, semantic => h}
