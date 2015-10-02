@@ -38,7 +38,7 @@ abstract class Specs2RegExpTestNameTest extends Specs2TestCase {
   def testInnerMost() = {
     addRegExpTest()
 
-    runTestByLocation(8, 10, regExpFileName,
+    runTestByLocation(8, 6, regExpFileName,
       checkConfigAndSettings(_, regExpClassName, "test"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", regExpClassName, "The RegExpTest should", "test") &&
         checkResultTreeDoesNotHaveNodes(root, "testtest", "testtesttest")
