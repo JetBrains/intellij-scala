@@ -35,10 +35,10 @@ class TreeConverterMatchTest extends TreeConverterTestBaseWithLibrary {
       """
         |val a = 42
         |//start
-        |a match { case Some(bar: Int, baz) => }
+        |a match { case Some(bar: Int) => }
       """.stripMargin,
       Term.Match(Term.Name("a"), List(Case(Pat.Extract(Term.Name("Some"), Nil,
-        List(Pat.Typed(Pat.Var.Term(Term.Name("bar")), Type.Name("Int")), Pat.Var.Term(Term.Name("baz")))), None, Term.Block(Nil))))
+        List(Pat.Typed(Pat.Var.Term(Term.Name("bar")), Type.Name("Int")))), None, Term.Block(Nil))))
     )
   }
   
@@ -62,8 +62,8 @@ class TreeConverterMatchTest extends TreeConverterTestBaseWithLibrary {
   
   def testMatchTuple() {
     doTest(
-      "42 match { case (b, c) => }",
-      Term.Match(Lit.Int(42), List(Case(Pat.Tuple(List(Pat.Var.Term(Term.Name("b")), Pat.Var.Term(Term.Name("c")))), None, Term.Block(Nil))))
+      "(42, 24) match { case (b, c) => }",
+      Term.Match(Term.Tuple(List(Lit.Int(42), Lit.Int(24))) , List(Case(Pat.Tuple(List(Pat.Var.Term(Term.Name("b")), Pat.Var.Term(Term.Name("c")))), None, Term.Block(Nil))))
     )
   }
   

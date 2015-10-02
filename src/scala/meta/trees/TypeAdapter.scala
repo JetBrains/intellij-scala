@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeParameterType, ScSubstitutor}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
 import scala.collection.immutable.Seq
@@ -81,7 +81,10 @@ trait TypeAdapter {
           val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
           toType(s.subst(t.typeElement.get.getType().get))
         case t: ScTypedDefinition =>
-          toType(t.getType(TypingContext.empty).get)
+          t.getTypeWithCachedSubst match {
+            case Success(res, place) => toType(res)
+            case Failure(cause, place) => unreachable
+          }
         case t: ScReferenceElement =>
           t.bind() match {
             case Some(result) => toType(result.element)
