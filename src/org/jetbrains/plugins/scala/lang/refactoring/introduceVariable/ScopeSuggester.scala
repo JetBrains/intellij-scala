@@ -10,12 +10,11 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiPackage}
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
-import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScProjectionType, ScTypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScProjectionType, ScTypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util._
 
@@ -184,7 +183,11 @@ object ScopeSuggester {
       } else {
         val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, file)
         allOcurrences += occurrences
-        val parent = if (file.asInstanceOf[ScalaFile].isScriptFile()) file else PsiTreeUtil.findChildOfType(file, classOf[ScTemplateBody])
+        val parent = file match  {
+          case scalaFile: ScalaFile if scalaFile.isScriptFile() =>
+            file
+          case _ => PsiTreeUtil.findChildOfType(file, classOf[ScTemplateBody])
+        }
         allValidators += ScalaTypeValidator(conflictsReporter, project, editor, file, typeElement, parent, occurrences.isEmpty)
       }
     }
