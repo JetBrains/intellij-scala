@@ -267,6 +267,8 @@ trait TreeAdapter {
         m.Term.New(newTemplate(t)).withAttrs(toType(e.getType())).setTypechecked
       case t: ScFunctionExpr =>
         m.Term.Function(Seq(t.parameters.map(convertParam):_*), expression(t.result).get).withAttrs(toType(e.getType())).setTypechecked
+      case t: ScTuple =>
+        m.Term.Tuple(Seq(t.exprs.map(expression): _*)).withAttrs(toType(t.getTypeWithCachedSubst)).setTypechecked
       case other: ScalaPsiElement => other ?!
     }
   }

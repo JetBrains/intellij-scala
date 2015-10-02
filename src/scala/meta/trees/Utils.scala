@@ -5,9 +5,10 @@ import com.intellij.psi.{PsiPackage, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
 import scala.meta.internal.{ast => m, semantic => h}
@@ -82,8 +83,6 @@ trait Utils {
 
   implicit class RichScExpression(expr: ScExpression) {
     def getTypeWithCachedSubst = {
-      if (ScSubstitutor.cache.isEmpty)
-        LOG.warn(s"Empty substitution cache while calculating: ${expr.getText}")
       val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
       s.subst(expr.getType(TypingContext.empty).get)
     }
@@ -91,10 +90,18 @@ trait Utils {
 
   implicit class RichScFunctionDefinition(expr: ScFunctionDefinition) {
     def getTypeWithCachedSubst = {
-      if (ScSubstitutor.cache.isEmpty)
-        LOG.warn(s"Empty substitution cache while calculating: ${expr.getText}")
       val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
       s.subst(expr.getType().get)
+    }
+  }
+
+  implicit class RichScTypedDefinition(expr: ScTypedDefinition) {
+    def getTypeWithCachedSubst = {
+      val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
+      expr.getType() match {
+        case Success(res, elem) => Success(s.subst(res), elem)
+        case other => other
+      }
     }
   }
 
