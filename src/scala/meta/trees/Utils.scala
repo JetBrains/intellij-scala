@@ -22,7 +22,7 @@ trait Utils {
   object std {
 
     def scalaTypeName(name: String) = {
-      m.Type.Name(name).withAttrs(h.Denotation.Single(std.scalaPackagePrefix, h.Symbol.Global(std.scalaPackageSymbol, name, h.Signature.Type)))
+      m.Type.Name(name).withAttrs(h.Denotation.Single(std.scalaPackagePrefix, h.Symbol.Global(std.scalaPackageSymbol, name, h.Signature.Type))).setTypechecked
     }
 
     val rootPackageName = m.Term.Name("_root_").withAttrs(denot = h.Denotation.Single(h.Prefix.Zero, h.Symbol.RootPackage), typingLike = h.Typing.Recursive)
