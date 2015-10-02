@@ -40,37 +40,37 @@ object CachedMacro {
 
     //todo: caching two overloaded functions
     annottees.toList match {
-      case d@DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
-        if (retTp.toString() == "<type ?>") {
+      case d@DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
+        if (retTp.isEmpty) {
           abort("You must specify return type")
         }
 
         val (synchronized, modCount, manager) = parameters
-        val flattennedParams = params.flatten
-        val paramNames = flattennedParams.map(_.name)
+        val flatParams = paramss.flatten
+        val paramNames = flatParams.map(_.name)
         val cacheVarName = TermName(name.toString + "Cache_")
         val modCountVarName = TermName(name.toString + "ModCount_")
         val mapName = TermName(name.toString + "CacheMap")
-        val hasParameters: Boolean = flattennedParams.nonEmpty
+        val hasParameters: Boolean = flatParams.nonEmpty
 
         val fields = if (hasParameters) {
           q"""
-            private val $mapName = com.intellij.util.containers.ContainerUtil.
-                newConcurrentMap[(..${flattennedParams.map(_.tpt)}), ($retTp, Long)]()
+            private val $mapName = _root_.com.intellij.util.containers.ContainerUtil.
+                newConcurrentMap[(..${flatParams.map(_.tpt)}), ($retTp, _root_.scala.Long)]()
           """
         } else {
           q"""
-            @volatile
-            private var $cacheVarName: Option[$retTp] = None
-            @volatile
-            private var $modCountVarName: Long = 0L
+            new _root_.scala.volatile()
+            private var $cacheVarName: _root_.scala.Option[$retTp] = _root_.scala.None
+            new _root_.scala.volatile()
+            private var $modCountVarName: _root_.scala.Long = 0L
           """
         }
 
         def getValuesFromMap: c.universe.Tree = q"""
-            var ($cacheVarName, $modCountVarName) = Option($mapName.get(..$paramNames)) match {
-              case Some((res, count)) => (Some(res), count)
-              case _ => (None, 0L)
+            var ($cacheVarName, $modCountVarName) = _root_.scala.Option($mapName.get(..$paramNames)) match {
+              case _root_.scala.Some((res, count)) => (_root_.scala.Some(res), count)
+              case _ => (_root_.scala.None, 0L)
             }
           """
         def putValuesIntoMap: c.universe.Tree = q"$mapName.put((..$paramNames), ($cacheVarName.get, $modCountVarName))"
@@ -80,7 +80,7 @@ object CachedMacro {
             ..${if (hasParameters) getValuesFromMap else EmptyTree}
             if ($cacheVarName.isDefined && $modCountVarName == modCount) $cacheVarName.get
             else {
-              $cacheVarName = Some(calc_())
+              $cacheVarName = _root_.scala.Some(calc_())
               $modCountVarName = modCount
               ..${if (hasParameters) putValuesIntoMap else EmptyTree}
               $cacheVarName.get
@@ -88,7 +88,7 @@ object CachedMacro {
           """
         val res = q"""
           ..$fields
-          $mods def $name[..$tpParams](...$params): $retTp = {
+          $mods def $name[..$tpParams](...$paramss): $retTp = {
             def calc_(): $retTp = $rhs
 
             ..${ if (synchronized) q"synchronized { $functionContents }" else functionContents }
@@ -105,8 +105,8 @@ object CachedMacro {
     def abort(s: String) = c.abort(c.enclosingPosition, s)
 
     annottees.toList match {
-      case d@DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
-        if (retTp.toString() == "<type ?>") {
+      case d@DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
+        if (retTp.isEmpty) {
           abort("You must specify return type")
         }
 
@@ -115,10 +115,10 @@ object CachedMacro {
           case q"new CachedMappedWithRecursionGuard(..$params)" if params.length == 4 => (params, tq"com.intellij.psi.PsiElement")
           case _ => abort("Wrong annotation parameters!")
         }
-        val flatParams = params.flatten
+        val flatParams = paramss.flatten
         val parameterTypes = flatParams.map(_.tpt)
         val parameterNames: List[c.universe.TermName] = flatParams.map(_.name)
-        val cachesUtilFQN = q"org.jetbrains.plugins.scala.caches.CachesUtil"
+        val cachesUtilFQN = q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil"
         val key = annotationParameters(1)
         val parameterDefinitions: List[c.universe.Tree] = flatParams match {
           case List(param) => List(ValDef(NoMods, param.name, param.tpt, q"data"))
@@ -129,7 +129,7 @@ object CachedMacro {
         }
 
         val builder = q"""
-          def inner_(a: Any, data: Data): $retTp = {
+          def inner_(a: _root_.scala.Any, data: Data_): $retTp = {
             ..$parameterDefinitions
             $rhs
           }
@@ -139,14 +139,14 @@ object CachedMacro {
         val dependencyItem = annotationParameters(3)
 
         val updatedRhs = q"""
-          type Data = (..$parameterTypes)
+          type Data_ = (..$parameterTypes)
           val data = (..$parameterNames)
 
           $builder
 
-          $cachesUtilFQN.getMappedWithRecursionPreventingWithRollback[$dom, Data, $retTp]($element, data, $key, inner_, $defaultValue, $dependencyItem)
+          $cachesUtilFQN.getMappedWithRecursionPreventingWithRollback[$dom, Data_, $retTp]($element, data, $key, inner_, $defaultValue, $dependencyItem)
           """
-        val res = c.Expr(DefDef(mods, name, tpParams, params, retTp, updatedRhs))
+        val res = c.Expr(DefDef(mods, name, tpParams, paramss, retTp, updatedRhs))
         println(res)
         res
       case _ => abort("You can only annotate one function!")
@@ -159,11 +159,11 @@ object CachedMacro {
 
     annottees.toList match {
       case d@DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
-        if (retTp.toString() == "<type ?>") {
+        if (retTp.isEmpty) {
           abort("You must specify return type")
         }
 
-        val cachesUtilFQN = q"org.jetbrains.plugins.scala.caches.CachesUtil"
+        val cachesUtilFQN = q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil"
 
         val (annotationParameters: List[Tree], providerType, useOptionalProvider: Boolean) = c.prefix.tree match {
           case q"new CachedWithRecursionGuard[$t](..$params)" if params.length == 4 => (params, t, false) //default parameter
@@ -200,8 +200,8 @@ object CachedMacro {
     def abort(s: String) = c.abort(c.enclosingPosition, s)
 
     annottees.toList match {
-      case d@DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
-        if (retTp.toString() == "<type ?>") {
+      case d@DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
+        if (retTp.isEmpty) {
           abort("You must specify return type")
         }
         val (annotationParameters: List[Tree], useOptionalProvider: Boolean) = c.prefix.tree match {
@@ -214,7 +214,7 @@ object CachedMacro {
             (params, optional)
           case _ => abort("Wrong annotation parameters!")
         }
-        val cachesUtilFQN = q"org.jetbrains.plugins.scala.caches.CachesUtil"
+        val cachesUtilFQN = q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil"
         val elem = annotationParameters.head
         val key = annotationParameters(1)
         val dependencyItem = annotationParameters(2)
@@ -226,7 +226,7 @@ object CachedMacro {
 
           $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.$provider[Any, $retTp]($elem, _ => calc_())($dependencyItem))
           """
-        val res = DefDef(mods, name, tpParams, params, retTp, updatedRhs)
+        val res = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         println(res)
         c.Expr(res)
       case _ => abort("You can only annotate one function!")
