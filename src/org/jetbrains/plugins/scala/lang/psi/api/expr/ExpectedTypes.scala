@@ -319,7 +319,7 @@ private[expr] object ExpectedTypes {
             case Some(e) => checkIsUnderscore(e)
             case _ => false
           }
-        case _ => !(ScUnderScoreSectionUtil.underscores(expr).length == 0)
+        case _ => ScUnderScoreSectionUtil.underscores(expr).nonEmpty
       }
     }
 
