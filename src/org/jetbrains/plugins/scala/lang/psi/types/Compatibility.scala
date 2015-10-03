@@ -6,10 +6,12 @@ package types
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
+import com.intellij.psi.impl.compiled.ClsParameterImpl
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.CachesUtil
+import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, PsiParameterExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -199,7 +201,6 @@ object Compatibility {
           val conforms = Conformance.conforms(paramType, exprType, checkWeak = true)
           matched ::=(param, expr.expr)
           matchedTypes ::=(param, exprType)
-          param.defaultType = Some(exprType)
           if (!conforms) {
             List(new TypeMismatch(expr.expr, paramType))
           } else {
@@ -234,7 +235,6 @@ object Compatibility {
               } else {
                 matched ::= (param, expr)
                 matchedTypes ::= (param, exprType)
-                param.defaultType = Some(exprType)
                 undefSubst += Conformance.undefinedSubst(tp, exprType, checkWeak = true)
               }
             }
@@ -271,7 +271,6 @@ object Compatibility {
                   } else {
                     matched ::= (param, expr)
                     matchedTypes ::= (param, exprType)
-                    param.defaultType = Some(exprType)
                     undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeak = true)
                   }
                 }
@@ -304,7 +303,6 @@ object Compatibility {
           } else {
             matched ::= (parameters.last, exprs(k).expr)
             matchedTypes ::= (parameters.last, exprType)
-            parameters.last.defaultType = Some(exprType)
             undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeak = true)
           }
         }
@@ -345,28 +343,20 @@ object Compatibility {
     ConformanceExtResult(Seq.empty, undefSubst, defaultParameterUsed, matched, matchedTypes)
   }
 
-  def getDefault(scParameter: ScParameter) : Option[ScType] =
-    scParameter.getDefaultExpressionInSource match {
-      case Some(expr) =>
-        expr.getTypeAfterImplicitConversion().tr match {
-          case fail: Failure => None
-          case typeResult: TypeResult[ScType] => Some(typeResult.get)
-        }
-      case None => None
-    }
-
   def toParameter(p: ScParameter, substitutor: ScSubstitutor): Parameter = {
     val t = substitutor.subst(p.getType(TypingContext.empty).getOrNothing)
-    toParameter(p, t, default = if (p.isDefaultParam) {
-      getDefault(p) match {
-        case Some(scType) => Some(substitutor.subst(scType))
-        case None => None
-      }
-    } else None)
+    val default = p.getDefaultExpression.flatMap(_.getType().toOption.map(substitutor.subst))
+    new Parameter(p.name, p.deprecatedName, t, t, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter,
+      p.index, Some(p), default)
   }
 
-  def toParameter(p: ScParameter, realType: ScType, default: Option[ScType] = None) = {
-    new Parameter(p.name, p.deprecatedName, realType, realType, p.isDefaultParam, p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p), default)
+  def toParameter(p: PsiParameter) = {
+    val tp = p.paramType
+    new Parameter(if (p.isInstanceOf[ClsParameterImpl]) "" else p.name, None, tp, tp, false, p.isVarArgs, false, p.index,
+      p match {
+        case param: ScParameter => Some(param)
+        case _ => None
+      })
   }
 
   // TODO refactor a lot of duplication out of this method
@@ -445,7 +435,8 @@ object Compatibility {
         if (shortage > 0) {
           val part = obligatory.takeRight(shortage).map { p =>
             val t = p.getType(TypingContext.empty).getOrAny
-            toParameter(p, t)
+            new Parameter(p.name, p.deprecatedName, t, t, p.isDefaultParam, p.isRepeatedParameter,
+              p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.getType().toOption))
           }
           return ConformanceExtResult(part.map(new MissedValueParameter(_)))
         }
@@ -470,10 +461,12 @@ object Compatibility {
         val obligatory = parameters.filterNot(_.isVarArgs)
         val shortage = obligatory.size - exprs.length
         if (shortage > 0)
-          return ConformanceExtResult(obligatory.takeRight(shortage).map(p => MissedValueParameter(new Parameter(p))))
+          return ConformanceExtResult(obligatory.takeRight(shortage).map(p => MissedValueParameter(toParameter(p))))
 
-        checkConformanceExt(checkNames = false, parameters = parameters.map(new Parameter(_)),
-          exprs = exprs, checkWithImplicits = checkWithImplicits, isShapesResolve = isShapesResolve)
+        checkConformanceExt(checkNames = false, parameters = parameters.map {
+          case param: PsiParameter => new Parameter("", None, substitutor.subst(param.exactParamType()),
+            false, param.isVarArgs, false, -1)
+        }, exprs = exprs, checkWithImplicits = checkWithImplicits, isShapesResolve = isShapesResolve)
 
       case _ => ConformanceExtResult(Seq(new ApplicabilityProblem("22")))
     }

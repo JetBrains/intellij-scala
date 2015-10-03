@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference, ScUnderScoreSectionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaElementVisitor}
@@ -81,32 +81,19 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
     def getConstructorParams(constr: PsiMethod, subst: ScSubstitutor): (Seq[Seq[Parameter]], Boolean) = {
 
-      //todo remove it
-      def getDefault(scParameter: ScParameter) : Option[ScType] =
-        scParameter.getDefaultExpressionInSource match {
-          case Some(expr) =>
-            expr.getTypeAfterImplicitConversion().tr match {
-              case fail: Failure => None
-              case typeResult: TypeResult[ScType] => Some(typeResult.get)
-            }
-          case None => None
-        }
-
       constr match {
         case fun: ScFunction =>
           (fun.effectiveParameterClauses.map(_.effectiveParameters.map { p =>
             val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
-            new Parameter(p.name, p.deprecatedName,
-              paramType, paramType, p.isDefaultParam,
-              p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p), if (p.isDefaultParam) Some(subst.subst(getDefault(p).get)) else None)
+            new Parameter(p.name, p.deprecatedName, paramType, paramType, p.isDefaultParam,p.isRepeatedParameter,
+              p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.getType().toOption))
           }),
             fun.parameterList.clauses.lastOption.exists(_.isImplicit))
         case f: ScPrimaryConstructor =>
           (f.effectiveParameterClauses.map(_.effectiveParameters.map { p =>
             val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
-            new Parameter(p.name, p.deprecatedName,
-              paramType, paramType, p.isDefaultParam,
-              p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p), if (p.isDefaultParam) Some(subst.subst(getDefault(p).get)) else None)
+            new Parameter(p.name, p.deprecatedName, paramType, paramType, p.isDefaultParam, p.isRepeatedParameter,
+              p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.getType().toOption))
           }),
             f.parameterList.clauses.lastOption.exists(_.isImplicit))
         case m: PsiMethod =>
