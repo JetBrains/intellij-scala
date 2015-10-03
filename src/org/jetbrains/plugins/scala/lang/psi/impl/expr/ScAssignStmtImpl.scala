@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -45,79 +46,38 @@ class ScAssignStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScA
     }
   }
 
-  @volatile
-  private var assignment: Option[ScalaResolveResult] = null
+  @Cached(synchronized = false, ModCount.getModificationCount, getManager)
+  def resolveAssignment: Option[ScalaResolveResult] = resolveAssignmentInner(shapeResolve = false)
 
-  @volatile
-  private var assignmentModCount: Long = 0L
+  @Cached(synchronized = false, ModCount.getModificationCount, getManager)
+  def shapeResolveAssignment: Option[ScalaResolveResult] = resolveAssignmentInner(shapeResolve = true)
 
-  def resolveAssignment: Option[ScalaResolveResult] = {
-    val count = getManager.getModificationTracker.getModificationCount
-    var res = assignment
-    if (res != null && count == assignmentModCount) return assignment
-    res = resolveAssignmentInner(shapeResolve = false)
-    assignmentModCount = count
-    assignment = res
-    res
-  }
-
-  @volatile
-  private var shapeAssignment: Option[ScalaResolveResult] = null
-
-  @volatile
-  private var shapeAssignmentModCount: Long = 0L
-
-  def shapeResolveAssignment: Option[ScalaResolveResult] = {
-    val count = getManager.getModificationTracker.getModificationCount
-    var res = shapeAssignment
-    if (res != null && count == shapeAssignmentModCount) return shapeAssignment
-    res = resolveAssignmentInner(shapeResolve = true)
-    shapeAssignmentModCount = count
-    shapeAssignment = res
-    res
-  }
-
-  @volatile
-  private var methodCall: Option[ScMethodCall] = null
-
-  @volatile
-  private var methodCallModCount: Long = 0L
-
+  @Cached(synchronized = false, ModCount.getModificationCount, getManager)
   def mirrorMethodCall: Option[ScMethodCall] = {
-    def impl(): Option[ScMethodCall] = {
-      getLExpression match {
-        case ref: ScReferenceExpression =>
-          val text = s"${ref.refName}_=(${getRExpression.map(_.getText).getOrElse("")})"
-          val mirrorExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
-          mirrorExpr match {
-            case call: ScMethodCall =>
-              call.getInvokedExpr.asInstanceOf[ScReferenceExpression].setupResolveFunctions(
-                () => resolveAssignment.toArray, () => shapeResolveAssignment.toArray
-              )
-              Some(call)
-            case _ => None
-          }
-        case methodCall: ScMethodCall =>
-          val invokedExpr = methodCall.getInvokedExpr
-          val text = s"${invokedExpr.getText}.update(${methodCall.args.exprs.map(_.getText).mkString(",")}," +
-            s" ${getRExpression.map(_.getText).getOrElse("")}"
-          val mirrorExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
-          //todo: improve performance: do not re-evaluate resolve to "update" method
-          mirrorExpr match {
-            case call: ScMethodCall => Some(call)
-            case _ => None
-          }
-        case _ => None
-      }
+    getLExpression match {
+      case ref: ScReferenceExpression =>
+        val text = s"${ref.refName}_=(${getRExpression.map(_.getText).getOrElse("")})"
+        val mirrorExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
+        mirrorExpr match {
+          case call: ScMethodCall =>
+            call.getInvokedExpr.asInstanceOf[ScReferenceExpression].setupResolveFunctions(
+              () => resolveAssignment.toArray, () => shapeResolveAssignment.toArray
+            )
+            Some(call)
+          case _ => None
+        }
+      case methodCall: ScMethodCall =>
+        val invokedExpr = methodCall.getInvokedExpr
+        val text = s"${invokedExpr.getText}.update(${methodCall.args.exprs.map(_.getText).mkString(",")}," +
+          s" ${getRExpression.map(_.getText).getOrElse("")}"
+        val mirrorExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
+        //todo: improve performance: do not re-evaluate resolve to "update" method
+        mirrorExpr match {
+          case call: ScMethodCall => Some(call)
+          case _ => None
+        }
+      case _ => None
     }
-
-    val count = getManager.getModificationTracker.getModificationCount
-    var res = methodCall
-    if (res != null && count == methodCallModCount) return methodCall
-    res = impl()
-    methodCallModCount = count
-    methodCall = res
-    res
   }
 
   private def resolveAssignmentInner(shapeResolve: Boolean): Option[ScalaResolveResult] = {

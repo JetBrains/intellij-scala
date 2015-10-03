@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.light.ScPrimaryConstructorWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -112,17 +112,8 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
     }
   }
 
-  @volatile
-  private var functionWrapper: Seq[ScPrimaryConstructorWrapper] = null
-
-  @volatile
-  private var functionWrapperModificationCount: Long = 0L
-
+  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, getManager)
   def getFunctionWrappers: Seq[ScPrimaryConstructorWrapper] = {
-    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-    if (functionWrapper != null && functionWrapperModificationCount == curModCount) {
-      return functionWrapper
-    }
     val buffer = new ArrayBuffer[ScPrimaryConstructorWrapper]()
     buffer += new ScPrimaryConstructorWrapper(this)
     for {
@@ -132,9 +123,6 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
     } {
       buffer += new ScPrimaryConstructorWrapper(this, isJavaVarargs = true)
     }
-    val result = buffer.toSeq
-    functionWrapper = result
-    functionWrapperModificationCount = curModCount
-    result
+    buffer.toSeq
   }
 }

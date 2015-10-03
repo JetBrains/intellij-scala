@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -76,8 +77,8 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
       case None => return None
       case Some(x) => (x.enumerators, x.generators, x.guards)
     }
-    if (guards.length == 0 && enums.length == 0 && gens.length == 1) {
-      val gen = gens(0)
+    if (guards.isEmpty && enums.isEmpty && gens.length == 1) {
+      val gen = gens.head
       if (gen.rvalue == null) return None
       exprText.append("(").append(gen.rvalue.getText).append(")").append(".").append(if (isYield) "map" else "foreach")
               .append(" { case ")
@@ -88,8 +89,8 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         case _ => exprText.append("{}")
       }
       exprText.append(" } ")
-    } else if (gens.length > 0) {
-      val gen = gens(0)
+    } else if (gens.nonEmpty) {
+      val gen = gens.head
       if (gen.rvalue == null) return None
       var next = nextEnumerator(gen)
       next match {
@@ -199,27 +200,8 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     Some(exprText.toString())
   }
 
-  @volatile
-  private var desugarizedExpr: Option[ScExpression] = null
-
-  @volatile
-  private var desugarizedExprModCount: Long = 0L
-
+  @Cached(synchronized = true, ModCount.getModificationCount, getManager)
   def getDesugarizedExpr: Option[ScExpression] = {
-    val count = getManager.getModificationTracker.getModificationCount
-    var res = desugarizedExpr
-    if (res != null && count == desugarizedExprModCount) return desugarizedExpr
-    synchronized {
-      res = desugarizedExpr
-      if (res != null && count == desugarizedExprModCount) return desugarizedExpr
-      res = getDesugarizedExprImpl
-      desugarizedExprModCount = count
-      desugarizedExpr = res
-      res
-    }
-  }
-
-  private def getDesugarizedExprImpl: Option[ScExpression] = {
     val res = getDesugarizedExprText(forDisplay = false) match {
       case Some(text) =>
         if (text == "") None
@@ -275,10 +257,10 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         }
       }
     }
-    if ((enums.isEmpty && guards.isEmpty && gens.length == 1) || gens.length == 0 || res.isEmpty) res
+    if ((enums.isEmpty && guards.isEmpty && gens.length == 1) || gens.isEmpty || res.isEmpty) res
     else {
       val expr = res.get
-      nextEnumerator(gens(0)) match {
+      nextEnumerator(gens.head) match {
         case null => res
         case guard: ScGuard =>
           //In this case we just need to replace for statement one more time
@@ -347,14 +329,8 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     }
   }
 
-  def getLeftParenthesis = {
-    val leftParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
-    if (leftParenthesis == null) None else Some(leftParenthesis)
-  }
+  def getLeftParenthesis = Option(findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS))
 
-  def getRightParenthesis = {
-    val rightParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
-    if (rightParenthesis == null) None else Some(rightParenthesis)
-  }
+  def getRightParenthesis = Option(findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS))
 
 }

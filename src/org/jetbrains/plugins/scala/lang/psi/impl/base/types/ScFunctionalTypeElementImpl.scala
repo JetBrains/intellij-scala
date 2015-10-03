@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -19,34 +20,20 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, T
 class ScFunctionalTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunctionalTypeElement {
   override def toString: String = "FunctionalType: " + getText
 
-  private var desugarizedTypeModCount: Long = 0L
-  private var desugarizedType: Option[ScParameterizedTypeElement] = null
-
+  @Cached(synchronized = true, ModCount.getModificationCount, getManager)
   def desugarizedInfixType: Option[ScParameterizedTypeElement] = {
-    def inner(): Option[ScParameterizedTypeElement] = {
-      val paramTypes = paramTypeElement match {
-        case tup: ScTupleTypeElement => tup.components
-        case par: ScParenthesisedTypeElement if par.typeElement == None => Seq.empty
-        case other => Seq(other)
-      }
-      val n = paramTypes.length
-      val newTypeText = s"_root_.scala.Function$n[${paramTypes.map(_.getText).mkString(",")}${if (n == 0) "" else ", "}" +
-              s"${returnTypeElement.map(_.getText).getOrElse("Any")}]"
-      val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(newTypeText, getContext, this)
-      newTypeElement match {
-        case p: ScParameterizedTypeElement => Some(p)
-        case _ => None
-      }
+    val paramTypes = paramTypeElement match {
+      case tup: ScTupleTypeElement => tup.components
+      case par: ScParenthesisedTypeElement if par.typeElement.isEmpty => Seq.empty
+      case other => Seq(other)
     }
-
-    synchronized {
-      val currModCount = getManager.getModificationTracker.getModificationCount
-      if (desugarizedType != null && desugarizedTypeModCount == currModCount) {
-        return desugarizedType
-      }
-      desugarizedType = inner()
-      desugarizedTypeModCount = currModCount
-      return desugarizedType
+    val n = paramTypes.length
+    val newTypeText = s"_root_.scala.Function$n[${paramTypes.map(_.getText).mkString(",")}${if (n == 0) "" else ", "}" +
+            s"${returnTypeElement.map(_.getText).getOrElse("Any")}]"
+    val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(newTypeText, getContext, this)
+    newTypeElement match {
+      case p: ScParameterizedTypeElement => Some(p)
+      case _ => None
     }
   }
 
