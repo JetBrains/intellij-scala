@@ -48,7 +48,16 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                                      expectedOption: Option[ScType] = None,
                                      ignoreBaseTypes: Boolean = false,
                                      fromUnderscore: Boolean = false): ExpressionTypeResult = {
-    if (isShape) ExpressionTypeResult(Success(getShape()._1, Some(this)), Set.empty, None)
+    if (isShape) {
+      def default = ExpressionTypeResult(Success(getShape()._1, Some(this)), Set.empty, None)
+      val tr = getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
+      val expectedOpt = expectedOption.orElse(expectedType(fromUnderscore))
+      (tr, expectedOpt) match {
+        case (Success(tp, _), Some(expected)) if !tp.conforms(expected) =>
+          tryConvertToSAM(fromUnderscore, expected, tp).getOrElse(default)
+        case _ => default
+      }
+    }
     else {
       val expected: ScType = expectedOption.getOrElse(expectedType(fromUnderscore).orNull)
       if (expected == null) {
@@ -62,23 +71,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
             //if this result is ok, we do not need to think about implicits
             case Success(tp, _) if tp.conforms(expected) => defaultResult
             case Success(tp, _) =>
-              def checkForSAM(): Option[ExpressionTypeResult] = {
-                if (ScalaPsiUtil.isSAMEnabled(this) && ScFunctionType.isFunctionType(tp)) {
-                  ScalaPsiUtil.toSAMType(expected, getResolveScope) match {
-                    case Some(methodType) if tp.conforms(methodType) =>
-                      Some(ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None))
-                    case _ => None
-                  }
-                } else None
-              }
-
-              val possibleSAMres = this match {
-                case MethodValue(_) => checkForSAM() //eta expansion happened
-                case ScFunctionExpr(_, _) if fromUnderscore => checkForSAM()
-                case _ if !fromUnderscore && ScalaPsiUtil.isAnonExpression(this) => checkForSAM()
-                case _ => None
-              }
-              possibleSAMres match {
+              tryConvertToSAM(fromUnderscore, expected, tp) match {
                 case Some(r) => return r
                 case _ =>
               }
@@ -120,6 +113,25 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
           }
         }
       }
+    }
+  }
+
+  private def tryConvertToSAM(fromUnderscore: Boolean, expected: ScType, tp: ScType) = {
+    def checkForSAM(): Option[ExpressionTypeResult] = {
+      if (ScalaPsiUtil.isSAMEnabled(this) && ScFunctionType.isFunctionType(tp)) {
+        ScalaPsiUtil.toSAMType(expected, getResolveScope) match {
+          case Some(methodType) if tp.conforms(methodType) =>
+            Some(ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None))
+          case _ => None
+        }
+      } else None
+    }
+
+    this match {
+      case MethodValue(_) => checkForSAM() //eta expansion happened
+      case ScFunctionExpr(_, _) if fromUnderscore => checkForSAM()
+      case _ if !fromUnderscore && ScalaPsiUtil.isAnonExpression(this) => checkForSAM()
+      case _ => None
     }
   }
 
