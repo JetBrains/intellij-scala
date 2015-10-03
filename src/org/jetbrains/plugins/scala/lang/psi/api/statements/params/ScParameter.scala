@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclaratio
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.HashSet
@@ -129,7 +130,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
       // an. fun's type
       case f: ScFunctionExpr =>
         var result: Option[ScType] = null //strange logic to handle problems with detecting type
-        for (tp <- f.expectedTypes(fromUnderscore = false) if result != None) {
+        for (tp <- f.expectedTypes(fromUnderscore = false) if result.isDefined) {
           @tailrec
           def applyForFunction(tp: ScType, checkDeep: Boolean) {
             tp.removeAbstracts match {
@@ -149,9 +150,9 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
               case _ =>
             }
           }
-          applyForFunction(tp, ScUnderScoreSectionUtil.underscores(f).length > 0)
+          applyForFunction(tp, ScUnderScoreSectionUtil.underscores(f).nonEmpty)
         }
-        if (result == null || result == None) result = None //todo: x => foo(x)
+        if (result == null || result.isEmpty) result = None //todo: x => foo(x)
         result
       case _ => None
     }
@@ -159,45 +160,31 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
 
   def getTypeNoResolve: PsiType = PsiType.VOID
 
-  @volatile
-  private var defaultParam: Option[Boolean] = None
+  @Cached(synchronized = false, ModCount.getModificationCount, getManager)
+  def isDefaultParam: Boolean = calcIsDefaultParam(this, HashSet.empty)
 
-  @volatile
-  private var defaultParamModCount: Long = 0L
 
-  def isDefaultParam: Boolean = {
-    @tailrec
-    def check(param: ScParameter, visited: HashSet[ScParameter]): Boolean = {
-      if (param.baseDefaultParam) return true
-      if (visited.contains(param)) return false
-      getSuperParameter match {
-        case Some(superParam) =>
-          check(superParam, visited + param)
-        case _ => false
-      }
-    }
-
-    val count = getManager.getModificationTracker.getModificationCount
-    defaultParam match {
-      case Some(res) if count == defaultParamModCount => res
-      case _ =>
-        val res = check(this, HashSet.empty)
-        defaultParamModCount = count
-        defaultParam = Some(res)
-        res
+  @tailrec
+  private def calcIsDefaultParam(param: ScParameter, visited: HashSet[ScParameter]): Boolean = {
+    if (param.baseDefaultParam) return true
+    if (visited.contains(param)) return false
+    getSuperParameter match {
+      case Some(superParam) =>
+        calcIsDefaultParam(superParam, visited + param)
+      case _ => false
     }
   }
 
   def getDefaultExpression: Option[ScExpression] = {
     val res = getActualDefaultExpression
-    if (res == None) {
+    if (res.isEmpty) {
       getSuperParameter.flatMap(_.getDefaultExpression)
     } else res
   }
 
   def getDefaultExpressionInSource: Option[ScExpression] = {
     val res = getActualDefaultExpression
-    if (res == None) {
+    if (res.isEmpty) {
       getSuperParameter.flatMap(_.getDefaultExpressionInSource)
     } else {
       getContainingFile match {
