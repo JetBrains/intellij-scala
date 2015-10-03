@@ -30,7 +30,7 @@ trait ScParameterClause extends ScalaPsiElement {
 
   def implicitToken: Option[PsiElement] = Option(findFirstChildByType(ScalaTokenTypes.kIMPLICIT))
 
-  def hasRepeatedParam: Boolean = parameters.nonEmpty && parameters.last.isRepeatedParameter
+  def hasRepeatedParam: Boolean = parameters.lastOption.exists(_.isRepeatedParameter)
 
   def getSmartParameters: Seq[Parameter] = effectiveParameters.map(new Parameter(_))
 

@@ -13,9 +13,9 @@ import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterType}
@@ -304,19 +304,16 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         // fix by Sergey.Afanasev
         // calculation real type of Parameter's defaultType
         functionType match {
-          case stpt: ScTypePolymorphicType => {
+          case stpt: ScTypePolymorphicType =>
             stpt.internalType match {
-              case smt: ScMethodType => {
-                smt.params.foreach{
-                  param =>
-                    if (param.isDefault && param.defaultType.isDefined) {
-                      param.defaultType = Some(s.subst(param.defaultType.get))
-                  }
+              case smt: ScMethodType =>
+                smt.params.foreach {
+                  case param if param.isDefault && param.defaultType.isDefined =>
+                    param.defaultType = Some(s.subst(param.defaultType.get))
+                  case _ =>
                 }
-              }
               case _ =>
             }
-          }
           case _ =>
         }
         if (result.isDynamic) ResolvableReferenceExpression.getDynamicReturn(functionType)
