@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -301,21 +301,6 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         s.subst(fun.polymorphicType(optionResult))
       case Some(result@ScalaResolveResult(fun: ScFunction, s)) =>
         val functionType = s.subst(fun.polymorphicType())
-        // fix by Sergey.Afanasev
-        // calculation real type of Parameter's defaultType
-        functionType match {
-          case stpt: ScTypePolymorphicType =>
-            stpt.internalType match {
-              case smt: ScMethodType =>
-                smt.params.foreach {
-                  case param if param.isDefault && param.defaultType.isDefined =>
-                    param.defaultType = Some(s.subst(param.defaultType.get))
-                  case _ =>
-                }
-              case _ =>
-            }
-          case _ =>
-        }
         if (result.isDynamic) ResolvableReferenceExpression.getDynamicReturn(functionType)
         else functionType
       case Some(ScalaResolveResult(param: ScParameter, s)) if param.isRepeatedParameter =>

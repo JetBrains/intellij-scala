@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 import scala.collection.immutable.{HashMap, HashSet}
 
@@ -30,7 +30,7 @@ trait NonValueType extends ScType {
  */
 case class Parameter(name: String, deprecatedName: Option[String], paramType: ScType, expectedType: ScType,
                      isDefault: Boolean, isRepeated: Boolean, isByName: Boolean,
-                     index: Int = -1, psiParam: Option[PsiParameter] = None, var defaultType: Option[ScType] = None) {
+                     index: Int = -1, psiParam: Option[PsiParameter] = None, defaultType: Option[ScType] = None) {
 
   def this(name: String, deprecatedName: Option[String], paramType: ScType,
            isDefault: Boolean, isRepeated: Boolean, isByName: Boolean, index: Int) {
@@ -39,19 +39,7 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
 
   def this(param: ScParameter) {
     this(param.name, param.deprecatedName, param.getType(TypingContext.empty).getOrNothing, param.getType(TypingContext.empty).getOrNothing,
-      param.isDefaultParam, param.isRepeatedParameter, param.isCallByNameParameter, param.index, Some(param),
-      if (param.isDefaultParam) {
-        param.getDefaultExpressionInSource match {
-          case Some(expr) =>
-            expr.getTypeAfterImplicitConversion().tr match {
-              case fail: Failure => None
-              case typeResult: TypeResult[ScType] => Some(typeResult.get)
-              case _ => None
-            }
-          case None => None
-        }
-      } else None
-    )
+      param.isDefaultParam, param.isRepeatedParameter, param.isCallByNameParameter, param.index, Some(param), param.getDefaultExpression.flatMap(_.getType().toOption))
   }
 
   def this(param: PsiParameter) {
