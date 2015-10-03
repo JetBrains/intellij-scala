@@ -101,7 +101,7 @@ object ScalaRefactoringUtil {
   def addPossibleTypes(scType: ScType, expr: ScExpression): Array[ScType] = {
     val types = new ArrayBuffer[ScType]
     if (scType != null) types += scType
-    expr.getTypeWithoutImplicits(TypingContext.empty).foreach(types += _)
+    expr.getTypeWithoutImplicits().foreach(types += _)
     expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types += _)
     expr.expectedType().foreach(types += _)
     if (types.isEmpty) types += psi.types.Any

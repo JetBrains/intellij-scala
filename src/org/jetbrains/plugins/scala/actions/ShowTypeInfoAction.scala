@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
@@ -51,7 +50,7 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
           case (expr @ ExpressionType(tpe), _) =>
             val tpeText = tpe.presentableText
             val withoutAliases = Some(withoutAliasesText(tpe))
-            val tpeWithoutImplicits = expr.getTypeWithoutImplicits(TypingContext.empty).toOption
+            val tpeWithoutImplicits = expr.getTypeWithoutImplicits().toOption
             val tpeWithoutImplicitsText = tpeWithoutImplicits.map(_.presentableText)
             val expectedTypeText = expr.expectedType().map(_.presentableText)
             val nonSingletonTypeText = ScType.extractDesignatorSingletonType(tpe).map(_.presentableText)

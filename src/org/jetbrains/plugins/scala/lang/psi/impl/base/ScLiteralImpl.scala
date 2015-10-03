@@ -212,10 +212,10 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     typeWithoutImplicits = tp
   }
 
-  override def getTypeWithoutImplicits(ctx: TypingContext, ignoreBaseTypes: Boolean, fromUnderscore: Boolean): TypeResult[ScType] = {
+  override def getTypeWithoutImplicits(ignoreBaseTypes: Boolean, fromUnderscore: Boolean): TypeResult[ScType] = {
     val tp = typeWithoutImplicits
     if (tp != None) return Success(tp.get, None)
-    super.getTypeWithoutImplicits(ctx, ignoreBaseTypes, fromUnderscore)
+    super.getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
   }
   
   /*

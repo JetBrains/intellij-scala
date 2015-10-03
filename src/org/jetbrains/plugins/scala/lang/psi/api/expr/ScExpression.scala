@@ -52,9 +52,9 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     else {
       val expected: ScType = expectedOption.getOrElse(expectedType(fromUnderscore).orNull)
       if (expected == null) {
-        ExpressionTypeResult(getTypeWithoutImplicits(TypingContext.empty, ignoreBaseTypes, fromUnderscore), Set.empty, None)
+        ExpressionTypeResult(getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore), Set.empty, None)
       } else {
-        val tr = getTypeWithoutImplicits(TypingContext.empty, ignoreBaseTypes, fromUnderscore)
+        val tr = getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
         def defaultResult: ExpressionTypeResult = ExpressionTypeResult(tr, Set.empty, None)
         if (!checkImplicits) defaultResult //do not try implicit conversions for shape check
         else {
@@ -123,9 +123,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     }
   }
 
-  def getTypeWithoutImplicits(ctx: TypingContext, //todo: remove TypingContext?
-                              ignoreBaseTypes: Boolean = false,
-                              fromUnderscore: Boolean = false): TypeResult[ScType] = {
+  def getTypeWithoutImplicits(ignoreBaseTypes: Boolean = false, fromUnderscore: Boolean = false): TypeResult[ScType] = {
     @CachedMappedWithRecursionGuard(this, CachesUtil.TYPE_WITHOUT_IMPLICITS,
       Failure("Recursive getTypeWithoutImplicits", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
     def inner(ignoreBaseTypes: Boolean, fromUnderscore: Boolean): TypeResult[ScType] = {
@@ -344,7 +342,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     ProgressManager.checkCanceled()
 
     if (ScUnderScoreSectionUtil.underscores(this).nonEmpty) {
-      getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = true) //to update implicitParametersFromUnder
+      getTypeWithoutImplicits(fromUnderscore = true) //to update implicitParametersFromUnder
       implicitParametersFromUnder
     } else {
       getType(TypingContext.empty) //to update implicitParameters field
