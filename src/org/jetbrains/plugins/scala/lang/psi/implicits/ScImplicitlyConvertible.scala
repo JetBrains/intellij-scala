@@ -46,7 +46,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
       // def foo(x: Map[String, Int]) {}
       // def foo(x: String) {}
       // foo(Map(y -> 1)) //Error is here
-      expr.getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = fromUnder).toOption.map {
+      expr.getTypeWithoutImplicits(fromUnderscore = fromUnder).toOption.map {
         case tp =>
           ScType.extractDesignatorSingletonType(tp) match {
             case Some(res) => res

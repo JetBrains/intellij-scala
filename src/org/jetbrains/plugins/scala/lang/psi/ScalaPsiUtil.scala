@@ -253,7 +253,7 @@ object ScalaPsiUtil {
     Option[ImplicitResolveResult] = {
     //TODO! remove this after find a way to improve implicits according to compiler.
     val isHardCoded = refName == "+" &&
-      e.getTypeWithoutImplicits(TypingContext.empty).map(_.isInstanceOf[ValType]).getOrElse(false)
+      e.getTypeWithoutImplicits().map(_.isInstanceOf[ValType]).getOrElse(false)
     val kinds = processor.kinds
     var implicitMap: Seq[ImplicitResolveResult] = Seq.empty
     def checkImplicits(secondPart: Boolean, noApplicability: Boolean, withoutImplicitsForArgs: Boolean = noImplicitsForArgs) {
@@ -368,7 +368,7 @@ object ScalaPsiUtil {
 
     //TODO! remove this after find a way to improve implicits according to compiler.
     val isHardCoded = refName == "+" &&
-      e.getTypeWithoutImplicits(TypingContext.empty).map(_.isInstanceOf[ValType]).getOrElse(false)
+      e.getTypeWithoutImplicits().map(_.isInstanceOf[ValType]).getOrElse(false)
     val kinds = processor.kinds
     var implicitMap: Seq[ScalaResolveResult] = Seq.empty
     def checkImplicits(secondPart: Boolean, noApplicability: Boolean, withoutImplicitsForArgs: Boolean = noImplicitsForArgs) {
