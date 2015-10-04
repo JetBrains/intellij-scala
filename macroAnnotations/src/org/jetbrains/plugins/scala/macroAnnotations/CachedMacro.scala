@@ -48,10 +48,11 @@ object CachedMacro {
         val (synchronized, modCount, manager) = parameters
         val flatParams = paramss.flatten
         val paramNames = flatParams.map(_.name)
-        val cacheVarName = TermName(name.toString + "Cache_")
-        val modCountVarName = TermName(name.toString + "ModCount_")
-        val mapName = TermName(name.toString + "CacheMap")
+        val cacheVarName = c.freshName(name)
+        val modCountVarName = c.freshName(name)
+        val mapName = c.freshName(name)
         val hasParameters: Boolean = flatParams.nonEmpty
+        val cachedFunName = c.freshName("cachedFun")
 
         val fields = if (hasParameters) {
           q"""
@@ -80,7 +81,7 @@ object CachedMacro {
             ..${if (hasParameters) getValuesFromMap else EmptyTree}
             if ($cacheVarName.isDefined && $modCountVarName == modCount) $cacheVarName.get
             else {
-              $cacheVarName = _root_.scala.Some(calc_())
+              $cacheVarName = _root_.scala.Some($cachedFunName())
               $modCountVarName = modCount
               ..${if (hasParameters) putValuesIntoMap else EmptyTree}
               $cacheVarName.get
@@ -89,7 +90,7 @@ object CachedMacro {
         val res = q"""
           ..$fields
           $mods def $name[..$tpParams](...$paramss): $retTp = {
-            def calc_(): $retTp = $rhs
+            def $cachedFunName(): $retTp = $rhs
 
             ..${ if (synchronized) q"synchronized { $functionContents }" else functionContents }
           }
@@ -111,7 +112,6 @@ object CachedMacro {
         }
 
         val (annotationParameters: List[Tree], dom) = c.prefix.tree match {
-          //case q"new CachedMappedWithRecursionGuard[$t](..$params)" if params.length == 4 => (params, t)
           case q"new CachedMappedWithRecursionGuard(..$params)" if params.length == 4 => (params, tq"com.intellij.psi.PsiElement")
           case _ => abort("Wrong annotation parameters!")
         }
@@ -120,16 +120,19 @@ object CachedMacro {
         val parameterNames: List[c.universe.TermName] = flatParams.map(_.name)
         val cachesUtilFQN = q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil"
         val key = annotationParameters(1)
+        val cachedFunName = c.freshName("cachedFun")
+        val dataName = c.freshName("data")
+        val dataTypeName = c.freshName("Data")
         val parameterDefinitions: List[c.universe.Tree] = flatParams match {
-          case List(param) => List(ValDef(NoMods, param.name, param.tpt, q"data"))
+          case List(param) => List(ValDef(NoMods, param.name, param.tpt, q"$dataName"))
           case _ => flatParams.zipWithIndex.map {
             case (param, i) =>
-              ValDef(NoMods, param.name, param.tpt, q"data.${TermName("_" + (i + 1))}")
+              ValDef(NoMods, param.name, param.tpt, q"$dataName.${TermName("_" + (i + 1))}")
           }
         }
 
         val builder = q"""
-          def inner_(a: _root_.scala.Any, data: Data_): $retTp = {
+          def $cachedFunName(${c.freshName()}: _root_.scala.Any, $dataName: $dataTypeName): $retTp = {
             ..$parameterDefinitions
             $rhs
           }
@@ -139,12 +142,12 @@ object CachedMacro {
         val dependencyItem = annotationParameters(3)
 
         val updatedRhs = q"""
-          type Data_ = (..$parameterTypes)
-          val data = (..$parameterNames)
+          type $dataTypeName = (..$parameterTypes)
+          val $dataName = (..$parameterNames)
 
           $builder
 
-          $cachesUtilFQN.getMappedWithRecursionPreventingWithRollback[$dom, Data_, $retTp]($element, data, $key, inner_, $defaultValue, $dependencyItem)
+          $cachesUtilFQN.getMappedWithRecursionPreventingWithRollback[$dom, $dataTypeName, $retTp]($element, $dataName, $key, $cachedFunName, $defaultValue, $dependencyItem)
           """
         val res = c.Expr(DefDef(mods, name, tpParams, paramss, retTp, updatedRhs))
         println(res)
@@ -179,11 +182,12 @@ object CachedMacro {
         val key = annotationParameters(1)
         val defaultValue = annotationParameters(2)
         val dependencyItem = annotationParameters(3)
+        val cachedFunName = c.freshName("cachedFun")
         val provider =
           if (useOptionalProvider) TypeName("MyOptionalProvider")
           else TypeName("MyProvider")
-        val fun = q"def calc_(): $retTp = $rhs"
-        val builder = q"new $cachesUtilFQN.$provider[$providerType, $retTp]($element, _ => calc_())($dependencyItem)"
+        val fun = q"def $cachedFunName(): $retTp = $rhs"
+        val builder = q"new $cachesUtilFQN.$provider[$providerType, $retTp]($element, _ => $cachedFunName())($dependencyItem)"
         val updatedRhs = q"""
           $fun
           $cachesUtilFQN.getWithRecursionPreventingWithRollback($element, $key, $builder, $defaultValue)
@@ -218,13 +222,14 @@ object CachedMacro {
         val elem = annotationParameters.head
         val key = annotationParameters(1)
         val dependencyItem = annotationParameters(2)
+        val cachedFunName = c.freshName("cachedFun")
         val provider =
           if (useOptionalProvider) TypeName("MyOptionalProvider")
           else TypeName("MyProvider")
         val updatedRhs = q"""
-          def calc_(): $retTp = $rhs
+          def $cachedFunName(): $retTp = $rhs
 
-          $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.$provider[Any, $retTp]($elem, _ => calc_())($dependencyItem))
+          $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.$provider[Any, $retTp]($elem, _ => $cachedFunName())($dependencyItem))
           """
         val res = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         println(res)
