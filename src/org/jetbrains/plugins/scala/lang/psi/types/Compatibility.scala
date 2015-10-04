@@ -322,20 +322,22 @@ object Compatibility {
         val pack = parameters.zip(used)
         for ((param, use) <- pack if param.isDefault && !use) {
           val paramType: ScType = param.paramType
-          val psiParam: PsiParameter = param.psiParam.get
-          val defaultExprSource: Option[ScExpression] = psiParam.asInstanceOf[ScParameter].getDefaultExpressionInSource
-          for {defaultExpr <- defaultExprSource
-               exprType <- param.defaultType} {
-            val conforms = Conformance.conforms(paramType, exprType, checkWeak = true)
-            if (conforms) {
-              matched ::=(param, defaultExpr)
-              matchedTypes ::=(param, exprType)
-              undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeak = true)
-            } else {
-              // todo: try to do catch situations like [Nothing](s: String) and highlight it
-              return ConformanceExtResult(Seq(new ElementApplicabilityProblem(defaultExprSource.get, exprType, paramType)),
-                undefSubst, defaultParameterUsed, matched, matchedTypes)
+          val defaultExpr = param.paramInCode.flatMap(_.getDefaultExpression)
+          param.defaultType match {
+            case Some(defaultTp) if defaultTp.conforms(paramType) =>
+              defaultExpr.foreach(expr => matched ::= (param, expr))
+              matchedTypes ::=(param, defaultTp)
+              undefSubst += Conformance.undefinedSubst(paramType, defaultTp)
+            case Some(defaultTp) => defaultExpr match {
+              case Some(d) =>
+                //todo: the default expression is highlighted now, when we should highlight the method call
+                //the problem is that exprs may be empty if all parameters are default, so there's no way to get
+                //the method call expression in this function
+                return ConformanceExtResult(Seq(new TypeMismatch(d, defaultTp)), undefSubst,
+                  defaultParameterUsed = true, matched, matchedTypes)
+              case _ =>
             }
+            case _ =>
           }
         }
       }
