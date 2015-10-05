@@ -13,8 +13,8 @@ import com.intellij.psi._
 import org.jetbrains.plugin.scala.util.MacroExpansion
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScMethodCall}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScAnnotation, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScClass}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -119,15 +119,20 @@ class MacroExpandAction extends AnAction {
 
   def expandAnnotation(place: ScAnnotation, expansion: MacroExpansion)(implicit e: AnActionEvent) = {
     // we can only macro-annotate scala code
-    place.getParent.getParent match {
-      case clazz: ScClass =>
-        // FIXME: parse companion class as well(if present)
-        val newClazz = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansion.body, PsiManager.getInstance(e.getProject))
-        clazz.replace(newClazz)
-      case obj: ScObject => // TODO
-      case fun: ScFunction => // TODO
-      case param: ScParameter => // TODO
-      case other => LOG.warn(s"Unexpected annotated element: $other at ${other.getText}")
+    place .getParent.getParent match {
+      case holder: ScAnnotationsHolder =>
+        val body = expansion.body
+        val newPsi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(body, PsiManager.getInstance(e.getProject))
+        newPsi.firstChild match {
+          case Some(block: ScBlock) => // insert content of block expression(annotation can generate >1 expression)
+            val children = block.getChildren
+            holder.getParent.addRangeAfter(children.tail.head, children.dropRight(1).last, holder)
+            holder.delete()
+          case Some(psi: PsiElement) => // defns/method bodies/etc...
+            holder.replace(psi)
+          case None => LOG.warn(s"Failed to parse expansion: $body")
+        }
+      case other =>  LOG.warn(s"Unexpected annotated element: $other at ${other.getText}")
     }
   }
 
