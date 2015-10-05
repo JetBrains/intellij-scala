@@ -328,15 +328,9 @@ object Compatibility {
               defaultExpr.foreach(expr => matched ::= (param, expr))
               matchedTypes ::=(param, defaultTp)
               undefSubst += Conformance.undefinedSubst(paramType, defaultTp)
-            /*case Some(defaultTp) => defaultExpr match {
-              case Some(d) =>
-                //todo: the default expression is highlighted, when we should highlight the method call
-                //the problem is that exprs may be empty if all parameters are default, so there's no way to get
-                //the method call expression in this function
-                return ConformanceExtResult(Seq(new TypeMismatch(d, defaultTp)), undefSubst,
+            case Some(defaultTp) =>
+                return ConformanceExtResult(Seq(new DefaultTypeParameterMismatch(defaultTp, paramType)), undefSubst,
                   defaultParameterUsed = true, matched, matchedTypes)
-              case _ =>
-            }*/
             case _ =>
           }
         }
