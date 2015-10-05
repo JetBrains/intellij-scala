@@ -116,7 +116,7 @@ trait ApplicationAnnotator {
                   case ElementApplicabilityProblem(element, actual, expected) =>
                     val (actualType, expectedType) = ScTypePresentation.different(actual, expected)
                     holder.createErrorAnnotation(element, ScalaBundle.message("type.mismatch.found.required",
-                      actual.presentableText, expected.presentableText))
+                      actualType, expectedType))
                   case a =>
                     holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
                 }
