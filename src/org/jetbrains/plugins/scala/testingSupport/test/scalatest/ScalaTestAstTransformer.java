@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.*;
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScArgumentExprListImpl;
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes;
@@ -51,7 +52,8 @@ import java.util.List;
  */
 
 public class ScalaTestAstTransformer {
-    public Class<?> loadClass(String className, Module module) throws MalformedURLException {
+
+    public Class<?> loadClass(String className, Module module) throws MalformedURLException, ClassNotFoundException {
         final List<OrderEntry> orderEntries = new ArrayList<OrderEntry>();
         OrderEnumerator.orderEntries(module).recursively().runtimeOnly().forEach(new Processor<OrderEntry>() {
             @Override
@@ -82,23 +84,75 @@ public class ScalaTestAstTransformer {
         loaderUrls.toArray(loaderUrlsArray);
 
         URLClassLoader loader = new URLClassLoader(loaderUrlsArray, getClass().getClassLoader());
-        try {
-            Class clazz = loader.loadClass(className);
-            return clazz;
-        } catch (ClassNotFoundException e) {
-            return null;
-        }
+        return loader.loadClass(className);
     }
 
-    public ScTypeDefinition clazzWithStyleOpt(ScClass clazz) {
-        List<ScType> list = (List) MixinNodes.linearization(clazz);
-        for (ScType t : list) {
-            Option<PsiClass> tp = ScType$.MODULE$.extractClass(t, Option$.MODULE$.apply(clazz.getProject()));
-            if ((tp instanceof ScClass) && (((ScClass) tp).hasAnnotation("org.scalatest.Style").get() != null)) {
-                return (ScClass) tp;
-            }
-            if ((tp instanceof ScTrait) && (((ScTrait) tp).hasAnnotation("org.scalatest.Style").get() != null)) {
-                return (ScTrait) tp;
+    protected String getFinderClassFqn(ScTypeDefinition suiteTypeDef, Module module, String... annotationFqns) {
+        String finderClassName = null;
+        Annotation[] annotations = null;
+        for (String annotationFqn: annotationFqns) {
+            Option<ScAnnotation> annotationOption = suiteTypeDef.hasAnnotation(annotationFqn);
+            if (annotationOption.isDefined() && annotationOption.get() != null) {
+                ScAnnotation styleAnnotation = annotationOption.get();
+                try {
+                    ScConstructor constructor = (ScConstructor) styleAnnotation.getClass().getMethod("constructor").invoke(styleAnnotation);
+                    if (constructor != null) {
+                        ScArgumentExprList args = constructor.args().isDefined() ? constructor.args().get() : null;
+                        ScAnnotationExpr annotationExpr = styleAnnotation.annotationExpr();
+                        List<ScNameValuePair> valuePairs = JavaConversions.seqAsJavaList(annotationExpr.getAttributes());
+                        if (args == null && !valuePairs.isEmpty()) {
+                            finderClassName = valuePairs.get(0).getLiteralValue();
+                        } else if (args != null) {
+                            List<ScExpression> exprs = JavaConversions.seqAsJavaList(args.exprs());
+                            if (exprs.size() > 0) {
+                                ScExpression expr = exprs.get(0);
+                                if (expr instanceof ScLiteral && ((ScLiteral) expr).isString()) {
+                                    Object value = ((ScLiteral) expr).getValue();
+                                    if (value instanceof String) {
+                                        finderClassName = (String) value;
+                                    }
+                                } else if (expr instanceof ScAssignStmt) {
+                                    ScAssignStmt assignStmt = (ScAssignStmt) expr;
+                                    if (assignStmt.getLExpression() instanceof ScReferenceExpression &&
+                                            ((ScReferenceExpression) assignStmt.getLExpression()).refName().equals("value")) {
+                                        ScExpression rExpr = assignStmt.getRExpression().get();
+                                        if (rExpr != null && rExpr instanceof ScLiteral && ((ScLiteral) rExpr).isString()) {
+                                            Object value2 = ((ScLiteral) rExpr).getValue();
+                                            if (value2 instanceof String) {
+                                                finderClassName = (String) value2;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to extract finder class name from annotation " + styleAnnotation + ":\n" + e);
+                }
+                if (finderClassName != null) return finderClassName;
+                //the annotation is present, but arguments are not: have to load a Class, not PsiClass, in order to extract finder FQN
+                if (annotations == null) {
+                    try {
+                        Class suiteClass = loadClass(suiteTypeDef.qualifiedName(), module);
+                        annotations = suiteClass.getAnnotations();
+                    } catch (MalformedURLException | ClassNotFoundException e) {
+                        throw new RuntimeException("Failed to load class for test suite " + suiteTypeDef.qualifiedName() + "\n" + e);
+                    }
+                }
+                for (Annotation a: annotations) {
+                    if (a.annotationType().getName().equals(annotationFqn)) {
+                        try {
+                            Method valueMethod = a.annotationType().getMethod("value");
+                            String[] args = ((String[])valueMethod.invoke(a));
+                            if (args.length != 0) {
+                                return args[0];
+                            }
+                        } catch (Exception e) {
+                            System.err.println("Failed to extract finder class name from annotation " + styleAnnotation + ":\n" + e);
+                        }
+                    }
+                }
             }
         }
         return null;
@@ -114,129 +168,17 @@ public class ScalaTestAstTransformer {
                 newList.add(c);
             }
         }
-        PsiClass classWithStyle = null;
-        Option<ScAnnotation> annotationOption = null;
         for (PsiClass clazzz : newList) {
-            if (clazzz instanceof ScClass) {
-                ScClass scClass = (ScClass) clazzz;
-                annotationOption = scClass.hasAnnotation("org.scalatest.Style");
-                if (annotationOption.isDefined() && annotationOption.get() != null) {
-                    classWithStyle = scClass;
-                    break;
-                }
-                annotationOption = scClass.hasAnnotation("org.scalatest.Finders");
-                if (annotationOption.isDefined() && annotationOption.get() != null) {
-                    classWithStyle = scClass;
-                    break;
-                }
-            } else if (clazzz instanceof ScTrait) {
-                ScTrait scTrait = (ScTrait) clazzz;
-                annotationOption = scTrait.hasAnnotation("org.scalatest.Style");
-                if (annotationOption.isDefined() && annotationOption.get() != null) {
-                    classWithStyle = scTrait;
-                    break;
-                }
-                annotationOption = scTrait.hasAnnotation("org.scalatest.Finders");
-                if (annotationOption.isDefined() && annotationOption.get() != null) {
-                    classWithStyle = scTrait;
-                    break;
-                }
-            }
-        }
-
-        if (classWithStyle != null) {
-            ScTypeDefinition typeDef = (ScTypeDefinition) classWithStyle;
-            try {
-                String finderClassName;
-                ScAnnotation styleAnnotation = annotationOption.get();
-                if (styleAnnotation != null) {
-                    String notFound = "NOT FOUND STYLE TEXT";
-                    ScConstructor constructor = (ScConstructor) styleAnnotation.getClass().getMethod("constructor").invoke(styleAnnotation);
-                    if (constructor != null) {
-                        ScArgumentExprList args = constructor.args().isDefined() ? constructor.args().get() : null;
-                        ScAnnotationExpr annotationExpr = styleAnnotation.annotationExpr();
-                        List<ScNameValuePair> valuepairs = JavaConversions.seqAsJavaList(annotationExpr.getAttributes());
-                        if (args == null && !valuepairs.isEmpty()) {
-                            finderClassName = valuepairs.get(0).getLiteralValue() == null ?
-                                    notFound : valuepairs.get(0).getLiteralValue();
-                        } else if (args != null) {
-                            List<ScExpression> exprs = JavaConversions.seqAsJavaList(args.exprs());
-                            if (exprs.size() > 0) {
-                                ScExpression expr = exprs.get(0);
-                                if (expr instanceof ScLiteral && ((ScLiteral) expr).isString()) {
-                                    Object value = ((ScLiteral) expr).getValue();
-                                    if (value instanceof String) {
-                                        finderClassName = (String) value;
-                                    } else {
-                                        finderClassName = notFound;
-                                    }
-                                } else if (expr instanceof ScAssignStmt) {
-                                    ScAssignStmt assignStmt = (ScAssignStmt) expr;
-                                    if (assignStmt.getLExpression() instanceof ScReferenceExpression &&
-                                            ((ScReferenceExpression) assignStmt.getLExpression()).refName().equals("value")) {
-                                        ScExpression rExpr = assignStmt.getRExpression().get();
-                                        if (rExpr == null) {
-                                            finderClassName = notFound;
-                                        } else if (rExpr instanceof ScLiteral && ((ScLiteral) rExpr).isString()) {
-                                            Object value2 = ((ScLiteral) rExpr).getValue();
-                                            if (value2 instanceof String) {
-                                                finderClassName = (String) value2;
-                                            } else {
-                                                finderClassName = notFound;
-                                            }
-                                        } else {
-                                            finderClassName = notFound;
-                                        }
-                                    } else {
-                                        finderClassName = notFound;
-                                    }
-                                } else {
-                                    finderClassName = notFound;
-                                }
-                            } else {
-                                finderClassName = notFound;
-                            }
-                        } else {
-                            finderClassName = notFound;
-                        }
-                    } else {
-                        finderClassName = notFound;
+            if (clazzz instanceof ScClass || clazzz instanceof ScTrait) {
+                ScTypeDefinition typeDef = (ScTypeDefinition) clazzz;
+                String finderFqn = getFinderClassFqn(typeDef, module, "org.scalatest.Style", "org.scalatest.Finders");
+                if (finderFqn != null) {
+                    try {
+                        Class finderClass = Class.forName(finderFqn);
+                        return (Finder) finderClass.newInstance();
+                    } catch (ClassNotFoundException e) {
+                        System.err.println("Failed to load finders API class " + finderFqn);
                     }
-                } else {
-                    throw new RuntimeException("Match is not exhaustive!");
-                }
-                return (Finder) loadClass(finderClassName, module).newInstance();
-            } catch (Exception e) {
-                String suiteClassName = typeDef.qualifiedName();
-                Class suiteClass = loadClass(suiteClassName, module);
-                if (suiteClass == null) return null;
-                List<Annotation> annotations = Arrays.asList(suiteClass.getAnnotations());
-                Annotation styleOpt = null;
-                for (Annotation a : annotations) {
-                    if (a.annotationType().getName().equals("org.scalatest.Style") ||
-                            a.annotationType().getName().equals("org.scalatest.Finders")) {
-                        styleOpt = a;
-                    }
-                }
-                if (styleOpt != null) {
-                    Method valueMethod = styleOpt.annotationType().getMethod("value");
-                    String finderClassName = ((String[]) valueMethod.invoke(styleOpt))[0];
-                    if (finderClassName != null) {
-                        Class finderClass = loadClass(finderClassName, module);
-                        if (finderClass == null) {
-                            return null;
-                        }
-                        Object instance = finderClass.newInstance();
-                        if (instance instanceof Finder) {
-                            return (Finder) instance;
-                        } else {
-                            return null;
-                        }
-                    } else {
-                        return null;
-                    }
-                } else {
-                    return null;
                 }
             }
         }
