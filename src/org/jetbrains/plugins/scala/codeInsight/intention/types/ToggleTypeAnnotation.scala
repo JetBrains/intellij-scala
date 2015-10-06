@@ -32,14 +32,14 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    complete(Update, element)
+    complete(AddOrRemoveStrategy, element)
   }
 
   def complete(strategy: Strategy, element: PsiElement): Boolean = {
     for {function <- element.parentsInFile.findByType(classOf[ScFunctionDefinition])
          if function.hasAssign
          body <- function.body
-         if (!body.isAncestorOf(element))} {
+         if !body.isAncestorOf(element)} {
 
       if (function.returnTypeElement.isDefined)
         strategy.removeFromFunction(function)
@@ -50,10 +50,10 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
     }
 
     for {value <- element.parentsInFile.findByType(classOf[ScPatternDefinition])
-         if (value.expr.map(!_.isAncestorOf(element)).getOrElse(true))
-         if (value.pList.allPatternsSimple)
+         if value.expr.map(!_.isAncestorOf(element)).getOrElse(true)
+         if value.pList.allPatternsSimple
          bindings = value.bindings
-         if (bindings.size == 1)
+         if bindings.size == 1
          binding <- bindings} {
 
       if (value.typeElement.isDefined)
@@ -65,10 +65,10 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
     }
 
     for {variable <- element.parentsInFile.findByType(classOf[ScVariableDefinition])
-         if (variable.expr.map(!_.isAncestorOf(element)).getOrElse(true))
-         if (variable.pList.allPatternsSimple)
+         if variable.expr.map(!_.isAncestorOf(element)).getOrElse(true)
+         if variable.pList.allPatternsSimple
          bindings = variable.bindings
-         if (bindings.size == 1)
+         if bindings.size == 1
          binding <- bindings} {
 
       if (variable.typeElement.isDefined)
@@ -104,7 +104,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
 
     for (pattern <- element.parentsInFile.findByType(classOf[ScBindingPattern])) {
       pattern match {
-        case p: ScTypedPattern if (p.typePattern.isDefined) =>
+        case p: ScTypedPattern if p.typePattern.isDefined =>
           strategy.removeFromPattern(p)
           return true
         case _: ScReferencePattern =>
