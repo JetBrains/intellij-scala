@@ -62,7 +62,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
 
   def getActualDefaultExpression: Option[ScExpression]
 
-  def getRealParameterType(ctx: TypingContext): TypeResult[ScType] = {
+  def getRealParameterType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = {
     if (!isRepeatedParameter) return getType(ctx)
     getType(ctx) match {
       case f@Success(tp: ScType, elem) =>
