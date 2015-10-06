@@ -44,6 +44,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public boolean SPACE_BEFORE_TYPE_COLON = false;
   public boolean SPACE_AFTER_TYPE_COLON = true;
+  public boolean INDENT_BRACED_FUNCTION_ARGS = true;
 
   //todo: add to spacing settings
   //spacing settings:

@@ -843,4 +843,22 @@ bars foreach {case (x, y) => list.add(x + y)}
 
     doTextTest(before, after)
   }
+
+  def testSCL9243() {
+    getScalaSettings.INDENT_BRACED_FUNCTION_ARGS = false
+    val before =
+      """
+        |class a {
+        |  foo(
+        |  {
+        |    "b" + "a" + "r"
+        |  }
+        |  )
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after = before
+
+    doTextTest(before, after)
+  }
 }
