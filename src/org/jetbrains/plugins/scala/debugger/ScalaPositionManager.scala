@@ -83,10 +83,8 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
     def hasLocations(refType: ReferenceType, position: SourcePosition): Boolean = {
       try {
-        if (!file.isPhysical) { //may be generated in compiling evaluator
         val generatedClassName = file.getUserData(ScalaCompilingEvaluator.classNameKey)
-          generatedClassName != null && refType.name().contains(generatedClassName)
-        }
+        if (generatedClassName != null) refType.name().contains(generatedClassName)
         else locationsOfLine(refType, position).size > 0
       } catch {
         case _: NoDataException | _: AbsentInformationException | _: ClassNotPreparedException | _: ObjectCollectedException => false
@@ -724,6 +722,7 @@ object ScalaPositionManager {
 
   private class NamePattern(elem: PsiElement) {
     private val sourceName = elem.getContainingFile.getName
+    private val isGeneratedForCompilingEvaluator = elem.getContainingFile.getUserData(ScalaCompilingEvaluator.classNameKey) != null
     private val exactName: Option[String] = {
       elem match {
         case td: ScTypeDefinition if !DebuggerUtil.isLocalClass(td) =>
@@ -781,7 +780,7 @@ object ScalaPositionManager {
 
     def matches(refType: ReferenceType): Boolean = {
       val refTypeSourceName = Try(refType.sourceName()).getOrElse("")
-      if (refTypeSourceName != sourceName) return false
+      if (refTypeSourceName != sourceName && !isGeneratedForCompilingEvaluator) return false
 
       val name = refType.name()
 

@@ -10,11 +10,11 @@ import com.intellij.debugger.engine._
 import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.engine.evaluation.expression.{ExpressionEvaluator, Modifier}
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
-import com.intellij.debugger.{DebuggerInvocationUtil, EvaluatingComputable}
+import com.intellij.debugger.{DebuggerInvocationUtil, EvaluatingComputable, SourcePosition}
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.{PsiElement, PsiFileFactory}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation._
@@ -81,7 +81,7 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
       override def compute(): ExpressionEvaluator = {
         val callCode = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, generatedClass.callText)
         val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(callCode, generatedClass.getAnchor, project)
-        ScalaEvaluatorBuilder.build(codeFragment, ContextUtil.getSourcePosition(evaluationContext))
+        ScalaEvaluatorBuilder.build(codeFragment, SourcePosition.createFromElement(generatedClass.getAnchor))
       }
     })
   }
@@ -178,6 +178,8 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
   val generatedMethodName = "invoke"
   val callText = s"new $generatedClassName().$generatedMethodName()"
   var compiledClasses: Seq[OutputFileObject] = null
+
+  private var anchorRange: TextRange = null
   
   private var anchor: PsiElement = null
   def getAnchor = anchor
@@ -186,16 +188,14 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
 
   private def init(): Unit = {
     val file = context.getContainingFile
-    val copy = PsiFileFactory.getInstance(project).createFileFromText(file.getName, file.getFileType, file.getText, file.getModificationStamp, false)
+
+    //create and modify non-physical copy first to avoid write action
+    val textWithLocalClass = createFileTextWithLocalClass(context)
+    //create physical file to work with source positions
+    val copy = PsiFileFactory.getInstance(project).createFileFromText(file.getName, file.getFileType, textWithLocalClass, file.getModificationStamp, true)
     copy.putUserData(ScalaCompilingEvaluator.classNameKey, generatedClassName)
 
-    val range = context.getTextRange
-    val copyContext: PsiElement = CodeInsightUtilCore.findElementInRange(copy, range.getStartOffset, range.getEndOffset, context.getClass, file.getLanguage)
-
-    if (copyContext == null) throw EvaluationException("Could not evaluate due to a change in a source file")
-
-    val clazz = localClass(fragment, copyContext)
-    addLocalClass(copyContext, clazz)
+    anchor = CodeInsightUtilCore.findElementInRange(copy, anchorRange.getStartOffset, anchorRange.getEndOffset, classOf[ScBlockStatement], file.getLanguage)
     compileGeneratedClass(copy.getText)
   }
   
@@ -213,11 +213,24 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
     }
   }
 
+  private def createFileTextWithLocalClass(context: PsiElement): String = {
+    val file = context.getContainingFile
+    val copy = PsiFileFactory.getInstance(project).createFileFromText(file.getName, file.getFileType, file.getText, file.getModificationStamp, false)
+    val range = context.getTextRange
+    val copyContext: PsiElement = CodeInsightUtilCore.findElementInRange(copy, range.getStartOffset, range.getEndOffset, context.getClass, file.getLanguage)
+
+    if (copyContext == null) throw EvaluationException("Could not evaluate due to a change in a source file")
+
+    val clazz = localClass(fragment, copyContext)
+    addLocalClass(copyContext, clazz)
+    copy.getText
+  }
+
   private def addLocalClass(context: PsiElement, scClass: ScClass): Unit = {
     @tailrec
     def findAnchorAndParent(elem: PsiElement): (ScBlockStatement, PsiElement) = elem match {
       case (stmt: ScBlockStatement) childOf (b: ScBlock) => (stmt, b)
-      case (stmt: ScBlockStatement) childOf (funDef: ScFunctionDefinition) if funDef.body == Some(stmt) => (stmt, funDef)
+      case (stmt: ScBlockStatement) childOf (funDef: ScFunctionDefinition) if funDef.body.contains(stmt) => (stmt, funDef)
       case (elem: PsiElement) childOf (other: ScBlockStatement) => findAnchorAndParent(other)
       case (stmt: ScBlockStatement) childOf (nonExpr: PsiElement) => (stmt, nonExpr)
       case _ => throw EvaluationException("Could not compile local class in this context")
@@ -230,17 +243,17 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
       case _ => true
     }
 
-    if (needBraces) {
-      val newBlock = ScalaPsiElementFactory.createExpressionWithContextFromText(s"{\n${prevParent.getText}\n}", prevParent.getContext, prevParent)
-      parent = prevParent.replace(newBlock)
-      parent match {
-        case bl: ScBlock =>
-          anchor = bl.statements(0)
-        case _ => throw EvaluationException("Could not compile local class in this context")
+    val anchor =
+      if (needBraces) {
+        val newBlock = ScalaPsiElementFactory.createExpressionWithContextFromText(s"{\n${prevParent.getText}\n}", prevParent.getContext, prevParent)
+        parent = prevParent.replace(newBlock)
+        parent match {
+          case bl: ScBlock =>
+            bl.statements.head
+          case _ => throw EvaluationException("Could not compile local class in this context")
+        }
       }
-    } else {
-      anchor = prevParent
-    }
+      else prevParent
 
     val newInstance = ScalaPsiElementFactory.createExpressionWithContextFromText(s"new $generatedClassName()", anchor.getContext, anchor)
 
@@ -248,6 +261,7 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
     parent.addBefore(ScalaPsiElementFactory.createNewLine(context.getManager), anchor)
     parent.addBefore(newInstance, anchor)
     parent.addBefore(ScalaPsiElementFactory.createNewLine(context.getManager), anchor)
+    anchorRange = anchor.getTextRange
   }
 
   private def localClass(fragment: ScalaCodeFragment, context: PsiElement) = {
