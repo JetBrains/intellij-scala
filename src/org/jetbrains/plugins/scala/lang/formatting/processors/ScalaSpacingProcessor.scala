@@ -172,6 +172,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (ScalaDocTokenType.DOC_TAG_NAME, ScalaDocTokenType.DOC_TAG_VALUE_TOKEN, _, _) => return WITH_SPACING
       case (_, x, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => return Spacing.getReadOnlySpacing
       case (x, _, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => return Spacing.getReadOnlySpacing
+      case (ScalaTokenTypes.tLINE_COMMENT, _, _, _) => return ON_NEW_LINE
       case _ =>
     }
 
