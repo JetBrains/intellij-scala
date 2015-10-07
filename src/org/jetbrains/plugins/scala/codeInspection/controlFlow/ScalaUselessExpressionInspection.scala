@@ -48,6 +48,8 @@ class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessE
       import org.jetbrains.plugins.scala.lang.psi.api.base.InterpolatedStringType._
       Seq(STANDART, FORMAT, RAW).contains(lit.getType)
     case lit: ScLiteral => true
+    case ScParenthesisedExpr(inner) => exprHasNoSideEffects(inner)
+    case typed: ScTypedStmt => exprHasNoSideEffects(typed.expr)
     case ref: ScReferenceExpression =>
       if (hasImplicitConversion(ref)) false
       else {
@@ -59,8 +61,8 @@ class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessE
             !ScFunctionType.isFunctionType(tp.getOrAny)
           case _: ScObject => true
           case p: ScParameter
-            if !p.isCallByNameParameter ||
-                    ScFunctionType.isFunctionType(p.getRealParameterType(TypingContext.empty).getOrAny)=> true
+            if !p.isCallByNameParameter &&
+                    !ScFunctionType.isFunctionType(p.getRealParameterType(TypingContext.empty).getOrAny)=> true
           case _: ScSyntheticFunction => true
           case m: PsiMethod => methodHasNoSideEffects(m, ref.qualifier.flatMap(_.getType().toOption))
           case _ => false
@@ -118,19 +120,19 @@ class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessE
       case _ =>
     }
 
-    val clazzName = typeOfQual match {
+    val clazzName = typeOfQual.flatMap(ScType.extractDesignatorSingletonType).orElse(typeOfQual) match {
       case Some(tp) => ScType.extractClass(tp).map(_.qualifiedName)
       case None => methodClazzName
     }
 
     clazzName.map(_ + "." + m.name) match {
-      case Some(name) => ScalaCodeStyleSettings.nameFitToPatterns(name, immutableClasses.toArray)
+      case Some(name) => ScalaCodeStyleSettings.nameFitToPatterns(name, immutableClasses)
       case None => false
     }
   }
 
   private def isLastInBlock(expr: ScExpression): Boolean = expr match {
-    case ChildOf(bl: ScBlock) => bl.lastExpr == Some(expr)
+    case ChildOf(bl: ScBlock) => bl.lastExpr.contains(expr)
     case ChildOf(_: ScPatternDefinition | _: ScFunctionDefinition | _: ScVariableDefinition) =>
       !expr.isInstanceOf[ScBlock]
     case _ => false
@@ -196,8 +198,8 @@ object ScalaUselessExpressionInspection {
   private val immutableCollections = Seq("scala.collection.immutable._")
 
   val immutableClasses =
-    excludeNonString ++: javaWrappers ++: otherJavaClasses ++:
-      scalaValueClasses ++: otherFromScalaPackage ++: fromScalaUtil ++: fromScalaMath ++: immutableCollections
+    (excludeNonString ++: javaWrappers ++: otherJavaClasses ++:
+      scalaValueClasses ++: otherFromScalaPackage ++: fromScalaUtil ++: fromScalaMath ++: immutableCollections).toArray
 
   val methodsFromObjectWithSideEffects = Seq("wait", "finalize", "notifyAll", "notify")
           .map("java.lang.Object." + _).toArray
