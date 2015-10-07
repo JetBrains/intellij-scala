@@ -101,7 +101,7 @@ private[evaluation] class EvaluatorBuilderVisitor(element: PsiElement, _contextC
   override def visitFile(file: PsiFile) {
     if (!file.isInstanceOf[ScalaCodeFragment]) return
     val fragmentEvaluator = new CodeFragmentEvaluator(null)
-    val childrenEvaluators = file.children.map(ScalaEvaluator(_))
+    val childrenEvaluators = file.children.map(ScalaEvaluator(_)).filter(_ != null)
     fragmentEvaluator.setStatements(childrenEvaluators.toArray)
     myResult = fragmentEvaluator
     super.visitFile(file)
