@@ -861,4 +861,26 @@ bars foreach {case (x, y) => list.add(x + y)}
 
     doTextTest(before, after)
   }
+
+  def testSCL5427(): Unit = {
+    getScalaSettings.USE_SCALADOC2_FORMATTING = false
+
+    val before =
+      """
+        |/**
+        |  * Some comments
+        |  */
+        |class A
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |/**
+        | * Some comments
+        | */
+        |class A
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
 }
