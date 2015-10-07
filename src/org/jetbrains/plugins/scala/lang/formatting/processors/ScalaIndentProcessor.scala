@@ -36,7 +36,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       val comment = child.getPsi.parentsInFile.findByType(classOf[ScDocComment]).getOrElse {
         throw new RuntimeException("Unable to find parent doc comment")
       }
-      return Indent.getSpaceIndent(if (comment.version == 1) 1 else 2)
+      return Indent.getSpaceIndent(if (scalaSettings.USE_SCALADOC2_FORMATTING) 2 else 1)
     }
     if ((node.getElementType == ScalaTokenTypes.kIF || node.getElementType == ScalaTokenTypes.kELSE) &&
          parent.myLastNode != null) {
