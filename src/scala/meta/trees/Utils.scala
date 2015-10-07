@@ -6,8 +6,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
 import scala.meta.internal.{ast => m, semantic => h}
@@ -81,9 +81,22 @@ trait Utils {
   }
 
   implicit class RichScExpression(expr: ScExpression) {
-    def getTypeWithCachedSubst = {
+    def withSubstitutionCaching[T](fun: TypeResult[ScType] => T):T = withSubstitutionCaching(TypingContext.empty, fun)
+
+    def withSubstitutionCaching[T](context: TypingContext = TypingContext.empty, fun: TypeResult[ScType] => T):T = {
+      ScSubstitutor.cacheSubstitutions = true
+      val tp = expr.getType(context)
+      ScSubstitutor.cacheSubstitutions = false
+      val res = fun(tp)
+      ScSubstitutor.cache.clear()
+      res
+    }
+
+    def getTypeWithCachedSubst: ScType = getTypeWithCachedSubst(TypingContext.empty)
+
+    def getTypeWithCachedSubst(context: TypingContext): ScType = {
       val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
-      s.subst(expr.getType(TypingContext.empty).get)
+      s.subst(expr.getType(context).get)
     }
   }
 
