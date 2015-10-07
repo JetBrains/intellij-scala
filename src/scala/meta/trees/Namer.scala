@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypeVisitor, StdType}
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 
 import scala.language.postfixOps
-import scala.meta.internal.{ast => m, semantic => h}
+import scala.meta.internal.{ast => m, semantic => h, AbortException}
 import scala.{Seq => _}
 
 trait Namer {
@@ -28,11 +28,11 @@ trait Namer {
       m.Term.Name(sf.name).withAttrsFor(sf)
     case ne: ScNamedElement =>
       m.Term.Name(ne.name).withAttrsFor(ne)
-//    case re: ScReferenceExpression =>
-//      toTermName(re.resolve())
     case cr: ResolvableReferenceElement  =>
-//      m.Term.Name(cr.refName).withAttrsFor(cr)
-      toTermName(cr.resolve())
+      cr.bind()  match {
+        case Some(x) => toTermName(x.element)
+        case None => throw new ScalaMetaResolveError(cr)
+      }
     case se: impl.toplevel.synthetic.SyntheticNamedElement =>
       throw new ScalaMetaException(s"Synthetic elements not implemented") // FIXME: find a way to resolve synthetic elements
     case cs: ScConstructor =>
@@ -110,6 +110,18 @@ trait Namer {
 
   def ind(cr: ScStableCodeReferenceElement): m.Name.Indeterminate = {
     m.Name.Indeterminate(cr.getCanonicalText)
+  }
+
+  // only used in m.Term.Super/This
+  def ind(td: ScTemplateDefinition): m.Name.Indeterminate = {
+    m.Name.Indeterminate(td.name).withAttrsFor(td).setTypechecked
+  }
+
+  def ind(tp: ScType): m.Name.Indeterminate = {
+    toType(tp) match {
+      case n@m.Type.Name(value) => m.Name.Indeterminate(value).withAttrs(n.denot).setTypechecked
+      case other => throw new AbortException(other, "Super qualifier cannot be non-name type")
+    }
   }
 
 }

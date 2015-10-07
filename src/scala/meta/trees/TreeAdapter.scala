@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, api => p, types =>
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
 import scala.meta.internal.ast.Term.Param
-import scala.meta.internal.{ast => m, semantic => h}
+import scala.meta.internal.{ast => m, semantic => h, AbortException}
 import scala.{Seq => _}
 
 trait TreeAdapter {
@@ -34,6 +34,7 @@ trait TreeAdapter {
       case t: ScTrait => toTrait(t)
       case t: ScClass => toClass(t)
       case t: ScObject => toObject(t)
+      case t: ScCatchBlock => ???
       case t: ScExpression => expression(Some(t)).get
       case t: p.toplevel.imports.ScImportStmt => m.Import(Seq(t.importExprs.map(imports):_*))
 
@@ -232,43 +233,110 @@ trait TreeAdapter {
 
   def expression(e: ScExpression): m.Term = {
     import p.expr._
+    import p.expr.xml._
     e match {
       case t: ScLiteral =>
         literal(t)
       case t: ScUnitExpr =>
-        m.Lit.Unit().withAttrs(toType(e.getType())).setTypechecked
+        m.Lit.Unit()
+          .withAttrs(toType(e.getType()))
+          .setTypechecked
       case t: ScReturnStmt =>
-        m.Term.Return(expression(t.expr).get).withAttrs(toType(e.getType())).setTypechecked
+        m.Term.Return(expression(t.expr).get)
+          .withAttrs(toType(e.getType()))
+          .setTypechecked
       case t: ScBlock =>
-        m.Term.Block(Seq(t.statements.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*)).withAttrs(toType(e.getType())).setTypechecked
+        m.Term.Block(Seq(t.statements.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*))
+          .withAttrs(toType(e.getType()))
+          .setTypechecked
       case t: ScMethodCall =>
-        ScSubstitutor.cacheSubstitutions = true
-        val tp = t.getType()
-        ScSubstitutor.cacheSubstitutions = false
-        val res = m.Term.Apply(expression(t.getInvokedExpr), Seq(t.args.exprs.map(callArgs):_*)).withAttrs(toType(tp)).setTypechecked
-        ScSubstitutor.cache.clear()
-        res
+        t.withSubstitutionCaching { tp =>
+          m.Term.Apply(expression(t.getInvokedExpr), Seq(t.args.exprs.map(callArgs): _*)).withAttrs(toType(tp)).setTypechecked
+        }
       case t: ScInfixExpr =>
-        m.Term.ApplyInfix(expression(t.getBaseExpr), toTermName(t.getInvokedExpr), Nil, Seq(expression(t.getArgExpr))).withAttrs(toType(e.getType())).setTypechecked
+        m.Term.ApplyInfix(expression(t.getBaseExpr), toTermName(t.getInvokedExpr), Nil, Seq(expression(t.getArgExpr)))
+          .withAttrs(toType(e.getType()))
+          .setTypechecked
       case t: ScPrefixExpr =>
-        m.Term.ApplyUnary(toTermName(t.operation), expression(t.operand)).withAttrs(toType(e.getType())).setTypechecked
+        m.Term.ApplyUnary(toTermName(t.operation), expression(t.operand))
+          .withAttrs(toType(e.getType()))
+          .setTypechecked
+      case t: ScPostfixExpr =>
+        t.withSubstitutionCaching { tp =>
+          m.Term.Apply(expression(t.getBaseExpr), Seq(expression(t.operand))).withAttrs(toType(tp)).setTypechecked
+        }
       case t: ScIfStmt =>
         val unit = m.Lit.Unit().withAttrs(toType(e.getType())).setTypechecked
         m.Term.If(expression(t.condition.get),
-          t.thenBranch.map(expression).getOrElse(unit), t.elseBranch.map(expression).getOrElse(unit)
-        ).withAttrs(toType(e.getType())).setTypechecked
+            t.thenBranch.map(expression).getOrElse(unit), t.elseBranch.map(expression).getOrElse(unit))
+          .withAttrs(toType(e.getType()))
+          .setTypechecked
+      case t: ScDoStmt =>
+        m.Term.Do(t.getExprBody.map(expression).getOrElse(m.Term.Placeholder()),
+            t.condition.map(expression).getOrElse(m.Term.Placeholder()))
+          .withAttrs(toType(t.getTypeWithCachedSubst))
+          .setTypechecked
+      case t: ScWhileStmt =>
+        m.Term.While(t.condition.map(expression).getOrElse(throw new AbortException(Some(t), "Empty while condition", None)),
+            t.body.map(expression).getOrElse(m.Term.Block(Seq.empty)))
+          .withAttrs(toType(t.getType()))
+          .setTypechecked
+      case t: ScForStatement =>
+        m.Term.For(t.enumerators.map(enumerators).getOrElse(Seq.empty),
+          t.body.map(expression).getOrElse(m.Term.Block(Seq.empty)))
+          .withAttrs(toType(t.getType()))
+          .setTypechecked
       case t: ScMatchStmt =>
-        m.Term.Match(expression(t.expr.get), Seq(t.caseClauses.map(caseClause):_*)).withAttrs(toType(e.getType())).setTypechecked
+        m.Term.Match(expression(t.expr.get), Seq(t.caseClauses.map(caseClause):_*))
+          .withAttrs(toType(e.getType()))
+          .setTypechecked
       case t: ScReferenceExpression if t.qualifier.isDefined =>
-        m.Term.Select(expression(t.qualifier.get), toTermName(t)).withAttrs(toType(e.getTypeWithCachedSubst)).setTypechecked
+        m.Term.Select(expression(t.qualifier.get), toTermName(t))
+          .withAttrs(toType(e.getTypeWithCachedSubst))
+          .setTypechecked
       case t: ScReferenceExpression =>
         toTermName(t)
+      case t: ScSuperReference =>
+        m.Term.Super(t.drvTemplate.map(ind).getOrElse(m.Name.Anonymous()), t.staticSuper.map(ind).getOrElse(m.Name.Anonymous()))
+          .withAttrs(toType(t))
+          .setTypechecked
+      case t: ScThisReference =>
+        m.Term.This(t.refTemplate.map(ind).getOrElse(m.Name.Anonymous()))
+          .withAttrs(toType(t))
+          .setTypechecked
       case t: ScNewTemplateDefinition =>
-        m.Term.New(newTemplate(t)).withAttrs(toType(e.getType())).setTypechecked
+        m.Term.New(newTemplate(t))
+          .withAttrs(toType(e.getType()))
+          .setTypechecked
       case t: ScFunctionExpr =>
-        m.Term.Function(Seq(t.parameters.map(convertParam):_*), expression(t.result).get).withAttrs(toType(e.getType())).setTypechecked
+        m.Term.Function(Seq(t.parameters.map(convertParam):_*), expression(t.result).get)
+          .withAttrs(toType(e.getType()))
+          .setTypechecked
       case t: ScTuple =>
-        m.Term.Tuple(Seq(t.exprs.map(expression): _*)).withAttrs(toType(t.getTypeWithCachedSubst)).setTypechecked
+        m.Term.Tuple(Seq(t.exprs.map(expression): _*))
+          .withAttrs(toType(t.getTypeWithCachedSubst))
+          .setTypechecked
+      case t: ScThrowStmt =>
+        m.Term.Throw(expression(t.body).getOrElse(throw new AbortException(t, "Empty while condition")))
+      case t: ScTryBlock =>
+        ???
+      case t: ScTryStmt =>
+        ???
+      case t: ScGenericCall =>
+        ???
+      case t: ScConstrExpr =>
+        ???
+      case t: ScInterpolatedStringLiteral =>
+        ???
+      case t: ScParenthesisedExpr =>
+        ???
+      case t: ScTypedStmt =>
+        ???
+      case t: ScUnderscoreSection =>
+        ???
+      case t: ScXmlExpr =>
+        ???
+
       case other: ScalaPsiElement => other ?!
     }
   }
@@ -279,6 +347,10 @@ trait TreeAdapter {
       case t: ScUnderscoreSection => m.Term.Placeholder()
       case other => expression(e)
     }
+  }
+
+  def enumerators(en: ScEnumerators): Seq[m.Enumerator] = {
+    ???
   }
 
 //  def callParams(e: ScExpression): m.Term.Param = {

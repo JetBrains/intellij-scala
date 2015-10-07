@@ -2,7 +2,7 @@ package scala.meta.trees
 
 import com.intellij.psi.PsiElement
 
-import scala.meta.internal.{ast => m, semantic => h}
+import scala.meta.internal.{ast => m, semantic => h, AbortException}
 
 class ScalaMetaException(message: String) extends Exception(message)
 
@@ -15,3 +15,7 @@ class ScalaMetaUnexpectedTree(val tree: m.Tree) extends ScalaMetaException(s"Got
 class ScalaMetaResolveError(elem: PsiElement) extends ScalaMetaException(s"Cannot resolve ${elem.getClass} at ${elem.toString}")
 
 class ScalaMetaTypeResultFailure(elem: Option[PsiElement], cause: String) extends ScalaMetaException(s"Cannot calculate type at ${elem.map(_.getText).getOrElse("UNKNOWN")}($cause)")
+
+//package object error {
+//  def unreachable = throw new AbortException()
+//}
