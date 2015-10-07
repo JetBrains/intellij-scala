@@ -7,14 +7,14 @@ package typedef
 
 import com.intellij.lang.ASTNode
 import com.intellij.lang.java.lexer.JavaLexer
-import com.intellij.openapi.project.{DumbService, DumbServiceImpl, Project}
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightField
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.util.{PsiModificationTracker, PsiUtil}
+import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -25,9 +25,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, PsiClassWrapper}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, PhysicalSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -176,25 +177,16 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
     }
   }
 
-  @volatile
-  private var moduleField: Option[PsiField] = null
-  @volatile
-  private var moduleFieldModCount: Long = 0L
-
+  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, getManager)
   private def getModuleField: Option[PsiField] = {
-    val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-    if (moduleField != null && moduleFieldModCount == count) return moduleField
-    val fieldOption =
-      if (getQualifiedName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this)))) None else {
-        val field: LightField = new LightField(getManager, JavaPsiFacade.getInstance(getProject).getElementFactory.createFieldFromText(
-          "public final static " + getQualifiedName + " MODULE$", this
-        ), this)
-        field.setNavigationElement(this)
-        Some(field)
-      }
-    moduleField = fieldOption
-    moduleFieldModCount = count
-    fieldOption
+    if (getQualifiedName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this)))) None
+    else {
+      val field: LightField = new LightField(getManager, JavaPsiFacade.getInstance(getProject).getElementFactory.createFieldFromText(
+        "public final static " + getQualifiedName + " MODULE$", this
+      ), this)
+      field.setNavigationElement(this)
+      Some(field)
+    }
   }
 
   override def getFields: Array[PsiField] = {
@@ -238,16 +230,8 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
   @volatile
   private var emptyObjectConstructorModCount: Long = 0L
 
-  override def getConstructors: Array[PsiMethod] = {
-    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-    if (emptyObjectConstructor != null && emptyObjectConstructorModCount == curModCount) {
-      return Array(emptyObjectConstructor)
-    }
-    val res = new EmptyPrivateConstructor(this)
-    emptyObjectConstructorModCount = curModCount
-    emptyObjectConstructor = res
-    Array(res)
-  }
+  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, getManager)
+  override def getConstructors: Array[PsiMethod] = Array(new EmptyPrivateConstructor(this))
 
   override def isPhysical: Boolean = {
     if (isSyntheticObject) false

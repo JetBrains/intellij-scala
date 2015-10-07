@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper.DefinitionRole._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -119,21 +120,8 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     }
   }
 
-  @volatile
-  private var emptyObjectConstructor: EmptyPrivateConstructor = null
-  @volatile
-  private var emptyObjectConstructorModCount: Long = 0L
-
-  private def getEmptyConstructor: PsiMethod = {
-    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-    if (emptyObjectConstructor != null && emptyObjectConstructorModCount == curModCount) {
-      return emptyObjectConstructor
-    }
-    val res = new EmptyPrivateConstructor(this)
-    emptyObjectConstructorModCount = curModCount
-    emptyObjectConstructor = res
-    res
-  }
+  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, getManager)
+  private def getEmptyConstructor: PsiMethod = new EmptyPrivateConstructor(this)
 
   def getConstructors: Array[PsiMethod] = {
     Array(getEmptyConstructor)

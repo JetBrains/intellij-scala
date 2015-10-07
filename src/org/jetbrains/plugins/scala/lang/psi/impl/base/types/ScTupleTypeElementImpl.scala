@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 /**
  * @author ilyas, Alexander Podkhalyuzin
@@ -19,28 +20,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, T
 class ScTupleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTupleTypeElement {
   override def toString: String = "TupleType: " + getText
 
-  private var desugarizedTypeModCount: Long = 0L
-  private var desugarizedType: Option[ScParameterizedTypeElement] = null
-
+  @Cached(synchronized = true, ModCount.getModificationCount, getManager)
   def desugarizedInfixType: Option[ScParameterizedTypeElement] = {
-    def inner(): Option[ScParameterizedTypeElement] = {
-      val n = components.length
-      val newTypeText = s"_root_.scala.Tuple$n[${components.map(_.getText).mkString(", ")}]"
-      val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(newTypeText, getContext, this)
-      newTypeElement match {
-        case p: ScParameterizedTypeElement => Some(p)
-        case _ => None
-      }
-    }
-
-    synchronized {
-      val currModCount = getManager.getModificationTracker.getModificationCount
-      if (desugarizedType != null && desugarizedTypeModCount == currModCount) {
-        return desugarizedType
-      }
-      desugarizedType = inner()
-      desugarizedTypeModCount = currModCount
-      return desugarizedType
+    val n = components.length
+    val newTypeText = s"_root_.scala.Tuple$n[${components.map(_.getText).mkString(", ")}]"
+    val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(newTypeText, getContext, this)
+    newTypeElement match {
+      case p: ScParameterizedTypeElement => Some(p)
+      case _ => None
     }
   }
 

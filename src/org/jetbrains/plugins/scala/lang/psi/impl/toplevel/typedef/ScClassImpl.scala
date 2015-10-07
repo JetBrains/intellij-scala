@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -178,7 +179,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
 
   override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = {
     val buf = new ArrayBuffer[PsiMethod]
-    if (isCase && !hasModifierProperty("abstract") && parameters.length > 0) {
+    if (isCase && !hasModifierProperty("abstract") && parameters.nonEmpty) {
       constructor match {
         case Some(x: ScPrimaryConstructor) =>
           val hasCopy = !TypeDefinitionMembers.getSignatures(this).forName("copy")._1.isEmpty
@@ -202,7 +203,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
   private def copyMethodText: String = {
     val x = constructor.getOrElse(return "")
     val paramString = (if (x.parameterList.clauses.length == 1 &&
-      x.parameterList.clauses.apply(0).isImplicit) "()" else "") + x.parameterList.clauses.map{ c =>
+      x.parameterList.clauses.head.isImplicit) "()" else "") + x.parameterList.clauses.map{ c =>
       val start = if (c.isImplicit) "(implicit " else "("
       c.parameters.map{ p =>
         val paramType = p.typeElement match {
@@ -248,33 +249,21 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
       " = throw new Error(\"\")"
   }
 
-  @volatile
-  private var syntheticImplicitMethod: Option[ScFunction] = null
-  @volatile
-  private var syntheticImplicitMethodModificationCount: Long = 0
-
+  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, getManager)
   def getSyntheticImplicitMethod: Option[ScFunction] = {
-    val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-    if (count == syntheticImplicitMethodModificationCount && syntheticImplicitMethod != null) {
-      return syntheticImplicitMethod
-    }
-    val res: Option[ScFunction] =
-      if (hasModifierProperty("implicit")) {
-        constructor match {
-          case Some(x: ScPrimaryConstructor) =>
-            try {
-              val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
-              method.setSynthetic(this)
-              Some(method)
-            } catch {
-              case e: Exception => None
-            }
-          case None => None
-        }
-      } else None
-    syntheticImplicitMethod = res
-    syntheticImplicitMethodModificationCount = count
-    res
+    if (hasModifierProperty("implicit")) {
+      constructor match {
+        case Some(x: ScPrimaryConstructor) =>
+          try {
+            val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
+            method.setSynthetic(this)
+            Some(method)
+          } catch {
+            case e: Exception => None
+          }
+        case None => None
+      }
+    } else None
   }
 
   override def getTypeParameterList: PsiTypeParameterList = typeParametersClause.orNull
