@@ -136,7 +136,9 @@ public class ScalaTestAstTransformer {
                     try {
                         Class suiteClass = loadClass(suiteTypeDef.qualifiedName(), module);
                         annotations = suiteClass.getAnnotations();
-                    } catch (MalformedURLException | ClassNotFoundException e) {
+                    } catch (MalformedURLException e) {
+                        throw new RuntimeException("Failed to load class for test suite " + suiteTypeDef.qualifiedName() + "\n" + e);
+                    } catch (ClassNotFoundException e) {
                         throw new RuntimeException("Failed to load class for test suite " + suiteTypeDef.qualifiedName() + "\n" + e);
                     }
                 }
