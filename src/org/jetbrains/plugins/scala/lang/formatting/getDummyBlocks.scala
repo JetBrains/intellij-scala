@@ -654,25 +654,31 @@ object getDummyBlocks {
     else if (mustAlignment(node, settings))
       Alignment.createAlignment
     else null
+    def addSubBlock(node: ASTNode, lastNode: ASTNode, context: Option[SubBlocksContext] = None): Unit = {
+      val indent = ScalaIndentProcessor.getChildIndent(block, node)
+      val wrap = arrangeSuggestedWrapForChild(block, node, scalaSettings, block.suggestedWrap)
+      subBlocks.add(new ScalaBlock(block, node, lastNode, alignment, indent, wrap, settings, context))
+    }
     val children = node.getChildren(null).filter(isCorrectBlock).toList
     children match {
       //don't check for element types other then absolutely required - they do not matter
       case caller :: args :: Nil if args.getPsi.isInstanceOf[ScArgumentExprList] =>
         subBlocks.addAll(getMethodCallOrRefExprSubBlocks(caller, block, parentAlignment, args :: delegatedChildren))
       case expr :: dot :: id :: Nil  if dot.getElementType == ScalaTokenTypes.tDOT =>
-        val indent = ScalaIndentProcessor.getChildIndent(block, dot)
-        val childWrap = arrangeSuggestedWrapForChild(block, dot, scalaSettings, block.suggestedWrap)
-        val exprIndent = ScalaIndentProcessor.getChildIndent(block, dot)
-        val exprWrap = arrangeSuggestedWrapForChild(block, expr, scalaSettings, block.suggestedWrap)
-        subBlocks.add(new ScalaBlock(block, expr, null, alignment, exprIndent, exprWrap, settings))
-        subBlocks.add(new ScalaBlock(block, dot, (id::delegatedChildren).sortBy(_.getTextRange.getStartOffset).lastOption.orNull,
-          alignment, indent, childWrap, settings, Some(SubBlocksContext(id, alignment, delegatedChildren))))
-      case id :: Nil =>
-        val indent = ScalaIndentProcessor.getChildIndent(block, id)
-        val childWrap = arrangeSuggestedWrapForChild(block, id, scalaSettings, block.suggestedWrap)
-        subBlocks.add(new ScalaBlock(block, id, delegatedChildren.sortBy(_.getTextRange.getStartOffset).lastOption.orNull,
-          alignment, indent, childWrap, settings, Some(SubBlocksContext(id, alignment, delegatedChildren))))
+        addSubBlock(expr, null)
+        addSubBlock(dot, (id::delegatedChildren).sortBy(_.getTextRange.getStartOffset).lastOption.orNull,
+          Some(SubBlocksContext(id, alignment, delegatedChildren)))
+      case expr :: typeArgs :: Nil if typeArgs.getPsi.isInstanceOf[ScTypeArgs] =>
+        addSubBlock(expr, (typeArgs::delegatedChildren).sortBy(_.getTextRange.getStartOffset).lastOption.orNull,
+          Some(SubBlocksContext(typeArgs, alignment, delegatedChildren)))
+      case expr :: Nil =>
+        addSubBlock(expr, delegatedChildren.sortBy(_.getTextRange.getStartOffset).lastOption.orNull,
+          Some(SubBlocksContext(expr, alignment, delegatedChildren)))
+
       case _ =>
+        for (child <- (children ++ delegatedChildren).filter(isCorrectBlock)) {
+          addSubBlock(child, null)
+        }
     }
     subBlocks
   }
