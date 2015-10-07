@@ -820,7 +820,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
     if (rightPsi.isInstanceOf[ScArguments] &&
             (leftNode.getTreeParent.getPsi.isInstanceOf[ScMethodCall] ||
-                    leftNode.getTreeParent.getPsi.isInstanceOf[ScConstructor]) ||
+                    leftNode.getTreeParent.getPsi.isInstanceOf[ScConstructor] ||
+                    leftNode.getTreeParent.getPsi.isInstanceOf[ScGenericCall]) ||
             rightPsi.isInstanceOf[ScArguments] && rightNode.getTreeParent.getPsi.isInstanceOf[ScSelfInvocation] &&
                     leftNode.getText == "this") {
       if (settings.SPACE_BEFORE_METHOD_CALL_PARENTHESES && !rightString.startsWith("{") &&
