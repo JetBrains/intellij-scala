@@ -5,7 +5,6 @@ package api
 package statements
 
 import com.intellij.psi._
-import com.intellij.util.containers.ConcurrentHashMap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
@@ -14,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, StaticTraitScFunctionWrapper}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -93,18 +93,9 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
 
   def isSecondaryConstructor: Boolean = name == "this"
 
-  private var staticTraitFunctionWrapper: ConcurrentHashMap[(PsiClassWrapper), (StaticTraitScFunctionWrapper, Long)] =
-    new ConcurrentHashMap()
-
+  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, getManager)
   def getStaticTraitFunctionWrapper(cClass: PsiClassWrapper): StaticTraitScFunctionWrapper = {
-    val curModCount = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-    val r = staticTraitFunctionWrapper.get(cClass)
-    if (r != null && r._2 == curModCount) {
-      return r._1
-    }
-    val res = new StaticTraitScFunctionWrapper(this, cClass)
-    staticTraitFunctionWrapper.put(cClass, (res, curModCount))
-    res
+    new StaticTraitScFunctionWrapper(this, cClass)
   }
 }
 

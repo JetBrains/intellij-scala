@@ -37,6 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifi
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScMemberOrLocal, ScTemplateDefinitionStub}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import scala.annotation.tailrec
@@ -45,7 +46,7 @@ import scala.reflect.NameTransformer
 
 abstract class ScTypeDefinitionImpl protected (stub: StubElement[ScTemplateDefinition], nodeType: IElementType, node: ASTNode)
 extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition with PsiClassFake {
-  override def hasTypeParameters: Boolean = typeParameters.length > 0
+  override def hasTypeParameters: Boolean = typeParameters.nonEmpty
 
   override def add(element: PsiElement): PsiElement = {
     element match {
@@ -84,7 +85,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
 
   def getType(ctx: TypingContext)  = {
     val parentClass: ScTemplateDefinition = containingClass
-    if (typeParameters.length == 0) {
+    if (typeParameters.isEmpty) {
       if (parentClass != null) {
         Success(ScProjectionType(ScThisType(parentClass), this, superReference = false), Some(this))
       } else {
@@ -103,7 +104,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
 
   def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false): TypeResult[ScType] = {
     def args: Seq[ScTypeParameterType] = typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))
-    def innerType = if (typeParameters.length == 0) ScType.designator(this)
+    def innerType = if (typeParameters.isEmpty) ScType.designator(this)
                     else ScParameterizedType(ScType.designator(this), args)
     val parentClazz = containingClass
     if (parentClazz != null) {
@@ -112,7 +113,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
       else ScThisType(parentClazz)
 
       val innerProjection = ScProjectionType(tpe, this, superReference = false)
-      Success(if (typeParameters.length == 0) innerProjection
+      Success(if (typeParameters.isEmpty) innerProjection
               else ScParameterizedType(innerProjection, args), Some(this))
     } else Success(innerType, Some(this))
   }
@@ -181,52 +182,35 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
     }
   }
 
-  @volatile
-  private var qualName: String = null
-  @volatile
-  private var qualNameModCount: Long = -1
-
-  @volatile
-  private var javaQualName: String = null
-  @volatile
-  private var javaQualNameModCount: Long = -1
-
   override final def getQualifiedName: String = {
     val stub = getStub
-    if (stub != null) {
-      stub.asInstanceOf[ScTemplateDefinitionStub].javaQualName
-    } else {
-      val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-      if (javaQualName != null && count == javaQualNameModCount) return javaQualName
-      var res = qualifiedName(".", encodeName = true).split('.').map { s =>
-        if (s.startsWith("`") && s.endsWith("`") && s.length > 2) s.drop(1).dropRight(1)
-        else s
-      }.mkString(".")
-      this match {
-        case o: ScObject =>
-          if (o.isPackageObject) res = res + ".package$"
-          else res = res + "$"
-        case _ =>
-      }
-      javaQualNameModCount = count
-      javaQualName = res
-      res
+    if (stub != null) stub.asInstanceOf[ScTemplateDefinitionStub].javaQualName
+    else javaQualName()
+  }
+
+  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, getManager)
+  private def javaQualName(): String = {
+    var res = qualifiedName(".", encodeName = true).split('.').map { s =>
+      if (s.startsWith("`") && s.endsWith("`") && s.length > 2) s.drop(1).dropRight(1)
+      else s
+    }.mkString(".")
+    this match {
+      case o: ScObject =>
+        if (o.isPackageObject) res = res + ".package$"
+        else res = res + "$"
+      case _ =>
     }
+    res
   }
 
   override def qualifiedName: String = {
     val stub = getStub
-    if (stub != null) {
-      stub.asInstanceOf[ScTemplateDefinitionStub].qualName
-    } else {
-      val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-      if (qualName != null && count == qualNameModCount) return qualName
-      val res = qualifiedName(".")
-      qualNameModCount = count
-      qualName = res
-      res
-    }
+    if (stub != null) stub.asInstanceOf[ScTemplateDefinitionStub].qualName
+    else qualName()
   }
+
+  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, getManager)
+  private def qualName(): String = qualifiedName(".")
 
   override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes
 
@@ -284,7 +268,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
       case o: ScObject if o.isPackageObject && o.name == "`package`" =>
         val packageName = o.qualifiedName.stripSuffix(".`package`")
         val index = packageName.lastIndexOf('.')
-        if (index < 0) packageName else packageName.substring(index + 1, packageName.size)
+        if (index < 0) packageName else packageName.substring(index + 1, packageName.length)
       case _ => name
     }
 
@@ -313,7 +297,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
 
   import _root_.java.util.{Collection => JCollection, List => JList}
 
-import com.intellij.openapi.util.{Pair => IPair}
+  import com.intellij.openapi.util.{Pair => IPair}
 
   override def findMethodsAndTheirSubstitutorsByName(name: String,
                                                      checkBases: Boolean): JList[IPair[PsiMethod, PsiSubstitutor]] = {
@@ -368,7 +352,7 @@ import com.intellij.openapi.util.{Pair => IPair}
 
 
   def signaturesByName(name: String): Seq[PhysicalSignature] = {
-    (for ((s: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this).forName(name)._1) yield s).toSeq ++
+    (for ((s: PhysicalSignature, _) <- TypeDefinitionMembers.getSignatures(this).forName(name)._1) yield s) ++
             syntheticMethodsNoOverride.filter(_.name == name).map(new PhysicalSignature(_, ScSubstitutor.empty))
   }
 
@@ -404,7 +388,7 @@ import com.intellij.openapi.util.{Pair => IPair}
     if (stub != null) {
       return stub.asInstanceOf[ScTemplateDefinitionStub].isDeprecated
     }
-    hasAnnotation("scala.deprecated") != None || hasAnnotation("java.lang.Deprecated") != None
+    hasAnnotation("scala.deprecated").isDefined || hasAnnotation("java.lang.Deprecated").isDefined
   }
 
   override def getInnerClasses: Array[PsiClass] = {
