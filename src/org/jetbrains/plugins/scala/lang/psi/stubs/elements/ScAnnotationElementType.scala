@@ -47,7 +47,13 @@ class ScAnnotationElementType[Func <: ScAnnotation]
       case _ => ""
     }
     val typeText = psi.typeElement.getText
-    new ScAnnotationStubImpl(parentStub, this, StringRef.fromString(name), StringRef.fromString(typeText))
+    val nameRef =
+      if (name.isEmpty) ScAnnotationStubImpl.EMPTY_STRING_REF
+      else StringRef.fromString(name)
+    val typeTextRef =
+      if (typeText.isEmpty) ScAnnotationStubImpl.EMPTY_STRING_REF
+      else StringRef.fromString(typeText)
+    new ScAnnotationStubImpl(parentStub, this, nameRef, typeTextRef)
   }
 
   def deserializeImpl(dataStream: StubInputStream, parentStub: Any): ScAnnotationStub = {

@@ -12,26 +12,19 @@ import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAnnotationStubImpl.EMPTY_STRING_REF
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 22.06.2009
  */
 
-class ScAnnotationStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPsi],
-                                                  elemType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement])
+class ScAnnotationStubImpl[ParentPsi <: PsiElement](parent : StubElement[ParentPsi],
+                                                    elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+                                                    name: StringRef = EMPTY_STRING_REF, typeText: StringRef = EMPTY_STRING_REF)
         extends StubBaseWrapper[ScAnnotation](parent, elemType) with ScAnnotationStub {
-  var name: StringRef = StringRef.fromString("")
-  private var typeText: StringRef = _
-  private var myTypeElement: SofterReference[ScTypeElement] = null
 
-  def this(parent : StubElement[ParentPsi],
-          elemType : IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-          name: StringRef, typeText: StringRef) {
-    this (parent, elemType.asInstanceOf[IStubElementType[StubElement[PsiElement], PsiElement]])
-    this.name = name
-    this.typeText = typeText
-  }
+  private var myTypeElement: SofterReference[ScTypeElement] = null
 
   def getName: String = StringRef.toString(name)
   def getTypeText: String = StringRef.toString(typeText)
@@ -44,4 +37,8 @@ class ScAnnotationStubImpl[ParentPsi <: PsiElement](parent: StubElement[ParentPs
     myTypeElement = new SofterReference[ScTypeElement](res)
     res
   }
+}
+
+object ScAnnotationStubImpl {
+  val EMPTY_STRING_REF = StringRef.fromString("")
 }
