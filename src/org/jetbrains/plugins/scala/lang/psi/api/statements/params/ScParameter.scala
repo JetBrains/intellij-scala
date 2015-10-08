@@ -129,16 +129,19 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
       // For parameter of anonymous functions to infer parameter's type from an appropriate
       // an. fun's type
       case f: ScFunctionExpr =>
-        var result: Option[ScType] = null //strange logic to handle problems with detecting type
-        for (tp <- f.expectedTypes(fromUnderscore = false) if result != None) {
+        var flag = false
+        var result: Option[ScType] = None //strange logic to handle problems with detecting type
+        for (tp <- f.expectedTypes(fromUnderscore = false) if !flag) {
           @tailrec
           def applyForFunction(tp: ScType, checkDeep: Boolean) {
             tp.removeAbstracts match {
               case ScFunctionType(ret, _) if checkDeep => applyForFunction(ret, checkDeep = false)
               case ScFunctionType(_, params) if params.length == f.parameters.length =>
                 val i = clause.parameters.indexOf(this)
-                if (result != null) result = None
-                else result = Some(params(i))
+                if (result.isDefined && flag) {
+                  result = None
+                  flag = true
+                } else result = Some(params(i))
               case any if ScalaPsiUtil.isSAMEnabled(f)=>
                 //infer type if it's a Single Abstract Method
                 ScalaPsiUtil.toSAMType(any, f.getResolveScope) match {
@@ -152,7 +155,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
           }
           applyForFunction(tp, ScUnderScoreSectionUtil.underscores(f).nonEmpty)
         }
-        if (result == null || result.isEmpty) result = None //todo: x => foo(x)
+        if (result.isEmpty) result = None //todo: x => foo(x)
         result
       case _ => None
     }
