@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.completion
 
+import com.intellij.codeInsight.JavaProjectCodeInsightSettings
 import com.intellij.codeInsight.completion._
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
@@ -9,7 +10,7 @@ import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, _}
 import com.intellij.util.{Consumer, ProcessingContext}
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport, TypeToImport}
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{PrefixPackageToImport, ClassTypeToImport, TypeAliasToImport, TypeToImport}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
@@ -108,20 +109,25 @@ object ScalaClassNameCompletionContributor {
     def addTypeForCompletion(typeToImport: TypeToImport) {
       val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
         def compute: Boolean = {
-          val clazz = typeToImport match {
-            case ClassTypeToImport(classToImport) => classToImport
+          typeToImport match {
+            case ClassTypeToImport(classToImport) =>
+              JavaCompletionUtil.isInExcludedPackage(classToImport, false)
             case TypeAliasToImport(alias) =>
               val containingClass = alias.containingClass
               if (containingClass == null) return false
-              containingClass
+              JavaCompletionUtil.isInExcludedPackage(containingClass, false)
+            case PrefixPackageToImport(pack) =>
+              JavaProjectCodeInsightSettings.getSettings(pack.getProject).isExcluded(pack.getQualifiedName)
           }
-          JavaCompletionUtil.isInExcludedPackage(clazz, false)
         }
       })
       if (isExcluded) return
 
       val isAccessible =
-        invocationCount >= 2 || ResolveUtils.isAccessible(typeToImport.element, position, forCompletion = true)
+        invocationCount >= 2 || (typeToImport.element match {
+          case member: PsiMember => ResolveUtils.isAccessible(member, position, forCompletion = true)
+          case _ => true
+        })
       if (!isAccessible) return
 
       if (lookingForAnnotations && !typeToImport.isAnnotationType) return
