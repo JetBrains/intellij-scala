@@ -52,7 +52,7 @@ object CachedMacro {
         val modCountVarName = c.freshName(name)
         val mapName = c.freshName(name)
         val hasParameters: Boolean = flatParams.nonEmpty
-        val cachedFunName = c.freshName("cachedFun")
+        val cachedFunName = TermName(c.freshName("cachedFun"))
 
         val fields = if (hasParameters) {
           q"""
@@ -120,9 +120,9 @@ object CachedMacro {
         val parameterNames: List[c.universe.TermName] = flatParams.map(_.name)
         val cachesUtilFQN = q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil"
         val key = annotationParameters(1)
-        val cachedFunName = c.freshName("cachedFun")
-        val dataName = c.freshName("data")
-        val dataTypeName = c.freshName("Data")
+        val cachedFunName = TermName(c.freshName("cachedFun"))
+        val dataName = TermName(c.freshName("data"))
+        val dataTypeName = TypeName(c.freshName("Data"))
         val parameterDefinitions: List[c.universe.Tree] = flatParams match {
           case List(param) => List(ValDef(NoMods, param.name, param.tpt, q"$dataName"))
           case _ => flatParams.zipWithIndex.map {
@@ -132,7 +132,7 @@ object CachedMacro {
         }
 
         val builder = q"""
-          def $cachedFunName(${c.freshName()}: _root_.scala.Any, $dataName: $dataTypeName): $retTp = {
+          def $cachedFunName(${TermName(c.freshName())}: _root_.scala.Any, $dataName: $dataTypeName): $retTp = {
             ..$parameterDefinitions
             $rhs
           }
@@ -182,7 +182,7 @@ object CachedMacro {
         val key = annotationParameters(1)
         val defaultValue = annotationParameters(2)
         val dependencyItem = annotationParameters(3)
-        val cachedFunName = c.freshName("cachedFun")
+        val cachedFunName = TermName(c.freshName("cachedFun"))
         val provider =
           if (useOptionalProvider) TypeName("MyOptionalProvider")
           else TypeName("MyProvider")
@@ -222,7 +222,7 @@ object CachedMacro {
         val elem = annotationParameters.head
         val key = annotationParameters(1)
         val dependencyItem = annotationParameters(2)
-        val cachedFunName = c.freshName("cachedFun")
+        val cachedFunName = TermName(c.freshName("cachedFun"))
         val provider =
           if (useOptionalProvider) TypeName("MyOptionalProvider")
           else TypeName("MyProvider")
