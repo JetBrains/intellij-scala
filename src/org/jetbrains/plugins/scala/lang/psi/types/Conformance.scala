@@ -1040,7 +1040,7 @@ object Conformance {
               case (lt, u: ScUndefinedType) =>
                 undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), lt, variance = 0)
                 undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt, variance = 0)
-              case (tp, _) if tp.isAliasType != None && tp.isAliasType.get.ta.isExistentialTypeAlias =>
+              case (tp, _) if tp.isAliasType.isDefined && tp.isAliasType.get.ta.isExistentialTypeAlias =>
                 val y = Conformance.conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
                 if (!y._1) {
                   result = (false, undefinedSubst)
@@ -1331,9 +1331,9 @@ object Conformance {
             if (result == null) {
               val filterFunction: (((String, String), HashSet[ScType])) => Boolean = {
                 case (id: (String, String), types: HashSet[ScType]) =>
-                  tptsMap.values.find {
+                  !tptsMap.values.exists {
                     case tpt: ScTypeParameterType => id ==(tpt.name, ScalaPsiUtil.getPsiElementId(tpt.param))
-                  }.isEmpty
+                  }
               }
               val newUndefSubst = new ScUndefinedSubstitutor(
                 unSubst.upperMap.filter(filterFunction), unSubst.lowerMap.filter(filterFunction),
