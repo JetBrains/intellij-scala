@@ -22,8 +22,9 @@ import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -100,7 +101,8 @@ trait IntroduceTypeAlias {
           dialog.isReplaceOccurrenceInInheritors, dialog.getSelectedScope)
 
         val parent = dialog.getSelectedScope.fileEncloser
-        runRefactoringForTypes(file, editor, typeElementHelper, dialog.getEnteredName, occurrences, parent, dialog.getSelectedScope.isPackage)
+        runRefactoringForTypes(file, editor, typeElementHelper, dialog.getEnteredName, occurrences, parent,
+          dialog.getSelectedScope.isPackage, dialog.getSelectedScope.needDirectoryCreating)
       }
 
       // replace all occurrences, don't replace occurences available from companion object or inheritors
@@ -117,7 +119,7 @@ trait IntroduceTypeAlias {
 
           val introduceRunnable: Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] =
             introduceTypeAlias(file, editor, typeElement, allOccurrences, suggestedNames(0), replaceAllOccurrences,
-              scopeItem.fileEncloser, scopeItem.isPackage)
+              scopeItem.fileEncloser, scopeItem.isPackage, scopeItem.needDirectoryCreating)
 
           CommandProcessor.getInstance.executeCommand(project, new Runnable {
             def run() {
@@ -197,12 +199,13 @@ trait IntroduceTypeAlias {
   }
 
   private def runRefactoringForTypeInside(file: PsiFile,
-                                  editor: Editor,
-                                  typeElement: ScTypeElement,
-                                  typeName: String,
-                                  occurrences: OccurrenceData,
-                                  suggestedParent: PsiElement,
-                                  isPackage: Boolean): (SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement]) = {
+                                          editor: Editor,
+                                          typeElement: ScTypeElement,
+                                          typeName: String,
+                                          occurrences: OccurrenceData,
+                                          suggestedParent: PsiElement,
+                                          isPackage: Boolean,
+                                          needCreateDirectory: Boolean): (SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement]) = {
     def addTypeAliasDefinition(typeName: String, typeElement: ScTypeElement, parent: PsiElement) = {
       def getAhchor(parent: PsiElement, firstOccurrence: PsiElement): Some[PsiElement] = {
         Some(parent.getChildren.find(_.getTextRange.contains(firstOccurrence.getTextRange)).getOrElse(parent.getLastChild))
@@ -214,26 +217,28 @@ trait IntroduceTypeAlias {
         .createTypeAliasDefinitionFromText(s"type $typeName = $mtext", typeElement.getContext, typeElement)
 
       val resultTypeAlias = ScalaPsiUtil.addTypeAliasBefore(definition, parent, getAhchor(parent, typeElement))
-      ScalaPsiUtil.adjustTypes(resultTypeAlias, useTypeAliases = false)
+      ScalaPsiUtil.adjustTypes(resultTypeAlias, addImports = true, useTypeAliases = false)
       resultTypeAlias
     }
 
     val revertInfo = ScalaRefactoringUtil.RevertInfo(file.getText, editor.getCaretModel.getOffset)
     editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
 
-    val parent = if (suggestedParent == null & isPackage) {
-      createAndGetPackageObjectBody(typeElement)
-    } else {
-      suggestedParent
+    val parent = suggestedParent match {
+      case suggestedDirectory: PsiDirectory if isPackage =>
+        createAndGetPackageObjectBody(typeElement, suggestedDirectory, needCreateDirectory)
+      case _ =>
+        suggestedParent
     }
+
 
     val typeAlias = addTypeAliasDefinition(typeName, occurrences.getAllOccurrences(0), parent)
     IntroduceTypeAliasData.setTypeAlias(typeAlias)
 
-    val replacedTypeElement = replaceTypeElements(Array(typeElement), typeName).apply(0)
+    val typeElementIdx = occurrences.getUsualOccurrences.indexWhere(_ == typeElement)
 
-    replaceTypeElements(occurrences.getUsualOccurrences, typeName)
-    replaceTypeElements(occurrences.getExtendedOccurrences, typeName)
+    val usualOccurrences = replaceTypeElements(occurrences.getUsualOccurrences, typeName, typeAlias)
+    replaceTypeElements(occurrences.getExtendedOccurrences, typeName, typeAlias)
 
     val className = PsiTreeUtil.getParentOfType(parent, classOf[ScObject]) match {
       case objectType: ScObject =>
@@ -241,18 +246,19 @@ trait IntroduceTypeAlias {
       case _ => ""
     }
 
-    replaceTypeElements(occurrences.getCompanionObjOccurrences, className + "." + typeName)
+    replaceTypeElements(occurrences.getCompanionObjOccurrences, className + "." + typeName, typeAlias)
 
     (SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(typeAlias.asInstanceOf[PsiElement]),
-      SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(replacedTypeElement))
+      SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(usualOccurrences.apply(typeElementIdx)))
   }
 
   def runRefactoringForTypes(file: PsiFile, editor: Editor,
                              typeElement: ScTypeElement, typeName: String,
-                             occurrences_ : OccurrenceData, parent: PsiElement, isPackage: Boolean) = {
+                             occurrences_ : OccurrenceData, parent: PsiElement,
+                             isPackage: Boolean, needCreateDirectory: Boolean) = {
     val runnable = new Runnable() {
       def run() {
-        runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, parent, isPackage)
+        runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, parent, isPackage, needCreateDirectory)
       }
     }
     ScalaUtils.runWriteAction(runnable, editor.getProject, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
@@ -260,16 +266,17 @@ trait IntroduceTypeAlias {
   }
 
   protected def introduceTypeAlias(file: PsiFile,
-                         editor: Editor,
-                         typeElement: ScTypeElement,
-                         occurrences_ : OccurrenceData,
-                         typeName: String,
-                         replaceAllOccurrences: Boolean,
-                         parent: PsiElement,
-                         isPackage: Boolean): Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] = {
+                                   editor: Editor,
+                                   typeElement: ScTypeElement,
+                                   occurrences_ : OccurrenceData,
+                                   typeName: String,
+                                   replaceAllOccurrences: Boolean,
+                                   parent: PsiElement,
+                                   isPackage: Boolean,
+                                   needCreateDirectory: Boolean): Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] = {
 
     new Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])]() {
-      def compute() = runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, parent, isPackage)
+      def compute() = runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, parent, isPackage, needCreateDirectory)
     }
   }
 
@@ -283,7 +290,7 @@ trait IntroduceTypeAlias {
       ScalaBundle.message("choose.scope.for", refactoringName), (elem: ScopeItem) => elem.toString)
   }
 
-  def replaceTypeElements(occurrences: Array[ScTypeElement], name: String) = {
+  def replaceTypeElements(occurrences: Array[ScTypeElement], name: String, typeAlias: ScTypeAlias) = {
     def replaceHelper(typeElement: ScTypeElement, inName: String): ScTypeElement = {
       val replacement = ScalaPsiElementFactory.createTypeElementFromText(inName, typeElement.getContext, typeElement)
       //remove parethesis around typeElement
@@ -300,7 +307,14 @@ trait IntroduceTypeAlias {
       }
     }
 
-    occurrences.transform(replaceHelper(_, name))
+    def bindHelper(typeElement: ScTypeElement) = {
+      typeElement.getFirstChild.asInstanceOf[ScStableCodeReferenceElement].bindToElement(typeAlias)
+      typeElement
+    }
+
+    val replaced = occurrences.map(replaceHelper(_, name))
+    replaced.map(bindHelper)
+    //    occurrences
   }
 
 
@@ -365,9 +379,22 @@ trait IntroduceTypeAlias {
     }).createPopup.showInBestPositionFor(editor)
   }
 
-  protected def createAndGetPackageObjectBody(typeElement: ScTypeElement): ScTemplateBody = {
-    val dir: PsiDirectory = typeElement.getContainingFile.getContainingDirectory
-    val packageObject: ScTypeDefinition = ScalaDirectoryService.createClassFromTemplate(dir, "package", "Package Object", askToDefineVariables = false).asInstanceOf[ScTypeDefinition]
+  protected def createAndGetPackageObjectBody(typeElement: ScTypeElement,
+                                              suggestedDirectory: PsiDirectory,
+                                              needCreateDirectory: Boolean): ScTemplateBody = {
+    val newDirectoryName = "One"
+    val currentDirectory = suggestedDirectory
+    val newDir = if (needCreateDirectory) {
+      currentDirectory.createSubdirectory(newDirectoryName)
+    }
+    else {
+      currentDirectory
+    }
+
+    val packageObject: ScTypeDefinition =
+      ScalaDirectoryService.createClassFromTemplate(newDir, newDirectoryName, "Package Object", askToDefineVariables = false)
+        .asInstanceOf[ScTypeDefinition]
+
     PsiTreeUtil.getChildOfType(PsiTreeUtil.getChildOfType(packageObject, classOf[ScExtendsBlock]), classOf[ScTemplateBody])
   }
 
