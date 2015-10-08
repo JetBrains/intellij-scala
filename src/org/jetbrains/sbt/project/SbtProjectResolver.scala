@@ -176,8 +176,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createFacet(project: sbtStructure.ProjectData, android: sbtStructure.AndroidData): AndroidFacetNode = {
-    new AndroidFacetNode(android.targetVersion, android.manifestPath, android.apkPath,
-                         android.resPath, android.assetsPath, android.genPath, android.libsPath,
+    new AndroidFacetNode(android.targetVersion, android.manifest, android.apk,
+                         android.res, android.assets, android.gen, android.libs,
                          android.isLibrary, android.proguardConfig)
   }
 
