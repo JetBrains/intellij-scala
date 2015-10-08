@@ -9,7 +9,7 @@ import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScParameterOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
@@ -43,23 +43,30 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
     }
   }
 
-  protected def typeParamString : String = if (typeParameters.nonEmpty) typeParameters.map(param => {
-    var paramText = param.name
-    param.lowerTypeElement foreach {
-      case tp => paramText = paramText + " >: " + tp.getText
+  protected def typeParamString : String = {
+    def typeParamString(param: ScTypeParam): String = {
+      var paramText = param.name
+      if (param.typeParameters.nonEmpty) {
+        paramText += param.typeParameters.map(typeParamString).mkString("[", ", ", "]")
+      }
+      param.lowerTypeElement foreach {
+        case tp => paramText = paramText + " >: " + tp.getText
+      }
+      param.upperTypeElement foreach {
+        case tp => paramText = paramText + " <: " + tp.getText
+      }
+      param.viewTypeElement foreach {
+        case tp => paramText = paramText + " <% " + tp.getText
+      }
+      param.contextBoundTypeElement foreach {
+        case tp => paramText = paramText + " : " + tp.getText
+      }
+      paramText
     }
-    param.upperTypeElement foreach {
-      case tp => paramText = paramText + " <: " + tp.getText
-    }
-    param.viewTypeElement foreach {
-      case tp => paramText = paramText + " <% " + tp.getText
-    }
-    param.contextBoundTypeElement foreach {
-      case tp => paramText = paramText + " : " + tp.getText
-    }
-    paramText
-  }).mkString("[", ", ", "]")
-  else ""
+
+    if (typeParameters.nonEmpty) typeParameters.map(typeParamString).mkString("[", ", ", "]")
+    else ""
+  }
 
   def getSyntheticMethodsText: List[String] = {
     val paramString = constructor match {
