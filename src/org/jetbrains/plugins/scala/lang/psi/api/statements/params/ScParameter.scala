@@ -130,7 +130,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
       // an. fun's type
       case f: ScFunctionExpr =>
         var result: Option[ScType] = null //strange logic to handle problems with detecting type
-        for (tp <- f.expectedTypes(fromUnderscore = false) if result.isDefined) {
+        for (tp <- f.expectedTypes(fromUnderscore = false) if result != None) {
           @tailrec
           def applyForFunction(tp: ScType, checkDeep: Boolean) {
             tp.removeAbstracts match {
