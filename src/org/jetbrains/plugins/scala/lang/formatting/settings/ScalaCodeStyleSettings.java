@@ -266,7 +266,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   }
 
   private static boolean fitToUnderscorePattern(String pattern, String qualName) {
-    return pattern.endsWith("._") && qualName.contains(".") && qualName.startsWith(pattern.substring(0, pattern.lastIndexOf('.')));
+    return pattern.endsWith("._") && qualName.contains(".") && qualName.startsWith(pattern.substring(0, pattern.lastIndexOf('.'))) &&
+            !qualName.equals(pattern.substring(0, pattern.lastIndexOf('.')));
   }
 
   public static String EXCLUDE_PREFIX = "exclude:";

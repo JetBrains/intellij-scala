@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
@@ -54,6 +54,16 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def bindToElement(element: PsiElement): PsiElement = bindToElement(element, None)
 
   def bindToElement(element: PsiElement, containingClass: Option[PsiClass]): PsiElement = {
+    def tail(qualName: String)(simpleImport: => PsiElement): PsiElement = {
+      safeBindToElement(qualName, {
+        case (qual, true) =>
+          ScalaPsiElementFactory.createExpressionWithContextFromText(qual, getContext, this).
+            asInstanceOf[ScReferenceExpression]
+        case (qual, false) =>
+          ScalaPsiElementFactory.createExpressionFromText(qual, getManager).asInstanceOf[ScReferenceExpression]
+      })(simpleImport)
+    }
+
     if (isReferenceTo(element)) return this
     element match {
       case _: ScTrait | _: ScClass =>
@@ -68,13 +78,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           throw new IncorrectOperationException("class does not match expected name")
         val qualName = c.qualifiedName
         if (qualName != null) {
-          return safeBindToElement(qualName, {
-            case (qual, true) =>
-              ScalaPsiElementFactory.createExpressionWithContextFromText(qual, getContext, this).
-                asInstanceOf[ScReferenceExpression]
-            case (qual, false) =>
-              ScalaPsiElementFactory.createExpressionFromText(qual, getManager).asInstanceOf[ScReferenceExpression]
-          }) {
+          return tail(qualName) {
             ScalaImportTypeFix.getImportHolder(ref = this, project = getProject).addImportForClass(c, ref = this)
             //need to use unqualified reference with new import
             if (!this.isQualified) this
@@ -87,6 +91,12 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         throw new IncorrectOperationException("type does not match expected kind")
       case fun: ScFunction if ScalaPsiUtil.hasStablePath(fun) && fun.name == "apply" =>
         bindToElement(fun.containingClass)
+      case pack: ScPackage =>
+        val qualName = pack.getQualifiedName
+        tail(qualName) {
+          ScalaImportTypeFix.getImportHolder(this, getProject).addImportForPath(qualName, this)
+          this
+        }
       case elem: PsiNamedElement =>
         if (refName != elem.name)
           throw new IncorrectOperationException("named element does not match expected name")
@@ -95,15 +105,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             val cClass = containingClass.getOrElse(memb.containingClass)
             if (cClass != null && cClass.qualifiedName != null) {
               val qualName: String = cClass.qualifiedName + "." + elem.name
-              return safeBindToElement(qualName, {
-                case (qual, true) =>
-                  ScalaPsiElementFactory.createExpressionWithContextFromText(qual, getContext, this).
-                    asInstanceOf[ScReferenceExpression]
-                case (qual, false) =>
-                  ScalaPsiElementFactory.createExpressionFromText(qual, getManager).asInstanceOf[ScReferenceExpression]
-              }) {
-                ScalaImportTypeFix.getImportHolder(this, getProject).
-                  addImportForPsiNamedElement(elem, this, Some(cClass))
+              return tail(qualName) {
+                ScalaImportTypeFix.getImportHolder(this, getProject).addImportForPsiNamedElement(elem, this, Some(cClass))
                 this
               }
             }
