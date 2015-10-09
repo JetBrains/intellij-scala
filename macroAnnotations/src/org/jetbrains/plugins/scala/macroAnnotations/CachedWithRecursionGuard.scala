@@ -10,7 +10,6 @@ import scala.language.experimental.macros
  * Date: 9/28/15.
  */
 class CachedWithRecursionGuard[T](element: Any,
-                                   key: Any,
                                    defaultValue: => Any,
                                    dependecyItem: Object,
                                    useOptionalProvider: Boolean = false) extends StaticAnnotation {

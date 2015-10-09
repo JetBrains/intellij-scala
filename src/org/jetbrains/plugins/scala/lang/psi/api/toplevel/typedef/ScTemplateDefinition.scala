@@ -18,7 +18,6 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil, PsiUtil}
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
@@ -139,7 +138,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def functions: Seq[ScFunction] = extendsBlock.functions
   def aliases: Seq[ScTypeAlias] = extendsBlock.aliases
 
-  @CachedInsidePsiElement(this, CachesUtil.SYNTHETIC_MEMBERS_WITH_OVERRIDE_KEY, PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
   def syntheticMethodsWithOverride: Seq[PsiMethod] = syntheticMethodsWithOverrideImpl
 
   /**
@@ -149,14 +148,14 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def allSynthetics: Seq[PsiMethod] = syntheticMethodsNoOverride ++ syntheticMethodsWithOverride
 
-  @CachedInsidePsiElement(this, CachesUtil.SYNTHETIC_MEMBERS_KEY, PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
   def syntheticMethodsNoOverride: Seq[PsiMethod] = syntheticMethodsNoOverrideImpl
 
   protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = Seq.empty
 
   def typeDefinitions: Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
 
-  @CachedInsidePsiElement(this, CachesUtil.SYNTHETIC_TYPE_DEFINITONS_KEY, PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
   def syntheticTypeDefinitions: Seq[ScTypeDefinition] = syntheticTypeDefinitionsImpl
 
   def syntheticTypeDefinitionsImpl: Seq[ScTypeDefinition] = Seq.empty

@@ -41,9 +41,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
    * @param ignoreBaseTypes parameter to avoid value discarding, literal narrowing, widening
    *                        this parameter is useful for refactorings (introduce variable)
    */
-  @CachedMappedWithRecursionGuard(this, CachesUtil.TYPE_AFTER_IMPLICIT_KEY,
-    ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion", Some(this)), Set.empty, None),
-    PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedMappedWithRecursionGuard(this, ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion",
+    Some(this)), Set.empty, None), PsiModificationTracker.MODIFICATION_COUNT)
   def getTypeAfterImplicitConversion(checkImplicits: Boolean = true, isShape: Boolean = false,
                                      expectedOption: Option[ScType] = None,
                                      ignoreBaseTypes: Boolean = false,
@@ -126,8 +125,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   def getTypeWithoutImplicits(ctx: TypingContext, //todo: remove TypingContext?
                               ignoreBaseTypes: Boolean = false,
                               fromUnderscore: Boolean = false): TypeResult[ScType] = {
-    @CachedMappedWithRecursionGuard(this, CachesUtil.TYPE_WITHOUT_IMPLICITS,
-      Failure("Recursive getTypeWithoutImplicits", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
+    @CachedMappedWithRecursionGuard(this, Failure("Recursive getTypeWithoutImplicits", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
     def inner(ignoreBaseTypes: Boolean, fromUnderscore: Boolean): TypeResult[ScType] = {
       val inner = getNonValueType(TypingContext.empty, ignoreBaseTypes, fromUnderscore)
       inner match {
@@ -355,8 +353,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   def getNonValueType(ctx: TypingContext = TypingContext.empty, //todo: remove?
                       ignoreBaseType: Boolean = false,
                       fromUnderscore: Boolean = false): TypeResult[ScType] = {
-    @CachedMappedWithRecursionGuard(this, CachesUtil.NON_VALUE_TYPE_KEY,
-      Failure("Recursive getNonValueType", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
+    @CachedMappedWithRecursionGuard(this, Failure("Recursive getNonValueType", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
     def inner(ignoreBaseType: Boolean, fromUnderscore: Boolean): TypeResult[ScType] = {
       if (fromUnderscore) innerType(TypingContext.empty)
       else {
@@ -419,13 +416,12 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
   def expectedTypes(fromUnderscore: Boolean = true): Array[ScType] = expectedTypesEx(fromUnderscore).map(_._1)
 
-  @CachedMappedWithRecursionGuard(this, CachesUtil.EXPECTED_TYPES_KEY, Array.empty[(ScType, Option[ScTypeElement])],
-    PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedMappedWithRecursionGuard(this, Array.empty[(ScType, Option[ScTypeElement])], PsiModificationTracker.MODIFICATION_COUNT)
   def expectedTypesEx(fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
     ExpectedTypes.expectedExprTypes(this, fromUnderscore = fromUnderscore)
   }
 
-  @CachedMappedWithRecursionGuard(this, CachesUtil.SMART_EXPECTED_TYPE, None, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedMappedWithRecursionGuard(this, None, PsiModificationTracker.MODIFICATION_COUNT)
   def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = ExpectedTypes.smartExpectedType(this, fromUnderscore)
 
   @volatile
@@ -516,8 +512,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     res
   }
 
-  @CachedMappedWithRecursionGuard(this, CachesUtil.EXPRESSION_APPLY_SHAPE_RESOLVE_KEY, Array.empty[ScalaResolveResult],
-    PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedMappedWithRecursionGuard(this, Array.empty[ScalaResolveResult], PsiModificationTracker.MODIFICATION_COUNT)
   def applyShapeResolveForExpectedType(tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation]): Array[ScalaResolveResult] = {
     val applyProc =
       new MethodResolveProcessor(this, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */,

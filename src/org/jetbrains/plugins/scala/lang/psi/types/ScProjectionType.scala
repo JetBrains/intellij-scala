@@ -7,7 +7,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition, ScValue}
@@ -133,8 +132,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
   }
 
   private def actual: (PsiNamedElement, ScSubstitutor) = {
-      @CachedMappedWithRecursionGuard(element, CachesUtil.PROJECTION_TYPE_ACTUAL_INNER, None,
-        PsiModificationTracker.MODIFICATION_COUNT)
+      @CachedMappedWithRecursionGuard(element, None, PsiModificationTracker.MODIFICATION_COUNT)
       def actualInner(projected: ScType, superReference: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = {
       val emptySubst = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
       val resolvePlace = {

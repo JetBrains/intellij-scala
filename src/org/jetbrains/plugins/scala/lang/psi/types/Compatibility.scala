@@ -10,7 +10,6 @@ import com.intellij.psi.impl.compiled.ClsParameterImpl
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -64,7 +63,7 @@ object Compatibility {
 
         if (isShape || !checkImplicits || place == null) return default
 
-        @CachedMappedWithRecursionGuard(place, CachesUtil.TYPE_OF_SPECIAL_EXPR_AFTER_IMPLICIT_KEY, default, PsiModificationTracker.MODIFICATION_COUNT)
+        @CachedMappedWithRecursionGuard(place, default, PsiModificationTracker.MODIFICATION_COUNT)
         def eval(typez: ScType, expectedOption: Option[ScType]): (TypeResult[ScType], Set[ImportUsed]) = {
           expectedOption match {
             case Some(expected) if typez.conforms(expected) => (Success(typez, None), Set.empty)
