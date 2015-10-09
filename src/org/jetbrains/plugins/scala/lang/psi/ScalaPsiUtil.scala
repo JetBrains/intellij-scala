@@ -74,6 +74,26 @@ import scala.util.control.ControlThrowable
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  def typeParamString(param: ScTypeParam): String = {
+    var paramText = param.name
+    if (param.typeParameters.nonEmpty) {
+      paramText += param.typeParameters.map(typeParamString).mkString("[", ", ", "]")
+    }
+    param.lowerTypeElement foreach {
+      case tp => paramText = paramText + " >: " + tp.getText
+    }
+    param.upperTypeElement foreach {
+      case tp => paramText = paramText + " <: " + tp.getText
+    }
+    param.viewTypeElement foreach {
+      case tp => paramText = paramText + " <% " + tp.getText
+    }
+    param.contextBoundTypeElement foreach {
+      case tp => paramText = paramText + " : " + tp.getText
+    }
+    paramText
+  }
+
   def debug(message: => String, logger: Logger) {
     if (logger.isDebugEnabled) {
       logger.debug(message)
