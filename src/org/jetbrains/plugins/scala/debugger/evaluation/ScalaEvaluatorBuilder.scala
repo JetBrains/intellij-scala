@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 /**
@@ -42,8 +42,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     def buildSimpleEvaluator = {
       cached.getOrElse {
         val newEvaluator = new ScalaEvaluatorBuilder(scalaFragment, position).getEvaluator
-        val unwrapped = new UnwrapRefEvaluator(newEvaluator)
-        cache.add(position, scalaFragment, new ExpressionEvaluatorImpl(unwrapped))
+        cache.add(position, scalaFragment, new ExpressionEvaluatorImpl(newEvaluator))
       }
     }
 
@@ -63,7 +62,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
 private[evaluation] class NeedCompilationException(message: String) extends EvaluateException(message)
 
-private[evaluation] class ScalaEvaluatorBuilder(codeFragment: ScalaCodeFragment, val position: SourcePosition)
+private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragment, val position: SourcePosition)
         extends ScalaEvaluatorBuilderUtil {
 
   import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil._
@@ -73,7 +72,9 @@ private[evaluation] class ScalaEvaluatorBuilder(codeFragment: ScalaCodeFragment,
     else getContextClass(position.getElementAt, strict = false)
   }
 
-  def getEvaluator: Evaluator = scalaCodeFragmentEvaluator(codeFragment)
+  protected var currentFragmentEvaluator = new ScalaCodeFragmentEvaluator(null)
+
+  def getEvaluator: Evaluator = new UnwrapRefEvaluator(scalaCodeFragmentEvaluator(codeFragment))
 
   protected def evaluatorFor(element: PsiElement): Evaluator = {
     element match {
@@ -102,18 +103,32 @@ private[evaluation] class ScalaEvaluatorBuilder(codeFragment: ScalaCodeFragment,
           case e => throw EvaluationException(s"This type of expression is not supported: ${e.getText}")
         }
         postProcessExpressionEvaluator(expr, innerEval)
-      case fragment: ScalaCodeFragment => scalaCodeFragmentEvaluator(fragment)
+      case pd: ScPatternDefinition => patternDefinitionEvaluator(pd)
+      case vd: ScVariableDefinition => variableDefinitionEvaluator(vd)
       case e => throw EvaluationException(s"This type of element is not supported: ${e.getText}")
     }
   }
 
-  def scalaCodeFragmentEvaluator(fragment: ScalaCodeFragment): Evaluator = {
-    val fragmentEvaluator = new CodeFragmentEvaluator(null)
+  def scalaCodeFragmentEvaluator(fragment: ScalaCodeFragment): CodeFragmentEvaluator = {
     val childrenEvaluators = fragment.children.collect {
       case e @ (_: ScBlockStatement | _: ScMember) => evaluatorFor(e)
     }
-    fragmentEvaluator.setStatements(childrenEvaluators.toArray)
-    fragmentEvaluator
+    currentFragmentEvaluator.setStatements(childrenEvaluators.toArray)
+    currentFragmentEvaluator
+  }
+
+  protected def withNewCodeFragmentEvaluator(evaluatorComputation: => Evaluator): Evaluator = {
+    val old = currentFragmentEvaluator
+    val newEvaluator = new ScalaCodeFragmentEvaluator(currentFragmentEvaluator)
+    currentFragmentEvaluator = newEvaluator
+    var result: Evaluator = null
+    try {
+      result = evaluatorComputation
+    }
+    finally {
+      currentFragmentEvaluator = old
+    }
+    result
   }
 }
 
@@ -134,7 +149,7 @@ private object needsCompilation {
       message("match statement")
     case throwStmt: ScThrowStmt =>
       message("throw statement")
-    case v @ (_: ScVariable | _: ScValue) => message("variable definition")
+    case v @ (_: ScVariableDeclaration | _: ScValueDeclaration) => message("variable declaration")
     case t: ScTypeAlias => message("type alias")
     case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) =>
       message("anonymous class")
