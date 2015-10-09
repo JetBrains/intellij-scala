@@ -6,7 +6,6 @@ package toplevel
 package typedef
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
@@ -496,12 +495,9 @@ object TypeDefinitionMembers {
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
-  val typesKey: Key[CachedValue[TMap]] = Key.create("types key")
-  val signaturesKey: Key[CachedValue[SMap]] = Key.create("signatures key")
-  val parameterlessKey: Key[CachedValue[PMap]] = Key.create("parameterless key")
 
   def getParameterlessSignatures(clazz: PsiClass): PMap = {
-    @CachedInsidePsiElement(clazz, parameterlessKey, CachesUtil.getDependentItem(clazz), useOptionalProvider = true)
+    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz), useOptionalProvider = true)
     def inner(): PMap = ParameterlessNodes.build(clazz)
 
     clazz match {
@@ -517,7 +513,7 @@ object TypeDefinitionMembers {
   }
 
   def getTypes(clazz: PsiClass): TMap = {
-    @CachedInsidePsiElement(clazz, typesKey, CachesUtil.getDependentItem(clazz), useOptionalProvider = true)
+    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz), useOptionalProvider = true)
     def inner(): TMap =TypeNodes.build(clazz)
 
     clazz match {
@@ -533,7 +529,7 @@ object TypeDefinitionMembers {
   }
 
   def getSignatures(clazz: PsiClass, place: Option[PsiElement] = None): SMap = {
-    @CachedInsidePsiElement(clazz, signaturesKey, CachesUtil.getDependentItem(clazz), useOptionalProvider = true)
+    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz), useOptionalProvider = true)
     def buildNodesClass(): SMap = SignatureNodes.build(clazz)
 
     clazz match {
@@ -556,7 +552,7 @@ object TypeDefinitionMembers {
                 c match {
                   case o: ScObject =>
                     if (allowedNames.contains(o.name)) {
-                      @CachedInsidePsiElement(o, signaturesKey, CachesUtil.getDependentItem(o), useOptionalProvider = true)
+                      @CachedInsidePsiElement(o, CachesUtil.getDependentItem(o), useOptionalProvider = true)
                       def buildNodesObject(): SMap = SignatureNodes.build(o)
 
                       val add = buildNodesObject()
@@ -564,7 +560,7 @@ object TypeDefinitionMembers {
                     }
                   case c: ScClass =>
                     if (allowedNames.contains(c.name)) {
-                      @CachedInsidePsiElement(c, signaturesKey, CachesUtil.getDependentItem(c), useOptionalProvider = true)
+                      @CachedInsidePsiElement(c, CachesUtil.getDependentItem(c), useOptionalProvider = true)
                       def buildNodesClass2(): SMap = SignatureNodes.build(c)
 
                       val add = buildNodesClass2()

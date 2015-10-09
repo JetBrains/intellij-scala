@@ -6,7 +6,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
@@ -51,7 +50,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
           res
         }
       case _=>
-        @CachedMappedWithRecursionGuard(this, CachesUtil.RESOLVE_KEY, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
+        @CachedMappedWithRecursionGuard(this, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
         def innerCached(incomplete: Boolean): Array[ResolveResult] = Resolver.resolve(this, incomplete)
 
         innerCached(incomplete)
@@ -229,8 +228,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   def resolveNoConstructor: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, CachesUtil.NO_CONSTRUCTOR_RESOLVE_KEY,
-      EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
+    @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
     def inner(): Array[ResolveResult] = NoConstructorResolver.resolve(this, incomplete = false)
 
     inner()
@@ -238,8 +236,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
   def resolveAllConstructors: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, CachesUtil.REF_ELEMENT_RESOLVE_CONSTR_KEY,
-      EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
+    @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
     def inner(): Array[ResolveResult] = ResolverAllConstructors.resolve(this, incomplete = false)
 
     inner()
@@ -248,8 +245,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   def shapeResolve: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
 
-    @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_KEY,
-      EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
+    @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
     def inner(): Array[ResolveResult] = ShapesResolver.resolve(this, incomplete = false)
 
     inner()
@@ -258,8 +254,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   def shapeResolveConstr: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
 
-    @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY,
-      EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
+    @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
     def inner(): Array[ResolveResult] = ShapesResolverAllConstructors.resolve(this, incomplete = false)
 
     inner()

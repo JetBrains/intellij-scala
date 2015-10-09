@@ -35,15 +35,15 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object ShapesResolver extends ReferenceExpressionResolver(true)
 
   def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
-    @CachedMappedWithRecursionGuard(this, CachesUtil.RESOLVE_KEY, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
+    @CachedMappedWithRecursionGuard(this, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
     def multiResolveInner(incomplete: Boolean): Array[ResolveResult] = Resolver.resolve(this, incomplete)
     if (resolveFunction != null) resolveFunction()
     else multiResolveInner(incomplete)
   }
 
   def shapeResolve: Array[ResolveResult] = {
-    @CachedWithRecursionGuard[ResolvableReferenceExpression](this, CachesUtil.REF_EXPRESSION_SHAPE_RESOLVE_KEY,
-      Array.empty[ResolveResult], PsiModificationTracker.MODIFICATION_COUNT)
+    @CachedWithRecursionGuard[ResolvableReferenceExpression](this, Array.empty[ResolveResult],
+      PsiModificationTracker.MODIFICATION_COUNT)
     def shapeResolveInner: Array[ResolveResult] = ShapesResolver.resolve(this, incomplete = false)
 
     ProgressManager.checkCanceled()

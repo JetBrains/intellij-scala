@@ -9,7 +9,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
@@ -56,12 +55,12 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   protected def innerType(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true)
 
-  @CachedWithRecursionGuard[ScSimpleTypeElement](this, CachesUtil.SIMPLE_TYPE_ELEMENT_TYPE_NO_CONSTRUCTOR_KEY,
-    Failure("Recursive type of type element", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedWithRecursionGuard[ScSimpleTypeElement](this, Failure("Recursive type of type element", Some(this)),
+    PsiModificationTracker.MODIFICATION_COUNT)
   override def getTypeNoConstructor(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true, noConstructor = true)
 
-  @CachedWithRecursionGuard[ScSimpleTypeElement](this, CachesUtil.NON_VALUE_TYPE_ELEMENT_TYPE_KEY,
-    Failure("Recursive non value type of type element", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedWithRecursionGuard[ScSimpleTypeElement](this, Failure("Recursive non value type of type element", Some(this)),
+    PsiModificationTracker.MODIFICATION_COUNT)
   override def getNonValueType(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = false)
 
   private def innerNonValueType(ctx: TypingContext, inferValueType: Boolean, noConstructor: Boolean = false): TypeResult[ScType] = {
