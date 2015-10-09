@@ -21,9 +21,9 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import scala.collection.mutable.ArrayBuffer
 
 /**
-*  Created by Kate Ustyuzhanina
-*  on 8/3/15
-*/
+ * Created by Kate Ustyuzhanina
+ * on 8/3/15
+ */
 object ScalaTypeValidator {
   def apply(conflictsReporter: ConflictsReporter,
             project: Project,
@@ -33,18 +33,6 @@ object ScalaTypeValidator {
             container: PsiElement,
             noOccurrences: Boolean): ScalaTypeValidator = {
     new ScalaTypeValidator(conflictsReporter, project, element, noOccurrences, container, container)
-  }
-
-
-  def apply(conflictsReporter: ConflictsReporter,
-            project: Project,
-            editor: Editor,
-            file: PsiFile,
-            element: PsiElement,
-            occurrences: Array[TextRange]): ScalaTypeValidator = {
-    val container = ScalaRefactoringUtil.enclosingContainer(ScalaRefactoringUtil.commonParent(file, occurrences: _*))
-    val containerOne = ScalaRefactoringUtil.enclosingContainer(element)
-    new ScalaTypeValidator(conflictsReporter, project, element, occurrences.isEmpty, container, containerOne)
   }
 }
 
@@ -65,14 +53,16 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
 
     buf ++= getForbiddenNames(container, name)
 
-    //    val parent = container.getContext
-    buf ++= getForbiddenNamesInBlock(container, name)
+    if (buf.isEmpty) {
+      buf ++= getForbiddenNamesInBlock(container, name)
+    }
+
     buf.toArray
   }
 
   //TODO maybe not the best way to handle with such matching
   private def matchElement(element: PsiElement, name: String, buf: ArrayBuffer[(PsiNamedElement, String)]) = {
-    element.depthFirst.forall  {
+    element.depthFirst.forall {
       case typeAlias: ScTypeAlias if typeAlias.getName == name =>
         buf += ((typeAlias, messageForTypeAliasMember(name)))
         true
@@ -86,32 +76,11 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
         }
         buf ++= getForbiddenNamesInBlock(typeDefinition, name)
         true
-      case fileType: ScalaFile =>
-        buf ++= getForbiddenNamesInBlock(fileType, name)
-        true
-      case func: ScFunctionDefinition =>
-        buf ++= getForbiddenNamesInBlock(func, name)
-        true
-      case funcBlock: ScBlockExpr =>
-        buf ++= getForbiddenNamesInBlock(funcBlock, name)
-        true
-      case extendsBlock: ScExtendsBlock =>
-        buf ++= getForbiddenNamesInBlock(extendsBlock, name)
-        true
-      case body: ScTemplateBody =>
-        buf ++= getForbiddenNamesInBlock(body, name)
-        true
-      case expression: ScExpression =>
-        buf ++= getForbiddenNamesInBlock(expression, name)
-        true
-      case expression: ScPackaging =>
-        buf ++= getForbiddenNamesInBlock(expression, name)
-        true
       case _ => true
     }
   }
 
-  private def getForbiddenNames(position: PsiElement, name: String) = {
+  def getForbiddenNames(position: PsiElement, name: String) = {
     class FindTypeAliasProcessor extends BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
       val buf = new ArrayBuffer[(PsiNamedElement, String)]
 
@@ -139,7 +108,7 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
   }
 
   //find conflict in ALL child from current Parent recursively
-  private def getForbiddenNamesInBlock(commonParent: PsiElement, name: String): ArrayBuffer[(PsiNamedElement, String)] = {
+  def getForbiddenNamesInBlock(commonParent: PsiElement, name: String): ArrayBuffer[(PsiNamedElement, String)] = {
     val buf = new ArrayBuffer[(PsiNamedElement, String)]
     for (child <- commonParent.getChildren) {
       matchElement(child, name, buf)

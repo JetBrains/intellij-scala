@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.EditorComboBoxEditor;
@@ -52,7 +53,6 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
     private int occurrencesCount;
     private int companionObjOccCount;
     private ScalaValidator validator;
-    private String[] possibleNames;
     private EventListenerList myListenerList = new EventListenerList();
     private ConflictsReporter conflictsReporter;
     private Editor editor;
@@ -70,16 +70,16 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         super(project, true);
         this.project = project;
         this.myTypeElement = myTypeElement;
-        this.currentScope = possibleScopes[0];
+        this.currentScope = mainScope;
         this.occurrencesCount = currentScope.usualOccurrences().length;
         this.companionObjOccCount = currentScope.occurrencesInCompanion().length;
         this.validator = currentScope.typeValidator();
-        this.possibleNames = currentScope.availableNames();
         this.conflictsReporter = conflictReporter;
         this.editor = editor;
         this.inheritanceDataMap = new HashMap<ScopeItem, Tuple2<ScTypeElement[], ScalaTypeValidator[]>>();
 
 
+        String[] possibleNames = currentScope.availableNames();
         setUpNameComboBox(possibleNames);
         setUpScopeComboBox(possibleScopes, mainScope);
 
@@ -99,9 +99,20 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
             }
         }
 
+        ScopeItem newScope = currentScope;
+        if (currentScope.isPackage()) {
+            currentScope = ScopeSuggester.handleOnePackage(myTypeElement, currentScope.name().substring(8),
+                    (PsiDirectory) currentScope.fileEncloser(), conflictsReporter, myTypeElement.getProject(), editor,
+                    isReplaceAllOccurrences(), getEnteredName());
+
+            validator = currentScope.typeValidator();
+        }
+
         if (!validator.isOK(this)) {
+            currentScope = newScope;
             return;
         }
+
 
         super.doOKAction();
     }
@@ -130,13 +141,13 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         );
 
         ((EditorTextField) myNameComboBox.getEditor().getEditorComponent()).addDocumentListener(new DocumentListener() {
-            public void beforeDocumentChange(DocumentEvent event) {
-            }
+                                                                                                    public void beforeDocumentChange(DocumentEvent event) {
+                                                                                                    }
 
-            public void documentChanged(DocumentEvent event) {
-                fireNameDataChanged();
-            }
-        }
+                                                                                                    public void documentChanged(DocumentEvent event) {
+                                                                                                        fireNameDataChanged();
+                                                                                                    }
+                                                                                                }
         );
 
         contentPane.registerKeyboardAction(new ActionListener() {
@@ -159,9 +170,10 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
 
     private void setUpOccurrences() {
         myCbReplaceAllOccurences.setSelected(false);
-        if (occurrencesCount > 1) {
+        if ((occurrencesCount > 1) || currentScope.isPackage()) {
             myCbReplaceAllOccurences.setEnabled(true);
-            myCbReplaceAllOccurences.setText("Replace all occurrences (" + occurrencesCount + " occurrences)");
+            String occCount = occurrencesCount > 0 ? " (" + occurrencesCount + " occurrences)" : "";
+            myCbReplaceAllOccurences.setText("Replace all occurrences"  + occCount);
         } else {
             myCbReplaceAllOccurences.setEnabled(false);
         }
@@ -257,8 +269,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
                 setUpOccurrences();
                 setUpReplaceInInheritors(item);
                 validator = item.typeValidator();
-                possibleNames = item.availableNames();
-                updateNameComboBox(possibleNames);
+                updateNameComboBox(item.availableNames());
             }
         }
     }
@@ -346,10 +357,10 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
     }
 
     public ScopeItem getSelectedScope() {
-        if (myScopeCombobox.getSelectedItem() instanceof ScopeItem) {
-            return currentScope = (ScopeItem) myScopeCombobox.getSelectedItem();
-        }
-        return null;
+//        if (myScopeCombobox.getSelectedItem() instanceof ScopeItem) {
+//            return currentScope = (ScopeItem) myScopeCombobox.getSelectedItem();
+//        }
+        return currentScope;
     }
 
     //return false if there is conflict in validator
