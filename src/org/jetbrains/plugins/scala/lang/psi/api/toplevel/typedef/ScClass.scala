@@ -44,27 +44,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
   }
 
   protected def typeParamString : String = {
-    def typeParamString(param: ScTypeParam): String = {
-      var paramText = param.name
-      if (param.typeParameters.nonEmpty) {
-        paramText += param.typeParameters.map(typeParamString).mkString("[", ", ", "]")
-      }
-      param.lowerTypeElement foreach {
-        case tp => paramText = paramText + " >: " + tp.getText
-      }
-      param.upperTypeElement foreach {
-        case tp => paramText = paramText + " <: " + tp.getText
-      }
-      param.viewTypeElement foreach {
-        case tp => paramText = paramText + " <% " + tp.getText
-      }
-      param.contextBoundTypeElement foreach {
-        case tp => paramText = paramText + " : " + tp.getText
-      }
-      paramText
-    }
-
-    if (typeParameters.nonEmpty) typeParameters.map(typeParamString).mkString("[", ", ", "]")
+    if (typeParameters.nonEmpty) typeParameters.map(ScalaPsiUtil.typeParamString).mkString("[", ", ", "]")
     else ""
   }
 
