@@ -34,6 +34,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 import scala.reflect.NameTransformer
 
 /**
@@ -664,7 +665,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def evaluatorForReferenceWithoutParameters(qualifier: Option[ScExpression],
                                              resolve: PsiElement,
                                              ref: ScReferenceExpression): Evaluator = {
-    val isLocalValue = DebuggerUtil.isLocalV(resolve)
 
     def withOuterFieldEvaluator(containingClass: PsiElement, name: String, message: String) = {
       val (innerClass, iterationCount) = findContextClass { e =>
@@ -716,6 +716,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         fromVolatileObjectReference(fieldEval)
       }
     }
+
+    val isSynthetic = resolve != null && codeFragment.isAncestorOf(resolve)
+    if (isSynthetic && qualifier.isEmpty) return new SyntheticVariableEvaluator(currentFragmentEvaluator, ref.refName)
+
+    val isLocalValue = DebuggerUtil.isLocalV(resolve)
 
     resolve match {
       case Both(isInsideLocalFunction(fun), named: PsiNamedElement) if isLocalValue =>
@@ -821,6 +826,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val exprText = s"($invokedText).update$args"
           val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, stmt.getContext, stmt)
           evaluatorFor(expr)
+        case ResolvesTo(ScalaPsiUtil.inNameContext(pd: ScPatternDefinition)) =>
+          throw EvaluationException("Cannot evaluate assignment to val")
         case _ =>
           val leftEvaluator = evaluatorFor(stmt.getLExpression)
           val rightEvaluator = stmt.getRExpression match {
@@ -846,7 +853,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       ref.resolve() match {
         case fun: ScFunctionDefinition =>
           val elem = ref.bind().get.getActualElement //object or case class
-        val qual = ref.qualifier.map(q => ScalaPsiElementFactory.createExpressionWithContextFromText(q.getText, q.getContext, q))
+          val qual = ref.qualifier.map(q => ScalaPsiElementFactory.createExpressionWithContextFromText(q.getText, q.getContext, q))
           val refExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(ref.getText, ref.getContext, ref)
           val refEvaluator = evaluatorForReferenceWithoutParameters(qual, elem, refExpr.asInstanceOf[ScReferenceExpression])
 
@@ -1161,9 +1168,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def blockExprEvaluator(block: ScBlock): ScalaBlockExpressionEvaluator = {
-    val evaluators = block.statements.map(evaluatorFor)
-    new ScalaBlockExpressionEvaluator(evaluators.toSeq)
+  def blockExprEvaluator(block: ScBlock): Evaluator = {
+    withNewCodeFragmentEvaluator {
+      val evaluators = block.statements.map(evaluatorFor)
+      new ScalaBlockExpressionEvaluator(evaluators.toSeq)
+    }
   }
 
   def postfixExprEvaluator(p: ScPostfixExpr): Evaluator = {
@@ -1193,6 +1202,37 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val exprText = "_root_.scala.Tuple" + tuple.exprs.length + tuple.exprs.map(_.getText).mkString("(", ", ", ")")
     val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, tuple.getContext, tuple)
     evaluatorFor(expr)
+  }
+
+  def valOrVarDefinitionEvaluator(pList: ScPatternList, expr: ScExpression) = {
+    val evaluators = ArrayBuffer[Evaluator]()
+    val exprEval = new ScalaCachingEvaluator(evaluatorFor(expr))
+    evaluators += exprEval
+    for {
+      pattern <- pList.patterns
+      binding <- pattern.bindings
+    } {
+      val name = binding.name
+      currentFragmentEvaluator.setInitialValue(name, null)
+      val leftEval = new SyntheticVariableEvaluator(currentFragmentEvaluator, name)
+      val rightEval = evaluateSubpatternFromPattern(exprEval, pattern, binding)
+      evaluators += new AssignmentEvaluator(leftEval, rightEval)
+    }
+    new ScalaBlockExpressionEvaluator(evaluators)
+  }
+
+  def variableDefinitionEvaluator(vd: ScVariableDefinition): Evaluator = {
+    vd.expr match {
+      case None => throw EvaluationException(s"Variable definition needs right hand side: ${vd.getText}")
+      case Some(e) => valOrVarDefinitionEvaluator(vd.pList, e)
+    }
+  }
+
+  def patternDefinitionEvaluator(pd: ScPatternDefinition): Evaluator = {
+    pd.expr match {
+      case None => throw EvaluationException(s"Value definition needs right hand side: ${pd.getText}")
+      case Some(e) => valOrVarDefinitionEvaluator(pd.pList, e)
+    }
   }
 
   def postProcessExpressionEvaluator(expr: ScExpression, evaluator: Evaluator): Evaluator = {
