@@ -171,7 +171,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
                   replaceCompanionObjOccurrences, replaceOccurrencesFromInheritors, scopes[0]);
 
           introduceVariableHandler.runRefactoringForTypes(myFile, myEditor, typeElement,
-                  typeName, occurrences, scopes[0].fileEncloser(),scopes[0].isPackage(), scopes[0].needDirectoryCreating());
+                  typeName, occurrences, scopes[0].fileEncloser(),scopes[0].isPackage(), scopes[0].needDirectoryCreating(), scopes[0]);
 
           result = removeTypenameComment(myEditor.getDocument().getText());
         }
