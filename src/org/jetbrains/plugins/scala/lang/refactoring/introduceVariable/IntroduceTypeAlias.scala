@@ -102,7 +102,7 @@ trait IntroduceTypeAlias {
 
         val parent = dialog.getSelectedScope.fileEncloser
         runRefactoringForTypes(file, editor, typeElementHelper, dialog.getEnteredName, occurrences, parent,
-          dialog.getSelectedScope.isPackage, dialog.getSelectedScope.needDirectoryCreating)
+          dialog.getSelectedScope.isPackage, dialog.getSelectedScope.needDirectoryCreating, dialog.getSelectedScope)
       }
 
       // replace all occurrences, don't replace occurences available from companion object or inheritors
@@ -119,7 +119,7 @@ trait IntroduceTypeAlias {
 
           val introduceRunnable: Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] =
             introduceTypeAlias(file, editor, typeElement, allOccurrences, suggestedNames(0), replaceAllOccurrences,
-              scopeItem.fileEncloser, scopeItem.isPackage, scopeItem.needDirectoryCreating)
+              scopeItem.fileEncloser, scopeItem.isPackage, scopeItem.needDirectoryCreating, scopeItem)
 
           CommandProcessor.getInstance.executeCommand(project, new Runnable {
             def run() {
@@ -184,6 +184,8 @@ trait IntroduceTypeAlias {
                 } else {
                   handleScope(scopeItem, needReplacement = true)
                 }
+              } else if (scopeItem.isPackage) {
+                runWithDialog(fromInplace = true, scopeItem)
               }
           }
         }
@@ -205,11 +207,13 @@ trait IntroduceTypeAlias {
                                           occurrences: OccurrenceData,
                                           suggestedParent: PsiElement,
                                           isPackage: Boolean,
-                                          needCreateDirectory: Boolean): (SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement]) = {
+                                          needCreateDirectory: Boolean,
+                                          scope: ScopeItem): (SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement]) = {
     def addTypeAliasDefinition(typeName: String, typeElement: ScTypeElement, parent: PsiElement) = {
       def getAhchor(parent: PsiElement, firstOccurrence: PsiElement): Some[PsiElement] = {
         Some(parent.getChildren.find(_.getTextRange.contains(firstOccurrence.getTextRange)).getOrElse(parent.getLastChild))
       }
+
 
       val mtext = typeElement.calcType.canonicalText
 
@@ -226,7 +230,7 @@ trait IntroduceTypeAlias {
 
     val parent = suggestedParent match {
       case suggestedDirectory: PsiDirectory if isPackage =>
-        createAndGetPackageObjectBody(typeElement, suggestedDirectory, needCreateDirectory)
+        createAndGetPackageObjectBody(typeElement, suggestedDirectory, needCreateDirectory, scope.name.substring(8))
       case _ =>
         suggestedParent
     }
@@ -255,10 +259,11 @@ trait IntroduceTypeAlias {
   def runRefactoringForTypes(file: PsiFile, editor: Editor,
                              typeElement: ScTypeElement, typeName: String,
                              occurrences_ : OccurrenceData, parent: PsiElement,
-                             isPackage: Boolean, needCreateDirectory: Boolean) = {
+                             isPackage: Boolean, needCreateDirectory: Boolean,
+                             scope: ScopeItem) = {
     val runnable = new Runnable() {
       def run() {
-        runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, parent, isPackage, needCreateDirectory)
+        runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, parent, isPackage, needCreateDirectory, scope)
       }
     }
     ScalaUtils.runWriteAction(runnable, editor.getProject, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
@@ -273,10 +278,11 @@ trait IntroduceTypeAlias {
                                    replaceAllOccurrences: Boolean,
                                    parent: PsiElement,
                                    isPackage: Boolean,
-                                   needCreateDirectory: Boolean): Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] = {
+                                   needCreateDirectory: Boolean,
+                                   scope: ScopeItem): Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] = {
 
     new Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])]() {
-      def compute() = runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, parent, isPackage, needCreateDirectory)
+      def compute() = runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, parent, isPackage, needCreateDirectory, scope)
     }
   }
 
@@ -381,8 +387,14 @@ trait IntroduceTypeAlias {
 
   protected def createAndGetPackageObjectBody(typeElement: ScTypeElement,
                                               suggestedDirectory: PsiDirectory,
-                                              needCreateDirectory: Boolean): ScTemplateBody = {
-    val newDirectoryName = "One"
+                                              needCreateDirectory: Boolean,
+                                              inNewDirectoryName: String): ScTemplateBody = {
+    val newDirectoryName = if (needCreateDirectory) {
+      inNewDirectoryName
+    } else {
+      "package"
+    }
+
     val currentDirectory = suggestedDirectory
     val newDir = if (needCreateDirectory) {
       currentDirectory.createSubdirectory(newDirectoryName)
