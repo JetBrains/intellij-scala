@@ -41,10 +41,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Ksenia.Sautina
@@ -52,6 +49,17 @@ import java.util.List;
  */
 
 public class ScalaTestAstTransformer {
+
+    protected static final List<String> itWordFqns = new LinkedList<String>();
+    static {
+        itWordFqns.add("org.scalatest.FlatSpecLike.ItWord");
+        itWordFqns.add("org.scalatest.FunSpecLike.ItWord");
+        itWordFqns.add("org.scalatest.WordSpecLike.ItWord");
+        itWordFqns.add("org.scalatest.fixture.FlatSpecLike.ItWord");
+        itWordFqns.add("org.scalatest.fixture.FunSpecLike.ItWord");
+        itWordFqns.add("org.scalatest.fixture.WordSpecLike.ItWord");
+        itWordFqns.add("org.scalatest.path.FunSpecLike.ItWord");
+    }
 
     public Class<?> loadClass(String className, Module module) throws MalformedURLException, ClassNotFoundException {
         final List<OrderEntry> orderEntries = new ArrayList<OrderEntry>();
@@ -356,6 +364,10 @@ public class ScalaTestAstTransformer {
             this.target = target;
         }
 
+        protected boolean isIt() {
+            return element instanceof ScReferenceExpression && target.equals("it") &&
+                    itWordFqns.contains(pClassName);
+        }
 
         @Override
         public AstNode parent() {
@@ -370,12 +382,16 @@ public class ScalaTestAstTransformer {
 
         @Override
         public boolean canBePartOfTestName() {
-            return TestConfigurationUtil.getStaticTestName(element, false).isDefined();
+            return isIt() || TestConfigurationUtil.getStaticTestName(element, false).isDefined();
         }
 
         @Override
         public String toString() {
-            return TestConfigurationUtil.getStaticTestNameOrDefault(element, name(), false);
+            if (isIt()) {
+                return "";
+            } else {
+                return TestConfigurationUtil.getStaticTestNameOrDefault(element, name(), false);
+            }
         }
 
         @Override
