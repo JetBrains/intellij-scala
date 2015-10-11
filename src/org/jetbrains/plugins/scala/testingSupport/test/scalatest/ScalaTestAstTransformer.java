@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.test.scalatest;
 
 import com.intellij.execution.Location;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.OrderEnumerator;
@@ -18,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.*;
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScArgumentExprListImpl;
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes;
@@ -28,7 +28,6 @@ import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil;
 import org.scalatest.finders.AstNode;
 import org.scalatest.finders.Finder;
 import org.scalatest.finders.Selection;
-import org.scalatest.finders.ToStringTarget;
 import scala.Option;
 import scala.Option$;
 import scala.collection.JavaConversions;
@@ -49,6 +48,8 @@ import java.util.*;
  */
 
 public class ScalaTestAstTransformer {
+
+    public static Logger LOG = Logger.getInstance("org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestAstTransformer");
 
     protected static final List<String> itWordFqns = new LinkedList<String>();
     static {
@@ -136,7 +137,7 @@ public class ScalaTestAstTransformer {
                         }
                     }
                 } catch (Exception e) {
-                    System.err.println("Failed to extract finder class name from annotation " + styleAnnotation + ":\n" + e);
+                    LOG.debug("Failed to extract finder class name from annotation " + styleAnnotation + ":\n" + e);
                 }
                 if (finderClassName != null) return finderClassName;
                 //the annotation is present, but arguments are not: have to load a Class, not PsiClass, in order to extract finder FQN
@@ -144,22 +145,22 @@ public class ScalaTestAstTransformer {
                     try {
                         Class suiteClass = loadClass(suiteTypeDef.qualifiedName(), module);
                         annotations = suiteClass.getAnnotations();
-                    } catch (MalformedURLException e) {
-                        throw new RuntimeException("Failed to load class for test suite " + suiteTypeDef.qualifiedName() + "\n" + e);
-                    } catch (ClassNotFoundException e) {
-                        throw new RuntimeException("Failed to load class for test suite " + suiteTypeDef.qualifiedName() + "\n" + e);
+                    } catch (Exception e) {
+                        LOG.debug("Failed to load suite class " + suiteTypeDef.qualifiedName());
                     }
                 }
-                for (Annotation a: annotations) {
-                    if (a.annotationType().getName().equals(annotationFqn)) {
-                        try {
-                            Method valueMethod = a.annotationType().getMethod("value");
-                            String[] args = ((String[])valueMethod.invoke(a));
-                            if (args.length != 0) {
-                                return args[0];
+                if (annotations != null) {
+                    for (Annotation a : annotations) {
+                        if (a.annotationType().getName().equals(annotationFqn)) {
+                            try {
+                                Method valueMethod = a.annotationType().getMethod("value");
+                                String[] args = ((String[]) valueMethod.invoke(a));
+                                if (args.length != 0) {
+                                    return args[0];
+                                }
+                            } catch (Exception e) {
+                                LOG.debug("Failed to extract finder class name from annotation " + styleAnnotation + ":\n" + e);
                             }
-                        } catch (Exception e) {
-                            System.err.println("Failed to extract finder class name from annotation " + styleAnnotation + ":\n" + e);
                         }
                     }
                 }
@@ -187,7 +188,7 @@ public class ScalaTestAstTransformer {
                         Class finderClass = Class.forName(finderFqn);
                         return (Finder) finderClass.newInstance();
                     } catch (ClassNotFoundException e) {
-                        System.err.println("Failed to load finders API class " + finderFqn);
+                        LOG.debug("Failed to load finders API class " + finderFqn);
                     }
                 }
             }
@@ -212,11 +213,7 @@ public class ScalaTestAstTransformer {
 
         @Override
         public boolean equals(Object other) {
-            if (other != null && other instanceof StConstructorBlock) {
-                return element.equals(((StConstructorBlock) other).element);
-            } else {
-                return false;
-            }
+            return other != null && other instanceof StConstructorBlock && element.equals(((StConstructorBlock) other).element);
         }
 
         @Override
@@ -252,11 +249,8 @@ public class ScalaTestAstTransformer {
 
         @Override
         public boolean equals(Object other) {
-            if (other != null && other instanceof StMethodDefinition) {
-                return element.equals(((StMethodDefinition) other).element);
-            } else {
-                return false;
-            }
+            return other != null && other instanceof StMethodDefinition &&
+                    element.equals(((StMethodDefinition) other).element);
         }
 
         @Override
@@ -301,11 +295,8 @@ public class ScalaTestAstTransformer {
 
         @Override
         public boolean equals(Object other) {
-            if (other != null && other instanceof StMethodInvocation) {
-                return invocation.equals(((StMethodInvocation) other).invocation);
-            } else {
-                return false;
-            }
+            return other != null && other instanceof StMethodInvocation &&
+                    invocation.equals(((StMethodInvocation) other).invocation);
         }
 
         @Override
@@ -339,11 +330,8 @@ public class ScalaTestAstTransformer {
 
         @Override
         public boolean equals(Object other) {
-            if (other != null && other instanceof StStringLiteral) {
-                return element.equals(((StStringLiteral) other).element);
-            } else {
-                return false;
-            }
+            return other != null && other instanceof StStringLiteral &&
+                    element.equals(((StStringLiteral) other).element);
         }
 
         @Override
@@ -396,11 +384,8 @@ public class ScalaTestAstTransformer {
 
         @Override
         public boolean equals(Object other) {
-            if (other != null && other instanceof StToStringTarget) {
-                return element.equals(((StToStringTarget) other).element);
-            } else {
-                return false;
-            }
+            return other != null && other instanceof StToStringTarget &&
+                    element.equals(((StToStringTarget) other).element);
         }
 
         @Override
@@ -424,21 +409,17 @@ public class ScalaTestAstTransformer {
 
     public AstNode getTarget(String className, PsiElement element, MethodInvocation selected) {
         PsiElement firstChild = element.getFirstChild();
-        AstNode[] emptyArray = new AstNode[0];
         if (firstChild instanceof ScLiteral && (((ScLiteral) firstChild).isString())) {
             return new StToStringTarget(className, firstChild, ((ScLiteral)firstChild).getValue().toString());
-            //return new ToStringTarget(className, null, emptyArray, ((ScLiteral) firstChild).getValue().toString());
         } else if (firstChild instanceof MethodInvocation) {
             StMethodInvocation inv = getScalaTestMethodInvocation(selected, (MethodInvocation) firstChild, Collections.<ScExpression>emptyList(), className);
             if (inv != null) {
                 return inv;
             } else {
                 return new StToStringTarget(className, firstChild, firstChild.getText());
-                //return new ToStringTarget(className, null, emptyArray, firstChild.getText());
             }
         } else {
             return new StToStringTarget(className, firstChild, firstChild.getText());
-            //return new ToStringTarget(className, null, emptyArray, firstChild.getText());
         }
     }
 
@@ -520,11 +501,17 @@ public class ScalaTestAstTransformer {
         }
     }
 
-    public Selection testSelection(Location<? extends PsiElement> location) throws MalformedURLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public Selection testSelection(Location<? extends PsiElement> location) {
         PsiElement element = location.getPsiElement();
         ScClass clazz = PsiTreeUtil.getParentOfType(element, ScClass.class, false);
         if (clazz == null) return null;
-        Finder finder = getFinder(clazz, location.getModule());
+        Finder finder = null;
+        try {
+            finder = getFinder(clazz, location.getModule());
+        } catch (Exception e) {
+            LOG.debug("Failed to load scalatest-finders API class for test sute " + clazz.qualifiedName()
+                    + ": " + e.getMessage());
+        }
         if (finder != null) {
             AstNode selectedAst = getSelectedAstNode(clazz.qualifiedName(), element);
             AstNode selectedAstOpt = (selectedAst == null) ? null : selectedAst;
