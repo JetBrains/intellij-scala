@@ -24,6 +24,8 @@ class ScalaSourcePositionProvider extends SourcePositionProvider {
                                      nearest: Boolean): SourcePosition = {
 
     val contextElement = PositionUtil.getContextElement(context)
+    if (contextElement == null) return null
+
     val isScala = contextElement.getLanguage.isKindOf(ScalaLanguage.Instance)
     if (!isScala) return null
 
