@@ -133,7 +133,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val unmanagedSourcesAndDocsLibrary = libraryNodes.map(_.data).find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
     projects.map { project =>
       val moduleNode = createModule(project, moduleFilesDirectory)
-      moduleNode.add(createContentRoot(project))
+      val contentRootNode = createContentRoot(project)
+      project.android.foreach(a => a.apklibs.foreach(addApklibDirs(contentRootNode, _)))
+      moduleNode.add(contentRootNode)
       moduleNode.addAll(createLibraryDependencies(project.dependencies.modules)(moduleNode, libraryNodes.map(_.data)))
       moduleNode.add(createModuleExtData(project))
       moduleNode.addAll(project.android.map(createFacet(project, _)).toSeq)
@@ -364,6 +366,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val result = new LibraryDependencyNode(moduleData, libraryNode, LibraryLevel.MODULE)
     result.setScope(scope)
     result
+  }
+
+  private def addApklibDirs(contentRootNode: ContentRootNode, apklib: sbtStructure.ApkLib): Unit = {
+    contentRootNode.storePath(ExternalSystemSourceType.SOURCE, apklib.sources.canonicalPath)
+    contentRootNode.storePath(ExternalSystemSourceType.SOURCE_GENERATED, apklib.gen.canonicalPath)
+    contentRootNode.storePath(ExternalSystemSourceType.RESOURCE, apklib.resources.canonicalPath)
   }
 
   protected def scopeFor(configurations: Seq[sbtStructure.Configuration]): DependencyScope = {
