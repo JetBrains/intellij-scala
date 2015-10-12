@@ -14,15 +14,17 @@ object ScalastyleCodeInspection {
   private val cache = new mutable.HashMap[VirtualFile, TimestampedScalastyleConfiguration]()
 
   private object locations {
-    val configFileName = "scalastyle_config.xml"
+    val possibleConfigFileNames = Seq("scalastyle_config.xml", "scalastyle-config.xml")
     val possibleLocations = Seq(".idea", "project")
 
-    def typicalLocation(project: Project): Option[VirtualFile] = {
+    def findConfigFile(dir: VirtualFile) = possibleConfigFileNames.flatMap(name => Option(dir.findChild(name))).headOption
+
+    def findIn(project: Project): Option[VirtualFile] = {
       val root = project.getBaseDir
       if (root == null) return None
 
-      val dirs = possibleLocations.flatMap(name => Option(root.findChild(name)))
-      dirs.flatMap(d => Option(d.findChild(configFileName))).headOption
+      val dirs = possibleLocations.flatMap(name => Option(root.findChild(name))) :+ root
+      dirs.flatMap(findConfigFile).headOption
     }
   }
 
@@ -43,7 +45,7 @@ object ScalastyleCodeInspection {
       }
     }
 
-    locations.typicalLocation(project).flatMap(latest)
+    locations.findIn(project).flatMap(latest)
   }
 
 }
