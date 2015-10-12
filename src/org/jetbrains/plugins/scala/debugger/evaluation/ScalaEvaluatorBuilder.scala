@@ -63,7 +63,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 private[evaluation] class NeedCompilationException(message: String) extends EvaluateException(message)
 
 private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragment, val position: SourcePosition)
-        extends ScalaEvaluatorBuilderUtil {
+        extends ScalaEvaluatorBuilderUtil with SyntheticVariablesHelper {
 
   import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil._
 
@@ -72,9 +72,7 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
     else getContextClass(position.getElementAt, strict = false)
   }
 
-  protected var currentFragmentEvaluator = new ScalaCodeFragmentEvaluator(null)
-
-  def getEvaluator: Evaluator = new UnwrapRefEvaluator(scalaCodeFragmentEvaluator(codeFragment))
+  def getEvaluator: Evaluator = new UnwrapRefEvaluator(fragmentEvaluator(codeFragment))
 
   protected def evaluatorFor(element: PsiElement): Evaluator = {
     element match {
@@ -109,27 +107,33 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
     }
   }
 
-  def scalaCodeFragmentEvaluator(fragment: ScalaCodeFragment): CodeFragmentEvaluator = {
+  def fragmentEvaluator(fragment: ScalaCodeFragment): Evaluator = {
     val childrenEvaluators = fragment.children.collect {
       case e @ (_: ScBlockStatement | _: ScMember) => evaluatorFor(e)
     }
-    currentFragmentEvaluator.setStatements(childrenEvaluators.toArray)
-    currentFragmentEvaluator
+    new BlockStatementEvaluator(childrenEvaluators.toArray)
   }
+}
 
-  protected def withNewCodeFragmentEvaluator(evaluatorComputation: => Evaluator): Evaluator = {
-    val old = currentFragmentEvaluator
-    val newEvaluator = new ScalaCodeFragmentEvaluator(currentFragmentEvaluator)
-    currentFragmentEvaluator = newEvaluator
+private[evaluation] trait SyntheticVariablesHelper {
+  private var currentHolder = new SyntheticVariablesHolderEvaluator(null)
+
+  protected def withNewSyntheticVariablesHolder(evaluatorComputation: => Evaluator): Evaluator = {
+    val old = currentHolder
+    val newEvaluator = new SyntheticVariablesHolderEvaluator(currentHolder)
+    currentHolder = newEvaluator
     var result: Evaluator = null
     try {
       result = evaluatorComputation
     }
     finally {
-      currentFragmentEvaluator = old
+      currentHolder = old
     }
     result
   }
+
+  protected def createSyntheticVariable(name: String) = currentHolder.setInitialValue(name, null)
+  protected def syntheticVariableEvaluator(name: String) = new SyntheticVariableEvaluator(currentHolder, name)
 }
 
 private object needsCompilation {
