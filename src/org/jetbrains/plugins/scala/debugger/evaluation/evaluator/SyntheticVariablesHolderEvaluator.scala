@@ -11,7 +11,7 @@ import scala.collection.mutable
 /**
  * @author Nikolay.Tropin
  */
-class ScalaCodeFragmentEvaluator(parentEvaluator: CodeFragmentEvaluator) extends CodeFragmentEvaluator(parentEvaluator) {
+class SyntheticVariablesHolderEvaluator(parentEvaluator: CodeFragmentEvaluator) extends CodeFragmentEvaluator(parentEvaluator) {
   private val mySyntheticLocals = mutable.HashMap[String, Value]()
 
   override def getValue(localName: String, vm: VirtualMachineProxyImpl): Value = mySyntheticLocals.get(localName) match {

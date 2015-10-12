@@ -718,7 +718,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
 
     val isSynthetic = resolve != null && codeFragment.isAncestorOf(resolve)
-    if (isSynthetic && qualifier.isEmpty) return new SyntheticVariableEvaluator(currentFragmentEvaluator, ref.refName)
+    if (isSynthetic && qualifier.isEmpty) return syntheticVariableEvaluator(ref.refName)
 
     val isLocalValue = DebuggerUtil.isLocalV(resolve)
 
@@ -1169,7 +1169,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
 
   def blockExprEvaluator(block: ScBlock): Evaluator = {
-    withNewCodeFragmentEvaluator {
+    withNewSyntheticVariablesHolder {
       val evaluators = block.statements.map(evaluatorFor)
       new ScalaBlockExpressionEvaluator(evaluators.toSeq)
     }
@@ -1213,8 +1213,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       binding <- pattern.bindings
     } {
       val name = binding.name
-      currentFragmentEvaluator.setInitialValue(name, null)
-      val leftEval = new SyntheticVariableEvaluator(currentFragmentEvaluator, name)
+      createSyntheticVariable(name)
+      val leftEval = syntheticVariableEvaluator(name)
       val rightEval = evaluateSubpatternFromPattern(exprEval, pattern, binding)
       evaluators += new AssignmentEvaluator(leftEval, rightEval)
     }
