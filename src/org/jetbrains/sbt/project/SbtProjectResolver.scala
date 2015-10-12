@@ -86,18 +86,17 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     projectNode.add(new SbtProjectNode(basePackages, projectJdk, javacOptions, sbtVersion, root))
 
-    project.play2 foreach {
-      case play2Data =>
-        import Play2Keys.AllKeys._
-        val oldPlay2Data = play2Data.keys.map { case sbtStructure.Play2Key(name, values) =>
-          val newVals = values.mapValues {
-            case sbtStructure.PlayString(str) => new StringParsedValue(str)
-            case sbtStructure.PlaySeqString(strs) => new SeqStringParsedValue(strs)
-          }
-          def avoidSL7005Bug[K, V](m: Map[K,V]): Map[K, V] = HashMap(m.toSeq:_*)
-          (name, avoidSL7005Bug(newVals))
+    project.play2.foreach { play2Data =>
+      import Play2Keys.AllKeys._
+      val oldPlay2Data = play2Data.keys.map { case sbtStructure.Play2Key(name, values) =>
+        val newVals = values.mapValues {
+          case sbtStructure.PlayString(str) => new StringParsedValue(str)
+          case sbtStructure.PlaySeqString(strs) => new SeqStringParsedValue(strs)
         }
-        projectNode.add(new Play2ProjectNode(oldPlay2Data.toMap))
+        @inline def avoidSL7005Bug[K, V](m: Map[K,V]): Map[K, V] = HashMap(m.toSeq:_*)
+        (name, avoidSL7005Bug(newVals))
+      }
+      projectNode.add(new Play2ProjectNode(oldPlay2Data.toMap))
     }
 
     val libraryNodes = createLibraries(data, projects)
