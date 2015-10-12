@@ -15,6 +15,7 @@ import com.intellij.util.PathUtil
 import com.intellij.util.net.NetUtils
 import gnu.trove.TByteArrayList
 import org.jetbrains.jps.incremental.BuilderService
+import org.jetbrains.plugins.scala.compiler.CompileServerLauncher._
 import org.jetbrains.plugins.scala.extensions._
 
 import scala.collection.JavaConverters._
@@ -24,7 +25,7 @@ import scala.util.control.Exception._
  * @author Pavel Fatin
  */
 class CompileServerLauncher extends ApplicationComponent {
-   private var instance: Option[ServerInstance] = None
+   private var serverInstance: Option[ServerInstance] = None
 
    def initComponent() {}
 
@@ -66,7 +67,7 @@ class CompileServerLauncher extends ApplicationComponent {
 
     findJdkByName(applicationSettings.COMPILE_SERVER_SDK)
             .left.map(_ + "\nPlease either disable Scala compile server or configure a valid JVM SDK for it.")
-            .right.flatMap(start) match {
+            .right.flatMap(start(project, _)) match {
       case Left(error) =>
         val title = "Cannot start Scala compile server"
         val content = s"<html><body>${error.replace("\n", "<br>")} <a href=''>Configure</a></body></html>"
@@ -83,7 +84,7 @@ class CompileServerLauncher extends ApplicationComponent {
     }
   }
 
-  private def start(jdk: JDK): Either[String, Process] = {
+  private def start(project: Project, jdk: JDK): Either[String, Process] = {
     import org.jetbrains.plugins.scala.compiler.CompileServerLauncher.{compilerJars, jvmParameters}
 
     compilerJars.partition(_.exists) match {
@@ -106,11 +107,15 @@ class CompileServerLauncher extends ApplicationComponent {
 
         val builder = new ProcessBuilder(commands.asJava)
 
+        if (settings.USE_PROJECT_HOME_AS_WORKING_DIR) {
+          projectHome(project).foreach(dir => builder.directory(dir))
+        }
+
         catching(classOf[IOException]).either(builder.start())
                 .left.map(_.getMessage)
                 .right.map { process =>
           val watcher = new ProcessWatcher(process)
-          instance = Some(ServerInstance(watcher, freePort))
+          serverInstance = Some(ServerInstance(watcher, freePort, builder.directory()))
           watcher.startNotify()
           process
         }
@@ -122,7 +127,7 @@ class CompileServerLauncher extends ApplicationComponent {
 
   // TODO stop server more gracefully
   def stop() {
-    instance.foreach { it =>
+    serverInstance.foreach { it =>
       it.destroyProcess()
     }
   }
@@ -137,11 +142,11 @@ class CompileServerLauncher extends ApplicationComponent {
     }
   }
 
-  def running: Boolean = instance.exists(_.running)
+  def running: Boolean = serverInstance.exists(_.running)
 
-  def errors(): Seq[String] = instance.map(_.errors()).getOrElse(Seq.empty)
+  def errors(): Seq[String] = serverInstance.map(_.errors()).getOrElse(Seq.empty)
 
-  def port: Option[Int] = instance.map(_.port)
+  def port: Option[Int] = serverInstance.map(_.port)
 
   def getComponentName = getClass.getSimpleName
 }
@@ -188,7 +193,16 @@ object CompileServerLauncher {
 
   def ensureServerRunning(project: Project) {
     val launcher = CompileServerLauncher.instance
-    if (!launcher.running) CompileServerLauncher.instance tryToStart project
+
+    if (needRestart(project)) launcher.stop()
+
+    if (!launcher.running) launcher.tryToStart(project)
+  }
+
+  def needRestart(project: Project): Boolean = {
+    val launcher = CompileServerLauncher.instance
+    ScalaCompileServerSettings.getInstance().USE_PROJECT_HOME_AS_WORKING_DIR &&
+      projectHome(project) != launcher.serverInstance.map(_.workingDir)
   }
 
   def ensureNotRunning(project: Project) {
@@ -202,14 +216,27 @@ object CompileServerLauncher {
       NetUtils.findAvailableSocketPort()
     else port
   }
+
+  private def projectHome(project: Project): Option[File] = {
+    for {
+      dir <- Option(project.getBaseDir)
+      path <- Option(dir.getCanonicalPath)
+      file = new File(path)
+      if file.exists()
+    } yield file
+  }
+
 }
 
-private case class ServerInstance(watcher: ProcessWatcher, port: Int) {
-  def running: Boolean = watcher.running
+private case class ServerInstance(watcher: ProcessWatcher, port: Int, workingDir: File) {
+  private var stopped = false
+
+  def running: Boolean = !stopped && watcher.running
 
   def errors(): Seq[String] = watcher.errors()
 
   def destroyProcess() {
+    stopped = true
     watcher.destroyProcess()
   }
 }
