@@ -3,19 +3,28 @@ package org.jetbrains.plugins.scala.components
 
 import java.io.{File, IOException}
 import java.lang.reflect.Field
+import java.net.URLEncoder
+import java.util.concurrent.TimeUnit
 import javax.swing.event.HyperlinkEvent
 
 import com.intellij.ide.plugins._
+import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
 import com.intellij.openapi.application.ex.ApplicationInfoEx
 import com.intellij.openapi.application.impl.ApplicationInfoImpl
 import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager}
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.event.{DocumentEvent, DocumentAdapter}
 import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.updateSettings.impl._
-import com.intellij.openapi.util.{BuildNumber, JDOMUtil}
+import com.intellij.openapi.util.{SystemInfo, BuildNumber, JDOMUtil}
+import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.util.io.HttpRequests
+import com.intellij.util.io.HttpRequests.Request
 import org.jdom.JDOMException
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch._
 
@@ -28,7 +37,11 @@ object ScalaPluginUpdater {
 
   def pluginDescriptor = ScalaPluginVersionVerifier.getPluginDescriptor
 
-  val baseUrl = "https://plugins.jetbrains.com/plugins/%s/1347"
+  private val scalaPluginId = "1347"
+
+  val baseUrl = "https://plugins.jetbrains.com/plugins/%s/" + scalaPluginId
+
+  private var doneUpdating = false
 
   // *_OLD versions are for legacy repository format.
   // Need to keep track of them to upgrade to new repository format automatically
@@ -64,6 +77,14 @@ object ScalaPluginUpdater {
 
   // save plugin version before patching to restore it when switching back
   var savedPluginVersion = ""
+
+  private val updateListener = new DocumentAdapter() {
+    override def documentChanged(e: DocumentEvent) = {
+      val file = FileDocumentManager.getInstance().getFile(e.getDocument)
+      if (file != null && file.getFileType == ScalaFileType.SCALA_FILE_TYPE)
+        scheduleUpdate()
+    }
+  }
 
   @throws(classOf[InvalidRepoException])
   def doUpdatePluginHosts(branch: ScalaApplicationSettings.pluginBranch) = {
@@ -230,6 +251,37 @@ object ScalaPluginUpdater {
       case None => None
     }
     notification.foreach(Notifications.Bus.notify)
+  }
+
+  private def scheduleUpdate(): Unit = {
+    val key = "scala.last.updated"
+    val lastUpdateTime = PropertiesComponent.getInstance().getOrInitLong(key , 0)
+    EditorFactory.getInstance().getEventMulticaster.removeDocumentListener(updateListener)
+    if (lastUpdateTime == 0L || System.currentTimeMillis() - lastUpdateTime > TimeUnit.DAYS.toMillis(1)) {
+      ApplicationManager.getApplication.executeOnPooledThread(new Runnable {
+        override def run() = {
+          val buildNumber = ApplicationInfo.getInstance().getBuild.asString()
+          val pluginVersion = pluginDescriptor.getVersion
+          val os = URLEncoder.encode(SystemInfo.OS_NAME, CharsetToolkit.UTF8)
+          val uid = UpdateChecker.getInstallationUID(PropertiesComponent.getInstance())
+          val url = s"https://plugins.jetbrains.com/plugins/list?pluginId=$scalaPluginId&build=$buildNumber&pluginVersion=$pluginVersion&os=$os&uuid=a$uid"
+          PropertiesComponent.getInstance().setValue(key, System.currentTimeMillis().toString)
+          doneUpdating = true
+          try {
+            HttpRequests.request(url).connect(new HttpRequests.RequestProcessor[Unit] {
+              override def process(request: Request) = JDOMUtil.load(request.getReader())
+            })
+          } catch {
+            case e: Throwable => LOG.warn(e)
+          }
+        }
+      })
+    }
+  }
+
+  def setupReporter() = {
+    import com.intellij.openapi.editor.EditorFactory
+    EditorFactory.getInstance().getEventMulticaster.addDocumentListener(updateListener)
   }
 
   // this hack uses fake plugin.xml deserialization to downgrade plugin version
