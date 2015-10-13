@@ -60,7 +60,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   with AssignmentAnnotator with VariableDefinitionAnnotator
   with TypedStatementAnnotator with PatternDefinitionAnnotator
   with PatternAnnotator with ConstructorAnnotator
-  with OverridingAnnotator with DumbAware {
+  with OverridingAnnotator with ValueClassAnnotator with DumbAware {
 
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     val typeAware = isAdvancedHighlightingEnabled(element)
@@ -380,6 +380,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         }
         super.visitClassParameter(parameter)
       }
+
+      override def visitClass(cl: ScClass): Unit = {
+        if (typeAware && ValueClassType.isValueClass(cl)) annotateValueClass(cl, holder)
+        super.visitClass(cl)
+      }
     }
     annotateScope(element, holder)
     element.accept(visitor)
@@ -389,7 +394,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       case templateDefinition: ScTemplateDefinition =>
         checkBoundsVariance(templateDefinition, holder, templateDefinition.nameId, templateDefinition.nameId, ScTypeParam.Covariant)
         val tdParts = Seq(AbstractInstantiation, FinalClassInheritance, IllegalInheritance, ObjectCreationImpossible,
-          MultipleInheritance, NeedsToBeAbstract, NeedsToBeMixin, NeedsToBeTrait, SealedClassInheritance, UndefinedMember)
+          MultipleInheritance, NeedsToBeAbstract, NeedsToBeMixin, NeedsToBeTrait, SealedClassInheritance, UndefinedMember,
+          ValueClassInheritance)
         tdParts.foreach(_.annotate(templateDefinition, holder, typeAware))
         templateDefinition match {
           case cls: ScClass =>
