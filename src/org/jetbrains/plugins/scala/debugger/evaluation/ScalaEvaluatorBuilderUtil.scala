@@ -676,9 +676,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
 
     def calcLocal(named: PsiNamedElement): Evaluator = {
-      val labeledValue = resolve.getUserData(CodeFragmentFactoryContextWrapper.LABEL_VARIABLE_VALUE_KEY)
-      if (labeledValue != null) return new IdentityEvaluator(labeledValue)
-
       val name = NameTransformer.encode(named.name)
       val containingClass = getContextClass(named)
 
@@ -717,8 +714,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       }
     }
 
-    val isSynthetic = resolve != null && codeFragment.isAncestorOf(resolve)
-    if (isSynthetic && qualifier.isEmpty) return syntheticVariableEvaluator(ref.refName)
+    val labeledOrSynthetic = labeledOrSyntheticEvaluator(ref, resolve)
+    if (labeledOrSynthetic.isDefined) return labeledOrSynthetic.get
 
     val isLocalValue = DebuggerUtil.isLocalV(resolve)
 
@@ -780,6 +777,19 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         }
         new ScalaDuplexEvaluator(fieldOrVarEval, unresolvedMethodEvaluator(ref, Seq.empty))
     }
+  }
+
+  def labeledOrSyntheticEvaluator(ref: ScReferenceExpression, resolve: PsiElement): Option[Evaluator] = {
+    if (resolve == null) return None
+
+    val labeledValue = resolve.getUserData(CodeFragmentFactoryContextWrapper.LABEL_VARIABLE_VALUE_KEY)
+    if (labeledValue != null)
+      return Some(new IdentityEvaluator(labeledValue))
+
+    val isSynthetic = codeFragment.isAncestorOf(resolve)
+    if (isSynthetic && ref.qualifier.isEmpty)
+      Some(syntheticVariableEvaluator(ref.refName))
+    else None
   }
 
   def qualifierEvaluator(qualifier: Option[ScExpression], ref: ScReferenceExpression): Evaluator = qualifier match {
