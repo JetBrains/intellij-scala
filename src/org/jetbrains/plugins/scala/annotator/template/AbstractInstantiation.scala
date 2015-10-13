@@ -24,7 +24,8 @@ object AbstractInstantiation extends AnnotatorPart[ScTemplateDefinition] {
 
     val refs = definition.refs
 
-    if(refs.tail.nonEmpty) return
+    if (refs.isEmpty) return
+    if (refs.tail.nonEmpty) return
 
     refs.headOption.foreach {
       case (refElement, Some((psiClass, _))) if isAbstract(psiClass) =>
