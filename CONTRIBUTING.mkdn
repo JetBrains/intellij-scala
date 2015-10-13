@@ -5,7 +5,8 @@ problem will be solved in the shortest time possible, please check that your bug
 report has:
 
 - Information about opertaion system used
-- Version of IDEA and Scala plugin used
+- Version of IDEA used (`Help -> About` dialog)
+- Version of Scala plugin used (`File -> Settings -> Plugins` dialog)
 - Detailed description of the steps one should take to reproduce this situation
 - Problems you have encountered with
 - Behaviour you have expected
