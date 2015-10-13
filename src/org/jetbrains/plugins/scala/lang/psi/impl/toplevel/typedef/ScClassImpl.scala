@@ -38,7 +38,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
   extends ScTypeDefinitionImpl(stub, nodeType, node) with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
-      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case visitor: ScalaElementVisitor => visitor.visitClass(this)
       case _ => super.accept(visitor)
     }
   }

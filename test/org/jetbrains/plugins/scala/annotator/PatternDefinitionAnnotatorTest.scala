@@ -70,8 +70,4 @@ class PatternDefinitionAnnotatorTest extends SimpleTestCase {
   }
   
   val TypeMismatch = ContainsPattern("Type mismatch")
-
-  case class ContainsPattern(fragment: String) {
-    def unapply(s: String) = s.contains(fragment)
-  }
 }

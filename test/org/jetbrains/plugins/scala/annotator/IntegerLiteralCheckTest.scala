@@ -89,7 +89,4 @@ class IntegerLiteralCheckTest extends SimpleTestCase {
 
   val OverflowIntPattern = ContainsPattern("out of range for type Int")
   val OverflowLongPattern = ContainsPattern("out of range even for type Long")
-  case class ContainsPattern(fragment: String) {
-      def unapply(s: String) = s.contains(fragment)
-    }
 }

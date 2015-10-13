@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembe
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
+import scala.collection.Seq
+
 /**
  * @author AlexanderPodkhalyuzin
  */
@@ -64,6 +66,9 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
     PsiClassImplUtil.isClassEquivalentTo(this, another)
   }
 
+  def allInnerTypeDefinitions: Seq[ScTypeDefinition] = members.collect {
+    case td: ScTypeDefinition => td
+  }
 
   override def syntheticTypeDefinitionsImpl: Seq[ScTypeDefinition] = SyntheticMembersInjector.injectInners(this)
 
@@ -78,7 +83,6 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
     calcFakeCompanionModule()
   }
-
 
   @Cached(synchronized = true, modificationCount = ModCount.getModificationCount, getManager)
   def calcFakeCompanionModule(): Option[ScObject] = {
