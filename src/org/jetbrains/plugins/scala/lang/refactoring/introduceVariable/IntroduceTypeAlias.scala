@@ -79,13 +79,16 @@ trait IntroduceTypeAlias {
           typeElement
         }
 
-        val updatedMainScope = if (fromInplace) {
-          val newScope = mainScope.revalidate(enteredName)
-          val mainScopeIdx = IntroduceTypeAliasData.possibleScopes.indexOf(mainScope)
-          IntroduceTypeAliasData.possibleScopes(mainScopeIdx) = newScope
-          newScope
-        } else {
-          mainScope
+        val updatedMainScope = mainScope match {
+          case simpleScope: SimpleScopeItem if fromInplace =>
+            val newScope = simpleScope.revalidate(enteredName)
+            val mainScopeIdx = IntroduceTypeAliasData.possibleScopes.indexOf(mainScope)
+            IntroduceTypeAliasData.possibleScopes(mainScopeIdx) = newScope
+            newScope
+          case simpleScope: SimpleScopeItem =>
+            mainScope
+          case packageScope: PackageScopeItem =>
+            mainScope
         }
 
         val dialog = getDialogForTypes(project, editor, typeElementHelper, IntroduceTypeAliasData.possibleScopes, updatedMainScope)
@@ -100,15 +103,13 @@ trait IntroduceTypeAlias {
           dialog.isReplaceOccurrenceIncompanionObject,
           dialog.isReplaceOccurrenceInInheritors, dialog.getSelectedScope)
 
-        val parent = dialog.getSelectedScope.fileEncloser
-        runRefactoringForTypes(file, editor, typeElementHelper, dialog.getEnteredName, occurrences, parent,
-          dialog.getSelectedScope.isPackage, dialog.getSelectedScope.needDirectoryCreating, dialog.getSelectedScope)
+        runRefactoringForTypes(file, editor, typeElementHelper, dialog.getEnteredName, occurrences, dialog.getSelectedScope)
       }
 
       // replace all occurrences, don't replace occurences available from companion object or inheritors
       // suggest to choose scope
       def runInplace() = {
-        def handleScope(scopeItem: ScopeItem, needReplacement: Boolean) {
+        def handleScope(scopeItem: SimpleScopeItem, needReplacement: Boolean) {
           val replaceAllOccurrences = true
           val suggestedNames = scopeItem.availableNames
 
@@ -118,8 +119,7 @@ trait IntroduceTypeAlias {
             isReplaceOccurrenceInInheritors = false, scopeItem)
 
           val introduceRunnable: Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] =
-            introduceTypeAlias(file, editor, typeElement, allOccurrences, suggestedNames(0), replaceAllOccurrences,
-              scopeItem.fileEncloser, scopeItem.isPackage, scopeItem.needDirectoryCreating, scopeItem)
+            introduceTypeAlias(file, editor, typeElement, allOccurrences, suggestedNames(0), scopeItem)
 
           CommandProcessor.getInstance.executeCommand(project, new Runnable {
             def run() {
@@ -176,17 +176,10 @@ trait IntroduceTypeAlias {
         } else {
           IntroduceTypeAliasData.setInintialInfo(inTypeElement.getTextRange)
           afterScopeChoosing(project, editor, file, IntroduceTypeAliasData.possibleScopes, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
-            scopeItem =>
-              if (!scopeItem.usualOccurrences.isEmpty) {
-                //handle packageObject in modal dialog because we can't change name & call refactoring
-                if (scopeItem.isPackage) {
-                  runWithDialog(fromInplace = true, scopeItem)
-                } else {
-                  handleScope(scopeItem, needReplacement = true)
-                }
-              } else if (scopeItem.isPackage) {
-                runWithDialog(fromInplace = true, scopeItem)
-              }
+            case simpleScope: SimpleScopeItem if simpleScope.usualOccurrences.nonEmpty =>
+              handleScope(simpleScope, needReplacement = true)
+            case packageScope: PackageScopeItem =>
+              runWithDialog(fromInplace = true, packageScope)
           }
         }
       }
@@ -205,9 +198,6 @@ trait IntroduceTypeAlias {
                                           typeElement: ScTypeElement,
                                           typeName: String,
                                           occurrences: OccurrenceData,
-                                          suggestedParent: PsiElement,
-                                          isPackage: Boolean,
-                                          needCreateDirectory: Boolean,
                                           scope: ScopeItem): (SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement]) = {
     def addTypeAliasDefinition(typeName: String, typeElement: ScTypeElement, parent: PsiElement) = {
       def getAhchor(parent: PsiElement, firstOccurrence: PsiElement): Some[PsiElement] = {
@@ -228,13 +218,17 @@ trait IntroduceTypeAlias {
     val revertInfo = ScalaRefactoringUtil.RevertInfo(file.getText, editor.getCaretModel.getOffset)
     editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
 
-    val parent = suggestedParent match {
-      case suggestedDirectory: PsiDirectory if isPackage =>
-        createAndGetPackageObjectBody(typeElement, suggestedDirectory, needCreateDirectory, scope.name.substring(8))
-      case _ =>
-        suggestedParent
+    val parent = scope match {
+      case simpleScope: SimpleScopeItem =>
+        simpleScope.fileEncloser
+      case packageScope: PackageScopeItem =>
+        packageScope.fileEncloser match {
+          case suggestedDirectory: PsiDirectory =>
+            createAndGetPackageObjectBody(typeElement, suggestedDirectory, packageScope.needDirectoryCreating, scope.getName)
+          case _ =>
+           packageScope.fileEncloser
+        }
     }
-
 
     val typeAlias = addTypeAliasDefinition(typeName, occurrences.getAllOccurrences(0), parent)
     IntroduceTypeAliasData.setTypeAlias(typeAlias)
@@ -258,15 +252,15 @@ trait IntroduceTypeAlias {
 
   def runRefactoringForTypes(file: PsiFile, editor: Editor,
                              typeElement: ScTypeElement, typeName: String,
-                             occurrences_ : OccurrenceData, parent: PsiElement,
-                             isPackage: Boolean, needCreateDirectory: Boolean,
-                             scope: ScopeItem) = {
-    val runnable = new Runnable() {
+                             occurrences_ : OccurrenceData, scope: ScopeItem) = {
+
+    val writeAction = new Runnable() {
       def run() {
-        runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, parent, isPackage, needCreateDirectory, scope)
+        runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, scope)
       }
     }
-    ScalaUtils.runWriteAction(runnable, editor.getProject, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
+
+    ScalaUtils.runWriteAction(writeAction, editor.getProject, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
     editor.getSelectionModel.removeSelection()
   }
 
@@ -275,14 +269,10 @@ trait IntroduceTypeAlias {
                                    typeElement: ScTypeElement,
                                    occurrences_ : OccurrenceData,
                                    typeName: String,
-                                   replaceAllOccurrences: Boolean,
-                                   parent: PsiElement,
-                                   isPackage: Boolean,
-                                   needCreateDirectory: Boolean,
                                    scope: ScopeItem): Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] = {
 
     new Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])]() {
-      def compute() = runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, parent, isPackage, needCreateDirectory, scope)
+      def compute() = runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, scope)
     }
   }
 
@@ -414,7 +404,13 @@ trait IntroduceTypeAlias {
                                   possibleScopes: Array[ScopeItem], mainScope: ScopeItem): ScalaIntroduceTypeAliasDialog = {
 
     // Add occurrences highlighting
-    val occurrences = possibleScopes.apply(0).usualOccurrences
+    val occurrences = mainScope match  {
+      case simpleScope:SimpleScopeItem =>
+        simpleScope.usualOccurrences
+      case packageScope: PackageScopeItem =>
+        Array[ScTypeElement]()
+    }
+
     if (occurrences.length > 1)
       occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, occurrences.map(_.getTextRange), editor)
 

@@ -7,7 +7,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.EditorComboBoxEditor;
 import com.intellij.ui.EditorComboBoxRenderer;
@@ -50,9 +49,6 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
 
     private Project project;
     private ScTypeElement myTypeElement;
-    private int occurrencesCount;
-    private int companionObjOccCount;
-    private ScalaValidator validator;
     private EventListenerList myListenerList = new EventListenerList();
     private ConflictsReporter conflictsReporter;
     private Editor editor;
@@ -71,48 +67,45 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         this.project = project;
         this.myTypeElement = myTypeElement;
         this.currentScope = mainScope;
-        this.occurrencesCount = currentScope.usualOccurrences().length;
-        this.companionObjOccCount = currentScope.occurrencesInCompanion().length;
-        this.validator = currentScope.typeValidator();
         this.conflictsReporter = conflictReporter;
         this.editor = editor;
         this.inheritanceDataMap = new HashMap<ScopeItem, Tuple2<ScTypeElement[], ScalaTypeValidator[]>>();
 
-
-        String[] possibleNames = currentScope.availableNames();
-        setUpNameComboBox(possibleNames);
+        setUpNameComboBox(currentScope.getAvailableNames());
         setUpScopeComboBox(possibleScopes, mainScope);
 
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
         setTitle(REFACTORING_NAME);
         init();
-        setUpDialog();
+        setUpDialog(currentScope);
         updateOkStatus();
     }
 
     protected void doOKAction() {
-        ScTypeDefinition classOrTrait = PsiTreeUtil.getParentOfType(currentScope.fileEncloser(), ScClass.class, ScTrait.class);
-        if (classOrTrait != null) {
-            if (!handleInheritedClasses(classOrTrait)) {
+        if (currentScope instanceof SimpleScopeItem) {
+            if (!handleInheritedClasses((SimpleScopeItem) currentScope)) {
                 return;
             }
         }
-
         ScopeItem newScope = currentScope;
-        if (currentScope.isPackage()) {
-            currentScope = ScopeSuggester.handleOnePackage(myTypeElement, currentScope.name().substring(8),
-                    (PsiDirectory) currentScope.fileEncloser(), conflictsReporter, myTypeElement.getProject(), editor,
+
+        ScalaValidator validator = null;
+        if (currentScope instanceof PackageScopeItem) {
+            PackageScopeItem packageScopeItem = (PackageScopeItem) currentScope;
+            currentScope = ScopeSuggester.handleOnePackage(myTypeElement, packageScopeItem.getName(),
+                    (PsiDirectory) packageScopeItem.fileEncloser(), conflictsReporter, myTypeElement.getProject(), editor,
                     isReplaceAllOccurrences(), getEnteredName());
 
-            validator = currentScope.typeValidator();
+            validator = packageScopeItem.validator();
+        } else if (currentScope instanceof SimpleScopeItem) {
+            validator = ((SimpleScopeItem) currentScope).typeValidator();
         }
 
-        if (!validator.isOK(this)) {
+        if ((validator != null) && (!validator.isOK(this))) {
             currentScope = newScope;
             return;
         }
-
 
         super.doOKAction();
     }
@@ -168,24 +161,37 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         }
     }
 
-    private void setUpOccurrences() {
+    private void setUpOccurrences(ScopeItem item) {
+        setUpCompanionObjOcc(item);
+        setUpReplaceInInheritors(item);
+
         myCbReplaceAllOccurences.setSelected(false);
-        if ((occurrencesCount > 1) || currentScope.isPackage()) {
+        if (item instanceof PackageScopeItem) {
             myCbReplaceAllOccurences.setEnabled(true);
-            String occCount = occurrencesCount > 0 ? " (" + occurrencesCount + " occurrences)" : "";
-            myCbReplaceAllOccurences.setText("Replace all occurrences"  + occCount);
-        } else {
-            myCbReplaceAllOccurences.setEnabled(false);
+            myCbReplaceAllOccurences.setText("Replace all occurrences");
+        } else if (item instanceof SimpleScopeItem) {
+            SimpleScopeItem simpleScopeItem = (SimpleScopeItem) item;
+            int occurrencesCount = simpleScopeItem.usualOccurrences().length;
+            if (occurrencesCount > 1) {
+                myCbReplaceAllOccurences.setEnabled(true);
+                myCbReplaceAllOccurences.setText("Replace all occurrences" + occurrencesCount);
+            } else {
+                myCbReplaceAllOccurences.setEnabled(false);
+            }
         }
     }
 
-    private void setUpCompanionObjOcc() {
+    private void setUpCompanionObjOcc(ScopeItem item) {
         myReplaceCompanionObjectOcc.setSelected(false);
-        if (companionObjOccCount > 0) {
-            myReplaceCompanionObjectOcc.setEnabled(true);
-            myReplaceCompanionObjectOcc.setText("Replace occurrences available from companion object (" + companionObjOccCount + " occurrences)");
-        } else {
-            myReplaceCompanionObjectOcc.setEnabled(false);
+        if (item instanceof SimpleScopeItem) {
+            SimpleScopeItem simpleScopeItem = (SimpleScopeItem) item;
+            int companionObjOccCount = simpleScopeItem.occurrencesInCompanion().length;
+            if (companionObjOccCount > 0) {
+                myReplaceCompanionObjectOcc.setEnabled(true);
+                myReplaceCompanionObjectOcc.setText("Replace occurrences available from companion object (" + companionObjOccCount + " occurrences)");
+            } else {
+                myReplaceCompanionObjectOcc.setEnabled(false);
+            }
         }
     }
 
@@ -261,15 +267,9 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         public void itemStateChanged(ItemEvent event) {
             if (event.getStateChange() == ItemEvent.SELECTED) {
                 ScopeItem item = (ScopeItem) event.getItem();
-                PsiElement[] occurrences = item.usualOccurrences();
-                occurrencesCount = occurrences.length;
-                companionObjOccCount = item.occurrencesInCompanion().length;
-
-                setUpCompanionObjOcc();
-                setUpOccurrences();
-                setUpReplaceInInheritors(item);
-                validator = item.typeValidator();
-                updateNameComboBox(item.availableNames());
+                currentScope = item;
+                setUpOccurrences(item);
+                updateNameComboBox(item.getAvailableNames());
             }
         }
     }
@@ -295,16 +295,13 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         }
     }
 
-    private void setUpDialog() {
+    private void setUpDialog(ScopeItem scopeItem) {
         myCbReplaceAllOccurences.setMnemonic(KeyEvent.VK_A);
         myCbReplaceAllOccurences.setFocusable(false);
         myNameLabel.setLabelFor(myNameComboBox);
         myTypeLabel.setLabelFor(myTypeTextField);
         myTypeTextField.setText(myTypeElement.calcType().presentableText());
-
-        // Replace occurences
-        setUpCompanionObjOcc();
-        setUpOccurrences();
+        setUpOccurrences(scopeItem);
     }
 
     private void setUpScopeComboBox(ScopeItem[] elements, ScopeItem mainScope) {
@@ -321,10 +318,14 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
 
     private void setUpReplaceInInheritors(ScopeItem scope) {
         myReplaceInInheritors.setSelected(false);
-        if (scope.isClass() || scope.isTrait()) {
-            myReplaceInInheritors.setEnabled(true);
-        } else {
-            myReplaceInInheritors.setEnabled(false);
+        myReplaceInInheritors.setEnabled(false);
+        if (scope instanceof SimpleScopeItem) {
+            SimpleScopeItem simpleScopeItem = (SimpleScopeItem) scope;
+            if (simpleScopeItem.isClass() || simpleScopeItem.isTrait()) {
+                myReplaceInInheritors.setEnabled(true);
+            } else {
+                myReplaceInInheritors.setEnabled(false);
+            }
         }
     }
 
@@ -357,15 +358,14 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
     }
 
     public ScopeItem getSelectedScope() {
-//        if (myScopeCombobox.getSelectedItem() instanceof ScopeItem) {
-//            return currentScope = (ScopeItem) myScopeCombobox.getSelectedItem();
-//        }
         return currentScope;
     }
 
     //return false if there is conflict in validator
-    private boolean handleInheritedClasses(ScTypeDefinition currentElement) {
-        if (myReplaceInInheritors.isSelected()) {
+    private boolean handleInheritedClasses(SimpleScopeItem simpleScopeItem) {
+        ScTypeDefinition classOrTrait = PsiTreeUtil.getParentOfType(simpleScopeItem.fileEncloser(), ScClass.class, ScTrait.class);
+
+        if (myReplaceInInheritors.isSelected() && (classOrTrait != null)) {
             ScopeItem selectedScope = getSelectedScope();
 
             if (selectedScope == null) {
@@ -376,12 +376,12 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
             if (inheritanceDataMap.containsKey(selectedScope)) {
                 inheritors = inheritanceDataMap.get(selectedScope);
             } else {
-                inheritors = ScalaRefactoringUtil.getOccurrencesInInheritors(myTypeElement, currentElement,
+                inheritors = ScalaRefactoringUtil.getOccurrencesInInheritors(myTypeElement, classOrTrait,
                         conflictsReporter, project, editor);
                 inheritanceDataMap.put(selectedScope, inheritors);
             }
 
-            selectedScope.setInheretedOccurrences(inheritors._1());
+            simpleScopeItem.setInheretedOccurrences(inheritors._1());
 
             for (ScalaTypeValidator validator : inheritors._2()) {
                 if (!validator.isOK(this)) {
