@@ -34,21 +34,21 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(false)
   private object ShapesResolver extends ReferenceExpressionResolver(true)
 
+  @CachedMappedWithRecursionGuard(this, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
+  def multiResolveImpl(incomplete: Boolean): Array[ResolveResult] = Resolver.resolve(this, incomplete)
+
   def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
-    @CachedMappedWithRecursionGuard(this, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
-    def multiResolveInner(incomplete: Boolean): Array[ResolveResult] = Resolver.resolve(this, incomplete)
     if (resolveFunction != null) resolveFunction()
-    else multiResolveInner(incomplete)
+    else multiResolveImpl(incomplete)
   }
 
-  def shapeResolve: Array[ResolveResult] = {
-    @CachedWithRecursionGuard[ResolvableReferenceExpression](this, Array.empty[ResolveResult],
-      PsiModificationTracker.MODIFICATION_COUNT)
-    def shapeResolveInner: Array[ResolveResult] = ShapesResolver.resolve(this, incomplete = false)
+  @CachedWithRecursionGuard[ResolvableReferenceExpression](this, Array.empty[ResolveResult], PsiModificationTracker.MODIFICATION_COUNT)
+  private def shapeResolveImpl: Array[ResolveResult] = ShapesResolver.resolve(this, incomplete = false)
 
+  def shapeResolve: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
     if (shapeResolveFunction != null) shapeResolveFunction()
-    else shapeResolveInner
+    else shapeResolveImpl
   }
 
   def isAssignmentOperator = {

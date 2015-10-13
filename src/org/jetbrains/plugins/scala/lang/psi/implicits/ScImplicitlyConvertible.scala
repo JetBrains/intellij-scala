@@ -156,10 +156,6 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
 
   @CachedMappedWithRecursionGuard(place, ArrayBuffer.empty, PsiModificationTracker.MODIFICATION_COUNT)
   private def buildSimpleImplicitMap(fromUnder: Boolean, exprType: Option[ScType] = None): ArrayBuffer[ImplicitMapResult] = {
-    buildSimpleImplicitMapInner(fromUnder, exprType)
-  }
-
-  private def buildSimpleImplicitMapInner(fromUnder: Boolean, exprType: Option[ScType] = None): ArrayBuffer[ImplicitMapResult] = {
     ScalaPsiUtil.debug(s"Simple implicit map: $exprType", LOG)
 
     val typez: ScType = exprType.getOrElse(placeType(fromUnder).getOrElse(return ArrayBuffer.empty))

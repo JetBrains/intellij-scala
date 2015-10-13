@@ -39,7 +39,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
       if (name == clazz.getQualifiedName) {
         clazz.getContainingFile match {
           case file: ScalaFile =>
-            if (!file.isScriptFile(withCashing = true)) return clazz
+            if (!file.isScriptFile(withCaching = true)) return clazz
           case _ => return clazz
         }
       }

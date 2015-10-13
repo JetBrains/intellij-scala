@@ -50,13 +50,12 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
           res
         }
       case _=>
-        @CachedMappedWithRecursionGuard(this, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
-        def innerCached(incomplete: Boolean): Array[ResolveResult] = Resolver.resolve(this, incomplete)
-
-        innerCached(incomplete)
+        multiResolveCached(incomplete)
     }
-
   }
+
+  @CachedMappedWithRecursionGuard(this, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
+  private def multiResolveCached(incomplete: Boolean): Array[ResolveResult] = Resolver.resolve(this, incomplete)
 
   protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement) {
     res match {
@@ -226,38 +225,39 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     }
   }
 
+  @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
+  private def resolveNoConstructorImpl(): Array[ResolveResult] = NoConstructorResolver.resolve(this, incomplete = false)
+
   def resolveNoConstructor: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
-    def inner(): Array[ResolveResult] = NoConstructorResolver.resolve(this, incomplete = false)
-
-    inner()
+    resolveNoConstructorImpl()
   }
+
+  @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
+  private def resolveAllConstructorsImpl(): Array[ResolveResult] = ResolverAllConstructors.resolve(this, incomplete = false)
 
   def resolveAllConstructors: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
-    def inner(): Array[ResolveResult] = ResolverAllConstructors.resolve(this, incomplete = false)
-
-    inner()
+    resolveAllConstructorsImpl()
   }
+
+
+  @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
+  private def shapeResolveImpl(): Array[ResolveResult] = ShapesResolver.resolve(this, incomplete = false)
 
   def shapeResolve: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
 
-    @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
-    def inner(): Array[ResolveResult] = ShapesResolver.resolve(this, incomplete = false)
-
-    inner()
+    shapeResolveImpl()
   }
+
+
+  @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
+  private def shapeResolveConstrImpl(): Array[ResolveResult] = ShapesResolverAllConstructors.resolve(this, incomplete = false)
 
   def shapeResolveConstr: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-
-    @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
-    def inner(): Array[ResolveResult] = ShapesResolverAllConstructors.resolve(this, incomplete = false)
-
-    inner()
+    shapeResolveConstrImpl()
   }
 }
 

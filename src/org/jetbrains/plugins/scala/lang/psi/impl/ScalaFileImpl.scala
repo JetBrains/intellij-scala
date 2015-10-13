@@ -180,12 +180,12 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
   def isScriptFile: Boolean = isScriptFile(withCaching = true)
 
-  def isScriptFile(withCaching: Boolean): Boolean = {
-    @CachedInsidePsiElement(this, this)
-    def cached(): Boolean = isScriptFileImpl
+  @CachedInsidePsiElement(this, this)
+  private def isScriptFileCached: Boolean = isScriptFileImpl
 
+  def isScriptFile(withCaching: Boolean): Boolean = {
     if (!withCaching) isScriptFileImpl
-    else cached()
+    else isScriptFileCached
   }
 
   def isWorksheetFile: Boolean = {
