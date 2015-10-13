@@ -15,7 +15,7 @@ import com.intellij.openapi.editor.colors.EditorColors
 import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea, RangeHighlighter, TextAttributes}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, LightweightWindowEvent}
-import com.intellij.openapi.util.Computable
+import com.intellij.openapi.util.{Computable, Key}
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
@@ -53,17 +53,19 @@ trait IntroduceTypeAlias {
         getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.valid.type"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME))
 
 
-      if (IntroduceTypeAliasData.getInstance.possibleScopes == null) {
-        IntroduceTypeAliasData.getInstance.setPossibleScopes(ScopeSuggester.suggestScopes(this, project, editor, file, typeElement))
+      if (editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).possibleScopes == null) {
+        editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).setPossibleScopes(ScopeSuggester.suggestScopes(this, project, editor, file, typeElement))
       }
 
-      if (IntroduceTypeAliasData.getInstance.possibleScopes.isEmpty) {
+      if (editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).possibleScopes.isEmpty) {
         showErrorMessage(ScalaBundle.message("cannot.refactor.scope.not.found"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
       }
 
+      val currentDataObject = editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO)
+
       def runWithDialog(fromInplace: Boolean, mainScope: ScopeItem, enteredName: String = "") {
         val typeElementHelper = if (fromInplace && mainScope.isInstanceOf[SimpleScopeItem]) {
-          val range = IntroduceTypeAliasData.getInstance.initialTypeElement
+          val range = currentDataObject.initialTypeElement
           PsiTreeUtil.findElementOfClassAtRange(file, range.getStartOffset, range.getEndOffset, classOf[ScTypeElement])
           match {
             case simpleType: ScSimpleTypeElement =>
@@ -82,8 +84,8 @@ trait IntroduceTypeAlias {
         val updatedMainScope = mainScope match {
           case simpleScope: SimpleScopeItem if fromInplace =>
             val newScope = simpleScope.revalidate(enteredName)
-            val mainScopeIdx = IntroduceTypeAliasData.getInstance.possibleScopes.indexOf(mainScope)
-            IntroduceTypeAliasData.getInstance.possibleScopes(mainScopeIdx) = newScope
+            val mainScopeIdx = currentDataObject.possibleScopes.indexOf(mainScope)
+            currentDataObject.possibleScopes(mainScopeIdx) = newScope
             newScope
           case simpleScope: SimpleScopeItem =>
             mainScope
@@ -91,7 +93,9 @@ trait IntroduceTypeAlias {
             mainScope
         }
 
-        val dialog = getDialogForTypes(project, editor, typeElementHelper, IntroduceTypeAliasData.getInstance.possibleScopes, updatedMainScope)
+        val dialog = getDialogForTypes(project, editor, typeElementHelper,
+          currentDataObject.possibleScopes, updatedMainScope)
+
         if (!dialog.isOK) {
           occurrenceHighlighters.foreach(_.dispose())
           occurrenceHighlighters = Seq.empty
@@ -157,26 +161,25 @@ trait IntroduceTypeAlias {
           }, INTRODUCE_TYPEALIAS_REFACTORING_NAME, null)
         }
 
-        val currentScope = IntroduceTypeAliasData.getInstance.currentScope
+        val currentScope = currentDataObject.currentScope
 
         //need open modal dialog in inplace mode
         if ((StartMarkAction.canStart(project) != null) && (currentScope != null)) {
-          IntroduceTypeAliasData.getInstance.isCallModalDialogInProgress = true
+          currentDataObject.isCallModalDialogInProgress = true
           val templateState: TemplateState = TemplateManagerImpl.getTemplateState(InjectedLanguageUtil.getTopLevelEditor(editor))
 
           if (templateState != null) {
             templateState.cancelTemplate()
           }
 
-          val enteredName = IntroduceTypeAliasData.getInstance.getNamedElement.getName
-          ScalaInplaceTypeAliasIntroducer.revertState(editor,
-            IntroduceTypeAliasData.getInstance.currentScope, IntroduceTypeAliasData.getInstance.getNamedElement)
+          val enteredName = editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).getNamedElement.getName
+          ScalaInplaceTypeAliasIntroducer.revertState(editor, currentDataObject.currentScope, currentDataObject.getNamedElement)
 
-          runWithDialog(fromInplace = true, IntroduceTypeAliasData.getInstance.currentScope, enteredName)
-          IntroduceTypeAliasData.getInstance.clearData()
+          runWithDialog(fromInplace = true, editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).currentScope, enteredName)
+//          editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).clearData()
         } else {
-          IntroduceTypeAliasData.getInstance.setInintialInfo(inTypeElement.getTextRange)
-          afterScopeChoosing(project, editor, file, IntroduceTypeAliasData.getInstance.possibleScopes, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
+          currentDataObject.setInintialInfo(inTypeElement.getTextRange)
+          afterScopeChoosing(project, editor, file, currentDataObject.possibleScopes, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
             case simpleScope: SimpleScopeItem if simpleScope.usualOccurrences.nonEmpty =>
               handleScope(simpleScope, needReplacement = true)
             case packageScope: PackageScopeItem =>
@@ -232,7 +235,7 @@ trait IntroduceTypeAlias {
     }
 
     val typeAlias = addTypeAliasDefinition(typeName, occurrences.getAllOccurrences(0), parent)
-    IntroduceTypeAliasData.getInstance.setTypeAlias(typeAlias)
+    editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).setTypeAlias(typeAlias)
 
     val typeElementIdx = occurrences.getUsualOccurrences.indexWhere(_ == typeElement)
 
@@ -426,4 +429,8 @@ trait IntroduceTypeAlias {
 
     dialog
   }
+}
+
+object IntroduceTypeAlias{
+  val REVERT_TYPE_ALIAS_INFO: Key[IntroduceTypeAliasData] = new Key("RevertTypeAliasInfo")
 }
