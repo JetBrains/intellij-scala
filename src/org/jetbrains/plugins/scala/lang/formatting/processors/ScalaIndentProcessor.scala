@@ -150,7 +150,9 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         }
       case _: ScMethodCall => processMethodCall
       case arg: ScArgumentExprList if arg.isBraceArgs =>
-        if (scalaSettings.INDENT_BRACED_FUNCTION_ARGS && child.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
+        if (scalaSettings.INDENT_BRACED_FUNCTION_ARGS &&
+          arg.children.exists(child => Set(ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS).contains(child.getNode.getElementType)) &&
+          child.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
           child.getElementType != ScalaTokenTypes.tLPARENTHESIS) Indent.getNormalIndent
         else Indent.getNoneIndent
       case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt | _: ScForStatement
