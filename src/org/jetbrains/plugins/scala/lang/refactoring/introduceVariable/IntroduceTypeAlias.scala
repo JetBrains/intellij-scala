@@ -44,7 +44,7 @@ trait IntroduceTypeAlias {
 
   def invokeTypeElement(project: Project, editor: Editor, file: PsiFile, inTypeElement: ScTypeElement): Unit = {
     try {
-      UsageTrigger.trigger(ScalaBundle.message("introduce.variable.id"))
+      UsageTrigger.trigger(ScalaBundle.message("introduce.type.alias.id"))
 
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       ScalaRefactoringUtil.checkFile(file, project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
