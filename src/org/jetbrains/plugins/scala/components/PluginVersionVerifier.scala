@@ -140,6 +140,7 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
         ScalaPluginUpdater.upgradeRepo()
         checkVersion()
         ScalaPluginUpdater.postCheckIdeaCompatibility()
+        ScalaPluginUpdater.setupReporter()
       }
     })
   }
