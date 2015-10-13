@@ -131,7 +131,7 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
         reverseMap.put(labelName, obj)
         labelName
     }
-    val text = names.map(n => s"val $n = null").mkString("\n")
+    val text = names.map(n => s"val $n: AnyRef = _").mkString("\n")
     (text, reverseMap.toMap)
   }
 }
