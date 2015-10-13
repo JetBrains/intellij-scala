@@ -235,7 +235,9 @@ trait IntroduceTypeAlias {
     }
 
     val typeAlias = addTypeAliasDefinition(typeName, occurrences.getAllOccurrences(0), parent)
-    editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).setTypeAlias(typeAlias)
+    if (editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO) != null) {
+      editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).setTypeAlias(typeAlias)
+    }
 
     val typeElementIdx = occurrences.getUsualOccurrences.indexWhere(_ == typeElement)
 
