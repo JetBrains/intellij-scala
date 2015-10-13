@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
- * Created by user 
+ * Created by Kate Ustyuzhanina
  * on 9/18/15
  */
 trait IntroduceExpressions {
@@ -135,7 +135,7 @@ trait IntroduceExpressions {
   }
 
   //returns smart pointer to ScDeclaredElementsHolder or ScEnumerator
-  def runRefactoringInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression_ : ScExpression,
+  private def runRefactoringInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression_ : ScExpression,
                            occurrences_ : Array[TextRange], varName: String, varType: ScType,
                            replaceAllOccurrences: Boolean, isVariable: Boolean): SmartPsiElementPointer[PsiElement] = {
 
@@ -341,7 +341,7 @@ trait IntroduceExpressions {
     editor.getSelectionModel.removeSelection()
   }
 
-  def introduceVariable(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression: ScExpression,
+  protected def introduceVariable(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression: ScExpression,
                         occurrences_ : Array[TextRange], varName: String, varType: ScType,
                         replaceAllOccurrences: Boolean, isVariable: Boolean): Computable[SmartPsiElementPointer[PsiElement]] = {
 

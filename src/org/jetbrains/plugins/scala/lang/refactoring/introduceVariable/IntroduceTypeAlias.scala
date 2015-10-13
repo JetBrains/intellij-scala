@@ -22,8 +22,9 @@ import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -33,7 +34,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.{DefaultListCellRendere
 import org.jetbrains.plugins.scala.util.{JListCompatibility, ScalaUtils}
 
 /**
- * Created by user 
+ * Created by Kate Ustyuzhanina
  * on 9/18/15
  */
 trait IntroduceTypeAlias {
@@ -43,7 +44,7 @@ trait IntroduceTypeAlias {
 
   def invokeTypeElement(project: Project, editor: Editor, file: PsiFile, inTypeElement: ScTypeElement): Unit = {
     try {
-      UsageTrigger.trigger(ScalaBundle.message("introduce.variable.id"))
+      UsageTrigger.trigger(ScalaBundle.message("introduce.type.alias.id"))
 
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       ScalaRefactoringUtil.checkFile(file, project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
@@ -52,17 +53,17 @@ trait IntroduceTypeAlias {
         getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.valid.type"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME))
 
 
-      if (IntroduceTypeAliasData.possibleScopes == null) {
-        IntroduceTypeAliasData.setPossibleScopes(ScopeSuggester.suggestScopes(this, project, editor, file, typeElement))
+      if (IntroduceTypeAliasData.getInstance.possibleScopes == null) {
+        IntroduceTypeAliasData.getInstance.setPossibleScopes(ScopeSuggester.suggestScopes(this, project, editor, file, typeElement))
       }
 
-      if (IntroduceTypeAliasData.possibleScopes.isEmpty) {
+      if (IntroduceTypeAliasData.getInstance.possibleScopes.isEmpty) {
         showErrorMessage(ScalaBundle.message("cannot.refactor.scope.not.found"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
       }
 
       def runWithDialog(fromInplace: Boolean, mainScope: ScopeItem, enteredName: String = "") {
-        val typeElementHelper = if (fromInplace) {
-          val range = IntroduceTypeAliasData.initialTypeElement
+        val typeElementHelper = if (fromInplace && mainScope.isInstanceOf[SimpleScopeItem]) {
+          val range = IntroduceTypeAliasData.getInstance.initialTypeElement
           PsiTreeUtil.findElementOfClassAtRange(file, range.getStartOffset, range.getEndOffset, classOf[ScTypeElement])
           match {
             case simpleType: ScSimpleTypeElement =>
@@ -78,16 +79,19 @@ trait IntroduceTypeAlias {
           typeElement
         }
 
-        val updatedMainScope = if (fromInplace) {
-          val newScope = mainScope.revalidate(enteredName)
-          val mainScopeIdx = IntroduceTypeAliasData.possibleScopes.indexOf(mainScope)
-          IntroduceTypeAliasData.possibleScopes(mainScopeIdx) = newScope
-          newScope
-        } else {
-          mainScope
+        val updatedMainScope = mainScope match {
+          case simpleScope: SimpleScopeItem if fromInplace =>
+            val newScope = simpleScope.revalidate(enteredName)
+            val mainScopeIdx = IntroduceTypeAliasData.getInstance.possibleScopes.indexOf(mainScope)
+            IntroduceTypeAliasData.getInstance.possibleScopes(mainScopeIdx) = newScope
+            newScope
+          case simpleScope: SimpleScopeItem =>
+            mainScope
+          case packageScope: PackageScopeItem =>
+            mainScope
         }
 
-        val dialog = getDialogForTypes(project, editor, typeElementHelper, IntroduceTypeAliasData.possibleScopes, updatedMainScope)
+        val dialog = getDialogForTypes(project, editor, typeElementHelper, IntroduceTypeAliasData.getInstance.possibleScopes, updatedMainScope)
         if (!dialog.isOK) {
           occurrenceHighlighters.foreach(_.dispose())
           occurrenceHighlighters = Seq.empty
@@ -99,14 +103,13 @@ trait IntroduceTypeAlias {
           dialog.isReplaceOccurrenceIncompanionObject,
           dialog.isReplaceOccurrenceInInheritors, dialog.getSelectedScope)
 
-        val parent = dialog.getSelectedScope.fileEncloser
-        runRefactoringForTypes(file, editor, typeElementHelper, dialog.getEnteredName, occurrences, parent, dialog.getSelectedScope.isPackage)
+        runRefactoringForTypes(file, editor, typeElementHelper, dialog.getEnteredName, occurrences, dialog.getSelectedScope)
       }
 
       // replace all occurrences, don't replace occurences available from companion object or inheritors
       // suggest to choose scope
       def runInplace() = {
-        def handleScope(scopeItem: ScopeItem, needReplacement: Boolean) {
+        def handleScope(scopeItem: SimpleScopeItem, needReplacement: Boolean) {
           val replaceAllOccurrences = true
           val suggestedNames = scopeItem.availableNames
 
@@ -116,8 +119,7 @@ trait IntroduceTypeAlias {
             isReplaceOccurrenceInInheritors = false, scopeItem)
 
           val introduceRunnable: Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] =
-            introduceTypeAlias(file, editor, typeElement, allOccurrences, suggestedNames(0), replaceAllOccurrences,
-              scopeItem.fileEncloser, scopeItem.isPackage)
+            introduceTypeAlias(file, editor, typeElement, allOccurrences, suggestedNames(0), scopeItem)
 
           CommandProcessor.getInstance.executeCommand(project, new Runnable {
             def run() {
@@ -155,34 +157,30 @@ trait IntroduceTypeAlias {
           }, INTRODUCE_TYPEALIAS_REFACTORING_NAME, null)
         }
 
-        val currentScope = IntroduceTypeAliasData.currentScope
+        val currentScope = IntroduceTypeAliasData.getInstance.currentScope
 
         //need open modal dialog in inplace mode
         if ((StartMarkAction.canStart(project) != null) && (currentScope != null)) {
-          IntroduceTypeAliasData.isCallModalDialogInProgress = true
+          IntroduceTypeAliasData.getInstance.isCallModalDialogInProgress = true
           val templateState: TemplateState = TemplateManagerImpl.getTemplateState(InjectedLanguageUtil.getTopLevelEditor(editor))
 
           if (templateState != null) {
             templateState.cancelTemplate()
           }
 
-          val enteredName = IntroduceTypeAliasData.getNamedElement.getName
-          ScalaInplaceTypeAliasIntroducer.revertState(editor, IntroduceTypeAliasData.currentScope, IntroduceTypeAliasData.getNamedElement)
+          val enteredName = IntroduceTypeAliasData.getInstance.getNamedElement.getName
+          ScalaInplaceTypeAliasIntroducer.revertState(editor,
+            IntroduceTypeAliasData.getInstance.currentScope, IntroduceTypeAliasData.getInstance.getNamedElement)
 
-          runWithDialog(fromInplace = true, IntroduceTypeAliasData.currentScope, enteredName)
-          IntroduceTypeAliasData.clearData()
+          runWithDialog(fromInplace = true, IntroduceTypeAliasData.getInstance.currentScope, enteredName)
+          IntroduceTypeAliasData.getInstance.clearData()
         } else {
-          IntroduceTypeAliasData.setInintialInfo(inTypeElement.getTextRange)
-          afterScopeChoosing(project, editor, file, IntroduceTypeAliasData.possibleScopes, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
-            scopeItem =>
-              if (!scopeItem.usualOccurrences.isEmpty) {
-                //handle packageObject in modal dialog because we can't change name & call refactoring
-                if (scopeItem.isPackage) {
-                  runWithDialog(fromInplace = true, scopeItem)
-                } else {
-                  handleScope(scopeItem, needReplacement = true)
-                }
-              }
+          IntroduceTypeAliasData.getInstance.setInintialInfo(inTypeElement.getTextRange)
+          afterScopeChoosing(project, editor, file, IntroduceTypeAliasData.getInstance.possibleScopes, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
+            case simpleScope: SimpleScopeItem if simpleScope.usualOccurrences.nonEmpty =>
+              handleScope(simpleScope, needReplacement = true)
+            case packageScope: PackageScopeItem =>
+              runWithDialog(fromInplace = true, packageScope)
           }
         }
       }
@@ -196,17 +194,17 @@ trait IntroduceTypeAlias {
     }
   }
 
-  def runRefactoringForTypeInside(file: PsiFile,
-                                  editor: Editor,
-                                  typeElement: ScTypeElement,
-                                  typeName: String,
-                                  occurrences: OccurrenceData,
-                                  suggestedParent: PsiElement,
-                                  isPackage: Boolean): (SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement]) = {
+  private def runRefactoringForTypeInside(file: PsiFile,
+                                          editor: Editor,
+                                          typeElement: ScTypeElement,
+                                          typeName: String,
+                                          occurrences: OccurrenceData,
+                                          scope: ScopeItem): (SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement]) = {
     def addTypeAliasDefinition(typeName: String, typeElement: ScTypeElement, parent: PsiElement) = {
       def getAhchor(parent: PsiElement, firstOccurrence: PsiElement): Some[PsiElement] = {
         Some(parent.getChildren.find(_.getTextRange.contains(firstOccurrence.getTextRange)).getOrElse(parent.getLastChild))
       }
+
 
       val mtext = typeElement.calcType.canonicalText
 
@@ -214,26 +212,32 @@ trait IntroduceTypeAlias {
         .createTypeAliasDefinitionFromText(s"type $typeName = $mtext", typeElement.getContext, typeElement)
 
       val resultTypeAlias = ScalaPsiUtil.addTypeAliasBefore(definition, parent, getAhchor(parent, typeElement))
-      ScalaPsiUtil.adjustTypes(resultTypeAlias, useTypeAliases = false)
+      ScalaPsiUtil.adjustTypes(resultTypeAlias, addImports = true, useTypeAliases = false)
       resultTypeAlias
     }
 
     val revertInfo = ScalaRefactoringUtil.RevertInfo(file.getText, editor.getCaretModel.getOffset)
     editor.putUserData(ScalaIntroduceVariableHandler.REVERT_INFO, revertInfo)
 
-    val parent = if (suggestedParent == null & isPackage) {
-      createAndGetPackageObjectBody(typeElement)
-    } else {
-      suggestedParent
+    val parent = scope match {
+      case simpleScope: SimpleScopeItem =>
+        simpleScope.fileEncloser
+      case packageScope: PackageScopeItem =>
+        packageScope.fileEncloser match {
+          case suggestedDirectory: PsiDirectory =>
+            createAndGetPackageObjectBody(typeElement, suggestedDirectory, packageScope.needDirectoryCreating, scope.getName)
+          case _ =>
+           packageScope.fileEncloser
+        }
     }
 
     val typeAlias = addTypeAliasDefinition(typeName, occurrences.getAllOccurrences(0), parent)
-    IntroduceTypeAliasData.setTypeAlias(typeAlias)
+    IntroduceTypeAliasData.getInstance.setTypeAlias(typeAlias)
 
-    val replacedTypeElement = replaceTypeElements(Array(typeElement), typeName).apply(0)
+    val typeElementIdx = occurrences.getUsualOccurrences.indexWhere(_ == typeElement)
 
-    replaceTypeElements(occurrences.getUsualOccurrences, typeName)
-    replaceTypeElements(occurrences.getExtendedOccurrences, typeName)
+    val usualOccurrences = replaceTypeElements(occurrences.getUsualOccurrences, typeName, typeAlias)
+    replaceTypeElements(occurrences.getExtendedOccurrences, typeName, typeAlias)
 
     val className = PsiTreeUtil.getParentOfType(parent, classOf[ScObject]) match {
       case objectType: ScObject =>
@@ -241,35 +245,35 @@ trait IntroduceTypeAlias {
       case _ => ""
     }
 
-    replaceTypeElements(occurrences.getCompanionObjOccurrences, className + "." + typeName)
+    replaceTypeElements(occurrences.getCompanionObjOccurrences, className + "." + typeName, typeAlias)
 
     (SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(typeAlias.asInstanceOf[PsiElement]),
-      SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(replacedTypeElement))
+      SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(usualOccurrences.apply(typeElementIdx)))
   }
 
   def runRefactoringForTypes(file: PsiFile, editor: Editor,
                              typeElement: ScTypeElement, typeName: String,
-                             occurrences_ : OccurrenceData, parent: PsiElement, isPackage: Boolean) = {
-    val runnable = new Runnable() {
+                             occurrences_ : OccurrenceData, scope: ScopeItem) = {
+
+    val writeAction = new Runnable() {
       def run() {
-        runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, parent, isPackage)
+        runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, scope)
       }
     }
-    ScalaUtils.runWriteAction(runnable, editor.getProject, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
+
+    ScalaUtils.runWriteAction(writeAction, editor.getProject, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
     editor.getSelectionModel.removeSelection()
   }
 
-  def introduceTypeAlias(file: PsiFile,
-                         editor: Editor,
-                         typeElement: ScTypeElement,
-                         occurrences_ : OccurrenceData,
-                         typeName: String,
-                         replaceAllOccurrences: Boolean,
-                         parent: PsiElement,
-                         isPackage: Boolean): Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] = {
+  protected def introduceTypeAlias(file: PsiFile,
+                                   editor: Editor,
+                                   typeElement: ScTypeElement,
+                                   occurrences_ : OccurrenceData,
+                                   typeName: String,
+                                   scope: ScopeItem): Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])] = {
 
     new Computable[(SmartPsiElementPointer[PsiElement], SmartPsiElementPointer[PsiElement])]() {
-      def compute() = runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, parent, isPackage)
+      def compute() = runRefactoringForTypeInside(file, editor, typeElement, typeName, occurrences_, scope)
     }
   }
 
@@ -283,7 +287,7 @@ trait IntroduceTypeAlias {
       ScalaBundle.message("choose.scope.for", refactoringName), (elem: ScopeItem) => elem.toString)
   }
 
-  def replaceTypeElements(occurrences: Array[ScTypeElement], name: String) = {
+  def replaceTypeElements(occurrences: Array[ScTypeElement], name: String, typeAlias: ScTypeAlias) = {
     def replaceHelper(typeElement: ScTypeElement, inName: String): ScTypeElement = {
       val replacement = ScalaPsiElementFactory.createTypeElementFromText(inName, typeElement.getContext, typeElement)
       //remove parethesis around typeElement
@@ -300,7 +304,14 @@ trait IntroduceTypeAlias {
       }
     }
 
-    occurrences.transform(replaceHelper(_, name))
+    def bindHelper(typeElement: ScTypeElement) = {
+      typeElement.getFirstChild.asInstanceOf[ScStableCodeReferenceElement].bindToElement(typeAlias)
+      typeElement
+    }
+
+    val replaced = occurrences.map(replaceHelper(_, name))
+    replaced.map(bindHelper)
+    //    occurrences
   }
 
 
@@ -365,9 +376,28 @@ trait IntroduceTypeAlias {
     }).createPopup.showInBestPositionFor(editor)
   }
 
-  def createAndGetPackageObjectBody(typeElement: ScTypeElement): ScTemplateBody = {
-    val dir: PsiDirectory = typeElement.getContainingFile.getContainingDirectory
-    val packageObject: ScTypeDefinition = ScalaDirectoryService.createClassFromTemplate(dir, "package", "Package Object", askToDefineVariables = false).asInstanceOf[ScTypeDefinition]
+  protected def createAndGetPackageObjectBody(typeElement: ScTypeElement,
+                                              suggestedDirectory: PsiDirectory,
+                                              needCreateDirectory: Boolean,
+                                              inNewDirectoryName: String): ScTemplateBody = {
+    val newDirectoryName = if (needCreateDirectory) {
+      inNewDirectoryName
+    } else {
+      "package"
+    }
+
+    val currentDirectory = suggestedDirectory
+    val newDir = if (needCreateDirectory) {
+      currentDirectory.createSubdirectory(newDirectoryName)
+    }
+    else {
+      currentDirectory
+    }
+
+    val packageObject: ScTypeDefinition =
+      ScalaDirectoryService.createClassFromTemplate(newDir, newDirectoryName, "Package Object", askToDefineVariables = false)
+        .asInstanceOf[ScTypeDefinition]
+
     PsiTreeUtil.getChildOfType(PsiTreeUtil.getChildOfType(packageObject, classOf[ScExtendsBlock]), classOf[ScTemplateBody])
   }
 
@@ -375,7 +405,13 @@ trait IntroduceTypeAlias {
                                   possibleScopes: Array[ScopeItem], mainScope: ScopeItem): ScalaIntroduceTypeAliasDialog = {
 
     // Add occurrences highlighting
-    val occurrences = possibleScopes.apply(0).usualOccurrences
+    val occurrences = mainScope match  {
+      case simpleScope:SimpleScopeItem =>
+        simpleScope.usualOccurrences
+      case packageScope: PackageScopeItem =>
+        Array[ScTypeElement]()
+    }
+
     if (occurrences.length > 1)
       occurrenceHighlighters = ScalaRefactoringUtil.highlightOccurrences(project, occurrences.map(_.getTextRange), editor)
 

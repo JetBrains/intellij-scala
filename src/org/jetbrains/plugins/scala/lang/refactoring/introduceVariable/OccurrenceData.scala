@@ -19,8 +19,14 @@ object OccurrenceData {
 
   def apply(typeElement: ScTypeElement, isReplaceAllUsual: Boolean, isReplaceOccurrenceIncompanionObject: Boolean,
             isReplaceOccurrenceInInheritors: Boolean, scopeItem: ScopeItem): OccurrenceData  = {
-    new OccurrenceData(typeElement, scopeItem.usualOccurrences, isReplaceAllUsual, scopeItem.occurrencesInCompanion,
-      isReplaceOccurrenceIncompanionObject, scopeItem.occurrencesFromInheretors, isReplaceOccurrenceInInheritors)
+    scopeItem match {
+      case simpleScope: SimpleScopeItem =>
+        new OccurrenceData(typeElement, simpleScope.usualOccurrences, isReplaceAllUsual, simpleScope.occurrencesInCompanion,
+          isReplaceOccurrenceIncompanionObject, simpleScope.occurrencesFromInheretors, isReplaceOccurrenceInInheritors)
+      case packageScope: PackageScopeItem =>
+        new OccurrenceData(typeElement, packageScope.occurrences, isReplaceAllUsual, Array[ScTypeElement](),
+          isReplaceOccurrenceIncompanionObject, Array[ScTypeElement](), isReplaceOccurrenceInInheritors)
+    }
   }
 }
 
