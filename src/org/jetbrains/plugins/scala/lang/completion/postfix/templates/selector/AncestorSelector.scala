@@ -26,26 +26,17 @@ class AncestorSelector(val condition: Condition[PsiElement], val selectorType: S
   override def getNonFilteredExpressions(context: PsiElement, document: Document, offset: Int): util.List[PsiElement] = {
     ScalaPsiUtil.getParentOfType(context, classOf[ScExpression]) match {
       case element: ScExpression =>
-        //TODO reimplement it?
-        if (selectorType == All) {
-          ContainerUtil.list(ScalaRefactoringUtil.getExpressions(element):_*)
-        } else {
-          ContainerUtil.list(
-            if (selectorType == Topmost) {
-              var current = element
-              while (current.getParent != null && (current.getParent match {
-                case _: ScBlockExpr | _: ScBlock => false
-                case expr: ScExpression => true
-                case _ => false
-              })) {
-                current = current.getParent.asInstanceOf[ScExpression]
-              }
-              current
-            } else {
-              element
-            }
-          )
+        val result = ContainerUtil.newLinkedList[PsiElement](element)
+        var current: PsiElement = element.getParent
+        while (current != null && current.getTextRange.getEndOffset <= offset && (selectorType match {
+          case All => true
+          case Topmost => current.isInstanceOf[ScExpression]
+          case First => false
+        })) {
+          result.add(current)
+          current = current.getParent
         }
+        result
       case _ => ContainerUtil.emptyList()
     }
   }
