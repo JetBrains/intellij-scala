@@ -66,8 +66,8 @@ class Foo {
   private val i = 0;
 
   /**
-   * @param p blah-blah-blah
-   */
+    * @param p blah-blah-blah
+    */
   def doSmth(p: Int) {}
 
   //comment
@@ -89,9 +89,9 @@ class A
     val after =
 """
 /**
- * something{@link Foo}
- * something
- */
+  * something{@link Foo}
+  * something
+  */
 class A
 """.replace("\r", "")
     doTextTest(before, after)
@@ -879,6 +879,32 @@ bars foreach {case (x, y) => list.add(x + y)}
         | * Some comments
         | */
         |class A
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL9264(): Unit = {
+    val before =
+      """
+        |class X {
+        |  (for {
+        |    i <- 1 to 10
+        |  } yield {
+        |      1
+        |  }).map(_ + 1)
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class X {
+        |  (for {
+        |    i <- 1 to 10
+        |  } yield {
+        |    1
+        |  }).map(_ + 1)
+        |}
       """.stripMargin.replace("\r", "")
 
     doTextTest(before, after)
