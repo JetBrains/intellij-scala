@@ -53,17 +53,17 @@ trait IntroduceTypeAlias {
         getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.valid.type"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME))
 
 
-      if (IntroduceTypeAliasData.possibleScopes == null) {
-        IntroduceTypeAliasData.setPossibleScopes(ScopeSuggester.suggestScopes(this, project, editor, file, typeElement))
+      if (IntroduceTypeAliasData.getInstance.possibleScopes == null) {
+        IntroduceTypeAliasData.getInstance.setPossibleScopes(ScopeSuggester.suggestScopes(this, project, editor, file, typeElement))
       }
 
-      if (IntroduceTypeAliasData.possibleScopes.isEmpty) {
+      if (IntroduceTypeAliasData.getInstance.possibleScopes.isEmpty) {
         showErrorMessage(ScalaBundle.message("cannot.refactor.scope.not.found"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
       }
 
       def runWithDialog(fromInplace: Boolean, mainScope: ScopeItem, enteredName: String = "") {
-        val typeElementHelper = if (fromInplace) {
-          val range = IntroduceTypeAliasData.initialTypeElement
+        val typeElementHelper = if (fromInplace && mainScope.isInstanceOf[SimpleScopeItem]) {
+          val range = IntroduceTypeAliasData.getInstance.initialTypeElement
           PsiTreeUtil.findElementOfClassAtRange(file, range.getStartOffset, range.getEndOffset, classOf[ScTypeElement])
           match {
             case simpleType: ScSimpleTypeElement =>
@@ -82,8 +82,8 @@ trait IntroduceTypeAlias {
         val updatedMainScope = mainScope match {
           case simpleScope: SimpleScopeItem if fromInplace =>
             val newScope = simpleScope.revalidate(enteredName)
-            val mainScopeIdx = IntroduceTypeAliasData.possibleScopes.indexOf(mainScope)
-            IntroduceTypeAliasData.possibleScopes(mainScopeIdx) = newScope
+            val mainScopeIdx = IntroduceTypeAliasData.getInstance.possibleScopes.indexOf(mainScope)
+            IntroduceTypeAliasData.getInstance.possibleScopes(mainScopeIdx) = newScope
             newScope
           case simpleScope: SimpleScopeItem =>
             mainScope
@@ -91,7 +91,7 @@ trait IntroduceTypeAlias {
             mainScope
         }
 
-        val dialog = getDialogForTypes(project, editor, typeElementHelper, IntroduceTypeAliasData.possibleScopes, updatedMainScope)
+        val dialog = getDialogForTypes(project, editor, typeElementHelper, IntroduceTypeAliasData.getInstance.possibleScopes, updatedMainScope)
         if (!dialog.isOK) {
           occurrenceHighlighters.foreach(_.dispose())
           occurrenceHighlighters = Seq.empty
@@ -157,25 +157,26 @@ trait IntroduceTypeAlias {
           }, INTRODUCE_TYPEALIAS_REFACTORING_NAME, null)
         }
 
-        val currentScope = IntroduceTypeAliasData.currentScope
+        val currentScope = IntroduceTypeAliasData.getInstance.currentScope
 
         //need open modal dialog in inplace mode
         if ((StartMarkAction.canStart(project) != null) && (currentScope != null)) {
-          IntroduceTypeAliasData.isCallModalDialogInProgress = true
+          IntroduceTypeAliasData.getInstance.isCallModalDialogInProgress = true
           val templateState: TemplateState = TemplateManagerImpl.getTemplateState(InjectedLanguageUtil.getTopLevelEditor(editor))
 
           if (templateState != null) {
             templateState.cancelTemplate()
           }
 
-          val enteredName = IntroduceTypeAliasData.getNamedElement.getName
-          ScalaInplaceTypeAliasIntroducer.revertState(editor, IntroduceTypeAliasData.currentScope, IntroduceTypeAliasData.getNamedElement)
+          val enteredName = IntroduceTypeAliasData.getInstance.getNamedElement.getName
+          ScalaInplaceTypeAliasIntroducer.revertState(editor,
+            IntroduceTypeAliasData.getInstance.currentScope, IntroduceTypeAliasData.getInstance.getNamedElement)
 
-          runWithDialog(fromInplace = true, IntroduceTypeAliasData.currentScope, enteredName)
-          IntroduceTypeAliasData.clearData()
+          runWithDialog(fromInplace = true, IntroduceTypeAliasData.getInstance.currentScope, enteredName)
+          IntroduceTypeAliasData.getInstance.clearData()
         } else {
-          IntroduceTypeAliasData.setInintialInfo(inTypeElement.getTextRange)
-          afterScopeChoosing(project, editor, file, IntroduceTypeAliasData.possibleScopes, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
+          IntroduceTypeAliasData.getInstance.setInintialInfo(inTypeElement.getTextRange)
+          afterScopeChoosing(project, editor, file, IntroduceTypeAliasData.getInstance.possibleScopes, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
             case simpleScope: SimpleScopeItem if simpleScope.usualOccurrences.nonEmpty =>
               handleScope(simpleScope, needReplacement = true)
             case packageScope: PackageScopeItem =>
@@ -231,7 +232,7 @@ trait IntroduceTypeAlias {
     }
 
     val typeAlias = addTypeAliasDefinition(typeName, occurrences.getAllOccurrences(0), parent)
-    IntroduceTypeAliasData.setTypeAlias(typeAlias)
+    IntroduceTypeAliasData.getInstance.setTypeAlias(typeAlias)
 
     val typeElementIdx = occurrences.getUsualOccurrences.indexWhere(_ == typeElement)
 
