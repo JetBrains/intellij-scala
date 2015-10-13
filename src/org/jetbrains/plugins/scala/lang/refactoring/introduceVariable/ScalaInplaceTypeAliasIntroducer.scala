@@ -22,7 +22,7 @@ object ScalaInplaceTypeAliasIntroducer {
             oldName: String,
             scopeItem: ScopeItem): ScalaInplaceTypeAliasIntroducer = {
 
-    IntroduceTypeAliasData.addScopeElement(scopeItem)
+    IntroduceTypeAliasData.getInstance.addScopeElement(scopeItem)
     new ScalaInplaceTypeAliasIntroducer(scNamedElement, substituted, editor, initialName, oldName)
   }
 
@@ -63,7 +63,7 @@ class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
 
   override def startsOnTheSameElement(handler: RefactoringActionHandler, element: PsiElement): Boolean = {
     def checkEquals(typeAliasDefinition: ScTypeAliasDefinition) = {
-      IntroduceTypeAliasData.getNamedElement == element
+      IntroduceTypeAliasData.getInstance.getNamedElement == element
     }
 
     element match {
@@ -81,7 +81,7 @@ class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
     if (success) {
       // don't know about element to refactor place
     }
-    else if (myInsertedName != null && !UndoManager.getInstance(myProject).isUndoInProgress && !IntroduceTypeAliasData.isCallModalDialogInProgress) {
+    else if (myInsertedName != null && !UndoManager.getInstance(myProject).isUndoInProgress && !IntroduceTypeAliasData.getInstance.isCallModalDialogInProgress) {
       val revertInfo = myEditor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)
       if (revertInfo != null) {
         extensions.inWriteAction {

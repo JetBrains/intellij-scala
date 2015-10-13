@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
  * Created by Kate Ustyuzhanina
  * on 9/7/15
  */
-object IntroduceTypeAliasData {
+class IntroduceTypeAliasData private{
   var currentScope: ScopeItem = null
   var initialTypeElement: TextRange = null
   var possibleScopes: Array[ScopeItem] = null
@@ -58,4 +58,9 @@ object IntroduceTypeAliasData {
       case _ => null
     }
   }
+}
+
+object IntroduceTypeAliasData{
+  val instance = new IntroduceTypeAliasData()
+  def getInstance = instance
 }
