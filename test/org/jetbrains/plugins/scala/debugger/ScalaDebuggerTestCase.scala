@@ -202,8 +202,9 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
         inReadAction {
           val ctx: EvaluationContextImpl = evaluationContext()
           val factory = new ScalaCodeFragmentFactory()
+          val kind = if (codeText.contains("\n")) CodeFragmentKind.CODE_BLOCK else CodeFragmentKind.EXPRESSION
           val codeFragment: PsiCodeFragment = new CodeFragmentFactoryContextWrapper(factory).
-              createCodeFragment(new TextWithImportsImpl(CodeFragmentKind.EXPRESSION, codeText),
+          createCodeFragment(new TextWithImportsImpl(kind, codeText),
                 ContextUtil.getContextElement(ctx), getProject)
           codeFragment.forceResolveScope(GlobalSearchScope.allScope(getProject))
           DebuggerUtils.checkSyntax(codeFragment)

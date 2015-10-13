@@ -1,0 +1,21 @@
+# Reporting issues
+
+Thank you for taking the time to report a problem. To make sure that your
+problem will be solved in the shortest time possible, please check that your bug
+report has:
+
+- Information about opertaion system used
+- Version of IDEA used (`Help -> About` dialog)
+- Version of Scala plugin used (`File -> Settings -> Plugins` dialog)
+- Detailed description of the steps one should take to reproduce this situation
+- Problems you have encountered with
+- Behaviour you have expected
+
+You could also speed up fixing a bug by providing the following (if possible):
+
+- Example project which triggers this problem
+- Logs, performance traces, etc.
+
+We strongly recommend you to report bugs [straight to
+Youtrack](https://youtrack.jetbrains.com/newissue). This is the main place where
+we store issues. Your Github issue, most likely, will be moved there anyway.

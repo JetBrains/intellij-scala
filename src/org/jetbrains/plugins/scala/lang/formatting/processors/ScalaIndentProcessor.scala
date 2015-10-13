@@ -36,7 +36,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       val comment = child.getPsi.parentsInFile.findByType(classOf[ScDocComment]).getOrElse {
         throw new RuntimeException("Unable to find parent doc comment")
       }
-      return Indent.getSpaceIndent(if (comment.version == 1) 1 else 2)
+      return Indent.getSpaceIndent(if (scalaSettings.USE_SCALADOC2_FORMATTING) 2 else 1)
     }
     if ((node.getElementType == ScalaTokenTypes.kIF || node.getElementType == ScalaTokenTypes.kELSE) &&
          parent.myLastNode != null) {
@@ -48,6 +48,9 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         case _: ScExpression => return Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE)
         case _ => return Indent.getSpaceIndent(0, scalaSettings.ALIGN_IF_ELSE)
       }
+    }
+    if (node.getElementType == ScalaTokenTypes.kYIELD && child.getElementType != ScalaTokenTypes.kYIELD) {
+      return Indent.getNormalIndent
     }
 
     def processFunExpr(expr: ScFunctionExpr): Indent = expr.result match {
@@ -147,7 +150,9 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         }
       case _: ScMethodCall => processMethodCall
       case arg: ScArgumentExprList if arg.isBraceArgs =>
-        if (scalaSettings.INDENT_BRACED_FUNCTION_ARGS && child.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
+        if (scalaSettings.INDENT_BRACED_FUNCTION_ARGS &&
+          arg.children.exists(child => Set(ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS).contains(child.getNode.getElementType)) &&
+          child.getElementType != ScalaTokenTypes.tRPARENTHESIS &&
           child.getElementType != ScalaTokenTypes.tLPARENTHESIS) Indent.getNormalIndent
         else Indent.getNoneIndent
       case _: ScIfStmt | _: ScWhileStmt | _: ScDoStmt | _: ScForStatement
