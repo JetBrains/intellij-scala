@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberInplaceRenamer
-import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
  * Created by Kate Ustyuzhanina
@@ -29,15 +28,6 @@ object ScalaInplaceTypeAliasIntroducer {
 
   def revertState(myEditor: Editor, scopeItem: ScopeItem, namedElement: ScNamedElement): Unit = {
     val myProject = myEditor.getProject
-    if (scopeItem.isPackage) {
-      val runnable = new Runnable() {
-        def run() {
-          scopeItem.fileEncloser.getNode.removeChild(namedElement.getNode)
-        }
-      }
-      ScalaUtils.runWriteAction(runnable, myEditor.getProject, "Introduce Type Alias")
-    }
-
     CommandProcessor.getInstance.executeCommand(myProject, new Runnable {
       def run() {
         val revertInfo = myEditor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)

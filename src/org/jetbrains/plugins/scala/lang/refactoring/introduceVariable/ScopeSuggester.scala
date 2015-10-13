@@ -92,10 +92,9 @@ object ScopeSuggester {
       val validator = ScalaTypeValidator(conflictsReporter, project, editor, file, currentElement, parent, occurrences.isEmpty)
 
       val possibleNames = NameSuggester.suggestNamesByType(currentElement.calcType)
-        .map((value:String) => validator.validateName(value, increaseNumber = true))
+        .map((value: String) => validator.validateName(value, increaseNumber = true))
 
-      val scope = new ScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toArray)
-      result += scope
+      result += SimpleScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toArray)
       parent = getParent(parent, isScriptFile)
     }
 
@@ -105,9 +104,7 @@ object ScopeSuggester {
     if ((scPackage != null) && !currentElement.calcType.isInstanceOf[ScTypeParameterType] && !noContinue) {
       val allPackages = getAllAvailablePackages(scPackage.fullPackageName, currentElement)
       for (helpp <- allPackages) {
-        //        result += handleOnePackage(currentElement, helpp._1.asInstanceOf[ScPackage], helpp._2, conflictsReporter, project, editor)
-        result += new ScopeItem("package " + helpp._1.getQualifiedName, helpp._2, Array[ScTypeElement](), Array[ScTypeElement](),
-          null, Array(NameSuggester.suggestNamesByType(currentElement.calcType).apply(0).capitalize))
+        result += PackageScopeItem(helpp._1.getQualifiedName, helpp._2, false, Array(NameSuggester.suggestNamesByType(currentElement.calcType).apply(0).capitalize))
       }
     }
 
@@ -158,7 +155,7 @@ object ScopeSuggester {
         val packageDirectories = currentPackage.getDirectories(GlobalSearchScope.moduleScope(module))
         val containingDirectory = packageDirectories.intersect(dirContainingFile)
 
-        val resultDirectory:PsiDirectory = if (containingDirectory.length > 0) {
+        val resultDirectory: PsiDirectory = if (containingDirectory.length > 0) {
           containingDirectory.apply(0)
         } else {
           typeElement.getContainingFile.getContainingDirectory
@@ -174,7 +171,7 @@ object ScopeSuggester {
   }
 
   def handleOnePackage(typeElement: ScTypeElement, inPackageName: String, containinDirectory: PsiDirectory,
-                       conflictsReporter: ConflictsReporter, project: Project, editor: Editor, isReplaceAll: Boolean, inputName: String): ScopeItem = {
+                       conflictsReporter: ConflictsReporter, project: Project, editor: Editor, isReplaceAll: Boolean, inputName: String): PackageScopeItem = {
     def getFilesToSearchIn(currentDirectory: PsiDirectory): Array[PsiFile] = {
       if (!isReplaceAll) {
         Array(typeElement.getContainingFile)
@@ -267,26 +264,33 @@ object ScopeSuggester {
     val suggested = inputName
     val possibleNames = Array(validator.validateName(suggested, increaseNumber = true))
 
-    val result = new ScopeItem("package " + inPackage.getName, fileEncloser, occurrences, Array[ScTypeElement](),
-      validator, possibleNames.toArray)
+    val result = PackageScopeItem(inPackage.getName, fileEncloser, needNewDir, possibleNames.toArray)
 
-    result.needDirectoryCreating = needNewDir
+    result.occurrences = occurrences
+    result.validator = validator
 
     result
   }
 }
 
-class ScopeItem(val name: String,
-                val fileEncloser: PsiElement,
-                val usualOccurrences: Array[ScTypeElement],
-                val occurrencesInCompanion: Array[ScTypeElement],
-                val typeValidator: ScalaValidator,
-                val availableNames: Array[String]) {
 
+abstract class ScopeItem(name: String, availableNames: Array[String]) {
+  def getName = name
+
+  def getAvailableNames = availableNames
+
+  override def toString: String = name
+}
+
+case class SimpleScopeItem(name: String,
+                           fileEncloser: PsiElement,
+                           usualOccurrences: Array[ScTypeElement],
+                           occurrencesInCompanion: Array[ScTypeElement],
+                           typeValidator: ScalaValidator,
+                           availableNames: Array[String]) extends ScopeItem(name, availableNames) {
 
   var occurrencesFromInheretors: Array[ScTypeElement] = Array[ScTypeElement]()
   var usualOccurrencesRanges = usualOccurrences.map((x: ScTypeElement) => (x.getTextRange, x.getContainingFile))
-  var needDirectoryCreating = false
 
   def setInheretedOccurrences(occurrences: Array[ScTypeElement]) = {
     if (occurrences != null) {
@@ -294,8 +298,18 @@ class ScopeItem(val name: String,
     }
   }
 
-  def isPackage: Boolean = {
-    name.substring(0, 7) == "package"
+  def revalidate(newName: String): ScopeItem = {
+    val revalidatedOccurrences = usualOccurrencesRanges.map((x: (TextRange, PsiFile)) =>
+      PsiTreeUtil.findElementOfClassAtRange(x._2, x._1.getStartOffset, x._1.getEndOffset, classOf[ScTypeElement]))
+
+    val newNames = if ((newName == "") || availableNames.contains(newName)) {
+      availableNames
+    } else {
+      newName +: availableNames
+    }
+
+    new SimpleScopeItem(name, fileEncloser,
+      revalidatedOccurrences, occurrencesInCompanion, typeValidator, newNames)
   }
 
   def isTrait: Boolean = {
@@ -309,20 +323,14 @@ class ScopeItem(val name: String,
   def isObject: Boolean = {
     name.substring(0, 6) == "object"
   }
+}
 
-  def revalidate(newName: String): ScopeItem = {
-    val revalidatedOccurrences = usualOccurrencesRanges.map((x: (TextRange, PsiFile)) =>
-      PsiTreeUtil.findElementOfClassAtRange(x._2, x._1.getStartOffset, x._1.getEndOffset, classOf[ScTypeElement]))
+case class PackageScopeItem(name: String,
+                            fileEncloser: PsiElement,
+                            needDirectoryCreating: Boolean,
+                            availableNames: Array[String]) extends ScopeItem(name, availableNames) {
+  var occurrences = Array[ScTypeElement]()
+  var validator: ScalaCompositeTypeValidator = null
 
-    val newNames = if ((newName == "") || availableNames.contains(newName)) {
-      availableNames
-    } else {
-      newName +: availableNames
-    }
-
-    new ScopeItem(name, fileEncloser,
-      revalidatedOccurrences, occurrencesInCompanion, typeValidator, newNames)
-  }
-
-  override def toString: String = name
+  override def toString = "package " + name
 }
