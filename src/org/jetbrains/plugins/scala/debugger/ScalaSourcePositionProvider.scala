@@ -6,7 +6,7 @@ import com.intellij.debugger.impl.{DebuggerContextImpl, PositionUtil}
 import com.intellij.debugger.ui.tree.{FieldDescriptor, LocalVariableDescriptor, NodeDescriptor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -24,10 +24,9 @@ class ScalaSourcePositionProvider extends SourcePositionProvider {
                                      nearest: Boolean): SourcePosition = {
 
     val contextElement = PositionUtil.getContextElement(context)
-    val isScala = contextElement match {
-      case _: ScalaPsiElement => true
-      case _ => false
-    }
+    if (contextElement == null) return null
+
+    val isScala = contextElement.getLanguage.isKindOf(ScalaLanguage.Instance)
     if (!isScala) return null
 
     descriptor match {

@@ -23,11 +23,9 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectClassInheritorsSearch.SearchParameters] {
   def execute(queryParameters: DirectClassInheritorsSearch.SearchParameters, consumer: Processor[PsiClass]): Boolean = {
     val clazz = queryParameters.getClassToProcess
-    val globalScope = queryParameters.getScope match {case x: GlobalSearchScope => x case _ => return true}
+    val scope = queryParameters.getScope match {case x: GlobalSearchScope => x case _ => return true}
     ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
       def compute: Boolean = {
-        //this will filter classes from sources and unrelated similar jars
-        val scope = globalScope.intersectWith(clazz.getResolveScope)
         if (!clazz.isValid) return true
           val candidates: Seq[ScTemplateDefinition] = ScalaStubsUtil.getClassInheritors(clazz, scope)
           for (candidate <- candidates if candidate.showAsInheritor) {

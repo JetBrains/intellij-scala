@@ -5,7 +5,7 @@ package unusedInspections
 
 import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.daemon.QuickFixBundle
-import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.codeInsight.intention.{HighPriorityAction, IntentionAction}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
  * Date: 02.07.2009
  */
 
-class ScalaOptimizeImportsFix extends IntentionAction {
+class ScalaOptimizeImportsFix extends IntentionAction with HighPriorityAction {
   def getText: String = QuickFixBundle.message("optimize.imports.fix")
 
   def startInWriteAction: Boolean = true
