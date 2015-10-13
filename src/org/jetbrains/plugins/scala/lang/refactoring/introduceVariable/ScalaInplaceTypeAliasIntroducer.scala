@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberInplaceRenamer
-import org.jetbrains.plugins.scala.util.ScalaUtils
 
 /**
  * Created by Kate Ustyuzhanina
@@ -23,21 +22,12 @@ object ScalaInplaceTypeAliasIntroducer {
             oldName: String,
             scopeItem: ScopeItem): ScalaInplaceTypeAliasIntroducer = {
 
-    IntroduceTypeAliasData.addScopeElement(scopeItem)
+    IntroduceTypeAliasData.getInstance.addScopeElement(scopeItem)
     new ScalaInplaceTypeAliasIntroducer(scNamedElement, substituted, editor, initialName, oldName)
   }
 
   def revertState(myEditor: Editor, scopeItem: ScopeItem, namedElement: ScNamedElement): Unit = {
     val myProject = myEditor.getProject
-    if (scopeItem.isPackage) {
-      val runnable = new Runnable() {
-        def run() {
-          scopeItem.fileEncloser.getNode.removeChild(namedElement.getNode)
-        }
-      }
-      ScalaUtils.runWriteAction(runnable, myEditor.getProject, "Introduce Type Alias")
-    }
-
     CommandProcessor.getInstance.executeCommand(myProject, new Runnable {
       def run() {
         val revertInfo = myEditor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)
@@ -73,7 +63,7 @@ class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
 
   override def startsOnTheSameElement(handler: RefactoringActionHandler, element: PsiElement): Boolean = {
     def checkEquals(typeAliasDefinition: ScTypeAliasDefinition) = {
-      IntroduceTypeAliasData.getNamedElement == element
+      IntroduceTypeAliasData.getInstance.getNamedElement == element
     }
 
     element match {
@@ -91,7 +81,7 @@ class ScalaInplaceTypeAliasIntroducer(scNamedElement: ScNamedElement,
     if (success) {
       // don't know about element to refactor place
     }
-    else if (myInsertedName != null && !UndoManager.getInstance(myProject).isUndoInProgress && !IntroduceTypeAliasData.isCallModalDialogInProgress) {
+    else if (myInsertedName != null && !UndoManager.getInstance(myProject).isUndoInProgress && !IntroduceTypeAliasData.getInstance.isCallModalDialogInProgress) {
       val revertInfo = myEditor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)
       if (revertInfo != null) {
         extensions.inWriteAction {
