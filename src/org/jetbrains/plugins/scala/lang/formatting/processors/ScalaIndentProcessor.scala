@@ -49,6 +49,9 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         case _ => return Indent.getSpaceIndent(0, scalaSettings.ALIGN_IF_ELSE)
       }
     }
+    if (node.getElementType == ScalaTokenTypes.kYIELD && child.getElementType != ScalaTokenTypes.kYIELD) {
+      return Indent.getNormalIndent
+    }
 
     def processFunExpr(expr: ScFunctionExpr): Indent = expr.result match {
       case Some(e) if e == child.getPsi =>

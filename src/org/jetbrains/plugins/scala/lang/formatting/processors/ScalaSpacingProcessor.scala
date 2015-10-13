@@ -8,6 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
@@ -422,6 +423,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       }
     }
 
+
+    //this is a dirty hack for SCL-9264. It looks bad, but seems to be the only fast way to make this work.
+    (leftNode.getElementType, leftNode.getPsi.getPrevSiblingNotWhitespace) match {
+      case (ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tLPARENTHESIS, forNode: LeafPsiElement) if !left.isLeaf() &&
+        forNode.getElementType == ScalaTokenTypes.kFOR => return COMMON_SPACING
+      case _ =>
+    }
 
     if (leftPsi.isInstanceOf[ScStableCodeReferenceElement] && !rightPsi.isInstanceOf[ScPackaging]) {
       leftPsi.getParent match {
@@ -883,7 +891,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       if (rightNode.getElementType == ScalaTokenTypes.tRPARENTHESIS)
         return WITHOUT_SPACING
       leftNode.getTreeParent.getPsi match {
-        case _: ScForStatement =>
+        case _: ScForStatement if left.isLeaf =>
           if (settings.SPACE_WITHIN_FOR_PARENTHESES) return WITH_SPACING
           else return WITHOUT_SPACING
         case _: ScIfStmt =>
