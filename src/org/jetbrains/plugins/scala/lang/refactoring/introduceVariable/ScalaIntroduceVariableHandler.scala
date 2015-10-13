@@ -55,15 +55,15 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
     }
 
     //clear data on startRefactoring, if there is no marks, but there is some data
-    if ((StartMarkAction.canStart(project) == null) && IntroduceTypeAliasData.isData) {
-      IntroduceTypeAliasData.clearData()
+    if ((StartMarkAction.canStart(project) == null) && IntroduceTypeAliasData.getInstance.isData) {
+      IntroduceTypeAliasData.getInstance.clearData()
     }
 
     val typeElement = selectedElement.collect {case te: ScTypeElement => te}
       .orElse(getTypeElementAtOffset)
 
     if (typeElement.isDefined) {
-      if (IntroduceTypeAliasData.isData) {
+      if (IntroduceTypeAliasData.getInstance.isData) {
         invokeTypeElement(project, editor, file, typeElement.get)
       } else {
         ScalaRefactoringUtil.afterTypeElementChoosing(project, editor, file, dataContext, typeElement.get, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
