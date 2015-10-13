@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.Se
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.{SelectorConditions, AncestorSelector}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
  * @author Roman.Shein
@@ -32,7 +33,11 @@ class ScalaCastPostfixTemplate extends PostfixTemplateWithExpressionSelector("ca
     val template = manager.createTemplate("", "", templateString)
     template.setToReformat(true)
 
-    template.addVariable("expr", new TextExpression(expression.getText), false)
+    template.addVariable("expr", new TextExpression(expression match {
+      case _: ScSugarCallExpr | _: ScDoStmt | _: ScIfStmt | _: ScTryStmt | _: ScForStatement
+           | _: ScWhileStmt | _: ScThrowStmt | _: ScReturnStmt => "(" + expression.getText + ")"
+      case _ => expression.getText
+    }), false)
 
     manager.startTemplate(editor, template)
   }
