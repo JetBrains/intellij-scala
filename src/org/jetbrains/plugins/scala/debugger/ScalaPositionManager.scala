@@ -503,12 +503,14 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   private def findByQualName(refType: ReferenceType): Option[PsiClass] = {
     val originalQName = NameTransformer.decode(refType.name)
+    val endsWithPackageSuffix = originalQName.endsWith(packageSuffix)
     val withoutSuffix =
-      if (originalQName.endsWith(packageSuffix)) originalQName
+      if (endsWithPackageSuffix) originalQName.stripSuffix(packageSuffix)
       else originalQName.stripSuffix("$").stripSuffix("$class")
-    val qName = withoutSuffix.replace('$', '.')
+    val withDots = withoutSuffix.replace('$', '.')
+    val transformed = if (endsWithPackageSuffix) withDots + packageSuffix else withDots
 
-    findClassByQualName(qName, originalQName.endsWith("$"))
+    findClassByQualName(transformed, originalQName.endsWith("$"))
   }
 
   private def findByShortName(refType: ReferenceType): Option[PsiClass] = {
