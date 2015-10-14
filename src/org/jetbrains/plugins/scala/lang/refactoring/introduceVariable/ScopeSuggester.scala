@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
-import org.jetbrains.plugins.scala.lang.psi.types.ScProjectionType
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util._
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
@@ -77,15 +76,6 @@ object ScopeSuggester {
             case traitType: ScTrait =>
               "trait " + traitType.name
           }
-      }
-
-      //parent != null here
-      //check can we use upper scope
-      noContinue = currentElement.calcType match {
-        case projectionType: ScProjectionType =>
-          //we can't use typeAlias outside scope where it was defined
-          parent.asInstanceOf[ScTemplateBody].isAncestorOf(projectionType.actualElement)
-        case _ => false
       }
 
       if (!isSuitableParent(owners, parent)) {
