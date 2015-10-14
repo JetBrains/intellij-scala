@@ -304,8 +304,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     }
   }
 
-  def getTypeWithoutImplicits(ctx: TypingContext, //todo: remove TypingContext?
-                              ignoreBaseTypes: Boolean = false,
+  def getTypeWithoutImplicits(ignoreBaseTypes: Boolean = false,
                               fromUnderscore: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
     getTypeWithoutImplicitsImpl(ignoreBaseTypes, fromUnderscore)
