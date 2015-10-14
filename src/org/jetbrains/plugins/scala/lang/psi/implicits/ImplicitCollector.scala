@@ -37,7 +37,7 @@ object ImplicitCollector {
   val cache = new ConcurrentHashMap[(PsiElement, ScType), Seq[ScalaResolveResult]]()
 
   def exprType(expr: ScExpression, fromUnder: Boolean): Option[ScType] = {
-    expr.getTypeWithoutImplicits(TypingContext.empty, fromUnderscore = fromUnder).toOption.map {
+    expr.getTypeWithoutImplicits(fromUnderscore = fromUnder).toOption.map {
       case tp =>
         ScType.extractDesignatorSingletonType(tp) match {
           case Some(res) => res
