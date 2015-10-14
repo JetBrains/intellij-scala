@@ -19,6 +19,7 @@ object Dependencies {
   val sbtStructureExtractor013 = "org.jetbrains" % "sbt-structure-extractor-0-13" % sbtStructureVersion
   val sbtLaunch = "org.scala-sbt" % "sbt-launch" % "0.13.8"
 
+  val jamm = "com.github.jbellis" % "jamm" % "0.3.1"
   val scalaLibrary = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler = "org.scala-lang" % "scala-compiler" % scalaVersion
@@ -132,7 +133,8 @@ object DependencyGroups {
     scalaParserCombinators,
     sbtStructureCore,
     evoInflector,
-    scalatestFindersPatched
+    scalatestFindersPatched,
+    jamm
   ) ++ mavenIndexer ++ scalastyle
 
   val scalap = Seq(
