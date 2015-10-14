@@ -11,7 +11,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.CachesUtil
-import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, PsiParameterExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedMappedWithRecursionGuard
 
-import scala.collection.Seq
+import scala.collection.{Set, Seq}
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -50,6 +50,32 @@ object Compatibility {
       this.place = place
     }
 
+
+    @CachedMappedWithRecursionGuard(place, (Success(typez, None), Set.empty), PsiModificationTracker.MODIFICATION_COUNT)
+    private def eval(typez: ScType, expectedOption: Option[ScType]): (TypeResult[ScType], Set[ImportUsed]) = {
+      expectedOption match {
+        case Some(expected) if typez.conforms(expected) => (Success(typez, None), Set.empty)
+        case Some(expected) =>
+          val convertible = new ScImplicitlyConvertible(place, p => Some(typez))
+          val firstPart = convertible.implicitMapFirstPart(Some(expected), fromUnder = false, exprType = Some(typez))
+          var f: Seq[ImplicitResolveResult] =
+            firstPart.filter(_.tp.conforms(expected))
+          if (f.isEmpty) {
+            f = convertible.implicitMapSecondPart(Some(expected), fromUnder = false, exprType = Some(typez)).
+              filter(_.tp.conforms(expected))
+          }
+          if (f.length == 1) (Success(f.head.getTypeWithDependentSubstitutor, Some(place)), f.head.importUsed)
+          else if (f.isEmpty) (Success(typez, None), Set.empty)
+          else {
+            MostSpecificUtil(place, 1).mostSpecificForImplicit(f.toSet) match {
+              case Some(innerRes) => (Success(innerRes.getTypeWithDependentSubstitutor, Some(place)), innerRes.importUsed)
+              case None => (Success(typez, None), Set.empty)
+            }
+          }
+        case _ => (Success(typez, None), Set.empty)
+      }
+    }
+
     def getTypeAfterImplicitConversion(checkImplicits: Boolean, isShape: Boolean,
                                        expectedOption: Option[ScType]): (TypeResult[ScType], collection.Set[ImportUsed]) = {
       if (expr != null) {
@@ -58,38 +84,10 @@ object Compatibility {
       } else {
         import scala.collection.Set
 
-        def default: (Success[ScType], Set[ImportUsed]) = {
-          (Success(typez, None), Set.empty)
-        }
+        def default: (Success[ScType], Set[ImportUsed]) = (Success(typez, None), Set.empty)
 
-        if (isShape || !checkImplicits || place == null) return default
-
-        @CachedMappedWithRecursionGuard(place, CachesUtil.TYPE_OF_SPECIAL_EXPR_AFTER_IMPLICIT_KEY, default, PsiModificationTracker.MODIFICATION_COUNT)
-        def eval(typez: ScType, expectedOption: Option[ScType]): (TypeResult[ScType], Set[ImportUsed]) = {
-          expectedOption match {
-            case Some(expected) if typez.conforms(expected) => (Success(typez, None), Set.empty)
-            case Some(expected) =>
-              val convertible = new ScImplicitlyConvertible(place, p => Some(typez))
-              val firstPart = convertible.implicitMapFirstPart(Some(expected), fromUnder = false, exprType = Some(typez))
-              var f: Seq[ImplicitResolveResult] =
-                firstPart.filter(_.tp.conforms(expected))
-              if (f.isEmpty) {
-                f = convertible.implicitMapSecondPart(Some(expected), fromUnder = false, exprType = Some(typez)).
-                        filter(_.tp.conforms(expected))
-              }
-              if (f.length == 1) (Success(f.head.getTypeWithDependentSubstitutor, Some(place)), f.head.importUsed)
-              else if (f.isEmpty) (Success(typez, None), Set.empty)
-              else {
-                MostSpecificUtil(place, 1).mostSpecificForImplicit(f.toSet) match {
-                  case Some(innerRes) => (Success(innerRes.getTypeWithDependentSubstitutor, Some(place)), innerRes.importUsed)
-                  case None => (Success(typez, None), Set.empty)
-                }
-              }
-            case _ => (Success(typez, None), Set.empty)
-          }
-        }
-
-        eval(typez, expectedOption)
+        if (isShape || !checkImplicits || place == null) default
+        else eval(typez, expectedOption)
       }
     }
   }
