@@ -9,6 +9,6 @@ import scala.language.experimental.macros
  * Author: Svyatoslav Ilinskiy
  * Date: 9/23/15.
  */
-class CachedMappedWithRecursionGuard(psiElement: Any, key: Any, defaultValue: => Any, dependencyItem: Object) extends StaticAnnotation {
+class CachedMappedWithRecursionGuard(psiElement: Any, defaultValue: => Any, dependencyItem: Object) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro CachedMacro.cachedMappedWithRecursionGuardImpl
 }

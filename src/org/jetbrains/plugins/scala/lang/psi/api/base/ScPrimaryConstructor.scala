@@ -5,7 +5,6 @@ package api
 package base
 
 import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -50,7 +49,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
    *
    * In addition, view and context bounds generate an additional implicit parameter section.
    */
-  @CachedInsidePsiElement(this, CachesUtil.EFFECTIVE_PARAMETER_CLAUSE, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)
   def effectiveParameterClauses: Seq[ScParameterClause] = {
     def emptyParameterList: ScParameterClause =
       ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(getManager, parameterList)
