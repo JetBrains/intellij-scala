@@ -902,8 +902,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                 case _ =>
               }
             case param: ScParameter =>
-              // TODO detect if the expected type is abstract (SCL-3508), if not check conformance
-              return
+              if (!param.isDefaultParam) return //performance optimization
+              param.getRealParameterType() match {
+                case Success(paramType, _) if !paramType.isGenericType(Option(expr.getProject)) =>
+                //do not check generic types. See SCL-3508
+                case _ => return
+              }
             case ass: ScAssignStmt if ass.isNamedParameter => return //that's checked in application annotator
             case _ =>
           }

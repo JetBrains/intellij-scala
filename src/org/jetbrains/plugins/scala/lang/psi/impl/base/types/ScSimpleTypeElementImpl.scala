@@ -80,21 +80,20 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     }
 
     def getConstructorParams(constr: PsiMethod, subst: ScSubstitutor): (Seq[Seq[Parameter]], Boolean) = {
+
       constr match {
         case fun: ScFunction =>
           (fun.effectiveParameterClauses.map(_.effectiveParameters.map { p =>
             val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
-            new Parameter(p.name, p.deprecatedName,
-              paramType, paramType, p.isDefaultParam,
-              p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p))
+            new Parameter(p.name, p.deprecatedName, paramType, paramType, p.isDefaultParam,p.isRepeatedParameter,
+              p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.getType().toOption))
           }),
             fun.parameterList.clauses.lastOption.exists(_.isImplicit))
         case f: ScPrimaryConstructor =>
           (f.effectiveParameterClauses.map(_.effectiveParameters.map { p =>
             val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
-            new Parameter(p.name, p.deprecatedName,
-              paramType, paramType, p.isDefaultParam,
-              p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p))
+            new Parameter(p.name, p.deprecatedName, paramType, paramType, p.isDefaultParam, p.isRepeatedParameter,
+              p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.getType().toOption))
           }),
             f.parameterList.clauses.lastOption.exists(_.isImplicit))
         case m: PsiMethod =>
@@ -347,6 +346,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 }
 
 object ScSimpleTypeElementImpl {
+
   def calculateReferenceType(path: ScPathElement, shapesOnly: Boolean): TypeResult[ScType] = {
     path match {
       case ref: ScStableCodeReferenceElement => calculateReferenceType(ref, shapesOnly)

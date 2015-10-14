@@ -320,7 +320,9 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     }
     getTypeAfterImplicitConversion().tr
   }
+
   def getTypeIgnoreBaseType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = getTypeAfterImplicitConversion(ignoreBaseTypes = true).tr
+
   def getTypeExt(ctx: TypingContext = TypingContext.empty): ScExpression.ExpressionTypeResult = getTypeAfterImplicitConversion()
 
   def getShape(ignoreAssign: Boolean = false): (ScType, String) = {
