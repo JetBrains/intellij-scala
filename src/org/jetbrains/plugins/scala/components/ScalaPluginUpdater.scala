@@ -15,11 +15,11 @@ import com.intellij.openapi.application.impl.ApplicationInfoImpl
 import com.intellij.openapi.application.{ApplicationInfo, ApplicationManager}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.editor.event.{DocumentEvent, DocumentAdapter}
+import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent}
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.updateSettings.impl._
-import com.intellij.openapi.util.{SystemInfo, BuildNumber, JDOMUtil}
+import com.intellij.openapi.util.{BuildNumber, JDOMUtil, SystemInfo}
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.util.io.HttpRequests
 import com.intellij.util.io.HttpRequests.Request
@@ -279,7 +279,9 @@ object ScalaPluginUpdater {
     }
   }
 
-  def setupReporter() = {
+  def setupReporter(): Unit = {
+    if (ApplicationManager.getApplication.isUnitTestMode) return
+
     import com.intellij.openapi.editor.EditorFactory
     EditorFactory.getInstance().getEventMulticaster.addDocumentListener(updateListener)
   }
