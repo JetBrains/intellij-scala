@@ -11,7 +11,7 @@ class CachedInsidePsiElementTest extends CachedWithRecursionGuardTestBase {
 
   def testSimple(): Unit = {
     object Foo extends CachedMockPsiElement {
-      @CachedInsidePsiElement(this, CachedWithRecursionGuardTestBase.FAKE_KEY2, PsiModificationTracker.MODIFICATION_COUNT)
+      @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)
       def currentTime(): Long = System.currentTimeMillis()
     }
 
