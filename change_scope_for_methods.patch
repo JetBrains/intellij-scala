@@ -1,0 +1,77 @@
+Index: src/org/jetbrains/plugins/scala/lang/refactoring/introduceVariable/IntroduceTypeAlias.scala
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/org/jetbrains/plugins/scala/lang/refactoring/introduceVariable/IntroduceTypeAlias.scala	(revision 2404c5ad5ea82ff972458fefe2b300cb43392d35)
++++ src/org/jetbrains/plugins/scala/lang/refactoring/introduceVariable/IntroduceTypeAlias.scala	(revision )
+@@ -33,7 +33,7 @@
+ import org.jetbrains.plugins.scala.util.{JListCompatibility, ScalaUtils}
+ 
+ /**
+- * Created by user 
++ * Created by Kate Ustyuzhanina
+  * on 9/18/15
+  */
+ trait IntroduceTypeAlias {
+@@ -196,7 +196,7 @@
+     }
+   }
+ 
+-  def runRefactoringForTypeInside(file: PsiFile,
++  protected def runRefactoringForTypeInside(file: PsiFile,
+                                   editor: Editor,
+                                   typeElement: ScTypeElement,
+                                   typeName: String,
+@@ -259,7 +259,7 @@
+     editor.getSelectionModel.removeSelection()
+   }
+ 
+-  def introduceTypeAlias(file: PsiFile,
++  protected def introduceTypeAlias(file: PsiFile,
+                          editor: Editor,
+                          typeElement: ScTypeElement,
+                          occurrences_ : OccurrenceData,
+@@ -365,7 +365,7 @@
+     }).createPopup.showInBestPositionFor(editor)
+   }
+ 
+-  def createAndGetPackageObjectBody(typeElement: ScTypeElement): ScTemplateBody = {
++  protected def createAndGetPackageObjectBody(typeElement: ScTypeElement): ScTemplateBody = {
+     val dir: PsiDirectory = typeElement.getContainingFile.getContainingDirectory
+     val packageObject: ScTypeDefinition = ScalaDirectoryService.createClassFromTemplate(dir, "package", "Package Object", askToDefineVariables = false).asInstanceOf[ScTypeDefinition]
+     PsiTreeUtil.getChildOfType(PsiTreeUtil.getChildOfType(packageObject, classOf[ScExtendsBlock]), classOf[ScTemplateBody])
+Index: src/org/jetbrains/plugins/scala/lang/refactoring/introduceVariable/IntroduceExpressions.scala
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/org/jetbrains/plugins/scala/lang/refactoring/introduceVariable/IntroduceExpressions.scala	(revision 2404c5ad5ea82ff972458fefe2b300cb43392d35)
++++ src/org/jetbrains/plugins/scala/lang/refactoring/introduceVariable/IntroduceExpressions.scala	(revision )
+@@ -31,7 +31,7 @@
+ import org.jetbrains.plugins.scala.util.ScalaUtils
+ 
+ /**
+- * Created by user 
++ * Created by Kate Ustyuzhanina
+  * on 9/18/15
+  */
+ trait IntroduceExpressions {
+@@ -135,7 +135,7 @@
+   }
+ 
+   //returns smart pointer to ScDeclaredElementsHolder or ScEnumerator
+-  def runRefactoringInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression_ : ScExpression,
++  protected def runRefactoringInside(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression_ : ScExpression,
+                            occurrences_ : Array[TextRange], varName: String, varType: ScType,
+                            replaceAllOccurrences: Boolean, isVariable: Boolean): SmartPsiElementPointer[PsiElement] = {
+ 
+@@ -341,7 +341,7 @@
+     editor.getSelectionModel.removeSelection()
+   }
+ 
+-  def introduceVariable(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression: ScExpression,
++  protected def introduceVariable(startOffset: Int, endOffset: Int, file: PsiFile, editor: Editor, expression: ScExpression,
+                         occurrences_ : Array[TextRange], varName: String, varType: ScType,
+                         replaceAllOccurrences: Boolean, isVariable: Boolean): Computable[SmartPsiElementPointer[PsiElement]] = {
+ 
