@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.search.{GlobalSearchScope, GlobalSearchScopesCore, PsiSearchHelper}
@@ -15,11 +15,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
-import org.jetbrains.plugins.scala.lang.psi.types.{ScProjectionType, ScTypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.ScProjectionType
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util._
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 
+import scala.annotation.tailrec
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -42,21 +44,24 @@ object ScopeSuggester {
         PsiTreeUtil.getParentOfType(element, classOf[ScTemplateBody])
     }
 
+    def isSuitableParent(owners: Array[ScTypeParametersOwner], parent: PsiElement): Boolean = {
+      var result = true
+      for (elementOwner <- owners) {
+        val pparent = PsiTreeUtil.getParentOfType(parent, classOf[ScTemplateDefinition])
+        if (pparent != null && (!elementOwner.isAncestorOf(pparent) || !elementOwner.isInstanceOf[ScTemplateDefinition])) {
+          result = false
+        }
+      }
+      result
+    }
+
     val isScriptFile = currentElement.getContainingFile.asInstanceOf[ScalaFile].isScriptFile()
 
-    val isContainTypeParameter = ScalaRefactoringUtil.isTypeContainsTypeParameter(currentElement)
-    val elementOwner = PsiTreeUtil.getParentOfType(currentElement, classOf[ScTypeParametersOwner], true)
-    val isTypeAlias = ScalaRefactoringUtil.isTypeAlias(currentElement)
-
+    val owners = ScalaRefactoringUtil.getTypeParameterOwnerList(currentElement) ++ ScalaRefactoringUtil.getTypeAliasList(currentElement)
     var parent = getParent(currentElement, isScriptFile)
 
     //forbid to work with no template definition level
-    var noContinue = if ((isContainTypeParameter || isTypeAlias) && !elementOwner.isInstanceOf[ScTemplateDefinition]) {
-      true
-    } else {
-      false
-    }
-
+    var noContinue = owners.exists((value: PsiElement) => !value.isInstanceOf[ScTemplateDefinition])
     val result: ArrayBuffer[ScopeItem] = new ArrayBuffer[ScopeItem]()
     while (parent != null && !noContinue) {
       var occInCompanionObj: Array[ScTypeElement] = Array[ScTypeElement]()
@@ -77,14 +82,13 @@ object ScopeSuggester {
       //parent != null here
       //check can we use upper scope
       noContinue = currentElement.calcType match {
-        case projectionType: ScProjectionType
+        case projectionType: ScProjectionType =>
           //we can't use typeAlias outside scope where it was defined
-          if parent.asInstanceOf[ScTemplateBody].isAncestorOf(projectionType.actualElement) =>
-          true
+          parent.asInstanceOf[ScTemplateBody].isAncestorOf(projectionType.actualElement)
         case _ => false
       }
 
-      if (isContainTypeParameter && elementOwner.isAncestorOf(parent)) {
+      if (!isSuitableParent(owners, parent)) {
         noContinue = true
       }
 
@@ -101,7 +105,7 @@ object ScopeSuggester {
     val scPackage = PsiTreeUtil.getParentOfType(currentElement, classOf[ScPackaging])
 
     //forbid to use typeParameter type outside the class
-    if ((scPackage != null) && !currentElement.calcType.isInstanceOf[ScTypeParameterType] && !noContinue) {
+    if ((scPackage != null) && owners.isEmpty && !noContinue) {
       val allPackages = getAllAvailablePackages(scPackage.fullPackageName, currentElement)
       for (helpp <- allPackages) {
         result += PackageScopeItem(helpp._1.getQualifiedName, helpp._2, false, Array(NameSuggester.suggestNamesByType(currentElement.calcType).apply(0).capitalize))
@@ -141,47 +145,60 @@ object ScopeSuggester {
       result.toArray
     }
 
-    val dirContainingFile = getDirectoriesContainigfile(typeElement.getContainingFile)
-    val module = RunWorksheetAction.getModuleFor(typeElement.getContainingFile)
+    @tailrec
+    def getDirectoriesContainigFileAndPackage(currentPackage: PsiPackage,
+                                              module: Module,
+                                              result: ArrayBuffer[(PsiPackage, PsiDirectory)],
+                                              dirContainingFile: Array[PsiDirectory]): ArrayBuffer[(PsiPackage, PsiDirectory)] = {
 
-    val result: ArrayBuffer[(PsiPackage, PsiDirectory)] = new ArrayBuffer[(PsiPackage, PsiDirectory)]()
-    var currentPackage = ScPackageImpl.findPackage(typeElement.getProject, packageName).asInstanceOf[PsiPackage]
-    while (currentPackage != null && currentPackage.getName != null) {
-      val subPackages = currentPackage.getSubPackages(GlobalSearchScope.moduleScope(module))
-      val filesNoRecursive = currentPackage.getFiles(GlobalSearchScope.moduleScope(module))
+      if (currentPackage != null && currentPackage.getName != null) {
+        val subPackages = currentPackage.getSubPackages(GlobalSearchScope.moduleScope(module))
+        val filesNoRecursive = currentPackage.getFiles(GlobalSearchScope.moduleScope(module))
 
-      // don't choose package if ther is only one subpackage
-      if ((subPackages.length != 1) || filesNoRecursive.nonEmpty) {
-        val packageDirectories = currentPackage.getDirectories(GlobalSearchScope.moduleScope(module))
-        val containingDirectory = packageDirectories.intersect(dirContainingFile)
+        // don't choose package if ther is only one subpackage
+        if ((subPackages.length != 1) || filesNoRecursive.nonEmpty) {
+          val packageDirectories = currentPackage.getDirectories(GlobalSearchScope.moduleScope(module))
+          val containingDirectory = packageDirectories.intersect(dirContainingFile)
 
-        val resultDirectory: PsiDirectory = if (containingDirectory.length > 0) {
-          containingDirectory.apply(0)
-        } else {
-          typeElement.getContainingFile.getContainingDirectory
+          val resultDirectory: PsiDirectory = if (containingDirectory.length > 0) {
+            containingDirectory.apply(0)
+          } else {
+            typeElement.getContainingFile.getContainingDirectory
+          }
+
+          result += ((currentPackage, resultDirectory))
         }
-
-        result += ((currentPackage, resultDirectory))
+        getDirectoriesContainigFileAndPackage(currentPackage.getParentPackage, module, result, dirContainingFile)
+      } else {
+        result
       }
-
-      currentPackage = currentPackage.getParentPackage
     }
+
+    val currentPackage = ScPackageImpl.findPackage(typeElement.getProject, packageName).asInstanceOf[PsiPackage]
+    val directoriesContainingFile = getDirectoriesContainigfile(typeElement.getContainingFile)
+    val module = RunWorksheetAction.getModuleFor(typeElement.getContainingFile)
+    val result: ArrayBuffer[(PsiPackage, PsiDirectory)] = new ArrayBuffer[(PsiPackage, PsiDirectory)]()
+
+    getDirectoriesContainigFileAndPackage(currentPackage, module, result, directoriesContainingFile)
 
     result.toArray
   }
 
   def handleOnePackage(typeElement: ScTypeElement, inPackageName: String, containinDirectory: PsiDirectory,
                        conflictsReporter: ConflictsReporter, project: Project, editor: Editor, isReplaceAll: Boolean, inputName: String): PackageScopeItem = {
-    def getFilesToSearchIn(currentDirectory: PsiDirectory): Array[PsiFile] = {
+    def getFilesToSearchIn(currentDirectory: PsiDirectory): Array[ScalaFile] = {
       if (!isReplaceAll) {
-        Array(typeElement.getContainingFile)
+        Array(typeElement.getContainingFile.asInstanceOf[ScalaFile])
       } else {
-        def oneRound(word: String, bufResult: ArrayBuffer[ArrayBuffer[PsiFile]]) = {
-          val buffer = new ArrayBuffer[PsiFile]()
+        def oneRound(word: String, bufResult: ArrayBuffer[ArrayBuffer[ScalaFile]]) = {
+          val buffer = new ArrayBuffer[ScalaFile]()
 
           val processor = new Processor[PsiFile] {
             override def process(file: PsiFile): Boolean = {
-              buffer += file
+              file match {
+                case scalaFile: ScalaFile =>
+                  buffer += scalaFile
+              }
               true
             }
           }
@@ -193,18 +210,17 @@ object ScopeSuggester {
         }
 
         val typeName = typeElement.calcType.presentableText
-        var words = Array[String]()
-        words = StringUtil.getWordsIn(typeName).toArray(words)
+        val words = StringUtil.getWordsIn(typeName).asScala.toArray
 
-        val resultBuffer = new ArrayBuffer[ArrayBuffer[PsiFile]]()
+        val resultBuffer = new ArrayBuffer[ArrayBuffer[ScalaFile]]()
         words.foreach(oneRound(_, resultBuffer))
 
         var intersectionResult = resultBuffer(0)
-        def intersect(inBuffer: ArrayBuffer[PsiFile]) = {
+        def intersect(inBuffer: ArrayBuffer[ScalaFile]) = {
           intersectionResult = intersectionResult.intersect(inBuffer)
         }
 
-        resultBuffer.foreach((element: ArrayBuffer[PsiFile]) => intersect(element))
+        resultBuffer.foreach((element: ArrayBuffer[ScalaFile]) => intersect(element))
         intersectionResult.toList.reverse.toArray
       }
     }
@@ -221,8 +237,8 @@ object ScopeSuggester {
     val allOcurrences: mutable.MutableList[Array[ScTypeElement]] = mutable.MutableList()
     val allValidators: mutable.MutableList[ScalaTypeValidator] = mutable.MutableList()
 
-    def handleOneFile(file: PsiFile) {
-      if (packageObject.isDefined && packageObject.get.getContainingFile == file) {
+    def handleOneFile(file: ScalaFile) {
+      if (packageObject.exists((x: ScTypeDefinition) => x.getContainingFile == file)) {
       } else {
         val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, file)
         allOcurrences += occurrences
@@ -239,10 +255,9 @@ object ScopeSuggester {
 
     val collectedFiles = getFilesToSearchIn(containinDirectory)
 
-    var needNewDir = false
+    val needNewDir = inPackage.getDirectories.isEmpty
     // if we have no files in package, then we work with package in file
-    if (inPackage.getDirectories.isEmpty) {
-      needNewDir = true
+    if (needNewDir) {
       val classes = inPackage.getClasses
       for (clazz <- classes) {
         val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, clazz)
@@ -299,8 +314,11 @@ case class SimpleScopeItem(name: String,
   }
 
   def revalidate(newName: String): ScopeItem = {
-    val revalidatedOccurrences = usualOccurrencesRanges.map((x: (TextRange, PsiFile)) =>
-      PsiTreeUtil.findElementOfClassAtRange(x._2, x._1.getStartOffset, x._1.getEndOffset, classOf[ScTypeElement]))
+    val revalidatedOccurrences = usualOccurrencesRanges.map {
+      case (range, containigFile) =>
+        PsiTreeUtil.findElementOfClassAtRange(containigFile, range.getStartOffset, range.getEndOffset, classOf[ScTypeElement])
+    }
+
 
     val newNames = if ((newName == "") || availableNames.contains(newName)) {
       availableNames
@@ -313,15 +331,15 @@ case class SimpleScopeItem(name: String,
   }
 
   def isTrait: Boolean = {
-    name.substring(0, 5) == "trait"
+    name.startsWith("trait")
   }
 
   def isClass: Boolean = {
-    name.substring(0, 5) == "class"
+    name.startsWith("class")
   }
 
   def isObject: Boolean = {
-    name.substring(0, 6) == "object"
+    name.startsWith("object")
   }
 }
 
