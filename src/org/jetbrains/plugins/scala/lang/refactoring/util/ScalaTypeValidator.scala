@@ -55,26 +55,6 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
     buf.toArray
   }
 
-  //TODO maybe not the best way to handle with such matching
-  private def matchElement(element: PsiElement, name: String, buf: ArrayBuffer[(PsiNamedElement, String)]) = {
-    element.depthFirst.forall {
-      case typeAlias: ScTypeAlias if typeAlias.getName == name =>
-        buf += ((typeAlias, messageForTypeAliasMember(name)))
-        true
-      case typeParametr: ScTypeParam if typeParametr.getName == name =>
-        buf += ((typeParametr, messageForTypeAliasMember(name)))
-        true
-      case typeDefinition: ScTypeDefinition =>
-        if ((typeDefinition.getName == name) &&
-          (PsiTreeUtil.getParentOfType(typeDefinition, classOf[ScFunctionDefinition]) == null)) {
-          buf += ((typeDefinition, messageForClassMember(name)))
-        }
-        buf ++= getForbiddenNamesInBlock(typeDefinition, name)
-        true
-      case _ => true
-    }
-  }
-
   def getForbiddenNames(position: PsiElement, name: String) = {
     class FindTypeAliasProcessor extends BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
       val buf = new ArrayBuffer[(PsiNamedElement, String)]
@@ -102,11 +82,22 @@ class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
     processor.buf
   }
 
-  //find conflict in ALL child from current Parent recursively
   def getForbiddenNamesInBlock(commonParent: PsiElement, name: String): ArrayBuffer[(PsiNamedElement, String)] = {
     val buf = new ArrayBuffer[(PsiNamedElement, String)]
-    for (child <- commonParent.getChildren) {
-      matchElement(child, name, buf)
+    commonParent.depthFirst.foreach {
+      case typeAlias: ScTypeAlias if typeAlias.getName == name =>
+        buf += ((typeAlias, messageForTypeAliasMember(name)))
+        true
+      case typeParametr: ScTypeParam if typeParametr.getName == name =>
+        buf += ((typeParametr, messageForTypeAliasMember(name)))
+        true
+      case typeDefinition: ScTypeDefinition =>
+        if ((typeDefinition.getName == name) &&
+          (PsiTreeUtil.getParentOfType(typeDefinition, classOf[ScFunctionDefinition]) == null)) {
+          buf += ((typeDefinition, messageForClassMember(name)))
+        }
+        true
+      case _ => true
     }
     buf
   }
