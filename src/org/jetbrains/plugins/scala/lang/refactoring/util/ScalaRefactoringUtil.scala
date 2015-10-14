@@ -181,11 +181,6 @@ object ScalaRefactoringUtil {
     owners.toArray
   }
 
-  def getMinOwner(ownres: Array[ScTypeParametersOwner], currentFile: PsiFile): PsiElement = {
-    val filtered = ownres.filter((value: ScTypeParametersOwner) => value.getContainingFile == currentFile)
-    PsiTreeUtil.findCommonParent(filtered: _*)
-  }
-
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, Array[ScType])] = {
     val rangeText = file.getText.substring(startOffset, endOffset)
 
@@ -881,7 +876,7 @@ object ScalaRefactoringUtil {
     val parent = leaf.getParent
     parent match {
       case null =>
-      case ChildOf(pars @ ScParenthesisedExpr(inner)) if !ScalaPsiUtil.needParentheses(pars, inner) =>
+      case ChildOf(pars@ScParenthesisedExpr(inner)) if !ScalaPsiUtil.needParentheses(pars, inner) =>
         val textRange = pars.getTextRange
         val afterWord = textRange.getStartOffset > 0 && {
           val prevElemType = file.findElementAt(textRange.getStartOffset - 1).getNode.getElementType
