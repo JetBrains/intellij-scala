@@ -358,7 +358,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         val originalQName = NameTransformer.decode(refType.name)
         val qName =
           if (originalQName.endsWith(packageSuffix)) originalQName
-          else originalQName.takeWhile(_ != '$')
+          else originalQName.replace(packageSuffix, ".").takeWhile(_ != '$')
 
         if (!ScalaMacroDebuggingUtil.isEnabled)
           findClassByQualName(qName, originalQName.endsWith("$")).map(_.getNavigationElement.getContainingFile).orNull
@@ -489,7 +489,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       if (qName.endsWith(packageSuffix))
         Seq(cacheManager.getPackageObjectByName(qName.stripSuffix(packageSuffix), GlobalSearchScope.allScope(project)))
       else
-        cacheManager.getClassesByFQName(qName, debugProcess.getSearchScope)
+        cacheManager.getClassesByFQName(qName.replace(packageSuffix, "."), debugProcess.getSearchScope)
 
     val clazz =
       if (classes.length == 1) classes.headOption
@@ -507,7 +507,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val withoutSuffix =
       if (endsWithPackageSuffix) originalQName.stripSuffix(packageSuffix)
       else originalQName.stripSuffix("$").stripSuffix("$class")
-    val withDots = withoutSuffix.replace('$', '.')
+    val withDots = withoutSuffix.replace(packageSuffix, ".").replace('$', '.')
     val transformed = if (endsWithPackageSuffix) withDots + packageSuffix else withDots
 
     findClassByQualName(transformed, originalQName.endsWith("$"))
@@ -528,7 +528,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val originalQName = NameTransformer.decode(refType.name)
     val withoutSuffix =
       if (originalQName.endsWith(packageSuffix)) originalQName
-      else originalQName.stripSuffix("$").stripSuffix("$class")
+      else originalQName.replace(packageSuffix, ".").stripSuffix("$").stripSuffix("$class")
     val lastDollar = withoutSuffix.lastIndexOf('$')
     val lastDot = withoutSuffix.lastIndexOf('.')
     val index = Seq(lastDollar, lastDot, 0).max + 1
