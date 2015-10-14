@@ -78,6 +78,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     res.myDependentMethodTypes = myDependentMethodTypes
     res
   }
+
   def bindA(name: String, f: () => ScType) = {
     val res = new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](f))), updateThisType, follower)
     res.myDependentMethodTypesFun = myDependentMethodTypesFun
@@ -85,6 +86,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     res.myDependentMethodTypes = myDependentMethodTypes
     res
   }
+
   def addUpdateThisType(tp: ScType): ScSubstitutor = {
     tp match {
       case ScThisType(template) =>
@@ -165,7 +167,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         val ScMethodType(retType, params, isImplicit) = m
         result = new ScMethodType(substInternal(retType),
           params.map(p => p.copy(paramType = substInternal(p.paramType),
-            expectedType = substInternal(p.expectedType))), isImplicit)(m.project, m.scope)
+            expectedType = substInternal(p.expectedType), defaultType = p.defaultType.map(substInternal))), isImplicit)(m.project, m.scope)
       }
 
       override def visitUndefinedType(u: ScUndefinedType): Unit = {
@@ -442,6 +444,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
                              val lowerMap: Map[(String, String), HashSet[ScType]] = HashMap.empty,
                              val upperAdditionalMap: Map[(String, String), HashSet[ScType]] = HashMap.empty,
                              val lowerAdditionalMap: Map[(String, String), HashSet[ScType]] = HashMap.empty) {
+
   def copy(upperMap: Map[(String, String), HashSet[ScType]] = upperMap,
            lowerMap: Map[(String, String), HashSet[ScType]] = lowerMap,
            upperAdditionalMap: Map[(String, String), HashSet[ScType]] = upperAdditionalMap,
