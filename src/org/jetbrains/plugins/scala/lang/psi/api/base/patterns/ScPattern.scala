@@ -7,7 +7,6 @@ package patterns
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -173,7 +172,7 @@ trait ScPattern extends ScalaPsiElement {
               }
             }
             if (subst.subst(rt).equiv(lang.psi.types.Boolean)) return None
-            val args = ScPattern.extractorParameters(subst.subst(rt), this, ScPattern.isOneArgCaseClassMethod(fun))
+            val args = ScPattern.extractorParameters(rt, this, ScPattern.isOneArgCaseClassMethod(fun))
             if (i < args.length) return Some(updateRes(subst.subst(args(i)).unpackedType))
             else return None
           case _ =>
@@ -221,7 +220,7 @@ trait ScPattern extends ScalaPsiElement {
     }
   }
 
-  @CachedInsidePsiElement(this, CachesUtil.PATTERN_EXPECTED_TYPE, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)
   def expectedType: Option[ScType] = getContext match {
     case list : ScPatternList => list.getContext match {
       case _var : ScVariable => Some(_var.getType(TypingContext.empty) match {

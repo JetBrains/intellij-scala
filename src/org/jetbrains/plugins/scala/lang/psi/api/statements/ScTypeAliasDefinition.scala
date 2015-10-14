@@ -6,7 +6,6 @@ package statements
 
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.{PsiClass, PsiElement}
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -39,7 +38,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
     }
   }
 
-  @CachedInsidePsiElement(this, CachesUtil.ALIASED_KEY, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)
   def aliasedType: TypeResult[ScType] = aliasedType(TypingContext.empty)
 
   def lowerBound: TypeResult[ScType] = aliasedType(TypingContext.empty)
