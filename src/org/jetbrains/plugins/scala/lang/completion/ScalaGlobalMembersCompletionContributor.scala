@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 
@@ -56,7 +55,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
                   return
               }
           }
-          val typeWithoutImplicits = qualifier.getTypeWithoutImplicits(TypingContext.empty)
+          val typeWithoutImplicits = qualifier.getTypeWithoutImplicits()
           if (typeWithoutImplicits.isEmpty) return
           val tp = typeWithoutImplicits.get
           completeImplicits(ref, result, parameters.getOriginalFile, tp)
