@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPolymorphicElement, 
  * @author Alexander Podkhalyuzin
  */
 
-trait ScTypeParam extends ScalaPsiElement with ScPolymorphicElement with PsiTypeParameter {
+trait ScTypeParam extends ScalaPsiElement with ScPolymorphicElement with PsiTypeParameter with ScAnnotationsHolder {
   import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam._
 
   def isCovariant: Boolean

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.macroAnnotations
 
 import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuardTestBase._
 import org.junit.Assert
 
 /**
@@ -11,7 +10,7 @@ import org.junit.Assert
 class CachedWithRecursionGuardTest extends CachedWithRecursionGuardTestBase{
   def testSimple(): Unit = {
     class Elem extends CachedMockPsiElement {
-      @CachedWithRecursionGuard[Elem](this, FAKE_KEY3, Right("Failure"), PsiModificationTracker.MODIFICATION_COUNT)
+      @CachedWithRecursionGuard[Elem](this, Right("Failure"), PsiModificationTracker.MODIFICATION_COUNT)
       def recursiveFunction(d: Option[Int], depth: Int = 0): Either[Long, String] = {
         d match {
           case Some(l) => Right(l.toString)

@@ -24,7 +24,6 @@ import com.intellij.psi.util.{PsiModificationTracker, PsiUtilCore}
 import com.intellij.util.Processor
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.decompiler.{CompiledFileAdjuster, DecompilerUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -181,12 +180,12 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
   def isScriptFile: Boolean = isScriptFile(withCaching = true)
 
-  def isScriptFile(withCaching: Boolean): Boolean = {
-    @CachedInsidePsiElement(this, CachesUtil.IS_SCRIPT_FILE_KEY, this)
-    def cached(): Boolean = isScriptFileImpl
+  @CachedInsidePsiElement(this, this)
+  private def isScriptFileCached: Boolean = isScriptFileImpl
 
+  def isScriptFile(withCaching: Boolean): Boolean = {
     if (!withCaching) isScriptFileImpl
-    else cached()
+    else isScriptFileCached
   }
 
   def isWorksheetFile: Boolean = {
@@ -370,7 +369,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
   def icon = Icons.FILE_TYPE_LOGO
 
-  @CachedInsidePsiElement(this, CachesUtil.SCALA_PREDEFINED_KEY, PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
   protected def isScalaPredefinedClass: Boolean = {
     typeDefinitions.length == 1 && Set("scala", "scala.Predef").contains(typeDefinitions.head.qualifiedName)
   }

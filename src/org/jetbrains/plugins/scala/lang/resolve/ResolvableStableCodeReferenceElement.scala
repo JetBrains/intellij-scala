@@ -6,7 +6,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
@@ -51,13 +50,12 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
           res
         }
       case _=>
-        @CachedMappedWithRecursionGuard(this, CachesUtil.RESOLVE_KEY, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
-        def innerCached(incomplete: Boolean): Array[ResolveResult] = Resolver.resolve(this, incomplete)
-
-        innerCached(incomplete)
+        multiResolveCached(incomplete)
     }
-
   }
+
+  @CachedMappedWithRecursionGuard(this, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
+  private def multiResolveCached(incomplete: Boolean): Array[ResolveResult] = Resolver.resolve(this, incomplete)
 
   protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement) {
     res match {
@@ -227,42 +225,39 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     }
   }
 
+  @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
+  private def resolveNoConstructorImpl(): Array[ResolveResult] = NoConstructorResolver.resolve(this, incomplete = false)
+
   def resolveNoConstructor: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, CachesUtil.NO_CONSTRUCTOR_RESOLVE_KEY,
-      EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
-    def inner(): Array[ResolveResult] = NoConstructorResolver.resolve(this, incomplete = false)
-
-    inner()
+    resolveNoConstructorImpl()
   }
+
+  @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
+  private def resolveAllConstructorsImpl(): Array[ResolveResult] = ResolverAllConstructors.resolve(this, incomplete = false)
 
   def resolveAllConstructors: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, CachesUtil.REF_ELEMENT_RESOLVE_CONSTR_KEY,
-      EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
-    def inner(): Array[ResolveResult] = ResolverAllConstructors.resolve(this, incomplete = false)
-
-    inner()
+    resolveAllConstructorsImpl()
   }
+
+
+  @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
+  private def shapeResolveImpl(): Array[ResolveResult] = ShapesResolver.resolve(this, incomplete = false)
 
   def shapeResolve: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
 
-    @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_KEY,
-      EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
-    def inner(): Array[ResolveResult] = ShapesResolver.resolve(this, incomplete = false)
-
-    inner()
+    shapeResolveImpl()
   }
+
+
+  @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
+  private def shapeResolveConstrImpl(): Array[ResolveResult] = ShapesResolverAllConstructors.resolve(this, incomplete = false)
 
   def shapeResolveConstr: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-
-    @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY,
-      EMPTY_ARRAY, PsiModificationTracker.MODIFICATION_COUNT)
-    def inner(): Array[ResolveResult] = ShapesResolverAllConstructors.resolve(this, incomplete = false)
-
-    inner()
+    shapeResolveConstrImpl()
   }
 }
 

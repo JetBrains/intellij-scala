@@ -60,7 +60,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   with AssignmentAnnotator with VariableDefinitionAnnotator
   with TypedStatementAnnotator with PatternDefinitionAnnotator
   with PatternAnnotator with ConstructorAnnotator
-  with OverridingAnnotator with DumbAware {
+  with OverridingAnnotator with ValueClassAnnotator with DumbAware {
 
   override def annotate(element: PsiElement, holder: AnnotationHolder) {
     val typeAware = isAdvancedHighlightingEnabled(element)
@@ -380,6 +380,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         }
         super.visitClassParameter(parameter)
       }
+
+      override def visitClass(cl: ScClass): Unit = {
+        if (typeAware && ValueClassType.isValueClass(cl)) annotateValueClass(cl, holder)
+        super.visitClass(cl)
+      }
     }
     annotateScope(element, holder)
     element.accept(visitor)
@@ -389,7 +394,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       case templateDefinition: ScTemplateDefinition =>
         checkBoundsVariance(templateDefinition, holder, templateDefinition.nameId, templateDefinition.nameId, ScTypeParam.Covariant)
         val tdParts = Seq(AbstractInstantiation, FinalClassInheritance, IllegalInheritance, ObjectCreationImpossible,
-          MultipleInheritance, NeedsToBeAbstract, NeedsToBeMixin, NeedsToBeTrait, SealedClassInheritance, UndefinedMember)
+          MultipleInheritance, NeedsToBeAbstract, NeedsToBeMixin, NeedsToBeTrait, SealedClassInheritance, UndefinedMember,
+          ValueClassInheritance)
         tdParts.foreach(_.annotate(templateDefinition, holder, typeAware))
         templateDefinition match {
           case cls: ScClass =>
@@ -902,8 +908,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                 case _ =>
               }
             case param: ScParameter =>
-              // TODO detect if the expected type is abstract (SCL-3508), if not check conformance
-              return
+              if (!param.isDefaultParam) return //performance optimization
+              param.getRealParameterType() match {
+                case Success(paramType, _) if !paramType.isGenericType(Option(expr.getProject)) =>
+                //do not check generic types. See SCL-3508
+                case _ => return
+              }
             case ass: ScAssignStmt if ass.isNamedParameter => return //that's checked in application annotator
             case _ =>
           }

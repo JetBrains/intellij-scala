@@ -11,7 +11,6 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -77,7 +76,7 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
     res
   }
 
-  @CachedInsidePsiElement(this, CachesUtil.EXTENDS_BLOCK_SUPER_TYPES_KEY, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)
   def superTypes: List[ScType] = {
     val buffer = new ListBuffer[ScType]
     def addType(t: ScType) {
@@ -182,7 +181,7 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
     }
   }
 
-  @CachedInsidePsiElement(this, CachesUtil.EXTENDS_BLOCK_SUPERS_KEY, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)
   def supers: Seq[PsiClass] = {
     val buffer = new ListBuffer[PsiClass]
     def addClass(t: PsiClass) {

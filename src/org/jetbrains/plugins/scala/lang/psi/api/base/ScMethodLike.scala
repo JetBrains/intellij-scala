@@ -6,7 +6,6 @@ package base
 
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -28,7 +27,7 @@ trait ScMethodLike extends ScMember with PsiMethod {
    * in that context it will have different meaning. See SCL-3095.
    * @return generated type parameters only for constructors
    */
-  @CachedInsidePsiElement(this, CachesUtil.CONSTRUCTOR_TYPE_PARAMETERS_KEY, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)
   def getConstructorTypeParameters: Option[ScTypeParamClause] = {
     this match {
       case method: PsiMethod if method.isConstructor =>

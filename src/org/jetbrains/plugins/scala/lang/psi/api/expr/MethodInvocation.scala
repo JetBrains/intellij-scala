@@ -15,8 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, types}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
-import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
+import org.jetbrains.plugins.scala.project._
 
 /**
  * Pavel Fatin, Alexander Podkhalyuzin.

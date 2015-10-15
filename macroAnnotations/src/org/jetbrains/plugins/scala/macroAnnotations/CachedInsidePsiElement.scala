@@ -9,6 +9,6 @@ import scala.language.experimental.macros
  * Author: Svyatoslav Ilinskiy
  * Date: 9/25/15.
  */
-class CachedInsidePsiElement(psiElement: Any, key: Any, dependencyItem: Object, useOptionalProvider: Boolean = false) extends StaticAnnotation {
+class CachedInsidePsiElement(psiElement: Any, dependencyItem: Object, useOptionalProvider: Boolean = false) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro CachedMacro.cachedInsidePsiElementImpl
 }
