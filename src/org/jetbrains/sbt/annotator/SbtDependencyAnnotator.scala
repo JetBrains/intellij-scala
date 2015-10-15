@@ -24,54 +24,56 @@ class SbtDependencyAnnotator extends Annotator {
 
     if (ScalaPsiUtil.fileContext(element).getFileType.getName != Sbt.Name) return
 
-    val scalaVersion = element.scalaLanguageLevel.map(_.version)
+    def findDependencyOrAnnotate(info: ArtifactInfo): Unit = {
+      val resolversToUse = SbtResolverUtils.getProjectResolvers(Option(ScalaPsiUtil.fileContext(element)))
+      val indexManager = SbtResolverIndexesManager()
+      val indexes = resolversToUse.flatMap(indexManager.find).toSet
+      if (indexes.isEmpty) return
 
-    def isValidOperation(op: ScReferenceExpression) = op.getText == "%" || op.getText == "%%"
-
-    def extractInfo(from: PsiElement): Option[ArtifactInfo] =
-      for {
-        ScInfixExpr(lexpr, _, rOp)     <- Option(from)
-        ScInfixExpr(llOp, oper, lrOp)  <- Option(lexpr)
-        ScLiteralImpl.string(version)  <- Option(rOp)
-        ScLiteralImpl.string(group)    <- Option(llOp)
-        ScLiteralImpl.string(artifact) <- Option(lrOp)
-        appendScalaVersion = oper.getText == "%%"
-      } yield {
-        if (appendScalaVersion && scalaVersion.isDefined)
-          ArtifactInfo(group, artifact + "_" + scalaVersion.get, version)
-        else
-          ArtifactInfo(group, artifact, version)
+      val isInRepo = indexes.exists(_.versions(info.group, info.artifact).contains(info.version))
+      if (!isInRepo) {
+        val annotation = holder.createErrorAnnotation(element, SbtBundle("sbt.annotation.unresolvedDependency"))
+        annotation.registerFix(new SbtUpdateResolverIndexesQuickFix)
+        annotation.registerFix(new SbtRefreshProjectQuickFix)
       }
-
-    def doAnnotate(info: Option[ArtifactInfo]): Unit = info match {
-      case Some(ArtifactInfo(group, artifact, version)) =>
-        val resolversToUse = SbtResolverUtils.getProjectResolvers(Option(ScalaPsiUtil.fileContext(element)))
-        val indexManager = SbtResolverIndexesManager()
-        val indexes = resolversToUse.flatMap(indexManager.find).toSet
-        if (indexes.isEmpty) return
-
-        val isInRepo = indexes.map { index =>
-          index.versions(group, artifact).contains(version)
-        }.fold(false) { (a,b) => a || b }
-        if (!isInRepo) {
-          val annotation = holder.createErrorAnnotation(element, SbtBundle("sbt.annotation.unresolvedDependency"))
-          annotation.registerFix(new SbtUpdateResolverIndexesQuickFix)
-          annotation.registerFix(new SbtRefreshProjectQuickFix)
-        }
-      case _ => // do nothing
     }
 
     for {
-      lit@ScLiteral(_) <- Option(element)
-      parentExpr@ScInfixExpr(lOp, operation, _) <- Option(lit.getParent)
-      if isValidOperation(operation)
-    } yield lOp match {
+      literal@ScLiteral(_) <- Option(element)
+      parentExpr@ScInfixExpr(leftPart, operation, _) <- Option(literal.getParent)
+      if isOneOrTwoPercents(operation)
+    } yield leftPart match {
       case _: ScLiteral =>
-        doAnnotate(extractInfo(parentExpr.getParent))
-      case leftExp: ScInfixExpr if isValidOperation(leftExp.operation) =>
-        doAnnotate(extractInfo(parentExpr))
+        extractArtifactInfo(parentExpr.getParent).foreach(findDependencyOrAnnotate)
+      case leftExp: ScInfixExpr if isOneOrTwoPercents(leftExp.operation) =>
+        extractArtifactInfo(parentExpr).foreach(findDependencyOrAnnotate)
       case _ => // do nothing
     }
   }
+
+
+  private def isOneOrTwoPercents(op: ScReferenceExpression) =
+    op.getText == "%" || op.getText == "%%"
+
+  private def extractArtifactInfo(from: PsiElement): Option[ArtifactInfo] = {
+    val scalaVersion = from.scalaLanguageLevel.map(_.version)
+    for {
+      ScInfixExpr(leftPart, _, maybeVersion) <- Option(from)
+      ScInfixExpr(maybeGroup, maybePercents, maybeArtifact) <- Option(leftPart)
+      ScLiteralImpl.string(version) <- Option(maybeVersion)
+      ScLiteralImpl.string(group) <- Option(maybeGroup)
+      ScLiteralImpl.string(artifact) <- Option(maybeArtifact)
+      shouldAppendScalaVersion = maybePercents.getText == "%%"
+      if isNotDynamicVersion(version)
+    } yield {
+      if (shouldAppendScalaVersion && scalaVersion.isDefined)
+        ArtifactInfo(group, artifact + "_" + scalaVersion.get, version)
+      else
+        ArtifactInfo(group, artifact, version)
+    }
+  }
+
+  private def isNotDynamicVersion(version: String): Boolean =
+    !(version.startsWith("latest") || version.endsWith("+") || "[]()".exists(version.contains(_)))
 }
 
