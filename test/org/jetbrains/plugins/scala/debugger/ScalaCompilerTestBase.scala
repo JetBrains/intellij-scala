@@ -95,6 +95,8 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
       Option(new File(path))
         .filter(_.exists())
         .flatMap(_.listFiles()
+          .sortBy(_.getName)
+          .reverse
           .find(f => f.getName.contains(suffix) && isJDK(new File(f, postfix)))
           .map(new File(_, s"$postfix/jre").getAbsolutePath)
         )
