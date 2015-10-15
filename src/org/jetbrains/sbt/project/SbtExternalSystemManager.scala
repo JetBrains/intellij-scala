@@ -87,7 +87,8 @@ object SbtExternalSystemManager {
     val vmOptions = getVmOptions(settings)
     val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
 
-    new SbtExecutionSettings(vmExecutable, vmOptions, environment, customLauncher, customSbtStructureDir, projectJdkName,
+    new SbtExecutionSettings(projectSettings.getExternalProjectPath,
+      vmExecutable, vmOptions, environment, customLauncher, customSbtStructureDir, projectJdkName,
       projectSettings.resolveClassifiers, projectSettings.resolveSbtClassifiers, projectSettings.cachedUpdate)
   }
 
@@ -100,9 +101,9 @@ object SbtExternalSystemManager {
       if (!ApplicationManager.getApplication.isUnitTestMode)
         getRealVmExecutable(projectJdkName, settings)
       else
-        getUnitTestVmExecutable()
+        getUnitTestVmExecutable
 
-  private def getUnitTestVmExecutable(): File = {
+  private def getUnitTestVmExecutable: File = {
     val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
     val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk17 else internalSdk
     val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
@@ -132,9 +133,8 @@ object SbtExternalSystemManager {
     projectJdkName
       .flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
       .flatMap { sdk =>
-        val sdkType = sdk.getSdkType
         try {
-          sdkType.isInstanceOf[AndroidSdkType].option(Map("ANDROID_HOME" -> sdk.getSdkModificator.getHomePath))
+          sdk.getSdkType.isInstanceOf[AndroidSdkType].option(Map("ANDROID_HOME" -> sdk.getSdkModificator.getHomePath))
         } catch {
           case _ : NoClassDefFoundError => None
         }
