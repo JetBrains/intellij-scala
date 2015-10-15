@@ -15,7 +15,7 @@ import com.intellij.openapi.editor.colors.EditorColors
 import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea, RangeHighlighter, TextAttributes}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.{JBPopupAdapter, JBPopupFactory, LightweightWindowEvent}
-import com.intellij.openapi.util.{Key, Computable}
+import com.intellij.openapi.util.{Computable, Key}
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
@@ -52,16 +52,16 @@ trait IntroduceTypeAlias {
       val typeElement: ScTypeElement = ScalaRefactoringUtil.checkTypeElement(inTypeElement).
         getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.valid.type"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME))
 
+      val currentDataObject = editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO)
 
-      if (editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).possibleScopes == null) {
-        editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).setPossibleScopes(ScopeSuggester.suggestScopes(this, project, editor, file, typeElement))
+      if (currentDataObject.possibleScopes == null) {
+        currentDataObject.setPossibleScopes(ScopeSuggester.suggestScopes(this, project, editor, file, typeElement))
       }
 
-      if (editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).possibleScopes.isEmpty) {
+      if (currentDataObject.possibleScopes.isEmpty) {
         showErrorMessage(ScalaBundle.message("cannot.refactor.scope.not.found"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
       }
 
-      val currentDataObject = editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO)
 
       def runWithDialog(fromInplace: Boolean, mainScope: ScopeItem, enteredName: String = "") {
         val typeElementHelper = if (fromInplace && mainScope.isInstanceOf[SimpleScopeItem]) {
@@ -172,10 +172,10 @@ trait IntroduceTypeAlias {
             templateState.cancelTemplate()
           }
 
-          val enteredName = editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).getNamedElement.getName
+          val enteredName = currentDataObject.getNamedElement.getName
           ScalaInplaceTypeAliasIntroducer.revertState(editor, currentDataObject.currentScope, currentDataObject.getNamedElement)
 
-          runWithDialog(fromInplace = true, editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).currentScope, enteredName)
+          runWithDialog(fromInplace = true, currentDataObject.currentScope, enteredName)
 //          editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).clearData()
         } else {
           currentDataObject.setInintialInfo(inTypeElement.getTextRange)
