@@ -43,7 +43,7 @@ object ScopeSuggester {
         PsiTreeUtil.getParentOfType(element, classOf[ScTemplateBody])
     }
 
-    def isSuitableParent(owners: Array[ScTypeParametersOwner], parent: PsiElement): Boolean = {
+    def isSuitableParent(owners: Seq[ScTypeParametersOwner], parent: PsiElement): Boolean = {
       var result = true
       for (elementOwner <- owners) {
         val pparent = PsiTreeUtil.getParentOfType(parent, classOf[ScTemplateDefinition])
@@ -56,11 +56,11 @@ object ScopeSuggester {
 
     val isScriptFile = currentElement.getContainingFile.asInstanceOf[ScalaFile].isScriptFile()
 
-    val owners = ScalaRefactoringUtil.getTypeParameterOwnerList(currentElement) ++ ScalaRefactoringUtil.getTypeAliasList(currentElement)
+    val owners = ScalaRefactoringUtil.getTypeParameterOwnerList(currentElement) ++ ScalaRefactoringUtil.getTypeAliasOwnersList(currentElement)
     var parent = getParent(currentElement, isScriptFile)
 
     //forbid to work with no template definition level
-    var noContinue = owners.exists((value: PsiElement) => !value.isInstanceOf[ScTemplateDefinition])
+    var noContinue = owners.exists(!_.isInstanceOf[ScTemplateDefinition])
     val result: ArrayBuffer[ScopeItem] = new ArrayBuffer[ScopeItem]()
     while (parent != null && !noContinue) {
       var occInCompanionObj: Array[ScTypeElement] = Array[ScTypeElement]()
@@ -86,7 +86,7 @@ object ScopeSuggester {
       val validator = ScalaTypeValidator(conflictsReporter, project, editor, file, currentElement, parent, occurrences.isEmpty)
 
       val possibleNames = NameSuggester.suggestNamesByType(currentElement.calcType)
-        .map((value: String) => validator.validateName(value, increaseNumber = true))
+        .map(validator.validateName(_, increaseNumber = true))
 
       result += SimpleScopeItem(name, parent, occurrences, occInCompanionObj, validator, possibleNames.toArray)
       parent = getParent(parent, isScriptFile)
@@ -97,8 +97,8 @@ object ScopeSuggester {
     //forbid to use typeParameter type outside the class
     if ((scPackage != null) && owners.isEmpty && !noContinue) {
       val allPackages = getAllAvailablePackages(scPackage.fullPackageName, currentElement)
-      for (helpp <- allPackages) {
-        result += PackageScopeItem(helpp._1.getQualifiedName, helpp._2, false, Array(NameSuggester.suggestNamesByType(currentElement.calcType).apply(0).capitalize))
+      for ((resultPackage, resultDirectory) <- allPackages) {
+        result += PackageScopeItem(resultPackage.getQualifiedName, resultDirectory, false, Array(NameSuggester.suggestNamesByType(currentElement.calcType).apply(0).capitalize))
       }
     }
 

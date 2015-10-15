@@ -141,7 +141,7 @@ object ScalaRefactoringUtil {
 
   def getOwner(typeElement: PsiElement) = PsiTreeUtil.getParentOfType(typeElement, classOf[ScTypeParametersOwner], true)
 
-  def getTypeParameterOwnerList(typeElement: ScTypeElement): Array[ScTypeParametersOwner] = {
+  def getTypeParameterOwnerList(typeElement: ScTypeElement): Seq[ScTypeParametersOwner] = {
     val ownersArray: ArrayBuffer[ScTypeParametersOwner] = new ArrayBuffer[ScTypeParametersOwner]()
     typeElement.breadthFirst.foreach {
       case x: ScTypeElement if x.calcType.isInstanceOf[ScTypeParameterType] =>
@@ -151,10 +151,10 @@ object ScalaRefactoringUtil {
         }
       case _ =>
     }
-    ownersArray.toArray
+    ownersArray.toSeq
   }
 
-  def getTypeAliasList(typeElement: ScTypeElement): Array[ScTypeParametersOwner] = {
+  def getTypeAliasOwnersList(typeElement: ScTypeElement): Seq[ScTypeParametersOwner] = {
     def getTypeAlias(typeElement: ScTypeElement): ScTypeAlias = {
       val firstChild = typeElement.getFirstChild
       firstChild match {
@@ -168,17 +168,21 @@ object ScalaRefactoringUtil {
       }
     }
 
-    val ownersArray: ArrayBuffer[ScTypeAlias] = new ArrayBuffer[ScTypeAlias]()
+    val ownersArray: ArrayBuffer[ScTypeParametersOwner] = new ArrayBuffer[ScTypeParametersOwner]()
     typeElement.breadthFirst.foreach {
       case te: ScTypeElement =>
         val ta = getTypeAlias(te)
-        if (ta != null)
-          ownersArray += ta
+        if (ta != null) {
+          val owner = getOwner(ta)
+          if (owner != null) {
+            ownersArray += owner
+          }
+        }
+
       case _ => false
     }
 
-    val owners = ownersArray.map(getOwner)
-    owners.toArray
+    ownersArray.toSeq
   }
 
   def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, Array[ScType])] = {
