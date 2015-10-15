@@ -41,6 +41,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
                              var noImplicitsForArgs: Boolean = false,
                              val selfConstructorResolve: Boolean = false,
                              val isDynamic: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
+
   private def isUpdate: Boolean = {
     if (ref == null) return false
     ref.getContext match {
@@ -252,8 +253,8 @@ object MethodResolveProcessor {
     }
 
     def constructorCompatibility(constr: ScMethodLike with PsiNamedElement): ConformanceExtResult = {
-      val classTypeParmeters: Seq[ScTypeParam] = constr.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq())
-      if (typeArgElements.isEmpty || typeArgElements.length == classTypeParmeters.length) {
+      val classTypeParameters: Seq[ScTypeParam] = constr.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq())
+      if (typeArgElements.isEmpty || typeArgElements.length == classTypeParameters.length) {
         val result = 
           Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits, 
             ref.getResolveScope, isShapeResolve)

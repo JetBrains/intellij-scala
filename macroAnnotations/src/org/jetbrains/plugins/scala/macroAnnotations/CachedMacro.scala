@@ -40,7 +40,7 @@ object CachedMacro {
 
     //todo: caching two overloaded functions
     annottees.toList match {
-      case d@DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
+      case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
         if (retTp.isEmpty) {
           abort("You must specify return type")
         }
@@ -106,30 +106,33 @@ object CachedMacro {
     def abort(s: String) = c.abort(c.enclosingPosition, s)
 
     annottees.toList match {
-      case d@DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
+      case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
         if (retTp.isEmpty) {
           abort("You must specify return type")
         }
 
         val (annotationParameters: List[Tree], dom) = c.prefix.tree match {
-          case q"new CachedMappedWithRecursionGuard(..$params)" if params.length == 4 => (params, tq"com.intellij.psi.PsiElement")
+          case q"new CachedMappedWithRecursionGuard(..$params)" if params.length == 3 => (params, tq"com.intellij.psi.PsiElement")
           case _ => abort("Wrong annotation parameters!")
         }
         val flatParams = paramss.flatten
         val parameterTypes = flatParams.map(_.tpt)
         val parameterNames: List[c.universe.TermName] = flatParams.map(_.name)
         val cachesUtilFQN = q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil"
-        val key = annotationParameters(1)
         val cachedFunName = TermName(c.freshName("cachedFun"))
         val dataName = TermName(c.freshName("data"))
         val dataTypeName = TypeName(c.freshName("Data"))
         val parameterDefinitions: List[c.universe.Tree] = flatParams match {
-          case List(param) => List(ValDef(NoMods, param.name, param.tpt, q"$dataName"))
+          case param :: Nil => List(ValDef(NoMods, param.name, param.tpt, q"$dataName"))
           case _ => flatParams.zipWithIndex.map {
             case (param, i) =>
               ValDef(NoMods, param.name, param.tpt, q"$dataName.${TermName("_" + (i + 1))}")
           }
         }
+        val methodFQN = q"$cachesUtilFQN.getMappedWithRecursionPreventingWithRollback"
+        val keyId = c.freshName(name.toString + "cacheKey")
+        val key = TermName(c.freshName(name.toString + "Key"))
+        val mappedKeyTypeFQN = tq"_root_.org.jetbrains.plugins.scala.caches.CachesUtil.MappedKey"
 
         val builder = q"""
           def $cachedFunName(${TermName(c.freshName())}: _root_.scala.Any, $dataName: $dataTypeName): $retTp = {
@@ -138,8 +141,8 @@ object CachedMacro {
           }
           """
         val element = annotationParameters.head
-        val defaultValue = annotationParameters(2)
-        val dependencyItem = annotationParameters(3)
+        val defaultValue = annotationParameters(1)
+        val dependencyItem = annotationParameters(2)
 
         val updatedRhs = q"""
           type $dataTypeName = (..$parameterTypes)
@@ -147,11 +150,17 @@ object CachedMacro {
 
           $builder
 
-          $cachesUtilFQN.getMappedWithRecursionPreventingWithRollback[$dom, $dataTypeName, $retTp]($element, $dataName, $key, $cachedFunName, $defaultValue, $dependencyItem)
+          $methodFQN[$dom, $dataTypeName, $retTp]($element, $dataName, $key, $cachedFunName, $defaultValue, $dependencyItem)
           """
-        val res = c.Expr(DefDef(mods, name, tpParams, paramss, retTp, updatedRhs))
+
+        val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
+        val res = q"""
+          private val $key = $cachesUtilFQN.getOrCreateKey[$mappedKeyTypeFQN[(..$parameterTypes), $retTp]]($keyId)
+
+          ..$updatedDef
+          """
         println(res)
-        res
+        c.Expr(res)
       case _ => abort("You can only annotate one function!")
     }
   }
@@ -161,7 +170,7 @@ object CachedMacro {
     def abort(s: String) = c.abort(c.enclosingPosition, s)
 
     annottees.toList match {
-      case d@DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
+      case DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
         if (retTp.isEmpty) {
           abort("You must specify return type")
         }
@@ -169,8 +178,8 @@ object CachedMacro {
         val cachesUtilFQN = q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil"
 
         val (annotationParameters: List[Tree], providerType, useOptionalProvider: Boolean) = c.prefix.tree match {
-          case q"new CachedWithRecursionGuard[$t](..$params)" if params.length == 4 => (params, t, false) //default parameter
-          case q"new CachedWithRecursionGuard[$t](..$params)" if params.length == 5 =>
+          case q"new CachedWithRecursionGuard[$t](..$params)" if params.length == 3 => (params, t, false) //default parameter
+          case q"new CachedWithRecursionGuard[$t](..$params)" if params.length == 4 =>
             val optional = params.last match {
               case q"useOptionalProvider = $v" => c.eval[Boolean](c.Expr(v))
               case q"$v" => c.eval[Boolean](c.Expr(v))
@@ -179,20 +188,28 @@ object CachedMacro {
           case _ => abort("Wrong annotation parameters!")
         }
         val element = annotationParameters.head
-        val key = annotationParameters(1)
-        val defaultValue = annotationParameters(2)
-        val dependencyItem = annotationParameters(3)
+        val defaultValue = annotationParameters(1)
+        val dependencyItem = annotationParameters(2)
         val cachedFunName = TermName(c.freshName("cachedFun"))
+        val keyId = c.freshName(name.toString + "cacheKey")
+        val key = TermName(c.freshName(name.toString + "Key"))
         val provider =
           if (useOptionalProvider) TypeName("MyOptionalProvider")
           else TypeName("MyProvider")
         val fun = q"def $cachedFunName(): $retTp = $rhs"
         val builder = q"new $cachesUtilFQN.$provider[$providerType, $retTp]($element, _ => $cachedFunName())($dependencyItem)"
+        val cachedValueFQN = tq"_root_.com.intellij.psi.util.CachedValue"
+        val keyFQN = tq"_root_.com.intellij.openapi.util.Key"
         val updatedRhs = q"""
           $fun
-          $cachesUtilFQN.getWithRecursionPreventingWithRollback($element, $key, $builder, $defaultValue)
+          $cachesUtilFQN.getWithRecursionPreventingWithRollback[$providerType, $retTp]($element, $key, $builder, $defaultValue)
           """
-        val res = DefDef(mods, name, tpParams, params, retTp, updatedRhs)
+        val updatedDef = DefDef(mods, name, tpParams, params, retTp, updatedRhs)
+        val res = q"""
+          private val $key = $cachesUtilFQN.getOrCreateKey[$keyFQN[$cachedValueFQN[$retTp]]]($keyId)
+
+          ..$updatedDef
+          """
         println(res)
         c.Expr(res)
       case _ => abort("You can only annotate one function!")
@@ -204,13 +221,13 @@ object CachedMacro {
     def abort(s: String) = c.abort(c.enclosingPosition, s)
 
     annottees.toList match {
-      case d@DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
+      case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
         if (retTp.isEmpty) {
           abort("You must specify return type")
         }
         val (annotationParameters: List[Tree], useOptionalProvider: Boolean) = c.prefix.tree match {
-          case q"new CachedInsidePsiElement(..$params)" if params.length == 3 => (params, false)
-          case q"new CachedInsidePsiElement(..$params)" if params.length == 4 =>
+          case q"new CachedInsidePsiElement(..$params)" if params.length == 2 => (params, false)
+          case q"new CachedInsidePsiElement(..$params)" if params.length == 3 =>
             val optional = params.last match {
               case q"useOptionalProvider = $v" => c.eval[Boolean](c.Expr(v))
               case q"$v" => c.eval[Boolean](c.Expr(v))
@@ -220,18 +237,27 @@ object CachedMacro {
         }
         val cachesUtilFQN = q"_root_.org.jetbrains.plugins.scala.caches.CachesUtil"
         val elem = annotationParameters.head
-        val key = annotationParameters(1)
-        val dependencyItem = annotationParameters(2)
+        val dependencyItem = annotationParameters(1)
         val cachedFunName = TermName(c.freshName("cachedFun"))
+        val keyId = c.freshName(name.toString + "cacheKey")
+        val key = TermName(c.freshName(name.toString + "Key"))
+        val cachedValueFQN = tq"_root_.com.intellij.psi.util.CachedValue"
+        val keyFQN = tq"_root_.com.intellij.openapi.util.Key"
         val provider =
           if (useOptionalProvider) TypeName("MyOptionalProvider")
           else TypeName("MyProvider")
+        
         val updatedRhs = q"""
           def $cachedFunName(): $retTp = $rhs
 
           $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.$provider[Any, $retTp]($elem, _ => $cachedFunName())($dependencyItem))
           """
-        val res = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
+        val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
+        val res = q"""
+          private val $key = $cachesUtilFQN.getOrCreateKey[$keyFQN[$cachedValueFQN[$retTp]]]($keyId)
+
+          ..$updatedDef
+          """
         println(res)
         c.Expr(res)
       case _ => abort("You can only annotate one function!")

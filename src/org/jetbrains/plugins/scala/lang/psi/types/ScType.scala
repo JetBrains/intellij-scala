@@ -159,6 +159,8 @@ trait ScType {
   def typeDepth: Int = 1
 
   def baseTypeSeqDepth: Int = 1 //todo: should be implemented according to Scala compiler sources. However concerns about performance stops me.
+
+  def isGenericType(project: Option[Project] = None): Boolean = ScType.extractClass(this, project).isEmpty
 }
 
 object ScType extends ScTypePresentation with ScTypePsiTypeBridge {

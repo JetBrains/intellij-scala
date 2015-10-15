@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation.util
 
 import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, JVMName, JVMNameUtil}
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
-import com.intellij.debugger.{DebuggerBundle, SourcePosition}
+import com.intellij.debugger.{DebuggerBundle, NoDataException, SourcePosition}
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
@@ -339,7 +339,12 @@ object DebuggerUtil {
   }
 
   def jvmClassAtPosition(sourcePosition: SourcePosition, debugProcess: DebugProcess): Option[ReferenceType] = {
-    val allClasses = debugProcess.getPositionManager.getAllClasses(sourcePosition)
+    val allClasses = try {
+      debugProcess.getPositionManager.getAllClasses(sourcePosition)
+    } catch {
+      case e: NoDataException => return None
+    }
+
     if (!allClasses.isEmpty) Some(allClasses.get(0))
     else None
   }

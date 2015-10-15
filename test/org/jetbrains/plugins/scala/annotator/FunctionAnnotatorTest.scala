@@ -404,8 +404,4 @@ class FunctionAnnotatorTest extends SimpleTestCase {
   val RedundantReturnData = ContainsPattern("Unit result type")
   val NeedsResultType = ContainsPattern("has return statement")
   val Recursive = ContainsPattern("Recursive method")
-
-  case class ContainsPattern(fragment: String) {
-    def unapply(s: String) = s.contains(fragment)
-  }
 }
