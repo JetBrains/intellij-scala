@@ -72,68 +72,81 @@ class SbtExternalSystemManager
 
 object SbtExternalSystemManager {
   def executionSettingsFor(project: Project, path: String) = {
-
     val settings = SbtSystemSettings.getInstance(project)
+    val projectSettings = Option(settings.getLinkedProjectSettings(path)).getOrElse(SbtProjectSettings.default)
 
-    val customLauncher = settings.customLauncherEnabled
-      .option(settings.getCustomLauncherPath).map(_.toFile)
+    val customLauncher = settings.customLauncherEnabled.option(settings.getCustomLauncherPath).map(_.toFile)
 
     val customSbtStructureDir = settings.getCustomSbtStructureDir match {
       case "" => None
       case str => Some(str)
     }
 
-    val vmOptions = {
-      val userOptions = settings.getVmParameters.split("\\s+").toSeq
-      val ideaProxyOptions = proxyOptionsFor(HttpConfigurable.getInstance).filterNot { opt =>
-        val optName = opt.split('=').head + "="
-        userOptions.exists(_.startsWith(optName))
-      }
-      Seq(s"-Xmx${settings.getMaximumHeapSize}M") ++ userOptions ++ ideaProxyOptions
-    }
+    val projectJdkName = getProjectJdkName(project, projectSettings)
+    val vmExecutable = getVmExecutable(projectJdkName, settings)
+    val vmOptions = getVmOptions(settings)
+    val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
 
+    new SbtExecutionSettings(vmExecutable, vmOptions, environment, customLauncher, customSbtStructureDir, projectJdkName,
+      projectSettings.resolveClassifiers, projectSettings.resolveSbtClassifiers, projectSettings.cachedUpdate)
+  }
+
+  private def getProjectJdkName(project: Project, projectSettings: SbtProjectSettings): Option[String] =
+    Option(ProjectRootManager.getInstance(project).getProjectSdk)
+      .map(_.getName)
+      .orElse(projectSettings.jdkName)
+
+  private def getVmExecutable(projectJdkName: Option[String], settings: SbtSystemSettings): File =
+      if (!ApplicationManager.getApplication.isUnitTestMode)
+        getRealVmExecutable(projectJdkName, settings)
+      else
+        getUnitTestVmExecutable()
+
+  private def getUnitTestVmExecutable(): File = {
+    val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
+    val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk17 else internalSdk
+    val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
+    new File(sdkType.getVMExecutablePath(sdk))
+  }
+
+  private def getRealVmExecutable(projectJdkName: Option[String], settings: SbtSystemSettings): File = {
     val customVmFile = new File(settings.getCustomVMPath) / "bin" / "java"
     val customVmExecutable = settings.customVMEnabled.option(customVmFile)
 
-    val projectSettings = Option(settings.getLinkedProjectSettings(path)).getOrElse(SbtProjectSettings.default)
-
-    val projectJdkName = Option(ProjectRootManager.getInstance(project).getProjectSdk)
-                            .map(_.getName)
-                            .orElse(projectSettings.jdkName)
-
-    val environment = mutable.Map.empty[String, String]
-
-    val vmExecutable = if (!ApplicationManager.getApplication.isUnitTestMode) {
-      customVmExecutable.orElse {
-        val projectSdk = projectJdkName.flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
-
-        projectSdk.map { sdk =>
-          sdk.getSdkType match {
-            case sdkType : JavaSdkType =>
-              try {
-                if (sdkType.isInstanceOf[AndroidSdkType])
-                  environment += ("ANDROID_HOME" -> sdk.getSdkModificator.getHomePath)
-              } catch {
-                case _ : NoClassDefFoundError => // no android plugin, do nothing
-              }
-              new File(sdkType.getVMExecutablePath(sdk))
-            case _ => throw new ExternalSystemException(SbtBundle("sbt.import.noProjectJvmFound"))
-          }
+    customVmExecutable.orElse {
+      val projectSdk = projectJdkName.flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
+      projectSdk.map { sdk =>
+        sdk.getSdkType match {
+          case sdkType : JavaSdkType =>
+            new File(sdkType.getVMExecutablePath(sdk))
+          case _ =>
+            throw new ExternalSystemException(SbtBundle("sbt.import.noProjectJvmFound"))
         }
-      } getOrElse {
-        throw new ExternalSystemException(SbtBundle("sbt.import.noCustomJvmFound"))
       }
-    } else {
-      val internalSdk =
-        JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
-      val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk17
-      else internalSdk
-      val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
-      new File(sdkType.getVMExecutablePath(sdk))
+    } getOrElse {
+      throw new ExternalSystemException(SbtBundle("sbt.import.noCustomJvmFound"))
     }
+  }
 
-    new SbtExecutionSettings(vmExecutable, vmOptions, environment.toMap, customLauncher, customSbtStructureDir, projectJdkName,
-      projectSettings.resolveClassifiers, projectSettings.resolveSbtClassifiers, projectSettings.cachedUpdate)
+  private def getAndroidEnvironmentVariables(projectJdkName: Option[String]): Map[String, String] =
+    projectJdkName
+      .flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
+      .flatMap { sdk =>
+        val sdkType = sdk.getSdkType
+        try {
+          sdkType.isInstanceOf[AndroidSdkType].option(Map("ANDROID_HOME" -> sdk.getSdkModificator.getHomePath))
+        } catch {
+          case _ : NoClassDefFoundError => None
+        }
+      }.getOrElse(Map.empty)
+
+  private def getVmOptions(settings: SbtSystemSettings): Seq[String] = {
+    val userOptions = settings.getVmParameters.split("\\s+").toSeq
+    val ideaProxyOptions = proxyOptionsFor(HttpConfigurable.getInstance).filterNot { opt =>
+      val optName = opt.split('=').head + "="
+      userOptions.exists(_.startsWith(optName))
+    }
+    Seq(s"-Xmx${settings.getMaximumHeapSize}M") ++ userOptions ++ ideaProxyOptions
   }
 
   private def proxyOptionsFor(http: HttpConfigurable): Seq[String] = {
