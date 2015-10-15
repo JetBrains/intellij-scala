@@ -13,7 +13,8 @@ import junit.framework.Assert
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.{ScalaIntroduceVariableHandler, ScopeItem, ScopeSuggester}
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.{ScopeItem, ScopeSuggester}
+import org.jetbrains.plugins.scala.lang.refactoring.util.EmptyConflictsReporter
 
 /**
  * Created by user 
@@ -51,8 +52,7 @@ abstract class AbstractScopeSuggesterTest extends ScalaLightPlatformCodeInsightT
 
     assert(element.isInstanceOf[ScTypeElement], "Selected element should be ScTypeElement")
 
-    val introduceVariableHandler: ScalaIntroduceVariableHandler = new ScalaIntroduceVariableHandler
-    val scopes: Array[ScopeItem] = ScopeSuggester.suggestScopes(introduceVariableHandler, element.getProject, editor, element.getContainingFile, element.asInstanceOf[ScTypeElement])
+    val scopes: Array[ScopeItem] = ScopeSuggester.suggestScopes(new EmptyConflictsReporter {}, element.getProject, editor, element.getContainingFile, element.asInstanceOf[ScTypeElement])
     Assert.assertEquals(scopes.map(_.getName).sorted.mkString(", "), suggestedScopesNames.sorted.mkString(", "))
   }
 }
