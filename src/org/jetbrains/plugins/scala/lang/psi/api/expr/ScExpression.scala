@@ -48,11 +48,11 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                                      ignoreBaseTypes: Boolean = false,
                                      fromUnderscore: Boolean = false): ExpressionTypeResult = {
     if (isShape) {
-      def default = ExpressionTypeResult(Success(getShape()._1, Some(this)), Set.empty, None)
-      val tr = getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
+      val tp: ScType = getShape()._1
+      def default = ExpressionTypeResult(Success(tp, Some(this)), Set.empty, None)
       val expectedOpt = expectedOption.orElse(expectedType(fromUnderscore))
-      (tr, expectedOpt) match {
-        case (Success(tp, _), Some(expected)) if !tp.conforms(expected) =>
+      expectedOpt match {
+        case Some(expected) if !tp.conforms(expected) =>
           tryConvertToSAM(fromUnderscore, expected, tp).getOrElse(default)
         case _ => default
       }
