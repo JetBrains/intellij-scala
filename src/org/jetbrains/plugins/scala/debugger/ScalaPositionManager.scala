@@ -79,7 +79,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   def getAllClasses(@NotNull position: SourcePosition): util.List[ReferenceType] = {
 
     val file = position.getFile
-    checkScalaFile(file)
+    throwIfNotScalaFile(file)
 
     def hasLocations(refType: ReferenceType, position: SourcePosition): Boolean = {
       try {
@@ -122,7 +122,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   @NotNull
   def locationsOfLine(@NotNull refType: ReferenceType, @NotNull position: SourcePosition): util.List[Location] = {
 
-    checkScalaFile(position.getFile)
+    throwIfNotScalaFile(position.getFile)
 
     try {
       val line: Int = position.getLine
@@ -189,7 +189,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     }
 
     val file = position.getFile
-    checkScalaFile(file)
+    throwIfNotScalaFile(file)
 
     val possiblePositions = inReadAction {
       positionsOnLine(file, position.getLine).map(SourcePosition.createFromElement)
@@ -197,11 +197,13 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     possiblePositions.map(createPrepareRequest).asJava
   }
 
-  private def checkScalaFile(file: PsiFile): Unit = {
-    file match {
-      case sf: ScalaFile if !sf.isCompiled =>
-      case _ => throw NoDataException.INSTANCE
-    }
+  private def throwIfNotScalaFile(file: PsiFile): Unit = {
+    if (!checkScalaFile(file)) throw NoDataException.INSTANCE
+  }
+
+  private def checkScalaFile(file: PsiFile): Boolean = file match {
+    case sf: ScalaFile => !sf.isCompiled
+    case _ => false
   }
 
   private def filterAllClasses(condition: ReferenceType => Boolean): Seq[ReferenceType] = {
@@ -241,7 +243,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   }
 
   private def calcPosition(file: PsiFile, location: Location, lineNumber: Int): Option[SourcePosition] = {
-    checkScalaFile(file)
+    throwIfNotScalaFile(file)
 
     val currentMethod = location.method()
     if (!isAnonfun(currentMethod)) return Some(SourcePosition.createFromLine(file, lineNumber))
@@ -358,7 +360,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         val originalQName = NameTransformer.decode(refType.name)
         val qName =
           if (originalQName.endsWith(packageSuffix)) originalQName
-          else originalQName.takeWhile(_ != '$')
+          else originalQName.replace(packageSuffix, ".").takeWhile(_ != '$')
 
         if (!ScalaMacroDebuggingUtil.isEnabled)
           findClassByQualName(qName, originalQName.endsWith("$")).map(_.getNavigationElement.getContainingFile).orNull
@@ -411,7 +413,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val refTypeLines = firstRefTypeLine to lastRefTypeLine
 
     val file = getPsiFileByReferenceType(project, refType)
-    checkScalaFile(file)
+    if (!checkScalaFile(file)) return None
 
     val document = PsiDocumentManager.getInstance(project).getDocument(file)
     if (document == null) return None
@@ -489,7 +491,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       if (qName.endsWith(packageSuffix))
         Seq(cacheManager.getPackageObjectByName(qName.stripSuffix(packageSuffix), GlobalSearchScope.allScope(project)))
       else
-        cacheManager.getClassesByFQName(qName, debugProcess.getSearchScope)
+        cacheManager.getClassesByFQName(qName.replace(packageSuffix, "."), debugProcess.getSearchScope)
 
     val clazz =
       if (classes.length == 1) classes.headOption
@@ -507,7 +509,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val withoutSuffix =
       if (endsWithPackageSuffix) originalQName.stripSuffix(packageSuffix)
       else originalQName.stripSuffix("$").stripSuffix("$class")
-    val withDots = withoutSuffix.replace('$', '.')
+    val withDots = withoutSuffix.replace(packageSuffix, ".").replace('$', '.')
     val transformed = if (endsWithPackageSuffix) withDots + packageSuffix else withDots
 
     findClassByQualName(transformed, originalQName.endsWith("$"))
@@ -528,7 +530,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val originalQName = NameTransformer.decode(refType.name)
     val withoutSuffix =
       if (originalQName.endsWith(packageSuffix)) originalQName
-      else originalQName.stripSuffix("$").stripSuffix("$class")
+      else originalQName.replace(packageSuffix, ".").stripSuffix("$").stripSuffix("$class")
     val lastDollar = withoutSuffix.lastIndexOf('$')
     val lastDot = withoutSuffix.lastIndexOf('.')
     val index = Seq(lastDollar, lastDot, 0).max + 1

@@ -33,12 +33,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   protected var taskListener: TaskListener = SilentTaskListener
 
   def resolveProjectInfo(id: ExternalSystemTaskId,
-                         projectPath: String,
+                         wrongProjectPathDontUseIt: String,
                          isPreview: Boolean,
                          settings: SbtExecutionSettings,
                          listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
     val root = {
-      val file = new File(projectPath)
+      val file = new File(settings.realProjectPath)
       if (file.isDirectory) file.getPath else file.getParent
     }
 
