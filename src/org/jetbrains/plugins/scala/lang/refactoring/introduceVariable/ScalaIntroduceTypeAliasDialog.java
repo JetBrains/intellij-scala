@@ -174,7 +174,8 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
             int occurrencesCount = simpleScopeItem.usualOccurrences().length;
             if (occurrencesCount > 1) {
                 myCbReplaceAllOccurences.setEnabled(true);
-                myCbReplaceAllOccurences.setText("Replace all occurrences" + occurrencesCount);
+                myCbReplaceAllOccurences.setSelected(true);
+                myCbReplaceAllOccurences.setText("Replace all " + occurrencesCount + " occurrences");
             } else {
                 myCbReplaceAllOccurences.setEnabled(false);
             }
@@ -188,7 +189,8 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
             int companionObjOccCount = simpleScopeItem.occurrencesInCompanion().length;
             if (companionObjOccCount > 0) {
                 myReplaceCompanionObjectOcc.setEnabled(true);
-                myReplaceCompanionObjectOcc.setText("Replace occurrences available from companion object (" + companionObjOccCount + " occurrences)");
+                String compObjectOccurrences = companionObjOccCount == 1 ? "(1 occurrence)" : "(" + companionObjOccCount + " occurrences)";
+                myReplaceCompanionObjectOcc.setText("Replace occurrences available from companion class " + compObjectOccurrences);
             } else {
                 myReplaceCompanionObjectOcc.setEnabled(false);
             }
@@ -221,7 +223,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         myCbReplaceAllOccurences.setDisplayedMnemonicIndex(8);
         panel1.add(myCbReplaceAllOccurences, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myReplaceCompanionObjectOcc = new JCheckBox();
-        myReplaceCompanionObjectOcc.setText("Replace occurrences available from companion object");
+        myReplaceCompanionObjectOcc.setText("Replace occurrences available from companion class");
         panel1.add(myReplaceCompanionObjectOcc, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myReplaceInInheritors = new JCheckBox();
         myReplaceInInheritors.setText("Replace occurences in class inheritors");
