@@ -16,15 +16,17 @@ abstract class ScalaLiteralEvaluationTestBase extends ScalaDebuggerTestCase {
       """
       |object Sample {
       |  def main(args: Array[String]) {
+      |    val n = 1
       |    "stop here"
       |  }
       |}
       """.stripMargin.trim()
     )
-    addBreakpoint("Sample.scala", 2)
+    addBreakpoint("Sample.scala", 3)
     runDebugger("Sample") {
       waitForBreakpoint()
       evalEquals("\"x\".length", "1")
+      evalEquals("s\"n = $n\"", "n = 1")
     }
   }
 
