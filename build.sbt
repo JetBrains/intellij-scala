@@ -138,6 +138,7 @@ lazy val sbtRuntimeDependencies =
 lazy val testDownloader =
   newProject("testJarsDownloader")
   .settings(
+    conflictManager := ConflictManager.all,
     conflictWarning  := ConflictWarning.disable,
     resolvers ++= Seq(
       "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases",
@@ -145,9 +146,6 @@ lazy val testDownloader =
     ),
     libraryDependencies ++= DependencyGroups.testDownloader,
     dependencyOverrides ++= Set(
-      "org.scalatest" % "scalatest_2.10" % "2.1.7",
-      "org.scalatest" % "scalatest_2.11" % "2.1.7",
-      "org.scalatest" % "scalatest_2.10" % "1.9.2",
       "com.chuusai" % "shapeless_2.11" % "2.0.0"
     ),
     update <<= update.dependsOn(update.in(sbtLaunchTestDownloader))
