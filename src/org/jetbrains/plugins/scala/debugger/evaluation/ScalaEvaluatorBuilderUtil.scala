@@ -1050,8 +1050,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def literalEvaluator(l: ScLiteral): Evaluator = {
     l match {
-      case interpolated: ScInterpolatedStringLiteral if interpolated.getType == InterpolatedStringType.FORMAT =>
-        throw EvaluationException(ScalaBundle.message("formatted.interpolator.not.supported"))
       case interpolated: ScInterpolatedStringLiteral =>
         val evaluatorOpt = interpolated.getStringContextExpression.map(evaluatorFor(_))
         evaluatorOpt.getOrElse(ScalaLiteralEvaluator(l))
@@ -1533,6 +1531,8 @@ object ScalaEvaluatorBuilderUtil {
 
   def elementsWithSameNameIndex(named: PsiNamedElement, condition: PsiElement => Boolean): Int = {
     val containingClass = getContextClass(named)
+    if (containingClass == null) return -1
+
     val depthFirstIterator = containingClass.depthFirst {
       case `containingClass` => true
       case elem if isGenerateClass(elem) => false
