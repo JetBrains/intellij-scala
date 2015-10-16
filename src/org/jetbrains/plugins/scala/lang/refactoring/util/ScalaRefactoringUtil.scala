@@ -403,8 +403,7 @@ object ScalaRefactoringUtil {
                validatorsRes: mutable.MutableList[ScalaTypeValidator]) = {
 
       val occurrences = getTypeElementOccurrences(typeElement, classObject)
-      val validator = ScalaTypeValidator(conflictsReporter, project, editor, typeElement.getContainingFile,
-        typeElement, classObject, occurrences.isEmpty)
+      val validator = ScalaTypeValidator(conflictsReporter, project, typeElement, classObject, occurrences.isEmpty)
       occurrencesRes += occurrences
       validatorsRes += validator
     }
