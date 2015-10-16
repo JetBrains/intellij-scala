@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 /**
@@ -110,7 +111,7 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
   }
 
   def fragmentEvaluator(fragment: ScalaCodeFragment): Evaluator = {
-    val childrenEvaluators = fragment.children.collect {
+    val childrenEvaluators = fragment.children.filter(!_.isInstanceOf[ScImportStmt]).collect {
       case e @ (_: ScBlockStatement | _: ScMember) => evaluatorFor(e)
     }
     new BlockStatementEvaluator(childrenEvaluators.toArray)

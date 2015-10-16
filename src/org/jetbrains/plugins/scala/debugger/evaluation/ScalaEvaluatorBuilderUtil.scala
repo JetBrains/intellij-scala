@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScNamedElement, ScTypedDefinition}
@@ -1180,7 +1181,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def blockExprEvaluator(block: ScBlock): Evaluator = {
     withNewSyntheticVariablesHolder {
-      val evaluators = block.statements.map(evaluatorFor)
+      val evaluators = block.statements.filter(!_.isInstanceOf[ScImportStmt]).map(evaluatorFor)
       new ScalaBlockExpressionEvaluator(evaluators.toSeq)
     }
   }
