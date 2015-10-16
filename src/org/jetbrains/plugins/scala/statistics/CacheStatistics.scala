@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.statistics
 
+import java.util.concurrent.ConcurrentHashMap
+
 import com.intellij.util.containers.ContainerUtil
 import org.github.jamm.MemoryMeter
 import org.jetbrains.plugins.scala.statistics.CacheStatistics.memoryMeter
@@ -95,15 +97,14 @@ class CacheStatistics private(id: String, name: String) {
 }
 
 object CacheStatistics {
-  import scala.collection.JavaConversions._
+  import scala.collection.JavaConverters._
 
   val memoryMeter = new MemoryMeter()
 
-  //`caches` is empty if compiler flag "-Xmacro-settings:analyze-caches" is empty
-  private val caches = ContainerUtil.newConcurrentMap[String, CacheStatistics]()
+  private val caches = new ConcurrentHashMap[String, CacheStatistics]()
 
   def printStats(): Unit = {
-    caches.values().foreach(c => println(c.toString))
+    caches.values().asScala.foreach (c => println(c.toString))
   }
 
   def apply(id: String, name: String) = Option(caches.get(id)) match {
