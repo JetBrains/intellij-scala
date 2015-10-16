@@ -93,7 +93,7 @@ object ScopeSuggester {
       }
 
       val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(currentElement, parent)
-      val validator = ScalaTypeValidator(conflictsReporter, project, editor, file, currentElement, parent, occurrences.isEmpty)
+      val validator = ScalaTypeValidator(conflictsReporter, project, currentElement, parent, occurrences.isEmpty)
 
       val possibleNames = NameSuggester.suggestNamesByType(currentElement.calcType)
         .map(validator.validateName(_, increaseNumber = true))
@@ -248,7 +248,7 @@ object ScopeSuggester {
           case _ => PsiTreeUtil.findChildOfType(file, classOf[ScTemplateBody])
         }
         if (parent != null) {
-          allValidators += ScalaTypeValidator(conflictsReporter, project, editor, file, typeElement, parent, occurrences.isEmpty)
+          allValidators += ScalaTypeValidator(conflictsReporter, project, typeElement, parent, occurrences.isEmpty)
         }
       }
     }
@@ -264,9 +264,8 @@ object ScopeSuggester {
         allOcurrences += occurrences
 
         val parent = PsiTreeUtil.findChildOfType(clazz, classOf[ScTemplateBody])
-        val file = clazz.getContainingFile
 
-        allValidators += ScalaTypeValidator(conflictsReporter, project, editor, file, typeElement, parent, occurrences.isEmpty)
+        allValidators += ScalaTypeValidator(conflictsReporter, project, typeElement, parent, occurrences.isEmpty)
       }
     } else {
       collectedFiles.foreach(handleOneFile)
@@ -301,11 +300,12 @@ case class SimpleScopeItem(name: String,
                            fileEncloser: PsiElement,
                            usualOccurrences: Array[ScTypeElement],
                            occurrencesInCompanion: Array[ScTypeElement],
-                           typeValidator: ScalaValidator,
+                           typeValidator: ScalaTypeValidator,
                            availableNames: Array[String]) extends ScopeItem(name, availableNames) {
 
   var occurrencesFromInheretors: Array[ScTypeElement] = Array[ScTypeElement]()
-  var usualOccurrencesRanges = usualOccurrences.map((x: ScTypeElement) => (x.getTextRange, x.getContainingFile))
+  val usualOccurrencesRanges = usualOccurrences.map((x: ScTypeElement) => (x.getTextRange, x.getContainingFile))
+  val fileEncloserRange = (fileEncloser.getTextRange, fileEncloser.getContainingFile)
 
   def setInheretedOccurrences(occurrences: Array[ScTypeElement]) = {
     if (occurrences != null) {
@@ -319,15 +319,22 @@ case class SimpleScopeItem(name: String,
         PsiTreeUtil.findElementOfClassAtRange(containigFile, range.getStartOffset, range.getEndOffset, classOf[ScTypeElement])
     }
 
-
     val newNames = if ((newName == "") || availableNames.contains(newName)) {
       availableNames
     } else {
       newName +: availableNames
     }
 
-    new SimpleScopeItem(name, fileEncloser,
-      revalidatedOccurrences, occurrencesInCompanion, typeValidator, newNames)
+    val updatedFileEncloser = fileEncloserRange match {
+      case (range, containingFile) =>
+        PsiTreeUtil.findElementOfClassAtRange(containingFile, range.getStartOffset, range.getEndOffset, classOf[PsiElement])
+    }
+
+    val updatedValidator = new ScalaTypeValidator(typeValidator.conflictsReporter, typeValidator.myProject,
+      typeValidator.selectedElement, typeValidator.noOccurrences, updatedFileEncloser, updatedFileEncloser)
+
+    new SimpleScopeItem(name, updatedFileEncloser,
+      revalidatedOccurrences, occurrencesInCompanion, updatedValidator, newNames)
   }
 
   def isTrait: Boolean = {
