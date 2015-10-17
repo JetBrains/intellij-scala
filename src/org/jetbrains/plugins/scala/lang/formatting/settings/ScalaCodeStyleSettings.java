@@ -127,6 +127,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   private boolean IMPORTS_MEMBERS_USING_UNDERSCORE = true;
   private boolean COLLECT_IMPORTS_TOGETHER = true;
 
+  private String[] ALWAYS_USED_IMPORTS = new String[0];
+
   private String[] IMPORTS_WITH_PREFIX = new String[] {
       "exclude:scala.collection.mutable.ArrayBuffer",
       "exclude:scala.collection.mutable.ListBuffer",
@@ -255,6 +257,21 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
     if (qualName != null && qualName.contains(".")) {
       String[] importsWithPrefix = getImportsWithPrefix();
       return nameFitToPatterns(qualName, importsWithPrefix);
+    } else return false;
+  }
+
+  public String[] getAlwaysUsedImports() {
+    return ALWAYS_USED_IMPORTS;
+  }
+
+  public void setAlwaysUsedImports(String[] alwaysUsedImports) {
+    this.ALWAYS_USED_IMPORTS = alwaysUsedImports;
+  }
+
+  public boolean isAlwaysUsedImport(String qualName) {
+    if (qualName != null && qualName.contains(".")) {
+      String[] alwaysUsedImports = getAlwaysUsedImports();
+      return nameFitToPatterns(qualName, alwaysUsedImports);
     } else return false;
   }
 
