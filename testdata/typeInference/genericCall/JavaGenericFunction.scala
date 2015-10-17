@@ -3,4 +3,4 @@ import java.util.Vector
 
 val vector = new Vector[Int](0)
 /*start*/Collections.list[Int](vector)/*end*/
-//ArrayList[Int]
+//util.ArrayList[Int]

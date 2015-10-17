@@ -4,4 +4,4 @@ class A {
     case "s" => new java.util.ArrayList[String](3)
   }/*end*/
 }
-//ArrayList[_ >: Int with String]
+//util.ArrayList[_ >: Int with String]
