@@ -9,11 +9,12 @@ import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.openapi.editor.Document
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportSelector, ScImportStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportStmt}
 
 /**
  * User: Dmitry Naydanov
@@ -25,25 +26,32 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
 
   def collectAnnotations(unusedImports: Array[ImportUsed], annotationHolder: AnnotationHolder): Array[Annotation] = unusedImports flatMap {
     imp: ImportUsed => {
-      val psi: PsiElement = imp match {
+      val psiOption: Option[PsiElement] = imp match {
         case ImportExprUsed(expr) if !PsiTreeUtil.hasErrorElements(expr) && !isLanguageFeatureImport(imp) =>
           val impSt = expr.getParent.asInstanceOf[ScImportStmt]
-          if (impSt == null) null //todo: investigate this case, this cannot be null
-          else if (impSt.importExprs.length == 1) impSt
-          else expr
-        case ImportSelectorUsed(sel) if !isLanguageFeatureImport(imp) => sel
-        case ImportWildcardSelectorUsed(e) if e.selectors.length > 0 && !isLanguageFeatureImport(imp) => e.wildcardElement.get
-        case ImportWildcardSelectorUsed(e) if !PsiTreeUtil.hasErrorElements(e) && !isLanguageFeatureImport(imp) => e.getParent
-        case _ => null
+          if (impSt == null) None //todo: investigate this case, this cannot be null
+          else if (impSt.importExprs.length == 1) Some(impSt)
+          else Some(expr)
+        case ImportSelectorUsed(sel) if !isLanguageFeatureImport(imp) => Some(sel)
+        case ImportWildcardSelectorUsed(e) if e.selectors.nonEmpty && !isLanguageFeatureImport(imp) => Some(e.wildcardElement.get)
+        case ImportWildcardSelectorUsed(e) if !PsiTreeUtil.hasErrorElements(e) && !isLanguageFeatureImport(imp) => Some(e.getParent)
+        case _ => None
       }
+
+      val qName = imp.qualName
       
-      psi match {
-        case null => Seq[Annotation]()
-        case sel: ScImportSelector if sel.importedName == "_" => Seq[Annotation]()
-        case _ =>
+      psiOption match {
+        case None => Seq[Annotation]()
+        case Some(sel: ScImportSelector) if sel.importedName == "_" => Seq[Annotation]()
+        case Some(psi) if qName.nonEmpty && ScalaCodeStyleSettings.getInstance(file.getProject).isAlwaysUsedImport(qName.get) => Seq.empty
+        case Some(psi) =>
           val annotation = annotationHolder.createWarningAnnotation(psi, "Unused import statement")
           annotation setHighlightType ProblemHighlightType.LIKE_UNUSED_SYMBOL
           getFixes.foreach(annotation.registerFix)
+          qName match {
+            case Some(name) => annotation.registerFix(new MarkImportAsAlwaysUsed(name))
+            case None =>
+          }
           Seq[Annotation](annotation)
       }
     }
