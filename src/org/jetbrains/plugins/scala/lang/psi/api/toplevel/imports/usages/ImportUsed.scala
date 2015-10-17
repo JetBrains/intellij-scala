@@ -9,6 +9,7 @@ package usages
 
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
 
 /**
  * Base class to store import-provided reference elements
@@ -17,6 +18,8 @@ import com.intellij.psi.PsiElement
  */
 abstract sealed class ImportUsed(val e: PsiElement) {
   override def toString: String = e.getText
+
+  def qualName: Option[String]
 }
 
 object ImportUsed {
@@ -32,6 +35,12 @@ object ImportUsed {
  * Class to mark whole import expression as used (qualified or ending with reference id)
  */
 case class ImportExprUsed(expr: ScImportExpr) extends ImportUsed(expr) {
+  override def qualName: Option[String] = {
+    if (expr.qualifier == null) None
+    else if (expr.singleWildcard) Some(expr.qualifier.qualName + "._")
+    else expr.reference.map(ref => expr.qualifier.qualName + "." + ref.refName)
+  }
+
   override def toString: String = "ImportExprUsed(" + super.toString + ")"
 }
 
@@ -64,6 +73,11 @@ case class ImportExprUsed(expr: ScImportExpr) extends ImportUsed(expr) {
  *
  */
 case class ImportSelectorUsed(sel: ScImportSelector) extends ImportUsed(sel) {
+  override def qualName: Option[String] = {
+    val expr: ScImportExpr = PsiTreeUtil.getParentOfType(sel, classOf[ScImportExpr])
+    expr.reference.map(ref => ref.qualName + "." + sel.reference.refName)
+  }
+
   override def toString: String = "ImportSelectorUsed(" + super.toString + ")"
 }
 
@@ -74,5 +88,9 @@ case class ImportSelectorUsed(sel: ScImportSelector) extends ImportUsed(sel) {
  * import aaa.bbb.{A => B, C => _ , _}
  */
 case class ImportWildcardSelectorUsed(elem: ScImportExpr) extends ImportUsed(elem) {
+  override def qualName: Option[String] = {
+    elem.reference.map(ref => ref.qualName + "._")
+  }
+
   override def toString: String = "ImportWildcardSelectorUsed(" + super.toString + ")"
 }

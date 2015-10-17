@@ -115,14 +115,6 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
     if (indicator != null) indicator.setText2(file.getName + ": collecting additional info")
 
-    def isImportUsed(importUsed: ImportUsed): Boolean = {
-      //todo: collect proper information about language features
-      importUsed match {
-        case ImportSelectorUsed(sel) if sel.isAliasedImport => true
-        case _ => usedImports.contains(importUsed) || isLanguageFeatureImport(importUsed)
-      }
-    }
-
     def collectRanges(rangeStarted: ScImportStmt => Set[String],
                       createInfo: ScImportStmt => Seq[ImportInfo]): ConcurrentHashMap[TextRange, (Set[String], Seq[ImportInfo], Boolean)] = {
       val importsInfo = new ConcurrentHashMap[TextRange, (Set[String], Seq[ImportInfo], Boolean)]
@@ -220,6 +212,16 @@ class ScalaImportOptimizer extends ImportOptimizer {
       rangeNamesSet.toSet
     }
 
+    val settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
+
+    def isImportUsed(importUsed: ImportUsed): Boolean = {
+      //todo: collect proper information about language features
+      importUsed match {
+        case ImportSelectorUsed(sel) if sel.isAliasedImport => true
+        case _ => usedImports.contains(importUsed) || isLanguageFeatureImport(importUsed) || importUsed.qualName.exists(settings.isAlwaysUsedImport)
+      }
+    }
+
     def createInfo(imp: ScImportStmt): Seq[ImportInfo] = {
       imp.importExprs.flatMap(expr =>
         getImportInfo(expr, isImportUsed) match {
@@ -231,7 +233,6 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
     val importsInfo = collectRanges(rangeStarted, createInfo)
 
-    val settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
     val addFullQualifiedImports = settings.isAddFullQualifiedImports
     val isLocalImportsCanBeRelative = settings.isDoNotChangeLocalImportsOnOptimize
     val sortImports = settings.isSortImports
