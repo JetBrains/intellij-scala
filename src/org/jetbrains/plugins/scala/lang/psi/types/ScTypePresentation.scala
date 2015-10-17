@@ -20,9 +20,13 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 trait ScTypePresentation {
-  def presentableText(t: ScType) = typeText(t, _.name, {
+  def presentableText(t: ScType) = typeText(t, {
+    case c: PsiClass => ScalaPsiUtil.nameWithPrefixIfNeeded(c)
+    case e => e.name
+  }, {
       case obj: ScObject if Set("scala.Predef", "scala").contains(obj.qualifiedName) => ""
       case pack: PsiPackage => ""
+      case c: PsiClass => ScalaPsiUtil.nameWithPrefixIfNeeded(c) + "."
       case e => e.name + "."
     }
   )
