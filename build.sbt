@@ -1,6 +1,6 @@
 import Common._
-import sbt.Keys.{`package` => pack}
 import com.dancingrobot84.sbtidea.Tasks.{updateIdea => updateIdeaTask}
+import sbt.Keys.{`package` => pack}
 
 // Global build settings
 
@@ -25,7 +25,6 @@ addCommandAlias("packagePlugin", "pluginPackager/package")
 addCommandAlias("packagePluginZip", "pluginCompressor/package")
 
 // Main projects
-
 lazy val scalaCommunity: Project =
   newProject("scalaCommunity", file("."))
   .dependsOn(compilerSettings, scalap, runners % "test->test;compile->compile", macroAnnotations)
@@ -35,6 +34,7 @@ lazy val scalaCommunity: Project =
     ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
     javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6"),
     scalacOptions in Global += "-target:jvm-1.6",
+    scalacOptions in Global += "-Xmacro-settings:analyze-caches",
     libraryDependencies ++= DependencyGroups.scalaCommunity,
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
     unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"),
