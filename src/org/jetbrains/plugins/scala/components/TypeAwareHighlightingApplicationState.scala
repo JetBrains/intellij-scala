@@ -3,6 +3,7 @@ package components
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components._
+import org.jetbrains.plugins.scala.statistics.CacheStatistics
 
 /**
  * User: Dmitry Naydanov
@@ -35,7 +36,9 @@ class TypeAwareHighlightingApplicationState extends ApplicationComponent with
 
   def initComponent() {}
 
-  def disposeComponent() {}
+  def disposeComponent(): Unit = {
+    CacheStatistics.printStats()
+  }
 }
 
 object TypeAwareHighlightingApplicationState {
