@@ -105,7 +105,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
         )
     }
     val candidates = Seq(
-      Option(sys.env.getOrElse("JDK_18_x64", sys.env.getOrElse("JDK_18", null))),  // teamcity style
+      Option(sys.env.getOrElse("JDK_18_x64", sys.env.getOrElse("JDK_18", null))).map(_+"/jre"),  // teamcity style
       inJvm("/usr/lib/jvm", "1.8"),                   // oracle style
       inJvm("/usr/lib/jvm", "-8"),                    // openjdk style
       inJvm("C:\\Program Files\\Java\\", "1.8"),      // oracle windows style
