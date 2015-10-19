@@ -44,7 +44,6 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase with Sb
     val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk17
     else internalSdk
     val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
-    //todo: not working, fix and remove similar code from SbtExternalSystemManager
     settings.setJdk(sdk.getName)
     settings.setCreateEmptyContentRootDirectories(true)
     settings
