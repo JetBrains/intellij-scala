@@ -36,6 +36,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
   protected def useExternalCompiler: Boolean = true
 
   override def setUp(): Unit = {
+    VfsRootAccess.SHOULD_PERFORM_ACCESS_CHECK = false
     super.setUp()
     if (useExternalCompiler) {
       myProject.getMessageBus.connect(myTestRootDisposable).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter {
@@ -88,6 +89,32 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
     }
   }
 
+  def discoverJDK18() = {
+    import java.io._
+    def isJDK(f: File) = f.listFiles().exists { b =>
+      b.getName == "bin" && b.listFiles().exists(x => x.getName == "javac.exe" || x.getName == "javac")
+    }
+    def inJvm(path: String, suffix: String, postfix: String = "") = {
+      Option(new File(path))
+        .filter(_.exists())
+        .flatMap(_.listFiles()
+          .sortBy(_.getName)
+          .reverse
+          .find(f => f.getName.contains(suffix) && isJDK(new File(f, postfix)))
+          .map(new File(_, s"$postfix/jre").getAbsolutePath)
+        )
+    }
+    val candidates = Seq(
+      Option(sys.env.getOrElse("JDK_18", sys.env.getOrElse("JDK_18_x64", null))),  // teamcity style
+      inJvm("/usr/lib/jvm", "1.8"),                   // oracle style
+      inJvm("/usr/lib/jvm", "-8"),                    // openjdk style
+      inJvm("C:\\Program Files\\Java\\", "1.8"),      // oracle windows style
+      inJvm("C:\\Program Files (x86)\\Java\\", "1.8"),      // oracle windows style
+      inJvm("/Library/Java/JavaVirtualMachines", "1.8", "/Contents/Home")// mac style
+    )
+    candidates.flatten.headOption
+  }
+
   override protected def getTestProjectJdk: Sdk = {
     val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
 
@@ -95,7 +122,8 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
       val mockJdk8Name = "mock java 1.8"
 
       def addMockJdk8(): Sdk = {
-        val path = TestUtils.getTestDataPath.replace("\\", "/") + "/mockJDK1.8/jre"
+        val pathDefault = TestUtils.getTestDataPath.replace("\\", "/") + "/mockJDK1.8/jre"
+        val path = discoverJDK18().getOrElse(pathDefault)
         val jdk = JavaSdk.getInstance.createJdk(mockJdk8Name, path)
         val oldJdk = jdkTable.findJdk(mockJdk8Name)
         inWriteAction {
