@@ -23,11 +23,21 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
   def testDoNotAnnotateIndexedDep =
     doTest(Seq.empty)
 
+  def testDoNotAnnotateIndexedDepWithDynamicVersion =
+    doTest(Seq.empty)
+
   def testAnnotateUnresolvedDep = {
     val msg = SbtBundle("sbt.annotation.unresolvedDependency")
     doTest(Seq(Error("\"org.jetbrains\"", msg),
       Error("\"unknown-lib\"", msg),
       Error("\"0.0.0\"", msg)))
+  }
+
+  def testAnnotateUnresolvedDepWithDynamicVersion = {
+    val msg = SbtBundle("sbt.annotation.unresolvedDependency")
+    doTest(Seq(Error("\"org.jetbrains\"", msg),
+      Error("\"unknown-lib\"", msg),
+      Error("\"latest.release\"", msg)))
   }
 
   override def setUp() = {
