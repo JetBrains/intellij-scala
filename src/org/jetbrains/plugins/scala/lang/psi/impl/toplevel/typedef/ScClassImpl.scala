@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
+import com.intellij.psi.impl.light.LightField
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
@@ -23,7 +24,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor, ScType, ScTypeParameterType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
 import scala.collection.mutable
@@ -275,6 +277,25 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     syntheticImplicitMethod = res
     syntheticImplicitMethodModificationCount = count
     res
+  }
+
+  override def getFields: Array[PsiField] = {
+    val fields = constructor match {
+      case Some(constr) => constr.parameters.map { param =>
+        param.getType(TypingContext.empty) match {
+          case Success(tp: ScTypeParameterType, _) if tp.param.findAnnotation("scala.specialized") != null =>
+            val factory: PsiElementFactory = PsiElementFactory.SERVICE.getInstance(getProject)
+            val psiTypeText: String = ScType.toPsi(tp, getProject, getResolveScope).getCanonicalText
+            val text = s"public final $psiTypeText ${param.name};"
+            val elem = new LightField(getManager, factory.createFieldFromText(text, this), this)
+            elem.setNavigationElement(param)
+            Option(elem)
+          case _ => None
+        }
+      }
+      case _ => Seq.empty
+    }
+    super.getFields ++ fields.flatten
   }
 
   override def getTypeParameterList: PsiTypeParameterList = typeParametersClause.orNull
