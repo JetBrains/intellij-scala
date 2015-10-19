@@ -4,7 +4,6 @@ import java.util.concurrent.ConcurrentHashMap
 
 import com.intellij.util.containers.ContainerUtil
 import org.github.jamm.MemoryMeter
-import org.jetbrains.plugins.scala.statistics.CacheStatistics.memoryMeter
 
 import scala.collection.mutable
 import scala.ref.WeakReference
@@ -20,6 +19,8 @@ class CacheStatistics private(id: String, name: String) {
   var cachesRecalculated: Long = 0
   val objectsToKeepTrackOf = ContainerUtil.newConcurrentSet[WeakReference[AnyRef]]
   val calculationTimes = ContainerUtil.newConcurrentSet[Long]()
+
+  val memoryMeter = new MemoryMeter()
 
   //we could ask time of entrance to measure time locality
   //also, we could find out whether multiple threads are calculating this cache at the same time
@@ -98,8 +99,6 @@ class CacheStatistics private(id: String, name: String) {
 
 object CacheStatistics {
   import scala.collection.JavaConverters._
-
-  val memoryMeter = new MemoryMeter()
 
   private val caches = new ConcurrentHashMap[String, CacheStatistics]()
 
