@@ -80,19 +80,26 @@ class CacheStatistics private(id: String, name: String) {
     import scala.collection.JavaConversions._
     val calcTimes: Set[Long] = calculationTimes.toSet //efficient because not conccurent
 
-    val averageTimes =
-      if (calcTimes.nonEmpty) {
-        s"average time to calculate: ${calcTimes.sum.toDouble / calcTimes.size}, maxTime: ${calcTimes.max}, minTime: ${calcTimes.min}"
-      } else ""
+    if (calculationTimes.nonEmpty) {
+      val (maxTime, minTime, averageTime) = (calcTimes.max, calcTimes.min, calcTimes.sum.toDouble / calcTimes.size)
 
-    s"""
+      val timeSaved = hits * averageTime
+      s"""
        |****************************
        |$name
        |hits: $hits, misses: $misses
        |*approximate* spaceTaken: $spaceTakenByCache
-       |$averageTimes
+       |maxTime: $maxTime, minTime: $minTime, averageTime: $averageTime
+       |time saved (hits * averageTime): $timeSaved
        |****************************
      """.stripMargin
+    } else {
+      s"""
+        |**************************
+        |$name not used
+        |**************************
+      """.stripMargin
+    }
   }
 }
 
