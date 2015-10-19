@@ -261,6 +261,7 @@
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaQualifiedClassNameMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaSubtypesMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaTypeOfVariableMacro"/>
+        <liveTemplatePreprocessor implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaTemplatePreprocessor"/>
 
         <codeInsight.template.postfixTemplateProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.postfix.templates.ScalaPostfixTemplateProvider"/>
 
