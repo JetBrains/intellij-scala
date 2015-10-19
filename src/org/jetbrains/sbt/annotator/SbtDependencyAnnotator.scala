@@ -30,7 +30,12 @@ class SbtDependencyAnnotator extends Annotator {
       val indexes = resolversToUse.flatMap(indexManager.find).toSet
       if (indexes.isEmpty) return
 
-      val isInRepo = indexes.exists(_.versions(info.group, info.artifact).contains(info.version))
+      val isInRepo = {
+        if (isDynamicVersion(info.version))
+          indexes.exists(_.versions(info.group, info.artifact).nonEmpty)
+        else
+          indexes.exists(_.versions(info.group, info.artifact).contains(info.version))
+      }
       if (!isInRepo) {
         val annotation = holder.createErrorAnnotation(element, SbtBundle("sbt.annotation.unresolvedDependency"))
         annotation.registerFix(new SbtUpdateResolverIndexesQuickFix)
@@ -64,7 +69,6 @@ class SbtDependencyAnnotator extends Annotator {
       ScLiteralImpl.string(group) <- Option(maybeGroup)
       ScLiteralImpl.string(artifact) <- Option(maybeArtifact)
       shouldAppendScalaVersion = maybePercents.getText == "%%"
-      if isNotDynamicVersion(version)
     } yield {
       if (shouldAppendScalaVersion && scalaVersion.isDefined)
         ArtifactInfo(group, artifact + "_" + scalaVersion.get, version)
@@ -73,7 +77,7 @@ class SbtDependencyAnnotator extends Annotator {
     }
   }
 
-  private def isNotDynamicVersion(version: String): Boolean =
-    !(version.startsWith("latest") || version.endsWith("+") || "[]()".exists(version.contains(_)))
+  private def isDynamicVersion(version: String): Boolean =
+    version.startsWith("latest") || version.endsWith("+") || "[]()".exists(version.contains(_))
 }
 
