@@ -12,6 +12,7 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemConstants
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.LocalFileSystem
+import org.jetbrains.SbtStructureSetup
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
@@ -21,7 +22,7 @@ import org.jetbrains.sbt.settings.SbtSystemSettings
  * @author Nikolay Obedin
  * @since 8/4/15.
  */
-abstract class ImportingTestCase extends ExternalSystemImportingTestCase with ProjectStructureMatcher {
+abstract class ImportingTestCase extends ExternalSystemImportingTestCase with ProjectStructureMatcher with SbtStructureSetup {
 
   val Log = Logger.getInstance(this.getClass)
 
@@ -29,8 +30,6 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase with Pr
     val testdataPath = TestUtils.getTestDataPath + "/sbt/projects"
     new File(testdataPath, getTestName(true))
   }
-
-  def scalaPluginBuildOutputDir: File = new File("../../out/plugin/Scala")
 
   def runTest(expected: project): Unit = {
     importProject()
@@ -53,23 +52,13 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase with Pr
   override protected def setUpInWriteAction(): Unit = {
     super.setUpInWriteAction()
     setUpProjectDirectory()
-    setUpSbtLauncherAndStructure()
+    setUpSbtLauncherAndStructure(myProject)
     if ("true".equals(System.getProperty("idea.debug.mode")))
       setUpExternalSystemToPerformImportInIdeaProcess()
   }
 
   private def setUpProjectDirectory(): Unit =
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(testProjectDir)
-
-  private def setUpSbtLauncherAndStructure(): Unit = {
-    val systemSettings = SbtSystemSettings.getInstance(myProject)
-    systemSettings.setCustomLauncherEnabled(true)
-    systemSettings.setCustomLauncherPath(scalaPluginBuildOutputDir.getAbsolutePath + "/launcher/sbt-launch.jar")
-    systemSettings.setCustomSbtStructureDir(scalaPluginBuildOutputDir.getAbsolutePath + "/launcher")
-    Option(System.getProperty("sbt.ivy.home")).foreach { ivyHome =>
-      systemSettings.vmParameters += s" -Dsbt.ivy.home=$ivyHome"
-    }
-  }
 
   private def setUpExternalSystemToPerformImportInIdeaProcess(): Unit =
     Registry.get(SbtProjectSystem.Id + ExternalSystemConstants.USE_IN_PROCESS_COMMUNICATION_REGISTRY_KEY_SUFFIX).setValue(true)
