@@ -2058,11 +2058,7 @@ object ScalaPsiUtil {
     def unapply(expr: ScExpression): Option[PsiMethod] = {
       if (!expr.expectedType(fromUnderscore = false).exists {
         case ScFunctionType(_, _) => true
-        case expected if isSAMEnabled(expr) =>
-          toSAMType(expected, expr.getResolveScope) match {
-            case Some(_) => true
-            case _ => false
-          }
+        case expected if isSAMEnabled(expr) => toSAMType(expected, expr.getResolveScope).isDefined
         case _ => false
       }) {
         return None

@@ -67,4 +67,18 @@ class AutoTuplingInspectionTest extends ScalaLightInspectionFixtureTestAdapter {
       """.stripMargin
     testFix(code, result, hint)
   }
+
+  def testSAMNotHighlightedWhenTypesOfParametersOfAnonymousFunctionAreInferred(): Unit = {
+    val text =
+      """
+        |trait SAM {
+        |  def foo(s: String): Char
+        |}
+        |def bar(sam: SAM) = s.foo("foo")
+        |
+        |bar(j => j.charAt(0))
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
+
 }
