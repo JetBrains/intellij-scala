@@ -157,6 +157,8 @@ package object extensions {
 
   implicit class BooleanExt(val b: Boolean) extends AnyVal {
     def ifTrue[T](value: => T) = if (b) Some(value) else None
+
+    def toInt: Int = if (b) 1 else 0
   }
 
   implicit class StringExt(val s: String) extends AnyVal{

@@ -8,10 +8,13 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.extensions.LazyVal
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 /**
  * Nikolay.Tropin
@@ -108,7 +111,7 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
   }
 
   def fragmentEvaluator(fragment: ScalaCodeFragment): Evaluator = {
-    val childrenEvaluators = fragment.children.collect {
+    val childrenEvaluators = fragment.children.filter(!_.isInstanceOf[ScImportStmt]).collect {
       case e @ (_: ScBlockStatement | _: ScMember) => evaluatorFor(e)
     }
     new BlockStatementEvaluator(childrenEvaluators.toArray)
@@ -140,23 +143,31 @@ private object needsCompilation {
   def message(kind: String) = Some(s"Evaluation of $kind needs compilation")
 
   def unapply(elem: PsiElement): Option[String] = elem match {
-    case expr if ScUnderScoreSectionUtil.isUnderscoreFunction(expr) => message("anonymous function")
-    case funExpr: ScFunctionExpr =>
-      message("anonymous function")
-    case forSt: ScForStatement =>
-      message("for expression")
-    case tryStmt: ScTryStmt =>
-      message("try statement")
-    case ret: ScReturnStmt =>
-      message("return statement")
-    case ms: ScMatchStmt =>
-      message("match statement")
-    case throwStmt: ScThrowStmt =>
-      message("throw statement")
-    case v @ (_: ScVariableDeclaration | _: ScValueDeclaration) => message("variable declaration")
-    case t: ScTypeAlias => message("type alias")
-    case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) =>
-      message("anonymous class")
+    case m: ScMember => m match {
+      case td: ScTemplateDefinition =>
+        td match {
+          case o: ScObject => message("object")
+          case c: ScClass => message("class")
+          case t: ScTrait => message("trait")
+          case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) =>
+            message("anonymous class")
+          case _ => None
+        }
+      case t: ScTypeAlias => message("type alias")
+      case f: ScFunction => message("function definition")
+      case v @ (_: ScVariableDeclaration | _: ScValueDeclaration) => message("variable declaration")
+      case LazyVal(_) => message("lazy val definition")
+      case _ => None
+    }
+    case expr if ScalaEvaluatorBuilderUtil.isGenerateAnonfun(expr) => message("anonymous function")
+    case forSt: ScForStatement => message("for expression")
+    case tryStmt: ScTryStmt => message("try statement")
+    case ret: ScReturnStmt => message("return statement")
+    case ms: ScMatchStmt => message("match statement")
+    case throwStmt: ScThrowStmt => message("throw statement")
+    case xml: ScXmlExpr => message("xml expression")
+    case interpolated: ScInterpolatedStringLiteral if interpolated.getType != InterpolatedStringType.STANDART =>
+      message("interpolated string")
     case _ => None
   }
 }

@@ -18,7 +18,7 @@ import scala.xml.{Elem, XML}
  * @author Pavel Fatin
  */
 class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[String, String],
-                customLauncher: Option[File], customStructureDir: Option[String]) {
+                customLauncher: Option[File], customStructureFile: Option[File]) {
   private val LauncherDir = getSbtLauncherDir
   private val SbtLauncher = customLauncher.getOrElse(LauncherDir / "sbt-launch.jar")
 
@@ -58,7 +58,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
   private def check(entity: String, file: File) = (!file.exists()).option(s"$entity does not exist: $file")
 
   private def read1(directory: File, sbtVersion: String, options: String, listener: (String) => Unit) = {
-    val pluginFile = customStructureDir.map(new File(_)).getOrElse(LauncherDir) / s"sbt-structure-$sbtVersion.jar"
+    val pluginFile = customStructureFile.getOrElse(LauncherDir / s"sbt-structure-$sbtVersion.jar")
 
     usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
       val sbtCommands = Seq(

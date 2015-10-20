@@ -19,6 +19,7 @@ import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope}
 import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.testFramework.IdeaTestUtil
+import org.jetbrains.SbtStructureSetup
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -36,15 +37,14 @@ import org.junit.experimental.categories.Category
  */
 
 @Category(Array(classOf[SlowTests]))
-class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
+class AllProjectHighlightingTest extends ExternalSystemImportingTestCase with SbtStructureSetup {
   override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
     val settings = new SbtProjectSettings
     val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
     val sdk = if (internalSdk == null) IdeaTestUtil.getMockJdk17
     else internalSdk
     val sdkType = sdk.getSdkType.asInstanceOf[JavaSdkType]
-    //todo: not working, fix and remove similar code from SbtExternalSystemManager
-    settings.setJdk(sdkType.getVMExecutablePath(sdk))
+    settings.setJdk(sdk.getName)
     settings.setCreateEmptyContentRootDirectories(true)
     settings
   }
@@ -153,8 +153,6 @@ class AllProjectHighlightingTest extends ExternalSystemImportingTestCase {
     val projectDir: File = new File(getRootDir, getTestName(false))
     if (!projectDir.exists()) return
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(projectDir)
-    SbtSystemSettings.getInstance(myProject).setCustomLauncherEnabled(true)
-    SbtSystemSettings.getInstance(myProject).setCustomLauncherPath(new File("scala-plugin/jars/sbt-launch.jar").getAbsolutePath)
-    SbtSystemSettings.getInstance(myProject).setCustomSbtStructureDir(new File("scala-plugin/jars").getAbsolutePath)
+    setUpSbtLauncherAndStructure(myProject)
   }
 }
