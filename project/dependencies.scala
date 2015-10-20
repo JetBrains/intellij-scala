@@ -3,7 +3,7 @@ import sbt._
 
 object Versions {
   val scalaVersion = "2.11.6"
-  val ideaVersion = "143.116.1"
+  val ideaVersion = "143.379.1"
   val sbtStructureVersion = "4.2.0"
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
@@ -19,6 +19,7 @@ object Dependencies {
   val sbtStructureExtractor013 = "org.jetbrains" % "sbt-structure-extractor-0-13" % sbtStructureVersion
   val sbtLaunch = "org.scala-sbt" % "sbt-launch" % "0.13.8"
 
+  val jamm = "com.github.jbellis" % "jamm" % "0.3.1"
   val scalaLibrary = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler = "org.scala-lang" % "scala-compiler" % scalaVersion
