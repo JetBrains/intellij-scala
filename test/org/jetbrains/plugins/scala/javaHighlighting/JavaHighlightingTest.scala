@@ -363,6 +363,19 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "SCL8866B"))
   }
 
+  def testSpecializedFields(): Unit = {
+    val scalaCode = "class SpecClass[@specialized(Int) T](val t: T, val s: String)"
+    val javaCode =
+      """
+        |public class Pair extends SpecClass<Integer> {
+        |    public Pair(SpecClass<Integer> i) {
+        |        super(i.t, "");
+        |    }
+        |}
+      """.stripMargin
+    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "Pair"))
+  }
+
   def messagesFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     myFixture.addFileToProject("dummy.scala", scalaFileText)
     val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
