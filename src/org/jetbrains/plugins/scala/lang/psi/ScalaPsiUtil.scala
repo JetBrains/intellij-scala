@@ -74,6 +74,12 @@ import scala.util.control.ControlThrowable
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  def nameWithPrefixIfNeeded(c: PsiClass): String = {
+    val qName = c.qualifiedName
+    if (ScalaCodeStyleSettings.getInstance(c.getProject).hasImportWithPrefix(qName)) qName.split('.').takeRight(2).mkString(".")
+    else c.name
+  }
+
   def typeParamString(param: ScTypeParam): String = {
     var paramText = param.name
     if (param.typeParameters.nonEmpty) {
