@@ -172,7 +172,7 @@ trait ScPattern extends ScalaPsiElement {
               }
             }
             if (subst.subst(rt).equiv(lang.psi.types.Boolean)) return None
-            val args = ScPattern.extractorParameters(rt, this, ScPattern.isOneArgCaseClassMethod(fun))
+            val args = ScPattern.extractorParameters(subst.subst(rt), this, ScPattern.isOneArgCaseClassMethod(fun))
             if (i < args.length) return Some(updateRes(subst.subst(args(i)).unpackedType))
             else return None
           case _ =>
