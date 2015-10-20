@@ -97,7 +97,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
                     (PsiDirectory) packageScopeItem.fileEncloser(), conflictsReporter, myTypeElement.getProject(), editor,
                     isReplaceAllOccurrences(), getEnteredName());
 
-            validator = packageScopeItem.validator();
+            validator = ((PackageScopeItem) currentScope).validator();
         } else if (currentScope instanceof SimpleScopeItem) {
             validator = ((SimpleScopeItem) currentScope).typeValidator();
         }
