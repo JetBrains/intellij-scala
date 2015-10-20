@@ -13,6 +13,7 @@ object CachedMacro {
   //to analyze caches pass in the following compiler flag: "-Xmacro-settings:analyze-caches"
   val ANALYZE_CACHES: String = "analyze-caches"
 
+  val cachedMapPostfix: String = "$cachedMap"
 
   def cachedImpl(c: whitebox.Context)(annottees: c.Tree*): c.Expr[Any] = {
     import c.universe._
@@ -54,7 +55,7 @@ object CachedMacro {
         //generated names
         val cacheVarName = c.freshName(name)
         val modCountVarName = c.freshName(name)
-        val mapName = c.freshName(name)
+        val mapName = TermName(name + cachedMapPostfix)
         val cachedFunName = TermName(c.freshName("cachedFun"))
         val cacheStatsName = TermName(c.freshName(name + "cacheStats"))
         val keyId = c.freshName(name.toString + "cacheKey")
