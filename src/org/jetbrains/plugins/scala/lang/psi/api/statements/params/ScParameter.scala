@@ -155,7 +155,6 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
           }
           applyForFunction(tp, ScUnderScoreSectionUtil.underscores(f).nonEmpty)
         }
-        if (result.isEmpty) result = None //todo: x => foo(x)
         result
       case _ => None
     }
