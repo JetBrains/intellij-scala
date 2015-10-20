@@ -127,9 +127,9 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     }
 
     this match {
-      case MethodValue(_) => checkForSAM() //eta expansion happened
       case ScFunctionExpr(_, _) if fromUnderscore => checkForSAM()
       case _ if !fromUnderscore && ScalaPsiUtil.isAnonExpression(this) => checkForSAM()
+      case MethodValue(_) => checkForSAM() //eta expansion happened
       case _ => None
     }
   }
