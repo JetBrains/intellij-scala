@@ -4,7 +4,6 @@ import java.util.concurrent.ConcurrentHashMap
 
 import com.intellij.util.containers.ContainerUtil
 import org.github.jamm.MemoryMeter
-import org.jetbrains.plugins.scala.statistics.CacheStatistics.memoryMeter
 
 import scala.collection.mutable
 import scala.ref.WeakReference
@@ -65,14 +64,15 @@ class CacheStatistics private(id: String, name: String) {
 
   //this method may take a while time to run
   def spaceTakenByCache: Long = {
-    try {
+    -1 //turned off counting space taken by cache, it causes errors to happen and doesn't work overall
+    /*try {
       objectsToKeepTrackOfNormalReferences.map(memoryMeter.measureDeep).sum
     } catch {
       case e@(_: AssertionError | _: IllegalStateException) =>
         println(e.getMessage) //message is probably: Instrumentation is not set; Jamm must be set as -javaagent
         print("Not counting size of cache")
         -1
-    }
+    }*/
 
   }
 
