@@ -59,6 +59,7 @@ object CachedMacro {
         val cacheStatsName = TermName(c.freshName(name + "cacheStats"))
         val keyId = c.freshName(name.toString + "cacheKey")
         val analyzeCaches = c.settings.contains(ANALYZE_CACHES)
+        val defdefFQN = q"""getClass.getName ++ "." ++ ${name.toString}"""
 
         //DefDef parameters
         val flatParams = paramss.flatten
@@ -67,7 +68,7 @@ object CachedMacro {
 
         val analyzeCachesField =
           if(analyzeCaches) {
-            val cacheDecl = q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, ${name.toString})"
+            val cacheDecl = q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)"
             if (hasParameters) { //need to put map in cacheStats, so its size can be measured
               q"""
                 $cacheDecl
@@ -186,7 +187,7 @@ object CachedMacro {
         val keyId = c.freshName(name.toString + "cacheKey")
         val key = TermName(c.freshName(name.toString + "Key"))
         val cacheStatsName = TermName(c.freshName(name + "cacheStats"))
-
+        val defdefFQN = q"""getClass.getName ++ "." ++ ${name.toString}"""
         val analyzeCaches = c.settings.contains(ANALYZE_CACHES)
         //function parameters
         val flatParams = paramss.flatten
@@ -237,7 +238,7 @@ object CachedMacro {
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         val res = q"""
           private val $key = $cachesUtilFQN.getOrCreateKey[$mappedKeyTypeFQN[(..$parameterTypes), $retTp]]($keyId)
-          ${if (analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, ${name.toString})" else EmptyTree}
+          ${if (analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)" else EmptyTree}
 
           ..$updatedDef
         """
@@ -283,6 +284,7 @@ object CachedMacro {
         val keyVarName = TermName(c.freshName(name.toString + "Key"))
         val cacheStatsName = TermName(c.freshName("cacheStats"))
         val analyzeCaches = c.settings.contains(ANALYZE_CACHES)
+        val defdefFQN = q"""getClass.getName ++ "." ++ ${name.toString}"""
 
         val provider =
           if (useOptionalProvider) TypeName("MyOptionalProvider")
@@ -317,7 +319,7 @@ object CachedMacro {
         val updatedDef = DefDef(mods, name, tpParams, params, retTp, updatedRhs)
         val res = q"""
           private val $keyVarName = $cachesUtilFQN.getOrCreateKey[$keyFQN[$cachedValueFQN[$retTp]]]($keyId)
-          ${if (analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, ${name.toString})" else EmptyTree}
+          ${if (analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)" else EmptyTree}
 
           ..$updatedDef
           """
@@ -362,11 +364,9 @@ object CachedMacro {
         val keyId = c.freshName(name.toString + "cacheKey")
         val key = TermName(c.freshName(name.toString + "Key"))
         val cacheStatsName = TermName(c.freshName("cacheStats"))
+        val defdefFQN = q"""getClass.getName ++ "." + ${name.toString}"""
 
         val analyzeCaches = c.settings.contains(ANALYZE_CACHES)
-        println(s"analyzeCaches: $analyzeCaches")
-        println(s"compiler flags: ${c.settings}")
-
         val provider =
           if (useOptionalProvider) TypeName("MyOptionalProvider")
           else TypeName("MyProvider")
@@ -396,7 +396,7 @@ object CachedMacro {
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         val res = q"""
           private val $key = $cachesUtilFQN.getOrCreateKey[$keyFQN[$cachedValueFQN[$retTp]]]($keyId)
-          ${if (analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, ${name.toString})" else EmptyTree}
+          ${if (analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)" else EmptyTree}
 
           ..$updatedDef
           """
