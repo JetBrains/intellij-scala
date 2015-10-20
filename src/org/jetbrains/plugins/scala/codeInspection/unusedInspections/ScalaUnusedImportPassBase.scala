@@ -43,15 +43,12 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
       psiOption match {
         case None => Seq[Annotation]()
         case Some(sel: ScImportSelector) if sel.importedName == "_" => Seq[Annotation]()
-        case Some(psi) if qName.nonEmpty && ScalaCodeStyleSettings.getInstance(file.getProject).isAlwaysUsedImport(qName.get) => Seq.empty
+        case Some(psi) if qName.exists(qName => ScalaCodeStyleSettings.getInstance(file.getProject).isAlwaysUsedImport(qName)) => Seq.empty
         case Some(psi) =>
           val annotation = annotationHolder.createWarningAnnotation(psi, "Unused import statement")
           annotation setHighlightType ProblemHighlightType.LIKE_UNUSED_SYMBOL
           getFixes.foreach(annotation.registerFix)
-          qName match {
-            case Some(name) => annotation.registerFix(new MarkImportAsAlwaysUsed(name))
-            case None =>
-          }
+          qName.foreach(name => annotation.registerFix(new MarkImportAsAlwaysUsed(name)))
           Seq[Annotation](annotation)
       }
     }
