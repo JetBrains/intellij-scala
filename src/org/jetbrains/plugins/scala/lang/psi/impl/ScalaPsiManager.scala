@@ -11,9 +11,9 @@ import com.intellij.ProjectTopics
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
-import com.intellij.openapi.util.{Key, LowMemoryWatcher}
+import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import com.intellij.psi.impl.{JavaPsiFacadeImpl, PsiManagerEx}
+import com.intellij.psi.impl.JavaPsiFacadeImpl
 import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.util.PsiModificationTracker
@@ -61,14 +61,14 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val inheritorsMap: ConcurrentMap[PsiClass, SofterReference[ConcurrentMap[PsiClass, java.lang.Boolean]]] =
     new ConcurrentHashMap()
 
-  private val scalaPackageClassesMap: ConcurrentMap[GlobalSearchScope, Array[PsiClass]] =
-    new ConcurrentHashMap[GlobalSearchScope, Array[PsiClass]]
+  private val scalaPackageClassesMap: ConcurrentMap[GlobalSearchScope, SofterReference[Array[PsiClass]]] =
+    new ConcurrentHashMap()
 
-  private val javaPackageClassNamesMap: ConcurrentMap[(GlobalSearchScope, String), java.util.Set[String]] =
-    new ConcurrentHashMap[(GlobalSearchScope, String), java.util.Set[String]]
+  private val javaPackageClassNamesMap: ConcurrentMap[(GlobalSearchScope, String), SofterReference[java.util.Set[String]]] =
+    new ConcurrentHashMap()
 
-  private val scalaPackageClassNamesMap: ConcurrentMap[(GlobalSearchScope, String), mutable.HashSet[String]] =
-    new ConcurrentHashMap[(GlobalSearchScope, String), mutable.HashSet[String]]
+  private val scalaPackageClassNamesMap: ConcurrentMap[(GlobalSearchScope, String), SofterReference[mutable.HashSet[String]]] =
+    new ConcurrentHashMap()
 
   private val compoundTypesParameterslessNodes: ConcurrentMap[(ScCompoundType, Option[ScType]), SofterReference[PMap]] =
     new ConcurrentHashMap
@@ -257,13 +257,12 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     }
     if (pack.getQualifiedName == "scala") {
       val packageClasses = scalaPackageClassesMap.get(scope)
-      if (packageClasses == null) {
+      if (packageClasses == null || packageClasses.get() == null) {
         val res = calc
-        scalaPackageClassesMap.put(scope, res)
-        return res
-      } else return packageClasses
-    }
-    calc
+        scalaPackageClassesMap.put(scope, new SofterReference(res))
+        res
+      } else packageClasses.get()
+    } else calc
   }
 
   def getCachedClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
@@ -335,12 +334,12 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       strings
     }
     var res = javaPackageClassNamesMap.get(scope, qualifier)
-    if (res == null) {
-      res = calc
+    if (res == null || res.get() == null) {
+      res = new SofterReference(calc)
       if (res == null) return Collections.emptySet()
       javaPackageClassNamesMap.put((scope, qualifier), res)
     }
-    res
+    res.get()
   }
 
   def getScalaClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): mutable.HashSet[String] = {
@@ -359,17 +358,16 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       strings
     }
     var res = scalaPackageClassNamesMap.get(scope, qualifier)
-    if (res == null) {
-      res = calc
+    if (res == null || res.get() == null) {
+      res = new SofterReference(calc)
       if (res == null) return mutable.HashSet.empty
       scalaPackageClassNamesMap.put((scope, qualifier), res)
     }
-    res
+    res.get()
   }
 
   def projectOpened() {}
-  def projectClosed() {
-  }
+  def projectClosed() {}
   def getComponentName = "ScalaPsiManager"
   def disposeComponent() {}
   def initComponent() {
@@ -419,22 +417,6 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       def rootsChanged(event: ModuleRootEvent) {
         clearOnChange()
         clearOnOutOfCodeBlockChange()
-      }
-    })
-
-    LowMemoryWatcher.register(new Runnable {
-      def run(): Unit = {
-        scalaPackageClassesMap.clear()
-        javaPackageClassNamesMap.clear()
-        scalaPackageClassNamesMap.clear()
-        compoundTypesParameterslessNodes.clear()
-        compoundTypesSignatureNodes.clear()
-        compoundTypesTypeNodes.clear()
-        Conformance.cache.clear()
-        Equivalence.cache.clear()
-        ScParameterizedType.substitutorCache.clear()
-        ScalaPsiUtil.collectImplicitObjectsCache.clear()
-        ImplicitCollector.cache.clear()
       }
     })
   }
