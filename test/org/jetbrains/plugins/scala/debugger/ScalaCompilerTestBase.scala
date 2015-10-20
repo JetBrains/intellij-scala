@@ -36,6 +36,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
   protected def useExternalCompiler: Boolean = true
 
   override def setUp(): Unit = {
+    VfsRootAccess.SHOULD_PERFORM_ACCESS_CHECK = false
     super.setUp()
     if (useExternalCompiler) {
       myProject.getMessageBus.connect(myTestRootDisposable).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter {
@@ -90,7 +91,9 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
 
   def discoverJDK18() = {
     import java.io._
-    def isJDK(f: File) = f.listFiles().exists(b=>b.getName == "bin" && b.listFiles().exists(_.getName.startsWith("javac")))
+    def isJDK(f: File) = f.listFiles().exists { b =>
+      b.getName == "bin" && b.listFiles().exists(x => x.getName == "javac.exe" || x.getName == "javac")
+    }
     def inJvm(path: String, suffix: String, postfix: String = "") = {
       Option(new File(path))
         .filter(_.exists())
@@ -102,7 +105,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
         )
     }
     val candidates = Seq(
-      Option(sys.env.getOrElse("JDK_18", sys.env.getOrElse("JDK_18_x64", null))),  // teamcity style
+      Option(sys.env.getOrElse("JDK_18_x64", sys.env.getOrElse("JDK_18", null))).map(_+"/jre"),  // teamcity style
       inJvm("/usr/lib/jvm", "1.8"),                   // oracle style
       inJvm("/usr/lib/jvm", "-8"),                    // openjdk style
       inJvm("C:\\Program Files\\Java\\", "1.8"),      // oracle windows style

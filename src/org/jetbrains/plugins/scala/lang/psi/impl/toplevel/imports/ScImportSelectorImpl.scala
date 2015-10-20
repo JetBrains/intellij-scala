@@ -10,6 +10,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.BooleanExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
@@ -47,10 +48,10 @@ class ScImportSelectorImpl private (stub: StubElement[ScImportSelector], nodeTyp
 
   def deleteSelector() {
     val expr: ScImportExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
-    if (expr.selectors.length + (if (expr.singleWildcard) 1 else 0) == 1) {
+    if (expr.selectors.length + expr.singleWildcard.toInt == 1) {
       expr.deleteExpr()
     }
-    val forward: Boolean = expr.selectors.apply(0) == this
+    val forward: Boolean = expr.selectors.head == this
     var node = this.getNode
     var prev = if (forward) node.getTreeNext else node.getTreePrev
     var t: IElementType = null
@@ -76,7 +77,7 @@ class ScImportSelectorImpl private (stub: StubElement[ScImportSelector], nodeTyp
     getStub match {
       case stub: ScImportSelectorStub => stub.isAliasedImport
       case _ =>
-        PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr]).selectors.length > 0 &&
+        PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr]).selectors.nonEmpty &&
                 !getLastChild.isInstanceOf[ScStableCodeReferenceElement]
     }
   }

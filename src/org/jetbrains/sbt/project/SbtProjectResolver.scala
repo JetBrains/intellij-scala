@@ -43,7 +43,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
 
     runner = new SbtRunner(settings.vmExecutable, settings.vmOptions, settings.environment,
-                           settings.customLauncher, settings.customSbtStructureDir)
+                           settings.customLauncher, settings.customSbtStructureFile)
 
     taskListener = new ExternalTaskListener(listener, id)
 

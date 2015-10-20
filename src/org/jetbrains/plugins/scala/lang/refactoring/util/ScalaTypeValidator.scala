@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.util
 
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -22,8 +21,6 @@ import scala.collection.mutable.ArrayBuffer
 object ScalaTypeValidator {
   def apply(conflictsReporter: ConflictsReporter,
             project: Project,
-            editor: Editor,
-            file: PsiFile,
             element: PsiElement,
             container: PsiElement,
             noOccurrences: Boolean): ScalaTypeValidator = {
@@ -32,12 +29,12 @@ object ScalaTypeValidator {
 }
 
 
-class ScalaTypeValidator(conflictsReporter: ConflictsReporter,
-                         myProject: Project,
-                         selectedElement: PsiElement,
-                         noOccurrences: Boolean,
-                         enclosingContainerAll: PsiElement,
-                         enclosingOne: PsiElement)
+class ScalaTypeValidator(val conflictsReporter: ConflictsReporter,
+                         val myProject: Project,
+                         val selectedElement: PsiElement,
+                         val noOccurrences: Boolean,
+                         val enclosingContainerAll: PsiElement,
+                         val enclosingOne: PsiElement)
   extends ScalaValidator(conflictsReporter, myProject, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
 
   override def findConflicts(name: String, allOcc: Boolean): Array[(PsiNamedElement, String)] = {

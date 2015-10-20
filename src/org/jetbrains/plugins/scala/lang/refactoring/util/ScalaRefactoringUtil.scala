@@ -29,14 +29,14 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScLiteralPattern, ScPattern, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScStableCodeReferenceElement, ScInterpolatedStringLiteral, ScLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScEarlyDefinitions}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
@@ -408,8 +408,7 @@ object ScalaRefactoringUtil {
                validatorsRes: mutable.MutableList[ScalaTypeValidator]) = {
 
       val occurrences = getTypeElementOccurrences(typeElement, classObject)
-      val validator = ScalaTypeValidator(conflictsReporter, project, editor, typeElement.getContainingFile,
-        typeElement, classObject, occurrences.isEmpty)
+      val validator = ScalaTypeValidator(conflictsReporter, project, typeElement, classObject, occurrences.isEmpty)
       occurrencesRes += occurrences
       validatorsRes += validator
     }

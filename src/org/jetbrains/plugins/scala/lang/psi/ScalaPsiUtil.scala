@@ -73,6 +73,12 @@ import scala.util.control.ControlThrowable
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  def nameWithPrefixIfNeeded(c: PsiClass): String = {
+    val qName = c.qualifiedName
+    if (ScalaCodeStyleSettings.getInstance(c.getProject).hasImportWithPrefix(qName)) qName.split('.').takeRight(2).mkString(".")
+    else c.name
+  }
+
   def typeParamString(param: ScTypeParam): String = {
     var paramText = param.name
     if (param.typeParameters.nonEmpty) {
@@ -2052,11 +2058,7 @@ object ScalaPsiUtil {
     def unapply(expr: ScExpression): Option[PsiMethod] = {
       if (!expr.expectedType(fromUnderscore = false).exists {
         case ScFunctionType(_, _) => true
-        case expected if isSAMEnabled(expr) =>
-          toSAMType(expected, expr.getResolveScope) match {
-            case Some(_) => true
-            case _ => false
-          }
+        case expected if isSAMEnabled(expr) => toSAMType(expected, expr.getResolveScope).isDefined
         case _ => false
       }) {
         return None

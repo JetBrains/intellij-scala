@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScNamedElement, ScTypedDefinition}
@@ -1049,8 +1050,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def literalEvaluator(l: ScLiteral): Evaluator = {
     l match {
-      case interpolated: ScInterpolatedStringLiteral if interpolated.getType == InterpolatedStringType.FORMAT =>
-        throw EvaluationException(ScalaBundle.message("formatted.interpolator.not.supported"))
       case interpolated: ScInterpolatedStringLiteral =>
         val evaluatorOpt = interpolated.getStringContextExpression.map(evaluatorFor(_))
         evaluatorOpt.getOrElse(ScalaLiteralEvaluator(l))
@@ -1180,7 +1179,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def blockExprEvaluator(block: ScBlock): Evaluator = {
     withNewSyntheticVariablesHolder {
-      val evaluators = block.statements.map(evaluatorFor)
+      val evaluators = block.statements.filter(!_.isInstanceOf[ScImportStmt]).map(evaluatorFor)
       new ScalaBlockExpressionEvaluator(evaluators.toSeq)
     }
   }
@@ -1532,6 +1531,8 @@ object ScalaEvaluatorBuilderUtil {
 
   def elementsWithSameNameIndex(named: PsiNamedElement, condition: PsiElement => Boolean): Int = {
     val containingClass = getContextClass(named)
+    if (containingClass == null) return -1
+
     val depthFirstIterator = containingClass.depthFirst {
       case `containingClass` => true
       case elem if isGenerateClass(elem) => false

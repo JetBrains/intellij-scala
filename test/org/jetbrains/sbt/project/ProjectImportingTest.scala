@@ -11,12 +11,10 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[SlowTests]))
 class ProjectImportingTest extends ImportingTestCase with InexactMatch {
 
-  def ivyCacheDir: File = new File(TestUtils.getIvyCachePath)
-
   def testSimple() = runTest(
     new project("testSimple") {
       lazy val scalaLibrary = new library("SBT: org.scala-lang:scala-library:2.11.6:jar") {
-        classes += (ivyCacheDir / "org.scala-lang" / "scala-library" / "jars" / "scala-library-2.11.6.jar").getAbsolutePath
+        classes += (IvyCacheDir / "org.scala-lang" / "scala-library" / "jars" / "scala-library-2.11.6.jar").getAbsolutePath
       }
 
       libraries += scalaLibrary
@@ -79,6 +77,17 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
       }
 
       modules := Seq(foo, bar, sharedSourcesModule)
+    }
+  )
+
+  def testExcludedDirectories() = runTest(
+    new project("testExcludedDirectories") {
+      modules += new module("root") {
+        excluded := Seq(
+          "directory-to-exclude-1",
+          "directory/to/exclude/2"
+        )
+      }
     }
   )
 }

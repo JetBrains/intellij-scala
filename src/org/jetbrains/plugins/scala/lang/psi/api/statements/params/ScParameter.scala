@@ -138,7 +138,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
               case ScFunctionType(ret, _) if checkDeep => applyForFunction(ret, checkDeep = false)
               case ScFunctionType(_, params) if params.length == f.parameters.length =>
                 val i = clause.parameters.indexOf(this)
-                if (result.isDefined && flag) {
+                if (result.isDefined) {
                   result = None
                   flag = true
                 } else result = Some(params(i))
@@ -155,7 +155,6 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
           }
           applyForFunction(tp, ScUnderScoreSectionUtil.underscores(f).nonEmpty)
         }
-        if (result.isEmpty) result = None //todo: x => foo(x)
         result
       case _ => None
     }
