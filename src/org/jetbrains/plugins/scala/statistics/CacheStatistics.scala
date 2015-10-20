@@ -2,7 +2,9 @@ package org.jetbrains.plugins.scala.statistics
 
 import java.util.concurrent.ConcurrentHashMap
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.containers.ContainerUtil
+import org.apache.log4j.Level
 import org.github.jamm.MemoryMeter
 
 import scala.collection.mutable
@@ -66,14 +68,15 @@ class CacheStatistics private(id: String, name: String) {
 
   //this method may take a while time to run
   def spaceTakenByCache: Long = {
-    try {
+    -1 //turned off counting space taken by cache, it causes errors to happen and doesn't work overall
+    /*try {
       objectsToKeepTrackOfNormalReferences.map(memoryMeter.measureDeep).sum
     } catch {
       case e@(_: AssertionError | _: IllegalStateException) =>
         println(e.getMessage) //message is probably: Instrumentation is not set; Jamm must be set as -javaagent
         print("Not counting size of cache")
         -1
-    }
+    }*/
 
   }
 
@@ -81,19 +84,26 @@ class CacheStatistics private(id: String, name: String) {
     import scala.collection.JavaConversions._
     val calcTimes: Set[Long] = calculationTimes.toSet //efficient because not conccurent
 
-    val averageTimes =
-      if (calcTimes.nonEmpty) {
-        s"average time to calculate: ${calcTimes.sum.toDouble / calcTimes.size}, maxTime: ${calcTimes.max}, minTime: ${calcTimes.min}"
-      } else ""
+    if (calculationTimes.nonEmpty) {
+      val (maxTime, minTime, averageTime) = (calcTimes.max, calcTimes.min, calcTimes.sum.toDouble / calcTimes.size)
 
-    s"""
+      val timeSaved = hits * averageTime
+      s"""
        |****************************
        |$name
        |hits: $hits, misses: $misses
        |*approximate* spaceTaken: $spaceTakenByCache
-       |$averageTimes
+       |maxTime: $maxTime, minTime: $minTime, averageTime: $averageTime
+       |time saved (hits * averageTime): $timeSaved
        |****************************
      """.stripMargin
+    } else {
+      s"""
+        |**************************
+        |$name not used
+        |**************************
+      """.stripMargin
+    }
   }
 }
 
@@ -103,7 +113,9 @@ object CacheStatistics {
   private val caches = new ConcurrentHashMap[String, CacheStatistics]()
 
   def printStats(): Unit = {
-    caches.values().asScala.foreach (c => println(c.toString))
+    val logger = Logger.getInstance(this.getClass)
+    logger.setLevel(Level.INFO)
+    caches.values().asScala.foreach (c => logger.info(c.toString))
   }
 
   def apply(id: String, name: String) = Option(caches.get(id)) match {
