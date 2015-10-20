@@ -2,7 +2,9 @@ package org.jetbrains.plugins.scala.statistics
 
 import java.util.concurrent.ConcurrentHashMap
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.containers.ContainerUtil
+import org.apache.log4j.Level
 import org.github.jamm.MemoryMeter
 
 import scala.collection.mutable
@@ -111,7 +113,9 @@ object CacheStatistics {
   private val caches = new ConcurrentHashMap[String, CacheStatistics]()
 
   def printStats(): Unit = {
-    caches.values().asScala.foreach (c => println(c.toString))
+    val logger = Logger.getInstance(this.getClass)
+    logger.setLevel(Level.INFO)
+    caches.values().asScala.foreach (c => logger.info(c.toString))
   }
 
   def apply(id: String, name: String) = Option(caches.get(id)) match {
