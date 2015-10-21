@@ -7,6 +7,15 @@ import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
 /**
+  * If you annotate a function with @CachedWithoutModificationCount annotation, the compiler will generate code to cache it.
+  *
+  * If an annotated function has parameters, one field will be generated (a HashMap).
+  * If an annotated function has no parameters, two fields will be generated: result and modCount
+  *
+  * NOTE !IMPORTANT!: function annotated with @Cached must be on top-most level because generated code generates fields
+  * right outside the cached function and if this function is inner it won't work.
+  *
+  * NOTE: Caching overloaded functions is currently not supported!
   * Author: Svyatoslav Ilinskiy
   * Date: 10/20/15.
   */

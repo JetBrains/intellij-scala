@@ -4,10 +4,21 @@ import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
 /**
-  * Calling this def macro will generate code that clears all maps associated with methodNames passed in
+  * Calling this def macro will generate code that does operation on all maps associated with methodNames passed in
   *
-  * NOTE: methodNames passed in should be in the same class and have @Cached annotation
+  * NOTE: methodNames passed in should be in the same class and have @CachedWithoutModificationCount annotation
   *
+  * Usage example:
+  * {{{
+  * @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None)
+  * def foo: PsiClass = ???
+  *
+  * LowMemoryWatcher.register(new Runnable {
+  *   def run(): Unit = {
+  *     WorkWithCache.workWithCache("clear", "foo")
+  *   }
+  * })
+  * }}}
   * Author: Svyatoslav Ilinskiy
   * Date: 10/20/15.
   */

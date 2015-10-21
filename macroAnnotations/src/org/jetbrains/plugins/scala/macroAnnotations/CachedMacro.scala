@@ -13,8 +13,6 @@ object CachedMacro {
   //to analyze caches pass in the following compiler flag: "-Xmacro-settings:analyze-caches"
   val ANALYZE_CACHES: String = "analyze-caches"
 
-  val cachedMapPostfix: String = "$cachedMap"
-
   def cachedImpl(c: whitebox.Context)(annottees: c.Tree*): c.Expr[Any] = {
     import c.universe._
 
