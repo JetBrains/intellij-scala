@@ -50,7 +50,10 @@ class MethodResolveProcessor(override val ref: PsiElement,
   }
 
   override def execute(element : PsiElement, state: ResolveState): Boolean = {
-    val named = element.asInstanceOf[PsiNamedElement]
+    val named = element match {
+      case named: PsiNamedElement => named
+      case _ => return true //do not process
+    }
     def implicitConversionClass: Option[PsiClass] = state.get(ScImplicitlyConvertible.IMPLICIT_RESOLUTION_KEY).toOption
     def implFunction: Option[PsiNamedElement] = state.get(CachesUtil.IMPLICIT_FUNCTION).toOption
     def implType: Option[ScType] = state.get(CachesUtil.IMPLICIT_TYPE).toOption
