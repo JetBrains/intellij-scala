@@ -43,6 +43,7 @@ object ScalaPostfixTemplateProvider {
     new ScalaWhilePostfixTemplate,
     new ScalaDoWhilePostfixTemplate,
     new ScalaIsNullPostfixTemplate,
-    new ScalaNotNullPostfixTemplate
+    new ScalaNotNullPostfixTemplate,
+    new ScalaNotNullPostfixTemplate("nn")
   )
 }
