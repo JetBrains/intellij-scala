@@ -52,12 +52,6 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val classesMap: ConcurrentMap[String, SofterReference[util.Map[GlobalSearchScope, Array[PsiClass]]]] =
     new ConcurrentHashMap()
 
-  private val classFacadeMap: ConcurrentMap[String, SofterReference[util.Map[GlobalSearchScope, Option[PsiClass]]]] =
-    new ConcurrentHashMap()
-
-  private val classesFacadeMap: ConcurrentMap[String, SofterReference[util.Map[GlobalSearchScope, Array[PsiClass]]]] =
-    new ConcurrentHashMap()
-
   private val inheritorsMap: ConcurrentMap[PsiClass, SofterReference[ConcurrentMap[PsiClass, java.lang.Boolean]]] =
     new ConcurrentHashMap()
 
@@ -169,10 +163,16 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 
 
   def getCachedClass(scope: GlobalSearchScope, fqn: String): PsiClass = {
+    def getCachedFacadeClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = {
+      val clazz = JavaPsiFacade.getInstance(project).findClass(fqn, scope)
+      if (clazz == null || clazz.isInstanceOf[ScTemplateDefinition] || clazz.isInstanceOf[PsiClassWrapper]) return None
+      Option(clazz)
+    }
+
     def calc(): Option[PsiClass] = {
       val res = ScalaShortNamesCacheManager.getInstance(project).getClassByFQName(fqn, scope)
       if (res != null) return Some(res)
-      Option(getCachedFacadeClass(scope, fqn))
+      getCachedFacadeClass(scope, fqn)
     }
 
     val reference = classMap.get(fqn)
@@ -180,28 +180,6 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       val map = new ConcurrentHashMap[GlobalSearchScope, Option[PsiClass]]()
       map.put(scope, calc())
       classMap.put(fqn, new SofterReference(map))
-      map
-    } else reference.get()
-    var result = map.get(scope)
-    if (result == null) {
-      result = calc()
-      map.put(scope, result)
-    }
-    result.orNull
-  }
-
-  def getCachedFacadeClass(scope: GlobalSearchScope, fqn: String): PsiClass = {
-    def calc(): Option[PsiClass] = {
-      val clazz = JavaPsiFacade.getInstance(project).findClass(fqn, scope)
-      if (clazz == null || clazz.isInstanceOf[ScTemplateDefinition] || clazz.isInstanceOf[PsiClassWrapper]) return None
-      Option(clazz)
-    }
-
-    val reference = classFacadeMap.get(fqn)
-    val map = if (reference == null || reference.get() == null) {
-      val map = new ConcurrentHashMap[GlobalSearchScope, Option[PsiClass]]()
-      map.put(scope, calc())
-      classFacadeMap.put(fqn, new SofterReference(map))
       map
     } else reference.get()
     var result = map.get(scope)
@@ -267,6 +245,13 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   }
 
   def getCachedClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
+    def getCachedFacadeClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
+      val classes = JavaPsiFacade.getInstance(project).findClasses(fqn, scope).filterNot(p =>
+        p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper]
+      )
+      ArrayUtil.mergeArrays(classes, SyntheticClassProducer.getAllClasses(fqn, scope))
+    }
+
     def calc(): Array[PsiClass] = {
       val classes = getCachedFacadeClasses(scope, fqn)
       val fromScala = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(fqn, scope)
@@ -279,30 +264,6 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       val map = new ConcurrentHashMap[GlobalSearchScope, Array[PsiClass]]()
       map.put(scope, calc())
       classesMap.put(fqn, new SofterReference(map))
-      map
-    } else reference.get()
-    var result = map.get(scope)
-    if (result == null) {
-      result = calc()
-      map.put(scope, result)
-    }
-    result
-  }
-
-  private def getCachedFacadeClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
-    def calc(): Array[PsiClass] = {
-      val classes = JavaPsiFacade.getInstance(project).findClasses(fqn, scope).filterNot(p =>
-        p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper]
-      )
-
-      ArrayUtil.mergeArrays(classes, SyntheticClassProducer.getAllClasses(fqn, scope))
-    }
-
-    val reference = classesFacadeMap.get(fqn)
-    val map = if (reference == null || reference.get() == null) {
-      val map = new ConcurrentHashMap[GlobalSearchScope, Array[PsiClass]]()
-      map.put(scope, calc())
-      classesFacadeMap.put(fqn, new SofterReference(map))
       map
     } else reference.get()
     var result = map.get(scope)
@@ -382,6 +343,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       ScParameterizedType.substitutorCache.clear()
       ScalaPsiUtil.collectImplicitObjectsCache.clear()
       ImplicitCollector.cache.clear()
+      psiTypeParameterUpperTypeMap.clear()
     }
 
     def clearOnOutOfCodeBlockChange(): Unit = {
@@ -389,8 +351,6 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       packageMap.clear()
       classMap.clear()
       classesMap.clear()
-      classFacadeMap.clear()
-      classesFacadeMap.clear()
       inheritorsMap.clear()
       scalaPackageClassesMap.clear()
       javaPackageClassNamesMap.clear()
