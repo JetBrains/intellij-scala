@@ -1,0 +1,87 @@
+package org.scalatest
+@org.scalatest.Finders(value = Array("org.scalatest.finders.FlatSpecFinder"))
+trait FlatSpecLike extends scala.AnyRef with org.scalatest.Suite with org.scalatest.words.ShouldVerb with org.scalatest.words.MustVerb with org.scalatest.words.CanVerb with org.scalatest.Informing with org.scalatest.Notifying with org.scalatest.Alerting with org.scalatest.Documenting {
+  protected def info : org.scalatest.Informer = { /* compiled code */ }
+  protected def note : org.scalatest.Notifier = { /* compiled code */ }
+  protected def alert : org.scalatest.Alerter = { /* compiled code */ }
+  protected def markup : org.scalatest.Documenter = { /* compiled code */ }
+  protected final class BehaviorWord() extends scala.AnyRef {
+    def of(description : scala.Predef.String) : scala.Unit = { /* compiled code */ }
+  }
+  protected val behavior : FlatSpecLike.this.BehaviorWord = { /* compiled code */ }
+  protected final class ItVerbStringTaggedAs(verb : scala.Predef.String, name : scala.Predef.String, tags : scala.List[org.scalatest.Tag]) extends scala.AnyRef {
+    def in(testFun : => scala.Unit) : scala.Unit = { /* compiled code */ }
+    def is(testFun : => org.scalatest.PendingNothing) : scala.Unit = { /* compiled code */ }
+    def ignore(testFun : => scala.Unit) : scala.Unit = { /* compiled code */ }
+  }
+  protected final class ItVerbString(verb : scala.Predef.String, name : scala.Predef.String) extends scala.AnyRef {
+    def in(testFun : => scala.Unit) : scala.Unit = { /* compiled code */ }
+    def is(testFun : => org.scalatest.PendingNothing) : scala.Unit = { /* compiled code */ }
+    def ignore(testFun : => scala.Unit) : scala.Unit = { /* compiled code */ }
+    def taggedAs(firstTestTag : org.scalatest.Tag, otherTestTags : org.scalatest.Tag*) : FlatSpecLike.this.ItVerbStringTaggedAs = { /* compiled code */ }
+  }
+  protected final class ItWord() extends scala.AnyRef {
+    def should(string : scala.Predef.String) : FlatSpecLike.this.ItVerbString = { /* compiled code */ }
+    def must(string : scala.Predef.String) : FlatSpecLike.this.ItVerbString = { /* compiled code */ }
+    def can(string : scala.Predef.String) : FlatSpecLike.this.ItVerbString = { /* compiled code */ }
+    def should(behaveWord : org.scalatest.words.BehaveWord) : org.scalatest.words.BehaveWord = { /* compiled code */ }
+    def must(behaveWord : org.scalatest.words.BehaveWord) : org.scalatest.words.BehaveWord = { /* compiled code */ }
+    def can(behaveWord : org.scalatest.words.BehaveWord) : org.scalatest.words.BehaveWord = { /* compiled code */ }
+  }
+  protected val it : FlatSpecLike.this.ItWord = { /* compiled code */ }
+  protected final class IgnoreVerbStringTaggedAs(verb : scala.Predef.String, name : scala.Predef.String, tags : scala.List[org.scalatest.Tag]) extends scala.AnyRef {
+    def in(testFun : => scala.Unit) : scala.Unit = { /* compiled code */ }
+    def is(testFun : => org.scalatest.PendingNothing) : scala.Unit = { /* compiled code */ }
+  }
+  protected final class IgnoreVerbString(verb : scala.Predef.String, name : scala.Predef.String) extends scala.AnyRef {
+    def in(testFun : => scala.Unit) : scala.Unit = { /* compiled code */ }
+    def is(testFun : => org.scalatest.PendingNothing) : scala.Unit = { /* compiled code */ }
+    def taggedAs(firstTestTag : org.scalatest.Tag, otherTestTags : org.scalatest.Tag*) : FlatSpecLike.this.IgnoreVerbStringTaggedAs = { /* compiled code */ }
+  }
+  protected final class IgnoreWord() extends scala.AnyRef {
+    def should(string : scala.Predef.String) : FlatSpecLike.this.IgnoreVerbString = { /* compiled code */ }
+    def must(string : scala.Predef.String) : FlatSpecLike.this.IgnoreVerbString = { /* compiled code */ }
+    def can(string : scala.Predef.String) : FlatSpecLike.this.IgnoreVerbString = { /* compiled code */ }
+  }
+  protected val ignore : FlatSpecLike.this.IgnoreWord = { /* compiled code */ }
+  protected final class TheyVerbStringTaggedAs(verb : scala.Predef.String, name : scala.Predef.String, tags : scala.List[org.scalatest.Tag]) extends scala.AnyRef {
+    def in(testFun : => scala.Unit) : scala.Unit = { /* compiled code */ }
+    def is(testFun : => org.scalatest.PendingNothing) : scala.Unit = { /* compiled code */ }
+    def ignore(testFun : => scala.Unit) : scala.Unit = { /* compiled code */ }
+  }
+  protected final class TheyVerbString(verb : scala.Predef.String, name : scala.Predef.String) extends scala.AnyRef {
+    def in(testFun : => scala.Unit) : scala.Unit = { /* compiled code */ }
+    def is(testFun : => org.scalatest.PendingNothing) : scala.Unit = { /* compiled code */ }
+    def ignore(testFun : => scala.Unit) : scala.Unit = { /* compiled code */ }
+    def taggedAs(firstTestTag : org.scalatest.Tag, otherTestTags : org.scalatest.Tag*) : FlatSpecLike.this.ItVerbStringTaggedAs = { /* compiled code */ }
+  }
+  protected final class TheyWord() extends scala.AnyRef {
+    def should(string : scala.Predef.String) : FlatSpecLike.this.ItVerbString = { /* compiled code */ }
+    def must(string : scala.Predef.String) : FlatSpecLike.this.ItVerbString = { /* compiled code */ }
+    def can(string : scala.Predef.String) : FlatSpecLike.this.ItVerbString = { /* compiled code */ }
+    def should(behaveWord : org.scalatest.words.BehaveWord) : org.scalatest.words.BehaveWord = { /* compiled code */ }
+    def must(behaveWord : org.scalatest.words.BehaveWord) : org.scalatest.words.BehaveWord = { /* compiled code */ }
+    def can(behaveWord : org.scalatest.words.BehaveWord) : org.scalatest.words.BehaveWord = { /* compiled code */ }
+  }
+  protected val they : FlatSpecLike.this.TheyWord = { /* compiled code */ }
+  protected final class InAndIgnoreMethods(resultOfStringPassedToVerb : org.scalatest.words.ResultOfStringPassedToVerb) extends scala.AnyRef {
+    def in(testFun : => scala.Unit) : scala.Unit = { /* compiled code */ }
+    def ignore(testFun : => scala.Unit) : scala.Unit = { /* compiled code */ }
+  }
+  protected implicit def convertToInAndIgnoreMethods(resultOfStringPassedToVerb : org.scalatest.words.ResultOfStringPassedToVerb) : FlatSpecLike.this.InAndIgnoreMethods = { /* compiled code */ }
+  protected final class InAndIgnoreMethodsAfterTaggedAs(resultOfTaggedAsInvocation : org.scalatest.words.ResultOfTaggedAsInvocation) extends scala.AnyRef {
+    def in(testFun : => scala.Unit) : scala.Unit = { /* compiled code */ }
+    def ignore(testFun : => scala.Unit) : scala.Unit = { /* compiled code */ }
+  }
+  protected implicit def convertToInAndIgnoreMethodsAfterTaggedAs(resultOfTaggedAsInvocation : org.scalatest.words.ResultOfTaggedAsInvocation) : FlatSpecLike.this.InAndIgnoreMethodsAfterTaggedAs = { /* compiled code */ }
+  protected implicit val shorthandTestRegistrationFunction : scala.Function3[scala.Predef.String, scala.Predef.String, scala.Predef.String, org.scalatest.words.ResultOfStringPassedToVerb] = { /* compiled code */ }
+  protected implicit val shorthandSharedTestRegistrationFunction : scala.Function1[scala.Predef.String, org.scalatest.words.BehaveWord] = { /* compiled code */ }
+  override def tags : scala.Predef.Map[scala.Predef.String, scala.Predef.Set[scala.Predef.String]] = { /* compiled code */ }
+  protected override def runTest(testName : scala.Predef.String, args : org.scalatest.Args) : org.scalatest.Status = { /* compiled code */ }
+  protected override def runTests(testName : scala.Option[scala.Predef.String], args : org.scalatest.Args) : org.scalatest.Status = { /* compiled code */ }
+  override def testNames : scala.Predef.Set[scala.Predef.String] = { /* compiled code */ }
+  override def run(testName : scala.Option[scala.Predef.String], args : org.scalatest.Args) : org.scalatest.Status = { /* compiled code */ }
+  protected val behave : org.scalatest.words.BehaveWord = { /* compiled code */ }
+  final override val styleName : scala.Predef.String = { /* compiled code */ }
+  override def testDataFor(testName : scala.Predef.String, theConfigMap : org.scalatest.ConfigMap = { /* compiled code */ }) : org.scalatest.TestData = { /* compiled code */ }
+}

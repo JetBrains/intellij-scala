@@ -1,0 +1,6 @@
+package mypack
+@mypack.MyTestAnnotation(value = "TestArg")
+class AnnotArgTest() extends scala.AnyRef {
+  def foo : scala.Int = { /* compiled code */ }
+  def bar : java.lang.String = { /* compiled code */ }
+}
