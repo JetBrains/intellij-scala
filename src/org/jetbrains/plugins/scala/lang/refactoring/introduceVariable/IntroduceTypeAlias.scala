@@ -252,8 +252,14 @@ trait IntroduceTypeAlias {
 
     replaceTypeElements(occurrences.getCompanionObjOccurrences, className + "." + typeName, typeAlias)
 
+    val resultTypeElement = if (typeElementIdx == -1) {
+      replaceTypeElements(Array(typeElement), typeName, typeAlias).apply(0)
+    } else {
+      usualOccurrences.apply(typeElementIdx)
+    }
+
     (SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(typeAlias.asInstanceOf[PsiElement]),
-      SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(usualOccurrences.apply(typeElementIdx)))
+      SmartPointerManager.getInstance(file.getProject).createSmartPsiElementPointer(resultTypeElement))
   }
 
   def runRefactoringForTypes(file: PsiFile, editor: Editor,

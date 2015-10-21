@@ -39,8 +39,20 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
     }
 
     def getTypeElementAtOffset = {
+      def isExpression = {
+        val element: PsiElement = file.findElementAt(offset) match {
+          case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset &&
+            w.getText.contains("\n") => file.findElementAt(offset - 1)
+          case p => p
+        }
+        ScalaRefactoringUtil.getExpressions(element).nonEmpty
+      }
+
       def findTypeElement(offset: Int) =
-        Option(PsiTreeUtil.findElementOfClassAtOffset(file, offset, classOf[ScTypeElement], false))
+        if (!hasSelection && !isExpression)
+          Option(PsiTreeUtil.findElementOfClassAtOffset(file, offset, classOf[ScTypeElement], false))
+        else
+          None
 
       file.findElementAt(offset) match {
         case w: PsiWhiteSpace if w.getTextRange.getStartOffset == offset => findTypeElement(offset - 1)
@@ -59,8 +71,11 @@ class ScalaIntroduceVariableHandler extends RefactoringActionHandler with Dialog
       editor.putUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO, new IntroduceTypeAliasData())
     }
 
-    val typeElement = selectedElement.collect { case te: ScTypeElement => te }
-      .orElse(getTypeElementAtOffset)
+    val typeElement = selectedElement match {
+      case Some(te: ScTypeElement) =>
+        Option(te)
+      case _ => getTypeElementAtOffset
+    }
 
     if (typeElement.isDefined) {
       if (editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).isData) {
