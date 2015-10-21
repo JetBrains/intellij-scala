@@ -60,7 +60,12 @@ class MacroExpandAction extends AnAction {
 
   def expandMacroUnderCursor(expansion: ResolvedMacroExpansion)(implicit e: AnActionEvent) = {
     inWriteCommandAction(e.getProject) {
-      applyExpansion(expansion)
+      try {
+        applyExpansion(expansion)
+      } catch {
+        case e: UnresolvedExpansion =>
+          LOG.warn(s"unable to expand ${expansion.expansion.place}, cannot resolve place, skipping")
+      }
       e.getProject
     }
   }
