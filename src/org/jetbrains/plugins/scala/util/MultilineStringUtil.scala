@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala
 package util
 
+import java.util.regex.Pattern
+
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
@@ -63,10 +65,14 @@ object MultilineStringUtil {
     true
   }
 
-  def needAddStripMargin(element: PsiElement, marginChar: String): Boolean = {
-    def hasMarginChars(element: PsiElement) = element.getText.replace("\r", "").split("\n[ \t]*\\|").length > 1
+  def hasMarginChars(element: PsiElement, marginChar: String) = {
+    val escaper = Pattern.compile("([^a-zA-z0-9])")
+    val escapedMarginChar = escaper.matcher(marginChar).replaceAll("\\\\$1")
+    element.getText.replace("\r", "").split(s"\n[ \t]*$escapedMarginChar").length > 1
+  }
 
-    findAllMethodCallsOnMLString(element, "stripMargin").isEmpty && !hasMarginChars(element)
+  def needAddStripMargin(element: PsiElement, marginChar: String): Boolean = {
+    findAllMethodCallsOnMLString(element, "stripMargin").isEmpty && !hasMarginChars(element, marginChar)
   }
 
   def needAddByType(literal: ScLiteral): Boolean = literal match {
