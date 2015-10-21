@@ -6,7 +6,6 @@ import junit.framework.TestCase
 import org.junit.Assert
 
 import scala.tools.nsc.io.File
-import scala.tools.scalap.scalax.rules.scalasig.{ClassFileParser, ByteCode}
 
 /**
  * @author Alefas
@@ -20,12 +19,14 @@ class DecompilerTest extends TestCase {
 
     val separator = jFile.separatorChar
     val classFilePath: String = s"scala-plugin${separator}testdata${separator}decompiler$separator$name$separator$fileName"
-    val expectedFilePath: String = classFilePath + ".test"
-
     val file = new File(new jFile(classFilePath))
-    val bytes = file.toByteArray()
+    //facilitate working directory equal to 'scala-plugin' root directory as well
+    val (bytes, expectedFilePath) = if (file.exists) (file.toByteArray(), classFilePath + ".test") else {
+      val insidePath = s"testdata${separator}decompiler$separator$name$separator$fileName"
+      (new File(new jFile(insidePath)).toByteArray(), insidePath + ".test")
+    }
 
-    val expectedResult = new File(new jFile(expectedFilePath)).slurp()
+    val expectedResult = new File(new jFile(expectedFilePath)).slurp().replace("\r","")
 
     Decompiler.decompile(fileName, bytes) match {
       case Some((_, text)) =>
@@ -35,5 +36,13 @@ class DecompilerTest extends TestCase {
 
   def testPackageObject(): Unit = {
     doTest("package.class")
+  }
+
+  def testAnnotationArrayArguments(): Unit = {
+    doTest("FlatSpecLike.class")
+  }
+
+  def testAnnotationArguments(): Unit = {
+    doTest("AnnotArgTest.class")
   }
 }

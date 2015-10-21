@@ -258,12 +258,15 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
       30 -~ longValue ^^ (_.toLong),
       31 -~ longValue ^^ (l => java.lang.Float.intBitsToFloat(l.toInt)),
       32 -~ longValue ^^ (java.lang.Double.longBitsToDouble),
-      33 -~ nameRef,
+      33 -~ nameRef.map("\"" + _ +"\""),
       34 -^ null,
       35 -~ typeRef,
       36 -~ symbolRef)
 
-  lazy val attributeInfo = 40 -~ symbolRef ~ typeRef ~ (constantRef?) ~ (nameRef ~ constantRef *) ^~~~^ AttributeInfo // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
+  //for now, support only constants and arrays of constants
+  lazy val annotArgArray  = 44 -~ (oneOf(constantRef, constAnnotArgRef)*).map(_.toArray)
+  lazy val constAnnotArgRef:  Rule[Any, String] = oneOf(constantRef, refTo(annotArgArray))
+  lazy val attributeInfo = 40 -~ symbolRef ~ typeRef ~ (constAnnotArgRef?) ~ (nameRef ~ constAnnotArgRef*) ^~~~^ AttributeInfo // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
   lazy val children = 41 -~ (nat*) ^^ Children //sym_Ref {sym_Ref}
   lazy val annotInfo = 43 -~ (nat*) ^^ AnnotInfo // attarg_Ref {constant_Ref attarg_Ref}
 
