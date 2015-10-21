@@ -12,7 +12,7 @@ class A {
   }
 }
 /*
-val l: List[Integer] = new ArrayList[Integer]
+val l: util.List[Integer] = new util.ArrayList[Integer]
 
 import scala.collection.JavaConversions._
 
