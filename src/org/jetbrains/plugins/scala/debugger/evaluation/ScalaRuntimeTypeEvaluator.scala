@@ -15,7 +15,6 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PsiImmediateClassType
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.util.PsiUtil
 import com.sun.jdi.{ClassType, Type, Value}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator._
@@ -84,7 +83,7 @@ object ScalaRuntimeTypeEvaluator {
   private def findPsiClass(project: Project, jdiType: Type): PsiClass = {
     val token: AccessToken = ReadAction.start
     try {
-      new ScalaPsiManager(project).getCachedClass(GlobalSearchScope.allScope(project), jdiType.name())
+      new ScalaPsiManager(project).getCachedClass(GlobalSearchScope.allScope(project), jdiType.name()).orNull
     }
     finally {
       token.finish()

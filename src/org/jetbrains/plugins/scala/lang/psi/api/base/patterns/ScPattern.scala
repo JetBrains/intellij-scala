@@ -271,12 +271,12 @@ trait ScPattern extends ScalaPsiElement {
           case _                                              => None
         }
       case _: ScXmlPattern =>
-        val nodeClass: PsiClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.xml.Node")
+        val nodeClass: PsiClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.xml.Node").orNull
         if (nodeClass == null) return None
         this match {
           case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] =>
             val seqClass: PsiClass =
-              ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.collection.Seq")
+              ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.collection.Seq").orNull
             if (seqClass == null) return None
             Some(ScParameterizedType(ScDesignatorType(seqClass), Seq(ScDesignatorType(nodeClass))))
           case _ => Some(ScDesignatorType(nodeClass))
@@ -290,7 +290,7 @@ trait ScPattern extends ScalaPsiElement {
       }
       case b: ScBlockExpr if b.getContext.isInstanceOf[ScCatchBlock] =>
         val thr = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.Throwable")
-        if (thr != null) Some(ScType.designator(thr)) else None
+        thr.map(ScType.designator(_))
       case b : ScBlockExpr =>
         b.expectedType(fromUnderscore = false) match {
           case Some(et) =>
@@ -410,7 +410,7 @@ object ScPattern {
                   else {
                     val productFqn = "scala.Product" + productChance.length
                     (for {
-                      productClass <- Option(ScalaPsiManager.instance(place.getProject).getCachedClass(place.getResolveScope, productFqn))
+                      productClass <- ScalaPsiManager.instance(place.getProject).getCachedClass(place.getResolveScope, productFqn)
                       clazz <- ScType.extractClass(tp, Some(place.getProject))
                     } yield clazz == productClass || clazz.isInheritor(productClass, true)).
                       filter(identity).fold(Seq(tp))(_ => productChance)

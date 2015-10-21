@@ -125,7 +125,7 @@ object CachedWithoutModificationCount {
           if (valueWrapper == ValueWrapper.None) q"$cacheVarName == null.asInstanceOf[$wrappedRetTp]"
           else {
             q"""
-              $cacheVarName == null.asInstanceOf[$wrappedRetTp] || $cacheVarName.get() == null.asInstanceOf[$wrappedRetTp]
+              $cacheVarName == null.asInstanceOf[$wrappedRetTp] || $cacheVarName.get() == null.asInstanceOf[$retTp]
             """
           }
 

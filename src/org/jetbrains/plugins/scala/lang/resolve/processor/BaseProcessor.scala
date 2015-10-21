@@ -251,7 +251,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
         }
 
         val scope = place.getResolveScope
-        val obj: PsiClass = ScalaPsiManager.instance(place.getProject).getCachedClass(scope, "java.lang.Object")
+        val obj: PsiClass = ScalaPsiManager.instance(place.getProject).getCachedClass(scope, "java.lang.Object").orNull
         if (obj != null) {
           val namesSet = Set("hashCode", "toString", "equals", "getClass")
           val methods = obj.getMethods.iterator
