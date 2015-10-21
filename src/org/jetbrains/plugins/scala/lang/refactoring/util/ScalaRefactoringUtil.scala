@@ -128,7 +128,6 @@ object ScalaRefactoringUtil {
   def checkTypeElement(element: ScTypeElement): Option[ScTypeElement] = {
     Option(element).filter {
       case e if e.getNextSiblingNotWhitespace.isInstanceOf[ScTypeArgs] => false
-      case e if inTemplateParents(e) => false
       case _ => true
     }
   }

@@ -452,14 +452,13 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
       buffer.append(")")
     }
     if (attrib.values.nonEmpty) {
-      buffer.append(" {")
+      buffer.append("(")
       for (name ~ value <- attrib.values) {
-        buffer.append(" val ")
         buffer.append(processName(name))
         buffer.append(" = ")
         buffer.append(valueToString(value))
       }
-      buffer.append(" }")
+      buffer.append(")")
     }
     buffer.toString
   }
@@ -467,6 +466,8 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
   def valueToString(value: Any): String = value match {
     case t: Type => "classOf[%s]" format toString(t)
     // TODO string, char, float, etc.
+    case arr: Array[_] => if (arr.nonEmpty)
+      "Array(" + arr.tail.foldLeft(arr.head.toString){case (curr, acc) => acc + "," + curr} + ")" else "Array()"
     case _ => value.toString
   }
 

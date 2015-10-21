@@ -128,7 +128,13 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
       val wasSingleLine = literal.getText.indexOf("\n") == literal.getText.lastIndexOf("\n")
       val lines = literal.getText.split("\n")
 
-      val marginCharOpt = if (needAddByType(literal)) selectBySettings[Option[Char]](None)(Some(marginChar)) else None
+      val marginCharFromSettings = selectBySettings[Option[Char]](None)(Some(marginChar))
+      val marginCharOpt =
+        marginCharFromSettings match {
+          case Some(mChar) if hasMarginChars(element, mChar.toString) ||
+            (!hasMarginChars(element, mChar.toString) && lines.length > 3)  || needAddByType(literal) => marginCharFromSettings
+          case _ => None
+        }
 
       if (wasSingleLine || lines.length == 3 &&
       (lines(0).endsWith("(") && lines(2).trim.startsWith(")") || lines(0).endsWith("{") && lines(2).trim.startsWith("}"))) {
@@ -151,7 +157,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
           else prefixLength(prevLine)
 
         val needInsertIndentInt =
-          if (needInsertNLBefore && !inConcatenation.isDefined) regularIndent
+          if (needInsertNLBefore && inConcatenation.isEmpty) regularIndent
           else 0
 
         if (needInsertNLBefore) {
