@@ -91,6 +91,7 @@ class MacroExpandAction extends AnAction {
     buffer.toSeq
   }
 
+  @throws[UnresolvedExpansion]
   def applyExpansion(resolved: ResolvedMacroExpansion)(implicit e: AnActionEvent): Unit = {
     if (resolved.psiElement.isEmpty)
       throw new UnresolvedExpansion
