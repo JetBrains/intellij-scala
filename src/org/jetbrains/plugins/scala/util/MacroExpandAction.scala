@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.util
 import java.io._
 import java.util.regex.Pattern
 
+import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
@@ -11,6 +12,7 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugin.scala.util.MacroExpansion
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScBlock, ScMethodCall}
@@ -31,6 +33,8 @@ class MacroExpandAction extends AnAction {
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     implicit val currentEvent = e
+
+    UsageTrigger.trigger(ScalaBundle.message("macro.expand.action.id"))
 
     val sourceEditor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
     val psiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(sourceEditor.getDocument)
