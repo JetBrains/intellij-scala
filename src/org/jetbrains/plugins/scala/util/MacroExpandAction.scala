@@ -139,7 +139,7 @@ class MacroExpandAction extends AnAction {
 
   def expandMacroCall(call: ScMethodCall, expansion: MacroExpansion)(implicit e: AnActionEvent) = {
     val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansion.body, PsiManager.getInstance(e.getProject))
-    val element = call.getParent.addAfter(blockImpl, call).asInstanceOf[ScBlock]
+    val element = call.getParent.addAfter(blockImpl, call)
     element match {
       case ScBlock(x, _*) => x.putCopyableUserData(MacroExpandAction.EXPANDED_KEY, call.getText)
       case _ => // unreachable
