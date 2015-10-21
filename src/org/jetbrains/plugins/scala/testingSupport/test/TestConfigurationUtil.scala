@@ -7,7 +7,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression, ScInfixExpr, ScParenthesisedExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScParenthesisedExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -54,8 +54,7 @@ object TestConfigurationUtil {
 
   def isInheritor(clazz: ScTemplateDefinition, fqn: String): Boolean = {
     val suiteClazz = ScalaPsiManager.instance(clazz.getProject).getCachedClass(clazz.getResolveScope, fqn)
-    if (suiteClazz == null) return false
-    ScalaPsiUtil.cachedDeepIsInheritor(clazz, suiteClazz)
+    suiteClazz.fold(false)(ScalaPsiUtil.cachedDeepIsInheritor(clazz, _))
   }
 
   private def getStaticTestNameElement(element: PsiElement, allowSymbolLiterals: Boolean): Option[Any] = {

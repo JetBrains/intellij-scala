@@ -218,7 +218,7 @@ object ScalaPsiUtil {
             case (res, _) => res.getOrAny
           }
         val qual = "scala.Tuple" + exprTypes.length
-        val tupleClass = ScalaPsiManager.instance(manager.getProject).getCachedClass(scope, qual)
+        val tupleClass = ScalaPsiManager.instance(manager.getProject).getCachedClass(scope, qual).orNull
         if (tupleClass == null) None
         else
           Some(Seq(new Expression(ScParameterizedType(ScDesignatorType(tupleClass), exprTypes), place)))
@@ -490,7 +490,7 @@ object ScalaPsiUtil {
   }
 
   def approveDynamic(tp: ScType, project: Project, scope: GlobalSearchScope): Boolean = {
-    val cachedClass = ScalaPsiManager.instance(project).getCachedClass(scope, "scala.Dynamic")
+    val cachedClass = ScalaPsiManager.instance(project).getCachedClass(scope, "scala.Dynamic").orNull
     if (cachedClass == null) return false
     val dynamicType = ScDesignatorType(cachedClass)
     tp.conforms(dynamicType)

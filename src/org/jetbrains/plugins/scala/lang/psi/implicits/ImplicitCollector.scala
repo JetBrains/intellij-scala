@@ -35,7 +35,7 @@ import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
 object ImplicitCollector {
-  val cache = ContainerUtil.newConcurrentMap[(PsiElement, ScType), SofterReference[Seq[ScalaResolveResult]]]()
+  val cache = ContainerUtil.newConcurrentMap[(PsiElement, ScType), Seq[ScalaResolveResult]]()
 
   def exprType(expr: ScExpression, fromUnder: Boolean): Option[ScType] = {
     expr.getTypeWithoutImplicits(fromUnderscore = fromUnder).toOption.map {
