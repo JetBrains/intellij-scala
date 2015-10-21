@@ -55,7 +55,7 @@ object CachedMacro {
         //generated names
         val cacheVarName = c.freshName(name)
         val modCountVarName = c.freshName(name)
-        val mapName = TermName(name + cachedMapPostfix)
+        val mapName = c.freshName(name)
         val cachedFunName = TermName(c.freshName("cachedFun"))
         val cacheStatsName = TermName(c.freshName(name + "cacheStats"))
         val keyId = c.freshName(name.toString + "cacheKey")

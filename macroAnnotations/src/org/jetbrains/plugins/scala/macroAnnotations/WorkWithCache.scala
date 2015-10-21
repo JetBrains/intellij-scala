@@ -12,14 +12,14 @@ import scala.reflect.macros.whitebox
   * Date: 10/20/15.
   */
 object WorkWithCache {
-  def workWithCache(operation: String, methodNames: String*) = macro workWithCacheImpl
+  def workWithCache(operation: String, methodNames: String*): Unit = macro workWithCacheImpl
   def workWithCacheImpl(c: whitebox.Context)(operation: c.Expr[String], methodNames: c.Expr[String]*): c.Expr[Unit] = {
     import c.universe._
 
     val statements = methodNames.map { s =>
       val name: TermName = TermName(c.eval[String](c.Expr[String](s.tree)))
       val op: TermName = TermName(c.eval[String](c.Expr[String](operation.tree)))
-      q"${TermName(name + CachedMacro.cachedMapPostfix)}.$op"
+      q"${TermName(name + CachedWithoutModificationCount.cachedMapPostfix)}.$op"
     }
     val res = q"..$statements"
     CachedMacro.println(res)
