@@ -11,6 +11,8 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Processor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern;
@@ -96,6 +98,42 @@ public class ScalaTestAstTransformer {
         return loader.loadClass(className);
     }
 
+    @Nullable
+    protected String getNameFromAnnotLiteral(@Nullable ScExpression expr) {
+        if (expr == null) return null;
+        if (expr instanceof ScLiteral && ((ScLiteral)expr).isString()) {
+            Object value2 = ((ScLiteral) expr).getValue();
+            if (value2 instanceof String) {
+                return (String) value2;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    protected String getNameFromAnnotAssign(@NotNull ScAssignStmt assignStmt) {
+        if (assignStmt.getLExpression() instanceof ScReferenceExpression &&
+                ((ScReferenceExpression) assignStmt.getLExpression()).refName().equals("value")) {
+            ScExpression expr = assignStmt.getRExpression().get();
+            if (expr != null) {
+                if (expr instanceof ScMethodCall) {
+                    ScMethodCall methodCall = (ScMethodCall) expr;
+                    ScExpression invokedExpr = methodCall.getInvokedExpr();
+                    if (invokedExpr instanceof ScReferenceExpression &&
+                            ((ScReferenceExpression)invokedExpr).refName().equals("Array")) {
+                        ScArgumentExprList constructorArgs = methodCall.args();
+                        ScExpression[] argExprs = constructorArgs.exprsArray();
+                        if (constructorArgs.invocationCount() == 1 && argExprs.length == 1) {
+                            expr = argExprs[0];
+                        }
+                    }
+                }
+                return getNameFromAnnotLiteral(expr);
+            }
+        }
+        return null;
+    }
+
     protected String getFinderClassFqn(ScTypeDefinition suiteTypeDef, Module module, String... annotationFqns) {
         String finderClassName = null;
         Annotation[] annotations = null;
@@ -115,23 +153,10 @@ public class ScalaTestAstTransformer {
                             List<ScExpression> exprs = JavaConversions.seqAsJavaList(args.exprs());
                             if (exprs.size() > 0) {
                                 ScExpression expr = exprs.get(0);
-                                if (expr instanceof ScLiteral && ((ScLiteral) expr).isString()) {
-                                    Object value = ((ScLiteral) expr).getValue();
-                                    if (value instanceof String) {
-                                        finderClassName = (String) value;
-                                    }
-                                } else if (expr instanceof ScAssignStmt) {
-                                    ScAssignStmt assignStmt = (ScAssignStmt) expr;
-                                    if (assignStmt.getLExpression() instanceof ScReferenceExpression &&
-                                            ((ScReferenceExpression) assignStmt.getLExpression()).refName().equals("value")) {
-                                        ScExpression rExpr = assignStmt.getRExpression().get();
-                                        if (rExpr != null && rExpr instanceof ScLiteral && ((ScLiteral) rExpr).isString()) {
-                                            Object value2 = ((ScLiteral) rExpr).getValue();
-                                            if (value2 instanceof String) {
-                                                finderClassName = (String) value2;
-                                            }
-                                        }
-                                    }
+                                if (expr instanceof ScAssignStmt) {
+                                    finderClassName = getNameFromAnnotAssign((ScAssignStmt) expr);
+                                } else {
+                                    finderClassName = getNameFromAnnotLiteral(expr);
                                 }
                             }
                         }
