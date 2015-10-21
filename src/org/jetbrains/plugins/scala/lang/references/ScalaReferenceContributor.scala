@@ -170,13 +170,13 @@ class FilePathReferenceProvider extends PsiReferenceProvider {
         val start: Int = interpolated.getTextRange.getStartOffset
         return refs.flatMap{ r =>
           val offset = r.getElement.getTextRange.getStartOffset - start
-          getReferencesByElement(r.getElement, r.getCanonicalText, offset, soft = true)}
+          getReferencesByElement(r.getElement, r.getElement.getText, offset, soft = true)}
       case interpolatedString: ScInterpolatedStringLiteral =>
         val refs = interpolatedString.getReferencesToStringParts
         val start: Int = interpolatedString.getTextRange.getStartOffset
         return refs.flatMap{ r =>
           val offset = r.getElement.getTextRange.getStartOffset - start
-          getReferencesByElement(r.getElement, r.getCanonicalText, offset, soft = true)
+          getReferencesByElement(r.getElement, r.getElement.getText, offset, soft = true)
         }
       case literal: ScLiteral =>
         literal.getValue match {
