@@ -98,7 +98,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
         case _ =>
       }
       var result = ImplicitCollector.cache.get((place, tp))
-      if (result != null && result.get() != null && !fullInfo) return result.get()
+      if (result != null && !fullInfo) return result
       ProgressManager.checkCanceled()
       var processor = new ImplicitParametersProcessor(false)
       var placeForTreeWalkUp = place
@@ -120,7 +120,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
               case _ =>
             }
             if (predicate.isEmpty) result = ImplicitCollector.cache.get((place, tp))
-            if (result != null && result.get() != null && !fullInfo) return result.get()
+            if (result != null && !fullInfo) return result
           }
           lastParent = placeForTreeWalkUp
           placeForTreeWalkUp = placeForTreeWalkUp.getContext
@@ -140,10 +140,9 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
 
       val secondCandidates = processor.candidatesS(fullInfo).toSeq
       result =
-        if (secondCandidates.isEmpty) new SofterReference(candidates)
-        else new SofterReference(secondCandidates)
+        if (secondCandidates.isEmpty) candidates else secondCandidates
       if (predicate.isEmpty && !fullInfo) ImplicitCollector.cache.put((place, tp), result)
-      result.get()
+      result
     }
 
     previousRecursionState match {

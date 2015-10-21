@@ -80,7 +80,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference)
-  def getPackageImplicitObjectsCached(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {
+  private def getPackageImplicitObjectsCached(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {
     ScalaShortNamesCacheManager.getInstance(project).getImplicitObjectsByPackage(fqn, scope)
   }
 
@@ -140,7 +140,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     else getClassesImpl(pack, scope)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None)
   private def getClassesCached(pack: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = getClassesImpl(pack, scope)
 
   private[this] def getClassesImpl(pack: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
@@ -173,7 +173,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     getJavaPackageClassNamesCached(qualifier, scope)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None)
   private def getJavaPackageClassNamesCached(packageFQN: String, scope: GlobalSearchScope): JSet[String] = {
     val classes: util.Collection[PsiClass] =
       StubIndex.getElements(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, packageFQN, project,
@@ -198,7 +198,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     getScalaClassNamesCached(qualifier, scope)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None)
   def getScalaClassNamesCached(packageFQN: String, scope: GlobalSearchScope): mutable.HashSet[String] = {
     val classes: util.Collection[PsiClass] =
       StubIndex.getElements(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, packageFQN, project,
@@ -238,8 +238,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 
     def clearOnOutOfCodeBlockChangeMacro(): Unit = {
       WorkWithCache.workWithCache("clear", "getPackageImplicitObjectsCached", "getCachedPackage", "getCachedClass",
-        "getCachedClasses", "getCachedFacadeClass", "getCachedFacadeClasses", "cachedDeepIsInheritor",
-        "getClassesCached", "getJavaPackageClassNamesCached", "getScalaClassNamesCached")
+        "getCachedClasses", "cachedDeepIsInheritor", "getClassesCached", "getJavaPackageClassNamesCached",
+        "getScalaClassNamesCached")
     }
 
     project.getMessageBus.connect.subscribe(PsiModificationTracker.TOPIC, new PsiModificationTracker.Listener {
@@ -273,6 +273,11 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
           ImplicitCollector.cache.clear()
         }
       })
+
+      def clearOnLowMemoryMacro(): Unit = {
+        WorkWithCache.workWithCache("clear", "getParameterlessSignaturesCached", "getTypesCached",
+          "getSignaturesCached", "getClassesCached", "getJavaPackageClassNamesCached", "getScalaClassNamesCached")
+      }
     })
   }
 
