@@ -25,9 +25,6 @@ class ScInfixTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     case _ => None
   }
 
-  private var desugarizedTypeModCount: Long = 0L
-  private var desugarizedType: Option[ScParameterizedTypeElement] = null
-
   @Cached(synchronized = true, ModCount.getModificationCount, getManager)
   def desugarizedInfixType: Option[ScParameterizedTypeElement] = {
     val newTypeText = s"${ref.getText}[${lOp.getText}, ${rOp.map(_.getText).getOrElse("Nothing")}}]"
