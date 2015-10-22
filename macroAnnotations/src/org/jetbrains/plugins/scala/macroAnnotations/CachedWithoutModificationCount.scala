@@ -27,16 +27,13 @@ object CachedWithoutModificationCount {
   val cachedMapPostfix: String = "$cachedMap"
 
   def cachedWithoutModificationCountImpl(c: whitebox.Context)(annottees: c.Tree*): c.Expr[Any] = {
+    import CachedMacroUtil._
     import c.universe._
+    implicit val x: c.type = c
 
-    //fully qualified names
-    val cacheStatisticsFQN = q"_root_.org.jetbrains.plugins.scala.statistics.CacheStatistics"
-    val analyzeCaches = c.settings.contains(CachedMacro.ANALYZE_CACHES)
-
-    def abort(message: String) = c.abort(c.enclosingPosition, message)
+    val analyzeCaches = analyzeCachesEnabled(c)
 
     def parameters: (Boolean, ValueWrapper) = {
-
       @tailrec
       def valueWrapperParam(valueWrapper: Tree): ValueWrapper = valueWrapper match {
         case q"valueWrapper = $v" => valueWrapperParam(v)
@@ -67,10 +64,10 @@ object CachedWithoutModificationCount {
         //generated names
         val cacheVarName = c.freshName(name)
         val mapName = TermName(name + cachedMapPostfix)
-        val cachedFunName = TermName(c.freshName("cachedFun"))
-        val cacheStatsName = TermName(c.freshName(name + "cacheStats"))
+        val cachedFunName = generateTermName("cachedFun")
+        val cacheStatsName = generateTermName(name + "cacheStats")
         val keyId = c.freshName(name.toString + "cacheKey")
-        val defdefFQN = q"""getClass.getName ++ "." ++ ${name.toString}"""
+        val defdefFQN = thisFunctionFQN(name.toString)
 
         //DefDef parameters
         val flatParams = paramss.flatten
@@ -113,23 +110,6 @@ object CachedWithoutModificationCount {
           """
         def putValuesIntoMap: c.universe.Tree = q"$mapName.put((..$paramNames), $cacheVarName)"
 
-        val analyzeCachesBeforeCalculation =
-          if (analyzeCaches) {
-            q"""
-              if ($cacheVarName != null) $cacheStatsName.removeCacheObject($cacheVarName)
-              val startTime = System.nanoTime()
-            """
-          } else EmptyTree
-
-        val analyzeCachesAfterCalculation =
-          if (analyzeCaches) {
-            q"""
-              val stopTime = System.nanoTime()
-              $cacheStatsName.reportTimeToCalculate(stopTime - startTime)
-              $cacheStatsName.addCacheObject($cacheVarName)
-            """
-          } else EmptyTree
-
         val hasCacheExpired =
           if (valueWrapper == ValueWrapper.None) q"$cacheVarName == null.asInstanceOf[$wrappedRetTp]"
           else {
@@ -151,9 +131,7 @@ object CachedWithoutModificationCount {
             ..${if (hasParameters) getValuesFromMap else EmptyTree}
             val cacheHasExpired = $hasCacheExpired
             if (cacheHasExpired) {
-              ..$analyzeCachesBeforeCalculation
               val cacheFunResult = $cachedFunName()
-              ..$analyzeCachesAfterCalculation
               $cacheVarName = $wrappedResult
               ..${if (hasParameters) putValuesIntoMap else EmptyTree}
             }
@@ -182,11 +160,11 @@ object CachedWithoutModificationCount {
               $functionContents
             """
           }
+        val actualCalculation = transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
         val updatedRhs =
           q"""
           def $cachedFunName(): $retTp = {
-            ${if (analyzeCaches) q"$cacheStatsName.recalculatingCache()" else EmptyTree}
-            $rhs
+            $actualCalculation
           }
           $functionContentsInSynchronizedBlock
         """
@@ -196,7 +174,7 @@ object CachedWithoutModificationCount {
           ..$fields
           $updatedDef
           """
-        CachedMacro.println(res)
+        println(res)
         c.Expr(res)
       case _ => abort("You can only annotate one function!")
     }

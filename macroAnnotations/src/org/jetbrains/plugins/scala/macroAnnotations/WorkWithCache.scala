@@ -33,7 +33,7 @@ object WorkWithCache {
       q"${TermName(name + CachedWithoutModificationCount.cachedMapPostfix)}.$op"
     }
     val res = q"..$statements"
-    CachedMacro.println(res)
+    CachedMacroUtil.println(res)
     c.Expr(res)
   }
 }
