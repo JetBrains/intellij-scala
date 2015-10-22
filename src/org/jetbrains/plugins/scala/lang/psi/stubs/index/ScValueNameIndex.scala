@@ -4,10 +4,10 @@ package psi
 package stubs
 package index
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.search.ScSourceFilterScope
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{StringStubIndexExtension, StubIndexKey}
+import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 
 class ScValueNameIndex extends StringStubIndexExtension[ScValue] {
   override def get(key: String, project: Project, scope: GlobalSearchScope): java.util.Collection[ScValue] =
-    super.get(key, project, new ScSourceFilterScope(scope, project))
+    super.get(key, project, new ScalaSourceFilterScope(scope, project))
 
   def getKey: StubIndexKey[String, ScValue] = ScValueNameIndex.KEY
 }
@@ -29,7 +29,7 @@ object ScValueNameIndex {
 
 class ScClassParameterNameIndex extends StringStubIndexExtension[ScClassParameter] {
   override def get(key: String, project: Project, scope: GlobalSearchScope): java.util.Collection[ScClassParameter] =
-    super.get(key, project, new ScSourceFilterScope(scope, project))
+    super.get(key, project, new ScalaSourceFilterScope(scope, project))
 
   def getKey: StubIndexKey[String, ScClassParameter] = ScClassParameterNameIndex.KEY
 }
