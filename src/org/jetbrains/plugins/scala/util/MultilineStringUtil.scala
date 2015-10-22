@@ -28,6 +28,12 @@ object MultilineStringUtil {
   val multilineQuotes = "\"\"\""
   val multilineQuotesLength = multilineQuotes.length
 
+  private val escaper = Pattern.compile("([^a-zA-z0-9])")
+
+  def escapeForRegexp(s: String): String = {
+    escaper.matcher(s).replaceAll("\\\\$1")
+  }
+
   def inMultilineString(element: PsiElement): Boolean = {
     if (element == null) return false
     element.getNode.getElementType match {
@@ -66,9 +72,7 @@ object MultilineStringUtil {
   }
 
   def hasMarginChars(element: PsiElement, marginChar: String) = {
-    val escaper = Pattern.compile("([^a-zA-z0-9])")
-    val escapedMarginChar = escaper.matcher(marginChar).replaceAll("\\\\$1")
-    element.getText.replace("\r", "").split(s"\n[ \t]*$escapedMarginChar").length > 1
+    element.getText.replace("\r", "").split(s"\n[ \t]*${escapeForRegexp(marginChar)}").length > 1
   }
 
   def needAddStripMargin(element: PsiElement, marginChar: String): Boolean = {
