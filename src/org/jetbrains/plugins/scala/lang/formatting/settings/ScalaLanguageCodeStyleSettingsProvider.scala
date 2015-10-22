@@ -182,6 +182,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     indentOptions.INDENT_SIZE = 2
     indentOptions.TAB_SIZE = 2
     indentOptions.CONTINUATION_INDENT_SIZE = 2
+    commonCodeStyleSettings.LINE_COMMENT_AT_FIRST_COLUMN = true
     commonCodeStyleSettings
   }
 
