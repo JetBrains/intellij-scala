@@ -156,7 +156,7 @@ trait SymbolTable {
           case (fqn, None) =>
             ScalaPsiManager.instance(getCurrentProject).getCachedClass(
               GlobalSearchScope.projectScope(getCurrentProject), fqn.split('.').drop(1).mkString(".")
-            )
+            ).get
         }
     }
 
