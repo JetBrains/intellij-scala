@@ -9,7 +9,7 @@ import com.intellij.openapi.util.{Computable, Key, RecursionGuard, RecursionMana
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
-import com.intellij.util.containers.ContainerUtil
+import com.intellij.util.containers.{ContainerUtil, Stack}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -23,6 +23,15 @@ import scala.util.control.ControlThrowable
  * Date: 08.06.2009
  */
 object CachesUtil {
+
+  /** This value is used by cache analyzer
+   *
+   * @see [[org.jetbrains.plugins.scala.macroAnnotations.CachedMacroUtil.transformRhsToAnalyzeCaches]]
+   */
+  lazy val timeToCalculateForAnalyzingCaches: ThreadLocal[Stack[Long]] = new ThreadLocal[Stack[Long]] {
+    override def initialValue: Stack[Long] = new Stack[Long]()
+  }
+
 
   /**
    * Do not delete this type alias, it is used by [[org.jetbrains.plugins.scala.macroAnnotations.CachedMappedWithRecursionGuard]]

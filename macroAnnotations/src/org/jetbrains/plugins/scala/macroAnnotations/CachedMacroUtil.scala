@@ -73,16 +73,21 @@ object CachedMacroUtil {
       val innerCachedFunName = generateTermName("")(c)
       //have to put it in a separate function because otherwise it falls with NonLocalReturn
       q"""
-      def $innerCachedFunName(): $retTp = $rhs
+        def $innerCachedFunName(): $retTp = $rhs
 
-      $cacheStatsName.recalculatingCache()
-      val startTime = System.nanoTime()
-      val res = $innerCachedFunName()
-      val stopTime = System.nanoTime()
-      $cacheStatsName.reportTimeToCalculate(stopTime - startTime)
-      $cacheStatsName.addCacheObject(res)
-      res
-    """
+        $cacheStatsName.recalculatingCache()
+        val myStartTimes = ${cachesUtilFQN(c)}.timeToCalculateForAnalyzingCaches.get()
+        val prevStartTime = Option(myStartTimes.tryPop()) //try to get time when previous cache started
+        val timePrevCacheRanUntilThisCacheStarted = prevStartTime.map { case time: Long => System.nanoTime - time }
+        myStartTimes.push(System.nanoTime()) //push my start time onto the stack
+        val res = $innerCachedFunName()
+        val stopTime = System.nanoTime()
+        $cacheStatsName.reportTimeToCalculate(stopTime - myStartTimes.pop()) //how much time did this cache run
+        $cacheStatsName.addCacheObject(res)
+        //update the start time of the previous cache. It is basically increaced by the time this cache ran
+        timePrevCacheRanUntilThisCacheStarted.foreach { case time: Long => myStartTimes.push(System.nanoTime - time)}
+        res
+      """
     } else q"$rhs"
   }
 
