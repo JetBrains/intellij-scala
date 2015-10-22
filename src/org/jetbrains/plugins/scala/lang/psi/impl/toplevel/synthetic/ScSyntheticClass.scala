@@ -273,7 +273,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     //todo: handle process cancelled exception
     try {
       val stringClass = ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), "java.lang.String")
-      if (stringClass != null) {
+      stringClass.map { stringClass =>
         scriptSyntheticValues += new ScSyntheticValue(manager, "args", JavaArrayType(ScDesignatorType(stringClass)))
       }
     }

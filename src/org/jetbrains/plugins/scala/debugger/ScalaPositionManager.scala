@@ -142,7 +142,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       def isDelayed = definition match {
         case obj: ScObject =>
           val manager: ScalaPsiManager = ScalaPsiManager.instance(obj.getProject)
-          val clazz: PsiClass = manager.getCachedClass(obj.getResolveScope, "scala.DelayedInit")
+          val clazz: PsiClass = manager.getCachedClass(obj.getResolveScope, "scala.DelayedInit").orNull
           clazz != null && manager.cachedDeepIsInheritor(obj, clazz)
         case _ => false
       }

@@ -6,7 +6,6 @@ package types
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
@@ -22,7 +21,7 @@ import scala.annotation.tailrec
 object ScFunctionType {
   def apply(returnType: ScType, params: Seq[ScType])(project: Project, scope: GlobalSearchScope): ValueType = {
     def findClass(fullyQualifiedName: String) : Option[PsiClass] = {
-      Option(ScalaPsiManager.instance(project).getCachedClass(scope, fullyQualifiedName))
+      ScalaPsiManager.instance(project).getCachedClass(scope, fullyQualifiedName)
     }
     findClass("scala.Function" + params.length) match {
       case Some(t: ScTrait) =>
@@ -47,7 +46,7 @@ object ScFunctionType {
 object ScPartialFunctionType {
   def apply(returnType: ScType, param: ScType)(project: Project, scope: GlobalSearchScope): ValueType = {
     def findClass(fullyQualifiedName: String) : Option[PsiClass] = {
-      Option(ScalaPsiManager.instance(project).getCachedClass(scope, fullyQualifiedName))
+      ScalaPsiManager.instance(project).getCachedClass(scope, fullyQualifiedName)
     }
     findClass("scala.PartialFunction") match {
       case Some(t: ScTrait) =>
@@ -71,7 +70,7 @@ object ScPartialFunctionType {
 object ScTupleType {
   def apply(components: Seq[ScType])(project: Project, scope: GlobalSearchScope): ValueType = {
     def findClass(fullyQualifiedName: String) : Option[PsiClass] = {
-      Option(ScalaPsiManager.instance(project).getCachedClass(scope, fullyQualifiedName))
+      ScalaPsiManager.instance(project).getCachedClass(scope, fullyQualifiedName)
     }
     findClass("scala.Tuple" + components.length) match {
       case Some(t: ScClass) =>

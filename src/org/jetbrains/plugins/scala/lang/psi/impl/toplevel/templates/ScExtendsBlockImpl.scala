@@ -139,16 +139,16 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
   }
 
   private def scalaProductClass: PsiClass =
-    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Product")
+    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Product").orNull
 
   private def scalaSerializableClass: PsiClass =
-    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Serializable")
+    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Serializable").orNull
 
   private def scalaObjectClass: PsiClass =
-    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.ScalaObject")
+    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.ScalaObject").orNull
 
   private def javaObjectClass: PsiClass =
-    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.Object")
+    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.Object").orNull
 
   private def scalaProduct: ScType = {
     val sp = scalaProductClass

@@ -524,7 +524,7 @@ object ResolveUtils {
               }
               val qName: String = psiPack.getQualifiedName
               val subpackageQName: String = if (qName.isEmpty) name else qName + "." + name
-              val subPackage = ScalaPsiManager.instance(psiPack.getProject).getCachedPackage(subpackageQName)
+              val subPackage = ScalaPsiManager.instance(psiPack.getProject).getCachedPackage(subpackageQName).orNull
               if (subPackage != null) {
                 if (!processor.execute(subPackage, state)) return false
               }
