@@ -26,7 +26,7 @@ trait AbstractTestConfigurationProducer {
     if (context.getModule == null) return null
     val scope: GlobalSearchScope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(context.getModule, true)
     if (suitePaths.forall(
-      suitePath => ScalaPsiManager.instance(context.getProject).getCachedClass(scope, suitePath) == null)) return null
+      suitePath => ScalaPsiManager.instance(context.getProject).getCachedClass(scope, suitePath).orNull == null)) return null
     myPsiElement = location.getPsiElement
     createConfigurationByLocation(location)//.asInstanceOf[RunnerAndConfigurationSettingsImpl]
   }

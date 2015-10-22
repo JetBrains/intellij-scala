@@ -15,13 +15,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.impl._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
-import org.jetbrains.plugins.scala.lang.psi.types.{Any, StdType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScDeclarationSequenceHolder, ScImportsHolder}
+import org.jetbrains.plugins.scala.lang.psi.types.{Any, ScType}
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -63,17 +62,17 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
 
     place match {
       case ref: ScStableCodeReferenceElement if ref.refName == "_root_" && ref.qualifier == None => {
-        val top = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage(""))
+        val top = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage("").orNull)
         if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
         state.put(ResolverEnv.nameKey, null)
       }
       case ref: ScReferenceExpressionImpl if ref.refName == "_root_" && ref.qualifier == None => {
-        val top = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage(""))
+        val top = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage("").orNull)
         if (top != null && !processor.execute(top, state.put(ResolverEnv.nameKey, "_root_"))) return false
         state.put(ResolverEnv.nameKey, null)
       }
       case _ => {
-        val defaultPackage = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage(""))
+        val defaultPackage = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage("").orNull)
         if (place != null && PsiTreeUtil.getParentOfType(place, classOf[ScPackaging]) == null) {
           if (defaultPackage != null &&
             !ResolveUtils.packageProcessDeclarations(defaultPackage, processor, state, null, place)) return false
@@ -100,7 +99,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
               }
             }
           } else {
-            val aPackage: PsiPackage = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage(name))
+            val aPackage: PsiPackage = ScPackageImpl(ScalaPsiManager.instance(getProject).getCachedPackage(name).orNull)
             if (aPackage != null && !processor.execute(aPackage, state)) return false
           }
         }
@@ -157,7 +156,7 @@ trait FileDeclarationsHolder extends PsiElement with ScDeclarationSequenceHolder
       while (implPIterator.hasNext) {
         val implP = implPIterator.next()
         ProgressManager.checkCanceled()
-        val pack: PsiPackage = ScalaPsiManager.instance(getProject).getCachedPackage(implP)
+        val pack: PsiPackage = ScalaPsiManager.instance(getProject).getCachedPackage(implP).orNull
         if (pack != null && !ResolveUtils.packageProcessDeclarations(pack, processor, state, null, place)) return false
       }
       true

@@ -21,6 +21,7 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager;
+import scala.Option;
 
 import javax.swing.*;
 import java.awt.*;
@@ -437,7 +438,12 @@ public class TestRunConfigurationForm {
       }
 
       protected PsiClass findClass(String className) {
-        return ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), className);
+        Option<PsiClass> cachedClass = ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), className);
+        if (cachedClass.isEmpty()) {
+          return null;
+        } else {
+          return cachedClass.get();
+        }
       }
     };
 

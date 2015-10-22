@@ -489,7 +489,7 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
 
 object ScDesignatorType {
   def fromClassFqn(fqn: String, project: Project, scope: GlobalSearchScope): ScType = {
-    Option(ScalaPsiManager.instance(project).getCachedClass(scope, fqn)) match {
+    ScalaPsiManager.instance(project).getCachedClass(scope, fqn) match {
       case Some(c) => ScType.designator(c)
       case _ => types.Nothing
     }

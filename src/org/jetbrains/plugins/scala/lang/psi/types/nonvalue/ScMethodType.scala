@@ -142,8 +142,9 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
       if (!p.isRepeated) inferredParamType
       else {
         val seqClass = ScalaPsiManager.instance(project).getCachedClass(scope, "scala.collection.Seq")
-        if (seqClass == null) inferredParamType
-        else ScParameterizedType(ScDesignatorType(seqClass), Seq(inferredParamType))
+        seqClass.fold(inferredParamType) { inferred =>
+            ScParameterizedType(ScDesignatorType(inferred), Seq(inferredParamType))
+        }
       }
     }))(project, scope)
   }

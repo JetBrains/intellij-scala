@@ -4,7 +4,8 @@ package lang.psi.implicits
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.containers.ConcurrentHashMap
+import com.intellij.util.SofterReference
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.ScalaRecursionManager
 import org.jetbrains.plugins.scala.caches.ScalaRecursionManager.RecursionMap
 import org.jetbrains.plugins.scala.extensions._
@@ -34,7 +35,7 @@ import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
 object ImplicitCollector {
-  val cache = new ConcurrentHashMap[(PsiElement, ScType), Seq[ScalaResolveResult]]()
+  val cache = ContainerUtil.newConcurrentMap[(PsiElement, ScType), Seq[ScalaResolveResult]]()
 
   def exprType(expr: ScExpression, fromUnder: Boolean): Option[ScType] = {
     expr.getTypeWithoutImplicits(fromUnderscore = fromUnder).toOption.map {
@@ -138,7 +139,8 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
       }
 
       val secondCandidates = processor.candidatesS(fullInfo).toSeq
-      result = if (secondCandidates.isEmpty) candidates else secondCandidates
+      result =
+        if (secondCandidates.isEmpty) candidates else secondCandidates
       if (predicate.isEmpty && !fullInfo) ImplicitCollector.cache.put((place, tp), result)
       result
     }
