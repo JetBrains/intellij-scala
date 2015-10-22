@@ -95,8 +95,7 @@ extends Object with ScalaTokenTypes with ASTBlock {
         val grandParent = parent.getParent
         new ChildAttributes(if (grandParent != null && (grandParent.isInstanceOf[ScCaseClause] || grandParent.isInstanceOf[ScFunctionExpr])) Indent.getNormalIndent
         else Indent.getNoneIndent, null)
-      case _: ScIfStmt => new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE),
-        this.getAlignment)
+      case _: ScIfStmt => new ChildAttributes(Indent.getNormalIndent(scalaSettings.ALIGN_IF_ELSE), this.getAlignment)
       case x: ScDoStmt => {
         if (x.hasExprBody)
           new ChildAttributes(Indent.getNoneIndent, null)
@@ -108,10 +107,8 @@ extends Object with ScalaTokenTypes with ASTBlock {
       case _: ScCaseClause => new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScExpression | _: ScPattern | _: ScParameters =>
         new ChildAttributes(Indent.getContinuationWithoutFirstIndent, this.getAlignment)
-      case comment: ScDocComment if comment.version > 1 =>
-        new ChildAttributes(Indent.getSpaceIndent(2), null)
       case _: ScDocComment =>
-        new ChildAttributes(Indent.getSpaceIndent(1), null)
+        new ChildAttributes(Indent.getSpaceIndent(if (scalaSettings.USE_SCALADOC2_FORMATTING) 2 else 1), null)
       case _ if parent.getNode.getElementType == ScalaTokenTypes.kIF =>
         new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScParameterClause =>

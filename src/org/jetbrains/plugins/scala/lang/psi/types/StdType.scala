@@ -135,8 +135,7 @@ abstract class ValType(override val name: String) extends StdType(name, Some(Any
   def apply(manager: PsiManager, scope: GlobalSearchScope): ScType = {
     val clazz =
       ScalaPsiManager.instance(manager.getProject).getCachedClass(scope, "scala." + name)
-    if (clazz != null) ScDesignatorType(clazz)
-    else this
+    clazz.map(ScDesignatorType(_)).getOrElse(this)
   }
 
   override def getValType: Option[StdType] = Some(this)

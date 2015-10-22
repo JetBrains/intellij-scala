@@ -11,7 +11,7 @@ import scala.language.experimental.macros
   * If an annotated function has parameters, one field will be generated (a HashMap).
   * If an annotated function has no parameters, two fields will be generated: result and modCount
   *
-  * NOTE: function annotated with @Cached must be on top-most level because generated code generates fields
+  * NOTE !IMPORTANT!: function annotated with @Cached must be on top-most level because generated code generates fields
   * right outside the cached function and if this function is inner it won't work.
   *
   * Author: Svyatoslav Ilinskiy

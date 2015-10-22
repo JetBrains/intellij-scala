@@ -495,7 +495,7 @@ object getDummyBlocks {
         }
         prevChild = child
       }
-      if (prevChild.getElementType == ScalaTokenTypes.kYIELD) {
+      if (prevChild != null && prevChild.getElementType == ScalaTokenTypes.kYIELD) {
         //add a block for 'yield' in case of incomplete for statement (expression after yield is missing)
         addSubBlock(prevChild, null)
       }

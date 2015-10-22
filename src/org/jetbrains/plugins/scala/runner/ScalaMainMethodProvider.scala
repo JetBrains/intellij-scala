@@ -29,7 +29,7 @@ class ScalaMainMethodProvider extends JavaMainMethodProvider {
 
   private def isMainMethod(method: PsiMethod): Boolean = {
     def checkTpe(tpe: ScType): Boolean = {
-      val stringClass = ScalaPsiManager.instance(method.getProject).getCachedClass(method.getResolveScope, "java.lang.String")
+      val stringClass = ScalaPsiManager.instance(method.getProject).getCachedClass(method.getResolveScope, "java.lang.String").orNull
       tpe.equiv(JavaArrayType(ScDesignatorType(stringClass)))
     }
 
