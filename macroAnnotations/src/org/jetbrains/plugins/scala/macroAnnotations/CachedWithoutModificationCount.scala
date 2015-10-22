@@ -159,13 +159,36 @@ object CachedWithoutModificationCount {
             }
             ${if (valueWrapper == ValueWrapper.None) q"$cacheVarName" else q"$cacheVarName.get"}
           """
+        val getValuesIfHasParams =
+          if (hasParameters) {
+            q"""
+              ..$getValuesFromMap
+            """
+          } else q""
+
+        val functionContentsInSynchronizedBlock =
+          if (synchronized) {
+            q"""
+              ..$getValuesIfHasParams
+              if ($hasCacheExpired) {
+                return $cacheVarName.get
+              }
+              synchronized {
+                $functionContents
+              }
+            """
+          } else {
+            q"""
+              $functionContents
+            """
+          }
         val updatedRhs =
           q"""
           def $cachedFunName(): $retTp = {
             ${if (analyzeCaches) q"$cacheStatsName.recalculatingCache()" else EmptyTree}
             $rhs
           }
-          ..${if (synchronized) q"synchronized { $functionContents }" else functionContents}
+          $functionContentsInSynchronizedBlock
         """
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         val res =
@@ -173,7 +196,7 @@ object CachedWithoutModificationCount {
           ..$fields
           $updatedDef
           """
-        println(res)
+        CachedMacro.println(res)
         c.Expr(res)
       case _ => abort("You can only annotate one function!")
     }

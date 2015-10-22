@@ -118,27 +118,50 @@ object CachedMacro {
               $cacheStatsName.addCacheObject($cacheVarName)
             """
           } else EmptyTree
+        val getValuesIfHasParams =
+          if (hasParameters) {
+            q"""
+              ..$getValuesFromMap
+            """
+          } else q""
 
         val functionContents = q"""
-            ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}
-            val modCount = $manager.getModificationTracker.${TermName(modCount.toString)}
-            ..${if (hasParameters) getValuesFromMap else EmptyTree}
-            if ($cacheVarName.isEmpty || $modCountVarName != modCount) {
+            ..$getValuesIfHasParams
+            if (cacheHasExpired($cacheVarName, $modCountVarName)) {
               ..$analyzeCachesBeforeCalculation
               val cacheFunResult = $cachedFunName()
               ..$analyzeCachesAfterCalculation
               $cacheVarName = _root_.scala.Some(cacheFunResult)
-              $modCountVarName = modCount
+              $modCountVarName = currModCount
               ..${if (hasParameters) putValuesIntoMap else EmptyTree}
             }
             $cacheVarName.get
           """
+        val functionContentsInSynchronizedBlock =
+          if (synchronized) {
+            q"""
+              ..$getValuesIfHasParams
+              if (!cacheHasExpired($cacheVarName, $modCountVarName)) {
+                return $cacheVarName.get
+              }
+              synchronized {
+                $functionContents
+              }
+            """
+          } else {
+            q"""
+              $functionContents
+            """
+          }
         val updatedRhs = q"""
           def $cachedFunName(): $retTp = {
             ${if (analyzeCaches) q"$cacheStatsName.recalculatingCache()" else EmptyTree}
             $rhs
           }
-          ..${ if (synchronized) q"synchronized { $functionContents }" else functionContents }
+          val currModCount = $manager.getModificationTracker.${TermName(modCount.toString)}
+          def cacheHasExpired(opt: Option[Any], cacheCount: Long) = opt.isEmpty || currModCount != cacheCount
+          ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}
+          $functionContentsInSynchronizedBlock
         """
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         val res = q"""
