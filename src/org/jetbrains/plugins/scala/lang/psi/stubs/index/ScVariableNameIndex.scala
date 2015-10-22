@@ -4,10 +4,10 @@ package psi
 package stubs
 package index
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.search.ScSourceFilterScope
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.{StringStubIndexExtension, StubIndexKey}
+import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 
 /**
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 
 class ScVariableNameIndex extends StringStubIndexExtension[ScVariable] {
   override def get(key: String, project: Project, scope: GlobalSearchScope): java.util.Collection[ScVariable] =
-    super.get(key, project, new ScSourceFilterScope(scope, project))
+    super.get(key, project, new ScalaSourceFilterScope(scope, project))
 
   def getKey: StubIndexKey[String, ScVariable] = ScVariableNameIndex.KEY
 }
