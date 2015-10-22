@@ -123,7 +123,7 @@ object TypeDefinitionMembers {
       if (template.qualifiedName == "scala.AnyVal") {
         //we need to add Object members
         val obj = ScalaPsiManager.instance(template.getProject).getCachedClass(template.getResolveScope, "java.lang.Object")
-        if (obj != null) {
+        obj.map { obj =>
           for (method <- obj.getMethods) {
             method.getName match {
               case "hashCode" | "toString" =>
@@ -359,7 +359,7 @@ object TypeDefinitionMembers {
       if (template.qualifiedName == "scala.AnyVal") {
         //we need to add Object members
         val obj = ScalaPsiManager.instance(template.getProject).getCachedClass(template.getResolveScope, "java.lang.Object")
-        if (obj != null) {
+        obj.map { obj =>
           for (method <- obj.getMethods) {
             method.getName match {
               case "equals" | "hashCode" | "toString" =>

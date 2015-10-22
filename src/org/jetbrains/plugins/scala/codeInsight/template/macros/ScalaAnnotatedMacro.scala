@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.codeInsight.template.macros
 
-import com.intellij.codeInsight.lookup.{LookupElementBuilder, LookupElement}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.codeInsight.template._
-import com.intellij.psi.{PsiClass, PsiMember}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.AnnotatedMembersSearch
-import com.intellij.util.{Query, EmptyQuery}
+import com.intellij.psi.{PsiClass, PsiMember}
+import com.intellij.util.{EmptyQuery, Query}
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType
 import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -23,8 +23,8 @@ class ScalaAnnotatedMacro extends Macro {
       case _ if params.length > 0 => //TODO should params.length always equal 1?
         val project = context.getProject
         val scope = GlobalSearchScope.allScope(project)
-        Option(params.head.calculateResult(context)).map(res => ScalaPsiManager.instance(project).
-                getCachedClass(scope, res.toString)).filter(_ != null).map(AnnotatedMembersSearch.search(_, scope)).
+        Option(params.head.calculateResult(context)).flatMap(res => ScalaPsiManager.instance(project).
+                getCachedClass(scope, res.toString)).map(AnnotatedMembersSearch.search(_, scope)).
                 getOrElse(EmptyQuery.getEmptyQuery[PsiMember])
     }
   }
@@ -46,7 +46,9 @@ class ScalaAnnotatedMacro extends Macro {
     val secondParamName = if (params.length > 1) params(1).calculateResult(context).toString else null
     val isShortName = secondParamName != null && !secondParamName.toBoolean
     val project = context.getProject
-    val outerClass = Option(if (secondParamName != null) ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), secondParamName) else null)
+    val outerClass: Option[PsiClass] = Option(secondParamName).flatMap { secondParamName =>
+      ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), secondParamName)
+    }
     import collection.JavaConversions._
     getAnnotatedMembers(params, context).findAll().filter(outerClass.isDefined && outerClass.contains(_)).map{
       case psiClass: PsiClass if !isShortName => psiClass.getQualifiedName

@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.IntStubIndexExtension
-import org.jetbrains.plugins.scala.lang.psi.impl.search.ScSourceFilterScope
+import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 
 /**
  * @author ilyas
@@ -18,11 +18,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.search.ScSourceFilterScope
 class ScPackageObjectIndex extends IntStubIndexExtension[PsiClass] {
 
   override def get(int: java.lang.Integer, project: Project, scope: GlobalSearchScope): java.util.Collection[PsiClass] =
-    super.get(int, project, new ScSourceFilterScope(scope, project))
+    super.get(int, project, new ScalaSourceFilterScope(scope, project))
 
   def getKey = ScPackageObjectIndex.KEY
 }
 
 object ScPackageObjectIndex {
-  val KEY = ScalaIndexKeys.PACKAGE_OBJECT_KEY;
+  val KEY = ScalaIndexKeys.PACKAGE_OBJECT_KEY
 }

@@ -4,10 +4,10 @@ package psi
 package stubs
 package index
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.impl.search.ScSourceFilterScope
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StringStubIndexExtension
+import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 
 class ScDirectInheritorsIndex extends StringStubIndexExtension[ScExtendsBlock] {
   override def get(int: String, project: Project, scope: GlobalSearchScope): java.util.Collection[ScExtendsBlock] =
-    super.get(int, project, new ScSourceFilterScope(scope, project))
+    super.get(int, project, new ScalaSourceFilterScope(scope, project))
 
   def getKey = ScDirectInheritorsIndex.KEY
 }
@@ -29,7 +29,7 @@ object ScDirectInheritorsIndex {
 
 class ScSelfTypeInheritorsIndex extends StringStubIndexExtension[ScSelfTypeElement] {
   override def get(int: String, project: Project, scope: GlobalSearchScope): java.util.Collection[ScSelfTypeElement] =
-    super.get(int, project, new ScSourceFilterScope(scope, project))
+    super.get(int, project, new ScalaSourceFilterScope(scope, project))
 
   def getKey = ScSelfTypeInheritorsIndex.KEY
 }
