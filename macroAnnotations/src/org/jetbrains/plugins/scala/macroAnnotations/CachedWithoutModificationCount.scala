@@ -75,16 +75,8 @@ object CachedWithoutModificationCount {
         val hasParameters: Boolean = flatParams.nonEmpty
 
         val analyzeCachesField =
-          if (analyzeCaches) {
-            val cacheDecl = q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)"
-            if (hasParameters) {
-              //need to put map in cacheStats, so its size can be measured
-              q"""
-                $cacheDecl
-                $cacheStatsName.addCacheObject($mapName)
-              """
-            } else cacheDecl
-          } else EmptyTree
+          if (analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)"
+          else EmptyTree
         val wrappedRetTp: Tree = valueWrapper match {
           case ValueWrapper.None => retTp
           case ValueWrapper.WeakReference => tq"_root_.java.lang.ref.WeakReference[$retTp]"

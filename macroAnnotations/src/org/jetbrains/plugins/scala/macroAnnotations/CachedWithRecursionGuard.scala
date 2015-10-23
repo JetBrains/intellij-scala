@@ -78,7 +78,7 @@ object CachedWithRecursionGuard {
 
           ..$updatedDef
           """
-        CachedMacroUtil.println(res)
+        println(res)
         c.Expr(res)
       case _ => abort("You can only annotate one function!")
     }
