@@ -12,6 +12,8 @@ import com.intellij.openapi.project.Project
  * @since 15.12.12
  */
 class ScalaTypeDefinitionFindUsagesOptions(project: Project) extends JavaFindUsagesOptions(project) {
+  isSearchForTextOccurrences = false
+
   var isImplementingTypeDefinitions = false
   var isMembersUsages = false
   var isSearchCompanionModule = false
