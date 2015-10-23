@@ -405,7 +405,8 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val project = debugProcess.getProject
 
     val allLocations = Try(refType.allLineLocations().asScala).getOrElse(Seq.empty)
-    val refTypeLineNumbers = allLocations.map(_.lineNumber() - 1)
+
+    val refTypeLineNumbers = allLocations.map(checkedLineNumber).filter(_ > 0)
     if (refTypeLineNumbers.isEmpty) return None
 
     val firstRefTypeLine = refTypeLineNumbers.min
@@ -584,6 +585,10 @@ object ScalaPositionManager {
 
     CachedValuesManager.getCachedValue(file, cacheProvider).getOrElseUpdate(lineNumber, positionsOnLineInner(scFile, lineNumber))
   }
+
+  def checkedLineNumber(location: Location): Int =
+    try location.lineNumber() - 1
+    catch {case ie: InternalError => -1}
 
   private def positionsOnLineInner(file: ScalaFile, lineNumber: Int): Seq[PsiElement] = {
     inReadAction {
