@@ -14,6 +14,7 @@ import com.intellij.psi.search.searches.DirectClassInheritorsSearch
 import com.intellij.psi.util.PsiUtil
 import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 
@@ -36,15 +37,25 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
       }
     }
 
+    val anonymousClasses = new ArrayBuffer[PsiClass]()
     val map = new mutable.HashMap[String, ArrayBuffer[PsiClass]]()
     def add(clazz: PsiClass): Unit = {
-      val buffer = map.getOrElseUpdate(inReadAction {
+      val id = inReadAction {
         clazz match {
           case o: ScObject => s"object:${o.qualifiedName}"
           case c: ScTypeDefinition => s"class:${c.qualifiedName}"
-          case _ => clazz.getQualifiedName
+          case n: ScNewTemplateDefinition =>
+            anonymousClasses += n
+            return
+          case _ =>
+            val qualName = clazz.getQualifiedName
+            if (qualName == null) {
+              anonymousClasses += clazz
+              return
+            } else qualName
         }
-      }, new ArrayBuffer[PsiClass]())
+      }
+      val buffer = map.getOrElseUpdate(id, new ArrayBuffer[PsiClass]())
       buffer += clazz
     }
     val candidates: Seq[ScTemplateDefinition] = inReadAction {
@@ -76,6 +87,12 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
             }
             if (!consumer.process(closestClass)) return false
         }
+      }
+    }
+
+    if (anonymousClasses.nonEmpty && queryParameters.includeAnonymous()) {
+      for (clazz <- anonymousClasses) {
+        if (!consumer.process(clazz)) return false
       }
     }
 
