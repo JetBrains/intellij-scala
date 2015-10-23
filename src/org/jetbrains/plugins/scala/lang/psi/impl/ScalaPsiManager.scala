@@ -76,12 +76,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 
   def getPackageImplicitObjects(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {
     if (DumbService.getInstance(project).isDumb) Seq.empty
-    else getPackageImplicitObjectsCached(fqn, scope)
-  }
-
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference)
-  private def getPackageImplicitObjectsCached(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {
-    ScalaShortNamesCacheManager.getInstance(project).getImplicitObjectsByPackage(fqn, scope)
+    else ScalaShortNamesCacheManager.getInstance(project).getImplicitObjectsByPackage(fqn, scope)
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference)
