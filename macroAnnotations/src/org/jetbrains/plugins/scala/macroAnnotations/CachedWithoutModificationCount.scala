@@ -15,17 +15,16 @@ import scala.reflect.macros.whitebox
   * NOTE !IMPORTANT!: function annotated with @Cached must be on top-most level because generated code generates fields
   * right outside the cached function and if this function is inner it won't work.
   *
-  * NOTE: Caching overloaded functions is currently not supported!
   * Author: Svyatoslav Ilinskiy
   * Date: 10/20/15.
   */
-class CachedWithoutModificationCount(synchronized: Boolean, valueWrapper: ValueWrapper) extends StaticAnnotation {
+class CachedWithoutModificationCount(synchronized: Boolean,
+                                     valueWrapper: ValueWrapper,
+                                     addToSet: java.util.Set[java.util.Map[_ <: Any , _ <: Any]]*) extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro CachedWithoutModificationCount.cachedWithoutModificationCountImpl
 }
 
 object CachedWithoutModificationCount {
-  val cachedMapPostfix: String = "$cachedMap"
-
   def cachedWithoutModificationCountImpl(c: whitebox.Context)(annottees: c.Tree*): c.Expr[Any] = {
     import CachedMacroUtil._
     import c.universe._
@@ -33,7 +32,7 @@ object CachedWithoutModificationCount {
 
     val analyzeCaches = analyzeCachesEnabled(c)
 
-    def parameters: (Boolean, ValueWrapper) = {
+    def parameters: (Boolean, ValueWrapper, List[Tree]) = {
       @tailrec
       def valueWrapperParam(valueWrapper: Tree): ValueWrapper = valueWrapper match {
         case q"valueWrapper = $v" => valueWrapperParam(v)
@@ -42,19 +41,20 @@ object CachedWithoutModificationCount {
       }
 
       c.prefix.tree match {
-        case q"new CachedWithoutModificationCount(..$params)" if params.length == 2 =>
+        case q"new CachedWithoutModificationCount(..$params)" if params.length >= 2 =>
           val synch: Boolean = params.head match {
             case q"synchronized = $v" => c.eval[Boolean](c.Expr(v))
             case q"$v" => c.eval[Boolean](c.Expr(v))
           }
           val valueWrapper = valueWrapperParam(params(1))
-          (synch, valueWrapper)
+          val sets: List[Tree] = params.drop(2)
+          (synch, valueWrapper, sets)
         case _ => abort("Wrong parameters")
       }
     }
 
     //annotation parameters
-    val (synchronized, valueWrapper) = parameters
+    val (synchronized, valueWrapper, setsToAddTo) = parameters
 
     annottees.toList match {
       case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
@@ -63,7 +63,7 @@ object CachedWithoutModificationCount {
         }
         //generated names
         val cacheVarName = c.freshName(name)
-        val mapName = TermName(name + cachedMapPostfix)
+        val mapName = generateTermName(name.toString)
         val cachedFunName = generateTermName("cachedFun")
         val cacheStatsName = generateTermName(name + "cacheStats")
         val keyId = c.freshName(name.toString + "cacheKey")
@@ -91,10 +91,15 @@ object CachedWithoutModificationCount {
           case ValueWrapper.SoftReference => tq"_root_.java.lang.ref.SoftReference[$retTp]"
           case ValueWrapper.SofterReference => tq"_root_.com.intellij.util.SofterReference[$retTp]"
         }
+
+        val addToSets = setsToAddTo.map { map =>
+          q"$map.add($mapName)"
+        }
         val fields = if (hasParameters) {
           q"""
             private val $mapName = new java.util.concurrent.ConcurrentHashMap[(..${flatParams.map(_.tpt)}), $wrappedRetTp]()
             ..$analyzeCachesField
+            ..$addToSets
           """
         } else {
           q"""
