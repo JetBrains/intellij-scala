@@ -168,14 +168,14 @@ trait LocationLineManager {
       }
 
       def skipLoadExpressionValue(method: Method, baseLine: Int): Unit = {
-        val bytecodes = method.bytecodes()
         val locations = locationsOfLine(method, baseLine).filter(!customizedLocationsCache.contains(_))
-        if (locations.isEmpty) return
+        if (locations.size <= 1) return
+        
+        val bytecodes = method.bytecodes()
 
-        val loadLocations = locations.filter {l =>
+        val toSkip = locations.tail.filter {l =>
           BytecodeUtil.readLoadCode(l.codeIndex().toInt, bytecodes).nonEmpty
         }
-        val toSkip = if (locations.size == loadLocations.size) loadLocations.tail else loadLocations
         toSkip.foreach(cacheCustomLine(_, -1))
       }
 

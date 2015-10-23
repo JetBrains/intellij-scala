@@ -354,4 +354,38 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
       DebuggerSettings.getInstance().SKIP_GETTERS = false
     }
   }
+
+  def testCustomizedPatternMatching(): Unit = {
+    addFileToProject("Sample.scala",
+      """object Sample {
+        |  def main(args: Array[String]) {
+        |    val b = new B()
+        |    foo(b)
+        |  }
+        |
+        |  def foo(b: B): Unit = {
+        |    b.b() match {
+        |      case "a" =>
+        |      case "b" =>
+        |      case _ =>
+        |    }
+        |  }
+        |
+        |  class B {
+        |    def b() = "b"
+        |  }
+        |}
+      """.stripMargin.trim)
+    addBreakpoint("Sample.scala", 3)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      doStepInto()
+      checkLocation("Sample.scala", "foo", 8)
+
+      doStepInto()
+      checkLocation("Sample.scala", "b", 16)
+    }
+  }
+
+
 }
