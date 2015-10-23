@@ -55,8 +55,6 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   protected def innerType(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true)
 
-  @CachedWithRecursionGuard[ScSimpleTypeElement](this, Failure("Recursive type of type element", Some(this)),
-    PsiModificationTracker.MODIFICATION_COUNT)
   override def getTypeNoConstructor(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true, noConstructor = true)
 
   @CachedWithRecursionGuard[ScSimpleTypeElement](this, Failure("Recursive non value type of type element", Some(this)),
