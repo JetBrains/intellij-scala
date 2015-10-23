@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScIfStmt, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -56,6 +56,8 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       myTask = getScaladocTask(text, offset)
     } else if (c == ' ' && offset >= 6 && offset < text.length && text.substring(offset - 6, offset) == " case ") {
       myTask = indentCase(file)
+    } else if (c == ' ' && offset >= 6 && offset < text.length && text.substring(offset - 6, offset) == " else ") {
+      myTask = indentElse(file)
     } else if (isInPlace(element, classOf[ScXmlExpr], classOf[ScXmlPattern])) {
       chooseXmlTask(withAttr = true)
     } else if (file.findElementAt(offset - 2) 
@@ -252,10 +254,20 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
   }
 
   private def indentCase(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int) {
+    indentElement(file)(document, project, element, offset,
+      elem => elem.getNode.getElementType == ScalaTokenTypes.kCASE && elem.getParent.isInstanceOf[ScCaseClause])
+  }
+
+  private def indentElse(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int) {
+    indentElement(file)(document, project, element, offset,
+      elem => elem.getNode.getElementType == ScalaTokenTypes.kELSE && elem.getParent.isInstanceOf[ScIfStmt])
+  }
+
+  private def indentElement(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int,
+                                           condition: PsiElement => Boolean) = {
     if (element.isInstanceOf[PsiWhiteSpace] || ScalaPsiUtil.isLineTerminator(element)) {
       val anotherElement = file.findElementAt(offset - 2)
-      if (anotherElement.getNode.getElementType == ScalaTokenTypes.kCASE &&
-              anotherElement.getParent.isInstanceOf[ScCaseClause]) {
+      if (condition(anotherElement)) {
         extensions.inWriteAction {
           PsiDocumentManager.getInstance(project).commitDocument(document)
           CodeStyleManager.getInstance(project).adjustLineIndent(file, anotherElement.getTextRange)
