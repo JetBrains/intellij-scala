@@ -75,16 +75,8 @@ object Cached {
         val hasParameters: Boolean = flatParams.nonEmpty
 
         val analyzeCachesField =
-          if(analyzeCaches) {
-            val cacheDecl = q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)"
-            if (hasParameters) { //need to put map in cacheStats, so its size can be measured
-              q"""
-                $cacheDecl
-
-                $cacheStatsName.addCacheObject($mapName)
-              """
-            } else cacheDecl
-          } else EmptyTree
+          if(analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)"
+          else EmptyTree
         val fields = if (hasParameters) {
           q"""
             private val $mapName = _root_.com.intellij.util.containers.ContainerUtil.
