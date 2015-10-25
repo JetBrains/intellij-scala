@@ -15,6 +15,7 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -40,20 +41,28 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
     info match {
       case jInfo: JavaChangeInfo =>
         val method = jInfo.getMethod
-        findMethodRefUsages(method, results)
+        findMethodRefUsages(method, results, searchInJava = false)
+
+        val synthetics = method match {
+          case ScPrimaryConstructor.ofClass(clazz) if clazz.isCase =>
+            val inExistingClasses = (clazz +: ScalaPsiUtil.getBaseCompanionModule(clazz).toSeq).flatMap(_.allSynthetics)
+            val inFakeCompanion = clazz.fakeCompanionModule.toSeq.flatMap(_.members)
+            inExistingClasses ++ inFakeCompanion
+          case _ => Nil
+        }
 
         val overriders = OverridingMethodsSearch.search(method).findAll.asScala.toSeq ++
                 ScalaOverridingMemberSearcher.search(method).toSeq
-        val methods = (method +: overriders).map {
+        val methods = (method +: overriders ++: synthetics).map {
           case isWrapper(m) => m
           case other => other
         }.distinct
-        overriders.foreach {
+        (overriders ++ synthetics).foreach {
           case named: PsiNamedElement =>
             val usageInfo = ScalaNamedElementUsageInfo(named)
             if (usageInfo != null) results += usageInfo
 
-            findMethodRefUsages(named, results)
+            findMethodRefUsages(named, results, searchInJava = synthetics.contains(named))
           case _ =>
         }
         if (info.isParameterSetOrOrderChanged || info.isParameterNamesChanged) {
@@ -171,6 +180,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
       case ScalaNamedElementUsageInfo(u: OverriderClassParamUsageInfo) => ConflictsUtil.addClassParameterConflicts(u.namedElement, info, result)
       case ScalaNamedElementUsageInfo(u: OverriderValUsageInfo) => ConflictsUtil.addBindingPatternConflicts(u.namedElement, info, result)
       case javaOverriderUsage: OverriderUsageInfo => ConflictsUtil.addJavaOverriderConflicts(javaOverriderUsage, info, result)
+      case p: PatternUsageInfo => ConflictsUtil.addUnapplyUsagesConflicts(p, info, result)
       case _ =>
     }
     result
@@ -196,6 +206,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
       case fun: ScFunction if fun.isConstructor =>
         handleVisibility(change, usage)
         handleChangedParameters(change, usage)
+      case fun: ScFunction if fun.isSynthetic =>
       case c: ScClass =>
         handleVisibility(change, usage)
         handleChangedParameters(change, usage)
@@ -207,7 +218,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
     }
   }
 
-  private def findMethodRefUsages(named: PsiNamedElement, results: ArrayBuffer[UsageInfo]): Unit = {
+  private def findMethodRefUsages(named: PsiNamedElement, results: ArrayBuffer[UsageInfo], searchInJava: Boolean): Unit = {
     val process = { ref: PsiReference =>
         val refElem = ref.getElement
         refElem match {
@@ -218,12 +229,15 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
           case ChildOf(postfix @ ScPostfixExpr(_, `refElem`)) => results += PostfixExprUsageInfo(postfix)
           case ref @ ScConstructor.byReference(constr) => results += ConstructorUsageInfo(ref, constr)
           case refExpr: ScReferenceExpression => results += RefExpressionUsage(refExpr)
+          case ChildOf(cp: ScConstructorPattern) if cp.ref == refElem => results += ConstructorPatternUsageInfo(cp)
+          case ChildOf(ip: ScInfixPattern) if ip.refernece == refElem => results += InfixPatternUsageInfo(ip)
+          case ref: PsiReferenceExpression if searchInJava => results += new JavaCallUsageInfo(ref, true, false)
           case _ =>
         }
         true
     }
 
-    ReferencesSearch.search(named).forEach(process)
+    ReferencesSearch.search(named, named.getUseScope).forEach(process)
   }
 
   @tailrec
