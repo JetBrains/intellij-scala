@@ -125,3 +125,14 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
     buffer.toSeq
   }
 }
+
+object ScPrimaryConstructor {
+  object ofClass {
+    def unapply(pc: ScPrimaryConstructor): Option[ScClass] = {
+      pc.containingClass match {
+        case c: ScClass => Some(c)
+        case _ => None
+      }
+    }
+  }
+}
