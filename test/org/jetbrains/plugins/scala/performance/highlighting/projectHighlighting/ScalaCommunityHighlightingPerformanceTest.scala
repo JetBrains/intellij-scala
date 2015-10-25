@@ -26,7 +26,7 @@ class ScalaCommunityHighlightingPerformanceTest extends PerformanceSbtProjectHig
   def testPerformanceScalaCommunityScalaAnnotator() = doTest("ScalaAnnotator.scala", TimeUnit.SECONDS.toMillis(15))
 
   override def doTest(path: String, timeout: Long): Unit = {
-    VfsRootAccess.allowRootAccess("/usr/lib/jvm/java-7-oracle/") //without this, an error happens, has to do with tools.jar
+    VfsRootAccess.SHOULD_PERFORM_ACCESS_CHECK = false
     super.doTest(path, timeout)
   }
 }
