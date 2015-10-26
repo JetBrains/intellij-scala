@@ -11,9 +11,9 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.refactoring.RefactoringBundle
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import com.intellij.refactoring.rename.inplace.{MemberInplaceRenamer, VariableInplaceRenamer}
+import com.intellij.refactoring.{RefactoringActionHandler, RefactoringBundle}
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaNamesUtil, ScalaRefactoringUtil}
 
@@ -27,6 +27,8 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
                                 initialName: String,
                                 oldName: String)
         extends MemberInplaceRenamer(elementToRename, substituted, editor, initialName, oldName) {
+
+  private val elementRange = editor.getDocument.createRangeMarker(elementToRename.getTextRange)
 
   private def this(t: (PsiNamedElement, PsiElement, Editor, String, String)) = this(t._1, t._2, t._3, t._4, t._5)
 
@@ -157,6 +159,13 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
     case lightPsi: PsiNamedElement if !lightPsi.isPhysical => null
     case nameIdentifierOwner: PsiNameIdentifierOwner if myElementToRename.getContainingFile.getViewProvider.getAllFiles.size() > 1 => nameIdentifierOwner.getNameIdentifier
     case _ => super.getNameIdentifier
+  }
+
+  override def startsOnTheSameElement(handler: RefactoringActionHandler, element: PsiElement): Boolean = {
+    handler match {
+      case _: ScalaMemberInplaceRenameHandler => ScalaRenameUtil.sameElement(elementRange, element)
+      case _ => false
+    }
   }
 }
 object ScalaMemberInplaceRenamer {

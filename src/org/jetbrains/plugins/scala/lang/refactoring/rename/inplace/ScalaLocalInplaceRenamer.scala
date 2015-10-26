@@ -8,10 +8,12 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiNamedElement}
+import com.intellij.refactoring.RefactoringActionHandler
 import com.intellij.refactoring.rename.inplace.VariableInplaceRenamer
 import com.intellij.refactoring.util.TextOccurrencesUtil
 import com.intellij.util.PairProcessor
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -20,6 +22,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
  */
 class ScalaLocalInplaceRenamer(elementToRename: PsiNamedElement, editor: Editor, project: Project, initialName: String, oldName: String)
         extends VariableInplaceRenamer(elementToRename, editor, project, initialName, oldName) {
+
+  private val elementRange = editor.getDocument.createRangeMarker(elementToRename.getTextRange)
 
   def this(@NotNull elementToRename: PsiNamedElement, editor: Editor) =
     this(elementToRename, editor, elementToRename.getProject,
@@ -41,4 +45,11 @@ class ScalaLocalInplaceRenamer(elementToRename: PsiNamedElement, editor: Editor,
   }
 
   override def isIdentifier(newName: String, language: Language): Boolean = ScalaNamesUtil.isIdentifier(newName)
+
+  override def startsOnTheSameElement(handler: RefactoringActionHandler, element: PsiElement): Boolean = {
+    handler match {
+      case _: ScalaLocalInplaceRenameHandler => ScalaRenameUtil.sameElement(elementRange, element)
+      case _ => false
+    }
+  }
 }
