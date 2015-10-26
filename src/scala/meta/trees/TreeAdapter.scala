@@ -351,22 +351,18 @@ trait TreeAdapter {
   }
 
   def enumerators(en: ScEnumerators): Seq[m.Enumerator] = {
-    def toEnumerator(nm: ScPatterned): Seq[m.Enumerator] = {
+    def toEnumerator(nm: PsiElement): m.Enumerator = {
       nm match {
         case e: ScGenerator =>
-          val gen = m.Enumerator.Generator(pattern(e.pattern), expression(e.rvalue))
-          if (e.guard != null) // HACK: meta guards are independent from generators
-            Seq(gen, m.Enumerator.Guard(e.guard.expr.map(expression).getOrElse(unreachable("no expression in guard"))))
-          else
-            Seq(gen)
+          m.Enumerator.Generator(pattern(e.pattern), expression(e.rvalue))
+        case e: ScGuard =>
+          m.Enumerator.Guard(e.expr.map(expression).getOrElse(unreachable("guard has no condition")))
         case e: ScEnumerator =>
-          toEnumerator(e) // wat?
-        case e: ScPatterned =>
-          Seq(m.Enumerator.Val(pattern(e.pattern), ???))
+          m.Enumerator.Val(pattern(e.pattern), expression(e.rvalue))
         case _ => unreachable
       }
     }
-    Seq( en.namings.flatMap(toEnumerator):_*)
+    Seq(en.children.filter(elem => elem.isInstanceOf[ScGuard] || elem.isInstanceOf[ScPatterned]).map(toEnumerator).toSeq:_*)
   }
 
 //  def callParams(e: ScExpression): m.Term.Param = {
