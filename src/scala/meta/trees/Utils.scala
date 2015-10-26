@@ -1,11 +1,12 @@
 package scala.meta.trees
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.psi.{PsiElement, PsiPackage}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import com.intellij.psi.{PsiClass, PsiElement, PsiPackage}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSugarCallExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
@@ -69,6 +70,14 @@ trait Utils {
       }
       loop(ptpe)
     }
+  }
+
+  def mkSyntheticMethodName(owner: m.Type, elem: ScSyntheticFunction, context: ScSugarCallExpr): m.Term.Name = {
+    m.Term.Name(elem.name)
+      .withAttrs(
+        denot = h.Denotation.Single(h.Prefix.Type(owner), fqnameToSymbol(owner.toString()+s".${elem.name}")),
+        typingLike = h.Typing.Nonrecursive(toType(context.getTypeWithCachedSubst(TypingContext.empty))))
+      .setTypechecked
   }
 
   implicit class RichPSI(psi: PsiElement) {
