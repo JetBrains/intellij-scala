@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypeVisitor, StdType}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
@@ -20,6 +21,8 @@ import scala.{Seq => _}
 trait Namer {
   self: TreeConverter =>
 
+  class SyntheticException extends Throwable
+
   def toTermName(elem: PsiElement, insertExpansions: Boolean = true): m.Term.Name = elem match {
       // TODO: what to resolve apply/update methods to?
     case sf: ScFunction if insertExpansions && (sf.name == "apply" || sf.name == "update" || sf.name == "unapply") =>
@@ -30,11 +33,19 @@ trait Namer {
       m.Term.Name(ne.name).withAttrsFor(ne)
     case cr: ResolvableReferenceElement  =>
       cr.bind()  match {
-        case Some(x) => toTermName(x.element)
+        case Some(x) => try {
+          toTermName(x.element)
+        } catch {
+          case _: SyntheticException =>
+            elem.getContext match {
+              case mc: ScSugarCallExpr => mkSyntheticMethodName(toType(mc.getBaseExpr), x.getElement.asInstanceOf[ScSyntheticFunction], mc)
+              case _ => ???
+            }
+        }
         case None => throw new ScalaMetaResolveError(cr)
       }
     case se: impl.toplevel.synthetic.SyntheticNamedElement =>
-      throw new ScalaMetaException(s"Synthetic elements not implemented") // FIXME: find a way to resolve synthetic elements
+      throw new SyntheticException
     case cs: ScConstructor =>
       toTermName(cs.reference.get)
     // Java stuff starts here
