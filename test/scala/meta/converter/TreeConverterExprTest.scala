@@ -123,11 +123,10 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
   }
 
   def testForSimple() {
-    for (s <- Seq() if s != null; y <- Seq() if y == s) {}
     doTest(
-      "for(s: Int <- Seq(1)) {42}",
-      Term.For(List(Enumerator.Generator(Pat.Var.Term(Term.Name("s")), Term.Apply(Term.Name("Seq"), Nil))),
-        Term.Block(List(Lit.Int(42))))
+      "for(s <- Seq(1)) {42}",
+      Term.For(List(Enumerator.Generator(Pat.Var.Term(Term.Name("s")),
+        Term.Apply(Term.Name("Seq"), List(Lit.Int(1))))), Term.Block(List(Lit.Int(42))))
     )
   }
   
