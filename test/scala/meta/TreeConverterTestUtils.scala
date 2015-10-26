@@ -52,14 +52,14 @@ trait TreeConverterTestUtils {
     }
     def tagsEqual = tree1.privateTag == tree2.privateTag
     def fieldsEqual = tree1.productIterator.toList.zip(tree2.productIterator.toList).forall { case (x1, x2) => loop(x1, x2)}
-    (tagsEqual && fieldsEqual) || {println(s"${tree1.show[scala.meta.Raw]} <=> ${tree2.show[scala.meta.Raw]}"); false}
+    (tagsEqual && fieldsEqual) || {println(s"${tree1.show[scala.meta.Structure]} <=> ${tree2.show[scala.meta.Structure]}"); false}
   }
 
   def doTest(text: String, tree: ast.Tree) = {
 //    try {
       val converted = convert(text)
       assert(structuralEquals(converted, tree), s"$converted <=> $tree")
-      assert(converted.toString() == tree.toString(), s"TEXT: $converted <=> $tree")
+      org.junit.Assert.assertEquals("Text comparison failure", converted.toString(), tree.toString())
 //    }
 //    catch {
 //      case ex: Exception =>
