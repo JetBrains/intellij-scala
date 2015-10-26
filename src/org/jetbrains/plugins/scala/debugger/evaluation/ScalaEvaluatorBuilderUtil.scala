@@ -165,6 +165,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val thisEvaluator: Evaluator = containingClass match {
       case obj: ScObject if isStable(obj) =>
         stableObjectEvaluator(obj)
+      case t: ScTrait =>
+        thisOrSuperEvaluator(None, isSuper = true)
       case _ =>
         val (outerClass, iters) = findContextClass(e => e == null || e == containingClass)
 
@@ -177,7 +179,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       val signature = DebuggerUtil.getFunctionJVMSignature(fun)
       val positions = DebuggerUtil.getSourcePositions(fun.getNavigationElement)
       val idx = localFunctionIndex(fun)
-      new ScalaMethodEvaluator(thisEvaluator, name, signature, evaluators, None, positions, idx)
+      new ScalaMethodEvaluator(thisEvaluator, name, signature, evaluators, traitImplementation(fun), positions, idx)
     }
     else throw EvaluationException(message)
   }
