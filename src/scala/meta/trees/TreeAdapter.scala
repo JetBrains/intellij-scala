@@ -264,7 +264,9 @@ trait TreeAdapter {
           .setTypechecked
       case t: ScPostfixExpr =>
         t.withSubstitutionCaching { tp =>
-          m.Term.Apply(expression(t.getBaseExpr), Seq(expression(t.operand))).withAttrs(toType(tp)).setTypechecked
+          m.Term.Apply(m.Term.Select(expression(t.operand), toTermName(t.operation))
+            .withAttrs(h.Typing.Nonrecursive(toType(tp))), Nil)
+          .withAttrs(toType(tp)).setTypechecked
         }
       case t: ScIfStmt =>
         val unit = m.Lit.Unit().withAttrs(toType(e.getType())).setTypechecked
