@@ -1,9 +1,9 @@
 package scala.meta.converter
 
-import scala.meta.TreeConverterTestBaseNoLibrary
+import scala.meta.{TreeConverterTestBaseWithLibrary, TreeConverterTestBaseNoLibrary}
 import scala.meta.internal.ast._
 
-class TreeConverterExprTest extends TreeConverterTestBaseNoLibrary {
+class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
 
   def testIf() {
     doTest(
@@ -125,7 +125,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseNoLibrary {
   def testForSimple() {
     for (s <- Seq() if s != null; y <- Seq() if y == s) {}
     doTest(
-      "for(s <- Seq()) {42}",
+      "for(s: Int <- Seq(1)) {42}",
       Term.For(List(Enumerator.Generator(Pat.Var.Term(Term.Name("s")), Term.Apply(Term.Name("Seq"), Nil))),
         Term.Block(List(Lit.Int(42))))
     )
@@ -133,11 +133,12 @@ class TreeConverterExprTest extends TreeConverterTestBaseNoLibrary {
   
   def testForMutiWithGuards() {
     doTest(
-      "for (s <- Seq(1); y <- Seq(3) if y == s; z = (s, y)) {}",
-      Term.For(List(Enumerator.Generator(Pat.Var.Term(Term.Name("s")), Term.Apply(Term.Name("Seq"), Nil)),
-        Enumerator.Guard(Term.ApplyInfix(Term.Name("s"), Term.Name("!="), Nil, List(Lit.Null()))),
-        Enumerator.Generator(Pat.Var.Term(Term.Name("y")), Term.Apply(Term.Name("Seq"), Nil)),
-        Enumerator.Guard(Term.ApplyInfix(Term.Name("y"), Term.Name("=="), Nil, List(Term.Name("s"))))),
+      "for (s: Int <- Seq(1); y <- Seq(3) if y == s; z = (s, y)) {}",
+      Term.For(List(
+        Enumerator.Generator(Pat.Typed(Pat.Var.Term(Term.Name("s")), Type.Name("Int")), Term.Apply(Term.Name("Seq"), List(Lit.Int(1)))),
+        Enumerator.Generator(Pat.Var.Term(Term.Name("y")), Term.Apply(Term.Name("Seq"), List(Lit.Int(3)))),
+        Enumerator.Guard(Term.ApplyInfix(Term.Name("y"), Term.Name("=="), Nil, List(Term.Name("s")))),
+        Enumerator.Val(Pat.Var.Term(Term.Name("z")), Term.Tuple(List(Term.Name("s"), Term.Name("y"))))),
         Term.Block(Nil))
     )
   }
