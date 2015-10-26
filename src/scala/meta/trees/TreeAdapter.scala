@@ -1,6 +1,7 @@
 package scala.meta.trees
 
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -350,7 +351,22 @@ trait TreeAdapter {
   }
 
   def enumerators(en: ScEnumerators): Seq[m.Enumerator] = {
-    ???
+    def toEnumerator(nm: ScPatterned): Seq[m.Enumerator] = {
+      nm match {
+        case e: ScGenerator =>
+          val gen = m.Enumerator.Generator(pattern(e.pattern), expression(e.rvalue))
+          if (e.guard != null) // HACK: meta guards are independent from generators
+            Seq(gen, m.Enumerator.Guard(e.guard.expr.map(expression).getOrElse(unreachable("no expression in guard"))))
+          else
+            Seq(gen)
+        case e: ScEnumerator =>
+          toEnumerator(e) // wat?
+        case e: ScPatterned =>
+          Seq(m.Enumerator.Val(pattern(e.pattern), ???))
+        case _ => unreachable
+      }
+    }
+    Seq( en.namings.flatMap(toEnumerator):_*)
   }
 
 //  def callParams(e: ScExpression): m.Term.Param = {

@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
-import scala.meta.internal.{ast => m, semantic => h}
+import scala.meta.internal.{ast => m, semantic => h, AbortException}
 import scala.{Seq => _}
 
 trait Utils {
@@ -119,5 +119,6 @@ trait Utils {
 
   def unreachable = throw new ScalaMetaUnreachableException
   def unreachable(reason: String) = throw new ScalaMetaUnreachableException(reason)
+  def unresolved(cause: String, place: Option[PsiElement]) = throw new AbortException(place, s"""Failed to typecheck "${place.map(_.getText).getOrElse("UNKNOWN")}" - $cause""")
 
 }
