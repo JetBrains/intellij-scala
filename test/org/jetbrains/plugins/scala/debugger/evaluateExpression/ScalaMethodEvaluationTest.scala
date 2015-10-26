@@ -525,4 +525,36 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       evalEquals("privConst", "42")
     }
   }
+
+  def testLocalsInTrait(): Unit = {
+    addFileToProject("Sample.scala",
+    """trait TTT {
+      |  def foo() = {
+      |    def bar() = {
+      |      def baz() = 1
+      |      baz() //stop here
+      |    }
+      |    bar()
+      |  }
+      |}
+      |
+      |object Sample {
+      |  class A extends TTT
+      |
+      |  def main(args: Array[String]) {
+      |    val a = new A
+      |    a.foo()
+      |  }
+      |}
+    """.stripMargin)
+    addBreakpoint("Sample.scala", 4)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("bar()", "1")
+      evalEquals("bar", "1")
+      evalEquals("baz()", "1")
+      evalEquals("foo()", "1")
+      evalEquals("foo + bar", "2")
+    }
+  }
 }
