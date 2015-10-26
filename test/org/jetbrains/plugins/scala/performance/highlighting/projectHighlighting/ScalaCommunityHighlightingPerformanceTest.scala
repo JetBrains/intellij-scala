@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.performance.highlighting.projectHighlighting
 
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeUnit.SECONDS
 
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import org.jetbrains.plugins.scala.SlowTests
@@ -21,9 +21,16 @@ class ScalaCommunityHighlightingPerformanceTest extends PerformanceSbtProjectHig
 
   override def revision: String = "493444f6465d0eddea75ac5cd5a848cc30d48ae5"
 
-  def testPerformanceScalaCommunityScalaPsiUtil() = doTest("ScalaPsiUtil.scala", TimeUnit.SECONDS.toMillis(20))
+  def testPerformanceScalaCommunityScalaPsiUtil() = doTest("ScalaPsiUtil.scala", SECONDS.toMillis(20))
 
-  def testPerformanceScalaCommunityScalaAnnotator() = doTest("ScalaAnnotator.scala", TimeUnit.SECONDS.toMillis(15))
+  def testPerformanceScalaCommunityScalaAnnotator() = doTest("ScalaAnnotator.scala", SECONDS.toMillis(15))
+
+  def testPerformanceScalaCommunityScalaEvaluatorBuilderUtil() =
+    doTest("ScalaEvaluatorBuilderUtil.scala", SECONDS.toMillis(20))
+
+  def testPerformanceScalaCommunityConformance() = doTest("Conformance.scala", SECONDS.toMillis(20))
+
+  def testPerformanceScalaCommunityScalaSpacingProcessor() = doTest("ScalaSpacingProcessor.scala", SECONDS.toMillis(20))
 
   override def doTest(path: String, timeout: Long): Unit = {
     VfsRootAccess.SHOULD_PERFORM_ACCESS_CHECK = false
