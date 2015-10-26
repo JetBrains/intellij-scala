@@ -20,7 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, ScFunctionWr
  * @since 02.03.12
  */
 class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProduceBaseAdapter[ApplicationConfiguration](ApplicationConfigurationType.getInstance) with Cloneable {
-
+  import ScalaApplicationConfigurationProducer._
+  
   def getSourceElement: PsiElement = myPsiElement
 
   def createConfigurationByElement(_location: Location[_ <: PsiElement], context: ConfigurationContext, configuration: ApplicationConfiguration): Boolean = {
@@ -53,36 +54,6 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
     true
   }
 
-  /**
-   * This is not for Java only. However it uses getClasses, to have possibility use [[com.intellij.psi.util.PsiMethodUtil.findMainInClass]]
-   */
-  private def getMainClass(_element: PsiElement): PsiClass = {
-    var element = _element
-    while (element != null) {
-      element match {
-        case clazz: PsiClassWrapper =>
-          if (PsiMethodUtil.findMainInClass(clazz) != null) {
-            return clazz
-          }
-        case o: ScObject =>
-          val aClass = o.fakeCompanionClassOrCompanionClass
-          if (PsiMethodUtil.findMainInClass(aClass) != null) {
-            return aClass
-          }
-        case file: ScalaFile =>
-          val classes: Array[PsiClass] = file.getClasses //this call is ok
-          for (aClass <- classes) {
-            if (PsiMethodUtil.findMainInClass(aClass) != null) {
-              return aClass
-            }
-          }
-        case _ =>
-      }
-      element = element.getParent
-    }
-    null
-  }
-
   private def createConfiguration(aClass: PsiClass, context: ConfigurationContext,
                                   location: Location[_ <: PsiElement], configuration: ApplicationConfiguration) {
     configuration.MAIN_CLASS_NAME = JavaExecutionUtil.getRuntimeQualifiedName(aClass)
@@ -92,44 +63,6 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
   }
 
   private var myPsiElement: PsiElement = null
-
-  private def getContainingMethod(_element: PsiElement): PsiMethod = {
-    var element = _element
-    while (element != null) {
-      element match {
-        case method: PsiMethod => return method
-        case _ => element = element.getParent
-      }
-    }
-    element.asInstanceOf[PsiMethod]
-  }
-
-  private def findMain(_element: PsiElement): PsiMethod = {
-    var element = _element
-    var method: PsiMethod = getContainingMethod(element)
-    while (method != null) {
-      def isMainMethod(method: PsiMethod): Option[PsiMethod] = {
-        method match {
-          case f: ScFunction =>
-            f.containingClass match {
-              case o: ScObject =>
-                for {
-                  wrapper <- f.getFunctionWrappers(isStatic = true, isInterface = false).headOption
-                  if PsiMethodUtil.isMainMethod(wrapper)
-                } yield wrapper
-              case _ => None
-            }
-          case _ => None
-        }
-      }
-      isMainMethod(method) match {
-        case Some(mainMethod) => return mainMethod
-        case _ => element = method.getParent
-      }
-      method = getContainingMethod(element)
-    }
-    null
-  }
 
   private def hasClassAncestorWithName(_element: PsiElement, name: String): Boolean = {
     def isConfigClassWithName(clazz: PsiClass) = clazz match {
@@ -192,6 +125,77 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
     createConfiguration(aClass, context, location, configuration)
     sourceElement.set(myPsiElement)
     true
+  }
+}
+
+object ScalaApplicationConfigurationProducer {
+
+  /**
+   * This is not for Java only. However it uses getClasses, to have possibility use [[com.intellij.psi.util.PsiMethodUtil.findMainInClass]]
+   */
+  def getMainClass(_element: PsiElement): PsiClass = {
+    var element = _element
+    while (element != null) {
+      element match {
+        case clazz: PsiClassWrapper =>
+          if (PsiMethodUtil.findMainInClass(clazz) != null) {
+            return clazz
+          }
+        case o: ScObject =>
+          val aClass = o.fakeCompanionClassOrCompanionClass
+          if (PsiMethodUtil.findMainInClass(aClass) != null) {
+            return aClass
+          }
+        case file: ScalaFile =>
+          val classes: Array[PsiClass] = file.getClasses //this call is ok
+          for (aClass <- classes) {
+            if (PsiMethodUtil.findMainInClass(aClass) != null) {
+              return aClass
+            }
+          }
+        case _ =>
+      }
+      element = element.getParent
+    }
+    null
+  }
+  
+  def findMain(_element: PsiElement): PsiMethod = {
+    var element = _element
+    var method: PsiMethod = getContainingMethod(element)
+    while (method != null) {
+      def isMainMethod(method: PsiMethod): Option[PsiMethod] = {
+        method match {
+          case f: ScFunction =>
+            f.containingClass match {
+              case o: ScObject =>
+                for {
+                  wrapper <- f.getFunctionWrappers(isStatic = true, isInterface = false).headOption
+                  if PsiMethodUtil.isMainMethod(wrapper)
+                } yield wrapper
+              case _ => None
+            }
+          case _ => None
+        }
+      }
+      isMainMethod(method) match {
+        case Some(mainMethod) => return mainMethod
+        case _ => element = method.getParent
+      }
+      method = getContainingMethod(element)
+    }
+    null
+  }
+
+  private def getContainingMethod(_element: PsiElement): PsiMethod = {
+    var element = _element
+    while (element != null) {
+      element match {
+        case method: PsiMethod => return method
+        case _ => element = element.getParent
+      }
+    }
+    element.asInstanceOf[PsiMethod]
   }
 }
 
