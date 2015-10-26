@@ -243,4 +243,94 @@ class ScalaRenameTest extends ScalaRenameTestBase {
 
     myFixture.checkResult(resultText)
   }
+
+  def testCaseClassConstructor() {
+    val fileText =
+      """
+        |object CaseClassConstructor {
+        |  case class Test1(a: Int)
+        |  new <caret>Test1(2)
+        |  Test1.apply(1)
+        |  Test1(1) match {
+        |    case Test1(1) =>
+        |  }
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    myFixture.configureByText("dummy.scala", fileText)
+    myFixture.renameElementAtCaret("I")
+
+    val resultText =
+      """
+        |object CaseClassConstructor {
+        |  case class I(a: Int)
+        |  new <caret>I(2)
+        |  I.apply(1)
+        |  I(1) match {
+        |    case I(1) =>
+        |  }
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    myFixture.checkResult(resultText)
+  }
+
+  def testCaseClassApply() {
+    val fileText =
+      """
+        |object CaseClassApply {
+        |  case class Test1(a: Int)
+        |  new Test1(2)
+        |  Test1.apply(1)
+        |  <caret>Test1(1) match {
+        |    case Test1(1) =>
+        |  }
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    myFixture.configureByText("dummy.scala", fileText)
+    myFixture.renameElementAtCaret("I")
+
+    val resultText =
+      """
+        |object CaseClassApply {
+        |  case class I(a: Int)
+        |  new I(2)
+        |  I.apply(1)
+        |  <caret>I(1) match {
+        |    case I(1) =>
+        |  }
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    myFixture.checkResult(resultText)
+  }
+
+  def testCaseClassUnapply() {
+    val fileText =
+      """
+        |object CaseClassUnapply {
+        |  case class Test1(a: Int)
+        |  new Test1(2)
+        |  Test1.apply(1)
+        |  Test1(1) match {
+        |    case <caret>Test1(1) =>
+        |  }
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+    myFixture.configureByText("dummy.scala", fileText)
+    myFixture.renameElementAtCaret("I")
+
+    val resultText =
+      """
+        |object CaseClassUnapply {
+        |  case class I(a: Int)
+        |  new I(2)
+        |  I.apply(1)
+        |  I(1) match {
+        |    case <caret>I(1) =>
+        |  }
+        |}
+      """.stripMargin('|').replaceAll("\r", "").trim()
+
+    myFixture.checkResult(resultText)
+  }
 }
