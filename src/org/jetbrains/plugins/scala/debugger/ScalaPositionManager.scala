@@ -436,19 +436,23 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     }
 
     def findCandidates(): Seq[PsiElement] = {
+      def findAt(offset: Int): Option[PsiElement] = {
+        val startElem = file.findElementAt(offset)
+        startElem.parentsInFile.find(isAppropriateCandidate)
+      }
       if (lastRefTypeLine - firstRefTypeLine >= 2) {
-        val offsetInTheMiddle = document.getLineEndOffset(firstRefTypeLine + 1)
-        val startElem = file.findElementAt(offsetInTheMiddle)
-        val res = startElem.parentsInFile.find(isAppropriateCandidate).toSeq
-        res
+        val offsetsInTheMiddle = Seq(
+          document.getLineEndOffset(firstRefTypeLine),
+          document.getLineEndOffset(firstRefTypeLine + 1)
+        )
+        offsetsInTheMiddle.flatMap(findAt).distinct
       }
       else {
         val firstLinePositions = positionsOnLine(file, firstRefTypeLine)
         val allPositions =
           if (firstRefTypeLine == lastRefTypeLine) firstLinePositions
           else firstLinePositions ++ positionsOnLine(file, lastRefTypeLine)
-        val res = allPositions.distinct.filter(isAppropriateCandidate)
-        res
+        allPositions.distinct.filter(isAppropriateCandidate)
       }
     }
 
@@ -618,12 +622,14 @@ object ScalaPositionManager {
       def findParent(element: PsiElement): Option[PsiElement] = {
         val parentsOnTheLine = element.parentsInFile.takeWhile(e => e.getTextOffset > startLine).toIndexedSeq
         val lambda = parentsOnTheLine.find(isLambda)
-        val maxExpressionPatternOrTypeDef = parentsOnTheLine.reverse.find {
+        val filteredParents = parentsOnTheLine.reverse.filter {
           case _: ScExpression => true
           case _: ScConstructorPattern | _: ScInfixPattern | _: ScBindingPattern => true
           case _: ScTypeDefinition => true
           case _ => false
         }
+        val maxExpressionPatternOrTypeDef =
+          filteredParents.find(!_.isInstanceOf[ScBlock]).orElse(filteredParents.headOption)
         Seq(lambda, maxExpressionPatternOrTypeDef).flatten.sortBy(_.getTextLength).headOption
       }
       elementsOnTheLine(file, lineNumber).flatMap(findParent).distinct

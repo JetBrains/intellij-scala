@@ -298,4 +298,22 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
      """, "Main$$anonfun$main$1"
     )
   }
+
+  def testClassInBlock(): Unit = {
+    checkGetAllClasses(
+      s"""object Main {
+          |  def main(args: Array[String]) {
+          |    1 match {
+          |      case 1 =>
+          |        ${offsetMarker}class A {
+          |          def foo = "foo"
+          |        }
+          |        new A().foo
+          |        ""$bp
+          |    }
+          |  }
+          |}
+     """, "Main$A$1"
+    )
+  }
 }
