@@ -133,7 +133,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseNoLibrary {
   
   def testForMutiWithGuards() {
     doTest(
-      "for (s <- Seq() if s != null; y <- Seq() if y == s) {}",
+      "for (s <- Seq(1); y <- Seq(3) if y == s; z = (s, y)) {}",
       Term.For(List(Enumerator.Generator(Pat.Var.Term(Term.Name("s")), Term.Apply(Term.Name("Seq"), Nil)),
         Enumerator.Guard(Term.ApplyInfix(Term.Name("s"), Term.Name("!="), Nil, List(Lit.Null()))),
         Enumerator.Generator(Pat.Var.Term(Term.Name("y")), Term.Apply(Term.Name("Seq"), Nil)),

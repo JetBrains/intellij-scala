@@ -81,7 +81,7 @@ trait TypeAdapter {
         case t: ScTypedDefinition =>
           t.getTypeWithCachedSubst match {
             case Success(res, place) => toType(res)
-            case Failure(cause, place) => unreachable
+            case Failure(cause, place) => unresolved(cause, place)
           }
         case t: ScReferenceElement =>
           t.bind() match {
