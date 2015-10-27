@@ -12,6 +12,6 @@ class ScalaMemberFindUsagesOptions(project: Project) extends JavaFindUsagesOptio
   isSearchForTextOccurrences = false
 }
 
-class ScalaParameterFindUsagesOptions(project: Project) extends JavaFindUsagesOptions(project) {
+class ScalaLocalFindUsagesOptions(project: Project) extends JavaFindUsagesOptions(project) {
   isSearchForTextOccurrences = false
 }
