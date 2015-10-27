@@ -16,22 +16,25 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelecto
 class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
 
   def processQuery(parameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]) {
-    extensions.inReadAction {
-      val target: PsiElement = parameters.getElementToSearch
-      target match {
+    val target: Option[PsiNamedElement] = inReadAction {
+      parameters.getElementToSearch match {
         case named: PsiNamedElement =>
           ScalaPsiUtil.nameContext(named) match {
-            case _: PsiNamedElement | _: PsiMember | _: ScTypeAlias =>
-            case _ => return
+            case _: PsiNamedElement | _: PsiMember | _: ScTypeAlias => Some(named)
+            case _ => None
           }
-        case _ => return
+        case _ => None
       }
-      val name: String = target.asInstanceOf[PsiNamedElement].name
-      if (name == null || StringUtil.isEmptyOrSpaces(name)) return
-      val scope: SearchScope = parameters.getEffectiveSearchScope // TODO PsiUtil.restrictScopeToGroovyFiles(parameters.getEffectiveSearchScope)
+    }
+    for {
+      named <- target
+      name <- Option(named.name)
+      if !StringUtil.isEmptyOrSpaces(name)
+    } {
+      val scope: SearchScope = inReadAction(parameters.getEffectiveSearchScope) // TODO PsiUtil.restrictScopeToGroovyFiles(parameters.getEffectiveSearchScope)
       val collector: SearchRequestCollector = parameters.getOptimizer
       val session: SearchSession = collector.getSearchSession
-      collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(target, null, session))
+      collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(named, null, session))
     }
   }
 
@@ -43,7 +46,7 @@ class ScalaAliasedImportedElementSearcher extends QueryExecutorBase[PsiReference
       importStatement.importedName
     }
 
-    def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = {
+    def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = inReadAction {
       val alias: String = getAlias(element)
       if (alias == null) return true
       val reference: PsiReference = element.getReference

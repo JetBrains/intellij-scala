@@ -558,3 +558,14 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
     }
   }
 }
+
+object Sample {
+  def foo(x: Int, y: Int = 1, z: Int)(h: Int = x + y, m: Int) = x + y + z + h + m
+  def main(args: Array[String]) {
+    "stop here"
+  }
+}
+
+//foo(1, z = 1)(m = 1)
+// foo(1, 2, 1)(m = 1)
+//foo(1, 2, 1)(1, m = 1)
