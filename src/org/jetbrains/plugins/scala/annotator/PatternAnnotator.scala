@@ -88,7 +88,7 @@ object PatternAnnotator {
         Option(constr.ref) match {
           case Some(ref) =>
             ref.bind() match {
-              case Some(ScalaResolveResult(fun: ScFunction, _)) => fun.returnType match {
+              case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" => fun.returnType match {
                 case Success(rt, _) =>
                   val expected = ScPattern.expecteNumberOfExtractorArguments(rt, pattern, ScPattern.isOneArgCaseClassMethod(fun))
                   val actual: Int = constr.args.patterns.length
