@@ -77,27 +77,25 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
 
   def testThrow(): Unit = {
     doTest(
-      """
-        |import java.lang.Exception
-        |//start
-        |throw new scala.Exception()""".stripMargin,
-      Lit.Unit()
+      "throw new java.lang.RuntimeException",
+      Term.Throw(Term.New(Template(Nil, List(Ctor.Ref.Select(Term.Select(Term.Name("java"),
+        Term.Name("lang")), Ctor.Ref.Name("RuntimeException"))),
+        Term.Param(Nil, Name.Anonymous(), None, None), None)))
     )
   }
 
   def testTryCatchFinally() {
     doTest(
       """
-        |try {
-        |  ()
+        |try { () }
         |catch {
         |  case e: Exception => ()
         |  case _ => ()
         |}
-        |finally {
-        |  ()
-        |}""".stripMargin,
-      Lit.Unit()
+        |finally { () }""".stripMargin,
+      Term.TryWithCases(Term.Block(List(Lit.Unit())), List(Case(Pat.Typed(Pat.Var.Term(Term.Name("e")),
+        Type.Name("Exception")), None, Term.Block(List(Lit.Unit()))), Case(Pat.Wildcard(), None,
+        Term.Block(List(Lit.Unit())))), Some(Term.Block(List(Lit.Unit()))))
     )
   }
   
