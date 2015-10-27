@@ -381,6 +381,9 @@ object ScPattern {
     extractPossibleProductParts(tp, place, isOneArgCaseClass = false)
   }
 
+  def expecteNumberOfExtractorArguments(returnType: ScType, place: PsiElement, isOneArgCaseClass: Boolean): Int =
+    extractorParameters(returnType, place, isOneArgCaseClass).size
+
   def extractorParameters(returnType: ScType, place: PsiElement, isOneArgCaseClass: Boolean): Seq[ScType] = {
     def collectFor2_11: Seq[ScType] = {
       findMember("isEmpty", returnType, place) match {
