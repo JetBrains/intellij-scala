@@ -47,8 +47,6 @@ abstract class StdType(val name: String, val tSuper: Option[StdType]) extends Va
       }
     }
   }
-
-  override def isFinalType = tSuper == Some(AnyVal)
 }
 
 object StdType {
@@ -115,13 +113,19 @@ trait ValueType extends ScType {
 
 case object Any extends StdType("Any", None)
 
-case object Null extends StdType("Null", Some(AnyRef))
+case object Null extends StdType("Null", Some(AnyRef)) {
+  override def isFinalType = true
+}
 
 case object AnyRef extends StdType("AnyRef", Some(Any))
 
-case object Nothing extends StdType("Nothing", Some(Any))
+case object Nothing extends StdType("Nothing", Some(Any)) {
+  override def isFinalType = true
+}
 
-case object Singleton extends StdType("Singleton", Some(AnyRef))
+case object Singleton extends StdType("Singleton", Some(AnyRef)) {
+  override def isFinalType = true
+}
 
 case object AnyVal extends StdType("AnyVal", Some(Any)) {
   override def getValType: Option[StdType] = Some(this)
@@ -139,6 +143,8 @@ abstract class ValType(override val name: String) extends StdType(name, Some(Any
   }
 
   override def getValType: Option[StdType] = Some(this)
+
+  override def isFinalType = true
 }
 
 object ValType {
