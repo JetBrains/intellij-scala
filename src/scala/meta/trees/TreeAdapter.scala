@@ -325,7 +325,7 @@ trait TreeAdapter {
           case Some(b:ScFinallyBlock) => b.expression.map(expression)
           case _ => None
         }
-        catchBlock match {
+        val res = catchBlock match {
           case Some(ScCatchBlock(clauses)) if clauses.caseClauses.size == 1 =>
             m.Term.TryWithTerm(expression(tryBlock), clauses.caseClause.expr.map(expression).getOrElse(unreachable), fblk)
           case Some(ScCatchBlock(clauses)) =>
@@ -334,6 +334,7 @@ trait TreeAdapter {
             m.Term.TryWithCases(expression(tryBlock), Seq.empty, fblk)
           case _ => unreachable
         }
+        res.withAttrs(h.Typing.Nonrecursive(toType(t.getTypeWithCachedSubst))).setTypechecked
       case t: ScGenericCall =>
         ???
       case t: ScConstrExpr =>
