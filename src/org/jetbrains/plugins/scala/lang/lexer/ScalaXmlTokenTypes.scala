@@ -38,6 +38,12 @@ object ScalaXmlTokenTypes {
 
   val XML_NAME = create("XML_NAME")
 
+  val XML_TAG_NAME = create("XML_TAG_NAME")
+
+  val XML_ATTRIBUTE_NAME = create("XML_ATTRIBUTE_NAME")
+
+  val XML_WHITE_SPACE = create("XML_WHITESPACE")
+
   val XML_TAG_END = create("XML_TAG_END")
 
   val XML_CDATA_END = create("XML_CDATA_END")
@@ -65,8 +71,6 @@ object ScalaXmlTokenTypes {
   val XML_BAD_CHARACTER = create("XML_BAD_CHARACTER")
 
   val XML_CHAR_ENTITY_REF = create("XML_CHAR_ENTITY_REF")
-
-  val XML_TAG_NAME = create("XML_TAG_NAME")
 
   val XML_ENTITY_REF_TOKEN = create("XML_ENTITY_REF_TOKEN")
 
