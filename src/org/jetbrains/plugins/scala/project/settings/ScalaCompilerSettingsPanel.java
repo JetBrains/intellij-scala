@@ -8,7 +8,10 @@ import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import org.jetbrains.plugins.scala.project.*;
+import org.jetbrains.plugins.scala.project.CompileOrder;
+import org.jetbrains.plugins.scala.project.DebuggingInfoLevel;
+import org.jetbrains.plugins.scala.project.MyPathEditor;
+import org.jetbrains.plugins.scala.project.NamedValueRenderer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,6 +41,11 @@ public class ScalaCompilerSettingsPanel {
     private JCheckBox myMacros;
     private JCheckBox mySpecialization;
     private JCheckBox myExperimental;
+
+    private boolean myNameHashing;
+    private boolean myRecompileOnMacroDef;
+    private int myTransitiveStep;
+    private double myRecompileAllFraction;
 
     private MyPathEditor myPluginsEditor = new MyPathEditor(new FileChooserDescriptor(true, false, true, true, false, true));
 
@@ -78,6 +86,11 @@ public class ScalaCompilerSettingsPanel {
         state.additionalCompilerOptions = options.isEmpty() ? new String[0] : options.split("\\s+");
         state.plugins = urlsToPaths(myPluginsEditor.getPaths());
 
+        state.nameHashing = myNameHashing;
+        state.recompileOnMacroDef = myRecompileOnMacroDef;
+        state.transitiveStep = myTransitiveStep;
+        state.recompileAllFraction = myRecompileAllFraction;
+
         return state;
     }
 
@@ -113,6 +126,11 @@ public class ScalaCompilerSettingsPanel {
         myDebuggingInfoLevel.setSelectedItem(state.debuggingInfoLevel);
         myAdditionalCompilerOptions.setText(StringUtil.join(state.additionalCompilerOptions, " "));
         myPluginsEditor.setPaths(pathsToUrls(state.plugins));
+
+        myNameHashing = state.nameHashing;
+        myRecompileOnMacroDef = state.recompileOnMacroDef;
+        myTransitiveStep = state.transitiveStep;
+        myRecompileAllFraction = state.recompileAllFraction;
     }
 
     private static String[] pathsToUrls(String[] paths) {

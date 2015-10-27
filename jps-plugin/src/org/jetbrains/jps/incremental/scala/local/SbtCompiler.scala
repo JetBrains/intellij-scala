@@ -5,7 +5,6 @@ import java.io.File
 
 import org.jetbrains.jps.incremental.scala.data.CompilationData
 import org.jetbrains.jps.incremental.scala.model.CompileOrder
-import org.jetbrains.plugin.scala.compiler.NameHashing
 import sbt.compiler.IC.Result
 import sbt.compiler._
 import sbt.inc.{Analysis, AnalysisStore, IncOptions, Locate}
@@ -22,12 +21,6 @@ class SbtCompiler(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileTo
       case CompileOrder.Mixed => xsbti.compile.CompileOrder.Mixed
       case CompileOrder.JavaThenScala => xsbti.compile.CompileOrder.JavaThenScala
       case CompileOrder.ScalaThenJava => xsbti.compile.CompileOrder.ScalaThenJava
-    }
-
-    val nameHashingValue = compilationData.nameHashing match {
-      case NameHashing.DEFAULT => IncOptions.Default.nameHashing
-      case NameHashing.ENABLED => true
-      case NameHashing.DISABLED => false
     }
 
     val compileOutput = CompileOutput(compilationData.output)
@@ -50,6 +43,15 @@ class SbtCompiler(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileTo
       (output, analysis)
     }
 
+    val incOptions = compilationData.sbtIncOptions match {
+      case None => IncOptions.Default
+      case Some(opt) =>
+        IncOptions.Default.withNameHashing(opt.nameHashing)
+                          .withRecompileOnMacroDef(opt.recompileOnMacroDef)
+                          .withTransitiveStep(opt.transitiveStep)
+                          .withRecompileAllFraction(opt.recompileAllFraction)
+    }
+
     try {
       val Result(analysis, setup, hasModified) = IC.incrementalCompile(
         scalac.orNull,
@@ -68,7 +70,7 @@ class SbtCompiler(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileTo
         reporter,
         order,
         skip = false,
-        IncOptions.Default.withNameHashing(nameHashingValue)
+        incOptions
       )(logger)
 
       analysisStore.set(analysis, setup)

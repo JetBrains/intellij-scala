@@ -13,6 +13,14 @@ import java.util.Arrays;
 public class ScalaCompilerSettingsState {
   public CompileOrder compileOrder = CompileOrder.Mixed;
 
+  public boolean nameHashing = true;
+
+  public boolean recompileOnMacroDef = true;
+
+  public int transitiveStep = 3;
+
+  public double recompileAllFraction = 0.5;
+
   public boolean dynamics = false;
 
   public boolean postfixOps = false;
@@ -62,6 +70,10 @@ public class ScalaCompilerSettingsState {
 
     return
         compileOrder == that.compileOrder &&
+        nameHashing == that.nameHashing &&
+        recompileOnMacroDef == that.recompileOnMacroDef &&
+        transitiveStep == that.transitiveStep &&
+        recompileAllFraction == that.recompileAllFraction &&
         dynamics == that.dynamics &&
         postfixOps == that.postfixOps &&
         reflectiveCalls == that.reflectiveCalls &&

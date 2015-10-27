@@ -5,9 +5,8 @@ import java.io.File
 
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.incremental.scala.data._
-import org.jetbrains.jps.incremental.scala.remote.Arguments._
-import org.jetbrains.plugin.scala.compiler.NameHashing
 import org.jetbrains.jps.incremental.scala.model.{CompileOrder, IncrementalityType}
+import org.jetbrains.jps.incremental.scala.remote.Arguments._
 
 /**
  * @author Pavel Fatin
@@ -24,7 +23,7 @@ case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationDa
 
     val incrementalType = compilerData.incrementalType
 
-    val nameHashing = compilationData.nameHashing
+    val sbtIncOptions = compilationData.sbtIncOptions.map(_.asString).getOrElse("")
 
     Seq(
       fileToPath(sbtData.interfaceJar),
@@ -46,7 +45,7 @@ case class Arguments(sbtData: SbtData, compilerData: CompilerData, compilationDa
       filesToPaths(sourceRoots),
       filesToPaths(outputDirs), 
       sequenceToString(worksheetFiles),
-      nameHashing.name
+      sbtIncOptions
     )
   }
 }
@@ -75,7 +74,7 @@ object Arguments {
     PathsToFiles(sourceRoots),
     PathsToFiles(outputDirs), 
     StringToSequence(worksheetClass),
-    nameHashingName) =>
+    sbtIncOptionsString) =>
 
       val sbtData = SbtData(interfaceJar, sourceJar, interfacesHome, javaClassVersion)
 
@@ -96,9 +95,10 @@ object Arguments {
 
       val outputGroups = sourceRoots zip outputDirs
 
-      val nameHashing = NameHashing.valueOf(nameHashingName)
+      val sbtIncOptions = SbtIncrementalOptions.fromString(sbtIncOptionsString)
 
-      val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions, CompileOrder.valueOf(order), cacheFile, outputToCacheMap, outputGroups, nameHashing)
+      val compilationData = CompilationData(sources, classpath, output, scalaOptions, javaOptions,
+        CompileOrder.valueOf(order), cacheFile, outputToCacheMap, outputGroups, sbtIncOptions)
 
       Arguments(sbtData, compilerData, compilationData, worksheetClass)
   }
