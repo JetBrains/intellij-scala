@@ -35,7 +35,6 @@ trait TreeAdapter {
       case t: ScTrait => toTrait(t)
       case t: ScClass => toClass(t)
       case t: ScObject => toObject(t)
-      case t: ScCatchBlock => ???
       case t: ScExpression => expression(Some(t)).get
       case t: p.toplevel.imports.ScImportStmt => m.Import(Seq(t.importExprs.map(imports):_*))
 
@@ -165,7 +164,7 @@ trait TreeAdapter {
       case t: ScConstructorPattern=>  Extract(toTermName(t.ref), Nil, Seq(t.args.patterns.map(arg):_*))
       case t: ScNamingPattern     =>  Bind(Var.Term(toTermName(t)), arg(t.named))
       case t@ ScTypedPattern(te: types.ScWildcardTypeElement) => Typed(if (t.isWildcard) Wildcard() else Var.Term(toTermName(t)), Type.Wildcard())
-      case t@ ScTypedPattern(te)  =>  Typed(if (t.isWildcard) Wildcard() else Var.Term(toTermName(t)), toType(te).patTpe)
+      case t@ ScTypedPattern(te)  =>  Typed(if (t.isWildcard) Wildcard() else Var.Term(toTermName(t)), toType(t.getTypeWithCachedSubst).patTpe)
       case t: ScLiteralPattern    =>  literal(t.getLiteral)
       case t: ScTuplePattern      =>  Tuple(Seq(t.patternList.get.patterns.map(pattern):_*))
       case t: ScWildcardPattern   =>  Wildcard()
@@ -320,11 +319,21 @@ trait TreeAdapter {
           .withAttrs(toType(t.getTypeWithCachedSubst))
           .setTypechecked
       case t: ScThrowStmt =>
-        m.Term.Throw(expression(t.body).getOrElse(throw new AbortException(t, "Empty while condition")))
-      case t: ScTryBlock =>
-        ???
-      case t: ScTryStmt =>
-        ???
+        m.Term.Throw(expression(t.body).getOrElse(throw new AbortException(t, "Empty throw expression")))
+      case t@ScTryStmt(tryBlock, catchBlock, finallyBlock) =>
+        val fblk = finallyBlock match {
+          case Some(b:ScFinallyBlock) => b.expression.map(expression)
+          case _ => None
+        }
+        catchBlock match {
+          case Some(ScCatchBlock(clauses)) if clauses.caseClauses.size == 1 =>
+            m.Term.TryWithTerm(expression(tryBlock), clauses.caseClause.expr.map(expression).getOrElse(unreachable), fblk)
+          case Some(ScCatchBlock(clauses)) =>
+            m.Term.TryWithCases(expression(tryBlock), Seq(clauses.caseClauses.map(caseClause):_*), fblk)
+          case None =>
+            m.Term.TryWithCases(expression(tryBlock), Seq.empty, fblk)
+          case _ => unreachable
+        }
       case t: ScGenericCall =>
         ???
       case t: ScConstrExpr =>
