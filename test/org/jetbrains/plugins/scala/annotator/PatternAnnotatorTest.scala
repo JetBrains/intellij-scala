@@ -4,6 +4,7 @@ package annotator
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 
 /**
@@ -17,8 +18,6 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
   private def cannotBeUsed(typeText: String) = s"type $typeText cannot be used in a type pattern or isInstanceOf test"
   private def patternTypeIncompatible(found: String, required: String) =
     ScalaBundle.message("pattern.type.incompatible.with.expected", found, required)
-  private def constructorCannotBeInstantiatedExectedType(found: String, required: String) =
-    ScalaBundle.message("constructor.cannot.be.instantiated.expected.type", found, required)
 
   private def collectAnnotatorMessages(text: String): List[Message] = {
     configureFromFileTextAdapter("dummy.scala", text)
@@ -43,7 +42,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
   private def checkWarning(text: String, element: String, expectedMsg: String): Unit = {
     collectWarnings(text) match {
       case Warning(`element`, `expectedMsg`) :: Nil =>
-      case actual => assert(assertion = false, s"expected: ${Warning(element, expectedMsg)}, actual: $actual")
+      case actual => Assert.assertTrue(s"expected: ${Warning(element, expectedMsg)}\n actual: $actual", false)
     }
   }
 
@@ -53,23 +52,24 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
   }
 
   private def checkError(text: String, element: String, expectedMsg: String): Unit = {
-    collectErrors(text) match {
-      case Error(`element`, `expectedMsg`) :: Nil =>
-      case actual => assert(assertion = false, s"expected: ${Error(element, expectedMsg)}, actual: $actual")
-    }
+    checkErrors(text, List(Error(element, expectedMsg)))
+  }
+
+  private def checkErrors(text: String, errors: List[Error]): Unit = {
+    Assert.assertEquals(errors, collectErrors(text))
   }
 
   private def assertNoErrors(text: String): Unit = {
-    assert(collectErrors(text).isEmpty)
+    Assert.assertEquals(List[Error](), collectErrors(text))
   }
 
   private def assertNoWarnings(text: String): Unit = {
-    assert(collectWarnings(text).isEmpty)
+    Assert.assertTrue(collectWarnings(text).isEmpty)
   }
 
   def testSomeConstructor(): Unit = {
     val code: String = "val Some(x) = None"
-    checkError(code, "Some(x)", constructorCannotBeInstantiatedExectedType("Some[A]", "None.type"))
+    checkError(code, "Some(x)", patternTypeIncompatible("Some[A]", "None.type"))
     assertNoWarnings(code)
   }
 
@@ -100,7 +100,6 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
   }
 
   def testStableIdPattern() {
-    //checkWarning("val xs = List(\"\"); val a :: `xs` = 1 :: List(1)", "`xs`", fruitless("List[Int]", "List[String]"))
     emptyMessages(
       """
         |val xs = List("")
@@ -126,13 +125,16 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
 
   def testTuple2ToTuple3Constructor(): Unit = {
     val code: String = "val (x, y) = (1, 2, 3)"
-    checkError(code, "(x, y)", constructorCannotBeInstantiatedExectedType("(T1, T2)", "(Int, Int, Int)"))
+    checkError(code, "(x, y)", patternTypeIncompatible("(Int, Int)", "(Int, Int, Int)"))
     assertNoWarnings(code)
   }
 
   def testTupleWrongDeclaredType(): Unit = {
     val code: String = "val (x: String, y) = (1, 2)"
-    checkError(code, "x: String", incompatible("String", "Int"))
+    checkErrors(code, List(
+      Error("(x: String, y)", patternTypeIncompatible("(String, Int)", "(Int, Int)")),
+      Error("x: String", incompatible("String", "Int"))
+    ))
     assertNoWarnings(code)
   }
 
@@ -142,13 +144,16 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
 
   def testIncompatibleSomeConstructor(): Unit = {
     val code: String = "val Some(x: Int) = \"\""
-    checkError(code, "Some(x: Int)", constructorCannotBeInstantiatedExectedType("Some[A]", "String"))
+    checkError(code, "Some(x: Int)", patternTypeIncompatible("Some[A]", "String"))
     assertNoWarnings(code)
   }
 
   def testIncompatibleCons(): Unit = {
     val code: String = "val (x: Int) :: xs = List(\"1\", \"2\")"
-    checkError(code, "x: Int", incompatible("Int", "String"))
+    checkErrors(code, List(
+      Error("(x: Int)", patternTypeIncompatible("Int", "String")),
+      Error("x: Int", incompatible("Int", "String"))
+    ))
     assertNoWarnings(code)
   }
 
@@ -195,9 +200,9 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
         |    }
         |  }
         |
-        |  final class A
-        |  case class Bar(s: String)
         |}
+        |final class A
+        |case class Bar(s: String)
       """.stripMargin
     checkError(code, "`a`", patternTypeIncompatible("A", "Bar"))
     assertNoWarnings(code)
@@ -243,6 +248,19 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     assertNoWarnings(nullCode)
     checkError(nothingCode, "n: Nothing", cannotBeUsed("Nothing"))
     assertNoWarnings(nothingCode)
+  }
+
+  def testSCL8970(): Unit = {
+    val code =
+      """
+        |case class TakeSnapShot(version: Int, promise: Boolean, smth: String])
+        |
+        |def tpp(t: TakeSnapShot): Unit = t match {
+        |  case TakeSnapShot(promise, _) =>
+        |}
+      """.stripMargin
+    checkError(code, "TakeSnapShot(promise, _)", ScalaBundle.message("wrong.number.arguments.extractor", "2", "3"))
+    assertNoWarnings(code)
   }
 
   def testUncheckedRefinement() {

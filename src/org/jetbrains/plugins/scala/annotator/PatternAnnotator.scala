@@ -9,9 +9,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScDesignatorType, ScTypeParameterType, _}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import scala.annotation.tailrec
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
@@ -41,47 +43,66 @@ object PatternAnnotator {
 
   /**
    * Logic in this method is mimicked from compiler sources:
-   * scala.tools.nsc.typechecker.Infer and scala.tools.nsc.typechecker.Checkable
+   * [[scala.tools.nsc.typechecker.Infer.Inferencer]] and [[scala.tools.nsc.typechecker.Checkable]]
    *
-   * "pattern type is uncompatible with expected type" error is not handled
-   * */
-  private def checkPatternType(patType: ScType, exprType: ScType, pattern: ScPattern, holder: AnnotationHolder) {
-    val exTp      = widen(exprType)
-    val freeTypeParams  = freeTypeParamsOfTerms(exTp)
+   */
+  private def checkPatternType(patType: ScType, exprType: ScType, pattern: ScPattern, holder: AnnotationHolder): Unit = {
+    val exTp = widen(exprType)
+    def freeTypeParams = freeTypeParamsOfTerms(exTp)
 
     def exTpMatchesPattp = matchesPattern(exTp, widen(patType))
 
-    val neverMatches = !matchesPattern(exprType, patType) && (patType match {
-      case StdType(_, Some(AnyVal)) => false
-      case _ => isNeverSubType(exprType, patType)
-    })
+    val neverMatches = !matchesPattern(exprType, patType) && isNeverSubType(exprType, patType)
+
+    def isEliminatedByErasure = (ScType.extractClass(exprType), ScType.extractClass(patType)) match {
+      case (Some(cl1), Some(cl2)) if pattern.isInstanceOf[ScTypedPattern] => !isNeverSubClass(cl1, cl2)
+      case _ => false
+    }
 
     pattern match {
-      case _: ScTypedPattern if exTp.isFinalType && freeTypeParams.isEmpty && !exTpMatchesPattp =>
-        val (exprTypeText, patTypeText) = ScTypePresentation.different(exprType, patType)
-        val message = ScalaBundle.message("scrutinee.incompatible.pattern.type", exprTypeText, patTypeText)
-        holder.createErrorAnnotation(pattern, message)
-        return
       case _: ScTypedPattern if Seq(Nothing, Null, AnyVal) contains patType =>
         val message = ScalaBundle.message("type.cannot.be.used.in.type.pattern", patType.presentableText)
         holder.createErrorAnnotation(pattern, message)
-        return
+      case _: ScTypedPattern if exTp.isFinalType && freeTypeParams.isEmpty && !exTpMatchesPattp =>
+        val (exprTypeText, patTypeText) = ScTypePresentation.different(exprType, patType)
+        val message = ScalaBundle.message("scrutinee.incompatible.pattern.type", patTypeText, exprTypeText)
+        holder.createErrorAnnotation(pattern, message)
       case ScTypedPattern(typeElem @ ScCompoundTypeElement(_, Some(refinement))) =>
         val message = ScalaBundle.message("pattern.on.refinement.unchecked")
         holder.createWarningAnnotation(typeElem, message)
-        return
+      case (_: ScConstructorPattern| _: ScTuplePattern) if neverMatches =>
+        val message = ScalaBundle.message("pattern.type.incompatible.with.expected", patType, exprType)
+        holder.createErrorAnnotation(pattern, message)
+      case _  if patType.isFinalType && neverMatches =>
+        val (exprTypeText, patTypeText) = ScTypePresentation.different(exprType, patType)
+        val message = ScalaBundle.message("pattern.type.incompatible.with.expected", patTypeText, exprTypeText)
+        holder.createErrorAnnotation(pattern, message)
+      case _: ScTypedPattern if neverMatches =>
+        val erasureWarn =
+          if (isEliminatedByErasure) ScalaBundle.message("erasure.warning")
+          else ""
+        val (exprTypeText, patTypeText) = ScTypePresentation.different(exprType, patType)
+        val message = ScalaBundle.message("fruitless.type.test", exprTypeText, patTypeText) + erasureWarn
+        holder.createWarningAnnotation(pattern, message)
+      case constr: ScConstructorPattern => //check number of arguments
+        Option(constr.ref) match {
+          case Some(ref) =>
+            ref.bind() match {
+              case Some(ScalaResolveResult(fun: ScFunction, _)) => fun.returnType match {
+                case Success(rt, _) =>
+                  val expected = ScPattern.expecteNumberOfExtractorArguments(rt, pattern, ScPattern.isOneArgCaseClassMethod(fun))
+                  val actual: Int = constr.args.patterns.length
+                  if (expected != actual) {
+                    val message = ScalaBundle.message("wrong.number.arguments.extractor", actual.toString, expected.toString)
+                    holder.createErrorAnnotation(pattern, message)
+                  }
+                case _ =>
+              }
+              case _ =>
+            }
+          case _ =>
+        }
       case _ =>
-    }
-
-    if (neverMatches) {
-      val erasureWarn = (ScType.extractClass(exprType), ScType.extractClass(patType)) match {
-        case (Some(cl1), Some(cl2)) if pattern.isInstanceOf[ScTypedPattern] =>
-          if (isNeverSubClass(cl1, cl2)) "" else ScalaBundle.message("erasure.warning")
-        case _ => ""
-      }
-      val (exprTypeText, patTypeText) = ScTypePresentation.different(exprType, patType)
-      val message = ScalaBundle.message("fruitless.type.test", exprTypeText, patTypeText) + erasureWarn
-      holder.createWarningAnnotation(pattern, message)
     }
   }
 
@@ -91,7 +112,7 @@ object PatternAnnotator {
         case Some(srr) =>
           srr.getElement match {
             case fun: ScFunction if fun.parameters.size == 1 =>
-              Some(srr.substitutor.subst(fun.paramTypes(0)))
+              Some(srr.substitutor.subst(fun.paramTypes.head))
             case _ => None
           }
         case None => None
@@ -111,9 +132,6 @@ object PatternAnnotator {
         else None
       case typed: ScTypedPattern =>
         typed.typePattern.map(_.typeElement.calcType)
-      case patt @ (_: ScStableReferenceElementPattern | _: ScLiteralPattern) =>
-        val result = patt.getType(TypingContext.empty).toOption
-        if (result == Some(Null)) Some(AnyRef) else result
       case naming: ScNamingPattern =>
         patternType(naming.named)
       case parenth: ScParenthesisedPattern =>
@@ -155,6 +173,7 @@ object PatternAnnotator {
     buffer.toSeq
   }
 
+  @tailrec
   private def matchesPattern(matching: ScType, matched: ScType): Boolean = {
     object arrayType {
       def unapply(scType: ScType): Option[ScType] = scType match {
