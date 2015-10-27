@@ -263,6 +263,28 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     assertNoWarnings(code)
   }
 
+  def testAliaseesAreExpanded(): Unit = {
+    val code =
+      """
+        |case class Foo(x: Foo.Bar)
+        |
+        |object Foo {
+        |  type Bar = Char
+        |
+        |  def getFoo: Foo = Foo('?')
+        |  val s = "?"
+        |  def fa(f: Foo) = getFoo match {
+        |    case Foo(Util.i) =>
+        |  }
+        |}
+        |
+        |object Util {
+        |  final val i: Byte = 31
+        |}
+      """.stripMargin
+    emptyMessages(code)
+  }
+
   def testUncheckedRefinement() {
     checkWarning("val Some(x: AnyRef{def foo(i: Int): Int}) = Some(new AnyRef())", "AnyRef{def foo(i: Int): Int}",
       ScalaBundle.message("pattern.on.refinement.unchecked"))

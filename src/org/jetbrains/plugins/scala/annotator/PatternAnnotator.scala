@@ -47,12 +47,12 @@ object PatternAnnotator {
    *
    */
   private def checkPatternType(patType: ScType, exprType: ScType, pattern: ScPattern, holder: AnnotationHolder): Unit = {
-    val exTp = widen(exprType)
+    val exTp = widen(ScType.expandAliases(exprType).getOrElse(exprType))
     def freeTypeParams = freeTypeParamsOfTerms(exTp)
 
     def exTpMatchesPattp = matchesPattern(exTp, widen(patType))
 
-    val neverMatches = !matchesPattern(exprType, patType) && isNeverSubType(exprType, patType)
+    val neverMatches = !matchesPattern(exTp, patType) && isNeverSubType(exTp, patType)
 
     def isEliminatedByErasure = (ScType.extractClass(exprType), ScType.extractClass(patType)) match {
       case (Some(cl1), Some(cl2)) if pattern.isInstanceOf[ScTypedPattern] => !isNeverSubClass(cl1, cl2)
