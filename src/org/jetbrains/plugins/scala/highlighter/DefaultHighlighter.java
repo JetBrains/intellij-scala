@@ -18,6 +18,7 @@ package org.jetbrains.plugins.scala.highlighter;
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType;
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.editor.HighlighterColors;
+import com.intellij.openapi.editor.XmlHighlighterColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import org.jetbrains.annotations.NonNls;
 
@@ -127,10 +128,6 @@ public class DefaultHighlighter {
   @NonNls
   static final String TYPE_ALIAS_NAME = "Type Alias";
   @NonNls
-  static final String XML_TEXT_NAME = "XML Text";
-  @NonNls
-  static final String XML_TAG_NAME = "XML Tag";
-  @NonNls
   static final String IMPLICIT_FIRST_PART_NAME = "Implicit conversion first part";
   @NonNls
   static final String IMPLICIT_SECOND_PART_NAME = "Implicit conversion second part";
@@ -239,9 +236,17 @@ public class DefaultHighlighter {
   @NonNls
   static final String TYPE_ALIAS_ID = "Scala Type Alias";
   @NonNls
-  static final String XML_TEXT_ID = "Scala XML Text";
+  static final String XML_TAG_ID = "Scala XML tag";
   @NonNls
-  static final String XML_TAG_ID = "Scala XML Tag";
+  static final String XML_TAG_NAME_ID = "Scala XML tag name";
+  @NonNls
+  static final String XML_TAG_DATA_ID = "Scala XML tag data";
+  @NonNls
+  static final String XML_ATTRIBUTE_NAME_ID = "Scala XML attribute name";
+  @NonNls
+  static final String XML_ATTRIBUTE_VALUE_ID = "Scala XML attribute value";
+  @NonNls
+  static final String XML_COMMENT_ID = "Scala XML comment";
   @NonNls
   static final String IMPLICIT_FIRST_PART_ID = "Implicit conversion first part";
   @NonNls
@@ -298,8 +303,14 @@ public class DefaultHighlighter {
   public static TextAttributesKey ASSIGN = createKey(ASSIGN_ID, DefaultLanguageHighlighterColors.OPERATION_SIGN);
   public static TextAttributesKey BAD_CHARACTER = createKey(BAD_CHARACTER_ID, HighlighterColors.BAD_CHARACTER);
   public static TextAttributesKey DOC_COMMENT = createKey(DOC_COMMENT_ID, DefaultLanguageHighlighterColors.DOC_COMMENT);
-  public static TextAttributesKey XML_TEXT = createKey(XML_TEXT_ID, DefaultLanguageHighlighterColors.STRING);
-  public static TextAttributesKey XML_TAG = createKey(XML_TAG_ID, DefaultLanguageHighlighterColors.DOC_COMMENT_TAG);
+
+  public static TextAttributesKey XML_TAG = createKey(XML_TAG_ID, XmlHighlighterColors.XML_TAG);
+  public static TextAttributesKey XML_TAG_NAME = createKey(XML_TAG_NAME_ID, XmlHighlighterColors.XML_TAG_NAME);
+  public static TextAttributesKey XML_TAG_DATA = createKey(XML_TAG_DATA_ID, XmlHighlighterColors.XML_TAG_DATA);
+  public static TextAttributesKey XML_ATTRIBUTE_NAME = createKey(XML_ATTRIBUTE_NAME_ID, XmlHighlighterColors.XML_ATTRIBUTE_NAME);
+  public static TextAttributesKey XML_ATTRIBUTE_VALUE = createKey(XML_ATTRIBUTE_VALUE_ID, XmlHighlighterColors.XML_ATTRIBUTE_VALUE);
+  public static TextAttributesKey XML_COMMENT = createKey(XML_COMMENT_ID, XmlHighlighterColors.XML_COMMENT);
+
   public static TextAttributesKey IMPLICIT_FIRST_PART = createKey(IMPLICIT_FIRST_PART_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
   public static TextAttributesKey IMPLICIT_SECOND_PART = createKey(IMPLICIT_SECOND_PART_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
 

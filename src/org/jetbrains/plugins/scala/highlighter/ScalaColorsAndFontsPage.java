@@ -90,8 +90,12 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         new AttributesDescriptor(DefaultHighlighter.BAD_CHARACTER_NAME, DefaultHighlighter.BAD_CHARACTER),
         new AttributesDescriptor(DefaultHighlighter.ANNOTATION_NAME, DefaultHighlighter.ANNOTATION),
         new AttributesDescriptor(DefaultHighlighter.ANNOTATION_ATTRIBUTE_NAME, DefaultHighlighter.ANNOTATION_ATTRIBUTE),
-        new AttributesDescriptor(DefaultHighlighter.XML_TEXT_NAME, DefaultHighlighter.XML_TEXT),
-        new AttributesDescriptor(DefaultHighlighter.XML_TAG_NAME, DefaultHighlighter.XML_TAG),
+        new AttributesDescriptor(DefaultHighlighter.XML_TAG_ID, DefaultHighlighter.XML_TAG),
+        new AttributesDescriptor(DefaultHighlighter.XML_TAG_NAME_ID, DefaultHighlighter.XML_TAG_NAME),
+        new AttributesDescriptor(DefaultHighlighter.XML_TAG_DATA_ID, DefaultHighlighter.XML_TAG_DATA),
+        new AttributesDescriptor(DefaultHighlighter.XML_ATTRIBUTE_NAME_ID, DefaultHighlighter.XML_ATTRIBUTE_NAME),
+        new AttributesDescriptor(DefaultHighlighter.XML_ATTRIBUTE_VALUE_ID, DefaultHighlighter.XML_ATTRIBUTE_VALUE),
+        new AttributesDescriptor(DefaultHighlighter.XML_COMMENT_ID, DefaultHighlighter.XML_COMMENT),
         new AttributesDescriptor(DefaultHighlighter.IMPLICIT_FIRST_PART_NAME, DefaultHighlighter.IMPLICIT_FIRST_PART),
         new AttributesDescriptor(DefaultHighlighter.IMPLICIT_SECOND_PART_NAME, DefaultHighlighter.IMPLICIT_SECOND_PART)
     };
@@ -139,7 +143,7 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
         "    <keyword>case</keyword> <pattern>x</pattern> => <pattern>x</pattern>\n" +
         "  <brace>}<brace>\n" +
         "  <keyword>type</keyword> <typeAlias>G</typeAlias> <assign>=</assign> <predef>Int</predef>\n" +
-        "  val xml = <xmltag><a></xmltag><xmltext>text in xml</xmltext><xmltag></a></xmltag>\n" +
+        "  val xml = <xmltag><<xmltagname>element</xmltagname> <xmlattributename>attibute=</xmlattributename><xmlattributevalue>\"value\"</xmlattributevalue>></xmltag><xmltagdata>data</xmltagdata><xmltag></element></xmltag>\n" +
         "<brace>}</brace>\n" +
         "\n" +
         "<blockcomment>/*\n" +
@@ -210,8 +214,12 @@ public class ScalaColorsAndFontsPage implements ColorSettingsPage {
     map.put("scaladocHtml", DefaultHighlighter.SCALA_DOC_HTML_TAG);
     map.put("htmlDocEscape", DefaultHighlighter.SCALA_DOC_HTML_ESCAPE);
     map.put("paramtagval", DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE);
-    map.put("xmltext", DefaultHighlighter.XML_TEXT);
     map.put("xmltag", DefaultHighlighter.XML_TAG);
+    map.put("xmltagname", DefaultHighlighter.XML_TAG_NAME);
+    map.put("xmltagdata", DefaultHighlighter.XML_TAG_DATA);
+    map.put("xmlattributename", DefaultHighlighter.XML_ATTRIBUTE_NAME);
+    map.put("xmlattributevalue", DefaultHighlighter.XML_ATTRIBUTE_VALUE);
+    map.put("xmlcomment", DefaultHighlighter.XML_COMMENT);
     map.put("implicit", DefaultHighlighter.IMPLICIT_CONVERSIONS);
     map.put("implicitFirstPart", DefaultHighlighter.IMPLICIT_FIRST_PART);
     map.put("implicitSecondPart", DefaultHighlighter.IMPLICIT_SECOND_PART);
