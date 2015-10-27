@@ -29,7 +29,7 @@ import scala.collection.mutable
 object WorksheetSourceProcessor {
   val END_TOKEN_MARKER = "###worksheet###$$end$$"
   val END_OUTPUT_MARKER = "###worksheet###$$end$$!@#$%^&*(("
-  val END_GENERATED_MARKER = "/* ###worksheet### generated $$end$$ */"
+  val END_GENERATED_MARKER = "/* ###worksheet### generated $$end$$ */ "
 
   val WORKSHEET_PRE_CLASS_KEY = new Key[String]("WorksheetPreClassKey")
 
