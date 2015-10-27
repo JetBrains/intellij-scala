@@ -73,12 +73,12 @@
         <element id="archive" name="scalap.jar">
           <element id="module-output" name="scalap" />
         </element>
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:4.2.1:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:4.2.0:jar" />
       </element>
       <element id="directory" name="launcher">
         <element id="library" level="project" name="SBT: org.scala-sbt:sbt-launch:0.13.8:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-12:4.2.1:jar" />
-        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-13:4.2.1:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-12:4.2.0:jar" />
+        <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-extractor-0-13:4.2.0:jar" />
       </element>
     </root>
   </artifact>
