@@ -263,7 +263,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     assertNoWarnings(code)
   }
 
-  def testAliaseesAreExpanded(): Unit = {
+  def testAliasesAreExpanded(): Unit = {
     val code =
       """
         |case class Foo(x: Foo.Bar)
@@ -289,4 +289,18 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     checkWarning("val Some(x: AnyRef{def foo(i: Int): Int}) = Some(new AnyRef())", "AnyRef{def foo(i: Int): Int}",
       ScalaBundle.message("pattern.on.refinement.unchecked"))
   }
+
+  def testExpectedTypeIsTupleIfThereIsOneArgumentAndMoreThanOneArgumentIsReturnedByUnapplySCL8115(): Unit = {
+    val code =
+      """
+        |object unapplier { def unapply(x: Int) = Some((x, x)) }
+        |val tupleTaker = (_: (Int, Int)) => ()
+        |
+        |1 match {
+        |  case unapplier(tuple) => tupleTaker(tuple)
+        |}
+      """.stripMargin
+    emptyMessages(code)
+  }
+
 }

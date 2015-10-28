@@ -92,7 +92,8 @@ object PatternAnnotator {
                 case Success(rt, _) =>
                   val expected = ScPattern.expecteNumberOfExtractorArguments(rt, pattern, ScPattern.isOneArgCaseClassMethod(fun))
                   val actual: Int = constr.args.patterns.length
-                  if (expected != actual) {
+                  val unapplyReturnsBoolean = expected == 0
+                  if (expected != actual && (actual != 1 && !unapplyReturnsBoolean)) { //1 always fits if return type is Option[TupleN]
                     val message = ScalaBundle.message("wrong.number.arguments.extractor", actual.toString, expected.toString)
                     holder.createErrorAnnotation(pattern, message)
                   }

@@ -90,7 +90,8 @@ trait ScPattern extends ScalaPsiElement {
 
   private def expectedTypeForExtractorArg(ref: ScStableCodeReferenceElement,
                                           argIndex: Int,
-                                          expected: Option[ScType]): Option[ScType] = {
+                                          expected: Option[ScType],
+                                          totalNumberOfPatterns: Int): Option[ScType] = {
     val bind: Option[ScalaResolveResult] = ref.bind() match {
       case Some(ScalaResolveResult(_: ScBindingPattern | _: ScParameter, _)) =>
         val resolve = ref match {
@@ -177,7 +178,8 @@ trait ScPattern extends ScalaPsiElement {
             if (subbedRetTp.equiv(lang.psi.types.Boolean)) None
             else {
               val args = ScPattern.extractorParameters(subbedRetTp, this, ScPattern.isOneArgCaseClassMethod(fun))
-              if (argIndex < args.length) Some(updateRes(subst.subst(args(argIndex)).unpackedType))
+              if (totalNumberOfPatterns == 1 && args.length > 1) Some(ScTupleType(args)(getProject, getResolveScope))
+              else if (argIndex < args.length) Some(updateRes(subst.subst(args(argIndex)).unpackedType))
               else None
             }
           case _ => None
@@ -232,7 +234,8 @@ trait ScPattern extends ScalaPsiElement {
     case argList : ScPatternArgumentList =>
       argList.getContext match {
         case constr : ScConstructorPattern =>
-          expectedTypeForExtractorArg(constr.ref, constr.args.patterns.indexWhere(_ == this), constr.expectedType)
+          val thisIndex: Int = constr.args.patterns.indexWhere(_ == this)
+          expectedTypeForExtractorArg(constr.ref, thisIndex, constr.expectedType, argList.patterns.length)
         case _ => None
       }
     case composite: ScCompositePattern => composite.expectedType
@@ -241,7 +244,7 @@ trait ScPattern extends ScalaPsiElement {
         if (this.isInstanceOf[ScTuplePattern]) return None
         1
       }
-      expectedTypeForExtractorArg(infix.refernece, i, infix.expectedType)
+      expectedTypeForExtractorArg(infix.refernece, i, infix.expectedType, 2)
     case par: ScParenthesisedPattern => par.expectedType
     case patternList : ScPatterns => patternList.getContext match {
       case tuple : ScTuplePattern =>
@@ -253,7 +256,11 @@ trait ScPattern extends ScalaPsiElement {
                 case Some(patterns: ScPatterns) => patterns.patterns.indexWhere(_ == this)
                 case _ => return None
               }
-              return expectedTypeForExtractorArg(infix.refernece, i + 1, infix.expectedType)
+              val patternLength: Int = tuple.patternList match {
+                case Some(pat) => pat.patterns.length
+                case _ => -1 //is it possible to get here?
+              }
+              return expectedTypeForExtractorArg(infix.refernece, i + 1, infix.expectedType, patternLength)
             }
           case _ =>
         }
