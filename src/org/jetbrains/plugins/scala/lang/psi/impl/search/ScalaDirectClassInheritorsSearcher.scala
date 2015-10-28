@@ -32,7 +32,8 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
 
     val scope = inReadAction {
       val useScope = clazz.getUseScope match {
-        case local: LocalSearchScope => clazz.containingScalaFile.map(GlobalSearchScope.fileScope)
+        case _: LocalSearchScope => clazz.containingScalaFile.map(GlobalSearchScope.fileScope)
+        case global: GlobalSearchScope => Some(global)
         case _ => None
       }
       ScalaPsiUtil.intersectScopes(queryParameters.getScope, useScope) match {
