@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.light.LightScalaMethod
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
 
 import scala.Predef._
 import scala.collection.mutable
@@ -222,7 +221,6 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     null
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference)
   def getImplicitObjectsByPackage(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {
     val classes = StubIndex.getElements(ScalaIndexKeys.IMPLICIT_OBJECT_KEY, fqn, project,
       new ScalaSourceFilterScope(scope, project), classOf[ScObject])

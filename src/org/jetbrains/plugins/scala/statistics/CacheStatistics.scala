@@ -89,19 +89,18 @@ class CacheStatistics private(id: String, name: String) {
 
       val timeSaved = hits * averageTime
       s"""
-       |****************************
+       |*************************************************************
        |$name
        |hits: $hits, misses: $misses
-       |*approximate* spaceTaken: $spaceTakenByCache
        |maxTime: $maxTime, minTime: $minTime, averageTime: $averageTime
        |time saved (hits * averageTime): $timeSaved
        |****************************
      """.stripMargin
     } else {
       s"""
-        |**************************
+        |*************************************************************
         |$name not used
-        |**************************
+        |*************************************************************
       """.stripMargin
     }
   }
