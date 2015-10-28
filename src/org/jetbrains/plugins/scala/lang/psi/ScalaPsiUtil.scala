@@ -1336,7 +1336,9 @@ object ScalaPsiUtil {
       case Some(node) =>
         node.supers.map { _.info }.filter { _.namedElement != x } :+ node.info
       case None =>
-        throw new RuntimeException(s"internal error: could not find val matching: \n${x.getText}\n\nin class: \n${clazz.getText}")
+        //this is possible case: private member of library source class.
+        //Problem is that we are building signatures over decompiled class.
+        Seq.empty
     }
 
 
@@ -1369,17 +1371,16 @@ object ScalaPsiUtil {
     if (clazz == null) return Seq.empty
     val types = if (withSelfType) TypeDefinitionMembers.getSelfTypeTypes(clazz) else TypeDefinitionMembers.getTypes(clazz)
     val sigs = types.forName(element.name)._1
-    val t = (sigs.get(element): @unchecked) match {
+    (sigs.get(element): @unchecked) match {
       //partial match
       case Some(x) if !withSelfType || x.info == element => x.supers
       case Some(x) =>
         x.supers.filter { _.info != element } :+ x
       case None =>
-        throw new RuntimeException("internal error: could not find type matching: \n%s\n\nin class: \n%s".format(
-          element.getText, clazz.getText
-        ))
+        //this is possible case: private member of library source class.
+        //Problem is that we are building types over decompiled class.
+        Seq.empty
     }
-    t
   }
 
   def nameContext(x: PsiNamedElement): PsiElement = {
