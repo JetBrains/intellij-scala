@@ -42,9 +42,9 @@ import scala.collection.{Seq, mutable}
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
 
-  private val clearCacheOnChange = new util.ArrayList[ConcurrentHashMap[_ <: Any, _ <: Any]]()
-  private val clearCacheOnLowMemory = new util.ArrayList[ConcurrentHashMap[_ <: Any, _ <: Any]]()
-  private val clearCacheOnOutOfBlockChange = new util.ArrayList[ConcurrentHashMap[_ <: Any, _ <: Any]]()
+  private val clearCacheOnChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
+  private val clearCacheOnLowMemory = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
+  private val clearCacheOnOutOfBlockChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
 
   def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
     if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) ParameterlessNodes.build(tp, compoundTypeThisType)
@@ -223,7 +223,6 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   def disposeComponent() {}
   def initComponent() {
     def clearOnChange(): Unit = {
-      import scala.collection.JavaConversions._
       clearCacheOnChange.foreach(_.clear())
       Conformance.cache.clear()
       Equivalence.cache.clear()
@@ -233,7 +232,6 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     }
 
     def clearOnOutOfCodeBlockChange(): Unit = {
-      import scala.collection.JavaConversions._
       clearCacheOnOutOfBlockChange.foreach(_.clear())
       syntheticPackages.clear()
     }
@@ -262,7 +260,6 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 
       LowMemoryWatcher.register(new Runnable {
         def run(): Unit = {
-          import scala.collection.JavaConversions._
           clearCacheOnLowMemory.foreach(_.clear())
           Conformance.cache.clear()
           Equivalence.cache.clear()

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.macroAnnotations
 import org.jetbrains.plugins.scala.macroAnnotations.ValueWrapper.ValueWrapper
 
 import scala.annotation.{StaticAnnotation, tailrec}
+import scala.collection.mutable.ArrayBuffer
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
@@ -20,7 +21,7 @@ import scala.reflect.macros.whitebox
   */
 class CachedWithoutModificationCount(synchronized: Boolean,
                                      valueWrapper: ValueWrapper,
-                                     addToSet: java.util.Set[java.util.Map[_ <: Any , _ <: Any]]*) extends StaticAnnotation {
+                                     addToBuffer: ArrayBuffer[_ <: java.util.Map[_ <: Any , _ <: Any]]*) extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro CachedWithoutModificationCount.cachedWithoutModificationCountImpl
 }
 
@@ -47,14 +48,14 @@ object CachedWithoutModificationCount {
             case q"$v" => c.eval[Boolean](c.Expr(v))
           }
           val valueWrapper = valueWrapperParam(params(1))
-          val sets: List[Tree] = params.drop(2)
-          (synch, valueWrapper, sets)
+          val buffers: List[Tree] = params.drop(2)
+          (synch, valueWrapper, buffers)
         case _ => abort("Wrong parameters")
       }
     }
 
     //annotation parameters
-    val (synchronized, valueWrapper, setsToAddTo) = parameters
+    val (synchronized, valueWrapper, buffersToAddTo) = parameters
 
     annottees.toList match {
       case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
@@ -84,14 +85,14 @@ object CachedWithoutModificationCount {
           case ValueWrapper.SofterReference => tq"_root_.com.intellij.util.SofterReference[$retTp]"
         }
 
-        val addToSets = setsToAddTo.map { map =>
+        val addToBuffers = buffersToAddTo.map { map =>
           q"$map.add($mapName)"
         }
         val fields = if (hasParameters) {
           q"""
             private val $mapName = new java.util.concurrent.ConcurrentHashMap[(..${flatParams.map(_.tpt)}), $wrappedRetTp]()
             ..$analyzeCachesField
-            ..$addToSets
+            ..$addToBuffers
           """
         } else {
           q"""
