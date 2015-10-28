@@ -42,9 +42,9 @@ import scala.collection.{Seq, mutable}
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
 
-  private val clearCacheOnChange = new util.HashSet[ConcurrentHashMap[_ <: Any, _ <: Any]]()
-  private val clearCacheOnLowMemory = new util.HashSet[ConcurrentHashMap[_ <: Any, _ <: Any]]()
-  private val clearCacheOnOutOfBlockChange = new util.HashSet[ConcurrentHashMap[_ <: Any, _ <: Any]]()
+  private val clearCacheOnChange = new util.ArrayList[ConcurrentHashMap[_ <: Any, _ <: Any]]()
+  private val clearCacheOnLowMemory = new util.ArrayList[ConcurrentHashMap[_ <: Any, _ <: Any]]()
+  private val clearCacheOnOutOfBlockChange = new util.ArrayList[ConcurrentHashMap[_ <: Any, _ <: Any]]()
 
   def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
     if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) ParameterlessNodes.build(tp, compoundTypeThisType)
