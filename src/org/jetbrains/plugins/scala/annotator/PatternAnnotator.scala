@@ -3,10 +3,11 @@ package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
@@ -59,6 +60,19 @@ object PatternAnnotator {
       case _ => false
     }
 
+    def stableReferencePatternResolvesToVarDefinition(stable: ScStableReferenceElementPattern): Boolean = {
+      stable.getReferenceExpression match {
+        case Some(ref) => ref.bind() match {
+          case Some(ScalaResolveResult(elem, _)) => elem.parent.flatMap(_.parent) match {
+            case Some(_: ScVariableDefinition) => true
+            case _ => false
+          }
+          case _ => false
+        }
+        case _ => false
+      }
+    }
+
     pattern match {
       case _: ScTypedPattern if Seq(Nothing, Null, AnyVal) contains patType =>
         val message = ScalaBundle.message("type.cannot.be.used.in.type.pattern", patType.presentableText)
@@ -84,6 +98,9 @@ object PatternAnnotator {
         val (exprTypeText, patTypeText) = ScTypePresentation.different(exprType, patType)
         val message = ScalaBundle.message("fruitless.type.test", exprTypeText, patTypeText) + erasureWarn
         holder.createWarningAnnotation(pattern, message)
+      case stable: ScStableReferenceElementPattern if stableReferencePatternResolvesToVarDefinition(stable) =>
+        val message = ScalaBundle.message("stable.identifier.required", stable.getText)
+        holder.createErrorAnnotation(pattern, message)
       case constr: ScConstructorPattern => //check number of arguments
         Option(constr.ref) match {
           case Some(ref) =>

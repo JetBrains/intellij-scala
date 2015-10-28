@@ -303,4 +303,27 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     emptyMessages(code)
   }
 
+  def testVarAsStableIdentifierPattern(): Unit = {
+    val code =
+      """
+        |object CaseIdentifierBug {
+        |  var ONE = 1   // note var, not val
+        |  var two = 2
+        |
+        |  1 match
+        |  {
+        |    case ONE => println("1")   // bad, but not flagged
+        |    case `two` => println("2") // ditto
+        |    case this.two => println("2")  // this one, too
+        |    case _ => println("Not 1")
+        |  }
+        |}
+      """.stripMargin
+    val errors =
+      Error("ONE", ScalaBundle.message("stable.identifier.required", "ONE")) ::
+      Error("`two`", ScalaBundle.message("stable.identifier.required", "`two`")) ::
+      Error("this.two", ScalaBundle.message("stable.identifier.required", "this.two")) :: Nil
+    checkErrors(code, errors)
+  }
+
 }
