@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
+import scala.annotation.tailrec
+
 /**
  * Pavel Fatin
  */
@@ -69,6 +71,15 @@ trait PsiElementExtTrait {
             prev.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE || prev.isInstanceOf[PsiComment]))
       prev = prev.getPrevSibling
     prev
+  }
+
+  def getPrevSiblingCondition(condition: PsiElement => Boolean, strict: Boolean = true): Option[PsiElement] = {
+    if (!strict && condition(repr)) return Some(repr)
+    var prev: PsiElement = repr.getPrevSibling
+    while (prev != null && !condition(prev)) {
+      prev = prev.getPrevSibling
+    }
+    Option(prev)
   }
 
   def getNextSiblingNotWhitespace: PsiElement = {
