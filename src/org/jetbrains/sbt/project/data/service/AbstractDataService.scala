@@ -87,12 +87,12 @@ trait Importer[E] {
     } yield module
 
   def getScalaLibraries: Set[Library] =
-    modelsProvider.getAllLibraries.filter(_.getName.contains(ScalaLibraryName)).toSet
+    modelsProvider.getAllLibraries.filter(l => Option(l.getName).exists(_.contains(ScalaLibraryName))).toSet
 
   def getScalaLibraries(module: Module): Set[Library] = {
     val collector = new CollectProcessor[Library]()
     getModifiableRootModel(module).orderEntries().librariesOnly().forEachLibrary(collector)
-    collector.getResults.toSet.filter(_.getName.contains(ScalaLibraryName))
+    collector.getResults.toSet.filter(l => Option(l.getName).exists(_.contains(ScalaLibraryName)))
   }
 
   def executeProjectChangeAction(action: => Unit): Unit =
