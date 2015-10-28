@@ -4,7 +4,7 @@ package org.jetbrains.plugins.scala.annotator.intention
 import java.awt.Point
 import javax.swing.Icon
 
-import com.intellij.codeInsight.FileModificationService
+import com.intellij.codeInsight.{JavaProjectCodeInsightSettings, FileModificationService}
 import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.codeInsight.daemon.QuickFixBundle
 import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
@@ -24,16 +24,16 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.TypeToImport
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScPostfixExpr, ScPrefixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
@@ -213,7 +213,7 @@ object ScalaImportTypeFix {
   sealed trait TypeToImport {
     def name: String
     def qualifiedName: String
-    def element: PsiMember with PsiNamedElement
+    def element: PsiNamedElement
     def isAnnotationType: Boolean = false
     def isValid: Boolean = element.isValid
     def getIcon: Icon = element.getIcon(0)
@@ -225,6 +225,7 @@ object ScalaImportTypeFix {
       elem match {
         case clazz: PsiClass => Some(ClassTypeToImport(clazz))
         case ta: ScTypeAlias => Some(TypeAliasToImport(ta))
+        case pack: ScPackage => Some(PrefixPackageToImport(pack))
         case _ => None
       }
     }
@@ -233,7 +234,7 @@ object ScalaImportTypeFix {
   case class ClassTypeToImport(clazz: PsiClass) extends TypeToImport {
     def name: String = clazz.name
     def qualifiedName: String = clazz.qualifiedName
-    def element: PsiMember with PsiNamedElement = clazz
+    def element: PsiNamedElement = clazz
     override def isAnnotationType: Boolean = clazz.isAnnotationType
   }
 
@@ -244,7 +245,13 @@ object ScalaImportTypeFix {
       if (clazz == null || clazz.qualifiedName == "") ta.name
       else clazz.qualifiedName + "." + ta.name
     }
-    def element: PsiMember with PsiNamedElement = ta
+    def element: PsiNamedElement = ta
+  }
+
+  case class PrefixPackageToImport(pack: ScPackage) extends TypeToImport {
+    def name: String = pack.name
+    def qualifiedName: String = pack.getQualifiedName
+    def element: PsiNamedElement = pack
   }
 
   def getImportHolder(ref: PsiElement, project: Project): ScImportsHolder = {
@@ -309,7 +316,7 @@ object ScalaImportTypeFix {
         case c: ScTypeDefinition if c.fakeCompanionModule.isDefined =>
           if (ScalaPsiUtil.getBaseCompanionModule(c).isEmpty) {
             ScalaPsiUtil.getCompanionModule(c) match {
-              case Some(c) => addClazz(c)
+              case Some(companion) => addClazz(companion)
               case _ =>
             }
           }
@@ -326,14 +333,30 @@ object ScalaImportTypeFix {
         buffer += TypeAliasToImport(alias)
       }
     }
+
+    val packagesList = ScalaCodeStyleSettings.getInstance(myProject).getImportsWithPrefix.filter {
+      case exclude if exclude.startsWith(ScalaCodeStyleSettings.EXCLUDE_PREFIX) => false
+      case include =>
+        val parts = include.split('.')
+        if (parts.length > 1) parts.takeRight(2).head == ref.refName
+        else false
+    }.map { case s => s.reverse.dropWhile(_ != '.').tail.reverse }
+
+    for (packageQualifier <- packagesList) {
+      val pack = ScPackageImpl.findPackage(myProject, packageQualifier)
+      if (pack != null && pack.getQualifiedName.indexOf('.') != -1 && ResolveUtils.kindMatches(pack, kinds) &&
+        !JavaProjectCodeInsightSettings.getSettings(myProject).isExcluded(pack.getQualifiedName)) {
+        buffer += PrefixPackageToImport(pack)
+      }
+    }
+
     if (ref.getParent.isInstanceOf[ScMethodCall]) {
       buffer.filter {
         case ClassTypeToImport(clazz) =>
           clazz.isInstanceOf[ScObject] &&
             clazz.asInstanceOf[ScObject].functionsByName("apply").nonEmpty
         case _ => false
-      }.toArray
-    }
-    else buffer.toArray
+      }.sortBy(_.qualifiedName).toArray
+    } else buffer.sortBy(_.qualifiedName).toArray
   }
 }

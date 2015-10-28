@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.test.scalatest;
 
 import com.intellij.execution.Location;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.OrderEntry;
 import com.intellij.openapi.roots.OrderEnumerator;
@@ -10,6 +11,8 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.Processor;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor;
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern;
@@ -27,7 +30,6 @@ import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil;
 import org.scalatest.finders.AstNode;
 import org.scalatest.finders.Finder;
 import org.scalatest.finders.Selection;
-import org.scalatest.finders.ToStringTarget;
 import scala.Option;
 import scala.Option$;
 import scala.collection.JavaConversions;
@@ -40,10 +42,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Ksenia.Sautina
@@ -51,7 +50,21 @@ import java.util.List;
  */
 
 public class ScalaTestAstTransformer {
-    public Class<?> loadClass(String className, Module module) throws MalformedURLException {
+
+    public static Logger LOG = Logger.getInstance("org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestAstTransformer");
+
+    protected static final List<String> itWordFqns = new LinkedList<String>();
+    static {
+        itWordFqns.add("org.scalatest.FlatSpecLike.ItWord");
+        itWordFqns.add("org.scalatest.FunSpecLike.ItWord");
+        itWordFqns.add("org.scalatest.WordSpecLike.ItWord");
+        itWordFqns.add("org.scalatest.fixture.FlatSpecLike.ItWord");
+        itWordFqns.add("org.scalatest.fixture.FunSpecLike.ItWord");
+        itWordFqns.add("org.scalatest.fixture.WordSpecLike.ItWord");
+        itWordFqns.add("org.scalatest.path.FunSpecLike.ItWord");
+    }
+
+    public Class<?> loadClass(String className, Module module) throws MalformedURLException, ClassNotFoundException {
         final List<OrderEntry> orderEntries = new ArrayList<OrderEntry>();
         OrderEnumerator.orderEntries(module).recursively().runtimeOnly().forEach(new Processor<OrderEntry>() {
             @Override
@@ -82,23 +95,100 @@ public class ScalaTestAstTransformer {
         loaderUrls.toArray(loaderUrlsArray);
 
         URLClassLoader loader = new URLClassLoader(loaderUrlsArray, getClass().getClassLoader());
-        try {
-            Class clazz = loader.loadClass(className);
-            return clazz;
-        } catch (ClassNotFoundException e) {
-            return null;
-        }
+        return loader.loadClass(className);
     }
 
-    public ScTypeDefinition clazzWithStyleOpt(ScClass clazz) {
-        List<ScType> list = (List) MixinNodes.linearization(clazz);
-        for (ScType t : list) {
-            Option<PsiClass> tp = ScType$.MODULE$.extractClass(t, Option$.MODULE$.apply(clazz.getProject()));
-            if ((tp instanceof ScClass) && (((ScClass) tp).hasAnnotation("org.scalatest.Style").get() != null)) {
-                return (ScClass) tp;
+    @Nullable
+    protected String getNameFromAnnotLiteral(@Nullable ScExpression expr) {
+        if (expr == null) return null;
+        if (expr instanceof ScLiteral && ((ScLiteral)expr).isString()) {
+            Object value2 = ((ScLiteral) expr).getValue();
+            if (value2 instanceof String) {
+                return (String) value2;
             }
-            if ((tp instanceof ScTrait) && (((ScTrait) tp).hasAnnotation("org.scalatest.Style").get() != null)) {
-                return (ScTrait) tp;
+        }
+        return null;
+    }
+
+    @Nullable
+    protected String getNameFromAnnotAssign(@NotNull ScAssignStmt assignStmt) {
+        if (assignStmt.getLExpression() instanceof ScReferenceExpression &&
+                ((ScReferenceExpression) assignStmt.getLExpression()).refName().equals("value")) {
+            ScExpression expr = assignStmt.getRExpression().get();
+            if (expr != null) {
+                if (expr instanceof ScMethodCall) {
+                    ScMethodCall methodCall = (ScMethodCall) expr;
+                    ScExpression invokedExpr = methodCall.getInvokedExpr();
+                    if (invokedExpr instanceof ScReferenceExpression &&
+                            ((ScReferenceExpression)invokedExpr).refName().equals("Array")) {
+                        ScArgumentExprList constructorArgs = methodCall.args();
+                        ScExpression[] argExprs = constructorArgs.exprsArray();
+                        if (constructorArgs.invocationCount() == 1 && argExprs.length == 1) {
+                            expr = argExprs[0];
+                        }
+                    }
+                }
+                return getNameFromAnnotLiteral(expr);
+            }
+        }
+        return null;
+    }
+
+    protected String getFinderClassFqn(ScTypeDefinition suiteTypeDef, Module module, String... annotationFqns) {
+        String finderClassName = null;
+        Annotation[] annotations = null;
+        for (String annotationFqn: annotationFqns) {
+            Option<ScAnnotation> annotationOption = suiteTypeDef.hasAnnotation(annotationFqn);
+            if (annotationOption.isDefined() && annotationOption.get() != null) {
+                ScAnnotation styleAnnotation = annotationOption.get();
+                try {
+                    ScConstructor constructor = (ScConstructor) styleAnnotation.getClass().getMethod("constructor").invoke(styleAnnotation);
+                    if (constructor != null) {
+                        ScArgumentExprList args = constructor.args().isDefined() ? constructor.args().get() : null;
+                        ScAnnotationExpr annotationExpr = styleAnnotation.annotationExpr();
+                        List<ScNameValuePair> valuePairs = JavaConversions.seqAsJavaList(annotationExpr.getAttributes());
+                        if (args == null && !valuePairs.isEmpty()) {
+                            finderClassName = valuePairs.get(0).getLiteralValue();
+                        } else if (args != null) {
+                            List<ScExpression> exprs = JavaConversions.seqAsJavaList(args.exprs());
+                            if (exprs.size() > 0) {
+                                ScExpression expr = exprs.get(0);
+                                if (expr instanceof ScAssignStmt) {
+                                    finderClassName = getNameFromAnnotAssign((ScAssignStmt) expr);
+                                } else {
+                                    finderClassName = getNameFromAnnotLiteral(expr);
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    LOG.debug("Failed to extract finder class name from annotation " + styleAnnotation + ":\n" + e);
+                }
+                if (finderClassName != null) return finderClassName;
+                //the annotation is present, but arguments are not: have to load a Class, not PsiClass, in order to extract finder FQN
+                if (annotations == null) {
+                    try {
+                        Class suiteClass = loadClass(suiteTypeDef.qualifiedName(), module);
+                        annotations = suiteClass.getAnnotations();
+                    } catch (Exception e) {
+                        LOG.debug("Failed to load suite class " + suiteTypeDef.qualifiedName());
+                    }
+                }
+                if (annotations != null) {
+                    for (Annotation a : annotations) {
+                        if (a.annotationType().getName().equals(annotationFqn)) {
+                            try {
+                                Method valueMethod = a.annotationType().getMethod("value");
+                                String[] args = ((String[]) valueMethod.invoke(a));
+                                if (args.length != 0) {
+                                    return args[0];
+                                }
+                            } catch (Exception e) {
+                                LOG.debug("Failed to extract finder class name from annotation " + styleAnnotation + ":\n" + e);
+                            }
+                        }
+                    }
+                }
             }
         }
         return null;
@@ -114,129 +204,17 @@ public class ScalaTestAstTransformer {
                 newList.add(c);
             }
         }
-        PsiClass classWithStyle = null;
-        Option<ScAnnotation> annotationOption = null;
         for (PsiClass clazzz : newList) {
-            if (clazzz instanceof ScClass) {
-                ScClass scClass = (ScClass) clazzz;
-                annotationOption = scClass.hasAnnotation("org.scalatest.Style");
-                if (annotationOption.isDefined() && annotationOption.get() != null) {
-                    classWithStyle = scClass;
-                    break;
-                }
-                annotationOption = scClass.hasAnnotation("org.scalatest.Finders");
-                if (annotationOption.isDefined() && annotationOption.get() != null) {
-                    classWithStyle = scClass;
-                    break;
-                }
-            } else if (clazzz instanceof ScTrait) {
-                ScTrait scTrait = (ScTrait) clazzz;
-                annotationOption = scTrait.hasAnnotation("org.scalatest.Style");
-                if (annotationOption.isDefined() && annotationOption.get() != null) {
-                    classWithStyle = scTrait;
-                    break;
-                }
-                annotationOption = scTrait.hasAnnotation("org.scalatest.Finders");
-                if (annotationOption.isDefined() && annotationOption.get() != null) {
-                    classWithStyle = scTrait;
-                    break;
-                }
-            }
-        }
-
-        if (classWithStyle != null) {
-            ScTypeDefinition typeDef = (ScTypeDefinition) classWithStyle;
-            try {
-                String finderClassName;
-                ScAnnotation styleAnnotation = annotationOption.get();
-                if (styleAnnotation != null) {
-                    String notFound = "NOT FOUND STYLE TEXT";
-                    ScConstructor constructor = (ScConstructor) styleAnnotation.getClass().getMethod("constructor").invoke(styleAnnotation);
-                    if (constructor != null) {
-                        ScArgumentExprList args = constructor.args().isDefined() ? constructor.args().get() : null;
-                        ScAnnotationExpr annotationExpr = styleAnnotation.annotationExpr();
-                        List<ScNameValuePair> valuepairs = JavaConversions.seqAsJavaList(annotationExpr.getAttributes());
-                        if (args == null && !valuepairs.isEmpty()) {
-                            finderClassName = valuepairs.get(0).getLiteralValue() == null ?
-                                    notFound : valuepairs.get(0).getLiteralValue();
-                        } else if (args != null) {
-                            List<ScExpression> exprs = JavaConversions.seqAsJavaList(args.exprs());
-                            if (exprs.size() > 0) {
-                                ScExpression expr = exprs.get(0);
-                                if (expr instanceof ScLiteral && ((ScLiteral) expr).isString()) {
-                                    Object value = ((ScLiteral) expr).getValue();
-                                    if (value instanceof String) {
-                                        finderClassName = (String) value;
-                                    } else {
-                                        finderClassName = notFound;
-                                    }
-                                } else if (expr instanceof ScAssignStmt) {
-                                    ScAssignStmt assignStmt = (ScAssignStmt) expr;
-                                    if (assignStmt.getLExpression() instanceof ScReferenceExpression &&
-                                            ((ScReferenceExpression) assignStmt.getLExpression()).refName().equals("value")) {
-                                        ScExpression rExpr = assignStmt.getRExpression().get();
-                                        if (rExpr == null) {
-                                            finderClassName = notFound;
-                                        } else if (rExpr instanceof ScLiteral && ((ScLiteral) rExpr).isString()) {
-                                            Object value2 = ((ScLiteral) rExpr).getValue();
-                                            if (value2 instanceof String) {
-                                                finderClassName = (String) value2;
-                                            } else {
-                                                finderClassName = notFound;
-                                            }
-                                        } else {
-                                            finderClassName = notFound;
-                                        }
-                                    } else {
-                                        finderClassName = notFound;
-                                    }
-                                } else {
-                                    finderClassName = notFound;
-                                }
-                            } else {
-                                finderClassName = notFound;
-                            }
-                        } else {
-                            finderClassName = notFound;
-                        }
-                    } else {
-                        finderClassName = notFound;
+            if (clazzz instanceof ScClass || clazzz instanceof ScTrait) {
+                ScTypeDefinition typeDef = (ScTypeDefinition) clazzz;
+                String finderFqn = getFinderClassFqn(typeDef, module, "org.scalatest.Style", "org.scalatest.Finders");
+                if (finderFqn != null) {
+                    try {
+                        Class finderClass = Class.forName(finderFqn);
+                        return (Finder) finderClass.newInstance();
+                    } catch (ClassNotFoundException e) {
+                        LOG.debug("Failed to load finders API class " + finderFqn);
                     }
-                } else {
-                    throw new RuntimeException("Match is not exhaustive!");
-                }
-                return (Finder) loadClass(finderClassName, module).newInstance();
-            } catch (Exception e) {
-                String suiteClassName = typeDef.qualifiedName();
-                Class suiteClass = loadClass(suiteClassName, module);
-                if (suiteClass == null) return null;
-                List<Annotation> annotations = Arrays.asList(suiteClass.getAnnotations());
-                Annotation styleOpt = null;
-                for (Annotation a : annotations) {
-                    if (a.annotationType().getName().equals("org.scalatest.Style") ||
-                            a.annotationType().getName().equals("org.scalatest.Finders")) {
-                        styleOpt = a;
-                    }
-                }
-                if (styleOpt != null) {
-                    Method valueMethod = styleOpt.annotationType().getMethod("value");
-                    String finderClassName = ((String[]) valueMethod.invoke(styleOpt))[0];
-                    if (finderClassName != null) {
-                        Class finderClass = loadClass(finderClassName, module);
-                        if (finderClass == null) {
-                            return null;
-                        }
-                        Object instance = finderClass.newInstance();
-                        if (instance instanceof Finder) {
-                            return (Finder) instance;
-                        } else {
-                            return null;
-                        }
-                    } else {
-                        return null;
-                    }
-                } else {
-                    return null;
                 }
             }
         }
@@ -260,11 +238,7 @@ public class ScalaTestAstTransformer {
 
         @Override
         public boolean equals(Object other) {
-            if (other != null && other instanceof StConstructorBlock) {
-                return element.equals(((StConstructorBlock) other).element);
-            } else {
-                return false;
-            }
+            return other != null && other instanceof StConstructorBlock && element.equals(((StConstructorBlock) other).element);
         }
 
         @Override
@@ -300,11 +274,8 @@ public class ScalaTestAstTransformer {
 
         @Override
         public boolean equals(Object other) {
-            if (other != null && other instanceof StMethodDefinition) {
-                return element.equals(((StMethodDefinition) other).element);
-            } else {
-                return false;
-            }
+            return other != null && other instanceof StMethodDefinition &&
+                    element.equals(((StMethodDefinition) other).element);
         }
 
         @Override
@@ -349,11 +320,8 @@ public class ScalaTestAstTransformer {
 
         @Override
         public boolean equals(Object other) {
-            if (other != null && other instanceof StMethodInvocation) {
-                return invocation.equals(((StMethodInvocation) other).invocation);
-            } else {
-                return false;
-            }
+            return other != null && other instanceof StMethodInvocation &&
+                    invocation.equals(((StMethodInvocation) other).invocation);
         }
 
         @Override
@@ -387,11 +355,8 @@ public class ScalaTestAstTransformer {
 
         @Override
         public boolean equals(Object other) {
-            if (other != null && other instanceof StStringLiteral) {
-                return element.equals(((StStringLiteral) other).element);
-            } else {
-                return false;
-            }
+            return other != null && other instanceof StStringLiteral &&
+                    element.equals(((StStringLiteral) other).element);
         }
 
         @Override
@@ -412,6 +377,10 @@ public class ScalaTestAstTransformer {
             this.target = target;
         }
 
+        protected boolean isIt() {
+            return element instanceof ScReferenceExpression && target.equals("it") &&
+                    itWordFqns.contains(pClassName);
+        }
 
         @Override
         public AstNode parent() {
@@ -426,21 +395,22 @@ public class ScalaTestAstTransformer {
 
         @Override
         public boolean canBePartOfTestName() {
-            return TestConfigurationUtil.getStaticTestName(element, false).isDefined();
+            return isIt() || TestConfigurationUtil.getStaticTestName(element, false).isDefined();
         }
 
         @Override
         public String toString() {
-            return TestConfigurationUtil.getStaticTestNameOrDefault(element, name(), false);
+            if (isIt()) {
+                return "";
+            } else {
+                return TestConfigurationUtil.getStaticTestNameOrDefault(element, name(), false);
+            }
         }
 
         @Override
         public boolean equals(Object other) {
-            if (other != null && other instanceof StToStringTarget) {
-                return element.equals(((StToStringTarget) other).element);
-            } else {
-                return false;
-            }
+            return other != null && other instanceof StToStringTarget &&
+                    element.equals(((StToStringTarget) other).element);
         }
 
         @Override
@@ -464,21 +434,17 @@ public class ScalaTestAstTransformer {
 
     public AstNode getTarget(String className, PsiElement element, MethodInvocation selected) {
         PsiElement firstChild = element.getFirstChild();
-        AstNode[] emptyArray = new AstNode[0];
         if (firstChild instanceof ScLiteral && (((ScLiteral) firstChild).isString())) {
             return new StToStringTarget(className, firstChild, ((ScLiteral)firstChild).getValue().toString());
-            //return new ToStringTarget(className, null, emptyArray, ((ScLiteral) firstChild).getValue().toString());
         } else if (firstChild instanceof MethodInvocation) {
             StMethodInvocation inv = getScalaTestMethodInvocation(selected, (MethodInvocation) firstChild, Collections.<ScExpression>emptyList(), className);
             if (inv != null) {
                 return inv;
             } else {
                 return new StToStringTarget(className, firstChild, firstChild.getText());
-                //return new ToStringTarget(className, null, emptyArray, firstChild.getText());
             }
         } else {
             return new StToStringTarget(className, firstChild, firstChild.getText());
-            //return new ToStringTarget(className, null, emptyArray, firstChild.getText());
         }
     }
 
@@ -560,11 +526,17 @@ public class ScalaTestAstTransformer {
         }
     }
 
-    public Selection testSelection(Location<? extends PsiElement> location) throws MalformedURLException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public Selection testSelection(Location<? extends PsiElement> location) {
         PsiElement element = location.getPsiElement();
         ScClass clazz = PsiTreeUtil.getParentOfType(element, ScClass.class, false);
         if (clazz == null) return null;
-        Finder finder = getFinder(clazz, location.getModule());
+        Finder finder = null;
+        try {
+            finder = getFinder(clazz, location.getModule());
+        } catch (Exception e) {
+            LOG.debug("Failed to load scalatest-finders API class for test sute " + clazz.qualifiedName()
+                    + ": " + e.getMessage());
+        }
         if (finder != null) {
             AstNode selectedAst = getSelectedAstNode(clazz.qualifiedName(), element);
             AstNode selectedAstOpt = (selectedAst == null) ? null : selectedAst;

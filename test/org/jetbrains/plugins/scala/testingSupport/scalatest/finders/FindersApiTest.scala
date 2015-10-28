@@ -14,7 +14,7 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
     val location = createLocation(lineNumber, offset, fileName)
     val selection = new ScalaTestAstTransformer().testSelection(location)
     assert(selection != null)
-    assert(selection.testNames().toSet == testNames)
+    assert(selection.testNames().map(_.trim).toSet == testNames)
   }
 
   def testFeatureSpec() {
@@ -72,6 +72,29 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
     checkSelection(3, 20, fileName, testNames)
     //specific test
     checkSelection(5, 8, fileName, Set("FlatSpec should run scopes"))
+  }
+
+  def testItFlatSpec(): Unit = {
+    val fileName = "TestItFlatSpec.scala"
+    addFileToProject(fileName,
+      """
+        |import org.scalatest._
+        |
+        |class TestItFlatSpec extends FlatSpec with GivenWhenThen {
+        | it should "run test with correct name" in {
+        | }
+        |
+        | "Test" should "be fine" in {}
+        |
+        | it should "change name" in {}
+        |}
+      """.stripMargin.trim())
+
+    checkSelection(3, 10, fileName, Set("should run test with correct name"))
+
+    checkSelection(6, 10, fileName, Set("Test should be fine"))
+
+    checkSelection(8, 10, fileName, Set("Test should change name"))
   }
 
   //for now, there is no need to test path.FreeSpec separately: it and FreeSpec share the same finder

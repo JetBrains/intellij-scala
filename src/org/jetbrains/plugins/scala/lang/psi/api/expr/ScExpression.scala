@@ -231,7 +231,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
               expectedType(fromUnderscore) match {
                 case Some(expected) =>
                   //value discarding
-                  if (expected.removeAbstracts == Unit) return Success(Unit, Some(this))
+                  if (expected.removeAbstracts equiv Unit) return Success(Unit, Some(this))
                   //numeric literal narrowing
                   val needsNarrowing = this match {
                     case _: ScLiteral => getNode.getFirstChildNode.getElementType == ScalaTokenTypes.tINTEGER

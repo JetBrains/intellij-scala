@@ -3,22 +3,23 @@ package org.jetbrains.plugins.scala.util
 import java.io._
 import java.util.regex.Pattern
 
+import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.vfs.VirtualFileManager
-import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi._
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugin.scala.util.MacroExpansion
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaRecursiveElementVisitor, ScalaElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScMethodCall}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScClass}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScBlock, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, executeOnPooledThread}
+import com.intellij.openapi.util.Key
 
 import scala.annotation.tailrec
 
@@ -32,6 +33,8 @@ class MacroExpandAction extends AnAction {
 
   override def actionPerformed(e: AnActionEvent): Unit = {
     implicit val currentEvent = e
+
+    UsageTrigger.trigger(ScalaBundle.message("macro.expand.action.id"))
 
     val sourceEditor = FileEditorManager.getInstance(e.getProject).getSelectedTextEditor
     val psiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(sourceEditor.getDocument)
@@ -91,7 +94,7 @@ class MacroExpandAction extends AnAction {
       return
     }
     resolved.psiElement.get.getElement match {
-      case (annot: ScAnnotation) => // TODO
+      case (annot: ScAnnotation) =>
         expandAnnotation(annot, resolved.expansion)
       case (mc: ScMethodCall) =>
         expandMacroCall(mc, resolved.expansion)
@@ -120,20 +123,31 @@ class MacroExpandAction extends AnAction {
   def expandAnnotation(place: ScAnnotation, expansion: MacroExpansion)(implicit e: AnActionEvent) = {
     // we can only macro-annotate scala code
     place.getParent.getParent match {
-      case clazz: ScClass =>
-        // FIXME: parse companion class as well(if present)
-        val newClazz = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansion.body, PsiManager.getInstance(e.getProject))
-        clazz.replace(newClazz)
-      case obj: ScObject => // TODO
-      case fun: ScFunction => // TODO
-      case param: ScParameter => // TODO
-      case other => LOG.warn(s"Unexpected annotated element: $other at ${other.getText}")
+      case holder: ScAnnotationsHolder =>
+        val body = expansion.body
+        val newPsi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(body, PsiManager.getInstance(e.getProject))
+        newPsi.firstChild match {
+          case Some(block: ScBlock) => // insert content of block expression(annotation can generate >1 expression)
+            val children = block.getChildren
+            block.children.find(_.isInstanceOf[ScalaPsiElement]).foreach(p => p.putCopyableUserData(MacroExpandAction.EXPANDED_KEY, holder.getText))
+            holder.getParent.addRangeAfter(children.tail.head, children.dropRight(1).last, holder)
+            holder.delete()
+          case Some(psi: PsiElement) => // defns/method bodies/etc...
+            val result = holder.replace(psi)
+            result.putCopyableUserData(MacroExpandAction.EXPANDED_KEY, holder.getText)
+          case None => LOG.warn(s"Failed to parse expansion: $body")
+        }
+      case other =>  LOG.warn(s"Unexpected annotated element: $other at ${other.getText}")
     }
   }
 
   def expandMacroCall(call: ScMethodCall, expansion: MacroExpansion)(implicit e: AnActionEvent) = {
-    val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(s"${expansion.body}", PsiManager.getInstance(e.getProject))
-    call.getParent.addAfter(blockImpl, call)
+    val blockImpl = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(expansion.body, PsiManager.getInstance(e.getProject))
+    val element = call.getParent.addAfter(blockImpl, call)
+    element match {
+      case ScBlock(x, _*) => x.putCopyableUserData(MacroExpandAction.EXPANDED_KEY, call.getText)
+      case _ => // unreachable
+    }
     call.delete()
   }
 
@@ -219,4 +233,9 @@ class MacroExpandAction extends AnAction {
     }
     res
   }
+}
+
+object MacroExpandAction {
+
+  val EXPANDED_KEY = new Key[String]("MACRO_EXPANDED_KEY")
 }

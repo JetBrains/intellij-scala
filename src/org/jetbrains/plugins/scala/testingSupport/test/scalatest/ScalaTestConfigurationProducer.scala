@@ -653,7 +653,7 @@ class ScalaTestConfigurationProducer extends {
     val selection = astTransformer.testSelection(location)
 
     if (selection != null) {
-      if (selection.testNames.nonEmpty) (clazz, escapeAndConcatTestNames(selection.testNames().toList))
+      if (selection.testNames.nonEmpty) (clazz, escapeAndConcatTestNames(selection.testNames().toList.map(_.trim)))
       else {
         val parent = location.getPsiElement.getParent
         if (parent != null) getLocationClassAndTest(new PsiLocation(location.getProject, parent))

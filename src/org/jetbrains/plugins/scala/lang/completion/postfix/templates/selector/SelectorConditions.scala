@@ -31,7 +31,7 @@ object SelectorConditions {
         val manager = ScalaPsiManager.instance(project)
         expr.getTypeIgnoreBaseType().toOption.flatMap{exprType => ScType.extractClass(exprType, Option(project)).map{ psiClass =>
           val base = manager.getCachedClass(ancestorFqn, GlobalSearchScope.allScope(project), ClassCategory.ALL)
-          PsiEquivalenceUtil.areElementsEquivalent(psiClass, base) ||
+          (psiClass != null && base != null && PsiEquivalenceUtil.areElementsEquivalent(psiClass, base)) ||
                   manager.cachedDeepIsInheritor(psiClass, base)}}.getOrElse(false)
       case _ => false
     }

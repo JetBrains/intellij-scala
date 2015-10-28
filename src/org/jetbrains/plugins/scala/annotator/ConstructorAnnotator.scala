@@ -40,8 +40,9 @@ trait ConstructorAnnotator {
             if (expression != null)
               for (t <- expression.getType(TypingContext.empty)) {
                 //TODO show parameter name
-                val annotation = holder.createErrorAnnotation(expression,
-                  "Type mismatch, expected: " + expectedType.presentableText + ", actual: " + t.presentableText)
+                val (expectedText, actualText) = ScTypePresentation.different(expectedType, t)
+                val message = ScalaBundle.message("type.mismatch.expected.actual", expectedText, actualText)
+                val annotation = holder.createErrorAnnotation(expression, message)
                 annotation.registerFix(ReportHighlightingErrorQuickFix)
               }
             else {

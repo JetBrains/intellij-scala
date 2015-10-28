@@ -35,7 +35,7 @@ trait LocationLineManager {
 
   def exactLineNumber(location: Location): Int = {
     checkAndUpdateCaches(location.declaringType())
-    customizedLocationsCache.getOrElse(location, location.lineNumber() - 1)
+    customizedLocationsCache.getOrElse(location, ScalaPositionManager.checkedLineNumber(location))
   }
 
   def shouldSkip(location: Location): Boolean = {
@@ -91,8 +91,11 @@ trait LocationLineManager {
 
     //scalac sometimes generates very strange line numbers for <init> method
     def customizeLineForConstructors(): Unit = {
-      def shouldCustomize(location: Location) = {
-        val linePosition = SourcePosition.createFromLine(containingFile, location.lineNumber() - 1)
+      def shouldCustomize(location: Location): Boolean = {
+        val lineNumber = ScalaPositionManager.checkedLineNumber(location)
+        if (lineNumber < 0) return true
+
+        val linePosition = SourcePosition.createFromLine(containingFile, lineNumber)
         val elem = nonWhitespaceElement(linePosition)
         val parent = PsiTreeUtil.getParentOfType(elem, classOf[ScBlockStatement], classOf[ScEarlyDefinitions])
         parent == null || !PsiTreeUtil.isAncestor(generatingElem, parent, false)
@@ -165,14 +168,14 @@ trait LocationLineManager {
       }
 
       def skipLoadExpressionValue(method: Method, baseLine: Int): Unit = {
-        val bytecodes = method.bytecodes()
         val locations = locationsOfLine(method, baseLine).filter(!customizedLocationsCache.contains(_))
-        if (locations.isEmpty) return
+        if (locations.size <= 1) return
+        
+        val bytecodes = method.bytecodes()
 
-        val loadLocations = locations.filter {l =>
+        val toSkip = locations.tail.filter {l =>
           BytecodeUtil.readLoadCode(l.codeIndex().toInt, bytecodes).nonEmpty
         }
-        val toSkip = if (locations.size == loadLocations.size) loadLocations.tail else loadLocations
         toSkip.foreach(cacheCustomLine(_, -1))
       }
 

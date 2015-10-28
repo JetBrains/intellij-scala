@@ -1,0 +1,9 @@
+val a = List
+  [String](
+  "1", "2"
+)
+------
+val a = List
+  [String](
+    "1", "2"
+  )

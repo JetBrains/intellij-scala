@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypePresentation
 
 /**
  * @author Aleksander Podkhalyuzin
@@ -44,8 +45,9 @@ private[annotator] object AnnotatorUtils {
           case b: ScBlockExpr => b.getRBrace.map(_.getPsi).getOrElse(b)
           case _ => expression
         }
+        val (actualText, expText) = ScTypePresentation.different(actual, expected)
         val annotation = holder.createErrorAnnotation(expr,
-          "Type mismatch, found: %s, required: %s".format(actual.presentableText, expected.presentableText))
+          ScalaBundle.message("type.mismatch.found.required", actualText, expText))
         annotation.registerFix(ReportHighlightingErrorQuickFix)
       }
     }

@@ -13,6 +13,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -36,7 +37,7 @@ object ScalaStubsUtil {
     if (name == null) return Seq.empty
     val inheritors = new ArrayBuffer[ScTemplateDefinition]
     val iterator: java.util.Iterator[ScExtendsBlock] =
-      StubIndex.getElements(ScDirectInheritorsIndex.KEY, name, clazz.getProject, scope, classOf[ScExtendsBlock]).iterator
+      StubIndex.getElements(ScDirectInheritorsIndex.KEY, name, clazz.getProject, new ScalaSourceFilterScope(scope, scope.getProject), classOf[ScExtendsBlock]).iterator
     while (iterator.hasNext) {
       val extendsBlock: PsiElement = iterator.next
       val stub = extendsBlock.asInstanceOf[ScExtendsBlockImpl].getStub

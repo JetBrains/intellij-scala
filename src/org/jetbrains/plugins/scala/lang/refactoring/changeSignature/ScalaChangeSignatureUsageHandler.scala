@@ -4,7 +4,7 @@ package lang.refactoring.changeSignature
 import com.intellij.psi._
 import com.intellij.refactoring.changeSignature._
 import com.intellij.usageView.UsageInfo
-import org.jetbrains.plugins.scala.codeInsight.intention.types.Update
+import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
 import org.jetbrains.plugins.scala.extensions.{ChildOf, ElementText}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
@@ -95,7 +95,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
           case cp: ScClassParameter => (cp.getParent, cp)
           case ctx => (ctx, ctx.getLastChild)
         }
-        Update.addTypeAnnotation(substType, context, anchor)
+        AddOnlyStrategy.addTypeAnnotation(substType, context, anchor)
     }
   }
 

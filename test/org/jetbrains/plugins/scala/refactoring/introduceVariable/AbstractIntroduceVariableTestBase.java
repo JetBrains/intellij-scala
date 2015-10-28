@@ -131,9 +131,9 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
         ScExpression selectedExpr = null;
         ScType[] types = null;
         if (ScalaRefactoringUtil.getExpression(getProject(), myEditor, myFile, startOffset, endOffset) instanceof Some) {
-          Some temp = (Some) ScalaRefactoringUtil.getExpression(getProject(), myEditor, myFile, startOffset, endOffset);
-          selectedExpr = IntroduceVariableTestUtil.extract1((Tuple2<ScExpression, ScType[]>) temp.get());
-          types = IntroduceVariableTestUtil.extract2((Tuple2<ScExpression, ScType[]>) temp.get());
+          Some expression = (Some) ScalaRefactoringUtil.getExpression(getProject(), myEditor, myFile, startOffset, endOffset);
+          selectedExpr = IntroduceVariableTestUtil.extract1((Tuple2<ScExpression, ScType[]>) expression.get());
+          types = IntroduceVariableTestUtil.extract2((Tuple2<ScExpression, ScType[]>) expression.get());
         }
         Assert.assertNotNull("Selected expression reference points to null", selectedExpr);
 
@@ -152,8 +152,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
           ScTypeElement typeElement = optionType.get();
           String typeName = getName(fileText);
 
-          ScopeItem[] scopes = ScopeSuggester.suggestScopes(introduceVariableHandler, getProject(),
-                  myEditor, myFile, typeElement);
+          ScopeItem[] scopes = ScopeSuggester.suggestScopes(introduceVariableHandler, getProject(), myEditor, myFile, typeElement);
 
 //          if (replaceOccurrencesFromInheritors) {
 //            ScTypeDefinition classOrTrait = PsiTreeUtil.getParentOfType(scopes.get(0).fileEncloser(), ScClass.class, ScTrait.class);
@@ -171,7 +170,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
                   replaceCompanionObjOccurrences, replaceOccurrencesFromInheritors, scopes[0]);
 
           introduceVariableHandler.runRefactoringForTypes(myFile, myEditor, typeElement,
-                  typeName, occurrences, scopes[0].fileEncloser(),scopes[0].isPackage());
+                  typeName, occurrences, scopes[0]);
 
           result = removeTypenameComment(myEditor.getDocument().getText());
         }

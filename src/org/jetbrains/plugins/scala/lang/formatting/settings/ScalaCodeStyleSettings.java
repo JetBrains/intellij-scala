@@ -44,6 +44,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public boolean SPACE_BEFORE_TYPE_COLON = false;
   public boolean SPACE_AFTER_TYPE_COLON = true;
+  public boolean INDENT_BRACED_FUNCTION_ARGS = true;
 
   //todo: add to spacing settings
   //spacing settings:
@@ -51,7 +52,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACE_BEFORE_MATCH_LBRACE = true;
   public boolean KEEP_ONE_LINE_LAMBDAS_IN_ARG_LIST = false;
 
-  public boolean USE_SCALADOC2_FORMATTING = false;
+  public boolean USE_SCALADOC2_FORMATTING = true;
 
   public boolean PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME = false;
   public boolean SPACE_BEFORE_INFIX_LIKE_METHOD_PARENTHESES = false;
@@ -125,6 +126,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   private boolean SORT_IMPORTS = true;
   private boolean IMPORTS_MEMBERS_USING_UNDERSCORE = true;
   private boolean COLLECT_IMPORTS_TOGETHER = true;
+
+  private String[] ALWAYS_USED_IMPORTS = new String[0];
 
   private String[] IMPORTS_WITH_PREFIX = new String[] {
       "exclude:scala.collection.mutable.ArrayBuffer",
@@ -257,6 +260,21 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
     } else return false;
   }
 
+  public String[] getAlwaysUsedImports() {
+    return ALWAYS_USED_IMPORTS;
+  }
+
+  public void setAlwaysUsedImports(String[] alwaysUsedImports) {
+    this.ALWAYS_USED_IMPORTS = alwaysUsedImports;
+  }
+
+  public boolean isAlwaysUsedImport(String qualName) {
+    if (qualName != null && qualName.contains(".")) {
+      String[] alwaysUsedImports = getAlwaysUsedImports();
+      return nameFitToPatterns(qualName, alwaysUsedImports);
+    } else return false;
+  }
+
   public String[] getImportLayout() {
     return IMPORT_LAYOUT;
   }
@@ -266,7 +284,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   }
 
   private static boolean fitToUnderscorePattern(String pattern, String qualName) {
-    return pattern.endsWith("._") && qualName.contains(".") && qualName.startsWith(pattern.substring(0, pattern.lastIndexOf('.')));
+    return pattern.endsWith("._") && qualName.contains(".") && qualName.startsWith(pattern.substring(0, pattern.lastIndexOf('.'))) &&
+            !qualName.equals(pattern.substring(0, pattern.lastIndexOf('.')));
   }
 
   public static String EXCLUDE_PREFIX = "exclude:";

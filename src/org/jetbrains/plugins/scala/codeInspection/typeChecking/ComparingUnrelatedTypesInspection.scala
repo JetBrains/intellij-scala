@@ -62,7 +62,8 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         argType <- arg.getType()
         if cannotBeCompared(elemType, argType)
       } {
-        val message = s"$inspectionName: ${elemType.presentableText} and ${argType.presentableText}"
+        val (elemTypeText, argTypeText) = ScTypePresentation.different(elemType, argType)
+        val message = InspectionBundle.message("comparing.unrelated.types.hint", elemTypeText, argTypeText)
         holder.registerProblem(arg, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
     case IsInstanceOfCall(call)  =>

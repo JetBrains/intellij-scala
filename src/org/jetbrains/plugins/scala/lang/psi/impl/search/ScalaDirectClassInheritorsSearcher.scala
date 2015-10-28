@@ -5,15 +5,21 @@ package impl
 package search
 
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.Computable
+import com.intellij.openapi.util.Comparing
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiClass
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
+import com.intellij.psi.util.PsiUtil
 import com.intellij.util.{Processor, QueryExecutor}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
+
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -23,23 +29,78 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectClassInheritorsSearch.SearchParameters] {
   def execute(queryParameters: DirectClassInheritorsSearch.SearchParameters, consumer: Processor[PsiClass]): Boolean = {
     val clazz = queryParameters.getClassToProcess
-    val globalScope = queryParameters.getScope match {case x: GlobalSearchScope => x case _ => return true}
-    ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
-      def compute: Boolean = {
-        //this will filter classes from sources and unrelated similar jars
-        val scope = globalScope.intersectWith(clazz.getResolveScope)
-        if (!clazz.isValid) return true
-          val candidates: Seq[ScTemplateDefinition] = ScalaStubsUtil.getClassInheritors(clazz, scope)
-          for (candidate <- candidates if candidate.showAsInheritor) {
-            ProgressManager.checkCanceled()
-            if (candidate.isInheritor(clazz, deep = false)) {
-              if (!consumer.process(candidate)) {
-                return false
-              }
-            }
-          }
-          true
+
+    val scope = inReadAction {
+      val useScope = clazz.getUseScope match {
+        case _: LocalSearchScope => clazz.containingScalaFile.map(GlobalSearchScope.fileScope)
+        case global: GlobalSearchScope => Some(global)
+        case _ => None
+      }
+      ScalaPsiUtil.intersectScopes(queryParameters.getScope, useScope) match {
+        case x: GlobalSearchScope => x
+        case _ => return true
+      }
+    }
+
+    val anonymousClasses = new ArrayBuffer[PsiClass]()
+    val map = new mutable.HashMap[String, ArrayBuffer[PsiClass]]()
+    def add(clazz: PsiClass): Unit = {
+      val id = inReadAction {
+        clazz match {
+          case o: ScObject => s"object:${o.qualifiedName}"
+          case c: ScTypeDefinition => s"class:${c.qualifiedName}"
+          case n: ScNewTemplateDefinition =>
+            anonymousClasses += n
+            return
+          case _ =>
+            val qualName = clazz.getQualifiedName
+            if (qualName == null) {
+              anonymousClasses += clazz
+              return
+            } else qualName
         }
-      })
+      }
+      val buffer = map.getOrElseUpdate(id, new ArrayBuffer[PsiClass]())
+      buffer += clazz
+    }
+    val candidates: Seq[ScTemplateDefinition] = inReadAction {
+      if (!clazz.isValid) return true
+
+      ScalaStubsUtil.getClassInheritors(clazz, scope)
+    }
+
+    for (candidate <- candidates if candidate.showAsInheritor) {
+      ProgressManager.checkCanceled()
+      if (inReadAction { candidate.isInheritor(clazz, deep = false) }) add(candidate)
+    }
+
+    if (map.nonEmpty) {
+      def getJarFile(clazz: PsiClass) = inReadAction { PsiUtil.getJarFile(clazz) }
+
+      val clazzJar = getJarFile(clazz)
+      for ((_, sameNameInheritors) <- map) {
+        ProgressManager.checkCanceled()
+        sameNameInheritors.find { inheritor =>
+          ProgressManager.checkCanceled()
+          Comparing.equal(getJarFile(inheritor), clazzJar)
+        } match {
+          case Some(inheritor) =>
+            if (!consumer.process(inheritor)) return false
+          case _ =>
+            val closestClass = sameNameInheritors.maxBy { inheritor =>
+              StringUtil.commonPrefixLength(getJarFile(inheritor).getCanonicalPath, clazzJar.getCanonicalPath)
+            }
+            if (!consumer.process(closestClass)) return false
+        }
+      }
+    }
+
+    if (anonymousClasses.nonEmpty && queryParameters.includeAnonymous()) {
+      for (clazz <- anonymousClasses) {
+        if (!consumer.process(clazz)) return false
+      }
+    }
+
+    true
   }
 }

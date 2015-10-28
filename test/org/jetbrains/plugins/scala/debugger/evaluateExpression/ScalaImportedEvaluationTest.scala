@@ -70,6 +70,102 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase{
     }
   }
 
+  def testStopInsidePackageObject(): Unit = {
+    addFileToProject("Sample.scala",
+      """
+        |object Sample {
+        |  def main(args: Array[String]) {
+        |    import test.stuff._
+        |    foo()
+        |  }
+        |}
+      """.stripMargin.trim()
+    )
+    addFileToProject("package.scala",
+      """
+        |package test
+        |package object stuff {
+        |  val x = 0
+        |  def foo() = "foo"
+        |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("package.scala", 3)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("x", "0")
+      evalEquals("foo", "foo")
+    }
+  }
+
+  def testStopInsideClassInPackageObject(): Unit = {
+    addFileToProject("Sample.scala",
+      """
+        |object Sample {
+        |  def main(args: Array[String]) {
+        |    import test.stuff._
+        |    new AAA().bar()
+        |  }
+        |}
+      """.stripMargin.trim()
+    )
+    addFileToProject("package.scala",
+      """
+        |package test
+        |package object stuff {
+        |  val x = 0
+        |  def foo() = "foo"
+        |
+        |  class AAA {
+        |    val a = "a"
+        |
+        |    def bar() {
+        |      "stop here"
+        |    }
+        |  }
+        |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("package.scala", 9)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("x", "0")
+      evalEquals("foo", "foo")
+      evalEquals("a", "a")
+    }
+  }
+
+  def testStopInsideValueClass(): Unit = {
+    addFileToProject("Sample.scala",
+      """
+        |object Sample {
+        |  def main(args: Array[String]) {
+        |    import test.stuff._
+        |    "v".toOption
+        |  }
+        |}
+      """.stripMargin.trim()
+    )
+    addFileToProject("package.scala",
+      """
+        |package test
+        |package object stuff {
+        |  val x = 0
+        |
+        |  implicit class ObjectExt[T](val v: T) extends AnyVal{
+        |    def toOption: Option[T] = Option(v)
+        |  }
+        |}
+      """.stripMargin.trim()
+    )
+    addBreakpoint("package.scala", 5)
+    runDebugger("Sample") {
+      waitForBreakpoint()
+      evalEquals("x", "0")
+      evalEquals("v", "v")
+    }
+  }
+
   def testImportVal() {
     addFileToProject("Sample.scala",
       """

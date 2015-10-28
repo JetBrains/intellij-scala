@@ -58,12 +58,12 @@ object SuggestNamesUtil {
             case "option" => "scala.Option"
             case "foreach" => "foreach"
           }), context, showOne = true).
-                  map(_.asInstanceOf[LookupItem[_]].getObject.asInstanceOf[PsiNamedElement]).
+                  map(_.getObject).filter(_.isInstanceOf[PsiNamedElement]).map(_.asInstanceOf[PsiNamedElement]).
                   filter(_.name == x(1))
           if (items.length == 0) return Array[String]("x")
           items(0) match {
             case typed: ScTypedDefinition => typed.getType(TypingContext.empty) match {
-              case Success(ScParameterizedType(_, typeArgs), _) => typeArgs(0)
+              case Success(ScParameterizedType(_, typeArgs), _) => typeArgs.head
               case Success(JavaArrayType(arg), _) => arg
               case _ => return Array[String]("x")
             }

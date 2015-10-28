@@ -48,6 +48,15 @@ class UselessExpressionInspectionTest extends ScalaLightInspectionFixtureTestAda
     checkTextHasError(text)
   }
 
+  def testTypedAndParenthesized(): Unit = {
+    val text = s"""def foo(): Unit = {
+                   |  val s = "aaa"
+                   |  $START(s: String).substring(0)$END
+                   |  0
+                   |}"""
+    checkTextHasError(text)
+  }
+
   def testReferenceToByNameParam(): Unit = {
     val text = s"""def foo(i: => Int): Int = {
                  |  ${START}i$END
@@ -104,6 +113,15 @@ class UselessExpressionInspectionTest extends ScalaLightInspectionFixtureTestAda
                   |  }
                   |  1
                   |}"""
+    checkTextHasNoErrors(text)
+  }
+
+  def testFunctionalParam(): Unit = {
+    val text =
+      s"""def foo(f: Int => Unit): Unit = {
+         |  ${START}List(1) foreach f$END
+         |}
+       """
     checkTextHasNoErrors(text)
   }
 

@@ -5,7 +5,7 @@
 class a
 ------
 /**
- * @param example index the index of the example.
- * @return the class
- */
+  * @param example index the index of the example.
+  * @return the class
+  */
 class a

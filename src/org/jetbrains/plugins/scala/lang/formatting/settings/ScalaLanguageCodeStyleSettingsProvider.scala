@@ -130,6 +130,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       showCustomOption("PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE", "Parameters on new line", ANONYMOUS_METHOD)
       showCustomOption("NOT_CONTINUATION_INDENT_FOR_PARAMS", "Use normal indent for parameters",
         CodeStyleSettingsCustomizable.WRAPPING_METHOD_PARAMETERS)
+      showCustomOption("INDENT_BRACED_FUNCTION_ARGS", "Indent braced arguments", CodeStyleSettingsCustomizable.WRAPPING_METHOD_ARGUMENTS_WRAPPING)
       showCustomOption("ALIGN_IN_COLUMNS_CASE_BRANCH", "Align in columns 'case' branches",
         CodeStyleSettingsCustomizable.WRAPPING_SWITCH_STATEMENT)
       showCustomOption("ALIGN_COMPOSITE_PATTERN", "Align multiline pattern alternatives",

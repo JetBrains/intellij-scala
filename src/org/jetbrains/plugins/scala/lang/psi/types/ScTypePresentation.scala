@@ -20,9 +20,13 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 trait ScTypePresentation {
-  def presentableText(t: ScType) = typeText(t, _.name, {
+  def presentableText(t: ScType) = typeText(t, {
+    case c: PsiClass => ScalaPsiUtil.nameWithPrefixIfNeeded(c)
+    case e => e.name
+  }, {
       case obj: ScObject if Set("scala.Predef", "scala").contains(obj.qualifiedName) => ""
       case pack: PsiPackage => ""
+      case c: PsiClass => ScalaPsiUtil.nameWithPrefixIfNeeded(c) + "."
       case e => e.name + "."
     }
   )
@@ -299,4 +303,10 @@ trait ScTypePresentation {
 
 object ScTypePresentation {
   val ABSTRACT_TYPE_PREFIX = "_"
+
+  def different(t1: ScType, t2: ScType): (String, String) = {
+    val (p1, p2) = (t1.presentableText, t2.presentableText)
+    if (p1 != p2) (p1, p2)
+    else (t1.canonicalText.replace("_root_.", ""), t2.canonicalText.replace("_root_.", ""))
+  }
 }

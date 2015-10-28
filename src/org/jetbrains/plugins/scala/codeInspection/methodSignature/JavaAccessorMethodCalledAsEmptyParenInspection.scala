@@ -24,7 +24,7 @@ class JavaAccessorMethodCalledAsEmptyParenInspection extends AbstractMethodSigna
           case _ => if (call.argumentExpressions.isEmpty) {
             e.resolve() match {
               case _: ScalaPsiElement => // do nothing
-              case (m: PsiMethod) if m.isAccessor && !isOverloadedMethod(e) =>
+              case (m: PsiMethod) if m.isAccessor && !isOverloadedMethod(e) && hasSameType(call, e) =>
                 holder.registerProblem(e.nameId, getDisplayName, new RemoveCallParentheses(call))
               case _ =>
             }
@@ -38,5 +38,14 @@ class JavaAccessorMethodCalledAsEmptyParenInspection extends AbstractMethodSigna
     val processor = new CollectMethodsProcessor(ref, ref.refName)
     ref.bind().flatMap(_.fromType).forall(processor.processType(_, ref))
     processor.candidatesS.size > 1
+  }
+
+  private def hasSameType(call: ScMethodCall, ref: ScReferenceExpression) = {
+    val callType = call.getType().toOption
+    val refType = ref.getType().toOption
+    (callType, refType) match {
+      case (Some(t1), Some(t2)) => t1.equiv(t2)
+      case _ => false
+    }
   }
 }

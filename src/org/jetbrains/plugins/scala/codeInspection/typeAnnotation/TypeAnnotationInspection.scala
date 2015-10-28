@@ -4,6 +4,7 @@ package codeInspection.typeAnnotation
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInsight.intention.types.{AddOnlyStrategy, ToggleTypeAnnotation}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, TypeAnnotationPolicy, TypeAnnotationRequirement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -97,12 +98,15 @@ class TypeAnnotationInspection extends AbstractInspection {
     if (requirement == TypeAnnotationRequirement.Required.ordinal &&
             (!isSimple || simplePolicy == TypeAnnotationPolicy.Regular.ordinal) &&
             (overridingPolicy == TypeAnnotationPolicy.Regular.ordinal || !isOverriding)) {
-      holder.registerProblem(element, s"$name requires an explicit type annotation (according to Code Style settings)")
+      holder.registerProblem(element, s"$name requires an explicit type annotation (according to Code Style settings)",
+        new AddTypeAnnotationQuickFix(element))
     }
   }
 
-  private class QuickFix(id: PsiElement) extends AbstractFixOnPsiElement("", id) {
-    def doApplyFix(project: Project) {
+  private class AddTypeAnnotationQuickFix(element: PsiElement) extends AbstractFixOnPsiElement("Add type annotation", element) {
+    def doApplyFix(project: Project): Unit = {
+      val elem = getElement
+      new ToggleTypeAnnotation().complete(AddOnlyStrategy, elem)
     }
   }
 }

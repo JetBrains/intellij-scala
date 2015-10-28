@@ -1,5 +1,6 @@
 import Common._
 import sbt.Keys.{`package` => pack}
+import com.dancingrobot84.sbtidea.Tasks.{updateIdea => updateIdeaTask}
 
 // Global build settings
 
@@ -255,3 +256,16 @@ lazy val pluginCompressor =
 TaskKey[Unit]("buildDevPlugin") := {
   (packageBin in (scalaDevPlugin, Compile)).value
 }
+
+updateIdea <<= (ideaBaseDirectory, ideaBuild.in(ThisBuild), streams).map {
+  (baseDir, build, streams) =>
+    try {
+      updateIdeaTask(baseDir, build, Seq.empty, streams)
+    } catch {
+      case e : sbt.TranslatedException if e.getCause.isInstanceOf[java.io.FileNotFoundException] =>
+        val newBuild = build.split('.').init.mkString(".") + "-EAP-CANDIDATE-SNAPSHOT"
+        streams.log.warn(s"Failed to download IDEA $build, trying $newBuild")
+        IO.deleteIfEmpty(Set(baseDir))
+        updateIdeaTask(baseDir, newBuild, Seq.empty, streams)
+    }
+  }

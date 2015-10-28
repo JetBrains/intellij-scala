@@ -17,7 +17,17 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
  * Pavel.Fatin, 28.04.2010
  */
 
-object Update extends Strategy {
+object AddOrRemoveStrategy extends UpdateStrategy
+
+object AddOnlyStrategy extends UpdateStrategy {
+  override def removeFromFunction(function: ScFunctionDefinition): Unit = {}
+  override def removeFromParameter(param: ScParameter): Unit = {}
+  override def removeFromPattern(pattern: ScTypedPattern): Unit = {}
+  override def removeFromValue(value: ScPatternDefinition): Unit = {}
+  override def removeFromVariable(variable: ScVariableDefinition): Unit = {}
+}
+
+abstract class UpdateStrategy extends Strategy {
   def addToFunction(function: ScFunctionDefinition) {
     function.returnType.foreach {
       addTypeAnnotation(_, function, function.paramClauses)

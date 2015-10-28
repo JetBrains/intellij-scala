@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScNamedElement, ScTypedDefinition}
@@ -34,6 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 import scala.reflect.NameTransformer
 
 /**
@@ -41,7 +43,7 @@ import scala.reflect.NameTransformer
 * 2014-09-28
 */
 private[evaluation] trait ScalaEvaluatorBuilderUtil {
-  this: EvaluatorBuilderVisitor =>
+  this: ScalaEvaluatorBuilder =>
 
   import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil._
 
@@ -57,7 +59,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             new TypeEvaluator(JVMNameUtil.getJVMQualifiedName(cl))
           case _ =>
             val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(element.name, ref.getContext, ref)
-            ScalaEvaluator(expr)
+            evaluatorFor(expr)
         }
       case Some(p: ScProjectionType) =>
         def exprToEvaluate(p: ScProjectionType): String = p.projected match {
@@ -68,7 +70,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           case _ => throw EvaluationException(message)
         }
         val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprToEvaluate(p), ref.getContext, ref)
-        ScalaEvaluator(expr)
+        evaluatorFor(expr)
       case _ => throw EvaluationException(message)
     }
   }
@@ -163,6 +165,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val thisEvaluator: Evaluator = containingClass match {
       case obj: ScObject if isStable(obj) =>
         stableObjectEvaluator(obj)
+      case t: ScTrait =>
+        thisOrSuperEvaluator(None, isSuper = true)
       case _ =>
         val (outerClass, iters) = findContextClass(e => e == null || e == containingClass)
 
@@ -175,7 +179,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       val signature = DebuggerUtil.getFunctionJVMSignature(fun)
       val positions = DebuggerUtil.getSourcePositions(fun.getNavigationElement)
       val idx = localFunctionIndex(fun)
-      new ScalaMethodEvaluator(thisEvaluator, name, signature, evaluators, None, positions, idx)
+      new ScalaMethodEvaluator(thisEvaluator, name, signature, evaluators, traitImplementation(fun), positions, idx)
     }
     else throw EvaluationException(message)
   }
@@ -214,17 +218,17 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       val qualText = qualOpt.fold("this")(_.getText)
       val exprText = s"($qualText).concat(_root_.java.lang.String.valueOf(${arguments(0).getText}))"
       val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, ref.getContext, ref)
-      return ScalaEvaluator(expr)
+      return evaluatorFor(expr)
     }
 
     val name = synth.name
-    val argEvaluators = arguments.map(ScalaEvaluator(_))
+    val argEvaluators = arguments.map(evaluatorFor(_))
 
     def unaryEval(operatorName: String, function: Evaluator => Evaluator): Evaluator = {
       if (argEvaluators.isEmpty) {
         val eval = qualOpt match {
           case None => new ScalaThisEvaluator()
-          case Some(qual) => ScalaEvaluator(qual)
+          case Some(qual) => evaluatorFor(qual)
         }
         function(eval)
       } else throw EvaluationException(ScalaBundle.message("wrong.number.of.arguments", operatorName))
@@ -236,7 +240,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       if (argEvaluators.length == 1) {
         val eval = qualOpt match {
           case None => new ScalaThisEvaluator()
-          case Some(qual) => ScalaEvaluator(qual)
+          case Some(qual) => evaluatorFor(qual)
         }
         function(eval, argEvaluators(0))
       } else throw EvaluationException(ScalaBundle.message("wrong.number.of.arguments", operatorName))
@@ -317,7 +321,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def arrayMethodEvaluator(name: String, qual: Option[ScExpression], argEvaluators: Seq[Evaluator]): Evaluator = {
     val qualEval = qual match {
-      case Some(q) => ScalaEvaluator(q)
+      case Some(q) => evaluatorFor(q)
       case None => throw EvaluationException(ScalaBundle.message("array.instance.is.not.found", name))
     }
     val message = ScalaBundle.message("wrong.number.of.arguments", s"Array.$name")
@@ -400,11 +404,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       val argsText = if (exprsForP.nonEmpty) exprsForP.sortBy(_.getTextRange.getStartOffset).map(_.getText).mkString(".+=(", ").+=(", ").result()") else ""
       val exprText = s"_root_.scala.collection.Seq.newBuilder[$argTypeText]$argsText"
       val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, context, context)
-      ScalaEvaluator(newExpr)
+      evaluatorFor(newExpr)
     }
     if (exprsForP.length == 1) {
       exprsForP(0) match {
-        case t: ScTypedStmt if t.isSequenceArg => ScalaEvaluator(t.expr)
+        case t: ScTypedStmt if t.isSequenceArg => evaluatorFor(t.expr)
         case _ => seqEvaluator
       }
     } else seqEvaluator
@@ -454,7 +458,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             }
         }
         val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, owner.getContext, owner)
-        ScalaEvaluator(newExpr)
+        evaluatorFor(newExpr)
       case None =>
         throw EvaluationException(cannotFindMessage)
     }
@@ -491,7 +495,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val name = field.name
           new ScalaFieldEvaluator(eval, name)
         } else {
-          val qualEvaluator = ScalaEvaluator(qual)
+          val qualEvaluator = evaluatorFor(qual)
           new ScalaFieldEvaluator(qualEvaluator, field.name)
         }
       case None =>
@@ -516,12 +520,12 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       }
     }
 
-    val argEvals = boxArguments(arguments.map(ScalaEvaluator(_)), method)
+    val argEvals = boxArguments(arguments.map(evaluatorFor(_)), method)
     val methodPosition = DebuggerUtil.getSourcePositions(method.getNavigationElement)
     val signature = JVMNameUtil.getJVMSignature(method)
     ref.qualifier match {
       case Some(qual @ ExpressionType(tp)) if isPrimitiveScType(tp) =>
-        val boxEval = boxEvaluator(ScalaEvaluator(qual))
+        val boxEval = boxEvaluator(evaluatorFor(qual))
         ScalaMethodEvaluator(boxEval, method.name, signature, argEvals, None, methodPosition)
       case Some(q) if method.hasModifierPropertyScala("static") =>
         val eval = new TypeEvaluator(JVMNameUtil.getContextClassJVMQualifiedName(SourcePosition.createFromElement(method)))
@@ -529,7 +533,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         ScalaMethodEvaluator(eval, name, signature, argEvals, None, methodPosition)
       case Some(q) =>
         val name = method.name
-        new ScalaMethodEvaluator(ScalaEvaluator(q), name, signature, argEvals, None, methodPosition)
+        new ScalaMethodEvaluator(evaluatorFor(q), name, signature, argEvals, None, methodPosition)
       case _ =>
         val evaluator = thisOrImportedQualifierEvaluator(ref)
         val name = method.name
@@ -538,10 +542,10 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
 
   def unresolvedMethodEvaluator(ref: ScReferenceExpression, args: Seq[ScExpression]): Evaluator = {
-    val argEvals = args.map(ScalaEvaluator(_))
+    val argEvals = args.map(evaluatorFor(_))
     val name = NameTransformer.encode(ref.refName)
     ref.qualifier match {
-      case Some(q) => new ScalaMethodEvaluator(ScalaEvaluator(q), name, null, argEvals)
+      case Some(q) => new ScalaMethodEvaluator(evaluatorFor(q), name, null, argEvals)
       case _ => new ScalaMethodEvaluator(thisOrImportedQualifierEvaluator(ref), name, null, argEvals)
     }
   }
@@ -562,7 +566,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val evaluator =
             if (p.isRepeated) repeatedArgEvaluator(exprsForP, p.expectedType, call)
             else if (exprsForP.nonEmpty) {
-              if (exprsForP.length == 1) ScalaEvaluator(exprsForP(0))
+              if (exprsForP.length == 1) evaluatorFor(exprsForP(0))
               else {
                 throw EvaluationException(ScalaBundle.message("wrong.number.of.expressions"))
               }
@@ -574,7 +578,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
               val localParams = p.paramInCode.toSeq.flatMap(DebuggerUtil.localParamsForDefaultParam(_))
               val localParamRefs =
                 localParams.map(td => ScalaPsiElementFactory.createExpressionWithContextFromText(td.name, call.getContext, call))
-              val localEvals = localParamRefs.map(ScalaEvaluator(_))
+              val localEvals = localParamRefs.map(evaluatorFor(_))
               functionEvaluator(ref.qualifier, ref, methodName, previousClausesEvaluators ++ localEvals)
             }
             else throw EvaluationException(ScalaBundle.message("cannot.evaluate.parameter", p.name))
@@ -586,7 +590,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
     val argEvaluators: Seq[Evaluator] = clauses.foldLeft(Seq.empty[Evaluator])(addForNextClause)
 
-    if (argEvaluators.contains(null)) arguments.map(arg => ScalaEvaluator(arg))
+    if (argEvaluators.contains(null)) arguments.map(arg => evaluatorFor(arg))
     else argEvaluators
   }
 
@@ -649,7 +653,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             val paramName = c.allClauses.flatMap(_.parameters).map(_.name).headOption.getOrElse("$this")
             val text = s"new $clName($paramName).${call.getText}"
             val expr = ScalaPsiElementFactory.createExpressionFromText(text, call.getContext)
-            ScalaEvaluator(expr)
+            evaluatorFor(expr)
           case _ =>
             val args: Seq[Evaluator] = argumentEvaluators(fun, matchedParameters, call, ref, arguments)
             functionEvaluator(qualOption, ref, fun.name, args)
@@ -664,7 +668,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def evaluatorForReferenceWithoutParameters(qualifier: Option[ScExpression],
                                              resolve: PsiElement,
                                              ref: ScReferenceExpression): Evaluator = {
-    val isLocalValue = DebuggerUtil.isLocalV(resolve)
 
     def withOuterFieldEvaluator(containingClass: PsiElement, name: String, message: String) = {
       val (innerClass, iterationCount) = findContextClass { e =>
@@ -676,9 +679,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
 
     def calcLocal(named: PsiNamedElement): Evaluator = {
-      val labeledValue = resolve.getUserData(CodeFragmentFactoryContextWrapper.LABEL_VARIABLE_VALUE_KEY)
-      if (labeledValue != null) return new IdentityEvaluator(labeledValue)
-
       val name = NameTransformer.encode(named.name)
       val containingClass = getContextClass(named)
 
@@ -716,6 +716,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         fromVolatileObjectReference(fieldEval)
       }
     }
+
+    val labeledOrSynthetic = labeledOrSyntheticEvaluator(ref, resolve)
+    if (labeledOrSynthetic.isDefined) return labeledOrSynthetic.get
+
+    val isLocalValue = DebuggerUtil.isLocalV(resolve)
 
     resolve match {
       case Both(isInsideLocalFunction(fun), named: PsiNamedElement) if isLocalValue =>
@@ -770,15 +775,28 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         //unresolved symbol => try to resolve it dynamically
         val name = NameTransformer.encode(ref.refName)
         val fieldOrVarEval = qualifier match {
-          case Some(qual) => new ScalaFieldEvaluator(ScalaEvaluator(qual), name)
+          case Some(qual) => new ScalaFieldEvaluator(evaluatorFor(qual), name)
           case None => new ScalaLocalVariableEvaluator(name, fileName)
         }
         new ScalaDuplexEvaluator(fieldOrVarEval, unresolvedMethodEvaluator(ref, Seq.empty))
     }
   }
 
+  def labeledOrSyntheticEvaluator(ref: ScReferenceExpression, resolve: PsiElement): Option[Evaluator] = {
+    if (resolve == null) return None
+
+    val labeledValue = resolve.getUserData(CodeFragmentFactoryContextWrapper.LABEL_VARIABLE_VALUE_KEY)
+    if (labeledValue != null)
+      return Some(new IdentityEvaluator(labeledValue))
+
+    val isSynthetic = codeFragment.isAncestorOf(resolve)
+    if (isSynthetic && ref.qualifier.isEmpty)
+      Some(syntheticVariableEvaluator(ref.refName))
+    else None
+  }
+
   def qualifierEvaluator(qualifier: Option[ScExpression], ref: ScReferenceExpression): Evaluator = qualifier match {
-    case Some(q) => ScalaEvaluator(q)
+    case Some(q) => evaluatorFor(q)
     case _ => thisOrImportedQualifierEvaluator(ref)
   }
 
@@ -791,7 +809,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         case matchStmt: ScMatchStmt if namedElement.isInstanceOf[ScPattern] =>
           val expr = matchStmt.expr
           if (expr.isEmpty) throw EvaluationException(ScalaBundle.message("cannot.find.expression.of.match"))
-          val exprEval = ScalaEvaluator(expr.get)
+          val exprEval = evaluatorFor(expr.get)
           val fromPatternEvaluator = evaluateSubpatternFromPattern(exprEval, pattern.get, namedElement.asInstanceOf[ScPattern])
           new ScalaDuplexEvaluator(new ScalaLocalVariableEvaluator(name, fileName), fromPatternEvaluator)
         case block: ScBlockExpr => //it is anonymous function
@@ -809,7 +827,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val message = ScalaBundle.message("assignent.without.expression")
     if (stmt.isNamedParameter) {
       stmt.getRExpression match {
-        case Some(expr) => ScalaEvaluator(expr)
+        case Some(expr) => evaluatorFor(expr)
         case _ => throw EvaluationException(message)
       }
     } else {
@@ -820,11 +838,13 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val args = (call.args.exprs.map(_.getText) :+ rExprText).mkString("(", ", ", ")")
           val exprText = s"($invokedText).update$args"
           val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, stmt.getContext, stmt)
-          ScalaEvaluator(expr)
+          evaluatorFor(expr)
+        case ResolvesTo(ScalaPsiUtil.inNameContext(pd: ScPatternDefinition)) =>
+          throw EvaluationException("Cannot evaluate assignment to val")
         case _ =>
-          val leftEvaluator = ScalaEvaluator(stmt.getLExpression)
+          val leftEvaluator = evaluatorFor(stmt.getLExpression)
           val rightEvaluator = stmt.getRExpression match {
-            case Some(expr) => ScalaEvaluator(expr)
+            case Some(expr) => evaluatorFor(expr)
             case _ => throw EvaluationException(message)
           }
           def createAssignEvaluator(leftEvaluator: Evaluator): Option[Evaluator] = {
@@ -846,7 +866,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       ref.resolve() match {
         case fun: ScFunctionDefinition =>
           val elem = ref.bind().get.getActualElement //object or case class
-        val qual = ref.qualifier.map(q => ScalaPsiElementFactory.createExpressionWithContextFromText(q.getText, q.getContext, q))
+          val qual = ref.qualifier.map(q => ScalaPsiElementFactory.createExpressionWithContextFromText(q.getText, q.getContext, q))
           val refExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(ref.getText, ref.getContext, ref)
           val refEvaluator = evaluatorForReferenceWithoutParameters(qual, elem, refExpr.asInstanceOf[ScReferenceExpression])
 
@@ -865,7 +885,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
               val extractEval = new ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval))
               val getEval = new ScalaMethodEvaluator(extractEval, "get", null, Seq.empty)
               val indexExpr = ScalaPsiElementFactory.createExpressionFromText("" + nextPatternIndex, pattern.getManager)
-              val indexEval = ScalaEvaluator(indexExpr)
+              val indexEval = evaluatorFor(indexExpr)
               new ScalaMethodEvaluator(getEval, "apply", null, Seq(indexEval))
             } else throw EvaluationException(ScalaBundle.message("pattern.doesnot.resolves.to.unapply", ref.refName))
           val nextPattern = pattern.subpatterns(nextPatternIndex)
@@ -920,7 +940,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
                 val args = constr.args.fold("(0)")(_.getText)
                 val exprText = s"_root_.scala.Array.ofDim$typeArgs$args"
                 val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, templ.getContext, templ)
-                ScalaEvaluator(expr)
+                evaluatorFor(expr)
               case Some(clazz) =>
                 val jvmName = DebuggerUtil.getClassJVMName(clazz)
                 val typeEvaluator = new TypeEvaluator(jvmName)
@@ -953,7 +973,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       for {
         arg <- explicitArgs
       } yield {
-        val eval = ScalaEvaluator(arg)
+        val eval = evaluatorFor(arg)
         val param = ScalaPsiUtil.parameterOf(arg).flatMap(_.psiParam)
         if (param.exists(!isOfPrimitiveType(_))) boxEvaluator(eval)
         else eval
@@ -988,7 +1008,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val name = local.asInstanceOf[PsiNamedElement].name
     val elemAt = position.getElementAt
     val ref = ScalaPsiElementFactory.createExpressionWithContextFromText(name, elemAt, elemAt)
-    val refEval = ScalaEvaluator(ref)
+    val refEval = evaluatorFor(ref)
 
     if (local.isInstanceOf[ScObject]) {
       val qual = "scala.runtime.VolatileObjectRef"
@@ -1002,7 +1022,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def expressionFromTextEvaluator(string: String, context: PsiElement): Evaluator = {
     val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(string, context.getContext, context)
-    ScalaEvaluator(expr)
+    evaluatorFor(expr)
   }
 
   def localLazyValEvaluator(named: PsiNamedElement): Evaluator = {
@@ -1016,6 +1036,250 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val methodName = s"$name$$$localFunIndex"
     new ScalaMethodEvaluator(new ScalaThisEvaluator(), methodName, null, Seq(localRefEval, bitmapEval))
   }
+
+  def ifStmtEvaluator(stmt: ScIfStmt): Evaluator = {
+    val condEvaluator = stmt.condition match {
+      case Some(cond) => evaluatorFor(cond)
+      case None => throw EvaluationException(ScalaBundle.message("if.statement.without.condition"))
+    }
+    val ifBranch = stmt.thenBranch match {
+      case Some(th) => evaluatorFor(th)
+      case None => throw EvaluationException(ScalaBundle.message("if.statement.without.if.branch"))
+    }
+    val elseBranch = stmt.elseBranch.map(evaluatorFor(_))
+    new ScalaIfEvaluator(condEvaluator, ifBranch, elseBranch)
+  }
+
+  def literalEvaluator(l: ScLiteral): Evaluator = {
+    l match {
+      case interpolated: ScInterpolatedStringLiteral =>
+        val evaluatorOpt = interpolated.getStringContextExpression.map(evaluatorFor(_))
+        evaluatorOpt.getOrElse(ScalaLiteralEvaluator(l))
+      case _ if l.isSymbol =>
+        val value = l.getValue.asInstanceOf[Symbol].name
+        val expr = ScalaPsiElementFactory.createExpressionFromText( s"""Symbol("$value")""", l.getContext)
+        evaluatorFor(expr)
+      case _ => ScalaLiteralEvaluator(l)
+    }
+  }
+
+  def whileStmtEvaluator(ws: ScWhileStmt): Evaluator = {
+    val condEvaluator = ws.condition match {
+      case Some(cond) => evaluatorFor(cond)
+      case None => throw EvaluationException(ScalaBundle.message("while.statement.without.condition"))
+    }
+    val iterationEvaluator = ws.body match {
+      case Some(body) => evaluatorFor(body)
+      case None => throw EvaluationException(ScalaBundle.message("while.statement.without.body"))
+    }
+
+    new WhileStatementEvaluator(condEvaluator, iterationEvaluator, null)
+  }
+
+  def doStmtEvaluator(doSt: ScDoStmt): Evaluator = {
+    val condEvaluator = doSt.condition match {
+      case Some(cond) => evaluatorFor(cond)
+      case None =>
+        throw EvaluationException(ScalaBundle.message("do.statement.without.condition"))
+    }
+    val iterationEvaluator = doSt.getExprBody match {
+      case Some(body) => evaluatorFor(body)
+      case None =>
+        throw EvaluationException(ScalaBundle.message("do.statement.without.body"))
+    }
+    new ScalaDoStmtEvaluator(condEvaluator, iterationEvaluator)
+  }
+
+  def scMethodCallEvaluator(methodCall: ScMethodCall): Evaluator = {
+    def applyCall(invokedText: String, argsText: String) = {
+      val newExprText = s"($invokedText).apply$argsText"
+      ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, methodCall.getContext, methodCall)
+    }
+
+    @tailrec
+    def collectArgumentsAndBuildEvaluator(call: ScMethodCall,
+                                          collected: Seq[ScExpression] = Seq.empty,
+                                          tailString: String = "",
+                                          matchedParameters: Map[Parameter, Seq[ScExpression]] = Map.empty): Evaluator = {
+      if (call.isApplyOrUpdateCall) {
+        if (!call.isUpdateCall) {
+          val expr = applyCall(call.getInvokedExpr.getText, call.args.getText + tailString)
+          return evaluatorFor(expr)
+        } else {
+          //should be handled on assignment
+          throw new NeedCompilationException("Update method is not supported")
+        }
+      }
+      val message = ScalaBundle.message("cannot.evaluate.method", call.getText)
+      call.getInvokedExpr match {
+        case ref: ScReferenceExpression =>
+          methodCallEvaluator(methodCall, call.argumentExpressions ++ collected, matchedParameters ++ call.matchedParametersMap)
+        case newCall: ScMethodCall =>
+          collectArgumentsAndBuildEvaluator(newCall, call.argumentExpressions ++ collected, call.args.getText + tailString,
+            matchedParameters ++ call.matchedParametersMap)
+        case gen: ScGenericCall =>
+          gen.referencedExpr match {
+            case ref: ScReferenceExpression if ref.resolve().isInstanceOf[PsiMethod] =>
+              methodCallEvaluator(methodCall, call.argumentExpressions ++ collected, matchedParameters ++ call.matchedParametersMap)
+            case ref: ScReferenceExpression =>
+              ref.getType().getOrAny match {
+                //isApplyOrUpdateCall does not work for generic calls
+                case ScType.ExtractClass(psiClass) if psiClass.findMethodsByName("apply", true).nonEmpty =>
+                  val typeArgsText = gen.typeArgs.fold("")(_.getText)
+                  val expr = applyCall(ref.getText, s"$typeArgsText${call.args.getText}$tailString")
+                  evaluatorFor(expr)
+                case _ => throw EvaluationException(message)
+              }
+            case _ =>
+              throw EvaluationException(message)
+
+          }
+        case _ => throw EvaluationException(message)
+      }
+    }
+
+    methodCall match {
+      case hasDeepestInvokedReference(ScReferenceExpression.withQualifier(implicitlyConvertedTo(expr))) =>
+        val copy = methodCall.copy().asInstanceOf[ScMethodCall]
+        copy match {
+          case hasDeepestInvokedReference(ScReferenceExpression.withQualifier(q)) =>
+            q.replaceExpression(expr, removeParenthesis = false)
+            evaluatorFor(copy)
+          case _ =>
+            val message = ScalaBundle.message("method.call.implicitly.converted.qualifier", methodCall.getText)
+            throw EvaluationException(message)
+        }
+      case _ =>
+        //todo: handle partially applied functions
+        collectArgumentsAndBuildEvaluator(methodCall)
+    }
+  }
+
+  def infixExpressionEvaluator(infix: ScInfixExpr): Evaluator = {
+    val operation = infix.operation
+    def isUpdate(ref: ScReferenceExpression): Boolean = {
+      ref.refName.endsWith("=") &&
+        (ref.resolve() match {
+          case n: PsiNamedElement if n.name + "=" == ref.refName => true
+          case _ => false
+        })
+    }
+
+    if (isUpdate(operation)) {
+      val baseExprText = infix.getBaseExpr.getText
+      val operationText = operation.refName.dropRight(1)
+      val argText = infix.getArgExpr.getText
+      val exprText = s"$baseExprText = $baseExprText $operationText $argText"
+      val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, infix.getContext, infix)
+      evaluatorFor(expr)
+    }
+    else {
+      val equivCall = ScalaPsiElementFactory.createEquivMethodCall(infix)
+      evaluatorFor(equivCall)
+    }
+  }
+
+  def blockExprEvaluator(block: ScBlock): Evaluator = {
+    withNewSyntheticVariablesHolder {
+      val evaluators = block.statements.filter(!_.isInstanceOf[ScImportStmt]).map(evaluatorFor)
+      new ScalaBlockExpressionEvaluator(evaluators.toSeq)
+    }
+  }
+
+  def postfixExprEvaluator(p: ScPostfixExpr): Evaluator = {
+    val equivRef = ScalaPsiElementFactory.createEquivQualifiedReference(p)
+    evaluatorFor(equivRef)
+  }
+
+  def prefixExprEvaluator(p: ScPrefixExpr): Evaluator = {
+    val newExprText = s"(${p.operand.getText}).unary_${p.operation.refName}"
+    val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, p.getContext, p)
+    evaluatorFor(newExpr)
+  }
+
+  def refExpressionEvaluator(ref: ScReferenceExpression): Evaluator = {
+    ref.qualifier match {
+      case Some(implicitlyConvertedTo(e)) =>
+        val copy = ref.copy().asInstanceOf[ScReferenceExpression]
+        copy.qualifier.get.replaceExpression(e, removeParenthesis = false)
+        evaluatorFor(copy)
+      case _ =>
+        val resolve: PsiElement = ref.resolve()
+        evaluatorForReferenceWithoutParameters(ref.qualifier, resolve, ref)
+    }
+  }
+
+  def tupleEvaluator(tuple: ScTuple): Evaluator = {
+    val exprText = "_root_.scala.Tuple" + tuple.exprs.length + tuple.exprs.map(_.getText).mkString("(", ", ", ")")
+    val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, tuple.getContext, tuple)
+    evaluatorFor(expr)
+  }
+
+  def valOrVarDefinitionEvaluator(pList: ScPatternList, expr: ScExpression) = {
+    val evaluators = ArrayBuffer[Evaluator]()
+    val exprEval = new ScalaCachingEvaluator(evaluatorFor(expr))
+    evaluators += exprEval
+    for {
+      pattern <- pList.patterns
+      binding <- pattern.bindings
+    } {
+      val name = binding.name
+      createSyntheticVariable(name)
+      val leftEval = syntheticVariableEvaluator(name)
+      val rightEval = evaluateSubpatternFromPattern(exprEval, pattern, binding)
+      evaluators += new AssignmentEvaluator(leftEval, rightEval)
+    }
+    new ScalaBlockExpressionEvaluator(evaluators)
+  }
+
+  def variableDefinitionEvaluator(vd: ScVariableDefinition): Evaluator = {
+    vd.expr match {
+      case None => throw EvaluationException(s"Variable definition needs right hand side: ${vd.getText}")
+      case Some(e) => valOrVarDefinitionEvaluator(vd.pList, e)
+    }
+  }
+
+  def patternDefinitionEvaluator(pd: ScPatternDefinition): Evaluator = {
+    pd.expr match {
+      case None => throw EvaluationException(s"Value definition needs right hand side: ${pd.getText}")
+      case Some(e) => valOrVarDefinitionEvaluator(pd.pList, e)
+    }
+  }
+
+  def postProcessExpressionEvaluator(expr: ScExpression, evaluator: Evaluator): Evaluator = {
+
+    //boxing and unboxing actions
+    def unbox(typeTo: String) = unaryEvaluator(unboxEvaluator(evaluator), typeTo)
+    def box() = boxEvaluator(evaluator)
+    def valueClassInstance(eval: Evaluator) = {
+      expr match {
+        case _: ScNewTemplateDefinition => eval
+        case ExpressionType(_: ValType) => eval
+        case ExpressionType(tp @ ValueClassType(inner))  =>
+          valueClassInstanceEvaluator(eval, inner, tp)
+        case _ => eval
+      }
+    }
+
+    import org.jetbrains.plugins.scala.lang.psi.types._
+
+    val unboxed = expr.smartExpectedType() match {
+      case Some(Int) => unbox("toInteger")
+      case Some(Byte) => unbox("toByte")
+      case Some(Long) => unbox("toLong")
+      case Some(Boolean) => unboxEvaluator(evaluator)
+      case Some(Float) => unbox("toFloat")
+      case Some(Short) => unbox("toShort")
+      case Some(Double) => unbox("toDouble")
+      case Some(Char) => unbox("toCharacter")
+      case Some(Unit) => new BlockStatementEvaluator(Array(evaluator, unitEvaluator()))
+      case None => evaluator
+      case _ => box()
+    }
+
+    valueClassInstance(unboxed)
+  }
+
 }
 
 object ScalaEvaluatorBuilderUtil {
@@ -1269,6 +1533,8 @@ object ScalaEvaluatorBuilderUtil {
 
   def elementsWithSameNameIndex(named: PsiNamedElement, condition: PsiElement => Boolean): Int = {
     val containingClass = getContextClass(named)
+    if (containingClass == null) return -1
+
     val depthFirstIterator = containingClass.depthFirst {
       case `containingClass` => true
       case elem if isGenerateClass(elem) => false
