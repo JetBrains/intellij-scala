@@ -326,4 +326,17 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     checkErrors(code, errors)
   }
 
+  def testVarClassParameterAsStableIdPattern(): Unit = {
+    val code =
+      """
+        |class Baz(var ONE: Int) {
+        |  1 match {
+        |    case ONE => println("1") // bad, but not flagged
+        |    case _ => println("Not 1")
+        |  }
+        |}
+      """.stripMargin
+    checkError(code, "ONE", ScalaBundle.message("stable.identifier.required", "ONE"))
+  }
+
 }
