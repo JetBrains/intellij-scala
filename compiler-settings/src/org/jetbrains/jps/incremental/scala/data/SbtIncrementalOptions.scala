@@ -10,6 +10,8 @@ case class SbtIncrementalOptions(nameHashing: Boolean, recompileOnMacroDef: Bool
 }
 
 object SbtIncrementalOptions {
+  val Default = SbtIncrementalOptions(nameHashing = true, recompileOnMacroDef = true, transitiveStep = 3, recompileAllFraction = 0.5)
+
   def fromString(s: String): Option[SbtIncrementalOptions] = {
     Try {
       val Array(nameHashing, recompileOnMacroDef, transitiveStep, recompileAllFraction) = s.split(';')

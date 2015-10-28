@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.project.settings;
 
 import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Tag;
+import org.jetbrains.jps.incremental.scala.data.SbtIncrementalOptions;
 import org.jetbrains.plugins.scala.project.CompileOrder;
 import org.jetbrains.plugins.scala.project.DebuggingInfoLevel;
 
@@ -13,13 +14,13 @@ import java.util.Arrays;
 public class ScalaCompilerSettingsState {
   public CompileOrder compileOrder = CompileOrder.Mixed;
 
-  public boolean nameHashing = true;
+  public boolean nameHashing = SbtIncrementalOptions.Default().nameHashing();
 
-  public boolean recompileOnMacroDef = true;
+  public boolean recompileOnMacroDef = SbtIncrementalOptions.Default().recompileOnMacroDef();
 
-  public int transitiveStep = 3;
+  public int transitiveStep = SbtIncrementalOptions.Default().transitiveStep();
 
-  public double recompileAllFraction = 0.5;
+  public double recompileAllFraction = SbtIncrementalOptions.Default().recompileAllFraction();
 
   public boolean dynamics = false;
 

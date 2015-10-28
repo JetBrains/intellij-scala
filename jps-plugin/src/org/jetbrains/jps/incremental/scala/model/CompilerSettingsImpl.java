@@ -142,13 +142,13 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
 
     public CompileOrder compileOrder = CompileOrder.Mixed;
 
-    public boolean nameHashing = true;
+    public boolean nameHashing = SbtIncrementalOptions.Default().nameHashing();
 
-    public boolean recompileOnMacroDef = true;
+    public boolean recompileOnMacroDef = SbtIncrementalOptions.Default().recompileOnMacroDef();
 
-    public int transitiveStep = 3;
+    public int transitiveStep = SbtIncrementalOptions.Default().transitiveStep();
 
-    public double recompileAllFraction = 0.5;
+    public double recompileAllFraction = SbtIncrementalOptions.Default().recompileAllFraction();
 
     public boolean dynamics;
 
