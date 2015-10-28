@@ -30,7 +30,7 @@ class RelativeImportInspection extends AbstractInspection("RelativeImport", "Rel
         def applyProblem(qualifiedName: String) {
           val fixes = new ArrayBuffer[LocalQuickFix]()
           if (!ScalaCodeStyleSettings.getInstance(q.getProject).isAddFullQualifiedImports) {
-            fixes += new EnableFullQualifiedImports(q.getProject)
+            fixes += new EnableFullQualifiedImports()
           }
           fixes += new MakeFullQualifiedImportFix(q, qualifiedName)
           holder.registerProblem(q, "Relative import detected", fixes: _*)
@@ -54,7 +54,7 @@ object RelativeImportInspection {
   }
 }
 
-private class EnableFullQualifiedImports(project: Project) extends LocalQuickFix {
+private class EnableFullQualifiedImports extends LocalQuickFix {
   def getName: String = getFamilyName
 
   def getFamilyName: String = "Enable full qualified imports"

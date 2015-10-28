@@ -5,7 +5,6 @@ package packageNameInspection
 
 import com.intellij.CommonBundle
 import com.intellij.codeInsight.FileModificationService
-import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor}
 import com.intellij.ide.util.PackageUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -24,8 +23,11 @@ import org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveUtil
  * Date: 08.07.2009
  */
 
-class ScalaMoveToPackageQuickFix(file: ScalaFile, packQualName: String) extends LocalQuickFix {
-  def applyFix(project: Project, descriptor: ProblemDescriptor) {
+class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packQualName: String)
+      extends AbstractFixOnPsiElement(s"Move File ${myFile.name} To Package " + packQualName, myFile) {
+  def doApplyFix(project: Project): Unit = {
+    val file = getElement
+    if (!file.isValid) return
     if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
     val packageName = packQualName
     val fileIndex: ProjectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
@@ -43,13 +45,11 @@ class ScalaMoveToPackageQuickFix(file: ScalaFile, packQualName: String) extends 
     ScalaMoveUtil.saveMoveDestination(file, directory)
     new MoveClassesOrPackagesProcessor(
       project,
-      Array[PsiElement](file.typeDefinitions.apply(0)),
+      Array[PsiElement](file.typeDefinitions.head),
       new SingleSourceRootMoveDestination(PackageWrapper.create(JavaDirectoryService.getInstance().getPackage(directory)), directory), false,
       false,
       null).run()
   }
 
-  def getName: String = "Move File " + file.name + " To Package " + packQualName
-
-  def getFamilyName: String = "Move File To Package"
+  override def getFamilyName: String = "Move File To Package"
 }
