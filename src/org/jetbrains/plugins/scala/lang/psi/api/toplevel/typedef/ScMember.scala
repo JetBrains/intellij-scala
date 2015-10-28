@@ -10,7 +10,7 @@ import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.search.{LocalSearchScope, PackageScope, SearchScope}
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -107,11 +107,16 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   }
 
   override def hasModifierProperty(name: String) = {
-    if (name == PsiModifier.PUBLIC) {
-      !hasModifierProperty("private") && !hasModifierProperty("protected")
-    } else if (name == PsiModifier.STATIC) {
-      containingClass.isInstanceOf[ScObject]
-    } else super.hasModifierProperty(name)
+    name match {
+      case PsiModifier.PUBLIC =>
+        !hasModifierProperty("private") && !hasModifierProperty("protected")
+      case PsiModifier.STATIC => containingClass.isInstanceOf[ScObject]
+      case PsiModifier.PRIVATE =>
+        getModifierList.accessModifier.exists(_.access == ScAccessModifier.Type.THIS_PRIVATE)
+      case PsiModifier.PROTECTED =>
+        getModifierList.accessModifier.exists(_.access == ScAccessModifier.Type.THIS_PROTECTED)
+      case _ => super.hasModifierProperty(name)
+    }
   }
 
   protected def isSimilarMemberForNavigation(m: ScMember, isStrict: Boolean) = false
