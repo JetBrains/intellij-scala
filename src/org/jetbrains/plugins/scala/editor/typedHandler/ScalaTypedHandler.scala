@@ -7,9 +7,9 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Condition
-import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleManager}
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.{ScalaLanguage, extensions}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes.PatchedXmlLexer
@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScIfStmt, ScReferenceExpression}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -80,6 +81,9 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       myTask = convertToInterpolated(file, editor)
     } else if (c == '.') {
       myTask = startAutopopupCompletionInInterpolatedString(file, editor)
+    } else if (ScalaPsiUtil.isLineTerminator(element) &&
+      element.getPrevSiblingCondition(_.getTextLength != 0).exists(_.getNode.getElementType == ScalaTokenTypes.tDOT)) {
+      myTask = indentRefExprDot(file)
     }
 
     if (myTask == null) return Result.CONTINUE
@@ -140,6 +144,16 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       } else if (prevType == ScalaTokenTypes.tINTERPOLATED_STRING_END && elementType != ScalaTokenTypes.tINTERPOLATED_STRING_END &&
               Set("f\"\"", "s\"\"").contains(prevElement.getParent.getText)) {
         completeMultilineString(editor, project, element, offset)
+      }
+    } else if (c == '.' && ScalaPsiUtil.isLineTerminator(element)) {
+      //hacky way to introduce indent without calling formatter; this is better then turning formatting model into a mess
+      val indent = CodeStyleSettingsManager.getSettings(project).
+        getCommonSettings(ScalaLanguage.Instance).getIndentOptions.CONTINUATION_INDENT_SIZE
+      val indentString = (for (i <- 1 to indent) yield " ").foldLeft("")(_ + _)
+      extensions.inWriteAction {
+        val document = editor.getDocument
+        document.insertString(offset, indentString)
+        PsiDocumentManager.getInstance(project).commitDocument(document)
       }
     }
 
@@ -263,11 +277,18 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       elem => elem.getNode.getElementType == ScalaTokenTypes.kELSE && elem.getParent.isInstanceOf[ScIfStmt])
   }
 
+  private def indentRefExprDot(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int) = {
+    indentElement(file)(document, project, element, offset,
+      _ => true,
+      elem => elem.getParent.isInstanceOf[ScReferenceExpression])
+  }
+
   private def indentElement(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int,
-                                           condition: PsiElement => Boolean) = {
-    if (element.isInstanceOf[PsiWhiteSpace] || ScalaPsiUtil.isLineTerminator(element)) {
+                                           prevCondition: PsiElement => Boolean,
+                                           condition: PsiElement => Boolean = element => element.isInstanceOf[PsiWhiteSpace] || ScalaPsiUtil.isLineTerminator(element)) {
+    if (condition(element)) {
       val anotherElement = file.findElementAt(offset - 2)
-      if (condition(anotherElement)) {
+      if (prevCondition(anotherElement)) {
         extensions.inWriteAction {
           PsiDocumentManager.getInstance(project).commitDocument(document)
           CodeStyleManager.getInstance(project).adjustLineIndent(file, anotherElement.getTextRange)
@@ -361,7 +382,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
 
   private def completeEmptyXmlTag(editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int) {
     if (element != null && element.getNode.getElementType == ScalaXmlTokenTypes.XML_DATA_CHARACTERS && element.getText == "/" &&
-            element.getPrevSibling != null && element.getPrevSibling.isInstanceOf[ScXmlStartTag]) {
+      element.getPrevSibling != null && element.getPrevSibling.isInstanceOf[ScXmlStartTag]) {
       val xmlLexer = new PatchedXmlLexer
       xmlLexer.start(element.getPrevSibling.getText + "/>")
       xmlLexer.advance()
