@@ -85,8 +85,8 @@ object CachedWithoutModificationCount {
           case ValueWrapper.SofterReference => tq"_root_.com.intellij.util.SofterReference[$retTp]"
         }
 
-        val addToBuffers = buffersToAddTo.map { map =>
-          q"$map.add($mapName)"
+        val addToBuffers = buffersToAddTo.map { buffer =>
+          q"$buffer += $mapName"
         }
         val fields = if (hasParameters) {
           q"""
