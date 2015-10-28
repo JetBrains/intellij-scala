@@ -9,11 +9,11 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Comparing
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiClass
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
+import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiUtil
 import com.intellij.util.{Processor, QueryExecutor}
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
@@ -31,7 +31,11 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
     val clazz = queryParameters.getClassToProcess
 
     val scope = inReadAction {
-      queryParameters.getScope.intersectWith(clazz.getUseScope) match {
+      val useScope = clazz.getUseScope match {
+        case local: LocalSearchScope => clazz.containingScalaFile.map(GlobalSearchScope.fileScope)
+        case _ => None
+      }
+      ScalaPsiUtil.intersectScopes(queryParameters.getScope, useScope) match {
         case x: GlobalSearchScope => x
         case _ => return true
       }
