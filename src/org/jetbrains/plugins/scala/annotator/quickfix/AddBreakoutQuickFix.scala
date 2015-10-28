@@ -46,6 +46,7 @@ class AddBreakoutQuickFix(expr: ScExpression) extends IntentionAction {
 
 object AddBreakoutQuickFix {
   def isAvailable(expr: ScExpression): Boolean = {
+    if (!expr.isValid) return false
     expr match {
       case MethodRepr(_, _, Some(ResolvesTo(fd: ScFunctionDefinition)), _) =>
         val lastClause = fd.paramClauses.clauses.lastOption
