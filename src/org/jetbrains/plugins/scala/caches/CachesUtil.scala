@@ -2,12 +2,14 @@ package org.jetbrains.plugins.scala
 package caches
 
 
+import java.util.concurrent.ConcurrentMap
+
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.{Computable, Key, RecursionGuard, RecursionManager}
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
-import com.intellij.util.containers.{ConcurrentHashMap, ContainerUtil}
+import com.intellij.util.containers.{ContainerUtil, Stack}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -22,11 +24,20 @@ import scala.util.control.ControlThrowable
  */
 object CachesUtil {
 
+  /** This value is used by cache analyzer
+   *
+   * @see [[org.jetbrains.plugins.scala.macroAnnotations.CachedMacroUtil.transformRhsToAnalyzeCaches]]
+   */
+  lazy val timeToCalculateForAnalyzingCaches: ThreadLocal[Stack[Long]] = new ThreadLocal[Stack[Long]] {
+    override def initialValue: Stack[Long] = new Stack[Long]()
+  }
+
+
   /**
    * Do not delete this type alias, it is used by [[org.jetbrains.plugins.scala.macroAnnotations.CachedMappedWithRecursionGuard]]
    * @see [[CachesUtil.getOrCreateKey]] for more info
    */
-  type MappedKey[Data, Result] = Key[CachedValue[ConcurrentHashMap[Data, Result]]]
+  type MappedKey[Data, Result] = Key[CachedValue[ConcurrentMap[Data, Result]]]
   private val keys = ContainerUtil.newConcurrentMap[String, Any]()
 
   /**
@@ -165,7 +176,7 @@ object CachesUtil {
     }
   }
 
-  private val guards: ConcurrentHashMap[String, RecursionGuard] = new ConcurrentHashMap()
+  private val guards: ConcurrentMap[String, RecursionGuard] = ContainerUtil.newConcurrentMap[String, RecursionGuard]()
   private def getRecursionGuard(id: String): RecursionGuard = {
     val guard = guards.get(id)
     if (guard == null) {
@@ -184,16 +195,16 @@ object CachesUtil {
    * Do not use this method directly. You should use CachedMappedWithRecursionGuard annotation instead
    */
   def getMappedWithRecursionPreventingWithRollback[Dom <: PsiElement, Data, Result](e: Dom, data: Data,
-                                                                        key: Key[CachedValue[ConcurrentHashMap[Data, Result]]],
+                                                                        key: Key[CachedValue[ConcurrentMap[Data, Result]]],
                                                                         builder: (Dom, Data) => Result,
                                                                         defaultValue: => Result,
                                                                         dependencyItem: Object): Result = {
-    var computed: CachedValue[ConcurrentHashMap[Data, Result]] = e.getUserData(key)
+    var computed: CachedValue[ConcurrentMap[Data, Result]] = e.getUserData(key)
     if (computed == null) {
       val manager = CachedValuesManager.getManager(e.getProject)
-      computed = manager.createCachedValue(new CachedValueProvider[ConcurrentHashMap[Data, Result]] {
-        def compute(): CachedValueProvider.Result[ConcurrentHashMap[Data, Result]] = {
-          new CachedValueProvider.Result(new ConcurrentHashMap[Data, Result](), dependencyItem)
+      computed = manager.createCachedValue(new CachedValueProvider[ConcurrentMap[Data, Result]] {
+        def compute(): CachedValueProvider.Result[ConcurrentMap[Data, Result]] = {
+          new CachedValueProvider.Result(ContainerUtil.newConcurrentMap[Data, Result](), dependencyItem)
         }
       }, false)
       e.putUserData(key, computed)

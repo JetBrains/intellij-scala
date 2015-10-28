@@ -5,6 +5,7 @@ package impl
 
 import java.util
 import java.util.Collections
+import java.util.concurrent.ConcurrentHashMap
 
 import com.intellij.ProjectTopics
 import com.intellij.openapi.components.ProjectComponent
@@ -34,19 +35,23 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper, WorkWithCache}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.{Seq, mutable}
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
 
+  private val clearCacheOnChange = new util.HashSet[ConcurrentHashMap[_ <: Any, _ <: Any]]()
+  private val clearCacheOnLowMemory = new util.HashSet[ConcurrentHashMap[_ <: Any, _ <: Any]]()
+  private val clearCacheOnOutOfBlockChange = new util.HashSet[ConcurrentHashMap[_ <: Any, _ <: Any]]()
+
   def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
     if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) ParameterlessNodes.build(tp, compoundTypeThisType)
     else getParameterlessSignaturesCached(tp, compoundTypeThisType)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, valueWrapper = ValueWrapper.SofterReference)
+  @CachedWithoutModificationCount(synchronized = false, valueWrapper = ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
   private def getParameterlessSignaturesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
     ParameterlessNodes.build(tp, compoundTypeThisType)
   }
@@ -56,7 +61,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     else getTypesCached(tp, compoundTypeThisType)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
   private def getTypesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
     TypeNodes.build(tp, compoundTypeThisType)
   }
@@ -66,12 +71,12 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     getSignaturesCached(tp, compoundTypeThisType)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
   private def getSignaturesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
     SignatureNodes.build(tp, compoundTypeThisType)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
   def cachedDeepIsInheritor(clazz: PsiClass, base: PsiClass): Boolean = clazz.isInheritor(base, true)
 
   def getPackageImplicitObjects(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {
@@ -79,17 +84,17 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     else getPackageImplicitObjectsCached(fqn, scope)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
   private def getPackageImplicitObjectsCached(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {
-    ScalaShortNamesCacheManager.getInstance(project).getImplicitObjectsByPackage(fqn, scope)
+   ScalaShortNamesCacheManager.getInstance(project).getImplicitObjectsByPackage(fqn, scope)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
   def getCachedPackage(fqn: String): Option[PsiPackage] = {
     Option(JavaPsiFacade.getInstance(project).findPackage(fqn))
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
   def getCachedClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = {
     def getCachedFacadeClass(scope: GlobalSearchScope, fqn: String): Option[PsiClass] = {
       val clazz = JavaPsiFacade.getInstance(project).findClass(fqn, scope)
@@ -140,7 +145,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     else getClassesImpl(pack, scope)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None, clearCacheOnLowMemory, clearCacheOnOutOfBlockChange)
   private def getClassesCached(pack: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = getClassesImpl(pack, scope)
 
   private[this] def getClassesImpl(pack: PsiPackage, scope: GlobalSearchScope): Array[PsiClass] = {
@@ -152,7 +157,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     classes ++ scalaClasses
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
   def getCachedClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
     def getCachedFacadeClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
       val classes = JavaPsiFacade.getInstance(project).findClasses(fqn, scope).filterNot { p =>
@@ -173,7 +178,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     getJavaPackageClassNamesCached(qualifier, scope)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None, clearCacheOnLowMemory, clearCacheOnOutOfBlockChange)
   private def getJavaPackageClassNamesCached(packageFQN: String, scope: GlobalSearchScope): JSet[String] = {
     val classes: util.Collection[PsiClass] =
       StubIndex.getElements(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, packageFQN, project,
@@ -198,7 +203,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     getScalaClassNamesCached(qualifier, scope)
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None, clearCacheOnLowMemory, clearCacheOnOutOfBlockChange)
   def getScalaClassNamesCached(packageFQN: String, scope: GlobalSearchScope): mutable.HashSet[String] = {
     val classes: util.Collection[PsiClass] =
       StubIndex.getElements(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, packageFQN, project,
@@ -218,7 +223,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   def disposeComponent() {}
   def initComponent() {
     def clearOnChange(): Unit = {
-      clearOnChangeMacro()
+      import scala.collection.JavaConversions._
+      clearCacheOnChange.foreach(_.clear())
       Conformance.cache.clear()
       Equivalence.cache.clear()
       ScParameterizedType.substitutorCache.clear()
@@ -226,20 +232,10 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       ImplicitCollector.cache.clear()
     }
 
-    def clearOnChangeMacro(): Unit = {
-      WorkWithCache.workWithCache("clear", "getParameterlessSignaturesCached", "getTypesCached",
-        "getSignaturesCached", "psiTypeParameterUpperType")
-    }
-
     def clearOnOutOfCodeBlockChange(): Unit = {
-      clearOnOutOfCodeBlockChangeMacro()
+      import scala.collection.JavaConversions._
+      clearCacheOnOutOfBlockChange.foreach(_.clear())
       syntheticPackages.clear()
-    }
-
-    def clearOnOutOfCodeBlockChangeMacro(): Unit = {
-      WorkWithCache.workWithCache("clear", "getPackageImplicitObjectsCached", "getCachedPackage", "getCachedClass",
-        "getCachedClasses", "cachedDeepIsInheritor", "getClassesCached", "getJavaPackageClassNamesCached",
-        "getScalaClassNamesCached")
     }
 
     project.getMessageBus.connect.subscribe(PsiModificationTracker.TOPIC, new PsiModificationTracker.Listener {
@@ -266,6 +262,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 
       LowMemoryWatcher.register(new Runnable {
         def run(): Unit = {
+          import scala.collection.JavaConversions._
+          clearCacheOnLowMemory.foreach(_.clear())
           Conformance.cache.clear()
           Equivalence.cache.clear()
           ScParameterizedType.substitutorCache.clear()
@@ -273,11 +271,6 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
           ImplicitCollector.cache.clear()
         }
       })
-
-      def clearOnLowMemoryMacro(): Unit = {
-        WorkWithCache.workWithCache("clear", "getParameterlessSignaturesCached", "getTypesCached",
-          "getSignaturesCached", "getClassesCached", "getJavaPackageClassNamesCached", "getScalaClassNamesCached")
-      }
     })
   }
 
@@ -302,7 +295,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     p match {case synth : ScSyntheticPackage => synth case _ => null}
   }
 
-  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference)
+  @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange)
   def psiTypeParameterUpperType(tp: PsiTypeParameter): ScType = {
     tp.getSuperTypes match {
       case array: Array[PsiClassType] if array.length == 1 => ScType.create(array(0), project)
