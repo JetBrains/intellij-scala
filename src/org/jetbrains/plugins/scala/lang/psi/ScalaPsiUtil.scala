@@ -2110,7 +2110,7 @@ object ScalaPsiUtil {
     var i = 0
     def nextName(): String = {
       i += 1
-      "ev" + i
+      "ev$" + i
     }
     def synthParams(typeParam: ScTypeParam): Seq[(String, ScTypeElement => Unit)] = {
       val views = typeParam.viewTypeElement.map {
