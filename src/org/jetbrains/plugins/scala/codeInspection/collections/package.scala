@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.nameFitToPatterns
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -413,7 +414,7 @@ package object collections {
 
       val predicate: (PsiElement) => Boolean = {
         case `expr` => true
-        case ScFunctionExpr(_, _) childOf `expr` => true
+        case (ScFunctionExpr(_, _) | (_: ScCaseClauses)) childOf `expr` => true
         case (e: ScExpression) childOf `expr` if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
         case fun: ScFunctionDefinition => false
         case elem: PsiElement => !ScalaEvaluatorBuilderUtil.isGenerateClass(elem)
