@@ -47,8 +47,8 @@ import scala.reflect.NameTransformer
 import scala.util.Try
 
 /**
- * @author ilyas
- */
+  * @author ilyas
+  */
 class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManager with MultiRequestPositionManager with LocationLineManager {
 
   protected val caches = ScalaPositionManagerCaches.instance(debugProcess)
@@ -358,8 +358,13 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       val scriptFile = findScriptFile(refType)
       val file = scriptFile.getOrElse {
         val originalQName = NameTransformer.decode(refType.name)
+        val dollarTestSuffix = "$Test" //See SCL-9340
         val qName =
           if (originalQName.endsWith(packageSuffix)) originalQName
+          else if (originalQName.contains(dollarTestSuffix)) {
+            val index = originalQName.indexOf(dollarTestSuffix) + dollarTestSuffix.length
+            originalQName.take(index)
+          }
           else originalQName.replace(packageSuffix, ".").takeWhile(_ != '$')
 
         if (!ScalaMacroDebuggingUtil.isEnabled)
@@ -610,7 +615,7 @@ object ScalaPositionManager {
             case ChildOf(_: ScUnitExpr) | ChildOf(ScBlock()) =>
               result += elem
             case ElementType(t) if ScalaTokenTypes.WHITES_SPACES_AND_COMMENTS_TOKEN_SET.contains(t) ||
-                ScalaTokenTypes.BRACES_TOKEN_SET.contains(t) =>
+              ScalaTokenTypes.BRACES_TOKEN_SET.contains(t) =>
             case _ =>
               result += elem
           }
@@ -714,14 +719,14 @@ object ScalaPositionManager {
   }
 
   private class MyClassPrepareRequestor(position: SourcePosition, requestor: ClassPrepareRequestor) extends ClassPrepareRequestor {
-   private val sourceFile = position.getFile
-   private val sourceName = sourceFile.getName
-   private def sourceNameOf(refType: ReferenceType): Option[String] = Try(refType.sourceName()).toOption
+    private val sourceFile = position.getFile
+    private val sourceName = sourceFile.getName
+    private def sourceNameOf(refType: ReferenceType): Option[String] = Try(refType.sourceName()).toOption
 
-   def processClassPrepare(debuggerProcess: DebugProcess, referenceType: ReferenceType) {
-     val positionManager: CompoundPositionManager = debuggerProcess.asInstanceOf[DebugProcessImpl].getPositionManager
+    def processClassPrepare(debuggerProcess: DebugProcess, referenceType: ReferenceType) {
+      val positionManager: CompoundPositionManager = debuggerProcess.asInstanceOf[DebugProcessImpl].getPositionManager
 
-     if (!sourceNameOf(referenceType).contains(sourceName)) return
+      if (!sourceNameOf(referenceType).contains(sourceName)) return
 
       if (positionManager.locationsOfLine(referenceType, position).size > 0) {
         requestor.processClassPrepare(debuggerProcess, referenceType)
