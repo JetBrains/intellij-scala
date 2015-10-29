@@ -47,7 +47,10 @@ class ScAccessModifierImpl private (stub: StubElement[ScAccessModifier], nodeTyp
 
   def scope = getReference match {
     case null => PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition], true)
-    case ref => ref.resolve match {case named : PsiNamedElement => named}
+    case ref => ref.resolve() match {
+      case named: PsiNamedElement => named
+      case _ => PsiTreeUtil.getParentOfType(this, classOf[ScTypeDefinition], true)
+    }
   }
 
   //return ref only for {private|protected}[Id], not for private[this]
@@ -77,13 +80,13 @@ class ScAccessModifierImpl private (stub: StubElement[ScAccessModifier], nodeTyp
 
   override def getReference = {
     val text = idText
-    if (text == None) null else new PsiReference {
+    if (text.isEmpty) null else new PsiReference {
       def getElement = ScAccessModifierImpl.this
       def getRangeInElement = {
         val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
         new TextRange(0, id.getTextLength).shiftRight(id.getStartOffsetInParent)
       }
-      def getCanonicalText = resolve match {
+      def getCanonicalText = resolve() match {
         case td : ScTypeDefinition => td.qualifiedName
         case p : PsiPackage => p.getQualifiedName
         case _ => null
