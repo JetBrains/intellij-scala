@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.performance.highlighting.projectHighlighting
 
 import java.io.File
 import java.util
-import java.util.concurrent.TimeUnit
 
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.javascript.boilerplate.GithubDownloadUtil
@@ -18,7 +17,8 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.file.impl.FileManager
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope}
-import com.intellij.testFramework.IdeaTestUtil
+import com.intellij.testFramework.{IdeaTestUtil, PlatformTestUtil}
+import com.intellij.util.ThrowableRunnable
 import org.jetbrains.SbtStructureSetup
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
@@ -82,7 +82,7 @@ abstract class PerformanceSbtProjectHighlightingTestBase extends ExternalSystemI
     }
   }
 
-  def doTest(filename: String, timeoutInMillis: Long): Unit = {
+  def doTest(filename: String, timeoutInMillis: Int): Unit = {
     import scala.collection.JavaConversions._
     importProject()
     val searchScope =
@@ -105,28 +105,27 @@ abstract class PerformanceSbtProjectHighlightingTestBase extends ExternalSystemI
     }
     LocalFileSystem.getInstance().refreshFiles(files)
     val fileManager: FileManager = PsiManager.getInstance(myProject).asInstanceOf[PsiManagerEx].getFileManager
-    val timeToExecute = PerformanceSbtProjectHighlightingTestBase.measureTime { () =>
-      val annotator = new ScalaAnnotator
-      val mock = new AnnotatorHolderMock
+    PlatformTestUtil.startPerformanceTest(s"Performance test $filename", timeoutInMillis, new ThrowableRunnable[Nothing] {
+      override def run(): Unit = {
+        val annotator = new ScalaAnnotator
+        val mock = new AnnotatorHolderMock
 
-      file.refresh(true, false)
-      val psiFile = fileManager.findFile(file)
-      val visitor = new ScalaRecursiveElementVisitor {
-        override def visitElement(element: ScalaPsiElement) {
-          try {
-            annotator.annotate(element, mock)
-            super.visitElement(element)
-          } catch {
-            case ignored: Throwable => //this should be checked in AllProjectHighlightingTest
+        file.refresh(true, false)
+        val psiFile = fileManager.findFile(file)
+        val visitor = new ScalaRecursiveElementVisitor {
+          override def visitElement(element: ScalaPsiElement) {
+            try {
+              annotator.annotate(element, mock)
+              super.visitElement(element)
+            } catch {
+              case ignored: Throwable => //this should be checked in AllProjectHighlightingTest
+            }
           }
         }
+        psiFile.accept(visitor)
+        fileManager.cleanupForNextTest()
       }
-      psiFile.accept(visitor)
-      fileManager.cleanupForNextTest()
-    }
-    Assert.assertTrue(s"Timeout exceded: max timeout: $timeoutInMillis millis, " +
-      s"actual average time: $timeToExecute millis", timeoutInMillis >= timeToExecute)
-    println(s"Average time to highlight file $filename: $timeToExecute milliseconds")
+    }).cpuBound().assertTiming()
   }
 
   def githubUsername: String
@@ -136,19 +135,3 @@ abstract class PerformanceSbtProjectHighlightingTestBase extends ExternalSystemI
   def revision: String
 }
 
-object PerformanceSbtProjectHighlightingTestBase {
-  /**
-    * An ugly way to measure time. Should use something like JMH
-    * @return average time it took to execute the code
-    */
-  def measureTime(code: () => Unit,
-                  numWarmUpRuns: Int = 5,
-                  numRuns: Int = 30): Long = {
-    1 to numWarmUpRuns foreach (_ => code())
-    val startTime = System.nanoTime()
-    1 to numRuns foreach (_ => code())
-    val stopTime = System.nanoTime()
-    val averageTimeToRun = (stopTime - startTime) / numRuns
-    TimeUnit.NANOSECONDS.toMillis(averageTimeToRun)
-  }
-}

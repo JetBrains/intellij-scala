@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.performance.highlighting.projectHighlighting
 
-import java.util.concurrent.TimeUnit
-
 import org.jetbrains.plugins.scala.SlowTests
 import org.junit.experimental.categories.Category
 
@@ -19,11 +17,11 @@ class ScalazHighlightingPerformanceTest extends PerformanceSbtProjectHighlightin
 
   override def revision: String = "de8391722269fea4e09229f3bbfa68c08e0b8cd8"
 
-  def testApplyScalazPerformance(): Unit = doTest("Apply.scala", TimeUnit.SECONDS.toMillis(3))
+  def testApplyScalazPerformance(): Unit = doTest("Apply.scala", 3 * 1000)
 
-  def testImmutableArrayScalazPerformance(): Unit = doTest("ImmutableArray.scala", TimeUnit.SECONDS.toMillis(5))
+  def testImmutableArrayScalazPerformance(): Unit = doTest("ImmutableArray.scala", 6 * 1000)
 
-  def testFoldableScalazPerformance(): Unit = doTest("Foldable.scala", TimeUnit.SECONDS.toMillis(14))
+  def testFoldableScalazPerformance(): Unit = doTest("Foldable.scala", 6 * 1000)
 
-  def testIListScalazPerformance(): Unit = doTest("IList.scala", TimeUnit.SECONDS.toMillis(14))
+  def testIListScalazPerformance(): Unit = doTest("IList.scala", 6 * 1000)
 }
