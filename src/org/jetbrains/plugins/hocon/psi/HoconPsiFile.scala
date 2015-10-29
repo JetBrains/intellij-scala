@@ -19,7 +19,7 @@ class HoconPsiFile(provider: FileViewProvider) extends PsiFileImpl(HoconFileElem
       case obj: HObject => obj.entries
       case ets: HObjectEntries => ets
       case comment: PsiComment => entriesInner(comment.getNextSiblingNotWhitespace)
-    }7
+    }
     
     
     
