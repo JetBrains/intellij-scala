@@ -35,7 +35,7 @@ import org.junit.Assert
   * Date: 10/23/15.
   */
 abstract class PerformanceSbtProjectHighlightingTestBase extends ExternalSystemImportingTestCase with SbtStructureSetup {
-  implicit class IntExt(val i: Int) extends AnyVal {
+  implicit class IntExt(val i: Int) {
     def seconds: Int = i * 1000
   }
 
