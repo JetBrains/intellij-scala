@@ -670,7 +670,7 @@ object JavaToScala {
           case method: PsiMethod =>
             val references = method.getThrowsList.getReferenceElements
             for (ref <- references) {
-              res.append("@throws(classOf[").append(convertPsiToText(ref)).append("])\n")
+              res.append("@throws[").append(convertPsiToText(ref)).append("]\n")
             }
           case c: PsiClass =>
             serialVersion(c) match {
