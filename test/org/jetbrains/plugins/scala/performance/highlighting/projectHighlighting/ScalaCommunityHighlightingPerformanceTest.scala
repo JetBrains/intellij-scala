@@ -19,16 +19,16 @@ class ScalaCommunityHighlightingPerformanceTest extends PerformanceSbtProjectHig
 
   override def revision: String = "493444f6465d0eddea75ac5cd5a848cc30d48ae5"
 
-  def testPerformanceScalaCommunityScalaPsiUtil() = doTest("ScalaPsiUtil.scala", 24 * 1000)
+  def testPerformanceScalaCommunityScalaPsiUtil() = doTest("ScalaPsiUtil.scala", 24.seconds)
 
-  def testPerformanceScalaCommunityScalaAnnotator() = doTest("ScalaAnnotator.scala", 10 * 1000)
+  def testPerformanceScalaCommunityScalaAnnotator() = doTest("ScalaAnnotator.scala", 10.seconds)
 
   def testPerformanceScalaCommunityScalaEvaluatorBuilderUtil() =
-    doTest("ScalaEvaluatorBuilderUtil.scala", 14 * 1000)
+    doTest("ScalaEvaluatorBuilderUtil.scala", 14.seconds)
 
-  def testPerformanceScalaCommunityConformance() = doTest("Conformance.scala", 11 * 1000)
+  def testPerformanceScalaCommunityConformance() = doTest("Conformance.scala", 11.seconds)
 
-  def testPerformanceScalaCommunityScalaSpacingProcessor() = doTest("ScalaSpacingProcessor.scala", 6 * 1000)
+  def testPerformanceScalaCommunityScalaSpacingProcessor() = doTest("ScalaSpacingProcessor.scala", 6.seconds)
 
   override def doTest(path: String, timeout: Int): Unit = {
     VfsRootAccess.SHOULD_PERFORM_ACCESS_CHECK = false

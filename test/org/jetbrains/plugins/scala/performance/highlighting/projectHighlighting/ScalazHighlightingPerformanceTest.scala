@@ -17,11 +17,11 @@ class ScalazHighlightingPerformanceTest extends PerformanceSbtProjectHighlightin
 
   override def revision: String = "de8391722269fea4e09229f3bbfa68c08e0b8cd8"
 
-  def testApplyScalazPerformance(): Unit = doTest("Apply.scala", 3 * 1000)
+  def testApplyScalazPerformance(): Unit = doTest("Apply.scala", 3.seconds)
 
-  def testImmutableArrayScalazPerformance(): Unit = doTest("ImmutableArray.scala", 6 * 1000)
+  def testImmutableArrayScalazPerformance(): Unit = doTest("ImmutableArray.scala", 6.seconds)
 
-  def testFoldableScalazPerformance(): Unit = doTest("Foldable.scala", 6 * 1000)
+  def testFoldableScalazPerformance(): Unit = doTest("Foldable.scala", 6.seconds)
 
-  def testIListScalazPerformance(): Unit = doTest("IList.scala", 6 * 1000)
+  def testIListScalazPerformance(): Unit = doTest("IList.scala", 6.seconds)
 }

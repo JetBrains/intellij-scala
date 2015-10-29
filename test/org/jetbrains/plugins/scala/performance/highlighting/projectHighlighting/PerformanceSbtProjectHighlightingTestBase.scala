@@ -35,6 +35,10 @@ import org.junit.Assert
   * Date: 10/23/15.
   */
 abstract class PerformanceSbtProjectHighlightingTestBase extends ExternalSystemImportingTestCase with SbtStructureSetup {
+  implicit class IntExt(val i: Int) extends AnyVal {
+    def seconds: Int = i * 1000
+  }
+
   override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
     val settings = new SbtProjectSettings
     val internalSdk = JavaAwareProjectJdkTableImpl.getInstanceEx.getInternalJdk
