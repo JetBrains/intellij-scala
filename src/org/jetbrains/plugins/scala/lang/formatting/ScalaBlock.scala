@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
@@ -114,6 +115,8 @@ extends Object with ScalaTokenTypes with ASTBlock {
       case _: ScParameterClause =>
         new ChildAttributes(if (scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS) Indent.getNormalIndent
           else Indent.getContinuationWithoutFirstIndent, this.getAlignment)
+      case _: ScValue =>
+        new ChildAttributes(Indent.getNormalIndent, this.getAlignment) //by default suppose there will be simple expr
       case _ => new ChildAttributes(Indent.getNoneIndent, null)
     }
   }

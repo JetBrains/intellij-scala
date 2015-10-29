@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleManager}
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.{ScalaLanguage, extensions}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
@@ -59,6 +60,8 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       myTask = indentCase(file)
     } else if (c == ' ' && offset >= 6 && offset < text.length && text.substring(offset - 6, offset) == " else ") {
       myTask = indentElse(file)
+    } else if (c == '{' && offset >= 2 && offset < text.length && text.substring(offset - 2, offset) == " {") {
+      myTask = indentValBraceStyle(file)
     } else if (isInPlace(element, classOf[ScXmlExpr], classOf[ScXmlPattern])) {
       chooseXmlTask(withAttr = true)
     } else if (file.findElementAt(offset - 2) 
@@ -281,6 +284,11 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     indentElement(file)(document, project, element, offset,
       _ => true,
       elem => elem.getParent.isInstanceOf[ScReferenceExpression])
+  }
+
+  private def indentValBraceStyle(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int) = {
+    indentElement(file)(document, project, element, offset, ScalaPsiUtil.isLineTerminator,
+      _.parent.flatMap(_.parent).exists(_.isInstanceOf[ScValue]))
   }
 
   private def indentElement(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int,
