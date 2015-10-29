@@ -7,6 +7,17 @@ import scala.util.Try
   */
 case class SbtIncrementalOptions(nameHashing: Boolean, recompileOnMacroDef: Boolean, transitiveStep: Int, recompileAllFraction: Double) {
   def asString: String = s"$nameHashing;$recompileOnMacroDef;$transitiveStep;$recompileAllFraction"
+
+  def nonDefault = {
+    val names = Seq("nameHashing", "recompileOnMacroDef", "transitiveStep", "recompileAllFraction")
+    val values = this.productIterator.toSeq
+    val defaultValues = SbtIncrementalOptions.Default.productIterator.toSeq
+    val differs = for {
+      ((name, value), defaultValue) <- names.zip(values).zip(defaultValues)
+      if value != defaultValue
+    } yield s"$name = $value"
+    differs.mkString(", ")
+  }
 }
 
 object SbtIncrementalOptions {
