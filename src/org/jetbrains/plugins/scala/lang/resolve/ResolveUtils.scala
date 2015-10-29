@@ -154,9 +154,6 @@ object ResolveUtils {
       case _ =>
     }
 
-    if (member.hasModifierProperty("public")) return true
-
-
     def checkProtected(td: PsiClass, withCompanion: Boolean): Boolean = {
       val isConstr = member match {
         case m: PsiMethod => m.isConstructor
