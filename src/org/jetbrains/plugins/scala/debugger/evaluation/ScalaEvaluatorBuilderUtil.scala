@@ -557,6 +557,10 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val parameters = clauses.flatMap(_.effectiveParameters).map(new Parameter(_))
 
     def addForNextClause(previousClausesEvaluators: Seq[Evaluator], clause: ScParameterClause): Seq[Evaluator] = {
+      def isDefaultExpr(expr: ScExpression) = expr match {
+        case ChildOf(p: ScParameter) => p.isDefaultParam
+        case _ => false
+      }
       previousClausesEvaluators ++ clause.effectiveParameters.map {
         case param =>
           val p = new Parameter(param)
@@ -565,12 +569,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
           val evaluator =
             if (p.isRepeated) repeatedArgEvaluator(exprsForP, p.expectedType, call)
-            else if (exprsForP.nonEmpty) {
-              if (exprsForP.length == 1) evaluatorFor(exprsForP(0))
-              else {
-                throw EvaluationException(ScalaBundle.message("wrong.number.of.expressions"))
-              }
-            }
+            else if (exprsForP.size > 1) throw EvaluationException(ScalaBundle.message("wrong.number.of.expressions"))
+            else if (exprsForP.length == 1 && !isDefaultExpr(exprsForP.head)) evaluatorFor(exprsForP.head)
             else if (param.isImplicitParameter) implicitArgEvaluator(fun, param, call)
             else if (p.isDefault) {
               val paramIndex = parameters.indexOf(p) + 1
