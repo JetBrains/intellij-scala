@@ -63,7 +63,11 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
       }
     }
     val inner = lastExpr match {
-      case None => Unit
+      case None =>
+        ScalaPsiUtil.fileContext(this) match {
+          case scalaFile: ScalaFile if scalaFile.isCompiled => Nothing
+          case _ => Unit
+        }
       case Some(e) =>
         val m = new mutable.HashMap[String, ScExistentialArgument]
         def existize(t: ScType, visited: HashSet[ScType]): ScType = {
