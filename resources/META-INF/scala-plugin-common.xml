@@ -14,7 +14,7 @@
         <extensionPoint name="evaluatorCompileHelper" interface="org.jetbrains.plugins.scala.debugger.evaluation.EvaluatorCompileHelper"/>
         <extensionPoint name="serverWidgetEP" interface="org.jetbrains.plugins.scala.compiler.ServerWidgetEP"/>
         <extensionPoint name="syntheticMemberInjector" interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"/>
-        <extensionPoint name="mavenWorkingDirectoryProvider" interface="org.jetbrains.plugins.scala.project.maven.MavenWorkingDirectoryProvider"/>
+        <extensionPoint name="scalaTestDefaultWorkingDirectoryProvider" interface="org.jetbrains.plugins.scala.project.maven.ScalaTestDefaultWorkingDirectoryProvider"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
