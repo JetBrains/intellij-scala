@@ -5,6 +5,8 @@ package api
 package base
 
 import com.intellij.psi.util.PsiModificationTracker
+import com.intellij.psi.util.PsiModificationTracker.{OUT_OF_CODE_BLOCK_MODIFICATION_COUNT, MODIFICATION_COUNT}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -49,7 +51,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
    *
    * In addition, view and context bounds generate an additional implicit parameter section.
    */
-  @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def effectiveParameterClauses: Seq[ScParameterClause] = {
     def emptyParameterList: ScParameterClause =
       ScalaPsiElementFactory.createEmptyClassParamClauseWithContext(getManager, parameterList)
@@ -111,7 +113,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
     }
   }
 
-  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, getManager)
+  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, this)
   def getFunctionWrappers: Seq[ScPrimaryConstructorWrapper] = {
     val buffer = new ArrayBuffer[ScPrimaryConstructorWrapper]()
     buffer += new ScPrimaryConstructorWrapper(this)

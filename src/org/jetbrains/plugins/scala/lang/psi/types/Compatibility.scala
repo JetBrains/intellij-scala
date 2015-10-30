@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.Im
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
-import org.jetbrains.plugins.scala.macroAnnotations.CachedMappedWithRecursionGuard
+import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedMappedWithRecursionGuard}
 
 import scala.collection.{Set, Seq}
 import scala.collection.mutable.ArrayBuffer
@@ -51,7 +51,7 @@ object Compatibility {
     }
 
 
-    @CachedMappedWithRecursionGuard(place, (Success(typez, None), Set.empty), PsiModificationTracker.MODIFICATION_COUNT)
+    @CachedMappedWithRecursionGuard(place, (Success(typez, None), Set.empty), ModCount.getBlockModificationCount)
     private def eval(typez: ScType, expectedOption: Option[ScType]): (TypeResult[ScType], Set[ImportUsed]) = {
       expectedOption match {
         case Some(expected) if typez.conforms(expected) => (Success(typez, None), Set.empty)
