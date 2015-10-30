@@ -102,7 +102,12 @@ class CompileServerLauncher extends ApplicationComponent {
         val ngRunnerFqn = "org.jetbrains.plugins.scala.nailgun.NailgunRunner"
         val id = settings.COMPILE_SERVER_ID
 
-        val commands = jdk.executable.canonicalPath +: "-cp" +: classpath +: jvmParameters ++:
+        val shutdownDelay = settings.COMPILE_SERVER_SHUTDOWN_DELAY
+        val shutdownDelayArg = if (settings.COMPILE_SERVER_SHUTDOWN_IDLE && shutdownDelay >= 0) {
+          Seq(s"-Dshutdown.delay=$shutdownDelay")
+        } else Nil
+
+        val commands = jdk.executable.canonicalPath +: "-cp" +: classpath +: jvmParameters ++: shutdownDelayArg ++:
                 ngRunnerFqn +: freePort.toString +: id.toString +: Nil
 
         val builder = new ProcessBuilder(commands.asJava)
