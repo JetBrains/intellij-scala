@@ -355,22 +355,35 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     if (refType == null) return null
 
     def findFile() = {
+      def withDollarTestName(originalQName: String): Option[String] = {
+        val dollarTestSuffix = "$Test" //See SCL-9340
+        if (originalQName.endsWith(dollarTestSuffix)) Some(originalQName)
+        else if (originalQName.contains(dollarTestSuffix + "$")) {
+          val index = originalQName.indexOf(dollarTestSuffix) + dollarTestSuffix.length
+          Some(originalQName.take(index))
+        }
+        else None
+      }
+      def topLevelClassName(originalQName: String): String = {
+        if (originalQName.endsWith(packageSuffix)) originalQName
+        else originalQName.replace(packageSuffix, ".").takeWhile(_ != '$')
+      }
+      def tryToFindClass(name: String) = {
+        findClassByQualName(name, isScalaObject = false)
+          .orElse(findClassByQualName(name, isScalaObject = true))
+      }
+
       val scriptFile = findScriptFile(refType)
       val file = scriptFile.getOrElse {
         val originalQName = NameTransformer.decode(refType.name)
-        val dollarTestSuffix = "$Test" //See SCL-9340
-        val qName =
-          if (originalQName.endsWith(packageSuffix)) originalQName
-          else if (originalQName.contains(dollarTestSuffix)) {
-            val index = originalQName.indexOf(dollarTestSuffix) + dollarTestSuffix.length
-            originalQName.take(index)
-          }
-          else originalQName.replace(packageSuffix, ".").takeWhile(_ != '$')
 
-        if (!ScalaMacroDebuggingUtil.isEnabled)
-          findClassByQualName(qName, originalQName.endsWith("$")).map(_.getNavigationElement.getContainingFile).orNull
+        if (!ScalaMacroDebuggingUtil.isEnabled) {
+          val clazz = withDollarTestName(originalQName).flatMap(tryToFindClass)
+            .orElse(tryToFindClass(topLevelClassName(originalQName)))
+          clazz.map(_.getNavigationElement.getContainingFile).orNull
+        }
         else
-          searchForMacroDebugging(qName)
+          searchForMacroDebugging(topLevelClassName(originalQName))
       }
 
       if (refType.methods().asScala.exists(isIndyLambda)) {
