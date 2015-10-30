@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.macroAnnotations
 
+import scala.annotation.tailrec
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
@@ -41,6 +42,11 @@ object CachedMacroUtil {
   def getMappedWithRecursionFQN(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
     q"$cachesUtilFQN.getMappedWithRecursionPreventingWithRollback"
+  }
+
+  def psiModificationTrackerFQN(implicit c: whitebox.Context): c.universe.Tree = {
+    import c.universe.Quasiquote
+    q"_root_.com.intellij.psi.util.PsiModificationTracker"
   }
 
   def mappedKeyTypeFQN(implicit c: whitebox.Context): c.universe.Tree = {
@@ -92,6 +98,30 @@ object CachedMacroUtil {
   }
 
   def analyzeCachesEnabled(c: whitebox.Context): Boolean = c.settings.contains(ANALYZE_CACHES)
+
+  @tailrec
+  def modCountParamToModTracker(c: whitebox.Context)(tree: c.universe.Tree, psiElement: c.universe.Tree): c.universe.Tree = {
+    implicit val x: c.type = c
+    import c.universe._
+    tree match {
+      case q"modificationCount = $v" =>
+        modCountParamToModTracker(x)(v, psiElement)
+      case q"ModCount.$v" =>
+        modCountParamToModTracker(x)(q"$v", psiElement)
+      case q"$v" =>
+        ModCount.values.find(_.toString == v.toString) match {
+          case Some(ModCount.getBlockModificationCount) =>
+            q"$cachesUtilFQN.enclosingBlockExprModTrackerOrOutOfCodeBlockModTracker($psiElement)"
+          case Some(ModCount.getOutOfCodeBlockModificationCount) =>
+            q"$psiModificationTrackerFQN.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT"
+          case Some(ModCount.getModificationCount) => q"$psiModificationTrackerFQN.MODIFICATION_COUNT"
+          case Some(ModCount.getJavaStructureModificationCount) =>
+            q"$psiModificationTrackerFQN.JAVA_STRUCTURE_MODIFICATION_COUNT"
+          case _ => tree
+        }
+    }
+  }
+
 }
 
 object ModCount extends Enumeration {
@@ -99,4 +129,5 @@ object ModCount extends Enumeration {
   val getModificationCount = Value("getModificationCount")
   val getOutOfCodeBlockModificationCount = Value("getOutOfCodeBlockModificationCount")
   val getJavaStructureModificationCount = Value("getJavaStructureModificationCount")
+  val getBlockModificationCount = Value("getBlockModificationCount")
 }

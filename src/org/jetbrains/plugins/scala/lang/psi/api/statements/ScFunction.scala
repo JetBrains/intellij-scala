@@ -16,7 +16,7 @@ import com.intellij.psi.PsiReferenceList.Role
 import com.intellij.psi._
 import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
 import com.intellij.psi.tree.TokenSet
-import com.intellij.psi.util.{MethodSignatureBackedByPsiMethod, PsiModificationTracker}
+import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -308,7 +308,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   def paramTypes: Seq[ScType] = parameters.map {_.getType(TypingContext.empty).getOrNothing}
 
-  @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def effectiveParameterClauses: Seq[ScParameterClause] = paramClauses.clauses ++ syntheticParamClause
 
   private def syntheticParamClause: Option[ScParameterClause] = {
@@ -410,7 +410,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   /**
    * @return Empty array, if containing class is null.
    */
-  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, getManager)
+  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, this)
   def getFunctionWrappers(isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
     val buffer = new ArrayBuffer[ScFunctionWrapper]
     if (cClass.isDefined || containingClass != null) {
@@ -444,7 +444,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     getReturnTypeImpl
   }
 
-  @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   private def getReturnTypeImpl: PsiType = {
     val tp = getType(TypingContext.empty).getOrAny
     tp match {
@@ -661,7 +661,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
-  @Cached(synchronized = false, ModCount.getModificationCount, getManager)
+  @Cached(synchronized = false, ModCount.getModificationCount, this)
   def collectReverseParamTypesNoImplicits: Option[Seq[Seq[ScType]]] = {
     var i = paramClauses.clauses.length - 1
     val res: ArrayBuffer[Seq[ScType]] = ArrayBuffer.empty

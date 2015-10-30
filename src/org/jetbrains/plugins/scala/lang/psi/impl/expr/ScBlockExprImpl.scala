@@ -6,13 +6,19 @@ package expr
 
 
 import java.util
+import java.util.concurrent.atomic.AtomicLong
 
+import com.intellij.openapi.util.ModificationTracker
+import com.intellij.psi.impl.PsiModificationTrackerImpl
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
+import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor, PsiModifiableCodeBlock}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
+
+import scala.annotation.tailrec
 
 /**
 * @author Alexander Podkhalyuzin
@@ -20,7 +26,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue,
 */
 
 class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaElementTypes.BLOCK_EXPR, text)
-  with ScBlockExpr with PsiModifiableCodeBlock {
+  with ScBlockExpr with PsiModifiableCodeBlock { self =>
+
+  private val blockModificationCount = new AtomicLong(0L)
+
   //todo: bad architecture to have it duplicated here, as ScBlockExprImpl is not instance of ScalaPsiElementImpl
   override def getContext: PsiElement = {
     context match {
@@ -52,6 +61,13 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
     null
   }
 
+  override def subtreeChanged(): Unit = {
+    if (shouldChangeModificationCount(this)) {
+      blockModificationCount.incrementAndGet()
+    }
+    super.subtreeChanged()
+  }
+
   def shouldChangeModificationCount(place: PsiElement): Boolean = {
     var parent = getParent
     while (parent != null) {
@@ -71,6 +87,24 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
       parent = parent.getParent
     }
     false
+  }
+
+  def getRawModificationCount: Long = blockModificationCount.get()
+
+  def getModificationTracker: ModificationTracker = new ModificationTracker {
+    override def getModificationCount: Long = getThisBlockExprModificationCount
+  }
+
+  def getThisBlockExprModificationCount: Long = {
+    @tailrec
+    def calc(place: PsiElement, sum: Long): Long = place match {
+      case null => sum + PsiModificationTracker.SERVICE.getInstance(place.getProject).getOutOfCodeBlockModificationCount
+      case file: ScalaFile => sum + file.getManager.getModificationTracker.getOutOfCodeBlockModificationCount
+      case block: ScBlockExprImpl => calc(block.getContext, sum + block.getRawModificationCount)
+      case _ => calc(place.getContext, sum)
+    }
+
+    calc(this, 0L)
   }
 
   override def accept(visitor: ScalaElementVisitor) = {visitor.visitBlockExpression(this)}

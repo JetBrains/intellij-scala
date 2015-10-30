@@ -200,7 +200,7 @@ class ScForStatementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
     Some(exprText.toString())
   }
 
-  @Cached(synchronized = true, ModCount.getModificationCount, getManager)
+  @Cached(synchronized = true, ModCount.getModificationCount, this)
   def getDesugarizedExpr: Option[ScExpression] = {
     val res = getDesugarizedExprText(forDisplay = false) match {
       case Some(text) =>

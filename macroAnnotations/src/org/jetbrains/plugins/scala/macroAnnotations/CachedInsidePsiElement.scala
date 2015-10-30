@@ -23,16 +23,18 @@ object CachedInsidePsiElement {
     import CachedMacroUtil._
     import c.universe._
     implicit val x: c.type = c
-
-    def parameters: (Tree, Tree, Boolean) = c.prefix.tree match {
-      case q"new CachedInsidePsiElement(..$params)" if params.length == 2 => (params.head, params(1), false)
-      case q"new CachedInsidePsiElement(..$params)" if params.length == 3 =>
-        val optional = params.last match {
-          case q"useOptionalProvider = $v" => c.eval[Boolean](c.Expr(v))
-          case q"$v" => c.eval[Boolean](c.Expr(v))
-        }
-        (params.head, params(1), optional)
-      case _ => abort("Wrong annotation parameters!")
+    def parameters: (Tree, Tree, Boolean) = {
+      c.prefix.tree match {
+        case q"new CachedInsidePsiElement(..$params)" if params.length == 2 =>
+          (params.head, modCountParamToModTracker(c)(params(1), params.head), false)
+        case q"new CachedInsidePsiElement(..$params)" if params.length == 3 =>
+          val optional = params.last match {
+            case q"useOptionalProvider = $v" => c.eval[Boolean](c.Expr(v))
+            case q"$v" => c.eval[Boolean](c.Expr(v))
+          }
+          (params.head, modCountParamToModTracker(c)(params(1), params.head), optional)
+        case _ => abort("Wrong annotation parameters!")
+      }
     }
 
     //annotation parameters
@@ -49,6 +51,7 @@ object CachedInsidePsiElement {
         val keyId = c.freshName(name.toString + "cacheKey")
         val key = generateTermName(name + "Key")
         val cacheStatsName = generateTermName("cacheStats")
+        val dependencyItemName = generateTermName("dependencyItem")
         val defdefFQN = thisFunctionFQN(name.toString)
 
         val analyzeCaches = analyzeCachesEnabled(c)
@@ -57,20 +60,24 @@ object CachedInsidePsiElement {
           else TypeName("MyProvider")
 
         val actualCalculation = transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
+
+        val analyzeCachesEnterCacheArea =
+          if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()"
+          else EmptyTree
         val updatedRhs = q"""
           def $cachedFunName(): $retTp = $actualCalculation
-
-          ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}
-          $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.$provider[Any, $retTp]($elem, _ => $cachedFunName())($dependencyItem))
+          ..$analyzeCachesEnterCacheArea
+          $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.$provider[Any, $retTp]($elem, _ => $cachedFunName())($dependencyItemName))
           """
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         val res = q"""
           private val $key = $cachesUtilFQN.getOrCreateKey[$keyTypeFQN[$cachedValueTypeFQN[$retTp]]]($keyId)
           ${if (analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)" else EmptyTree}
+          private val $dependencyItemName = $dependencyItem
 
           ..$updatedDef
           """
-        CachedMacroUtil.println(res)
+        println(res)
         c.Expr(res)
       case _ => abort("You can only annotate one function!")
     }

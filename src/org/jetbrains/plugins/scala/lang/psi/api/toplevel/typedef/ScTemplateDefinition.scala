@@ -17,10 +17,12 @@ import com.intellij.psi.impl.{PsiClassImplUtil, PsiSuperMethodImplUtil}
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.util.PsiModificationTracker._
 import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil, PsiUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -29,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
+import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedInsidePsiElement}
 
 /**
  * @author ven
@@ -138,7 +140,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   def functions: Seq[ScFunction] = extendsBlock.functions
   def aliases: Seq[ScTypeAlias] = extendsBlock.aliases
 
-  @CachedInsidePsiElement(this, PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def syntheticMethodsWithOverride: Seq[PsiMethod] = syntheticMethodsWithOverrideImpl
 
   /**
@@ -148,14 +150,14 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def allSynthetics: Seq[PsiMethod] = syntheticMethodsNoOverride ++ syntheticMethodsWithOverride
 
-  @CachedInsidePsiElement(this, PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def syntheticMethodsNoOverride: Seq[PsiMethod] = syntheticMethodsNoOverrideImpl
 
   protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = Seq.empty
 
   def typeDefinitions: Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
 
-  @CachedInsidePsiElement(this, PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def syntheticTypeDefinitions: Seq[ScTypeDefinition] = syntheticTypeDefinitionsImpl
 
   def syntheticTypeDefinitionsImpl: Seq[ScTypeDefinition] = Seq.empty

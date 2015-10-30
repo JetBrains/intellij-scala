@@ -251,7 +251,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
       " = throw new Error(\"\")"
   }
 
-  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, getManager)
+  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, this)
   def getSyntheticImplicitMethod: Option[ScFunction] = {
     if (hasModifierProperty("implicit")) {
       constructor match {
