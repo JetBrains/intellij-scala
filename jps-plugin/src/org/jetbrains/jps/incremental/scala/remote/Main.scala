@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala
 package remote
 
 import java.io.{File, PrintStream}
+import java.util.{Timer, TimerTask}
 
 import com.intellij.util.Base64Converter
 import com.martiansoftware.nailgun.NGContext
@@ -16,8 +17,12 @@ object Main {
   private val Server = new LocalServer()
   private val worksheetFactory = new WorksheetInProcessRunnerFactory
 
+  private var shutdownTimer: Timer = null
+
   def nailMain(context: NGContext) {
+    cancelShutdown()
     make(context.getArgs.toSeq, context.out, false)
+    resetShutdownTimer(context)
   }
   
   def main(args: Array[String]) {
@@ -67,6 +72,22 @@ object Main {
         client.trace(e)
     } finally {
       System.setOut(oldOut)
+    }
+  }
+
+  private def cancelShutdown() = {
+    if (shutdownTimer != null) shutdownTimer.cancel()
+  }
+
+  private def resetShutdownTimer(context: NGContext) {
+    val delay = Option(System.getProperty("shutdown.delay")).map(_.toInt)
+    delay.foreach { t =>
+      val delayMs = t * 60 * 1000
+      val shutdownTask = new TimerTask {
+        override def run(): Unit = context.getNGServer.shutdown(true)
+      }
+      shutdownTimer = new Timer()
+      shutdownTimer.schedule(shutdownTask, delayMs)
     }
   }
 }
