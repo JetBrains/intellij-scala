@@ -5,7 +5,6 @@ import java.awt.Point
 import java.awt.event.{ActionEvent, ActionListener, MouseEvent}
 import javax.swing.Timer
 
-import com.intellij.facet.ProjectWideFacetListenersRegistry
 import com.intellij.icons.AllIcons
 import com.intellij.ide.DataManager
 import com.intellij.notification.{Notification, NotificationType, Notifications}
@@ -58,15 +57,15 @@ class CompileServerManager(project: Project) extends ProjectComponent {
    def getComponentName = getClass.getSimpleName
 
    def configureWidget() {
+     if (ApplicationManager.getApplication.isUnitTestMode) return
+
      (applicable, installed) match {
        case (true, true) => // do nothing
-       case (true, false) => {
+       case (true, false) =>
          bar.addWidget(Widget, "before Position", project)
          installed = true
-       }
-       case (false, true) => {
+       case (false, true) =>
          removeWidget()
-       }
        case (false, false) => // do nothing
      }
    }
@@ -93,10 +92,6 @@ class CompileServerManager(project: Project) extends ProjectComponent {
    private def launcher = CompileServerLauncher.instance
 
    private def bar = WindowManager.getInstance.getStatusBar(project)
-
-   private def registry: ProjectWideFacetListenersRegistry =
-     ProjectWideFacetListenersRegistry.getInstance(project)
-
 
    private object Widget extends StatusBarWidget {
      def ID = "Compile server"

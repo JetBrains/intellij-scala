@@ -164,7 +164,9 @@ object CompileServerLauncher {
     val utilJar = new File(PathUtil.getJarPathForClass(classOf[FileUtil]))
     val trove4jJar = new File(PathUtil.getJarPathForClass(classOf[TByteArrayList]))
 
-    val pluginRoot = new File(PathUtil.getJarPathForClass(getClass)).getParent
+    val pluginRoot =
+      if (ApplicationManager.getApplication.isUnitTestMode) new File(System.getProperty("plugin.path"), "lib").getCanonicalPath
+      else new File(PathUtil.getJarPathForClass(getClass)).getParent
     val jpsRoot = new File(pluginRoot, "jps")
 
     Seq(
