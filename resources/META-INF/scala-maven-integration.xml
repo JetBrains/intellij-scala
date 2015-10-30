@@ -19,4 +19,7 @@
   <extensions xmlns="org.jetbrains.idea.maven">
     <importer implementation="org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter"/>
   </extensions>
+  <extensions defaultExtensionNs="org.intellij.scala">
+    <mavenWorkingDirectoryProvider implementation="org.jetbrains.plugins.scala.project.maven.MavenWorkingDirectoryProviderImpl"/>
+  </extensions>
 </idea-plugin>

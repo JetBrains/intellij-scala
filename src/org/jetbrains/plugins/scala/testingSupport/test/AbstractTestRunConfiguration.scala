@@ -23,7 +23,6 @@ import com.intellij.openapi.util.{Computable, Getter, JDOMExternalizer}
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import org.jdom.Element
-import org.jetbrains.idea.maven.project.MavenProjectsManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
@@ -31,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.maven.MavenWorkingDirectoryProvider
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.PropertiesExtension
@@ -121,22 +121,16 @@ abstract class AbstractTestRunConfiguration(val project: Project,
 
   private def provideDefaultWorkingDir = {
     val module = getModule
-    val mavenProject =
-      if (module != null) {
-        MavenProjectsManager.getInstance(project).findProject(module)
-      } else {
-        null
+    MavenWorkingDirectoryProvider.EP_NAME.getExtensions.find(_.getWorkingDirectory(module) != null) match {
+        case Some(provider) => provider.getWorkingDirectory(module)
+        case _ =>
+          val base = getProject.getBaseDir
+          if (base != null) {
+            base.getPath
+          } else {
+            ""
+          }
       }
-    if (mavenProject != null) {
-      mavenProject.getDirectory
-    } else {
-      val base = getProject.getBaseDir
-      if (base != null) {
-        base.getPath
-      } else {
-        ""
-      }
-    }
   }
 
   @BeanProperty
