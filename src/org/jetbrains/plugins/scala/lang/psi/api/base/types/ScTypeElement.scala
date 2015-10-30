@@ -5,18 +5,18 @@ package api
 package base
 package types
 
-import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext, TypingContextOwner}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 
 /**
 * @author Alexander Podkhalyuzin
 */
 
 trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
-  @CachedWithRecursionGuard[ScTypeElement](this, Failure("Recursive type of type element", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedWithRecursionGuard[ScTypeElement](this, Failure("Recursive type of type element", Some(this)),
+    ModCount.getBlockModificationCount)
   def getType(ctx: TypingContext): TypeResult[ScType] = innerType(ctx)
 
   override def toString: String = super.toString

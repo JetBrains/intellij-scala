@@ -7,7 +7,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import com.intellij.psi.util.{CachedValue, PsiModificationTracker, PsiTreeUtil}
+import com.intellij.psi.util.{CachedValue, PsiTreeUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedMappedWithRecursionGuard
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 
@@ -78,14 +78,14 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
     buffer.toSeq
   }
 
-  @CachedMappedWithRecursionGuard(place, Seq.empty, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedMappedWithRecursionGuard(place, Seq.empty, ModCount.getBlockModificationCount)
   def implicitMapFirstPart(exp: Option[ScType] = None,
                   fromUnder: Boolean = false,
                   exprType: Option[ScType] = None): Seq[ImplicitResolveResult] = {
     buildImplicitMap(exp, fromUnder, isFromCompanion = false, Seq.empty, exprType)
   }
 
-  @CachedMappedWithRecursionGuard(place, Seq.empty, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedMappedWithRecursionGuard(place, Seq.empty, ModCount.getBlockModificationCount)
   def implicitMapSecondPart(exp: Option[ScType] = None,
                             fromUnder: Boolean = false,
                             args: Seq[ScType] = Seq.empty,
@@ -154,7 +154,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
     result.toSeq
   }
 
-  @CachedMappedWithRecursionGuard(place, ArrayBuffer.empty, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedMappedWithRecursionGuard(place, ArrayBuffer.empty, ModCount.getBlockModificationCount)
   private def buildSimpleImplicitMap(fromUnder: Boolean, exprType: Option[ScType] = None): ArrayBuffer[ImplicitMapResult] = {
     ScalaPsiUtil.debug(s"Simple implicit map: $exprType", LOG)
 

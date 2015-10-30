@@ -7,6 +7,7 @@ package expr
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiModificationTracker
+import com.intellij.psi.util.PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -22,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedMappedWithRecursionGuard
+import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedMappedWithRecursionGuard}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -42,7 +43,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
    *                        this parameter is useful for refactorings (introduce variable)
    */
   @CachedMappedWithRecursionGuard(this, ExpressionTypeResult(Failure("Recursive getTypeAfterImplicitConversion",
-    Some(this)), Set.empty, None), PsiModificationTracker.MODIFICATION_COUNT)
+    Some(this)), Set.empty, None), ModCount.getBlockModificationCount)
   def getTypeAfterImplicitConversion(checkImplicits: Boolean = true, isShape: Boolean = false,
                                      expectedOption: Option[ScType] = None,
                                      ignoreBaseTypes: Boolean = false,
@@ -134,7 +135,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     }
   }
 
-  @CachedMappedWithRecursionGuard(this, Failure("Recursive getTypeWithoutImplicits", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedMappedWithRecursionGuard(this, Failure("Recursive getTypeWithoutImplicits", Some(this)),
+    ModCount.getBlockModificationCount)
   private def getTypeWithoutImplicitsImpl(ignoreBaseTypes: Boolean, fromUnderscore: Boolean): TypeResult[ScType] = {
     val inner = getNonValueType(TypingContext.empty, ignoreBaseTypes, fromUnderscore)
     inner match {
@@ -363,7 +365,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     }
   }
 
-  @CachedMappedWithRecursionGuard(this, Failure("Recursive getNonValueType", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedMappedWithRecursionGuard(this, Failure("Recursive getNonValueType", Some(this)), ModCount.getBlockModificationCount)
   private def getNonValueTypeImpl(ignoreBaseType: Boolean, fromUnderscore: Boolean): TypeResult[ScType] = {
     if (fromUnderscore) innerType(TypingContext.empty)
     else {
@@ -428,12 +430,12 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
   def expectedTypes(fromUnderscore: Boolean = true): Array[ScType] = expectedTypesEx(fromUnderscore).map(_._1)
 
-  @CachedMappedWithRecursionGuard(this, Array.empty[(ScType, Option[ScTypeElement])], PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedMappedWithRecursionGuard(this, Array.empty[(ScType, Option[ScTypeElement])], ModCount.getBlockModificationCount)
   def expectedTypesEx(fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
     ExpectedTypes.expectedExprTypes(this, fromUnderscore = fromUnderscore)
   }
 
-  @CachedMappedWithRecursionGuard(this, None, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedMappedWithRecursionGuard(this, None, ModCount.getBlockModificationCount)
   def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = ExpectedTypes.smartExpectedType(this, fromUnderscore)
 
   @volatile
@@ -524,7 +526,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     res
   }
 
-  @CachedMappedWithRecursionGuard(this, Array.empty[ScalaResolveResult], PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedMappedWithRecursionGuard(this, Array.empty[ScalaResolveResult], ModCount.getBlockModificationCount)
   def applyShapeResolveForExpectedType(tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation]): Array[ScalaResolveResult] = {
     val applyProc =
       new MethodResolveProcessor(this, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */,

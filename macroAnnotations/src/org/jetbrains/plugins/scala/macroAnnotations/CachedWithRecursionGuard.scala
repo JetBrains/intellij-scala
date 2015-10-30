@@ -29,13 +29,13 @@ object CachedWithRecursionGuard {
 
     def parameters: (Tree, Tree, Tree, Tree, Boolean) = c.prefix.tree match {
       case q"new CachedWithRecursionGuard[$t](..$params)" if params.length == 3 =>
-        (params.head, params(1), params(2), t, false) //false is for default parameter
+        (params.head, params(1), modCountParamToModTracker(c)(params(2), params.head), t, false) //false is for default parameter
       case q"new CachedWithRecursionGuard[$t](..$params)" if params.length == 4 =>
         val optional = params.last match {
           case q"useOptionalProvider = $v" => c.eval[Boolean](c.Expr(v))
           case q"$v" => c.eval[Boolean](c.Expr(v))
         }
-        (params.head, params(1), params(2), t, optional)
+        (params.head, params(1), modCountParamToModTracker(c)(params(2), params.head), t, optional)
       case _ => abort("Wrong annotation parameters!")
     }
 
@@ -52,6 +52,7 @@ object CachedWithRecursionGuard {
         val keyId = c.freshName(name.toString + "cacheKey")
         val keyVarName = TermName(c.freshName(name.toString + "Key"))
         val cacheStatsName = TermName(c.freshName("cacheStats"))
+        val dependencyItemName = generateTermName("dependencyItem")
         val analyzeCaches = CachedMacroUtil.analyzeCachesEnabled(c)
         val defdefFQN = q"""getClass.getName ++ "." ++ ${name.toString}"""
 
@@ -59,12 +60,10 @@ object CachedWithRecursionGuard {
           if (useOptionalProvider) TypeName("MyOptionalProvider")
           else TypeName("MyProvider")
 
-
-
         val cachedFunRHS = transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
 
         val fun = q"def $cachedFunName(): $retTp = $cachedFunRHS"
-        val builder = q"new $cachesUtilFQN.$provider[$providerType, $retTp]($element, _ => $cachedFunName())($dependencyItem)"
+        val builder = q"new $cachesUtilFQN.$provider[$providerType, $retTp]($element, _ => $cachedFunName())($dependencyItemName)"
 
         val updatedRhs = q"""
           ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}
@@ -74,6 +73,8 @@ object CachedWithRecursionGuard {
         val updatedDef = DefDef(mods, name, tpParams, params, retTp, updatedRhs)
         val res = q"""
           private val $keyVarName = $cachesUtilFQN.getOrCreateKey[$keyTypeFQN[$cachedValueTypeFQN[$retTp]]]($keyId)
+          private val $dependencyItemName = $dependencyItem
+
           ${if (analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)" else EmptyTree}
 
           ..$updatedDef
