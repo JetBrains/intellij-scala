@@ -7,6 +7,7 @@ package patterns
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiModificationTracker
+import com.intellij.psi.util.PsiModificationTracker._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -21,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
+import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedInsidePsiElement}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project._
 
@@ -220,7 +221,7 @@ trait ScPattern extends ScalaPsiElement {
     }
   }
 
-  @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def expectedType: Option[ScType] = getContext match {
     case list : ScPatternList => list.getContext match {
       case _var : ScVariable => Some(_var.getType(TypingContext.empty) match {

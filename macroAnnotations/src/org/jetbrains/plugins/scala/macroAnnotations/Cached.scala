@@ -18,7 +18,7 @@ import scala.reflect.macros.whitebox
   * Author: Svyatoslav Ilinskiy
   * Date: 9/18/15.
   */
-class Cached(synchronized: Boolean, modificationCount: ModCount, psiManager: Any) extends StaticAnnotation {
+class Cached(synchronized: Boolean, modificationCount: ModCount, psiElement: Any) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro Cached.cachedImpl
 }
 
@@ -45,14 +45,14 @@ object Cached {
             case q"$v" => c.eval[Boolean](c.Expr(v))
           }
           val modCount: ModCount.Value = modCountParam(params(1))
-          val manager = params(2)
-          (synch, modCount, manager)
+          val psiElement = params(2)
+          (synch, modCount, psiElement)
         case _ => abort("Wrong parameters")
       }
     }
 
     //annotation parameters
-    val (synchronized, modCount, manager) = parameters
+    val (synchronized, modCount, psiElement) = parameters
 
     annottees.toList match {
       case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
@@ -138,11 +138,18 @@ object Cached {
           }
 
         val actualCalculation = transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
+
+        val currModCount = modCount match {
+          case ModCount.getBlockModificationCount =>
+            q"val currModCount = org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getMyModificationCount($psiElement)"
+          case _ =>
+            q"val currModCount = $psiElement.getManager.getModificationTracker.${TermName(modCount.toString)}"
+        }
         val updatedRhs = q"""
           def $cachedFunName(): $retTp = {
             $actualCalculation
           }
-          val currModCount = $manager.getModificationTracker.${TermName(modCount.toString)}
+          ..$currModCount
           def cacheHasExpired(opt: Option[Any], cacheCount: Long) = opt.isEmpty || currModCount != cacheCount
           ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}
           $functionContentsInSynchronizedBlock

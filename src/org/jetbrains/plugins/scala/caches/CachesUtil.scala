@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 import scala.util.control.ControlThrowable
@@ -260,8 +261,8 @@ object CachesUtil {
     result
   }
 
-  def getDependentItem(element: PsiElement,
-                       dep_item: Object = PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT): Option[Object] = {
+  //def getDependentItem(element: PsiElement)(dep_item: Object = PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT): Option[Object] = {
+  def getDependentItem(element: PsiElement)(dep_item: Object = enclosingBlockExprModTrackerOrOutOfCodeBlockModTracker(element)): Option[Object] = {
     element.getContainingFile match {
       case file: ScalaFile if file.isCompiled =>
         if (!ProjectRootManager.getInstance(element.getProject).getFileIndex.isInContent(file.getVirtualFile)) {
@@ -275,6 +276,13 @@ object CachesUtil {
         Some(ProjectRootManager.getInstance(element.getProject))
       case cls: ClsFileImpl => Some(ProjectRootManager.getInstance(element.getProject))
       case _ => Some(dep_item)
+    }
+  }
+
+  def enclosingBlockExprModTrackerOrOutOfCodeBlockModTracker(elem: PsiElement): Object = {
+    Option(PsiTreeUtil.getParentOfType(elem, classOf[ScBlockExprImpl])) match {
+      case Some(block) if block.shouldChangeModificationCount(elem) => block.getModificationTracker
+      case _ => PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT
     }
   }
 

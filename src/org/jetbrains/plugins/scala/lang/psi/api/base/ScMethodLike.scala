@@ -6,11 +6,13 @@ package base
 
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.util.PsiModificationTracker
+import com.intellij.psi.util.PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
+import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedInsidePsiElement}
 
 /**
  * A member that can be converted to a ScMethodType, ie a method or a constructor.
@@ -27,7 +29,7 @@ trait ScMethodLike extends ScMember with PsiMethod {
    * in that context it will have different meaning. See SCL-3095.
    * @return generated type parameters only for constructors
    */
-  @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def getConstructorTypeParameters: Option[ScTypeParamClause] = {
     this match {
       case method: PsiMethod if method.isConstructor =>
