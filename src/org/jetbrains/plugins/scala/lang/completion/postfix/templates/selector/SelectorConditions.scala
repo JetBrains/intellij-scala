@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector
 
-import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.PsiElement
@@ -8,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.types.{Boolean => BooleanType, ScType, ValType}
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import scala.language.implicitConversions
 
 /**
@@ -31,7 +31,7 @@ object SelectorConditions {
         val manager = ScalaPsiManager.instance(project)
         expr.getTypeIgnoreBaseType().toOption.flatMap{exprType => ScType.extractClass(exprType, Option(project)).map{ psiClass =>
           val base = manager.getCachedClass(ancestorFqn, GlobalSearchScope.allScope(project), ClassCategory.ALL)
-          (psiClass != null && base != null && PsiEquivalenceUtil.areElementsEquivalent(psiClass, base)) ||
+          (psiClass != null && base != null && ScEquivalenceUtil.areClassesEquivalent(psiClass, base)) ||
                   manager.cachedDeepIsInheritor(psiClass, base)}}.getOrElse(false)
       case _ => false
     }

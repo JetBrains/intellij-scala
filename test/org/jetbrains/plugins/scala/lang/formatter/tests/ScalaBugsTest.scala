@@ -909,4 +909,26 @@ bars foreach {case (x, y) => list.add(x + y)}
 
     doTextTest(before, after)
   }
+
+  def testSCL7898(): Unit = {
+    getCommonSettings.KEEP_FIRST_COLUMN_COMMENT = true
+
+    val before =
+      """
+        |class Test {
+        |  println(a)
+        |//  println(b)
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class Test {
+        |  println(a)
+        |//  println(b)
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
 }

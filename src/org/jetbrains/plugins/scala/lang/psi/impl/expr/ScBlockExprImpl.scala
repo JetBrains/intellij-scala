@@ -31,7 +31,7 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
 
   override def toString: String = "BlockExpression"
 
-  override def hasCaseClauses: Boolean = caseClauses != None
+  override def hasCaseClauses: Boolean = caseClauses.isDefined
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](aClass: Class[T]): Array[T] = {
     val result: util.List[T] = new util.ArrayList[T]

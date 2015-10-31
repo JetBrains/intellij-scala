@@ -36,8 +36,7 @@ class MergeElseIfIntentionTest extends ScalaIntentionTestBase {
         |    val a: Int = 0
         |    if (a == 9) {
         |      System.out.println("if1")
-        |    } el<caret>se
-        |    if (a == 8) {
+        |    } el<caret>se if (a == 8) {
         |      System.out.println("if2")
         |    } else {
         |      System.out.println("else")
@@ -71,8 +70,7 @@ class MergeElseIfIntentionTest extends ScalaIntentionTestBase {
         |  def mthd() {
         |    val a: Int = 0
         |    if (a == 9) System.out.println("if1")
-        |    el<caret>se
-        |    if (a == 8)
+        |    el<caret>se if (a == 8)
         |      System.out.println("if2")
         |    else
         |      System.out.println("else")
@@ -108,8 +106,7 @@ class MergeElseIfIntentionTest extends ScalaIntentionTestBase {
         |    val a: Int = 0
         |    if (a == 9) {
         |      System.out.println("if1")
-        |    } el<caret>se
-        |    if (a == 8)
+        |    } el<caret>se if (a == 8)
         |      System.out.println("if2")
         |    else {
         |      System.out.println("else")
@@ -145,8 +142,7 @@ class MergeElseIfIntentionTest extends ScalaIntentionTestBase {
         |    val a: Int = 0
         |    if (a == 9) {
         |      System.out.println("if1")
-        |    } el<caret>se
-        |    if (a == 8)
+        |    } el<caret>se if (a == 8)
         |      System.out.println("if2")
         |    else
         |      System.out.println("else")
@@ -180,8 +176,7 @@ class MergeElseIfIntentionTest extends ScalaIntentionTestBase {
         |  def mthd() {
         |    val a: Int = 0
         |    if (a == 9) System.out.println("if1")
-        |    else<caret>
-        |    if (a == 8)
+        |    else<caret> if (a == 8)
         |      System.out.println("if2")
         |    else
         |      System.out.println("else")
@@ -213,8 +208,7 @@ class MergeElseIfIntentionTest extends ScalaIntentionTestBase {
         |  def mthd() {
         |    val a: Int = 0
         |    if (a == 9) System.out.println("if1")
-        |    else<caret>
-        |    if (a == 8)
+        |    else<caret> if (a == 8)
         |      System.out.println("if2")
         |  }
         |}

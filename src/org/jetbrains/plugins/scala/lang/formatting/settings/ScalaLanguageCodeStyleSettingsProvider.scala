@@ -104,7 +104,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       buffer ++= Seq("CLASS_ANNOTATION_WRAP", "METHOD_ANNOTATION_WRAP", "FIELD_ANNOTATION_WRAP",
         "PARAMETER_ANNOTATION_WRAP", "VARIABLE_ANNOTATION_WRAP")
 
-      buffer ++= Seq("KEEP_SIMPLE_BLOCKS_IN_ONE_LINE", "KEEP_SIMPLE_METHODS_IN_ONE_LINE")
+      buffer ++= Seq("KEEP_SIMPLE_BLOCKS_IN_ONE_LINE", "KEEP_SIMPLE_METHODS_IN_ONE_LINE", "KEEP_FIRST_COLUMN_COMMENT")
     }
 
     consumer.showStandardOptions(buffer.toArray:_*)
@@ -182,6 +182,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     indentOptions.INDENT_SIZE = 2
     indentOptions.TAB_SIZE = 2
     indentOptions.CONTINUATION_INDENT_SIZE = 2
+    commonCodeStyleSettings.KEEP_FIRST_COLUMN_COMMENT = false //added here to comply with prior default behavior
     commonCodeStyleSettings
   }
 
