@@ -308,7 +308,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
 
   override def isFinalType = actualElement match {
     case cl: PsiClass if cl.isEffectivelyFinal => true
-    case alias: ScTypeAliasDefinition => alias.aliasedType.map(_.isFinalType).getOrElse(false)
+    case alias: ScTypeAliasDefinition => alias.aliasedType.exists(_.isFinalType)
     case _ => false
   }
 
