@@ -133,25 +133,19 @@ object ScalaApplicationConfigurationProducer {
   /**
    * This is not for Java only. However it uses getClasses, to have possibility use [[com.intellij.psi.util.PsiMethodUtil.findMainInClass]]
    */
-  def getMainClass(_element: PsiElement): PsiClass = {
+  def getMainClass(_element: PsiElement, firstTemplateDefOnly: Boolean = false): PsiClass = {
     var element = _element
     while (element != null) {
       element match {
         case clazz: PsiClassWrapper =>
-          if (PsiMethodUtil.findMainInClass(clazz) != null) {
-            return clazz
-          }
+          if (PsiMethodUtil.findMainInClass(clazz) != null) return clazz else if (firstTemplateDefOnly) return null
         case o: ScObject =>
           val aClass = o.fakeCompanionClassOrCompanionClass
-          if (PsiMethodUtil.findMainInClass(aClass) != null) {
-            return aClass
-          }
-        case file: ScalaFile =>
+          if (PsiMethodUtil.findMainInClass(aClass) != null) return aClass else if (firstTemplateDefOnly) return null
+        case file: ScalaFile if !firstTemplateDefOnly =>
           val classes: Array[PsiClass] = file.getClasses //this call is ok
           for (aClass <- classes) {
-            if (PsiMethodUtil.findMainInClass(aClass) != null) {
-              return aClass
-            }
+            if (PsiMethodUtil.findMainInClass(aClass) != null) return aClass
           }
         case _ =>
       }
@@ -160,7 +154,7 @@ object ScalaApplicationConfigurationProducer {
     null
   }
   
-  def findMain(_element: PsiElement): PsiMethod = {
+  def findMain(_element: PsiElement, firstContMethodOnly: Boolean = false): PsiMethod = {
     var element = _element
     var method: PsiMethod = getContainingMethod(element)
     while (method != null) {
@@ -180,7 +174,7 @@ object ScalaApplicationConfigurationProducer {
       }
       isMainMethod(method) match {
         case Some(mainMethod) => return mainMethod
-        case _ => element = method.getParent
+        case _ => if (firstContMethodOnly) return null else element = method.getParent
       }
       method = getContainingMethod(element)
     }
