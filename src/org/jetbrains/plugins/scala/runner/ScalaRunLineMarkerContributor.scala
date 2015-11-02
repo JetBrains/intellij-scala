@@ -15,8 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 class ScalaRunLineMarkerContributor extends RunLineMarkerContributor {
   override def getInfo(element: PsiElement): Info = 
     if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) element.getParent match {
-      case fun: ScFunctionDefinition if ScalaApplicationConfigurationProducer.findMain(fun) != null => createInfo(1)
-      case obj: ScObject if ScalaApplicationConfigurationProducer.getMainClass(element) != null => createInfo(0)
+      case fun: ScFunctionDefinition if ScalaApplicationConfigurationProducer.findMain(fun, firstContMethodOnly = true) != null => createInfo(1)
+      case obj: ScObject if ScalaApplicationConfigurationProducer.getMainClass(element, firstTemplateDefOnly = true) != null => createInfo(0)
       case _ => null
     } else null
   
