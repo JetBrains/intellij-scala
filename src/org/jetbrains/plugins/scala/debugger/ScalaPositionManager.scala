@@ -639,7 +639,10 @@ object ScalaPositionManager {
 
       def findParent(element: PsiElement): Option[PsiElement] = {
         val parentsOnTheLine = element.parentsInFile.takeWhile(e => e.getTextOffset > startLine).toIndexedSeq
-        val lambda = parentsOnTheLine.find(isLambda)
+        val anon = parentsOnTheLine.collectFirst {
+          case e if isLambda(e) => e
+          case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) => newTd
+        }
         val filteredParents = parentsOnTheLine.reverse.filter {
           case _: ScExpression => true
           case _: ScConstructorPattern | _: ScInfixPattern | _: ScBindingPattern => true
@@ -648,7 +651,7 @@ object ScalaPositionManager {
         }
         val maxExpressionPatternOrTypeDef =
           filteredParents.find(!_.isInstanceOf[ScBlock]).orElse(filteredParents.headOption)
-        Seq(lambda, maxExpressionPatternOrTypeDef).flatten.sortBy(_.getTextLength).headOption
+        Seq(anon, maxExpressionPatternOrTypeDef).flatten.sortBy(_.getTextLength).headOption
       }
       elementsOnTheLine(file, lineNumber).flatMap(findParent).distinct
     }

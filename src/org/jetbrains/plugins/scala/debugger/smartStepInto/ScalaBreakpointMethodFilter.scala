@@ -77,7 +77,7 @@ object ScalaBreakpointMethodFilter {
       from(Some(pc), statements, exprLines)
     case fake: FakePsiMethod =>
       fake.navElement match {
-        case newTp: ScNewTemplateDefinition => from(Some(fake), stmtsForTemplate(newTp), exprLines)
+        case newTp: ScNewTemplateDefinition => from(Some(fake), newTp +: stmtsForTemplate(newTp), exprLines)
         case _ => None
       }
     case _ => None
