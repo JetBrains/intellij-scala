@@ -49,7 +49,7 @@ object ScalaWrapManager {
         return wrapBinary(_.isInstanceOf[ScInfixExpr], _.asInstanceOf[ScInfixExpr].operation, assignments = true)
       }
       case psi: ScInfixPattern => {
-        return wrapBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].refernece, assignments = false)
+        return wrapBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].reference, assignments = false)
       }
       case psi: ScInfixTypeElement => {
         return wrapBinary(_.isInstanceOf[ScInfixTypeElement], _.asInstanceOf[ScInfixTypeElement].ref, assignments = false)
@@ -135,7 +135,7 @@ object ScalaWrapManager {
                             _.asInstanceOf[ScInfixExpr].rOp, _.asInstanceOf[ScInfixExpr].lOp)
       }
       case inf: ScInfixPattern => {
-        return arrageBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].refernece,
+        return arrageBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].reference,
                             _.asInstanceOf[ScInfixPattern].rightPattern.orNull,
                             _.asInstanceOf[ScInfixPattern].leftPattern)
       }

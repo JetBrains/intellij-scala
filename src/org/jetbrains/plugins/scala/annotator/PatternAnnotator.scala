@@ -143,7 +143,7 @@ object PatternAnnotator {
       case c: ScConstructorPattern =>
         constrPatternType(c.ref)
       case inf: ScInfixPattern =>
-        constrPatternType(inf.refernece)
+        constrPatternType(inf.reference)
       case tuple: ScTuplePattern =>
         val project = pattern.getProject
         val subPat = tuple.subpatterns

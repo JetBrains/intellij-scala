@@ -244,7 +244,7 @@ trait ScPattern extends ScalaPsiElement {
         if (this.isInstanceOf[ScTuplePattern]) return None
         1
       }
-      expectedTypeForExtractorArg(infix.refernece, i, infix.expectedType, 2)
+      expectedTypeForExtractorArg(infix.reference, i, infix.expectedType, 2)
     case par: ScParenthesisedPattern => par.expectedType
     case patternList : ScPatterns => patternList.getContext match {
       case tuple : ScTuplePattern =>
@@ -260,7 +260,7 @@ trait ScPattern extends ScalaPsiElement {
                 case Some(pat) => pat.patterns.length
                 case _ => -1 //is it possible to get here?
               }
-              return expectedTypeForExtractorArg(infix.refernece, i + 1, infix.expectedType, patternLength)
+              return expectedTypeForExtractorArg(infix.reference, i + 1, infix.expectedType, patternLength)
             }
           case _ =>
         }
