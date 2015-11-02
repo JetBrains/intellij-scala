@@ -198,7 +198,7 @@ class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
 
       val ref = pat match {
         case cp: ScConstructorPattern =>  Some(cp.ref)
-        case ip: ScInfixPattern => Some(ip.refernece)
+        case ip: ScInfixPattern => Some(ip.reference)
         case _ => None
       }
       ref match {
