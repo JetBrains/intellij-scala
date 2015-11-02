@@ -67,7 +67,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
       if (accessibility && !accessible) return true
 
       val s = fromType match {
-        case Some(tp) => getSubst(state).addUpdateThisType(tp)
+        case Some(tp) => getSubst(state).followUpdateThisType(tp)
         case _ => getSubst(state)
       }
       element match {

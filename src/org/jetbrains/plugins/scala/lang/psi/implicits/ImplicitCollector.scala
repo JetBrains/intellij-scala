@@ -162,7 +162,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
       val named = element.asInstanceOf[PsiNamedElement]
       def fromType: Option[ScType] = state.get(BaseProcessor.FROM_TYPE_KEY).toOption
       lazy val subst: ScSubstitutor = fromType match {
-        case Some(tp) => getSubst(state).addUpdateThisType(tp)
+        case Some(tp) => getSubst(state).followUpdateThisType(tp)
         case _ => getSubst(state)
       }
       named match {

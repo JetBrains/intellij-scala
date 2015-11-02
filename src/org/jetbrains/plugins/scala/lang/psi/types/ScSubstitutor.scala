@@ -87,7 +87,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     res
   }
 
-  def addUpdateThisType(tp: ScType): ScSubstitutor = {
+  def followUpdateThisType(tp: ScType): ScSubstitutor = {
     tp match {
       case ScThisType(template) =>
         var zSubst = new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(template)))
@@ -101,8 +101,8 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
           }
           placer = placer.getContext
         }
-        this.followed(zSubst)
-      case _ => this.followed(new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
+        zSubst.followed(this)
+      case _ => new ScSubstitutor(Map.empty, Map.empty, Some(tp)).followed(this)
     }
   }
   def followed(s: ScSubstitutor): ScSubstitutor = followed(s, 0)
