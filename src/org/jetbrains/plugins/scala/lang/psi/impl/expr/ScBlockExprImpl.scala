@@ -9,14 +9,13 @@ import java.util
 import java.util.concurrent.atomic.AtomicLong
 
 import com.intellij.openapi.util.ModificationTracker
-import com.intellij.psi.impl.PsiModificationTrackerImpl
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor, PsiModifiableCodeBlock}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 
 import scala.annotation.tailrec
 
@@ -62,9 +61,7 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
   }
 
   override def subtreeChanged(): Unit = {
-    if (shouldChangeModificationCount(this)) {
-      blockModificationCount.incrementAndGet()
-    }
+    blockModificationCount.incrementAndGet()
     super.subtreeChanged()
   }
 
