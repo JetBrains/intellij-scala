@@ -839,8 +839,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val exprText = s"($invokedText).update$args"
           val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, stmt.getContext, stmt)
           evaluatorFor(expr)
-        case ResolvesTo(ScalaPsiUtil.inNameContext(pd: ScPatternDefinition)) =>
-          throw EvaluationException("Cannot evaluate assignment to val")
         case _ =>
           val leftEvaluator = evaluatorFor(stmt.getLExpression)
           val rightEvaluator = stmt.getRExpression match {
