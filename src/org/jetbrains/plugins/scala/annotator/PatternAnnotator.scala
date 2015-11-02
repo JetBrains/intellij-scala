@@ -3,7 +3,8 @@ package annotator
 
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.ResolvesTo
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
@@ -61,17 +62,16 @@ object PatternAnnotator {
       case _ => false
     }
 
-    def stableReferencePatternResolvesToVar(stable: ScStableReferenceElementPattern): Boolean = {
-      stable.getReferenceExpression match {
-        case Some(ref) => ref.bind() match {
-          case Some(ScalaResolveResult(elem: ScClassParameter, _)) => elem.isVar
-          case Some(ScalaResolveResult(elem, _)) => elem.parent.flatMap(_.parent) match {
-            case Some(_: ScVariable) => true
+    object StableIdResolvesToVar {
+      def unapply(stable: ScStableReferenceElementPattern): Boolean = {
+        stable.getReferenceExpression.orNull match {
+          case ResolvesTo(ScalaPsiUtil.inNameContext(nameCtx)) => nameCtx match {
+            case param: ScClassParameter => param.isVar
+            case _: ScVariable => true
             case _ => false
           }
           case _ => false
         }
-        case _ => false
       }
     }
 
@@ -100,8 +100,8 @@ object PatternAnnotator {
         val (exprTypeText, patTypeText) = ScTypePresentation.different(exprType, patType)
         val message = ScalaBundle.message("fruitless.type.test", exprTypeText, patTypeText) + erasureWarn
         holder.createWarningAnnotation(pattern, message)
-      case stable: ScStableReferenceElementPattern if stableReferencePatternResolvesToVar(stable) =>
-        val message = ScalaBundle.message("stable.identifier.required", stable.getText)
+      case StableIdResolvesToVar() =>
+        val message = ScalaBundle.message("stable.identifier.required", pattern.getText)
         holder.createErrorAnnotation(pattern, message)
       case constr: ScConstructorPattern => //check number of arguments
         Option(constr.ref) match {
