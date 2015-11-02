@@ -94,9 +94,13 @@ trait LocationLineManager {
     def customizeLineForConstructors(): Unit = {
       //2.12 generates line number for return of constructor, it has no use in debugger
       def isReturnInstr(location: Location): Boolean = {
-        val bytecodes = location.method().bytecodes()
-        val index = location.codeIndex()
-        index >= 0 && index < bytecodes.length && bytecodes(index.toInt) == Opcodes.voidReturn
+        try {
+          val bytecodes = location.method().bytecodes()
+          val index = location.codeIndex()
+          bytecodes(index.toInt) == Opcodes.voidReturn
+        } catch {
+          case e: Throwable => false
+        }
       }
 
       def shouldPointAtStartLine(location: Location): Boolean = {
@@ -129,7 +133,9 @@ trait LocationLineManager {
     def customizeCaseClauses(): Unit = {
 
       def skipTypeCheckOptimization(method: Method, caseLineLocations: Seq[Location]): Unit = {
-        val bytecodes = method.bytecodes()
+        val bytecodes =
+          try method.bytecodes()
+          catch {case t: Throwable => return }
 
         def cacheCorrespondingIloadLocations(iconst_0Loc: Location): Unit = {
           val codeIndex = iconst_0Loc.codeIndex().toInt
@@ -155,7 +161,9 @@ trait LocationLineManager {
       }
 
       def skipReturnValueAssignment(method: Method, caseLinesLocations: Seq[Seq[Location]]): Unit = {
-        val bytecodes = method.bytecodes()
+        val bytecodes =
+          try method.bytecodes()
+          catch {case t: Throwable => return }
 
         def storeCode(location: Location): Option[Seq[Byte]] = {
           val codeIndex = location.codeIndex().toInt
@@ -184,8 +192,10 @@ trait LocationLineManager {
       def skipLoadExpressionValue(method: Method, baseLine: Int): Unit = {
         val locations = locationsOfLine(method, baseLine).filter(!customizedLocationsCache.contains(_))
         if (locations.size <= 1) return
-        
-        val bytecodes = method.bytecodes()
+
+        val bytecodes =
+          try method.bytecodes()
+          catch {case t: Throwable => return }
 
         val toSkip = locations.tail.filter {l =>
           BytecodeUtil.readLoadCode(l.codeIndex().toInt, bytecodes).nonEmpty
