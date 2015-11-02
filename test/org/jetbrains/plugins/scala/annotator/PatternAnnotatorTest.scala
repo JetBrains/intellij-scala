@@ -339,4 +339,20 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     checkError(code, "ONE", ScalaBundle.message("stable.identifier.required", "ONE"))
   }
 
+  def testInfixExpressionIncompatible(): Unit = {
+
+    val code =
+      """
+        |object Bar {
+        |  def main(args: Array[String]) {
+        |    1 match {
+        |      case foo appliedTo2 ("1", "2") =>
+        |    }
+        |  }
+        |  case class appliedTo2(name: String, arg1: String, arg2: String)
+        |}
+      """.stripMargin
+    checkError(code, "foo appliedTo2 (\"1\", \"2\")", patternTypeIncompatible("Bar.appliedTo2", "Int"))
+  }
+
 }
