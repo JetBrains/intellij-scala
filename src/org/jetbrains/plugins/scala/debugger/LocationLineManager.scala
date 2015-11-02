@@ -9,6 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.sun.jdi.{AbsentInformationException, Location, Method, ReferenceType}
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil.Opcodes
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement, ScMatchStmt, ScTryStmt}
@@ -91,7 +92,16 @@ trait LocationLineManager {
 
     //scalac sometimes generates very strange line numbers for <init> method
     def customizeLineForConstructors(): Unit = {
-      def shouldCustomize(location: Location): Boolean = {
+      //2.12 generates line number for return of constructor, it has no use in debugger
+      def isReturnInstr(location: Location): Boolean = {
+        val bytecodes = location.method().bytecodes()
+        val index = location.codeIndex()
+        index >= 0 && index < bytecodes.length && bytecodes(index.toInt) == Opcodes.voidReturn
+      }
+
+      def shouldPointAtStartLine(location: Location): Boolean = {
+        if (location.codeIndex() != 0) return false
+
         val lineNumber = ScalaPositionManager.checkedLineNumber(location)
         if (lineNumber < 0) return true
 
@@ -103,12 +113,16 @@ trait LocationLineManager {
 
       val methods = refType.methodsByName("<init>").asScala.filter(_.declaringType() == refType)
       for {
-        location <- methods.map(_.location())
-        if shouldCustomize(location)
+        location <- methods.flatMap(_.allLineLocations().asScala)
       } {
-        val significantElem = DebuggerUtil.getSignificantElement(generatingElem)
-        val lineNumber = elementStartLine(significantElem)
-        cacheCustomLine(location, lineNumber)
+        if (shouldPointAtStartLine(location)) {
+          val significantElem = DebuggerUtil.getSignificantElement(generatingElem)
+          val lineNumber = elementStartLine(significantElem)
+          cacheCustomLine(location, lineNumber)
+        }
+        else if (isReturnInstr(location)) {
+          cacheCustomLine(location, -1)
+        }
       }
     }
 
