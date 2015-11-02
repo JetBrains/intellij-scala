@@ -370,7 +370,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
     def execute(element: PsiElement, state: ResolveState): Boolean = {
       def fromType: Option[ScType] = state.get(BaseProcessor.FROM_TYPE_KEY).toOption
       lazy val subst: ScSubstitutor = fromType match {
-        case Some(tp) => getSubst(state).addUpdateThisType(tp)
+        case Some(tp) => getSubst(state).followUpdateThisType(tp)
         case _ => getSubst(state)
       }
 
