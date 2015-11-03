@@ -281,7 +281,7 @@ object CachesUtil {
 
   def enclosingBlockExprModTrackerOrOutOfCodeBlockModTracker(elem: PsiElement): Object = {
     Option(PsiTreeUtil.getParentOfType(elem, classOf[ScBlockExprImpl])) match {
-      case Some(block) if block.shouldChangeModificationCount(elem) => block.getModificationTracker
+      case Some(block) => block.getModificationTracker
       case _ => PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT
     }
   }
