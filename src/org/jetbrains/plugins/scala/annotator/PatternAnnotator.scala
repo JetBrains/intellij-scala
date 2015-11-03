@@ -103,17 +103,28 @@ object PatternAnnotator {
       case StableIdResolvesToVar() =>
         val message = ScalaBundle.message("stable.identifier.required", pattern.getText)
         holder.createErrorAnnotation(pattern, message)
-      case constr: ScConstructorPattern => //check number of arguments
-        Option(constr.ref) match {
+      case (_: ScConstructorPattern|_: ScInfixPattern) => //check number of arguments
+        val (reference, numPatterns) = pattern match {
+          case constr: ScConstructorPattern => (Option(constr.ref), constr.args.patterns.length)
+          case infix: ScInfixPattern =>
+            val numPatterns: Int = infix.rightPattern match {
+              case Some(right) => right.subpatterns match {
+                case Seq() => 2
+                case s => s.length + 1
+              }
+              case _ => 1
+            }
+            (Option(infix.reference), numPatterns)
+        }
+        reference match {
           case Some(ref) =>
             ref.bind() match {
               case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" => fun.returnType match {
                 case Success(rt, _) =>
                   val expected = ScPattern.expecteNumberOfExtractorArguments(rt, pattern, ScPattern.isOneArgCaseClassMethod(fun))
-                  val actual: Int = constr.args.patterns.length
-                  val unapplyReturnsBoolean = expected == 0
-                  if (expected != actual && (actual != 1 && !unapplyReturnsBoolean)) { //1 always fits if return type is Option[TupleN]
-                    val message = ScalaBundle.message("wrong.number.arguments.extractor", actual.toString, expected.toString)
+                  val tupleCrushingIsPresent = expected > 0 && numPatterns == 1
+                  if (expected != numPatterns   && !tupleCrushingIsPresent) { //1 always fits if return type is Option[TupleN]
+                    val message = ScalaBundle.message("wrong.number.arguments.extractor", numPatterns.toString, expected.toString)
                     holder.createErrorAnnotation(pattern, message)
                   }
                 case _ =>

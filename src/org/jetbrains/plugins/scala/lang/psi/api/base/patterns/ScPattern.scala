@@ -241,8 +241,22 @@ trait ScPattern extends ScalaPsiElement {
     case composite: ScCompositePattern => composite.expectedType
     case infix: ScInfixPattern =>
       val i = if (infix.leftPattern == this) 0 else {
-        if (this.isInstanceOf[ScTuplePattern]) return None
-        1
+        this match {
+          case tuple: ScTuplePattern => tuple.patternList match {
+            case Some(patList) =>
+              val patterns = patList.patterns
+              val flat = patterns.flatMap(_.expectedType)
+              if (flat.length == patterns.length) {
+                return Some(ScTupleType(flat)(getProject, getResolveScope))
+              } else return None //too many arguments, it should be handled elsewhere
+            case inParens: ScParenthesisedPattern =>
+              return expectedTypeForExtractorArg(infix.reference, 1, infix.expectedType, 2).map { tp =>
+                ScTupleType(Seq(tp))(getProject, getResolveScope)
+              }
+            case _ => 1
+          }
+          case _ => 1
+        }
       }
       expectedTypeForExtractorArg(infix.reference, i, infix.expectedType, 2)
     case par: ScParenthesisedPattern => par.expectedType
