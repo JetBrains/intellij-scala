@@ -50,9 +50,16 @@ abstract class ScalaValidator(conflictsReporter: ConflictsReporter,
     if (!increaseNumber) return ""
     var i = 1
     res = name + i
-    while (!isOKImpl(res, allOcc = true).isEmpty) {
-      i = i + 1
-      res = name + i
+    if (!ScalaNamesUtil.isIdentifier(res)) {
+      res = name + name.last
+      while (!isOKImpl(res, allOcc = true).isEmpty) {
+        res = name + name.last
+      }
+    } else {
+      while (!isOKImpl(res, allOcc = true).isEmpty) {
+        i = i + 1
+        res = name + i
+      }
     }
     res
   }
