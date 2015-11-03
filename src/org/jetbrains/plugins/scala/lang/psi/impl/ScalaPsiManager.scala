@@ -38,6 +38,7 @@ import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
+import scala.annotation.tailrec
 import scala.collection.{Seq, mutable}
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
@@ -328,9 +329,11 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   PsiManager.getInstance(project).addPsiTreeChangeListener(CacheInvalidator, project)
 
   object CacheInvalidator extends PsiTreeChangeAdapter {
+    @tailrec
     def updateModificationCount(elem: PsiElement): Unit = {
-      Option(PsiTreeUtil.getParentOfType(elem, classOf[ScBlockExprImpl])) match {
-        case Some(block) if !block.shouldChangeModificationCount(elem) => block.incModificationCount()
+      Option(PsiTreeUtil.getParentOfType(elem, classOf[ScBlockExprImpl], false)) match {
+        case Some(block) if block.isModificationCountOwner => block.incModificationCount()
+        case Some(block) => updateModificationCount(block.getContext)
         case _ =>
       }
     }

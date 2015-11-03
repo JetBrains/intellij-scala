@@ -48,7 +48,6 @@ object CachedMappedWithRecursionGuard {
         val keyId: String = c.freshName(name + "cacheKey")
         val key: c.universe.TermName = generateTermName(name + "Key")
         val cacheStatsName: c.universe.TermName = generateTermName(name + "cacheStats")
-        val dependencyItemName: c.universe.TermName = generateTermName("dependencyItemName")
         val defdefFQN = thisFunctionFQN(name.toString)
         val analyzeCaches = analyzeCachesEnabled(c)
 
@@ -80,7 +79,7 @@ object CachedMappedWithRecursionGuard {
           $builder
 
           $getMappedWithRecursionFQN[$psiElementType, $dataTypeName, $retTp]($element, $dataName, $key,
-            $cachedFunName, $defaultValue, $dependencyItemName)
+            $cachedFunName, $defaultValue, $dependencyItem)
         """
 
         val cacheStatsField =
@@ -91,7 +90,6 @@ object CachedMappedWithRecursionGuard {
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         val res = q"""
           private val $key = $cachesUtilFQN.getOrCreateKey[$mappedKeyTypeFQN[(..$parameterTypes), $retTp]]($keyId)
-          private val $dependencyItemName = $dependencyItem
           ..$cacheStatsField
 
           ..$updatedDef

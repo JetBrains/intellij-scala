@@ -5,11 +5,12 @@ package caches
 import java.util.concurrent.ConcurrentMap
 
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.{Computable, Key, RecursionGuard, RecursionManager}
+import com.intellij.openapi.util._
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -17,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
+import scala.annotation.tailrec
 import scala.util.control.ControlThrowable
 
 /**
@@ -279,9 +281,11 @@ object CachesUtil {
     }
   }
 
+  @tailrec
   def enclosingBlockExprModTrackerOrOutOfCodeBlockModTracker(elem: PsiElement): Object = {
     Option(PsiTreeUtil.getParentOfType(elem, classOf[ScBlockExprImpl])) match {
-      case Some(block) => block.getModificationTracker
+      case Some(block) if block.isModificationCountOwner => block.getModificationTracker
+      case Some(block) => enclosingBlockExprModTrackerOrOutOfCodeBlockModTracker(block)
       case _ => PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT
     }
   }

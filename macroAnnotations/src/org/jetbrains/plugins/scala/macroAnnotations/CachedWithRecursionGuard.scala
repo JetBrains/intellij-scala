@@ -52,7 +52,6 @@ object CachedWithRecursionGuard {
         val keyId = c.freshName(name.toString + "cacheKey")
         val keyVarName = TermName(c.freshName(name.toString + "Key"))
         val cacheStatsName = TermName(c.freshName("cacheStats"))
-        val dependencyItemName = generateTermName("dependencyItem")
         val analyzeCaches = CachedMacroUtil.analyzeCachesEnabled(c)
         val defdefFQN = q"""getClass.getName ++ "." ++ ${name.toString}"""
 
@@ -63,7 +62,7 @@ object CachedWithRecursionGuard {
         val cachedFunRHS = transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
 
         val fun = q"def $cachedFunName(): $retTp = $cachedFunRHS"
-        val builder = q"new $cachesUtilFQN.$provider[$providerType, $retTp]($element, _ => $cachedFunName())($dependencyItemName)"
+        val builder = q"new $cachesUtilFQN.$provider[$providerType, $retTp]($element, _ => $cachedFunName())($dependencyItem)"
 
         val updatedRhs = q"""
           ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}
@@ -73,7 +72,6 @@ object CachedWithRecursionGuard {
         val updatedDef = DefDef(mods, name, tpParams, params, retTp, updatedRhs)
         val res = q"""
           private val $keyVarName = $cachesUtilFQN.getOrCreateKey[$keyTypeFQN[$cachedValueTypeFQN[$retTp]]]($keyId)
-          private val $dependencyItemName = $dependencyItem
 
           ${if (analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)" else EmptyTree}
 

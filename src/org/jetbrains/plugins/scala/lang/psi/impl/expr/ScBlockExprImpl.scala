@@ -60,7 +60,22 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
     null
   }
 
-  def incModificationCount(): Long = blockModificationCount.incrementAndGet()
+  def isModificationCountOwner: Boolean = {
+    getContext match {
+      case f: ScFunction => f.returnTypeElement match {
+        case Some(ret) =>  true
+        case None => !f.hasAssign
+      }
+      case v: ScValue => v.declaredType.isDefined
+      case v: ScVariable => v.declaredType.isDefined
+      case _ => false
+    }
+  }
+
+  def incModificationCount(): Long = {
+    assert(isModificationCountOwner)
+    blockModificationCount.incrementAndGet()
+  }
 
   def shouldChangeModificationCount(place: PsiElement): Boolean = {
     var parent = getParent
@@ -85,8 +100,11 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
 
   def getRawModificationCount: Long = blockModificationCount.get()
 
-  def getModificationTracker: ModificationTracker = new ModificationTracker {
-    override def getModificationCount: Long = getThisBlockExprModificationCount
+  def getModificationTracker: ModificationTracker = {
+    assert(isModificationCountOwner)
+    new ModificationTracker {
+      override def getModificationCount: Long = getThisBlockExprModificationCount
+    }
   }
 
   def getThisBlockExprModificationCount: Long = {
@@ -94,7 +112,7 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
     def calc(place: PsiElement, sum: Long): Long = place match {
       case null => sum + PsiModificationTracker.SERVICE.getInstance(place.getProject).getOutOfCodeBlockModificationCount
       case file: ScalaFile => sum + file.getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-      case block: ScBlockExprImpl => calc(block.getContext, sum + block.getRawModificationCount)
+      case block: ScBlockExprImpl if block.isModificationCountOwner => calc(block.getContext, sum + block.getRawModificationCount)
       case _ => calc(place.getContext, sum)
     }
 
