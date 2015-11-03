@@ -51,7 +51,6 @@ object CachedInsidePsiElement {
         val keyId = c.freshName(name.toString + "cacheKey")
         val key = generateTermName(name + "Key")
         val cacheStatsName = generateTermName("cacheStats")
-        val dependencyItemName = generateTermName("dependencyItem")
         val defdefFQN = thisFunctionFQN(name.toString)
 
         val analyzeCaches = analyzeCachesEnabled(c)
@@ -67,13 +66,12 @@ object CachedInsidePsiElement {
         val updatedRhs = q"""
           def $cachedFunName(): $retTp = $actualCalculation
           ..$analyzeCachesEnterCacheArea
-          $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.$provider[Any, $retTp]($elem, _ => $cachedFunName())($dependencyItemName))
+          $cachesUtilFQN.get($elem, $key, new $cachesUtilFQN.$provider[Any, $retTp]($elem, _ => $cachedFunName())($dependencyItem))
           """
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)
         val res = q"""
           private val $key = $cachesUtilFQN.getOrCreateKey[$keyTypeFQN[$cachedValueTypeFQN[$retTp]]]($keyId)
           ${if (analyzeCaches) q"private val $cacheStatsName = $cacheStatisticsFQN($keyId, $defdefFQN)" else EmptyTree}
-          private val $dependencyItemName = $dependencyItem
 
           ..$updatedDef
           """
