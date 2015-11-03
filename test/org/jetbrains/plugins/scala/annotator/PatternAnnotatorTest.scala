@@ -324,6 +324,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
       Error("`two`", ScalaBundle.message("stable.identifier.required", "`two`")) ::
       Error("this.two", ScalaBundle.message("stable.identifier.required", "this.two")) :: Nil
     checkErrors(code, errors)
+    assertNoWarnings(code)
   }
 
   def testVarClassParameterAsStableIdPattern(): Unit = {
@@ -337,6 +338,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
         |}
       """.stripMargin
     checkError(code, "ONE", ScalaBundle.message("stable.identifier.required", "ONE"))
+    assertNoWarnings(code)
   }
 
   def testInfixExpressionIncompatible(): Unit = {
@@ -353,6 +355,69 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
         |}
       """.stripMargin
     checkError(code, "foo appliedTo2 (\"1\", \"2\")", patternTypeIncompatible("Bar.appliedTo2", "Int"))
+    assertNoWarnings(code)
+  }
+
+  def testInfixExpressionTooManyArguments(): Unit = {
+    val code =
+      """
+        |object Bar {
+        |  val x: AnyRef = null
+        |  x match {
+        |    case foo appliedTo2 ("1", "2", "3", "4") =>
+        |  }
+        |  case class appliedTo2(name: String, arg1: String, arg2: String)
+        |}
+      """.stripMargin
+    checkError(code, "foo appliedTo2 (\"1\", \"2\", \"3\", \"4\")",
+      ScalaBundle.message("wrong.number.arguments.extractor", "5", "3"))
+    assertNoWarnings(code)
+  }
+
+  def testInfixExpressionTooLittleArguments(): Unit = {
+    val code =
+      """
+        |object Bar {
+        |  val x: AnyRef = null
+        |  x match {
+        |    case foo appliedTo2 ("1", "2") =>
+        |    case foo appliedTo2 ("1") =>
+        |    case foo appliedTo2 () =>
+        |  }
+        |  case class appliedTo2(name: String, arg1: String, arg2: String)
+        |}
+      """.stripMargin
+    checkErrors(code, List(
+      Error("foo appliedTo2 (\"1\")", ScalaBundle.message("wrong.number.arguments.extractor", "2", "3")),
+      Error("foo appliedTo2 ()", ScalaBundle.message("wrong.number.arguments.extractor", "2", "3"))
+    ))
+    assertNoWarnings(code)
+  }
+
+  def testInfixExpressionVararsgs(): Unit = {
+    val code =
+      """
+        |object Bar {
+        |  object Bar {
+        |    val x: AnyRef = null
+        |    x match {
+        |      case foo appliedTo2 ("1", "2", "3", 4) =>
+        |      case foo appliedTo2 ("1", "2", "3") =>
+        |      case foo appliedTo2 ("1") =>
+        |      case foo appliedTo2 () =>
+        |    }
+        |  }
+        |
+        |
+        |  case class appliedTo2(name: String, arg1: String*)
+        |}
+      """.stripMargin
+    checkErrors(code, List(
+      Error("(\"1\", \"2\", \"3\", 4)",
+        patternTypeIncompatible("(String, String, String, Int)", "(String, String, String, String)")),
+      Error("4", patternTypeIncompatible("Int", "String"))
+    ))
+    assertNoWarnings(code)
   }
 
 }
