@@ -60,10 +60,7 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
     null
   }
 
-  override def subtreeChanged(): Unit = {
-    blockModificationCount.incrementAndGet()
-    super.subtreeChanged()
-  }
+  def incModificationCount(): Long = blockModificationCount.incrementAndGet()
 
   def shouldChangeModificationCount(place: PsiElement): Boolean = {
     var parent = getParent

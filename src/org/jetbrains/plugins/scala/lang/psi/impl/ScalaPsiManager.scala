@@ -5,7 +5,6 @@ package impl
 
 import java.util
 import java.util.Collections
-import java.util.concurrent.ConcurrentHashMap
 
 import com.intellij.ProjectTopics
 import com.intellij.openapi.components.ProjectComponent
@@ -16,7 +15,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.JavaPsiFacadeImpl
 import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.psi.stubs.StubIndex
-import com.intellij.psi.util.PsiModificationTracker
+import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
 import com.intellij.util.ArrayUtil
 import com.intellij.util.containers.WeakValueHashMap
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
@@ -25,6 +24,7 @@ import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticPackageCreator}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
@@ -322,6 +322,42 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     val keys = StubIndex.getInstance.getAllKeys(ScalaIndexKeys.STABLE_ALIAS_NAME_KEY, project)
     import scala.collection.JavaConversions._
     keys.toSeq
+  }
+
+
+  PsiManager.getInstance(project).addPsiTreeChangeListener(CacheInvalidator, project)
+
+  object CacheInvalidator extends PsiTreeChangeAdapter {
+    def updateModificationCount(elem: PsiElement): Unit = {
+      Option(PsiTreeUtil.getParentOfType(elem, classOf[ScBlockExprImpl])) match {
+        case Some(block) if !block.shouldChangeModificationCount(elem) => block.incModificationCount()
+        case _ =>
+      }
+    }
+
+    override def childRemoved(event: PsiTreeChangeEvent): Unit = {
+      updateModificationCount(event.getParent)
+    }
+
+    override def childReplaced(event: PsiTreeChangeEvent): Unit = {
+      updateModificationCount(event.getParent)
+    }
+
+    override def childAdded(event: PsiTreeChangeEvent): Unit = {
+      updateModificationCount(event.getParent)
+    }
+
+    override def childrenChanged(event: PsiTreeChangeEvent): Unit = {
+      updateModificationCount(event.getParent)
+    }
+
+    override def childMoved(event: PsiTreeChangeEvent): Unit = {
+      updateModificationCount(event.getParent)
+    }
+
+    override def propertyChanged(event: PsiTreeChangeEvent): Unit = {
+      updateModificationCount(event.getElement)
+    }
   }
 }
 
