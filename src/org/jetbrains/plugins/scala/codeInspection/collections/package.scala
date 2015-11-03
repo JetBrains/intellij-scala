@@ -78,6 +78,8 @@ package object collections {
   private[collections] val `.sameElements` = invocation("sameElements").from(likeCollectionClasses)
   private[collections] val `.corresponds` = invocation("corresponds").from(likeCollectionClasses)
 
+  private[collections] val `.to` = invocation("to").from(Array("RichInt", "RichChar", "RichLong", "RichDouble", "RichFloat").map("scala.runtime." + _))
+
   private[collections] val `!=` = invocation("!=")
   private[collections] val `==` = invocation(Set("==", "equals"))
   private[collections] val `>` = invocation(">")
