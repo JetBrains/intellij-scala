@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -245,51 +245,64 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   private def calcPosition(file: PsiFile, location: Location, lineNumber: Int): Option[SourcePosition] = {
     throwIfNotScalaFile(file)
 
-    val currentMethod = location.method()
-    if (!isAnonfun(currentMethod)) return Some(SourcePosition.createFromLine(file, lineNumber))
-
-    def calcElement(): Option[PsiElement] = {
-      val methodName = currentMethod.name()
-
-      val possiblePositions = positionsOnLine(file, lineNumber)
-      if (possiblePositions.size <= 1) return possiblePositions.headOption
-
-      def findDefaultArg: Option[PsiElement] = {
-        try {
-          val (start, index) = methodName.splitAt(methodName.lastIndexOf("$") + 1)
-          if (!start.endsWith("$default$")) return None
-
-          val paramNumber = index.toInt - 1
-          possiblePositions.find {
-            case e =>
-              val scParameters = PsiTreeUtil.getParentOfType(e, classOf[ScParameters])
-              if (scParameters != null) {
-                val param = scParameters.params(paramNumber)
-                param.isDefaultParam && param.isAncestorOf(e)
-              }
-              else false
-          }
-        } catch {
-          case e: Exception => None
-        }
+    def isDefaultArgument(method: Method) = {
+      val methodName = method.name()
+      val lastDollar = methodName.lastIndexOf("$")
+      if (lastDollar >= 0) {
+        val (start, index) = methodName.splitAt(lastDollar + 1)
+        (start.endsWith("$default$"), index)
       }
+      else (false, "")
+    }
 
-      val declaringType = location.declaringType()
+    def findDefaultArg(possiblePositions: Seq[PsiElement], defaultArgIndex: String) : Option[PsiElement] = {
+      try {
+        val paramNumber = defaultArgIndex.toInt - 1
+        possiblePositions.find {
+          case e =>
+            val scParameters = PsiTreeUtil.getParentOfType(e, classOf[ScParameters])
+            if (scParameters != null) {
+              val param = scParameters.params(paramNumber)
+              param.isDefaultParam && param.isAncestorOf(e)
+            }
+            else false
+        }
+      } catch {
+        case e: Exception => None
+      }
+    }
+    
+    def calcElement(): Option[PsiElement] = {
+      val possiblePositions = positionsOnLine(file, lineNumber)
+      val currentMethod = location.method()
 
+      lazy val (isDefaultArg, defaultArgIndex) = isDefaultArgument(currentMethod)
+      
       def findPsiElementForIndyLambda(): Option[PsiElement] = {
         val lambdas = lambdasOnLine(file, lineNumber)
-        val methods = indyLambdaMethodsOnLine(declaringType, lineNumber)
+        val methods = indyLambdaMethodsOnLine(location.declaringType(), lineNumber)
         val methodsToLambdas = methods.zip(lambdas).toMap
         methodsToLambdas.get(currentMethod)
       }
-
-      if (methodName.contains("$default$")) {
-        return findDefaultArg
+      
+      if (possiblePositions.size <= 1) {
+        possiblePositions.headOption
+      } 
+      else if (isIndyLambda(currentMethod)) {
+        findPsiElementForIndyLambda()
       }
-
-      if (isIndyLambda(currentMethod)) findPsiElementForIndyLambda()
+      else if (isDefaultArg) {
+        findDefaultArg(possiblePositions, defaultArgIndex)
+      } 
+      else if (!isAnonfun(currentMethod)) {
+        possiblePositions.find {
+          case e: PsiElement if isLambda(e) => false
+          case (e: ScExpression) childOf (p: ScParameter) => false
+          case _ => true
+        }
+      }
       else {
-        val generatingPsiElem = findElementByReferenceType(declaringType)
+        val generatingPsiElem = findElementByReferenceType(location.declaringType())
         possiblePositions.find(p => generatingPsiElem.contains(findGeneratingClassOrMethodParent(p)))
       }
     }
