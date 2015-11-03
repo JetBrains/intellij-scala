@@ -931,4 +931,39 @@ bars foreach {case (x, y) => list.add(x + y)}
 
     doTextTest(before, after)
   }
+
+  def testSCL9387(): Unit = {
+    val before =
+      """
+        |val x = for {
+        |//Comment
+        |  x <- Nil
+        |} yield {
+        |    x
+        |  }
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |val x = for {
+        |//Comment
+        |  x <- Nil
+        |} yield {
+        |  x
+        |}
+      """.stripMargin.replace("\r", "")
+
+    /* TODO this is only a temporary reference
+      actual result should be the following:
+      |val x = for {
+      |  //Comment
+      |  x <- Nil
+      |} yield {
+      |  x
+      |}
+      But current implementation of formatting model does not provide reasonable means of implementing this case.
+     */
+
+    doTextTest(before, after)
+  }
 }
