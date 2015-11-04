@@ -245,10 +245,14 @@ trait ScPattern extends ScalaPsiElement {
           case tuple: ScTuplePattern => tuple.patternList match {
             case Some(patList) =>
               val patterns = patList.patterns
-              val flat = patterns.flatMap(_.expectedType)
-              if (flat.length == patterns.length) {
-                return Some(ScTupleType(flat)(getProject, getResolveScope))
-              } else return None //too many arguments, it should be handled elsewhere
+              val infixExpected: Option[ScType] = infix.expectedType
+              val expectedTypes = for {
+                i <- 1 to patterns.length //have to start with one because infix.left is already index 0
+                expected = expectedTypeForExtractorArg(infix.reference, i, infixExpected, 1 + patterns.length)
+                if expected.isDefined
+              } yield expected.get
+              if (expectedTypes.length != patterns.length) return None
+              else return Some(ScTupleType(expectedTypes)(getProject, getResolveScope))
             case inParens: ScParenthesisedPattern =>
               return expectedTypeForExtractorArg(infix.reference, 1, infix.expectedType, 2).map { tp =>
                 ScTupleType(Seq(tp))(getProject, getResolveScope)
@@ -402,7 +406,7 @@ object ScPattern {
     extractPossibleProductParts(tp, place, isOneArgCaseClass = false)
   }
 
-  def expecteNumberOfExtractorArguments(returnType: ScType, place: PsiElement, isOneArgCaseClass: Boolean): Int =
+  def expectedNumberOfExtractorArguments(returnType: ScType, place: PsiElement, isOneArgCaseClass: Boolean): Int =
     extractorParameters(returnType, place, isOneArgCaseClass).size
 
   def extractorParameters(returnType: ScType, place: PsiElement, isOneArgCaseClass: Boolean): Seq[ScType] = {
