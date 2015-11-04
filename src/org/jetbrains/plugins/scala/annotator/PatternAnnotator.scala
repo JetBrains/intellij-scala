@@ -129,6 +129,16 @@ object PatternAnnotator {
                   }
                 case _ =>
               }
+              case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapplySeq" => fun.returnType match {
+                case Success(rt, _) =>
+                  //subtract 1 because last argument (Seq) may be omitted
+                  val expected = ScPattern.expecteNumberOfExtractorArguments(rt, pattern, ScPattern.isOneArgCaseClassMethod(fun)) - 1
+                  if (expected > numPatterns) {
+                    val message = ScalaBundle.message("wrong.number.arguments.extractor.unapplySeq", numPatterns.toString, expected.toString)
+                    holder.createErrorAnnotation(pattern, message)
+                  }
+                case _ =>
+              }
               case _ =>
             }
           case _ =>

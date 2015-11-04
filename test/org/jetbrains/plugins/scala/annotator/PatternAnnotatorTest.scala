@@ -420,4 +420,18 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     assertNoWarnings(code)
   }
 
+  def testNumberOfArgumentaUnapplySeq(): Unit = {
+    val code =
+      """
+        |object Bar {
+        |  val x: AnyRef = null
+        |  x match {
+        |    case foo appliedTo "" =>
+        |  }
+        |  case class appliedTo(name: String, arg1: String, arg2: String, otherArgs: String*)
+        |}
+      """.stripMargin
+    checkError(code, "foo appliedTo \"\"", ScalaBundle.message("wrong.number.arguments.extractor.unapplySeq", "2", "3"))
+  }
+
 }
