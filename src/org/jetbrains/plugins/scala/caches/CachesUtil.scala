@@ -10,7 +10,6 @@ import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -264,7 +263,7 @@ object CachesUtil {
   }
 
   //def getDependentItem(element: PsiElement)(dep_item: Object = PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT): Option[Object] = {
-  def getDependentItem(element: PsiElement)(dep_item: Object = enclosingBlockExprModTrackerOrOutOfCodeBlockModTracker(element)): Option[Object] = {
+  def getDependentItem(element: PsiElement)(dep_item: Object = enclosingModificationOwner(element)): Option[Object] = {
     element.getContainingFile match {
       case file: ScalaFile if file.isCompiled =>
         if (!ProjectRootManager.getInstance(element.getProject).getFileIndex.isInContent(file.getVirtualFile)) {
@@ -282,10 +281,10 @@ object CachesUtil {
   }
 
   @tailrec
-  def enclosingBlockExprModTrackerOrOutOfCodeBlockModTracker(elem: PsiElement): Object = {
-    Option(PsiTreeUtil.getParentOfType(elem, classOf[ScBlockExprImpl])) match {
+  def enclosingModificationOwner(elem: PsiElement): Object = {
+    Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScBlockExprImpl])) match {
       case Some(block) if block.isModificationCountOwner => block.getModificationTracker
-      case Some(block) => enclosingBlockExprModTrackerOrOutOfCodeBlockModTracker(block)
+      case Some(block) => enclosingModificationOwner(block)
       case _ => PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT
     }
   }

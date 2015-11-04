@@ -325,13 +325,12 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     keys.toSeq
   }
 
-
   PsiManager.getInstance(project).addPsiTreeChangeListener(CacheInvalidator, project)
 
   object CacheInvalidator extends PsiTreeChangeAdapter {
     @tailrec
     def updateModificationCount(elem: PsiElement): Unit = {
-      Option(PsiTreeUtil.getParentOfType(elem, classOf[ScBlockExprImpl], false)) match {
+      Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScBlockExprImpl])) match {
         case Some(block) if block.isModificationCountOwner => block.incModificationCount()
         case Some(block) => updateModificationCount(block.getContext)
         case _ =>
