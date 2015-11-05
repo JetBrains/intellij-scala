@@ -111,7 +111,7 @@ object CachedMacroUtil {
       case q"$v" =>
         ModCount.values.find(_.toString == v.toString) match {
           case Some(ModCount.getBlockModificationCount) =>
-            q"$cachesUtilFQN.enclosingBlockExprModTrackerOrOutOfCodeBlockModTracker($psiElement)"
+            q"$cachesUtilFQN.enclosingModificationOwner($psiElement)"
           case Some(ModCount.getOutOfCodeBlockModificationCount) =>
             q"$psiModificationTrackerFQN.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT"
           case Some(ModCount.getModificationCount) => q"$psiModificationTrackerFQN.MODIFICATION_COUNT"
