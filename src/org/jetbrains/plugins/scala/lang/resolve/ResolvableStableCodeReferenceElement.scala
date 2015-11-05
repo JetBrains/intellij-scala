@@ -26,6 +26,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Extrac
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, CachedWithRecursionGuard, ModCount}
 
+import scala.concurrent.Future
+
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this, false, false, false)
   private object ResolverAllConstructors extends StableCodeReferenceElementResolver(this, false, true, false)
@@ -118,10 +120,11 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
         importHolder.getImportStatements.takeWhile(_ != importStmt).foreach {
           case stmt: ScImportStmt =>
             stmt.importExprs.foreach {
-              case expr: ScImportExpr => expr.reference match {
+              case expr: ScImportExpr if expr.singleWildcard => expr.reference match {
                 case Some(reference) => reference.resolve()
                 case None => expr.qualifier.resolve()
               }
+              case _ =>
             }
         }
       }
