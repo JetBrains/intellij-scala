@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.util
 
 import java.io._
+import java.util
 import java.util.regex.Pattern
 
 import com.intellij.codeInsight.actions.{TextRangeType, ReformatCodeRunOptions, LastRunReformatCodeOptionsProvider}
@@ -17,14 +18,16 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugin.scala.util.MacroExpansion
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScBlock, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.openapi.util.Key
 
 import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 
 class MacroExpandAction extends AnAction {
@@ -112,7 +115,23 @@ class MacroExpandAction extends AnAction {
   }
 
   def reformatCode(psi: PsiElement): PsiElement = {
-    CodeStyleManager.getInstance(psi.getProject).reformat(psi)
+    val res = CodeStyleManager.getInstance(psi.getProject).reformat(psi)
+    val tobeDeleted = new ArrayBuffer[PsiElement]
+    val v = new PsiElementVisitor {
+      override def visitElement(element: PsiElement) = {
+        if (element.getNode.getElementType == ScalaTokenTypes.tSEMICOLON) {
+          val file = element.getContainingFile
+          val nextLeaf = file.findElementAt(element.getTextRange.getEndOffset)
+          if (nextLeaf.isInstanceOf[PsiWhiteSpace] && nextLeaf.getText.contains("\n")) {
+            tobeDeleted += element
+          }
+        }
+        element.acceptChildren(this)
+      }
+    }
+    v.visitElement(res)
+    tobeDeleted.foreach(_.delete())
+    res
   }
 
   def applyExpansions(expansions: Seq[ResolvedMacroExpansion], triedResolving: Boolean = false)(implicit e: AnActionEvent): Unit = {
