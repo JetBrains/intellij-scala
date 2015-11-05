@@ -282,7 +282,7 @@ object CachesUtil {
 
   @tailrec
   def enclosingModificationOwner(elem: PsiElement): Object = {
-    Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScBlockExprImpl])) match {
+    Option(PsiTreeUtil.getContextOfType(elem, true, classOf[ScBlockExprImpl])) match {
       case Some(block) if block.isModificationCountOwner => block.getModificationTracker
       case Some(block) => enclosingModificationOwner(block)
       case _ => PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT
