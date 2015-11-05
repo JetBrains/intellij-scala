@@ -34,10 +34,10 @@ object LightScalaTestCase {
     override def getSdk = IdeaTestUtil.getMockJdk14
     override def configureModule(module: Module, model: ModifiableRootModel, contentEntry: ContentEntry) {
       val modifiableModel = model.getModuleLibraryTable.createLibrary("SCALA").getModifiableModel
-      val scalaLib = TestUtils.getMockScalaLib + "!/"
+      val scalaLib = TestUtils.getScalaLibraryPath + "!/"
       val scalaJar = JarFileSystem.getInstance.refreshAndFindFileByPath(scalaLib)
       modifiableModel.addRoot(scalaJar, OrderRootType.CLASSES)
-      val srcRoot = new File(TestUtils.getMockScalaSrc)
+      val srcRoot = new File(TestUtils.getScalaLibrarySrc)
       modifiableModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES)
       // do not forget to commit a model!
       modifiableModel.commit

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.scala2_11.scalatest2_1_7
 
 import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
+import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 /**
  * @author Roman.Shein
@@ -15,5 +16,5 @@ abstract class Scalatest2_11_2_1_7_Base extends ScalaTestTestCase {
     addIvyCacheLibrary("scala-xml", "org.scala-lang.modules/scala-xml_2.11/bundles", "scala-xml_2.11-1.0.1.jar")
   }
 
-  override protected val scalaVersion: String = "2.11"
+  override protected val scalaSdkVersion = ScalaSdkVersion._2_11
 }

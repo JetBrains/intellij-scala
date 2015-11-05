@@ -56,7 +56,7 @@ class SbtAnnotatorTest extends AnnotatorTestBase with MockSbt {
   }
 
   override def getTestProjectJdk: Sdk =
-    JavaSdk.getInstance().createJdk("java sdk", TestUtils.getMockJdk, false)
+    JavaSdk.getInstance().createJdk("java sdk", TestUtils.getDefaultJdk, false)
 
   private def runTest(sbtVersion: String, expectedMessages: Seq[Message]): Unit = {
     setSbtVersion(sbtVersion)
