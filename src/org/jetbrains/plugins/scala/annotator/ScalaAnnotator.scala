@@ -634,7 +634,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                 e.getParent.asInstanceOf[ScInfixExpr].operation == e => //todo: this is hide A op B
         case e: ScReferenceExpression => processError(countError = false, fixes = getFix)
         case e: ScStableCodeReferenceElement if e.getParent.isInstanceOf[ScInfixPattern] &&
-                e.getParent.asInstanceOf[ScInfixPattern].refernece == e => //todo: this is hide A op B in patterns
+                e.getParent.asInstanceOf[ScInfixPattern].reference == e => //todo: this is hide A op B in patterns
         case _ => refElement.getParent match {
           case s: ScImportSelector if resolve.length > 0 =>
           case _ => processError(countError = true, fixes = getFix)
