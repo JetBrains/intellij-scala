@@ -45,4 +45,8 @@ class DecompilerTest extends TestCase {
   def testAnnotationArguments(): Unit = {
     doTest("AnnotArgTest.class")
   }
+
+  def testScl9400(): Unit = {
+    doTest("KMeansModel.class")
+  }
 }

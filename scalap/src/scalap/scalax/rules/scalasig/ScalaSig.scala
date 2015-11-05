@@ -258,7 +258,7 @@ object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
       30 -~ longValue ^^ (_.toLong),
       31 -~ longValue ^^ (l => java.lang.Float.intBitsToFloat(l.toInt)),
       32 -~ longValue ^^ (java.lang.Double.longBitsToDouble),
-      33 -~ nameRef.map("\"" + _ +"\""),
+      33 -~ nameRef,
       34 -^ null,
       35 -~ typeRef,
       36 -~ symbolRef)

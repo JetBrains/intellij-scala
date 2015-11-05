@@ -14,6 +14,8 @@ package scalasig
 import java.io.{ByteArrayOutputStream, PrintStream}
 import java.util.regex.Pattern
 
+import org.apache.commons.lang.StringEscapeUtils
+
 import scala.annotation.{switch, tailrec}
 import scala.collection.mutable
 import scala.reflect.NameTransformer
@@ -439,16 +441,7 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
     buffer.append(toString(attrib.typeRef, "@"))
     if (attrib.value.isDefined) {
       buffer.append("(")
-      val value = attrib.value.get
-      val stringVal = value.isInstanceOf[String]
-      if (stringVal) buffer.append("\"")
-      val stringValue = valueToString(value)
-      val isMultiline = stringVal && (stringValue.contains("\n")
-              || stringValue.contains("\r"))
-      if (isMultiline) buffer.append("\"\"")
-      buffer.append(valueToString(value))
-      if (isMultiline) buffer.append("\"\"")
-      if (stringVal) buffer.append("\"")
+      buffer.append(valueToString(attrib.value.get))
       buffer.append(")")
     }
     if (attrib.values.nonEmpty) {
@@ -463,11 +456,15 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
     buffer.toString
   }
 
+  // TODO char, float, etc.
   def valueToString(value: Any): String = value match {
     case t: Type => "classOf[%s]" format toString(t)
-    // TODO string, char, float, etc.
-    case arr: Array[_] => if (arr.nonEmpty)
-      "Array(" + arr.tail.foldLeft(arr.head.toString){case (curr, acc) => acc + "," + curr} + ")" else "Array()"
+    case s: String =>
+      if (s.contains("\n") || s.contains("\r")) {
+        "\"\"\"" + s + "\"\"\""
+      } else "\"" +  StringEscapeUtils.escapeJava(s) + "\""
+    case arr: Array[_] =>
+      arr.map(valueToString).mkString("Array(", ", ", ")")
     case _ => value.toString
   }
 
