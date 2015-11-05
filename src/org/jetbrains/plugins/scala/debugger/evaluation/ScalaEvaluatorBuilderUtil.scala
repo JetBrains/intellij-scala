@@ -913,7 +913,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val ref: ScStableCodeReferenceElement = constr.ref
           evaluateConstructorOrInfix(exprEval, ref, constr, nextPatternIndex)
         case infix: ScInfixPattern =>
-          val ref: ScStableCodeReferenceElement = infix.refernece
+          val ref: ScStableCodeReferenceElement = infix.reference
           evaluateConstructorOrInfix(exprEval, ref, infix, nextPatternIndex)
         //todo: handle infix with tuple right pattern
         case _: ScCompositePattern => throw EvaluationException(ScalaBundle.message("pattern.alternatives.cannot.bind.vars"))

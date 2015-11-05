@@ -10,18 +10,18 @@ import _root_.java.util
 import com.intellij.formatting._
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.tree._
-import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.formatting.ScalaWrapManager._
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -629,13 +629,13 @@ object getDummyBlocks {
         import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.priority
         val childPriority = child.getPsi match {
           case inf: ScInfixExpr => priority(inf.operation.getText, true)
-          case inf: ScInfixPattern => priority(inf.refernece.getText, false)
+          case inf: ScInfixPattern => priority(inf.reference.getText, false)
           case inf: ScInfixTypeElement => priority(inf.ref.getText, false)
           case _ => 0
         }
         val parentPriority = node.getPsi match {
           case inf: ScInfixExpr => priority(inf.operation.getText, true)
-          case inf: ScInfixPattern => priority(inf.refernece.getText, false)
+          case inf: ScInfixPattern => priority(inf.reference.getText, false)
           case inf: ScInfixTypeElement => priority(inf.ref.getText, false)
           case _ => 0
         }
