@@ -567,7 +567,7 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
               val name: String = objectSymbol.name
               objectSymbol match {
                 case classSymbol: ClassSymbol if name == "package" =>
-                  processName(classSymbol.symbolInfo.owner.name) + "."
+                  processName(classSymbol.symbolInfo.owner.path) + "."
                 case _ => processName(name) + "."
               }
             case (ThisType(packSymbol), _, _) if !packSymbol.isType =>
