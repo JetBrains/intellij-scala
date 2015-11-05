@@ -1020,14 +1020,16 @@ object ScalaDocumentationProvider {
   }
 
   def generateParameterInfo(parameter: ScParameter, subst: ScSubstitutor): String = {
+    val defaultText = s"${parameter.name}: ${ScType.presentableText(subst.subst(parameter.getType(TypingContext.empty).getOrAny))}" 
+    
     (parameter match {
       case clParameter: ScClassParameter =>
         val clazz = PsiTreeUtil.getParentOfType(clParameter, classOf[ScTypeDefinition])
-        clazz.name + " " + clazz.getPresentation.getLocationString + "\n" +
+        
+        if (clazz == null) defaultText else clazz.name + " " + clazz.getPresentation.getLocationString + "\n" +
                 (if (clParameter.isVal) "val " else if (clParameter.isVar) "var " else "") + clParameter.name +
                 ": " + ScType.presentableText(subst.subst(clParameter.getType(TypingContext.empty).getOrAny))
-      case _ => parameter.name + ": " +
-        ScType.presentableText(subst.subst(parameter.getType(TypingContext.empty).getOrAny))}) +
+      case _ => defaultText}) +
         (if (parameter.isRepeatedParameter) "*" else "")
   }  
 }
