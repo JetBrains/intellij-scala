@@ -240,28 +240,10 @@ trait ScPattern extends ScalaPsiElement {
       }
     case composite: ScCompositePattern => composite.expectedType
     case infix: ScInfixPattern =>
-      val i = if (infix.leftPattern == this) 0 else {
-        this match {
-          case tuple: ScTuplePattern => tuple.patternList match {
-            case Some(patList) =>
-              val patterns = patList.patterns
-              val infixExpected: Option[ScType] = infix.expectedType
-              val expectedTypes = for {
-                i <- 1 to patterns.length //have to start with one because infix.left is already index 0
-                expected = expectedTypeForExtractorArg(infix.reference, i, infixExpected, 1 + patterns.length)
-                if expected.isDefined
-              } yield expected.get
-              if (expectedTypes.length != patterns.length) return None
-              else return Some(ScTupleType(expectedTypes)(getProject, getResolveScope))
-            case inParens: ScParenthesisedPattern =>
-              return expectedTypeForExtractorArg(infix.reference, 1, infix.expectedType, 2).map { tp =>
-                ScTupleType(Seq(tp))(getProject, getResolveScope)
-              }
-            case _ => 1
-          }
-          case _ => 1
-        }
-      }
+      val i =
+        if (infix.leftPattern == this) 0
+        else if (this.isInstanceOf[ScTuplePattern]) return None //this is handled elsewhere in this function
+        else 1
       expectedTypeForExtractorArg(infix.reference, i, infix.expectedType, 2)
     case par: ScParenthesisedPattern => par.expectedType
     case patternList : ScPatterns => patternList.getContext match {
