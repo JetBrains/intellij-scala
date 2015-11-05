@@ -140,7 +140,8 @@ object DependencyGroups {
   val scalap = Seq(
     scalaLibrary,
     scalaReflect,
-    scalaCompiler
+    scalaCompiler,
+    commonsLang
   )
 
   val scalaRunner = Seq(

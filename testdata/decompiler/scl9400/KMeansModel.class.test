@@ -1,0 +1,29 @@
+package org.apache.spark.mllib.clustering
+@org.apache.spark.annotation.Since("0.8.0")
+class KMeansModel(@org.apache.spark.annotation.Since("1.0.0") @org.apache.spark.annotation.Since("1.0.0") val clusterCenters : scala.Array[org.apache.spark.mllib.linalg.Vector]) extends scala.AnyRef with org.apache.spark.mllib.util.Saveable with scala.Serializable with org.apache.spark.mllib.pmml.PMMLExportable {
+  @org.apache.spark.annotation.Since("1.4.0")
+  def this(centers : java.lang.Iterable[org.apache.spark.mllib.linalg.Vector]) = { /* compiled code */ }
+  @org.apache.spark.annotation.Since("0.8.0")
+  def k : scala.Int = { /* compiled code */ }
+  @org.apache.spark.annotation.Since("0.8.0")
+  def predict(point : org.apache.spark.mllib.linalg.Vector) : scala.Int = { /* compiled code */ }
+  @org.apache.spark.annotation.Since("1.0.0")
+  def predict(points : org.apache.spark.rdd.RDD[org.apache.spark.mllib.linalg.Vector]) : org.apache.spark.rdd.RDD[scala.Int] = { /* compiled code */ }
+  @org.apache.spark.annotation.Since("1.0.0")
+  def predict(points : org.apache.spark.api.java.JavaRDD[org.apache.spark.mllib.linalg.Vector]) : org.apache.spark.api.java.JavaRDD[java.lang.Integer] = { /* compiled code */ }
+  @org.apache.spark.annotation.Since("0.8.0")
+  def computeCost(data : org.apache.spark.rdd.RDD[org.apache.spark.mllib.linalg.Vector]) : scala.Double = { /* compiled code */ }
+  @org.apache.spark.annotation.Since("1.4.0")
+  override def save(sc : org.apache.spark.SparkContext, path : scala.Predef.String) : scala.Unit = { /* compiled code */ }
+  protected override def formatVersion : scala.Predef.String = { /* compiled code */ }
+}
+@org.apache.spark.annotation.Since("1.4.0")
+object KMeansModel extends scala.AnyRef with org.apache.spark.mllib.util.Loader[org.apache.spark.mllib.clustering.KMeansModel] with scala.Serializable {
+  @org.apache.spark.annotation.Since("1.4.0")
+  override def load(sc : org.apache.spark.SparkContext, path : scala.Predef.String) : org.apache.spark.mllib.clustering.KMeansModel = { /* compiled code */ }
+  private[clustering] object SaveLoadV1_0 extends scala.AnyRef {
+    private[clustering] val thisClassName : java.lang.String = { /* compiled code */ }
+    def save(sc : org.apache.spark.SparkContext, model : org.apache.spark.mllib.clustering.KMeansModel, path : scala.Predef.String) : scala.Unit = { /* compiled code */ }
+    def load(sc : org.apache.spark.SparkContext, path : scala.Predef.String) : org.apache.spark.mllib.clustering.KMeansModel = { /* compiled code */ }
+  }
+}
