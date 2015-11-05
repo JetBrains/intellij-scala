@@ -28,7 +28,20 @@ object DebuggerTestUtil {
           .map(new File(_, s"$postfix/jre").getAbsolutePath)
         )
     }
+    def currentJava() = {
+      sys.props.get("java.version") match {
+        case Some(version) if version.startsWith("1.8") =>
+          sys.props.get("java.home") match {
+            case Some(path) if isJDK(new File(path).getParentFile) =>
+              println(s"found current jdk under $path")
+              Some(path)
+            case _ => None
+          }
+        case _ => None
+      }
+    }
     val candidates = Seq(
+      currentJava(),
       Option(sys.env.getOrElse("JDK_18_x64", sys.env.getOrElse("JDK_18", null))).map(_+"/jre"),  // teamcity style
       inJvm("/usr/lib/jvm", "1.8"),                   // oracle style
       inJvm("/usr/lib/jvm", "-8"),                    // openjdk style
