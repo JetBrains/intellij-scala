@@ -11,17 +11,15 @@ import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification,
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.roots._
+import com.intellij.openapi.vfs._
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
-import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import junit.framework.Assert
+import org.jetbrains.plugins.scala.base.ScalaLibraryLoader
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
-import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.project.template.Artifact
-import org.jetbrains.plugins.scala.util.TestUtils
 
 import scala.collection.mutable.ListBuffer
 
@@ -31,20 +29,16 @@ import scala.collection.mutable.ListBuffer
  */
 abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVersion {
 
-  protected def useExternalCompiler: Boolean = true
-
   override def setUp(): Unit = {
     VfsRootAccess.SHOULD_PERFORM_ACCESS_CHECK = false
+
     super.setUp()
-    if (useExternalCompiler) {
-      myProject.getMessageBus.connect(myTestRootDisposable).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter {
-        override def rootsChanged(event: ModuleRootEvent) {
-          forceFSRescan()
-        }
-      })
-      CompilerTestUtil.enableExternalCompiler()
-    }
-    else CompilerTestUtil.disableExternalCompiler(myProject)
+    myProject.getMessageBus.connect(myTestRootDisposable).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter {
+      override def rootsChanged(event: ModuleRootEvent) {
+        forceFSRescan()
+      }
+    })
+    CompilerTestUtil.enableExternalCompiler()
 
     addRoots()
   }
@@ -67,24 +61,7 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
     val cl = SyntheticClasses.get(getProject)
     if (!cl.isClassesRegistered) cl.registerClasses()
 
-    val root = TestUtils.getTestDataPath.replace("\\", "/") + "/scala-compiler/" +
-            (if (scalaVersion != "") scalaVersion + "/" else "")
-    
-    VfsRootAccess.allowRootAccess(root)
-
-    PsiTestUtil.addLibrary(myModule, "scala-compiler", root, "scala-library.jar")
-
-    myModule.libraries.find(_.getName == "scala-compiler").foreach { library =>
-      val compilerClasspath = Seq("scala-compiler.jar", "scala-library.jar") ++
-              (if (loadReflect) Seq("scala-reflect.jar") else Seq.empty)
-
-      val languageLevel = Artifact.ScalaCompiler.versionOf(new File(root, "scala-compiler.jar"))
-              .flatMap(ScalaLanguageLevel.from).getOrElse(ScalaLanguageLevel.Default)
-
-      inWriteAction {
-        library.convertToScalaSdkWith(languageLevel, compilerClasspath.map(new File(root, _)))
-      }
-    }
+    ScalaLibraryLoader.addScalaSdk(myModule, scalaSdkVersion, loadReflect)
   }
 
   override protected def getTestProjectJdk: Sdk = {
@@ -100,26 +77,27 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
   protected def forceFSRescan() = BuildManager.getInstance.clearState(myProject)
 
   protected override def tearDown() {
-    if (useExternalCompiler) CompilerTestUtil.disableExternalCompiler(myProject)
+    CompilerTestUtil.disableExternalCompiler(myProject)
 
     super.tearDown()
   }
 
   protected def make(): List[String] = {
+    DebuggerTestUtil.findJdk8()
+    DebuggerTestUtil.setCompileServerSettings()
+
     val semaphore: Semaphore = new Semaphore
     semaphore.down()
     val callback = new ErrorReportingCallback(semaphore)
     UIUtil.invokeAndWaitIfNeeded(new Runnable {
       def run() {
         try {
-          if (useExternalCompiler) {
+          getProject.save()
+          CompilerTestUtil.saveApplicationSettings()
+          val ioFile: File = VfsUtilCore.virtualToIoFile(myModule.getModuleFile)
+          if (!ioFile.exists) {
             getProject.save()
-            CompilerTestUtil.saveApplicationSettings()
-            val ioFile: File = VfsUtilCore.virtualToIoFile(myModule.getModuleFile)
-            if (!ioFile.exists) {
-              getProject.save()
-              assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
-            }
+            assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
           }
           CompilerManager.getInstance(getProject).rebuild(callback)
         }

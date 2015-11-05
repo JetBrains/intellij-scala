@@ -145,6 +145,7 @@ lazy val testDownloader =
       "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
     ),
     libraryDependencies ++= DependencyGroups.testDownloader,
+    libraryDependencies ++= DependencyGroups.testScalaLibraryDownloader,
     dependencyOverrides ++= Set(
       "com.chuusai" % "shapeless_2.11" % "2.0.0"
     ),

@@ -164,6 +164,9 @@ object DependencyGroups {
     "org.scalatest" % "scalatest_2.11" % "2.2.1",
     "org.scalatest" % "scalatest_2.10" % "2.2.1",
     "org.specs2" % "specs2_2.11" % "2.4.15",
+    "org.specs2" % "specs2-core_2.11" % "3.0.1",
+    "org.specs2" % "specs2-common_2.11" % "3.0.1",
+    "org.specs2" % "specs2-matcher_2.11" % "3.0.1",
     "org.scalaz" % "scalaz-core_2.11" % "7.1.0",
     "org.scalaz" % "scalaz-concurrent_2.11" % "7.1.0",
     "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.2",
@@ -181,6 +184,20 @@ object DependencyGroups {
     "com.github.julien-truffaut"  %%  "monocle-generic" % "1.2.0-SNAPSHOT",
     "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.2.0-SNAPSHOT",
     "io.spray" %% "spray-routing" % "1.3.1"
+  )
+
+  val testScalaLibraryDownloader = Seq(
+    "org.scala-lang" % "scala-library" % "2.10.6" withSources(),
+    "org.scala-lang" % "scala-reflect" % "2.10.6",
+    "org.scala-lang" % "scala-compiler" % "2.10.6",
+
+    "org.scala-lang" % "scala-library" % "2.11.7" withSources(),
+    "org.scala-lang" % "scala-reflect" % "2.11.7",
+    "org.scala-lang" % "scala-compiler" % "2.11.7",
+
+    "org.scala-lang" % "scala-library" % "2.12.0-M2" withSources(),
+    "org.scala-lang" % "scala-reflect" % "2.12.0-M2",
+    "org.scala-lang" % "scala-compiler" % "2.12.0-M2"
   )
 
   val sbtRuntime = Seq(
