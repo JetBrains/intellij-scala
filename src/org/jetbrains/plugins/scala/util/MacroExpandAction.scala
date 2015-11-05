@@ -3,6 +3,8 @@ package org.jetbrains.plugins.scala.util
 import java.io._
 import java.util.regex.Pattern
 
+import com.intellij.codeInsight.actions.{TextRangeType, ReformatCodeRunOptions, LastRunReformatCodeOptionsProvider}
+import com.intellij.ide.util.PropertiesComponent
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.PathManager
@@ -10,6 +12,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi._
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugin.scala.util.MacroExpansion
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -108,6 +111,10 @@ class MacroExpandAction extends AnAction {
     }
   }
 
+  def reformatCode(psi: PsiElement): PsiElement = {
+    CodeStyleManager.getInstance(psi.getProject).reformat(psi)
+  }
+
   def applyExpansions(expansions: Seq[ResolvedMacroExpansion], triedResolving: Boolean = false)(implicit e: AnActionEvent): Unit = {
     expansions match {
       case x::xs =>
@@ -132,6 +139,7 @@ class MacroExpandAction extends AnAction {
       case holder: ScAnnotationsHolder =>
         val body = expansion.body
         val newPsi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(body, PsiManager.getInstance(e.getProject))
+        reformatCode(newPsi)
         newPsi.firstChild match {
           case Some(block: ScBlock) => // insert content of block expression(annotation can generate >1 expression)
             val children = block.getChildren
@@ -155,6 +163,7 @@ class MacroExpandAction extends AnAction {
       case _ => // unreachable
     }
     call.delete()
+    reformatCode(element)
   }
 
   def tryResolveExpansionPlace(expansion: MacroExpansion)(implicit e: AnActionEvent): ResolvedMacroExpansion = {
