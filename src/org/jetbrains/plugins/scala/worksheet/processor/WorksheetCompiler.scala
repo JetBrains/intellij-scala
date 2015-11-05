@@ -71,8 +71,10 @@ class WorksheetCompiler {
           override def run() {
             //todo smth with exit code
             try {
-              new RemoteServerConnector(
-                RunWorksheetAction getModuleFor worksheetFile, tempFile, outputDir, name
+              val module = RunWorksheetAction getModuleFor worksheetFile
+              
+              if (module == null) onError("Can't find Scala module to run") else new RemoteServerConnector(
+                module, tempFile, outputDir, name
               ).compileAndRun(new Runnable {
                 override def run() {
                   if (runType == OutOfProcessServer) callback(name, outputDir.getAbsolutePath)
