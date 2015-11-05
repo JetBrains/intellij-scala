@@ -230,7 +230,7 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
           case ref @ ScConstructor.byReference(constr) => results += ConstructorUsageInfo(ref, constr)
           case refExpr: ScReferenceExpression => results += RefExpressionUsage(refExpr)
           case ChildOf(cp: ScConstructorPattern) if cp.ref == refElem => results += ConstructorPatternUsageInfo(cp)
-          case ChildOf(ip: ScInfixPattern) if ip.refernece == refElem => results += InfixPatternUsageInfo(ip)
+          case ChildOf(ip: ScInfixPattern) if ip.reference == refElem => results += InfixPatternUsageInfo(ip)
           case ref: PsiReferenceExpression if searchInJava => results += new JavaCallUsageInfo(ref, true, false)
           case _ =>
         }
