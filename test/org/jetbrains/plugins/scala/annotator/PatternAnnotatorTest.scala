@@ -412,11 +412,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
         |  case class appliedTo2(name: String, arg1: String*)
         |}
       """.stripMargin
-    checkErrors(code, List(
-      Error("(\"1\", \"2\", \"3\", 4)",
-        patternTypeIncompatible("(String, String, String, Int)", "(String, String, String, String)")),
-      Error("4", patternTypeIncompatible("Int", "String"))
-    ))
+    checkErrors(code, List(Error("4", patternTypeIncompatible("Int", "String"))))
     assertNoWarnings(code)
   }
 
