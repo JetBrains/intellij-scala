@@ -659,7 +659,7 @@
         </intentionAction>
 
         <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
-                                 implementationClass="org.jetbrains.plugins.scala.injection.ScalaStringLiteralManipulator"/>
+                                 implementationClass="org.jetbrains.plugins.scala.injection.ScalaInjectedStringLiteralManipulator"/>
 
         <inspectionToolProvider implementation="org.jetbrains.plugins.scala.codeInspection.internal.ScalaInternalInspectionsProvider"/>
 

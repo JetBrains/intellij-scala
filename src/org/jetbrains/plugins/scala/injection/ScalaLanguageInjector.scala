@@ -235,10 +235,10 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
           ref.resolve().toOption match {
             case Some(f: ScFunction) =>
               val parameters = f.parameters
-              if (parameters.size == 0) None else Some(parameters.get(index.min(parameters.size - 1)))
+              if (parameters.isEmpty) None else Some(parameters.get(index.min(parameters.size - 1)))
             case Some(m: PsiMethod) =>
               val parameters = m.getParameterList.getParameters
-              if (parameters.size == 0) None else parameters(index.min(parameters.size - 1)).getModifierList.toOption
+              if (parameters.isEmpty) None else parameters(index.min(parameters.size - 1)).getModifierList.toOption
             case _ => None
           }
       }
@@ -265,7 +265,7 @@ class ScalaLanguageInjector(myInjectionConfiguration: Configuration) extends Mul
 }
 
 object ScalaLanguageInjector {
-  private[this] val scalaStringLiteralManipulator = new ScalaStringLiteralManipulator 
+  private[this] val scalaStringLiteralManipulator = new ScalaInjectedStringLiteralManipulator 
   private[this] val safeMethodsNames = List("stripMargin", "+")
   
   def extractMultiLineStringRanges(literal: ScLiteral): mutable.MutableList[TextRange] = {
