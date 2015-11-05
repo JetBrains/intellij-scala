@@ -57,6 +57,9 @@ class HoconObjectEntryMover extends LineMover {
     val document = editor.getDocument
     val offset = editor.getCaretModel.getOffset
     val element = file.findElementAt(offset)
+    
+    if (element == null) return false
+    
     val currentLine = document.getLineNumber(offset)
 
     def startLine(el: PsiElement) =
