@@ -13,7 +13,7 @@
   ~ limitations under the License.
   -->
 
-<!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
+<!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.jetbrains.com/plugin.dtd">
 <idea-plugin url="http://www.jetbrains.net/confluence/display/SCA/Scala+Plugin+for+IntelliJ+IDEA" version="2"
     xmlns:xi="http://www.w3.org/2001/XInclude">
     <id>org.intellij.scala</id>
