@@ -89,6 +89,13 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       }
     }
 
+    if (node.getElementType == ScalaTokenTypes.tLBRACE &&
+      Option(node.getTreeParent).exists(_.getElementType == ScalaElementTypes.TRY_BLOCK)) {
+      return if (child.getElementType == ScalaTokenTypes.tLBRACE ||
+        child.getElementType == ScalaTokenTypes.tRBRACE) Indent.getNoneIndent
+      else if (settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED) Indent.getNoneIndent else Indent.getNormalIndent()
+    }
+
     node.getPsi match {
       case expr: ScFunctionExpr => processFunExpr(expr)
       case el: ScXmlElement =>
@@ -104,12 +111,21 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _: PsiComment => Indent.getNormalIndent
           case _ => Indent.getNoneIndent
         }
-      case _: ScTryBlock | _: ScCatchBlock =>
+      case _: ScTryBlock =>
         child.getElementType match {
-          case ScalaTokenTypes.tLBRACE | ScalaTokenTypes.kCATCH |
-                  ScalaTokenTypes.tRBRACE | ScalaTokenTypes.kTRY =>
+          case ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tRBRACE if parent.myLastNode == null =>
+            //getting indent for braces from tryBlock
+            if (settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
+              settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2) Indent.getNormalIndent else
+              Indent.getNoneIndent
+          case ScalaTokenTypes.kTRY => Indent.getNoneIndent
+          case _ => Indent.getNormalIndent
+        }
+      case _: ScCatchBlock =>
+        child.getElementType match {
+          case ScalaTokenTypes.kCATCH =>
             Indent.getNoneIndent
-          case _ if settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED => Indent.getNoneIndent
+          case _ if settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE => Indent.getNoneIndent
           case _ => Indent.getNormalIndent
         }
       case _: ScEarlyDefinitions | _: ScTemplateBody =>

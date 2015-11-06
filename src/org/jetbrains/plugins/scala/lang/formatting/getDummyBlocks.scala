@@ -85,6 +85,24 @@ object getDummyBlocks {
               scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
         subBlocks.addAll(getMultilineStringBlocks(node, block))
         return subBlocks
+      case _: ScTryBlock if children.headOption.exists(_.getElementType == ScalaTokenTypes.kTRY) =>
+        //add try block
+        subBlocks.add(new ScalaBlock(block, children.head, null, null, ScalaIndentProcessor.getChildIndent(block, children.head),
+          arrangeSuggestedWrapForChild(block, children.head, scalaSettings, block.suggestedWrap), block.getSettings))
+        //add subblock with try expr
+        val tail = children.filter(isCorrectBlock).tail
+        if (tail.nonEmpty) {
+          if (tail.length == 1 && tail.head.isInstanceOf[ScExpression]) {
+            //there is a single expr under try
+            subBlocks.add(new ScalaBlock(block, tail.head, null, null, ScalaIndentProcessor.getChildIndent(block, tail.head),
+              arrangeSuggestedWrapForChild(block, tail.head, scalaSettings, block.suggestedWrap), block.getSettings))
+          } else {
+            //there is block expr under try
+            subBlocks.add(new ScalaBlock(block, tail.head, tail.last, null, ScalaIndentProcessor.getChildIndent(block, tail.head),
+              arrangeSuggestedWrapForChild(block, tail.head, scalaSettings, block.suggestedWrap), block.getSettings))
+          }
+        }
+        return subBlocks
       case _
         if node.getElementType == ScalaDocElementTypes.DOC_TAG =>
         val docTag = node.getPsi.asInstanceOf[ScDocTag]

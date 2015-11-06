@@ -966,4 +966,60 @@ bars foreach {case (x, y) => list.add(x + y)}
 
     doTextTest(before, after)
   }
+
+  def testSCL5028_1(): Unit = {
+    getCommonSettings.BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
+
+    val before =
+      """
+        |try {
+        |  expr
+        |} catch
+        |{
+        |  case _: Throwable => println("gotcha!")
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |try
+        |{
+        |  expr
+        |} catch
+        |{
+        |  case _: Throwable => println("gotcha!")
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL5028_2(): Unit = {
+    getCommonSettings.BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_SHIFTED2
+    getCommonSettings.CATCH_ON_NEW_LINE = true
+
+    val before =
+      """
+        |try {
+        |  expr
+        |} catch
+        |{
+        |  case _: Throwable => println("gotcha!")
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |try
+        |  {
+        |    expr
+        |  }
+        |catch
+        |  {
+        |    case _: Throwable => println("gotcha!")
+        |  }
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
 }
