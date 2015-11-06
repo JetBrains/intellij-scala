@@ -42,9 +42,11 @@ import scala.util.{Failure, Success, Try}
 
 abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
 
+  protected val bp = "<breakpoint>"
+
   private val breakpoints: mutable.Set[(String, Int, Integer)] = mutable.Set.empty
 
-  protected def runDebugger(mainClass: String, debug: Boolean = false)(callback: => Unit) {
+  protected def runDebugger(mainClass: String = mainClassName, debug: Boolean = false)(callback: => Unit) {
     var processHandler: ProcessHandler = null
     UsefulTestCase.edt(new Runnable {
       def run() {
@@ -63,7 +65,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
       }
     })
     callback
-    clearBreakpoints()
+    clearXBreakpoints()
     getDebugProcess.stop(true)
     processHandler.destroyProcess()
   }
@@ -95,10 +97,6 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     processHandler.get
   }
 
-  protected override def tearDown(): Unit = {
-    super.tearDown()
-  }
-
   protected def getDebugProcess: DebugProcessImpl = {
     getDebugSession.getProcess
   }
@@ -112,30 +110,27 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     getDebugProcess.getManagerThread.invokeAndWait(resumeCommand)
   }
 
-  protected def addBreakpoint(fileName: String, line: Int, lambdaOrdinal: Integer = -1) {
+  protected def addBreakpoint(line: Int, fileName: String = mainFileName, lambdaOrdinal: Integer = -1) {
     breakpoints += ((fileName, line, lambdaOrdinal))
   }
+
+  protected def clearBreakpoints() = breakpoints.clear()
 
   private def addBreakpoints() {
     breakpoints.foreach {
       case (fileName, line, ordinal) =>
         val ioFile = new File(srcDir, fileName)
         val file = getVirtualFile(ioFile)
-        UsefulTestCase.edt(new Runnable {
-          def run() {
-            val xBreakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
-            val properties = new JavaLineBreakpointProperties
-            properties.setLambdaOrdinal(ordinal)
-            inWriteAction {
-              xBreakpointManager.addLineBreakpoint(scalaLineBreakpointType, file.getUrl, line, properties)
-            }
-          }
-        })
+        val xBreakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
+        val properties = new JavaLineBreakpointProperties
+        properties.setLambdaOrdinal(ordinal)
+        inWriteAction {
+          xBreakpointManager.addLineBreakpoint(scalaLineBreakpointType, file.getUrl, line, properties)
+        }
     }
-    breakpoints.clear()
   }
 
-  private def clearBreakpoints(): Unit = {
+  private def clearXBreakpoints(): Unit = {
     UsefulTestCase.edt(new Runnable {
       def run() {
         val xBreakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
@@ -237,6 +232,12 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
       result.startsWith(startsWith))
   }
 
+  def atNextBreakpoint(action: => Unit) = {
+    resume()
+    waitForBreakpoint()
+    action
+  }
+
   protected def addOtherLibraries() = {}
 
   def checkLocation(source: String, methodName: String, lineNumber: Int): Unit = {
@@ -251,6 +252,19 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
       Assert.assertEquals("Wrong location:", expected, actual)
     }
   }
+
+  protected def addFileWithBreakpoints(path: String, fileText: String): Unit = {
+    val breakpointLines =
+      for {
+        (line, idx) <- fileText.lines.zipWithIndex
+        if line.contains(bp)
+      } yield idx
+    val cleanedText = fileText.replace(bp, "")
+    addSourceFile(path, cleanedText)
+
+    breakpointLines.foreach(addBreakpoint(_, path))
+  }
+
 }
 
 case class Loc(className: String, methodName: String, line: Int)

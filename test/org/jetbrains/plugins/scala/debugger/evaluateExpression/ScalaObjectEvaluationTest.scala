@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12_M2}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
 
 /**
  * User: Alefas
@@ -8,180 +8,95 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
  */
 
 class ScalaObjectEvaluationTest extends ScalaObjectEvaluationTestBase with ScalaVersion_2_11
-class ScalaObjectEvaluationTest_2_12_M2 extends ScalaObjectEvaluationTestBase with ScalaVersion_2_12_M2
+class ScalaObjectEvaluationTest_212 extends ScalaObjectEvaluationTestBase with ScalaVersion_2_12
 
 abstract class ScalaObjectEvaluationTestBase extends ScalaDebuggerTestCase {
-  def testSimpleObject() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    "stop here"
-      |  }
-      |}
+  addFileWithBreakpoints("SimpleObject.scala",
+    s"""
+       |object EvaluateObjects {
+       |  def main(args: Array[String]) {
+       |    ""$bp
+       |  }
+       |}
+       """.stripMargin.trim()
+  )
+  addSourceFile("Simple.scala", "object Simple")
+  addSourceFile("qual/Simple.scala",
+    s"""
+      |package qual
       |
       |object Simple
       """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 2)
-    runDebugger("Sample") {
+  )
+  addSourceFile("qual/SimpleCaseClass.scala",
+    s"""
+       |package qual
+       |
+       |case class SimpleCaseClass()
+      """.stripMargin.trim()
+  )
+  addSourceFile("StableInner.scala",
+    s"""
+       |package qual
+       |
+       |object StableInner {
+       |  object Inner
+       |}
+      """.stripMargin.trim()
+  )
+  addSourceFile("qual/ClassInner.scala",
+    s"""
+       |package qual
+       |
+       |class ClassInner {
+       |  object Inner
+       |}
+      """.stripMargin.trim()
+  )
+  def testEvaluateObjects() {
+    runDebugger() {
       waitForBreakpoint()
       evalStartsWith("Simple", "Simple$")
-    }
-  }
-
-  def testQualifiedObject() {
-    addFileToProject("qual/Sample.scala",
-      """
-      |package qual
-      |
-      |object Simple
-      """.stripMargin.trim()
-    )
-
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    "stop here"
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 2)
-    runDebugger("Sample") {
-      waitForBreakpoint()
       evalStartsWith("qual.Simple", "qual.Simple$")
-    }
-  }
-
-  def testJavaConversions() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    "stop here"
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 2)
-    runDebugger("Sample") {
-      waitForBreakpoint()
       evalStartsWith("collection.JavaConversions", "scala.collection.JavaConversions$")
+      evalEquals("qual.SimpleCaseClass", "SimpleCaseClass")
+      evalStartsWith("qual.StableInner.Inner", "qual.StableInner$Inner$")
+      evalStartsWith("val x = new qual.ClassInner(); x.Inner", "qual.ClassInner$Inner$")
     }
   }
 
-  def testCaseClassObject() {
-    addFileToProject("qual/Sample.scala",
-      """
-      |package qual
-      |
-      |case class Simple(x: Int)
+  addFileWithBreakpoints("InnerClassObjectFromObject.scala",
+    s"""
+       |object InnerClassObjectFromObject {
+       |  class S {
+       |    object SS {
+       |      object S {
+       |        def foo() {
+       |          SS.S //to have $$outer field
+       |          ""$bp
+       |        }
+       |      }
+       |      object G
+       |    }
+       |    def foo() {
+       |      SS.S.foo()
+       |    }
+       |  }
+       |
+       |  def main(args: Array[String]) {
+       |    val x = new S()
+       |    x.foo()
+       |  }
+       |}
       """.stripMargin.trim()
-    )
-
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    "stop here"
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 2)
-    runDebugger("Sample") {
-      waitForBreakpoint()
-      evalEquals("qual.Simple", "Simple")
-    }
-  }
-
-  def testStableInnerObject() {
-    addFileToProject("qual/Sample.scala",
-      """
-      |package qual
-      |
-      |object Simple {
-      |  object Simple
-      |}
-      """.stripMargin.trim()
-    )
-
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    "stop here"
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 2)
-    runDebugger("Sample") {
-      waitForBreakpoint()
-      evalStartsWith("qual.Simple.Simple", "qual.Simple$Simple$")
-    }
-  }
-
-  def testInnerClassObject() {
-    addFileToProject("qual/Sample.scala",
-      """
-      |package qual
-      |
-      |class Simple {
-      |  object Simple
-      |}
-      """.stripMargin.trim()
-    )
-
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    val x = new qual.Simple()
-      |    "stop here"
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 3)
-    runDebugger("Sample") {
-      waitForBreakpoint()
-      evalStartsWith("x.Simple", "qual.Simple$Simple$")
-    }
-  }
-
+  )
   def testInnerClassObjectFromObject() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  class S {
-      |    object SS {
-      |      object S {
-      |        def foo() {
-      |          SS.S //to have $outer field
-      |          "stop here"
-      |        }
-      |      }
-      |      object G
-      |    }
-      |    def foo() {
-      |      SS.S.foo()
-      |    }
-      |  }
-      |
-      |  def main(args: Array[String]) {
-      |    val x = new S()
-      |    x.foo()
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 5)
-    runDebugger("Sample") {
+    runDebugger() {
       waitForBreakpoint()
-      evalStartsWith("SS.G", "Sample$S$SS$G")
+      evalStartsWith("SS.G", "InnerClassObjectFromObject$S$SS$G")
+      evalStartsWith("SS.S", "InnerClassObjectFromObject$S$SS$S")
+      evalStartsWith("S", "InnerClassObjectFromObject$S$SS$S")
+      evalStartsWith("SS", "InnerClassObjectFromObject$S$SS$")
     }
   }
 }

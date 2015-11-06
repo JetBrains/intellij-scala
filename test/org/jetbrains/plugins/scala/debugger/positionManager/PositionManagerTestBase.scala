@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.extensions
 import org.junit.Assert
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -16,14 +17,13 @@ import scala.collection.mutable.ArrayBuffer
  */
 abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
   protected val offsetMarker = "<offset>"
-  protected val bp = "<breakpoint>"
-  protected val fileName = "Test.scala"
+  protected val sourcePositionsOffsets = mutable.HashMap[String, Seq[Int]]()
 
   //fileText should contain object Main with method main
-  protected def checkGetAllClasses(fileText: String, expectedClassNames: String*) = {
-    val sourcePositions = setupFileAndCreateSourcePositions(fileText.stripMargin.trim.replace("\r",""))
+  protected def checkGetAllClasses(expectedClassNames: String*) = {
+    val sourcePositions = sourcePositionsInFile(mainFileName)
 
-    runDebugger("Main") {
+    runDebugger() {
       waitForBreakpoint()
       val posManager = new ScalaPositionManager(getDebugProcess)
       for ((position, className) <- sourcePositions.zip(expectedClassNames)) {
@@ -36,11 +36,11 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
     }
   }
 
-  protected def checkLocationsOfLine(fileText: String, expectedLocations: Set[Loc]*): Unit = {
-    val sourcePositions = setupFileAndCreateSourcePositions(fileText.stripMargin.trim.replace("\r",""))
+  protected def checkLocationsOfLine(expectedLocations: Set[Loc]*): Unit = {
+    val sourcePositions = sourcePositionsInFile(mainFileName)
     Assert.assertEquals("Wrong number of expected locations sets: ", sourcePositions.size, expectedLocations.size)
 
-    runDebugger("Main") {
+    runDebugger() {
       waitForBreakpoint()
       val posManager = new ScalaPositionManager(getDebugProcess)
 
@@ -66,9 +66,9 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
 
   private def toSimpleLocation(location: Location) = Loc(location.declaringType().name(), location.method().name(), location.lineNumber())
 
-  protected def setupFileAndCreateSourcePositions(fileText: String): Seq[SourcePosition] = {
+  protected def setupFile(fileName: String, fileText: String): Unit = {
     val breakpointLine = fileText.lines.indexWhere(_.contains(bp))
-    var cleanedText = fileText.replace(bp, "")
+    var cleanedText = fileText.replace(bp, "").replace("\r", "")
     val offsets = ArrayBuffer[Int]()
     var offset = cleanedText.indexOf(offsetMarker)
     while (offset >= 0) {
@@ -78,20 +78,23 @@ abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
     }
 
     assert(offsets.nonEmpty, s"Not specified offset marker in test case. Use $offsetMarker in provided text of the file.")
-    addFileToProject(fileName, cleanedText)
+    sourcePositionsOffsets += (fileName -> offsets)
+    addSourceFile(fileName, cleanedText)
 
     if (breakpointLine >= 0)
-      addBreakpoint(fileName, breakpointLine)
-
-    val psiManager = PsiManager.getInstance(getProject)
-    val vFile = VfsUtil.findFileByIoFile(getFileInSrc(fileName), false)
-    val psiFile = psiManager.findFile(vFile)
-
-    offsets.map(createLineSourcePositionFromOffset(psiFile, _))
+      addBreakpoint(breakpointLine, fileName)
   }
 
   private def createLineSourcePositionFromOffset(file: PsiFile, offset: Int) = {
     val fromOffset = SourcePosition.createFromOffset(file, offset)
     SourcePosition.createFromLine(file, fromOffset.getLine)
+  }
+
+  private def sourcePositionsInFile(fileName: String) = {
+    val psiManager = PsiManager.getInstance(getProject)
+    val vFile = VfsUtil.findFileByIoFile(getFileInSrc(fileName), false)
+    val psiFile = psiManager.findFile(vFile)
+    val offsets = sourcePositionsOffsets(fileName)
+    offsets.map(createLineSourcePositionFromOffset(psiFile, _))
   }
 }

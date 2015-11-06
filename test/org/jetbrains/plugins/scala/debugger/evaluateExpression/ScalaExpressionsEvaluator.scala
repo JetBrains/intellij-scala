@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12_M2}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
 
 /**
  * User: Alefas
@@ -8,63 +8,65 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
  */
 
 class ScalaExpressionsEvaluator extends ScalaExpressionsEvaluatorBase with ScalaVersion_2_11
-class ScalaExpressionsEvaluator_2_12_M2 extends ScalaExpressionsEvaluatorBase with ScalaVersion_2_12_M2
+class ScalaExpressionsEvaluator_212 extends ScalaExpressionsEvaluatorBase with ScalaVersion_2_12
 
 abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
-  def testPrefixUnary() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
+  addFileWithBreakpoints("PrefixUnary.scala",
+    s"""
+      |object PrefixUnary {
       |  class U {
       |    def unary_!(): Boolean = false
       |  }
       |  def main(args: Array[String]) {
       |    val u = new U
-      |    "stop here"
+      |    ""$bp
       |  }
       |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 6)
-    runDebugger("Sample") {
+    """.stripMargin.trim()
+  )
+  def testPrefixUnary() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("!u", "false")
+      evalEquals("!true", "false")
     }
   }
 
-  def testTupleExpr() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
+  addFileWithBreakpoints("VariousExprs.scala",
+    s"""
+      |object VariousExprs {
       |  def main(args: Array[String]) {
-      |    "stop here"
+      |    ""$bp
       |  }
       |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 2)
-    runDebugger("Sample") {
+    """.stripMargin.trim()
+  )
+  def testVariousExprs() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("(1, 2, 3)", "(1,2,3)")
+      evalEquals("if (true) \"text\"", "undefined")
+      evalEquals("if (true) \"text\" else \"next\"", "text")
+      evalEquals("if (false) \"text\" else \"next\"", "next")
+      evalEquals("\"text\" != null", "true")
     }
   }
 
-  def testSmartBoxing() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
+  addFileWithBreakpoints("SmartBoxing.scala",
+    s"""
+      |object SmartBoxing {
       |  def foo[T](x: T)(y: T) = x
       |  def main(args: Array[String]) {
       |    val tup = (1, 2)
-      |    "stop here"
+      |    ""$bp
       |  }
       |  def test(tup: (Int,  Int)) = tup._1
       |  def test2(tup: Tuple2[Int,  Int]) = tup._2
       |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 4)
-    runDebugger("Sample") {
+    """.stripMargin.trim()
+  )
+  def testSmartBoxing() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("test(tup)", "1")
       evalEquals("test((1, 2))", "1")
@@ -76,22 +78,22 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("scala.collection.immutable.HashSet.empty + 1 + 2", "Set(1, 2)")
     }
   }
-  
-  def testAssignment() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
+
+  addFileWithBreakpoints("Assignment.scala",
+    s"""
+      |object Assignment {
       |  var m = 0
       |  def main(args: Array[String]) {
       |    var z = 1
+      |    val y = 0
       |    val x: Array[Array[Int]] = Array(Array(1, 2), Array(2, 3))
-      |    "stop here"
+      |    ""$bp
       |  }
       |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 5)
-    runDebugger("Sample") {
+    """.stripMargin.trim()
+  )
+  def testAssignment() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("x(0)(0)", "1")
       evalEquals("x(0)(0) = 2", "2")
@@ -102,36 +104,36 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("m", "0")
       evalEquals("m = 2", "undefined")
       evalEquals("m", "2")
+      evalEquals("y = 1", "1") //local vals may be reassigned in debugger
+      evalEquals("y", "1")
     }
   }
 
-  def testThis() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
+  addFileWithBreakpoints("This.scala",
+    s"""
+      |object This {
       |  def main(args: Array[String]) {
       |    class This {
       |      val x = 1
       |      def foo() {
-      |       "stop here"
+      |       ""$bp
       |      }
       |    }
       |    new This().foo()
       |  }
       |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 5)
-    runDebugger("Sample") {
+    """.stripMargin.trim()
+  )
+  def testThis() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("this.x", "1")
     }
   }
 
-  def testPrefixedThis() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
+  addFileWithBreakpoints("PrefixedThis.scala",
+    s"""
+      |object PrefixedThis {
       |  def main(args: Array[String]) {
       |    class This {
       |      val x = 1
@@ -140,7 +142,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       |          def run() {
       |            val x = () => {
       |             This.this.x //to have This.this in scope
-      |             "stop here"
+      |             ""$bp
       |            }
       |            x()
       |          }
@@ -151,118 +153,192 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       |    new This().foo()
       |  }
       |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 9)
-    runDebugger("Sample") {
+    """.stripMargin.trim()
+  )
+  def testPrefixedThis() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("This.this.x", "1")
     }
   }
 
-  def testPostfix() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
+  addFileWithBreakpoints("Postfix.scala",
+    s"""
+      |object Postfix {
       |  def main(args: Array[String]) {
       |    object x {val x = 1}
       |    x
-      |    "stop here"
+      |    ""$bp
       |  }
       |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 4)
-    runDebugger("Sample") {
+    """.stripMargin.trim()
+  )
+  def testPostfix() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("x x", "1")
       evalEquals("1 toString ()", "1")
     }
   }
 
-  def testIfUnit() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
+  addFileWithBreakpoints("Backticks.scala",
+    s"""
+      |object Backticks {
       |  def main(args: Array[String]) {
-      |    "stop here"
+      |    val `val` = 100
+      |    ""$bp
       |  }
       |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 2)
-    runDebugger("Sample") {
-      waitForBreakpoint()
-      evalEquals("if (true) \"text\"", "undefined")
-    }
-  }
-
-  def testIf() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    "stop here"
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 2)
-    runDebugger("Sample") {
-      waitForBreakpoint()
-      evalEquals("if (true) \"text\" else \"next\"", "text")
-    }
-  }
-
-  def testIfElse() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    "stop here"
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 2)
-    runDebugger("Sample") {
-      waitForBreakpoint()
-      evalEquals("if (false) \"text\" else \"next\"", "next")
-    }
-  }
-
-  def testNotNull() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    "stop here"
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 2)
-    runDebugger("Sample") {
-      waitForBreakpoint()
-      evalEquals("\"text\" != null", "true")
-    }
-  }
-
+    """.stripMargin.trim()
+  )
   def testBackticks() {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  def main(args: Array[String]) {
-        |    val `val` = 100
-        |    "stop here"
-        |  }
-        |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 3)
-    runDebugger("Sample") {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("`val`", "100")
+    }
+  }
+
+  addFileWithBreakpoints("Literal.scala",
+    s"""
+      |object Literal {
+      |  implicit def intToString(x: Int) = x.toString + x.toString
+      |  def main(args: Array[String]) {
+      |    val n = 1
+      |    ""$bp
+      |  }
+      |}
+    """.stripMargin.trim()
+  )
+  def testLiteral() {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("\"x\".length", "1")
+      evalEquals("s\"n = $n\"", "n = 1")
+      evalEquals("1L", "1")
+      evalEquals("'c'", "c")
+      evalEquals("true", "true")
+      evalEquals("null", "null")
+      evalEquals("1", "1")
+      evalEquals("1F", "1.0")
+      evalEquals("Array(1F, 2.0F)", "[1.0,2.0]")
+      evalEquals("123.charAt(3)", "1")
+      evalEquals("\"a\".concat(123)", "a123123")
+      evalEquals("'aaa", "'aaa")
+      evalEquals("'aaa.name", "aaa")
+    }
+  }
+
+  addFileWithBreakpoints("JavaLib.scala",
+    s"""
+      |object JavaLib {
+      |  def main(args: Array[String]) {
+      |    ""$bp
+      |  }
+      |}
+    """.stripMargin.trim()
+  )
+  def testJavaLib() {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("new StringBuilder(\"test\").append(23)", "test23")
+      evalEquals("new Array[Int](2)", "[0,0]")
+    }
+  }
+
+  addFileWithBreakpoints("InnerClass.scala",
+    s"""
+      |object InnerClass {
+      |  class Expr {}
+      |  def main(args: Array[String]) {
+      |    ""$bp
+      |  }
+      |}
+    """.stripMargin.trim()
+  )
+  def testInnerClass() {
+    runDebugger() {
+      waitForBreakpoint()
+      evalStartsWith("new Expr", "InnerClass$Expr")
+    }
+  }
+
+  addFileWithBreakpoints("OverloadingClass.scala",
+    s"""
+      |object OverloadingClass {
+      |  class Expr(s: String) {
+      |    def this(t: Int) {
+      |      this("test")
+      |    }
+      |  }
+      |  def main(args: Array[String]) {
+      |    ""$bp
+      |  }
+      |}
+    """.stripMargin.trim()
+  )
+  def testOverloadingClass() {
+    runDebugger() {
+      waitForBreakpoint()
+      evalStartsWith("new Expr(\"\")", "OverloadingClass$Expr")
+      evalStartsWith("new Expr(2)", "OverloadingClass$Expr")
+    }
+  }
+
+  addFileWithBreakpoints("IsInstanceOf.scala",
+    s"""
+       |object IsInstanceOf {
+       |  class A
+       |  class B
+       |  def main(args: Array[String]) {
+       |    val x = new A
+       |    val y = new B
+       |    ""$bp
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
+  def testIsInstanceOf() {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("x.isInstanceOf[A]", "true")
+      evalEquals("x.isInstanceOf[B]", "false")
+      evalEquals("y.isInstanceOf[B]", "true")
+      evalEquals("y.isInstanceOf[String]", "false")
+      evalEquals("\"\".isInstanceOf[String]", "true")
+    }
+  }
+
+  addFileWithBreakpoints("SyntheticOperators.scala",
+    s"""
+       |object SyntheticOperators {
+       |  def fail: Boolean = throw new Exception("fail!")
+       |  def main(args: Array[String]) {
+       |     val tr = true
+       |     val fls = false
+       |    ""$bp
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
+  def testSyntheticOperators(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("tr || fail", "true")
+      evalEquals("fls && fail", "false")
+      evalEquals("fls || tr", "true")
+      evalEquals("tr && fls", "false")
+      evalEquals("1 < 1", "false")
+      evalEquals("1 <= 1", "true")
+      evalEquals("1 + 2", "3")
+      evalEquals("3 - 1.5.toInt", "2")
+      evalEquals("false ^ true", "true")
+      evalEquals("!false", "true")
+      evalEquals("false | false", "false")
+      evalEquals("1 / 2", "0")
+      evalEquals("1 / 2.", "0.5")
+      evalEquals("5 % 2", "1")
+      evalEquals("1 << 2", "4")
+      evalEquals("\"1\" + 1", "11")
     }
   }
 

@@ -9,11 +9,11 @@ import com.intellij.execution.application.{ApplicationConfiguration, Application
 import com.intellij.ide.highlighter.{ModuleFileType, ProjectFileType}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil}
-import com.intellij.testFramework.{PlatformTestCase, PsiTestUtil, UsefulTestCase}
+import com.intellij.testFramework.{PlatformTestCase, UsefulTestCase}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.Assert
 
 import scala.collection.mutable
 import scala.util.Try
@@ -25,16 +25,27 @@ import scala.util.Try
 abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
   protected def checksumsFileName = "checksums.dat"
 
+  protected val testDataBasePrefix = "debugger"
+
   private var checksums: mutable.HashMap[String, Array[Byte]] = null
 
   protected var needMake = false
 
+  private val sourceFiles = mutable.HashMap[String, String]()
+
   override def setUp() {
-    needMake = !testDataProjectIsValid()
+    val testDataValid = testDataProjectIsValid()
+    if (!testDataValid) {
+      needMake = true
+      val testDataProjectPath = testDataBasePath
+      if (testDataProjectPath.exists()) FileUtil.delete(testDataProjectPath)
+    }
 
     UsefulTestCase.edt(new Runnable {
+
       def run() {
         ScalaDebuggerTestBase.super.setUp()
+        checkOrAddAllSourceFiles()
         addScalaSdk()
         addOtherLibraries()
       }
@@ -53,13 +64,8 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     PlatformTestCase.myFilesToDelete.remove(getImlFile)
   }
 
-  protected override def tearDown(): Unit = {
-    //getDebugSession.dispose()
-    super.tearDown()
-  }
-
   override def getIprFile: File = {
-    val file = new File(testDataBasePath, getName + ProjectFileType.DOT_DEFAULT_EXTENSION)
+    val file = new File(testDataBasePath, testClassName + ProjectFileType.DOT_DEFAULT_EXTENSION)
     FileUtil.createIfDoesntExist(file)
     file
   }
@@ -88,7 +94,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     }
 
     val file = getFileInSrc(fileName)
-    if (needMake || !checkSourceFile(file, fileText)) {
+    if (needMake || !fileWithTextExists(file, fileText)) {
       needMake = true
       if (file.exists() || virtualFileExists(file)) {
         val vFile = getVirtualFile(file)
@@ -98,26 +104,48 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     }
   }
 
+  protected def addSourceFile(relPathInSrc: String, fileText: String) = {
+    sourceFiles += relPathInSrc -> fileText
+  }
+
+  def checkOrAddAllSourceFiles() = {
+    if (sourceFiles.exists {
+      case (path, text) => !fileWithTextExists(new File(path), text)
+    }) {
+
+    }
+    sourceFiles.foreach {
+      case (path, text) => addFileToProject(path, text)
+    }
+  }
+
+  protected def addFileToProject(fileText: String) {
+    Assert.assertTrue(s"File should start with `object $mainClassName`", fileText.startsWith(s"object $mainClassName"))
+    addFileToProject(mainFileName, fileText)
+  }
+
   protected def getFileInSrc(fileName: String): File = {
     if (!srcDir.exists()) srcDir.mkdir()
     new File(srcDir, fileName)
   }
 
+  protected def testClassName: String = this.getClass.getSimpleName.stripSuffix("Test")
+
   protected def testDataBasePath(dataPath: String): File = {
-    val testClassName = this.getClass.getSimpleName.stripSuffix("Test")
     val testDataDir = new File(TestUtils.getTestDataPath, dataPath)
     val classTestsDir = new File(testDataDir, testClassName)
-    val file = new File(classTestsDir, getTestName(true))
-    if (file.exists()) file
+    if (classTestsDir.exists()) classTestsDir
     else {
-      FileUtil.createDirectory(file)
-      file
+      FileUtil.createDirectory(classTestsDir)
+      classTestsDir
     }
   }
 
-  private def testDataBasePath: File = testDataBasePath(testDataBasePrefix)
+  protected def mainClassName = getTestName(false)
 
-  protected val testDataBasePrefix = "debugger"
+  protected def mainFileName = s"$mainClassName.scala"
+
+  private def testDataBasePath: File = testDataBasePath(testDataBasePrefix)
 
   def getVirtualFile(file: File) = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(file)
 
@@ -165,41 +193,48 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     }
   }
 
-  private def loadChecksums(): Unit = {
+  private def loadChecksums(): Boolean = {
     val file = new File(testDataBasePath, checksumsFileName)
     if (!file.exists) {
-      needMake = true
-      return
+      return false
     }
     val ois = new ObjectInputStream(new FileInputStream(file))
-    try {
+    val result = try {
       val obj = ois.readObject()
       obj match {
-        case map: mutable.HashMap[String, Array[Byte]]@unchecked => checksums = map
-        case _ => needMake = true
+        case map: mutable.HashMap[String, Array[Byte]]@unchecked => checksums = map; true
+        case _ => false
       }
     }
     finally ois.close()
+    result
   }
 
   private def testDataProjectIsValid(): Boolean = {
-    loadChecksums()
-    !needMake && checksums.keys.forall(checkFile) && getImlFile != null
+    sameSourceFiles() && loadChecksums() && checksums.keys.forall(checkFile) && getImlFile != null
   }
 
-  private def checkSourceFile(file: File, fileText: String): Boolean = {
-    val oldText = scala.io.Source.fromFile(file, "UTF-8").mkString
-    oldText.replace("\r", "") == fileText.replace("\r", "")
+  private def sameSourceFiles(): Boolean = {
+    def numberOfFiles(dir: File): Int = dir match {
+      case d: File if d.isDirectory => d.listFiles().map(numberOfFiles).sum
+      case f => 1
+    }
+    val existingFilesNumber = numberOfFiles(srcDir)
+    sourceFiles.size == existingFilesNumber && sourceFiles.forall {
+      case (relPath, text) => fileWithTextExists(new File(srcDir, relPath), text)
+    }
+  }
+
+  private def fileWithTextExists(file: File, fileText: String): Boolean = {
+    if (!file.exists()) false
+    else {
+      val oldText = scala.io.Source.fromFile(file, "UTF-8").mkString
+      oldText.replace("\r", "") == fileText.replace("\r", "")
+    }
   }
 
   private def checkFile(relPath: String): Boolean = {
     val file = new File(testDataBasePath, relPath)
     file.exists && util.Arrays.equals(checksums(relPath), md5(file))
-  }
-
-  protected def addLibrary(libraryName: String, libraryPath: String, jarNames: String*) {
-    val pathExtended = TestUtils.getTestDataPath.replace("\\", "/") + "/" + libraryPath + "/"
-    VfsRootAccess.allowRootAccess(pathExtended)
-    PsiTestUtil.addLibrary(myModule, libraryName, pathExtended, jarNames: _*)
   }
 }
