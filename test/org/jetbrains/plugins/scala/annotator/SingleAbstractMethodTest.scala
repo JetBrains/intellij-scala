@@ -546,6 +546,18 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
     checkCodeHasNoErrors(code)
   }
 
+  def testNotSAM(): Unit = {
+    val code =
+      """
+        |abstract class U {
+        |  def foo(): Unit
+        |}
+        |def z(): U = null
+        |val x: U = z()
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
   def checkCodeHasNoErrors(scalaCode: String, javaCode: Option[String] = None) {
     assertMatches(messages(scalaCode, javaCode)) {
       case Nil =>

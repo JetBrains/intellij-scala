@@ -153,7 +153,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
               if (checkExpectedType) {
                 InferUtil.updateAccordingToExpectedType(Success(res, Some(this)), fromImplicitParameters = true,
                   filterTypeParams = false, expectedType = expectedType(fromUnderscore), expr = this,
-                  check = checkExpectedType) match {
+                  check = checkExpectedType, forEtaExpansion = true) match {
                   case Success(newRes, _) => res = newRes
                   case _ =>
                 }
