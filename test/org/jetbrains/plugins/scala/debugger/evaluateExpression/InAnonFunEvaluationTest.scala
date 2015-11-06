@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12_M2}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
 
 /**
  * Nikolay.Tropin
@@ -10,29 +10,10 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
 
 class InAnonFunEvaluationTest extends InAnonFunEvaluationTestBase with ScalaVersion_2_11
 
-class InAnonFunEvaluationTest_2_12_M2 extends InAnonFunEvaluationTestBase with ScalaVersion_2_12_M2 {
+class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTestBase with ScalaVersion_2_12 {
   //todo SCL-9139
   override def testPartialFunction(): Unit = {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  val name = "name"
-        |  def main(args: Array[String]) {
-        |    def printName(param: String, notUsed: String) {
-        |      List(("a", 10)).foreach {
-        |        case (a, i: Int) =>
-        |            val x = "x"
-        |            println(a + param)
-        |            "stop here"
-        |      }
-        |    }
-        |    printName("param", "notUsed")
-        |  }
-        |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 7)
-    runDebugger("Sample") {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("a", "a")
       evalEquals("x", "x")
@@ -42,31 +23,27 @@ class InAnonFunEvaluationTest_2_12_M2 extends InAnonFunEvaluationTestBase with S
       evalEquals("args", "[]")
     }
   }
-
-
-
 }
 
 abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
 
-  def testFunctionValue() {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  def main(args: Array[String]) {
-        |    val a = "a"
-        |    var b = "b"
-        |    val f: (Int) => Unit = n => {
-        |      val x = "x"
-        |      "stop here"
-        |    }
-        |    f(10)
-        |  }
-        |}
+  addFileWithBreakpoints("FunctionValue.scala",
+    s"""
+       |object FunctionValue {
+       |  def main(args: Array[String]) {
+       |    val a = "a"
+       |    var b = "b"
+       |    val f: (Int) => Unit = n => {
+       |      val x = "x"
+       |      ""$bp
+       |    }
+       |    f(10)
+       |  }
+       |}
       """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 6)
-    runDebugger("Sample") {
+  )
+  def testFunctionValue() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("a", "a")
       evalEquals("b", "b")
@@ -76,27 +53,26 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
     }
   }
 
-  def testPartialFunction() {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  val name = "name"
-        |  def main(args: Array[String]) {
-        |    def printName(param: String, notUsed: String) {
-        |      List(("a", 10)).foreach {
-        |        case (a, i: Int) =>
-        |            val x = "x"
-        |            println(a + param)
-        |            "stop here"
-        |      }
-        |    }
-        |    printName("param", "notUsed")
-        |  }
-        |}
+  addFileWithBreakpoints("PartialFunction.scala",
+    s"""
+       |object PartialFunction {
+       |  val name = "name"
+       |  def main(args: Array[String]) {
+       |    def printName(param: String, notUsed: String) {
+       |      List(("a", 10)).foreach {
+       |        case (a, i: Int) =>
+       |            val x = "x"
+       |            println(a + param)
+       |            ""$bp
+       |      }
+       |    }
+       |    printName("param", "notUsed")
+       |  }
+       |}
       """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 7)
-    runDebugger("Sample") {
+  )
+  def testPartialFunction() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("a", "a")
       evalEquals("i", "10")
@@ -108,27 +84,26 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
     }
   }
 
-  def testFunctionExpr() {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  val name = "name"
-        |  def main(args: Array[String]) {
-        |    def printName(param: String, notUsed: String) {
-        |      List("a").foreach {
-        |        a =>
-        |            val x = "x"
-        |            println(a + param)
-        |            "stop here"
-        |      }
-        |    }
-        |    printName("param", "notUsed")
-        |  }
-        |}
+  addFileWithBreakpoints("FunctionExpr.scala",
+    s"""
+       |object FunctionExpr {
+       |  val name = "name"
+       |  def main(args: Array[String]) {
+       |    def printName(param: String, notUsed: String) {
+       |      List("a").foreach {
+       |        a =>
+       |            val x = "x"
+       |            println(a + param)
+       |            ""$bp
+       |      }
+       |    }
+       |    printName("param", "notUsed")
+       |  }
+       |}
       """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 7)
-    runDebugger("Sample") {
+  )
+  def testFunctionExpr() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("a", "a")
       evalEquals("x", "x")
@@ -139,26 +114,25 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
     }
   }
 
-  def testForStmt() {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  val name = "name"
-        |  def main(args: Array[String]) {
-        |    def printName(param: String, notUsed: String) {
-        |      for (s <- List("a", "b"); if s == "a"; ss = s + s; i <- List(1,2); if i == 1; si = s + i) {
-        |        val in = "in"
-        |        println(s + param + ss)
-        |        "stop here"
-        |      }
-        |    }
-        |    printName("param", "notUsed")
-        |  }
-        |}
+  addFileWithBreakpoints("ForStmt.scala",
+    s"""
+       |object ForStmt {
+       |  val name = "name"
+       |  def main(args: Array[String]) {
+       |    def printName(param: String, notUsed: String) {
+       |      for (s <- List("a", "b"); if s == "a"; ss = s + s; i <- List(1,2); if i == 1; si = s + i) {
+       |        val in = "in"
+       |        println(s + param + ss)
+       |        ""$bp
+       |      }
+       |    }
+       |    printName("param", "notUsed")
+       |  }
+       |}
       """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 6)
-    runDebugger("Sample") {
+  )
+  def testForStmt() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("s", "a")
       evalEquals("in", "in")
@@ -171,6 +145,5 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
       evalEquals("si", ScalaBundle.message("not.used.from.for.statement", "si"))
     }
   }
-
 
 }
