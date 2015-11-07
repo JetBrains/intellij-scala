@@ -300,7 +300,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           return if (rightPsi.getPrevSibling != null && rightPsi.getPrevSibling.getText.contains("\n")) ON_NEW_LINE else WITH_SPACING
         case (true, false) => return ON_NEW_LINE
         case (false, false) => return WITH_SPACING_NO_KEEP
-        case (true, true) => return Spacing.createDependentLFSpacing(1, 1, rightPsi.getParent.getTextRange, true, 1)
+        case (true, true) =>
+          //TODO the '0' in arguments is a temporary fix for SCL-8683: will not remove redundant space, but does not place new space either
+          return Spacing.createDependentLFSpacing(0, 1, rightPsi.getParent.getTextRange, true, 1)
       }
     }
 
