@@ -6,6 +6,7 @@ import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi._
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor
 import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaChainLookupElement, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
@@ -24,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
  * @since 7/10/14.
  */
 
-class SbtCompletionContributor extends CompletionContributor {
+class SbtCompletionContributor extends ScalaCompletionContributor {
 
   val afterInfixOperator = PlatformPatterns.psiElement().withSuperParent(2, classOf[ScInfixExpr])
 
@@ -33,8 +34,8 @@ class SbtCompletionContributor extends CompletionContributor {
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       if (parameters.getOriginalFile.getFileType.getName != Sbt.Name) return
 
-      val place     = parameters.getPosition
-      val infixExpr = place.getParent.getParent.asInstanceOf[ScInfixExpr]
+      val place     = positionFromParameters(parameters)
+      val infixExpr = place.getContext.getContext.asInstanceOf[ScInfixExpr]
       val operator  = infixExpr.operation
       val parentRef = infixExpr.rOp match {
         case ref: ScReferenceExpression => ref
@@ -42,7 +43,7 @@ class SbtCompletionContributor extends CompletionContributor {
       }
 
       // Check if we're on the right side of expression
-      if (parentRef != place.getParent) return
+      if (parentRef != place.getContext) return
 
       def qualifiedName(t: ScType) = ScType.extractClass(t).map(_.qualifiedName).getOrElse("")
 

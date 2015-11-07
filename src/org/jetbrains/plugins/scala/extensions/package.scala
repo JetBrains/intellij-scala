@@ -15,7 +15,7 @@ import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.util.Processor
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction}
@@ -169,7 +169,14 @@ package object extensions {
     def parenthesisedIf(condition: Boolean) = if (condition) "(" + s + ")" else s
   }
 
-  implicit class PsiElementExt(override val repr: PsiElement) extends PsiElementExtTrait
+  implicit class PsiElementExt(override val repr: PsiElement) extends PsiElementExtTrait {
+    def startOffsetInParent: Int = {
+      repr match {
+        case s: ScalaPsiElement => s.startOffsetInParent
+        case _ => repr.getStartOffsetInParent
+      }
+    }
+  }
 
   implicit class PsiMemberExt(val member: PsiMember) extends AnyVal {
     /**

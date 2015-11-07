@@ -108,7 +108,7 @@
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaAotCompletionContributor"
                                 order="before scalaCompletionContrubutor"/>
         <completion.contributor language="Scala" id="scalaCompletionContrubutor"
-                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor"/>
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaBasicCompletionContributor"/>
         <completion.contributor language="Scala" id="sameSignatureCallParametersProvider"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.SameSignatureCallParametersProvider"/>
         <completion.contributor language="Scala" id="scalaClassNameCompletionContributor"

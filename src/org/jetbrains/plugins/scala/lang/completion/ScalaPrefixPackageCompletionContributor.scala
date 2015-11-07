@@ -7,7 +7,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
 import com.intellij.patterns.PlatformPatterns
-import com.intellij.psi.{PsiPackage, JavaPsiFacade}
+import com.intellij.psi.{PsiElement, PsiPackage, JavaPsiFacade}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{TypeAliasToImport, ClassTypeToImport}
@@ -28,13 +28,13 @@ import scala.collection.JavaConverters._
  * @author Nikolay.Tropin
  */
 
-class ScalaPrefixPackageCompletionContributor extends CompletionContributor {
+class ScalaPrefixPackageCompletionContributor extends ScalaCompletionContributor {
   extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
           withParent(classOf[ScReferenceElement]), new CompletionProvider[CompletionParameters] {
 
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
-      if (!shouldRunClassNameCompletion(parameters, result.getPrefixMatcher)) {
-        ScalaPrefixPackageCompletionContributor.completePrefixPackageNames(parameters, context, result)
+      if (!shouldRunClassNameCompletion(positionFromParameters(parameters), parameters, result.getPrefixMatcher)) {
+        ScalaPrefixPackageCompletionContributor.completePrefixPackageNames(positionFromParameters(parameters), parameters, context, result)
       }
     }
   })
@@ -43,8 +43,9 @@ class ScalaPrefixPackageCompletionContributor extends CompletionContributor {
 
 object ScalaPrefixPackageCompletionContributor {
 
-  def completePrefixPackageNames(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) = {
-    val position = parameters.getPosition
+  def completePrefixPackageNames(dummyPosition: PsiElement, parameters: CompletionParameters,
+                                 context: ProcessingContext, result: CompletionResultSet) = {
+    val position = dummyPosition
     val project = position.getProject
 
     def addPackageForCompletion(packageFqn: String): Unit = {
@@ -53,7 +54,7 @@ object ScalaPrefixPackageCompletionContributor {
 
       if (parameters.getInvocationCount == 0) return
 
-      if (PsiTreeUtil.getParentOfType(position, classOf[ScImportStmt]) != null) return
+      if (PsiTreeUtil.getContextOfType(position, classOf[ScImportStmt]) != null) return
 
       if (result.getPrefixMatcher.getPrefix == "") return
 

@@ -4,7 +4,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import scala.annotation.tailrec
@@ -16,37 +16,13 @@ import scala.annotation.tailrec
 trait PsiElementExtTrait {
   protected def repr: PsiElement
 
-  def firstChild: Option[PsiElement] = {
-    val child = repr.getFirstChild
-    if (child == null) None else Some(child)
-  }
-
-  def lastChild: Option[PsiElement] = {
-    val child = repr.getLastChild
-    if (child == null) None else Some(child)
-  }
-
-  def elementAt(offset: Int): Option[PsiElement] = {
-    val e = repr.findElementAt(offset)
-    if (e == null) None else Some(e)
-  }
-
-  def referenceAt(offset: Int): Option[PsiReference] = {
-    val e = repr.findReferenceAt(offset)
-    if (e == null) None else Some(e)
-  }
-
-  def parent: Option[PsiElement] = {
-    val p = repr.getParent
-    if (p == null) None else Some(p)
-  }
-
+  def firstChild: Option[PsiElement] = Option(repr.getFirstChild)
+  def lastChild: Option[PsiElement] = Option(repr.getLastChild)
+  def elementAt(offset: Int): Option[PsiElement] = Option(repr.findElementAt(offset))
+  def referenceAt(offset: Int): Option[PsiReference] = Option(repr.findReferenceAt(offset))
+  def parent: Option[PsiElement] = Option(repr.getParent)
   def parents: Iterator[PsiElement] = new ParentsIterator(repr)
-
-  def containingFile: Option[PsiFile] = {
-    val f = repr.getContainingFile
-    if (f == null) None else Some(f)
-  }
+  def containingFile: Option[PsiFile] = Option(repr.getContainingFile)
 
   def parentsInFile: Iterator[PsiElement] = {
     repr match {
@@ -97,15 +73,8 @@ trait PsiElementExtTrait {
     next
   }
 
-  def prevSibling: Option[PsiElement] = {
-    val sibling = repr.getPrevSibling
-    if (sibling == null) None else Some(sibling)
-  }
-
-  def nextSibling: Option[PsiElement] = {
-    val sibling = repr.getNextSibling
-    if (sibling == null) None else Some(sibling)
-  }
+  def prevSibling: Option[PsiElement] = Option(repr.getPrevSibling)
+  def nextSibling: Option[PsiElement] = Option(repr.getNextSibling)
 
   def prevSiblings: Iterator[PsiElement] = new PrevSiblignsIterator(repr)
 

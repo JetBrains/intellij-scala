@@ -34,13 +34,13 @@ import org.jetbrains.plugins.scala.project._
 
 import scala.collection.mutable
 
-class ScalaClassNameCompletionContributor extends CompletionContributor {
+class ScalaClassNameCompletionContributor extends ScalaCompletionContributor {
   import org.jetbrains.plugins.scala.lang.completion.ScalaClassNameCompletionContributor._
   extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
     withParent(classOf[ScReferenceElement]), new CompletionProvider[CompletionParameters] {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
-      if (shouldRunClassNameCompletion(parameters, result.getPrefixMatcher)) {
-        completeClassName(parameters, context, result)
+      if (shouldRunClassNameCompletion(positionFromParameters(parameters), parameters, result.getPrefixMatcher)) {
+        completeClassName(positionFromParameters(parameters), parameters, context, result)
       }
       result.stopHere()
     }
@@ -50,43 +50,44 @@ class ScalaClassNameCompletionContributor extends CompletionContributor {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       parameters.getPosition.getNode.getElementType match {
         case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING =>
-          if (shouldRunClassNameCompletion(parameters, result.getPrefixMatcher)) {
-            completeClassName(parameters, context, result)
+          if (shouldRunClassNameCompletion(positionFromParameters(parameters), parameters, result.getPrefixMatcher)) {
+            completeClassName(positionFromParameters(parameters), parameters, context, result)
           }
-        case _ => return
+        case _ =>
       }
     }
   })
 }
 
 object ScalaClassNameCompletionContributor {
-  def completeClassName(parameters: CompletionParameters, context: ProcessingContext,
+  def completeClassName(dummyPosition: PsiElement, parameters: CompletionParameters, context: ProcessingContext,
                         result: CompletionResultSet): Boolean = {
     val expectedTypesAfterNew: Array[ScType] =
-      if (afterNewPattern.accepts(parameters.getPosition, context)) {
-        val element = parameters.getPosition
-        val newExpr = PsiTreeUtil.getParentOfType(element, classOf[ScNewTemplateDefinition])
+      if (afterNewPattern.accepts(dummyPosition, context)) {
+        val element = dummyPosition
+        val newExpr = PsiTreeUtil.getContextOfType(element, classOf[ScNewTemplateDefinition])
         //todo: probably we need to remove all abstracts here according to variance
         newExpr.expectedTypes().map {
           case ScAbstractType(_, lower, upper) => upper
           case tp => tp
         }
       } else Array.empty
-    val (position, inString) = parameters.getPosition.getNode.getElementType match {
+    val (position, inString) = dummyPosition.getNode.getElementType match {
       case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING =>
-        val position = parameters.getPosition
-        val offsetInString = parameters.getOffset - position.getTextRange.getStartOffset + 1
+        val position = dummyPosition
+        //It's ok here to use parameters.getPosition
+        val offsetInString = parameters.getOffset - parameters.getPosition.getTextRange.getStartOffset + 1
         val interpolated =
           ScalaPsiElementFactory.createExpressionFromText("s" + position.getText, position.getContext.getContext)
         (interpolated.findElementAt(offsetInString), true)
-      case _ => (parameters.getPosition, false)
+      case _ => (dummyPosition, false)
     }
     val invocationCount = parameters.getInvocationCount
     if (!inString && !position.getContainingFile.isInstanceOf[ScalaFile]) return true
     val lookingForAnnotations: Boolean = psiElement.afterLeaf("@").accepts(position)
-    val isInImport = ScalaPsiUtil.getParentOfType(position, classOf[ScImportStmt]) != null
-    val stableRefElement = ScalaPsiUtil.getParentOfType(position, classOf[ScStableCodeReferenceElement])
-    val refElement = ScalaPsiUtil.getParentOfType(position, classOf[ScReferenceElement])
+    val isInImport = ScalaPsiUtil.getContextOfType(position, false, classOf[ScImportStmt]) != null
+    val stableRefElement = ScalaPsiUtil.getContextOfType(position, false, classOf[ScStableCodeReferenceElement])
+    val refElement = ScalaPsiUtil.getContextOfType(position, false, classOf[ScReferenceElement])
     val onlyClasses = stableRefElement != null && !stableRefElement.getContext.isInstanceOf[ScConstructorPattern]
 
     val renamesMap = new mutable.HashMap[String, (String, PsiNamedElement)]()
@@ -142,7 +143,7 @@ object ScalaClassNameCompletionContributor {
           isClassName = true, isInImport = isInImport, isInStableCodeReference = stableRefElement != null,
           isInSimpleString = inString)
       } {
-        if (!afterNewPattern.accepts(parameters.getPosition, context)) result.addElement(el)
+        if (!afterNewPattern.accepts(dummyPosition, context)) result.addElement(el)
         else {
           typeToImport match {
             case ClassTypeToImport(clazz) =>

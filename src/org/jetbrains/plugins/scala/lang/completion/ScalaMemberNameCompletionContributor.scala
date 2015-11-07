@@ -14,16 +14,16 @@ import scala.collection.mutable
  * @author Alefas
  * @since 31.03.12
  */
-class ScalaMemberNameCompletionContributor extends CompletionContributor {
+class ScalaMemberNameCompletionContributor extends ScalaCompletionContributor {
   //suggest class name
   extend(CompletionType.BASIC, ScalaSmartCompletionContributor.superParentsPattern(classOf[ScTypeDefinition]),
     new CompletionProvider[CompletionParameters]() {
       def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
-        val position = parameters.getPosition
+        val position = positionFromParameters(parameters)
         val fileName = parameters.getOriginalFile.getVirtualFile.getNameWithoutExtension
         val classesNames: mutable.HashSet[String] = mutable.HashSet.empty
         val objectNames: mutable.HashSet[String] = mutable.HashSet.empty
-        val parent = position.getParent.getParent
+        val parent = position.getContext.getContext
         if (parent == null) return
         parent.getChildren.foreach {
           case c: ScClass => classesNames += c.name
@@ -39,7 +39,7 @@ class ScalaMemberNameCompletionContributor extends CompletionContributor {
         if (shouldCompleteFileName && !classesNames.contains(fileName) && !objectNames.contains(fileName)) {
           result.addElement(LookupElementBuilder.create(fileName))
         }
-        position.getParent match {
+        position.getContext match {
           case _: ScClass | _: ScTrait =>
             for (o <- objectNames if !classesNames.contains(o)) {
               result.addElement(LookupElementBuilder.create(o))
