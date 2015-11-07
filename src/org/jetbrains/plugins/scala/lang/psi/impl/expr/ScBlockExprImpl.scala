@@ -16,8 +16,10 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount, Cached}
 
 import scala.annotation.tailrec
+import scala.collection.mutable.StringBuilder
 
 /**
 * @author Alexander Podkhalyuzin
@@ -126,5 +128,13 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
       case s: ScalaElementVisitor => accept(s)
       case _ => super.accept(visitor)
     }
+  }
+
+  @Cached(synchronized = true, ModCount.getModificationCount, this)
+  def getMirrorPositionForCompletion(dummyIdentifier: String, pos: Int): PsiElement = {
+    val text = new StringBuilder(getText)
+    text.insert(pos, dummyIdentifier)
+    val newBlock = ScalaPsiElementFactory.createExpressionWithContextFromText(text.toString, getContext, this)
+    newBlock.findElementAt(pos)
   }
 }

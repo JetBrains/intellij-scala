@@ -55,11 +55,8 @@ abstract class ScalaCompletionContributor extends CompletionContributor {
     def inner(element: PsiElement): PsiElement = element match {
       case null => parameters.getPosition //we got to the top of the tree and didn't find a modifierCountOwner
       case block: ScBlockExprImpl if block.isModificationCountOwner =>
-        val text = new StringBuilder(block.getText)
-        val pos = parameters.getOffset - block.getTextOffset
-        text.insert(pos, getDummyIdentifier(parameters.getOffset, parameters.getOriginalFile))
-        val newBlock = ScalaPsiElementFactory.createExpressionWithContextFromText(text.toString, block.getContext, block)
-        newBlock.findElementAt(pos)
+        block.getMirrorPositionForCompletion(getDummyIdentifier(parameters.getOffset, parameters.getOriginalFile),
+          parameters.getOffset - block.getTextOffset)
       case _ => inner(element.getContext)
     }
     inner(parameters.getOriginalPosition)
