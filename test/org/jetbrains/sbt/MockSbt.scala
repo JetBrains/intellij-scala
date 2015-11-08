@@ -18,8 +18,8 @@ import scala.collection.JavaConverters._
  */
 trait MockSbt {
   def addSbtAsModuleDependency(module: Module): Unit = {
-    val sbtLibrariesRoot = TestUtils.getTestDataPath + "/mockSbt0135/"
-    val sbtLibraries = new File(sbtLibrariesRoot).listFiles().filter(f => f.isFile && f.getName.endsWith(".jar"))
+    val sbtLibraries = Seq("collections", "interface", "io", "ivy", "logging", "main", "main-settings", "process", "sbt")
+      .map(n => new File(TestUtils.getIvyCachePath + s"/org.scala-sbt/$n/jars/$n-0.13.5.jar"))
     val scala210 = ScalaSdkVersion._2_10
     val scalaLibraryJars = Seq(
       TestUtils.getScalaLibraryPath(scala210),

@@ -136,6 +136,7 @@ lazy val testDownloader =
       "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
     ),
     libraryDependencies ++= DependencyGroups.testDownloader,
+    libraryDependencies ++= DependencyGroups.mockSbtDownloader,
     libraryDependencies ++= DependencyGroups.testScalaLibraryDownloader,
     dependencyOverrides ++= Set(
       "org.scalatest" % "scalatest_2.10" % "2.1.7",
