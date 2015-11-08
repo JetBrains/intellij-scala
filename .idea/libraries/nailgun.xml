@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="nailgun">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/SDK/nailgun/nailgun.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

@@ -70,10 +70,21 @@ object Dependencies {
   val scalariform_2_11 = "org.scalariform" % "scalariform_2.11" % "0.1.7"
 
   val nailgun = "org.jetbrains" % "nailgun-patched" % "1.0.0"
+  val compilerInterfaceSources = "org.jetbrains" % "compiler-interface-sources" % "1.0.0"
+  val bundledJline = "org.jetbrains" % "jline" % "1.0.0"
+  val incrementalCompiler = "org.jetbrains" % "incremental-compiler" % "1.0.0"
+  val sbtInterface = "org.jetbrains" % "sbt-interface" % "1.0.0"
 }
 
 object DependencyGroups {
   import Dependencies._
+
+  val sbtBundled = Seq(
+    compilerInterfaceSources,
+    bundledJline,
+    incrementalCompiler,
+    sbtInterface
+  )
 
   val plexusContainer = Seq(
     plexusContainerDefault,

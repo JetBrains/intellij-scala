@@ -17,14 +17,14 @@
           <element id="module-output" name="scalaCommunity" />
         </element>
         <element id="directory" name="jps">
-          <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/compiler-interface-sources.jar" />
           <element id="archive" name="scala-jps-plugin.jar">
             <element id="module-output" name="jpsPlugin" />
           </element>
-          <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/jline.jar" />
-          <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/sbt-interface.jar" />
-          <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/incremental-compiler.jar" />
           <element id="library" level="project" name="SBT: org.jetbrains:nailgun-patched:1.0.0:jar" />
+          <element id="library" level="project" name="SBT: org.jetbrains:compiler-interface-sources:1.0.0:jar" />
+          <element id="library" level="project" name="SBT: org.jetbrains:jline:1.0.0:jar" />
+          <element id="library" level="project" name="SBT: org.jetbrains:sbt-interface:1.0.0:jar" />
+          <element id="library" level="project" name="SBT: org.jetbrains:incremental-compiler:1.0.0:jar" />
         </element>
         <element id="archive" name="compiler-settings.jar">
           <element id="module-output" name="compilerSettings" />
