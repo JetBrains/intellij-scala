@@ -1022,4 +1022,26 @@ bars foreach {case (x, y) => list.add(x + y)}
 
     doTextTest(before, after)
   }
+
+  def testSCL8825(): Unit = {
+    getScalaSettings.DO_NOT_INDENT_CASE_CLAUSE_BODY = true
+
+    val before =
+      """
+        |{
+        |  case (i) =>
+        |  testExpr
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |{
+        |  case (i) =>
+        |  testExpr
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
 }
