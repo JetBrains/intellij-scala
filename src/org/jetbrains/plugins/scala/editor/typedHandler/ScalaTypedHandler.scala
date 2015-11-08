@@ -10,6 +10,7 @@ import com.intellij.openapi.util.Condition
 import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleManager}
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.{ScalaLanguage, extensions}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
@@ -19,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScIfStmt, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScIfStmt, ScReferenceExpression}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -84,9 +85,16 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
       myTask = convertToInterpolated(file, editor)
     } else if (c == '.') {
       myTask = startAutopopupCompletionInInterpolatedString(file, editor)
-    } else if (ScalaPsiUtil.isLineTerminator(element) &&
-      element.getPrevSiblingCondition(_.getTextLength != 0).exists(_.getNode.getElementType == ScalaTokenTypes.tDOT)) {
-      myTask = indentRefExprDot(file)
+    } else if (offset > 1){
+      val prevPositionElement = file.findElementAt(offset - 2)
+      if (ScalaPsiUtil.isLineTerminator(prevPositionElement)) {
+        val prevNonEmptySibling = prevPositionElement.getPrevSiblingCondition(_.getTextLength != 0)
+        if (prevNonEmptySibling.exists(_.getNode.getElementType == ScalaTokenTypes.tDOT)) {
+          myTask = indentRefExprDot(file)
+        } else if (prevNonEmptySibling.exists(_.getNode.getElementType == ScalaTokenTypes.tCOMMA)) {
+          myTask = indentParametersComma(file)
+        }
+      }
     }
 
     if (myTask == null) return Result.CONTINUE
@@ -284,6 +292,14 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     indentElement(file)(document, project, element, offset,
       _ => true,
       elem => elem.getParent.isInstanceOf[ScReferenceExpression])
+  }
+
+  private def indentParametersComma(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int) = {
+    indentElement(file)(document, project, element, offset, _ => true,
+      elem => Option(elem.getParent).map(_.getParent).exists {
+        case _: ScParameterClause | _: ScArgumentExprList => true
+        case _ => false
+      })
   }
 
   private def indentValBraceStyle(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int) = {
