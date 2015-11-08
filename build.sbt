@@ -37,7 +37,6 @@ lazy val scalaCommunity: Project =
     //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
     libraryDependencies ++= DependencyGroups.scalaCommunity,
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
-    //unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"),
     addCompilerPlugin(Dependencies.macroParadise),
     ideaInternalPlugins := Seq(
       "copyright",
@@ -62,8 +61,7 @@ lazy val jpsPlugin  =
   newProject("jpsPlugin", file("jps-plugin"))
   .dependsOn(compilerSettings)
   .enablePlugins(SbtIdeaPlugin)
-  .settings(unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "sbt"),
-            libraryDependencies += Dependencies.nailgun)
+  .settings(libraryDependencies ++= Seq(Dependencies.nailgun) ++ DependencyGroups.sbtBundled)
 
 lazy val compilerSettings =
   newProject("compilerSettings", file("compiler-settings"))
@@ -196,9 +194,10 @@ lazy val pluginPackager =
     artifactPath := packagedPluginDir.value,
     dependencyClasspath <<= (
       dependencyClasspath in (scalaCommunity, Compile),
+      dependencyClasspath in (jpsPlugin, Compile),
       dependencyClasspath in (runners, Compile),
       dependencyClasspath in (sbtRuntimeDependencies, Compile)
-    ).map { (a,b,c) => a ++ b ++ c },
+    ).map { (a,b,c,d) => a ++ b ++ c ++ d },
     mappings := {
       import Packaging.PackageEntry._
       val crossLibraries = List(Dependencies.scalaParserCombinators, Dependencies.scalaXml)
@@ -210,8 +209,14 @@ lazy val pluginPackager =
           "lib/jps/scala-jps-plugin.jar"),
         Library(Dependencies.nailgun,
           "lib/jps/nailgun.jar"),
-        Directory(sdkDirectory.value / "sbt",
-          "lib/jps")
+        Library(Dependencies.compilerInterfaceSources,
+          "lib/jps/compiler-interface-sources.jar"),
+        Library(Dependencies.incrementalCompiler,
+          "lib/jps/incremental-compiler.jar"),
+        Library(Dependencies.sbtInterface,
+          "lib/jps/sbt-interface.jar"),
+        Library(Dependencies.bundledJline,
+          "lib/jps/jline.jar")
       )
       val launcher = Seq(
         Library(Dependencies.sbtStructureExtractor012,
