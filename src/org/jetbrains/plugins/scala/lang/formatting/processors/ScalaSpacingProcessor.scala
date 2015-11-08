@@ -258,6 +258,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         return NO_SPACING
       case (el1, el2, _, _) if scalaSettings.KEEP_XML_FORMATTING &&
         (ScalaXmlTokenTypes.XML_ELEMENTS.contains(el1) || ScalaXmlTokenTypes.XML_ELEMENTS.contains(el2)) => return Spacing.getReadOnlySpacing
+      case (ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_START_DELIMITER, _, _, _) => return Spacing.getReadOnlySpacing
+      case (_, ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER, _, _) => return Spacing.getReadOnlySpacing
       case _ =>
     }
 
