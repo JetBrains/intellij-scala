@@ -1062,4 +1062,22 @@ bars foreach {case (x, y) => list.add(x + y)}
 
     doTextTest(before, after)
   }
+
+  def testSCL2468(): Unit = {
+    getScalaSettings.NEWLINE_AFTER_ANNOTATIONS = true
+
+    val before =
+      """
+        |@throws(classOf[IOException]) @deprecated def doSmth() {}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |@throws(classOf[IOException])
+        |@deprecated
+        |def doSmth() {}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
 }

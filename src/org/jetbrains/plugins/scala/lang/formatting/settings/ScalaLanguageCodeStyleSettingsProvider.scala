@@ -167,6 +167,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("SPACES_AROUND_AT_IN_PATTERNS", "Spaces around '@' in pattern bindings",
         CodeStyleSettingsCustomizable.SPACES_OTHER)
+      showCustomOption("NEWLINE_AFTER_ANNOTATIONS", "Newline after annotations", CodeStyleSettingsCustomizable.SPACES_OTHER)
     }
 
   }

@@ -1161,7 +1161,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           case _ => NO_SPACING
         }
       case (_, ScalaTokenTypes.tINNER_CLASS, _, _) => NO_SPACING
-
+      case (ScalaElementTypes.ANNOTATIONS, ScalaTokenTypes.kDEF, _, _) if scalaSettings.NEWLINE_AFTER_ANNOTATIONS =>
+        ON_NEW_LINE
       //Other cases
       case _ =>
         COMMON_SPACING
