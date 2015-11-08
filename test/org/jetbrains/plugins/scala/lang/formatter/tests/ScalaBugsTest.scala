@@ -1123,8 +1123,8 @@ bars foreach {case (x, y) => list.add(x + y)}
     val after =
       """
         |class Foo extends Object with
-        |Thread with
-        |Serializable {
+        |  Thread with
+        |  Serializable {
         |  def foo(x: Int = 0,
         |          y: Int = 1,
         |          z: Int = 2) = new Foo
@@ -1176,8 +1176,8 @@ bars foreach {case (x, y) => list.add(x + y)}
       """
         |class Foo
         |  extends Object with
-        |  Thread with
-        |  Serializable {
+        |    Thread with
+        |    Serializable {
         |  def foo(x: Int = 0,
         |          y: Int = 1,
         |          z: Int = 2) = new Foo
@@ -1185,6 +1185,29 @@ bars foreach {case (x, y) => list.add(x + y)}
       """.stripMargin.replace("\r", "")
 
     doTextTest(before, after)
+  }
 
+  def testSCL2999(): Unit = {
+    getCommonSettings.EXTENDS_LIST_WRAP = CommonCodeStyleSettings.WRAP_ON_EVERY_ITEM
+    getScalaSettings.WRAP_BEFORE_WITH_KEYWORD = true
+    getCommonSettings.getIndentOptions.CONTINUATION_INDENT_SIZE = 4
+
+    val before =
+      """
+        |class MyLongClassName(someParam: String, someOtherParam: Int) extends SomeClass with SomeTrait with AnotherTrait with AndAnotherTrait with YetAnotherTrait {
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class MyLongClassName(someParam: String, someOtherParam: Int) extends SomeClass
+        |    with SomeTrait
+        |    with AnotherTrait
+        |    with AndAnotherTrait
+        |    with YetAnotherTrait {
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
   }
 }

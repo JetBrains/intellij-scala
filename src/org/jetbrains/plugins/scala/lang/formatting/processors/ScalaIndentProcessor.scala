@@ -233,6 +233,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           Indent.getNormalIndent(settings.ALIGN_MULTILINE_METHOD_BRACKETS)
         else Indent.getNoneIndent
       case _: ScDocComment => Indent.getNoneIndent
+      case _ if node.getElementType == ScalaTokenTypes.kEXTENDS && child.getElementType != ScalaTokenTypes.kEXTENDS =>
+        Indent.getContinuationIndent() //this is here to not break whatever processing there is before
       case _ => Indent.getNoneIndent
     }
   }
