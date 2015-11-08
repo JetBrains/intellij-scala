@@ -1044,4 +1044,22 @@ bars foreach {case (x, y) => list.add(x + y)}
 
     doTextTest(before, after)
   }
+
+  def testSCL2454(): Unit = {
+    getCommonSettings.KEEP_LINE_BREAKS = false
+
+    val before =
+      """
+        |val v
+        |    =
+        |    "smth"
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |val v = "smth"
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
 }

@@ -137,7 +137,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1)
     val NO_SPACING = Spacing.createSpacing(spacesMin, spacesMin, 0, false, 0)
-    val COMMON_SPACING = Spacing.createSpacing(1, 1, 0, true, 100)
+    val COMMON_SPACING = Spacing.createSpacing(1, 1, 0, keepLineBreaks, 100)
     val IMPORT_BETWEEN_SPACING = Spacing.createSpacing(0, 0, 1, true, 100)
     val IMPORT_OTHER_SPACING = Spacing.createSpacing(0, 0, 2, true, 100)
 
