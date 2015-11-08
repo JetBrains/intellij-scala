@@ -788,7 +788,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
               rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITHOUT_SPACING
     }
     if (leftString.length > 0 && leftString(leftString.length - 1) == '.') {
-      return WITHOUT_SPACING
+      return if (leftElementType == ScalaElementTypes.LITERAL) WITH_SPACING else WITHOUT_SPACING
     }
     if (leftString.length > 0 && leftString(leftString.length - 1) == ',') {
       if (settings.SPACE_AFTER_COMMA) return WITH_SPACING
