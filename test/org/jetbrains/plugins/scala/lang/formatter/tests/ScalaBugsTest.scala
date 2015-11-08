@@ -1108,4 +1108,83 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL2571(): Unit = {
+    getCommonSettings.EXTENDS_LIST_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
+
+    val before =
+      """
+        |class Foo extends Object with Thread with Serializable {
+        |  def foo(x: Int = 0,
+        |          y: Int = 1,
+        |          z: Int = 2) = new Foo
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class Foo extends Object with
+        |Thread with
+        |Serializable {
+        |  def foo(x: Int = 0,
+        |          y: Int = 1,
+        |          z: Int = 2) = new Foo
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL2571_1(): Unit = {
+    getCommonSettings.EXTENDS_KEYWORD_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
+
+    val before =
+      """
+        |class Foo extends Object with Thread {
+        |  def foo(x: Int = 0,
+        |          y: Int = 1,
+        |          z: Int = 2) = new Foo
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class Foo
+        |  extends Object with Thread {
+        |  def foo(x: Int = 0,
+        |          y: Int = 1,
+        |          z: Int = 2) = new Foo
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL2571_2(): Unit = {
+    getCommonSettings.EXTENDS_KEYWORD_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
+    getCommonSettings.EXTENDS_LIST_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
+
+    val before =
+      """
+        |class Foo extends Object with Thread with Serializable {
+        |  def foo(x: Int = 0,
+        |          y: Int = 1,
+        |          z: Int = 2) = new Foo
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class Foo
+        |  extends Object with
+        |  Thread with
+        |  Serializable {
+        |  def foo(x: Int = 0,
+        |          y: Int = 1,
+        |          z: Int = 2) = new Foo
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+
+  }
 }

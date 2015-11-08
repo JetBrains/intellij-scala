@@ -110,7 +110,7 @@ object ScalaWrapManager {
     val parentPsi = parentNode.getPsi
     val childPsi = child.getPsi
     if (childPsi.isInstanceOf[ScExtendsBlock] &&
-            childPsi.getFirstChild != null && !childPsi.getFirstChild.isInstanceOf[ScTemplateBody])
+            childPsi.getFirstChild != null && childPsi.getFirstChild.getNode.getElementType == ScalaTokenTypes.kEXTENDS)
       return Wrap.createWrap(settings.EXTENDS_KEYWORD_WRAP, true)
 
     def arrageBinary(elementMatch: PsiElement => Boolean,
