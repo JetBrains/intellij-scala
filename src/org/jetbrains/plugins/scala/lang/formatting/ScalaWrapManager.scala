@@ -93,8 +93,8 @@ object ScalaWrapManager {
             annot.getParent.getParent match { case _: ScEarlyDefinitions | _: ScTemplateBody => true; case _ => false }
           } =>
             return Wrap.createWrap(settings.FIELD_ANNOTATION_WRAP, false)
-          case _: ScVariable | _: ScValue | _: ScTypeAlias => Wrap.createWrap(settings.VARIABLE_ANNOTATION_WRAP, false)
-          case _: ScParameter => Wrap.createWrap(settings.PARAMETER_ANNOTATION_WRAP, false)
+          case _: ScVariable | _: ScValue | _: ScTypeAlias => return Wrap.createWrap(settings.VARIABLE_ANNOTATION_WRAP, false)
+          case _: ScParameter => return Wrap.createWrap(settings.PARAMETER_ANNOTATION_WRAP, false)
           case _ =>
         }
       }

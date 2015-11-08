@@ -1080,4 +1080,32 @@ bars foreach {case (x, y) => list.add(x + y)}
 
     doTextTest(before, after)
   }
+
+  def testSCL2469(): Unit = {
+    getCommonSettings.VARIABLE_ANNOTATION_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
+
+    val before =
+      """
+        |class Test {
+        |  def foo(): Unit = {
+        |    @deprecated @deprecated
+        |    val myLocalVal = 42
+        |  }
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class Test {
+        |  def foo(): Unit = {
+        |    @deprecated
+        |    @deprecated
+        |    val myLocalVal = 42
+        |  }
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
 }
