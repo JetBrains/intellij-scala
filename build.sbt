@@ -37,7 +37,7 @@ lazy val scalaCommunity: Project =
     scalacOptions in Global += "-target:jvm-1.6",
     libraryDependencies ++= DependencyGroups.scalaCommunity,
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
-    unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"),
+    //unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"),
     ideaInternalPlugins := Seq(
       "copyright",
       "gradle",
@@ -61,12 +61,13 @@ lazy val jpsPlugin  =
   newProject("jpsPlugin", file("jps-plugin"))
   .dependsOn(compilerSettings)
   .enablePlugins(SbtIdeaPlugin)
-  .settings(unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "sbt", "nailgun"))
+  .settings(unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "sbt"),
+            libraryDependencies += Dependencies.nailgun)
 
 lazy val compilerSettings =
   newProject("compilerSettings", file("compiler-settings"))
   .enablePlugins(SbtIdeaPlugin)
-  .settings(unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"))
+  .settings(libraryDependencies += Dependencies.nailgun)
 
 lazy val scalaRunner =
   newProject("scalaRunner", file("ScalaRunner"))
@@ -80,7 +81,7 @@ lazy val runners =
 lazy val nailgunRunners =
   newProject("nailgunRunners", file("NailgunRunners"))
   .dependsOn(scalaRunner)
-  .settings(unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"))
+  .settings(libraryDependencies += Dependencies.nailgun)
 
 lazy val scalap =
   newProject("scalap", file("scalap"))
@@ -201,8 +202,8 @@ lazy val pluginPackager =
       val jps = Seq(
         Artifact(pack.in(jpsPlugin, Compile).value,
           "lib/jps/scala-jps-plugin.jar"),
-        Directory(sdkDirectory.value / "nailgun",
-          "lib/jps"),
+        Library(Dependencies.nailgun,
+          "lib/jps/nailgun.jar"),
         Directory(sdkDirectory.value / "sbt",
           "lib/jps")
       )

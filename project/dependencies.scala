@@ -68,6 +68,8 @@ object Dependencies {
 
   val scalastyle_2_11 = "org.scalastyle" % "scalastyle_2.11" % "0.7.0"
   val scalariform_2_11 = "org.scalariform" % "scalariform_2.11" % "0.1.7"
+
+  val nailgun = "org.jetbrains" % "nailgun-patched" % "1.0.0"
 }
 
 object DependencyGroups {

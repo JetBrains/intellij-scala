@@ -21,10 +21,10 @@
           <element id="archive" name="scala-jps-plugin.jar">
             <element id="module-output" name="jpsPlugin" />
           </element>
-          <element id="library" level="project" name="nailgun" />
           <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/jline.jar" />
           <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/sbt-interface.jar" />
           <element id="file-copy" path="$PROJECT_DIR$/SDK/sbt/incremental-compiler.jar" />
+          <element id="library" level="project" name="SBT: org.jetbrains:nailgun-patched:1.0.0:jar" />
         </element>
         <element id="archive" name="compiler-settings.jar">
           <element id="module-output" name="compilerSettings" />
@@ -61,7 +61,6 @@
         <element id="library" level="project" name="SBT: org.apache.httpcomponents:httpcore:4.3.1:jar" />
         <element id="library" level="project" name="SBT: org.scala-lang:scala-library:2.11.6:jar" />
         <element id="library" level="project" name="SBT: org.scala-lang:scala-reflect:2.11.6:jar" />
-        <element id="library" level="project" name="SBT: org.scalatest:scalatest-finders-patched:0.9.6:jar" />
         <element id="library" level="project" name="SBT: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.4:jar" />
         <element id="library" level="project" name="SBT: org.apache.lucene:lucene-analyzers-common:4.8.1:jar" />
         <element id="library" level="project" name="SBT: org.apache.lucene:lucene-core:4.8.1:jar" />
@@ -74,6 +73,7 @@
           <element id="module-output" name="scalap" />
         </element>
         <element id="library" level="project" name="SBT: org.jetbrains:sbt-structure-core_2.11:4.2.0:jar" />
+        <element id="library" level="project" name="SBT: org.scalatest:scalatest-finders-patched:0.9.8:jar" />
       </element>
       <element id="directory" name="launcher">
         <element id="library" level="project" name="SBT: org.scala-sbt:sbt-launch:0.13.8:jar" />
