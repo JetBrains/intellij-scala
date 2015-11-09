@@ -113,8 +113,8 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
       case Vars:
         list.add("-g:vars");
         break;
-      case Notc:
-        list.add("-g:notc");
+      case Notailcalls:
+        list.add("-g:notailcalls");
     }
 
     for (String pluginPath : myState.plugins) {

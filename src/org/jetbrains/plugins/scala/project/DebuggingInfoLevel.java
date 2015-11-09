@@ -8,7 +8,7 @@ public enum DebuggingInfoLevel implements Named {
   Source("Source file attribute", "source"),
   Line("Source and line number information", "line"),
   Vars("Source, line number and local variable information", "vars"),
-  Notc("Complete, no tail call optimization", "notc");
+  Notailcalls("Complete, no tail call optimization", "notailcalls");
 
   private String myDescription;
   private String myOption;

@@ -18,8 +18,9 @@ object DebuggerTestUtil {
   def findJdk8(): Sdk = {
     val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
     Option(jdkTable.findJdk(jdk8Name)).getOrElse {
-      val pathDefault = TestUtils.getTestDataPath.replace("\\", "/") + "/mockJDK1.8/jre"
-      val path = discoverJRE18().getOrElse(pathDefault)
+      val path = discoverJRE18().getOrElse(throw new RuntimeException("Could not find jdk8 installation, " +
+                                            "please define a valid JDK_18_x64 or JDK_18, " +
+                                            s"current - ${sys.env("JDK_18_x64")} or ${sys.env("JDK_18_x64")}"))
       val jdk = JavaSdk.getInstance.createJdk(jdk8Name, path)
       inWriteAction {
         jdkTable.addJdk(jdk)

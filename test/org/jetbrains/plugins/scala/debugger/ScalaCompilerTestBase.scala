@@ -41,6 +41,9 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
     CompilerTestUtil.enableExternalCompiler()
 
     addRoots()
+    DebuggerTestUtil.findJdk8()
+    DebuggerTestUtil.setCompileServerSettings()
+    getProject.save()
   }
 
   protected def addRoots() {
@@ -83,16 +86,12 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
   }
 
   protected def make(): List[String] = {
-    DebuggerTestUtil.findJdk8()
-    DebuggerTestUtil.setCompileServerSettings()
-
     val semaphore: Semaphore = new Semaphore
     semaphore.down()
     val callback = new ErrorReportingCallback(semaphore)
     UIUtil.invokeAndWaitIfNeeded(new Runnable {
       def run() {
         try {
-          getProject.save()
           CompilerTestUtil.saveApplicationSettings()
           val ioFile: File = VfsUtilCore.virtualToIoFile(myModule.getModuleFile)
           if (!ioFile.exists) {
