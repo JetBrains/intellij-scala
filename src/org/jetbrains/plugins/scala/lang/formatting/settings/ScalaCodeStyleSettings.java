@@ -32,11 +32,13 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean PLACE_SELF_TYPE_ON_NEW_LINE = true;
   public boolean ALIGN_IF_ELSE = false;
   //indents
-  public boolean CUSTOM_CONTINUATION_INDENT_FOR_PARAMS = true;
   public boolean NOT_CONTINUATION_INDENT_FOR_PARAMS = false;
   public boolean ALIGN_IN_COLUMNS_CASE_BRANCH = false;
   public boolean ALIGN_COMPOSITE_PATTERN = true;
   public boolean DO_NOT_ALIGN_BLOCK_EXPR_PARAMS = false;
+
+  public boolean USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = false;
+  public int ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = 4;
 
   public boolean SPACE_AFTER_MODIFIERS_CONSTRUCTOR = false;
 
