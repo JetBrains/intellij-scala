@@ -287,7 +287,7 @@ object ScalaDocumentationProvider {
           case c => c.getTags.filter(_.getName == MyScaladocParsing.DEFINE_TAG) map {
             case tag: ScDocTag =>
               val vEl = tag.getValueElement
-              val a = (if (vEl != null) vEl.getText else "", tag.getCommentDataText().trim)
+              val a = (if (vEl != null) vEl.getText else "", tag.getAllText.trim)
 
               if (a._1 != "") myCache += a
               a

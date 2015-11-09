@@ -15,4 +15,5 @@ import com.intellij.psi.javadoc.PsiDocTag
 
 trait ScDocTag extends ScalaPsiElement with PsiDocTag {
   def getCommentDataText(): String
+  def getAllText: String
 }

@@ -108,13 +108,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   );
 
   //ScalaDoc Wiki syntax elements
-  static final TokenSet tSCALADOC_WIKI_SYNTAX = TokenSet.create(
-      ScalaDocTokenType.DOC_BOLD_TAG, ScalaDocTokenType.DOC_ITALIC_TAG, ScalaDocTokenType.DOC_MONOSPACE_TAG,
-      ScalaDocTokenType.DOC_SUBSCRIPT_TAG, ScalaDocTokenType.DOC_SUPERSCRIPT_TAG, ScalaDocTokenType.DOC_UNDERLINE_TAG,
-      ScalaDocTokenType.DOC_LINK_TAG, ScalaDocTokenType.DOC_LINK_CLOSE_TAG, ScalaDocTokenType.DOC_HTTP_LINK_TAG,
-      ScalaDocTokenType.DOC_INNER_CODE_TAG, ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG,
-      ScalaDocTokenType.DOC_COMMON_CLOSE_WIKI_TAG
-  );
+  static final TokenSet tSCALADOC_WIKI_SYNTAX = ScalaDocTokenType.ALL_SCALADOC_SYNTAX_ELEMENTS;
 
   //for value in @param value
   static final TokenSet tDOC_TAG_PARAM = TokenSet.create(ScalaDocTokenType.DOC_TAG_VALUE_TOKEN);

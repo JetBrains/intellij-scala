@@ -63,4 +63,10 @@ class ScDocTagImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScDocTa
 
   override def getCommentDataText(): String =
     getNode.getChildren(TokenSet.create(ScalaDocTokenType.DOC_COMMENT_DATA)).map(_.getText).mkString("\n")
+
+  override def getAllText: String = 
+    getNode.getChildren(TokenSet.orSet(TokenSet.create(ScalaDocTokenType.DOC_COMMENT_DATA), ScalaDocTokenType.ALL_SCALADOC_SYNTAX_ELEMENTS)).map {
+      case nd if nd.getElementType == ScalaDocTokenType.DOC_COMMENT_DATA => nd.getText + "\n"
+      case nd => nd.getText + " "
+    }.mkString("")
 }
