@@ -65,7 +65,7 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
     "-g:source" -> DebuggingInfoLevel.Source,
     "-g:line" -> DebuggingInfoLevel.Line,
     "-g:vars" -> DebuggingInfoLevel.Vars,
-    "-g:notc" -> DebuggingInfoLevel.Notc)
+    "-g:notailcalls" -> DebuggingInfoLevel.Notailcalls)
 
   private val PluginOptionPattern = "-Xplugin:(.+)".r
 
