@@ -330,6 +330,24 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     generateNested(fileText, "C", "boo", test)
   }
   
+  def testMacroWiki(): Unit = {
+    val fileText =
+      """
+        |/**
+        | * @define none `None`
+        | */
+        | class A {
+        |   /**
+        |    * && $none &&
+        |    */
+        |    def foo() = {}
+        | }
+      """.stripMargin
+    val test = " <tt>None</tt> "
+    
+    generateNested(fileText, "A", "foo", test)
+  }
+  
   def testAnnotationArgs() {
     val fileText =
       """
