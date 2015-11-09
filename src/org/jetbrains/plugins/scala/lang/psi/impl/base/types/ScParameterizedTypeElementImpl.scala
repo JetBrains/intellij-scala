@@ -43,7 +43,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
   private var desugarizedType: Option[ScTypeElement] = null
 
   //computes desugarized type either for existential type or one of kind projector types
-  @Cached(synchronized = true, ModCount.getModificationCount, this)
+  @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
   def computeDesugarizedType: Option[ScTypeElement] = {
     val inlineSyntaxIds = Set("?", "+?", "-?")
 

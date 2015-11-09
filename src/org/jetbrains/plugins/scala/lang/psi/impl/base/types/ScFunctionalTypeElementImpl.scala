@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 class ScFunctionalTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunctionalTypeElement {
   override def toString: String = "FunctionalType: " + getText
 
-  @Cached(synchronized = true, ModCount.getModificationCount, this)
+  @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
   def desugarizedInfixType: Option[ScParameterizedTypeElement] = {
     val paramTypes = paramTypeElement match {
       case tup: ScTupleTypeElement => tup.components
