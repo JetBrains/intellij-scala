@@ -24,6 +24,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 
 object ScalaIndentProcessor extends ScalaTokenTypes {
@@ -208,7 +210,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _: ScExtendsBlock if settings.CLASS_BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
         settings.CLASS_BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
       case _: ScExtendsBlock => Indent.getNoneIndent //Template body
-      case _: ScParameterClause if scalaSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS =>
+      case p: ScParameterClause if scalaSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS && isConstructorArgOrMemberFunctionParameter(p) =>
         Indent.getSpaceIndent(scalaSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS, false)
       case cl: ScParameterClause if  scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS =>
         if (child.getElementType == ScalaTokenTypes.tRPARENTHESIS ||
@@ -239,5 +241,10 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         Indent.getContinuationIndent() //this is here to not break whatever processing there is before
       case _ => Indent.getNoneIndent
     }
+  }
+
+  private def isConstructorArgOrMemberFunctionParameter(paramClause: ScParameterClause): Boolean = {
+    val owner = paramClause.owner
+    owner != null && (owner.isInstanceOf[ScPrimaryConstructor] || owner.isInstanceOf[ScFunction])
   }
 }

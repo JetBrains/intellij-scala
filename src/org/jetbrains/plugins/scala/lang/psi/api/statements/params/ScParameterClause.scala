@@ -39,4 +39,6 @@ trait ScParameterClause extends ScalaPsiElement {
     * if clause has repeated parameter, add before this parameter.
     */
   def addParameter(param: ScParameter): ScParameterClause
+
+  def owner: PsiElement
 }
