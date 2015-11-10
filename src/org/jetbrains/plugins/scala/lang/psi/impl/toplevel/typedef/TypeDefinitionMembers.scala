@@ -927,7 +927,7 @@ object TypeDefinitionMembers {
           val shouldCheckSynthetics = processor match {
             case c: CompletionProcessor => true
             case o: ImplicitProcessor => true
-            case b: BaseProcessor => b.candidates.nonEmpty
+            case b: BaseProcessor => b.candidates.isEmpty
             case _ => true
           }
           if (shouldCheckSynthetics) {
@@ -939,12 +939,6 @@ object TypeDefinitionMembers {
         }
       }
       true
-    }
-
-    if (processOnlyStable) {
-      if (!process(parameterlessSignatures())) return false
-    } else {
-      if (!process(signatures())) return false
     }
 
     if (shouldProcessTypes(processor)) {
@@ -970,6 +964,13 @@ object TypeDefinitionMembers {
         }
       }
     }
+
+    if (processOnlyStable) {
+      if (!process(parameterlessSignatures())) return false
+    } else {
+      if (!process(signatures())) return false
+    }
+
     //inner classes
     if (shouldProcessJavaInnerClasses(processor)) {
       if (decodedName != "") {
