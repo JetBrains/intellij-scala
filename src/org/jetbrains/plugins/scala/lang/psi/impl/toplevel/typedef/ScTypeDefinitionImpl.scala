@@ -188,7 +188,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
     else javaQualName()
   }
 
-  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, this)
+  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   private def javaQualName(): String = {
     var res = qualifiedName(".", encodeName = true).split('.').map { s =>
       if (s.startsWith("`") && s.endsWith("`") && s.length > 2) s.drop(1).dropRight(1)
@@ -209,7 +209,7 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
     else qualName()
   }
 
-  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, this)
+  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   private def qualName(): String = qualifiedName(".")
 
   override def getExtendsListTypes: Array[PsiClassType] = innerExtendsListTypes

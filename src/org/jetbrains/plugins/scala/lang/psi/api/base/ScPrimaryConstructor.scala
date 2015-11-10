@@ -4,9 +4,6 @@ package psi
 package api
 package base
 
-import com.intellij.psi.util.PsiModificationTracker
-import com.intellij.psi.util.PsiModificationTracker.{OUT_OF_CODE_BLOCK_MODIFICATION_COUNT, MODIFICATION_COUNT}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -113,7 +110,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
     }
   }
 
-  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, this)
+  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   def getFunctionWrappers: Seq[ScPrimaryConstructorWrapper] = {
     val buffer = new ArrayBuffer[ScPrimaryConstructorWrapper]()
     buffer += new ScPrimaryConstructorWrapper(this)

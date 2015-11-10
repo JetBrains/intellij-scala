@@ -130,7 +130,7 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
     }
   }
 
-  @Cached(synchronized = true, ModCount.getModificationCount, this)
+  @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
   def getMirrorPositionForCompletion(dummyIdentifier: String, pos: Int): PsiElement = {
     val text = new StringBuilder(getText)
     text.insert(pos, dummyIdentifier)

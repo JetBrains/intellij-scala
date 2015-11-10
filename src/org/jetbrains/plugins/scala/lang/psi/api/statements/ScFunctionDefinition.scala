@@ -93,7 +93,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
 
   def isSecondaryConstructor: Boolean = name == "this"
 
-  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, this)
+  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   def getStaticTraitFunctionWrapper(cClass: PsiClassWrapper): StaticTraitScFunctionWrapper = {
     new StaticTraitScFunctionWrapper(this, cClass)
   }

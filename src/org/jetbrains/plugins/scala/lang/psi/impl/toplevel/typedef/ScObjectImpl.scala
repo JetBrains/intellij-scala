@@ -177,7 +177,7 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
     }
   }
 
-  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, this)
+  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   private def getModuleField: Option[PsiField] = {
     if (getQualifiedName.split('.').exists(JavaLexer.isKeyword(_, PsiUtil.getLanguageLevel(this)))) None
     else {
@@ -230,7 +230,7 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
   @volatile
   private var emptyObjectConstructorModCount: Long = 0L
 
-  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, this)
+  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   override def getConstructors: Array[PsiMethod] = Array(new EmptyPrivateConstructor(this))
 
   override def isPhysical: Boolean = {

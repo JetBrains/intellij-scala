@@ -120,8 +120,7 @@ class PsiClassWrapper(val definition: ScTemplateDefinition,
     }
   }
 
-  //todo: should use blockmodcount here???
-  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, this)
+  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   private def getEmptyConstructor: PsiMethod = new EmptyPrivateConstructor(this)
 
   def getConstructors: Array[PsiMethod] = {

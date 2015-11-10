@@ -410,7 +410,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   /**
    * @return Empty array, if containing class is null.
    */
-  @Cached(synchronized = false, ModCount.getOutOfCodeBlockModificationCount, this)
+  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   def getFunctionWrappers(isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass] = None): Seq[ScFunctionWrapper] = {
     val buffer = new ArrayBuffer[ScFunctionWrapper]
     if (cClass.isDefined || containingClass != null) {
@@ -661,7 +661,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
   }
 
-  @Cached(synchronized = false, ModCount.getModificationCount, this)
+  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   def collectReverseParamTypesNoImplicits: Option[Seq[Seq[ScType]]] = {
     var i = paramClauses.clauses.length - 1
     val res: ArrayBuffer[Seq[ScType]] = ArrayBuffer.empty
