@@ -113,7 +113,8 @@ extends Object with ScalaTokenTypes with ASTBlock {
       case _ if parent.getNode.getElementType == ScalaTokenTypes.kIF =>
         new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScParameterClause =>
-        new ChildAttributes(if (scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS) Indent.getNormalIndent
+        new ChildAttributes(if (scalaSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS) Indent.getSpaceIndent(scalaSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS, false)
+          else if (scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS) Indent.getNormalIndent
           else Indent.getContinuationWithoutFirstIndent, this.getAlignment)
       case _: ScValue =>
         new ChildAttributes(Indent.getNormalIndent, this.getAlignment) //by default suppose there will be simple expr
