@@ -209,7 +209,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         settings.CLASS_BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2 => Indent.getNormalIndent
       case _: ScExtendsBlock => Indent.getNoneIndent //Template body
       case _: ScParameterClause if scalaSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS =>
-        Indent.getSpaceIndent(scalaSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS, false);
+        Indent.getSpaceIndent(scalaSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS, false)
       case cl: ScParameterClause if  scalaSettings.NOT_CONTINUATION_INDENT_FOR_PARAMS =>
         if (child.getElementType == ScalaTokenTypes.tRPARENTHESIS ||
                 child.getElementType == ScalaTokenTypes.tLPARENTHESIS) Indent.getNoneIndent
