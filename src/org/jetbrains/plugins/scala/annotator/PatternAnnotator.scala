@@ -103,6 +103,7 @@ object PatternAnnotator {
       case StableIdResolvesToVar() =>
         val message = ScalaBundle.message("stable.identifier.required", pattern.getText)
         holder.createErrorAnnotation(pattern, message)
+      case _: ScInterpolationPattern => //do not check interpolated patterns for number of arguments
       case (_: ScConstructorPattern|_: ScInfixPattern) => //check number of arguments
         val (reference, numPatterns) = pattern match {
           case constr: ScConstructorPattern => (Option(constr.ref), constr.args.patterns.length)
