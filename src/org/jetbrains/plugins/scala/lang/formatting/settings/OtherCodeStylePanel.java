@@ -31,14 +31,14 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox replaceInForGeneratorCheckBox;
   private JCheckBox replaceLambdaWithGreekLetter;
   private JCheckBox lineCommentAtFirstColumnCheckBox;
-  private JCheckBox customIndentationForParamsCheckBox;
-  private JSpinner customIndentationForParamsSpinner;
+  private JCheckBox alternateIndentationForParamsCheckBox;
+  private JSpinner alternateIndentationForParamsSpinner;
   private JPanel alternateParamIndentPanel;
   private JLabel spacesLabel;
 
   protected OtherCodeStylePanel(@NotNull CodeStyleSettings settings) {
     super(settings);
-    customIndentationForParamsSpinner.setModel(new SpinnerNumberModel(4, 1, null, 1));
+    alternateIndentationForParamsSpinner.setModel(new SpinnerNumberModel(4, 1, null, 1));
     resetImpl(settings);
   }
 
@@ -82,8 +82,8 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     scalaCodeStyleSettings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR = replaceInForGeneratorCheckBox.isSelected();
     scalaCodeStyleSettings.REPLACE_LAMBDA_WITH_GREEK_LETTER = replaceLambdaWithGreekLetter.isSelected();
     commonCodeStyleSettings.LINE_COMMENT_AT_FIRST_COLUMN = lineCommentAtFirstColumnCheckBox.isSelected();
-    scalaCodeStyleSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = customIndentationForParamsCheckBox.isSelected();
-    scalaCodeStyleSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = (Integer) customIndentationForParamsSpinner.getValue();
+    scalaCodeStyleSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = alternateIndentationForParamsCheckBox.isSelected();
+    scalaCodeStyleSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = (Integer) alternateIndentationForParamsSpinner.getValue();
   }
 
   @Override
@@ -103,9 +103,9 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
       return true;
     if (commonCodeStyleSettings.LINE_COMMENT_AT_FIRST_COLUMN != lineCommentAtFirstColumnCheckBox.isSelected())
       return true;
-    if (scalaCodeStyleSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS != customIndentationForParamsCheckBox.isSelected())
+    if (scalaCodeStyleSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS != alternateIndentationForParamsCheckBox.isSelected())
       return true;
-    if (scalaCodeStyleSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS != (Integer) customIndentationForParamsSpinner.getValue())
+    if (scalaCodeStyleSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS != (Integer) alternateIndentationForParamsSpinner.getValue())
       return true;
 
 
@@ -128,8 +128,8 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     replaceInForGeneratorCheckBox.setSelected(scalaCodeStyleSettings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR);
     replaceLambdaWithGreekLetter.setSelected(scalaCodeStyleSettings.REPLACE_LAMBDA_WITH_GREEK_LETTER);
     lineCommentAtFirstColumnCheckBox.setSelected(commonCodeStyleSettings.LINE_COMMENT_AT_FIRST_COLUMN);
-    customIndentationForParamsCheckBox.setSelected(scalaCodeStyleSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS);
-    customIndentationForParamsSpinner.setValue(scalaCodeStyleSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS);
+    alternateIndentationForParamsCheckBox.setSelected(scalaCodeStyleSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS);
+    alternateIndentationForParamsSpinner.setValue(scalaCodeStyleSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS);
   }
 
   {
@@ -177,12 +177,12 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     alternateParamIndentPanel = new JPanel();
     alternateParamIndentPanel.setLayout(new GridLayoutManager(1, 4, new Insets(0, 0, 0, 0), -1, -1));
     contentPanel.add(alternateParamIndentPanel, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-    customIndentationForParamsCheckBox = new JCheckBox();
-    customIndentationForParamsCheckBox.setText("Alternate indentation for constructor args and parameter declarations:");
-    customIndentationForParamsCheckBox.setVerticalAlignment(1);
-    alternateParamIndentPanel.add(customIndentationForParamsCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    customIndentationForParamsSpinner = new JSpinner();
-    alternateParamIndentPanel.add(customIndentationForParamsSpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, new Dimension(1, -1), new Dimension(2, -1), null, 1, false));
+    alternateIndentationForParamsCheckBox = new JCheckBox();
+    alternateIndentationForParamsCheckBox.setText("Alternate indentation for constructor args and parameter declarations:");
+    alternateIndentationForParamsCheckBox.setVerticalAlignment(1);
+    alternateParamIndentPanel.add(alternateIndentationForParamsCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    alternateIndentationForParamsSpinner = new JSpinner();
+    alternateParamIndentPanel.add(alternateIndentationForParamsSpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, new Dimension(1, -1), new Dimension(2, -1), null, 1, false));
     spacesLabel = new JLabel();
     spacesLabel.setText("spaces");
     spacesLabel.setVerticalAlignment(1);
