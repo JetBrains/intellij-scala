@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.lang.resolve.processor.{ImplicitProcessor, CompletionProcessor, BaseProcessor}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 
 import scala.reflect.NameTransformer
@@ -928,9 +928,19 @@ object TypeDefinitionMembers {
               case None =>
             }
           }
-          runIterator(syntheticMethods().iterator) match {
-            case Some(x) => return x
-            case None =>
+
+          //todo: this is hack, better to split imports resolve into import for types and for expressions.
+          val shouldCheckSynthetics = processor match {
+            case c: CompletionProcessor => true
+            case o: ImplicitProcessor => true
+            case b: BaseProcessor => b.candidates.nonEmpty
+            case _ => true
+          }
+          if (shouldCheckSynthetics) {
+            runIterator(syntheticMethods().iterator) match {
+              case Some(x) => return x
+              case None =>
+            }
           }
         }
       }
