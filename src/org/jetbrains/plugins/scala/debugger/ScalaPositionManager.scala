@@ -525,7 +525,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val cacheManager = ScalaShortNamesCacheManager.getInstance(project)
     val classes =
       if (qName.endsWith(packageSuffix))
-        Seq(cacheManager.getPackageObjectByName(qName.stripSuffix(packageSuffix), GlobalSearchScope.allScope(project)))
+        Option(cacheManager.getPackageObjectByName(qName.stripSuffix(packageSuffix), GlobalSearchScope.allScope(project))).toSeq
       else
         cacheManager.getClassesByFQName(qName.replace(packageSuffix, "."), debugProcess.getSearchScope)
 
