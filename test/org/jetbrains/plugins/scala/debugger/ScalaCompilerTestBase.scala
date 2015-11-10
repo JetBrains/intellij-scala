@@ -41,8 +41,9 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
     CompilerTestUtil.enableExternalCompiler()
 
     addRoots()
-    DebuggerTestUtil.findJdk8()
     DebuggerTestUtil.setCompileServerSettings()
+    DebuggerTestUtil.forceJdk8ForBuildProcess()
+
     getProject.save()
   }
 

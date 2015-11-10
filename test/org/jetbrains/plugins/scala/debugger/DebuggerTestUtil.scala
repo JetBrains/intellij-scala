@@ -5,9 +5,9 @@ import java.io.File
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.projectRoots.{JavaSdk, Sdk}
+import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
   * @author Nikolay.Tropin
@@ -36,6 +36,12 @@ object DebuggerTestUtil {
     compileServerSettings.COMPILE_SERVER_SHUTDOWN_IDLE = true
     compileServerSettings.COMPILE_SERVER_SHUTDOWN_DELAY = 30
     ApplicationManager.getApplication.saveSettings()
+  }
+
+  def forceJdk8ForBuildProcess(): Unit = {
+    val jdk8 = findJdk8()
+    val jdkHome = jdk8.getHomeDirectory.getParent.getCanonicalPath
+    Registry.get("compiler.process.jdk").setValue(jdkHome)
   }
 
   val candidates = Seq(
