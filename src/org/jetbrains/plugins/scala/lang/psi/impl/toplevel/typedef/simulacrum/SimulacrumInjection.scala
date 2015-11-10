@@ -19,14 +19,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
  */
 class SimulacrumInjection extends SyntheticMembersInjector {
   override def needsCompanionObject(source: ScTypeDefinition): Boolean = {
-    source.findAnnotation("simulacrum.typeclass") != null && source.typeParameters.length == 1
+    source.findAnnotationNoAliases("simulacrum.typeclass") != null && source.typeParameters.length == 1
   }
 
   override def injectFunctions(source: ScTypeDefinition): Seq[String] = {
     source match {
       case obj: ScObject =>
         obj.fakeCompanionClassOrCompanionClass match {
-          case clazz: ScTypeDefinition if clazz.findAnnotation("simulacrum.typeclass") != null  && clazz.typeParameters.length == 1 =>
+          case clazz: ScTypeDefinition if clazz.findAnnotationNoAliases("simulacrum.typeclass") != null  && clazz.typeParameters.length == 1 =>
             val tpName = clazz.typeParameters.head.name
 
             val tpText = ScalaPsiUtil.typeParamString(clazz.typeParameters.head)
@@ -41,7 +41,7 @@ class SimulacrumInjection extends SyntheticMembersInjector {
     source match {
       case obj: ScObject =>
         ScalaPsiUtil.getCompanionModule(obj) match {
-          case Some(clazz) if clazz.findAnnotation("simulacrum.typeclass") != null  && clazz.typeParameters.length == 1 =>
+          case Some(clazz) if clazz.findAnnotationNoAliases("simulacrum.typeclass") != null  && clazz.typeParameters.length == 1 =>
             val clazzTypeParam = clazz.typeParameters.head
             val tpName = clazzTypeParam.name
             val tpText = ScalaPsiUtil.typeParamString(clazzTypeParam)
@@ -60,7 +60,7 @@ class SimulacrumInjection extends SyntheticMembersInjector {
               case f: ScFunction =>
                 f.parameters.headOption.flatMap(_.getType(TypingContext.empty).toOption).flatMap(tp => isProperTpt(tp)) match {
                   case Some(funTypeParamToLift) =>
-                    val annotation = f.findAnnotation("simulacrum.op")
+                    val annotation = f.findAnnotationNoAliases("simulacrum.op")
                     val names =
                       annotation match {
                         case a: ScAnnotation =>
