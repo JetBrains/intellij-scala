@@ -119,8 +119,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
       def expectedResult = Some(ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None))
       tp match {
         case ScFunctionType(_, params) if ScalaPsiUtil.isSAMEnabled(this) =>
-          val sAMType: Option[ScType] = ScalaPsiUtil.toSAMType(expected, getResolveScope)
-          sAMType match {
+          ScalaPsiUtil.toSAMType(expected, getResolveScope) match {
             case Some(methodType) if tp.conforms(methodType) => expectedResult
             case Some(methodType@ScFunctionType(retTp, _)) if etaExpansionHappened && retTp.equiv(Unit) =>
               val newTp = ScFunctionType(Unit, params)(getProject, getResolveScope)
