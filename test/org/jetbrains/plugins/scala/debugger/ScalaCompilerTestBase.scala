@@ -69,13 +69,14 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
   }
 
   override protected def getTestProjectJdk: Sdk = {
-    val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
-    if (scalaVersion.startsWith("2.12")) {
+//    val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
+//    if (scalaVersion.startsWith("2.12")) {
+//      DebuggerTestUtil.findJdk8()
+//    }
+//    else {
+//      jdkTable.getInternalJdk
+//    }
       DebuggerTestUtil.findJdk8()
-    }
-    else {
-      jdkTable.getInternalJdk
-    }
   }
 
   protected def forceFSRescan() = BuildManager.getInstance.clearState(myProject)
