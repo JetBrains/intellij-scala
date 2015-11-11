@@ -109,6 +109,7 @@ object PatternAnnotator {
           case constr: ScConstructorPattern => (Option(constr.ref), constr.args.patterns.length)
           case infix: ScInfixPattern =>
             val numPatterns: Int = infix.rightPattern match {
+              case Some(_: ScInfixPattern) => 2
               case Some(right) => right.subpatterns match {
                 case Seq() => 2
                 case s => s.length + 1
