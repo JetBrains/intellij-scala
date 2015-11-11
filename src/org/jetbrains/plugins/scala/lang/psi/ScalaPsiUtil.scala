@@ -2474,14 +2474,19 @@ object ScalaPsiUtil {
         tp match {
           case ScFunctionType(retTp, params) =>
             def convertParameter(tpArg: ScType, variance: Int): ScType = {
-              wildcards.find(_.name == tpArg.canonicalText) match {
-                case Some(wildcard) =>
-                  (wildcard.lowerBound, wildcard.upperBound) match {
-                    case (lo, Any) if variance == ScTypeParam.Contravariant => lo
-                    case (Nothing, hi) if variance == ScTypeParam.Covariant => hi
+              tpArg match {
+                case p@ScParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, variance)))
+                case ScExistentialType(param: ScParameterizedType, _) => convertParameter(param, variance)
+                case _ =>
+                  wildcards.find(_.name == tpArg.canonicalText) match {
+                    case Some(wildcard) =>
+                      (wildcard.lowerBound, wildcard.upperBound) match {
+                        case (lo, Any) if variance == ScTypeParam.Contravariant => lo
+                        case (Nothing, hi) if variance == ScTypeParam.Covariant => hi
+                        case _ => tpArg
+                      }
                     case _ => tpArg
                   }
-                case _ => tpArg
               }
             }
             //parameter clauses are contravariant positions, return types are covariant positions
