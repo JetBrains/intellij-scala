@@ -20,7 +20,7 @@ object DebuggerTestUtil {
     Option(jdkTable.findJdk(jdk8Name)).getOrElse {
       val path = discoverJRE18().getOrElse(throw new RuntimeException("Could not find jdk8 installation, " +
                                             "please define a valid JDK_18_x64 or JDK_18, " +
-                                            s"current - ${sys.env("JDK_18_x64")} or ${sys.env("JDK_18_x64")}"))
+                                            s"current - ${sys.env("JDK_18_x64")} or ${sys.env("JDK_18")}"))
       val jdk = JavaSdk.getInstance.createJdk(jdk8Name, path)
       inWriteAction {
         jdkTable.addJdk(jdk)
@@ -40,6 +40,9 @@ object DebuggerTestUtil {
 
   def forceJdk8ForBuildProcess(): Unit = {
     val jdk8 = findJdk8()
+    if (jdk8.getHomeDirectory == null) {
+      throw new RuntimeException(s"Failed to set up JDK, got: ${jdk8.toString}")
+    }
     val jdkHome = jdk8.getHomeDirectory.getParent.getCanonicalPath
     Registry.get("compiler.process.jdk").setValue(jdkHome)
   }
@@ -66,7 +69,6 @@ object DebuggerTestUtil {
     }
     def inJvm(path: String, suffix: String) = {
       val postfix = if (path.startsWith("/Library")) "/Contents/Home" else ""  // mac workaround
-      postfix
       Option(new File(path))
         .filter(_.exists())
         .flatMap(_.listFiles()
