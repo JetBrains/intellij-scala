@@ -6,8 +6,6 @@ package expr
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import com.intellij.psi.util.PsiModificationTracker
-import com.intellij.psi.util.PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -23,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
-import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedMappedWithRecursionGuard}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -117,20 +115,27 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   }
 
   private def tryConvertToSAM(fromUnderscore: Boolean, expected: ScType, tp: ScType) = {
-    def checkForSAM(): Option[ExpressionTypeResult] = {
-      if (ScalaPsiUtil.isSAMEnabled(this) && ScFunctionType.isFunctionType(tp)) {
-        ScalaPsiUtil.toSAMType(expected, getResolveScope) match {
-          case Some(methodType) if tp.conforms(methodType) =>
-            Some(ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None))
-          case _ => None
-        }
-      } else None
+    def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] = {
+      def expectedResult = Some(ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None))
+      tp match {
+        case ScFunctionType(_, params) if ScalaPsiUtil.isSAMEnabled(this) =>
+          val sAMType: Option[ScType] = ScalaPsiUtil.toSAMType(expected, getResolveScope)
+          sAMType match {
+            case Some(methodType) if tp.conforms(methodType) => expectedResult
+            case Some(methodType@ScFunctionType(retTp, _)) if etaExpansionHappened && retTp.equiv(Unit) =>
+              val newTp = ScFunctionType(Unit, params)(getProject, getResolveScope)
+              if (newTp.conforms(methodType)) expectedResult
+              else None
+            case _ => None
+          }
+        case _ => None
+      }
     }
 
     this match {
       case ScFunctionExpr(_, _) if fromUnderscore => checkForSAM()
       case _ if !fromUnderscore && ScalaPsiUtil.isAnonExpression(this) => checkForSAM()
-      case MethodValue(_) => checkForSAM() //eta expansion happened
+      case MethodValue(_) => checkForSAM(etaExpansionHappened = true)
       case _ => None
     }
   }
@@ -147,7 +152,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
           if (checkExpectedType) {
             InferUtil.updateAccordingToExpectedType(Success(res, Some(this)), fromImplicitParameters = true,
               filterTypeParams = false, expectedType = expectedType(fromUnderscore), expr = this,
-              check = checkExpectedType, forEtaExpansion = true) match {
+              check = checkExpectedType) match {
               case Success(newRes, _) => res = newRes
               case _ =>
             }
