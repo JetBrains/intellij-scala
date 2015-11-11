@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor, ScReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotations, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotations, ScExpression, ScForStatement, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
@@ -460,8 +460,20 @@ object DebuggerUtil {
 
   def localParams(block: PsiElement, excludeContext: PsiElement, container: PsiElement,
                   visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty): Seq[ScTypedDefinition] = {
-    def atRightPlace(elem: PsiElement) = PsiTreeUtil.isContextAncestor(container, elem, false) &&
-            !PsiTreeUtil.isContextAncestor(excludeContext, elem, false)
+    def atRightPlace(elem: PsiElement): Boolean = {
+      if (PsiTreeUtil.isContextAncestor(excludeContext, elem, false)) return false
+
+      container match {
+        case (_: ScExpression) childOf ScForStatement(enumerators, _) if PsiTreeUtil.isContextAncestor(enumerators, elem, true) =>
+          val generators = enumerators.generators
+          if (generators.size <= 1) true
+          else {
+            val lastGenerator = generators.last
+            elem.getTextOffset >= lastGenerator.getTextOffset
+          }
+        case _ => PsiTreeUtil.isContextAncestor(container, elem, false)
+      }
+    }
 
     val buf = new mutable.HashSet[ScTypedDefinition]
     block.accept(new ScalaRecursiveElementVisitor {
