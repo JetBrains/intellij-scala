@@ -28,7 +28,7 @@ trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
 
   def getTypeNoConstructor(ctx: TypingContext): TypeResult[ScType] = getType(ctx)
 
-  def getNonValueType(ctx: TypingContext): TypeResult[ScType] = innerType(ctx)
+  def getNonValueType(ctx: TypingContext, withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult[ScType] = innerType(ctx)
 
   protected def innerType(ctx: TypingContext): TypeResult[ScType]
 
