@@ -165,6 +165,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val thisEvaluator: Evaluator = containingClass match {
       case obj: ScObject if isStable(obj) =>
         stableObjectEvaluator(obj)
+      case t: ScTrait =>
+        thisOrSuperEvaluator(None, isSuper = true)
       case _ =>
         val (outerClass, iters) = findContextClass(e => e == null || e == containingClass)
 
@@ -177,7 +179,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       val signature = DebuggerUtil.getFunctionJVMSignature(fun)
       val positions = DebuggerUtil.getSourcePositions(fun.getNavigationElement)
       val idx = localFunctionIndex(fun)
-      new ScalaMethodEvaluator(thisEvaluator, name, signature, evaluators, None, positions, idx)
+      new ScalaMethodEvaluator(thisEvaluator, name, signature, evaluators, traitImplementation(fun), positions, idx)
     }
     else throw EvaluationException(message)
   }
@@ -555,6 +557,10 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val parameters = clauses.flatMap(_.effectiveParameters).map(new Parameter(_))
 
     def addForNextClause(previousClausesEvaluators: Seq[Evaluator], clause: ScParameterClause): Seq[Evaluator] = {
+      def isDefaultExpr(expr: ScExpression) = expr match {
+        case ChildOf(p: ScParameter) => p.isDefaultParam
+        case _ => false
+      }
       previousClausesEvaluators ++ clause.effectiveParameters.map {
         case param =>
           val p = new Parameter(param)
@@ -563,12 +569,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
           val evaluator =
             if (p.isRepeated) repeatedArgEvaluator(exprsForP, p.expectedType, call)
-            else if (exprsForP.nonEmpty) {
-              if (exprsForP.length == 1) evaluatorFor(exprsForP(0))
-              else {
-                throw EvaluationException(ScalaBundle.message("wrong.number.of.expressions"))
-              }
-            }
+            else if (exprsForP.size > 1) throw EvaluationException(ScalaBundle.message("wrong.number.of.expressions"))
+            else if (exprsForP.length == 1 && !isDefaultExpr(exprsForP.head)) evaluatorFor(exprsForP.head)
             else if (param.isImplicitParameter) implicitArgEvaluator(fun, param, call)
             else if (p.isDefault) {
               val paramIndex = parameters.indexOf(p) + 1
@@ -837,8 +839,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val exprText = s"($invokedText).update$args"
           val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, stmt.getContext, stmt)
           evaluatorFor(expr)
-        case ResolvesTo(ScalaPsiUtil.inNameContext(pd: ScPatternDefinition)) =>
-          throw EvaluationException("Cannot evaluate assignment to val")
         case _ =>
           val leftEvaluator = evaluatorFor(stmt.getLExpression)
           val rightEvaluator = stmt.getRExpression match {
@@ -913,7 +913,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val ref: ScStableCodeReferenceElement = constr.ref
           evaluateConstructorOrInfix(exprEval, ref, constr, nextPatternIndex)
         case infix: ScInfixPattern =>
-          val ref: ScStableCodeReferenceElement = infix.refernece
+          val ref: ScStableCodeReferenceElement = infix.reference
           evaluateConstructorOrInfix(exprEval, ref, infix, nextPatternIndex)
         //todo: handle infix with tuple right pattern
         case _: ScCompositePattern => throw EvaluationException(ScalaBundle.message("pattern.alternatives.cannot.bind.vars"))

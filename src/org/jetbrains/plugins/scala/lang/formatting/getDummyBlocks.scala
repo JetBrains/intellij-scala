@@ -10,18 +10,18 @@ import _root_.java.util
 import com.intellij.formatting._
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.psi.tree._
-import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.formatting.ScalaWrapManager._
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -33,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
+import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 
@@ -83,6 +84,24 @@ object getDummyBlocks {
               node.getFirstChildNode.getElementType == ScalaTokenTypes.tMULTILINE_STRING &&
               scalaSettings.MULTILINE_STRING_SUPORT != ScalaCodeStyleSettings.MULTILINE_STRING_NONE =>
         subBlocks.addAll(getMultilineStringBlocks(node, block))
+        return subBlocks
+      case _: ScTryBlock if children.headOption.exists(_.getElementType == ScalaTokenTypes.kTRY) =>
+        //add try block
+        subBlocks.add(new ScalaBlock(block, children.head, null, null, ScalaIndentProcessor.getChildIndent(block, children.head),
+          arrangeSuggestedWrapForChild(block, children.head, scalaSettings, block.suggestedWrap), block.getSettings))
+        //add subblock with try expr
+        val tail = children.filter(isCorrectBlock).tail
+        if (tail.nonEmpty) {
+          if (tail.length == 1 && tail.head.isInstanceOf[ScExpression]) {
+            //there is a single expr under try
+            subBlocks.add(new ScalaBlock(block, tail.head, null, null, ScalaIndentProcessor.getChildIndent(block, tail.head),
+              arrangeSuggestedWrapForChild(block, tail.head, scalaSettings, block.suggestedWrap), block.getSettings))
+          } else {
+            //there is block expr under try
+            subBlocks.add(new ScalaBlock(block, tail.head, tail.last, null, ScalaIndentProcessor.getChildIndent(block, tail.head),
+              arrangeSuggestedWrapForChild(block, tail.head, scalaSettings, block.suggestedWrap), block.getSettings))
+          }
+        }
         return subBlocks
       case _
         if node.getElementType == ScalaDocElementTypes.DOC_TAG =>
@@ -500,14 +519,35 @@ object getDummyBlocks {
         addSubBlock(prevChild, null)
       }
     }
-    children.filter(isCorrectBlock).toList match {
-      case forWord::lParen::enumerators::rParen::tail =>
+    @tailrec
+    def addFor(children: List[ASTNode]): Unit = children match {
+      case forWord::tail if forWord.getElementType == ScalaTokenTypes.kFOR =>
         addSubBlock(forWord, null)
-        addSubBlock(lParen, rParen)
-        addTail(tail)
-      case tail =>
-        addTail(tail)
+        addFor(tail)
+      case lParen::tail if lParen.getElementType == ScalaTokenTypes.tLPARENTHESIS ||
+        lParen.getElementType == ScalaTokenTypes.tLBRACE =>
+        val closingType =
+          if (lParen.getElementType == ScalaTokenTypes.tLPARENTHESIS) ScalaTokenTypes.tRPARENTHESIS else ScalaTokenTypes.tRBRACE
+        val (_, after) =
+          tail.span(elem => elem.getElementType != closingType)
+        if (after.isEmpty) {
+          addTail(children)
+        } else {
+          addSubBlock(lParen, after.head)
+          addTail(after.tail)
+        }
+      case _ =>
+        addTail(children)
     }
+    addFor(children.filter(isCorrectBlock).toList)
+//    children.filter(isCorrectBlock).toList match {
+//      case forWord::lParen::enumerators::rParen::tail =>
+//        addSubBlock(forWord, null)
+//        addSubBlock(lParen, rParen)
+//        addTail(tail)
+//      case tail =>
+//        addTail(tail)
+//    }
     subBlocks
   }
 
@@ -629,13 +669,13 @@ object getDummyBlocks {
         import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.priority
         val childPriority = child.getPsi match {
           case inf: ScInfixExpr => priority(inf.operation.getText, true)
-          case inf: ScInfixPattern => priority(inf.refernece.getText, false)
+          case inf: ScInfixPattern => priority(inf.reference.getText, false)
           case inf: ScInfixTypeElement => priority(inf.ref.getText, false)
           case _ => 0
         }
         val parentPriority = node.getPsi match {
           case inf: ScInfixExpr => priority(inf.operation.getText, true)
-          case inf: ScInfixPattern => priority(inf.refernece.getText, false)
+          case inf: ScInfixPattern => priority(inf.reference.getText, false)
           case inf: ScInfixTypeElement => priority(inf.ref.getText, false)
           case _ => 0
         }

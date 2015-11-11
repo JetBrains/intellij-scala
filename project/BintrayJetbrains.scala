@@ -11,6 +11,7 @@ object BintrayJetbrains {
   object Resolvers {
     val mavenPatched  = "jb-maven-patched" at "http://dl.bintray.com/jetbrains/maven-patched/"
     val scalaTestFindersPatched  = jbBintrayResolver("scalatest-finders-patched", "scalatest", Resolver.ivyStylePatterns)
+    val scalaPluginDeps  = jbBintrayResolver("scala-plugin-deps", "scala-plugin-deps", Resolver.ivyStylePatterns)
     val structureCore = jbSbtResolver("jb-structure-core", Resolver.ivyStylePatterns)
     val structureExtractor012 = jbSbtResolver("jb-structure-extractor-0.12", Patterns.structureExtractor012)
     val structureExtractor013 = jbSbtResolver("jb-structure-extractor-0.13", Patterns.structureExtractor013)
@@ -23,5 +24,5 @@ object BintrayJetbrains {
 
   val allResolvers = Seq(Resolvers.mavenPatched, Resolvers.structureCore,
                          Resolvers.structureExtractor012, Resolvers.structureExtractor013,
-                         Resolvers.scalaTestFindersPatched)
+                         Resolvers.scalaTestFindersPatched, Resolvers.scalaPluginDeps)
 }

@@ -144,7 +144,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
               if (lastRepeated(params1) && !lastRepeated(params2)) params1 = params1.map {
                 case p: Parameter if p.isRepeated =>
                   val seq = ScalaPsiManager.instance(r1.element.getProject).getCachedClass(r1.element.getResolveScope,
-                    "scala.collection.Seq")
+                    "scala.collection.Seq").orNull
                   if (seq != null) {
                     val newParamType = p.paramType match {
                       case ScExistentialType(q, wilds) =>

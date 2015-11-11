@@ -14,6 +14,7 @@
         <extensionPoint name="evaluatorCompileHelper" interface="org.jetbrains.plugins.scala.debugger.evaluation.EvaluatorCompileHelper"/>
         <extensionPoint name="serverWidgetEP" interface="org.jetbrains.plugins.scala.compiler.ServerWidgetEP"/>
         <extensionPoint name="syntheticMemberInjector" interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector"/>
+        <extensionPoint name="scalaTestDefaultWorkingDirectoryProvider" interface="org.jetbrains.plugins.scala.project.maven.ScalaTestDefaultWorkingDirectoryProvider"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
@@ -107,7 +108,7 @@
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaAotCompletionContributor"
                                 order="before scalaCompletionContrubutor"/>
         <completion.contributor language="Scala" id="scalaCompletionContrubutor"
-                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor"/>
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaBasicCompletionContributor"/>
         <completion.contributor language="Scala" id="sameSignatureCallParametersProvider"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.SameSignatureCallParametersProvider"/>
         <completion.contributor language="Scala" id="scalaClassNameCompletionContributor"
@@ -196,6 +197,8 @@
         <highlightVisitor implementation="org.jetbrains.plugins.scala.annotator.ScalaAnnotatorHighlightVisitor"/>
         <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
         <elementDescriptionProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScalaClassElementDescriptionProvider"/>
+        <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.runner.ScalaRunLineMarkerContributor" language="Scala" />
+
 
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupJdkNotificationProvider"/>
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupScalaSdkNotificationProvider"/>
@@ -215,7 +218,6 @@
 
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.AddUnitTypeEnterHandler" order="first"/>
 
-        <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider"/>
         <annotatedElementsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaAnnotatedMembersSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.parameters.NamingParamsSearcher"/>
         <referencesSearch implementation="org.jetbrains.plugins.scala.findUsages.typeDef.ObjectTraitReferenceSearcher"/>
@@ -261,6 +263,7 @@
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaQualifiedClassNameMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaSubtypesMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaTypeOfVariableMacro"/>
+        <liveTemplatePreprocessor implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaTemplatePreprocessor"/>
 
         <codeInsight.template.postfixTemplateProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.postfix.templates.ScalaPostfixTemplateProvider"/>
 
@@ -656,7 +659,7 @@
         </intentionAction>
 
         <lang.elementManipulator forClass="org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral"
-                                 implementationClass="org.jetbrains.plugins.scala.injection.ScalaStringLiteralManipulator"/>
+                                 implementationClass="org.jetbrains.plugins.scala.injection.ScalaInjectedStringLiteralManipulator"/>
 
         <inspectionToolProvider implementation="org.jetbrains.plugins.scala.codeInspection.internal.ScalaInternalInspectionsProvider"/>
 
@@ -1049,6 +1052,10 @@
                          displayName="Emulated headOption or lastOption" groupPath="Scala, Collections" groupName="Simplifications: other"
                          shortName="HeadOrLastOption" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReplaceToWithUntilInspection"
+                         displayName="Replace to with until" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="ReplaceToWithUntil" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <!--maps-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetGetOrElseInspection"
                          displayName="Get and getOrElse to getOrElse" groupPath="Scala, Collections" groupName="Maps"
@@ -1103,6 +1110,10 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.UnitInMapInspection"
                          displayName="Unit return type in the argument of map" groupPath="Scala, Collections" groupName="Other"
                          shortName="UnitInMap" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.annotations.MultipleArgLists"
+                         displayName="Multiple arg lists in annotation constructor" groupPath="Scala" groupName="General"
+                         shortName="MultipleArgListsInAnnotation" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
 
 

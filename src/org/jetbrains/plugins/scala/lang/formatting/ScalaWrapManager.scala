@@ -49,7 +49,7 @@ object ScalaWrapManager {
         return wrapBinary(_.isInstanceOf[ScInfixExpr], _.asInstanceOf[ScInfixExpr].operation, assignments = true)
       }
       case psi: ScInfixPattern => {
-        return wrapBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].refernece, assignments = false)
+        return wrapBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].reference, assignments = false)
       }
       case psi: ScInfixTypeElement => {
         return wrapBinary(_.isInstanceOf[ScInfixTypeElement], _.asInstanceOf[ScInfixTypeElement].ref, assignments = false)
@@ -93,8 +93,8 @@ object ScalaWrapManager {
             annot.getParent.getParent match { case _: ScEarlyDefinitions | _: ScTemplateBody => true; case _ => false }
           } =>
             return Wrap.createWrap(settings.FIELD_ANNOTATION_WRAP, false)
-          case _: ScVariable | _: ScValue | _: ScTypeAlias => Wrap.createWrap(settings.VARIABLE_ANNOTATION_WRAP, false)
-          case _: ScParameter => Wrap.createWrap(settings.PARAMETER_ANNOTATION_WRAP, false)
+          case _: ScVariable | _: ScValue | _: ScTypeAlias => return Wrap.createWrap(settings.VARIABLE_ANNOTATION_WRAP, false)
+          case _: ScParameter => return Wrap.createWrap(settings.PARAMETER_ANNOTATION_WRAP, false)
           case _ =>
         }
       }
@@ -110,7 +110,7 @@ object ScalaWrapManager {
     val parentPsi = parentNode.getPsi
     val childPsi = child.getPsi
     if (childPsi.isInstanceOf[ScExtendsBlock] &&
-            childPsi.getFirstChild != null && !childPsi.getFirstChild.isInstanceOf[ScTemplateBody])
+            childPsi.getFirstChild != null && childPsi.getFirstChild.getNode.getElementType == ScalaTokenTypes.kEXTENDS)
       return Wrap.createWrap(settings.EXTENDS_KEYWORD_WRAP, true)
 
     def arrageBinary(elementMatch: PsiElement => Boolean,
@@ -135,7 +135,7 @@ object ScalaWrapManager {
                             _.asInstanceOf[ScInfixExpr].rOp, _.asInstanceOf[ScInfixExpr].lOp)
       }
       case inf: ScInfixPattern => {
-        return arrageBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].refernece,
+        return arrageBinary(_.isInstanceOf[ScInfixPattern], _.asInstanceOf[ScInfixPattern].reference,
                             _.asInstanceOf[ScInfixPattern].rightPattern.orNull,
                             _.asInstanceOf[ScInfixPattern].leftPattern)
       }

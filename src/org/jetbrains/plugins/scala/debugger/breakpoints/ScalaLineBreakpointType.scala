@@ -22,7 +22,7 @@ import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.extensions.{Both, ElementType}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
@@ -132,12 +132,19 @@ class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", Scala
         if (dumbService.isDumb) {
           breakpoint match {
             case breakpointImpl: XLineBreakpointImpl[_] =>
-              dumbService.smartInvokeLater(new Runnable {
-                override def run(): Unit = {
-                  breakpointImpl.getHighlighter.dispose()
-                  breakpointImpl.updateUI()
+              dumbService.smartInvokeLater {
+                executeOnPooledThread {
+                  if (lineBp.isValid) {
+                    inReadAction(getContainingMethod(lineBp)) //populating caches outside edt
+                  }
+                  invokeLater {
+                    if (breakpointImpl.isValid) {
+                      breakpointImpl.getHighlighter.dispose()
+                      breakpointImpl.updateUI()
+                    }
+                  }
                 }
-              })
+              }
             case _ =>
           }
           null

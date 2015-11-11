@@ -94,6 +94,16 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
     }
   }
 
+  def findAnnotationNoAliases(qualifiedName: String): PsiAnnotation = {
+    val name = qualifiedName.split('.').last
+    if (!annotations.exists(_.constructor.reference.exists(_.refName == name))) return null
+
+    hasAnnotation(qualifiedName) match {
+      case Some(x) => x
+      case None => null
+    }
+  }
+
   def getApplicableAnnotations: Array[PsiAnnotation] = getAnnotations //todo: understatnd and fix
 
   def getAnnotations: Array[PsiAnnotation] = annotations.toArray

@@ -45,6 +45,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACE_BEFORE_TYPE_COLON = false;
   public boolean SPACE_AFTER_TYPE_COLON = true;
   public boolean INDENT_BRACED_FUNCTION_ARGS = true;
+  public boolean DO_NOT_INDENT_CASE_CLAUSE_BODY = false;
 
   //todo: add to spacing settings
   //spacing settings:
@@ -60,6 +61,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACES_IN_ONE_LINE_BLOCKS = false;
   public boolean SPACES_IN_IMPORTS = false;
   public boolean SPACES_AROUND_AT_IN_PATTERNS = false;
+  public boolean NEWLINE_AFTER_ANNOTATIONS = false;
 
   //xml formatting
   public boolean KEEP_XML_FORMATTING = false;

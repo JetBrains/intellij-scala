@@ -29,9 +29,8 @@ package object project {
 
     def scalaVersion: Option[Version] = LibraryVersion.findFirstIn(library.getName).map(Version(_))
 
-    def scalaCompilerClasspath: Option[Seq[File]] = scalaProperties.map(_.compilerClasspath)
-
-    def scalaLanguageLevel: Option[ScalaLanguageLevel] = scalaProperties.map(_.languageLevel)
+    def scalaLanguageLevel: Option[ScalaLanguageLevel] =
+      scalaVersion.flatMap(_.toLanguageLevel)
 
     private[project] def scalaProperties: Option[ScalaLibraryProperties] =
       libraryEx.getProperties.asOptionOf[ScalaLibraryProperties]

@@ -3,8 +3,8 @@ import sbt._
 
 object Versions {
   val scalaVersion = "2.11.6"
-  val ideaVersion = "143.379.1"
-  val sbtStructureVersion = "4.2.1"
+  val ideaVersion = "143.747.5"
+  val sbtStructureVersion = "4.2.0"
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
@@ -19,6 +19,7 @@ object Dependencies {
   val sbtStructureExtractor013 = "org.jetbrains" % "sbt-structure-extractor-0-13" % sbtStructureVersion
   val sbtLaunch = "org.scala-sbt" % "sbt-launch" % "0.13.8"
 
+  val jamm = "com.github.jbellis" % "jamm" % "0.3.1"
   val scalaLibrary = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler = "org.scala-lang" % "scala-compiler" % scalaVersion
@@ -67,10 +68,24 @@ object Dependencies {
 
   val scalastyle_2_11 = "org.scalastyle" % "scalastyle_2.11" % "0.7.0"
   val scalariform_2_11 = "org.scalariform" % "scalariform_2.11" % "0.1.7"
+  val macroParadise = "org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full
+
+  val nailgun = "org.jetbrains" % "nailgun-patched" % "1.0.0"
+  val compilerInterfaceSources = "org.jetbrains" % "compiler-interface-sources" % "1.0.0"
+  val bundledJline = "org.jetbrains" % "jline" % "1.0.0"
+  val incrementalCompiler = "org.jetbrains" % "incremental-compiler" % "1.0.0"
+  val sbtInterface = "org.jetbrains" % "sbt-interface" % "1.0.0"
 }
 
 object DependencyGroups {
   import Dependencies._
+
+  val sbtBundled = Seq(
+    compilerInterfaceSources,
+    bundledJline,
+    incrementalCompiler,
+    sbtInterface
+  )
 
   val plexusContainer = Seq(
     plexusContainerDefault,
@@ -131,13 +146,15 @@ object DependencyGroups {
     scalaParserCombinators,
     sbtStructureCore,
     evoInflector,
-    scalatestFindersPatched
+    scalatestFindersPatched,
+    jamm
   ) ++ mavenIndexer ++ scalastyle
 
   val scalap = Seq(
     scalaLibrary,
     scalaReflect,
-    scalaCompiler
+    scalaCompiler,
+    commonsLang
   )
 
   val scalaRunner = Seq(
@@ -160,6 +177,9 @@ object DependencyGroups {
     "org.scalatest" % "scalatest_2.11" % "2.2.1",
     "org.scalatest" % "scalatest_2.10" % "2.2.1",
     "org.specs2" % "specs2_2.11" % "2.4.15",
+    "org.specs2" % "specs2-core_2.11" % "3.0.1",
+    "org.specs2" % "specs2-common_2.11" % "3.0.1",
+    "org.specs2" % "specs2-matcher_2.11" % "3.0.1",
     "org.scalaz" % "scalaz-core_2.11" % "7.1.0",
     "org.scalaz" % "scalaz-concurrent_2.11" % "7.1.0",
     "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.2",
@@ -178,6 +198,35 @@ object DependencyGroups {
     "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.2.0-SNAPSHOT",
     "io.spray" %% "spray-routing" % "1.3.1"
   )
+
+  val testScalaLibraryDownloader = Seq(
+    "org.scala-lang" % "scala-library" % "2.10.6" withSources(),
+    "org.scala-lang" % "scala-reflect" % "2.10.6",
+    "org.scala-lang" % "scala-compiler" % "2.10.6",
+
+    "org.scala-lang" % "scala-library" % "2.11.7" withSources(),
+    "org.scala-lang" % "scala-reflect" % "2.11.7",
+    "org.scala-lang" % "scala-compiler" % "2.11.7",
+
+    "org.scala-lang" % "scala-library" % "2.12.0-M2" withSources(),
+    "org.scala-lang" % "scala-reflect" % "2.12.0-M2",
+    "org.scala-lang" % "scala-compiler" % "2.12.0-M2"
+  )
+
+  val mockSbtDownloader = {
+    val v = "0.13.5"
+    Seq(
+      "org.scala-sbt" % "collections" % v,
+      "org.scala-sbt" % "interface" % v,
+      "org.scala-sbt" % "io" % v,
+      "org.scala-sbt" % "ivy" % v,
+      "org.scala-sbt" % "logging" % v,
+      "org.scala-sbt" % "main" % v,
+      "org.scala-sbt" % "main-settings" % v,
+      "org.scala-sbt" % "process" % v,
+      "org.scala-sbt" % "sbt" % v
+    )
+  }
 
   val sbtRuntime = Seq(
     sbtStructureExtractor012,

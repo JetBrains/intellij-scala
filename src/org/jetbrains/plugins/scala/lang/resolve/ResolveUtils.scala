@@ -11,7 +11,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeVariableTypeElement, ScSelfTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeElement, ScTypeVariableTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -153,9 +153,6 @@ object ResolveUtils {
       case f: ScFunction if f.isBridge => return false
       case _ =>
     }
-
-    if (member.hasModifierProperty("public")) return true
-
 
     def checkProtected(td: PsiClass, withCompanion: Boolean): Boolean = {
       val isConstr = member match {
@@ -524,7 +521,7 @@ object ResolveUtils {
               }
               val qName: String = psiPack.getQualifiedName
               val subpackageQName: String = if (qName.isEmpty) name else qName + "." + name
-              val subPackage = ScalaPsiManager.instance(psiPack.getProject).getCachedPackage(subpackageQName)
+              val subPackage = ScalaPsiManager.instance(psiPack.getProject).getCachedPackage(subpackageQName).orNull
               if (subPackage != null) {
                 if (!processor.execute(subPackage, state)) return false
               }

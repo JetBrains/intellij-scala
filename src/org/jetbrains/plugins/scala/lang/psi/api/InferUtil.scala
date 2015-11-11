@@ -218,7 +218,7 @@ object InferUtil {
     var nonValueType = _nonValueType
     nonValueType match {
       case Success(ScTypePolymorphicType(m@ScMethodType(internal, params, impl), typeParams), _)
-        if expectedType != None && (!fromImplicitParameters || impl) =>
+        if expectedType.isDefined && (!fromImplicitParameters || impl) =>
         def updateRes(expected: ScType) {
           if (expected.equiv(types.Unit)) return //do not update according to Unit type
           val innerInternal = internal match {
@@ -233,7 +233,7 @@ object InferUtil {
         }
         updateRes(expectedType.get)
       //todo: Something should be unified, that's bad to have fromImplicitParameters parameter.
-      case Success(ScTypePolymorphicType(internal, typeParams), _) if expectedType != None && fromImplicitParameters =>
+      case Success(ScTypePolymorphicType(internal, typeParams), _) if expectedType.isDefined && fromImplicitParameters =>
         def updateRes(expected: ScType) {
           nonValueType = Success(ScalaPsiUtil.localTypeInference(internal,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
@@ -265,14 +265,9 @@ object InferUtil {
 
           new ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
         case Some(tp) if !fromSAM && ScalaPsiUtil.isSAMEnabled(expr) =>
-          ScalaPsiUtil.toSAMType(tp, expr.getResolveScope) match {
-            case Some(ScFunctionType(retTp, _)) if retTp.equiv(Unit) =>
-              //example:
-              //def f(): () => Unit = () => println()
-              //val f1: Runnable = f
-              ScFunctionType(Unit, Seq.empty)(expr.getProject, expr.getResolveScope)
-            case _ => applyImplicitViewToResult(mt, ScalaPsiUtil.toSAMType(tp, expr.getResolveScope), fromSAM = true)
-          }
+          //we do this to update additional expression, so that implicits work correctly
+          //@see SingleAbstractMethodTest.testEtaExpansionImplicit
+          applyImplicitViewToResult(mt, ScalaPsiUtil.toSAMType(tp, expr.getResolveScope), fromSAM = true)
         case _ => mt
       }
     }

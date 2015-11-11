@@ -22,14 +22,14 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 /**
  * @author Pavel Fatin
  */
-class ScalaAotCompletionContributor extends CompletionContributor {
+class ScalaAotCompletionContributor extends ScalaCompletionContributor {
   extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaTokenTypes.tIDENTIFIER).
           withParent(classOf[ScParameter]), new CompletionProvider[CompletionParameters] {
 
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       addCompletions0(parameters, result, typed = true) { (text, element) =>
         val parameter = createParameterFrom(text, element)
-        val context = element.getParent.getParent
+        val context = element.getContext.getContext
         parameter.setContext(context, context.getLastChild)
         typeIdentifierIn(parameter)
       }
@@ -40,13 +40,13 @@ class ScalaAotCompletionContributor extends CompletionContributor {
           withParent(classOf[ScFieldId]), new CompletionProvider[CompletionParameters] {
 
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
-      val scope = parameters.getPosition.getParent.getParent.getParent
+      val scope = positionFromParameters(parameters).getContext.getContext.getContext
 
       if (!scope.isInstanceOf[ScVariableDeclaration] && !scope.isInstanceOf[ScValueDeclaration]) return
 
       addCompletions0(parameters, result, typed = false) { (text, element) =>
         val declaration = createValueDeclarationFrom(text, element)
-        val context = element.getParent.getParent.getParent.getParent
+        val context = element.getContext.getContext.getContext.getContext
         declaration.setContext(context, context.getLastChild)
         typeIdentifierIn(declaration)
       }
@@ -56,13 +56,13 @@ class ScalaAotCompletionContributor extends CompletionContributor {
   private def addCompletions0(parameters: CompletionParameters, result: CompletionResultSet, typed: Boolean)
                              (factory: (String, PsiElement) => PsiElement) {
 
-    val element = parameters.getPosition
+    val element = positionFromParameters(parameters)
     val settings = ScalaProjectSettings.getInstance(element.getProject)
 
     if (!settings.isAotCompletion) return
 
     val text = element.getText
-    val prefix = text.substring(0, text.length - CompletionUtilCore.DUMMY_IDENTIFIER_TRIMMED.length)
+    val prefix = result.getPrefixMatcher.getPrefix
 
     if (!isSuitableIdentifier(prefix)) return
 
@@ -90,7 +90,7 @@ private object ScalaAotCompletionContributor {
     val fragment = new ScalaCodeFragment(original.getProject, "def f(" + text + ") {}")
     fragment.forceResolveScope(original.getResolveScope)
     val function = fragment.getFirstChild.asInstanceOf[ScFunction]
-    function.parameters(0)
+    function.parameters.head
   }
 
   def createValueDeclarationFrom(text: String, original: PsiElement): ScValueDeclaration = {

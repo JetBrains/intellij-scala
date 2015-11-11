@@ -14,7 +14,6 @@ import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
-import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.scope.PsiScopeProcessor
@@ -154,23 +153,7 @@ object ScalaPsiUtil {
     }
   }
 
-  def getDependentItem(element: PsiElement,
-                       dep_item: Object = PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT): Option[Object] = {
-    element.getContainingFile match {
-      case file: ScalaFile if file.isCompiled =>
-        if (!ProjectRootManager.getInstance(element.getProject).getFileIndex.isInContent(file.getVirtualFile)) {
-          return Some(dep_item)
-        }
-        var dir = file.getParent
-        while (dir != null) {
-          if (dir.getName == "scala-library.jar") return None
-          dir = dir.getParent
-        }
-        Some(ProjectRootManager.getInstance(element.getProject))
-      case cls: ClsFileImpl => Some(ProjectRootManager.getInstance(element.getProject))
-      case _ => Some(dep_item)
-    }
-  }
+
 
   @tailrec
   def withEtaExpansion(expr: ScExpression): Boolean = {
@@ -235,7 +218,7 @@ object ScalaPsiUtil {
             case (res, _) => res.getOrAny
           }
         val qual = "scala.Tuple" + exprTypes.length
-        val tupleClass = ScalaPsiManager.instance(manager.getProject).getCachedClass(scope, qual)
+        val tupleClass = ScalaPsiManager.instance(manager.getProject).getCachedClass(scope, qual).orNull
         if (tupleClass == null) None
         else
           Some(Seq(new Expression(ScParameterizedType(ScDesignatorType(tupleClass), exprTypes), place)))
@@ -296,7 +279,7 @@ object ScalaPsiUtil {
     Option[ImplicitResolveResult] = {
     //TODO! remove this after find a way to improve implicits according to compiler.
     val isHardCoded = refName == "+" &&
-      e.getTypeWithoutImplicits(TypingContext.empty).map(_.isInstanceOf[ValType]).getOrElse(false)
+      e.getTypeWithoutImplicits().map(_.isInstanceOf[ValType]).getOrElse(false)
     val kinds = processor.kinds
     var implicitMap: Seq[ImplicitResolveResult] = Seq.empty
     def checkImplicits(secondPart: Boolean, noApplicability: Boolean, withoutImplicitsForArgs: Boolean = noImplicitsForArgs) {
@@ -411,7 +394,7 @@ object ScalaPsiUtil {
 
     //TODO! remove this after find a way to improve implicits according to compiler.
     val isHardCoded = refName == "+" &&
-      e.getTypeWithoutImplicits(TypingContext.empty).map(_.isInstanceOf[ValType]).getOrElse(false)
+      e.getTypeWithoutImplicits().map(_.isInstanceOf[ValType]).getOrElse(false)
     val kinds = processor.kinds
     var implicitMap: Seq[ScalaResolveResult] = Seq.empty
     def checkImplicits(secondPart: Boolean, noApplicability: Boolean, withoutImplicitsForArgs: Boolean = noImplicitsForArgs) {
@@ -507,7 +490,7 @@ object ScalaPsiUtil {
   }
 
   def approveDynamic(tp: ScType, project: Project, scope: GlobalSearchScope): Boolean = {
-    val cachedClass = ScalaPsiManager.instance(project).getCachedClass(scope, "scala.Dynamic")
+    val cachedClass = ScalaPsiManager.instance(project).getCachedClass(scope, "scala.Dynamic").orNull
     if (cachedClass == null) return false
     val dynamicType = ScDesignatorType(cachedClass)
     tp.conforms(dynamicType)
@@ -1336,7 +1319,9 @@ object ScalaPsiUtil {
       case Some(node) =>
         node.supers.map { _.info }.filter { _.namedElement != x } :+ node.info
       case None =>
-        throw new RuntimeException(s"internal error: could not find val matching: \n${x.getText}\n\nin class: \n${clazz.getText}")
+        //this is possible case: private member of library source class.
+        //Problem is that we are building signatures over decompiled class.
+        Seq.empty
     }
 
 
@@ -1369,17 +1354,16 @@ object ScalaPsiUtil {
     if (clazz == null) return Seq.empty
     val types = if (withSelfType) TypeDefinitionMembers.getSelfTypeTypes(clazz) else TypeDefinitionMembers.getTypes(clazz)
     val sigs = types.forName(element.name)._1
-    val t = (sigs.get(element): @unchecked) match {
+    (sigs.get(element): @unchecked) match {
       //partial match
       case Some(x) if !withSelfType || x.info == element => x.supers
       case Some(x) =>
         x.supers.filter { _.info != element } :+ x
       case None =>
-        throw new RuntimeException("internal error: could not find type matching: \n%s\n\nin class: \n%s".format(
-          element.getText, clazz.getText
-        ))
+        //this is possible case: private member of library source class.
+        //Problem is that we are building types over decompiled class.
+        Seq.empty
     }
-    t
   }
 
   def nameContext(x: PsiNamedElement): PsiElement = {
@@ -2075,11 +2059,7 @@ object ScalaPsiUtil {
     def unapply(expr: ScExpression): Option[PsiMethod] = {
       if (!expr.expectedType(fromUnderscore = false).exists {
         case ScFunctionType(_, _) => true
-        case expected if isSAMEnabled(expr) =>
-          toSAMType(expected, expr.getResolveScope) match {
-            case Some(_) => true
-            case _ => false
-          }
+        case expected if isSAMEnabled(expr) => toSAMType(expected, expr.getResolveScope).isDefined
         case _ => false
       }) {
         return None
@@ -2130,7 +2110,7 @@ object ScalaPsiUtil {
     var i = 0
     def nextName(): String = {
       i += 1
-      "ev" + i
+      "ev$" + i
     }
     def synthParams(typeParam: ScTypeParam): Seq[(String, ScTypeElement => Unit)] = {
       val views = typeParam.viewTypeElement.map {
@@ -2494,14 +2474,19 @@ object ScalaPsiUtil {
         tp match {
           case ScFunctionType(retTp, params) =>
             def convertParameter(tpArg: ScType, variance: Int): ScType = {
-              wildcards.find(_.name == tpArg.canonicalText) match {
-                case Some(wildcard) =>
-                  (wildcard.lowerBound, wildcard.upperBound) match {
-                    case (lo, Any) if variance == ScTypeParam.Contravariant => lo
-                    case (Nothing, hi) if variance == ScTypeParam.Covariant => hi
+              tpArg match {
+                case p@ScParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, variance)))
+                case ScExistentialType(param: ScParameterizedType, _) => convertParameter(param, variance)
+                case _ =>
+                  wildcards.find(_.name == tpArg.canonicalText) match {
+                    case Some(wildcard) =>
+                      (wildcard.lowerBound, wildcard.upperBound) match {
+                        case (lo, Any) if variance == ScTypeParam.Contravariant => lo
+                        case (Nothing, hi) if variance == ScTypeParam.Covariant => hi
+                        case _ => tpArg
+                      }
                     case _ => tpArg
                   }
-                case _ => tpArg
               }
             }
             //parameter clauses are contravariant positions, return types are covariant positions

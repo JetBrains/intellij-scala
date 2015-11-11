@@ -117,4 +117,9 @@ class ChangeSignatureFromScalaTest extends ChangeSignatureTestBase {
     val params = Seq(parameterInfo("b", 1, types.Boolean), parameterInfo("i", 0, types.Int))
     doTest(null, "RemoveClauseConstructor", null, Seq(params))
   }
+
+  def testCaseClass(): Unit = {
+    val params = Seq(parameterInfo("number", 1, types.Int), parameterInfo("char", 0, types.Char), parameterInfo("b", -1, types.Boolean, "true"))
+    doTest(null, "MyClass", null, Seq(params))
+  }
 }

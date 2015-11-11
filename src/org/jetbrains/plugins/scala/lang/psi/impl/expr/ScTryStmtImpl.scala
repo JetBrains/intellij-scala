@@ -40,8 +40,7 @@ class ScTryStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryS
                 case Success(tp, _) =>
                   val tp = expr.getType(TypingContext.empty).getOrAny
                   val throwable = ScalaPsiManager.instance(expr.getProject).getCachedClass(expr.getResolveScope, "java.lang.Throwable")
-                  if (throwable == null) lifted
-                  else {
+                  throwable.fold(lifted) { throwable =>
                     val throwableType = ScDesignatorType(throwable)
                     val processor = new MethodResolveProcessor(expr, "apply", List(Seq(new Compatibility.Expression(throwableType))),
                       Seq.empty, Seq.empty)

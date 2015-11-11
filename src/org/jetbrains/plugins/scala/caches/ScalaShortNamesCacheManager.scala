@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.light.LightScalaMethod
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
@@ -39,7 +39,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
       if (name == clazz.getQualifiedName) {
         clazz.getContainingFile match {
           case file: ScalaFile =>
-            if (!file.isScriptFile(withCashing = true)) return clazz
+            if (!file.isScriptFile(withCaching = true)) return clazz
           case _ => return clazz
         }
       }

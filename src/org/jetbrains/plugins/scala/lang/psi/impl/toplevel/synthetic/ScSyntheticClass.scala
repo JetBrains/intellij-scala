@@ -50,14 +50,6 @@ extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake 
 
   override def getPresentation: ItemPresentation = super[ScTypeParam].getPresentation
 
-  def addAnnotation(p1: String): PsiAnnotation = null
-
-  def getAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
-
-  def getApplicableAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
-
-  def findAnnotation(p1: String): PsiAnnotation = null
-
   def getOffsetInFile: Int = 0
 
   def getContainingFileName: String = "NoFile"
@@ -259,7 +251,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
       for (nc1 <- numeric)
         nc.addMethod(new ScSyntheticFunction(manager, "to" + nc1.className, nc1.t, Seq.empty))
       for (un_op <- numeric_arith_unary_ops)
-        nc.addMethod(new ScSyntheticFunction(manager, "unary_" + un_op, nc.t, Seq.empty))
+        nc.addMethod(new ScSyntheticFunction(manager, "unary_" + un_op, if (nc.t == Long) Long else Int, Seq.empty))
     }
 
     for (ic <- integer) {
@@ -281,7 +273,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     //todo: handle process cancelled exception
     try {
       val stringClass = ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), "java.lang.String")
-      if (stringClass != null) {
+      stringClass.map { stringClass =>
         scriptSyntheticValues += new ScSyntheticValue(manager, "args", JavaArrayType(ScDesignatorType(stringClass)))
       }
     }

@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.base;
 
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.application.Result;
-import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -21,7 +19,7 @@ import java.io.IOException;
  * @author Alexander Podkhalyuzin
  */
 public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatformCodeInsightTestCase {
-  private String JDK_HOME = TestUtils.getMockJdk();
+  private String JDK_HOME = TestUtils.getDefaultJdk();
   private ScalaLibraryLoader myLibraryLoader = null;
 
   protected String rootPath() {

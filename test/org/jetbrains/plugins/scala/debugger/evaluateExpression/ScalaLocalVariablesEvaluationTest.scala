@@ -1,455 +1,438 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12_M2}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
 
 /**
  * User: Alefas
  * Date: 13.10.11
  */
 class ScalaLocalVariablesEvaluationTest extends ScalaLocalVariablesEvaluationTestBase with ScalaVersion_2_11
-class ScalaLocalVariablesEvaluationTest_2_12_M2 extends ScalaLocalVariablesEvaluationTestBase with ScalaVersion_2_12_M2
+class ScalaLocalVariablesEvaluationTest_212 extends ScalaLocalVariablesEvaluationTestBase with ScalaVersion_2_12
 
 abstract class ScalaLocalVariablesEvaluationTestBase extends ScalaDebuggerTestCase {
+  addFileWithBreakpoints("Local.scala",
+    s"""
+       |object Local {
+       |  def main(args: Array[String]) {
+       |    val x = 1
+       |    ""$bp
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
   def testLocal() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    val x = 1
-      |    "stop here"
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 3)
-    runDebugger("Sample") {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
     }
   }
-  
+
+  addFileWithBreakpoints("LocalClassParam.scala",
+    s"""
+       |class LocalClassParam(x: Int) {
+       |  val h = x
+       |  def foo() {
+       |    val y = () => {
+       |      ""$bp
+       |      1 + 2 + x
+       |    }
+       |    y()
+       |  }
+       |}
+       |object LocalClassParam {
+       |  def main(args: Array[String]) {
+       |    val a = new LocalClassParam(1)
+       |    a.foo()
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
   def testLocalClassParam() {
-    addFileToProject("Sample.scala",
-      """
-      |class A(x: Int) {
-      |  val h = x
-      |  def foo() {
-      |    val y = () => {
-      |      "stop here"
-      |      1 + 2 + x
-      |    }
-      |    y()
-      |  }
-      |}
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    val a = new A(1)
-      |    a.foo()
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 5)
-    runDebugger("Sample") {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
     }
   }
 
+  addFileWithBreakpoints("LocalFromForStatement.scala",
+    s"""
+       |object LocalFromForStatement {
+       |  def main(args: Array[String]) {
+       |    val x = 1
+       |    for (i <- 1 to 1) {
+       |      x
+       |      ""$bp
+       |    }
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
   def testLocalFromForStatement() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    val x = 1
-      |    for (i <- 1 to 1) {
-      |      x
-      |      "stop here"
-      |    }
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 5)
-    runDebugger("Sample") {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
     }
   }
 
+  addFileWithBreakpoints("LocalFromForStmtFromOut.scala",
+    s"""
+       |object LocalFromForStmtFromOut {
+       |  def main(args: Array[String]) {
+       |    val x = 1
+       |    for (i <- 1 to 1) {
+       |      x
+       |      ""$bp
+       |    }
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
   def testLocalFromForStmtFromOut() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    val x = 1
-      |    for (i <- 1 to 1) {
-      |      x
-      |      "stop here"
-      |    }
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 3)
-    runDebugger("Sample") {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
     }
   }
 
+  addFileWithBreakpoints("Param.scala",
+    s"""
+       |object Param {
+       |  def foo(x: Int) {
+       |    ""$bp
+       |  }
+       |
+       |  def main(args: Array[String]) {
+       |    val x = 0
+       |    foo(x + 1)
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
   def testParam() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def foo(x: Int) {
-      |    "stop here"
-      |  }
-      |
-      |  def main(args: Array[String]) {
-      |    val x = 0
-      |    foo(x + 1)
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 2)
-    runDebugger("Sample") {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
     }
   }
 
+  addFileWithBreakpoints("LocalParam.scala",
+    s"""
+       |object LocalParam {
+       |  def main(args: Array[String]) {
+       |    def foo(x: Int) {
+       |      ""$bp
+       |    }
+       |    foo(1)
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
   def testLocalParam() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    def foo(x: Int) {
-      |      "stop here"
-      |    }
-      |    foo(1)
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 3)
-    runDebugger("Sample") {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
     }
   }
-  
+
+  addFileWithBreakpoints("LocalOuter.scala",
+    s"""
+       |object LocalOuter {
+       |  def main(args: Array[String]) {
+       |    val x = 1
+       |    val runnable = new Runnable {
+       |      def run() {
+       |        x
+       |        ""$bp
+       |      }
+       |    }
+       |    runnable.run()
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
   def testLocalOuter() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    val x = 1
-      |    val runnable = new Runnable {
-      |      def run() {
-      |        x
-      |        "stop here"
-      |      }
-      |    }
-      |    runnable.run()
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 6)
-    runDebugger("Sample") {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
     }
   }
 
+  addFileWithBreakpoints("LocalOuterOuter.scala",
+    s"""
+       |object LocalOuterOuter {
+       |  def main(args: Array[String]) {
+       |    val x = 1
+       |    var y = "a"
+       |    val runnable = new Runnable {
+       |      def run() {
+       |        val runnable = new Runnable {
+       |          def run() {
+       |            x
+       |            ""$bp
+       |          }
+       |        }
+       |        runnable.run()
+       |      }
+       |    }
+       |    runnable.run()
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
   def testLocalOuterOuter() {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  def main(args: Array[String]) {
-        |    val x = 1
-        |    var y = "a"
-        |    val runnable = new Runnable {
-        |      def run() {
-        |        val runnable = new Runnable {
-        |          def run() {
-        |            x
-        |            "stop here"
-        |          }
-        |        }
-        |        runnable.run()
-        |      }
-        |    }
-        |    runnable.run()
-        |  }
-        |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 9)
-    runDebugger("Sample") {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
       evalEquals("y", "a")
     }
   }
 
+  addFileWithBreakpoints("LocalObjectOuter.scala",
+    s"""
+       |object LocalObjectOuter {
+       |  def main(args: Array[String]) {
+       |    object x {}
+       |    val runnable = new Runnable {
+       |      def run() {
+       |        val runnable = new Runnable {
+       |          def run() {
+       |            x
+       |            ""$bp
+       |          }
+       |        }
+       |        runnable.run()
+       |      }
+       |    }
+       |    runnable.run()
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
   def testLocalObjectOuter() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    object x {}
-      |    val runnable = new Runnable {
-      |      def run() {
-      |        val runnable = new Runnable {
-      |          def run() {
-      |            x
-      |            "stop here"
-      |          }
-      |        }
-      |        runnable.run()
-      |      }
-      |    }
-      |    runnable.run()
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 8)
-    runDebugger("Sample") {
+    runDebugger() {
       waitForBreakpoint()
-      evalStartsWith("x", "Sample$x")
+      evalStartsWith("x", "LocalObjectOuter$x")
     }
   }
-  
-  def testLocalFromClojureAndClass() {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  def main(args: Array[String]) {
-        |    val x = 1
-        |    var y = "a"
-        |    val runnable = new Runnable {
-        |      def run() {
-        |        val foo = () => {
-        |          val runnable = new Runnable {
-        |            def run() {
-        |              x
-        |              "stop here"
-        |            }
-        |          }
-        |          runnable.run()
-        |        }
-        |        foo()
-        |      }
-        |    }
-        |    runnable.run()
-        |  }
-        |}
+
+  addFileWithBreakpoints("LocalFromClosureAndClass.scala",
+    s"""
+       |object LocalFromClosureAndClass {
+       |  def main(args: Array[String]) {
+       |    val x = 1
+       |    var y = "a"
+       |    val runnable = new Runnable {
+       |      def run() {
+       |        val foo = () => {
+       |          val runnable = new Runnable {
+       |            def run() {
+       |              x
+       |              ""$bp
+       |            }
+       |          }
+       |          runnable.run()
+       |        }
+       |        foo()
+       |      }
+       |    }
+       |    runnable.run()
+       |  }
+       |}
       """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 9)
-    runDebugger("Sample") {
+  )
+  def testLocalFromClosureAndClass() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
       evalEquals("y", "a")
     }
   }
 
+  addFileWithBreakpoints("LocalMethodLocal.scala",
+    s"""
+       |object LocalMethodLocal {
+       |  def main(args: Array[String]) {
+       |    val x: Int = 1
+       |    var s = "a"
+       |    def foo(y: Int) {
+       |      ""$bp
+       |      x
+       |    }
+       |    foo(2)
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
   def testLocalMethodLocal() {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  def main(args: Array[String]) {
-        |    val x: Int = 1
-        |    var s = "a"
-        |    def foo(y: Int) {
-        |      "stop here"
-        |      x
-        |    }
-        |    foo(2)
-        |  }
-        |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 5)
-    runDebugger("Sample") {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
       evalEquals("s", "a")
     }
   }
 
+  addFileWithBreakpoints("LocalMethodLocalObject.scala",
+    s"""
+       |object LocalMethodLocalObject {
+       |  def main(args: Array[String]) {
+       |    object x
+       |    def foo(y: Int) {
+       |      x
+       |      ""$bp
+       |    }
+       |    foo(2)
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
   def testLocalMethodLocalObject() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    object x
-      |    def foo(y: Int) {
-      |      x
-      |      "stop here"
-      |    }
-      |    foo(2)
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 5)
-    runDebugger("Sample") {
+    runDebugger() {
       waitForBreakpoint()
-      evalStartsWith("x", "Sample$x")
+      evalStartsWith("x", "LocalMethodLocalObject$x")
     }
   }
 
+  addFileWithBreakpoints("LocalMethodLocalMethodLocal.scala",
+    s"""
+       |object LocalMethodLocalMethodLocal {
+       |  def main(args: Array[String]) {
+       |    val x = 1
+       |    var s = "a"
+       |    def foo(y: Int) {
+       |      def foo(y: Int) {
+       |        ""$bp
+       |         x
+       |      }
+       |      foo(y)
+       |    }
+       |    foo(2)
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
   def testLocalMethodLocalMethodLocal() {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  def main(args: Array[String]) {
-        |    val x = 1
-        |    var s = "a"
-        |    def foo(y: Int) {
-        |      def foo(y: Int) {
-        |        "stop here"
-        |         x
-        |      }
-        |      foo(y)
-        |    }
-        |    foo(2)
-        |  }
-        |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 6)
-    runDebugger("Sample") {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
       evalEquals("s", "a")
     }
   }
 
+  addFileWithBreakpoints("LocalMethodLocalMethodLocalClass.scala",
+    s"""
+       |object LocalMethodLocalMethodLocalClass {
+       |  def main(args: Array[String]) {
+       |    val x = 1
+       |    var s = "a"
+       |    def foo(y: Int) {
+       |      def foo(y: Int) {
+       |        class A {
+       |          def foo() {
+       |           ""$bp
+       |            s + x
+       |          }
+       |        }
+       |        new A().foo()
+       |      }
+       |      foo(y)
+       |    }
+       |    foo(2)
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
   def testLocalMethodLocalMethodLocalClass() {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  def main(args: Array[String]) {
-        |    val x = 1
-        |    var s = "a"
-        |    def foo(y: Int) {
-        |      def foo(y: Int) {
-        |        class A {
-        |          def foo() {
-        |           "stop here"
-        |            s + x
-        |          }
-        |        }
-        |        new A().foo()
-        |      }
-        |      foo(y)
-        |    }
-        |    foo(2)
-        |  }
-        |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 8)
-    runDebugger("Sample") {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
       evalEquals("s", "a")
     }
   }
-  
+
+  addFileWithBreakpoints("LocMethLocMethLocClassLocMeth.scala",
+    s"""
+       |object LocMethLocMethLocClassLocMeth {
+       |  def main(args: Array[String]) {
+       |    val x = 1
+       |    def foo(y: Int) {
+       |      def foo(y: Int) {
+       |        class A {
+       |          def foo() {
+       |            class B {
+       |              def foo() {
+       |                def goo(y: Int) {
+       |                  ""$bp
+       |                  x
+       |                }
+       |                goo(x + 1)
+       |              }
+       |            }
+       |            new B().foo()
+       |          }
+       |        }
+       |        new A().foo()
+       |      }
+       |      foo(y)
+       |    }
+       |    foo(2)
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
   def testLocMethLocMethLocClassLocMeth() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    val x = 1
-      |    def foo(y: Int) {
-      |      def foo(y: Int) {
-      |        class A {
-      |          def foo() {
-      |            class B {
-      |              def foo() {
-      |                def goo(y: Int) {
-      |                  "stop here"
-      |                  x
-      |                }
-      |                goo(x + 1)
-      |              }
-      |            }
-      |            new B().foo()
-      |          }
-      |        }
-      |        new A().foo()
-      |      }
-      |      foo(y)
-      |    }
-      |    foo(2)
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 10)
-    runDebugger("Sample") {
-      waitForBreakpoint()
-      evalEquals("x", "1")
-    }
-  }
-  
-  def testLocalObjectInside() {
-    addFileToProject("Sample.scala",
-      """
-      |object Sample {
-      |  def main(args: Array[String]) {
-      |    val x = 1
-      |    object X {
-      |      def foo(y: Int) {
-      |        "stop here"
-      |         x
-      |      }
-      |    }
-      |    X.foo(2)
-      |  }
-      |}
-      """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 5)
-    runDebugger("Sample") {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
     }
   }
 
-  def testLocalObjectInsideClassLevel() {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  def main(args: Array[String]) {
-        |    class Local {
-        |      def foo() {
-        |        val x = 1
-        |        var s = "a"
-        |        object X {
-        |          def foo(y: Int) {
-        |            "stop here"
-        |             x
-        |          }
-        |        }
-        |        X.foo(2)
-        |      }
-        |    }
-        |    new Local().foo()
-        |  }
-        |}
+  addFileWithBreakpoints("LocalObjectInside.scala",
+    s"""
+       |object LocalObjectInside {
+       |  def main(args: Array[String]) {
+       |    val x = 1
+       |    object X {
+       |      def foo(y: Int) {
+       |        ""$bp
+       |         x
+       |      }
+       |    }
+       |    X.foo(2)
+       |  }
+       |}
       """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 8)
-    runDebugger("Sample") {
+  )
+  def testLocalObjectInside() {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("x", "1")
+    }
+  }
+
+  addFileWithBreakpoints("LocalObjectInsideClassLevel.scala",
+    s"""
+       |object LocalObjectInsideClassLevel {
+       |  def main(args: Array[String]) {
+       |    class Local {
+       |      def foo() {
+       |        val x = 1
+       |        var s = "a"
+       |        object X {
+       |          def foo(y: Int) {
+       |            ""$bp
+       |             x
+       |          }
+       |        }
+       |        X.foo(2)
+       |      }
+       |    }
+       |    new Local().foo()
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
+  def testLocalObjectInsideClassLevel() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("x", "1")
       evalEquals("s", "a")

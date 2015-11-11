@@ -60,6 +60,12 @@ trait ConstructorAnnotator {
             holder.createErrorAnnotation(assignment.getLExpression, "Parameter specified multiple times")
           case WrongTypeParameterInferred => //todo: ?
           case ExpectedTypeMismatch => //will be reported later
+          case DefaultTypeParameterMismatch(expected, actual) => constructor.typeArgList match {
+            case Some(tpArgList) =>
+              val message: String = ScalaBundle.message("type.mismatch.default.args.expected.actual", expected, actual)
+              holder.createErrorAnnotation(tpArgList, message)
+            case _ =>
+          }
           case _ => holder.createErrorAnnotation(argsElement, "Not applicable." /* TODO + signatureOf(f)*/)
         }
       case results =>

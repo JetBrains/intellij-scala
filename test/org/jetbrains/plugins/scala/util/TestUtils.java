@@ -20,6 +20,7 @@ import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.util.IncorrectOperationException;
@@ -27,6 +28,7 @@ import com.intellij.util.LocalTimeCounter;
 import junit.framework.AssertionFailedError;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.Console;
+import org.jetbrains.plugins.scala.debugger.DebuggerTestUtil$;
 import org.junit.Assert;
 
 import java.io.File;
@@ -99,58 +101,77 @@ public class TestUtils {
   }
 
 
-  public static String getMockJdk() {
-    return getTestDataPath() + "/mockJDK";
+  public static String getDefaultJdk() {
+    String path = DebuggerTestUtil$.MODULE$.discoverJDK18().get();
+    VfsRootAccess.allowRootAccess(path);
+    return path;
   }
 
   public enum ScalaSdkVersion {
-    _2_8("mockScalaLib"), _2_9("mockScala29Lib"), _2_10("mockScala210Lib"), _2_11("mockScala211Lib");
-    private String path;
+    _2_10("2.10", "2.10.6"), _2_11("2.11", "2.11.7"), _2_12("2.12", "2.12.0-M2");
+    private String major;
+    private String minor;
 
-    ScalaSdkVersion(String path) {
-      this.path = path;
+    ScalaSdkVersion(String major, String minor) {
+      this.major = major;
+      this.minor = minor;
     }
 
-    public String getPath() {
-      return path;
+    public String getMinor() {
+      return minor;
+    }
+
+    public String getMajor() {
+      return major;
     }
   }
 
   public static final ScalaSdkVersion DEFAULT_SCALA_SDK_VERSION = ScalaSdkVersion._2_10;
 
-  public static String getMockScalaLib() {
-    return getMockScalaLib(DEFAULT_SCALA_SDK_VERSION);
+  public static String getScalaLibraryPath() {
+    return getScalaLibraryPath(DEFAULT_SCALA_SDK_VERSION);
   }
 
-  public static String getMockScalaSrc() {
-    return getMockScalaSrc(DEFAULT_SCALA_SDK_VERSION);
-  }
-
-  public static String getMockScalaLib(ScalaSdkVersion version) {
-    return getTestDataPath() + "/" + version.getPath() + "/scala.jar";
-  }
-
-  public static String getMockScalaReflectLib(ScalaSdkVersion version) {
-    return getTestDataPath() + "/" + version.getPath() + "/scala-reflect.jar";
+  public static String getScalaLibrarySrc() {
+    return getScalaLibrarySrc(DEFAULT_SCALA_SDK_VERSION);
   }
 
   public static String getMockScalazLib(ScalaSdkVersion version) {
-    return getTestDataPath() + "/" + version.getPath() + "/scalaz-7.0.5.jar";
+    String major = version.getMajor();
+    String dirName = "/org.scalaz/scalaz-core_" + major + "/bundles/";
+    String fileName = "scalaz-core_" + major + "-7.1.0.jar";
+    return getIvyCachePath() + dirName + fileName;
   }
 
   public static String getMockSprayLib(ScalaSdkVersion version) {
     return getIvyCachePath() + "/io.spray/spray-routing_2.11/bundles/spray-routing_2.11-1.3.1.jar" ;
   }
 
-  public static String getMockScalaSrc(ScalaSdkVersion version) {
-    return getTestDataPath() + "/" + version.getPath() + "/scala-src.jar";
+  public static String getScalaLibrarySrc(ScalaSdkVersion version) {
+    String fileName = "scala-library-" + version.getMinor() + "-sources.jar";
+    return getIvyCachePath() + "/org.scala-lang/scala-library/srcs/" + fileName;
   }
 
   public static String getIvyCachePath() {
-    String homePath = System.getProperty("user.home") + "\\.ivy2\\cache";
+    String homePath = System.getProperty("user.home") + "/.ivy2/cache";
     String ivyCachePath = System.getProperty("sbt.ivy.home");
-    String result = ivyCachePath != null ? ivyCachePath + "\\cache" : homePath;
+    String result = ivyCachePath != null ? ivyCachePath + "/cache" : homePath;
     return result.replace("\\", "/");
+  }
+
+  public static String getScalaLibraryPath(ScalaSdkVersion version) {
+    String fileName = "scala-library-" + version.getMinor() + ".jar";
+    return getIvyCachePath() + "/org.scala-lang/scala-library/jars/" + fileName;
+  }
+
+  public static String getScalaCompilerPath(ScalaSdkVersion version) {
+    String fileName = "scala-compiler-" + version.getMinor() + ".jar";
+    return getIvyCachePath() + "/org.scala-lang/scala-compiler/jars/" + fileName;
+  }
+
+  public static String getScalaReflectPath(ScalaSdkVersion version) {
+    String fileName = "scala-reflect-" + version.getMinor() + ".jar";
+    return getIvyCachePath() + "/org.scala-lang/scala-reflect/jars/" + fileName;
   }
   
   public static String removeCaretMarker(String text) {

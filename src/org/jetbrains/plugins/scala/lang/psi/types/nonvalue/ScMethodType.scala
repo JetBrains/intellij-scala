@@ -29,16 +29,17 @@ trait NonValueType extends ScType {
  * Some difference
  */
 case class Parameter(name: String, deprecatedName: Option[String], paramType: ScType, expectedType: ScType,
-                     isDefault: Boolean, isRepeated: Boolean,
-                     isByName: Boolean, index: Int = -1, psiParam: Option[PsiParameter] = None) {
-  def this(name: String, deprecatedName: Option[String], paramType: ScType, isDefault: Boolean, isRepeated: Boolean,
-           isByName: Boolean, index: Int) {
+                     isDefault: Boolean, isRepeated: Boolean, isByName: Boolean,
+                     index: Int = -1, psiParam: Option[PsiParameter] = None, defaultType: Option[ScType] = None) {
+
+  def this(name: String, deprecatedName: Option[String], paramType: ScType,
+           isDefault: Boolean, isRepeated: Boolean, isByName: Boolean, index: Int) {
     this(name, deprecatedName, paramType, paramType, isDefault, isRepeated, isByName, index)
   }
 
   def this(param: ScParameter) {
-    this(param.name, param.deprecatedName, param.getType(TypingContext.empty).getOrAny, param.getType(TypingContext.empty).getOrAny,
-      param.isDefaultParam, param.isRepeatedParameter, param.isCallByNameParameter, param.index, Some(param))
+    this(param.name, param.deprecatedName, param.getType(TypingContext.empty).getOrNothing, param.getType(TypingContext.empty).getOrNothing,
+      param.isDefaultParam, param.isRepeatedParameter, param.isCallByNameParameter, param.index, Some(param), param.getDefaultExpression.flatMap(_.getType().toOption))
   }
 
   def this(param: PsiParameter) {
@@ -51,7 +52,9 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
   }
 
   def nameInCode = psiParam.map(_.getName)
+
 }
+
 
 /**
  * Class representing type parameters in our type system. Can be constructed from psi.
@@ -139,8 +142,9 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
       if (!p.isRepeated) inferredParamType
       else {
         val seqClass = ScalaPsiManager.instance(project).getCachedClass(scope, "scala.collection.Seq")
-        if (seqClass == null) inferredParamType
-        else ScParameterizedType(ScDesignatorType(seqClass), Seq(inferredParamType))
+        seqClass.fold(inferredParamType) { inferred =>
+            ScParameterizedType(ScDesignatorType(inferred), Seq(inferredParamType))
+        }
       }
     }))(project, scope)
   }

@@ -7,6 +7,7 @@ import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.{DebuggerBundle, SourcePosition}
 import com.intellij.openapi.application.ApplicationManager
 import com.sun.jdi._
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
@@ -98,7 +99,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
                   def run() {
                     try {
                       val lines = methodPosition.map(_.getLine)
-                      result = m.allLineLocations().exists(l => lines.contains(l.lineNumber()))
+                      result = m.allLineLocations().exists(l => lines.contains(ScalaPositionManager.checkedLineNumber(l)))
                     }
                     catch {
                       case e: Exception => //ignore

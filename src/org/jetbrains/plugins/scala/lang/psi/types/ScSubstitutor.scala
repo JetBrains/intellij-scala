@@ -8,20 +8,21 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
-import scala.annotation.tailrec
 import scala.collection.immutable.{HashMap, HashSet, Map}
 
 /**
 * @author ven
 */
 object ScSubstitutor {
-  val empty: ScSubstitutor = new ScSubstitutor()
+  val empty: ScSubstitutor = new ScSubstitutor() {
+    override def toString: String = "Empty substitutor"
+  }
 
   val key: Key[ScSubstitutor] = Key.create("scala substitutor key")
 
@@ -31,7 +32,8 @@ object ScSubstitutor {
 class ScSubstitutor(val tvMap: Map[(String, String), ScType],
                     val aliasesMap: Map[String, Suspension[ScType]],
                     val updateThisType: Option[ScType]) {
-  def this() = this(Map.empty, Map.empty, None)
+  //use ScSubstitutor.empty instead
+  private[ScSubstitutor] def this() = this(Map.empty, Map.empty, None)
 
   def this(updateThisType: ScType) {
     this(Map.empty, Map.empty, Some(updateThisType))
@@ -76,6 +78,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     res.myDependentMethodTypes = myDependentMethodTypes
     res
   }
+
   def bindA(name: String, f: () => ScType) = {
     val res = new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](f))), updateThisType, follower)
     res.myDependentMethodTypesFun = myDependentMethodTypesFun
@@ -83,7 +86,8 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     res.myDependentMethodTypes = myDependentMethodTypes
     res
   }
-  def addUpdateThisType(tp: ScType): ScSubstitutor = {
+
+  def followUpdateThisType(tp: ScType): ScSubstitutor = {
     tp match {
       case ScThisType(template) =>
         var zSubst = new ScSubstitutor(Map.empty, Map.empty, Some(ScThisType(template)))
@@ -97,8 +101,8 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
           }
           placer = placer.getContext
         }
-        this.followed(zSubst)
-      case _ => this.followed(new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
+        zSubst.followed(this)
+      case _ => new ScSubstitutor(Map.empty, Map.empty, Some(tp)).followed(this)
     }
   }
   def followed(s: ScSubstitutor): ScSubstitutor = followed(s, 0)
@@ -163,7 +167,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
         val ScMethodType(retType, params, isImplicit) = m
         result = new ScMethodType(substInternal(retType),
           params.map(p => p.copy(paramType = substInternal(p.paramType),
-            expectedType = substInternal(p.expectedType))), isImplicit)(m.project, m.scope)
+            expectedType = substInternal(p.expectedType), defaultType = p.defaultType.map(substInternal))), isImplicit)(m.project, m.scope)
       }
 
       override def visitUndefinedType(u: ScUndefinedType): Unit = {
@@ -440,6 +444,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]
                              val lowerMap: Map[(String, String), HashSet[ScType]] = HashMap.empty,
                              val upperAdditionalMap: Map[(String, String), HashSet[ScType]] = HashMap.empty,
                              val lowerAdditionalMap: Map[(String, String), HashSet[ScType]] = HashMap.empty) {
+
   def copy(upperMap: Map[(String, String), HashSet[ScType]] = upperMap,
            lowerMap: Map[(String, String), HashSet[ScType]] = lowerMap,
            upperAdditionalMap: Map[(String, String), HashSet[ScType]] = upperAdditionalMap,

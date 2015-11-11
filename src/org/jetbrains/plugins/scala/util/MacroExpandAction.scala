@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.util
 
 import java.io._
+import java.util
 import java.util.regex.Pattern
 
+import com.intellij.codeInsight.actions.{TextRangeType, ReformatCodeRunOptions, LastRunReformatCodeOptionsProvider}
+import com.intellij.ide.util.PropertiesComponent
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.PathManager
@@ -10,18 +13,21 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi._
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugin.scala.util.MacroExpansion
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScBlock, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import com.intellij.openapi.util.Key
 
 import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 
 class MacroExpandAction extends AnAction {
@@ -60,7 +66,12 @@ class MacroExpandAction extends AnAction {
 
   def expandMacroUnderCursor(expansion: ResolvedMacroExpansion)(implicit e: AnActionEvent) = {
     inWriteCommandAction(e.getProject) {
-      applyExpansion(expansion)
+      try {
+        applyExpansion(expansion)
+      } catch {
+        case e: UnresolvedExpansion =>
+          LOG.warn(s"unable to expand ${expansion.expansion.place}, cannot resolve place, skipping")
+      }
       e.getProject
     }
   }
@@ -86,6 +97,7 @@ class MacroExpandAction extends AnAction {
     buffer.toSeq
   }
 
+  @throws[UnresolvedExpansion]
   def applyExpansion(resolved: ResolvedMacroExpansion)(implicit e: AnActionEvent): Unit = {
     if (resolved.psiElement.isEmpty)
       throw new UnresolvedExpansion
@@ -100,6 +112,26 @@ class MacroExpandAction extends AnAction {
         expandMacroCall(mc, resolved.expansion)
       case (other) => () // unreachable
     }
+  }
+
+  def reformatCode(psi: PsiElement): PsiElement = {
+    val res = CodeStyleManager.getInstance(psi.getProject).reformat(psi)
+    val tobeDeleted = new ArrayBuffer[PsiElement]
+    val v = new PsiElementVisitor {
+      override def visitElement(element: PsiElement) = {
+        if (element.getNode.getElementType == ScalaTokenTypes.tSEMICOLON) {
+          val file = element.getContainingFile
+          val nextLeaf = file.findElementAt(element.getTextRange.getEndOffset)
+          if (nextLeaf.isInstanceOf[PsiWhiteSpace] && nextLeaf.getText.contains("\n")) {
+            tobeDeleted += element
+          }
+        }
+        element.acceptChildren(this)
+      }
+    }
+    v.visitElement(res)
+    tobeDeleted.foreach(_.delete())
+    res
   }
 
   def applyExpansions(expansions: Seq[ResolvedMacroExpansion], triedResolving: Boolean = false)(implicit e: AnActionEvent): Unit = {
@@ -126,6 +158,7 @@ class MacroExpandAction extends AnAction {
       case holder: ScAnnotationsHolder =>
         val body = expansion.body
         val newPsi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(body, PsiManager.getInstance(e.getProject))
+        reformatCode(newPsi)
         newPsi.firstChild match {
           case Some(block: ScBlock) => // insert content of block expression(annotation can generate >1 expression)
             val children = block.getChildren
@@ -149,6 +182,7 @@ class MacroExpandAction extends AnAction {
       case _ => // unreachable
     }
     call.delete()
+    reformatCode(element)
   }
 
   def tryResolveExpansionPlace(expansion: MacroExpansion)(implicit e: AnActionEvent): ResolvedMacroExpansion = {

@@ -14,7 +14,9 @@ import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -77,8 +79,9 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
   override def getFindUsagesOptions(dataContext: DataContext): FindUsagesOptions = {
     element match {
       case t: ScTypeDefinition => factory.typeDefinitionOptions
-      case ScalaPsiUtil.inNameContext(m: ScMember) => factory.memberOptions
-      case p: ScParameter => factory.paramOptions
+      case ScalaPsiUtil.inNameContext(m: ScMember) if !m.isLocal => factory.memberOptions
+      case _: ScParameter | _: ScTypeParam |
+           ScalaPsiUtil.inNameContext(_: ScMember | _: ScCaseClause | _: ScGenerator | _: ScEnumerator ) => factory.localOptions
       case _ => super.getFindUsagesOptions(dataContext)
     }
   }

@@ -26,7 +26,7 @@ import scala.collection.mutable.ArrayBuffer
  * @author Alefas
  * @since 03.09.13
  */
-class SameSignatureCallParametersProvider extends CompletionContributor {
+class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
   val constructorFilter = PlatformPatterns.psiElement().withParent(classOf[ScReferenceExpression]).
           withSuperParent(2, classOf[ScArgumentExprList]).withSuperParent(3, classOf[ScConstructor])
 
@@ -58,16 +58,16 @@ class SameSignatureCallParametersProvider extends CompletionContributor {
   })
 
   private def addSuperCallCompletions(parameters: CompletionParameters, result: CompletionResultSet): Unit = {
-    val position = parameters.getPosition
+    val position = positionFromParameters(parameters)
     val elementType = position.getNode.getElementType
     if (elementType != ScalaTokenTypes.tIDENTIFIER) return
-    val call = PsiTreeUtil.getParentOfType(position, classOf[ScMethodCall])
-    val index = PsiTreeUtil.getParentOfType(position, classOf[ScArgumentExprList]).invocationCount - 1
+    val call = PsiTreeUtil.getContextOfType(position, classOf[ScMethodCall])
+    val index = PsiTreeUtil.getContextOfType(position, classOf[ScArgumentExprList]).invocationCount - 1
     call.deepestInvokedExpr match {
       case ref: ScReferenceExpression =>
         ref.qualifier match {
           case Some(s: ScSuperReference) =>
-            val function = PsiTreeUtil.getParentOfType(ref, classOf[ScFunction])
+            val function = PsiTreeUtil.getContextOfType(ref, classOf[ScFunction])
             if (function != null && function.name == ref.refName) {
               val variants = ref.getSimpleVariants(implicits = false, filterNotNamedVariants = false)
               val signatures = variants.toSeq.map {
@@ -88,21 +88,21 @@ class SameSignatureCallParametersProvider extends CompletionContributor {
               if (signatures.isEmpty) return
 
               checkSignatures(signatures, function, result)
-            } else return
-          case _ => return
+            }
+          case _ =>
         }
-      case _ => return
+      case _ =>
     }
   }
 
   private def addConstructorCompletions(parameters: CompletionParameters, result: CompletionResultSet): Unit = {
-    val position = parameters.getPosition
+    val position = positionFromParameters(parameters)
     val elementType = position.getNode.getElementType
     if (elementType != ScalaTokenTypes.tIDENTIFIER) return
-    PsiTreeUtil.getParentOfType(position, classOf[ScTemplateDefinition]) match {
+    PsiTreeUtil.getContextOfType(position, classOf[ScTemplateDefinition]) match {
       case c: ScClass =>
-        val args = PsiTreeUtil.getParentOfType(position, classOf[ScArgumentExprList])
-        val constructor = args.getParent.asInstanceOf[ScConstructor]
+        val args = PsiTreeUtil.getContextOfType(position, classOf[ScArgumentExprList])
+        val constructor = args.getContext.asInstanceOf[ScConstructor]
         val index = constructor.arguments.indexOf(args)
         val typeElement = constructor.typeElement
         typeElement.getType(TypingContext.empty) match {
@@ -134,9 +134,9 @@ class SameSignatureCallParametersProvider extends CompletionContributor {
 
             c.constructor match {
               case Some(constr) => checkSignatures(signatures, constr, result)
-              case _ => return
+              case _ =>
             }
-          case _ => return
+          case _ =>
         }
       case _ =>
     }
@@ -166,7 +166,7 @@ class SameSignatureCallParametersProvider extends CompletionContributor {
 
             val file = context.getFile
             val element = file.findElementAt(context.getStartOffset)
-            val exprs = PsiTreeUtil.getParentOfType(element, classOf[ScArgumentExprList])
+            val exprs = PsiTreeUtil.getContextOfType(element, classOf[ScArgumentExprList])
             if (exprs == null) return
             context.getEditor.getCaretModel.moveToOffset(exprs.getTextRange.getEndOffset) // put caret after )
           }

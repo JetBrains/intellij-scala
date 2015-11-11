@@ -7,9 +7,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScClassParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -20,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
+import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedMappedWithRecursionGuard}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.collection.immutable.HashSet
@@ -131,78 +131,71 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
     }
   }
 
-  private def actual: (PsiNamedElement, ScSubstitutor) = {
-    def actualInner(element: PsiNamedElement, data: (ScType, Boolean)): Option[(PsiNamedElement, ScSubstitutor)] = {
-      val (projected, superReference) = data
-      val emptySubst = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
-      val resolvePlace = {
-        def fromClazz(clazz: ScTypeDefinition): PsiElement = {
-          clazz.extendsBlock.templateBody.flatMap(_.asInstanceOf[ScTemplateBodyImpl].getLastChildStub.toOption).
-            getOrElse(clazz.extendsBlock)
-        }
-        ScType.extractClass(projected, Some(element.getProject)) match {
-          case Some(clazz: ScTypeDefinition) => fromClazz(clazz)
-          case _ => projected match {
-            case ScThisType(clazz: ScTypeDefinition) => fromClazz(clazz)
-            case _ => element
-          }
-        }
+  @CachedMappedWithRecursionGuard(element, None, ModCount.getBlockModificationCount)
+  private def actualImpl(projected: ScType, superReference: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = {
+    val emptySubst = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
+    val resolvePlace = {
+      def fromClazz(clazz: ScTypeDefinition): PsiElement = {
+        clazz.extendsBlock.templateBody.flatMap(_.asInstanceOf[ScTemplateBodyImpl].getLastChildStub.toOption).
+          getOrElse(clazz.extendsBlock)
       }
-
-      def resolveProcessor(kinds: Set[ResolveTargets.Value], name: String): ResolveProcessor = {
-        new ResolveProcessor(kinds, resolvePlace, name) {
-          override protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
-            candidatesSet ++= results
-            true
-          }
+      ScType.extractClass(projected, Some(element.getProject)) match {
+        case Some(clazz: ScTypeDefinition) => fromClazz(clazz)
+        case _ => projected match {
+          case ScThisType(clazz: ScTypeDefinition) => fromClazz(clazz)
+          case _ => element
         }
-      }
-
-      def processType(name: String): Option[(PsiNamedElement, ScSubstitutor)] = {
-        import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-        val proc = resolveProcessor(ValueSet(CLASS), name)
-        proc.processType(projected, resolvePlace, ResolveState.initial)
-        val candidates = proc.candidates
-        if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
-          val defaultSubstitutor = emptySubst followed candidates(0).substitutor
-          if (superReference) {
-            ScalaPsiUtil.superTypeMembersAndSubstitutors(candidates(0).element).find {
-              _.info == element
-            } match {
-              case Some(node) =>
-                Some(element, defaultSubstitutor followed node.substitutor)
-              case _ => Some(element, defaultSubstitutor)
-            }
-          } else Some(candidates(0).element, defaultSubstitutor)
-        } else None
-      }
-      element match {
-        case a: ScTypeAlias => processType(a.name)
-        case d: ScTypedDefinition if d.isStable =>
-          val name = d.name
-          import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-
-          val proc = resolveProcessor(ValueSet(VAL, OBJECT), name)
-          proc.processType(projected, resolvePlace, ResolveState.initial)
-          val candidates = proc.candidates
-          if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
-            //todo: superMemberSubstitutor? However I don't know working example for this case
-            Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
-          } else None
-        case d: ScTypeDefinition => processType(d.name)
-        case d: PsiClass => processType(d.getName)
-        case _ => None
       }
     }
 
-    val (actualElement, actualSubst) =
-      CachesUtil.getMappedWithRecursionPreventingWithRollback[PsiNamedElement, (ScType, Boolean), Option[(PsiNamedElement, ScSubstitutor)]](
-        element, (projected, superReference), CachesUtil.PROJECTION_TYPE_ACTUAL_INNER, actualInner, None,
-        PsiModificationTracker.MODIFICATION_COUNT).getOrElse(
-          (element, ScSubstitutor.empty)
-        )
+    def resolveProcessor(kinds: Set[ResolveTargets.Value], name: String): ResolveProcessor = {
+      new ResolveProcessor(kinds, resolvePlace, name) {
+        override protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
+          candidatesSet ++= results
+          true
+        }
+      }
+    }
 
-    (actualElement, actualSubst)
+    def processType(name: String): Option[(PsiNamedElement, ScSubstitutor)] = {
+      import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
+      val proc = resolveProcessor(ValueSet(CLASS), name)
+      proc.processType(projected, resolvePlace, ResolveState.initial)
+      val candidates = proc.candidates
+      if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
+        val defaultSubstitutor = emptySubst followed candidates(0).substitutor
+        if (superReference) {
+          ScalaPsiUtil.superTypeMembersAndSubstitutors(candidates(0).element).find {
+            _.info == element
+          } match {
+            case Some(node) =>
+              Some(element, defaultSubstitutor followed node.substitutor)
+            case _ => Some(element, defaultSubstitutor)
+          }
+        } else Some(candidates(0).element, defaultSubstitutor)
+      } else None
+    }
+    element match {
+      case a: ScTypeAlias => processType(a.name)
+      case d: ScTypedDefinition if d.isStable =>
+        val name = d.name
+        import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
+
+        val proc = resolveProcessor(ValueSet(VAL, OBJECT), name)
+        proc.processType(projected, resolvePlace, ResolveState.initial)
+        val candidates = proc.candidates
+        if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
+          //todo: superMemberSubstitutor? However I don't know working example for this case
+          Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
+        } else None
+      case d: ScTypeDefinition => processType(d.name)
+      case d: PsiClass => processType(d.getName)
+      case _ => None
+    }
+  }
+
+  private def actual: (PsiNamedElement, ScSubstitutor) = {
+    actualImpl(projected, superReference).getOrElse(element, ScSubstitutor.empty)
   }
 
   def actualElement: PsiNamedElement = actual._1
@@ -315,6 +308,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
 
   override def isFinalType = actualElement match {
     case cl: PsiClass if cl.isEffectivelyFinal => true
+    case alias: ScTypeAliasDefinition => alias.aliasedType.exists(_.isFinalType)
     case _ => false
   }
 
@@ -496,7 +490,7 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
 
 object ScDesignatorType {
   def fromClassFqn(fqn: String, project: Project, scope: GlobalSearchScope): ScType = {
-    Option(ScalaPsiManager.instance(project).getCachedClass(scope, fqn)) match {
+    ScalaPsiManager.instance(project).getCachedClass(scope, fqn) match {
       case Some(c) => ScType.designator(c)
       case _ => types.Nothing
     }

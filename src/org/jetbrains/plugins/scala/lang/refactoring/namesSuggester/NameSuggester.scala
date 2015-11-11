@@ -40,7 +40,7 @@ object NameSuggester {
     val types = new ArrayBuffer[ScType]()
     val typez = expr.getType(TypingContext.empty).getOrElse(null)
     if (typez != null && typez != Unit) types += typez
-    expr.getTypeWithoutImplicits(TypingContext.empty).foreach(types += _)
+    expr.getTypeWithoutImplicits().foreach(types += _)
     expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types += _)
     if (typez != null && typez == Unit) types += typez
 

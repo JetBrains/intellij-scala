@@ -42,13 +42,12 @@ object ScalaCompletionUtil {
     }
   }
 
-  def shouldRunClassNameCompletion(parameters: CompletionParameters, prefixMatcher: PrefixMatcher,
+  def shouldRunClassNameCompletion(dummyPosition: PsiElement, parameters: CompletionParameters, prefixMatcher: PrefixMatcher,
                                    checkInvocationCount: Boolean = true, lookingForAnnotations: Boolean = false): Boolean = {
-    val element = parameters.getPosition
     if (checkInvocationCount && parameters.getInvocationCount < 2) return false
-    if (element.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
-      element.getParent match {
-        case ref: ScReferenceElement if ref.qualifier != None => return false
+    if (dummyPosition.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER) {
+      dummyPosition.getParent match {
+        case ref: ScReferenceElement if ref.qualifier.isDefined => return false
         case _ =>
       }
     }

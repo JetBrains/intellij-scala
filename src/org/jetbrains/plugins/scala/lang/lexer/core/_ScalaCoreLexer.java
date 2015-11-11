@@ -1269,6 +1269,7 @@ public class _ScalaCoreLexer implements FlexLexer, ScalaTokenTypesEx {
     zzAtBOL = true;
     zzEndRead = end;
     
+    haveIdInString = false;
     nestedString.clear();
     
     yybegin(initialState);
@@ -1284,6 +1285,7 @@ public class _ScalaCoreLexer implements FlexLexer, ScalaTokenTypesEx {
     zzAtBOL = true;
     zzEndRead = buffer.length();
 
+    haveIdInString = false;
     nestedString.clear();
     
     yybegin(initialState);

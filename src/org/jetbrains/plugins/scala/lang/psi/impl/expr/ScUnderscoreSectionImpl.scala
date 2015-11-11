@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -66,7 +67,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             var startOffset = if (expr.getTextRange != null) expr.getTextRange.getStartOffset else 0
             var e: PsiElement = this
             while (e != expr) {
-              startOffset += e.getStartOffsetInParent
+              startOffset += e.startOffsetInParent
               e = e.getContext
             }
             val i = unders.indexWhere(_.getTextRange.getStartOffset == startOffset)

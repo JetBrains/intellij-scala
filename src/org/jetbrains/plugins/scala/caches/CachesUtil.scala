@@ -2,25 +2,22 @@ package org.jetbrains.plugins.scala
 package caches
 
 
-import com.intellij.openapi.util.{Computable, Key, RecursionGuard, RecursionManager}
-import com.intellij.psi._
-import com.intellij.psi.util.{CachedValue, CachedValueProvider, CachedValuesManager, PsiTreeUtil}
-import com.intellij.util.containers.ConcurrentHashMap
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParamClause}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import java.util.concurrent.ConcurrentMap
 
-import scala.collection.mutable.ArrayBuffer
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.util._
+import com.intellij.psi._
+import com.intellij.psi.impl.compiled.ClsFileImpl
+import com.intellij.psi.util._
+import com.intellij.util.containers.{ContainerUtil, Stack}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+
+import scala.annotation.tailrec
 import scala.util.control.ControlThrowable
 
 /**
@@ -28,81 +25,58 @@ import scala.util.control.ControlThrowable
  * Date: 08.06.2009
  */
 object CachesUtil {
-  //Map cache keys
-  type MappedKey[Data, Result] = Key[CachedValue[ConcurrentHashMap[Data, Result]]]
-  val TYPE_AFTER_IMPLICIT_KEY: MappedKey[(Boolean, Boolean, Option[ScType], Boolean, Boolean), ExpressionTypeResult] =
-    Key.create("type.after.implicit.key")
-  val TYPE_OF_SPECIAL_EXPR_AFTER_IMPLICIT_KEY: MappedKey[(ScType, Option[ScType]), (TypeResult[ScType], collection.Set[ImportUsed])] =
-    Key.create("type.of.special.expr.after.implicit.key")
-  val TYPE_WITHOUT_IMPLICITS: MappedKey[(Boolean, Boolean), TypeResult[ScType]] =
-    Key.create("type.without.implicits.key")
-  val NON_VALUE_TYPE_KEY: MappedKey[(Boolean, Boolean), TypeResult[ScType]] = Key.create("non.value.type.key")
-  val EXPECTED_TYPES_KEY: MappedKey[Boolean, Array[(ScType, Option[ScTypeElement])]] = Key.create("expected.types.key")
-  val SMART_EXPECTED_TYPE: MappedKey[Boolean, Option[ScType]] = Key.create("smart.expected.type")
-  val IMPLICIT_MAP1_KEY: MappedKey[(Option[ScType], Boolean, Option[ScType]), Seq[ImplicitResolveResult]] =
-    Key.create("implicit.map1.key")
-  val IMPLICIT_MAP2_KEY: MappedKey[(Option[ScType], Boolean, Seq[ScType], Option[ScType]), Seq[ImplicitResolveResult]] =
-    Key.create("implicit.map2.key")
-  val IMPLICIT_SIMPLE_MAP_KEY: MappedKey[(Boolean, Option[ScType]), ArrayBuffer[ScImplicitlyConvertible.ImplicitMapResult]] =
-    Key.create("implicit.simple.map.key")
-  val RESOLVE_KEY: MappedKey[Boolean, Array[ResolveResult]] =
-    Key.create("resolve.key")
-  val EXPRESSION_APPLY_SHAPE_RESOLVE_KEY: MappedKey[(ScType, Seq[ScExpression], Option[MethodInvocation]), Array[ScalaResolveResult]] =
-    Key.create("expression.apply.shape.resolve.key")
 
-  //keys for cachedValue
-  val REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY: Key[CachedValue[Array[ResolveResult]]] =
-    Key.create("ref.element.shape.resolve.constr.key")
-  val REF_ELEMENT_RESOLVE_CONSTR_KEY: Key[CachedValue[Array[ResolveResult]]] =
-    Key.create("ref.element.resolve.constr.key")
-  val NO_CONSTRUCTOR_RESOLVE_KEY: Key[CachedValue[Array[ResolveResult]]] = Key.create("no.constructor.resolve.key")
-  val SYNTHETIC_MEMBERS_WITH_OVERRIDE_KEY: Key[CachedValue[Seq[PsiMethod]]] = Key.create("synthetic.members.with.override.key")
-  val SYNTHETIC_MEMBERS_KEY: Key[CachedValue[Seq[PsiMethod]]] = Key.create("synthetic.members.no.override.key")
-  val SYNTHETIC_TYPE_DEFINITONS_KEY: Key[CachedValue[Seq[ScTypeDefinition]]] = Key.create("synthetic.type.definitions.no.override.key")
-  val DESUGARIZED_EXPR_KEY: Key[CachedValue[Option[ScExpression]]] = Key.create("desugarized.expr.key")
-  val STRING_CONTEXT_EXPANDED_EXPR_KEY: Key[CachedValue[Option[ScExpression]]] = Key.create("string.context.expanded.expr.key")
-  val TYPE_ELEMENT_TYPE_KEY: Key[CachedValue[TypeResult[ScType]]] = Key.create("type.element.type.key")
-  val SIMPLE_TYPE_ELEMENT_TYPE_NO_CONSTRUCTOR_KEY: Key[CachedValue[TypeResult[ScType]]] =
-    Key.create("simple.type.element.type.no.constructor.key")
-  val NON_VALUE_TYPE_ELEMENT_TYPE_KEY: Key[CachedValue[TypeResult[ScType]]] = Key.create("type.element.type.key")
-  val IS_FUNCTION_INHERITOR_KEY: Key[CachedValue[Boolean]] = Key.create("is.function1.inheritor.key")
-  val CONSTRUCTOR_TYPE_PARAMETERS_KEY: Key[CachedValue[Option[ScTypeParamClause]]] =
-    Key.create("constructor.type.parameters.key")
-  val REF_ELEMENT_SHAPE_RESOLVE_KEY: Key[CachedValue[Array[ResolveResult]]] =
-    Key.create("ref.element.shape.resolve.key")
-  val REF_EXPRESSION_SHAPE_RESOLVE_KEY: Key[CachedValue[Array[ResolveResult]]] =
-    Key.create("ref.expression.shape.resolve.key")
-  val REF_EXPRESSION_NON_VALUE_RESOLVE_KEY: Key[CachedValue[Array[ResolveResult]]] =
-    Key.create("ref.expression.non.value.resolve.key")
-  val IS_SCRIPT_FILE_KEY: Key[CachedValue[Boolean]] = Key.create("is.script.file.key")
-  val FUNCTION_EFFECTIVE_PARAMETER_CLAUSE_KEY: Key[CachedValue[Seq[ScParameterClause]]] =
-    Key.create("function.effective.parameter.clause.key")
-  val TYPE_WITHOUT_IMPLICITS_WITHOUT_UNDERSCORE: Key[CachedValue[TypeResult[ScType]]] =
-    Key.create("type.without.implicits.without.underscore.key")
-  val ALIASED_KEY: Key[CachedValue[TypeResult[ScType]]] = Key.create("alised.type.key")
-  val SCRIPT_KEY: Key[CachedValue[java.lang.Boolean]] = Key.create("is.script.key")
-  val SCALA_PREDEFINED_KEY: Key[CachedValue[java.lang.Boolean]] = Key.create("scala.predefined.key")
-  val EXPR_TYPE_KEY: Key[CachedValue[ScType]] = Key.create("expr.type.key")
-  val TYPE_KEY: Key[CachedValue[TypeResult[ScType]]] = Key.create("type.element.type.key")
-  val PSI_RETURN_TYPE_KEY: Key[CachedValue[PsiType]] = Key.create("psi.return.type.key")
-  val SUPER_TYPES_KEY: Key[CachedValue[List[ScType]]] = Key.create("super.types.key")
-  val EXTENDS_BLOCK_SUPER_TYPES_KEY: Key[CachedValue[List[ScType]]] = Key.create("extends.block.super.types.key")
-  val EXTENDS_BLOCK_SUPERS_KEY: Key[CachedValue[Seq[PsiClass]]] = Key.create("extends.block.supers.key")
-  val LINEARIZATION_KEY: Key[CachedValue[Seq[ScType]]] = Key.create("linearization.key")
-  val FAKE_CLASS_COMPANION: Key[CachedValue[Option[ScObject]]] = Key.create("fake.class.companion.key")
-  val EFFECTIVE_PARAMETER_CLAUSE: Key[CachedValue[Seq[ScParameterClause]]] =
-    Key.create("effective.parameter.clause.key")
-  val PATTERN_EXPECTED_TYPE: Key[CachedValue[Option[ScType]]] = Key.create("pattern.expected.type.key")
-  val PROJECTION_TYPE_ACTUAL_INNER: Key[CachedValue[ConcurrentHashMap[(ScType, Boolean), Option[(PsiNamedElement, ScSubstitutor)]]]] =
-    Key.create("projection.type.actual.inner.key")
+  /** This value is used by cache analyzer
+   *
+   * @see [[org.jetbrains.plugins.scala.macroAnnotations.CachedMacroUtil.transformRhsToAnalyzeCaches]]
+   */
+  lazy val timeToCalculateForAnalyzingCaches: ThreadLocal[Stack[Long]] = new ThreadLocal[Stack[Long]] {
+    override def initialValue: Stack[Long] = new Stack[Long]()
+  }
+
+
+  /**
+   * Do not delete this type alias, it is used by [[org.jetbrains.plugins.scala.macroAnnotations.CachedMappedWithRecursionGuard]]
+   * @see [[CachesUtil.getOrCreateKey]] for more info
+   */
+  type MappedKey[Data, Result] = Key[CachedValue[ConcurrentMap[Data, Result]]]
+  private val keys = ContainerUtil.newConcurrentMap[String, Any]()
+
+  /**
+   * IMPORTANT:
+   * Cached annotations (CachedWithRecursionGuard, CachedMappedWithRecursionGuard, and CachedInsidePsiElement)
+   * rely on this method, even though it shows that it is unused
+   *
+   * If you change this method in any way, please make sure it's consistent with the annotations
+   *
+   * Do not use this method directly. You should use annotations instead
+   */
+  def getOrCreateKey[T](id: String): T = Option(keys.get(id)) match {
+    case Some(key) => key.asInstanceOf[T]
+    case None => synchronized {
+      Option(keys.get(id)) match {
+        case Some(key) => key.asInstanceOf[T]
+        case None =>
+          val res: T = Key.create[T](id).asInstanceOf[T]
+          keys.put(id, res)
+          res
+      }
+    }
+  }
 
   //keys for getUserData
-  val EXPRESSION_TYPING_KEY: Key[java.lang.Boolean] = Key.create("expression.typing.key")
   val IMPLICIT_TYPE: Key[ScType] = Key.create("implicit.type")
   val IMPLICIT_FUNCTION: Key[PsiNamedElement] = Key.create("implicit.function")
   val NAMED_PARAM_KEY: Key[java.lang.Boolean] = Key.create("named.key")
   val PACKAGE_OBJECT_KEY: Key[(ScTypeDefinition, java.lang.Long)] = Key.create("package.object.key")
 
+  /**
+   * IMPORTANT:
+   * CachedWithRecursionGuard annotation relies on this method. If you delete this method a lot of the code will
+   * If you change this method in any way, please make sure it's consistent with CachedWithRecursionGuard.
+   *
+   * Do not use this method directly. You should use CachedWithRecursionGuard annotation instead
+   */
   def getWithRecursionPreventingWithRollback[Dom <: PsiElement, Result](e: Dom, key: Key[CachedValue[Result]],
                                                         provider: => MyProviderTrait[Dom, Result],
                                                         defaultValue: => Result): Result = {
@@ -164,6 +138,14 @@ object CachesUtil {
     computed.getValue
   }
 
+  /**
+   * IMPORTANT:
+   * CachedInsidePsiElement annotation relies on this method. If you delete this method a lot of the code will
+   * stop compiling even though the method is shown as unused.
+   * If you change this method in any way, please make sure it's consistent with CachedInsidePsiElement.
+   *
+   * Do not use this method directly. You should use CachedInsidePsiElement annotation instead
+   */
   def get[Dom <: PsiElement, T](e: Dom, key: Key[CachedValue[T]], provider: => CachedValueProvider[T]): T = {
     var computed: CachedValue[T] = e.getUserData(key)
     if (computed == null) {
@@ -196,7 +178,7 @@ object CachesUtil {
     }
   }
 
-  private val guards: ConcurrentHashMap[String, RecursionGuard] = new ConcurrentHashMap()
+  private val guards: ConcurrentMap[String, RecursionGuard] = ContainerUtil.newConcurrentMap[String, RecursionGuard]()
   private def getRecursionGuard(id: String): RecursionGuard = {
     val guard = guards.get(id)
     if (guard == null) {
@@ -206,17 +188,25 @@ object CachesUtil {
     } else guard
   }
 
+  /**
+   * IMPORTANT:
+   * CachedMappedWithRecursionGuard annotation relies on this method. If you delete this method a lot of the code will
+   * stop compiling even though the method is shown as unused.
+   * If you change this method in any way, please make sure it's consistent with CachedMappedWithRecursionGuard.
+   *
+   * Do not use this method directly. You should use CachedMappedWithRecursionGuard annotation instead
+   */
   def getMappedWithRecursionPreventingWithRollback[Dom <: PsiElement, Data, Result](e: Dom, data: Data,
-                                                                        key: Key[CachedValue[ConcurrentHashMap[Data, Result]]],
+                                                                        key: Key[CachedValue[ConcurrentMap[Data, Result]]],
                                                                         builder: (Dom, Data) => Result,
                                                                         defaultValue: => Result,
                                                                         dependencyItem: Object): Result = {
-    var computed: CachedValue[ConcurrentHashMap[Data, Result]] = e.getUserData(key)
+    var computed: CachedValue[ConcurrentMap[Data, Result]] = e.getUserData(key)
     if (computed == null) {
       val manager = CachedValuesManager.getManager(e.getProject)
-      computed = manager.createCachedValue(new CachedValueProvider[ConcurrentHashMap[Data, Result]] {
-        def compute(): CachedValueProvider.Result[ConcurrentHashMap[Data, Result]] = {
-          new CachedValueProvider.Result(new ConcurrentHashMap[Data, Result](), dependencyItem)
+      computed = manager.createCachedValue(new CachedValueProvider[ConcurrentMap[Data, Result]] {
+        def compute(): CachedValueProvider.Result[ConcurrentMap[Data, Result]] = {
+          new CachedValueProvider.Result(ContainerUtil.newConcurrentMap[Data, Result](), dependencyItem)
         }
       }, false)
       e.putUserData(key, computed)
@@ -271,7 +261,34 @@ object CachesUtil {
     }
     result
   }
-  
+
+  //def getDependentItem(element: PsiElement)(dep_item: Object = PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT): Option[Object] = {
+  def getDependentItem(element: PsiElement)(dep_item: Object = enclosingModificationOwner(element)): Option[Object] = {
+    element.getContainingFile match {
+      case file: ScalaFile if file.isCompiled =>
+        if (!ProjectRootManager.getInstance(element.getProject).getFileIndex.isInContent(file.getVirtualFile)) {
+          return Some(dep_item)
+        }
+        var dir = file.getParent
+        while (dir != null) {
+          if (dir.getName == "scala-library.jar") return None
+          dir = dir.getParent
+        }
+        Some(ProjectRootManager.getInstance(element.getProject))
+      case cls: ClsFileImpl => Some(ProjectRootManager.getInstance(element.getProject))
+      case _ => Some(dep_item)
+    }
+  }
+
+  @tailrec
+  def enclosingModificationOwner(elem: PsiElement): ModificationTracker = {
+    Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScBlockExprImpl])) match {
+      case Some(block) if block.isModificationCountOwner => block.getModificationTracker
+      case Some(block) => enclosingModificationOwner(block.getContext)
+      case _ => elem.getManager.getModificationTracker.getOutOfCodeBlockModificationTracker
+    }
+  }
+
   private case class ProbablyRecursionException[Dom <: PsiElement, Data, T](elem: Dom,
                                                                             data: Data,
                                                                             key: Key[T],

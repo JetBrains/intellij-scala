@@ -7,7 +7,7 @@ package impl
 import java.util
 
 import com.intellij.extapi.psi.PsiFileBase
-import com.intellij.ide.scratch.{ScratchRootType, ScratchFileService}
+import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.LanguageFileType
@@ -24,7 +24,6 @@ import com.intellij.psi.util.{PsiModificationTracker, PsiUtilCore}
 import com.intellij.util.Processor
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.decompiler.{CompiledFileAdjuster, DecompilerUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -38,6 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScControlFlowOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.JavaConverters._
@@ -178,12 +178,14 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
     }
   }
 
-  def isScriptFile: Boolean = isScriptFile(withCashing = true)
+  def isScriptFile: Boolean = isScriptFile(withCaching = true)
 
-  def isScriptFile(withCashing: Boolean): Boolean = {
-    if (!withCashing) return isScriptFileImpl
-    CachesUtil.get(this, CachesUtil.IS_SCRIPT_FILE_KEY,
-      new CachesUtil.MyProvider(this, (file: ScalaFileImpl) => file.isScriptFileImpl)(this))
+  @CachedInsidePsiElement(this, this)
+  private def isScriptFileCached: Boolean = isScriptFileImpl
+
+  def isScriptFile(withCaching: Boolean): Boolean = {
+    if (!withCaching) isScriptFileImpl
+    else isScriptFileCached
   }
 
   def isWorksheetFile: Boolean = {
@@ -367,15 +369,10 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
   def icon = Icons.FILE_TYPE_LOGO
 
-  protected def isScalaPredefinedClass = {
-    def inner(file: ScalaFile): java.lang.Boolean = {
-      java.lang.Boolean.valueOf(file.typeDefinitions.length == 1 &&
-        Set("scala", "scala.Predef").contains(file.typeDefinitions.head.qualifiedName))
-    }
-    CachesUtil.get[ScalaFile, java.lang.Boolean](this, CachesUtil.SCALA_PREDEFINED_KEY,
-      new CachesUtil.MyProvider[ScalaFile, java.lang.Boolean](this, e => inner(e))
-      (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)).booleanValue()
-  } 
+  @CachedInsidePsiElement(this, PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
+  protected def isScalaPredefinedClass: Boolean = {
+    typeDefinitions.length == 1 && Set("scala", "scala.Predef").contains(typeDefinitions.head.qualifiedName)
+  }
   
   
   def isScalaPredefinedClassInner = typeDefinitions.length == 1 &&

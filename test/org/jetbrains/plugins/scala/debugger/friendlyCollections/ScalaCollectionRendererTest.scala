@@ -77,12 +77,9 @@ class ScalaCollectionRendererTest extends ScalaDebuggerTestCase with ScalaVersio
     }
   }
 
-  protected def testScalaCollectionRenderer(fileText: String, breakpointPos: Int, collectionName: String,
-                                            collectionLength: Int, collectionClass: String) = {
+  protected def testScalaCollectionRenderer(collectionName: String, collectionLength: Int, collectionClass: String) = {
     import junit.framework.Assert._
-    addFileToProject(COMMON_FILE_NAME, fileText)
-    addBreakpoint(COMMON_FILE_NAME, breakpointPos)
-    runDebugger("Main"){
+    runDebugger() {
       waitForBreakpoint()
       val (label, children) = renderLabelAndChildren(collectionName)
       val classRenderer: ClassRenderer = NodeRendererSettings.getInstance().getClassRenderer
@@ -104,64 +101,75 @@ class ScalaCollectionRendererTest extends ScalaDebuggerTestCase with ScalaVersio
     }
   }
 
-  def testList() {
-    testScalaCollectionRenderer(
-      """
-        |object Main {
-        |  def main(args: Array[String]) {
-        |    val lst = List(1, 2, 3, 4, 5, 6)
-        |    val a = 1 //3 - bp here
-        |  }
-        |}
-      """.replace("\r", "").stripMargin.trim, 3, "lst", 6, "scala.collection.immutable.$colon$colon")
+  addFileWithBreakpoints("ShortList.scala",
+    s"""
+       |object ShortList {
+       |  def main(args: Array[String]) {
+       |    val lst = List(1, 2, 3, 4, 5, 6)
+       |    val a = 1$bp
+       |  }
+       |}
+      """.replace("\r", "").stripMargin.trim
+  )
+  def testShortList() {
+    testScalaCollectionRenderer("lst", 6, "scala.collection.immutable.$colon$colon")
   }
 
+
+  addFileWithBreakpoints("Stack.scala",
+    s"""
+       |object Stack {
+       |  def main(args: Array[String]) {
+       |    import scala.collection.mutable
+       |    val stack = mutable.Stack(1,2,3,4,5,6,7,8)
+       |    val b = 45$bp
+       |  }
+       |}
+      """.stripMargin.replace("\r","").trim
+  )
   def testStack() {
-    testScalaCollectionRenderer(
-      """
-        |object Main {
-        |  def main(args: Array[String]) {
-        |    import scala.collection.mutable
-        |    val stack = mutable.Stack(1,2,3,4,5,6,7,8)
-        |    val b = 45//4 - bp here
-        |  }
-        |}
-      """.stripMargin.replace("\r","").trim, 4, "stack", 8, "scala.collection.mutable.Stack")
+    testScalaCollectionRenderer("stack", 8, "scala.collection.mutable.Stack")
   }
 
+  addFileWithBreakpoints("MutableList.scala",
+    s"""
+       |object MutableList {
+       |  def main(args: Array[String]) {
+       |    val mutableList = scala.collection.mutable.MutableList(1,2,3,4,5)
+       |    val a = 1$bp
+       |  }
+       |}
+    """.stripMargin.replace("\r", "").trim
+  )
   def testMutableList() {
-    testScalaCollectionRenderer(
-    """
-      |object Main {
-      |  def main(args: Array[String]) {
-      |    val mutableList = scala.collection.mutable.MutableList(1,2,3,4,5)
-      |    val a = 1//3 - bp here
-      |  }
-      |}
-    """.stripMargin.replace("\r", "").trim, 3, "mutableList", 5, "scala.collection.mutable.MutableList")
+    testScalaCollectionRenderer("mutableList", 5, "scala.collection.mutable.MutableList")
   }
 
+  addFileWithBreakpoints("Queue.scala",
+    s"""
+       |object Queue {
+       |  def main(args: Array[String]) {
+       |    val queue = scala.collection.immutable.Queue(1,2,3,4)
+       |    val a = 1$bp
+       |  }
+       |}
+      """.stripMargin.replace("\r", "").trim
+  )
   def testQueue() {
-    testScalaCollectionRenderer(
-      """
-        |object Main {
-        |  def main(args: Array[String]) {
-        |    val queue = scala.collection.immutable.Queue(1,2,3,4)
-        |    val a = 1//3 - bp here
-        |  }
-        |}
-      """.stripMargin.replace("\r", "").trim, 3, "queue", 4, "scala.collection.immutable.Queue")
+    testScalaCollectionRenderer("queue", 4, "scala.collection.immutable.Queue")
   }
 
+  addFileWithBreakpoints("LongList.scala",
+    s"""
+       |object LongList {
+       |  def main(args: Array[String]) {
+       |    val longList = (1 to 50).toList
+       |    val a = 1$bp
+       |  }
+       |}
+      """.stripMargin.replace("\r", "").trim
+  )
   def testLongList() {
-    testScalaCollectionRenderer(
-      """
-        |object Main {
-        |  def main(args: Array[String]) {
-        |    val longList = (1 to 50).toList
-        |    val a = 1//3 - bp here
-        |  }
-        |}
-      """.stripMargin.replace("\r", "").trim, 3, "longList", 50, "scala.collection.immutable.$colon$colon")
+    testScalaCollectionRenderer("longList", 50, "scala.collection.immutable.$colon$colon")
   }
 }

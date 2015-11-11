@@ -23,6 +23,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.StringEscapesTokenTypes;
+import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.NotNull;
@@ -59,19 +60,41 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   );
 
   // ScalaXmlTokenTypes.XML tags
-  static final TokenSet tXML_TAGS = TokenSet.create(
-      tOPENXMLTAG, tCLOSEXMLTAG, tXMLTAGPART, tBADCLOSEXMLTAG, ScalaXmlTokenTypes.XML_CDATA_END(),
-      ScalaXmlTokenTypes.XML_CDATA_START(), ScalaXmlTokenTypes.XML_PI_START(), ScalaXmlTokenTypes.XML_PI_END()
+  static final TokenSet tXML_TAG = TokenSet.create(
+          tOPENXMLTAG, tCLOSEXMLTAG, tXMLTAGPART, tBADCLOSEXMLTAG,
+          ScalaXmlTokenTypes.XML_PI_START(),
+          ScalaXmlTokenTypes.XML_PI_END(),
+          ScalaXmlTokenTypes.XML_TAG_CHARACTERS(),
+          ScalaXmlTokenTypes.XML_WHITE_SPACE()
   );
 
-  static final TokenSet tXML_TEXT = TokenSet.create(
-      ScalaXmlTokenTypes.XML_DATA_CHARACTERS(), ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_TOKEN(), 
-      ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_START_DELIMITER(), ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER()
+  static final TokenSet tXML_TAG_NAME = TokenSet.create(
+          ScalaXmlTokenTypes.XML_TAG_NAME()
   );
-  
-  static final TokenSet tXML_COMMENTS = TokenSet.create(
-      ScalaXmlTokenTypes.XML_COMMENT_START(), ScalaXmlTokenTypes.XML_COMMENT_END(), ScalaXmlTokenTypes.XML_COMMENT_CHARACTERS(), 
-      tXML_COMMENT_START, tXML_COMMENT_END);
+
+  static final TokenSet tXML_TAG_DATA = TokenSet.create(
+          ScalaXmlTokenTypes.XML_DATA_CHARACTERS(),
+          ScalaXmlTokenTypes.XML_CDATA_START(),
+          ScalaXmlTokenTypes.XML_CDATA_END()
+  );
+
+  static final TokenSet tXML_ATTRIBUTE_NAME = TokenSet.create(
+          ScalaXmlTokenTypes.XML_ATTRIBUTE_NAME(),
+          ScalaXmlTokenTypes.XML_EQ()
+  );
+
+  static final TokenSet tXML_ATTRIBUTE_VALUE = TokenSet.create(
+          ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_START_DELIMITER(),
+          ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_TOKEN(),
+          ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER()
+  );
+
+  static final TokenSet tXML_COMMENT = TokenSet.create(
+          tXML_COMMENT_START, tXML_COMMENT_END,
+          ScalaXmlTokenTypes.XML_COMMENT_START(),
+          ScalaXmlTokenTypes.XML_COMMENT_END(),
+          ScalaXmlTokenTypes.XML_COMMENT_CHARACTERS()
+  );
 
   //Html escape sequences
   static final TokenSet tSCALADOC_HTML_ESCAPE = TokenSet.create(
@@ -85,13 +108,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   );
 
   //ScalaDoc Wiki syntax elements
-  static final TokenSet tSCALADOC_WIKI_SYNTAX = TokenSet.create(
-      ScalaDocTokenType.DOC_BOLD_TAG, ScalaDocTokenType.DOC_ITALIC_TAG, ScalaDocTokenType.DOC_MONOSPACE_TAG,
-      ScalaDocTokenType.DOC_SUBSCRIPT_TAG, ScalaDocTokenType.DOC_SUPERSCRIPT_TAG, ScalaDocTokenType.DOC_UNDERLINE_TAG,
-      ScalaDocTokenType.DOC_LINK_TAG, ScalaDocTokenType.DOC_LINK_CLOSE_TAG, ScalaDocTokenType.DOC_HTTP_LINK_TAG,
-      ScalaDocTokenType.DOC_INNER_CODE_TAG, ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG,
-      ScalaDocTokenType.DOC_COMMON_CLOSE_WIKI_TAG
-  );
+  static final TokenSet tSCALADOC_WIKI_SYNTAX = ScalaDocTokenType.ALL_SCALADOC_SYNTAX_ELEMENTS;
 
   //for value in @param value
   static final TokenSet tDOC_TAG_PARAM = TokenSet.create(ScalaDocTokenType.DOC_TAG_VALUE_TOKEN);
@@ -142,17 +159,17 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   static final TokenSet tINTERPOLATED_STRINGS = TokenSet.create(
       ScalaTokenTypes.tINTERPOLATED_STRING_INJECTION
   );
-  
+
   // Valid escape in string
   static final TokenSet tVALID_STRING_ESCAPE = TokenSet.create(
           StringEscapesTokenTypes.VALID_STRING_ESCAPE_TOKEN, ScalaTokenTypes.tINTERPOLATED_STRING_ESCAPE
   );
-  
+
   // Invalid character escape in string
   static final TokenSet tINVALID_CHARACTER_ESCAPE = TokenSet.create(
           StringEscapesTokenTypes.INVALID_CHARACTER_ESCAPE_TOKEN
   );
-  
+
   // Invalid unicode escape in string
   static final TokenSet tINVALID_UNICODE_ESCAPE = TokenSet.create(
           StringEscapesTokenTypes.INVALID_UNICODE_ESCAPE_TOKEN
@@ -223,13 +240,14 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
       ScalaDocTokenType.DOC_TAG_NAME
   );
 
+  private static final Map<IElementType, TextAttributesKey> ATTRIBUTES0 = new HashMap<IElementType, TextAttributesKey>();
   private static final Map<IElementType, TextAttributesKey> ATTRIBUTES = new HashMap<IElementType, TextAttributesKey>();
   private boolean treatDocCommentAsBlockComment;
 
   public ScalaSyntaxHighlighter(boolean treatDocCommentAsBlockComment) {
     this.treatDocCommentAsBlockComment = treatDocCommentAsBlockComment;
   }
-  
+
   public ScalaSyntaxHighlighter() {
     this(false);
   }
@@ -252,7 +270,6 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tCOMMA, DefaultHighlighter.COMMA);
 
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tOPS, DefaultHighlighter.ASSIGN);
-    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_TAGS, DefaultHighlighter.ASSIGN);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tCOMMENT_TAGS, DefaultHighlighter.SCALA_DOC_TAG);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, TokenSet.orSet(TokenSet.andNot(ScalaDocTokenType.ALL_SCALADOC_TOKENS, tCOMMENT_TAGS),
         TokenSet.create(ScalaDocTokenType.DOC_COMMENT_BAD_CHARACTER,
@@ -260,11 +277,20 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tSCALADOC_HTML_TAGS, DefaultHighlighter.SCALA_DOC_HTML_TAG);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tSCALADOC_WIKI_SYNTAX, DefaultHighlighter.SCALA_DOC_WIKI_SYNTAX);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tSCALADOC_HTML_ESCAPE, DefaultHighlighter.SCALA_DOC_HTML_ESCAPE);
-    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_TAGS, DefaultHighlighter.XML_TAG);
-    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_TEXT, DefaultHighlighter.XML_TEXT);
+
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES0, tXML_TAG, DefaultHighlighter.XML_TAG);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES0, tXML_TAG_NAME, DefaultHighlighter.XML_TAG);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES0, tXML_ATTRIBUTE_NAME, DefaultHighlighter.XML_TAG);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES0, tXML_ATTRIBUTE_VALUE, DefaultHighlighter.XML_TAG);
+
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_TAG_NAME, DefaultHighlighter.XML_TAG_NAME);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_TAG_DATA, DefaultHighlighter.XML_TAG_DATA);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_ATTRIBUTE_NAME, DefaultHighlighter.XML_ATTRIBUTE_NAME);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_ATTRIBUTE_VALUE, DefaultHighlighter.XML_ATTRIBUTE_VALUE);
+    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_COMMENT, DefaultHighlighter.XML_COMMENT);
+
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tDOC_TAG_PARAM, DefaultHighlighter.SCALA_DOC_TAG_PARAM_VALUE);
     SyntaxHighlighterBase.fillMap(ATTRIBUTES, tINTERPOLATED_STRINGS, DefaultHighlighter.INTERPOLATED_STRING_INJECTION);
-    SyntaxHighlighterBase.fillMap(ATTRIBUTES, tXML_COMMENTS, DefaultHighlighter.BLOCK_COMMENT);
   }
 
 
@@ -272,14 +298,14 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   public Lexer getHighlightingLexer() {
     return new CompoundLexer(treatDocCommentAsBlockComment);
   }
-  
+
   private static class CompoundLexer extends LayeredLexer {
     CompoundLexer(boolean treatDocCommentAsBlockComment) {
       super(new CustomScalaLexer(treatDocCommentAsBlockComment));
 
       registerSelfStoppingLayer(new StringLiteralLexer('\"', ScalaTokenTypes.tSTRING),
                                 new IElementType[]{ScalaTokenTypes.tSTRING}, IElementType.EMPTY_ARRAY);
-      
+
       registerSelfStoppingLayer(new StringLiteralLexer('\'', ScalaTokenTypes.tSTRING),
           new IElementType[]{ScalaTokenTypes.tCHAR}, IElementType.EMPTY_ARRAY);
 
@@ -295,12 +321,13 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
           IElementType.EMPTY_ARRAY);
     }
   }
-  
+
   private static class CustomScalaLexer extends ScalaLexer {
     private Stack<String> openingTags = new Stack<String>();
     private boolean tagMatch = false;
     private boolean isInClosingTag = false;
     private boolean afterStartTagStart = false;
+    private int nameIndex = 0;
 
     public CustomScalaLexer(boolean treatDocCommentAsBlockComment) {
       super(treatDocCommentAsBlockComment);
@@ -319,17 +346,20 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
       tagMatch = false;
       isInClosingTag = false;
       afterStartTagStart = false;
+      nameIndex = 0;
     }
 
     public IElementType getTokenType() {
       IElementType type = super.getTokenType();
 
-      if (type == ScalaXmlTokenTypes.XML_START_TAG_START()) {
+      if (type == TokenType.WHITE_SPACE) {
+        return ScalaXmlTokenTypes.XML_WHITE_SPACE();
+      } else if (type == ScalaXmlTokenTypes.XML_START_TAG_START()) {
         return tOPENXMLTAG;
       } else if (type == ScalaXmlTokenTypes.XML_TAG_END() && isInClosingTag) {
         return tagMatch ? tCLOSEXMLTAG : tBADCLOSEXMLTAG;
       } else if (type == ScalaXmlTokenTypes.XML_NAME()) {
-        return tXMLTAGPART;
+        return nameIndex == 0 ? ScalaXmlTokenTypes.XML_TAG_NAME() : ScalaXmlTokenTypes.XML_ATTRIBUTE_NAME();
       } else if (type == ScalaXmlTokenTypes.XML_EMPTY_ELEMENT_END()) {
         return tCLOSEXMLTAG;
       } else if (tSCALADOC_HTML_TAGS.contains(type)) {
@@ -348,6 +378,12 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
       IElementType type = super.getTokenType();
       String tokenText = getTokenText();
       super.advance();
+
+      if (type == ScalaXmlTokenTypes.XML_NAME()) {
+        nameIndex++;
+      } else if (type == ScalaXmlTokenTypes.XML_TAG_END() || type == ScalaXmlTokenTypes.XML_EMPTY_ELEMENT_END()) {
+        nameIndex = 0;
+      }
 
       if (type == ScalaXmlTokenTypes.XML_END_TAG_START()) {
         isInClosingTag = true;
@@ -437,6 +473,6 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
   
   @NotNull
   public TextAttributesKey[] getTokenHighlights(IElementType iElementType) {
-    return pack(ATTRIBUTES.get(iElementType));
+    return pack(ATTRIBUTES0.get(iElementType), ATTRIBUTES.get(iElementType));
   }
 }

@@ -36,5 +36,52 @@
         </move>
     </target>
 
-    <target name="idea.postbuild" depends="rename.scala.library,rename.sbt.structure.0.12,rename.sbt.structure.0.13,rename.sbt.launch"/>
+    <target name="rename.compiler-interface-sources">
+        <move todir="out/plugin/Scala/lib/jps">
+            <fileset dir="out/plugin/Scala/lib/jps">
+                <include name="compiler-interface-sources*.jar"/>
+            </fileset>
+            <mapper type="glob" from="*" to="compiler-interface-sources.jar"/>
+        </move>
+    </target>
+
+    <target name="rename.incremental-compiler">
+        <move todir="out/plugin/Scala/lib/jps">
+            <fileset dir="out/plugin/Scala/lib/jps">
+                <include name="incremental-compiler*.jar"/>
+            </fileset>
+            <mapper type="glob" from="*" to="incremental-compiler.jar"/>
+        </move>
+    </target>
+
+    <target name="rename.sbt-interface">
+        <move todir="out/plugin/Scala/lib/jps">
+            <fileset dir="out/plugin/Scala/lib/jps">
+                <include name="sbt-interface*.jar"/>
+            </fileset>
+            <mapper type="glob" from="*" to="sbt-interface.jar"/>
+        </move>
+    </target>
+
+    <target name="rename.jline">
+        <move todir="out/plugin/Scala/lib/jps">
+            <fileset dir="out/plugin/Scala/lib/jps">
+                <include name="jline*.jar"/>
+            </fileset>
+            <mapper type="glob" from="*" to="jline.jar"/>
+        </move>
+    </target>
+
+    <target name="rename.nailgun">
+        <move todir="out/plugin/Scala/lib/jps">
+            <fileset dir="out/plugin/Scala/lib/jps">
+                <include name="nailgun*.jar"/>
+            </fileset>
+            <mapper type="glob" from="*" to="nailgun.jar"/>
+        </move>
+    </target>
+
+    <target name="idea.postbuild"
+            depends="rename.scala.library,rename.sbt.structure.0.12,rename.sbt.structure.0.13,rename.sbt.launch,
+            rename.compiler-interface-sources,rename.incremental-compiler,rename.sbt-interface,rename.jline,rename.nailgun"/>
 </project>

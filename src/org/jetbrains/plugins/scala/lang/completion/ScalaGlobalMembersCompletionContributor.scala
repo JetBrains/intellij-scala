@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 
@@ -33,20 +32,20 @@ import scala.collection.mutable
 /**
  * @author Alexander Podkhalyuzin
  */
-class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
+class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor {
   extend(CompletionType.BASIC, psiElement, new CompletionProvider[CompletionParameters]() {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext,
                        result: CompletionResultSet) {
       if (parameters.getInvocationCount < 2) return
-      val position: PsiElement = parameters.getPosition
-      if (!position.getContainingFile.isInstanceOf[ScalaFile]) return
-      val parent: PsiElement = position.getParent
+      val position: PsiElement = positionFromParameters(parameters)
+      if (!ScalaPsiUtil.fileContext(position).isInstanceOf[ScalaFile]) return
+      val parent: PsiElement = position.getContext
       parent match {
         case ref: ScReferenceExpression =>
           val qualifier = ref.qualifier match {
             case Some(qual) => qual
             case None =>
-              ref.getParent match {
+              ref.getContext match {
                 case inf: ScInfixExpr if inf.operation == ref => inf.getBaseExpr
                 case posf: ScPostfixExpr if posf.operation == ref => posf.getBaseExpr
                 case pref: ScPrefixExpr if pref.operation == ref => pref.getBaseExpr
@@ -56,7 +55,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
                   return
               }
           }
-          val typeWithoutImplicits = qualifier.getTypeWithoutImplicits(TypingContext.empty)
+          val typeWithoutImplicits = qualifier.getTypeWithoutImplicits()
           if (typeWithoutImplicits.isEmpty) return
           val tp = typeWithoutImplicits.get
           completeImplicits(ref, result, parameters.getOriginalFile, tp)
@@ -173,7 +172,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
           val shouldImport = !elemsSetContains(elem.getElement)
           //todo: overloads?
           val lookup: ScalaLookupItem = LookupElementManager.getLookupElement(elem, isClassName = true,
-            isOverloadedForClassName = false, shouldImport = shouldImport, isInStableCodeReference = false).apply(0)
+            isOverloadedForClassName = false, shouldImport = shouldImport, isInStableCodeReference = false).head
           lookup.usedImportStaticQuickfix = true
           lookup.elementToImport = next.resolveResult.getElement
           result.addElement(lookup)
@@ -235,7 +234,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
       } else elemsSet.contains(elem)
     }
 
-    ref.getVariants(false, false).foreach {
+    ref.getVariants(implicits = false, filterNotNamedVariants = false).foreach {
       case ScalaLookupItem(elem) => addElemToSet(elem)
       case elem: PsiNamedElement => addElemToSet(elem)
     }
@@ -245,7 +244,7 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
     val methodNamesIterator = namesCache.getAllMethodNames.iterator ++ namesCache.getAllJavaMethodNames.iterator
 
     def isAccessible(member: PsiMember, containingClass: PsiClass): Boolean = {
-      invocationCount >= 3 || (ResolveUtils.isAccessible(member, ref, true) && ResolveUtils.isAccessible(containingClass, ref, true))
+      invocationCount >= 3 || (ResolveUtils.isAccessible(member, ref, forCompletion = true) && ResolveUtils.isAccessible(containingClass, ref, forCompletion = true))
     }
 
     while (methodNamesIterator.hasNext) {
@@ -280,9 +279,9 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
                   result.addElement(createLookupElement(method, containingClass, shouldImport))
                 }
                 else if (overloads.size > 1) {
-                  val lookup = createLookupElement(if (overloads(0).getParameterList.getParametersCount == 0)
+                  val lookup = createLookupElement(if (overloads.head.getParameterList.getParametersCount == 0)
                     overloads(1)
-                  else overloads(0), containingClass, shouldImport, true)
+                  else overloads.head, containingClass, shouldImport, overloaded = true)
                   result.addElement(lookup)
                 }
               }
@@ -352,6 +351,6 @@ class ScalaGlobalMembersCompletionContributor extends CompletionContributor {
                                   overloaded: Boolean = false): LookupElement = {
     LookupElementManager.getLookupElement(new ScalaResolveResult(member), isClassName = true,
       isOverloadedForClassName = overloaded, shouldImport = shouldImport,
-      isInStableCodeReference = false, containingClass = Some(clazz)).apply(0)
+      isInStableCodeReference = false, containingClass = Some(clazz)).head
   }
 }

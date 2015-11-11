@@ -12,7 +12,6 @@ import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import org.jetbrains.jps.{ModuleChunk, ProjectPaths}
-import org.jetbrains.plugin.scala.compiler.NameHashing
 
 import scala.collection.JavaConverters._
 
@@ -28,7 +27,7 @@ case class CompilationData(sources: Seq[File],
                            cacheFile: File,
                            outputToCacheMap: Map[File, File],
                            outputGroups: Seq[(File, File)],
-                           nameHashing: NameHashing)
+                           sbtIncOptions: Option[SbtIncrementalOptions])
 
 object CompilationData {
   def from(sources: Seq[File], context: CompileContext, chunk: ModuleChunk): Either[String, CompilationData] = {
@@ -48,8 +47,6 @@ object CompilationData {
     val scalaOptions = noBootCp ++: compilerSettings.getCompilerOptions
     val order = compilerSettings.getCompileOrder
 
-    val nameHashing = NameHashing.ENABLED // TODO do we really need an UI setting for that?
-
     createOutputToCacheMap(context).map { outputToCacheMap =>
 
       val cacheFile = outputToCacheMap.getOrElse(output,
@@ -67,7 +64,7 @@ object CompilationData {
       val outputGroups = createOutputGroups(chunk)
 
       CompilationData(sources, classpath, output, commonOptions ++ scalaOptions, commonOptions ++ javaOptions,
-        order, cacheFile, relevantOutputToCacheMap, outputGroups, nameHashing)
+        order, cacheFile, relevantOutputToCacheMap, outputGroups, Some(compilerSettings.getSbtIncrementalOptions))
     }
   }
 

@@ -909,4 +909,305 @@ bars foreach {case (x, y) => list.add(x + y)}
 
     doTextTest(before, after)
   }
+
+  def testSCL7898(): Unit = {
+    getCommonSettings.KEEP_FIRST_COLUMN_COMMENT = true
+
+    val before =
+      """
+        |class Test {
+        |  println(a)
+        |//  println(b)
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class Test {
+        |  println(a)
+        |//  println(b)
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL9387(): Unit = {
+    val before =
+      """
+        |val x = for {
+        |//Comment
+        |  x <- Nil
+        |} yield {
+        |    x
+        |  }
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |val x = for {
+        |//Comment
+        |  x <- Nil
+        |} yield {
+        |  x
+        |}
+      """.stripMargin.replace("\r", "")
+
+    /* TODO this is only a temporary reference
+      actual result should be the following:
+      |val x = for {
+      |  //Comment
+      |  x <- Nil
+      |} yield {
+      |  x
+      |}
+      But current implementation of formatting model does not provide reasonable means of implementing this case.
+     */
+
+    doTextTest(before, after)
+  }
+
+  def testSCL5028_1(): Unit = {
+    getCommonSettings.BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
+
+    val before =
+      """
+        |try {
+        |  expr
+        |} catch
+        |{
+        |  case _: Throwable => println("gotcha!")
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |try
+        |{
+        |  expr
+        |} catch
+        |{
+        |  case _: Throwable => println("gotcha!")
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL5028_2(): Unit = {
+    getCommonSettings.BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_SHIFTED2
+    getCommonSettings.CATCH_ON_NEW_LINE = true
+
+    val before =
+      """
+        |try {
+        |  expr
+        |} catch
+        |{
+        |  case _: Throwable => println("gotcha!")
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |try
+        |  {
+        |    expr
+        |  }
+        |catch
+        |  {
+        |    case _: Throwable => println("gotcha!")
+        |  }
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL8825(): Unit = {
+    getScalaSettings.DO_NOT_INDENT_CASE_CLAUSE_BODY = true
+
+    val before =
+      """
+        |{
+        |  case (i) =>
+        |  testExpr
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |{
+        |  case (i) =>
+        |  testExpr
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL2454(): Unit = {
+    getCommonSettings.KEEP_LINE_BREAKS = false
+
+    val before =
+      """
+        |val v
+        |    =
+        |    "smth"
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |val v = "smth"
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL2468(): Unit = {
+    getScalaSettings.NEWLINE_AFTER_ANNOTATIONS = true
+
+    val before =
+      """
+        |@throws(classOf[IOException]) @deprecated def doSmth() {}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |@throws(classOf[IOException])
+        |@deprecated
+        |def doSmth() {}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL2469(): Unit = {
+    getCommonSettings.VARIABLE_ANNOTATION_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
+
+    val before =
+      """
+        |class Test {
+        |  def foo(): Unit = {
+        |    @deprecated @deprecated
+        |    val myLocalVal = 42
+        |  }
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class Test {
+        |  def foo(): Unit = {
+        |    @deprecated
+        |    @deprecated
+        |    val myLocalVal = 42
+        |  }
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL2571(): Unit = {
+    getCommonSettings.EXTENDS_LIST_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
+
+    val before =
+      """
+        |class Foo extends Object with Thread with Serializable {
+        |  def foo(x: Int = 0,
+        |          y: Int = 1,
+        |          z: Int = 2) = new Foo
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class Foo extends Object with
+        |  Thread with
+        |  Serializable {
+        |  def foo(x: Int = 0,
+        |          y: Int = 1,
+        |          z: Int = 2) = new Foo
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL2571_1(): Unit = {
+    getCommonSettings.EXTENDS_KEYWORD_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
+
+    val before =
+      """
+        |class Foo extends Object with Thread {
+        |  def foo(x: Int = 0,
+        |          y: Int = 1,
+        |          z: Int = 2) = new Foo
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class Foo
+        |  extends Object with Thread {
+        |  def foo(x: Int = 0,
+        |          y: Int = 1,
+        |          z: Int = 2) = new Foo
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL2571_2(): Unit = {
+    getCommonSettings.EXTENDS_KEYWORD_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
+    getCommonSettings.EXTENDS_LIST_WRAP = CommonCodeStyleSettings.WRAP_ALWAYS
+
+    val before =
+      """
+        |class Foo extends Object with Thread with Serializable {
+        |  def foo(x: Int = 0,
+        |          y: Int = 1,
+        |          z: Int = 2) = new Foo
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class Foo
+        |  extends Object with
+        |    Thread with
+        |    Serializable {
+        |  def foo(x: Int = 0,
+        |          y: Int = 1,
+        |          z: Int = 2) = new Foo
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL2999(): Unit = {
+    getCommonSettings.EXTENDS_LIST_WRAP = CommonCodeStyleSettings.WRAP_ON_EVERY_ITEM
+    getScalaSettings.WRAP_BEFORE_WITH_KEYWORD = true
+    getCommonSettings.getIndentOptions.CONTINUATION_INDENT_SIZE = 4
+
+    val before =
+      """
+        |class MyLongClassName(someParam: String, someOtherParam: Int) extends SomeClass with SomeTrait with AnotherTrait with AndAnotherTrait with YetAnotherTrait {
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class MyLongClassName(someParam: String, someOtherParam: Int) extends SomeClass
+        |    with SomeTrait
+        |    with AnotherTrait
+        |    with AndAnotherTrait
+        |    with YetAnotherTrait {
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
 }

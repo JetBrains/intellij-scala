@@ -129,14 +129,6 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
     } else super.upperTypeElement
   }
 
-  def addAnnotation(p1: String): PsiAnnotation = null
-
-  def getAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
-
-  def getApplicableAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
-
-  def findAnnotation(p1: String): PsiAnnotation = null
-
   override def getIcon(flags: Int) = {
     Icons.TYPE_ALIAS
   }

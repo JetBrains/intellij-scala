@@ -1,4 +1,5 @@
 import Common._
+import com.dancingrobot84.sbtidea.Tasks.{updateIdea => updateIdeaTask}
 import sbt.Keys.{`package` => pack}
 import com.dancingrobot84.sbtidea.Tasks.{updateIdea => updateIdeaTask}
 
@@ -25,19 +26,19 @@ addCommandAlias("packagePlugin", "pluginPackager/package")
 addCommandAlias("packagePluginZip", "pluginCompressor/package")
 
 // Main projects
-
 lazy val scalaCommunity: Project =
   newProject("scalaCommunity", file("."))
-  .dependsOn(compilerSettings, scalap, runners % "test->test;compile->compile")
+  .dependsOn(compilerSettings, scalap, runners % "test->test;compile->compile", macroAnnotations)
   .enablePlugins(SbtIdeaPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
   .settings(
     ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
     javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6"),
     scalacOptions in Global += "-target:jvm-1.6",
+    //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
     libraryDependencies ++= DependencyGroups.scalaCommunity,
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
-    unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"),
+    addCompilerPlugin(Dependencies.macroParadise),
     ideaInternalPlugins := Seq(
       "copyright",
       "gradle",
@@ -61,12 +62,12 @@ lazy val jpsPlugin  =
   newProject("jpsPlugin", file("jps-plugin"))
   .dependsOn(compilerSettings)
   .enablePlugins(SbtIdeaPlugin)
-  .settings(unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "sbt", "nailgun"))
+  .settings(libraryDependencies ++= Seq(Dependencies.nailgun) ++ DependencyGroups.sbtBundled)
 
 lazy val compilerSettings =
   newProject("compilerSettings", file("compiler-settings"))
   .enablePlugins(SbtIdeaPlugin)
-  .settings(unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"))
+  .settings(libraryDependencies += Dependencies.nailgun)
 
 lazy val scalaRunner =
   newProject("scalaRunner", file("ScalaRunner"))
@@ -80,7 +81,7 @@ lazy val runners =
 lazy val nailgunRunners =
   newProject("nailgunRunners", file("NailgunRunners"))
   .dependsOn(scalaRunner)
-  .settings(unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "nailgun"))
+  .settings(libraryDependencies += Dependencies.nailgun)
 
 lazy val scalap =
   newProject("scalap", file("scalap"))
@@ -90,6 +91,13 @@ lazy val scalap =
 lazy val scalaDevPlugin =
   newProject("scalaDevPlugin", file("SDK/scalaDevPlugin"))
   .settings(unmanagedJars in Compile := ideaMainJars.in(scalaCommunity).value)
+
+lazy val macroAnnotations =
+  newProject("macroAnnotations", file("macroAnnotations"))
+  .settings(Seq(
+    addCompilerPlugin(Dependencies.macroParadise),
+    libraryDependencies ++= Seq(Dependencies.scalaReflect, Dependencies.scalaCompiler)
+  ): _*)
 
 // Utility projects
 
@@ -130,16 +138,16 @@ lazy val sbtRuntimeDependencies =
 lazy val testDownloader =
   newProject("testJarsDownloader")
   .settings(
+    conflictManager := ConflictManager.all,
     conflictWarning  := ConflictWarning.disable,
     resolvers ++= Seq(
       "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases",
       "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
     ),
     libraryDependencies ++= DependencyGroups.testDownloader,
+    libraryDependencies ++= DependencyGroups.mockSbtDownloader,
+    libraryDependencies ++= DependencyGroups.testScalaLibraryDownloader,
     dependencyOverrides ++= Set(
-      "org.scalatest" % "scalatest_2.10" % "2.1.7",
-      "org.scalatest" % "scalatest_2.11" % "2.1.7",
-      "org.scalatest" % "scalatest_2.10" % "1.9.2",
       "com.chuusai" % "shapeless_2.11" % "2.0.0"
     ),
     update <<= update.dependsOn(update.in(sbtLaunchTestDownloader))
@@ -188,9 +196,10 @@ lazy val pluginPackager =
     artifactPath := packagedPluginDir.value,
     dependencyClasspath <<= (
       dependencyClasspath in (scalaCommunity, Compile),
+      dependencyClasspath in (jpsPlugin, Compile),
       dependencyClasspath in (runners, Compile),
       dependencyClasspath in (sbtRuntimeDependencies, Compile)
-    ).map { (a,b,c) => a ++ b ++ c },
+    ).map { (a,b,c,d) => a ++ b ++ c ++ d },
     mappings := {
       import Packaging.PackageEntry._
       val crossLibraries = List(Dependencies.scalaParserCombinators, Dependencies.scalaXml)
@@ -200,10 +209,16 @@ lazy val pluginPackager =
       val jps = Seq(
         Artifact(pack.in(jpsPlugin, Compile).value,
           "lib/jps/scala-jps-plugin.jar"),
-        Directory(sdkDirectory.value / "nailgun",
-          "lib/jps"),
-        Directory(sdkDirectory.value / "sbt",
-          "lib/jps")
+        Library(Dependencies.nailgun,
+          "lib/jps/nailgun.jar"),
+        Library(Dependencies.compilerInterfaceSources,
+          "lib/jps/compiler-interface-sources.jar"),
+        Library(Dependencies.incrementalCompiler,
+          "lib/jps/incremental-compiler.jar"),
+        Library(Dependencies.sbtInterface,
+          "lib/jps/sbt-interface.jar"),
+        Library(Dependencies.bundledJline,
+          "lib/jps/jline.jar")
       )
       val launcher = Seq(
         Library(Dependencies.sbtStructureExtractor012,

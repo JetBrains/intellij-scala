@@ -72,7 +72,7 @@ object ScalaAfterNewCompletionUtil {
     }
     val lookupElement = getLookupElementFromTypeAndClass(noUndefType, clazz, ScSubstitutor.empty,
       new AfterNewLookupElementRenderer(_, _, _), new ScalaConstructorInsertHandler, renamesMap)
-    if (undefines.length > 0) {
+    if (undefines.nonEmpty) {
       lookupElement.typeParametersProblem = true
     }
     lookupElement
@@ -184,13 +184,13 @@ object ScalaAfterNewCompletionUtil {
               new ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
             )
             val predefinedType =
-              if (clazz.getTypeParameters.length >= 1) {
+              if (clazz.getTypeParameters.nonEmpty) {
                 ScParameterizedType(ScDesignatorType(clazz), undefines)
               }
               else
                 ScDesignatorType(clazz)
             val noUndefType =
-              if (clazz.getTypeParameters.length >= 1) {
+              if (clazz.getTypeParameters.nonEmpty) {
                 ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(ptp =>
                   new ScTypeParameterType(ptp, ScSubstitutor.empty)
                 ))

@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
  * Pavel.Fatin, 15.06.2010
  */
 trait ParametersAnnotator {
+
   def annotateParameters(parameters: ScParameters, holder: AnnotationHolder): Unit = {
     def checkRepeatedParams() {
       parameters.clauses.foreach { cl =>
@@ -26,7 +27,7 @@ trait ParametersAnnotator {
 
     checkRepeatedParams()
   }
-  
+
   def annotateParameter(parameter: ScParameter, holder: AnnotationHolder): Unit = {
     parameter.owner match {
       case null =>

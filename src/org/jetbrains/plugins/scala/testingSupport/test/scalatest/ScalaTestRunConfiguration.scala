@@ -3,14 +3,14 @@ package testingSupport.test.scalatest
 
 import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
+import com.intellij.psi.search.ProjectScope
+import com.intellij.psi.{PsiClass, PsiModifier}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.{Conformance, ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test._
-import com.intellij.psi.{PsiModifier, PsiClass}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScClass}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import com.intellij.psi.search.ProjectScope
-import org.jetbrains.plugins.scala.lang.psi.types.{Conformance, ScParameterizedType, ScType}
 
 /**
  * @author Ksenia.Sautina
@@ -54,7 +54,7 @@ object ScalaTestRunConfiguration extends SuiteValidityChecker {
               val params = con.getParameterList.getParameters
               val firstParam = params(0)
               val psiManager = ScalaPsiManager.instance(project)
-              val mapPsiClass = psiManager.getCachedClass(ProjectScope.getAllScope(project), "scala.collection.immutable.Map")
+              val mapPsiClass = psiManager.getCachedClass(ProjectScope.getAllScope(project), "scala.collection.immutable.Map").orNull
               val mapClass = ScType.designator(mapPsiClass)
               val paramClass = ScType.create(firstParam.getType, project)
               val conformanceType = paramClass match {

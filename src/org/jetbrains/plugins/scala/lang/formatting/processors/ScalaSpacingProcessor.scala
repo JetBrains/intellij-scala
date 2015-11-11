@@ -137,9 +137,12 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     val NO_SPACING_WITH_NEWLINE = Spacing.createSpacing(0, 0, 0, true, 1)
     val NO_SPACING = Spacing.createSpacing(spacesMin, spacesMin, 0, false, 0)
-    val COMMON_SPACING = Spacing.createSpacing(1, 1, 0, true, 100)
+    val COMMON_SPACING = Spacing.createSpacing(1, 1, 0, keepLineBreaks, 100)
     val IMPORT_BETWEEN_SPACING = Spacing.createSpacing(0, 0, 1, true, 100)
     val IMPORT_OTHER_SPACING = Spacing.createSpacing(0, 0, 2, true, 100)
+
+    if (rightNode.getPsi.isInstanceOf[PsiComment] && settings.KEEP_FIRST_COLUMN_COMMENT)
+      return Spacing.createKeepingFirstColumnSpacing(0, Integer.MAX_VALUE, true, settings.KEEP_BLANK_LINES_IN_CODE)
 
     import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
     if ((leftPsi.isInstanceOf[PsiComment] || leftPsi.isInstanceOf[PsiDocComment]) &&
@@ -255,6 +258,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         return NO_SPACING
       case (el1, el2, _, _) if scalaSettings.KEEP_XML_FORMATTING &&
         (ScalaXmlTokenTypes.XML_ELEMENTS.contains(el1) || ScalaXmlTokenTypes.XML_ELEMENTS.contains(el2)) => return Spacing.getReadOnlySpacing
+      case (ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_START_DELIMITER, _, _, _) => return Spacing.getReadOnlySpacing
+      case (_, ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_END_DELIMITER, _, _) => return Spacing.getReadOnlySpacing
       case _ =>
     }
 
@@ -297,7 +302,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           return if (rightPsi.getPrevSibling != null && rightPsi.getPrevSibling.getText.contains("\n")) ON_NEW_LINE else WITH_SPACING
         case (true, false) => return ON_NEW_LINE
         case (false, false) => return WITH_SPACING_NO_KEEP
-        case (true, true) => return Spacing.createDependentLFSpacing(1, 1, rightPsi.getParent.getTextRange, true, 1)
+        case (true, true) =>
+          //TODO the '0' in arguments is a temporary fix for SCL-8683: will not remove redundant space, but does not place new space either
+          return Spacing.createDependentLFSpacing(0, 1, rightPsi.getParent.getTextRange, true, 1)
       }
     }
 
@@ -685,8 +692,9 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     }
 
     //special else if treatment
-    if (leftNode.getElementType == ScalaTokenTypes.kELSE && rightNode.getPsi.isInstanceOf[ScIfStmt]) {
-      if (settings.SPECIAL_ELSE_IF_TREATMENT) return WITH_SPACING
+    if (leftNode.getElementType == ScalaTokenTypes.kELSE && (rightNode.getPsi.isInstanceOf[ScIfStmt] ||
+      rightNode.getElementType == ScalaTokenTypes.kIF)) {
+      if (settings.SPECIAL_ELSE_IF_TREATMENT) return WITH_SPACING_NO_KEEP
       else return ON_NEW_LINE
     }
     if (rightNode.getElementType == ScalaTokenTypes.kELSE && right.myLastNode != null) {
@@ -780,7 +788,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
               rightNode.getPsi.getParent.getParent.isInstanceOf[ScForStatement]) return WITHOUT_SPACING
     }
     if (leftString.length > 0 && leftString(leftString.length - 1) == '.') {
-      return WITHOUT_SPACING
+      return if (leftElementType == ScalaElementTypes.LITERAL) WITH_SPACING else WITHOUT_SPACING
     }
     if (leftString.length > 0 && leftString(leftString.length - 1) == ',') {
       if (settings.SPACE_AFTER_COMMA) return WITH_SPACING
@@ -1155,7 +1163,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           case _ => NO_SPACING
         }
       case (_, ScalaTokenTypes.tINNER_CLASS, _, _) => NO_SPACING
-
+      case (ScalaElementTypes.ANNOTATIONS, ScalaTokenTypes.kDEF, _, _) if scalaSettings.NEWLINE_AFTER_ANNOTATIONS =>
+        ON_NEW_LINE
       //Other cases
       case _ =>
         COMMON_SPACING

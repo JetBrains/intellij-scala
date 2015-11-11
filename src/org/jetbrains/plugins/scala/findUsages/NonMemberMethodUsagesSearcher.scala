@@ -17,7 +17,7 @@ class NonMemberMethodUsagesSearcher extends QueryExecutorBase[PsiReference, Meth
     extensions.inReadAction {
       val method: PsiMethod = p.getMethod
       val collector: SearchRequestCollector = p.getOptimizer
-      val searchScope: SearchScope = p.getScope
+      val searchScope: SearchScope = p.getEffectiveSearchScope
       val newConsumer = new Processor[PsiReference] {
         def process(t: PsiReference): Boolean = {
           if (method.isConstructor) return true

@@ -44,10 +44,10 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     val exp = PsiTreeUtil.findElementOfClassAtOffset(getFileAdapter, caretPos, classOf[ScalaPsiElement], false).asInstanceOf[ScObject]
     exp.allMethods.find(_.name == methodName) match {
       case Some(x) => x.method.asInstanceOf[ScFunctionDefinition].returnType match {
-        case Success(t, _) => assert(t.toString == expectedType, s"${t.toString} != $expectedType")
-        case Failure(cause, _) => assert(false, cause)
+        case Success(t, _) => org.junit.Assert.assertEquals(s"${t.toString} != $expectedType", expectedType, t.toString)
+        case Failure(cause, _) => org.junit.Assert.fail(cause)
       }
-      case None => assert(false, "method not found")
+      case None => org.junit.Assert.fail("method not found")
     }
   }
 
@@ -85,4 +85,26 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   def testSimple()   = doTest(lensesSimple, "age", "monocle.Lens[Main.Person, Int]")
   def testTypeArgs() = doTest(lensesTypeParams, "q","monocle.Lens[Main.Foo[A, B], Map[(A, B), Double]]")
+
+  def testRecursion() = {
+    //SCL-9420
+    val fileText =
+      """
+        |object Main {
+        |import monocle.macros.Lenses
+        |import A.B
+        |
+        |object <caret>A {
+        |  type B = String
+        |}
+        |
+        |@Lenses
+        |case class A(s : B) {
+        |  def blah = s.getBytes
+        |}
+        |}
+      """.stripMargin
+
+    doTest(fileText, "s", "monocle.Lens[Main.A, Main.A.B]")
+  }
 }

@@ -44,7 +44,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
     val compiledIntefaceJar = getOrCompileInterfaceJar(sbtData.interfacesHome, sbtData.sourceJar,
         sbtData.interfaceJar, scala, sbtData.javaClassVersion, client)
 
-      IC.newScalaCompiler(scala, compiledIntefaceJar, ClasspathOptions.javac(compiler = false), NullLogger)
+      IC.newScalaCompiler(scala, compiledIntefaceJar, ClasspathOptions.javac(compiler = false))
     }
   }
 

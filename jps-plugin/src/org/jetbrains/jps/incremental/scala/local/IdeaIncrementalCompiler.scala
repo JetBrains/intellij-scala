@@ -7,7 +7,7 @@ import org.jetbrains.jps.incremental.scala.data.CompilationData
 import sbt.compiler.{AnalyzingCompiler, CompileOutput, CompilerArguments, CompilerCache}
 import xsbti.api.SourceAPI
 import xsbti.compile.DependencyChanges
-import xsbti.{Position, Severity}
+import xsbti.{DependencyContext, Position, Severity}
 
 /**
  * Nikolay.Tropin
@@ -49,7 +49,9 @@ private class ClientCallback(client: Client) extends ClientCallbackBase {
 
 abstract class ClientCallbackBase extends xsbti.AnalysisCallback {
   override def sourceDependency(dependsOn: File, source: File, publicInherited: Boolean): Unit = {}
+  override def sourceDependency(file: File, file1: File, dependencyContext: DependencyContext): Unit = {}
   override def binaryDependency(binary: File, name: String, source: File, publicInherited: Boolean): Unit = {}
+  override def binaryDependency(file: File, s: String, file1: File, dependencyContext: DependencyContext): Unit = {}
   override def generatedClass(source: File, module: File, name: String): Unit = {}
   override def beginSource(p1: File) = {}
   override def endSource(sourcePath: File): Unit = {}

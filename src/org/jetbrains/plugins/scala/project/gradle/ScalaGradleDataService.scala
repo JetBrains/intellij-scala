@@ -77,22 +77,21 @@ private object ScalaGradleDataService {
     private def getVersionFromJar(scalaLibrary: File): Option[Version] =
       JarVersion.findFirstIn(scalaLibrary.getName).map(Version(_))
 
-    private def compilerOptionsFrom(data: ScalaModelData): Seq[String] = {
-      val options = data.getScalaCompileOptions
+    private def compilerOptionsFrom(data: ScalaModelData): Seq[String] =
+      Option(data.getScalaCompileOptions).toSeq.flatMap { options =>
+        val presentations = Seq(
+          options.isDeprecation -> "-deprecation",
+          options.isUnchecked -> "-unchecked",
+          options.isOptimize -> "-optimise",
+          !isEmpty(options.getDebugLevel) -> s"-g:${options.getDebugLevel}",
+          !isEmpty(options.getEncoding) -> s"-encoding ${options.getEncoding}",
+          !isEmpty(data.getTargetCompatibility) -> s"-target:jvm-${data.getTargetCompatibility}")
 
-      val presentations = Seq(
-        options.isDeprecation -> "-deprecation",
-        options.isUnchecked -> "-unchecked",
-        options.isOptimize -> "-optimise",
-        !isEmpty(options.getDebugLevel) -> s"-g:${options.getDebugLevel}",
-        !isEmpty(options.getEncoding) -> s"-encoding ${options.getEncoding}",
-        !isEmpty(data.getTargetCompatibility) -> s"-target:jvm-${data.getTargetCompatibility}")
+        val additionalOptions =
+          if (options.getAdditionalParameters != null) options.getAdditionalParameters.asScala else Seq.empty
 
-      val additionalOptions =
-        if (options.getAdditionalParameters != null) options.getAdditionalParameters.asScala else Seq.empty
-
-      presentations.flatMap((include _).tupled) ++ additionalOptions
-    }
+        presentations.flatMap((include _).tupled) ++ additionalOptions
+      }
 
     private def isEmpty(s: String) = s == null || s.isEmpty
 

@@ -17,19 +17,21 @@ import com.intellij.psi.impl.{PsiClassImplUtil, PsiSuperMethodImplUtil}
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.util.PsiModificationTracker._
 import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil, PsiUtil}
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{SyntheticMembersInjector, TypeDefinitionMembers}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedInsidePsiElement}
 
 /**
  * @author ven
@@ -101,7 +103,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   import java.util.{Collection => JCollection, List => JList}
 
-import com.intellij.openapi.util.{Pair => IPair}
+  import com.intellij.openapi.util.{Pair => IPair}
 
   def getAllFields: Array[PsiField] = {
     PsiClassImplUtil.getAllFields(this)
@@ -138,36 +140,25 @@ import com.intellij.openapi.util.{Pair => IPair}
   def functions: Seq[ScFunction] = extendsBlock.functions
   def aliases: Seq[ScTypeAlias] = extendsBlock.aliases
 
-  def syntheticMethodsWithOverride: Seq[PsiMethod] = {
-    CachesUtil.get(this, CachesUtil.SYNTHETIC_MEMBERS_WITH_OVERRIDE_KEY,
-      new CachesUtil.MyProvider[ScTemplateDefinition, Seq[PsiMethod]](this, clazz => clazz.syntheticMethodsWithOverrideImpl)
-      (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
-  }
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  def syntheticMethodsWithOverride: Seq[PsiMethod] = syntheticMethodsWithOverrideImpl
 
   /**
    * Implement it carefully to avoid recursion.
-   * @return
    */
   protected def syntheticMethodsWithOverrideImpl: Seq[PsiMethod] = Seq.empty
 
   def allSynthetics: Seq[PsiMethod] = syntheticMethodsNoOverride ++ syntheticMethodsWithOverride
 
-  def syntheticMethodsNoOverride: Seq[PsiMethod] = {
-    CachesUtil.get(this, CachesUtil.SYNTHETIC_MEMBERS_KEY,
-      new CachesUtil.MyProvider[ScTemplateDefinition, Seq[PsiMethod]](this, clazz => clazz.syntheticMethodsNoOverrideImpl)
-      (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
-  }
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  def syntheticMethodsNoOverride: Seq[PsiMethod] = syntheticMethodsNoOverrideImpl
 
   protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = Seq.empty
 
   def typeDefinitions: Seq[ScTypeDefinition] = extendsBlock.typeDefinitions
 
-  def syntheticTypeDefinitions: Seq[ScTypeDefinition] = {
-    CachesUtil.get(this, CachesUtil.SYNTHETIC_TYPE_DEFINITONS_KEY,
-      new CachesUtil.MyProvider[ScTemplateDefinition, Seq[ScTypeDefinition]](this,
-        clazz => clazz.syntheticTypeDefinitionsImpl)
-      (PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT))
-  }
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  def syntheticTypeDefinitions: Seq[ScTypeDefinition] = syntheticTypeDefinitionsImpl
 
   def syntheticTypeDefinitionsImpl: Seq[ScTypeDefinition] = Seq.empty
 

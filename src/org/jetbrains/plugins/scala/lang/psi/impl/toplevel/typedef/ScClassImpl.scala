@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
+import com.intellij.psi.impl.light.LightField
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
@@ -23,8 +24,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor, ScType, ScTypeParameterType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -37,7 +40,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
   extends ScTypeDefinitionImpl(stub, nodeType, node) with ScClass with ScTypeParametersOwner with ScTemplateDefinition {
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
-      case visitor: ScalaElementVisitor => super.accept(visitor)
+      case visitor: ScalaElementVisitor => visitor.visitClass(this)
       case _ => super.accept(visitor)
     }
   }
@@ -178,7 +181,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
 
   override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = {
     val buf = new ArrayBuffer[PsiMethod]
-    if (isCase && !hasModifierProperty("abstract") && parameters.length > 0) {
+    if (isCase && !hasModifierProperty("abstract") && parameters.nonEmpty) {
       constructor match {
         case Some(x: ScPrimaryConstructor) =>
           val hasCopy = !TypeDefinitionMembers.getSignatures(this).forName("copy")._1.isEmpty
@@ -202,7 +205,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
   private def copyMethodText: String = {
     val x = constructor.getOrElse(return "")
     val paramString = (if (x.parameterList.clauses.length == 1 &&
-      x.parameterList.clauses.apply(0).isImplicit) "()" else "") + x.parameterList.clauses.map{ c =>
+      x.parameterList.clauses.head.isImplicit) "()" else "") + x.parameterList.clauses.map{ c =>
       val start = if (c.isImplicit) "(implicit " else "("
       c.parameters.map{ p =>
         val paramType = p.typeElement match {
@@ -248,33 +251,40 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
       " = throw new Error(\"\")"
   }
 
-  @volatile
-  private var syntheticImplicitMethod: Option[ScFunction] = null
-  @volatile
-  private var syntheticImplicitMethodModificationCount: Long = 0
-
+  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   def getSyntheticImplicitMethod: Option[ScFunction] = {
-    val count = getManager.getModificationTracker.getOutOfCodeBlockModificationCount
-    if (count == syntheticImplicitMethodModificationCount && syntheticImplicitMethod != null) {
-      return syntheticImplicitMethod
-    }
-    val res: Option[ScFunction] =
-      if (hasModifierProperty("implicit")) {
-        constructor match {
-          case Some(x: ScPrimaryConstructor) =>
-            try {
-              val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
-              method.setSynthetic(this)
-              Some(method)
-            } catch {
-              case e: Exception => None
-            }
-          case None => None
+    if (hasModifierProperty("implicit")) {
+      constructor match {
+        case Some(x: ScPrimaryConstructor) =>
+          try {
+            val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
+            method.setSynthetic(this)
+            Some(method)
+          } catch {
+            case e: Exception => None
+          }
+        case None => None
+      }
+    } else None
+  }
+
+  override def getFields: Array[PsiField] = {
+    val fields = constructor match {
+      case Some(constr) => constr.parameters.map { param =>
+        param.getType(TypingContext.empty) match {
+          case Success(tp: ScTypeParameterType, _) if tp.param.findAnnotation("scala.specialized") != null =>
+            val factory: PsiElementFactory = PsiElementFactory.SERVICE.getInstance(getProject)
+            val psiTypeText: String = ScType.toPsi(tp, getProject, getResolveScope).getCanonicalText
+            val text = s"public final $psiTypeText ${param.name};"
+            val elem = new LightField(getManager, factory.createFieldFromText(text, this), this)
+            elem.setNavigationElement(param)
+            Option(elem)
+          case _ => None
         }
-      } else None
-    syntheticImplicitMethod = res
-    syntheticImplicitMethodModificationCount = count
-    res
+      }
+      case _ => Seq.empty
+    }
+    super.getFields ++ fields.flatten
   }
 
   override def getTypeParameterList: PsiTypeParameterList = typeParametersClause.orNull

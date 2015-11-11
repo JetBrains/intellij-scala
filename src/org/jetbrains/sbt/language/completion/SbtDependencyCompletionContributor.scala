@@ -5,6 +5,7 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
@@ -14,7 +15,7 @@ import org.jetbrains.sbt.resolvers.{SbtResolverIndexesManager, SbtResolverUtils}
  * @author Nikolay Obedin
  * @since 7/31/14.
  */
-class SbtDependencyCompletionContributor extends CompletionContributor {
+class SbtDependencyCompletionContributor extends ScalaCompletionContributor {
 
   val insideInfixExpr = PlatformPatterns.psiElement().withSuperParent(2, classOf[ScInfixExpr])
 
@@ -22,8 +23,8 @@ class SbtDependencyCompletionContributor extends CompletionContributor {
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, results: CompletionResultSet) {
       if (parameters.getOriginalFile.getFileType.getName != Sbt.Name) return
 
-      val place = parameters.getPosition
-      val infixExpr = place.getParent.getParent.asInstanceOf[ScInfixExpr]
+      val place = positionFromParameters(parameters)
+      val infixExpr = place.getContext.getContext.asInstanceOf[ScInfixExpr]
 
       val resolversToUse = SbtResolverUtils.getProjectResolvers(Option(ScalaPsiUtil.fileContext(place)))
       val indexManager = SbtResolverIndexesManager()
@@ -62,13 +63,13 @@ class SbtDependencyCompletionContributor extends CompletionContributor {
 
       (infixExpr.lOp, infixExpr.operation, infixExpr.rOp) match {
         case (lop, oper, ScLiteralImpl.string(artifact))
-          if lop == place.getParent && isValidOperation(oper.getText) =>
+          if lop == place.getContext && isValidOperation(oper.getText) =>
             completeGroup(artifact)
         case (ScLiteralImpl.string(group), oper, rop)
-          if rop == place.getParent && isValidOperation(oper.getText) =>
+          if rop == place.getContext && isValidOperation(oper.getText) =>
             completeArtifact(group)
         case (ScInfixExpr(llop, loper, lrop), oper, rop)
-          if rop == place.getParent && oper.getText == "%" && isValidOperation(loper.getText) =>
+          if rop == place.getContext && oper.getText == "%" && isValidOperation(loper.getText) =>
             for {
               ScLiteralImpl.string(group) <- Option(llop)
               ScLiteralImpl.string(artifact) <- Option(lrop)

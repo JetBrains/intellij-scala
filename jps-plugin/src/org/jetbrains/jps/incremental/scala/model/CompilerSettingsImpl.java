@@ -5,6 +5,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Tag;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.jps.incremental.scala.data.SbtIncrementalOptions;
 import org.jetbrains.jps.model.ex.JpsElementBase;
 
 import java.util.ArrayList;
@@ -25,6 +26,11 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
 
   public CompileOrder getCompileOrder() {
     return myState.compileOrder;
+  }
+
+  @Override
+  public SbtIncrementalOptions getSbtIncrementalOptions() {
+    return new SbtIncrementalOptions(myState.nameHashing, myState.recompileOnMacroDef, myState.transitiveStep, myState.recompileAllFraction);
   }
 
   public String[] getCompilerOptions() {
@@ -107,8 +113,8 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
       case Vars:
         list.add("-g:vars");
         break;
-      case Notc:
-        list.add("-g:notc");
+      case Notailcalls:
+        list.add("-g:notailcalls");
     }
 
     for (String pluginPath : myState.plugins) {
@@ -135,6 +141,14 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
     public IncrementalityType incrementalityType = IncrementalityType.IDEA;
 
     public CompileOrder compileOrder = CompileOrder.Mixed;
+
+    public boolean nameHashing = SbtIncrementalOptions.Default().nameHashing();
+
+    public boolean recompileOnMacroDef = SbtIncrementalOptions.Default().recompileOnMacroDef();
+
+    public int transitiveStep = SbtIncrementalOptions.Default().transitiveStep();
+
+    public double recompileAllFraction = SbtIncrementalOptions.Default().recompileAllFraction();
 
     public boolean dynamics;
 

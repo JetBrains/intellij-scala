@@ -15,14 +15,17 @@ import com.intellij.openapi.startup.StartupManager
 import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
-import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
+import com.intellij.openapi.vfs.{JarFileSystem, LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.template.Artifact
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
+
+import scala.collection.JavaConverters._
 
 /**
  * Nikolay.Tropin
@@ -52,22 +55,10 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
       contentEntry.addSourceFolder(testDataRoot, false)
     }
     
-    if (libVersion == ScalaSdkVersion._2_11) inWriteAction {
-      val scalaSdk = project.createScalaSdk("scala_sdk",
-        Seq.empty, Seq.empty, Seq.empty, Seq.empty, ScalaLanguageLevel.Scala_2_11)
-
-      module.attach(scalaSdk)
-    }
+    ScalaLibraryLoader.addScalaSdk(module, libVersion, isIncludeReflectLibrary)
     
     val libs: OrderEnumerator = rootManager.orderEntries.librariesOnly
     val libModels: util.ArrayList[Library.ModifiableModel] = new util.ArrayList[Library.ModifiableModel]
-    rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "scala_lib",
-      TestUtils.getMockScalaLib(libVersion), TestUtils.getMockScalaSrc(libVersion))
-
-    if (isIncludeReflectLibrary) {
-      rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "scala_reflect",
-        TestUtils.getMockScalaReflectLib(libVersion), null)
-    }
 
     if (isIncludeScalazLibrary) {
       rootModel = addLibrary(libVersion, rootModel, rootManager, libs, libModels, "scalaz",
@@ -111,7 +102,6 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
     
     inWriteAction {
       project.scalaSdks.foreach { scalaSdk =>
-        module.detach(scalaSdk)
         project.remove(scalaSdk)
       }
     }
@@ -179,10 +169,32 @@ object ScalaLibraryLoader {
                   isIncludeScalazLibrary: Boolean = false, isIncludeReflectLibrary: Boolean = false,
                   isIncludeSprayLibrary: Boolean = false): ScalaLibraryLoader = {
 
-    val mockJdk = TestUtils.getMockJdk
+    val mockJdk = TestUtils.getDefaultJdk
     VfsRootAccess.allowRootAccess(mockJdk)
     val javaSdk = Some(JavaSdk.getInstance.createJdk("java sdk", mockJdk, false))
     new ScalaLibraryLoader(project, module, rootPath, isIncludeScalazLibrary, isIncludeReflectLibrary,
       isIncludeSprayLibrary, javaSdk)
+  }
+
+  def addScalaSdk(module: Module, sdkVersion: ScalaSdkVersion, loadReflect: Boolean) = {
+    val compilerPath = TestUtils.getScalaCompilerPath(sdkVersion)
+    val libraryPath = TestUtils.getScalaLibraryPath(sdkVersion)
+    val reflectPath = TestUtils.getScalaReflectPath(sdkVersion)
+
+    val scalaSdkJars = Seq(libraryPath, compilerPath) ++ (if (loadReflect) Seq(reflectPath) else Seq.empty)
+    val classRoots = scalaSdkJars.map(path => JarFileSystem.getInstance.refreshAndFindFileByPath(path + "!/")).asJava
+
+    val scalaLibrarySrc = TestUtils.getScalaLibrarySrc(sdkVersion)
+    val srcsRoots = Seq(JarFileSystem.getInstance.refreshAndFindFileByPath(scalaLibrarySrc + "!/")).asJava
+    val library = PsiTestUtil.addProjectLibrary(module, "scala-sdk", classRoots, srcsRoots)
+    val languageLevel = Artifact.ScalaCompiler.versionOf(new File(compilerPath))
+      .flatMap(ScalaLanguageLevel.from).getOrElse(ScalaLanguageLevel.Default)
+
+    inWriteAction {
+      library.convertToScalaSdkWith(languageLevel, scalaSdkJars.map(new File(_)))
+      module.attach(library)
+    }
+
+    VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
   }
 }

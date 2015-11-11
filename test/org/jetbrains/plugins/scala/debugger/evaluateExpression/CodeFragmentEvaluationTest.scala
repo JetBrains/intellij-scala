@@ -1,29 +1,30 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12_M2}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
 
 /**
  * @author Nikolay.Tropin
  */
 
 class CodeFragmentEvaluationTest extends CodeFragmentEvaluationTestBase with ScalaVersion_2_11
-class CodeFragmentEvaluationTest_2_12_M2 extends CodeFragmentEvaluationTestBase with ScalaVersion_2_12_M2
+class CodeFragmentEvaluationTest_212 extends CodeFragmentEvaluationTestBase with ScalaVersion_2_12
 
 abstract class CodeFragmentEvaluationTestBase extends ScalaDebuggerTestCase {
-  def evaluateCodeFragments(fragmentsWithResults: (String, String)*): Unit = {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  var n = 0
-        |  def main(args: Array[String]) {
-        |    val str = "some string"
-        |    "stop here"
-        |  }
-        |}
+
+  addFileWithBreakpoints ( "CodeFragments.scala",
+    s"""
+       |object CodeFragments {
+       |  var n = 0
+       |  def main(args: Array[String]) {
+       |    val str = "some string"
+       |    ""$bp
+       |  }
+       |}
       """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 4)
-    runDebugger("Sample") {
+  )
+
+  def evaluateCodeFragments(fragmentsWithResults: (String, String)*): Unit = {
+    runDebugger() {
       waitForBreakpoint()
       fragmentsWithResults.foreach {
         case (fragment, result) => evalEquals(fragment.stripMargin.trim().replace("\r", ""), result)

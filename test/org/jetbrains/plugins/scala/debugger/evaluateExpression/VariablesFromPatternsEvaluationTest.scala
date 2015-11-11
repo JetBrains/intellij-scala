@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluateExpression
 
-import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12_M2}
+import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
 
 /**
  * Nikolay.Tropin
@@ -9,27 +9,26 @@ import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion
  */
 class VariablesFromPatternsEvaluationTest extends VariablesFromPatternsEvaluationTestBase with ScalaVersion_2_11
 
-class VariablesFromPatternsEvaluationTest_2_12_M2 extends VariablesFromPatternsEvaluationTestBase with ScalaVersion_2_12_M2
+class VariablesFromPatternsEvaluationTest_212 extends VariablesFromPatternsEvaluationTestBase with ScalaVersion_2_12
 
 abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTestCase{
-  def testMatch() {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  val name = "name"
-        |  def main(args: Array[String]) {
-        |    val x = (List(1, 2), Some("z"), None)
-        |    x match {
-        |      case all @ (list @ List(q, w), some @ Some(z), _) =>
-        |        "stop here"
-        |      case _ =>
-        |    }
-        |  }
-        |}
+  addFileWithBreakpoints("Match.scala",
+    s"""
+       |object Match {
+       |  val name = "name"
+       |  def main(args: Array[String]) {
+       |    val x = (List(1, 2), Some("z"), None)
+       |    x match {
+       |      case all @ (list @ List(q, w), some @ Some(z), _) =>
+       |        ""$bp
+       |      case _ =>
+       |    }
+       |  }
+       |}
       """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 6)
-    runDebugger("Sample") {
+  )
+  def testMatch() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("all", "(List(1, 2),Some(z),None)")
       evalEquals("list", "List(1, 2)")
@@ -42,66 +41,62 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
     }
   }
 
-  def testMatchInForStmt() {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  val name = "name"
-        |  def main(args: Array[String]) {
-        |    for (s <- List("a", "b"); if s == "a"; ss = s + s; i <- List(1,2); if i == 1; si = s + i) {
-        |      val x = (List(1, 2), Some("z"), 3 :: 4 :: Nil)
-        |      x match {
-        |        case all @ (q :: qs, some @ Some(z), list @ List(m, _)) =>
-        |          "stop here"
-        |        case _ =>
-        |      }
-        |    }
-        |  }
-        |}
+  addFileWithBreakpoints("MatchInForStmt.scala",
+    s"""
+       |object MatchInForStmt {
+       |  val name = "name"
+       |  def main(args: Array[String]) {
+       |    for (s <- List("a", "b"); if s == "a"; ss = s + s; i <- List(1,2); if i == 1; si = s + i) {
+       |      val x = (List(1, 2), Some("z"), ss :: i :: Nil)
+       |      x match {
+       |        case all @ (q :: qs, some @ Some(z), list @ List(m, _)) =>
+       |          ""$bp
+       |        case _ =>
+       |      }
+       |    }
+       |  }
+       |}
       """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 7)
-    runDebugger("Sample") {
+  )
+  def testMatchInForStmt() {
+    runDebugger() {
       waitForBreakpoint()
-      evalEquals("all", "(List(1, 2),Some(z),List(3, 4))")
-      evalEquals("x", "(List(1, 2),Some(z),List(3, 4))")
+      evalEquals("all", "(List(1, 2),Some(z),List(aa, 1))")
+      evalEquals("x", "(List(1, 2),Some(z),List(aa, 1))")
       evalEquals("name", "name")
       evalEquals("q", "1")
       evalEquals("qs", "List(2)")
       evalEquals("z", "z")
-      evalEquals("list", "List(3, 4)")
-      evalEquals("m", "3")
+      evalEquals("list", "List(aa, 1)")
+      evalEquals("m", "aa")
       evalEquals("some", "Some(z)")
-
-//      evalEquals("s", "a")
-/* todo evaluation works, but not in test;
-    it was broken after check for implicit conversion was added in ScalaEvaluationBuilder.Builder.visitExpression */
-
-//      evalEquals("ss", "aa")
-//      evalEquals("i", "1")
-//      evalEquals("si", "a1")
-//      evalEquals("args", "[]")
+      evalEquals("ss", "aa")
+      evalEquals("i", "1")
+      evalEquals("args", "[]")
     }
   }
 
-  def testRegexMatch() {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  val name = "name"
-        |  def main(args: Array[String]) {
-        |    val Decimal = "(-)?(\\d+)(\\.\\d*)?".r
-        |    "-2.5" match {
-        |      case number @ Decimal(sign, _, dec) =>
-        |        "stop here"
-        |      case _ =>
-        |    }
-        |  }
-        |}
+  addFileWithBreakpoints("RegexMatch.scala",
+    {
+      val pattern = """"(-)?(\\d+)(\\.\\d*)?".r"""
+      s"""
+         |object RegexMatch {
+         |  val name = "name"
+         |  def main(args: Array[String]) {
+         |    val Decimal = $pattern
+         |    "-2.5" match {
+         |      case number @ Decimal(sign, _, dec) =>
+         |        ""$bp
+         |      case _ =>
+         |    }
+         |  }
+         |}
       """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 6)
-    runDebugger("Sample") {
+    }
+
+  )
+  def testRegexMatch() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("number", "-2.5")
       evalEquals("sign", "-")
@@ -110,31 +105,30 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
     }
   }
 
-  def testMultilevel() {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  val name = "name"
-        |  def main(args: Array[String]) {
-        |    List(None, Some(1 :: 2 :: Nil)) match {
-        |      case List(none, some) =>
-        |        some match {
-        |          case Some(seq) =>
-        |            seq match {
-        |              case Seq(1, two) =>
-        |                "stop here"
-        |              case _ =>
-        |            }
-        |          case _ =>
-        |        }
-        |      case _ =>
-        |    }
-        |  }
-        |}
+  addFileWithBreakpoints("Multilevel.scala",
+    s"""
+       |object Multilevel {
+       |  val name = "name"
+       |  def main(args: Array[String]) {
+       |    List(None, Some(1 :: 2 :: Nil)) match {
+       |      case List(none, some) =>
+       |        some match {
+       |          case Some(seq) =>
+       |            seq match {
+       |              case Seq(1, two) =>
+       |                ""$bp
+       |              case _ =>
+       |            }
+       |          case _ =>
+       |        }
+       |      case _ =>
+       |    }
+       |  }
+       |}
       """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 9)
-    runDebugger("Sample") {
+  )
+  def testMultilevel() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("name", "name")
       evalEquals("args", "[]")
@@ -145,26 +139,25 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
     }
   }
 
-  def testLocalInMatch() {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  val name = "name"
-        |  def main(args: Array[String]) {
-        |    Option("a") match {
-        |      case None =>
-        |      case some @ Some(a) =>
-        |        def foo(i: Int) {
-        |          "stop here"
-        |        }
-        |        foo(10)
-        |    }
-        |  }
-        |}
+  addFileWithBreakpoints("LocalInMatch.scala",
+    s"""
+       |object LocalInMatch {
+       |  val name = "name"
+       |  def main(args: Array[String]) {
+       |    Option("a") match {
+       |      case None =>
+       |      case some @ Some(a) =>
+       |        def foo(i: Int) {
+       |          ""$bp
+       |        }
+       |        foo(10)
+       |    }
+       |  }
+       |}
       """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 7)
-    runDebugger("Sample") {
+  )
+  def testLocalInMatch() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("name", "name")
       evalEquals("args", "[]")
@@ -174,25 +167,24 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
     }
   }
 
-  def testAnonymousInMatch() {
-    addFileToProject("Sample.scala",
-      """
-        |object Sample {
-        |  val name = "name"
-        |  def main(args: Array[String]) {
-        |    Option("a") match {
-        |      case None =>
-        |      case some @ Some(a) =>
-        |        List(10) foreach { i =>
-        |          "stop here"
-        |        }
-        |    }
-        |  }
-        |}
+  addFileWithBreakpoints("AnonymousInMatch.scala",
+    s"""
+       |object AnonymousInMatch {
+       |  val name = "name"
+       |  def main(args: Array[String]) {
+       |    Option("a") match {
+       |      case None =>
+       |      case some @ Some(a) =>
+       |        List(10) foreach { i =>
+       |          ""$bp
+       |        }
+       |    }
+       |  }
+       |}
       """.stripMargin.trim()
-    )
-    addBreakpoint("Sample.scala", 7)
-    runDebugger("Sample") {
+  )
+  def testAnonymousInMatch() {
+    runDebugger() {
       waitForBreakpoint()
       evalEquals("name", "name")
       evalEquals("args", "[]")

@@ -121,7 +121,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       val stack = scala.collection.mutable.Stack[IElementType]()
       
       iterator.retreat()
-      while (iterator.getTokenType != null && iterator.getStart > 0) {
+      while (iterator.getStart > 0 && iterator.getTokenType != null) {
         if (matcher.isRBraceToken(iterator, txt, fileType)) stack push iterator.getTokenType 
           else if (matcher.isLBraceToken(iterator, txt, fileType)) {
           if (stack.isEmpty || !matcher.isPairBraces(iterator.getTokenType, stack.pop())) return Some(false)

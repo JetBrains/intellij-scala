@@ -104,7 +104,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       buffer ++= Seq("CLASS_ANNOTATION_WRAP", "METHOD_ANNOTATION_WRAP", "FIELD_ANNOTATION_WRAP",
         "PARAMETER_ANNOTATION_WRAP", "VARIABLE_ANNOTATION_WRAP")
 
-      buffer ++= Seq("KEEP_SIMPLE_BLOCKS_IN_ONE_LINE", "KEEP_SIMPLE_METHODS_IN_ONE_LINE")
+      buffer ++= Seq("KEEP_SIMPLE_BLOCKS_IN_ONE_LINE", "KEEP_SIMPLE_METHODS_IN_ONE_LINE", "KEEP_FIRST_COLUMN_COMMENT")
     }
 
     consumer.showStandardOptions(buffer.toArray:_*)
@@ -130,6 +130,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       showCustomOption("PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE", "Parameters on new line", ANONYMOUS_METHOD)
       showCustomOption("NOT_CONTINUATION_INDENT_FOR_PARAMS", "Use normal indent for parameters",
         CodeStyleSettingsCustomizable.WRAPPING_METHOD_PARAMETERS)
+      showCustomOption("DO_NOT_INDENT_CASE_CLAUSE_BODY", "Do not indent case clause body", CodeStyleSettingsCustomizable.WRAPPING_SWITCH_STATEMENT)
       showCustomOption("INDENT_BRACED_FUNCTION_ARGS", "Indent braced arguments", CodeStyleSettingsCustomizable.WRAPPING_METHOD_ARGUMENTS_WRAPPING)
       showCustomOption("ALIGN_IN_COLUMNS_CASE_BRANCH", "Align in columns 'case' branches",
         CodeStyleSettingsCustomizable.WRAPPING_SWITCH_STATEMENT)
@@ -166,6 +167,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("SPACES_AROUND_AT_IN_PATTERNS", "Spaces around '@' in pattern bindings",
         CodeStyleSettingsCustomizable.SPACES_OTHER)
+      showCustomOption("NEWLINE_AFTER_ANNOTATIONS", "Newline after annotations", CodeStyleSettingsCustomizable.SPACES_OTHER)
     }
 
   }
@@ -182,6 +184,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     indentOptions.INDENT_SIZE = 2
     indentOptions.TAB_SIZE = 2
     indentOptions.CONTINUATION_INDENT_SIZE = 2
+    commonCodeStyleSettings.KEEP_FIRST_COLUMN_COMMENT = false //added here to comply with prior default behavior
     commonCodeStyleSettings
   }
 

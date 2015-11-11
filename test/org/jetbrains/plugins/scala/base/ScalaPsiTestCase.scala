@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
  */
 
 abstract class ScalaPsiTestCase extends PsiTestCase {
-  private val JDK_HOME = TestUtils.getMockJdk
+  private val JDK_HOME = TestUtils.getDefaultJdk
 
   protected def rootPath = TestUtils.getTestDataPath + "/"
 
@@ -44,10 +44,10 @@ abstract class ScalaPsiTestCase extends PsiTestCase {
       val scalaLib = libraryTable.createLibrary("scala_lib")
       val libModel: ModifiableModel = scalaLib.getModifiableModel
       try {
-        val libRoot = new File(TestUtils.getMockScalaLib)
+        val libRoot = new File(TestUtils.getScalaLibraryPath)
         assert(libRoot.exists)
 
-        val srcRoot = new File(TestUtils.getMockScalaSrc)
+        val srcRoot = new File(TestUtils.getScalaLibrarySrc)
         assert(srcRoot.exists)
 
         libModel.addRoot(VfsUtil.getUrlForLibraryRoot(libRoot), OrderRootType.CLASSES)

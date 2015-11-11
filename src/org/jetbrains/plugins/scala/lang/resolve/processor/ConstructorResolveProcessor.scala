@@ -25,7 +25,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
     val named = element.asInstanceOf[PsiNamedElement]
     val fromType = getFromType(state)
     val subst = fromType match {
-      case Some(tp) => getSubst(state).addUpdateThisType(tp)
+      case Some(tp) => getSubst(state).followUpdateThisType(tp)
       case _ => getSubst(state)
     }
 

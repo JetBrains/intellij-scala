@@ -15,6 +15,6 @@ class ScalaFileStubBuilder extends DefaultStubBuilder {
   protected override def createStubForFile(file: PsiFile): StubElement[_ <: PsiElement] = {
     val s: ScalaFile = file.getViewProvider.getPsi(ScalaLanguage.Instance).asInstanceOf[ScalaFile]
     new ScFileStubImpl(s, StringRef.fromString(s.packageName), StringRef.fromString(s.sourceName), s.isCompiled,
-      s.isScriptFile(withCashing = false))
+      s.isScriptFile(withCaching = false))
   }
 }

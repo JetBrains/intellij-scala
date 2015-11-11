@@ -15,10 +15,9 @@ abstract class StepOverTestBase extends ScalaDebuggerTestCase {
     getDebugProcess.getManagerThread.invokeAndWait(stepOverCommand)
   }
 
-  def testStepThrough(fileText: String, expectedLineNumbers: Seq[Int], startBreakpoint: (Int, Integer) = (2, -1)): Unit = {
-    val mainClassName = "Sample"
-    val fileName = s"$mainClassName.scala"
-    val lines = Source.fromString(fileText.stripMargin.trim).getLines().toSeq
+  def testStepThrough(expectedLineNumbers: Seq[Int]): Unit = {
+    val file = getFileInSrc(mainFileName)
+    val lines = Source.fromFile(file).getLines().toSeq
     Assert.assertTrue(s"File should start with definition of object $mainClassName" , lines.head.startsWith(s"object $mainClassName"))
     Assert.assertTrue("Method main should be defined on a second line", lines(1).trim.startsWith("def main") && lines(2).trim.nonEmpty)
 
@@ -36,8 +35,6 @@ abstract class StepOverTestBase extends ScalaDebuggerTestCase {
       }
     }
 
-    addFileToProject(fileName, fileText.stripMargin.trim)
-    addBreakpoint(fileName, startBreakpoint._1, startBreakpoint._2)
     val expectedNumbers = expectedLineNumbers.toIterator
     runDebugger(mainClassName) {
       while (!processTerminatedNoBreakpoints()) {
