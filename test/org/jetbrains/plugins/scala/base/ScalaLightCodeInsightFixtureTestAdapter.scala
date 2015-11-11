@@ -10,6 +10,7 @@ import com.intellij.lang.surroundWith.Surrounder
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiManager
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, LightCodeInsightFixtureTestCase}
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 import org.jetbrains.plugins.scala.util.{ScalaToolsFactory, TestUtils}
@@ -30,6 +31,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
   override protected def setUp() {
     super.setUp()
 
+    myFixture.allowTreeAccessForAllFiles()
     libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath = null)
     libLoader.loadLibrary(libVersion)
   }
