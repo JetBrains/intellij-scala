@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions._
   * @author Nikolay.Tropin
   */
 object DebuggerTestUtil {
-  val jdk8Name = "java 1.8"
+  val jdk8Name = "JDK 1.8"
 
   def findJdk8(): Sdk = {
     val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
