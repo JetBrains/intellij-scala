@@ -68,8 +68,8 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
         case Some(ret) =>  true
         case None => !f.hasAssign
       }
-      case v: ScValue => v.declaredType.isDefined
-      case v: ScVariable => v.declaredType.isDefined
+      case v: ScValue => v.typeElement.isDefined
+      case v: ScVariable => v.typeElement.isDefined
       case _ => false
     }
   }
