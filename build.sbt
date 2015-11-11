@@ -1,7 +1,6 @@
 import Common._
 import com.dancingrobot84.sbtidea.Tasks.{updateIdea => updateIdeaTask}
 import sbt.Keys.{`package` => pack}
-import com.dancingrobot84.sbtidea.Tasks.{updateIdea => updateIdeaTask}
 
 // Global build settings
 
