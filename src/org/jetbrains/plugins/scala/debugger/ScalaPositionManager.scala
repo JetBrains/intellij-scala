@@ -682,17 +682,18 @@ object ScalaPositionManager {
     lastDollar > 0 && name.substring(0, lastDollar).endsWith("$anonfun")
   }
 
-  def isAnonfun(m: Method): Boolean = {
-    def isAnonfunType(refType: ReferenceType) = {
-      val name = NameTransformer.decode(refType.name())
-      val separator = "$$"
-      val index = name.lastIndexOf(separator)
-      if (index < 0) false
-      else {
-        val lastPart = name.substring(index + separator.length)
-        lastPart.startsWith("anonfun")
-      }
+  def isAnonfunType(refType: ReferenceType) = {
+    val name = NameTransformer.decode(refType.name())
+    val separator = "$$"
+    val index = name.lastIndexOf(separator)
+    if (index < 0) false
+    else {
+      val lastPart = name.substring(index + separator.length)
+      lastPart.startsWith("anonfun") && lastPart.count(_ == '$') < 3
     }
+  }
+
+  def isAnonfun(m: Method): Boolean = {
     isIndyLambda(m) || m.name.startsWith("apply") && isAnonfunType(m.declaringType())
   }
 
