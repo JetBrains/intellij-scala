@@ -4,6 +4,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection
 import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaLightInspectionFixtureTestAdapter}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 /**
  * Author: Svyatoslav Ilinskiy
@@ -18,6 +19,9 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
     newSettings.experimental = true
     defaultProfile.setSettings(newSettings)
   }
+
+
+  override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
 
   override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ConvertExpressionToSAMInspection]
 
