@@ -51,12 +51,15 @@ abstract class ScalaCompletionContributor extends CompletionContributor {
   }
 
   def positionFromParameters(parameters: CompletionParameters): PsiElement = {
+
     @tailrec
     def inner(element: PsiElement): PsiElement = element match {
       case null => parameters.getPosition //we got to the top of the tree and didn't find a modifierCountOwner
       case block: ScBlockExprImpl if block.isModificationCountOwner =>
-        block.getMirrorPositionForCompletion(getDummyIdentifier(parameters.getOffset, parameters.getOriginalFile),
-          parameters.getOffset - block.getTextOffset)
+        if (block.containingFile.contains(parameters.getOriginalFile)) {
+          block.getMirrorPositionForCompletion(getDummyIdentifier(parameters.getOffset, parameters.getOriginalFile),
+            parameters.getOffset - block.getTextOffset)
+        } else parameters.getPosition
       case _ => inner(element.getContext)
     }
     inner(parameters.getOriginalPosition)

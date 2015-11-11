@@ -10,7 +10,7 @@ import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, _}
 import com.intellij.util.{Consumer, ProcessingContext}
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{PrefixPackageToImport, ClassTypeToImport, TypeAliasToImport, TypeToImport}
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, PrefixPackageToImport, TypeAliasToImport, TypeToImport}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
@@ -83,7 +83,7 @@ object ScalaClassNameCompletionContributor {
       case _ => (dummyPosition, false)
     }
     val invocationCount = parameters.getInvocationCount
-    if (!inString && !position.getContainingFile.isInstanceOf[ScalaFile]) return true
+    if (!inString && !ScalaPsiUtil.fileContext(position).isInstanceOf[ScalaFile]) return true
     val lookingForAnnotations: Boolean = psiElement.afterLeaf("@").accepts(position)
     val isInImport = ScalaPsiUtil.getContextOfType(position, false, classOf[ScImportStmt]) != null
     val stableRefElement = ScalaPsiUtil.getContextOfType(position, false, classOf[ScStableCodeReferenceElement])
