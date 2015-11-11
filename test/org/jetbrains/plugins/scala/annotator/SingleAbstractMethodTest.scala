@@ -558,6 +558,22 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
     checkCodeHasNoErrors(code)
   }
 
+  def testSAMNumericWidening(): Unit = {
+    val code =
+      """
+        |  abstract class A {
+        |    def foo(): Long
+        |  }
+        |
+        |  class B
+        |  class C
+        |
+        |  def foo(): Int = 1
+        |  val a: A = foo
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
   def testSAMCorrectWildcardExtrapolationWithParameterizedTypes(): Unit = {
     val code =
       """
