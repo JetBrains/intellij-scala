@@ -97,7 +97,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   }
 
   def isParameterless = paramClauses.clauses.isEmpty
-  
+
   private val probablyRecursive: ThreadLocal[Boolean] = new ThreadLocal[Boolean]() {
     override def initialValue(): Boolean = false
   }

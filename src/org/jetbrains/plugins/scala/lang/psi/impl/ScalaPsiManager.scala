@@ -21,10 +21,10 @@ import com.intellij.util.containers.WeakValueHashMap
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScModificationTrackerOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticPackageCreator}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
@@ -330,9 +330,9 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   object CacheInvalidator extends PsiTreeChangeAdapter {
     @tailrec
     def updateModificationCount(elem: PsiElement): Unit = {
-      Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScBlockExprImpl])) match {
-        case Some(block) if block.isModificationCountOwner => block.incModificationCount()
-        case Some(block) => updateModificationCount(block.getContext)
+      Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScModificationTrackerOwner])) match {
+        case Some(owner) if owner.isValidModificationTrackerOwner => owner.incModificationCount()
+        case Some(owner) => updateModificationCount(owner.getContext)
         case _ =>
       }
     }
