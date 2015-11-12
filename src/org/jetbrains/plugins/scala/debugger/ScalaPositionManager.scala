@@ -81,11 +81,19 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val file = position.getFile
     throwIfNotScalaFile(file)
 
+    val generatedClassName = file.getUserData(ScalaCompilingEvaluator.classNameKey)
+
     def hasLocations(refType: ReferenceType, position: SourcePosition): Boolean = {
+      def quickCheckFile(): Boolean = {
+        if (refTypeToFileCache.get(refType).contains(position.getFile)) true
+        else {
+          val refTypeSourceName = Try(refType.sourceName()).getOrElse("")
+          refTypeSourceName == position.getFile.getName
+        }
+      }
       try {
-        val generatedClassName = file.getUserData(ScalaCompilingEvaluator.classNameKey)
         if (generatedClassName != null) refType.name().contains(generatedClassName)
-        else locationsOfLine(refType, position).size > 0
+        else quickCheckFile() && locationsOfLine(refType, position).size > 0
       } catch {
         case _: NoDataException | _: AbsentInformationException | _: ClassNotPreparedException | _: ObjectCollectedException => false
       }
@@ -99,9 +107,10 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       val onTheLine = possiblePositions.map(findGeneratingClassOrMethodParent)
       if (onTheLine.isEmpty) return Collections.emptyList()
       val nonLambdaParent =
-        if (isCompiledWithIndyLambdas(file))
-          onTheLine.head.parentsInFile.find(p => ScalaEvaluatorBuilderUtil.isGenerateNonAnonfunClass(p))
-        else None
+        if (isCompiledWithIndyLambdas(file)) {
+          val nonStrictParents = Iterator(onTheLine.head) ++ onTheLine.head.parentsInFile
+          nonStrictParents.find(p => ScalaEvaluatorBuilderUtil.isGenerateNonAnonfunClass(p))
+        } else None
 
       val sourceImages = onTheLine ++ nonLambdaParent
       sourceImages.foreach {
@@ -115,7 +124,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           namePatterns ++= Option(namePattern)
       }
     }
-    val foundWithPattern = filterAllClasses(c => namePatterns.exists(_.matches(c)) && hasLocations(c, position))
+    val foundWithPattern = filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)))
     (exactClasses ++ foundWithPattern).distinct.asJava
   }
 
@@ -123,6 +132,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   def locationsOfLine(@NotNull refType: ReferenceType, @NotNull position: SourcePosition): util.List[Location] = {
 
     throwIfNotScalaFile(position.getFile)
+    checkForIndyLambdas(refType)
 
     try {
       val line: Int = position.getLine
@@ -208,7 +218,14 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   private def filterAllClasses(condition: ReferenceType => Boolean): Seq[ReferenceType] = {
     import scala.collection.JavaConverters._
-    debugProcess.getVirtualMachineProxy.allClasses.asScala.filter(condition)
+    for {
+      refType <- debugProcess.getVirtualMachineProxy.allClasses.asScala
+      if refType.isInitialized
+      _ = checkForIndyLambdas(refType)
+      if condition(refType)
+    } yield {
+      refType
+    }
   }
 
   @Nullable
@@ -398,20 +415,25 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         else
           searchForMacroDebugging(topLevelClassName(originalQName))
       }
-
-      if (refType.methods().asScala.exists(isIndyLambda)) {
-        isCompiledWithIndyLambdasCache.update(file, true)
-      }
-
       file
     }
 
-    refTypeToFileCache.getOrElseUpdate(refType, findFile())
+    val file = inReadAction(findFile())
+    if (refType.methods().asScala.exists(isIndyLambda)) {
+      isCompiledWithIndyLambdasCache.update(file, true)
+    }
+    refTypeToFileCache.getOrElseUpdate(refType, file)
   }
 
   private def nameMatches(elem: PsiElement, refType: ReferenceType): Boolean = {
     val pattern = NamePattern.forElement(elem)
     pattern != null && pattern.matches(refType)
+  }
+
+  private def checkForIndyLambdas(refType: ReferenceType) = {
+    if (!refTypeToFileCache.contains(refType)) {
+      getPsiFileByReferenceType(debugProcess.getProject, refType)
+    }
   }
 
   def findElementByReferenceType(refType: ReferenceType): Option[PsiElement] = {
@@ -709,7 +731,10 @@ object ScalaPositionManager {
     onLine.sortBy(ordinal)
   }
 
-  def isCompiledWithIndyLambdas(file: PsiFile) = isCompiledWithIndyLambdasCache.getOrElse(file, false)
+  def isCompiledWithIndyLambdas(file: PsiFile) = {
+    val originalFile = Option(file.getUserData(ScalaCompilingEvaluator.originalFileKey)).getOrElse(file)
+    isCompiledWithIndyLambdasCache.getOrElse(originalFile, false)
+  }
 
   @tailrec
   def findGeneratingClassOrMethodParent(element: PsiElement): PsiElement = {
@@ -771,8 +796,10 @@ object ScalaPositionManager {
   }
 
   private class NamePattern(elem: PsiElement) {
-    private val sourceName = elem.getContainingFile.getName
-    private val isGeneratedForCompilingEvaluator = elem.getContainingFile.getUserData(ScalaCompilingEvaluator.classNameKey) != null
+    private val containingFile = elem.getContainingFile
+    private val sourceName = containingFile.getName
+    private val isGeneratedForCompilingEvaluator = containingFile.getUserData(ScalaCompilingEvaluator.classNameKey) != null
+    private var compiledWithIndyLambdas = isCompiledWithIndyLambdas(containingFile)
     private val exactName: Option[String] = {
       elem match {
         case td: ScTypeDefinition if !DebuggerUtil.isLocalClass(td) =>
@@ -780,9 +807,11 @@ object ScalaPositionManager {
         case _ => None
       }
     }
-    private val classJVMNameParts: Seq[String] = {
+    private var classJVMNameParts: Seq[String] = null
+
+    private def computeClassJVMNameParts: Seq[String] = {
       if (exactName.isDefined) Seq.empty
-      else {
+      else inReadAction {
         val forElem = partsFor(elem).toIterator
         val forParents = elem.parentsInFile.flatMap(e => partsFor(e))
         (forElem ++ forParents).toSeq.reverse
@@ -791,9 +820,9 @@ object ScalaPositionManager {
 
     private def partsFor(elem: PsiElement): Seq[String] = {
       elem match {
-        case e if ScalaEvaluatorBuilderUtil.isGenerateAnonfun(e) => partsForAnonfun(e)
-        case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) => Seq("$anon")
         case td: ScTypeDefinition => Seq(ScalaNamesUtil.toJavaName(td.name))
+        case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) => Seq("$anon")
+        case e if ScalaEvaluatorBuilderUtil.isGenerateClass(e) => partsForAnonfun(e)
         case _ => Seq.empty
       }
     }
@@ -818,6 +847,8 @@ object ScalaPositionManager {
 
     private def checkParts(name: String): Boolean = {
       var nameTail = name
+      updateParts()
+
       for (part <- classJVMNameParts) {
         val index = nameTail.indexOf(part)
         if (index >= 0) {
@@ -826,6 +857,14 @@ object ScalaPositionManager {
         else return false
       }
       nameTail.indexOf("$anon") == -1
+    }
+
+    def updateParts(): Unit = {
+      val newValue = isCompiledWithIndyLambdas(containingFile)
+      if (newValue != compiledWithIndyLambdas || classJVMNameParts == null) {
+        compiledWithIndyLambdas = newValue
+        classJVMNameParts = computeClassJVMNameParts
+      }
     }
 
     def matches(refType: ReferenceType): Boolean = {

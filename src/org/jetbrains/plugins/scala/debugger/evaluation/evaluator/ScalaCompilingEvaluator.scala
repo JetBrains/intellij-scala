@@ -15,7 +15,7 @@ import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{Key, TextRange}
-import com.intellij.psi.{PsiElement, PsiFileFactory}
+import com.intellij.psi.{PsiElement, PsiFile, PsiFileFactory}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation._
 import org.jetbrains.plugins.scala.extensions._
@@ -127,6 +127,7 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
 object ScalaCompilingEvaluator {
 
   val classNameKey = Key.create[String]("generated.class.name")
+  val originalFileKey = Key.create[PsiFile]("compiling.evaluator.original.file")
 
   private def keep(reference: ObjectReference, context: EvaluationContext) {
     context.getSuspendContext.asInstanceOf[SuspendContextImpl].keep(reference)
@@ -194,7 +195,7 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
     //create physical file to work with source positions
     val copy = PsiFileFactory.getInstance(project).createFileFromText(file.getName, file.getFileType, textWithLocalClass, file.getModificationStamp, true)
     copy.putUserData(ScalaCompilingEvaluator.classNameKey, generatedClassName)
-
+    copy.putUserData(ScalaCompilingEvaluator.originalFileKey, file)
     anchor = CodeInsightUtilCore.findElementInRange(copy, anchorRange.getStartOffset, anchorRange.getEndOffset, classOf[ScBlockStatement], file.getLanguage)
     compileGeneratedClass(copy.getText)
   }
