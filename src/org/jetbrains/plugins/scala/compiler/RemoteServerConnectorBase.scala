@@ -21,8 +21,8 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 
 abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, outputDir: File) {
   private val libRoot = {
-    if (ApplicationManager.getApplication.isUnitTestMode)
-      new File("../out/cardea/artifacts/Scala/lib") else new File(PathUtil.getJarPathForClass(getClass)).getParentFile
+    if (ApplicationManager.getApplication.isUnitTestMode) new File("./out/plugin/Scala/lib").getAbsoluteFile
+    else new File(PathUtil.getJarPathForClass(getClass)).getParentFile
   }
 
   private val libCanonicalPath = PathUtil.getCanonicalPath(libRoot.getPath)

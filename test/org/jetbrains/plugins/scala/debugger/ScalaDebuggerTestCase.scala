@@ -194,29 +194,30 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     semaphore.down()
     val result =
       managed[String] {
-        inReadAction {
-          val ctx: EvaluationContextImpl = evaluationContext()
-          val factory = new ScalaCodeFragmentFactory()
-          val kind = if (codeText.contains("\n")) CodeFragmentKind.CODE_BLOCK else CodeFragmentKind.EXPRESSION
-          val codeFragment: PsiCodeFragment = new CodeFragmentFactoryContextWrapper(factory).
-          createCodeFragment(new TextWithImportsImpl(kind, codeText),
-                ContextUtil.getContextElement(ctx), getProject)
-          codeFragment.forceResolveScope(GlobalSearchScope.allScope(getProject))
-          DebuggerUtils.checkSyntax(codeFragment)
-          val evaluatorBuilder: EvaluatorBuilder = factory.getEvaluatorBuilder
-
-          val value = Try {
-            val evaluator = evaluatorBuilder.build(codeFragment, currentSourcePosition)
-            evaluator.evaluate(ctx)
-          }
-          val res = value match {
-            case Success(v: VoidValue) => "undefined"
-            case Success(v) => DebuggerUtils.getValueAsString(ctx, v)
-            case Failure(e: EvaluateException) => e.getMessage
-          }
-          semaphore.up()
-          res
+        val ctx: EvaluationContextImpl = evaluationContext()
+        val factory = new ScalaCodeFragmentFactory()
+        val kind = if (codeText.contains("\n")) CodeFragmentKind.CODE_BLOCK else CodeFragmentKind.EXPRESSION
+        val codeFragment: PsiCodeFragment = inReadAction {
+          val result = new CodeFragmentFactoryContextWrapper(factory).
+            createCodeFragment(new TextWithImportsImpl(kind, codeText),
+              ContextUtil.getContextElement(ctx), getProject)
+          result.forceResolveScope(GlobalSearchScope.allScope(getProject))
+          DebuggerUtils.checkSyntax(result)
+          result
         }
+        val evaluatorBuilder: EvaluatorBuilder = factory.getEvaluatorBuilder
+
+        val value = Try {
+          val evaluator = inReadAction(evaluatorBuilder.build(codeFragment, currentSourcePosition))
+          evaluator.evaluate(ctx)
+        }
+        val res = value match {
+          case Success(v: VoidValue) => "undefined"
+          case Success(v) => DebuggerUtils.getValueAsString(ctx, v)
+          case Failure(e: EvaluateException) => e.getMessage
+        }
+        semaphore.up()
+        res
       }
     assert(semaphore.waitFor(10000), "Too long evaluate expression: " + codeText)
     result
@@ -230,6 +231,15 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     val result = evalResult(codeText)
     Assert.assertTrue(result + " doesn't starts with " + startsWith,
       result.startsWith(startsWith))
+  }
+
+  protected def evaluateCodeFragments(fragmentsWithResults: (String, String)*): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      fragmentsWithResults.foreach {
+        case (fragment, result) => evalEquals(fragment.stripMargin.trim().replace("\r", ""), result)
+      }
+    }
   }
 
   def atNextBreakpoint(action: => Unit) = {

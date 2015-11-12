@@ -15,6 +15,7 @@ import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{Key, TextRange}
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiFileFactory}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation._
@@ -232,9 +233,11 @@ private class GeneratedClass(fragment: ScalaCodeFragment, context: PsiElement, i
     def findAnchorAndParent(elem: PsiElement): (ScBlockStatement, PsiElement) = elem match {
       case (stmt: ScBlockStatement) childOf (b: ScBlock) => (stmt, b)
       case (stmt: ScBlockStatement) childOf (funDef: ScFunctionDefinition) if funDef.body.contains(stmt) => (stmt, funDef)
-      case (elem: PsiElement) childOf (other: ScBlockStatement) => findAnchorAndParent(other)
       case (stmt: ScBlockStatement) childOf (nonExpr: PsiElement) => (stmt, nonExpr)
-      case _ => throw EvaluationException("Could not compile local class in this context")
+      case _ =>
+        val blockStmt = PsiTreeUtil.getParentOfType(elem, classOf[ScBlockStatement], true)
+        if (blockStmt == null) throw EvaluationException("Could not compile local class in this context")
+        else findAnchorAndParent(blockStmt)
     }
 
     var (prevParent, parent) = findAnchorAndParent(context)
