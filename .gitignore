@@ -15,6 +15,7 @@
 /*.bat
 *.class
 !testdata/decompiler/**/*.class
+!ScalaRunner/resources/**/*.class
 out
 build
 .DS_Store
