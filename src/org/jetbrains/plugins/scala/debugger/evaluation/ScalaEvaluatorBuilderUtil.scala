@@ -979,7 +979,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     constrDef match {
       case scMethod: ScMethodLike =>
         val scClass = scMethod.containingClass.asInstanceOf[ScClass]
-        val contextClass = getContextClass(scClass)
+        val containingClass = getContextClass(scClass)
         val implicitParams = scMethod.parameterList.params.filter(_.isImplicitParameter)
 
         val implicitsEvals =
@@ -991,10 +991,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             if (isOfPrimitiveType(p)) eval
             else boxEvaluator(eval)
           }
-        val outerThis = contextClass match {
+        val (outerClass, iters) = findContextClass(e => e == null || e == containingClass)
+        val outerThis = outerClass match {
           case obj: ScObject if isStable(obj) => None
           case null => None
-          case _ => Some(new ScalaThisEvaluator())
+          case _ => Some(new ScalaThisEvaluator(iters))
         }
         val locals = DebuggerUtil.localParamsForConstructor(scClass)
         outerThis ++: explEvaluators ++: implicitsEvals ++: locals.map(fromLocalArgEvaluator)
