@@ -713,7 +713,7 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
           if (id(index - 1) != '_') return false
           id.drop(index).forall(isOperatorPart)
         } else if (isOperatorPart(id(0))) {
-          id != "|" && id.forall(isOperatorPart)
+          id.forall(isOperatorPart)
         } else false
       }
       val result = NameTransformer.decode(name)
