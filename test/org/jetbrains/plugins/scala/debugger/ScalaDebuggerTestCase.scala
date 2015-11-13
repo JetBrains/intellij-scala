@@ -224,12 +224,12 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
   }
 
   protected def evalEquals(codeText: String, expected: String) {
-    Assert.assertEquals(expected, evalResult(codeText))
+    Assert.assertEquals(s"Evaluating:\n $codeText", expected, evalResult(codeText))
   }
 
   protected def evalStartsWith(codeText: String, startsWith: String) {
     val result = evalResult(codeText)
-    Assert.assertTrue(result + " doesn't starts with " + startsWith,
+    Assert.assertTrue(s"Evaluating:\n $codeText,\n $result doesn't starts with $startsWith",
       result.startsWith(startsWith))
   }
 
