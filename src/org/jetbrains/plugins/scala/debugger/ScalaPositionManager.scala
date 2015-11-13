@@ -30,13 +30,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScMacroDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 import org.jetbrains.plugins.scala.util.macroDebug.ScalaMacroDebuggingUtil
 
 import scala.annotation.tailrec
@@ -692,7 +691,9 @@ object ScalaPositionManager {
     }
   }
 
-  def isLambda(element: PsiElement) = ScalaEvaluatorBuilderUtil.isGenerateAnonfun(element)
+  def isLambda(element: PsiElement) = {
+    ScalaEvaluatorBuilderUtil.isGenerateAnonfun(element) && !isInsideMacro(element)
+  }
 
   def lambdasOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
     positionsOnLine(file, lineNumber).filter(isLambda)
@@ -741,26 +742,34 @@ object ScalaPositionManager {
     element match {
       case null => null
       case elem if ScalaEvaluatorBuilderUtil.isGenerateClass(elem) || isLambda(elem) => elem
-      case expr: ScExpression if isInsideMacro(element) => expr
+      case InsideMacro(macroCall) => macroCall
       case elem => findGeneratingClassOrMethodParent(elem.getParent)
     }
   }
 
-  def shouldSkip(location: Location, debugProcess: DebugProcess) = {
-    new ScalaPositionManager(debugProcess).shouldSkip(location)
+  private object MacroDef {
+    val macroImpl = "scala.reflect.macros.internal.macroImpl"
+    def unapply(fun: ScFunction): Option[ScFunction] = {
+      fun match {
+        case m: ScMacroDefinition => Some(m)
+        case _ if fun.annotations.map(_.constructor.typeElement.getText).contains(macroImpl) => Some(fun)
+        case _ => None
+      }
+    }
   }
 
-  private def isInsideMacro(element: PsiElement): Boolean = {
-    var call = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall])
-    while (call != null) {
-      call.getEffectiveInvokedExpr match {
-        case resRef: ResolvableReferenceElement =>
-          if (resRef.resolve().isInstanceOf[ScMacroDefinition]) return true
-        case _ =>
+  private object InsideMacro {
+    def unapply(elem: PsiElement): Option[ScMethodCall] = {
+      elem.parentsInFile.collectFirst {
+        case mc @ ScMethodCall(ResolvesTo(MacroDef(_)), _) => mc
       }
-      call = PsiTreeUtil.getParentOfType(call, classOf[ScMethodCall])
     }
-    false
+  }
+
+  def isInsideMacro(elem: PsiElement): Boolean = InsideMacro.unapply(elem).isDefined
+
+  def shouldSkip(location: Location, debugProcess: DebugProcess) = {
+    new ScalaPositionManager(debugProcess).shouldSkip(location)
   }
 
   private def getSpecificNameForDebugger(td: ScTypeDefinition): String = {

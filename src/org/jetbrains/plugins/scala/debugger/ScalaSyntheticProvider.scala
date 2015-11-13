@@ -23,7 +23,7 @@ object ScalaSyntheticProvider {
 
     typeComponent match {
       case m: Method if m.isConstructor && ScalaPositionManager.isAnonfunType(m.declaringType()) => true
-      case m: Method if m.name() == "apply" && hasSpecializationMethod(m.declaringType()) => true
+      case m: Method if m.name() == "apply" && hasSpecializationMethod(m.declaringType()) && !isMacroDefined(m) => true
       case m: Method if isDefaultArg(m) => true
       case m: Method if isTraitForwarder(m) => true
       case m: Method if m.name().endsWith("$adapted") => true
@@ -49,6 +49,10 @@ object ScalaSyntheticProvider {
 
   private def isTraitForwarder(m: Method): Boolean = {
     Try(onlyInvokesStatic(m) && hasTraitWithImplementation(m)).getOrElse(false)
+  }
+
+  def isMacroDefined(typeComponent: TypeComponent) = {
+    typeComponent.declaringType().name().contains("$macro")
   }
 
   private def onlyInvokesStatic(m: Method): Boolean = {
