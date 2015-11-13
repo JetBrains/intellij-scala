@@ -458,12 +458,7 @@ object ScPattern {
 
   def isQuasiquote(fun: ScFunction) = {
     val fqn  = fun.containingClass.qualifiedName
-    fqn.substring(0, fqn.lastIndexOf('.')) == "scala.reflect.api.Quasiquotes.Quasiquote"
+    fqn.contains('.') && fqn.substring(0, fqn.lastIndexOf('.')) == "scala.reflect.api.Quasiquotes.Quasiquote"
   }
 
-
-//  import com.intellij.openapi.project.Project
-//  val qqTree = ScalaPsiElementFactory.createTypeElementFromText("Seq[Seq[scala.reflect.api.Trees#Tree]]", PsiManager.getInstance(_:Project))
-//  val qqSeqTree = ScalaPsiElementFactory.createTypeElementFromText("Seq[scala.reflect.api.Trees#Tree]", PsiManager.getInstance(_))
-//  val qqSeqSeqTree = ScalaPsiElementFactory.createTypeElementFromText("scala.reflect.api.Trees#Tree", PsiManager.getInstance(_))
 }
