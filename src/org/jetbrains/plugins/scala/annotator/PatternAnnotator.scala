@@ -124,7 +124,7 @@ object PatternAnnotator {
               case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" => fun.returnType match {
                 case Success(rt, _) =>
                   val expected = ScPattern.expectedNumberOfExtractorArguments(rt, pattern, ScPattern.isOneArgCaseClassMethod(fun))
-                  val tupleCrushingIsPresent = expected > 0 && numPatterns == 1
+                  val tupleCrushingIsPresent = expected > 0 && numPatterns == 1 && !fun.isSynthetic
                   if (expected != numPatterns   && !tupleCrushingIsPresent) { //1 always fits if return type is Option[TupleN]
                     val message = ScalaBundle.message("wrong.number.arguments.extractor", numPatterns.toString, expected.toString)
                     holder.createErrorAnnotation(pattern, message)
