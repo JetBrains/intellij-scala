@@ -9,7 +9,6 @@ import com.intellij.compiler.CompilerTestUtil
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
 import com.intellij.openapi.projectRoots._
-import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.roots._
 import com.intellij.openapi.vfs._
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
@@ -28,6 +27,8 @@ import scala.collection.mutable.ListBuffer
  * 2/26/14
  */
 abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVersion {
+
+  private var deleteProjectAtTearDown = false
 
   override def setUp(): Unit = {
     VfsRootAccess.SHOULD_PERFORM_ACCESS_CHECK = false
@@ -83,8 +84,10 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
 
   protected override def tearDown() {
     CompilerTestUtil.disableExternalCompiler(myProject)
-
+    val baseDir = getBaseDir
     super.tearDown()
+
+    if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)
   }
 
   protected def make(): List[String] = {
@@ -116,7 +119,10 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
       i += 1
     }
     Assert.assertTrue(s"Too long compilation of test data for ${getClass.getSimpleName}.test${getTestName(false)}", i < maxCompileTime)
-    callback.throwException()
+    if (callback.hasError) {
+      deleteProjectAtTearDown = true
+      callback.throwException()
+    }
     callback.getMessages
   }
 
@@ -146,6 +152,8 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
         semaphore.up()
       }
     }
+
+    def hasError = myError != null
 
     def throwException() {
       if (myError != null) throw new RuntimeException(myError)
