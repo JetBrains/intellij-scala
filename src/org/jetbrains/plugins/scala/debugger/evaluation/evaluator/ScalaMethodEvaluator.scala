@@ -84,8 +84,8 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
             val filtered = sortedMethodCandidates.filter {
               m =>
                 try {
-                  if (m.isVarArgs) args.length >= m.arguments().size()
-                  else args.length == m.arguments().size()
+                  if (m.isVarArgs) args.length >= m.argumentTypeNames().size()
+                  else args.length == m.argumentTypeNames().size()
                 } catch {
                   case a: AbsentInformationException => true
                 }
