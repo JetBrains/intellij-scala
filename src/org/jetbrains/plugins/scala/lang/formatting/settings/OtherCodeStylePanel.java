@@ -31,9 +31,14 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
   private JCheckBox replaceInForGeneratorCheckBox;
   private JCheckBox replaceLambdaWithGreekLetter;
   private JCheckBox lineCommentAtFirstColumnCheckBox;
+  private JCheckBox alternateIndentationForParamsCheckBox;
+  private JSpinner alternateIndentationForParamsSpinner;
+  private JPanel alternateParamIndentPanel;
+  private JLabel spacesLabel;
 
   protected OtherCodeStylePanel(@NotNull CodeStyleSettings settings) {
     super(settings);
+    alternateIndentationForParamsSpinner.setModel(new SpinnerNumberModel(4, 1, null, 1));
     resetImpl(settings);
   }
 
@@ -77,6 +82,8 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     scalaCodeStyleSettings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR = replaceInForGeneratorCheckBox.isSelected();
     scalaCodeStyleSettings.REPLACE_LAMBDA_WITH_GREEK_LETTER = replaceLambdaWithGreekLetter.isSelected();
     commonCodeStyleSettings.LINE_COMMENT_AT_FIRST_COLUMN = lineCommentAtFirstColumnCheckBox.isSelected();
+    scalaCodeStyleSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = alternateIndentationForParamsCheckBox.isSelected();
+    scalaCodeStyleSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = (Integer) alternateIndentationForParamsSpinner.getValue();
   }
 
   @Override
@@ -95,6 +102,10 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     if (scalaCodeStyleSettings.REPLACE_LAMBDA_WITH_GREEK_LETTER != replaceLambdaWithGreekLetter.isSelected())
       return true;
     if (commonCodeStyleSettings.LINE_COMMENT_AT_FIRST_COLUMN != lineCommentAtFirstColumnCheckBox.isSelected())
+      return true;
+    if (scalaCodeStyleSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS != alternateIndentationForParamsCheckBox.isSelected())
+      return true;
+    if (scalaCodeStyleSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS != (Integer) alternateIndentationForParamsSpinner.getValue())
       return true;
 
 
@@ -117,6 +128,8 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     replaceInForGeneratorCheckBox.setSelected(scalaCodeStyleSettings.REPLACE_FOR_GENERATOR_ARROW_WITH_UNICODE_CHAR);
     replaceLambdaWithGreekLetter.setSelected(scalaCodeStyleSettings.REPLACE_LAMBDA_WITH_GREEK_LETTER);
     lineCommentAtFirstColumnCheckBox.setSelected(commonCodeStyleSettings.LINE_COMMENT_AT_FIRST_COLUMN);
+    alternateIndentationForParamsCheckBox.setSelected(scalaCodeStyleSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS);
+    alternateIndentationForParamsSpinner.setValue(scalaCodeStyleSettings.ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS);
   }
 
   {
@@ -137,13 +150,13 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     final JPanel panel1 = new JPanel();
     panel1.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
     contentPanel = new JPanel();
-    contentPanel.setLayout(new GridLayoutManager(7, 1, new Insets(0, 0, 0, 0), -1, -1));
+    contentPanel.setLayout(new GridLayoutManager(8, 1, new Insets(0, 0, 0, 0), -1, -1));
     panel1.add(contentPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     enforceFunctionalSyntaxForCheckBox = new JCheckBox();
     enforceFunctionalSyntaxForCheckBox.setText("Enforce procedure syntax for methods with Unit return type");
     contentPanel.add(enforceFunctionalSyntaxForCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final Spacer spacer1 = new Spacer();
-    contentPanel.add(spacer1, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    contentPanel.add(spacer1, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     replaceWithUnicodeSymbolCheckBox = new JCheckBox();
     replaceWithUnicodeSymbolCheckBox.setText("Replace '=>' with unicode symbol");
     contentPanel.add(replaceWithUnicodeSymbolCheckBox, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -161,5 +174,20 @@ public class OtherCodeStylePanel extends CodeStyleAbstractPanel {
     lineCommentAtFirstColumnCheckBox.setSelected(false);
     lineCommentAtFirstColumnCheckBox.setText("Line comment on first column");
     contentPanel.add(lineCommentAtFirstColumnCheckBox, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    alternateParamIndentPanel = new JPanel();
+    alternateParamIndentPanel.setLayout(new GridLayoutManager(1, 4, new Insets(0, 0, 0, 0), -1, -1));
+    contentPanel.add(alternateParamIndentPanel, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    alternateIndentationForParamsCheckBox = new JCheckBox();
+    alternateIndentationForParamsCheckBox.setText("Alternate indentation for constructor args and parameter declarations:");
+    alternateIndentationForParamsCheckBox.setVerticalAlignment(1);
+    alternateParamIndentPanel.add(alternateIndentationForParamsCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    alternateIndentationForParamsSpinner = new JSpinner();
+    alternateParamIndentPanel.add(alternateIndentationForParamsSpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, new Dimension(1, -1), new Dimension(2, -1), null, 1, false));
+    spacesLabel = new JLabel();
+    spacesLabel.setText("spaces");
+    spacesLabel.setVerticalAlignment(1);
+    alternateParamIndentPanel.add(spacesLabel, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final Spacer spacer2 = new Spacer();
+    alternateParamIndentPanel.add(spacer2, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
   }
 }

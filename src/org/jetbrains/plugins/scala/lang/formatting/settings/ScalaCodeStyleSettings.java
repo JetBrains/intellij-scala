@@ -37,6 +37,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean ALIGN_COMPOSITE_PATTERN = true;
   public boolean DO_NOT_ALIGN_BLOCK_EXPR_PARAMS = false;
 
+  public boolean USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = false;
+  public int ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = 4;
+
   public boolean SPACE_AFTER_MODIFIERS_CONSTRUCTOR = false;
 
   public boolean SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = false;
