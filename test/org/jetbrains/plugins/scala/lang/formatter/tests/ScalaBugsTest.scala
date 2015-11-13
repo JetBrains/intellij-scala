@@ -270,7 +270,7 @@ def f[T](i: Int) {
     getScalaSettings.PRESERVE_SPACE_AFTER_METHOD_DECLARATION_NAME = true
     getCommonSettings.SPACE_BEFORE_METHOD_PARENTHESES = true
 
-    val before = 
+    val before =
 """
 def f() {
   println()
@@ -292,8 +292,8 @@ def +++(s: StringBuilder): StringBuilder = {
 
 def ::= (o: Any) {}
 """.replace("\r", "")
-    
-    val after = 
+
+    val after =
 """
 def f () {
   println()
@@ -1210,4 +1210,75 @@ bars foreach {case (x, y) => list.add(x + y)}
 
     doTextTest(before, after)
   }
+
+  def testSCL8313_1(): Unit = {
+
+    getCommonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE = true
+    getScalaSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = true
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+
+    val before =
+      """
+        |class Foo(
+        |  foo: Int,
+        |  bar: Int) {
+        |  def baz(
+        |    foo2: Int,
+        |    bar2: Int) = ???
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class Foo(
+        |    foo: Int,
+        |    bar: Int) {
+        |  def baz(
+        |      foo2: Int,
+        |      bar2: Int) = ???
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL_2(): Unit = {
+    getCommonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE = true
+    getCommonSettings.METHOD_PARAMETERS_RPAREN_ON_NEXT_LINE = true
+    getScalaSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = true
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+
+    val before =
+      """
+        |class Foo
+        |  (
+        |  foo: Int,
+        |  bar: Int
+        |  ) {
+        |  def baz
+        |    (
+        |    foo2: Int,
+        |    bar2: Int
+        |    ) = ???
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class Foo
+        |(
+        |    foo: Int,
+        |    bar: Int
+        |) {
+        |  def baz
+        |  (
+        |      foo2: Int,
+        |      bar2: Int
+        |  ) = ???
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
 }
