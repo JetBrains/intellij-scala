@@ -42,7 +42,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScPackageLike, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
@@ -1876,23 +1875,6 @@ object ScalaPsiUtil {
             _: ScEarlyDefinitions | _: ScRefinement => true
     case e: ScPatternDefinition if e.getContext.isInstanceOf[ScCaseClause] => true // {case a => val a = 1}
     case _ => false
-  }
-
-  def shouldChangeModificationCount(place: PsiElement): Boolean = {
-    var parent = place.getParent
-    while (parent != null) {
-      parent match {
-        case f: ScFunction => f.returnTypeElement match {
-          case Some(ret) => return false
-          case None => if (!f.hasAssign) return false
-        }
-        case t: PsiClass => return true
-        case bl: ScBlockExprImpl => return bl.shouldChangeModificationCount(null)
-        case _ =>
-      }
-      parent = parent.getParent
-    }
-    false
   }
 
   def stringValueOf(e: PsiLiteral): Option[String] = e.getValue.toOption.flatMap(_.asOptionOf[String])

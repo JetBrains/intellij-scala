@@ -11,10 +11,10 @@ import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScModificationTrackerOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 import scala.annotation.tailrec
@@ -280,13 +280,18 @@ object CachesUtil {
     }
   }
 
-  @tailrec
   def enclosingModificationOwner(elem: PsiElement): ModificationTracker = {
-    Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScBlockExprImpl])) match {
-      case Some(block) if block.isModificationCountOwner => block.getModificationTracker
-      case Some(block) => enclosingModificationOwner(block.getContext)
-      case _ => elem.getManager.getModificationTracker.getOutOfCodeBlockModificationTracker
+    @tailrec
+    def calc(element: PsiElement): ModificationTracker = {
+      Option(PsiTreeUtil.getContextOfType(element, false, classOf[ScModificationTrackerOwner])) match {
+        case Some(owner) if owner.isValidModificationTrackerOwner => owner.getModificationTracker
+        case Some(owner) => calc(owner.getContext)
+        case _ if elem != null => elem.getManager.getModificationTracker.getOutOfCodeBlockModificationTracker
+        case _ => element.getManager.getModificationTracker.getOutOfCodeBlockModificationTracker
+      }
     }
+
+    calc(elem)
   }
 
   private case class ProbablyRecursionException[Dom <: PsiElement, Data, T](elem: Dom,

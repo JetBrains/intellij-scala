@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReferenceElement, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScNewTemplateDefinition, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScModificationTrackerOwner, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
@@ -31,7 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScTypeProjectionImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScBlockExprImpl, ScReferenceExpressionImpl}
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
@@ -54,11 +54,11 @@ abstract class ScalaCompletionContributor extends CompletionContributor {
 
     @tailrec
     def inner(element: PsiElement): PsiElement = element match {
-      case null => parameters.getPosition //we got to the top of the tree and didn't find a modifierCountOwner
-      case block: ScBlockExprImpl if block.isModificationCountOwner =>
-        if (block.containingFile.contains(parameters.getOriginalFile)) {
-          block.getMirrorPositionForCompletion(getDummyIdentifier(parameters.getOffset, parameters.getOriginalFile),
-            parameters.getOffset - block.getTextOffset)
+      case null => parameters.getPosition //we got to the top of the tree and didn't find a modificationTrackerOwner
+      case owner: ScModificationTrackerOwner if owner.isValidModificationTrackerOwner =>
+        if (owner.containingFile.contains(parameters.getOriginalFile)) {
+          owner.getMirrorPositionForCompletion(getDummyIdentifier(parameters.getOffset, parameters.getOriginalFile),
+            parameters.getOffset - owner.getTextOffset)
         } else parameters.getPosition
       case _ => inner(element.getContext)
     }
