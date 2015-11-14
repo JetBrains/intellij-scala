@@ -442,4 +442,27 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     emptyMessages(code)
   }
 
+  def testTupleCrushingNotPresentWithCaseClasses(): Unit = {
+    val code =
+      """
+        |sealed trait RemoteProcessResult {
+        |  def id: Long
+        |}
+        |
+        |case class RemoteProcessSuccess(id: Long, info: String) extends RemoteProcessResult
+        |
+        |case class RemoteProcessFailed(id: Long, why: String) extends RemoteProcessResult
+        |
+        |object Foo {
+        |  def foo(i: Any) {
+        |    i match {
+        |      case RemoteProcessFailed(why) =>
+        |    }
+        |  }
+        |}
+      """.stripMargin
+    assertNoWarnings(code)
+    checkError(code, "RemoteProcessFailed(why)", ScalaBundle.message("wrong.number.arguments.extractor", "1", "2"))
+  }
+
 }
