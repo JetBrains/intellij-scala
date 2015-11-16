@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluateExpression
 
+import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestCase, ScalaVersion_2_11, ScalaVersion_2_12}
 
 /**
@@ -11,6 +12,12 @@ class CompilingEvaluatorTest extends CompilingEvaluatorTestBase with ScalaVersio
 class CompilingEvaluatorTest_212 extends CompilingEvaluatorTestBase with ScalaVersion_2_12
 
 abstract class CompilingEvaluatorTestBase extends ScalaDebuggerTestCase {
+
+  override def setUp(): Unit = {
+    super.setUp()
+    CompileServerLauncher.ensureServerRunning(getProject)
+  }
+
   addFileWithBreakpoints("SimplePlace.scala",
    s"""
       |object SimplePlace {
