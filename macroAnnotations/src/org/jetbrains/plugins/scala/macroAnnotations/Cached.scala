@@ -139,17 +139,20 @@ object Cached {
 
         val actualCalculation = transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
 
-        val currModCount = modCount match {
+        val modTracker = modCount match {
           case ModCount.getBlockModificationCount =>
-            q"val currModCount = $cachesUtilFQN.enclosingModificationOwner($psiElement).getModificationCount"
+            q"val modTracker = $cachesUtilFQN.enclosingModificationOwner($psiElement)"
+          case ModCount.getModificationCount =>
+            q"val modTracker = $psiElement.getManager.getModificationTracker"
           case _ =>
-            q"val currModCount = $psiElement.getManager.getModificationTracker.${TermName(modCount.toString)}"
+            q"val modTracker = $psiElement.getManager.getModificationTracker.${TermName(modCount.toString)}"
         }
         val updatedRhs = q"""
           def $cachedFunName(): $retTp = {
             $actualCalculation
           }
-          ..$currModCount
+          ..$modTracker
+          val currModCount = $cachesUtilFQN.getDependentItem($psiElement, modTracker).getModificationCount
           def cacheHasExpired(opt: Option[Any], cacheCount: Long) = opt.isEmpty || currModCount != cacheCount
           ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}
           $functionContentsInSynchronizedBlock

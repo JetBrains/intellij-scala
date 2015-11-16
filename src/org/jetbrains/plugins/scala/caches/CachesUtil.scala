@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentMap
 
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
@@ -236,20 +237,16 @@ object CachesUtil {
     result
   }
 
-  def getDependentItem(element: PsiElement)(dep_item: Object = enclosingModificationOwner(element)): Object = {
+  def getDependentItem(element: PsiElement, dependency: ModificationTracker): ModificationTracker = {
     element.getContainingFile match {
       case file: ScalaFile if file.isCompiled =>
-        if (!ProjectRootManager.getInstance(element.getProject).getFileIndex.isInContent(file.getVirtualFile)) {
-          return dep_item
-        }
-        var dir = file.getParent
-        while (dir != null) {
-          if (dir.getName == "scala-library.jar") return ModificationTracker.NEVER_CHANGED
-          dir = dir.getParent
-        }
-        ProjectRootManager.getInstance(element.getProject)
+        val rootManager = ProjectRootManager.getInstance(element.getProject)
+        val fileIndex = rootManager.getFileIndex
+        val vf: VirtualFile = file.getVirtualFile
+        if (fileIndex.isInLibraryClasses(vf) || fileIndex.isInLibrarySource(vf)) rootManager
+        else dependency
       case cls: ClsFileImpl => ProjectRootManager.getInstance(element.getProject)
-      case _ => dep_item
+      case _ => dependency
     }
   }
 

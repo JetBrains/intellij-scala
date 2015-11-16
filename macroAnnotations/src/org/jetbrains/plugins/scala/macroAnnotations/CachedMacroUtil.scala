@@ -111,12 +111,13 @@ object CachedMacroUtil {
       case q"$v" =>
         ModCount.values.find(_.toString == v.toString) match {
           case Some(ModCount.getBlockModificationCount) =>
-            q"$cachesUtilFQN.enclosingModificationOwner($psiElement)"
-          case Some(ModCount.getOutOfCodeBlockModificationCount) =>
-            q"$psiModificationTrackerFQN.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT"
-          case Some(ModCount.getModificationCount) => q"$psiModificationTrackerFQN.MODIFICATION_COUNT"
-          case Some(ModCount.getJavaStructureModificationCount) =>
-            q"$psiModificationTrackerFQN.JAVA_STRUCTURE_MODIFICATION_COUNT"
+            q"$cachesUtilFQN.getDependentItem($psiElement, $cachesUtilFQN.enclosingModificationOwner($psiElement))"
+          case Some(ModCount.getOutOfCodeBlockModificationTracker) =>
+            q"$cachesUtilFQN.getDependentItem($psiElement, $psiElement.getManager.getModificationTracker.getOutOfCodeBlockModificationTracker())"
+          case Some(ModCount.getModificationCount) =>
+            q"$cachesUtilFQN.getDependentItem($psiElement, $psiElement.getManager.getModificationTracker)"
+          case Some(ModCount.getJavaStructureModificationTracker) =>
+            q"$cachesUtilFQN.getDependentItem($psiElement, $psiElement.getManager.getModificationTracker.getJavaStructureModificationTracker())"
           case _ => tree
         }
     }
@@ -127,7 +128,7 @@ object CachedMacroUtil {
 object ModCount extends Enumeration {
   type ModCount = Value
   val getModificationCount = Value("getModificationCount")
-  val getOutOfCodeBlockModificationCount = Value("getOutOfCodeBlockModificationCount")
-  val getJavaStructureModificationCount = Value("getJavaStructureModificationCount")
+  val getOutOfCodeBlockModificationTracker = Value("getOutOfCodeBlockModificationTracker")
+  val getJavaStructureModificationTracker = Value("getJavaStructureModificationTracker")
   val getBlockModificationCount = Value("getBlockModificationCount")
 }
