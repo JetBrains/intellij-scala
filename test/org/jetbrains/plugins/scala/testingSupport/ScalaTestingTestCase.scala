@@ -17,9 +17,8 @@ import com.intellij.ide.util.treeView.smartTree.{NodeProvider, TreeElement, Tree
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.psi.{PsiElement, PsiManager}
-import com.intellij.testFramework.{PsiTestUtil, UsefulTestCase}
+import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestBase, ScalaVersion_2_11}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -27,20 +26,12 @@ import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, AbstractTestRunConfiguration}
-import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
  * @author Roman.Shein
  *         Date: 03.03.14
  */
 abstract class ScalaTestingTestCase(private val configurationProducer: AbstractTestConfigurationProducer) extends ScalaDebuggerTestBase with IntegrationTest with ScalaVersion_2_11 {
-
-  protected def addIvyCacheLibrary(libraryName: String, libraryPath: String, jarNames: String*) {
-    val libsPath = TestUtils.getIvyCachePath
-    val pathExtended = s"$libsPath/$libraryPath/"
-    VfsRootAccess.allowRootAccess(pathExtended)
-    PsiTestUtil.addLibrary(myModule, libraryName, pathExtended, jarNames: _*)
-  }
 
   override val testDataBasePrefix = "testingSupport"
 
