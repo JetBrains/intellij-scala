@@ -766,6 +766,13 @@ object ScalaPositionManager {
     }
   }
 
+  object InsideAsync {
+    def unapply(elem: PsiElement): Option[ScMethodCall] = elem match {
+      case InsideMacro(call @ ScMethodCall(ref: ScReferenceExpression, _)) if ref.refName == "async" => Some(call)
+      case _ => None
+    }
+  }
+
   def isInsideMacro(elem: PsiElement): Boolean = InsideMacro.unapply(elem).isDefined
 
   def shouldSkip(location: Location, debugProcess: DebugProcess) = {
