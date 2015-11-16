@@ -55,6 +55,7 @@ trait ScModificationTrackerOwner extends ScalaPsiElement with PsiModifiableCodeB
       }
       case v: ScValue => v.typeElement.isDefined
       case v: ScVariable => v.typeElement.isDefined
+      case _: ScWhileStmt => true
       case _ => false
     }
   }
