@@ -58,7 +58,7 @@ abstract class ScalaCompletionContributor extends CompletionContributor {
       case owner: ScModificationTrackerOwner if owner.isValidModificationTrackerOwner =>
         if (owner.containingFile.contains(parameters.getOriginalFile)) {
           owner.getMirrorPositionForCompletion(getDummyIdentifier(parameters.getOffset, parameters.getOriginalFile),
-            parameters.getOffset - owner.getTextOffset)
+            parameters.getOffset - owner.getTextRange.getStartOffset)
         } else parameters.getPosition
       case _ => inner(element.getContext)
     }

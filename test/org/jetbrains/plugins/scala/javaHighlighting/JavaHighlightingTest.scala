@@ -5,8 +5,9 @@ import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator, _}
-import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
+import org.jetbrains.plugins.scala.base.{ScalaFixtureTestCase, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 
 
@@ -420,6 +421,12 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
 
   case class ContainsPattern(fragment: String) {
     def unapply(s: String) = s.contains(fragment)
+  }
+
+  override def setUp() = {
+    super.setUp()
+
+    ScalaLibraryLoader.addScalaSdk(myFixture.getModule, TestUtils.DEFAULT_SCALA_SDK_VERSION, loadReflect = false)
   }
 }
 
