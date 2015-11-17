@@ -1487,8 +1487,8 @@ object ScalaEvaluatorBuilderUtil {
         case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
         case e: ScExpression if ScalaPsiUtil.isByNameArgument(e) || ScalaPsiUtil.isArgumentOfFunctionType(e) => true
         case ScalaPsiUtil.MethodValue(_) => true
-        case Both(block: ScBlock, ScalaPositionManager.InsideAsync(call))
-          if call.argumentExpressions.contains(block) => true
+        case Both(ChildOf(argExprs: ScArgumentExprList), ScalaPositionManager.InsideAsync(call))
+          if call.args == argExprs => true
         case _ => false
       }
 
