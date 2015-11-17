@@ -11,6 +11,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScModificationTrackerOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -238,7 +239,7 @@ object CachesUtil {
   }
 
   def getDependentItem(element: PsiElement, dependency: ModificationTracker): ModificationTracker = {
-    element.getContainingFile match {
+    ScalaPsiUtil.fileContext(element) match {
       case file: ScalaFile if file.isCompiled =>
         val rootManager = ProjectRootManager.getInstance(element.getProject)
         val fileIndex = rootManager.getFileIndex
