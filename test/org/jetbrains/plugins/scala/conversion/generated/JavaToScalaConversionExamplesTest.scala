@@ -30,4 +30,10 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
   def testTypeParameters() = doTest()
 
   def testVarArgs() = doTest()
+
+  def testSCL3899() = doTest()
+
+  def testSCL9369() = doTest()
+
+  def testNeedConstructorsSorting() = doTest()
 }
