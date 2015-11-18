@@ -11,7 +11,6 @@ class TemplateListModel(val items: Array[(String, ActivatorRepoProcessor.DocData
   private val temp = 12
   
   private val dumbData = ActivatorRepoProcessor.DocData("", "", "", "", "", "", "")
-  private val dumbItem = ("", dumbData)
   private val dumbFullData = FullTemplateData("", dumbData)
   
   /**
