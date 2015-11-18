@@ -757,6 +757,21 @@ object ScalaPsiUtil {
           }
       }
     }
+
+    case class MyType()
+    object MyImplicitTypeHelper {
+      class MyImplicitType{}
+
+      implicit def typeToImplicitType(in: MyType): MyImplicitType = ???
+    }
+    import MyImplicitTypeHelper._
+
+    def myFunc: MyImplicitType = {
+      val myType: MyType = MyType()
+      myType
+    }
+
+
     collectParts(tp)
     val res: mutable.HashMap[String, Seq[ScType]] = new mutable.HashMap
     def addResult(fqn: String, tp: ScType): Unit = {
