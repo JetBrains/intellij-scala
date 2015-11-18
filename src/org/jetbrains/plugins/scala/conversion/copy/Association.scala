@@ -3,6 +3,7 @@ package conversion.copy
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.conversion.ast.IntermediateNode
 import org.jetbrains.plugins.scala.lang.dependency.{Dependency, DependencyKind, Path}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 
@@ -17,4 +18,8 @@ case class Association(kind: DependencyKind, var range: TextRange, path: Path) {
         Dependency.dependencyFor(reference).exists(it => it.kind == kind && it.path == path)
       case _ => false
     }
+}
+
+
+case class AssociationHelper(kind: DependencyKind, itype: IntermediateNode, path: Path) {
 }
