@@ -5,6 +5,7 @@ import com.intellij.ui.speedSearch.ListWithFilter;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.util.Function;
+import org.jetbrains.plugins.scala.annotator.createFromUsage.Object;
 import scala.Tuple2;
 
 import javax.swing.*;
@@ -29,9 +30,9 @@ public class ActivatorTemplateList {
     templateListModel = new TemplateListModel(items);
     list1.setModel(templateListModel);
 
-    JComponent filterList = ListWithFilter.wrap(list1, ScrollPaneFactory.createScrollPane(list1), new Function<Object, String>() {
+    JComponent filterList = ListWithFilter.wrap(list1, ScrollPaneFactory.createScrollPane(list1), new Function<java.lang.Object, String>() {
       @Override
-      public String fun(Object o) {
+      public String fun(java.lang.Object o) {
         return o == null ? "" : o.toString();
       }
     });
@@ -49,7 +50,8 @@ public class ActivatorTemplateList {
     list1.addListSelectionListener(new ListSelectionListener() {
       @Override
       public void valueChanged(ListSelectionEvent listSelectionEvent) {
-        textArea1.setText(assemblyText(list1.getSelectedIndex()));
+        String id = getSelectedTemplateId();
+        if (id != null) textArea1.setText(assemblyText(id));
       }
     });
   }
@@ -59,15 +61,21 @@ public class ActivatorTemplateList {
   }
 
   public String getSelectedTemplate() {
-    return templateListModel.getId(list1.getSelectedIndex());
+    return getSelectedTemplateId();
   }
 
-  private String assemblyText(int idx) {
+  private String getSelectedTemplateId() {
+    java.lang.Object val = list1.getSelectedValue();
 
-    return templateListModel.getDescriptionAt(idx) + "\n\n" +
-        "Author: " + templateListModel.getAuthorAt(idx) + "\n\n" +
-        "Source: " + templateListModel.getSourceAt(idx) + "\n\n" +
-        "Tags: " + templateListModel.getTagsAt(idx);
+    if (!(val instanceof TemplateListModel.FullTemplateData)) return null;
+    return ((TemplateListModel.FullTemplateData) val).id();
+  }
+  
+  private String assemblyText(String id) {
+    return templateListModel.getDescriptionAt(id) + "\n\n" +
+        "Author: " + templateListModel.getAuthorAt(id) + "\n\n" +
+        "Source: " + templateListModel.getSourceAt(id) + "\n\n" +
+        "Tags: " + templateListModel.getTagsAt(id);
   }
 
   {
