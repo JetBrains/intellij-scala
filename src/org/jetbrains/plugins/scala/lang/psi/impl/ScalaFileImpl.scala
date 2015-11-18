@@ -16,9 +16,9 @@ import com.intellij.openapi.roots.impl.LibraryScopeCache
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
-import com.intellij.psi.impl.ResolveScopeManager
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
+import com.intellij.psi.impl.{DebugUtil, ResolveScopeManager}
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.util.{PsiModificationTracker, PsiUtilCore}
 import com.intellij.util.Processor
@@ -45,7 +45,7 @@ import scala.collection.mutable.ArrayBuffer
 
 class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType = ScalaFileType.SCALA_FILE_TYPE)
         extends PsiFileBase(viewProvider, fileType.getLanguage)
-                with ScalaFile with FileDeclarationsHolder 
+                with ScalaFile with FileDeclarationsHolder
                 with CompiledFileAdjuster with ScControlFlowOwner with FileResolveScopeProvider {
   override def getViewProvider = viewProvider
 
@@ -190,9 +190,9 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
   def isWorksheetFile: Boolean = {
     val vFile = getVirtualFile
-    
+
     vFile != null && (vFile.getExtension == ScalaFileType.WORKSHEET_EXTENSION ||
-      ScratchFileService.getInstance().getRootType(vFile).isInstanceOf[ScratchRootType] && 
+      ScratchFileService.getInstance().getRootType(vFile).isInstanceOf[ScratchRootType] &&
         ScalaProjectSettings.getInstance(getProject).isTreatScratchFilesAsWorksheet )
   }
 
@@ -263,7 +263,13 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
       PostprocessReformattingAspect.getInstance(getProject).disablePostprocessFormattingInside {
         new Runnable {
           def run() {
-            aClass.getNode.getTreeParent.replaceChild(aClass.getNode, oldClass.getNode)
+            try {
+              DebugUtil.startPsiModification(null)
+              aClass.getNode.getTreeParent.replaceChild(aClass.getNode, oldClass.getNode)
+            }
+            finally {
+              DebugUtil.finishPsiModification()
+            }
           }
         }
       }
@@ -373,8 +379,8 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   protected def isScalaPredefinedClass: Boolean = {
     typeDefinitions.length == 1 && Set("scala", "scala.Predef").contains(typeDefinitions.head.qualifiedName)
   }
-  
-  
+
+
   def isScalaPredefinedClassInner = typeDefinitions.length == 1 &&
     Set("scala", "scala.Predef").contains(typeDefinitions.head.qualifiedName)
 
