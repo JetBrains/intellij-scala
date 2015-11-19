@@ -3,7 +3,7 @@ package scalax
 package rules
 package scalasig
 
-import ScalaSigEntryParsers._
+import scala.tools.scalap.scalax.rules.scalasig.ScalaSigEntryParsers._
 
 trait Symbol extends Flags {
   def name : String
@@ -17,7 +17,7 @@ trait Symbol extends Flags {
     case _ => false
   }
 
-  def path : String = parent.map(_.path + ".").getOrElse("") + name
+  def path: String = parent.filterNot(_ == NoSymbol).map(_.path + ".").getOrElse("") + name
 }
 
 case object NoSymbol extends Symbol {
