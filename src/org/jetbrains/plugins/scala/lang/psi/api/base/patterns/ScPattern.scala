@@ -5,17 +5,22 @@ package api
 package base
 package patterns
 
+import com.intellij.openapi.project.ProjectManager
 import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.util.PsiModificationTracker._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeVariableTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
+import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScPatternArgumentListImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -142,6 +147,20 @@ trait ScPattern extends ScalaPsiElement {
     }
 
     bind match {
+      case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.name == "unapply" && ScPattern.isQuasiquote(fun) =>
+        val tpe = getContext.getContext match {
+          case ip: ScInterpolationPattern =>
+            val parts = getParent.asInstanceOf[ScalaPsiElement]
+              .findChildrenByType(ScalaTokenTypes.tINTERPOLATED_STRING)
+              .map(_.getText)
+            if (argIndex < parts.length && parts(argIndex).endsWith("..."))
+              ScalaPsiElementFactory.createTypeElementFromText("Seq[Seq[scala.reflect.api.Trees#Tree]]", PsiManager.getInstance(getProject))
+            if (argIndex < parts.length && parts(argIndex).endsWith(".."))
+              ScalaPsiElementFactory.createTypeElementFromText("Seq[scala.reflect.api.Trees#Tree]", PsiManager.getInstance(getProject))
+            else
+              ScalaPsiElementFactory.createTypeElementFromText("scala.reflect.api.Trees#Tree", PsiManager.getInstance(getProject))
+        }
+        tpe.getType().toOption
       case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.name == "unapply" &&
               fun.parameters.length == 1 =>
         val subst = if (fun.typeParameters.isEmpty) substitutor else {
@@ -436,4 +455,10 @@ object ScPattern {
       }
     }
   }
+
+  def isQuasiquote(fun: ScFunction) = {
+    val fqn  = fun.containingClass.qualifiedName
+    fqn.contains('.') && fqn.substring(0, fqn.lastIndexOf('.')) == "scala.reflect.api.Quasiquotes.Quasiquote"
+  }
+
 }

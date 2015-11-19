@@ -22,8 +22,8 @@ object ScalaSyntheticProvider {
     if (!isScala) return false
 
     typeComponent match {
-      case m: Method if m.isConstructor && isAnonFun(m.declaringType()) => true
-      case m: Method if m.name() == "apply" && hasSpecializationMethod(m.declaringType()) => true
+      case m: Method if m.isConstructor && ScalaPositionManager.isAnonfunType(m.declaringType()) => true
+      case m: Method if m.name() == "apply" && hasSpecializationMethod(m.declaringType()) && !isMacroDefined(m) => true
       case m: Method if isDefaultArg(m) => true
       case m: Method if isTraitForwarder(m) => true
       case m: Method if m.name().endsWith("$adapted") => true
@@ -35,10 +35,6 @@ object ScalaSyntheticProvider {
     }
   }
 
-  private def isAnonFun(refType: ReferenceType): Boolean = {
-    short(refType.name).contains("$anonfun")
-  }
-
   private def hasSpecializationMethod(refType: ReferenceType): Boolean = {
     refType.methods().asScala.exists(isSpecialization)
   }
@@ -47,16 +43,16 @@ object ScalaSyntheticProvider {
     method.name.contains("$mc") && method.name.endsWith("$sp")
   }
 
-  private def short(name: String) = {
-    name.substring(name.lastIndexOf('.') + 1)
-  }
-
   private def isDefaultArg(m: Method): Boolean = {
     m.name.contains("$default$")
   }
 
   private def isTraitForwarder(m: Method): Boolean = {
     Try(onlyInvokesStatic(m) && hasTraitWithImplementation(m)).getOrElse(false)
+  }
+
+  def isMacroDefined(typeComponent: TypeComponent) = {
+    typeComponent.declaringType().name().contains("$macro")
   }
 
   private def onlyInvokesStatic(m: Method): Boolean = {

@@ -36,7 +36,8 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 class ScalaUnusedImportPass(val file: PsiFile, editor: Editor, val document: Document,
                             highlightInfoProcessor: HighlightInfoProcessor)
   extends ProgressableTextEditorHighlightingPass(
-    file.getProject, document, "Scala Unused Symbols", file, editor, file.getTextRange, true,
+    file.getProject, document, "Scala Unused Symbols", file, editor,
+    if (file.getTextRange == null) throw new AssertionError(s"File text range is null: ${file.getClass}") else file.getTextRange, true,
       highlightInfoProcessor) with ScalaUnusedImportPassBase {
   protected def getFixes: List[IntentionAction] = List(new ScalaOptimizeImportsFix, new ScalaEnableOptimizeImportsOnTheFlyFix)
 

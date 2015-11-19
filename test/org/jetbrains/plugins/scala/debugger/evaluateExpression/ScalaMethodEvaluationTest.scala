@@ -768,12 +768,12 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
         |  def main(args: Array[String]) {
         |    def localFun1() = "localFun1"
         |
-      |    val inMain = "inMain"
+        |    val inMain = "inMain"
         |    val inMainNotUsed = ":("
         |    inOtherThread {
         |      def localFun2 = "localFun2"
         |
-      |      val inFirst = "inFirst"
+        |      val inFirst = "inFirst"
         |      var inFirstVar = "inFirstVar"
         |      val inFirstVarNotUsed = ":("
         |      inOtherThread {
@@ -784,7 +784,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
         |    }
         |  }
         |
-      |  def inOtherThread(action: => Unit) = {
+        |  def inOtherThread(action: => Unit) = {
         |    new Thread {
         |      override def run(): Unit = action
         |    }.start()
@@ -802,6 +802,49 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       evalEquals("local", "local")
       evalEquals("localFun2", "localFun2")
       evalEquals("localFun1()", "localFun1")
+    }
+  }
+
+  addFileWithBreakpoints("InForStmt.scala",
+    s"""
+      |object InForStmt {
+      |  def main(args: Array[String]) {
+      |    for {
+      |      x <- Seq(1, 2)
+      |      x1 = x + 1
+      |      y <- Seq(3, 4)
+      |      y1 = y + 1
+      |      if x == 1 && y == 3
+      |    } {
+      |      class Inner {
+      |        def foo = x$bp
+      |      }
+      |      def getX = x
+      |      def getX1 = x1
+      |      def getY = y
+      |      def getY1 = y1
+      |      new Inner().foo
+      |      ""$bp
+      |    }
+      |  }
+      |}
+    """.stripMargin.trim)
+
+  def testInForStmt(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("getX", "1")
+      evalEquals("getX1", "2")
+      evalEquals("getY()", "3")
+      evalEquals("getY1", "4")
+      evalEquals("new Inner().foo", "1")
+      atNextBreakpoint {
+        evalEquals("getX", "1")
+        evalEquals("getX1", "2")
+        evalEquals("getY()", "3")
+        evalEquals("getY1", "4")
+        evalEquals("new Inner().foo", "1")
+      }
     }
   }
 }

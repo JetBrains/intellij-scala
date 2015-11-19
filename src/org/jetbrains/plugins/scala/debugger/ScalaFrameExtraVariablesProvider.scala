@@ -48,7 +48,8 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
                                 alreadyCollected: util.Set[String]): util.Set[TextWithImports] = {
 
     val method = Try(evaluationContext.getFrameProxy.location().method()).toOption
-    if (method.isEmpty || DebuggerUtils.isSynthetic(method.get)) return Collections.emptySet()
+    if (method.isEmpty || DebuggerUtils.isSynthetic(method.get) || ScalaSyntheticProvider.isMacroDefined(method.get))
+      return Collections.emptySet()
 
     val element = inReadAction(sourcePosition.getElementAt)
     val result = if (element == null) mutable.SortedSet[String]() else getVisibleVariables(element, evaluationContext, alreadyCollected)

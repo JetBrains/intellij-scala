@@ -5,7 +5,6 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValueDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 
 import scala.annotation.tailrec
 
@@ -93,19 +92,5 @@ trait ValueClassAnnotator {
         holder.createErrorAnnotation(tpParam.nameId, message)
     }
     case _ =>
-  }
-}
-
-object ValueClassInheritance extends AnnotatorPart[ScTemplateDefinition] {
-  override def kind: Class[ScTemplateDefinition] = classOf[ScTemplateDefinition]
-
-  override def annotate(element: ScTemplateDefinition, holder: AnnotationHolder, typeAware: Boolean): Unit = {
-    if (!typeAware) return
-
-    element.refs.foreach {
-      case (refElement, Some((cl, _))) if ValueClassType.isValueClass(cl) =>
-        holder.createErrorAnnotation(refElement, ScalaBundle.message("illegal.inheritance.from.value.class"))
-      case _ =>
-    }
   }
 }

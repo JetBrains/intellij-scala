@@ -11,5 +11,6 @@ enum ScalaLanguageLevelProxy {
   Scala_2_9,
   Scala_2_10,
   Scala_2_11,
-  Scala_2_12
+  Scala_2_12,
+  Dotty
 }

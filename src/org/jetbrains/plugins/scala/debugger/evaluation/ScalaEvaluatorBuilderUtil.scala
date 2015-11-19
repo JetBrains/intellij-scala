@@ -156,7 +156,20 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
 
   def localMethodEvaluator(fun: ScFunctionDefinition, argEvaluators: Seq[Evaluator]): Evaluator = {
-    val name = NameTransformer.encode(fun.name)
+    def localFunName() = {
+      val transformed = NameTransformer.encode(fun.name)
+      fun match {
+        case ScalaPositionManager.InsideAsync(call) =>
+          val containingFun = PsiTreeUtil.getParentOfType(fun, classOf[ScFunctionDefinition], true)
+          if (containingFun != null && call.isAncestorOf(containingFun))
+            transformed
+          else
+            transformed + "$macro"
+        case _ => transformed
+      }
+    }
+
+    val name = localFunName()
     val containingClass = if (fun.isSynthetic) fun.containingClass else getContextClass(fun)
     val message = ScalaBundle.message("cannot.evaluate.local.method")
     if (contextClass == null) {
@@ -692,6 +705,10 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         case _: ScGenerator | _: ScEnumerator if position != null && isNotUsedEnumerator(named, position.getElementAt) =>
           throw EvaluationException(ScalaBundle.message("not.used.from.for.statement", name))
         case LazyVal(_) => localLazyValEvaluator(named)
+        case ScalaPositionManager.InsideAsync(_) =>
+          val simpleLocal = new ScalaLocalVariableEvaluator(name, fileName)
+          val fieldMacro = new ScalaFieldEvaluator(new ScalaThisEvaluator(), name + "$macro")
+          new ScalaDuplexEvaluator(simpleLocal, fieldMacro)
         case _ => new ScalaLocalVariableEvaluator(name, fileName)
       }
 
@@ -979,7 +996,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     constrDef match {
       case scMethod: ScMethodLike =>
         val scClass = scMethod.containingClass.asInstanceOf[ScClass]
-        val contextClass = getContextClass(scClass)
+        val containingClass = getContextClass(scClass)
         val implicitParams = scMethod.parameterList.params.filter(_.isImplicitParameter)
 
         val implicitsEvals =
@@ -991,10 +1008,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             if (isOfPrimitiveType(p)) eval
             else boxEvaluator(eval)
           }
-        val outerThis = contextClass match {
+        val (outerClass, iters) = findContextClass(e => e == null || e == containingClass)
+        val outerThis = outerClass match {
           case obj: ScObject if isStable(obj) => None
           case null => None
-          case _ => Some(new ScalaThisEvaluator())
+          case _ => Some(new ScalaThisEvaluator(iters))
         }
         val locals = DebuggerUtil.localParamsForConstructor(scClass)
         outerThis ++: explEvaluators ++: implicitsEvals ++: locals.map(fromLocalArgEvaluator)
@@ -1014,7 +1032,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       val signature = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)V")
       new ScalaNewClassInstanceEvaluator(typeEvaluator, signature, Array(refEval))
     }
-    else refEval
+    else FromLocalArgEvaluator(refEval)
   }
 
 
@@ -1469,6 +1487,8 @@ object ScalaEvaluatorBuilderUtil {
         case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
         case e: ScExpression if ScalaPsiUtil.isByNameArgument(e) || ScalaPsiUtil.isArgumentOfFunctionType(e) => true
         case ScalaPsiUtil.MethodValue(_) => true
+        case Both(ChildOf(argExprs: ScArgumentExprList), ScalaPositionManager.InsideAsync(call))
+          if call.args == argExprs => true
         case _ => false
       }
 

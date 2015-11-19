@@ -8,12 +8,13 @@ import com.intellij.util.xmlb.{SkipDefaultValuesSerializationFilters, XmlSeriali
 import org.jdom.Element
 import org.jetbrains.plugins.scala.project.IncrementalityType
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
 /**
- * @author Pavel Fatin
- */
-@State(name = "ScalaCompilerConfiguration", storages = Array (
+  * @author Pavel Fatin
+  */
+@State(name = "ScalaCompilerConfiguration", storages = Array(
   new Storage(file = PROJECT_FILE),
   new Storage(file = PROJECT_CONFIG_DIR + "/scala_compiler.xml", scheme = StorageScheme.DIRECTORY_BASED)))
 class ScalaCompilerConfiguration(project: Project) extends PersistentStateComponent[Element] {
@@ -42,10 +43,15 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
     customProfiles.find(_.getSettings.getState == settings.getState) match {
       case Some(profile) => profile.addModuleName(module.getName)
       case None =>
-        val profile = new ScalaCompilerSettingsProfile(source + " " + (customProfiles.length + 1))
+        val profileNames = customProfiles.iterator.map(_.getName).filter(_.startsWith(source)).toSet
+        @tailrec def firstFreeName(i: Int): String = {
+          val name = source + " " + i
+          if (profileNames.contains(name)) firstFreeName(i + 1) else name
+        }
+        val profile = new ScalaCompilerSettingsProfile(firstFreeName(1))
         profile.setSettings(settings)
         profile.addModuleName(module.getName)
-        customProfiles :+= profile
+        customProfiles = (customProfiles :+ profile).sortBy(_.getName)
     }
   }
 
@@ -73,9 +79,9 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
 
   def loadState(configurationElement: Element) {
     incrementalityType = configurationElement.getChildren("option").asScala
-            .find(_.getAttributeValue("name") == "incrementalityType")
-            .map(it => IncrementalityType.valueOf(it.getAttributeValue("value")))
-            .getOrElse(IncrementalityType.IDEA)
+      .find(_.getAttributeValue("name") == "incrementalityType")
+      .map(it => IncrementalityType.valueOf(it.getAttributeValue("value")))
+      .getOrElse(IncrementalityType.IDEA)
 
     defaultProfile.setSettings(new ScalaCompilerSettings(XmlSerializer.deserialize(configurationElement, classOf[ScalaCompilerSettingsState])))
 

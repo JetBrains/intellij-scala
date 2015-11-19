@@ -122,7 +122,8 @@ trait LocationLineManager {
         if (shouldPointAtStartLine(location)) {
           val significantElem = DebuggerUtil.getSignificantElement(generatingElem)
           val lineNumber = elementStartLine(significantElem)
-          cacheCustomLine(location, lineNumber)
+          if (lineNumber != ScalaPositionManager.checkedLineNumber(location))
+            cacheCustomLine(location, lineNumber)
         }
         else if (isReturnInstr(location)) {
           cacheCustomLine(location, -1)

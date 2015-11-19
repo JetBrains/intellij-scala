@@ -68,6 +68,7 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
   }
 
   def compile(fileText: String, module: Module): Array[(File, String)] = {
+    CompileServerLauncher.ensureServerRunning(project)
     val outputDir = tempDir()
     val file = writeToTempFile(fileText)
     val connector = new ServerConnector(module, file, outputDir)

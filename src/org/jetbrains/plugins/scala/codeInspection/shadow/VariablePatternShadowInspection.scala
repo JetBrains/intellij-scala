@@ -22,6 +22,8 @@ class VariablePatternShadowInspection extends AbstractInspection("VariablePatter
     val isInCaseClause = ScalaPsiUtil.nameContext(refPat).isInstanceOf[ScCaseClause]
     if (isInCaseClause) {
       val dummyRef: ScStableCodeReferenceElement = ScalaPsiElementFactory.createReferenceFromText(refPat.name, refPat.getContext.getContext, refPat)
+      
+      if (dummyRef == null) return //can happen in invalid code, e.g. if ')' is absent in case pattern
       val proc = new ResolveProcessor(StdKinds.valuesRef, dummyRef, refPat.name)
       val results = dummyRef.asInstanceOf[ResolvableStableCodeReferenceElement].doResolve(dummyRef, proc)
       def isAccessible(rr: ResolveResult): Boolean = rr.getElement match {
