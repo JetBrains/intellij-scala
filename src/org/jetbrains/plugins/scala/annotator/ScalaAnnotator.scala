@@ -43,7 +43,8 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext, TypingContextOwner}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocTag, ScDocResolvableCodeReference}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.ScalaUtils
@@ -720,6 +721,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         case Both(p: ScPattern, (_: ScConstructorPattern | _: ScInfixPattern)) =>
           val messageKey = "cannot.resolve.unapply.method"
           if (addCreateApplyOrUnapplyFix(messageKey, td => new CreateUnapplyQuickFix(td, p))) return
+        case scalaDocTag: ScDocTag if scalaDocTag.getName == MyScaladocParsing.THROWS_TAG => return //see SCL-9490
         case _ =>
       }
 
