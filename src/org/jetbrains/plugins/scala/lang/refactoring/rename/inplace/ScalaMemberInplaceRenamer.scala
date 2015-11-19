@@ -28,8 +28,6 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
                                 oldName: String)
         extends MemberInplaceRenamer(elementToRename, substituted, editor, initialName, oldName) {
 
-  private val elementRange = editor.getDocument.createRangeMarker(elementToRename.getTextRange)
-
   private def this(t: (PsiNamedElement, PsiElement, Editor, String, String)) = this(t._1, t._2, t._3, t._4, t._5)
 
   def this(elementToRename: PsiNamedElement, substituted: PsiElement, editor: Editor) {
@@ -163,7 +161,10 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
 
   override def startsOnTheSameElement(handler: RefactoringActionHandler, element: PsiElement): Boolean = {
     handler match {
-      case _: ScalaMemberInplaceRenameHandler => ScalaRenameUtil.sameElement(elementRange, element)
+      case _: ScalaMemberInplaceRenameHandler =>
+        val caretOffset = editor.getCaretModel.getOffset
+        myCaretRangeMarker != null && myCaretRangeMarker.isValid &&
+          myCaretRangeMarker.getStartOffset <= caretOffset && myCaretRangeMarker.getEndOffset >= caretOffset
       case _ => false
     }
   }
