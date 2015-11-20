@@ -1211,6 +1211,176 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testSCL3140_disabled(): Unit = {
+    getScalaSettings.ENABLE_SCALADOC_FORMATTING = false
+
+    val before =
+      """
+        |/**
+        |  *    Pooly formatted scalaDoc.
+        |    *Will still be formatted poorly.
+        | *
+        |*                If formatting
+        |   is disabled.
+        | * Asterisks will be aligned and added though, like in java.
+        |   */
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |/**
+        |  *    Pooly formatted scalaDoc.
+        |  *Will still be formatted poorly.
+        |  *
+        |  *                If formatting
+        |  *is disabled.
+        |  * Asterisks will be aligned and added though, like in java.
+        |  */
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL3140_noAlignment(): Unit = {
+
+    getScalaSettings.SD_ALIGN_RETURN_COMMENTS = false
+
+    val before =
+      """
+        |/**
+        |  * Foos the given x, returning foo'ed x.
+        |  *
+        |  * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  * @throws RuntimeException whenever it feels like it
+        |  */
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |/**
+        |  * Foos the given x, returning foo'ed x.
+        |  *
+        |  * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  * eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  * @throws RuntimeException whenever it feels like it
+        |  */
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL3140_addBlankLineTag(): Unit = {
+    getScalaSettings.SD_BLANK_LINE_AFTER_PARAMETERS_COMMENTS = true
+
+    val before =
+      """
+        |/**
+        |  * Foos the given x, returning foo'ed x.
+        |  *
+        |  * @param x Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *          eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  * @param longParamName Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *          eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  */
+        |def foo(x: Int, longParamName: Int): Int
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |/**
+        |  * Foos the given x, returning foo'ed x.
+        |  *
+        |  * @param x             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  * @param longParamName Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  *
+        |  * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  */
+        |def foo(x: Int, longParamName: Int): Int
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL3140_removeBlankLines(): Unit = {
+    getScalaSettings.SD_BLANK_LINE_BEFORE_TAGS = false
+
+    val before =
+      """
+        |/**
+        |  * Foos the given x, returning foo'ed x.
+        |  *
+        |  * @param x Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *          eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  * @param longParamName Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *          eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  *
+        |  * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  */
+        |def foo(x: Int, longParamName: Int): Int
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |/**
+        |  * Foos the given x, returning foo'ed x.
+        |  * @param x             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  * @param longParamName Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  */
+        |def foo(x: Int, longParamName: Int): Int
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL3140_preserveSpacesInTags(): Unit = {
+    getScalaSettings.SD_PRESERVE_SPACES_IN_TAGS = true
+
+    val before =
+      """
+        |/**
+        |  * Foos the given x, returning foo'ed x.
+        |  *
+        |  * @param x             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  * @param longParamName Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  * @throws RuntimeException whenever it feels like it
+        |  */
+        |def foo(x: Int, longParamName: Int): Int
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |/**
+        |  * Foos the given x, returning foo'ed x.
+        |  *
+        |  * @param x             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  * @param longParamName Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+        |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
+        |  * @throws RuntimeException whenever it feels like it
+        |  */
+        |def foo(x: Int, longParamName: Int): Int
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
   def testSCL8313_1(): Unit = {
 
     getCommonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE = true

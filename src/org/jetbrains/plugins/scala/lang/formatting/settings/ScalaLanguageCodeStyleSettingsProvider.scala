@@ -150,8 +150,6 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
         CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("SPACE_BEFORE_TYPE_COLON", "Space before colon, after declarations' name",
         CodeStyleSettingsCustomizable.SPACES_OTHER)
-      showCustomOption("USE_SCALADOC2_FORMATTING", "Use formatting for ScalaDoc2 options",
-        CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("SPACE_INSIDE_CLOSURE_BRACES", "Space inside closure braces",
         CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES", "Space before infix method call parentheses",
@@ -168,6 +166,19 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       showCustomOption("SPACES_AROUND_AT_IN_PATTERNS", "Spaces around '@' in pattern bindings",
         CodeStyleSettingsCustomizable.SPACES_OTHER)
       showCustomOption("NEWLINE_AFTER_ANNOTATIONS", "Newline after annotations", CodeStyleSettingsCustomizable.SPACES_OTHER)
+    }
+
+    if (settingsType == SettingsType.LANGUAGE_SPECIFIC) {
+      showCustomOption("SD_ALIGN_PARAMETERS_COMMENTS", "Align parameter descriptions", ScalaDocFormattingPanel.ALIGNMENT_GROUP)
+      showCustomOption("SD_ALIGN_EXCEPTION_COMMENTS", "Align throws exception descriptions", ScalaDocFormattingPanel.ALIGNMENT_GROUP)
+      showCustomOption("SD_ALIGN_RETURN_COMMENTS", "Align return value description", ScalaDocFormattingPanel.ALIGNMENT_GROUP)
+      showCustomOption("SD_ALIGN_OTHER_TAGS_COMMENTS", "Align other tags descriptions", ScalaDocFormattingPanel.ALIGNMENT_GROUP)
+
+      showCustomOption("SD_BLANK_LINE_BEFORE_TAGS", ApplicationBundle.message("checkbox.after.description"), ScalaDocFormattingPanel.BLANK_LINES_GROUP)
+      showCustomOption("SD_BLANK_LINE_AFTER_PARAMETERS_COMMENTS", ApplicationBundle.message("checkbox.after.parameter.descriptions"), ScalaDocFormattingPanel.BLANK_LINES_GROUP)
+      showCustomOption("SD_BLANK_LINE_AFTER_RETURN_COMMENTS",  ApplicationBundle.message("checkbox.after.return.tag"), ScalaDocFormattingPanel.BLANK_LINES_GROUP)
+
+      showCustomOption("SD_PRESERVE_SPACES_IN_TAGS", "Preserve spaces in tags", ScalaDocFormattingPanel.OTHER_GROUP)
     }
 
   }

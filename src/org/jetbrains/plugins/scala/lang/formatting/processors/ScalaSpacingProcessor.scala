@@ -13,7 +13,7 @@ import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes
-import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
+import com.intellij.psi.{TokenType, PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaTokenTypesEx}
@@ -34,6 +34,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
+import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
@@ -155,6 +156,11 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       throw new RuntimeException("Unable to find parent doc comment")
     }
 
+    val tagSpacing =
+      if (scalaSettings.SD_PRESERVE_SPACES_IN_TAGS)
+        Spacing.createSpacing(0, Int.MaxValue, 0, false, 0)
+      else WITH_SPACING
+
     (leftNode.getElementType, rightNode.getElementType,
       leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
       case (_, ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _) => return NO_SPACING_WITH_NEWLINE
@@ -170,11 +176,18 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         } else {
           if (getText(rightNode, fileText)(0) != ' ') WITH_SPACING else WITHOUT_SPACING
         }
+      case (x, y, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) &&
+        ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(y) && !scalaSettings.ENABLE_SCALADOC_FORMATTING =>
+        return Spacing.getReadOnlySpacing
       case (ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _, _) =>
-        if (getText(rightNode, fileText).apply(0) != ' ') return WITH_SPACING
-        else return WITHOUT_SPACING
-      case (ScalaDocTokenType.DOC_TAG_NAME, ScalaDocTokenType.DOC_TAG_VALUE_TOKEN, _, _) => return WITH_SPACING
+        return if (getText(rightNode, fileText).apply(0) == ' ') WITHOUT_SPACING else WITH_SPACING
+      case (ScalaDocTokenType.DOC_TAG_NAME, _, _, _) =>
+        val rightText = getText(rightNode, fileText) //rightString is not emantically equal for PsiError nodes
+        return if (rightText.nonEmpty && rightText.apply(0) == ' ') WITHOUT_SPACING else tagSpacing
+      case (ScalaDocTokenType.DOC_TAG_VALUE_TOKEN, _, ScalaDocElementTypes.DOC_TAG, _) => return tagSpacing
       case (_, x, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => return Spacing.getReadOnlySpacing
+      case (x, TokenType.ERROR_ELEMENT, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) =>
+        return WITH_SPACING
       case (x, _, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => return Spacing.getReadOnlySpacing
       case (ScalaTokenTypes.tLINE_COMMENT, _, _, _) => return ON_NEW_LINE
       case _ =>

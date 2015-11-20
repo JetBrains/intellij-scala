@@ -96,6 +96,19 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public int OVERRIDING_METHOD_TYPE_ANNOTATION = TypeAnnotationPolicy.Regular.ordinal();
   public int SIMPLE_METHOD_TYPE_ANNOTATION = TypeAnnotationPolicy.Optional.ordinal();
 
+  //scaladoc formatting
+  public boolean ENABLE_SCALADOC_FORMATTING = true;
+  public boolean SD_ALIGN_OTHER_TAGS_COMMENTS = true;
+  public boolean SD_ALIGN_PARAMETERS_COMMENTS = true;
+  public boolean SD_ALIGN_EXCEPTION_COMMENTS = true;
+  public boolean SD_ALIGN_RETURN_COMMENTS = true;
+
+  public boolean SD_BLANK_LINE_BEFORE_TAGS = true;
+  public boolean SD_BLANK_LINE_AFTER_PARAMETERS_COMMENTS = false;
+  public boolean SD_BLANK_LINE_AFTER_RETURN_COMMENTS = false;
+
+  public boolean SD_PRESERVE_SPACES_IN_TAGS = false;
+
   //other
   public boolean ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT = true;
   public boolean REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = false;
