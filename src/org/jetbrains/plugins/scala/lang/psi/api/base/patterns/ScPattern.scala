@@ -457,8 +457,8 @@ object ScPattern {
   }
 
   def isQuasiquote(fun: ScFunction) = {
-    val fqn  = fun.containingClass.qualifiedName
-    fqn.contains('.') && fqn.substring(0, fqn.lastIndexOf('.')) == "scala.reflect.api.Quasiquotes.Quasiquote"
+    val fqnO  = Option(fun.containingClass).map(_.qualifiedName)
+    fqnO.exists(fqn => fqn.contains('.') && fqn.substring(0, fqn.lastIndexOf('.')) == "scala.reflect.api.Quasiquotes.Quasiquote")
   }
 
 }
