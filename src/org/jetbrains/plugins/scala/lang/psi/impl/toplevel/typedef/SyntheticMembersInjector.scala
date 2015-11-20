@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.ExtensionPointName
+import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.DumbService
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
@@ -86,10 +85,10 @@ object SyntheticMembersInjector {
       injector <- EP_NAME.getExtensions
       template <- injector.injectInners(source)
     } try {
-      val context = source match {
+      val context = (source match {
         case o: ScObject if o.isSyntheticObject => ScalaPsiUtil.getCompanionModule(o).getOrElse(source)
         case _ => source
-      }
+      }).extendsBlock
       val td = ScalaPsiElementFactory.createTypeDefinitionWithContext(template, context, source)
       td.syntheticContainingClass = Some(source)
       def updateSynthetic(element: ScMember): Unit = {
@@ -104,6 +103,7 @@ object SyntheticMembersInjector {
       updateSynthetic(td)
       buffer += td
     } catch {
+      case p: ProcessCanceledException => throw p
       case e: Throwable =>
         LOG.error(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
     }

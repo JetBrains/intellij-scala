@@ -125,7 +125,7 @@ trait ScTypeDefinition extends ScTemplateDefinition with ScMember
 
     val next = ScalaPsiUtil.getNextStubOrPsiElement(this)
     val obj: ScObject =
-      ScalaPsiElementFactory.createObjectWithContext(objText, getParent, if (next != null) next else this)
+      ScalaPsiElementFactory.createObjectWithContext(objText, getContext, if (next != null) next else this)
     import org.jetbrains.plugins.scala.extensions._
     val objOption: Option[ScObject] = obj.toOption
     objOption.foreach { (obj: ScObject) =>
