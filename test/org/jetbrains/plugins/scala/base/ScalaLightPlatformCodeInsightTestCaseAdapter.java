@@ -52,7 +52,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
     super.setUp();
     myLibraryLoader = new ScalaLibraryLoader(getProject(), getModule(), rootPath(),
         isIncludeScalazLibrary(), isIncludeReflectLibrary(), isIncludeSprayLibrary(), ScalaLibraryLoader.getSdkNone());
-    myLibraryLoader.loadLibrary(libVersion);
+    myLibraryLoader.loadScala(libVersion);
     //libLoader.clean();
   }
 

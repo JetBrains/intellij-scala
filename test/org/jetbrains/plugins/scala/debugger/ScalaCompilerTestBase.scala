@@ -18,7 +18,6 @@ import com.intellij.util.ui.UIUtil
 import junit.framework.Assert
 import org.jetbrains.plugins.scala.base.ScalaLibraryLoader
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 
 import scala.collection.mutable.ListBuffer
 
@@ -29,6 +28,7 @@ import scala.collection.mutable.ListBuffer
 abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVersion {
 
   private var deleteProjectAtTearDown = false
+  private var scalaLibraryLoader: ScalaLibraryLoader = null
 
   override def setUp(): Unit = {
     VfsRootAccess.SHOULD_PERFORM_ACCESS_CHECK = false
@@ -62,11 +62,10 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
   }
 
   protected def addScalaSdk(loadReflect: Boolean = true) {
-    ScalaLoader.loadScala()
-    val cl = SyntheticClasses.get(getProject)
-    if (!cl.isClassesRegistered) cl.registerClasses()
+    scalaLibraryLoader = new ScalaLibraryLoader(getProject, getModule, getSourceRootDir.getCanonicalPath,
+      isIncludeReflectLibrary = loadReflect, javaSdk = Some(getTestProjectJdk))
 
-    ScalaLibraryLoader.addScalaSdk(myModule, scalaSdkVersion, loadReflect)
+    scalaLibraryLoader.loadScala(scalaSdkVersion)
   }
 
   override protected def getTestProjectJdk: Sdk = {
@@ -85,6 +84,7 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
   protected override def tearDown() {
     CompilerTestUtil.disableExternalCompiler(myProject)
     val baseDir = getBaseDir
+    scalaLibraryLoader.clean()
     super.tearDown()
 
     if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)
