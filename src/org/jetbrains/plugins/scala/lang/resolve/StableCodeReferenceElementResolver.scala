@@ -13,7 +13,7 @@ class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenc
                                           allConstructorResults: Boolean, noConstructorResolve: Boolean)
         extends ResolveCache.PolyVariantResolver[ScStableCodeReferenceElement] {
   def resolve(ref: ScStableCodeReferenceElement, incomplete: Boolean) = {
-    val kinds = ref.getKinds(incomplete = false)
+    val kinds = getKindsFor(ref)
 
     val proc = if (ref.isConstructorReference && !noConstructorResolve) {
       val constr = ref.getConstructor.get
@@ -39,4 +39,6 @@ class StableCodeReferenceElementResolver(reference: ResolvableStableCodeReferenc
 
     reference.doResolve(ref, proc)
   }
+
+  protected def getKindsFor(ref: ScStableCodeReferenceElement) = ref.getKinds(incomplete = false)
 }
