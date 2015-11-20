@@ -49,14 +49,16 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
   }
 
   protected def addRoots() {
+    def getOrCreateChildDir(name: String) = {
+      val file = new File(getBaseDir.getCanonicalPath, name)
+      if (!file.exists()) file.mkdir()
+      LocalFileSystem.getInstance.refreshAndFindFileByPath(file.getCanonicalPath)
+    }
+
     inWriteAction {
-      val srcRoot = getBaseDir.findChild("src").toOption.getOrElse(
-        getBaseDir.createChildDirectory(this, "src")
-      )
+      val srcRoot = getOrCreateChildDir("src")
       PsiTestUtil.addSourceRoot(getModule, srcRoot, false)
-      val output = getBaseDir.findChild("out").toOption.getOrElse(
-        getBaseDir.createChildDirectory(this, "out")
-      )
+      val output = getOrCreateChildDir("out")
       CompilerProjectExtension.getInstance(getProject).setCompilerOutputUrl(output.getUrl)
     }
   }
