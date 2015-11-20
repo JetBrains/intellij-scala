@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.conversion.PrettyPrinter
   * on 10/27/15
   */
 case class AnnotaionConstruction(inAnnotation: Boolean, attributes: Seq[(Option[String], Option[IntermediateNode])],
-                                 name: Option[String]) extends IntermediateNode {
+                                 name: Option[IntermediateNode]) extends IntermediateNode {
   override def print(printer: PrettyPrinter): PrettyPrinter = {
     if (inAnnotation) {
       printer.append("new ")
@@ -17,8 +17,9 @@ case class AnnotaionConstruction(inAnnotation: Boolean, attributes: Seq[(Option[
 
     if (name.isDefined) {
       name.get match {
-        case "Deprecated" => printer.append("deprecated")
-        case otherName => printer.append(otherName)
+        case deprecated: JavaCodeReferenceStatement if deprecated.name == "Deprecated" =>
+          printer.append(deprecated.name.toLowerCase)
+        case otherName => otherName.print(printer)
       }
     }
 

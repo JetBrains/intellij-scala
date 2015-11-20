@@ -295,7 +295,7 @@ object JavaToScala {
 
         val inAnnotation = PsiTreeUtil.getParentOfType(annot, classOf[PsiAnnotation]) != null
 
-        val name = Option(annot.getNameReferenceElement).flatMap(t => Option(t.getText))
+        val name = Option(annot.getNameReferenceElement).map(convertPsiToIntermdeiate(_, externalProperties))
         AnnotaionConstruction(inAnnotation, attrResult.toSeq, name)
       case p: PsiParameter =>
         val modifiers = handleModifierList(p)
@@ -757,12 +757,14 @@ object JavaToScala {
                         (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
                          refs: Seq[ReferenceData] = Seq.empty): IntermediateNode = {
 
+    val annotationDropList = Seq("java.lang.Override", "org.jetbrains.annotations.Nullable", "org.jetbrains.annotations.NotNull")
 
     def handleAnnotations: Seq[IntermediateNode] = {
       val annotations = new ArrayBuffer[IntermediateNode]()
       for {
         a <- owner.getModifierList.getAnnotations
-        if !Option(a.getQualifiedName).contains("java.lang.Override")
+        optValue = Option(a.getQualifiedName).map(annotationDropList.contains(_))
+        if optValue.isDefined && !optValue.get
       } {
         annotations.append(convertPsiToIntermdeiate(a, null))
       }
