@@ -57,4 +57,8 @@ class DecompilerTest extends TestCase {
   def testScl9419(): Unit = {
     doTest("$bar.class")
   }
+
+  def testScl9457(): Unit = {
+    doTest("AnyVaal212.class")
+  }
 }
