@@ -938,17 +938,9 @@ object TypeDefinitionMembers {
           }
 
           //todo: this is hack, better to split imports resolve into import for types and for expressions.
-          val shouldCheckSynthetics = processor match {
-            case c: CompletionProcessor => true
-            case o: ImplicitProcessor => true
-            case b: BaseProcessor => b.candidates.isEmpty
-            case _ => true
-          }
-          if (shouldCheckSynthetics) {
-            runIterator(syntheticMethods().iterator) match {
-              case Some(x) => return x
-              case None =>
-            }
+          runIterator(syntheticMethods().iterator) match {
+            case Some(x) => return x
+            case None =>
           }
         }
       }
