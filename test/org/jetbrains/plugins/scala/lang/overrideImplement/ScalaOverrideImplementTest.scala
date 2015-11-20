@@ -435,7 +435,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |import java.util
         |
         |class ExtendsList extends java.util.List {
-        |  def removeAll(c: util.Collection[_]): Boolean = <selection>???</selection>
+        |  def removeAll(collection: util.Collection[_]): Boolean = <selection>???</selection>
         |}
       """
     val methodName: String = "removeAll"
