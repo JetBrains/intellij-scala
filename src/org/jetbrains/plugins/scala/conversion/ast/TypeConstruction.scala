@@ -79,7 +79,7 @@ case class ArrayConstruction(node: IntermediateNode) extends IntermediateNode wi
 object TypeConstruction {
   def createStringTypePresentation(inType: PsiType, inProject: Project): IntermediateNode = {
     val buffer = new ArrayBuffer[(IntermediateNode, Option[String])]()
-    val result = getParts(ScType.create(inType, inProject), buffer)
+    val result = getParts(ScType.create(inType, inProject, paramTopLevel = true), buffer)
 
     result match {
       case parametrized: ParametrizedConstruction =>

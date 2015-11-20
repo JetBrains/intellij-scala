@@ -36,4 +36,6 @@ class JavaToScalaConversionExamplesTest extends JavaToScalaConversionTestBase {
   def testSCL9369() = doTest()
 
   def testNeedConstructorsSorting() = doTest()
+
+  def testSCL9434() = doTest()
 }
