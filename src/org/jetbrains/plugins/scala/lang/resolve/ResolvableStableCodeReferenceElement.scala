@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Extrac
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, CachedWithRecursionGuard, ModCount}
 
+import scala.collection.Set
 import scala.concurrent.Future
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
@@ -34,25 +35,57 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   private object NoConstructorResolver extends StableCodeReferenceElementResolver(this, false, false, true)
   private object ShapesResolver extends StableCodeReferenceElementResolver(this, true, false, false)
   private object ShapesResolverAllConstructors extends StableCodeReferenceElementResolver(this, true, true, false)
+  private object ImportResolverNoMethods extends StableCodeReferenceElementResolver(this, false, false, false) {
+    override protected def getKindsFor(ref: ScStableCodeReferenceElement) = {
+      ref.getKinds(incomplete = false) -- StdKinds.methodsOnly
+    }
+  }
+  private object ImportResolverNoTypes extends StableCodeReferenceElementResolver(this, false, false, false) {
+    override protected def getKindsFor(ref: ScStableCodeReferenceElement) = {
+      ref.getKinds(incomplete = false) -- StdKinds.stableClass
+    }
+  }
 
   @volatile
   private var resolveResult: Array[ResolveResult] = Array.empty
   @volatile
   private var resolveResultCount: Long = -1L
 
+  def resolveTypesOnly(incomplete: Boolean) = {
+
+    @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
+    def doResolve(incomplete: Boolean):Array[ResolveResult] = ImportResolverNoMethods.resolve(this, incomplete)
+
+    resolveWithCompiled(incomplete, ImportResolverNoMethods, doResolve)
+  }
+
+  def resolveMethodsOnly(incomplete: Boolean) = {
+
+    @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
+    def doResolve(incomplete: Boolean):Array[ResolveResult] = ImportResolverNoTypes.resolve(this, incomplete)
+
+    resolveWithCompiled(incomplete, ImportResolverNoTypes, doResolve)
+  }
+
   def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
+    resolveWithCompiled(incomplete, Resolver, multiResolveCached)
+  }
+
+  private def resolveWithCompiled(incomplete: Boolean,
+                                  resolver: StableCodeReferenceElementResolver,
+                                  elsebr: Boolean => Array[ResolveResult]) = {
     ScalaPsiUtil.fileContext(this) match {
       case s: ScalaFile if s.isCompiled =>
         val count = ProjectRootManager.getInstance(getProject).getModificationCount
         if (count == resolveResultCount) resolveResult
         else {
-          val res = Resolver.resolve(this, incomplete)
+          val res = resolver.resolve(this, incomplete)
           resolveResult = res
           resolveResultCount = count
           res
         }
       case _=>
-        multiResolveCached(incomplete)
+        elsebr(incomplete)
     }
   }
 
