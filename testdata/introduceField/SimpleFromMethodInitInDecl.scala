@@ -10,7 +10,7 @@ class Test {
   var i: Int = 1
 
   def foo() {
-    /*start*/i/*end*/
+    i
   }
 }
 */

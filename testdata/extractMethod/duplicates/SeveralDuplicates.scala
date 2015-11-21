@@ -15,9 +15,9 @@ object SeveralDuplicates {
 /*
 object SeveralDuplicates {
   def foo(i: Int) {
-    /*start*/
+
     testMethodName(i)
-    /*end*/
+
     testMethodName(2)
   }
 

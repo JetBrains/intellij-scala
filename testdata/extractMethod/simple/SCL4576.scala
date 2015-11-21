@@ -17,9 +17,9 @@ object SCL4576 {
 
   def foo() {
     val x = 1
-    /*start*/
+
     testMethodName(x)
-    /*end*/
+
   }
 
   def testMethodName(x: Int): Unit = {

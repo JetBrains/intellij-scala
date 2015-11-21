@@ -2,7 +2,7 @@ class RemoveRepeatedParams {
   def foo(i: Int, b: Boolean): Int = i
 
   foo(i = 1, b = true)
-  this foo (2, false)
+  this foo(2, false)
   foo(1, false)
 }
 

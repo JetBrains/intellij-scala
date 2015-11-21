@@ -26,9 +26,9 @@ object Bug {
   class A  {
     class B extends C {
       def foo() = {
-        /*start*/
+
         testMethodName
-        /*end*/
+
       }
 
       def testMethodName: Int = {

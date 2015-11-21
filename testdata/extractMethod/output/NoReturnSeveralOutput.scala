@@ -13,10 +13,10 @@ class NoReturnSeveralOutput {
 /*
 class NoReturnSeveralOutput {
   def foo(i: Int) {
-    /*start*/
+
 
     val (x: Int, y: String, z: Int, zz: String) = testMethodName
-    /*end*/
+
     println(x + y + z + zz)
   }
 

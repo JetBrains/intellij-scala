@@ -127,7 +127,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       """
       |class Check {
       |  def method(<caret>attrib: String) = {
-      |     CaseClass2(attrib = attrib)
+      |    CaseClass2(attrib = attrib)
       |  }
       |}
       |case class CaseClass2(attrib: String) {}
@@ -138,8 +138,8 @@ class ScalaRenameTest extends ScalaRenameTestBase {
     val resultText =
       """
       |class Check {
-      |  def method(<caret>y: String) = {
-      |     CaseClass2(attrib = y)
+      |  def method(y: String) = {
+      |    CaseClass2(attrib = y)
       |  }
       |}
       |case class CaseClass2(attrib: String) {}
@@ -152,6 +152,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
     val fileText =
       """
       |class A {
+      |
       |  case class Index()
       |
       |  Index() match {
@@ -160,6 +161,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |}
       |
       |class B {
+      |
       |  case class Index()
       |
       |  Index() match {
@@ -173,6 +175,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
     val resultText =
       """
       |class A {
+      |
       |  case class Index()
       |
       |  Index() match {
@@ -181,10 +184,11 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |}
       |
       |class B {
+      |
       |  case class Inde()
       |
       |  Inde() match {
-      |    case <caret>Inde() =>
+      |    case Inde() =>
       |  }
       |}
       """.stripMargin('|').replaceAll("\r", "").trim()
@@ -195,25 +199,30 @@ class ScalaRenameTest extends ScalaRenameTestBase {
   def testRenameInterpolatedStringPrefix() {
     val fileText =
       """
-        | object AAA {
-        |   class BBB { def aa<caret>a(a: Any*) = a.length }
-        |   
-        |   implicit def ctxToB(ctx: StringContext) = new BBB
-        |   
-        |   val a = aaa"blah blah"
-        | }
+        |object AAA {
+        |
+        |  class BBB {
+        |    def aa<caret>a(a: Any*) = a.length
+        |  }
+        |
+        |  implicit def ctxToB(ctx: StringContext) = new BBB
+        |
+        |  val a = aaa"blah blah"
+        |}
       """.replace("\r", "").stripMargin
     
     val resultText =
       """
-        | object AAA {
-        |   class BBB { def bb<caret>b(a: Any*) = a.length }
-        |   
-        |   implicit def ctxToB(ctx: StringContext) = new BBB
-        |   
-        |   val a = bbb"blah blah"
-        | }
-      """.replace("\r", "").stripMargin
+        |object AAA {
+        |
+        |  class BBB {
+        |    def bb<caret>b(a: Any*) = a.length
+        |  }
+        |
+        |  implicit def ctxToB(ctx: StringContext) = new BBB
+        |
+        |  val a = bbb"blah blah"
+        |}""".replace("\r", "").stripMargin
     
     myFixture.configureByText("dummy.scala", fileText)
     myFixture.renameElementAtCaret("bbb")
@@ -224,7 +233,9 @@ class ScalaRenameTest extends ScalaRenameTestBase {
     val fileText =
       """
       |object ObjectToCaseClass {
+      |
       |  case class Test1(a: Int)
+      |
       |  Test1(2)
       |  <caret>Test1.apply(1)
       |}
@@ -235,7 +246,9 @@ class ScalaRenameTest extends ScalaRenameTestBase {
     val resultText =
       """
       |object ObjectToCaseClass {
+      |
       |  case class I(a: Int)
+      |
       |  I(2)
       |  <caret>I.apply(1)
       |}
@@ -248,7 +261,9 @@ class ScalaRenameTest extends ScalaRenameTestBase {
     val fileText =
       """
         |object CaseClassConstructor {
+        |
         |  case class Test1(a: Int)
+        |
         |  new <caret>Test1(2)
         |  Test1.apply(1)
         |  Test1(1) match {
@@ -262,7 +277,9 @@ class ScalaRenameTest extends ScalaRenameTestBase {
     val resultText =
       """
         |object CaseClassConstructor {
+        |
         |  case class I(a: Int)
+        |
         |  new <caret>I(2)
         |  I.apply(1)
         |  I(1) match {
@@ -278,7 +295,9 @@ class ScalaRenameTest extends ScalaRenameTestBase {
     val fileText =
       """
         |object CaseClassApply {
+        |
         |  case class Test1(a: Int)
+        |
         |  new Test1(2)
         |  Test1.apply(1)
         |  <caret>Test1(1) match {
@@ -292,10 +311,12 @@ class ScalaRenameTest extends ScalaRenameTestBase {
     val resultText =
       """
         |object CaseClassApply {
+        |
         |  case class I(a: Int)
+        |
         |  new I(2)
         |  I.apply(1)
-        |  <caret>I(1) match {
+        |  I(1) match {
         |    case I(1) =>
         |  }
         |}
@@ -308,7 +329,9 @@ class ScalaRenameTest extends ScalaRenameTestBase {
     val fileText =
       """
         |object CaseClassUnapply {
+        |
         |  case class Test1(a: Int)
+        |
         |  new Test1(2)
         |  Test1.apply(1)
         |  Test1(1) match {
@@ -322,11 +345,13 @@ class ScalaRenameTest extends ScalaRenameTestBase {
     val resultText =
       """
         |object CaseClassUnapply {
+        |
         |  case class I(a: Int)
+        |
         |  new I(2)
         |  I.apply(1)
         |  I(1) match {
-        |    case <caret>I(1) =>
+        |    case I(1) =>
         |  }
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()

@@ -6,9 +6,8 @@ class Test {
 /*
 /*replaceAll*/
 class Test {
-  /*start*/
   var i: Int = 1
-  i/*end*/
+  i
   i
 }
 */

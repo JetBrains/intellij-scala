@@ -16,9 +16,9 @@ class CaseClauseInput {
   def foo {
     1 match {
       case x => {
-        /*start*/
+
         testMethodName(x)
-        /*end*/
+
       }
       case _ =>
     }

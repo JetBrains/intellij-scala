@@ -8,9 +8,9 @@ class CallByNameInput {
 /*
 class CallByNameInput {
   def foo(x: => Int) {
-    /*start*/
+
     testMethodName(x)
-    /*end*/
+
   }
 
   def testMethodName(x: => Int): Unit = {

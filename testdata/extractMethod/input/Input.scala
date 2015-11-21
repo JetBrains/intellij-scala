@@ -18,9 +18,9 @@ class Input {
   def foo(x: Int) {
     val y = 34
     val z = ""
-    /*start*/
+
     testMethodName(x, y, z)
-    /*end*/
+
     if (x == 1) return
   }
 

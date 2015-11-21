@@ -20,9 +20,9 @@ object NoSearchReturn {
 object NoSearchReturn {
   def foo(i: Int) {
     val y = i
-    /*start*/
+
     if (testMethodName(y)) return
-    /*end*/
+
 
     println("a")
   }

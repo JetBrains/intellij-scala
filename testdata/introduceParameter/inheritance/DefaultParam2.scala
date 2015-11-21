@@ -20,7 +20,7 @@ class A {
 
 class B extends A {
   override def foo(param: Int) {
-    /*start*/param/*end*/
+    /*start*/ param /*end*/
   }
 }
 */

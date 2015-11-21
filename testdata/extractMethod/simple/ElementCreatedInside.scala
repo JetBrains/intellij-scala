@@ -11,10 +11,10 @@ class A {
 /*
 class A {
   def foo {
-    /*start*/
+
 
     val j: Int = testMethodName
-    /*end*/
+
 
     val i = j
   }

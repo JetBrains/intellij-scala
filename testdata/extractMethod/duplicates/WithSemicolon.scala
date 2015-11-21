@@ -17,10 +17,10 @@ object WithSemicolon {
 /*
 object WithSemicolon {
   def foo(i: Int) {
-    /*start*/
+
 
     testMethodName(i)
-    /*end*/
+
   }
 
   def testMethodName(i: Int): Unit = {

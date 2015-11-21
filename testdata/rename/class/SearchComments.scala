@@ -10,9 +10,9 @@ object Main {
 object NameAfterRename
 
 /**
- * NameAfterRename
- */
+  * NameAfterRename
+  */
 object Main {
-  /*caret*/NameAfterRename
+  /*caret*/ NameAfterRename
 }
 */

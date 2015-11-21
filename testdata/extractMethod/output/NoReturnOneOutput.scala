@@ -12,9 +12,9 @@ class NoReturnOneOutput {
 /*
 class NoReturnOneOutput {
   def foo(i: Int): Int = {
-    /*start*/
+
     val x: Int = testMethodName(i)
-    /*end*/
+
     println()
     x
   }

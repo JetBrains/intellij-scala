@@ -12,10 +12,10 @@ class UnitReturn {
 class UnitReturn {
   def foo {
     var i = 23
-    /*start*/
+
 
     testMethodName
-    /*end*/
+
     val j = i
   }
 

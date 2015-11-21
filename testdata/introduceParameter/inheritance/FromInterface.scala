@@ -13,6 +13,6 @@ trait A {
 }
 
 class B extends A {
-  def foo(x: Int, param: Int) = /*start*/param/*end*/
+  def foo(x: Int, param: Int) = /*start*/ param/*end*/
 }
 */

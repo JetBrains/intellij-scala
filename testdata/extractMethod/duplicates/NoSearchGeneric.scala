@@ -1,6 +1,9 @@
 object NoSearchGeneric {
+
   abstract class GenericParamInput[T] {
+
     val x: T
+
     def foo {
       val y = x
       /*start*/
@@ -13,13 +16,16 @@ object NoSearchGeneric {
 }
 /*
 object NoSearchGeneric {
+
   abstract class GenericParamInput[T] {
+
     val x: T
+
     def foo {
       val y = x
-      /*start*/
+
       testMethodName(y)
-      /*end*/
+
 
       println("a")
     }

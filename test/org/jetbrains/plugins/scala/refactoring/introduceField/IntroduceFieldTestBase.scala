@@ -36,17 +36,18 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
-    val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
+    var fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
 
-    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
-    val offset = fileText.indexOf(startMarker)
-    val startOffset = offset + startMarker.length
+    val startOffset = fileText.indexOf(startMarker)
+    assert(startOffset != -1, "Not specified start marker in test case. Use /*start*/ in scala file for this.")
+    fileText = fileText.replace(startMarker, "")
 
-    assert(offset != -1, "Not specified start marker in test case. Use /*start*/ in scala file for this.")
     val endOffset = fileText.indexOf(endMarker)
     assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
+    fileText = fileText.replace(endMarker, "")
 
+    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
+    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     val editor = getEditorAdapter
     editor.getSelectionModel.setSelection(startOffset, endOffset)
 

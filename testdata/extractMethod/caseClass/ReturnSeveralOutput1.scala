@@ -17,7 +17,7 @@ class ReturnSeveralOutput1 {
 //case class
 class ReturnSeveralOutput1 {
   def foo(i: Int): Int = {
-    /*start*/
+
 
     val testMethodNameResult: TestMethodNameResult = testMethodName(i) match {
       case Left(toReturn) => return toReturn
@@ -25,7 +25,7 @@ class ReturnSeveralOutput1 {
     }
     val TestMethodNameResult(x: Int, y: String, z: Int, zz: String) = testMethodNameResult
 
-    /*end*/
+
     println(x + y + z + zz)
     i
   }

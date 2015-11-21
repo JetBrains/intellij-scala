@@ -11,10 +11,10 @@ class NoReturnUnitOutput {
 /*
 class NoReturnUnitOutput {
   def foo(i: Int) {
-    /*start*/
+
 
     val x: Unit = testMethodName(i)
-    /*end*/
+
     x
   }
 

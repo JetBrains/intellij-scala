@@ -10,9 +10,9 @@ class NoReturnNoOutput {
 /*
 class NoReturnNoOutput {
   def foo(i: Int) {
-    /*start*/
+
     testMethodName(i)
-    /*end*/
+
     println()
   }
 

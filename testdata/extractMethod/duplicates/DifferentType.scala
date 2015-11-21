@@ -18,10 +18,10 @@ object DifferentType {
 object DifferentType {
   def foo(i: Int) {
     val q = i
-    /*start*/
+
 
     testMethodName(i)
-    /*end*/
+
 
   }
 
