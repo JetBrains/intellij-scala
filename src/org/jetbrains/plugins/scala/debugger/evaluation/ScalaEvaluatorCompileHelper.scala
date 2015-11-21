@@ -31,28 +31,35 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
 
   private val tempFiles = mutable.Set[File]()
 
-  override def projectOpened(): Unit = {
-    if (ApplicationManager.getApplication.isUnitTestMode) return
-
-    DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(
-      new DebuggerManagerAdapter {
-        override def sessionAttached(session: DebuggerSession): Unit = {
-          if (EvaluatorCompileHelper.needCompileServer && project.hasScala) {
-            CompileServerLauncher.ensureServerRunning(project)
-          }
-        }
-
-        override def sessionDetached(session: DebuggerSession) = {
-          for (f <- tempFiles) {
-            FileUtil.delete(f)
-          }
-
-          if (!ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED && EvaluatorCompileHelper.needCompileServer) {
-            CompileServerLauncher.ensureNotRunning(project)
-          }
-        }
+  private val listener = new DebuggerManagerAdapter {
+    override def sessionAttached(session: DebuggerSession): Unit = {
+      if (EvaluatorCompileHelper.needCompileServer && project.hasScala) {
+        CompileServerLauncher.ensureServerRunning(project)
       }
-    )
+    }
+
+    override def sessionDetached(session: DebuggerSession) = {
+      clearTempFiles()
+
+      if (!ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED && EvaluatorCompileHelper.needCompileServer) {
+        CompileServerLauncher.ensureNotRunning(project)
+      }
+    }
+  }
+
+  override def projectOpened(): Unit = {
+    if (!ApplicationManager.getApplication.isUnitTestMode) {
+      DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(listener)
+    }
+  }
+
+  override def projectClosed(): Unit = {
+    DebuggerManagerEx.getInstanceEx(project).removeDebuggerManagerListener(listener)
+  }
+
+  private def clearTempFiles() = {
+    tempFiles.foreach(FileUtil.delete)
+    tempFiles.clear()
   }
 
   def tempDir() = {
