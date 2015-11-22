@@ -3,12 +3,12 @@ package org.jetbrains.plugins.scala.lang.dataFlow
 import com.intellij.openapi.editor.SelectionModel
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import junit.framework.Assert
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs._
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{LightScalaTestCase, ScalaFileType}
+import org.junit.Assert
 
 import scala.util.Sorting
 

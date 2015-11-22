@@ -28,20 +28,18 @@ class CaseFilter extends ElementFilter {
     if (leaf != null && leaf.getParent != null) {
       val parent = leaf.getParent
       parent match {
-        case _: ScalaFile => {
+        case _: ScalaFile =>
           if (leaf.getNextSibling != null && leaf.getNextSibling.getNextSibling.isInstanceOf[ScPackaging] &&
-                  leaf.getNextSibling.getNextSibling.getText.indexOf('{') == -1)
+            leaf.getNextSibling.getNextSibling.getText.indexOf('{') == -1)
             return false
-        }
         case _ =>
       }
       parent match {
-        case _: ScCaseClause => {
+        case _: ScCaseClause =>
           if (parent.getNode.findChildByType(ScalaTokenTypes.tFUNTYPE) != null) return true
           else return false
-        }
         case _: ScMatchStmt => return true
-        case _: ScalaFile | _: ScPackaging => {
+        case _: ScalaFile | _: ScPackaging =>
           var node = leaf.getPrevSibling
           if (node.isInstanceOf[PsiWhiteSpace]) node = node.getPrevSibling
           node match {
@@ -54,32 +52,28 @@ class CaseFilter extends ElementFilter {
             }
             case _ => return true
           }
-        }
         case _ =>
       }
       if (parent.getParent != null) {
         parent.getParent.getParent match {
-          case _: ScCaseClause => {
+          case _: ScCaseClause =>
             if (parent.getParent.getParent.getNode.findChildByType(ScalaTokenTypes.tFUNTYPE) != null) return true
             else return false
-          }
           case _ =>
         }
       }
       parent.getParent match {
-        case _: ScBlockExpr | _: ScTemplateBody => {
+        case _: ScBlockExpr | _: ScTemplateBody =>
           parent match {
             case _: ScReferenceExpression =>
             case _ => return false
           }
           if (leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
-                  leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF)
+            leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF)
             return true
-        }
-        case _: ScCaseClause => {
+        case _: ScCaseClause =>
           if (parent.getParent.getNode.findChildByType(ScalaTokenTypes.tFUNTYPE) != null) return true
           else return false
-        }
         case _ =>
       }
       if (leaf.getPrevSibling != null &&

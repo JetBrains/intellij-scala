@@ -16,11 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElemen
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
 
-import scala.collection.mutable.HashSet
+import scala.collection.mutable
 
 /**
- * @author Alexander Podkhalyuzin
- */
+  * @author Alexander Podkhalyuzin
+  */
 
 class ScalaCodeFragment(project: Project, text: String) extends {
   private var vFile = new LightVirtualFile("Dummy.scala",
@@ -37,15 +37,19 @@ class ScalaCodeFragment(project: Project, text: String) extends {
   private var exceptionHandler: ExceptionHandler = null
   private var resolveScope: GlobalSearchScope = null
   private var filter: IntentionActionsFilter = null
-  private var imports: HashSet[String] = new HashSet
+  private var imports: mutable.HashSet[String] = new mutable.HashSet
 
   def getThisType: PsiType = thisType
 
-  def setThisType(psiType: PsiType) {thisType = psiType}
+  def setThisType(psiType: PsiType) {
+    thisType = psiType
+  }
 
   def getSuperType: PsiType = superType
 
-  def setSuperType(superType: PsiType) {this.superType = superType}
+  def setSuperType(superType: PsiType) {
+    this.superType = superType
+  }
 
   def importsToString(): String = {
     imports.mkString(",")
@@ -59,15 +63,21 @@ class ScalaCodeFragment(project: Project, text: String) extends {
 
   def getVisibilityChecker: VisibilityChecker = VisibilityChecker.EVERYTHING_VISIBLE
 
-  def setExceptionHandler(checker: ExceptionHandler) {exceptionHandler = checker}
+  def setExceptionHandler(checker: ExceptionHandler) {
+    exceptionHandler = checker
+  }
 
   def getExceptionHandler: ExceptionHandler = exceptionHandler
 
-  def forceResolveScope(scope: GlobalSearchScope) {resolveScope = scope}
+  def forceResolveScope(scope: GlobalSearchScope) {
+    resolveScope = scope
+  }
 
   def getForcedResolveScope: GlobalSearchScope = resolveScope
 
-  def setIntentionActionsFilter(filter: IntentionActionsFilter) {this.filter = filter}
+  def setIntentionActionsFilter(filter: IntentionActionsFilter) {
+    this.filter = filter
+  }
 
   def getIntentionActionsFilter: IntentionActionsFilter = filter
 
@@ -120,11 +130,13 @@ class ScalaCodeFragment(project: Project, text: String) extends {
 }
 
 object ScalaCodeFragment {
+
   private class ImportClassUndoableAction(path: String, document: Document,
-                                          imports: HashSet[String]) extends BasicUndoableAction {
+                                          imports: mutable.HashSet[String]) extends BasicUndoableAction {
     def undo() {
       imports -= path
     }
+
     def redo() {
       imports += path
     }

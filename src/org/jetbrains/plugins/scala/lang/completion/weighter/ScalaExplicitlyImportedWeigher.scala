@@ -60,7 +60,7 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
                 if (qualNoPoint == clazz.qualifiedName) return Some(3)
               case _ =>
             }
-        } else if (expr.selectorSet != None) {
+        } else if (expr.selectorSet.isDefined) {
           for (selector <- expr.selectors) {
             for (resolve <- selector.reference.multiResolve(false)) {
               resolve match {

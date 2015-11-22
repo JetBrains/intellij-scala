@@ -1,6 +1,6 @@
 package org.jetbrains.jps.incremental.scala.remote.play
 
-import java.io.{OutputStreamWriter, BufferedWriter, PrintStream}
+import java.io.{BufferedWriter, OutputStreamWriter, PrintStream}
 import java.net.{InetAddress, Socket}
 
 import com.intellij.util.Base64Converter
@@ -8,8 +8,6 @@ import com.martiansoftware.nailgun.NGContext
 import org.jetbrains.jps.incremental.messages.BuildMessage
 import org.jetbrains.jps.incremental.scala.remote.MessageEvent
 import org.jetbrains.jps.incremental.scala.remote.play.WatcherCommands._
-
-import scala.collection.mutable.ArrayBuffer
 
 /**
  * User: Dmitry.Naydanov
@@ -96,7 +94,7 @@ object SbtWatcherMain {
             run()
           case _ => run()
         }
-      case STOP => currentExec.map(a => a._1.endSbtExec())
+      case STOP => currentExec.foreach(a => a._1.endSbtExec())
       case IS_RUNNING => write2source(currentExec.map {a => toMessage(a._1.isRunning)} getOrElse FALSE)
       case _ =>
     }

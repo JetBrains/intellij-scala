@@ -98,7 +98,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
             }
 
             var flag = false
-            if (!(clazz == None)) {
+            if (clazz.isDefined) {
               val signs = clazz.get.allSignatures
 
               for (sign <- signs if !flag) {
@@ -116,7 +116,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
                     if (method.name == name && resolved != method) {
                       flag = true
                     } else if (resolved == method) {
-                      if (method.getParameterList.getParameters.length == 0) {
+                      if (method.getParameterList.getParameters.isEmpty) {
                         buf.append("()")
                         start = start + 2
                       }

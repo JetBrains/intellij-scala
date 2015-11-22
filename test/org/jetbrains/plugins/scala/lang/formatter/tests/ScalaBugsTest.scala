@@ -20,7 +20,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
   }
    */
 
-  def testSCL2424 {
+  def testSCL2424() {
     val before =
 """
 someMethod(new Something, abc, def)
@@ -32,7 +32,7 @@ someMethod(new Something, abc, def)
     doTextTest(before, after)
   }
 
-  def testSCL2425 {
+  def testSCL2425() {
     val before =
 """
 import foo.{Foo, Bar}
@@ -44,7 +44,7 @@ import foo.{Foo, Bar}
     doTextTest(before, after)
   }
 
-  def testSCL2477 {
+  def testSCL2477() {
     val before =
 """
 class Foo {
@@ -77,7 +77,7 @@ class Foo {
     doTextTest(before, after)
   }
 
-  def testSCL1875 {
+  def testSCL1875() {
     val before =
 """
 /**
@@ -97,7 +97,7 @@ class A
     doTextTest(before, after)
   }
 
-  def testSCL2066FromDiscussion {
+  def testSCL2066FromDiscussion() {
     val settings = getCommonSettings
     settings.BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
     val before =

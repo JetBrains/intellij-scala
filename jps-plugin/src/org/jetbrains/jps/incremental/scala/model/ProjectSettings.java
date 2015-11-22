@@ -7,7 +7,7 @@ import org.jetbrains.jps.model.JpsElement;
  * @author Pavel Fatin
  */
 public interface ProjectSettings extends JpsElement {
-  public IncrementalityType getIncrementalityType();
+  IncrementalityType getIncrementalityType();
 
-  public CompilerSettings getCompilerSettings(ModuleChunk chunk);
+  CompilerSettings getCompilerSettings(ModuleChunk chunk);
 }

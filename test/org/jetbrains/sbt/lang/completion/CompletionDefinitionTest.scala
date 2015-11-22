@@ -8,13 +8,13 @@ package lang.completion
 
 class CompletionDefinitionTest extends CompletionTestBase {
   def testObjectValues
-    = doTest
+    = doTest()
   def testLocalVars
-    = doTest
+    = doTest()
   def testJavaEnumValues
-    = doTest
+    = doTest()
   def testScopes
-    = doTest
+    = doTest()
   def testSequences
-    = doTest
+    = doTest()
 }

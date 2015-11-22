@@ -44,7 +44,7 @@ abstract class ExistentialSimplificationTestBase extends ScalaLightPlatformCodeI
     assert(expr != null, "Not specified expression in range to infer type.")
     val typez = expr.getType(TypingContext.empty)
     typez match {
-      case Success(ttypez: ScExistentialType, _) => {
+      case Success(ttypez: ScExistentialType, _) =>
 
         val res = ScType.presentableText(ttypez.simplify())
         val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
@@ -56,7 +56,6 @@ abstract class ExistentialSimplificationTestBase extends ScalaLightPlatformCodeI
           case _ => assertTrue("Test result must be in last comment statement.", false)
         }
         assertEquals(output, res)
-      }
       case Success(_, _) =>
         assert(assertion = false, message = "Expression has not existential type")
       case Failure(msg, elem) => assert(assertion = false, message = msg + " :: " + (elem match {

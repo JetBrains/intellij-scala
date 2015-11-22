@@ -22,16 +22,14 @@ object ConstrExpr {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val constrExprMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tLBRACE => {
+      case ScalaTokenTypes.tLBRACE =>
         ConstrBlock parse builder
         constrExprMarker.drop()
         return true
-      }
-      case _ => {
+      case _ =>
         SelfInvocation parse builder
         constrExprMarker.done(ScalaElementTypes.CONSTR_EXPR)
         return true
-      }
     }
     //this line for compiler
     true

@@ -12,11 +12,10 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes
-import com.intellij.psi.{TokenType, PsiComment, PsiElement, PsiWhiteSpace}
+import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace, TokenType}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaTokenTypesEx}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaTokenTypesEx, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -453,7 +452,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
 
     if (leftPsi.isInstanceOf[ScStableCodeReferenceElement] && !rightPsi.isInstanceOf[ScPackaging]) {
       leftPsi.getParent match {
-        case p: ScPackaging if p.reference == Some(leftPsi) =>
+        case p: ScPackaging if p.reference.contains(leftPsi) =>
           if (rightElementType != ScalaTokenTypes.tSEMICOLON && rightElementType != ScalaTokenTypes.tLBRACE) {
             return Spacing.createSpacing(0, 0, settings.BLANK_LINES_AFTER_PACKAGE + 1, keepLineBreaks,
               keepBlankLinesInCode)

@@ -3,6 +3,7 @@ package editor.importOptimizer
 
 
 import java.util
+import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.atomic.AtomicInteger
 
 import com.intellij.concurrency.JobLauncher
@@ -15,7 +16,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
-import com.intellij.util.containers.{ConcurrentHashMap, ConcurrentHashSet}
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -40,11 +41,12 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Set, mutable}
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 16.06.2009
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 16.06.2009
+  */
 
 class ScalaImportOptimizer extends ImportOptimizer {
+
   import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer._
 
   def processFile(file: PsiFile): Runnable = processFile(file, null)
@@ -64,8 +66,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
     val textCreator = getImportTextCreator
 
-    val usedImports = new ConcurrentHashSet[ImportUsed]
-    val list: util.ArrayList[PsiElement] =  new util.ArrayList[PsiElement]()
+    val usedImports = ContainerUtil.newConcurrentSet[ImportUsed]()
+    val list: util.ArrayList[PsiElement] = new util.ArrayList[PsiElement]()
     val notProcessed = new ArrayBuffer[PsiElement]()
     def addChildren(element: PsiElement): Unit = {
       list.add(element)
@@ -116,8 +118,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
     if (indicator != null) indicator.setText2(file.getName + ": collecting additional info")
 
     def collectRanges(rangeStarted: ScImportStmt => Set[String],
-                      createInfo: ScImportStmt => Seq[ImportInfo]): ConcurrentHashMap[TextRange, (Set[String], Seq[ImportInfo], Boolean)] = {
-      val importsInfo = new ConcurrentHashMap[TextRange, (Set[String], Seq[ImportInfo], Boolean)]
+                      createInfo: ScImportStmt => Seq[ImportInfo]): ConcurrentMap[TextRange, (Set[String], Seq[ImportInfo], Boolean)] = {
+      val importsInfo = ContainerUtil.newConcurrentMap[TextRange, (Set[String], Seq[ImportInfo], Boolean)]()
       JobLauncher.getInstance().invokeConcurrentlyUnderProgress(list, indicator, true, true, new Processor[PsiElement] {
         override def process(element: PsiElement): Boolean = {
           val count: Int = i.getAndIncrement
@@ -157,7 +159,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
                     val prev = comment.getPrevSibling
                     (next, prev) match {
                       case (w1: PsiWhiteSpace, w2: PsiWhiteSpace) if
-                        w1.getText.contains("\n") && w2.getText.contains("\n") => addRange()
+                      w1.getText.contains("\n") && w2.getText.contains("\n") => addRange()
                       case _ =>
                     }
                   case s: LeafPsiElement =>
@@ -378,6 +380,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
         for ((range, importInfos) <- ranges.reverseIterator) {
           val documentText = document.getText
+          @tailrec
           def splitterCalc(index: Int, res: String = ""): String = {
             if (index < 0) res
             else {
@@ -425,7 +428,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
   private def checkTypeForExpression(expr: ScExpression): Set[ImportUsed] = {
     var res: scala.collection.mutable.HashSet[ImportUsed] =
       scala.collection.mutable.HashSet(expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType()).
-        importsUsed.toSeq : _*)
+        importsUsed.toSeq: _*)
     expr match {
       case call: ScMethodCall =>
         res ++= call.getImportsUsed
@@ -453,9 +456,10 @@ object ScalaImportOptimizer {
   val NO_IMPORT_USED: Set[ImportUsed] = Set.empty
 
   /**
-   * We can't just select ScalaImportOptimizer because of Play2 templates
-   * @param file Any parallel psi file
-   */
+    * We can't just select ScalaImportOptimizer because of Play2 templates
+    *
+    * @param file Any parallel psi file
+    */
   def runOptimizerUnsafe(file: ScalaFile) {
     val topLevelFile = file.getViewProvider.getPsi(file.getViewProvider.getBaseLanguage)
     val optimizers = LanguageImportStatements.INSTANCE.forFile(topLevelFile)
@@ -510,9 +514,9 @@ object ScalaImportOptimizer {
   }
 
   case class ImportInfo(importUsed: Set[ImportUsed], prefixQualifier: String,
-                   relative: Option[String], allNames: Set[String],
-                   singleNames: Set[String], renames: Map[String, String],
-                   hidedNames: Set[String], hasWildcard: Boolean, rootUsed: Boolean) {
+                        relative: Option[String], allNames: Set[String],
+                        singleNames: Set[String], renames: Map[String, String],
+                        hidedNames: Set[String], hasWildcard: Boolean, rootUsed: Boolean) {
     def withoutRelative(holderNames: Set[String]): ImportInfo =
       if (relative.isDefined || rootUsed) copy(relative = None) else this
   }
@@ -541,7 +545,7 @@ object ScalaImportOptimizer {
       }) allNames += nameToAdd
     }
 
-    if (!imp.singleWildcard && imp.selectorSet == None) {
+    if (!imp.singleWildcard && imp.selectorSet.isEmpty) {
       val importUsed: ImportExprUsed = ImportExprUsed(imp)
       if (isImportUsed(importUsed)) {
         res += importUsed
@@ -554,7 +558,7 @@ object ScalaImportOptimizer {
       }
     } else if (imp.singleWildcard) {
       val importUsed =
-        if (imp.selectorSet == None) ImportExprUsed(imp)
+        if (imp.selectorSet.isEmpty) ImportExprUsed(imp)
         else ImportWildcardSelectorUsed(imp)
       if (isImportUsed(importUsed)) {
         res += importUsed

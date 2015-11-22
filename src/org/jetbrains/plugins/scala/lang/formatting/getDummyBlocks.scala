@@ -205,7 +205,7 @@ object getDummyBlocks {
           case _: ScMethodCall | _: ScReferenceExpression =>
             if (child.getElementType == ScalaTokenTypes.tIDENTIFIER &&
                     child.getPsi.getParent.isInstanceOf[ScReferenceExpression] &&
-                    child.getPsi.getParent.asInstanceOf[ScReferenceExpression].qualifier == None) null
+                    child.getPsi.getParent.asInstanceOf[ScReferenceExpression].qualifier.isEmpty) null
             else if (child.getPsi.isInstanceOf[ScExpression]) null
             else alignment
           case _: ScXmlStartTag  | _: ScXmlEmptyTag =>
@@ -369,7 +369,7 @@ object getDummyBlocks {
           newAlignment
         }
         if (child.getElementType == ScalaTokenTypes.tFUNTYPE ||
-                child.getElementType == ScalaTokenTypes.tFUNTYPE_ASCII) {
+          child.getElementType == ScalaTokenTypes.tFUNTYPE_ASCII) {
           if (prev == null) return createNewAlignment
           val prevChild =
             prev.findChildByType(TokenSet.create(ScalaTokenTypes.tFUNTYPE, ScalaTokenTypes.tFUNTYPE_ASCII))
@@ -696,15 +696,15 @@ object getDummyBlocks {
       def checkSamePriority: Boolean = {
         import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.priority
         val childPriority = child.getPsi match {
-          case inf: ScInfixExpr => priority(inf.operation.getText, true)
-          case inf: ScInfixPattern => priority(inf.reference.getText, false)
-          case inf: ScInfixTypeElement => priority(inf.ref.getText, false)
+          case inf: ScInfixExpr => priority(inf.operation.getText, assignments = true)
+          case inf: ScInfixPattern => priority(inf.reference.getText, assignments = false)
+          case inf: ScInfixTypeElement => priority(inf.ref.getText, assignments = false)
           case _ => 0
         }
         val parentPriority = node.getPsi match {
-          case inf: ScInfixExpr => priority(inf.operation.getText, true)
-          case inf: ScInfixPattern => priority(inf.reference.getText, false)
-          case inf: ScInfixTypeElement => priority(inf.ref.getText, false)
+          case inf: ScInfixExpr => priority(inf.operation.getText, assignments = true)
+          case inf: ScInfixPattern => priority(inf.reference.getText, assignments = false)
+          case inf: ScInfixTypeElement => priority(inf.ref.getText, assignments = false)
           case _ => 0
         }
         parentPriority == childPriority

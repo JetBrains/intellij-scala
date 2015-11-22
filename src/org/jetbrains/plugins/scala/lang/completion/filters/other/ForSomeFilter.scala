@@ -3,8 +3,8 @@ package lang
 package completion
 package filters.other
 
-import com.intellij.psi.{PsiElement, _}
 import com.intellij.psi.filters.ElementFilter
+import com.intellij.psi.{PsiElement, _}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScInfixTypeElement
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScInfixTypeElement
 class ForSomeFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
+    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
       val parent = leaf.getParent
       if (parent == null) return false
@@ -26,15 +26,15 @@ class ForSomeFilter extends ElementFilter {
         case _ => return false
       }
     }
-    return false
+    false
   }
 
   def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
-    return true;
+    true
   }
 
   @NonNls
-  override def toString(): String = {
-    return "'forSome' keyword filter"
+  override def toString: String = {
+    "'forSome' keyword filter"
   }
 }

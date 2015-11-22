@@ -82,7 +82,7 @@ abstract class CompletionTestBase extends ScalaLightPlatformCodeInsightTestCaseA
       case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
         text.substring(2, text.length - 2).trim
       case _ =>
-        assert(false, "Test result must be in last comment statement.")
+        assert(assertion = false, "Test result must be in last comment statement.")
         ""
     }
   }

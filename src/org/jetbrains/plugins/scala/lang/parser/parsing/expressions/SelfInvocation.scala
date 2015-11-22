@@ -21,14 +21,12 @@ object SelfInvocation {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val selfMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.kTHIS => {
+      case ScalaTokenTypes.kTHIS =>
         builder.advanceLexer() //Ate this
-      }
-      case _ => {
+      case _ =>
         //error moved to ScalaAnnotator to differentiate with compiled files
         selfMarker.drop()
         return true
-      }
     }
     if (!ArgumentExprs.parse(builder)) {
       selfMarker.done(ScalaElementTypes.SELF_INVOCATION)

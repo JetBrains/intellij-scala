@@ -95,7 +95,7 @@ class CreateScalaDocStubAction extends AnAction(ScalaBundle message "create.scal
       }
 
       val tags = oldComment.getTags
-      val firstAnchor = if (tags.length > 0) tags(tags.length - 1) else oldComment.getLastChild.getPrevSibling
+      val firstAnchor = if (tags.nonEmpty) tags(tags.length - 1) else oldComment.getLastChild.getPrevSibling
 
       (firstAnchor.getTextRange.getEndOffset /: (groupNames zip paramMaps)) {
         case (anchor, (name, paramMap)) => (anchor /: paramMap) {

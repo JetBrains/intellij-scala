@@ -30,7 +30,7 @@ object PatVarDef {
     while (Modifier.parse(builder)) {}
     modifierMarker.done(ScalaElementTypes.MODIFIERS)
     builder.getTokenType match {
-      case ScalaTokenTypes.kVAL => {
+      case ScalaTokenTypes.kVAL =>
         builder.advanceLexer //Ate val
         if (PatDef parse builder) {
           patVarMarker.done(ScalaElementTypes.PATTERN_DEFINITION)
@@ -40,8 +40,7 @@ object PatVarDef {
           patVarMarker.rollbackTo
           return false
         }
-      }
-      case ScalaTokenTypes.kVAR => {
+      case ScalaTokenTypes.kVAR =>
         builder.advanceLexer //Ate var
         if (VarDef parse builder) {
           patVarMarker.done(ScalaElementTypes.VARIABLE_DEFINITION)
@@ -51,11 +50,9 @@ object PatVarDef {
           patVarMarker.rollbackTo
           return false
         }
-      }
-      case _ => {
+      case _ =>
         patVarMarker.rollbackTo
         return false
-      }
     }
   }
 }

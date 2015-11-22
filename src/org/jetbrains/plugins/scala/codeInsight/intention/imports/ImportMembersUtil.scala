@@ -71,7 +71,7 @@ object ImportMembersUtil {
         fun.getSyntheticNavigationElement match {
           case Some(named: PsiNamedElement) =>
             replaceAndBind(oldRef, named.name, named)
-          case _ => return
+          case _ =>
         }
       case _ =>
         oldRef match {
@@ -124,7 +124,7 @@ object ImportMembersUtil {
         case ref @ ScReferenceExpression.withQualifier(`qual`) => Some(ref)
         case ScInfixExpr(`qual`, op, _) => Some(op)
         case ScPostfixExpr(`qual`, op: ScReferenceElement) => Some(op)
-        case stRef: ScStableCodeReferenceElement if stRef.qualifier == Some(qual) => Some(stRef)
+        case stRef: ScStableCodeReferenceElement if stRef.qualifier.contains(qual) => Some(stRef)
         case _ => None
       }
     }

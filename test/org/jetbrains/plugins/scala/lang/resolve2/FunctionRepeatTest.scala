@@ -10,13 +10,13 @@ class FunctionRepeatTest extends ResolveTestBase {
     super.folderPath + "function/repeat/"
   }
 
-  def testArraya = doTest
-  def testArrayRaw = doTest
-  def testEmpty = doTest
-  def testNone = doTest
-  def testOne = doTest
-  def testTwo = doTest
-  def testIncompatibleArraya = doTest
-  def testIncompatibleOne = doTest
-  def testIncompatibleTwo = doTest
+  def testArraya() = doTest()
+  def testArrayRaw() = doTest()
+  def testEmpty() = doTest()
+  def testNone() = doTest()
+  def testOne() = doTest()
+  def testTwo() = doTest()
+  def testIncompatibleArraya() = doTest()
+  def testIncompatibleOne() = doTest()
+  def testIncompatibleTwo() = doTest()
 }

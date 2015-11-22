@@ -63,7 +63,7 @@ object SimplifyBooleanUtil {
   def simplify(expr: ScExpression): ScExpression = {
     val exprCopy = expr.copy.asInstanceOf[ScExpression]
     val children = getScExprChildren(exprCopy)
-    children.map(child => exprCopy.getNode.replaceChild(child.getNode, simplify(child).getNode))
+    children.foreach(child => exprCopy.getNode.replaceChild(child.getNode, simplify(child).getNode))
     simplifyTrivially(exprCopy)
   }
 

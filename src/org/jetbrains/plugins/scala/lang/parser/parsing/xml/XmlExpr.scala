@@ -20,7 +20,7 @@ object XmlExpr {
     val xmlMarker = builder.mark
     builder.disableNewlines
     if (!XmlContent.parse(builder)) {
-      xmlMarker.drop
+      xmlMarker.drop()
       builder.restoreNewlinesState
       return false
     }

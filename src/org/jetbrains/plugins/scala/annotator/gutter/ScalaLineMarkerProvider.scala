@@ -94,7 +94,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           val signatures: Seq[Signature] = mutable.HashSet[Signature](method.superSignaturesIncludingSelfType: _*).toSeq
           val icon = if (GutterUtil.isOverrides(method, signatures)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
-          if (signatures.length > 0) {
+          if (signatures.nonEmpty) {
             return marker(method.nameId, icon, typez)
           }
         case (x@(_: ScValue | _: ScVariable), _: ScTemplateBody)
@@ -104,7 +104,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z, withSelfType = true)
           val icon = if (GutterUtil.isOverrides(x, signatures)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
-          if (signatures.length > 0) {
+          if (signatures.nonEmpty) {
             val token = x match {
               case v: ScValue => v.getValToken
               case v: ScVariable => v.getVarToken
@@ -115,21 +115,21 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
           val signatures = ScalaPsiUtil.superValsSignatures(x, withSelfType = true)
           val icon = if (GutterUtil.isOverrides(x, signatures)) OVERRIDING_METHOD_ICON else IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
-          if (signatures.length > 0) {
+          if (signatures.nonEmpty) {
             return marker(x.getObjectToken, icon, typez)
           }
         case (td : ScTypeDefinition, _: ScTemplateBody) if !td.isObject =>
           val signature = ScalaPsiUtil.superTypeMembers(td, withSelfType = true)
           val icon = IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
-          if (signature.length > 0) {
+          if (signature.nonEmpty) {
             return marker(td.getObjectClassOrTraitToken, icon, typez)
           }
         case (ta : ScTypeAlias, _: ScTemplateBody) =>
           val signature = ScalaPsiUtil.superTypeMembers(ta, withSelfType = true)
           val icon = IMPLEMENTING_METHOD_ICON
           val typez = ScalaMarkerType.OVERRIDING_MEMBER
-          if (signature.length > 0) {
+          if (signature.nonEmpty) {
             return marker(ta.getTypeToken, icon, typez)
           }
         case _ =>
@@ -175,7 +175,7 @@ class ScalaLineMarkerProvider(daemonSettings: DaemonCodeAnalyzerSettings, colors
         case _ =>
       }
     }
-    if (!members.isEmpty) {
+    if (members.nonEmpty) {
       GutterUtil.collectOverridingMembers(members, result)
     }
   }
@@ -210,7 +210,7 @@ private object GutterUtil {
       }
       val overrides = new ArrayBuffer[PsiNamedElement]
       for (member <- members) overrides ++= ScalaOverridingMemberSearcher.search(member, deep = false, withSelfType = true)
-      if (overrides.length > 0) {
+      if (overrides.nonEmpty) {
         val icon = if (!GutterUtil.isAbstract(member)) OVERRIDEN_METHOD_MARKER_RENDERER else IMPLEMENTED_INTERFACE_MARKER_RENDERER
         val typez = ScalaMarkerType.OVERRIDDEN_MEMBER
         val info = new LineMarkerInfo[PsiElement](member match {case memb: ScNamedElement => memb.nameId

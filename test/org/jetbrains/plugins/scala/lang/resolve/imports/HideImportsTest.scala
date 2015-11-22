@@ -5,6 +5,7 @@ package imports
 
 
 import com.intellij.psi.PsiPolyVariantReference
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.junit.Assert
 
 class HideImportsTest extends ScalaResolveTestCase {
@@ -19,7 +20,7 @@ class HideImportsTest extends ScalaResolveTestCase {
         val res = results(0)
         assert(res.isInstanceOf[ScalaResolveResult])
         val srr = res.asInstanceOf[ScalaResolveResult]
-        Assert.assertEquals("caPitalize", srr.element.getName)
+        Assert.assertEquals("caPitalize", srr.element.name)
       case _ => throw new Exception("Wrong reference!")
     }
   }

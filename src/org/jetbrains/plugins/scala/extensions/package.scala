@@ -15,7 +15,6 @@ import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.util.Processor
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation._
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction}
@@ -28,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiMethodWrapper}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 import scala.collection.generic.CanBuildFrom
 import scala.language.higherKinds
@@ -70,7 +70,7 @@ package object extensions {
 
     def hasVoidReturnType = repr.getReturnType == PsiType.VOID
 
-    def hasNoParams = repr.getParameterList.getParameters.length == 0
+    def hasNoParams = repr.getParameterList.getParameters.isEmpty
   }
 
   object PsiMethodExt {
@@ -82,7 +82,7 @@ package object extensions {
   }
 
   implicit class TraversableExt[CC[X] <: Traversable[X], A](val value: CC[A]) extends AnyVal {
-    private type CanBuildTo[Elem, CC[X]] = CanBuildFrom[Nothing, Elem, CC[Elem]]
+    private type CanBuildTo[Elem, C[X]] = CanBuildFrom[Nothing, Elem, C[Elem]]
 
     def filterBy[T](aClass: Class[T])(implicit cbf: CanBuildTo[T, CC]): CC[T] =
       value.filter(aClass.isInstance(_)).map[T, CC[T]](_.asInstanceOf[T])(collection.breakOut)
@@ -94,7 +94,7 @@ package object extensions {
   }
 
   implicit class SeqExt[CC[X] <: Seq[X], A](val value: CC[A]) extends AnyVal {
-    private type CanBuildTo[Elem, CC[X]] = CanBuildFrom[Nothing, Elem, CC[Elem]]
+    private type CanBuildTo[Elem, C[X]] = CanBuildFrom[Nothing, Elem, C[Elem]]
 
     def distinctBy[K](f: A => K)(implicit cbf: CanBuildTo[A, CC]): CC[A] = {
       val b = cbf()
@@ -103,7 +103,7 @@ package object extensions {
         val v = f(x)
         if (!(seen contains v)) {
           b += x
-          seen = (seen + v)
+          seen = seen + v
         }
       }
       b.result()
@@ -129,7 +129,7 @@ package object extensions {
   }
 
   implicit class IterableExt[CC[X] <: Iterable[X], A](val value: CC[A]) extends AnyVal {
-    private type CanBuildTo[Elem, CC[X]] = CanBuildFrom[Nothing, Elem, CC[Elem]]
+    private type CanBuildTo[Elem, C[X]] = CanBuildFrom[Nothing, Elem, C[Elem]]
 
     def zipMapped[B](f: A => B)(implicit cbf: CanBuildTo[(A, B), CC]): CC[(A, B)] = {
       val b = cbf()
@@ -143,7 +143,7 @@ package object extensions {
   }
 
   implicit class ObjectExt[T](val v: T) extends AnyVal{
-    def toOption: Option[T] = if (v == null) None else Some(v)
+    def toOption: Option[T] = Option(v)
 
     def asOptionOf[E: ClassTag]: Option[E] = {
       if (classTag[E].runtimeClass.isInstance(v)) Some(v.asInstanceOf[E])
@@ -289,8 +289,8 @@ package object extensions {
      */
     def name: String = {
       named match {
-        case named: ScNamedElement => named.name
-        case named => named.getName
+        case nd: ScNamedElement => nd.name
+        case nd => nd.getName
       }
     }
   }

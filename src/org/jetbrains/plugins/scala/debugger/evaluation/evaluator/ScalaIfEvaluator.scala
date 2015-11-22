@@ -22,9 +22,9 @@ class ScalaIfEvaluator(condition: Evaluator, ifBranch: Evaluator, elseBranch: Op
         }
         else {
           elseBranch match {
-            case Some(elseBranch) =>
-              value = elseBranch.evaluate(context)
-              modifier = elseBranch.getModifier
+            case Some(branch) =>
+              value = branch.evaluate(context)
+              modifier = branch.getModifier
               return value
             case None =>
               modifier = null
@@ -33,7 +33,7 @@ class ScalaIfEvaluator(condition: Evaluator, ifBranch: Evaluator, elseBranch: Op
       case _ => throw EvaluateExceptionUtil.BOOLEAN_EXPECTED
     }
     
-    if (elseBranch == None)
+    if (elseBranch.isEmpty)
       value = context.getDebugProcess.getVirtualMachineProxy.mirrorOf()
 
     value

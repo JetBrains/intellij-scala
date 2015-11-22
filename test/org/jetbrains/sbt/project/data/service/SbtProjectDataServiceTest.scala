@@ -10,7 +10,6 @@ import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{IdeaTestUtil, UsefulTestCase}
-import junit.framework.Assert._
 import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -19,6 +18,7 @@ import org.jetbrains.sbt.project.data.SbtProjectNode
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.settings.SbtSystemSettings
+import org.junit.Assert._
 
 /**
  * @author Nikolay Obedin
@@ -33,30 +33,30 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
     setUpJdks()
   }
 
-  def testEmptyBasePackages: Unit =
+  def testEmptyBasePackages(): Unit =
     doTestBasePackages(Seq.empty)
 
-  def testNonEmptyBasePackages: Unit =
+  def testNonEmptyBasePackages(): Unit =
     doTestBasePackages(Seq("com.test1.base", "com.test2.base"))
 
-  def testValidJavaSdk: Unit =
+  def testValidJavaSdk(): Unit =
     doTestSdk(Some(data.JdkByVersion("1.8")),
       ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdk18.getName),
       LanguageLevel.JDK_1_8)
 
-  def testValidJavaSdkWithDifferentLanguageLevel: Unit =
+  def testValidJavaSdkWithDifferentLanguageLevel(): Unit =
     doTestSdk(Some(data.JdkByVersion("1.8")),
       Seq("-source", "1.6"),
       ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdk18.getName),
       LanguageLevel.JDK_1_6)
 
-  def testInvalidSdk: Unit =
+  def testInvalidSdk(): Unit =
     doTestSdk(Some(data.JdkByVersion("20")), defaultJdk, LanguageLevel.JDK_1_7)
 
-  def testAbsentSdk: Unit =
+  def testAbsentSdk(): Unit =
     doTestSdk(None, defaultJdk, LanguageLevel.JDK_1_7)
 
-  def testJavacOptions: Unit = {
+  def testJavacOptions(): Unit = {
     val options = Seq(
       "-g:none",
       "-nowarn",
@@ -76,7 +76,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
     assertEquals("1.8", compilerConfiguration.getProjectBytecodeTarget)
   }
 
-  def testSbtVersion: Unit = {
+  def testSbtVersion(): Unit = {
     val projectSettings = SbtProjectSettings.default
     projectSettings.setExternalProjectPath(ExternalSystemApiUtil.normalizePath(getProject.getBasePath))
     SbtSystemSettings.getInstance(getProject).linkProject(projectSettings)
@@ -87,7 +87,7 @@ class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
     assertEquals(expectedVersion, actualVersion)
   }
 
-  def testIncrementalityTypeForSharedModules: Unit = {
+  def testIncrementalityTypeForSharedModules(): Unit = {
     val testProject = new project {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath

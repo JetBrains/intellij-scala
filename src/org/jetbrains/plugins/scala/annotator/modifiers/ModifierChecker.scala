@@ -185,11 +185,11 @@ private[annotator] object ModifierChecker {
                       clazz.constructor match {
                         case Some(constr) =>
                           val clauses = constr.parameterList.clauses
-                          if (clauses.length == 0) errorResult()
+                          if (clauses.isEmpty) errorResult()
                           else {
-                            val parameters = clauses(0).parameters
+                            val parameters = clauses.head.parameters
                             if (parameters.length != 1) errorResult()
-                            else if (parameters(0).isRepeatedParameter) errorResult()
+                            else if (parameters.head.isRepeatedParameter) errorResult()
                             else if (clauses.length > 2 || (clauses.length == 2 && !clauses(1).isImplicit)) errorResult()
                           }
                         case _ => errorResult()

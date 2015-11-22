@@ -10,16 +10,16 @@ class FunctionBlockTest extends ResolveTestBase {
     super.folderPath + "function/block/"
   }
 
-  def testBlocksToCurryied = doTest
-  def testBlocksToTwo = doTest
-  def testBlockToEmpty = doTest
-  def testBlockToFunctionInt = doTest
+  def testBlocksToCurryied() = doTest()
+  def testBlocksToTwo() = doTest()
+  def testBlockToEmpty() = doTest()
+  def testBlockToFunctionInt() = doTest()
   //TODO unit
 //  def testBlockToFunctionUnit = doTest
   //TODO unit
 //  def testBlockToFunctionWithArgs = doTest
-  def testBlockToOtherType = doTest
-  def testBlockToNone = doTest
-  def testBlockToOne = doTest
-  def testBlockToTwo = doTest
+  def testBlockToOtherType() = doTest()
+  def testBlockToNone() = doTest()
+  def testBlockToOne() = doTest()
+  def testBlockToTwo() = doTest()
 }

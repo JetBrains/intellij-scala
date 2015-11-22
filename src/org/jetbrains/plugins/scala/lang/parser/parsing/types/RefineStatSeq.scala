@@ -18,9 +18,9 @@ object RefineStatSeq {
       builder.getTokenType match {
         //end of parsing when find } or builder.eof
         case ScalaTokenTypes.tRBRACE | null => return
-        case ScalaTokenTypes.tSEMICOLON => builder.advanceLexer //not interesting case
+        case ScalaTokenTypes.tSEMICOLON => builder.advanceLexer() //not interesting case
         //otherwise parse TopStat
-        case _ => {
+        case _ =>
           if (!RefineStat.parse(builder)) {
             builder error ScalaBundle.message("wrong.top.statment.declaration")
             return
@@ -33,7 +33,6 @@ object RefineStatSeq {
               case _ =>
             }
           }
-        }
       }
     }
   }

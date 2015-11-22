@@ -57,7 +57,7 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
       doStmtParent <- doStmt.parent
     } {
 
-      val nameConflict = !(declaredNames(body) intersect declaredNames(doStmtParent)).isEmpty
+      val nameConflict = (declaredNames(body) intersect declaredNames(doStmtParent)).nonEmpty
       if (nameConflict) {
         val message = "This action will cause name conflict."
         showNotification(message)

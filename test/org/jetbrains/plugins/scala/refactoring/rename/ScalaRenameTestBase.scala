@@ -3,7 +3,7 @@ package refactoring.rename
 
 import java.io.File
 
-import com.intellij.codeInsight.TargetElementUtilBase
+import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
@@ -25,7 +25,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
   protected def folderPath: String = TestUtils.getTestDataPath + "/rename/"
 
   protected def doTest() {
-    import junit.framework.Assert._
+    import org.junit.Assert._
     val filePath = folderPath + getTestName(false) + ".scala"
     val ioFile: File = new File(filePath)
     var fileText: String = FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
@@ -35,9 +35,9 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
     val offset = fileText.indexOf(caretMarker) + caretMarker.length + 1
     assert(offset != caretMarker.length, "Not specified caret marker in test case. Use /*caret*/ in scala file for this.")
     getEditorAdapter.getCaretModel.moveToOffset(offset)
-    val element = TargetElementUtilBase.findTargetElement(
+    val element = TargetElementUtil.findTargetElement(
       InjectedLanguageUtil.getEditorForInjectedLanguageNoCommit(getEditorAdapter, scalaFile),
-      TargetElementUtilBase.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtilBase.ELEMENT_NAME_ACCEPTED)
+      TargetElementUtil.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtil.ELEMENT_NAME_ACCEPTED)
     assert(element != null, "Reference is not specified.")
     val searchInComments = element.getText.contains("Comments")
 
@@ -60,10 +60,9 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
       case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
       case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
         text.substring(2, text.length - 2).trim
-      case _ => {
+      case _ =>
         assertTrue("Test result must be in last comment statement.", false)
         ""
-      }
     }
     assertEquals(output, res)
   }

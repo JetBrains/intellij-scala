@@ -8,23 +8,23 @@ import com.intellij.psi.PsiElement
 
 
 class NextSiblingsIteratorTest extends IteratorTestCase {
-  def testEmpty = {
+  def testEmpty() = {
     assertIterates("", parse("0 (1.1)").getFirstChild)
   }
 
-  def testOneSibling = {
+  def testOneSibling() = {
     assertIterates("1.2", parse("0 (1.1, 1.2)").getFirstChild)
   }
   
-  def testTwoSiblings = {
+  def testTwoSiblings() = {
     assertIterates("1.2, 1.3", parse("0 (1.1, 1.2, 1.3)").getFirstChild)
   }
   
-  def testThreeSiblings = {
+  def testThreeSiblings() = {
     assertIterates("1.2, 1.3, 1.4", parse("0 (1.1, 1.2, 1.3, 1.4)").getFirstChild)
   }
   
-  def testSubChildren = {
+  def testSubChildren() = {
    assertIterates("", parse("0 (1.1 (2.1))").getFirstChild)
  }
 

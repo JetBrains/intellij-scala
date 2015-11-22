@@ -29,7 +29,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
   protected override def rootPath(): String = folderPath
 
   protected def doTest() {
-    import junit.framework.Assert._
+    import org.junit.Assert._
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.refreshAndFindFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")

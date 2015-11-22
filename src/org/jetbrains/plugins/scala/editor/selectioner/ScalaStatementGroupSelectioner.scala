@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package editor.selectioner
 
-import java.util.ArrayList
+import java.util
 
 import com.intellij.codeInsight.editorActions.ExtendWordSelectionHandlerBase
 import com.intellij.openapi.editor.Editor
@@ -15,8 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}
 
 /**
- * @author yole
- */
+  * @author yole
+  */
 
 class ScalaStatementGroupSelectioner extends ExtendWordSelectionHandlerBase {
   def canSelect(e: PsiElement) = {
@@ -30,8 +30,8 @@ class ScalaStatementGroupSelectioner extends ExtendWordSelectionHandlerBase {
   override def select(e: PsiElement, editorText: CharSequence, cursorOffset: Int, editor: Editor): java.util.List[TextRange] = {
     val parent: PsiElement = e.getParent
 
-    if (!(parent.isInstanceOf[ScBlock])) {
-      return new ArrayList[TextRange]
+    if (!parent.isInstanceOf[ScBlock]) {
+      return new util.ArrayList[TextRange]
     }
 
     def back(e: PsiElement) = e.getPrevSibling
@@ -40,7 +40,7 @@ class ScalaStatementGroupSelectioner extends ExtendWordSelectionHandlerBase {
     val endElement = skipWhitespace(findGroupBoundary(e, forward, ScalaTokenTypes.tRBRACE), back)
 
     val range: TextRange = new TextRange(startElement.getTextRange.getStartOffset, endElement.getTextRange.getEndOffset)
-    return ExtendWordSelectionHandlerBase.expandToWholeLine(editorText, range)
+    ExtendWordSelectionHandlerBase.expandToWholeLine(editorText, range)
   }
 
   def findGroupBoundary(startElement: PsiElement, step: PsiElement => PsiElement, stopAt: IElementType): PsiElement = {
@@ -60,14 +60,14 @@ class ScalaStatementGroupSelectioner extends ExtendWordSelectionHandlerBase {
       }
       current = sibling
     }
-    return current
+    current
   }
 
   def skipWhitespace(start: PsiElement, step: PsiElement => PsiElement): PsiElement = {
     var current = start
-    while(current.isInstanceOf[PsiWhiteSpace]) {
+    while (current.isInstanceOf[PsiWhiteSpace]) {
       current = step(current)
     }
-    return current
+    current
   }
 }

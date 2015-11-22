@@ -35,14 +35,13 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
       }
       val context = ScalaPsiUtil.nameContext(refElement.asInstanceOf[PsiNamedElement])
       context match {
-        case doc: PsiDocCommentOwner => {
+        case doc: PsiDocCommentOwner =>
           doc match {
             case _: ScPrimaryConstructor =>
             case f: PsiMethod if f.isConstructor =>
             case _ => if (!doc.isDeprecated) return
           }
           if (!doc.isDeprecated && !Option(doc.containingClass).exists(_.isDeprecated)) return
-        }
         case _ => return
       }
       val message = for {

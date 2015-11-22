@@ -11,11 +11,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.ClassTemplate
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Path, TypeArgs}
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml.XmlExpr
 
+import scala.annotation.tailrec
+
 /**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-* Time: 9:21:35
-*/
+  * @author Alexander Podkhalyuzin
+  *         Date: 06.03.2008
+  *         Time: 9:21:35
+  */
 
 /*
  * SimpleExpr ::= 'new' (ClassTemplate | TemplateBody)
@@ -78,7 +80,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
             } else {
               var isTuple = false
               while (builder.getTokenType == ScalaTokenTypes.tCOMMA &&
-                      !lookAhead(builder, ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tRPARENTHESIS)) {
+                !lookAhead(builder, ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tRPARENTHESIS)) {
                 isTuple = true
                 builder.advanceLexer()
                 if (!Expr.parse(builder)) {
@@ -112,6 +114,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
         newMarker = simpleMarker.precede
         simpleMarker.drop()
     }
+    @tailrec
     def subparse(marker: PsiBuilder.Marker) {
       builder.getTokenType match {
         case ScalaTokenTypes.tUNDER if !builder.newlineBeforeCurrentToken =>
@@ -130,7 +133,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
           builder.getTokenType match {
             case ScalaTokenTypes.tIDENTIFIER =>
               builder.advanceLexer() //Ate id
-              val tMarker = marker.precede
+            val tMarker = marker.precede
               marker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
               subparse(tMarker)
             case _ =>
@@ -138,7 +141,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
               marker.drop()
           }
         case ScalaTokenTypes.tLPARENTHESIS | ScalaTokenTypes.tLBRACE if
-          builder.getTokenType != ScalaTokenTypes.tLPARENTHESIS  || !builder.newlineBeforeCurrentToken =>
+        builder.getTokenType != ScalaTokenTypes.tLPARENTHESIS || !builder.newlineBeforeCurrentToken =>
           if (state && ArgumentExprs.parse(builder)) {
             val tMarker = marker.precede
             marker.done(ScalaElementTypes.METHOD_CALL)

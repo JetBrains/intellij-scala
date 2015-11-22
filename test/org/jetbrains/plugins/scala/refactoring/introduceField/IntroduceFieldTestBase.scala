@@ -7,7 +7,6 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.testFramework.UsefulTestCase
-import junit.framework.Assert._
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -17,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.StdType
 import org.jetbrains.plugins.scala.lang.refactoring.introduceField.{IntroduceFieldContext, IntroduceFieldSettings, ScalaIntroduceFieldFromExpressionHandler}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.util.ScalaUtils
+import org.junit.Assert._
 
 /**
  * Nikolay.Tropin
@@ -93,10 +93,9 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
       case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
       case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
         text.substring(2, text.length - 2).trim
-      case _ => {
+      case _ =>
         assertTrue("Test result must be in last comment statement.", false)
         ""
-      }
     }
     assertEquals(output, res)
   }

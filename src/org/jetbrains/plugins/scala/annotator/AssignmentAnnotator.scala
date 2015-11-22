@@ -56,8 +56,8 @@ trait AssignmentAnnotator {
               case fun: ScFunction if ScalaPsiUtil.isViableForAssignmentFunction(fun) =>
                 if (!advancedHighlighting) return
                 assignment.resolveAssignment match {
-                  case Some(r) =>
-                    r.problems.foreach {
+                  case Some(ra) =>
+                    ra.problems.foreach {
                       case TypeMismatch(expression, expectedType) =>
                         if (expression != null)
                           for (t <- expression.getType(TypingContext.empty)) {

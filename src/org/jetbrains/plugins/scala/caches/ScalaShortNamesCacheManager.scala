@@ -36,7 +36,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     val iterator = classes.iterator()
     while (iterator.hasNext) {
       val clazz = iterator.next()
-      if (name == clazz.getQualifiedName) {
+      if (name == clazz.qualifiedName) {
         clazz.getContainingFile match {
           case file: ScalaFile =>
             if (!file.isScriptFile(withCaching = true)) return clazz

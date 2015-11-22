@@ -16,9 +16,9 @@ import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
-import junit.framework.Assert
 import org.jetbrains.plugins.scala.base.ScalaLibraryLoader
 import org.jetbrains.plugins.scala.extensions._
+import org.junit.Assert
 
 import scala.collection.mutable.ListBuffer
 

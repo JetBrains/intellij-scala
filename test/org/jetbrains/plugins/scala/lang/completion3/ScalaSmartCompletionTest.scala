@@ -160,7 +160,7 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
     configureFromFileTextAdapter("dummy.scala", fileText)
     val (activeLookup, _) = complete(1, CompletionType.SMART)
 
-    Assert.assertTrue(activeLookup.find(_.getLookupString == "Double") == None)
+    Assert.assertTrue(!activeLookup.exists(_.getLookupString == "Double"))
   }
 
   def testFalse() {

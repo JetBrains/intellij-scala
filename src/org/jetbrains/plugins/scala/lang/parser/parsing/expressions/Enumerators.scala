@@ -21,14 +21,14 @@ object Enumerators {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val enumsMarker = builder.mark
     if (!Generator.parse(builder)) {
-      enumsMarker.drop
+      enumsMarker.drop()
       return false
     }
     var exit = true
     while (exit) {
       val guard = builder.getTokenType match {
         case ScalaTokenTypes.tSEMICOLON =>
-          builder.advanceLexer
+          builder.advanceLexer()
           false
         case _ if builder.newlineBeforeCurrentToken => false
         case _ if Guard.parse(builder) => true

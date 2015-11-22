@@ -8,7 +8,6 @@
 
 package scala.tools.scalap
 
-import java.io._
 import java.util._
 
 

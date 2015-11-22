@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package highlighter
 package usages
 
-import java.util.List
+import java.util
 
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
 import com.intellij.openapi.editor.Editor
@@ -14,12 +14,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import scala.collection.JavaConversions._
 
 /**
- * Highlights the expressions that will be evaluated during construction.
- */
+  * Highlights the expressions that will be evaluated during construction.
+  */
 class ScalaHighlightPrimaryConstructorExpressionsHandler(templateDef: ScTemplateDefinition, editor: Editor,
-                                                         file: PsiFile, keyword: PsiElement) 
+                                                         file: PsiFile, keyword: PsiElement)
   extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
-  def computeUsages(targets: List[PsiElement]) {
+  def computeUsages(targets: util.List[PsiElement]) {
     val iterator = targets.listIterator
     while (iterator.hasNext) {
       val elem = iterator.next
@@ -27,11 +27,11 @@ class ScalaHighlightPrimaryConstructorExpressionsHandler(templateDef: ScTemplate
     }
   }
 
-  def selectTargets(targets: List[PsiElement], selectionConsumer: Consumer[List[PsiElement]]) {
+  def selectTargets(targets: util.List[PsiElement], selectionConsumer: Consumer[util.List[PsiElement]]) {
     selectionConsumer.consume(targets)
   }
 
-  def getTargets: List[PsiElement] ={
+  def getTargets: util.List[PsiElement] = {
     val eb = templateDef.extendsBlock
     val varAndValDefsExprs = eb.members.flatMap {
       case p: ScPatternDefinition => p.expr // we include lazy vals, perhaps they could be excluded.

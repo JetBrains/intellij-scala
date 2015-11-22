@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 import com.intellij.openapi.util.{Key, TextRange, UserDataHolderEx}
 import com.intellij.psi._
-import com.intellij.util.containers.ConcurrentHashSet
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportUsed, ReadValueUsed, ValueUsed, WriteValueUsed}
 import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 
@@ -19,8 +19,8 @@ import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 class ScalaRefCountHolder private (file: PsiFile) {
   private final val myState: AtomicReference[Integer] = new AtomicReference[Integer](State.VIRGIN)
   private object State {val VIRGIN = 0; val WRITE = 1; val READY = 2; val READ = 3;}
-  private val myImportUsed = new ConcurrentHashSet[ImportUsed]
-  private val myValueUsed = new ConcurrentHashSet[ValueUsed]()
+  private val myImportUsed = ContainerUtil.newConcurrentSet[ImportUsed]()
+  private val myValueUsed = ContainerUtil.newConcurrentSet[ValueUsed]()
 
   private def clear() {
     assertIsAnalyzing()

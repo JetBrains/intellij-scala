@@ -5,10 +5,9 @@ import java.io.File
 
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
-import org.jetbrains.sbt.project.data.{ContentRootNode, ModuleDependencyNode, LibraryNode, ModuleNode}
+import org.jetbrains.sbt.project.data.{ContentRootNode, LibraryNode, ModuleDependencyNode, ModuleNode}
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
-
-import org.jetbrains.sbt.{structure=>sbtStructure}
+import org.jetbrains.sbt.{structure => sbtStructure}
 
 /**
  * @author Pavel Fatin
@@ -34,7 +33,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
           | <strong>Solution:</strong> declare an SBT project for these sources and include the project in dependencies.
           | </p>
         """.stripMargin
-      self.taskListener.onTaskOutput(WarningMessage(msg), false)
+      self.taskListener.onTaskOutput(WarningMessage(msg), stdOut = false)
     }
 
     groupSharedRoots(sharedRoots).map { group =>
@@ -107,7 +106,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     val projectRoots = projects.flatMap(project => sourceRootsIn(project).map(ProjectRoot(project,_)))
 
     // TODO return the message about omitted directories
-    val internalSourceDirectories = projectRoots.filter(_.isInternal).map(_.root.directory).toSeq
+    val internalSourceDirectories = projectRoots.filter(_.isInternal).map(_.root.directory)
 
     projectRoots
       .filter(it => it.isExternal && !internalSourceDirectories.contains(it.root.directory))

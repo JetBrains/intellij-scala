@@ -32,9 +32,8 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
     return with(new PatternCondition<T>("isRegExpLiteral") {
       public boolean accepts(@NotNull final T literal, final ProcessingContext context) {
         final PsiElement parent = literal.getParent();
-        if(parent instanceof ScReferenceExpression && parent.getText().endsWith(".r")) return true;
-        if(parent instanceof ScPostfixExpr && ((ScPostfixExpr) parent).operation().getText().equals("r")) return true;
-        return false;
+        return parent instanceof ScReferenceExpression && parent.getText().endsWith(".r")
+                || parent instanceof ScPostfixExpr && ((ScPostfixExpr) parent).operation().getText().equals("r");
       }
     });
   }
@@ -46,7 +45,7 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
         if (element instanceof ScReferenceExpression) {
           final ScReferenceExpression expression = (ScReferenceExpression) element;
           for (final ResolveResult result : expression.multiResolve(false))
-            if (methodPattern.getCondition().accepts(result.getElement(), context))
+            if (methodPattern.accepts(result.getElement(), context))
               return true;
         }
         return false;
@@ -69,7 +68,7 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
             if (expression instanceof ScReferenceElement) {
               final ScReferenceElement ref = (ScReferenceElement) expression;
               for (ResolveResult result : ref.multiResolve(false))
-                if (methodPattern.getCondition().accepts(result.getElement(), context))
+                if (methodPattern.accepts(result.getElement(), context))
                   return true;
             }
           }

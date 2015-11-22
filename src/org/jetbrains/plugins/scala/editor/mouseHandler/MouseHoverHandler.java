@@ -301,7 +301,7 @@ public class MouseHoverHandler extends AbstractProjectComponent {
       }
       catch (IndexNotReadyException e) {
         showDumbModeNotification(myElementAtPointer.getProject());
-        return null;
+        return DocInfo.EMPTY;
       }
       finally {
         token.finish();
@@ -310,9 +310,8 @@ public class MouseHoverHandler extends AbstractProjectComponent {
 
     @Override
     public boolean isValid(Document document) {
-      if (!myElementAtPointer.isValid()) return false;
+      return myElementAtPointer.isValid() && rangesAreCorrect(document);
 
-      return rangesAreCorrect(document);
     }
 
     @Override

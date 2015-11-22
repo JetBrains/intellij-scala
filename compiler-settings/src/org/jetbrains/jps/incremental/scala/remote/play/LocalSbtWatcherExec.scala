@@ -29,9 +29,9 @@ class LocalSbtWatcherExec extends SbtWatcherExec {
   override def endSbtExec() {
     if (!isRunning) return
 
-    descriptor.map(_.stopListening())
+    descriptor.foreach(_.stopListening())
 
-    descriptor.map {
+    descriptor.foreach {
       case d =>
         val process = d.getProcess
         val writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream))

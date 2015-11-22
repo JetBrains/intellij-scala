@@ -1,14 +1,14 @@
 package org.jetbrains.sbt
 package project.structure
 
-import java.io.{BufferedOutputStream, FileOutputStream, File}
+import java.io.{BufferedOutputStream, File, FileOutputStream}
 import java.util.jar.JarOutputStream
 import java.util.zip.ZipEntry
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.testFramework.UsefulTestCase
-import junit.framework.Assert._
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.Assert._
 
 /**
  * @author Nikolay Obedin
@@ -16,34 +16,34 @@ import org.jetbrains.plugins.scala.util.TestUtils
  */
 class SbtRunnerTest extends UsefulTestCase {
 
-  def testSbtLaunch_0_12_4: Unit =
+  def testSbtLaunch_0_12_4(): Unit =
     doTestSbtLauncherVersionDetection("0.12.4")
 
-  def testSbtLaunch_0_13_0: Unit =
+  def testSbtLaunch_0_13_0(): Unit =
     doTestSbtLauncherVersionDetection("0.13.0")
 
-  def testSbtLaunch_0_13_1: Unit =
+  def testSbtLaunch_0_13_1(): Unit =
     doTestSbtLauncherVersionDetection("0.13.1")
 
-  def testSbtLaunch_0_13_2: Unit =
+  def testSbtLaunch_0_13_2(): Unit =
     doTestSbtLauncherVersionDetection("0.13.2")
 
-  def testSbtLaunch_0_13_5: Unit =
+  def testSbtLaunch_0_13_5(): Unit =
     doTestSbtLauncherVersionDetection("0.13.5")
 
-  def testSbtLaunch_0_13_6: Unit =
+  def testSbtLaunch_0_13_6(): Unit =
     doTestSbtLauncherVersionDetection("0.13.6")
 
-  def testSbtLaunch_0_13_7: Unit =
+  def testSbtLaunch_0_13_7(): Unit =
     doTestSbtLauncherVersionDetection("0.13.7")
 
-  def testSbtLaunch_0_13_8: Unit =
+  def testSbtLaunch_0_13_8(): Unit =
     doTestSbtLauncherVersionDetection("0.13.8")
 
-  def testSbtLaunch_0_13_9: Unit =
+  def testSbtLaunch_0_13_9(): Unit =
     doTestSbtLauncherVersionDetection("0.13.9")
 
-  def testMockLauncherWithoutSbtBootProperties: Unit = {
+  def testMockLauncherWithoutSbtBootProperties(): Unit = {
     val expectedVersion = "1.0.0"
     val launcherFile = generateMockLauncher(expectedVersion)
     assertTrue(launcherFile.exists())
@@ -51,7 +51,7 @@ class SbtRunnerTest extends UsefulTestCase {
     assertEquals(expectedVersion, actualVersion)
   }
 
-  def testEmptyMockLauncher: Unit = {
+  def testEmptyMockLauncher(): Unit = {
     val launcherFile = generateJarFileWithEntries()
     assertTrue(launcherFile.exists())
     val actualVersion = SbtRunner.detectSbtVersion(tmpDirFile, launcherFile)

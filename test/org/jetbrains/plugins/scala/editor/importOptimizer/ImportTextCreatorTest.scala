@@ -9,41 +9,41 @@ class ImportTextCreatorTest extends TestCase {
   val textCreator = new ImportTextCreator()
 
   def testGetImportText_Root_And_Wildcard(): Unit = {
-    val info = ImportInfo(Set.empty, "scala.collection", None, Set.empty, Set.empty, Map.empty, Set.empty, true, true)
-    Assert.assertEquals("import _root_.scala.collection._", textCreator.getImportText(info, false, false, true))
+    val info = ImportInfo(Set.empty, "scala.collection", None, Set.empty, Set.empty, Map.empty, Set.empty, hasWildcard = true, rootUsed = true)
+    Assert.assertEquals("import _root_.scala.collection._", textCreator.getImportText(info, isUnicodeArrow = false, spacesInImports = false, sortLexicografically = true))
   }
 
   def testGetImportText_Hidden(): Unit = {
-    val info = ImportInfo(Set.empty, "scala", None, Set.empty, Set.empty, Map.empty, Set("Long"), false, false)
-    Assert.assertEquals("import scala.{Long => _}", textCreator.getImportText(info, false, false, true))
+    val info = ImportInfo(Set.empty, "scala", None, Set.empty, Set.empty, Map.empty, Set("Long"), hasWildcard = false, rootUsed = false)
+    Assert.assertEquals("import scala.{Long => _}", textCreator.getImportText(info, isUnicodeArrow = false, spacesInImports = false, sortLexicografically = true))
   }
 
   def testGetImportText_Renames(): Unit = {
-    val info = ImportInfo(Set.empty, "java.lang", None, Set.empty, Set.empty, Map("Long" -> "JLong"), Set.empty, false, false)
-    Assert.assertEquals("import java.lang.{Long => JLong}", textCreator.getImportText(info, false, false, true))
+    val info = ImportInfo(Set.empty, "java.lang", None, Set.empty, Set.empty, Map("Long" -> "JLong"), Set.empty, hasWildcard = false, rootUsed = false)
+    Assert.assertEquals("import java.lang.{Long => JLong}", textCreator.getImportText(info, isUnicodeArrow = false, spacesInImports = false, sortLexicografically = true))
   }
 
   def testGetImportText_UnicodeArrowAndSpaces(): Unit = {
-    val info = ImportInfo(Set.empty, "java.lang", None, Set.empty, Set.empty, Map("Long" -> "JLong"), Set.empty, false, false)
-    Assert.assertEquals("import java.lang.{ Long ⇒ JLong }", textCreator.getImportText(info, true, true, true))
+    val info = ImportInfo(Set.empty, "java.lang", None, Set.empty, Set.empty, Map("Long" -> "JLong"), Set.empty, hasWildcard = false, rootUsed = false)
+    Assert.assertEquals("import java.lang.{ Long ⇒ JLong }", textCreator.getImportText(info, isUnicodeArrow = true, spacesInImports = true, sortLexicografically = true))
   }
 
   def testGetImportText_SortSingles(): Unit = {
     val info = ImportInfo(Set.empty, "java.lang", None, Set.empty,
-      Set("Long", "Integer", "Float", "Short"), Map.empty, Set.empty, false, false)
-    Assert.assertEquals("import java.lang.{Float, Integer, Long, Short}", textCreator.getImportText(info, false, false, true))
+      Set("Long", "Integer", "Float", "Short"), Map.empty, Set.empty, hasWildcard = false, rootUsed = false)
+    Assert.assertEquals("import java.lang.{Float, Integer, Long, Short}", textCreator.getImportText(info, isUnicodeArrow = false, spacesInImports = false, sortLexicografically = true))
   }
 
   def testGetImportText_Renames_Hidden_Singles_Wildcard_Spaces(): Unit = {
     val info = ImportInfo(Set.empty, "java.lang", None, Set.empty, Set("Integer", "Character", "Runtime"),
-      Map("Long" -> "JLong", "Float" -> "JFloat"), Set("System"), true, false)
+      Map("Long" -> "JLong", "Float" -> "JFloat"), Set("System"), hasWildcard = true, rootUsed = false)
     Assert.assertEquals("import java.lang.{ Character, Float => JFloat, Integer, Long => JLong, Runtime, System => _, _ }",
-      textCreator.getImportText(info, false, true, true))
+      textCreator.getImportText(info, isUnicodeArrow = false, spacesInImports = true, sortLexicografically = true))
   }
 
   def testGetImportText_No_Sorting(): Unit = {
     val info = ImportInfo(Set.empty, "java.lang", None, Set.empty,
-      Set("Long", "Integer", "Float", "Short"), Map.empty, Set.empty, false, false)
-    Assert.assertEquals("import java.lang.{Long, Integer, Float, Short}", textCreator.getImportText(info, false, false, false))
+      Set("Long", "Integer", "Float", "Short"), Map.empty, Set.empty, hasWildcard = false, rootUsed = false)
+    Assert.assertEquals("import java.lang.{Long, Integer, Float, Short}", textCreator.getImportText(info, isUnicodeArrow = false, spacesInImports = false, sortLexicografically = false))
   }
 }

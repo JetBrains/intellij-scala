@@ -30,7 +30,7 @@ class ImportTracker {
     val refHolder = ScalaRefCountHolder getInstance file
     val runnable = new Runnable {
       def run() {
-        while (!iter.isEmpty) {
+        while (iter.nonEmpty) {
           val used = iter.next()
           if (refHolder.isRedundant(used)) buff += used
         }

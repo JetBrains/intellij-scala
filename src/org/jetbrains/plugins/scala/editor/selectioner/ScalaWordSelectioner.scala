@@ -21,19 +21,19 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
     val result = super.select(e, editorText, cursorOffset, editor)
     e match {
       //case for selecting parameters without parenthesises
-      case _: ScParameterClause | _: ScArguments => {
+      case _: ScParameterClause | _: ScArguments =>
         val range = e.getTextRange
         if (range.getEndOffset - range.getStartOffset != 0) {
           val start = range.getStartOffset + 1
           //just look for last parenthesis
           val end = if (Set(ScalaTokenTypes.tRPARENTHESIS, ScalaTokenTypes.tRSQBRACKET).contains(
             e.getNode.getLastChildNode.getElementType
-          )) range.getEndOffset - 1 else range.getEndOffset
+          )) range.getEndOffset - 1
+          else range.getEndOffset
           result.add(new TextRange(start, end))
         }
-      }
       //case for selecting extends block
-      case ext: ScExtendsBlock => {
+      case ext: ScExtendsBlock =>
         val start: Int = e.getTextRange.getStartOffset
         var end: Int = ext.templateBody match {
           case Some(x) => x.getTextRange.getStartOffset
@@ -43,12 +43,11 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
         def isEmptyChar(c: Char): Boolean = c == ' ' || c == '\n'
         while (isEmptyChar(ext.getContainingFile.getText.charAt(end - 1))) end = end - 1
         if (start <= end) result.add(new TextRange(start, end))
-      }
       //case for references
-      case x: ScReferenceElement => {
+      case x: ScReferenceElement =>
         //choosing end offset, another to method call
         val offset = if (!x.getParent.isInstanceOf[ScMethodCall]) x.getTextRange.getEndOffset
-                     else x.getParent.getTextRange.getEndOffset
+        else x.getParent.getTextRange.getEndOffset
         //clear result if method call
         if (x.getParent.isInstanceOf[ScMethodCall]) result.clear()
         x.qualifier match {
@@ -58,17 +57,18 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
             for (fRange <- ranges if fRange.getEndOffset == qual.getTextRange.getEndOffset) {
               //cancatenating ranges
               val tRange = new TextRange(if (fRange.getStartOffset != fRange.getEndOffset) fRange.getStartOffset
-                                         else { //if we have dummy range we must find td letter to concatenate ranges
-                                           var end = fRange.getEndOffset
-                                           var flag = true
-                                           while (flag) {
-                                             editorText.charAt(end) match {
-                                               case ' ' | '.' | '\n' => end += 1
-                                               case _ => flag = false
-                                             }
-                                           }
-                                           end
-                                         }, offset)
+              else {
+                //if we have dummy range we must find td letter to concatenate ranges
+                var end = fRange.getEndOffset
+                var flag = true
+                while (flag) {
+                  editorText.charAt(end) match {
+                    case ' ' | '.' | '\n' => end += 1
+                    case _ => flag = false
+                  }
+                }
+                end
+              }, offset)
               result.add(tRange)
             }
             //adding dummy range for recursion
@@ -76,16 +76,14 @@ class ScalaWordSelectioner extends ExtendWordSelectionHandlerBase {
           }
           case None => result.add(new TextRange(offset, offset)) //adding dummy range for recursion
         }
-      }
-      case x: ScMethodCall => {
+      case x: ScMethodCall =>
         x.getEffectiveInvokedExpr match {
           case ref: ScReferenceElement => return select(ref, editorText, cursorOffset, editor)
           case _ =>
         }
-      }
       case _ =>
     }
-    return result
+    result
   }
   def canSelect(e: PsiElement): Boolean = {
     e match {

@@ -31,7 +31,7 @@ class ExtendsFilter extends ElementFilter {
       val prev2 = prev.getPrevSibling
       prev2 match {
         case x: ScTypeDefinition =>
-          if (x.extendsBlock.templateParents != None) return false
+          if (x.extendsBlock.templateParents.isDefined) return false
           else {
             if (leaf.getNextSibling != null &&
               leaf.getNextSibling.getNextSibling != null &&

@@ -11,8 +11,8 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.testFramework.UsefulTestCase
-import junit.framework.Assert._
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.junit.Assert._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -65,10 +65,9 @@ abstract class ScalaExtractMethodTestBase extends ScalaLightPlatformCodeInsightT
       case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
       case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
         text.substring(2, text.length - 2).trim
-      case _ => {
+      case _ =>
         assertTrue("Test result must be in last comment statement.", false)
         ""
-      }
     }
     assertEquals(output, res)
   }

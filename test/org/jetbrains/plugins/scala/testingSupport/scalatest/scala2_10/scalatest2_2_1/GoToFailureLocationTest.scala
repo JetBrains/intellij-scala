@@ -28,7 +28,7 @@ class GoToFailureLocationTest extends Scalatest2_10_2_2_1_Base {
     val projectScope = ProjectScope.getProjectScope(project)
     val filter = new ScalaTestFailureLocationFilter(projectScope)
     val errorLocationString = "ScalaTestFailureLocation: FailureLocationTest at (FailureLocationTest.scala:6)"
-    val filterRes = filter.applyFilter(errorLocationString, errorLocationString.size)
+    val filterRes = filter.applyFilter(errorLocationString, errorLocationString.length)
     assert(filterRes != null)
     assert(filterRes.getFirstHyperlinkInfo != null)
   }

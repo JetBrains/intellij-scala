@@ -27,16 +27,14 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
     if (checkElementContainsRange(stmt)) {
       super.visitIfStatement(stmt)
       stmt.thenBranch match {
-        case Some(thenBranch) => {
+        case Some(thenBranch) =>
           processExpression(thenBranch, stmt, commonSetttings.IF_BRACE_FORCE)
-        }
         case _ =>
       }
       stmt.elseBranch match {
         case Some(i: ScIfStmt) if commonSetttings.SPECIAL_ELSE_IF_TREATMENT =>
-        case Some(el) => {
+        case Some(el) =>
           processExpression(el, stmt, commonSetttings.IF_BRACE_FORCE)
-        }
         case _ =>
       }
     }
@@ -46,9 +44,8 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
     if (checkElementContainsRange(ws)) {
       super.visitWhileStatement(ws)
       ws.body match {
-        case Some(b) => {
+        case Some(b) =>
           processExpression(b, ws, commonSetttings.WHILE_BRACE_FORCE)
-        }
         case _ =>
       }
     }
@@ -78,12 +75,11 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
     if (checkElementContainsRange(fun)) {
       super.visitFunction(fun)
       fun match {
-        case d: ScFunctionDefinition => {
+        case d: ScFunctionDefinition =>
           d.body match {
             case Some(b) => processExpression(b, fun, scalaSettings.METHOD_BRACE_FORCE)
             case _ =>
           }
-        }
         case _ =>
       }
     }
@@ -98,12 +94,11 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
         case _ =>
       }
       tryStmt.finallyBlock match {
-        case Some(fin) => {
+        case Some(fin) =>
           fin.expression match {
             case Some(expr) => processExpression(expr, tryStmt, scalaSettings.FINALLY_BRACE_FORCE)
             case _ =>
           }
-        }
         case _ =>
       }
     }
@@ -133,14 +128,13 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings) extends ScalaRecursiveElem
 
   private def processExpression(expr: ScExpression, stmt: PsiElement, option: Int) {
     expr match {
-      case b: ScBlockExpr => return
-      case _ => {
+      case b: ScBlockExpr =>
+      case _ =>
         if (option == CommonCodeStyleSettings.FORCE_BRACES_ALWAYS ||
-                (option == CommonCodeStyleSettings.FORCE_BRACES_IF_MULTILINE &&
-                        PostFormatProcessorHelper.isMultiline(stmt))) {
+          (option == CommonCodeStyleSettings.FORCE_BRACES_IF_MULTILINE &&
+            PostFormatProcessorHelper.isMultiline(stmt))) {
           replaceExprWithBlock(expr)
         }
-      }
     }
   }
 
