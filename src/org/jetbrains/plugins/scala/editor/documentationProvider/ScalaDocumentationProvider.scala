@@ -56,9 +56,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
     }
   }
 
-  def getUrlFor(element: PsiElement, originalElement: PsiElement): java.util.List[String] = {
-    null
-  }
+  def getUrlFor(element: PsiElement, originalElement: PsiElement): java.util.List[String] = null
 
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
     val substitutor = originalElement match {
@@ -69,6 +67,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         }
       case _ => ScSubstitutor.empty
     }
+    
     val text = element match {
       case clazz: ScTypeDefinition => generateClassInfo(clazz, substitutor)
       case function: ScFunction => generateFunctionInfo(function, substitutor)
@@ -79,8 +78,8 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
       case b: ScBindingPattern => generateBindingPatternInfo(b, substitutor)
       case _ => null
     }
-    if (text != null) text.replace("<", "&lt;")
-    else null
+    
+    if (text != null) text.replace("<", "&lt;") else null
   }
 
   def getDocumentationElementForLink(psiManager: PsiManager, link: String, context: PsiElement): PsiElement = {

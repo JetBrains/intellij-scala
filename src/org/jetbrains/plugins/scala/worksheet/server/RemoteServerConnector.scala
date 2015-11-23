@@ -173,7 +173,7 @@ object RemoteServerConnector {
       
       if (taskIndicator != null) {
         taskIndicator setText text
-        done map (d => taskIndicator.setFraction(d.toDouble))
+        done foreach (d => taskIndicator.setFraction(d.toDouble))
       }
     }
 
