@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package lang.scaladoc
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.scaladoc._
 import org.jetbrains.plugins.scala.util.ScalaToolsFactory
 
@@ -53,7 +52,7 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
       s"""
          |/**
          |  * __blah blah
-         |  *  dfgasdhgfjk ^ashgdfkjgds|   * ''aaaaaa''  sdkfhsadjkh^ ll
+         |  * dfgasdhgfjk ^ashgdfkjgds|   * ''aaaaaa''  sdkfhsadjkh^ ll
          |  * sd${s}hfkhsa${e}dl__
          |  */""".stripMargin.replace("\r", "")
     }
@@ -92,8 +91,8 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     checkAllSurrounders {
       s"""
          |/**
-         |  * @param a  aaa${s}aa
-         |  *           aaaaa${e}aaa
+         |  * @param a aaa${s}aa
+         |  *          aaaaa${e}aaa
          |  */""".stripMargin.replace("\r", "")
     }
   }
@@ -102,7 +101,7 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
     checkAllSurrounders {
       s"""
          |/**
-         |  * @todo  blah ${s}blah b${e}lah
+         |  * @todo blah ${s}blah b${e}lah
          |  */""".stripMargin.replace("\r", "")
     }
   }

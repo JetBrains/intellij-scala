@@ -33,14 +33,15 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.refreshAndFindFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
-    val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
+    var fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
+    val offset = fileText.indexOf(refMarker)
+    fileText = fileText.replace(refMarker, "")
+
     configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
     val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
-    val offset = fileText.indexOf(refMarker)
-    val refOffset = offset + refMarker.length
     assert(offset != -1, "Not specified ref marker in test case. Use /*ref*/ in scala file for this.")
     val ref: ScReferenceElement = PsiTreeUtil.
-            getParentOfType(scalaFile.findElementAt(refOffset), classOf[ScReferenceElement])
+            getParentOfType(scalaFile.findElementAt(offset), classOf[ScReferenceElement])
     assert(ref != null, "Not specified reference at marker.")
 
     ref.resolve() match {

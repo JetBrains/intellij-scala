@@ -435,7 +435,7 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |import java.util
         |
         |class ExtendsList extends java.util.List {
-        |  def removeAll(collection: util.Collection[_]): Boolean = <selection>???</selection>
+        |  def removeAll(c: util.Collection[_]): Boolean = <selection>???</selection>
         |}
       """
     val methodName: String = "removeAll"
@@ -767,9 +767,13 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |package test
         |
         |object A {
+        |
         |  object Nested {
+        |
         |    class Nested2
+        |
         |  }
+        |
         |}
         |
         |abstract class B {
@@ -787,9 +791,13 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |import test.A.Nested.Nested2
         |
         |object A {
+        |
         |  object Nested {
+        |
         |    class Nested2
+        |
         |  }
+        |
         |}
         |
         |abstract class B {

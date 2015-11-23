@@ -208,8 +208,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
         |  implicit def ctxToB(ctx: StringContext) = new BBB
         |
         |  val a = aaa"blah blah"
-        |}
-      """.replace("\r", "").stripMargin
+        |}""".replace("\r", "").stripMargin
     
     val resultText =
       """

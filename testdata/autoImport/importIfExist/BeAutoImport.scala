@@ -2,5 +2,5 @@
 /*
 import gt.be
 
-/*ref*/be()
+be()
 */

@@ -2,5 +2,5 @@
 /*
 import scala.collection.mutable
 
-/*ref*/mutable.ArrayBuffer
- */
+mutable.ArrayBuffer
+*/

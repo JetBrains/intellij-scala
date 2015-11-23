@@ -7,9 +7,9 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 
 /**
- * User: Alefas
- * Date: 27.03.12
- */
+  * User: Alefas
+  * Date: 27.03.12
+  */
 
 class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
   def withRelativeImports(body: => Unit): Unit = {
@@ -26,20 +26,20 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
   def testClassNameRenamed() {
     val fileText =
       """
-      |import java.util.{ArrayList => BLLLL}
-      |object Test extends App {
-      |  val al: java.util.List[Int] = new BL<caret>
-      |}
+        |import java.util.{ArrayList => BLLLL}
+        |object Test extends App {
+        |  val al: java.util.List[Int] = new BL<caret>
+        |}
       """.stripMargin.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
     val (activeLookup, _) = complete(2, CompletionType.BASIC)
 
     val resultText =
       """
-      |import java.util.{ArrayList => BLLLL}
-      |object Test extends App {
-      |  val al: java.util.List[Int] = new BLLLL[Int](<caret>)
-      |}
+        |import java.util.{ArrayList => BLLLL}
+        |object Test extends App {
+        |  val al: java.util.List[Int] = new BLLLL[Int](<caret>)
+        |}
       """.stripMargin.replaceAll("\r", "").trim()
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "BLLLL").get, '\t')
@@ -200,10 +200,13 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
     val fileText =
       """
         |package a
+        |
         |object A {
+        |
         |  implicit class B(i: Int) {
         |    def foo = 1
         |  }
+        |
         |}
         |
         |object B {
@@ -220,13 +223,15 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
         |import a.A.B
         |
         |object A {
+        |
         |  implicit class B(i: Int) {
         |    def foo = 1
         |  }
+        |
         |}
         |
         |object B {
-        |  1.foo<caret>
+        |  1.foo
         |}
       """.stripMargin.replaceAll("\r", "").trim()
 
@@ -239,7 +244,9 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
       val fileText =
         """
           |package a.b {
+          |
           |  class XXXX
+          |
           |}
           |
           |import a.{b => c}
@@ -254,14 +261,16 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
       val resultText =
         """
           |package a.b {
-          |  class XXXX
+          |
+          |class XXXX
+          |
           |}
           |
           |import a.{b => c}
           |import c.XXXX
           |
           |trait Y {
-          |  val x: XXXX<caret>
+          |  val x: XXXX
           |}
         """.stripMargin.replaceAll("\r", "").trim()
 

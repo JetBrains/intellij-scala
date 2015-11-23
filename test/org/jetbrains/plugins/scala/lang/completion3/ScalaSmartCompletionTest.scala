@@ -112,6 +112,7 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
     val fileText =
       """
       |import scala.collection.mutable.HashSet
+      |
       |class A {
       |  val f: HashSet[String] = new <caret>
       |}
@@ -123,6 +124,7 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
       """
       |import scala.collection.mutable
       |import scala.collection.mutable.HashSet
+      |
       |class A {
       |  val f: HashSet[String] = new mutable.HashSet[String]()
       |}
