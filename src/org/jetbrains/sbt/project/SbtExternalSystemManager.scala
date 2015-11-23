@@ -78,12 +78,13 @@ object SbtExternalSystemManager {
     val customLauncher = settings.customLauncherEnabled.option(settings.getCustomLauncherPath).map(_.toFile)
     val customSbtStructureFile = settings.customSbtStructurePath.nonEmpty.option(settings.customSbtStructurePath.toFile)
 
+    val realProjectPath = Option(projectSettings.getExternalProjectPath).getOrElse(path)
     val projectJdkName = getProjectJdkName(project, projectSettings)
     val vmExecutable = getVmExecutable(projectJdkName, settings)
     val vmOptions = getVmOptions(settings)
     val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
 
-    new SbtExecutionSettings(projectSettings.getExternalProjectPath,
+    new SbtExecutionSettings(realProjectPath,
       vmExecutable, vmOptions, environment, customLauncher, customSbtStructureFile, projectJdkName,
       projectSettings.resolveClassifiers, projectSettings.resolveSbtClassifiers, projectSettings.cachedUpdate)
   }
