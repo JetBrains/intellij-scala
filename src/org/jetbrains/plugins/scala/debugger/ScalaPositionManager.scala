@@ -732,9 +732,12 @@ object ScalaPositionManager {
     onLine.sortBy(ordinal)
   }
 
-  def isCompiledWithIndyLambdas(file: PsiFile) = {
-    val originalFile = Option(file.getUserData(ScalaCompilingEvaluator.originalFileKey)).getOrElse(file)
-    isCompiledWithIndyLambdasCache.getOrElse(originalFile, false)
+  def isCompiledWithIndyLambdas(file: PsiFile): Boolean = {
+    if (file == null) false
+    else {
+      val originalFile = Option(file.getUserData(ScalaCompilingEvaluator.originalFileKey)).getOrElse(file)
+      isCompiledWithIndyLambdasCache.getOrElse(originalFile, false)
+    }
   }
 
   @tailrec
