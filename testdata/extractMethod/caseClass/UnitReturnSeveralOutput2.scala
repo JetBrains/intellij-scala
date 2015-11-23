@@ -15,14 +15,14 @@ class UnitReturnSeveralOutput2 {
 //case class
 class UnitReturnSeveralOutput2 {
   def foo(i: Int) {
-    /*start*/
+
     val testMethodNameResult: TestMethodNameResult = testMethodName match {
       case Some(result) => result
       case None => return
     }
     val TestMethodNameResult(x: Int, y: String, z: Int, zz: String) = testMethodNameResult
 
-    /*end*/
+
     println(x + y + z + zz)
   }
 

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error}
 class MultipleInheritanceTest extends AnnotatorTestBase(MultipleInheritance) {
   private val Message = "Trait (\\w+) inherited multiple times".r
 
-  def testMultipleTraitInheritance {
+  def testMultipleTraitInheritance() {
     assertNothing(messages("trait T; new T {}"))
 
     assertNothing(messages("trait A; trait B; new A with B {}"))

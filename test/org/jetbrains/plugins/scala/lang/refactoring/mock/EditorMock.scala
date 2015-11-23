@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.refactoring.mock
 
-import com.intellij.openapi.editor.impl.DocumentImpl
 import com.intellij.openapi.editor._
+import com.intellij.openapi.editor.impl.DocumentImpl
 
 /**
  * Pavel Fatin
@@ -13,7 +13,7 @@ class EditorMock(text: String, offset: Int) extends EditorStub {
   override def offsetToLogicalPosition(offset: Int) = {
     val s = text.take(offset)
     new LogicalPosition(s.count(_ == '\n'),
-      s.reverse.takeWhile(_ != '\n').size) // Workaround for SI-5971 (should be "s.view.reverse.")
+      s.reverse.takeWhile(_ != '\n').length) // Workaround for SI-5971 (should be "s.view.reverse.")
   }
 
   override def logicalPositionToOffset(pos: LogicalPosition) =

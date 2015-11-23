@@ -9,9 +9,9 @@ object SimpleDuplicate {
 /*
 object SimpleDuplicate {
   def foo(i: Int) {
-    /*start*/
+
     testMethodName(i)
-    /*end*/
+
     testMethodName(2)
   }
 

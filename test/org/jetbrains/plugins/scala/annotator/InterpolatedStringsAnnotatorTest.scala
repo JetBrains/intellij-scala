@@ -26,8 +26,8 @@ class InterpolatedStringsAnnotatorTest extends ScalaLightPlatformCodeInsightTest
   private def messageExists(text: String, message: String) {
     val annotatorMessages = collectAnnotatorMessages(text)
     if (!annotatorMessages.exists(_.toString == message)) {
-      Assert.assertTrue("annotator messages is empty", annotatorMessages.length > 0)
-      Assert.assertEquals(message, annotatorMessages(0))
+      Assert.assertTrue("annotator messages is empty", annotatorMessages.nonEmpty)
+      Assert.assertEquals(message, annotatorMessages.head)
     }
   }
 

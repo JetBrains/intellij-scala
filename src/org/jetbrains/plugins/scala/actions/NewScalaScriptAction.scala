@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.project._
  */
 
 class NewScalaScriptAction
-        extends CreateFromTemplateAction(FileTemplateManager.getInstance().getInternalTemplate("Scala Script"))
+        extends CreateFromTemplateAction(FileTemplateManager.getDefaultInstance().getInternalTemplate("Scala Script"))
         with DumbAware {
   override def update(e: AnActionEvent) {
     super.update(e)

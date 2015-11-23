@@ -10,9 +10,9 @@ class UnitReturnNoOutput {
 /*
 class UnitReturnNoOutput {
   def foo(i: Int) {
-    /*start*/
+
     if (testMethodName(i)) return
-    /*end*/
+
     println()
   }
 

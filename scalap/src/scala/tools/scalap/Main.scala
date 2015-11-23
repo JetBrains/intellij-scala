@@ -8,14 +8,15 @@
 
 package scala.tools.scalap
 
-import java.io.{PrintStream, OutputStreamWriter, ByteArrayOutputStream}
-import scalax.rules.scalasig._
-import scalax.rules.scalasig.ClassFileParser.{ConstValueIndex, Annotation}
-import tools.nsc.util.{ ClassPath }
-import tools.util.PathResolver
-import ClassPath.DefaultJavaContext
-import tools.nsc.io.{PlainFile, AbstractFile}
+import java.io.{ByteArrayOutputStream, OutputStreamWriter, PrintStream}
+
 import scala.reflect.internal.pickling.ByteCodecs
+import scala.tools.nsc.io.AbstractFile
+import scala.tools.nsc.util.ClassPath
+import scala.tools.nsc.util.ClassPath.DefaultJavaContext
+import scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.{Annotation, ConstValueIndex}
+import scala.tools.scalap.scalax.rules.scalasig._
+import scala.tools.util.PathResolver
 
 /**The main object used to execute scalap on the command-line.
  *

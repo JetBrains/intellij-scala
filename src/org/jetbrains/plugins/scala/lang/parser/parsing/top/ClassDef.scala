@@ -23,17 +23,16 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClau
 object ClassDef {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => builder.advanceLexer //Ate identifier
-      case _ => {
+      case ScalaTokenTypes.tIDENTIFIER => builder.advanceLexer() //Ate identifier
+      case _ =>
         builder error ErrMsg("identifier.expected")
         return false
-      }
     }
     //parsing type parameters
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET =>
         TypeParamClause parse builder
-      case _ => {/*it could be without type parameters*/}
+      case _ => /*it could be without type parameters*/
     }
     val constructorMarker = builder.mark
     val annotationsMarker = builder.mark
@@ -46,12 +45,10 @@ object ClassDef {
       //parse AccessModifier
       builder.getTokenType match {
         case ScalaTokenTypes.kPRIVATE
-          | ScalaTokenTypes.kPROTECTED => {
+             | ScalaTokenTypes.kPROTECTED =>
           AccessModifier parse builder
-        }
-        case _ => {
+        case _ =>
           /*it could be without acces modifier*/
-        }
       }
     }
     modifierMareker.done(ScalaElementTypes.MODIFIERS)

@@ -18,9 +18,9 @@ class DefInput {
     def goo(x: Int): Int = x + 4
 
     val g = 77
-    /*start*/
+
     testMethodName(g, goo _)
-    /*end*/
+
     print("exit")
   }
 

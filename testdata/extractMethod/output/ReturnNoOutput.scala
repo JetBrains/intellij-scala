@@ -11,12 +11,12 @@ class ReturnNoOutput {
 /*
 class ReturnNoOutput {
   def foo(i: Int): Int = {
-    /*start*/
+
     testMethodName(i) match {
       case Some(toReturn) => return toReturn
       case None =>
     }
-    /*end*/
+
     println()
     42
   }

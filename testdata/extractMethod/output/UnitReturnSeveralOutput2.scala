@@ -13,12 +13,12 @@ class UnitReturnSeveralOutput2 {
 /*
 class UnitReturnSeveralOutput2 {
   def foo(i: Int) {
-    /*start*/
+
     val (x: Int, y: String, z: Int, zz: String) = testMethodName match {
       case Some(result) => result
       case None => return
     }
-    /*end*/
+
     println(x + y + z + zz)
   }
 

@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package codeInsight.template.util
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -15,6 +15,6 @@ class VariablesCompletionProcessor(override val kinds: Set[ResolveTargets.Value]
     if (kindMatches(element)) {
       candidatesSet += new ScalaResolveResult(named)
     }
-    return true
+    true
   }
 }

@@ -30,7 +30,7 @@ public class ScalaDebuggerClassFilterProvider implements DebuggerClassFilterProv
     final ScalaDebuggerSettings settings = ScalaDebuggerSettings.getInstance();
     final Boolean flag = settings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS;
     final ArrayList<ClassFilter> list = new ArrayList<ClassFilter>();
-    if (flag == null || flag.booleanValue()) {
+    if (flag == null || flag) {
       list.addAll(Arrays.asList(FILTERS));
       return list;
     }

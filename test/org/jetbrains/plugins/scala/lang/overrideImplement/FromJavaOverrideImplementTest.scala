@@ -4,9 +4,9 @@ package lang.overrideImplement
 import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
 import com.intellij.testFramework.fixtures.{JavaCodeInsightFixtureTestCase, ModuleFixture}
-import junit.framework.Assert.assertEquals
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.junit.Assert.assertEquals
 
 /**
  * Nikolay.Tropin

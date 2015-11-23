@@ -13,9 +13,9 @@ import com.intellij.psi.PsiFile
 
 object QuickfixUtil {
   def ensureFileWritable(project: Project, file: PsiFile): Boolean = {
-    val virtualFile = file.getVirtualFile()
+    val virtualFile = file.getVirtualFile
     val readonlyStatusHandler = ReadonlyStatusHandler.getInstance(project)
     val operationStatus = readonlyStatusHandler.ensureFilesWritable(virtualFile)
-    return !operationStatus.hasReadonlyFiles()
+    !operationStatus.hasReadonlyFiles
   }
 }

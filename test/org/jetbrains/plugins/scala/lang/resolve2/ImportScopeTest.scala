@@ -10,9 +10,9 @@ class ImportScopeTest extends ResolveTestBase {
     super.folderPath + "import/scope/"
   }
 
-  def testBlock = doTest
-  def testInnerBlock = doTest
-  def testOuterBlockNested = doTest
-  def testOuterBlock = doTest
-  def testTwoBlocks = doTest
+  def testBlock() = doTest()
+  def testInnerBlock() = doTest()
+  def testOuterBlockNested() = doTest()
+  def testOuterBlock() = doTest()
+  def testTwoBlocks() = doTest()
 }

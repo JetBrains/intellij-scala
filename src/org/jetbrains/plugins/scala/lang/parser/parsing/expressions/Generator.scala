@@ -20,24 +20,22 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.{Guard, Pattern1
 object Generator {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val genMarker = builder.mark
-    if (builder.getTokenType == ScalaTokenTypes.kVAL) builder.advanceLexer //deprecated
+    if (builder.getTokenType == ScalaTokenTypes.kVAL) builder.advanceLexer() //deprecated
     if (!Pattern1.parse(builder)) {
-      genMarker.drop
+      genMarker.drop()
       return false
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tCHOOSE => {
+      case ScalaTokenTypes.tCHOOSE =>
         builder.advanceLexer
-      }
-      case _ => {
+      case _ =>
         builder error ErrMsg("choose.expected")
-      }
     }
     if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
     genMarker.done(ScalaElementTypes.GENERATOR)
     builder.getTokenType match {
       case ScalaTokenTypes.kIF => Guard parse builder
-      case _ => {}
+      case _ =>
     }
     return true
   }

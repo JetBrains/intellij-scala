@@ -29,7 +29,7 @@ trait ConstructorAnnotator {
 
         val missed = for (MissedValueParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
         val argsElement = constructor.args.getOrElse(constructor.typeElement)
-        if (!missed.isEmpty)
+        if (missed.nonEmpty)
           holder.createErrorAnnotation(argsElement,
             "Unspecified value parameters: " + missed.mkString(", "))
 

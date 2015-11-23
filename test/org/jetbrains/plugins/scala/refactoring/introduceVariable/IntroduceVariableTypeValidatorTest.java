@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.refactoring.introduceVariable;
 
-import junit.framework.Assert;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
 /**
- * Created by Kate Ustyuzhanina on 8/5/15.
+ * @author Kate Ustyuzhanina
  */
 @RunWith(AllTests.class)
 public class IntroduceVariableTypeValidatorTest
@@ -19,8 +19,8 @@ public class IntroduceVariableTypeValidatorTest
 
     public IntroduceVariableTypeValidatorTest() {
         super(System.getProperty("path") != null ?
-                        System.getProperty("path") :
-                        TestUtils.getTestDataPath() + DATA_PATH
+                System.getProperty("path") :
+                TestUtils.getTestDataPath() + DATA_PATH
         );
     }
 

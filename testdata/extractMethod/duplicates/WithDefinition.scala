@@ -21,10 +21,10 @@ object WithDefinition {
 /*
 object WithDefinition {
   def foo(i: Int) {
-    /*start*/
+
 
     testMethodName(i)
-    /*end*/
+
   }
 
   def testMethodName(i: Int): Unit = {

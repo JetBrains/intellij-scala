@@ -20,11 +20,11 @@ object PostfixExpr {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val postfixMarker = builder.mark
     if (!InfixExpr.parse(builder)) {
-      postfixMarker.drop
+      postfixMarker.drop()
       return false
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER if !builder.newlineBeforeCurrentToken => {
+      case ScalaTokenTypes.tIDENTIFIER if !builder.newlineBeforeCurrentToken =>
         val refMarker = builder.mark
         builder.advanceLexer //Ate id
         refMarker.done(ScalaElementTypes.REFERENCE_EXPRESSION)
@@ -35,10 +35,8 @@ object PostfixExpr {
           case _ => {}
         }*/
         postfixMarker.done(ScalaElementTypes.POSTFIX_EXPR)
-      }
-      case _ => {
+      case _ =>
         postfixMarker.drop
-      }
     }
     return true
   }

@@ -333,7 +333,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
       super(treatDocCommentAsBlockComment);
     }
 
-    public void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
+    public void start(@NotNull CharSequence buffer, int startOffset, int endOffset, int initialState) {
       myCurrentLexer = myScalaPlainLexer;
       myCurrentLexer.start(buffer, startOffset, endOffset, initialState);
       myBraceStack.clear();
@@ -446,7 +446,7 @@ public class ScalaSyntaxHighlighter extends SyntaxHighlighterBase {
     }
 
     @Override
-    public void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
+    public void start(@NotNull CharSequence buffer, int startOffset, int endOffset, int initialState) {
       elements.clear();
       super.start(buffer, startOffset, endOffset, initialState);
     }

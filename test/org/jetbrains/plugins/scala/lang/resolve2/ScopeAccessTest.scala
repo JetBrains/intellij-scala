@@ -10,8 +10,8 @@ class ScopeAccessTest extends ResolveTestBase {
     super.folderPath + "scope/access/"
   }
 
-  def testPrivateCompanionClass = doTest
-  def testPrivateCompanionObject = doTest
-  def testPrivateThisCompanionClass = doTest
-  def testPrivateThisCompanionObject = doTest
+  def testPrivateCompanionClass() = doTest()
+  def testPrivateCompanionObject() = doTest()
+  def testPrivateThisCompanionClass() = doTest()
+  def testPrivateThisCompanionObject() = doTest()
 }

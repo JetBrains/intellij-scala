@@ -2,6 +2,7 @@ package tests
 
 class Baz {
   val NameAfterRename = 0
+
   def foo() = {
     NameAfterRename match {
       case NameAfterRename =>

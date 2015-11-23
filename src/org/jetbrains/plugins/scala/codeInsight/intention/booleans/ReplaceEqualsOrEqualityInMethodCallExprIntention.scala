@@ -39,7 +39,7 @@ class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementBaseInt
     val replaceOper = Map("equals" -> "==", "==" -> "equals")
     setText("Replace '" + oper + "' with '" + replaceOper(oper) + "'")
 
-    if (((methodCallExpr.getInvokedExpr).asInstanceOf[ScReferenceExpression]).isQualified) return true
+    if (methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].isQualified) return true
 
     false
   }

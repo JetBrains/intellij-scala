@@ -246,7 +246,7 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
 
 
   public _ScalaSplittingLexer(java.io.Reader in) {
-    this.zzReader = in;
+    zzReader = in;
   }
 
   /**

@@ -20,20 +20,20 @@ class DependencyAnnotatorTest extends AnnotatorTestBase {
 
   val testResolver = new SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/%s/sbt/resolvers/testRepository" format TestUtils.getTestDataPath)
 
-  def testDoNotAnnotateIndexedDep =
+  def testDoNotAnnotateIndexedDep() =
     doTest(Seq.empty)
 
-  def testDoNotAnnotateIndexedDepWithDynamicVersion =
+  def testDoNotAnnotateIndexedDepWithDynamicVersion() =
     doTest(Seq.empty)
 
-  def testAnnotateUnresolvedDep = {
+  def testAnnotateUnresolvedDep() = {
     val msg = SbtBundle("sbt.annotation.unresolvedDependency")
     doTest(Seq(Error("\"org.jetbrains\"", msg),
       Error("\"unknown-lib\"", msg),
       Error("\"0.0.0\"", msg)))
   }
 
-  def testAnnotateUnresolvedDepWithDynamicVersion = {
+  def testAnnotateUnresolvedDepWithDynamicVersion() = {
     val msg = SbtBundle("sbt.annotation.unresolvedDependency")
     doTest(Seq(Error("\"org.jetbrains\"", msg),
       Error("\"unknown-lib\"", msg),

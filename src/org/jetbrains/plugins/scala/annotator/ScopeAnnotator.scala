@@ -90,7 +90,7 @@ trait ScopeAnnotator {
   }
 
   private def clashesOf(elements: Definitions): Definitions = {
-    val names = elements.map(nameOf _).filterNot(_ == "_")
+    val names = elements.map(nameOf).filterNot(_ == "_")
     val clashedNames = names.diff(names.distinct)
     elements.filter(e => clashedNames.contains(nameOf(e)))
   }

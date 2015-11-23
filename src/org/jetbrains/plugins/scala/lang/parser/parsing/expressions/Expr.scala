@@ -23,7 +23,7 @@ object Expr {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val exprMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER => {
+      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
         val pmarker = builder.mark
         builder.advanceLexer() //Ate id
         builder.getTokenType match {
@@ -44,9 +44,8 @@ object Expr {
             exprMarker.rollbackTo()
           }
         }
-      }
-      
-      case ScalaTokenTypes.tLPARENTHESIS => {
+
+      case ScalaTokenTypes.tLPARENTHESIS =>
         if (Bindings.parse(builder)) {
           builder.getTokenType match {
             case ScalaTokenTypes.tFUNTYPE => {
@@ -61,7 +60,6 @@ object Expr {
         else {
           exprMarker.drop()
         }
-      }
       case _ => exprMarker.drop()
     }
     Expr1.parse(builder)

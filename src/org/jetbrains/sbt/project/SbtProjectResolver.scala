@@ -17,9 +17,8 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.SbtResolver
-
 import org.jetbrains.sbt.structure.XmlSerializer._
-import org.jetbrains.sbt.{structure=>sbtStructure}
+import org.jetbrains.sbt.{structure => sbtStructure}
 
 import scala.collection.immutable.HashMap
 
@@ -87,7 +86,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     projectNode.add(new SbtProjectNode(basePackages, projectJdk, javacOptions, sbtVersion, root))
 
-    project.play2 map {
+    project.play2 foreach {
       case play2Data =>
         import Play2Keys.AllKeys._
         val oldPlay2Data = play2Data.keys.map { case sbtStructure.Play2Key(name, values) =>

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error}
 class NeedsToBeTraitTest extends AnnotatorTestBase(NeedsToBeTrait) {
   private val Message = "Class (\\w+) needs to be trait to be mixed in".r
 
-  def testNeedsToBeTrait {
+  def testNeedsToBeTrait() {
     assertNothing(messages("class C; trait T; new C with T"))
     assertNothing(messages("class C; trait T1; trait T2; new C with T1 with T2"))
 
@@ -22,7 +22,7 @@ class NeedsToBeTraitTest extends AnnotatorTestBase(NeedsToBeTrait) {
     }
   }
 
-  def testNeedsToBeTraitAndMultipleTraitInheritance {
+  def testNeedsToBeTraitAndMultipleTraitInheritance() {
     assertMatches(messages("class C; new C with C")) {
       case Error("C", Message("C")) :: Nil =>
     }

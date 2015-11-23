@@ -113,7 +113,7 @@ object ScalaSigParsers extends RulesWithState with MemoisableRules {
 }
 
 object ScalaSigEntryParsers extends RulesWithState with MemoisableRules {
-  import ScalaSigAttributeParsers.{nat, utf8, longValue}
+  import ScalaSigAttributeParsers.{longValue, nat, utf8}
 
   type S = ScalaSig#Entry
   type EntryParser[A] = Rule[A, String]

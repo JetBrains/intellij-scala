@@ -22,7 +22,7 @@ object PI {
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_PI_START => builder.advanceLexer()
       case _ =>
-        PIMarker.drop
+        PIMarker.drop()
         return false
     }
     builder.getTokenType match {

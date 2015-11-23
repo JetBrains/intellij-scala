@@ -23,5 +23,5 @@ class EnablePerformanceProblemsQuickFix(project: Project) extends LocalQuickFix 
                     else "(this can improve editor performance"
                     ) + ")."
 
-  def getFamilyName: String =  (enable) + " setting"
+  def getFamilyName: String =  enable + " setting"
 }

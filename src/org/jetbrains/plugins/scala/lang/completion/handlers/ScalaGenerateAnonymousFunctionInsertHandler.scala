@@ -15,15 +15,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType, ScTypePresentation}
 
-import scala.collection.mutable.HashSet
+import scala.collection.mutable
 
 /**
- * @author Alexander Podkhalyuzin
- */
+  * @author Alexander Podkhalyuzin
+  */
 
 class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs: Boolean) extends InsertHandler[LookupElement] {
   def handleInsert(context: InsertionContext, item: LookupElement) {
-    val abstracts = new HashSet[ScAbstractType]
+    val abstracts = new mutable.HashSet[ScAbstractType]
     for (param <- params) abstracts ++= param.collectAbstracts
 
     val editor = context.getEditor
@@ -98,8 +98,8 @@ class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs
           for (binding <- pattern.bindings) {
             binding match {
               case tp: ScTypedPattern => tp.typePattern match {
-                case Some(tp) =>
-                  seekAbstracts(tp.typeElement)
+                case Some(tpe) =>
+                  seekAbstracts(tpe.typeElement)
                 case _ =>
               }
               case _ =>

@@ -20,21 +20,19 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 object FunDcl {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     //val returnMarker = builder.mark
-    builder.getTokenType() match {
-      case ScalaTokenTypes.kDEF => {
+    builder.getTokenType match {
+      case ScalaTokenTypes.kDEF =>
         builder.advanceLexer //Ate def
-      }
-      case _ => {
+      case _ =>
         //returnMarker.drop
         return false
-      }
     }
     if (!(FunSig parse builder)) {
       //returnMarker.drop
       return false
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tCOLON => {
+      case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer //Ate :
         if (Type.parse(builder)) {
           //returnMarker.drop
@@ -45,11 +43,9 @@ object FunDcl {
           //returnMarker.drop
           return true
         }
-      }
-      case _ => {
+      case _ =>
         //returnMarker.drop
         return true
-      }
     }
   }
 }

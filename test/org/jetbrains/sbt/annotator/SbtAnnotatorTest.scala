@@ -30,13 +30,13 @@ import scala.collection.JavaConverters._
 
 class SbtAnnotatorTest extends AnnotatorTestBase with MockSbt {
 
-  def test_0_12_4: Unit = runTest("0.12.4", Expectations.sbt012)
+  def test_0_12_4(): Unit = runTest("0.12.4", Expectations.sbt012)
 
-  def test_0_13_1: Unit = runTest("0.13.1", Expectations.sbt013)
+  def test_0_13_1(): Unit = runTest("0.13.1", Expectations.sbt013)
 
-  def test_0_13_7: Unit = runTest("0.13.7", Expectations.sbt0137)
+  def test_0_13_7(): Unit = runTest("0.13.7", Expectations.sbt0137)
 
-  def testNullVersion: Unit = runTest(null, Expectations.sbt0137)
+  def testNullVersion(): Unit = runTest(null, Expectations.sbt0137)
 
   override protected def setUp(): Unit = {
     super.setUp()

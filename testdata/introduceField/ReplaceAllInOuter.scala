@@ -17,11 +17,13 @@ class Test {
   var i: Int = 1
 
   object A {
-    /*start*/i/*end*/
+    i
   }
+
   def foo() {
     i
   }
+
   i
 }
 */

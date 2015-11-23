@@ -76,8 +76,8 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
               result.addElement(elemToAdd)
             } else {
               typez.foreach {
-                case ScParameterizedType(tp, Seq(arg)) if !elementAdded =>
-                  ScType.extractClass(tp, Some(elem.getProject)) match {
+                case ScParameterizedType(tpe, Seq(arg)) if !elementAdded =>
+                  ScType.extractClass(tpe, Some(elem.getProject)) match {
                     case Some(clazz) if clazz.qualifiedName == "scala.Option" || clazz.qualifiedName == "scala.Some" =>
                       if (!scType.equiv(Nothing) && scType.conforms(arg)) {
                         el.someSmartCompletion = true
@@ -290,7 +290,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                        result: CompletionResultSet) {
       val element = positionFromParameters(parameters)
       val (ref, assign) = extractReference[ScAssignStmt](element)
-      if (assign.getRExpression == Some(ref)) {
+      if (assign.getRExpression.contains(ref)) {
         assign.getLExpression match {
           case call: ScMethodCall => //todo: it's update method
           case leftExpression: ScExpression =>

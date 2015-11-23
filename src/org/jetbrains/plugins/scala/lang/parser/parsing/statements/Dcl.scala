@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
  */
 
 object Dcl {
-  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,true)
+  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,isMod = true)
   def parse(builder: ScalaPsiBuilder, isMod: Boolean): Boolean = {
     val dclMarker = builder.mark
     dclMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEEDING_COMMENTS_TOKEN, null)
@@ -46,7 +46,7 @@ object Dcl {
     }
     //Look for val,var,def or type
     builder.getTokenType match {
-      case ScalaTokenTypes.kVAL => {
+      case ScalaTokenTypes.kVAL =>
         if (ValDcl parse builder) {
           dclMarker.done(ScalaElementTypes.VALUE_DECLARATION)
           true
@@ -55,8 +55,7 @@ object Dcl {
           dclMarker.rollbackTo()
           false
         }
-      }
-      case ScalaTokenTypes.kVAR => {
+      case ScalaTokenTypes.kVAR =>
         if (VarDcl parse builder) {
           dclMarker.done(ScalaElementTypes.VARIABLE_DECLARATION)
           true
@@ -65,8 +64,7 @@ object Dcl {
           dclMarker.drop()
           false
         }
-      }
-      case ScalaTokenTypes.kDEF => {
+      case ScalaTokenTypes.kDEF =>
         if (FunDcl parse builder) {
           dclMarker.done(ScalaElementTypes.FUNCTION_DECLARATION)
           true
@@ -75,8 +73,7 @@ object Dcl {
           dclMarker.drop()
           false
         }
-      }
-      case ScalaTokenTypes.kTYPE => {
+      case ScalaTokenTypes.kTYPE =>
         if (TypeDcl parse builder) {
           dclMarker.done(ScalaElementTypes.TYPE_DECLARATION)
           true
@@ -85,11 +82,9 @@ object Dcl {
           dclMarker.drop()
           false
         }
-      }
-      case _ => {
+      case _ =>
         dclMarker.rollbackTo()
         false
-      }
     }
   }
 }

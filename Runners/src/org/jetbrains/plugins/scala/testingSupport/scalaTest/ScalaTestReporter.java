@@ -108,7 +108,7 @@ public class ScalaTestReporter implements Reporter {
       long timeStamp = event.timeStamp();
       String res = "testFailed name='" + escapeString(testName) + "' message='" + escapeString(message) +
           "' details='" + escapeString(detail) + "'";
-      if (error) res += "error = '" + error + "'";
+      if (error) res += "error = 'true'";
       res += "timestamp='" + escapeString(formatTimestamp(new Date(timeStamp))) +  "'";
       treeBuilder.closeScope(res, ordinal, testFailed.suiteName(), true);
     } else if (event instanceof TestIgnored) {

@@ -41,7 +41,7 @@ class ScalaFileNameInspection extends LocalInspectionTool {
     val definitions = scalaFile.typeDefinitions
 
     if (definitions.length > 2) return Array.empty
-    if (definitions.length == 2 && definitions(0).name != definitions(1).name) return Array.empty //with companion
+    if (definitions.length == 2 && definitions.head.name != definitions(1).name) return Array.empty //with companion
 
     var hasProblems = true
     for (clazz <- definitions) {

@@ -18,29 +18,25 @@ object TypeDef {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val faultMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.kTYPE => {
+      case ScalaTokenTypes.kTYPE =>
         builder.advanceLexer //Ate type
-      }
-      case _ => {
+      case _ =>
         faultMarker.rollbackTo
         return false
-      }
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
+      case ScalaTokenTypes.tIDENTIFIER =>
         builder.advanceLexer //Ate identifier
-      }
-      case _ => {
+      case _ =>
         builder error ScalaBundle.message("identifier.expected")
         faultMarker.rollbackTo
         return false
-      }
     }
     val isTypeParamClause = if (TypeParamClause parse builder) {
       true
     } else false
     builder.getTokenType match {
-      case ScalaTokenTypes.tASSIGN => {
+      case ScalaTokenTypes.tASSIGN =>
         builder.advanceLexer //Ate =
         if (Type.parse(builder)) {
           faultMarker.drop
@@ -51,11 +47,9 @@ object TypeDef {
           builder error ScalaBundle.message("wrong.type")
           return false
         }
-      }
-      case _ => {
+      case _ =>
         faultMarker.rollbackTo
         return false
-      }
     }
   }
 }

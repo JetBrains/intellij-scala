@@ -1,4 +1,4 @@
-package scalap
+package scala.tools.scalap
 
 import java.io.{File => jFile}
 

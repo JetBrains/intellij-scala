@@ -7,7 +7,7 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.data.SbtModuleNode
 import org.jetbrains.sbt.project.module.SbtModule
-import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndexesManager};
+import org.jetbrains.sbt.resolvers.{SbtResolver, SbtResolverIndexesManager}
 
 /**
  * @author Nikolay Obedin

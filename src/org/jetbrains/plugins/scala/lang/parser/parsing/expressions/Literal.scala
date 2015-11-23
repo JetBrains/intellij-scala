@@ -28,7 +28,7 @@ object Literal {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
+      case ScalaTokenTypes.tIDENTIFIER =>
         if (builder.getTokenText == "-") {
           builder.advanceLexer() //Ate -
           builder.getTokenType match {
@@ -48,7 +48,6 @@ object Literal {
           marker.rollbackTo()
           false
         }
-      }
       case ScalaTokenTypes.tINTERPOLATED_STRING_ID =>
         CommonUtils.parseInterpolatedString(builder, isPattern = false)
         marker.done(ScalaElementTypes.INTERPOLATED_STRING_LITERAL)
@@ -61,22 +60,19 @@ object Literal {
            ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE |
            ScalaTokenTypes.tCHAR | ScalaTokenTypes.tSYMBOL |
            ScalaTokenTypes.kNULL | ScalaTokenTypes.tSTRING |
-           ScalaTokenTypes.tMULTILINE_STRING  => {
+           ScalaTokenTypes.tMULTILINE_STRING =>
         builder.advanceLexer() //Ate literal
         marker.done(ScalaElementTypes.LITERAL)
         true
-      }
-      case ScalaTokenTypes.tWRONG_STRING => {
+      case ScalaTokenTypes.tWRONG_STRING =>
         //wrong string literal
         builder.advanceLexer() //Ate wrong string
         builder.error("Wrong string literal")
         marker.done(ScalaElementTypes.LITERAL)
         true
-      }
-      case _ => {
+      case _ =>
         marker.rollbackTo()
         false
-      }
     }
   }
 }

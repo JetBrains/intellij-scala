@@ -15,7 +15,7 @@ class UnitReturnSeveralOutput1 {
 //case class
 class UnitReturnSeveralOutput1 {
   def foo(i: Int) {
-    /*start*/
+
     val testMethodNameResult: TestMethodNameResult = testMethodName match {
       case Some(result) => result
       case None => return
@@ -25,7 +25,7 @@ class UnitReturnSeveralOutput1 {
     var z: Int = testMethodNameResult.z
     val zz: String = testMethodNameResult.zz
 
-    /*end*/
+
     println(x + y + z + zz)
   }
 

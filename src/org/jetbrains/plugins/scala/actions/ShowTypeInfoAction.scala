@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package actions
 
-import _root_.com.intellij.codeInsight.TargetElementUtilBase
+import _root_.com.intellij.codeInsight.TargetElementUtil
 import _root_.com.intellij.psi._
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.editor.Editor
@@ -73,7 +73,7 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
       hint.foreach(ScalaActionUtil.showHint(editor, _))
 
     } else {
-      val offset = TargetElementUtilBase.adjustOffset(file, editor.getDocument,
+      val offset = TargetElementUtil.adjustOffset(file, editor.getDocument,
         editor.logicalPositionToOffset(editor.getCaretModel.getLogicalPosition))
       ShowTypeInfoAction.getTypeInfoHint(editor, file, offset).foreach(ScalaActionUtil.showHint(editor, _))
     }

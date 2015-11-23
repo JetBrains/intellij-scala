@@ -10,8 +10,8 @@ class ImportRelationTest extends ResolveTestBase {
     super.folderPath + "import/relation/"
   }
 
-  def testAbsolute = doTest
-  def testClash = doTest
-  def testRelative = doTest
-  def testRoot = doTest
+  def testAbsolute() = doTest()
+  def testClash() = doTest()
+  def testRelative() = doTest()
+  def testRoot() = doTest()
 }

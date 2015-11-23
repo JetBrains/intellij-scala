@@ -93,14 +93,13 @@ object ScalaAfterNewCompletionUtil {
         case _ => ""
       })
       psiClass match {
-        case clazz: PsiClass => {
+        case clazz: PsiClass =>
           if (psiClass.isInterface || psiClass.isInstanceOf[ScTrait] ||
             psiClass.hasModifierPropertyScala("abstract")) {
             tailText += " {...}"
           }
           val location: String = clazz.getPresentation.getLocationString
           presentation.setTailText(tailText + " " + location, true)
-        }
         case _ =>
       }
       presentation.setIcon(psiClass.getIcon(0))
@@ -122,7 +121,7 @@ object ScalaAfterNewCompletionUtil {
       override def renderElement(presentation: LookupElementPresentation) {
         renderer(tp, psiClass, subst).renderElement(this, presentation)
         isRenamed match {
-          case Some(name) => presentation.setItemText(name + " <= " + presentation.getItemText)
+          case Some(nme) => presentation.setItemText(nme + " <= " + presentation.getItemText)
           case _ =>
         }
       }

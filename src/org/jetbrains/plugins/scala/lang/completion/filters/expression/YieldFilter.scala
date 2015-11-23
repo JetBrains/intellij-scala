@@ -24,7 +24,7 @@ class YieldFilter extends ElementFilter {
 
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context);
+    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
       val parent = leaf.getParent
       if (parent.isInstanceOf[ScExpression] && parent.getParent.isInstanceOf[ScForStatement]) {
@@ -41,11 +41,11 @@ class YieldFilter extends ElementFilter {
           ScalaCompletionUtil.checkReplace(parent.getParent, "yield", context.getManager)
       }
     }
-    false;
+    false
   }
 
   def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
-    true;
+    true
   }
 
   @NonNls

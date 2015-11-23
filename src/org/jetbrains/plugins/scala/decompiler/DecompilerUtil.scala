@@ -12,7 +12,7 @@ import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
 import com.intellij.reference.SoftReference
 
-import scalap.Decompiler
+import scala.tools.scalap.Decompiler
 
 /**
  * @author ilyas

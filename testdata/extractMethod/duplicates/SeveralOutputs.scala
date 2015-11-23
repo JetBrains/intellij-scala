@@ -22,13 +22,13 @@ object SeveralOutputs {
 object SeveralOutputs {
   def foo(i: Int) {
     val q = i
-    /*start*/
+
     val testMethodNameResult: (Int, Int, Int) = testMethodName(q)
     val z: Int = testMethodNameResult._1
     val zz: Int = testMethodNameResult._2
     var zzz: Int = testMethodNameResult._3
 
-    /*end*/
+
 
     zzz + zz + z
   }

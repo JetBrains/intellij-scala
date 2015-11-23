@@ -28,7 +28,7 @@ class ScalaDocMissingParameterDescriptionInspection extends LocalInspectionTool 
 
         val children = s.findChildrenByType(ScalaDocTokenType.DOC_COMMENT_DATA)
         for (child <- children) {
-          if (child.getText.length() > 1 && child.getText.split(" ").length > 0) {
+          if (child.getText.length() > 1 && child.getText.split(" ").nonEmpty) {
             return
           }
         }

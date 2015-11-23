@@ -77,7 +77,7 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
         |}
       """.stripMargin('|').replaceAll("\r", "").trim()
 
-    assert(activeLookup.find(le => le.getLookupString == "xxxxx_=").isEmpty)
+    assert(!activeLookup.exists(le => le.getLookupString == "xxxxx_="))
 
     completeLookupItem(activeLookup.find(le => le.getLookupString == "xxxxx").get)
     checkResultByText(resultText)
@@ -505,7 +505,7 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
       """.stripMargin.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
     val (activeLookup, _) = complete(0, CompletionType.BASIC)
-    Assert.assertTrue(activeLookup.filter(_.getLookupString == "foo").length == 1)
+    Assert.assertTrue(activeLookup.count(_.getLookupString == "foo") == 1)
   }
 
   def testHiding2() {
@@ -523,7 +523,7 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
       """.stripMargin.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
     val (activeLookup, _) = complete(0, CompletionType.BASIC)
-    Assert.assertTrue(activeLookup.filter(_.getLookupString == "foo").length == 2)
+    Assert.assertTrue(activeLookup.count(_.getLookupString == "foo") == 2)
   }
 
   def testHiding3() {
@@ -538,7 +538,7 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
       """.stripMargin.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
     val (activeLookup, _) = complete(0, CompletionType.BASIC)
-    Assert.assertTrue(activeLookup.filter(_.getLookupString == "foo").length == 1)
+    Assert.assertTrue(activeLookup.count(_.getLookupString == "foo") == 1)
   }
 
   def testHidingImplicits() {
@@ -548,7 +548,7 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
       """.stripMargin.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy.scala", fileText)
     val (activeLookup, _) = complete(0, CompletionType.BASIC)
-    Assert.assertTrue(activeLookup.filter(_.getLookupString == "x").length == 0)
+    Assert.assertTrue(!activeLookup.exists(_.getLookupString == "x"))
   }
 
   def testBasicRenamed() {
@@ -693,7 +693,7 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     configureFromFileTextAdapter("dummy.scala", fileText)
     val (activeLookup, _) = complete(1, CompletionType.BASIC)
 
-    assert(activeLookup.find(le => le.getLookupString == "getBar") == None)
+    assert(!activeLookup.exists(le => le.getLookupString == "getBar"))
   }
 
   def testBasicTypeCompletion() {
@@ -706,7 +706,7 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     configureFromFileTextAdapter("dummy.scala", fileText)
     val (activeLookup, _) = complete(1, CompletionType.BASIC)
 
-    assert(activeLookup.filter(le => le.getLookupString == "Int").length == 2)
+    assert(activeLookup.count(le => le.getLookupString == "Int") == 2)
   }
 
   def testBasicTypeCompletionNoMethods() {
@@ -721,7 +721,7 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     configureFromFileTextAdapter("dummy.scala", fileText)
     val (activeLookup, _) = complete(1, CompletionType.BASIC)
 
-    assert(activeLookup.filter(le => le.getLookupString == "foo").length == 0)
+    assert(!activeLookup.exists(le => le.getLookupString == "foo"))
   }
 
   def testBraceCompletionChar() {

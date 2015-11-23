@@ -31,6 +31,6 @@ class AddModifierTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
       |@Deprecated
       |abstract class Foo<caret> extends Runnable
       """.stripMargin('|').replaceAll("\r", "").trim()
-    doTest(fileText, resultText, "abstract", true)
+    doTest(fileText, resultText, "abstract", value = true)
   }
 }

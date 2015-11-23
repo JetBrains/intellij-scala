@@ -7,7 +7,6 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.testFramework.UsefulTestCase
-import junit.framework.Assert._
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -17,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.StdType
 import org.jetbrains.plugins.scala.lang.refactoring.introduceField.{IntroduceFieldContext, IntroduceFieldSettings, ScalaIntroduceFieldFromExpressionHandler}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.util.ScalaUtils
+import org.junit.Assert._
 
 /**
  * Nikolay.Tropin
@@ -36,17 +36,18 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
-    val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
+    var fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
 
-    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
-    val offset = fileText.indexOf(startMarker)
-    val startOffset = offset + startMarker.length
+    val startOffset = fileText.indexOf(startMarker)
+    assert(startOffset != -1, "Not specified start marker in test case. Use /*start*/ in scala file for this.")
+    fileText = fileText.replace(startMarker, "")
 
-    assert(offset != -1, "Not specified start marker in test case. Use /*start*/ in scala file for this.")
     val endOffset = fileText.indexOf(endMarker)
     assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
+    fileText = fileText.replace(endMarker, "")
 
+    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
+    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     val editor = getEditorAdapter
     editor.getSelectionModel.setSelection(startOffset, endOffset)
 
@@ -92,10 +93,9 @@ abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTes
       case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
       case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
         text.substring(2, text.length - 2).trim
-      case _ => {
+      case _ =>
         assertTrue("Test result must be in last comment statement.", false)
         ""
-      }
     }
     assertEquals(output, res)
   }

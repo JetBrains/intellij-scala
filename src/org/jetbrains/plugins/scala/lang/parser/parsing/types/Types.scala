@@ -22,7 +22,7 @@ object Types extends ParserNode{
     def typesParse() = if (ParamType.parseInner(builder)){
       true
     } else if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
-      builder.advanceLexer
+      builder.advanceLexer()
       true
     } else {
       false
@@ -30,20 +30,20 @@ object Types extends ParserNode{
 
     val typesMarker = builder.mark
     if (!typesParse) {
-      typesMarker.drop
+      typesMarker.drop()
       return (false,isTuple)
     }
     var exit = true
     while (exit && builder.getTokenType == ScalaTokenTypes.tCOMMA) {
       isTuple = true
-      builder.advanceLexer //Ate ,
+      builder.advanceLexer() //Ate ,
       if (!typesParse) {
         exit = false
         //builder error ScalaBundle.message("wrong.type",new Array[Object](0))
       }
     }
     if (isTuple) typesMarker.done(ScalaElementTypes.TYPES)
-    else typesMarker.drop
+    else typesMarker.drop()
     return (true,isTuple)
   }
 }

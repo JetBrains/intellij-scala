@@ -19,21 +19,20 @@ class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluat
     myEvaluatedArrayReference = null
     val indexValue: Value = indexEvaluator.evaluate(context).asInstanceOf[Value]
     val arrayValue: Value = arrayReferenceEvaluator.evaluate(context).asInstanceOf[Value]
-    if (!(arrayValue.isInstanceOf[ArrayReference])) {
+    if (!arrayValue.isInstanceOf[ArrayReference]) {
       throw EvaluationException(DebuggerBundle.message("evaluation.error.array.reference.expected"))
     }
     myEvaluatedArrayReference = arrayValue.asInstanceOf[ArrayReference]
     if (!DebuggerUtils.isInteger(indexValue)) {
       throw EvaluationException(DebuggerBundle.message("evaluation.error.invalid.index.expression"))
     }
-    myEvaluatedIndex = (indexValue.asInstanceOf[PrimitiveValue]).intValue
+    myEvaluatedIndex = indexValue.asInstanceOf[PrimitiveValue].intValue
     try {
       myEvaluatedArrayReference.getValue(myEvaluatedIndex)
     }
     catch {
-      case e: Exception => {
+      case e: Exception =>
         throw EvaluationException(e)
-      }
     }
   }
 
@@ -52,9 +51,8 @@ class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluat
             tp.componentType
           }
           catch {
-            case e: ClassNotLoadedException => {
+            case e: ClassNotLoadedException =>
               throw EvaluationException(e)
-            }
           }
         }
         def getInspectItem(project: Project): NodeDescriptorImpl = {

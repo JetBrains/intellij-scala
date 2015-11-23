@@ -115,7 +115,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
       case Seq() =>
       case Seq(elem) => createClassAtLevel(elem)
       case _ =>
-        val selection = siblings(0)
+        val selection = siblings.head
         val processor = new PsiElementProcessor[PsiElement] {
           def execute(elem: PsiElement): Boolean = {
             inWriteCommandAction(elem.getProject){

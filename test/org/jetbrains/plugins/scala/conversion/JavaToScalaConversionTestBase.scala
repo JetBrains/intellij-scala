@@ -23,7 +23,7 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
   def folderPath: String = baseRootPath() + "conversion/"
 
   protected def doTest() {
-    import junit.framework.Assert._
+    import org.junit.Assert._
 
     val filePath = folderPath + getTestName(false) + ".java"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))

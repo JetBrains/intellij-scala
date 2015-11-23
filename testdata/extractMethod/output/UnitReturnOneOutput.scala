@@ -11,12 +11,12 @@ class UnitReturnOneOutput {
 /*
 class UnitReturnOneOutput {
   def foo(i: Int) {
-    /*start*/
+
     val x: Int = testMethodName(i) match {
       case Some(result) => result
       case None => return
     }
-    /*end*/
+
     println(x)
   }
 

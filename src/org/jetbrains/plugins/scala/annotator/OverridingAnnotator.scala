@@ -3,12 +3,12 @@ package org.jetbrains.plugins.scala.annotator
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
-import com.intellij.psi.{PsiModifierListOwner, PsiElement, PsiMethod, PsiModifier}
+import com.intellij.psi.{PsiElement, PsiMethod, PsiModifier, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.quickfix.modifiers.{AddModifierQuickFix, AddModifierWithValOrVarQuickFix, RemoveModifierQuickFix}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -49,7 +49,7 @@ trait OverridingAnnotator {
     if (!isInSources) return
     element.getParent match {
       case ref: ScRefinement =>
-        if (supers.length == 0) UsageTrigger.trigger("scala.structural.type")
+        if (supers.isEmpty) UsageTrigger.trigger("scala.structural.type")
       case _ =>
     }
   }
@@ -102,7 +102,7 @@ trait OverridingAnnotator {
                                                              isConcrete: Res => Boolean,
                                                              memberType: String,
                                                              holder: AnnotationHolder) {
-    if (superSignaturesWithSelfType.length == 0) {
+    if (superSignaturesWithSelfType.isEmpty) {
       if (owner.hasModifierProperty("override")) {
         val annotation: Annotation = holder.createErrorAnnotation(member.nameId,
           ScalaBundle.message("member.overrides.nothing", memberType, member.name))
@@ -123,7 +123,7 @@ trait OverridingAnnotator {
         }
 
         def fixForCaseClassParameter() {
-          superSignaturesWithSelfType(0) match {
+          superSignaturesWithSelfType.head match {
             case sign: Signature =>
               ScalaPsiUtil.nameContext(sign.namedElement) match {
                 case p: ScClassParameter if p.isVal || (p.isCaseClassVal && !p.isVar) =>

@@ -20,10 +20,9 @@ object ObjectDef {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => builder.advanceLexer() //Ate identifier
-      case _ => {
+      case _ =>
         builder error ScalaBundle.message("identifier.expected")
         return false
-      }
     }
     //parse extends block
     ClassTemplateOpt parse builder

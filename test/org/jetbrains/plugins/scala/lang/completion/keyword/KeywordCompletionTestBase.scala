@@ -43,7 +43,7 @@ abstract class KeywordCompletionTestBase extends ScalaLightPlatformCodeInsightTe
       if (lookup == null) Array.empty
       else lookup.getItems.toArray(LookupElement.EMPTY_ARRAY).map(_.getLookupString)
 
-    val res = items.sortWith(_ < _).filter(ScalaNamesUtil.isKeyword(_)).mkString("\n")
+    val res = items.filter(ScalaNamesUtil.isKeyword).sorted.mkString("\n")
 
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     val text = lastPsi.getText
