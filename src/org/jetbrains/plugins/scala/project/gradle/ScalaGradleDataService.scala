@@ -58,7 +58,11 @@ private object ScalaGradleDataService {
       }
       val compilerVersion = compilerVersionOption.get
 
-      val scalaLibraryOption = getScalaLibraries.find(_.scalaVersion.contains(compilerVersion))
+      val scalaLibraries = getScalaLibraries
+      if (scalaLibraries.isEmpty)
+        return
+
+      val scalaLibraryOption = scalaLibraries.find(_.scalaVersion.contains(compilerVersion))
       if (scalaLibraryOption.isEmpty) {
         showWarning(ScalaBundle.message("gradle.dataService.scalaLibraryIsNotFound", compilerVersion.number, module.getName))
         return
