@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.conversion.ast
 
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.conversion.PrettyPrinter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -10,17 +9,12 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
   */
 
 abstract class IntermediateNode {
-  def print(printer: PrettyPrinter): PrettyPrinter
-
   def escapeKeyword(name: String): String = if (ScalaNamesUtil.isKeyword(name)) "`" + name + "`" else name
-
-  def getRange: TextRange = new TextRange(0, 0)
+  var getRange: TextRange = new TextRange(0, 0)
 }
 
 
-case class EmptyConstruction() extends IntermediateNode {
-  override def print(printer: PrettyPrinter): PrettyPrinter = printer.append("")
-}
+case class EmptyConstruction() extends IntermediateNode
 
 trait TypedElement {
   def getType: TypeConstruction

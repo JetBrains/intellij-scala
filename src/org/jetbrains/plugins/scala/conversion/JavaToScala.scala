@@ -10,12 +10,13 @@ import com.intellij.psi._
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
+import org.jetbrains.plugins.scala.conversion.ast.ClassConstruction.ClassType
 import org.jetbrains.plugins.scala.conversion.ast._
 import org.jetbrains.plugins.scala.conversion.copy.AssociationHelper
+import org.jetbrains.plugins.scala.conversion.visitors.SimplePrintVisitor
 import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.dependency.{DependencyKind, Path}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.conversion.ast.ClassConstruction.ClassType
 
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
@@ -58,16 +59,10 @@ object JavaToScala {
 
   def convertPsiToIntermdeiate(element: PsiElement, externalProperties: ExternalProperties)
                               (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
-                               refs: Seq[ReferenceData] = Seq.empty): IntermediateNode = {
+                               refs: Seq[ReferenceData] = Seq.empty,
+                               withComments: Boolean = false): IntermediateNode = {
     if (element == null) return LiteralExpression("")
     if (element.getLanguage != JavaLanguage.INSTANCE) LiteralExpression("")
-
-    element match {
-      case docCommentOwner: PsiDocCommentOwner if docCommentOwner.getDocComment != null =>
-        LiteralExpression(docCommentOwner.getDocComment.getText)
-      case _ =>
-    }
-
     val result: IntermediateNode = element match {
       case f: PsiFile =>
         val m = MainConstruction()
@@ -256,7 +251,21 @@ object JavaToScala {
       case p: PsiParameterList =>
         ParameterListConstruction(p.getParameters.map(convertPsiToIntermdeiate(_, externalProperties)))
       case m: PsiMethod =>
-        val body = Option(m.getBody).map(convertPsiToIntermdeiate(_, externalProperties))
+        def body: Option[IntermediateNode] = {
+          if (m.isConstructor) {
+            getFirstStatement(m).map(_.getExpression).flatMap {
+              case mc: PsiMethodCallExpression if mc.getMethodExpression.getQualifiedName == "this" =>
+                Some(convertPsiToIntermdeiate(m.getBody, externalProperties))
+              case mc: PsiMethodCallExpression =>
+                Some(BlockConstruction(LiteralExpression("this()")
+                  +: m.getBody.getStatements.map(convertPsiToIntermdeiate(_, externalProperties))))
+              case _ => None
+            }
+          } else {
+            Option(m.getBody).map(convertPsiToIntermdeiate(_, externalProperties))
+          }
+        }
+
         if (m.isConstructor) {
           ConstructorSimply(handleModifierList(m), m.getName, m.getTypeParameters.map(convertPsiToIntermdeiate(_, externalProperties)),
             convertPsiToIntermdeiate(m.getParameterList, externalProperties), body)
@@ -381,7 +390,8 @@ object JavaToScala {
 
   def hanldleAssociations(element: PsiElement, result: IntermediateNode)
                          (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
-                          refs: Seq[ReferenceData] = Seq.empty) = {
+                          refs: Seq[ReferenceData] = Seq.empty,
+                          withComments: Boolean = false) = {
     element match {
       case expression: PsiNewExpression if expression.getClassReference != null =>
         associations ++= associationFor(expression.getClassReference)
@@ -417,7 +427,8 @@ object JavaToScala {
 
   def createClass(inClass: PsiClass, externalProperties: ExternalProperties)
                  (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
-                  refs: Seq[ReferenceData] = Seq.empty): IntermediateNode = {
+                  refs: Seq[ReferenceData] = Seq.empty,
+                  withComments: Boolean = false): IntermediateNode = {
 
     def getExtendList(): Seq[PsiJavaCodeReferenceElement] = {
       val typez = new ArrayBuffer[PsiJavaCodeReferenceElement]
@@ -617,7 +628,8 @@ object JavaToScala {
   //primary constructor may apply only when there is one constructor with params
   def handlePrimaryConstructor(constructors: Seq[PsiMethod])
                               (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
-                               refs: Seq[ReferenceData] = Seq.empty): (Option[Seq[PsiMember]], Option[PrimaryConstruction]) = {
+                               refs: Seq[ReferenceData] = Seq.empty,
+                               withComments: Boolean = false): (Option[Seq[PsiMember]], Option[PrimaryConstruction]) = {
 
     val dropFields = new ArrayBuffer[PsiField]()
     def createPrimaryConstructor(constructor: PsiMethod): PrimaryConstruction = {
@@ -755,9 +767,11 @@ object JavaToScala {
 
   def handleModifierList(owner: PsiModifierListOwner)
                         (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
-                         refs: Seq[ReferenceData] = Seq.empty): IntermediateNode = {
+                         refs: Seq[ReferenceData] = Seq.empty,
+                         withComments: Boolean = false): IntermediateNode = {
 
-    val annotationDropList = Seq("java.lang.Override", "org.jetbrains.annotations.Nullable", "org.jetbrains.annotations.NotNull")
+    val annotationDropList = Seq("java.lang.Override", "org.jetbrains.annotations.Nullable",
+      "org.jetbrains.annotations.NotNull", "org.jetbrains.annotations.NonNls")
 
     def handleAnnotations: Seq[IntermediateNode] = {
       val annotations = new ArrayBuffer[IntermediateNode]()
@@ -828,19 +842,19 @@ object JavaToScala {
   }
 
   def convertPsisToText(elements: Array[PsiElement]): String = {
-    val printer = new PrettyPrinter
     val resultNode = new MainConstruction
     for (part <- elements) {
       resultNode.addChild(convertPsiToIntermdeiate(part, null))
     }
-    val result = resultNode.print(printer)
-    result.toString
+    val visitor = new SimplePrintVisitor
+    visitor.visit(resultNode)
+    visitor.stringResult
   }
 
   def convertPsiToText(element: PsiElement): String = {
-    val prettyPrinter = new PrettyPrinter
-    val converted = convertPsiToIntermdeiate(element, null)
-    converted.print(prettyPrinter).toString
+    val visitor = new SimplePrintVisitor
+    visitor.visit(convertPsiToIntermdeiate(element, null))
+    visitor.stringResult
   }
 
   private def serialVersion(c: PsiClass): Option[PsiField] = {

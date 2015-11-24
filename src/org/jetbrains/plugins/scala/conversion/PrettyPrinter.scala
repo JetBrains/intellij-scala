@@ -1,12 +1,9 @@
 package org.jetbrains.plugins.scala.conversion
 
-import org.jetbrains.plugins.scala.conversion.ast.IntermediateNode
-
 /**
-  * Created by user
+  * Created by Kate Ustyuzhanina
   * on 10/22/15
   */
-
 
 class PrettyPrinter {
   val printer = new StringBuilder()
@@ -29,28 +26,6 @@ class PrettyPrinter {
   def newLine(): PrettyPrinter = {
     printer.append("\n")
     this
-  }
-
-  def append(seq: Seq[IntermediateNode], separator: String): PrettyPrinter = {
-    if (seq != null && seq.nonEmpty) {
-      val it = seq.iterator
-      while (it.hasNext) {
-        it.next().print(this)
-        if (it.hasNext) printer.append(separator)
-      }
-    }
-    this
-  }
-
-  def append(seq: Seq[IntermediateNode], separator: String, before: String, after: String, needAppend: Boolean): PrettyPrinter = {
-    if (needAppend) append(before)
-    append(seq, separator)
-    if (needAppend) append(after)
-    this
-  }
-
-  def append(seq: Seq[IntermediateNode], separator: String, before: String, after: String): PrettyPrinter = {
-    append(seq, separator, before, after, needAppend = true)
   }
 
   def length = printer.length

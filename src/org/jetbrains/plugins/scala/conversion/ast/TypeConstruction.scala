@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala.conversion.ast
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiType
-import org.jetbrains.plugins.scala.conversion.PrettyPrinter
 import org.jetbrains.plugins.scala.lang.psi.types.{JavaArrayType, ScParameterizedType, ScType}
 
 import scala.collection.mutable.ArrayBuffer
@@ -13,15 +11,6 @@ import scala.collection.mutable.ArrayBuffer
   * on 10/22/15
   */
 case class TypeConstruction(inType: String) extends IntermediateNode with TypedElement {
-  private var printRange = new TextRange(0, 0)
-
-  override def print(printer: PrettyPrinter): PrettyPrinter = {
-    val before = printer.length
-    printer.append(inType)
-    printRange = new TextRange(before, printer.length)
-    printer
-  }
-
   def getDefaultTypeValue: String = {
     inType match {
       case "Int" | "Byte" | "Short" | "Char" => "0"
@@ -33,47 +22,7 @@ case class TypeConstruction(inType: String) extends IntermediateNode with TypedE
     }
   }
 
-  override def getRange = printRange
-
   override def getType: TypeConstruction = this.asInstanceOf[TypeConstruction]
-}
-
-
-case class TypeConstructions(node: IntermediateNode, parts: (Seq[String], Seq[String])) extends IntermediateNode with TypedElement {
-  override def print(printer: PrettyPrinter): PrettyPrinter = {
-    node.print(printer)
-  }
-
-
-  override def getType: TypeConstruction = node.asInstanceOf[TypedElement].getType
-}
-
-
-case class ParametrizedConstruction(node: IntermediateNode, parts: Seq[IntermediateNode]) extends IntermediateNode with TypedElement {
-  override def print(printer: PrettyPrinter): PrettyPrinter = {
-    node.print(printer)
-    printer.append(parts, ", ", "[", "]", parts.nonEmpty)
-  }
-
-  var assocoationMap = Seq[(IntermediateNode, Option[String])]()
-
-  def getAssociations = assocoationMap.collect { case (n, Some(value)) => (n, value) }
-
-  override def getType: TypeConstruction = node.asInstanceOf[TypeConstruction].getType
-}
-
-case class ArrayConstruction(node: IntermediateNode) extends IntermediateNode with TypedElement {
-  override def print(printer: PrettyPrinter): PrettyPrinter = {
-    printer.append("Array[")
-    node.print(printer)
-    printer.append("]")
-  }
-
-  var assocoationMap = Seq[(IntermediateNode, Option[String])]()
-
-  def getAssociations = assocoationMap.collect { case (n, Some(value)) => (n, value) }
-
-  override def getType: TypeConstruction = node.asInstanceOf[TypedElement].getType
 }
 
 object TypeConstruction {
@@ -109,3 +58,23 @@ object TypeConstruction {
     }
   }
 }
+
+case class ParametrizedConstruction(iNode: IntermediateNode, parts: Seq[IntermediateNode]) extends IntermediateNode with TypedElement {
+  var assocoationMap = Seq[(IntermediateNode, Option[String])]()
+
+  def getAssociations = assocoationMap.collect { case (n, Some(value)) => (n, value) }
+
+  override def getType: TypeConstruction = iNode.asInstanceOf[TypedElement].getType
+}
+
+case class ArrayConstruction(iNode: IntermediateNode) extends IntermediateNode with TypedElement {
+  var assocoationMap = Seq[(IntermediateNode, Option[String])]()
+
+  def getAssociations = assocoationMap.collect { case (n, Some(value)) => (n, value) }
+
+  override def getType: TypeConstruction = iNode.asInstanceOf[TypedElement].getType
+}
+
+case class TypeParameterConstruction(name: String, typez: Seq[IntermediateNode]) extends IntermediateNode
+
+case class TypeParameters(data: Seq[IntermediateNode]) extends IntermediateNode

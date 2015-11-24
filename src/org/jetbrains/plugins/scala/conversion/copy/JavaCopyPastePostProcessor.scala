@@ -16,7 +16,8 @@ import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiJavaFile}
 import com.intellij.util.ExceptionUtil
-import org.jetbrains.plugins.scala.conversion.ast.{TypedElement, JavaCodeReferenceStatement, LiteralExpression, MainConstruction}
+import org.jetbrains.plugins.scala.conversion.ast.{JavaCodeReferenceStatement, LiteralExpression, MainConstruction, TypedElement}
+import org.jetbrains.plugins.scala.conversion.visitors.SimplePrintVisitor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings._
@@ -104,13 +105,14 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
           case TextPart(s) =>
             resultNode.addChild(LiteralExpression(s))
           case ElementPart(element) =>
-            val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, data)
+            val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, data, withComments = true)
             resultNode.addChild(result)
         }
       }
 
-      val prettyPrinter = new PrettyPrinter
-      val text = resultNode.print(prettyPrinter)
+      val visitor = new SimplePrintVisitor
+      visitor.visit(resultNode)
+      val text = visitor.stringResult
 
       val updatedAssociations = associationsHelper.filter(_.itype.isInstanceOf[TypedElement]).
         map(a => new Association(a.kind, a.itype.asInstanceOf[TypedElement].getType.getRange, a.path))
@@ -118,7 +120,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
       updatedAssociations ++= associationsHelper.filter(_.itype.isInstanceOf[JavaCodeReferenceStatement]).
         map(a => new Association(a.kind, a.itype.getRange, a.path))
 
-      new ConvertedCode(text.toString(), updatedAssociations.toArray)
+      new ConvertedCode(text, updatedAssociations.toArray)
     } catch {
       case e: Exception =>
         val selections = (startOffsets, endOffsets).zipped.map((a, b) => file.getText.substring(a, b))
