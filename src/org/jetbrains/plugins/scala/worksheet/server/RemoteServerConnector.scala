@@ -78,7 +78,7 @@ class RemoteServerConnector(module: Module, worksheet: File, output: File, works
       if (worksheetProcess == null) return ExitCode.ABORT
 
       worksheetHook.disableRun(originalFile, Some(worksheetProcess))
-      worksheetProcess.addTerminationCallback({worksheetHook enableRun originalFile})
+      worksheetProcess.addTerminationCallback({worksheetHook.enableRun(originalFile, client.isCompiledWithErrors)})
 
       WorksheetProcessManager.add(originalFile, worksheetProcess)
 
@@ -102,6 +102,8 @@ object RemoteServerConnector {
     
     private var hasErrors = false
 
+    def isCompiledWithErrors = hasErrors
+    
     override def progress(text: String, done: Option[Float]) {
       consumer.progress(text, done)
     }
