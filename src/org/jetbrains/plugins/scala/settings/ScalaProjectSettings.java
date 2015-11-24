@@ -53,6 +53,7 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean INTERACTIVE_MODE = true;
   private boolean USE_ECLIPSE_COMPATIBILITY = false;
   private boolean TREAT_SCRATCH_AS_WORKSHEET = true;
+  private int AUTORUN_DELAY = 1400;
 
   private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<String, String>();
 
@@ -265,6 +266,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
     this.USE_ECLIPSE_COMPATIBILITY = USE_ECLIPSE_COMPATIBILITY;
   }
 
+  public int getAutoRunDelay() {
+    return AUTORUN_DELAY;
+  }
+  
+  public void setAutoRunDelay(int delay) {
+    AUTORUN_DELAY = delay;
+  }
+  
   public boolean isTreatScratchFilesAsWorksheet() {
     return TREAT_SCRATCH_AS_WORKSHEET;
   }
