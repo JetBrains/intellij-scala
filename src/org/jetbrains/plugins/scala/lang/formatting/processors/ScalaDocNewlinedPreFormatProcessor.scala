@@ -19,9 +19,10 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocTag, ScDocComment
 class ScalaDocNewlinedPreFormatProcessor extends ScalaRecursiveElementVisitor with PreFormatProcessor {
   override def process(element: ASTNode, range: TextRange): TextRange =
     Option(element.getPsi).map { psiElem =>
+      val oldRange = psiElem.getTextRange
       psiElem.accept(this)
-      psiElem.getTextRange
-    }.getOrElse(range)
+      psiElem.getTextRange.getEndOffset - oldRange.getEndOffset
+    }.map(range.grown).getOrElse(range)
 
   override def visitDocComment(s: ScDocComment) {
     val scalaSettings = CodeStyleSettingsManager.getSettings(s.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
