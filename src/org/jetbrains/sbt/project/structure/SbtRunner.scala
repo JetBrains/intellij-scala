@@ -63,9 +63,10 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
     usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
       val sbtCommands = Seq(
         s"""set shellPrompt := { _ => "" }""",
-        s"""set artifactPath := file("${path(structureFile)}")""",
-        s"""set artifactClassifier := Some("$options")""",
-        s"""apply -cp "${path(pluginFile)}" org.jetbrains.sbt.ReadProject""",
+        s"""set SettingKey[Option[File]]("sbt-structure-output-file") in Global := Some(file("${path(structureFile)}"))""",
+        s"""set SettingKey[String]("sbt-structure-options") in Global := "${options}" """,
+        s"""apply -cp "${path(pluginFile)}" org.jetbrains.sbt.CreateTasks""",
+        s"""*/*:dump-structure""",
         s"""exit""")
 
       val processCommandsRaw =
