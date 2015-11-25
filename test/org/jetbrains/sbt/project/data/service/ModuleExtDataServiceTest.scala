@@ -114,18 +114,18 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
   }
 
   def testValidJavaSdk(): Unit =
-    doTestSdk(Some(JdkByVersion("1.8")),
+    doTestSdk(Some(JdkByName("1.8")),
       ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdk18.getName),
       LanguageLevel.JDK_1_8)
 
   def testValidJavaSdkWithDifferentLanguageLevel(): Unit =
-    doTestSdk(Some(JdkByVersion("1.8")),
+    doTestSdk(Some(JdkByName("1.8")),
       Seq("-source", "1.6"),
       ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdk18.getName),
       LanguageLevel.JDK_1_6)
 
   def testInvalidSdk(): Unit =
-    doTestSdk(Some(JdkByVersion("20")), defaultJdk, LanguageLevel.JDK_1_7)
+    doTestSdk(Some(JdkByName("20")), defaultJdk, LanguageLevel.JDK_1_7)
 
   def testAbsentSdk(): Unit =
     doTestSdk(None, defaultJdk, LanguageLevel.JDK_1_7)
