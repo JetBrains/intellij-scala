@@ -34,7 +34,7 @@ public abstract class LayeredParser implements PsiParser {
 
   @NotNull
   @Override
-  public ASTNode parse(@NotNull IElementType root, @NotNull PsiBuilder builder) {
+  public ASTNode parse(IElementType root, PsiBuilder builder) {
     LayeredParserPsiBuilder delegateBuilder = new LayeredParserPsiBuilder(builder);
     if (isDebug) delegateBuilder.setDebugMode(true);
     
