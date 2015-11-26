@@ -46,8 +46,6 @@ trait Utils {
     // ...
   }
 
-  class UnmatchedTree(msg: String) extends RuntimeException(msg)
-
   implicit class RichPatTpeTree(ptpe: m.Type) {
     def patTpe: m.Pat.Type = {
       def loop(ptpe: m.Type): m.Pat.Type = {
@@ -81,7 +79,7 @@ trait Utils {
   }
 
   implicit class RichPSI(psi: PsiElement) {
-    def ?! = throw new ScalaMetaUnexpectedPSI(psi)
+    def ?! = throw new AbortException(psi, s"Unexpected psi(${psi.getClass}): ${psi.getText}")
     def isSingletonType = psi match {
       case _: PsiPackage => true
       case _: ScObject   => true
@@ -125,10 +123,5 @@ trait Utils {
       }
     }
   }
-
-  def unreachable = throw new ScalaMetaUnreachableException
-  def unreachable(reason: String) = throw new ScalaMetaUnreachableException(reason)
-  def unresolved(cause: String, place: Option[PsiElement]) = throw new AbortException(place, s"""Failed to typecheck "${place.map(_.getText).getOrElse("UNKNOWN")}" - $cause""")
-  def die(reason: String = "unknown") = throw new AbortException(reason)
 
 }

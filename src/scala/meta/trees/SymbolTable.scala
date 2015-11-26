@@ -19,6 +19,7 @@ import org.scalameta.collections._
 import scala.annotation.tailrec
 import scala.language.postfixOps
 import scala.meta.internal.{ast => m, semantic => h}
+import scala.meta.trees.error._
 
 trait SymbolTable {
   self: TreeConverter =>

@@ -14,6 +14,7 @@ import scala.collection.immutable.Seq
 import scala.meta._
 import scala.meta.internal.{ast => m}
 import scala.meta.trees.TreeConverter
+import scala.meta.trees.error._
 import scala.{Seq => _}
 
 class IDEAContext(project: =>Project) extends TreeConverter with semantic.Context {

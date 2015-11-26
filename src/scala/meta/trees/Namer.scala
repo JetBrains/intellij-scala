@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 
 import scala.language.postfixOps
 import scala.meta.internal.{ast => m, semantic => h, AbortException}
+import scala.meta.trees.error._
 import scala.{Seq => _}
 
 trait Namer {
@@ -68,7 +69,7 @@ trait Namer {
     case cr: ScStableCodeReferenceElement =>
       toTypeName(cr.resolve())
     case se: impl.toplevel.synthetic.SyntheticNamedElement =>
-      throw new ScalaMetaException(s"Synthetic elements not implemented") // FIXME: find a way to resolve synthetic elements
+      die(s"Synthetic elements not implemented") // FIXME: find a way to resolve synthetic elements
     case _: PsiPackage | _: ScObject =>
       unreachable(s"Package and Object types shoud be Singleton, not Name: ${elem.getText}")
     // Java stuff starts here
@@ -98,7 +99,7 @@ trait Namer {
       }
     }
     tp.visitType(visitor)
-    if (res != null) res else throw new ScalaMetaException(s"failed to convert type $tp")
+    if (res != null) res else die(s"failed to convert type $tp")
   }
 
   def toCtorName(c: ScConstructor): m.Term.Ref = {

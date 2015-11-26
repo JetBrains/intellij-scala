@@ -16,6 +16,7 @@ import org.scalameta.collections._
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
 import scala.meta.internal.{ast => m, semantic => h}
+import scala.meta.trees.error._
 import scala.{Seq => _}
 
 trait TypeAdapter {
@@ -47,7 +48,7 @@ trait TypeAdapter {
             case Some(t: ScInfixTypeElement) => m.Type.ApplyInfix(toType(t.lOp), toTypeName(t.ref), toType(t.rOp.get))
             case _ => unreachable
           }
-        case t: ScTypeVariableTypeElement => throw new ScalaMetaException("i cannot into type variables")
+        case t: ScTypeVariableTypeElement => die("i cannot into type variables")
         case other => other ?!
       }
     })

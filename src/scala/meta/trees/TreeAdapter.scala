@@ -15,6 +15,7 @@ import scala.collection.immutable.Seq
 import scala.language.postfixOps
 import scala.meta.internal.ast.Term.Param
 import scala.meta.internal.{ast => m, semantic => h, AbortException}
+import scala.meta.trees.error._
 import scala.{Seq => _}
 
 trait TreeAdapter {
