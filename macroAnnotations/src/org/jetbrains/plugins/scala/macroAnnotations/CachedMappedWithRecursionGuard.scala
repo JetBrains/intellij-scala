@@ -76,7 +76,7 @@ object CachedMappedWithRecursionGuard {
           ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}
           type $dataTypeName = (..$parameterTypes)
           val $dataName = (..$parameterNames)
-
+          $cachesUtilFQN.incrementModCountForFunsWithModifiedReturn()
           $builder
 
           $getMappedWithRecursionFQN[$psiElementType, $dataTypeName, $retTp]($element, $dataName, $key,

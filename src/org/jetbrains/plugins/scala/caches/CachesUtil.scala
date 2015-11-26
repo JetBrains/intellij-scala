@@ -3,6 +3,7 @@ package caches
 
 
 import java.util.concurrent.ConcurrentMap
+import java.util.concurrent.locks.ReentrantReadWriteLock
 
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
@@ -14,10 +15,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScModificationTrackerOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.util.control.ControlThrowable
 
 /**
@@ -284,10 +286,10 @@ object CachesUtil {
     @tailrec
     def calc(element: PsiElement): ModificationTracker = {
       Option(PsiTreeUtil.getContextOfType(element, false, classOf[ScModificationTrackerOwner])) match {
-        case Some(owner) if owner.isValidModificationTrackerOwner => owner.getModificationTracker
+        case Some(owner) if owner.isValidModificationTrackerOwner() => owner.getModificationTracker
         case Some(owner) => calc(owner.getContext)
-        case _ if elem != null => elem.getManager.getModificationTracker.getOutOfCodeBlockModificationTracker
-        case _ => element.getManager.getModificationTracker.getOutOfCodeBlockModificationTracker
+        case _ if elem != null => ScalaPsiManager.instance(elem.getProject).modificationTracker
+        case _ => ScalaPsiManager.instance(elem.getProject).modificationTracker
       }
     }
 
@@ -298,4 +300,63 @@ object CachesUtil {
                                                                             data: Data,
                                                                             key: Key[T],
                                                                             set: Set[ScFunction]) extends ControlThrowable
+
+  private[this] val funsRetTpToCheck = new mutable.ArrayBuffer[ScFunction]()
+  private[this] val funsRetTpRWLock = new ReentrantReadWriteLock(true)
+
+  def incrementModCountForFunsWithModifiedReturn(): Unit = {
+    def bufferIsEmpty(): Boolean = {
+      funsRetTpRWLock.readLock().lock()
+      try {
+        funsRetTpToCheck.isEmpty
+      } finally {
+        funsRetTpRWLock.readLock().unlock()
+      }
+    }
+
+    def checkFuns(): Unit = {
+      funsRetTpRWLock.writeLock().lock()
+      try {
+        var i = 0
+        while (i < funsRetTpToCheck.size) {
+          val fun = funsRetTpToCheck(i)
+          if (fun.returnTypeHasChangedSinceLastCheck) {
+            ScalaPsiManager.instance(fun.getProject).incModificationCount()
+            funsRetTpToCheck.clear()
+            return
+          }
+          i += 1
+        }
+        funsRetTpToCheck.clear()
+      } finally {
+        funsRetTpRWLock.writeLock().unlock()
+      }
+    }
+
+    //safe to call these because readHoldCount and writeHoldCount are only counted for current thread
+    if (funsRetTpRWLock.getReadHoldCount == 0 && funsRetTpRWLock.getWriteHoldCount == 0) {
+      //prevent deadlock: same thread acquiring the same locks twice
+      //this will happen when fun.returnTypeHasChange is called, which calls getType() which calls this method
+      val isEmpty = bufferIsEmpty()
+      if (!isEmpty) {
+        checkFuns()
+      }
+    }
+  }
+
+  def addModificationFunctionsReturnType(fun: ScFunction): Unit = {
+    def calc(): Unit = {
+      funsRetTpRWLock.writeLock().lock()
+      try {
+        if (!funsRetTpToCheck.contains(fun)) {
+          funsRetTpToCheck += fun
+        }
+      } finally {
+        funsRetTpRWLock.writeLock().unlock()
+      }
+    }
+    if (funsRetTpRWLock.getReadHoldCount == 0 && funsRetTpRWLock.getWriteHoldCount == 0) {
+      calc()
+    }
+  }
 }

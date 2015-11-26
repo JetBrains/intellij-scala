@@ -55,7 +55,7 @@ abstract class ScalaCompletionContributor extends CompletionContributor {
     @tailrec
     def inner(element: PsiElement): PsiElement = element match {
       case null => parameters.getPosition //we got to the top of the tree and didn't find a modificationTrackerOwner
-      case owner: ScModificationTrackerOwner if owner.isValidModificationTrackerOwner =>
+      case owner: ScModificationTrackerOwner if owner.isValidModificationTrackerOwner() =>
         if (owner.containingFile.contains(parameters.getOriginalFile)) {
           owner.getMirrorPositionForCompletion(getDummyIdentifier(parameters.getOffset, parameters.getOriginalFile),
             parameters.getOffset - owner.getTextRange.getStartOffset).getOrElse(parameters.getPosition)

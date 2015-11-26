@@ -300,6 +300,18 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     } else returnTypeInner
   }
 
+  private[this] var prevReturnType: TypeResult[ScType] = null
+
+  //this function is called only from one place, which makes it fine
+  def returnTypeHasChangedSinceLastCheck: Boolean = {
+    val retTp: TypeResult[ScType] = returnType
+    if (retTp == prevReturnType) false
+    else {
+      prevReturnType = retTp
+      true
+    }
+  }
+
   def returnTypeInner: TypeResult[ScType]
 
   def declaredType: TypeResult[ScType] = wrap(returnTypeElement) flatMap (_.getType(TypingContext.empty))

@@ -5,12 +5,13 @@ package impl
 
 import java.util
 import java.util.Collections
+import java.util.concurrent.atomic.AtomicLong
 
 import com.intellij.ProjectTopics
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
-import com.intellij.openapi.util.{Key, LowMemoryWatcher}
+import com.intellij.openapi.util.{Key, LowMemoryWatcher, ModificationTracker}
 import com.intellij.psi._
 import com.intellij.psi.impl.JavaPsiFacadeImpl
 import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
@@ -42,6 +43,7 @@ import scala.annotation.tailrec
 import scala.collection.{Seq, mutable}
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
+  self =>
 
   private val clearCacheOnChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
   private val clearCacheOnLowMemory = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
@@ -331,7 +333,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     @tailrec
     def updateModificationCount(elem: PsiElement): Unit = {
       Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScModificationTrackerOwner])) match {
-        case Some(owner) if owner.isValidModificationTrackerOwner => owner.incModificationCount()
+        case Some(owner) if owner.isValidModificationTrackerOwner() => owner.incModificationCount()
         case Some(owner) => updateModificationCount(owner.getContext)
         case _ =>
       }
@@ -360,6 +362,18 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     override def propertyChanged(event: PsiTreeChangeEvent): Unit = {
       updateModificationCount(event.getElement)
     }
+  }
+
+  private[this] val myRawModificationCount = new AtomicLong(0)
+
+  def getModificationCount: Long = {
+    myRawModificationCount.get() + PsiManager.getInstance(project).getModificationTracker.getOutOfCodeBlockModificationCount
+  }
+
+  def incModificationCount(): Long = myRawModificationCount.incrementAndGet()
+
+  val modificationTracker = new ModificationTracker {
+    override def getModificationCount: Long = self.getModificationCount
   }
 }
 
