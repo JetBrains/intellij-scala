@@ -12,7 +12,7 @@ import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScModificationTrackerOwner
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScModifiableTypedDeclaration, ScModificationTrackerOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
@@ -301,7 +301,7 @@ object CachesUtil {
                                                                             key: Key[T],
                                                                             set: Set[ScFunction]) extends ControlThrowable
 
-  private[this] val funsRetTpToCheck = new mutable.ArrayBuffer[ScFunction]()
+  private[this] val funsRetTpToCheck = new mutable.ArrayBuffer[ScModifiableTypedDeclaration]()
   private[this] val funsRetTpRWLock = new ReentrantReadWriteLock(true)
 
   def incrementModCountForFunsWithModifiedReturn(): Unit = {
@@ -344,7 +344,7 @@ object CachesUtil {
     }
   }
 
-  def addModificationFunctionsReturnType(fun: ScFunction): Unit = {
+  def addModificationFunctionsReturnType(fun: ScModifiableTypedDeclaration): Unit = {
     def calc(): Unit = {
       funsRetTpRWLock.writeLock().lock()
       try {

@@ -58,8 +58,14 @@ trait ScModificationTrackerOwner extends ScalaPsiElement with PsiModifiableCodeB
           }
           true
       }
-      case v: ScValue => v.typeElement.isDefined
-      case v: ScVariable => v.typeElement.isDefined
+      case v: ScValue if !checkForChangedReturn || v.typeElement.isDefined => true
+      case v: ScValue =>
+        CachesUtil.addModificationFunctionsReturnType(v)
+        true
+      case v: ScVariable if !checkForChangedReturn || v.typeElement.isDefined => true
+      case v: ScVariable =>
+        CachesUtil.addModificationFunctionsReturnType(v)
+        true
       case _: ScWhileStmt => true
       case _: ScFinallyBlock => true
       case _: ScDoStmt => true
