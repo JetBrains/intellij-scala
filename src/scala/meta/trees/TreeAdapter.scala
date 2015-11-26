@@ -165,7 +165,7 @@ trait TreeAdapter {
       case t: ScConstructorPattern=>  Extract(toTermName(t.ref), Nil, Seq(t.args.patterns.map(arg):_*))
       case t: ScNamingPattern     =>  Bind(Var.Term(toTermName(t)), arg(t.named))
       case t@ ScTypedPattern(te: types.ScWildcardTypeElement) => Typed(if (t.isWildcard) Wildcard() else Var.Term(toTermName(t)), Type.Wildcard())
-      case t@ ScTypedPattern(te)  =>  Typed(if (t.isWildcard) Wildcard() else Var.Term(toTermName(t)), toType(t.getTypeWithCachedSubst).patTpe)
+      case t@ ScTypedPattern(te)  =>  Typed(if (t.isWildcard) Wildcard() else Var.Term(toTermName(t)), toType(te).patTpe)
       case t: ScLiteralPattern    =>  literal(t.getLiteral)
       case t: ScTuplePattern      =>  Tuple(Seq(t.patternList.get.patterns.map(pattern):_*))
       case t: ScWildcardPattern   =>  Wildcard()

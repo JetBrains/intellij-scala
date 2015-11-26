@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScTypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.scalameta.collections._
 
 import scala.collection.immutable.Seq
@@ -104,6 +105,10 @@ trait TypeAdapter {
 
   def toType(tp: ptype.ScType): m.Type = {
     typeCache.getOrElseUpdate(tp, {
+      tp.isAliasType match {
+        case Some(AliasType(ta, lower, upper)) => return toTypeName(ta)
+        case _ =>
+      }
       tp match {
         case t: ptype.ScParameterizedType =>
           m.Type.Apply(toType(t.designator), Seq(t.typeArgs.map(toType): _*)).setTypechecked
