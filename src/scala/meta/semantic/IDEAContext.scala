@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Seq
@@ -22,32 +23,36 @@ class IDEAContext(project: =>Project) extends TreeConverter with semantic.Contex
   override def dialect = dialects.Scala211
 
   override def typecheck(tree : Tree): Tree = {
-    def doTypecheck(root: Tree) = {
-      val psi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(tree.toString(), PsiManager.getInstance(project)).asInstanceOf[ScBlock]
-      psi.lastExpr match {
-        case Some(expr: ScExpression) => toType(expr.getType())
-        case Some(other) => other ?!
-        case None => psi.lastStatement match {
-          case Some(v: ScValue) => toType(v.getType(TypingContext.empty))
-          case Some(other) => other ?!
-          case None => unreachable
+//    def doTypecheck(root: Tree) = {
+//      val psi = ScalaPsiElementFactory.createBlockExpressionWithoutBracesFromText(tree.toString(), PsiManager.getInstance(project)).asInstanceOf[ScBlock]
+//      ideaToMeta(psi) match {
+//        case mem: m.Member => mem
+//      }
+//      psi.lastExpr match {
+//        case Some(expr: ScExpression) => toType(expr.getType())
+//        case Some(other) => other ?!
+//        case None => psi.lastStatement match {
+//          case Some(v: ScValue) => toType(v.getType(TypingContext.empty))
+//          case Some(other) => other ?!
+//          case None => unreachable
+//
+//        }
+//      }
+//    }
 
-        }
-      }
-    }
+//    @tailrec
+//    def walkUp(t: Tree): Tree = {
+//      t.parent match {
+//        case Some(t1) => walkUp(t1)
+//        case None => t
+//      }
+//    }
 
-    @tailrec
-    def walkUp(t: Tree): Tree = {
-      t.parent match {
-        case Some(t1) => walkUp(t1)
-        case None => t
-      }
-    }
-
-    if (tree.isTypechecked) return tree
-    val parent = walkUp(tree)
-    val typechecked = doTypecheck(parent)
-    typechecked.children(parent.children.indexOf(tree))
+//    if (tree.isTypechecked) return tree
+//    val parent = walkUp(tree)
+//    val typechecked = doTypecheck(parent)
+//    typechecked.children(parent.children.indexOf(tree))
+    tree
   }
 
   override def defns(ref: Ref): Seq[Member] = {
@@ -67,6 +72,8 @@ class IDEAContext(project: =>Project) extends TreeConverter with semantic.Contex
   override def members(tpe: Type): Seq[Member] = {
     tpe match {
       case tp@m.Type.Name(value) => getMembers(tp)
+      case tp@m.Type.Apply(tpe, _) => members(tpe)
+      case m.Type.Select(_, name) => getMembers(name)
       case tp:m.Type.Function => ???
         // TODO: what should we even return in case of function?
         // Scala's FunctionN type via Type.Name? Or type.Function? In second case we can't have a bijective map
@@ -88,7 +95,22 @@ class IDEAContext(project: =>Project) extends TreeConverter with semantic.Contex
 
   override def isSubtype(tpe1 : Type, tpe2 : Type) : Boolean = ???
 
-  override def supertypes(tpe : Type) : Seq[Type] = ???
+  override def supertypes(tpe : Type) : Seq[Type] = {
+    val ptp = fromType(tpe.asInstanceOf[m.Type])
+    ptp match {
+      case ptype.ScDesignatorType(elem) =>
+        elem match {
+          case t: ScTemplateDefinition =>
+            t.superTypes.map(toType)
+          case _ =>
+            Seq.empty
+        }
+      case ptype.ScProjectionType(ptype.ScThisType(clazz), td: ScTemplateDefinition, superRef) =>
+        Seq(td.extendsBlock.superTypes.map(toType)    :_*)
+      case _ =>
+        Seq.empty
+    }
+  }
 
   override def supermembers(member : Member) : Seq[Member] = {
     val name = member match {
