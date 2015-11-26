@@ -1,11 +1,13 @@
 package scala.meta.trees
 
 import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScTypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
@@ -118,6 +120,18 @@ trait TypeAdapter {
             toSingletonType(t.element)
           else
             toTypeName(t.element)
+        case t: ptype.ScCompoundType =>
+          m.Type.Compound(Seq(t.components.map(toType):_*), Seq.empty)
+        case t: ptype.ScExistentialType =>
+//          t.
+          val wcards = t.wildcards.map {wc =>
+            val ubound = if (wc.upperBound == ptype.Any)      None else Some(toType(wc.upperBound))
+            val lbound = if (wc.lowerBound == ptype.Nothing)  None else Some(toType(wc.lowerBound))
+//            def toTparam(tp: ScTypeParameterType)
+            m.Decl.Type(Nil, m.Type.Name(wc.name).withAttrs(h.Denotation.Zero).setTypechecked, Nil, m.Type.Bounds(lbound, ubound))
+          }
+          ???
+//          m.Type.Existential(toType(t.quantified), )
         case t: ptype.StdType =>
           toStdTypeName(t)
         case t: ScTypeParameterType =>
@@ -131,6 +145,17 @@ trait TypeAdapter {
 
   def toSingletonType(elem: PsiElement): m.Type.Singleton = {
     m.Type.Singleton(toTermName(elem)).setTypechecked
+  }
+
+  def toTypeParams(tp: ScTypeParameterType): m.Type.Param = {
+    val ubound = if (tp.upper.v == ptype.Any)      None else Some(toType(tp.upper.v))
+    val lbound = if (tp.lower.v == ptype.Nothing)  None else Some(toType(tp.lower.v))
+    m.Type.Param(
+      if(tp.isCovariant) m.Mod.Covariant() :: Nil else if(tp.isContravariant) m.Mod.Contravariant() :: Nil else Nil,
+      if (tp.name != "_") m.Type.Name(tp.name) else m.Name.Anonymous().withAttrs(h.Denotation.Zero).setTypechecked,
+      Seq(tp.args.map(toTypeParams):_*),
+      m.Type.Bounds(lbound, ubound), Nil, Nil
+    )
   }
 
   def toTypeParams(tp: p.statements.params.ScTypeParam): m.Type.Param = {
@@ -174,5 +199,24 @@ trait TypeAdapter {
         LOG.warn(s"Failed to infer return type($cause) at ${place.map(_.getText).getOrElse("UNKNOWN")}")
         m.Type.Name("Unit").setTypechecked
     }
+  }
+
+
+  def fromType(tpe: m.Type): ptype.ScType = {
+    typeCache.getOrElseUpdate(tpe, {
+      tpe match {
+        case n:m.Type.Name =>
+          val psi = fromSymbol(n.denot.symbols.head)
+          psi match {
+            case td: p.toplevel.typedef.ScTemplateDefinition =>
+              td.getType(TypingContext.empty).get
+            case _ =>
+              ???
+          }
+        case _ =>
+          ???
+      }
+    }
+    )
   }
 }
