@@ -44,6 +44,17 @@ trait SymbolTable {
       .foldLeft(h.Symbol.RootPackage.asInstanceOf[h.Symbol])((parent, name) => h.Symbol.Global(parent, name, h.Signature.Term))
   }
 
+  def symbolToFqname(sym: h.Symbol): String = {
+    def rec(s: h.Symbol): String = {
+      s match {
+        case h.Symbol.RootPackage => ""
+        case h.Symbol.EmptyPackage => ""
+        case h.Symbol.Global(parent, name, _) => rec(parent) + "." + name
+      }
+    }
+    rec(sym)
+  }
+
   def ownerSymbol(elem: PsiElement): h.Symbol = {
     elem match {
       case mm: ScMember =>
