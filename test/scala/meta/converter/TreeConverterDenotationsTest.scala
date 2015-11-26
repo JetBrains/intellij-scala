@@ -5,7 +5,7 @@ import scala.meta._
 class TreeConverterDenotationsTest extends TreeConverterTestBaseWithLibrary {
 
   def doTest(text: String, expected: String) = {
-    implicit val c = context
+    implicit val c = semanticContext
     val converted = convert(text)
     val got = converted.show[Semantics].trim.replaceAll("local#.+\\n", "(LOCAL)\n")
     org.junit.Assert.assertEquals(expected.trim, got)
@@ -77,7 +77,7 @@ class TreeConverterDenotationsTest extends TreeConverterTestBaseWithLibrary {
       """.stripMargin)
     tree match {
       case m.Term.Apply(fun, args) => fun match {
-        case m.Term.Select(qual, name) => context.fromSymbol(name.denot.symbols.head)
+        case m.Term.Select(qual, name) => semanticContext.fromSymbol(name.denot.symbols.head)
       }
     }
   }

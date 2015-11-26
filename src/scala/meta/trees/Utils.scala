@@ -129,5 +129,6 @@ trait Utils {
   def unreachable = throw new ScalaMetaUnreachableException
   def unreachable(reason: String) = throw new ScalaMetaUnreachableException(reason)
   def unresolved(cause: String, place: Option[PsiElement]) = throw new AbortException(place, s"""Failed to typecheck "${place.map(_.getText).getOrElse("UNKNOWN")}" - $cause""")
+  def die(reason: String = "unknown") = throw new AbortException(reason)
 
 }
