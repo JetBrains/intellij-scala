@@ -6,10 +6,12 @@ import java.util.concurrent.ConcurrentMap
 
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScModificationTrackerOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -78,7 +80,7 @@ object CachesUtil {
    * Do not use this method directly. You should use CachedWithRecursionGuard annotation instead
    */
   def getWithRecursionPreventingWithRollback[Dom <: PsiElement, Result](e: Dom, key: Key[CachedValue[Result]],
-                                                        provider: => MyProviderTrait[Dom, Result],
+                                                        provider: => MyProvider[Dom, Result],
                                                         defaultValue: => Result): Result = {
     var computed: CachedValue[Result] = e.getUserData(key)
     if (computed == null) {
@@ -92,12 +94,7 @@ object CachesUtil {
             }
             val fun = PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction])
             if (fun == null || fun.isProbablyRecursive) {
-              provider.getDependencyItem match {
-                case Some(item) =>
-                  return new CachedValueProvider.Result(defaultValue, item)
-                case _ =>
-                  return new CachedValueProvider.Result(defaultValue)
-              }
+              return new CachedValueProvider.Result(defaultValue, provider.getDependencyItem)
             } else {
               fun.setProbablyRecursive(true)
               throw new ProbablyRecursionException(e, (), key, Set(fun))
@@ -124,11 +121,7 @@ object CachesUtil {
               }
             }
           }) match {
-            case null =>
-              provider.getDependencyItem match {
-                case Some(item) => new CachedValueProvider.Result(defaultValue, item)
-                case _ => new CachedValueProvider.Result(defaultValue)
-              }
+            case null => new CachedValueProvider.Result(defaultValue, provider.getDependencyItem)
             case notNull => notNull
           }
         }
@@ -156,26 +149,9 @@ object CachesUtil {
     computed.getValue
   }
 
-  trait MyProviderTrait[Dom, T] extends CachedValueProvider[T] {
-    private[CachesUtil] def getDependencyItem: Option[Object]
-  }
-
-  class MyProvider[Dom, T](e: Dom, builder: Dom => T)(dependencyItem: Object) extends MyProviderTrait[Dom, T] {
-    private[CachesUtil] def getDependencyItem: Option[Object] = Some(dependencyItem)
-
+  class MyProvider[Dom, T](e: Dom, builder: Dom => T)(dependencyItem: Object) extends CachedValueProvider[T] {
+    def getDependencyItem: Object = dependencyItem
     def compute() = new CachedValueProvider.Result(builder(e), dependencyItem)
-  }
-
-  class MyOptionalProvider[Dom, T](e: Dom, builder: Dom => T)(dependencyItem: Option[Object]) extends MyProviderTrait[Dom, T] {
-    private[CachesUtil] def getDependencyItem: Option[Object] = dependencyItem
-
-    def compute() = {
-      dependencyItem match {
-        case Some(depItem) =>
-          new CachedValueProvider.Result(builder(e), depItem)
-        case _ => new CachedValueProvider.Result(builder(e))
-      }
-    }
   }
 
   private val guards: ConcurrentMap[String, RecursionGuard] = ContainerUtil.newConcurrentMap[String, RecursionGuard]()
@@ -262,21 +238,16 @@ object CachesUtil {
     result
   }
 
-  //def getDependentItem(element: PsiElement)(dep_item: Object = PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT): Option[Object] = {
-  def getDependentItem(element: PsiElement)(dep_item: Object = enclosingModificationOwner(element)): Option[Object] = {
-    element.getContainingFile match {
+  def getDependentItem(element: PsiElement, dependency: ModificationTracker): ModificationTracker = {
+    ScalaPsiUtil.fileContext(element) match {
       case file: ScalaFile if file.isCompiled =>
-        if (!ProjectRootManager.getInstance(element.getProject).getFileIndex.isInContent(file.getVirtualFile)) {
-          return Some(dep_item)
-        }
-        var dir = file.getParent
-        while (dir != null) {
-          if (dir.getName == "scala-library.jar") return None
-          dir = dir.getParent
-        }
-        Some(ProjectRootManager.getInstance(element.getProject))
-      case cls: ClsFileImpl => Some(ProjectRootManager.getInstance(element.getProject))
-      case _ => Some(dep_item)
+        val rootManager = ProjectRootManager.getInstance(element.getProject)
+        val fileIndex = rootManager.getFileIndex
+        val vf: VirtualFile = file.getVirtualFile
+        if (fileIndex.isInLibraryClasses(vf) || fileIndex.isInLibrarySource(vf)) rootManager
+        else dependency
+      case cls: ClsFileImpl => ProjectRootManager.getInstance(element.getProject)
+      case _ => dependency
     }
   }
 
