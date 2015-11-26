@@ -169,7 +169,7 @@ trait TreeAdapter {
       case t: ScTuplePattern      =>  Tuple(Seq(t.patternList.get.patterns.map(pattern):_*))
       case t: ScWildcardPattern   =>  Wildcard()
       case t: ScCompositePattern  =>  compose(Seq(t.subpatterns : _*))
-      case t: ScInfixPattern      =>  ExtractInfix(pattern(t.leftPattern), toTermName(t.refernece), t.rightPattern.map(pt=>Seq(pattern(pt))).getOrElse(Nil))
+      case t: ScInfixPattern      =>  ExtractInfix(pattern(t.leftPattern), toTermName(t.reference), t.rightPattern.map(pt=>Seq(pattern(pt))).getOrElse(Nil))
       case t: ScPattern => t ?!
     }
   }
