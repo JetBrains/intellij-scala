@@ -673,10 +673,12 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     printer.append(s" $arrow ")
   }
 
-  def visitNotSupported(iNode: IntermediateNode, msg: String) = {
-    if (iNode != null) visit(iNode)
-    printer.space()
+  def visitNotSupported(iNode: Option[IntermediateNode], msg: String) = {
     printer.append(msg)
+    if (iNode.isDefined) {
+      printer.newLine()
+      visit(iNode.get)
+    }
   }
 
   def visitSynchronizedStatement(lock: Option[IntermediateNode], body: Option[IntermediateNode]) = {

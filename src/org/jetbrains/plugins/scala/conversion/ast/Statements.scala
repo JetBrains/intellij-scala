@@ -46,4 +46,4 @@ case class WhileStatement(initialization: Option[IntermediateNode], condition: O
                           body: Option[IntermediateNode], update: Option[IntermediateNode], whileType: Int)
   extends IntermediateNode
 
-case class NotSupported(iNode: IntermediateNode, msg: String) extends IntermediateNode
+case class NotSupported(iNode: Option[IntermediateNode], msg: String) extends IntermediateNode

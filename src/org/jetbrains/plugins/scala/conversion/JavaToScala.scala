@@ -373,11 +373,16 @@ object JavaToScala {
         PolyadicExpression(p.getOperands.map(convertPsiToIntermdeiate(_, externalProperties)), tokenValue)
       case r: PsiReferenceParameterList => TypeParameters(r.getTypeParameterElements.map(convertPsiToIntermdeiate(_, externalProperties)))
       case b: PsiBreakStatement =>
-        if (b.getLabelIdentifier != null) NotSupported(null, "break //todo: label break is not supported")
-        else NotSupported(null, "break //todo: break is not supported")
-      case c: PsiContinueStatement => NotSupported(null, "continue //todo: continue is not supported")
+        if (b.getLabelIdentifier != null)
+          NotSupported(None, "break " + b.getLabelIdentifier.getText + "// todo: label break is not supported")
+        else NotSupported(None, "break //todo: break is not supported")
+      case c: PsiContinueStatement =>
+        if (c.getLabelIdentifier != null)
+          NotSupported(None, "continue " +  c.getLabelIdentifier.getText + " //todo: continue is not supported")
+        else NotSupported(None, "continue //todo: continue is not supported")
       case s: PsiLabeledStatement =>
-        NotSupported(convertPsiToIntermdeiate(s.getStatement, externalProperties), "//todo: labels is not supported")
+        val statements = Option(s.getStatement).map(convertPsiToIntermdeiate(_, externalProperties))
+        NotSupported(statements, s.getLabelIdentifier.getText +  " //todo: labels is not supported")
       case e: PsiEmptyStatement => EmptyConstruction()
       case e: PsiErrorElement => EmptyConstruction()
       case e => LiteralExpression(e.getText)
