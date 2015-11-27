@@ -1,10 +1,10 @@
 class UnitReturnOneOutput {
   def foo(i: Int) {
-    /*start*/
+/*start*/
     if (true) return
     val x = 0
     println(i)
-    /*end*/
+/*end*/
     println(x)
   }
 }

@@ -262,7 +262,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
         """
           |package a.b {
           |
-          |class XXXX
+          |  class XXXX
           |
           |}
           |

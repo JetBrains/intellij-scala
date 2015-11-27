@@ -9,9 +9,9 @@ class Simple {
 /*
 class Simple {
   def foo = {
-
+    /*start*/
     testMethodName
-
+    /*end*/
   }
 
   def testMethodName: Int = {

@@ -112,7 +112,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |    }$END
         |  }$END
         | }$END
-      """.stripMargin
+      """.stripMargin.replace("\r", "")
 
     genericCheckRegions(text)
   }
@@ -123,7 +123,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
          | 1 match $ST{
          |   case 1 =>
          | }$END
-       """.stripMargin
+       """.stripMargin.replace("\r", "")
 
     genericCheckRegions(text)
   }
@@ -134,7 +134,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
          | class A $ST{
          |   //azaza
          | }$END
-       """.stripMargin
+       """.stripMargin.replace("\r", "")
 
     genericCheckRegions(text)
   }
@@ -145,7 +145,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
          | def boo() $ST{
          |
          | }$END
-       """.stripMargin
+       """.stripMargin.replace("\r", "")
 
     genericCheckRegions(text)
   }
@@ -156,7 +156,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
          | if (true) $ST{
          |   println("")
          | }$END
-       """.stripMargin
+       """.stripMargin.replace("\r", "")
 
     genericCheckRegions(text)
   }
@@ -169,7 +169,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |
          |    }$END
          |  }$END
-       """.stripMargin
+       """.stripMargin.replace("\r", "")
 
     genericCheckRegions(text)
   }
@@ -182,7 +182,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
          | foo$ST(
          |   jj => jj + 1, 123
          | )$END
-       """.stripMargin
+       """.stripMargin.replace("\r", "")
 
     genericCheckRegions(text)
   }
@@ -197,7 +197,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |  class A $ST{
          |
          |  }$END
-       """.stripMargin
+       """.stripMargin.replace("\r", "")
 
     genericCheckRegions(text)
   }
@@ -209,7 +209,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |   * Marker trait
          |   */$END
          |  trait MyMarker
-       """.stripMargin
+       """.stripMargin.replace("\r", "")
 
     genericCheckRegions(text)
   }
@@ -221,7 +221,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |   * Marker trait
          |   */$END
          |  trait MyMarker
-       """.stripMargin
+       """.stripMargin.replace("\r", "")
 
     genericCheckRegions(text)
   }
@@ -236,7 +236,7 @@ class ScalaEditorFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |     aaaaaa
          |     aaaaaa
          |   ${MultilineStringUtil.multilineQuotes}$END
-       """.stripMargin
+       """.stripMargin.replace("\r", "")
 
     genericCheckRegions(text)
   }

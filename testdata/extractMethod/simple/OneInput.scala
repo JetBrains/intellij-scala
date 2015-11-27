@@ -10,9 +10,9 @@ class OneInput {
 class OneInput {
   def foo {
     val i = 34
-
+    /*start*/
     testMethodName(i)
-
+    /*end*/
   }
 
   def testMethodName(i: Int): Unit = {

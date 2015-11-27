@@ -1,10 +1,10 @@
 class FunTypeParam {
   def f[T](x: T) {
     val y = x
-    /*start*/
+/*start*/
     x
     y
-    /*end*/
+/*end*/
   }
 }
 /*

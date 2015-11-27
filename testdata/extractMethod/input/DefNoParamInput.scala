@@ -2,11 +2,11 @@ class DefNoParamInput {
   def foo {
     def goo: Int = 23
 
-    /*start*/
+/*start*/
 
     val x = goo
     val y = goo
-    /*end*/
+/*end*/
     x + goo
   }
 }

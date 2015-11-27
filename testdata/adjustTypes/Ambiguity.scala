@@ -16,7 +16,6 @@ object B {
 
 /*
 import test.A.A
-
 package test {
 
 object A {

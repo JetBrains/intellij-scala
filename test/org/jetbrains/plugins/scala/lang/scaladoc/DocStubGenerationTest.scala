@@ -74,7 +74,7 @@ class DocStubGenerationTest extends ScalaDocEnterActionTestBase {
         | * @param i
         | * @param j
         | */
-        |""".stripMargin
+        |""".stripMargin.replace("\r", "")
 
     checkGeneratedTextFromString(standartDocCommentStart, testText, assumed + testText)
   }

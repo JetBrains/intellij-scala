@@ -1,10 +1,10 @@
 class UnitReturn {
   def foo {
     var i = 23
-    /*start*/
+/*start*/
 
     {1; ()}
-    /*end*/
+/*end*/
     val j = i
   }
 }
