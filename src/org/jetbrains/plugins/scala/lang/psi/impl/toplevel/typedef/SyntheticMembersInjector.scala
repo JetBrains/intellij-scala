@@ -17,14 +17,18 @@ import scala.collection.mutable.ArrayBuffer
  */
 class SyntheticMembersInjector {
   /**
-   * This method allows to add custom functions to any class, object or trait.
-   * This includes synthetic companion object.
-   *
-   * Context for this method will be class. So inner types and imports of this class
-   * will not be available. But you can use anything outside of
-   * @param source class to inject functions
-   * @return sequence of functions text
-   */
+    * This method allows to add custom functions to any class, object or trait.
+    * This includes synthetic companion object.
+    *
+    * Context for this method will be class. So inner types and imports of this class
+    * will not be available. But you can use anything outside of it.
+    *
+    * Injected method will not participate in class overriding hierarchy unless this method
+    * is marked with override modifier. Use it carefully, only when this behaviour is intended.
+    *
+    * @param source class to inject functions
+    * @return sequence of functions text
+    */
   def injectFunctions(source: ScTypeDefinition): Seq[String] = Seq.empty
 
   /**
@@ -32,7 +36,7 @@ class SyntheticMembersInjector {
    * This includes synthetic companion object.
    *
    * Context for this inner will be class. So inner types and imports of this class
-   * will not be available. But you can use anything outside of
+   * will not be available. But you can use anything outside of it.
    * @param source class to inject functions
    * @return sequence of inners text
    */
@@ -58,7 +62,7 @@ object SyntheticMembersInjector {
   val EP_NAME: ExtensionPointName[SyntheticMembersInjector] =
     ExtensionPointName.create("org.intellij.scala.syntheticMemberInjector")
 
-  def inject(source: ScTypeDefinition): Seq[ScFunction] = {
+  def inject(source: ScTypeDefinition, withOverride: Boolean): Seq[ScFunction] = {
     val buffer = new ArrayBuffer[ScFunction]()
     for {
       injector <- EP_NAME.getExtensions
@@ -71,7 +75,7 @@ object SyntheticMembersInjector {
       val function = ScalaPsiElementFactory.createMethodWithContext(template, context, source)
       function.setSynthetic(context)
       function.syntheticContainingClass = Some(source)
-      buffer += function
+      if (withOverride ^ !function.hasModifierProperty("override")) buffer += function
     } catch {
       case e: Throwable =>
         LOG.error(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
