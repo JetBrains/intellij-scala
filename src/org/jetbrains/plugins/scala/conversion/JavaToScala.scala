@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.conversion.ast.ClassConstruction.ClassType
 import org.jetbrains.plugins.scala.conversion.ast._
 import org.jetbrains.plugins.scala.conversion.copy.AssociationHelper
 import org.jetbrains.plugins.scala.conversion.visitors.SimplePrintVisitor
-import org.jetbrains.plugins.scala.extensions.PsiMemberExt
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt}
 import org.jetbrains.plugins.scala.lang.dependency.{DependencyKind, Path}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
@@ -157,7 +157,7 @@ object JavaToScala {
             case f: PsiMember
               if f.hasModifierProperty("static") =>
               val clazz = f.containingClass
-              if (clazz != null && context.get().contains((false, clazz.getQualifiedName))) {
+              if (clazz != null && context.get().contains((false, clazz.qualifiedName))) {
                 return JavaCodeReferenceStatement(Some(LiteralExpression(clazz.getName)), args, refName)
               }
 
@@ -208,15 +208,15 @@ object JavaToScala {
       case m: PsiMethodCallExpression =>
         m.getMethodExpression.resolve() match {
           case method: PsiMethod if method.getName == "parseInt" && m.getArgumentList.getExpressions.length == 1 &&
-            method.getContainingClass != null && method.getContainingClass.getQualifiedName == "java.lang.Integer" =>
+            method.getContainingClass != null && method.getContainingClass.qualifiedName == "java.lang.Integer" =>
             ClassCast(convertPsiToIntermdeiate(m.getArgumentList.getExpressions.apply(0), externalProperties),
               TypeConstruction("Int"), isPrimitive = true)
           case method: PsiMethod if method.getName == "parseDouble" && m.getArgumentList.getExpressions.length == 1 &&
-            method.getContainingClass != null && method.getContainingClass.getQualifiedName == "java.lang.Double" =>
+            method.getContainingClass != null && method.getContainingClass.qualifiedName == "java.lang.Double" =>
             ClassCast(convertPsiToIntermdeiate(m.getArgumentList.getExpressions.apply(0), externalProperties),
               TypeConstruction("Double"), isPrimitive = true)
           case method: PsiMethod if method.getName == "round" && m.getArgumentList.getExpressions.length == 1 &&
-            method.getContainingClass != null && method.getContainingClass.getQualifiedName == "java.lang.Math" =>
+            method.getContainingClass != null && method.getContainingClass.qualifiedName == "java.lang.Math" =>
             MethodCallExpression.build(
               convertPsiToIntermdeiate(m.getArgumentList.getExpressions.apply(0), externalProperties), ".round", null)
           case method: PsiMethod if method.getName == "equals" && m.getTypeArguments.isEmpty
@@ -321,9 +321,9 @@ object JavaToScala {
 
       case n: PsiNewExpression =>
         if (n.getAnonymousClass != null) {
-          return NewExpression(convertPsiToIntermdeiate(n.getAnonymousClass, externalProperties))
+          return NewExpression(Some(convertPsiToIntermdeiate(n.getAnonymousClass, externalProperties)))
         }
-        val mtype = TypeConstruction.createStringTypePresentation(n.getType, n.getProject)
+        val mtype = Some(TypeConstruction.createStringTypePresentation(n.getType, n.getProject))
         if (n.getArrayInitializer != null) {
           NewExpression(mtype, n.getArrayInitializer.getInitializers.map(convertPsiToIntermdeiate(_, externalProperties)),
             withArrayInitalizer = true)
@@ -430,7 +430,7 @@ object JavaToScala {
                   refs: Seq[ReferenceData] = Seq.empty,
                   withComments: Boolean = false): IntermediateNode = {
 
-    def getExtendList(): Seq[PsiJavaCodeReferenceElement] = {
+    def extendList: Seq[PsiJavaCodeReferenceElement] = {
       val typez = new ArrayBuffer[PsiJavaCodeReferenceElement]
       if (inClass.getExtendsList != null) typez ++= inClass.getExtendsList.getReferenceElements
       if (inClass.getImplementsList != null) typez ++= inClass.getImplementsList.getReferenceElements
@@ -477,7 +477,7 @@ object JavaToScala {
       }
 
       if (objectMembers.nonEmpty && !inClass.isInstanceOf[PsiAnonymousClass]) {
-        context.get().push((true, inClass.getQualifiedName))
+        context.get().push((true, inClass.qualifiedName))
         try {
           val modifiers = handleModifierList(inClass)
           val updatedModifiers = modifiers.asInstanceOf[ModifiersConstruction].without(ModifierType.ABSTRACT)
@@ -548,14 +548,14 @@ object JavaToScala {
         val sortedMembers = sortMembers()
         val updatedMembers = if (dropMembes.isDefined) {
           sortedMembers.filter(!dropMembes.get.contains(_))
-        } else  {
+        } else {
           sortedMembers
         }
         updatedMembers.map(convertPsiToIntermdeiate(_, externalProperties))
       }
 
       if (classMembers.nonEmpty || objectMembers.isEmpty) {
-        context.get().push((false, inClass.getQualifiedName))
+        context.get().push((false, inClass.qualifiedName))
         try {
           inClass match {
             case clazz: PsiAnonymousClass => handleAnonymousClass(clazz)
@@ -578,7 +578,6 @@ object JavaToScala {
     }
 
     val (classMembers, objectMembers) = collectClassObjectMembers()
-    val extendList = getExtendList()
     val companionObject = handleObject(objectMembers)
     handleAsClass(classMembers, objectMembers, companionObject, extendList)
   }

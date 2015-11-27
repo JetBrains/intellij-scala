@@ -11,7 +11,7 @@ import scala.collection.mutable.ArrayBuffer
   * on 10/27/15
   */
 trait Modifier {
-  def getModificator(): ModifierType
+  def modificator: ModifierType
 }
 
 object ModifierType extends Enumeration {
@@ -51,9 +51,9 @@ case class ModifiersConstruction(annotations: Seq[IntermediateNode], modifiers: 
 
 
 case class ModifierWithExpression(mtype: ModifierType, value: IntermediateNode) extends IntermediateNode with Modifier {
-  override def getModificator(): ModifierType = mtype
+  override def modificator: ModifierType = mtype
 }
 
 case class SimpleModifier(mtype: ModifierType) extends IntermediateNode with Modifier {
-    override def getModificator(): ModifierType = mtype
+    override def modificator: ModifierType = mtype
 }

@@ -291,19 +291,19 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     printer.append(")")
   }
 
-  def visitNewExpression(mtype: IntermediateNode, arrayInitalizer: Seq[IntermediateNode],
+  def visitNewExpression(mtype: Option[IntermediateNode], arrayInitalizer: Seq[IntermediateNode],
                          arrayDimension: Seq[IntermediateNode],
-                         anonClass: IntermediateNode) = {
-    if (anonClass != null) {
+                         anonClass: Option[IntermediateNode]) = {
+    if (anonClass.isDefined) {
       printer.append("new ")
-      visit(anonClass)
+      visit(anonClass.get)
     } else {
-      if (arrayInitalizer != null) {
-        visit(mtype)
-        printWithSeparator(arrayInitalizer, ", ", "(", ")", arrayInitalizer.nonEmpty)
+      if (arrayInitalizer.nonEmpty) {
+        visit(mtype.get)
+        printWithSeparator(arrayInitalizer, ", ", "(", ")")
       } else {
         printer.append("new ")
-        visit(mtype)
+        visit(mtype.get)
         printWithSeparator(arrayDimension, ", ", "(", ")",
           arrayDimension != null && arrayDimension.nonEmpty && !arrayDimension.head.isInstanceOf[ExpressionList])
       }
@@ -464,11 +464,11 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     }
 
     //to prevent situation where access modifiers print earlier then throw
-    val sortModifiers = modifiers.collect { case m: Modifier if !modifiersConstruction.accessModifiers.contains(m.getModificator()) => m } ++
-      modifiers.collect { case m: Modifier if modifiersConstruction.accessModifiers.contains(m.getModificator()) => m }
+    val sortModifiers = modifiers.collect { case m: Modifier if !modifiersConstruction.accessModifiers.contains(m.modificator) => m } ++
+      modifiers.collect { case m: Modifier if modifiersConstruction.accessModifiers.contains(m.modificator) => m }
 
     for (m <- sortModifiers) {
-      if (!modifiersConstruction.withoutList.contains(m.asInstanceOf[Modifier].getModificator())) {
+      if (!modifiersConstruction.withoutList.contains(m.asInstanceOf[Modifier].modificator)) {
         visit(m)
         printer.space()
       }
