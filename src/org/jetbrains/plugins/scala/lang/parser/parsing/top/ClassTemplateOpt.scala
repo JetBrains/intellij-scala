@@ -24,13 +24,12 @@ object ClassTemplateOpt {
     val extendsMarker = builder.mark
     //try to find extends keyword
     builder.getTokenType match {
-      case ScalaTokenTypes.kEXTENDS | ScalaTokenTypes.tUPPER_BOUND => builder.advanceLexer //Ate extends
-      case ScalaTokenTypes.tLBRACE => {
+      case ScalaTokenTypes.kEXTENDS | ScalaTokenTypes.tUPPER_BOUND => builder.advanceLexer() //Ate extends
+      case ScalaTokenTypes.tLBRACE =>
         TemplateBody parse builder
         extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
         return
-      }
-      case _ => {
+      case _ =>
         if (builder.twoNewlinesBeforeCurrentToken) {
           extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
           return
@@ -48,12 +47,11 @@ object ClassTemplateOpt {
             }
           }
         }
-      }
     }
     // try to split ClassParents and TemplateBody
     builder.getTokenType match {
       //hardly case, becase it's same token for ClassParents and TemplateBody
-      case ScalaTokenTypes.tLBRACE => {
+      case ScalaTokenTypes.tLBRACE =>
         //try to parse early definition if we can't => it's template body
         if (EarlyDef parse builder) {
           ClassParents parse builder
@@ -99,10 +97,9 @@ object ClassTemplateOpt {
             }
           }
         }
-      }
       //if we find nl => it could be TemplateBody only, but we can't find nl after extends keyword
       //In this case of course it's ClassParents
-      case _ => {
+      case _ =>
         ClassParents parse builder
         //parse template body
         builder.getTokenType match {
@@ -130,7 +127,6 @@ object ClassTemplateOpt {
               }
             }
         }
-      }
     }
   }
 }

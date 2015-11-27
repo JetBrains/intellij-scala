@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
  */
 
 object EmptyDcl {
-  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,true)
+  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,isMod = true)
   def parse(builder: ScalaPsiBuilder, isMod: Boolean): Boolean = {
     val dclMarker = builder.mark
     if (isMod) {
@@ -20,16 +20,14 @@ object EmptyDcl {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.kDEF | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR |
-              ScalaTokenTypes.kTYPE => {
+           ScalaTokenTypes.kTYPE =>
         builder.advanceLexer
         builder.error(ScalaBundle.message("identifier.expected"))
         dclMarker.drop
         return true
-      }
-      case _ => {
+      case _ =>
         dclMarker.rollbackTo
         return false
-      }
     }
   }
 }

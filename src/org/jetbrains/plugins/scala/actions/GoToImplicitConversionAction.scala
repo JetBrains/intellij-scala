@@ -66,21 +66,21 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
         if (ScUnderScoreSectionUtil.isUnderscoreFunction(expr)) {
           val conv1 = expr.getImplicitConversions(fromUnder = false)
           val conv2 = expr.getImplicitConversions(fromUnder = true)
-          if (conv2._2 != None) conv2
-          else if (conv1._2 != None) conv1
-          else if (additionalExpression != None) {
+          if (conv2._2.isDefined) conv2
+          else if (conv1._2.isDefined) conv1
+          else if (additionalExpression.isDefined) {
             val conv3 = additionalExpression.get._1.getImplicitConversions(fromUnder = false, expectedOption = Some(additionalExpression.get._2))
-            if (conv3._2 != None) conv3
+            if (conv3._2.isDefined) conv3
             else conv1
           } else conv1
-        } else if (additionalExpression != None) {
+        } else if (additionalExpression.isDefined) {
           val conv3 = additionalExpression.get._1.getImplicitConversions(fromUnder = false, expectedOption = Some(additionalExpression.get._2))
-          if (conv3._2 != None) conv3
+          if (conv3._2.isDefined) conv3
           else expr.getImplicitConversions(fromUnder = false)
         } else expr.getImplicitConversions(fromUnder = false)
       }
       val functions = implicitConversions._1
-      if (functions.length == 0) return true
+      if (functions.isEmpty) return true
       val conversionFun = implicitConversions._2.orNull
       val model = JListCompatibility.createDefaultListModel()
       val firstPart = implicitConversions._3.sortBy(_.name)
@@ -152,7 +152,7 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
       opt match {
         case Some((expr, _)) =>
           if (forExpr(expr)) return
-        case _ => return
+        case _ =>
       }
     } else {
       val offset = editor.getCaretModel.getOffset
@@ -173,11 +173,11 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
                 case inf: ScInfixExpr if inf.operation == expr =>
                 case _ => res += expr
               }
-            case expr: ScExpression if guard || expr.getImplicitConversions(fromUnder = false)._2 != None ||
+            case expr: ScExpression if guard || expr.getImplicitConversions(fromUnder = false)._2.isDefined ||
               (ScUnderScoreSectionUtil.isUnderscoreFunction(expr) &&
-                expr.getImplicitConversions(fromUnder = true)._2 != None) || (expr.getAdditionalExpression != None &&
+                expr.getImplicitConversions(fromUnder = true)._2.isDefined) || (expr.getAdditionalExpression.isDefined &&
                 expr.getAdditionalExpression.get._1.getImplicitConversions(fromUnder = false,
-                expectedOption = Some(expr.getAdditionalExpression.get._2))._2 != None) => res += expr
+                  expectedOption = Some(expr.getAdditionalExpression.get._2))._2.isDefined) => res += expr
             case _ =>
           }
           parent = parent.getParent
@@ -289,7 +289,6 @@ class GoToImplicitConversionAction extends AnAction("Go to implicit conversion a
       val itemBounds: Rectangle = GoToImplicitConversionAction.getList.getCellBounds(index, index)
       if (itemBounds == null) {
         throw new RuntimeException("No bounds for index = " + index + ".")
-        return null
       }
       itemBounds
     }

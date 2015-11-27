@@ -360,7 +360,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
 
     val withoutName =
       if (oldIdx < 0) {
-        if (!default.isEmpty) default else ""
+        if (default != null && !default.isEmpty) default else ""
       }
       else {
         argsInfo.byOldParameterIndex.get(oldIdx) match {

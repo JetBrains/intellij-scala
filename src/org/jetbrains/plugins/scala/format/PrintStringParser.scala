@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.format
 
 import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.extensions.{&&, ContainingClass, PsiReferenceEx}
+import org.jetbrains.plugins.scala.extensions.{&&, ContainingClass, PsiClassExt, PsiReferenceEx}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -26,7 +26,7 @@ object PrintStringParser extends StringParser {
     // System.out.printf("%d", 1)
     case MethodInvocation(PsiReferenceEx.resolve((f: PsiMethod) &&
             ContainingClass(owner: PsiClass)), Seq(literal: ScLiteral, args @  _*))
-      if literal.isString && isPrintStreamPrintfMethod(owner.getQualifiedName, f.getName) =>
+      if literal.isString && isPrintStreamPrintfMethod(owner.qualifiedName, f.getName) =>
       (literal, args)
   }
 

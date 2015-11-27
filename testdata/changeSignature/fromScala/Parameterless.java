@@ -1,10 +1,10 @@
 public class ParameterlessJava extends Parameterless {
-  @Override
-  public int foo() {
-    return 0;
-  }
+    @Override
+    public int foo() {
+        return 0;
+    }
 
-  public void test() {
-    foo();
-  }
+    public void test() {
+        foo();
+    }
 }

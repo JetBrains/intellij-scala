@@ -24,11 +24,10 @@ object LocalModifier {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.kABSTRACT | ScalaTokenTypes.kFINAL
-         | ScalaTokenTypes.kSEALED | ScalaTokenTypes.kIMPLICIT
-         | ScalaTokenTypes.kLAZY => {
+           | ScalaTokenTypes.kSEALED | ScalaTokenTypes.kIMPLICIT
+           | ScalaTokenTypes.kLAZY =>
         builder.advanceLexer //Ate modifier
         return true
-      }
       case _ => return false
     }
   }

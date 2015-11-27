@@ -7,12 +7,12 @@ import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error}
  */
 
 class UndefinedMemberTest extends AnnotatorTestBase(UndefinedMember) {
-  def testValidHolders {
+  def testValidHolders() {
     assertNothing(messages("class C { def f }"))
     assertNothing(messages("trait T { def f }"))
   }
 
-  def testHolderNew {
+  def testHolderNew() {
     assertMatches(messages("new { def f }")) {
       case Error("def f", UndefinedMember.Message) :: Nil =>
     }
@@ -22,7 +22,7 @@ class UndefinedMemberTest extends AnnotatorTestBase(UndefinedMember) {
     }
   }
 
-  def testHolderObject {
+  def testHolderObject() {
     assertMatches(messages("object O { def f }")) {
       case Error("def f", UndefinedMember.Message) :: Nil =>
     }
@@ -32,7 +32,7 @@ class UndefinedMemberTest extends AnnotatorTestBase(UndefinedMember) {
     }
   }
 
-  def testDeclarations {
+  def testDeclarations() {
     assertMatches(messages("new { def f }")) {
       case Error("def f", UndefinedMember.Message) :: Nil =>
     }
@@ -44,7 +44,7 @@ class UndefinedMemberTest extends AnnotatorTestBase(UndefinedMember) {
     }
   }
 
-  def testDefinitions {
+  def testDefinitions() {
     assertNothing(messages("new { def f = null }"))
     assertNothing(messages("new { var v: Object = null }"))
     assertNothing(messages("new { type T = Any }"))

@@ -16,7 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by Kate Ustyuzhanina on 8/5/15.
+ * @author Kate Ustyuzhanina
  */
 
 public abstract class AbstractIntroduceVariableValidatorTestBase extends ActionTestBase {
@@ -35,8 +35,7 @@ public abstract class AbstractIntroduceVariableValidatorTestBase extends ActionT
         setSettings();
         String fileText = data[0];
         final PsiFile psiFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
-        String result = processFile(psiFile);
-        return result;
+        return processFile(psiFile);
     }
 
     protected String removeAllMarker(String text) {

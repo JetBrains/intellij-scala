@@ -9,7 +9,9 @@ object Child1 extends Base {
   x.foo/*caret*/()
 }
 
-class Child2 extends {override val /*caret*/foo = 1} with Base {
+class Child2 extends {
+  override val /*caret*/foo = 1
+} with Base {
   /*caret*/foo
 }
 

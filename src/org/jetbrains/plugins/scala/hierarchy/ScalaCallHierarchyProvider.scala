@@ -10,10 +10,10 @@ import com.intellij.psi.{PsiElement, PsiMethod}
 
 class ScalaCallHierarchyProvider extends JavaCallHierarchyProvider {
   override def browserActivated(hierarchyBrowser: HierarchyBrowser): Unit = {
-    (hierarchyBrowser.asInstanceOf[ScalaCallHierarchyBrowser]).changeView(CallHierarchyBrowserBase.CALLER_TYPE)
+    hierarchyBrowser.asInstanceOf[ScalaCallHierarchyBrowser].changeView(CallHierarchyBrowserBase.CALLER_TYPE)
   }
 
   override def createHierarchyBrowser(target: PsiElement): HierarchyBrowser = {
-    return new ScalaCallHierarchyBrowser(target.getProject, target.asInstanceOf[PsiMethod])
+    new ScalaCallHierarchyBrowser(target.getProject, target.asInstanceOf[PsiMethod])
   }
 }

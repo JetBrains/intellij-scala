@@ -17,7 +17,7 @@ object DifferentInterpolatedStringLiterals {
   def log(message: String, level: Int) {
     level match {
       case 0 =>
-        /*start*/testMethodName(level, message)/*end*/
+        testMethodName(level, message)
       case 1 =>
         println(s"warning: $level")
         println(message)

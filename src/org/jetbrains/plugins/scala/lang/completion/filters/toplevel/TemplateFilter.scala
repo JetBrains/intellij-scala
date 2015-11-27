@@ -3,8 +3,8 @@ package lang
 package completion
 package filters.toplevel
 
-import com.intellij.psi.{PsiElement, _}
 import com.intellij.psi.filters.ElementFilter
+import com.intellij.psi.{PsiElement, _}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScStableReferenceElementPattern}
@@ -25,7 +25,7 @@ class TemplateFilter extends ElementFilter {
       val tuple = ScalaCompletionUtil.getForAll(parent, leaf)
       if (tuple._1) return tuple._2
       parent match {
-        case _: ScReferenceExpression => {
+        case _: ScReferenceExpression =>
           parent.getParent match {
             case y: ScStableReferenceElementPattern => {
               y.getParent match {
@@ -41,7 +41,6 @@ class TemplateFilter extends ElementFilter {
             }
             case _ =>
           }
-        }
         case _ =>
       }
     }

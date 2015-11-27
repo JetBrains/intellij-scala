@@ -9,9 +9,10 @@ import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
 import org.jetbrains.jps.builders.{DirtyFilesHolder, FileProcessor}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+import org.jetbrains.jps.incremental.fs.CompilationRound
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.ScalaBuilder._
-import org.jetbrains.jps.incremental.scala.local.{ScalaReflectMacroExpansionParser, IdeClientIdea}
+import org.jetbrains.jps.incremental.scala.local.{IdeClientIdea, PackageObjectsData, ScalaReflectMacroExpansionParser}
 import org.jetbrains.jps.incremental.scala.model.{CompileOrder, IncrementalityType}
 
 import _root_.scala.collection.JavaConverters._
@@ -20,17 +21,17 @@ import scala.collection.mutable.ListBuffer
 import org.jetbrains.jps.incremental._
 
 /**
- * Nikolay.Tropin
- * 11/19/13
- */
+  * Nikolay.Tropin
+  * 11/19/13
+  */
 class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuilder(category) {
 
   override def getPresentableName: String = "Scala IDEA builder"
 
   override def build(context: CompileContext,
-            chunk: ModuleChunk,
-            dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
-            outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode = {
+                     chunk: ModuleChunk,
+                     dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
+                     outputConsumer: ModuleLevelBuilder.OutputConsumer): ModuleLevelBuilder.ExitCode = {
 
     if (isDisabled(context, chunk) || ChunkExclusionService.isExcluded(chunk))
       return ExitCode.NOTHING_DONE
@@ -59,6 +60,19 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
       return ExitCode.NOTHING_DONE
     }
 
+    val packageObjectsData = PackageObjectsData.load(context)
+    if (JavaBuilderUtil.isForcedRecompilationAllJavaModules(context)) { //rebuild
+      packageObjectsData.clear()
+      packageObjectsData.save(context)
+    }
+    else {
+      val additionalFiles = packageObjectsData.shouldInvalidateWith(sources)
+      if (additionalFiles.nonEmpty) {
+        (sources ++ additionalFiles).foreach(f => FSOperations.markDirty(context, CompilationRound.NEXT, f))
+        return ExitCode.ADDITIONAL_PASS_REQUIRED
+      }
+    }
+
     val delta = context.getProjectDescriptor.dataManager.getMappings.createDelta()
     val callback = delta.getCallback
 
@@ -66,7 +80,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     val successfullyCompiled = mutable.Set[File]()
 
-    val client = new IdeClientIdea("scalac", context, modules.map(_.getName).toSeq, outputConsumer, callback, successfullyCompiled)
+    val client = new IdeClientIdea("scalac", context, modules.map(_.getName).toSeq, outputConsumer, callback, successfullyCompiled, packageObjectsData)
 
     val scalaSources = sources.filter(_.getName.endsWith(".scala")).asJava
 

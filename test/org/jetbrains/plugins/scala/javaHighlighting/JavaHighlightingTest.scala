@@ -423,10 +423,16 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     def unapply(s: String) = s.contains(fragment)
   }
 
+  private var scalaLibraryLoader = new ScalaLibraryLoader(getProject, myFixture.getModule, null)
+
   override def setUp() = {
     super.setUp()
+    scalaLibraryLoader.loadScala(TestUtils.DEFAULT_SCALA_SDK_VERSION)
+  }
 
-    ScalaLibraryLoader.addScalaSdk(myFixture.getModule, TestUtils.DEFAULT_SCALA_SDK_VERSION, loadReflect = false)
+  override def tearDown(): Unit = {
+    scalaLibraryLoader.clean()
+    super.tearDown()
   }
 }
 

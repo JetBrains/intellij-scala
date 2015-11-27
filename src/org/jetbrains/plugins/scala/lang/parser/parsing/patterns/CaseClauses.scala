@@ -19,7 +19,7 @@ object CaseClauses {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val caseClausesMarker = builder.mark
     if (!CaseClause.parse(builder)) {
-      caseClausesMarker.drop
+      caseClausesMarker.drop()
       return false
     }
     while (CaseClause parse builder) {}

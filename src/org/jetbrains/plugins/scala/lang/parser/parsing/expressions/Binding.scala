@@ -22,21 +22,18 @@ object Binding {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER => {
+      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
         builder.mark.done(ScalaElementTypes.ANNOTATIONS)
         builder.advanceLexer
-      }
-      case _ => {
+      case _ =>
         paramMarker.drop
         return false
-      }
     }
 
     builder.getTokenType match {
-      case ScalaTokenTypes.tCOLON => {
+      case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer //Ate :
         if (!ParamType.parse(builder)) builder error ErrMsg("wrong.type")
-      }
       case _ =>
     }
 

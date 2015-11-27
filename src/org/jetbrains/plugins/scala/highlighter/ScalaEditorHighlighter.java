@@ -27,6 +27,7 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ArrayUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.scaladoc.highlighter.ScalaDocSyntaxHighlighter;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
@@ -54,8 +55,8 @@ public class ScalaEditorHighlighter extends LayeredLexerEditorHighlighter {
   }
 
   private static ScalaSyntaxHighlighter createSyntaxHighlighter(Project project) {
-    boolean treatDocCommentAsBlockComment = project != null ?
-        ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment() : false;
+    boolean treatDocCommentAsBlockComment =
+            project != null && ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment();
     return new ScalaSyntaxHighlighter(treatDocCommentAsBlockComment);
   }
 
@@ -67,7 +68,7 @@ public class ScalaEditorHighlighter extends LayeredLexerEditorHighlighter {
   // Either LayeredLexerEditorHighlighter#convertAttributes or LayeredLexerEditorHighlighter#Mapper#getAttributes
   // should be fixed instead.
   @Override
-  protected TextAttributes convertAttributes(TextAttributesKey[] keys) {
+  protected TextAttributes convertAttributes(@NotNull TextAttributesKey[] keys) {
     TextAttributesKey[] reversed = ArrayUtil.reverseArray(keys);
     return super.convertAttributes(reversed);
   }

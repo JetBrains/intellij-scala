@@ -4,10 +4,8 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-
-import scala.annotation.tailrec
 
 /**
  * Pavel Fatin
@@ -102,7 +100,7 @@ trait PsiElementExtTrait {
 
   def isScope: Boolean = ScalaPsiUtil.isScope(repr)
 
-  def scopes: Iterator[PsiElement] = contexts.filter(ScalaPsiUtil.isScope(_))
+  def scopes: Iterator[PsiElement] = contexts.filter(ScalaPsiUtil.isScope)
 
   def containingScalaFile: Option[ScalaFile] = repr.getContainingFile match {
     case sf: ScalaFile => Some(sf)

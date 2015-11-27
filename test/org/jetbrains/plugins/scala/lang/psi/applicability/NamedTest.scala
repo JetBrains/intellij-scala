@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
  */
 
 class NamedTest extends ApplicabilityTestBase {
-  def testFine {
+  def testFine() {
     assertProblems("(a: A)", "(a = A)") {
       case Nil =>
     }
@@ -17,13 +17,13 @@ class NamedTest extends ApplicabilityTestBase {
     }
   }
 
-  def testReversed {
+  def testReversed() {
     assertProblems("(a: A, b: B)", "(b = B, a = A)") {
       case Nil =>
     }
   }
 
-  def testPositionalWithNamed {
+  def testPositionalWithNamed() {
     assertProblems("(a: A, b: B)", "(A, b = B)") {
       case Nil =>
     }
@@ -33,7 +33,7 @@ class NamedTest extends ApplicabilityTestBase {
     //    }
   }
 
-  def testPositionalAfterNamed {
+  def testPositionalAfterNamed() {
     assertProblems("(a: A, b: B)", "(b = B, A)") {
       case PositionalAfterNamedArgument(Expression("A")) :: Nil =>
     }
@@ -50,7 +50,7 @@ class NamedTest extends ApplicabilityTestBase {
     }
   }
 
-  def testNamedDuplicates {
+  def testNamedDuplicates() {
     assertProblems("(a: A)", "(a = A, a = null)") {
       case ParameterSpecifiedMultipleTimes(Assignment("a = A")) ::
               ParameterSpecifiedMultipleTimes(Assignment("a = null")) :: Nil =>
@@ -72,7 +72,7 @@ class NamedTest extends ApplicabilityTestBase {
     }
   }
   
-  def testUnresolvedParameter {
+  def testUnresolvedParameter() {
     assertProblems("()", "(a = A)") {
       case ExcessArgument(Assignment("a = A")) :: Nil =>
     }
@@ -85,7 +85,7 @@ class NamedTest extends ApplicabilityTestBase {
     }
   }
   
-  def testNamedUnresolvedDuplicates {
+  def testNamedUnresolvedDuplicates() {
     assertProblems("(a: A)", "(b = A, b = null)") {
       case ParameterSpecifiedMultipleTimes(Assignment("b = A")) ::
               ParameterSpecifiedMultipleTimes(Assignment("b = null")) :: Nil =>
@@ -101,7 +101,7 @@ class NamedTest extends ApplicabilityTestBase {
     }
   }*/
   
-  def testTooManyArguments {
+  def testTooManyArguments() {
     assertProblems("(a: A)", "(A, a = A)") {
       case ExcessArgument(Expression("a = A")) :: Nil =>
     }
@@ -117,7 +117,7 @@ class NamedTest extends ApplicabilityTestBase {
     }
   }  
   
-  def testTypeMismatch {
+  def testTypeMismatch() {
     assertProblems("(a: A)", "(a = B)") {
       case TypeMismatch(Expression("B"), Type("A")) :: Nil =>
     }

@@ -100,6 +100,7 @@ public class DragBuilderWrapper implements PsiBuilder {
     return myBuilder.rawTokenIndex();
   }
 
+  @NotNull
   public Marker mark() {
     return myBuilder.mark();
   }
@@ -112,10 +113,12 @@ public class DragBuilderWrapper implements PsiBuilder {
     return myBuilder.eof();
   }
 
+  @NotNull
   public ASTNode getTreeBuilt() {
     return myBuilder.getTreeBuilt();
   }
 
+  @NotNull
   public FlyweightCapableTreeStructure<LighterASTNode> getLightTree() {
     return myBuilder.getLightTree();
   }
@@ -124,15 +127,15 @@ public class DragBuilderWrapper implements PsiBuilder {
     myBuilder.setDebugMode(dbgMode);
   }
 
-  public void enforceCommentTokens(TokenSet tokens) {
+  public void enforceCommentTokens(@NotNull TokenSet tokens) {
     myBuilder.enforceCommentTokens(tokens);
   }
 
-  public <T> T getUserData(Key<T> key) {
+  public <T> T getUserData(@NotNull Key<T> key) {
     return myBuilder.getUserData(key);
   }
 
-  public <T> void putUserData(Key<T> key, T value) {
+  public <T> void putUserData(@NotNull Key<T> key, T value) {
     myBuilder.putUserData(key, value);
   }
 

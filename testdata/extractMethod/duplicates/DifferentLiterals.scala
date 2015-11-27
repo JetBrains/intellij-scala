@@ -17,7 +17,7 @@ object DifferentLiterals {
   def log(message: String, level: Int) {
     level match {
       case 0 =>
-        /*start*/testMethodName(message)/*end*/
+        testMethodName(message)
       case 1 =>
         println("warning: ")
         println(message)

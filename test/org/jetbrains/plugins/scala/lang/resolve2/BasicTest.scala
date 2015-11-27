@@ -11,10 +11,10 @@ class BasicTest extends ResolveTestBase {
     super.folderPath + "basic/"
   }
 
-  def testSimple = doTest
-  def testMultipleDeclaration = doTest
-  def testName = doTest
-  def testToPattern = doTest
-  def testGetClass = doTest
-  def testNothing = doTest
+  def testSimple() = doTest()
+  def testMultipleDeclaration() = doTest()
+  def testName() = doTest()
+  def testToPattern() = doTest()
+  def testGetClass() = doTest()
+  def testNothing() = doTest()
 }

@@ -767,9 +767,13 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |package test
         |
         |object A {
+        |
         |  object Nested {
+        |
         |    class Nested2
+        |
         |  }
+        |
         |}
         |
         |abstract class B {
@@ -787,9 +791,13 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
         |import test.A.Nested.Nested2
         |
         |object A {
+        |
         |  object Nested {
+        |
         |    class Nested2
+        |
         |  }
+        |
         |}
         |
         |abstract class B {

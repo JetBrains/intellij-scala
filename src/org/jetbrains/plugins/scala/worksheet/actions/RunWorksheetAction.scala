@@ -20,15 +20,14 @@ import com.intellij.openapi.roots.{ModuleRootManager, ProjectFileIndex}
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFileWithId
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import com.intellij.util.PathUtil
 import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
 import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
 import org.jetbrains.plugins.scala.worksheet.ui.WorksheetEditorPrinter
-import org.jetbrains.plugins.scala.project._
 
 /**
  * @author Ksenia.Sautina
@@ -38,14 +37,14 @@ import org.jetbrains.plugins.scala.project._
 
 class RunWorksheetAction extends AnAction with TopComponentAction {
   def actionPerformed(e: AnActionEvent) {
-    RunWorksheetAction.runCompiler(e.getProject, false)
+    RunWorksheetAction.runCompiler(e.getProject, auto = false)
   }
 
   override def update(e: AnActionEvent) {
     val presentation = e.getPresentation
     presentation.setIcon(AllIcons.Actions.Execute)
     val shortcuts = KeymapManager.getInstance.getActiveKeymap.getShortcuts("Scala.RunWorksheet")
-    if (shortcuts.length > 0) {
+    if (shortcuts.nonEmpty) {
       val shortcutText = " (" + KeymapUtil.getShortcutText(shortcuts(0)) + ")"
       presentation.setText(ScalaBundle.message("worksheet.execute.button") + shortcutText)
     }

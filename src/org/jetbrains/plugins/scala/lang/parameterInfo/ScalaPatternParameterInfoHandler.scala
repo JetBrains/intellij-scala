@@ -67,7 +67,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
   def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {
-      case args: ScPatternArgumentList => {
+      case args: ScPatternArgumentList =>
         val color: Color = context.getDefaultParameterColor
         val index = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")
@@ -130,7 +130,6 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
           context.setupUIComponentPresentation(buffer.toString(), startOffset, endOffset, false, false, false, color)
         else
           context.setUIComponentEnabled(false)
-      }
       case _ =>
     }
   }
@@ -204,7 +203,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
     val args: ScPatternArgumentList = PsiTreeUtil.getParentOfType(element, getArgumentListClass)
     if (args != null) {
       context match {
-        case context: CreateParameterInfoContext => {
+        case context: CreateParameterInfoContext =>
           args.getParent match {
             case constr: ScConstructorPattern => {
               val ref: ScStableCodeReferenceElement = constr.ref
@@ -251,15 +250,13 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
             }
             case _ =>
           }
-        }
-        case context: UpdateParameterInfoContext => {
+        case context: UpdateParameterInfoContext =>
           var el = element
           while (el.getParent != args) el = el.getParent
           var index = 1
           for (pattern <- args.patterns if pattern != el) index += 1
           context.setCurrentParameter(index)
           context.setHighlightedParameter(el)
-        }
         case _ =>
       }
     }

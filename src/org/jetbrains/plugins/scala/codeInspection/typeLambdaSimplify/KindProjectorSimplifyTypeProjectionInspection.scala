@@ -138,7 +138,7 @@ class KindProjectorSimplifyTypeProjectionInspection extends LocalInspectionTool 
                                         builder.toString()
                                     }
                                   }
-                                  val fix = new KindProjectorSimplifyTypeProjectionQuickFix(projection, simplified)
+                                  val fix = new KindProjectorSimplifyTypeProjectionQuickFix(projection, simplified())
                                   holder.registerProblem(projection, inspectionName, fix)
                                 }
                               case _ =>

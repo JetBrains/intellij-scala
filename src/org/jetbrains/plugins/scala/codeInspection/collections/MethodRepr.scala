@@ -85,6 +85,6 @@ object MethodSeq {
       }
     }
     extractMethods(expr)
-    if (result.length > 0) Some(result) else None
+    if (result.nonEmpty) Some(result) else None
   }
 }

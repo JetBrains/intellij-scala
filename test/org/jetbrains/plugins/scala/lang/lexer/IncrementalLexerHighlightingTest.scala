@@ -103,7 +103,7 @@ class IncrementalLexerHighlightingTest extends ScalaLightCodeInsightFixtureTestA
          |     ${"\"\"\""}.stripMargin
          |   } bbb"}
          | ${"\"\"\""}$CARET_MARKER
-         |)""".stripMargin
+         |)""".stripMargin.replace("\r", "")
 
     genericTestHighlighting(text, ',', ' ', '\r', '\r')
   }

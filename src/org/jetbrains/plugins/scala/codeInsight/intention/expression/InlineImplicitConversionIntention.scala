@@ -40,7 +40,7 @@ class InlineImplicitConversionIntention extends PsiElementBaseIntentionAction {
     val expr : ScExpression = PsiTreeUtil.getParentOfType(element, classOf[ScExpression], false)
     if (expr == null || !expr.isValid) return
 
-    val implicitConversions = expr.getImplicitConversions(true)
+    val implicitConversions = expr.getImplicitConversions(fromUnder = true)
     val conversionFun = implicitConversions._2.orNull
     if (conversionFun == null || !conversionFun.isInstanceOf[ScFunction]) return
     val secondPart = implicitConversions._4.getOrElse(Seq.empty)

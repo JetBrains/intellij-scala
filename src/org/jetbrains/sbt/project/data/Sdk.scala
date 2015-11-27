@@ -17,14 +17,14 @@ import scala.collection.JavaConverters._
  */
 sealed trait Sdk
 
-final case class JdkByVersion(version: String) extends Sdk
+final case class JdkByName(name: String) extends Sdk
 final case class JdkByHome(home: File) extends Sdk
 final case class Android(version: String) extends Sdk
 
 object SdkUtils {
   def findProjectSdk(sdk: Sdk): Option[projectRoots.Sdk] = sdk match {
     case Android(version) => findAndroidJdkByVersion(version)
-    case JdkByVersion(version) => allJdks.find(_.getName.contains(version))
+    case JdkByName(version) => allJdks.find(_.getName.contains(version))
     case JdkByHome(homeFile) => findJdkByHome(homeFile)
   }
 
@@ -32,7 +32,7 @@ object SdkUtils {
     inReadAction(ProjectJdkTable.getInstance().getSdksOfType(AndroidSdkType.getInstance()).asScala)
 
   def allJdks: Seq[projectRoots.Sdk] =
-    inReadAction(ProjectJdkTable.getInstance.getSdksOfType(JavaSdk.getInstance).asScala)
+    inReadAction(ProjectJdkTable.getInstance.getAllJdks.toSeq)
 
   def defaultJavaLanguageLevelIn(jdk: projectRoots.Sdk): Option[LanguageLevel] = {
     val JavaLanguageLevels = Map(

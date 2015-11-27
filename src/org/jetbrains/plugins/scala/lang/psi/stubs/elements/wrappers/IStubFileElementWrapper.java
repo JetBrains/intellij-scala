@@ -7,6 +7,7 @@ import com.intellij.psi.stubs.StubElement;
 import com.intellij.psi.stubs.StubInputStream;
 import com.intellij.psi.tree.IStubFileElementType;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
@@ -20,8 +21,9 @@ public abstract class IStubFileElementWrapper<S extends PsiFile, T extends PsiFi
   }
 
   //Dirty delegate hack to avoid problems with inheritance in Scala which doesn't allow rawtyped parameters
+  @NotNull
   @Override
-  public T deserialize(StubInputStream dataStream, StubElement parentStub) throws IOException {
+  public T deserialize(@NotNull StubInputStream dataStream, StubElement parentStub) throws IOException {
     return deserializeImpl(dataStream, parentStub);
   }
 

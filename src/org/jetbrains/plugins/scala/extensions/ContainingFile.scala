@@ -12,7 +12,7 @@ object ContainingFile {
       None
     } else {
       val file = e.getContainingFile
-      if (file == null) None else Some(file)
+      Option(file)
     }
   }
 }

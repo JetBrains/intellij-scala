@@ -9,16 +9,16 @@ class BasicLineMarkerTest extends LineMarkerTestBase {
   // TODO enable annotations test
 //  def testAnnotations = doTest
 
-  def testArguments = doTest
-  def testBody = doTest
-  def testCalls = doTest
-  def testCurrying = doTest
-  def testImplicits = doTest
-  def testComplex = doTest
-  def testLexerErrorBypass = doTest
+  def testArguments() = doTest()
+  def testBody() = doTest()
+  def testCalls() = doTest()
+  def testCurrying() = doTest()
+  def testImplicits() = doTest()
+  def testComplex() = doTest()
+  def testLexerErrorBypass() = doTest()
 
-  def testGators = {
-    doTest
+  def testGators() = {
+    doTest()
 
     // TODO make sure somehow that gators (overriding, etc) remain
 //    val markers = DaemonCodeAnalyzerImpl.getLineMarkers(myFixture.getEditor.getDocument, myFixture.getProject)

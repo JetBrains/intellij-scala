@@ -26,7 +26,7 @@ object XmlPattern {
       return true
     }
     if (!STagP.parse(builder)) {
-      patternMarker.drop
+      patternMarker.drop()
       builder.restoreNewlinesState
       return false
     }

@@ -8,10 +8,10 @@ import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.util.{CommonProcessors, PathUtil}
-import junit.framework.Assert.{assertTrue, fail}
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.sbt.project.ProjectStructureDsl._
+import org.junit.Assert.{assertTrue, fail}
 
 import scala.collection.JavaConverters._
 

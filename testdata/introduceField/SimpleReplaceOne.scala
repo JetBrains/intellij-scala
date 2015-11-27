@@ -4,9 +4,8 @@ class Test {
 }
 /*
 class Test {
-  /*start*/
   var i: Int = 1
-  i/*end*/
+  i
   1
 }
 */

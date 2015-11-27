@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.psi.applicability
 
-import junit.framework.Assert
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -10,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.junit.Assert
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -27,7 +27,7 @@ abstract class ApplicabilityTestBase extends SimpleTestCase {
   """
  
   
-  // following applications f()()
+  // following applications f()
   // function value applications
   
   // calls with no braces

@@ -10,10 +10,10 @@ class ImportPathTest extends ResolveTestBase {
 
   protected override def rootPath(): String = folderPath
 
-  def testDir = doTest
+  def testDir() = doTest()
   //TODO ok
 //  def testDirAndLocal = doTest
-  def testDirThenLocal = doTest
+  def testDirThenLocal() = doTest()
   //TODO ok
 //  def testTwoLocal = doTest
 }

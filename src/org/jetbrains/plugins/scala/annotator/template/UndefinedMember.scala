@@ -24,7 +24,7 @@ object UndefinedMember extends AnnotatorPart[ScTemplateDefinition] {
     definition.members.foreach {
       case declaration: ScDeclaration => 
         val isNative = declaration match {
-          case a: ScAnnotationsHolder => a.hasAnnotation("scala.native") != None
+          case a: ScAnnotationsHolder => a.hasAnnotation("scala.native").isDefined
           case _ => false
         }
         if (!isNative) holder.createErrorAnnotation(declaration, Message)

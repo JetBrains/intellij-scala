@@ -9,7 +9,7 @@ import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.util.Alarm
-import com.intellij.util.containers.ConcurrentWeakHashMap
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.actions.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.processor.{FileAttributeUtilCache, WorksheetPerFileConfig}
@@ -20,7 +20,9 @@ import org.jetbrains.plugins.scala.worksheet.server.WorksheetProcessManager
  * Date: 01.04.14.
  */
 object WorksheetAutoRunner extends WorksheetPerFileConfig {
-  private val RUN_DELAY_MS = 1400
+  val RUN_DELAY_MS_MAXIMUM = 3000
+  val RUN_DELAY_MS_MINIMUM = 700
+  
   private val AUTORUN = new FileAttribute("ScalaWorksheetAutoRun", 1, true)
 
   def isSetEnabled(file: PsiFile): Boolean = FileAttributeUtilCache.readAttribute(AUTORUN, file) contains enabled
@@ -35,7 +37,7 @@ object WorksheetAutoRunner extends WorksheetPerFileConfig {
 }
 
 class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends ProjectComponent {
-  private val listeners = new ConcurrentWeakHashMap[Document, DocumentListener]()
+  private val listeners = ContainerUtil.createConcurrentWeakMap[Document, DocumentListener]()
   private val myAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, project)
   private lazy val settings = ScalaProjectSettings.getInstance(project)
 
@@ -49,7 +51,8 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
 
   override def getComponentName: String = "WorksheetAutoRunner"
 
-
+  def getAutoRunDelay = ScalaProjectSettings.getInstance(project).getAutoRunDelay
+  
   def addListener(document: Document) {
     if (listeners.get(document) == null) {
       val listener = new MyDocumentAdapter(document)
@@ -85,9 +88,9 @@ class WorksheetAutoRunner(project: Project, woof: WolfTheProblemSolver) extends 
       myAlarm.addRequest(new Runnable {
         override def run() {
           if (!woof.hasSyntaxErrors(virtualFile) && !WorksheetProcessManager.running(virtualFile))
-            RunWorksheetAction.runCompiler(project, true)
+            RunWorksheetAction.runCompiler(project, auto = true)
         }
-      }, WorksheetAutoRunner.RUN_DELAY_MS, true)
+      }, getAutoRunDelay, true)
     }
   }
 }

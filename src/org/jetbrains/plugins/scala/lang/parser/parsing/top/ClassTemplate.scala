@@ -25,8 +25,8 @@ object ClassTemplate {
     val extendsMarker = builder.mark
     var empty = true
     builder.getTokenType match {
-    //hardly case, becase it's same token for ClassParents and TemplateBody
-      case ScalaTokenTypes.tLBRACE => {
+      //hardly case, becase it's same token for ClassParents and TemplateBody
+      case ScalaTokenTypes.tLBRACE =>
         empty = false
         //try to parse early definition if we can't => it's template body
         if (EarlyDef parse builder) {
@@ -54,10 +54,9 @@ object ClassTemplate {
           extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
           !nonEmpty || !empty
         }
-      }
       //if we find nl => it could be TemplateBody only, but we can't find nl after extends keyword
       //In this case of course it's ClassParents
-      case _ => {
+      case _ =>
         if (ClassParents parse builder) empty = false
         else if (nonEmpty) {
           extendsMarker.drop()
@@ -79,7 +78,6 @@ object ClassTemplate {
             !nonEmpty || !empty
           }
         }
-      }
     }
   }
 }

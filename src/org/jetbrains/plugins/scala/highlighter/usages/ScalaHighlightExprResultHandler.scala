@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package highlighter
 package usages
 
-import java.util.List
+import java.util
 
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
 import com.intellij.openapi.editor.Editor
@@ -16,7 +16,7 @@ import scala.collection.JavaConversions._
 class ScalaHighlightExprResultHandler(expr: ScExpression, editor: Editor,
                                       file: PsiFile, keyword: PsiElement)
   extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
-  def computeUsages(targets: List[PsiElement]) {
+  def computeUsages(targets: util.List[PsiElement]) {
     val iterator = targets.listIterator
     while (iterator.hasNext) {
       val elem = iterator.next
@@ -24,11 +24,11 @@ class ScalaHighlightExprResultHandler(expr: ScExpression, editor: Editor,
     }
   }
 
-  def selectTargets(targets: List[PsiElement], selectionConsumer: Consumer[List[PsiElement]]) {
+  def selectTargets(targets: util.List[PsiElement], selectionConsumer: Consumer[util.List[PsiElement]]) {
     selectionConsumer.consume(targets)
   }
 
-  def getTargets: List[PsiElement] = {
+  def getTargets: util.List[PsiElement] = {
     val returns = expr.calculateReturns() ++ Seq(keyword)
     returns.toBuffer[PsiElement]
   }

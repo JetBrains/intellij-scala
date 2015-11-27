@@ -22,7 +22,7 @@ abstract class ExtractTraitTestBase extends ScalaLightPlatformCodeInsightTestCas
     configureFromFileTextAdapter("dummy.scala", fileText.replace("\r", "").stripMargin.trim)
     try {
       new ScalaExtractTraitHandler().testInvoke(getProjectAdapter, getEditorAdapter, getFileAdapter, onlyDeclarations, onlyFirstMember)
-      assert(false, "Exception was not thrown")
+      assert(assertion = false, "Exception was not thrown")
     } catch {
       case e: Exception => assert(messageText == e.getMessage)
     }

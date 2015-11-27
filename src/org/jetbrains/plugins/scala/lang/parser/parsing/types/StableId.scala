@@ -11,10 +11,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 15.02.2008
-*/
+import scala.annotation.tailrec
+
+/**
+  * @author Alexander Podkhalyuzin
+  *         Date: 15.02.2008
+  */
 
 /*
  * StableId ::= id
@@ -24,19 +26,19 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 object StableId extends ParserNode {
 
-  def parse(builder: ScalaPsiBuilder, element: IElementType): Boolean = parse(builder, false, element)
+  def parse(builder: ScalaPsiBuilder, element: IElementType): Boolean = parse(builder, forImport = false, element)
 
   def parse(builder: ScalaPsiBuilder, forImport: Boolean, element: IElementType): Boolean = {
     val marker = builder.mark()
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
+      case ScalaTokenTypes.tIDENTIFIER =>
         builder.advanceLexer()
         if (stopAtImportEnd(builder, forImport)) {
           marker.done(element)
           return true
         } else if (builder.getTokenType == tDOT && !lookAhead(builder, tDOT, kTYPE)) {
           val nm = marker.precede
-          if (lookAhead(builder, tDOT, kTHIS) || lookAhead (builder, tDOT, kSUPER))
+          if (lookAhead(builder, tDOT, kTHIS) || lookAhead(builder, tDOT, kSUPER))
             marker.done(REFERENCE)
           else
             marker.done(element)
@@ -53,13 +55,11 @@ object StableId extends ParserNode {
         }
         marker.done(element)
         true
-      }
       case ScalaTokenTypes.kTHIS => parseThisReference(builder, marker, element, forImport)
       case ScalaTokenTypes.kSUPER => parseSuperReference(builder, marker, element, forImport)
-      case _ => {
+      case _ =>
         marker.drop()
         false
-      }
 
     }
   }
@@ -139,6 +139,7 @@ object StableId extends ParserNode {
   }
 
   // Begins from next id (not form dot)
+  @tailrec
   def parseQualId(builder: ScalaPsiBuilder, marker: PsiBuilder.Marker, element: IElementType, forImport: Boolean): Boolean = {
     if (builder.getTokenType != tIDENTIFIER) {
       builder.error(ErrMsg("identifier.expected"))

@@ -28,7 +28,7 @@ object VarDef {
     // Parsing specifig wildcard definition
     val valDefMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
+      case ScalaTokenTypes.tIDENTIFIER =>
         Ids parse builder
         var hasTypeDcl = false
 
@@ -59,11 +59,9 @@ object VarDef {
           valDefMarker.drop
           return true
         }
-      }
-      case _ => {
+      case _ =>
         valDefMarker.drop
         return false
-      }
     }
   }
 }

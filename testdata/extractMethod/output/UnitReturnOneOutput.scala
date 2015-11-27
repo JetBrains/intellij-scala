@@ -1,22 +1,22 @@
 class UnitReturnOneOutput {
   def foo(i: Int) {
-    /*start*/
+/*start*/
     if (true) return
     val x = 0
     println(i)
-    /*end*/
+/*end*/
     println(x)
   }
 }
 /*
 class UnitReturnOneOutput {
   def foo(i: Int) {
-    /*start*/
+
     val x: Int = testMethodName(i) match {
       case Some(result) => result
       case None => return
     }
-    /*end*/
+
     println(x)
   }
 

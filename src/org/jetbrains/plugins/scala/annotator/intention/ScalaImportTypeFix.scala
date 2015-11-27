@@ -4,11 +4,11 @@ package org.jetbrains.plugins.scala.annotator.intention
 import java.awt.Point
 import javax.swing.Icon
 
-import com.intellij.codeInsight.{JavaProjectCodeInsightSettings, FileModificationService}
 import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.codeInsight.daemon.QuickFixBundle
 import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, QuestionAction}
+import com.intellij.codeInsight.{FileModificationService, JavaProjectCodeInsightSettings}
 import com.intellij.codeInspection.HintAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.CommandProcessor
@@ -40,16 +40,17 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeRefe
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
+import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 15.07.2009
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 15.07.2009
+  */
 
 class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScReferenceElement) extends {
-    val project = ref.getProject
-  } with  HintAction {
+  val project = ref.getProject
+} with HintAction {
   val getText = ScalaBundle.message("import.with", classes(0).qualifiedName)
 
   def getFamilyName = ScalaBundle.message("import.class")
@@ -78,7 +79,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
         classes.length match {
           case 0 => false
           case 1 if ScalaApplicationSettings.getInstance().ADD_UNAMBIGUOUS_IMPORTS_ON_THE_FLY &&
-                  !caretNear(editor) =>
+            !caretNear(editor) =>
             CommandProcessor.getInstance().runUndoTransparentAction(new Runnable {
               def run() {
                 new ScalaAddImportAction(editor, classes, ref).execute()
@@ -104,6 +105,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
   }
 
   private def startOffset(editor: Editor) = range(editor).getStartOffset
+
   private def endOffset(editor: Editor) = range(editor).getEndOffset
 
   private def fixesAction(editor: Editor) {
@@ -117,13 +119,13 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
 
         val offset = ref.getTextRange.getStartOffset
         if (classes.nonEmpty && offset >= startOffset(editor) && offset <= endOffset(editor) && editor != null &&
-                offset <= editor.getDocument.getTextLength) {
+          offset <= editor.getDocument.getTextLength) {
           HintManager.getInstance().showQuestionHint(editor,
-          if (classes.length == 1) classes(0).qualifiedName + "? Alt+Enter"
-          else classes(0).qualifiedName + "? (multiple choices...) Alt+Enter",
-          offset,
-          offset + ref.getTextLength,
-          action)
+            if (classes.length == 1) classes(0).qualifiedName + "? Alt+Enter"
+            else classes(0).qualifiedName + "? (multiple choices...) Alt+Enter",
+            offset,
+            offset + ref.getTextLength,
+            action)
           return
         }
       }
@@ -150,7 +152,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
     }
 
     def chooseClass() {
-      val popup = new BaseListPopupStep[TypeToImport](QuickFixBundle.message("class.to.import.chooser.title"), classes : _*) {
+      val popup = new BaseListPopupStep[TypeToImport](QuickFixBundle.message("class.to.import.chooser.title"), classes: _*) {
         override def getIconFor(aValue: TypeToImport): Icon = {
           aValue.getIcon
         }
@@ -162,6 +164,7 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
         override def isAutoSelectionEnabled: Boolean = false
 
         import com.intellij.openapi.ui.popup.PopupStep.FINAL_CHOICE
+
         override def onChosen(selectedValue: TypeToImport, finalChoice: Boolean): PopupStep[_] = {
           if (selectedValue == null) {
             return FINAL_CHOICE
@@ -207,16 +210,24 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
       true
     }
   }
+
 }
 
 object ScalaImportTypeFix {
+
   sealed trait TypeToImport {
     def name: String
+
     def qualifiedName: String
+
     def element: PsiNamedElement
+
     def isAnnotationType: Boolean = false
+
     def isValid: Boolean = element.isValid
+
     def getIcon: Icon = element.getIcon(0)
+
     def getProject: Project = element.getProject
   }
 
@@ -233,24 +244,31 @@ object ScalaImportTypeFix {
 
   case class ClassTypeToImport(clazz: PsiClass) extends TypeToImport {
     def name: String = clazz.name
+
     def qualifiedName: String = clazz.qualifiedName
+
     def element: PsiNamedElement = clazz
+
     override def isAnnotationType: Boolean = clazz.isAnnotationType
   }
 
   case class TypeAliasToImport(ta: ScTypeAlias) extends TypeToImport {
     def name: String = ta.name
+
     def qualifiedName: String = {
       val clazz: ScTemplateDefinition = ta.containingClass
       if (clazz == null || clazz.qualifiedName == "") ta.name
       else clazz.qualifiedName + "." + ta.name
     }
+
     def element: PsiNamedElement = ta
   }
 
   case class PrefixPackageToImport(pack: ScPackage) extends TypeToImport {
     def name: String = pack.name
+
     def qualifiedName: String = pack.getQualifiedName
+
     def element: PsiNamedElement = pack
   }
 
@@ -269,6 +287,7 @@ object ScalaImportTypeFix {
     }
   }
 
+  @tailrec
   private def notInner(clazz: PsiClass, ref: PsiElement): Boolean = {
     def parent(t: ScTypeDefinition): PsiElement = {
       val stub = t.asInstanceOf[ScTypeDefinitionImpl].getStub
@@ -283,15 +302,15 @@ object ScalaImportTypeFix {
         }
       case t: ScTypeDefinition =>
         parent(t) match {
-           case _: ScalaFile => true
-           case _: ScPackaging => true
-           case _: ScTemplateBody =>
-             Option(t.containingClass) match {
-               case Some(obj: ScObject) => ResolveUtils.isAccessible(obj, ref) && notInner(obj, ref)
-               case _ => false
-             }
-           case _ => false
-         }
+          case _: ScalaFile => true
+          case _: ScPackaging => true
+          case _: ScTemplateBody =>
+            Option(t.containingClass) match {
+              case Some(obj: ScObject) => ResolveUtils.isAccessible(obj, ref) && notInner(obj, ref)
+              case _ => false
+            }
+          case _ => false
+        }
       case _ => true
     }
   }

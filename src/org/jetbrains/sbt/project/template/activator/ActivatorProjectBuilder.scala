@@ -65,8 +65,8 @@ class ActivatorProjectBuilder extends AbstractExternalModuleBuilder[SbtProjectSe
   override def setupRootModel(modifiableRootModel: ModifiableRootModel) {
     val selected = settingsComponents.getSelectedTemplate
 
-    allTemplates.get(selected) map {
-      case info =>
+    allTemplates.get(selected) match {
+      case Some(info) =>
         val contentPath = getContentEntryPath
         if (StringUtil isEmpty contentPath) return
 
@@ -78,7 +78,8 @@ class ActivatorProjectBuilder extends AbstractExternalModuleBuilder[SbtProjectSe
         //todo Looks like template name can't be set without some hack (activator itself can't do it)
 
         createStub(info.id, contentPath)
-    } getOrElse error("Can't download template")
+      case _ => error("Can't download template")
+    }
 
     modifiableRootModel.inheritSdk()
 

@@ -4,7 +4,7 @@ package refactoring.rename3
 import java.io.File
 import java.util
 
-import com.intellij.codeInsight.{TargetElementUtil, TargetElementUtilBase}
+import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.text.StringUtil

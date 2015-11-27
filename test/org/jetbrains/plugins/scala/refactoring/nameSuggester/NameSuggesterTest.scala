@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package refactoring.nameSuggester
 
-import junit.framework.Assert
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+import org.junit.Assert
 
 /**
  * Nikolay.Tropin

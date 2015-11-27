@@ -1,5 +1,5 @@
 interface DifferentParamNames {
-   int foo(int newName) {
-    return newName;
-  }
+    int foo(int newName) {
+        return newName;
+    }
 }

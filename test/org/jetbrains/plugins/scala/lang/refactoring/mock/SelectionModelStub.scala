@@ -25,21 +25,21 @@ class SelectionModelStub extends SelectionModel {
 
   def hasBlockSelection: Boolean = false
 
-  def removeBlockSelection: Unit = {}
+  def removeBlockSelection(): Unit = {}
 
   def setBlockSelection(blockStart: LogicalPosition, blockEnd: LogicalPosition): Unit = {}
 
-  def copySelectionToClipboard: Unit = {}
+  def copySelectionToClipboard(): Unit = {}
 
   def selectWordAtCaret(honorCamelWordsSettings: Boolean): Unit = {}
 
-  def selectLineAtCaret: Unit = {}
+  def selectLineAtCaret(): Unit = {}
 
   def removeSelectionListener(listener: SelectionListener): Unit = {}
 
   def addSelectionListener(listener: SelectionListener): Unit = {}
 
-  def removeSelection: Unit = {}
+  def removeSelection(): Unit = {}
 
   def setSelection(startOffset: Int, endOffset: Int): Unit = {}
 

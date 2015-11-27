@@ -28,14 +28,14 @@ class NestedStatefulMonadsInspectionTest extends ScalaLightInspectionFixtureTest
   def test_3(): Unit = {
     val text =
       s"""import scala.util.Try
-        |${START}Try { Try {} }${END}"""
+        |${START}Try { Try {} }$END"""
     check(text)
   }
 
   def test_4(): Unit = {
     val text =
       s"""import scala.concurrent.Future
-        |${START}Future { Future {} }${END}"""
+        |${START}Future { Future {} }$END"""
     check(text)
   }
 
@@ -48,14 +48,14 @@ class NestedStatefulMonadsInspectionTest extends ScalaLightInspectionFixtureTest
     val text =
       s"""import scala.concurrent.Future
           |val a = Future { }
-          |${START}Future { a }${END}"""
+          |${START}Future { a }$END"""
     check(text)
   }
 
   def test_7(): Unit = {
     val text =
       s"""import scala.util._
-          |${START}Try { Success() }${END}"""
+          |${START}Try { Success() }$END"""
     check(text)
   }
 
@@ -63,14 +63,14 @@ class NestedStatefulMonadsInspectionTest extends ScalaLightInspectionFixtureTest
     val text =
       s"""import scala.util._
           |import scala.concurrent.Future
-          |${START}Try { Future.successful() }${END}"""
+          |${START}Try { Future.successful() }$END"""
     check(text)
   }
 
   def test_9(): Unit = {
     val text =
       s"""import scala.util._
-        |${START}Success(Success(1))${END}"""
+        |${START}Success(Success(1))$END"""
     check(text)
   }
 
@@ -78,7 +78,7 @@ class NestedStatefulMonadsInspectionTest extends ScalaLightInspectionFixtureTest
     val text =
       s"""import scala.util._
           |import scala.concurrent.Future
-          |${START}Future { Success() }${END}"""
+          |${START}Future { Success() }$END"""
     check(text)
   }
 
@@ -99,7 +99,7 @@ class NestedStatefulMonadsInspectionTest extends ScalaLightInspectionFixtureTest
   def test_13(): Unit = {
     val text =
       s"""import scala.util._
-        |Array(${START}Success(Failure(1))${END})"""
+        |Array(${START}Success(Failure(1))$END)"""
     check(text)
   }
 }

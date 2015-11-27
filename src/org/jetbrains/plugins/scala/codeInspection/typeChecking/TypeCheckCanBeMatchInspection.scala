@@ -113,7 +113,7 @@ object TypeCheckToMatchUtil {
               //store first occurence of pattern definition and name
               case Some(oldDef) if oldDef.getTextOffset < patternDef.getTextOffset => true
               case _ =>
-                definedName = Some(bindings(0).getName)
+                definedName = Some(bindings.head.getName)
                 definition = Some(patternDef)
                 true
             }
@@ -131,7 +131,7 @@ object TypeCheckToMatchUtil {
       condition <- ifStmt.condition
       if args.typeArgs.size == 1
     } yield {
-      val typeElem = args.typeArgs(0)
+      val typeElem = args.typeArgs.head
       val typeName0 = typeElem.getText
       val typeName =
         if (typeNeedParentheses(typeElem)) s"($typeName0)"
@@ -143,12 +143,12 @@ object TypeCheckToMatchUtil {
 
       if (asInstOfInBody.count(checkAndStoreNameAndDef) == 0) {
         //no usage of asInstanceOf
-        if (asInstOfEverywhere.size == 0) {
+        if (asInstOfEverywhere.isEmpty) {
           buildCaseClauseText("_ : " + typeName, guardCond, ifStmt.thenBranch, ifStmt.getProject)
         }
         //no named usage
         else {
-          val suggestedNames: Array[String] = NameSuggester.suggestNames(asInstOfEverywhere(0),
+          val suggestedNames: Array[String] = NameSuggester.suggestNames(asInstOfEverywhere.head,
             new ScalaVariableValidator(null, ifStmt.getProject, ifStmt, false, ifStmt.getParent, ifStmt.getParent))
           val name = suggestedNames(0)
           asInstOfEverywhere.foreach { c =>
@@ -230,7 +230,7 @@ object TypeCheckToMatchUtil {
 
     val renameData = new RenameData()
     for {
-      index <- 0 until ifStmts.size
+      index <- ifStmts.indices
       text <- buildCaseClauseText(ifStmts(index), isInstOf(index), index, renameData)
     } {
       builder.append(text)
@@ -280,8 +280,8 @@ object TypeCheckToMatchUtil {
         secondTypes = secondArgs.typeArgs
         if firstTypes.size == 1 && secondTypes.size == 1
       } yield {
-        val firstType = firstTypes(0).calcType
-        val secondType = secondTypes(0).calcType
+        val firstType = firstTypes.head.calcType
+        val secondType = secondTypes.head.calcType
         firstType.equiv(secondType)
       }
       option.getOrElse(false)
@@ -313,7 +313,7 @@ object TypeCheckToMatchUtil {
     for {
       (index, suggestedNames) <- renameData
       caseClause = caseClauses(index)
-      name = suggestedNames(0)
+      name = suggestedNames.head
     } {
       val primary = mutable.ArrayBuffer[ScNamedElement]()
       val dependents = mutable.SortedSet()(Ordering.by[ScalaPsiElement, Int](_.getTextOffset))
@@ -359,8 +359,7 @@ object TypeCheckToMatchUtil {
         val guardConditionsText: String = guardConditions.map(_.getText).mkString(" && ")
         val guard = ScalaPsiElementFactory.createExpressionFromText(guardConditionsText, condition).asInstanceOf[ScExpression]
 
-        if (guard == null) None
-        else Some(guard)
+        Option(guard)
     }
   }
 

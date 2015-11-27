@@ -33,7 +33,7 @@ class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAct
     if (methodCallExpr == null) return false
     if (!methodCallExpr.getInvokedExpr.isInstanceOf[ScReferenceExpression]) return false
 
-    val oper = ((methodCallExpr.getInvokedExpr).asInstanceOf[ScReferenceExpression]).nameId.getText
+    val oper = methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].nameId.getText
 
     if (oper != "equals" && oper != "==" && oper != "!=" && oper != "eq" && oper != "ne" &&
             oper != ">" && oper != "<" && oper != ">=" && oper != "<=")
@@ -51,7 +51,7 @@ class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAct
       setText("Flip '" + oper + "' to '" + replaceOper(oper) + "'")
     }
 
-    if (((methodCallExpr.getInvokedExpr).asInstanceOf[ScReferenceExpression]).isQualified) return true
+    if (methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].isQualified) return true
 
     false
   }
@@ -61,8 +61,8 @@ class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAct
     if (methodCallExpr == null || !methodCallExpr.isValid) return
 
     val start = methodCallExpr.getTextRange.getStartOffset
-    val diff = editor.getCaretModel.getOffset - ((methodCallExpr.getInvokedExpr).asInstanceOf[ScReferenceExpression]).
-            nameId.getTextRange.getStartOffset
+    val diff = editor.getCaretModel.getOffset - methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].
+      nameId.getTextRange.getStartOffset
     val expr = new StringBuilder
     val qualBuilder = new StringBuilder
     val argsBuilder = new StringBuilder
@@ -88,18 +88,18 @@ class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAct
     val newQualExpr: ScExpression = ScalaPsiElementFactory.createExpressionFromText(newQual, element.getManager)
 
     expr.append(methodCallExpr.args.getText).append(".").
-            append(replaceOper(((methodCallExpr.getInvokedExpr).asInstanceOf[ScReferenceExpression]).nameId.getText)).
+            append(replaceOper(methodCallExpr.getInvokedExpr.asInstanceOf[ScReferenceExpression].nameId.getText)).
             append(newArgs)
 
     val newMethodCallExpr = ScalaPsiElementFactory.createExpressionFromText(expr.toString(), element.getManager)
 
-    newMethodCallExpr.asInstanceOf[ScMethodCall].getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get.replaceExpression(newQualExpr, true)
+    newMethodCallExpr.asInstanceOf[ScMethodCall].getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get.replaceExpression(newQualExpr, removeParenthesis = true)
 
     val size = newMethodCallExpr.asInstanceOf[ScMethodCall].getInvokedExpr.asInstanceOf[ScReferenceExpression].nameId.
             getTextRange.getStartOffset - newMethodCallExpr.getTextRange.getStartOffset
 
     inWriteAction {
-      methodCallExpr.replaceExpression(newMethodCallExpr, true)
+      methodCallExpr.replaceExpression(newMethodCallExpr, removeParenthesis = true)
       editor.getCaretModel.moveToOffset(start + diff + size)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }

@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.project._
  */
 
 class NewPackageObjectAction
-        extends CreateFromTemplateAction(FileTemplateManager.getInstance().getInternalTemplate("Package Object"))
+        extends CreateFromTemplateAction(FileTemplateManager.getDefaultInstance().getInternalTemplate("Package Object"))
         with DumbAware {
 
   override def update(e: AnActionEvent) {

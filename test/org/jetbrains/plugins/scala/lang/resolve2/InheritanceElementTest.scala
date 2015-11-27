@@ -10,20 +10,20 @@ class InheritanceElementTest extends ResolveTestBase {
     super.folderPath + "inheritance/element/"
   }
 
-  def testCaseClass = doTest
-  def testCaseObject = doTest
-  def testClass = doTest
-  def testClassParameter = doTest
-  def testClassParameterValue = doTest
-  def testClassParameterVariable = doTest
-  def testClassTypeParameter = doTest
-  def testFunction = doTest
-  def testImport = doTest
-  def testObject = doTest
-  def testTrait = doTest
-  def testTypeAlias = doTest
-  def testValue = doTest
-  def testVariable = doTest
+  def testCaseClass() = doTest()
+  def testCaseObject() = doTest()
+  def testClass() = doTest()
+  def testClassParameter() = doTest()
+  def testClassParameterValue() = doTest()
+  def testClassParameterVariable() = doTest()
+  def testClassTypeParameter() = doTest()
+  def testFunction() = doTest()
+  def testImport() = doTest()
+  def testObject() = doTest()
+  def testTrait() = doTest()
+  def testTypeAlias() = doTest()
+  def testValue() = doTest()
+  def testVariable() = doTest()
 
-  def testCaseClassProduct = doTest
+  def testCaseClassProduct() = doTest()
 }

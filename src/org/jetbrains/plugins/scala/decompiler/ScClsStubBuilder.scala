@@ -101,6 +101,7 @@ class ScClsStubBuilder extends ClsStubBuilder {
     isInner(NameTransformer.decode(name), 0, directory)
   }
 
+  @tailrec
   private def isInner(name: String, from: Int, directory: Directory): Boolean = {
     val index: Int = name.indexOf('$', from)
     index != -1 && (containsPart(directory, name, index) || isInner(name, index + 1, directory))

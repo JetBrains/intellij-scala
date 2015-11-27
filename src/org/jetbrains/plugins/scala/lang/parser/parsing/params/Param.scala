@@ -31,27 +31,23 @@ object Param {
     modifiersMarker.done(ScalaElementTypes.MODIFIERS)
 
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
+      case ScalaTokenTypes.tIDENTIFIER =>
         builder.advanceLexer() //Ate id
-      }
-      case _ => {
+      case _ =>
         paramMarker.rollbackTo()
         return false
-      }
     }
 
     builder.getTokenType match {
-      case ScalaTokenTypes.tCOLON => {
+      case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer() //Ate :
         if (!ParamType.parse(builder)) builder error ErrMsg("wrong.type")
-      }
       case _ =>
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tASSIGN => {
+      case ScalaTokenTypes.tASSIGN =>
         builder.advanceLexer() //Ate =
         if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
-      }
       case _ =>
     }
     paramMarker.done(ScalaElementTypes.PARAM)

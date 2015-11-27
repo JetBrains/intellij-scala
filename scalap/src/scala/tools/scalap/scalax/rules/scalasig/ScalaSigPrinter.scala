@@ -571,7 +571,7 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
                 case _ => processName(name) + "."
               }
             case (ThisType(packSymbol), _, _) if !packSymbol.isType =>
-              processName(packSymbol.path) + "."
+              processName(packSymbol.path.replace("<root>", "_root_")) + "."
             case (ThisType(classSymbol: ClassSymbol), _, _) if refinementClass(classSymbol) => ""
             case (ThisType(typeSymbol: ClassSymbol), ExternalSymbol(_, Some(parent), _), _)
               if typeSymbol.path != parent.path && checkContainsSelf(typeSymbol.selfType, parent) =>

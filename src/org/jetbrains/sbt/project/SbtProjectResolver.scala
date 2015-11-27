@@ -17,9 +17,8 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.SbtResolver
-
 import org.jetbrains.sbt.structure.XmlSerializer._
-import org.jetbrains.sbt.{structure=>sbtStructure}
+import org.jetbrains.sbt.{structure => sbtStructure}
 
 import scala.collection.immutable.HashMap
 
@@ -83,22 +82,21 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
     val sbtVersion = data.sbtVersion
     val projectJdk = project.android.map(android => Android(android.targetVersion))
-            .orElse(jdk.map(JdkByVersion))
+            .orElse(jdk.map(JdkByName))
 
     projectNode.add(new SbtProjectNode(basePackages, projectJdk, javacOptions, sbtVersion, root))
 
-    project.play2 map {
-      case play2Data =>
-        import Play2Keys.AllKeys._
-        val oldPlay2Data = play2Data.keys.map { case sbtStructure.Play2Key(name, values) =>
-          val newVals = values.mapValues {
-            case sbtStructure.PlayString(str) => new StringParsedValue(str)
-            case sbtStructure.PlaySeqString(strs) => new SeqStringParsedValue(strs)
-          }
-          def avoidSL7005Bug[K, V](m: Map[K,V]): Map[K, V] = HashMap(m.toSeq:_*)
-          (name, avoidSL7005Bug(newVals))
+    project.play2.foreach { play2Data =>
+      import Play2Keys.AllKeys._
+      val oldPlay2Data = play2Data.keys.map { case sbtStructure.Play2Key(name, values) =>
+        val newVals = values.mapValues {
+          case sbtStructure.PlayString(str) => new StringParsedValue(str)
+          case sbtStructure.PlaySeqString(strs) => new SeqStringParsedValue(strs)
         }
-        projectNode.add(new Play2ProjectNode(oldPlay2Data.toMap))
+        @inline def avoidSL7005Bug[K, V](m: Map[K,V]): Map[K, V] = HashMap(m.toSeq:_*)
+        (name, avoidSL7005Bug(newVals))
+      }
+      projectNode.add(new Play2ProjectNode(oldPlay2Data.toMap))
     }
 
     val libraryNodes = createLibraries(data, projects)
@@ -135,7 +133,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val unmanagedSourcesAndDocsLibrary = libraryNodes.map(_.data).find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
     projects.map { project =>
       val moduleNode = createModule(project, moduleFilesDirectory)
-      moduleNode.add(createContentRoot(project))
+      val contentRootNode = createContentRoot(project)
+      project.android.foreach(a => a.apklibs.foreach(addApklibDirs(contentRootNode, _)))
+      moduleNode.add(contentRootNode)
       moduleNode.addAll(createLibraryDependencies(project.dependencies.modules)(moduleNode, libraryNodes.map(_.data)))
       moduleNode.add(createModuleExtData(project))
       moduleNode.addAll(project.android.map(createFacet(project, _)).toSeq)
@@ -177,8 +177,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createFacet(project: sbtStructure.ProjectData, android: sbtStructure.AndroidData): AndroidFacetNode = {
-    new AndroidFacetNode(android.targetVersion, android.manifestPath, android.apkPath,
-                         android.resPath, android.assetsPath, android.genPath, android.libsPath,
+    new AndroidFacetNode(android.targetVersion, android.manifest, android.apk,
+                         android.res, android.assets, android.gen, android.libs,
                          android.isLibrary, android.proguardConfig)
   }
 
@@ -366,6 +366,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val result = new LibraryDependencyNode(moduleData, libraryNode, LibraryLevel.MODULE)
     result.setScope(scope)
     result
+  }
+
+  private def addApklibDirs(contentRootNode: ContentRootNode, apklib: sbtStructure.ApkLib): Unit = {
+    contentRootNode.storePath(ExternalSystemSourceType.SOURCE, apklib.sources.canonicalPath)
+    contentRootNode.storePath(ExternalSystemSourceType.SOURCE_GENERATED, apklib.gen.canonicalPath)
+    contentRootNode.storePath(ExternalSystemSourceType.RESOURCE, apklib.resources.canonicalPath)
   }
 
   protected def scopeFor(configurations: Seq[sbtStructure.Configuration]): DependencyScope = {

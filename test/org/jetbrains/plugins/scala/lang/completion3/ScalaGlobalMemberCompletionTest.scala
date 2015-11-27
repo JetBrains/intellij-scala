@@ -219,7 +219,7 @@ class Test {
 """.replaceAll("\r", "").trim()
     configureFromFileTextAdapter("dummy7.scala", fileText)
     val (activeLookup, _) = complete(completionType = CompletionType.BASIC, time = 2)
-    Assert.assertTrue(activeLookup.find(_.getLookupString == "doSmthPrivate") == None)
+    Assert.assertTrue(!activeLookup.exists(_.getLookupString == "doSmthPrivate"))
   }
 
   def testGlobalMember9() {

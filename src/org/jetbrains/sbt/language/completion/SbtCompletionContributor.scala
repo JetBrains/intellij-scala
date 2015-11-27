@@ -90,7 +90,7 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
         case obj: ScObject if isAccessible(obj) && ScalaPsiUtil.hasStablePath(obj) =>
           def fetchAndApply(element: ScTypedDefinition) {
             val lookup = LookupElementManager.getLookupElement(new ScalaResolveResult(element), isClassName = true,
-              isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0)
+              isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).head
             lookup.addLookupStrings(obj.name + "." + element.name)
             applyVariant(lookup)
           }
@@ -138,7 +138,7 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
           p.getFields.foreach (field => {
             if (field.hasModifierProperty("static") && isAccessible(field)) {
               val lookup = LookupElementManager.getLookupElement(new ScalaResolveResult(field), isClassName = true,
-                isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).apply(0)
+                isOverloadedForClassName = false, shouldImport = true, isInStableCodeReference = false).head
               lookup.addLookupStrings(p.getName + "." + field.getName)
               applyVariant(lookup)
             }

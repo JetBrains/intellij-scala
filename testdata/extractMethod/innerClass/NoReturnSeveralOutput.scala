@@ -15,7 +15,7 @@ class NoReturnSeveralOutput {
 //inner class
 class NoReturnSeveralOutput {
   def foo(i: Int) {
-    /*start*/
+
 
     val testMethodNameResult: TestMethodNameResult = testMethodName
     val x: Int = testMethodNameResult.x
@@ -23,7 +23,7 @@ class NoReturnSeveralOutput {
     val z: Int = testMethodNameResult.z
     val zz: String = testMethodNameResult.zz
 
-    /*end*/
+
     println(x + y + z + zz)
   }
 

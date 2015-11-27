@@ -3,8 +3,8 @@ package lang
 package completion
 package filters.modifiers
 
-import com.intellij.psi.{PsiElement, _}
 import com.intellij.psi.filters.ElementFilter
+import com.intellij.psi.{PsiElement, _}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -23,9 +23,8 @@ class ModifiersFilter extends ElementFilter {
     if (leaf != null) {
       val parent = leaf.getParent
       parent match {
-        case  _: ScClassParameter => {
+        case _: ScClassParameter =>
           return true
-        }
         case _ =>
       }
       val tuple = ScalaCompletionUtil.getForAll(parent,leaf)
