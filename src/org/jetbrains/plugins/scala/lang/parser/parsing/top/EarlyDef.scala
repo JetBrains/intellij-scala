@@ -26,21 +26,19 @@ object EarlyDef {
       case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer() //Ate {
         builder.enableNewlines
-      case _ => {
+      case _ =>
         builder error ScalaBundle.message("unreachable.error")
         earlyMarker.drop()
         return false
-      }
     }
     //this metod parse recursively PatVarDef {semi PatVarDef}
     @tailrec
     def subparse: Boolean = {
       builder.getTokenType match {
-        case ScalaTokenTypes.tRBRACE => {
+        case ScalaTokenTypes.tRBRACE =>
           builder.advanceLexer() //Ate }
           true
-        }
-        case _ => {
+        case _ =>
           if (PatVarDef parse builder) {
             builder.getTokenType match {
               case ScalaTokenTypes.tRBRACE => {
@@ -63,7 +61,6 @@ object EarlyDef {
           else {
             false
           }
-        }
       }
     }
     if (!subparse) {
@@ -75,16 +72,14 @@ object EarlyDef {
     builder.restoreNewlinesState
     //finally look for 'with' keyword
     builder.getTokenType match {
-      case ScalaTokenTypes.kWITH => {
+      case ScalaTokenTypes.kWITH =>
         earlyMarker.done(ScalaElementTypes.EARLY_DEFINITIONS)
         builder.advanceLexer() //Ate with
         true
-      }
-      case _ => {
+      case _ =>
         builder error ScalaBundle.message("unreachable.error")
         earlyMarker.rollbackTo()
         false
-      }
     }
   }
 }

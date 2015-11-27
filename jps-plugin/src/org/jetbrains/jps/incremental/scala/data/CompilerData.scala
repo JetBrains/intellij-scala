@@ -6,8 +6,7 @@ import java.io.File
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java.JavaBuilderUtil
 import org.jetbrains.jps.incremental.CompileContext
-import org.jetbrains.jps.incremental.scala.model.IncrementalityType
-import org.jetbrains.jps.incremental.scala.model.LibrarySettings
+import org.jetbrains.jps.incremental.scala.model.{IncrementalityType, LibrarySettings}
 import org.jetbrains.jps.model.java.JpsJavaSdkType
 import org.jetbrains.jps.model.module.JpsModule
 
@@ -62,7 +61,7 @@ object CompilerData {
                 .flatMap(references => Option(references.resolve)).map(_.getProperties)
       }
 
-      if (jvmSdk == Some(moduleJdk)) Right(None)
+      if (jvmSdk.contains(moduleJdk)) Right(None)
       else {
         val directory = new File(moduleJdk.getHomePath)
         Either.cond(directory.exists, Some(directory), "JDK home directory does not exists: " + directory)

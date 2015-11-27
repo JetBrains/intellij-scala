@@ -17,7 +17,7 @@ object ConstrBlock {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val constrExprMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tLBRACE => {
+      case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer() //Ate {
         builder.enableNewlines
         SelfInvocation parse builder
@@ -57,11 +57,9 @@ object ConstrBlock {
           }
         }
         true //it's trick to compiler
-      }
-      case _ => {
+      case _ =>
         constrExprMarker.drop()
         false
-      }
     }
   }
 }

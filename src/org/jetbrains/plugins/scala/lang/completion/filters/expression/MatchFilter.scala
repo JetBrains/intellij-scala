@@ -3,8 +3,8 @@ package lang
 package completion
 package filters.expression
 
-import com.intellij.psi.{PsiElement, _}
 import com.intellij.psi.filters.ElementFilter
+import com.intellij.psi.{PsiElement, _}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -17,23 +17,23 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 class MatchFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
+    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
-      val parent = leaf.getParent()
-      if (parent.isInstanceOf[ScExpression] && (parent.getParent().isInstanceOf[ScInfixExpr] ||
+      val parent = leaf.getParent
+      if (parent.isInstanceOf[ScExpression] && (parent.getParent.isInstanceOf[ScInfixExpr] ||
               parent.getParent.isInstanceOf[ScPostfixExpr])) {
         return true
       }
     }
-    return false;
+    false
   }
 
   def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
-    return true;
+    true
   }
 
   @NonNls
-  override def toString(): String = {
-    return "'match' keyword filter"
+  override def toString: String = {
+    "'match' keyword filter"
   }
 }

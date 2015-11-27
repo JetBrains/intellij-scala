@@ -2,6 +2,7 @@ package tests
 
 class Baz {
   val bar/*caret*/ = 0
+
   def foo() = {
     ba/*caret*/r match {
       case `bar/*caret*/` =>

@@ -21,7 +21,7 @@ class AddModifierQuickFix(method: ScModifierListOwner, modifier: String) extends
 
   def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = method.isValid && method.getManager.isInProject(file)
 
-  def invoke(project: Project, editor: Editor, file: PsiFile): Unit = method.setModifierProperty(modifier, true)
+  def invoke(project: Project, editor: Editor, file: PsiFile): Unit = method.setModifierProperty(modifier, value = true)
 
   def getFamilyName: String = ScalaBundle.message("add.modifier.fix", modifier)
 }

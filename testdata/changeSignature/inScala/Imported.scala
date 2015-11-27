@@ -3,11 +3,15 @@ object Test {
 }
 
 class A {
+
   import Test.bar
+
   bar()
 }
 
 class B {
+
   import Test.{bar => baz}
+
   baz()
 }

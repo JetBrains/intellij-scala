@@ -23,11 +23,10 @@ class ImplicitFilter extends ElementFilter {
     if (leaf != null) {
       val parent = leaf.getParent
       parent match {
-        case _: ScParameter => {
+        case _: ScParameter =>
           val prev = parent.getPrevSibling
           if (prev != null && prev.getNode != null &&
-                  prev.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS) return true
-        }
+            prev.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS) return true
         case _ =>
       }
     }

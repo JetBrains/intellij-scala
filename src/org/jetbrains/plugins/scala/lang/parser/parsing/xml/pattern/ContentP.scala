@@ -8,10 +8,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml._
 
+import scala.annotation.tailrec
+
 /**
-* @author Alexander Podkhalyuzin
-* Date: 18.04.2008
-*/
+  * @author Alexander Podkhalyuzin
+  *         Date: 18.04.2008
+  */
 
 /*
  *  ContentP ::= [CharData] {ContentP1 [CharData]}
@@ -32,6 +34,7 @@ object ContentP {
         builder.advanceLexer()
       case _ =>
     }
+    @tailrec
     def subparse() {
       var isReturn = false
       if (!CDSect.parse(builder) &&

@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala
 package lang.refactoring
 
 import com.intellij.codeInsight.editorActions.moveUpDown.StatementUpDownMover
-import junit.framework.Assert._
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.refactoring.mock.EditorMock
+import org.junit.Assert._
 
 /**
  * Pavel Fatin

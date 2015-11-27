@@ -65,11 +65,11 @@ public class SbtSettingsPane {
   // TODO: this is a workaround to fix SCL-8059 non-working "..." buttons
   // Investigation needed to find out why path listeners are being removed.
   public void setPathListeners() {
-    myLauncherPath.addBrowseFolderListener("Choose a custom launcher", "Choose sbt-launch.jar", null,
-        FileChooserDescriptorFactory.createSingleLocalFileDescriptor());
+    myLauncherPath.addBrowseFolderListener("Choose a Custom Launcher", "Choose sbt-launch.jar", null,
+            FileChooserDescriptorFactory.createSingleLocalFileDescriptor());
 
-    customVMPath.addBrowseFolderListener("Choose a custom VM", "Choose JRE home directory", null,
-        FileChooserDescriptorFactory.createSingleFolderDescriptor());
+    customVMPath.addBrowseFolderListener("Choose a Custom VM", "Choose JRE home directory", null,
+            FileChooserDescriptorFactory.createSingleFolderDescriptor());
   }
 
 
@@ -167,7 +167,7 @@ public class SbtSettingsPane {
     this.$$$loadButtonText$$$(myBundledButton, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.bundled"));
     panel1.add(myBundledButton, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myCustomButton = new JRadioButton();
-    this.$$$loadButtonText$$$(myCustomButton, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.custom"));
+    this.$$$loadButtonText$$$(myCustomButton, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.custom.launcher"));
     panel1.add(myCustomButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     myLauncherPath = new TextFieldWithBrowseButton();
     panel1.add(myLauncherPath, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(250, -1), null, null, 0, false));
@@ -178,7 +178,7 @@ public class SbtSettingsPane {
     this.$$$loadButtonText$$$(useIDEVMButton, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.fromProjectJDK"));
     panel2.add(useIDEVMButton, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     useCustomVMButton = new JRadioButton();
-    this.$$$loadButtonText$$$(useCustomVMButton, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.custom"));
+    this.$$$loadButtonText$$$(useCustomVMButton, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.settings.custom.jvm"));
     panel2.add(useCustomVMButton, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     customVMPath = new TextFieldWithBrowseButton();
     panel2.add(customVMPath, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, new Dimension(250, -1), null, null, 0, false));

@@ -20,14 +20,12 @@ object Bindings {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val bindingsMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tLPARENTHESIS => {
+      case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer() //Ate (
         builder.disableNewlines
-      }
-      case _ => {
+      case _ =>
         bindingsMarker.drop()
         return false
-      }
     }
     Binding parse builder
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
@@ -37,15 +35,13 @@ object Bindings {
       }
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tRPARENTHESIS => {
+      case ScalaTokenTypes.tRPARENTHESIS =>
         builder.advanceLexer() //Ate )
         builder.restoreNewlinesState
-      }
-      case _ => {
+      case _ =>
         builder.restoreNewlinesState
         bindingsMarker.rollbackTo()
         return false
-      }
     }
     val pm = bindingsMarker.precede
     bindingsMarker.done(ScalaElementTypes.PARAM_CLAUSE)

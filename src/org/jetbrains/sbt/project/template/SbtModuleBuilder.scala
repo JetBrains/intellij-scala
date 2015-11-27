@@ -54,8 +54,8 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   }
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
-    val sbtVersionComboBox            = new SComboBox[String](Array.empty)
-    val scalaVersionComboBox          = new SComboBox[String](Array.empty)
+    val sbtVersionComboBox            = new SComboBox(Array.empty)
+    val scalaVersionComboBox          = new SComboBox(Array.empty)
 
     val (scalaVersions, sbtVersions) = withProgressSynchronously("Fetching available versions") { listener =>
       listener("Fetching Scala versions...")

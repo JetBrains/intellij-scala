@@ -2,6 +2,7 @@ package tests
 
 trait Baz {
   val NameAfterRename = 0
+
   def foo() = {
     NameAfterRename match {
       case NameAfterRename =>

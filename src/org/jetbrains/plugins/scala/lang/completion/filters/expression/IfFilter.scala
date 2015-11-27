@@ -34,7 +34,7 @@ class IfFilter extends ElementFilter {
         }
         parent match {
           case clause: ScCaseClause =>
-            if (clause.guard != None) return false
+            if (clause.guard.isDefined) return false
             var position = clause.funType match {
               case Some(elem) => elem.getStartOffsetInParent
               case None => clause.getTextLength

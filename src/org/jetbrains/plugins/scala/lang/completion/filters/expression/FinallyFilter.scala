@@ -3,8 +3,8 @@ package lang
 package completion
 package filters.expression
 
-import com.intellij.psi.{PsiElement, _}
 import com.intellij.psi.filters.ElementFilter
+import com.intellij.psi.{PsiElement, _}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -19,28 +19,28 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 class FinallyFilter extends ElementFilter{
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context);
+    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
       val parent = leaf.getParent
       var i = getPrevNotWhitespaceAndComment(context.getTextRange.getStartOffset - 1, context)
       var leaf1 = getLeafByOffset(i, context)
       while (leaf1 != null && !leaf1.isInstanceOf[ScTryStmt]) leaf1 = leaf1.getParent
       if (leaf1 == null) return false
-      if (leaf1.getNode.getChildren(null).map(_.getElementType == ScalaElementTypes.FINALLY_BLOCK).contains(true)) return false
+      if (leaf1.getNode.getChildren(null).exists(_.getElementType == ScalaElementTypes.FINALLY_BLOCK)) return false
       i = getNextNotWhitespaceAndComment(context.getTextRange.getEndOffset, context)
       if (Array("catch", "finally").contains(getLeafByOffset(i, context).getText)) return false
       return true
     }
-    return false;
+    false
   }
 
   def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
-    return true;
+    true
   }
 
   @NonNls
   override def toString: String = {
-    return "statements keyword filter"
+    "statements keyword filter"
   }
 
   def getPrevNotWhitespaceAndComment(index: Int, context: PsiElement): Int = {
@@ -51,7 +51,7 @@ class FinallyFilter extends ElementFilter{
     val leaf = getLeafByOffset(i, context)
     if (leaf.isInstanceOf[PsiComment] || leaf.isInstanceOf[ScDocComment])
       return getPrevNotWhitespaceAndComment(leaf.getTextRange.getStartOffset - 1, context)
-    return i
+    i
   }
 
   def getNextNotWhitespaceAndComment(index: Int, context: PsiElement): Int = {
@@ -62,6 +62,6 @@ class FinallyFilter extends ElementFilter{
     val leaf = getLeafByOffset(i, context)
     if (leaf.isInstanceOf[PsiComment] || leaf.isInstanceOf[ScDocComment])
       return getNextNotWhitespaceAndComment(leaf.getTextRange.getEndOffset, context)
-    return i
+    i
   }
 }

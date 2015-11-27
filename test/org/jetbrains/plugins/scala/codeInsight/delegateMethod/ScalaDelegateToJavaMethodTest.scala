@@ -4,9 +4,9 @@ package codeInsight.delegateMethod
 import com.intellij.testFramework.IdeaTestUtil
 import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
 import com.intellij.testFramework.fixtures.{JavaCodeInsightFixtureTestCase, ModuleFixture}
-import junit.framework.Assert._
 import org.jetbrains.plugins.scala.codeInsight.delegate.ScalaGenerateDelegateHandler
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.junit.Assert._
 
 /**
  * Nikolay.Tropin

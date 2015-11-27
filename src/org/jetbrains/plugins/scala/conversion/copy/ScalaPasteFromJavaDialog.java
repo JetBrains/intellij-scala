@@ -5,6 +5,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings;
 
 import javax.swing.*;
@@ -25,7 +26,7 @@ public class ScalaPasteFromJavaDialog extends DialogWrapper {
     myProject = project;
     setModal(true);
     getRootPane().setDefaultButton(buttonOK);
-    setTitle("Convert code from Java");
+    setTitle("Convert Code from Java");
     init();
   }
 
@@ -37,6 +38,7 @@ public class ScalaPasteFromJavaDialog extends DialogWrapper {
     return myPanel;
   }
 
+  @NotNull
   protected Action[] createActions() {
     return new Action[]{getOKAction(), getCancelAction()};
   }

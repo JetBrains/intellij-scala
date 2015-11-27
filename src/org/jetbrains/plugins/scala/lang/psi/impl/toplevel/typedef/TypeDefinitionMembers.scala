@@ -197,6 +197,10 @@ object TypeDefinitionMembers {
       for (td <- template.syntheticTypeDefinitions) {
         td match {
           case obj: ScObject => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+          case td: ScTypeDefinition =>
+            td.fakeCompanionModule match {
+              case Some(obj) => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+            }
           case _ =>
         }
       }
@@ -461,6 +465,10 @@ object TypeDefinitionMembers {
       for (td <- template.syntheticTypeDefinitions) {
         td match {
           case obj: ScObject => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+          case td: ScTypeDefinition =>
+            td.fakeCompanionModule match {
+              case Some(obj) => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+            }
           case _ =>
         }
       }

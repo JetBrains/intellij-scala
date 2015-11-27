@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 class ScalaImportStaticLookupActionProvider extends LookupActionProvider {
   def fillActions(element: LookupElement, lookup: Lookup, consumer: Consumer[LookupElementAction]) {
     element match {
-      case elem: ScalaLookupItem if elem.element.isInstanceOf[PsiClass] => return
+      case elem: ScalaLookupItem if elem.element.isInstanceOf[PsiClass] =>
       case elem: ScalaLookupItem =>
         if (!elem.isClassName) return
         if (elem.usedImportStaticQuickfix) return

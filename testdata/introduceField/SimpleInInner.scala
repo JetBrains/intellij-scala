@@ -13,9 +13,8 @@ class Test {
 /*selectedClassNumber = 0*/
 class Test {
   object A {
-    /*start*/
     var i: Int = 1
-    i/*end*/
+    i
   }
   def foo() {
     1

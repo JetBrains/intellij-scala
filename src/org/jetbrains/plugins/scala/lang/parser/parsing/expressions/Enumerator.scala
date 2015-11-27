@@ -29,33 +29,30 @@ object Enumerator {
           builder error ErrMsg("wrong.pattern")
           enumMarker.done(ScalaElementTypes.ENUMERATOR)
           return true
-        } else if (!Guard.parse(builder, true)) {
+        } else if (!Guard.parse(builder, noIf = true)) {
           enumMarker.rollbackTo()
           return false
         } else {
-          enumMarker.drop
+          enumMarker.drop()
           return true
         }
       }
       builder.getTokenType match {
-        case ScalaTokenTypes.tASSIGN => {
+        case ScalaTokenTypes.tASSIGN =>
           builder.advanceLexer //Ate =
-        }
-        case ScalaTokenTypes.tCHOOSE => {
+        case ScalaTokenTypes.tCHOOSE =>
           enumMarker.rollbackTo
           return Generator parse builder
-        }
-        case _ => {
+        case _ =>
           if (!f) {
             builder error ErrMsg("choose.expected")
             enumMarker.done(ScalaElementTypes.ENUMERATOR)
           }
           else {
             enumMarker.rollbackTo
-            Guard.parse(builder, true)
+            Guard.parse(builder, noIf = true)
           }
           return true
-        }
       }
       if (!Expr.parse(builder)) {
         builder error ErrMsg("wrong.expression")
@@ -65,18 +62,15 @@ object Enumerator {
     }
 
     builder.getTokenType match {
-      case ScalaTokenTypes.kIF => {
+      case ScalaTokenTypes.kIF =>
         Guard parse builder
         enumMarker.drop
         return true
-      }
-      case ScalaTokenTypes.kVAL => {
+      case ScalaTokenTypes.kVAL =>
         builder.advanceLexer //Ate val
         return parseNonGuard(false)
-      }
-      case _ => {
+      case _ =>
         return parseNonGuard(true)
-      }
     }
   }
 }

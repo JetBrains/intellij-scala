@@ -6,6 +6,6 @@ object A {
 import java.util.AbstractMap.SimpleEntry
 
 object A {
-  val simpleEntry: /*start*/SimpleEntry/*end*/ = null
+  val simpleEntry: SimpleEntry = null
 }
 */

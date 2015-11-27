@@ -23,15 +23,14 @@ object ValDcl {
     val returnMarker = builder.mark
     //Look for val
     builder.getTokenType match {
-      case ScalaTokenTypes.kVAL => builder.advanceLexer //Ate val
-      case _ => {
+      case ScalaTokenTypes.kVAL => builder.advanceLexer() //Ate val
+      case _ =>
         returnMarker.rollbackTo
         return false
-      }
     }
     //Look for identifier
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
+      case ScalaTokenTypes.tIDENTIFIER =>
         Ids parse builder
         //Look for :
         builder.getTokenType match {
@@ -61,12 +60,10 @@ object ValDcl {
             return true
           }
         }
-      }
-      case _ => {
+      case _ =>
         builder error ErrMsg("identifier.expected")
         returnMarker.drop
         return false
-      }
     }
   }
 }

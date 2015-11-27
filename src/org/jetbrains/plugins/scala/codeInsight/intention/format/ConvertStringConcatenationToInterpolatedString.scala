@@ -17,6 +17,6 @@ class ConvertStringConcatenationToInterpolatedString extends AbstractFormatConve
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     if (!super.isAvailable(project: Project, editor: Editor, element: PsiElement)) return false
-    element.languageLevel >= Scala_2_10
+    element.scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default) >= Scala_2_10
   }
 }

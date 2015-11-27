@@ -1,16 +1,16 @@
 class CallByNameInput {
   def foo(x: => Int) {
-    /*start*/
+/*start*/
     x + 44
-    /*end*/
+/*end*/
   }
 }
 /*
 class CallByNameInput {
   def foo(x: => Int) {
-    /*start*/
+
     testMethodName(x)
-    /*end*/
+
   }
 
   def testMethodName(x: => Int): Unit = {

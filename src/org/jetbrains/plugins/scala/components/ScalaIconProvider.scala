@@ -27,7 +27,7 @@ class ScalaIconProvider extends IconProvider {
           val clazz = clazzIterator.next()
           if (name.equals(clazz.name)) return clazz.getIcon(flags)
         }
-        if (!defs.isEmpty) return defs(0).getIcon(flags)
+        if (defs.nonEmpty) return defs.head.getIcon(flags)
       case _ =>
     }
     null

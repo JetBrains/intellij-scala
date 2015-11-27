@@ -94,8 +94,8 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
                   case a: AbsentInformationException => true
                 }
             }
-            if (filtered.length == 0) jdiMethod = sortedMethodCandidates(0)
-            else if (filtered.length == 1) jdiMethod = filtered(0)
+            if (filtered.isEmpty) jdiMethod = sortedMethodCandidates.head
+            else if (filtered.length == 1) jdiMethod = filtered.head
             else {
               val newFiltered = filtered.filter(m => {
                 var result = true
@@ -113,10 +113,10 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
                 result
               })
               if (newFiltered.isEmpty)
-                jdiMethod = filtered(0)
-              else jdiMethod = newFiltered(0)
+                jdiMethod = filtered.head
+              else jdiMethod = newFiltered.head
             }
-          } else if (sortedMethodCandidates.length == 1) jdiMethod = sortedMethodCandidates(0)
+          } else if (sortedMethodCandidates.length == 1) jdiMethod = sortedMethodCandidates.head
         }
         jdiMethod
       }

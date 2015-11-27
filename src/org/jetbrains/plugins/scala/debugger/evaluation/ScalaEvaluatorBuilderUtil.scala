@@ -229,7 +229,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
     if (synth.isStringPlusMethod && arguments.length == 1) {
       val qualText = qualOpt.fold("this")(_.getText)
-      val exprText = s"($qualText).concat(_root_.java.lang.String.valueOf(${arguments(0).getText}))"
+      val exprText = s"($qualText).concat(_root_.java.lang.String.valueOf(${arguments.head.getText}))"
       val expr = ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, ref.getContext, ref)
       return evaluatorFor(expr)
     }
@@ -255,7 +255,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           case None => new ScalaThisEvaluator()
           case Some(qual) => evaluatorFor(qual)
         }
-        function(eval, argEvaluators(0))
+        function(eval, argEvaluators.head)
       } else throw EvaluationException(ScalaBundle.message("wrong.number.of.arguments", operatorName))
     }
     def binaryEvalForBoxes(operatorName: String, boxesName: String): Evaluator = {
@@ -340,7 +340,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val message = ScalaBundle.message("wrong.number.of.arguments", s"Array.$name")
     name match {
       case "apply" =>
-        if (argEvaluators.length == 1) new ScalaArrayAccessEvaluator(qualEval, argEvaluators(0))
+        if (argEvaluators.length == 1) new ScalaArrayAccessEvaluator(qualEval, argEvaluators.head)
         else throw EvaluationException(message)
       case "length" =>
         if (argEvaluators.isEmpty) new ScalaFieldEvaluator(qualEval, "length")
@@ -350,7 +350,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         else throw EvaluationException(message)
       case "update" =>
         if (argEvaluators.length == 2) {
-          val leftEval = new ScalaArrayAccessEvaluator(qualEval, argEvaluators(0))
+          val leftEval = new ScalaArrayAccessEvaluator(qualEval, argEvaluators.head)
           new AssignmentEvaluator(leftEval, unboxEvaluator(argEvaluators(1)))
         } else throw EvaluationException(message)
       case "toString" =>
@@ -387,7 +387,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   def classOfFunctionEvaluator(ref: ScReferenceExpression) = {
     val clazzJVMName = ref.getContext match {
       case gen: ScGenericCall =>
-        gen.arguments.apply(0).getType(TypingContext.empty).map(tp => {
+        gen.arguments.head.getType(TypingContext.empty).map(tp => {
           ScType.extractClass(tp, Some(ref.getProject)) match {
             case Some(clazz) =>
               DebuggerUtil.getClassJVMName(clazz)
@@ -420,7 +420,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       evaluatorFor(newExpr)
     }
     if (exprsForP.length == 1) {
-      exprsForP(0) match {
+      exprsForP.head match {
         case t: ScTypedStmt if t.isSequenceArg => evaluatorFor(t.expr)
         case _ => seqEvaluator
       }

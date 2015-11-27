@@ -8,7 +8,9 @@ object Baz2 extends Baz {
   override val NameAfterRename = 3
 }
 
-object Baz3 extends {override val NameAfterRename = 1} with Baz
+object Baz3 extends {
+  override val NameAfterRename = 1
+} with Baz
 
 object Test {
   Baz2.NameAfterRename

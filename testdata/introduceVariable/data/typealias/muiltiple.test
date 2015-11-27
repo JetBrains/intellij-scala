@@ -9,6 +9,7 @@ object My {
   class B {
     def bar(): Double = 45.0
   }
+
 }
 ---------------
 object My {
@@ -23,4 +24,5 @@ object My {
   class B {
     def bar(): D = 45.0
   }
+
 }

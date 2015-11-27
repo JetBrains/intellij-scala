@@ -1,11 +1,11 @@
 object WithSemicolon {
   def foo(i: Int) {
-    /*start*/
+/*start*/
 
     val y = 0
     println(i)
     y + 1
-    /*end*/
+/*end*/
   }
 
   def foofoo() {
@@ -17,10 +17,10 @@ object WithSemicolon {
 /*
 object WithSemicolon {
   def foo(i: Int) {
-    /*start*/
+
 
     testMethodName(i)
-    /*end*/
+
   }
 
   def testMethodName(i: Int): Unit = {

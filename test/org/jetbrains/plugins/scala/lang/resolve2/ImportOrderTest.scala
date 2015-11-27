@@ -10,11 +10,11 @@ class ImportOrderTest extends ResolveTestBase {
     super.folderPath + "import/order/"
   }
 
-  def testBlock = doTest
-  def testClass = doTest
-  def testFile = doTest
-  def testOuterBlockNested = doTest
-  def testObject = doTest
-  def testOuterBlock = doTest
-  def testTrait = doTest
+  def testBlock() = doTest()
+  def testClass() = doTest()
+  def testFile() = doTest()
+  def testOuterBlockNested() = doTest()
+  def testObject() = doTest()
+  def testOuterBlock() = doTest()
+  def testTrait() = doTest()
 }

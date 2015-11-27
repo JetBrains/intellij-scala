@@ -4,9 +4,11 @@ class Test {
   object A {
     /*start*/1/*end*/
   }
+
   def foo() {
     1
   }
+
   1
 }
 
@@ -17,11 +19,13 @@ class Test {
   var i: Int = 1
 
   object A {
-    /*start*/i/*end*/
+    i
   }
+
   def foo() {
     i
   }
+
   i
 }
 */

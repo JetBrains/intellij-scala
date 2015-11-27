@@ -10,8 +10,8 @@ class FunctionUnaryTest extends ResolveTestBase {
     super.folderPath + "function/unary/"
   }
 
-  def testParenthesisedPrefix = doTest
-  def testUnary = doTest
-  def testUnaryIllegal = doTest
-  def testUnaryParameter = doTest
+  def testParenthesisedPrefix() = doTest()
+  def testUnary() = doTest()
+  def testUnaryIllegal() = doTest()
+  def testUnaryParameter() = doTest()
 }

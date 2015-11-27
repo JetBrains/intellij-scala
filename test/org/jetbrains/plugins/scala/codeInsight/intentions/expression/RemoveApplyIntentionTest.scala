@@ -70,7 +70,7 @@ class RemoveApplyIntentionTest extends ScalaIntentionTestBase {
 
   def testRemoveApply5() {
     val text = "(foo()).a<caret>pply(1)"
-    val resultText = "(foo())<caret>(1)"
+    val resultText = "(foo())<caret> (1)"
 
     doTest(text, resultText)
   }

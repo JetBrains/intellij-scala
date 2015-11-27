@@ -8,7 +8,6 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
@@ -25,7 +24,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
     file match {
       case file: ScalaFile if IntentionAvailabilityChecker.checkInspection(this, file) =>
         if (file.isScriptFile()) return null
-        if (file.typeDefinitions.length == 0) return null
+        if (file.typeDefinitions.isEmpty) return null
 
         val dir = file.getContainingDirectory
         if (dir == null) return null

@@ -2,11 +2,11 @@ class DefEmptyParam {
   def foo {
     def goo(): Int = 435
 
-    /*start*/
+/*start*/
 
     val g = goo
     val f = goo()
-    /*end*/
+/*end*/
     f
   }
 }
@@ -15,10 +15,10 @@ class DefEmptyParam {
   def foo {
     def goo(): Int = 435
 
-    /*start*/
+
 
     val f: Int = testMethodName(goo _)
-    /*end*/
+
     f
   }
 

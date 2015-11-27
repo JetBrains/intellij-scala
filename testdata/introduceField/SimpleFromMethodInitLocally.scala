@@ -10,8 +10,8 @@ class Test {
   var i: Int = _
 
   def foo() {
-    /*start*/ i = 1
-    i/*end*/
+    i = 1
+    i
   }
 }
 */

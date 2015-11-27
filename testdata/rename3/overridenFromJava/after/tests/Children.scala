@@ -9,7 +9,9 @@ object Child1 extends Base {
   x.NameAfterRename()
 }
 
-class Child2 extends {override val NameAfterRename = 1} with Base {
+class Child2 extends {
+  override val NameAfterRename = 1
+} with Base {
   NameAfterRename
 }
 

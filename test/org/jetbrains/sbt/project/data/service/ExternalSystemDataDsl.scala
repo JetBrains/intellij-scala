@@ -5,6 +5,8 @@ import com.intellij.openapi.externalSystem.model.project.LibraryLevel
 import com.intellij.openapi.module.StdModuleTypes
 import org.jetbrains.sbt.project.data._
 
+import scala.language.implicitConversions
+
 /**
  * DSL for building External System DataNodes in runtime.
  *

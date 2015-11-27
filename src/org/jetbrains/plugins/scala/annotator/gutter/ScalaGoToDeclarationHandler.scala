@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScSelfInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 
 /**
@@ -43,12 +43,11 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
 
     if (sourceElement.getNode.getElementType == ScalaTokenTypes.kTHIS) {
       sourceElement.getParent match {
-        case self: ScSelfInvocation => {
+        case self: ScSelfInvocation =>
           self.bind match {
             case Some(elem) => return Array(elem)
             case None => return null
           }
-        }
         case _ => return null
       }
     }

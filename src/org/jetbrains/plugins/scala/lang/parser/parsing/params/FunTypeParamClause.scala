@@ -21,26 +21,24 @@ object FunTypeParamClause {
     val funMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET =>
-        builder.advanceLexer //Ate [
+        builder.advanceLexer() //Ate [
         builder.disableNewlines
-      case _ => {
+      case _ =>
         funMarker.drop
         return false
-      }
     }
-    if (!TypeParam.parse(builder, false)) {
+    if (!TypeParam.parse(builder, mayHaveVariance = false)) {
       builder error ErrMsg("wrong.parameter")
     }
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
-      builder.advanceLexer //Ate
-      if (!TypeParam.parse(builder, false)) {
+      builder.advanceLexer() //Ate
+      if (!TypeParam.parse(builder, mayHaveVariance = false)) {
         builder error ErrMsg("wrong.parameter")
       }
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tRSQBRACKET => {
+      case ScalaTokenTypes.tRSQBRACKET =>
         builder.advanceLexer //Ate ]
-      }
       case _ => builder error ErrMsg("wrong.parameter")
     }
     builder.restoreNewlinesState

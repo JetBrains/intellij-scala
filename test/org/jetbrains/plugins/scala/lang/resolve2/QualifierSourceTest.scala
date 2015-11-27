@@ -10,9 +10,9 @@ class QualifierSourceTest extends ResolveTestBase {
     super.folderPath + "qualifier/source/"
   }
 
-  def testChainLong = doTest
-  def testChainDeep = doTest
-  def testPackage = doTest
+  def testChainLong() = doTest()
+  def testChainDeep() = doTest()
+  def testPackage() = doTest()
   //TODO getClass
 //  def testPackageAsValue = doTest
   //TODO packageobject

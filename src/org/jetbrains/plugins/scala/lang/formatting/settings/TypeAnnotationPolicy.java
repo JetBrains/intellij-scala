@@ -9,7 +9,7 @@ public enum TypeAnnotationPolicy {
 
   private String myDescription;
 
-  private TypeAnnotationPolicy(String description) {
+  TypeAnnotationPolicy(String description) {
     myDescription = description;
   }
 

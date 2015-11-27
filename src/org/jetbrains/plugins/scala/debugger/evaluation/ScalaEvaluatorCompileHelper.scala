@@ -19,9 +19,9 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent._
 import scala.concurrent.duration.Duration
-import scala.util.{Failure, Try}
 
 /**
  * Nikolay.Tropin
@@ -31,28 +31,35 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
 
   private val tempFiles = mutable.Set[File]()
 
-  override def projectOpened(): Unit = {
-    if (ApplicationManager.getApplication.isUnitTestMode) return
-
-    DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(
-      new DebuggerManagerAdapter {
-        override def sessionAttached(session: DebuggerSession): Unit = {
-          if (EvaluatorCompileHelper.needCompileServer && project.hasScala) {
-            CompileServerLauncher.ensureServerRunning(project)
-          }
-        }
-
-        override def sessionDetached(session: DebuggerSession) = {
-          for (f <- tempFiles) {
-            FileUtil.delete(f)
-          }
-
-          if (!ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED && EvaluatorCompileHelper.needCompileServer) {
-            CompileServerLauncher.ensureNotRunning(project)
-          }
-        }
+  private val listener = new DebuggerManagerAdapter {
+    override def sessionAttached(session: DebuggerSession): Unit = {
+      if (EvaluatorCompileHelper.needCompileServer && project.hasScala) {
+        CompileServerLauncher.ensureServerRunning(project)
       }
-    )
+    }
+
+    override def sessionDetached(session: DebuggerSession) = {
+      clearTempFiles()
+
+      if (!ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED && EvaluatorCompileHelper.needCompileServer) {
+        CompileServerLauncher.ensureNotRunning(project)
+      }
+    }
+  }
+
+  override def projectOpened(): Unit = {
+    if (!ApplicationManager.getApplication.isUnitTestMode) {
+      DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(listener)
+    }
+  }
+
+  override def projectClosed(): Unit = {
+    DebuggerManagerEx.getInstanceEx(project).removeDebuggerManagerListener(listener)
+  }
+
+  private def clearTempFiles() = {
+    tempFiles.foreach(FileUtil.delete)
+    tempFiles.clear()
   }
 
   def tempDir() = {
@@ -72,14 +79,22 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
     val outputDir = tempDir()
     val file = writeToTempFile(fileText)
     val connector = new ServerConnector(module, file, outputDir)
-    val futureFiles = connector.compile()
-    try Await.result(futureFiles, Duration(5, TimeUnit.SECONDS))
+    val futureFiles = Future(connector.compile())
+    val timeToWait =
+      if (ApplicationManager.getApplication.isUnitTestMode) Duration(20, TimeUnit.SECONDS)
+      else Duration(5, TimeUnit.SECONDS)
+    try {
+      Await.result(futureFiles, timeToWait) match {
+        case Left(files) => files
+        case Right(errors) => throw EvaluationException(errors.mkString("\n"))
+      }
+    }
     catch {
       case _: TimeoutException => throw EvaluationException("Too long compilation")
       case e: Exception => throw EvaluationException("Could not compile:\n" + e.getMessage)
     }
   }
-  
+
   def writeToTempFile(text: String): File = {
     val file = tempFile()
     FileUtil.writeToFile(file, text)
@@ -115,16 +130,15 @@ private class ServerConnector(module: Module, file: File, outputDir: File) exten
     case files => files.map(f => (f, s"$namePrefix${f.getName}".stripSuffix(".class")))
   }
 
-  def compile(): Future[Array[(File, String)]] = {
+  def compile(): Either[Array[(File, String)], Seq[String]] = {
     val project = module.getProject
 
     val compilationProcess = new RemoteServerRunner(project).buildProcess(arguments, client)
-    val promise = Promise[Array[(File, String)]]()
+    var result: Either[Array[(File, String)], Seq[String]] = Right(Seq("Compilation failed"))
     compilationProcess.addTerminationCallback {
-      if (errors.nonEmpty) promise.complete(Failure(EvaluationException(errors.mkString("\n"))))
-      else promise.complete(Try(classfiles(outputDir)))
+      result = if (errors.nonEmpty) Right(errors) else Left(classfiles(outputDir))
     }
     compilationProcess.run()
-    promise.future
+    result
   }
 }

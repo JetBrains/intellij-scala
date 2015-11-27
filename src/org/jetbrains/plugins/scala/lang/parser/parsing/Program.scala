@@ -24,7 +24,7 @@ object Program {
     if (!builder.eof()) {
       while (!builder.eof()) {
         builder error ErrMsg("out.of.compilation.unit")
-        builder.advanceLexer
+        builder.advanceLexer()
       }
     }
 

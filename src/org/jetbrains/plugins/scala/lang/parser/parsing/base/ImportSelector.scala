@@ -16,18 +16,16 @@ object ImportSelector {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val importSelectorMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
+      case ScalaTokenTypes.tIDENTIFIER =>
         val sel = builder.mark()
         builder.advanceLexer // Ate identifier
         sel.done(ScalaElementTypes.REFERENCE)
-      }
-      case _ => {
+      case _ =>
         importSelectorMarker.drop
         return false
-      }
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tFUNTYPE => {
+      case ScalaTokenTypes.tFUNTYPE =>
         builder.advanceLexer //Ate =>
         builder.getTokenType match {
           case ScalaTokenTypes.tUNDER | ScalaTokenTypes.tIDENTIFIER => {
@@ -41,11 +39,9 @@ object ImportSelector {
             return true
           }
         }
-      }
-      case _ => {
+      case _ =>
         importSelectorMarker.done(ScalaElementTypes.IMPORT_SELECTOR)
         return true
-      }
     }
   }
 }

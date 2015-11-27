@@ -6,24 +6,16 @@ package inline
 import java.io.File
 
 import com.intellij.ide.DataManager
-import com.intellij.lang.refactoring.InlineActionHandler
 import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.extensions.Extensions
-import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.refactoring.RefactoringBundle
 import com.intellij.refactoring.actions.BaseRefactoringAction
 import com.intellij.refactoring.inline.GenericInlineHandler
-import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.refactoring.util.CommonRefactoringUtil.RefactoringErrorHintException
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineHandler
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
@@ -84,10 +76,9 @@ abstract class InlineRefactoringTestBase extends ScalaLightPlatformCodeInsightTe
       case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
       case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
         text.substring(2, text.length - 2).trim
-      case _ => {
+      case _ =>
         assertTrue("Test result must be in last comment statement.", false)
         ""
-      }
     }
     assertEquals(output, res.trim.trim.replace(caretMarker, ""))
   }

@@ -8,10 +8,12 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher
 
+import scala.annotation.tailrec
+
 /**
-* @author Alexander Podkhalyuzin
-* Date: 18.04.2008
-*/
+  * @author Alexander Podkhalyuzin
+  *         Date: 18.04.2008
+  */
 
 /*
  *  Content ::= [CharData] {Content1 [CharData]}
@@ -31,14 +33,15 @@ object Content {
         builder.advanceLexer()
       case _ =>
     }
-    
+
     val patcher = ParserPatcher.getSuitablePatcher(builder)
-    
+
+    @tailrec
     def subparse() {
       var isReturn = false
       if (!XmlContent.parse(builder) &&
-              !Reference.parse(builder) &&
-              !ScalaExpr.parse(builder) && !patcher.parse(builder)) isReturn = true
+        !Reference.parse(builder) &&
+        !ScalaExpr.parse(builder) && !patcher.parse(builder)) isReturn = true
       builder.getTokenType match {
         case ScalaXmlTokenTypes.XML_DATA_CHARACTERS =>
           builder.advanceLexer()

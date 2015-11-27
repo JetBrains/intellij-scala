@@ -7,6 +7,6 @@ import java.lang.Boolean
 import java.util.Comparator
 
 object A {
-  val comparator: /*start*/Comparator[Boolean]/*end*/ = null
+  val comparator: Comparator[Boolean] = null
 }
 */

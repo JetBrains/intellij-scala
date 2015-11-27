@@ -20,12 +20,12 @@ object ImplicitClassParamClause {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val classParamMarker = builder.mark
     if (builder.twoNewlinesBeforeCurrentToken) {
-      classParamMarker.rollbackTo
+      classParamMarker.rollbackTo()
       return false
     }
     //Look for '('
     builder.getTokenType match {
-      case ScalaTokenTypes.tLPARENTHESIS => {
+      case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer //Ate '('
         builder.disableNewlines
         //Look for implicit
@@ -52,25 +52,21 @@ object ImplicitClassParamClause {
             return false
           }
         }
-      }
-      case _ => {
+      case _ =>
         classParamMarker.rollbackTo
         return false
-      }
     }
     //Look for ')'
     builder.getTokenType match {
-      case ScalaTokenTypes.tRPARENTHESIS => {
+      case ScalaTokenTypes.tRPARENTHESIS =>
         builder.advanceLexer //Ate )
         builder.restoreNewlinesState
         classParamMarker.done(ScalaElementTypes.PARAM_CLAUSE)
         return true
-      }
-      case _ => {
+      case _ =>
         builder.restoreNewlinesState
         classParamMarker.rollbackTo
         return false
-      }
     }
   }
 }

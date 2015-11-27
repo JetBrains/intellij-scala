@@ -25,9 +25,8 @@ object TemplateBody {
     //Look for {
     builder.enableNewlines
     builder.getTokenType match {
-      case ScalaTokenTypes.tLBRACE => {
+      case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer() //Ate {
-      }
       case _ => builder error ScalaBundle.message("lbrace.expected")
     }
     SelfType parse builder
@@ -35,15 +34,13 @@ object TemplateBody {
     @tailrec
     def subparse(): Boolean = {
       builder.getTokenType match {
-        case ScalaTokenTypes.tRBRACE => {
+        case ScalaTokenTypes.tRBRACE =>
           builder.advanceLexer() //Ate }
           true
-        }
-        case null => {
+        case null =>
           builder error ScalaBundle.message("rbrace.expected")
           true
-        }
-        case _ => {
+        case _ =>
           if (TemplateStat parse builder) {
             builder.getTokenType match {
               case ScalaTokenTypes.tRBRACE => {
@@ -69,7 +66,6 @@ object TemplateBody {
             builder.advanceLexer() //Ate something
             subparse()
           }
-        }
       }
     }
     subparse()

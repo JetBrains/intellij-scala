@@ -10,8 +10,8 @@ class ImportScopeClashTest extends ResolveTestBase {
     super.folderPath + "import/scope/clash/"
   }
 
-  def testInnerBlock = doTest
-  def testOuterBlock = doTest
-  def testOuterBlockNested = doTest
-  def testTwoBlocks = doTest
+  def testInnerBlock() = doTest()
+  def testOuterBlock() = doTest()
+  def testOuterBlockNested() = doTest()
+  def testTwoBlocks() = doTest()
 }

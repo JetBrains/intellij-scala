@@ -7,7 +7,6 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
-import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -100,7 +99,7 @@ object ScalaCompletionUtil {
     }
     var candidate: PsiElement = element.getContainingFile
     if (candidate == null || candidate.getNode == null) return null
-    while (candidate.getNode.getChildren(null).length > 0) {
+    while (candidate.getNode.getChildren(null).nonEmpty) {
       candidate = candidate.findElementAt(offset)
       if (candidate == null || candidate.getNode == null) return null
     }

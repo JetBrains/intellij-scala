@@ -8,24 +8,28 @@ import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.builders.java.dependencyView.Callbacks
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.OutputConsumer
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
+import org.jetbrains.jps.incremental.scala.local.PackageObjectsData.packageObjectClassName
 import org.jetbrains.jps.incremental.{CompileContext, Utils}
 import org.jetbrains.org.objectweb.asm.ClassReader
 
 import scala.collection._
+import scala.collection.mutable.ArrayBuffer
 
 /**
- * Nikolay.Tropin
- * 11/18/13
- */
+  * Nikolay.Tropin
+  * 11/18/13
+  */
 class IdeClientIdea(compilerName: String,
-                      context: CompileContext,
-                      modules: Seq[String],
-                      consumer: OutputConsumer,
-                      mappingsCallback: Callbacks.Backend,
-                      successfullyCompiled: mutable.Set[File])
-        extends IdeClient(compilerName, context, modules, consumer) {
+                    context: CompileContext,
+                    modules: Seq[String],
+                    consumer: OutputConsumer,
+                    mappingsCallback: Callbacks.Backend,
+                    successfullyCompiled: mutable.Set[File],
+                    packageObjectsData: PackageObjectsData)
+  extends IdeClient(compilerName, context, modules, consumer) {
 
-  val tempSuccessfullyCompiled: mutable.Set[File] = mutable.Set[File]()
+  private val tempSuccessfullyCompiled = mutable.Set[File]()
+  private val packageObjectsBaseClasses = ArrayBuffer[PackageObjectBaseClass]()
 
   //logic is taken from org.jetbrains.jps.incremental.java.OutputFilesSink.save
   def generated(source: File, outputFile: File, name: String): Unit = {
@@ -53,6 +57,9 @@ class IdeClientIdea(compilerName: String,
         try {
           val reader: ClassReader = new ClassReader(content.getBuffer, content.getOffset, content.getLength)
           mappingsCallback.associate(FileUtil.toSystemIndependentName(outputFile.getPath), sourcePath, reader)
+          if (outputFile.getName == s"$packageObjectClassName.class") {
+            collectPackageObjectData(source, reader)
+          }
         }
         catch {
           case e: Throwable =>
@@ -74,4 +81,49 @@ class IdeClientIdea(compilerName: String,
       tempSuccessfullyCompiled -= source
     }
   }
+
+  override def compilationEnd(): Unit = {
+    persistPackageObjectData()
+  }
+
+  private def collectPackageObjectData(source: File, reader: ClassReader): Unit = {
+    val baseTypes: Array[String] = {
+      val superClass = reader.getSuperName match {
+        case "java/lang/Object" => None
+        case sName => Some(sName)
+      }
+      val interfaces = reader.getInterfaces
+      interfaces ++ superClass
+    }
+    val className = reader.getClassName
+    val packageName = className.stripSuffix(packageObjectClassName).replace("/", ".")
+    baseTypes.foreach { sName =>
+      val nameWithDots = sName.replace('/', '.')
+      val packObjectBaseClass = PackageObjectBaseClass(source, packageName, nameWithDots)
+      if (!packageObjectsBaseClasses.contains(packObjectBaseClass)) {
+        packageObjectsBaseClasses += packObjectBaseClass
+      }
+    }
+  }
+
+  private def persistPackageObjectData(): Unit = {
+    val compiledClasses = consumer.getCompiledClasses
+    packageObjectsBaseClasses.foreach { item =>
+      compiledClasses.get(item.baseClassName) match {
+        case null =>
+        case cc =>
+          val className = cc.getClassName
+          if (className != null && className.startsWith(item.packageName)) {
+            val baseClassSource = cc.getSourceFile
+            packageObjectsData.add(baseClassSource, item.packObjectSrc)
+          }
+      }
+    }
+
+    packageObjectsData.save(context)
+  }
+
+  private case class PackageObjectBaseClass(packObjectSrc: File, packageName: String, baseClassName: String)
+
 }
+

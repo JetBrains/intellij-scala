@@ -20,7 +20,7 @@ object Packaging {
   def parse(builder: ScalaPsiBuilder):Boolean = {
     val packMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.kPACKAGE => {
+      case ScalaTokenTypes.kPACKAGE =>
         builder.advanceLexer() //Ate package
         if (!(Qual_Id parse builder)) {
           packMarker.drop()
@@ -38,7 +38,7 @@ object Packaging {
             builder.enableNewlines
             ParserUtils.parseLoopUntilRBrace(builder, () => {
               //parse packaging body
-              TopStatSeq parse (builder, true)
+              TopStatSeq parse(builder, true)
             })
             builder.restoreNewlinesState
             packMarker.done(ScalaElementTypes.PACKAGING)
@@ -50,13 +50,11 @@ object Packaging {
             true
           }
         }
-      }
-      case _ => {
+      case _ =>
         //this code shouldn't be reachable, if it is, this is unexpected error
         builder error ScalaBundle.message("unreachable.error")
         packMarker.drop()
         false
-      }
     }
   }
 }

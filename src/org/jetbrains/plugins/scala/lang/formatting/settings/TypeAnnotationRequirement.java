@@ -10,7 +10,7 @@ public enum TypeAnnotationRequirement {
 
   private String myDescription;
 
-  private TypeAnnotationRequirement(String description) {
+  TypeAnnotationRequirement(String description) {
     myDescription = description;
   }
 

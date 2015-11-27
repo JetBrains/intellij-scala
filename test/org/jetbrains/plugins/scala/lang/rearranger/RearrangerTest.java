@@ -62,7 +62,6 @@ public class RearrangerTest extends BaseScalaFileSetTestCase {
     Document document = documentManager.getDocument(file);
     if (document != null) {
       documentManager.commitDocument(document);
-      file.getText();
     } else {
       throw new IllegalArgumentException("Wrong PsiFile type provided: the file has no document.");
     }

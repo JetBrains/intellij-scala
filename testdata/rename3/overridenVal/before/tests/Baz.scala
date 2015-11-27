@@ -8,7 +8,9 @@ object Baz2 extends Baz {
   override val baz/*caret*/ = 3
 }
 
-object Baz3 extends {override val /*caret*/baz = 1} with Baz
+object Baz3 extends {
+  override val /*caret*/baz = 1
+} with Baz
 
 object Test {
   Baz2.baz/*caret*/

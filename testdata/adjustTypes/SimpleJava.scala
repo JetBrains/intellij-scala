@@ -4,6 +4,6 @@ object A {
 
 /*
 object A {
-  val sb: /*start*/StringBuffer/*end*/ = new StringBuffer("")
+  val sb: StringBuffer = new StringBuffer("")
 }
 */

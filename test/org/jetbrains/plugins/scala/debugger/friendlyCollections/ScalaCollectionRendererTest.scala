@@ -78,7 +78,7 @@ class ScalaCollectionRendererTest extends ScalaDebuggerTestCase with ScalaVersio
   }
 
   protected def testScalaCollectionRenderer(collectionName: String, collectionLength: Int, collectionClass: String) = {
-    import junit.framework.Assert._
+    import org.junit.Assert._
     runDebugger() {
       waitForBreakpoint()
       val (label, children) = renderLabelAndChildren(collectionName)

@@ -112,6 +112,7 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
     val fileText =
       """
       |import scala.collection.mutable.HashSet
+      |
       |class A {
       |  val f: HashSet[String] = new <caret>
       |}
@@ -123,6 +124,7 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
       """
       |import scala.collection.mutable
       |import scala.collection.mutable.HashSet
+      |
       |class A {
       |  val f: HashSet[String] = new mutable.HashSet[String]()
       |}
@@ -160,7 +162,7 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
     configureFromFileTextAdapter("dummy.scala", fileText)
     val (activeLookup, _) = complete(1, CompletionType.SMART)
 
-    Assert.assertTrue(activeLookup.find(_.getLookupString == "Double") == None)
+    Assert.assertTrue(!activeLookup.exists(_.getLookupString == "Double"))
   }
 
   def testFalse() {

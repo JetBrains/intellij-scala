@@ -12,7 +12,7 @@ import scala.collection.mutable
 class BreadthFirstIterator(element: PsiElement, predicate: PsiElement => Boolean) extends Iterator[PsiElement] {
   private val queue = mutable.Queue[PsiElement](element)
 
-  def hasNext = !queue.isEmpty
+  def hasNext = queue.nonEmpty
 
   def next() = {
     val element = queue.dequeue()

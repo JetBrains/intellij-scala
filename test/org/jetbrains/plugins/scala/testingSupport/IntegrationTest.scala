@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.testingSupport
 
 import javax.swing.SwingUtilities
 
-import com.intellij.execution.{PsiLocation, RunnerAndConfigurationSettings, Location}
 import com.intellij.execution.testframework.AbstractTestProxy
+import com.intellij.execution.{PsiLocation, RunnerAndConfigurationSettings}
 import com.intellij.ide.util.treeView.AbstractTreeNode
-import com.intellij.ide.util.treeView.smartTree.{TreeElementWrapper, TreeElement}
+import com.intellij.ide.util.treeView.smartTree.{TreeElement, TreeElementWrapper}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElement, PsiDocumentManager}
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement
 import org.jetbrains.plugins.scala.lang.structureView.itemsPresentations.impl.TestItemRepresentation
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
@@ -63,7 +63,7 @@ trait IntegrationTest {
 
   protected def checkConfig(testClass: String, testNames: Seq[String], config: AbstractTestRunConfiguration): Boolean = {
     config.getTestClassPath == testClass && (config.getTestName match {
-      case "" => testNames.size == 0
+      case "" => testNames.isEmpty
       case configTestName =>
         val configTests = parseTestName(configTestName)
         configTests.size == testNames.size && ((configTests zip testNames) forall {case (actual, required) => actual == required})

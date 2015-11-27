@@ -10,15 +10,15 @@ import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
-import junit.framework.Assert
 import org.jetbrains.plugins.scala.base.ScalaLibraryLoader
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import org.junit.Assert
 
 import scala.collection.mutable.ListBuffer
 
@@ -29,6 +29,7 @@ import scala.collection.mutable.ListBuffer
 abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVersion {
 
   private var deleteProjectAtTearDown = false
+  private var scalaLibraryLoader: ScalaLibraryLoader = null
 
   override def setUp(): Unit = {
     VfsRootAccess.SHOULD_PERFORM_ACCESS_CHECK = false
@@ -49,24 +50,25 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
   }
 
   protected def addRoots() {
+    def getOrCreateChildDir(name: String) = {
+      val file = new File(getBaseDir.getCanonicalPath, name)
+      if (!file.exists()) file.mkdir()
+      LocalFileSystem.getInstance.refreshAndFindFileByPath(file.getCanonicalPath)
+    }
+
     inWriteAction {
-      val srcRoot = getBaseDir.findChild("src").toOption.getOrElse(
-        getBaseDir.createChildDirectory(this, "src")
-      )
+      val srcRoot = getOrCreateChildDir("src")
       PsiTestUtil.addSourceRoot(getModule, srcRoot, false)
-      val output = getBaseDir.findChild("out").toOption.getOrElse(
-        getBaseDir.createChildDirectory(this, "out")
-      )
+      val output = getOrCreateChildDir("out")
       CompilerProjectExtension.getInstance(getProject).setCompilerOutputUrl(output.getUrl)
     }
   }
 
   protected def addScalaSdk(loadReflect: Boolean = true) {
-    ScalaLoader.loadScala()
-    val cl = SyntheticClasses.get(getProject)
-    if (!cl.isClassesRegistered) cl.registerClasses()
+    scalaLibraryLoader = new ScalaLibraryLoader(getProject, getModule, getSourceRootDir.getCanonicalPath,
+      isIncludeReflectLibrary = loadReflect, javaSdk = Some(getTestProjectJdk))
 
-    ScalaLibraryLoader.addScalaSdk(myModule, scalaSdkVersion, loadReflect)
+    scalaLibraryLoader.loadScala(scalaSdkVersion)
   }
 
   override protected def getTestProjectJdk: Sdk = {
@@ -85,6 +87,7 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
   protected override def tearDown() {
     CompilerTestUtil.disableExternalCompiler(myProject)
     val baseDir = getBaseDir
+    scalaLibraryLoader.clean()
     super.tearDown()
 
     if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)
@@ -169,7 +172,7 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
   }
 
   protected def addFileToProject(relativePath: String, text: String) {
-    VfsTestUtil.createFile(getSourceRootDir, relativePath, text)
+    VfsTestUtil.createFile(getSourceRootDir, relativePath, StringUtil.convertLineSeparators(text))
   }
 
   protected def getSourceRootDir: VirtualFile = {

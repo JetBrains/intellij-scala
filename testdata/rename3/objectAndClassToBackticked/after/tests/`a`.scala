@@ -2,8 +2,11 @@ package tests
 
 object `a` {
   val x = 0
+
   def qqq() = {}
+
   def apply() = {}
+
   def unapply(i: Int) = Some(i)
 }
 
