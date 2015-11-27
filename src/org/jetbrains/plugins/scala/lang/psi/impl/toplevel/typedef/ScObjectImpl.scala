@@ -139,7 +139,7 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
   }
 
   override protected def syntheticMethodsWithOverrideImpl: Seq[PsiMethod] = {
-    if (isSyntheticObject) Seq.empty
+    val res = if (isSyntheticObject) Seq.empty
     else ScalaPsiUtil.getCompanionModule(this) match {
       case Some(c: ScClass) if c.isCase =>
         val res = new ArrayBuffer[PsiMethod]
@@ -157,9 +157,10 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
         res.toSeq
       case _ => Seq.empty
     }
+    res ++ super.syntheticMethodsWithOverrideImpl
   }
 
-  override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = SyntheticMembersInjector.inject(this)
+  override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = SyntheticMembersInjector.inject(this, withOverride = false)
 
   def fakeCompanionClass: Option[PsiClass] = {
     ScalaPsiUtil.getCompanionModule(this) match {
