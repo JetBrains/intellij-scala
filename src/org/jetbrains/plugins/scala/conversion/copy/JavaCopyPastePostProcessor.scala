@@ -113,12 +113,20 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
       val visitor = new SimplePrintVisitor
       visitor.visit(resultNode)
       val text = visitor.stringResult
+      val rangeMap = visitor.rangedElementsMap
 
       val updatedAssociations = associationsHelper.filter(_.itype.isInstanceOf[TypedElement]).
-        map(a => new Association(a.kind, a.itype.asInstanceOf[TypedElement].getType.getRange, a.path))
+        map { a =>
+          val typedElement = a.itype.asInstanceOf[TypedElement].getType
+          val range = rangeMap.getOrElse(typedElement, new TextRange(0, 0))
+          new Association(a.kind, range, a.path)
+        }
 
       updatedAssociations ++= associationsHelper.filter(_.itype.isInstanceOf[JavaCodeReferenceStatement]).
-        map(a => new Association(a.kind, a.itype.getRange, a.path))
+        map { a =>
+          val range = rangeMap.getOrElse(a.itype, new TextRange(0, 0))
+          new Association(a.kind, range, a.path)
+        }
 
       new ConvertedCode(text, updatedAssociations.toArray)
     } catch {
@@ -155,7 +163,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
         editor.getCaretModel.moveToOffset(bounds.getStartOffset + text.length)
         PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
 
-        val markedAssociations = associations.toList.zipMapped {dependency =>
+        val markedAssociations = associations.toList.zipMapped { dependency =>
           editor.getDocument.createRangeMarker(dependency.range.shiftRight(bounds.getStartOffset))
         }
 
@@ -240,4 +248,5 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
   object ConvertedCode {
     lazy val Flavor: DataFlavor = new DataFlavor(classOf[ConvertedCode], "JavaToScalaConvertedCode")
   }
+
 }

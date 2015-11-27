@@ -704,7 +704,6 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
   }
 
   def visitJavaCodeRef(statement: JavaCodeReferenceStatement, qualifier: Option[IntermediateNode], parametrList: Option[IntermediateNode], name: String) = {
-    var range = new TextRange(0, 0)
     if (qualifier.isDefined) {
       visit(qualifier.get)
       printer.append(".")
@@ -715,15 +714,16 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       case "super" => printer.append(name)
       case _ => printer.append(escapeKeyword(name))
     }
-    range = new TextRange(begin, printer.length)
-    statement.getRange = range
+    val range = new TextRange(begin, printer.length)
+    rangedElementsMap.put(statement, range)
     if (parametrList.isDefined) visit(parametrList.get)
   }
 
   def visitType(t: TypeConstruction, inType: String) = {
-    val before = printer.length
+    val begin = printer.length
     printer.append(inType)
-    t.getRange = new TextRange(before, printer.length)
+    val range = new TextRange(begin, printer.length)
+    rangedElementsMap.put(t, range)
   }
 
   def visitArrayType(iNode: IntermediateNode) = {

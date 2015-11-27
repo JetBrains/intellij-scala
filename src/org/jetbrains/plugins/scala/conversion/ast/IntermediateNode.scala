@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.conversion.ast
 
-import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
@@ -10,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 abstract class IntermediateNode {
   def escapeKeyword(name: String): String = if (ScalaNamesUtil.isKeyword(name)) "`" + name + "`" else name
-  var getRange: TextRange = new TextRange(0, 0)
 }
 
 
