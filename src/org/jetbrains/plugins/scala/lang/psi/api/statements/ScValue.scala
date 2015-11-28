@@ -68,5 +68,5 @@ trait ScValue extends ScBlockStatement with ScMember with ScDocCommentOwner with
 
   override def isDeprecated = hasAnnotation("scala.deprecated") != None || hasAnnotation("java.lang.Deprecated") != None
 
-  override def modifiableReturnType: Option[ScType] = declaredType
+  override def modifiableReturnType: Option[ScType] = getType(TypingContext.empty).toOption
 }

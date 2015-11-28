@@ -9,15 +9,16 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
   */
 trait ScModifiableTypedDeclaration extends ScalaPsiElement {
 
-  private[this] var prevModType: Option[ScType] = null
+  private[this] var prevModType: ScType = null
 
   //this function is called only from one place, which makes it fine
   def returnTypeHasChangedSinceLastCheck: Boolean = {
-    val retTp: Option[ScType] = modifiableReturnType
-    if (retTp == prevModType) false
-    else {
-      prevModType = retTp
-      true
+    modifiableReturnType match {
+      case Some(retTp) if retTp == prevModType => true
+      case Some(retTp) =>
+        prevModType = retTp
+        false
+      case _ => true
     }
   }
 
