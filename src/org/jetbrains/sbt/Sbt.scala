@@ -47,7 +47,7 @@ object Sbt {
 
   val DefaultImplicitImports = Seq("sbt._", "Process._", "Keys._")
 
-  val DefaultVersion = "0.13.8"
+  val LatestVersion = "0.13.9"
 
   lazy val Icon = IconLoader.getIcon("/sbt.png")
 
