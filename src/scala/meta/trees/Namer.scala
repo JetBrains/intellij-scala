@@ -130,8 +130,10 @@ trait Namer {
   }
 
   def ind(tp: ScType): m.Name.Indeterminate = {
-    toType(tp) match {
-      case n@m.Type.Name(value) => m.Name.Indeterminate(value).withAttrs(n.denot).setTypechecked
+    toType(ScType.extractClass(tp).get) match {
+      case n@m.Type.Name(value)       => m.Name.Indeterminate(value).withAttrs(n.denot).setTypechecked
+      case m.Type.Select(_, n@m.Type.Name(value))   => m.Name.Indeterminate(value).withAttrs(n.denot).setTypechecked
+      case m.Type.Project(_, n@m.Type.Name(value))  => m.Name.Indeterminate(value).withAttrs(n.denot).setTypechecked
       case other => throw new AbortException(other, "Super qualifier cannot be non-name type")
     }
   }

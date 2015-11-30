@@ -144,26 +144,28 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
   def testSuperReference() {
     doTest(
       """
+        |object A {
         |trait Foo
         |trait Bar
-        |class Baz extends Foo with Bar { Baz.super[Foo].hashCode }
+        |class Baz extends A.Foo with A.Bar { Baz.super[Foo].hashCode }}
         |""".stripMargin,
-    Term.Block(
-      List(Defn.Trait(Nil, Type.Name("Foo"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
-      Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), None)),
-      Defn.Trait(Nil, Type.Name("Bar"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
-        Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), None)),
-        Defn.Class(Nil, Type.Name("Baz"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
-          Template(Nil, List(Ctor.Ref.Name("Foo"), Ctor.Ref.Name("Bar")),
-            Term.Param(Nil, Name.Anonymous(), None, None),
-            Some(List(Term.Select(Term.Super(Name.Indeterminate("Baz"),
-              Name.Indeterminate("Foo")), Term.Name("hashCode"))))))))
-    )
+      Defn.Object(Nil, Term.Name("A"), Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
+        Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), Some(
+          List(Defn.Trait(Nil, Type.Name("Foo"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
+            Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), None)),
+            Defn.Trait(Nil, Type.Name("Bar"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
+              Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), None)),
+            Defn.Class(Nil, Type.Name("Baz"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
+              Template(Nil, List(Ctor.Ref.Name("Foo"), Ctor.Ref.Name("Bar")),
+                Term.Param(Nil, Name.Anonymous(), None, None),
+                Some(List(Term.Select(Term.Super(Name.Indeterminate("Baz"),
+                  Name.Indeterminate("Foo")), Term.Name("hashCode")))))))
+        ))))
   }
 
   def testThisReference() {
     doTest(
-      "trait Foo { this.hashCode }",
+      "trait Foo { def foo: Int = this.hashCode }",
       Defn.Trait(Nil, Type.Name("Foo"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
         Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None),
           Some(List(Defn.Def(Nil, Term.Name("foo"), Nil, Nil, Some(Type.Name("Int")),
