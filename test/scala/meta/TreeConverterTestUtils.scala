@@ -58,8 +58,11 @@ trait TreeConverterTestUtils {
   def doTest(text: String, tree: ast.Tree) = {
 //    try {
       val converted = convert(text)
-      assert(structuralEquals(converted, tree), s"$converted <=> $tree")
-      org.junit.Assert.assertEquals("Text comparison failure", converted.toString(), tree.toString())
+      if (!structuralEquals(converted, tree)) {
+        org.junit.Assert.assertEquals("Trees not equal", tree.toString(), converted.toString())
+        org.junit.Assert.assertTrue(false)
+      }
+      org.junit.Assert.assertEquals("Text comparison failure", tree.toString(), converted.toString())
 //    }
 //    catch {
 //      case ex: Exception =>
