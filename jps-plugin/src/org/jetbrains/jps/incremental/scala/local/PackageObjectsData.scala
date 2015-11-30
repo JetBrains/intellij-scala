@@ -17,7 +17,7 @@ class PackageObjectsData extends Serializable {
   private val baseSourceToPackageObjects = mutable.HashMap[File, HashSet[File]]()
   private val packageObjectToBaseSources = mutable.HashMap[File, HashSet[File]]()
 
-  def add(baseSource: File, packageObject: File) = synchronized {
+  def add(baseSource: File, packageObject: File): Unit = synchronized {
     baseSourceToPackageObjects.update(baseSource, baseSourceToPackageObjects.getOrElse(baseSource, HashSet.empty) + packageObject)
     packageObjectToBaseSources.update(packageObject, packageObjectToBaseSources.getOrElse(packageObject, HashSet.empty) + baseSource)
   }
@@ -26,7 +26,7 @@ class PackageObjectsData extends Serializable {
     sources.to[HashSet].flatMap(f => baseSourceToPackageObjects.getOrElse(f, HashSet.empty)) -- sources
   }
 
-  def clear() = synchronized {
+  def clear(): Unit = synchronized {
     baseSourceToPackageObjects.clear()
     packageObjectToBaseSources.clear()
   }
@@ -44,7 +44,7 @@ class PackageObjectsData extends Serializable {
 
 object PackageObjectsData {
 
-  val packageObjectClassName = "package$"
+  val packageObjectClassName: String = "package$"
 
   private val fileName = "packageObjects.dat"
 
