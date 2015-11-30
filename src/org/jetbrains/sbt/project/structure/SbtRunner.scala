@@ -152,7 +152,6 @@ object SbtRunner {
 
   def getDefaultLauncher = getSbtLauncherDir / "sbt-launch.jar"
 
-  private[structure] val DefaultSbtVersion = "0.13.8"
   private val SinceSbtVersion = "0.12.4"
 
   private def numbersOf(version: String): Seq[String] = version.split("\\.").toSeq
@@ -166,7 +165,7 @@ object SbtRunner {
     sbtVersionIn(directory)
       .orElse(sbtVersionInBootPropertiesOf(sbtLauncher))
       .orElse(implementationVersionOf(sbtLauncher))
-      .getOrElse(DefaultSbtVersion)
+      .getOrElse(Sbt.LatestVersion)
 
   private def implementationVersionOf(jar: File): Option[String] =
     readManifestAttributeFrom(jar, "Implementation-Version")

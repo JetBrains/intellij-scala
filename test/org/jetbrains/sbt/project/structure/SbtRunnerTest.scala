@@ -55,7 +55,7 @@ class SbtRunnerTest extends UsefulTestCase {
     val launcherFile = generateJarFileWithEntries()
     assertTrue(launcherFile.exists())
     val actualVersion = SbtRunner.detectSbtVersion(tmpDirFile, launcherFile)
-    assertEquals(SbtRunner.DefaultSbtVersion, actualVersion)
+    assertEquals(Sbt.LatestVersion, actualVersion)
   }
 
   private val tmpDirFile: File = new File(FileUtil.getTempDirectory)
