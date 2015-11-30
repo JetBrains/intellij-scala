@@ -47,8 +47,8 @@ trait Namer {
       }
     case se: impl.toplevel.synthetic.SyntheticNamedElement =>
       throw new SyntheticException
-    case cs: ScConstructor =>
-      toTermName(cs.reference.get)
+//    case cs: ScConstructor =>
+//      toTermName(cs.reference.get)
     // Java stuff starts here
     case pp: PsiPackage =>
       m.Term.Name(pp.getName).withAttrsFor(pp)
@@ -102,7 +102,7 @@ trait Namer {
     if (res != null) res else die(s"failed to convert type $tp")
   }
 
-  def toCtorName(c: ScConstructor): m.Term.Ref = {
+  def toCtorName(c: ScStableCodeReferenceElement): m.Ctor.Ref.Name = {
     // FIXME: what about other cases of m.Ctor ?
     val resolved = toTermName(c)
     resolved match {

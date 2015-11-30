@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScTypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Compatibility, ScSubstitutor, ScTypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.scalameta.collections._
@@ -98,6 +98,12 @@ trait TypeAdapter {
           m.Type.Singleton(toTermName(t)).setTypechecked
         case t: PsiClass =>
           m.Type.Name(t.getName).withAttrsFor(t).setTypechecked
+        case t: PsiMethod =>
+          m.Type.Method(Seq(t.getParameterList.getParameters
+            .map(Compatibility.toParameter)
+            .map(i=> convertParam(i.paramInCode.get))
+            .toStream),
+            toType(ScType.create(t.getReturnType, t.getProject))).setTypechecked
         case other => other ?!
       }
     })

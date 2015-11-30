@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, api => p, types =>
 
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
+import scala.meta.internal.ast.Term
 import scala.meta.internal.ast.Term.Param
 import scala.meta.internal.{ast => m, semantic => h, AbortException}
 import scala.meta.trees.error._
@@ -224,10 +225,14 @@ trait TreeAdapter {
   }
 
   def toCtor(c: ScConstructor) = {
+    val ctorRef = c.reference match {
+      case Some(ref) => getCtorRef(ref)
+      case None => die(s"No reference for ctor ${c.getText}")
+    }
     if (c.arguments.isEmpty)
-      toCtorName(c)
+      ctorRef
     else {
-      val head = m.Term.Apply(toCtorName(c), Seq(c.arguments.head.exprs.map(callArgs): _*)).withAttrs(toType(c)).setTypechecked
+      val head = m.Term.Apply(ctorRef, Seq(c.arguments.head.exprs.map(callArgs): _*)).withAttrs(toType(c)).setTypechecked
       c.arguments.tail.foldLeft(head)((term, exprList) => m.Term.Apply(term, Seq(exprList.exprs.map(callArgs): _*)).withAttrs(toType(c)).setTypechecked)
     }
   }
@@ -399,19 +404,53 @@ trait TreeAdapter {
     }
   }
 
-  def imports(t: p.toplevel.imports.ScImportExpr):m.Import.Clause = {
-    def qual(q: ScStableCodeReferenceElement): m.Term.Ref = {
-      q.pathQualifier match {
-        case Some(parent: ScSuperReference) =>
-          m.Term.Select(m.Term.Super(m.Name.Anonymous(), m.Name.Anonymous()), toTermName(q))
-        case Some(parent: ScThisReference) =>
-          m.Term.Select(m.Term.This(m.Name.Anonymous()), toTermName(q))
-        case Some(parent:ScStableCodeReferenceElement) =>
-          m.Term.Select(qual(parent), toTermName(q))
-        case None        => toTermName(q)
-        case Some(other) => other ?!
-      }
+  def getQualifier(q: ScStableCodeReferenceElement): m.Term.Ref = {
+    q.pathQualifier match {
+      case Some(parent: ScSuperReference) =>
+        m.Term.Select(m.Term.Super(m.Name.Anonymous(), m.Name.Anonymous()), toTermName(q))
+          .withAttrs(toType(q))
+          .setTypechecked
+      case Some(parent: ScThisReference) =>
+        m.Term.Select(m.Term.This(m.Name.Anonymous()), toTermName(q))
+          .withAttrs(toType(q))
+          .setTypechecked
+      case Some(parent:ScStableCodeReferenceElement) =>
+        m.Term.Select(getQualifier(parent), toTermName(q))
+          .withAttrs(toType(q))
+          .setTypechecked
+      case None        => toTermName(q)
+      case Some(other) => other ?!
     }
+  }
+
+  def getQualifiedReference(q: ScStableCodeReferenceElement) = {
+    q.pathQualifier match {
+      case None => toTermName(q)
+      case Some(_) => m.Term.Select(getQualifier(q), toTermName(q))
+    }
+  }
+
+  // TODO: WHY?!
+  def getCtorRef(q: ScStableCodeReferenceElement): m.Ctor.Ref = {
+    q.pathQualifier match {
+      case Some(parent: ScSuperReference) =>
+        m.Ctor.Ref.Select(m.Term.Super(m.Name.Anonymous(), m.Name.Anonymous()), toCtorName(q))
+          .withAttrs(toType(q))
+          .setTypechecked
+      case Some(parent: ScThisReference) =>
+        m.Ctor.Ref.Select(m.Term.This(m.Name.Anonymous()), toCtorName(q))
+          .withAttrs(toType(q))
+          .setTypechecked
+      case Some(parent:ScStableCodeReferenceElement) =>
+        m.Ctor.Ref.Select(getQualifier(parent), toCtorName(q))
+          .withAttrs(toType(q))
+          .setTypechecked
+      case None        => toCtorName(q)
+      case Some(other) => other ?!
+    }
+  }
+
+  def imports(t: p.toplevel.imports.ScImportExpr):m.Import.Clause = {
     def selector(sel: p.toplevel.imports.ScImportSelector): m.Import.Selector = {
       if (sel.isAliasedImport && sel.importedName == "_")
         m.Import.Selector.Unimport(ind(sel.reference))
@@ -421,11 +460,11 @@ trait TreeAdapter {
         m.Import.Selector.Name(m.Name.Indeterminate(sel.importedName))
     }
     if (t.selectors.nonEmpty)
-      m.Import.Clause(qual(t.qualifier), Seq(t.selectors.map(selector):_*) ++ (if (t.singleWildcard) Seq(m.Import.Selector.Wildcard()) else Seq.empty))
+      m.Import.Clause(getQualifier(t.qualifier), Seq(t.selectors.map(selector):_*) ++ (if (t.singleWildcard) Seq(m.Import.Selector.Wildcard()) else Seq.empty))
     else if (t.singleWildcard)
-      m.Import.Clause(qual(t.qualifier), Seq(m.Import.Selector.Wildcard()))
+      m.Import.Clause(getQualifier(t.qualifier), Seq(m.Import.Selector.Wildcard()))
     else
-      m.Import.Clause(qual(t.qualifier), Seq(m.Import.Selector.Name(m.Name.Indeterminate(t.getNames.head))))
+      m.Import.Clause(getQualifier(t.qualifier), Seq(m.Import.Selector.Name(m.Name.Indeterminate(t.getNames.head))))
   }
 
   def literal(l: ScLiteral): m.Lit = {
