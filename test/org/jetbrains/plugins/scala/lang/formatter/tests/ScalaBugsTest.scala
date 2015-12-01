@@ -1222,7 +1222,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         | *
         |*                If formatting
         |   is disabled.
-        | * Asterisks will be aligned and added though, like in java.
+        |  Asterisks will be aligned and added though, like in java.
         |   */
       """.stripMargin.replace("\r", "")
 
@@ -1234,7 +1234,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  *
         |  *                If formatting
         |  *is disabled.
-        |  * Asterisks will be aligned and added though, like in java.
+        |  *Asterisks will be aligned and added though, like in java.
         |  */
       """.stripMargin.replace("\r", "")
 
