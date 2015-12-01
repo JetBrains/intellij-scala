@@ -107,7 +107,7 @@ object JavaToScala {
       case i: PsiImportList => ImportStatementList(i.getAllImportStatements.map(convertPsiToIntermdeiate(_, externalProperties)))
       case a: PsiAssignmentExpression =>
         BinaryExpressionConstruction(convertPsiToIntermdeiate(a.getLExpression, externalProperties),
-          convertPsiToIntermdeiate(a.getRExpression, externalProperties), a.getOperationSign.getText)
+          convertPsiToIntermdeiate(a.getRExpression, externalProperties), a.getOperationSign.getText, inExpression = false)
       case e: PsiExpressionListStatement =>
         ExpressionListStatement(e.getExpressionList.getExpressions.map(convertPsiToIntermdeiate(_, externalProperties)))
       case d: PsiDeclarationStatement => ExpressionListStatement(d.getDeclaredElements.map(convertPsiToIntermdeiate(_, externalProperties)))
@@ -207,6 +207,11 @@ object JavaToScala {
           true
         }
 
+        def inExpression: Boolean = Option(be.getParent) match {
+          case Some(e: PsiExpression) => true
+          case _ => false
+        }
+
         val operation = be.getOperationSign.getText match {
           case "==" if isOk => "eq"
           case "!=" if isOk => "ne"
@@ -216,7 +221,7 @@ object JavaToScala {
         BinaryExpressionConstruction(
           convertPsiToIntermdeiate(be.getLOperand, externalProperties),
           convertPsiToIntermdeiate(be.getROperand, externalProperties),
-          operation)
+          operation, inExpression)
       case c: PsiTypeCastExpression =>
         ClassCast(
           convertPsiToIntermdeiate(c.getOperand, externalProperties), convertPsiToIntermdeiate(c.getCastType, externalProperties),
