@@ -30,8 +30,8 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       case ArrayAccess(expression, idxExpression) => visitArrayAccess(expression, idxExpression)
       case c@ClassCast(operand, castType, isPrimitive) => visitCastType(c, operand, castType, isPrimitive)
       case ArrayInitializer(expresions: Seq[IntermediateNode]) => visitArrayInitalizer(expresions)
-      case BinaryExpressionConstruction(firstPart, secondPart, operation: String) =>
-        visitBinary(firstPart, secondPart, operation)
+      case BinaryExpressionConstruction(firstPart, secondPart, operation: String, inExpression: Boolean) =>
+        visitBinary(firstPart, secondPart, operation, inExpression)
       case ClassObjectAccess(expression) => visitClassObjAccess(expression)
       case InstanceOfConstruction(operand, mtype) => visitInstanceOf(operand, mtype)
       case QualifiedExpression(qualifier, identifier) => visitQualifiedExpression(qualifier, identifier)
@@ -242,12 +242,15 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     printWithSeparator(expresions, ", ", "Array(", ")")
   }
 
-  def visitBinary(firstPart: IntermediateNode, secondPart: IntermediateNode, operation: String): Unit = {
+  def visitBinary(firstPart: IntermediateNode, secondPart: IntermediateNode, operation: String, inExpresiion: Boolean) = {
+    val specialOperations = Seq("eq", "ne")
+    if (inExpresiion && specialOperations.contains(operation)) printer.append("(")
     visit(firstPart)
     printer.append(" ")
     printer.append(operation)
     printer.append(" ")
     visit(secondPart)
+    if (inExpresiion && specialOperations.contains(operation)) printer.append(")")
   }
 
   def visitClassObjAccess(expression: IntermediateNode): PrettyPrinter = {
