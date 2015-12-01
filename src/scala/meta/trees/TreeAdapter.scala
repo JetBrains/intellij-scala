@@ -177,11 +177,11 @@ trait TreeAdapter {
   }
 
   def template(t: p.toplevel.templates.ScExtendsBlock): m.Template = {
-    def ctor(tpe: types.ScTypeElement) = m.Ctor.Ref.Name(tpe.calcType.canonicalText)
+//    def ctor(tpe: types.ScTypeElement) = m.Ctor.Ref.Name(tpe.calcType.canonicalText)
     val exprs   = t.templateBody map (it => Seq(it.exprs.map(expression): _*))
     val members = t.templateBody map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]): _*))
     val early   = t.earlyDefinitions map (it => Seq(it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]):_*)) getOrElse Seq.empty
-    val parents = t.templateParents map (it => Seq(it.typeElements map ctor :_*)) getOrElse Seq.empty
+    val parents = t.templateParents map (it => Seq(it.typeElements map ctorParentName :_*)) getOrElse Seq.empty
     val self    = t.selfType match {
       case Some(tpe: ptype.ScType) => m.Term.Param(Nil, m.Term.Name("self"), Some(toType(tpe)), None)
       case None => m.Term.Param(Nil, m.Name.Anonymous(), None, None)
@@ -305,7 +305,7 @@ trait TreeAdapter {
       case t: ScReferenceExpression =>
         toTermName(t)
       case t: ScSuperReference =>
-        m.Term.Super(t.drvTemplate.map(ind).getOrElse(m.Name.Anonymous()), t.staticSuper.map(ind).getOrElse(m.Name.Anonymous()))
+        m.Term.Super(t.drvTemplate.map(ind).getOrElse(m.Name.Anonymous()), getSuperName(t))
           .withAttrs(toType(t))
           .setTypechecked
       case t: ScThisReference =>

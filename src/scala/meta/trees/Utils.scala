@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Success, T
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
 import scala.meta.internal.{ast => m, semantic => h, AbortException}
+import scala.meta.trees.error._
 import scala.{Seq => _}
 
 trait Utils {
@@ -67,6 +68,13 @@ trait Utils {
         }
       }
       loop(ptpe)
+    }
+
+    def stripped = ptpe match {
+      case m.Type.Select(_, n:m.Type.Name) => n
+      case m.Type.Project(_, n:m.Type.Name) => n
+      case other: m.Type => other
+      case _ => unreachable
     }
   }
 

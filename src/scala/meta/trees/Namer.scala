@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 
 import scala.language.postfixOps
+import scala.meta.internal.ast.Type
 import scala.meta.internal.{ast => m, semantic => h, AbortException}
 import scala.meta.trees.error._
 import scala.{Seq => _}
@@ -129,12 +130,27 @@ trait Namer {
     m.Name.Indeterminate(td.name).withAttrsFor(td).setTypechecked
   }
 
-  def ind(tp: ScType): m.Name.Indeterminate = {
-    toType(ScType.extractClass(tp).get) match {
-      case n@m.Type.Name(value)       => m.Name.Indeterminate(value).withAttrs(n.denot).setTypechecked
-      case m.Type.Select(_, n@m.Type.Name(value))   => m.Name.Indeterminate(value).withAttrs(n.denot).setTypechecked
-      case m.Type.Project(_, n@m.Type.Name(value))  => m.Name.Indeterminate(value).withAttrs(n.denot).setTypechecked
-      case other => throw new AbortException(other, "Super qualifier cannot be non-name type")
+  // only raw type names can be used as super selector
+  def getSuperName(tp: ScSuperReference): m.Name.Qualifier = {
+    def loop(mtp: m.Type): m.Name.Qualifier = {
+      mtp match {
+        case n@m.Type.Name(value) => m.Name.Indeterminate(value).withAttrs(n.denot).setTypechecked
+        case _: m.Type.Select => loop(mtp.stripped)
+        case _: m.Type.Project => loop(mtp.stripped)
+        case other => throw new AbortException(other, "Super selector cannot be non-name type")
+      }
+    }
+    tp.staticSuper.map(t=>loop(toType(t))).getOrElse(m.Name.Anonymous())
+  }
+
+  def ctorParentName(tpe: types.ScTypeElement) = {
+    val raw = toType(tpe)
+    raw.stripped match {
+      case n@m.Type.Name(value) =>
+        m.Ctor.Ref.Name(value)
+          .withAttrs(denot = n.denot, typingLike = h.Typing.Nonrecursive(n)) // HACK: use parent name type as ctor typing
+          .setTypechecked
+      case other => die(s"Unexpected type in parents: $other")
     }
   }
 
