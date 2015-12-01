@@ -41,17 +41,19 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       case SuperExpression(value) => visitWithExtraWord(value, "super")
       case LiteralExpression(literal) => printer.append(literal)
       case ParenthesizedExpression(value) => visitParenthizedExpression(value)
-      case NewExpression(mtype, arrayInitalizer, arrayDimension, anonClass) =>
-        visitNewExpression(mtype, arrayInitalizer, arrayDimension, anonClass)
+      case NewExpression(mtype, arrayInitalizer, arrayDimension) =>
+        visitNewExpression(mtype, arrayInitalizer, arrayDimension)
+      case AnonymousClassExpression(anonymousClass) => visitAnonimousClassExpression(anonymousClass)
       case PolyadicExpression(args, operation) => visitPoliadic(args, operation)
-      case PrefixExpression(operand, signType, canBeSimplified) => visitPrefix(operand, signType, canBeSimplified)
-      case PostfixExpression(operand, signType, canBeSimplified) => visitPostfix(operand, signType, canBeSimplified)
+      case PrefixExpression(operand, signType, canBeSimplified) => visitPrefixPostfix(operand, signType, canBeSimplified)
+      case PostfixExpression(operand, signType, canBeSimplified) =>
+        visitPrefixPostfix(operand, signType, canBeSimplified, isPostfix = true)
       case FieldConstruction(modifiers, name, ftype, isVar, initalaizer) =>
         visitVariable(modifiers, name, ftype, isVar, initalaizer)
       case LocalVariable(modifiers, name, ftype, isVar, initalaizer) =>
         visitVariable(modifiers, name, ftype, isVar, initalaizer)
-      case ConstructorSimply(modifiers, name, typeParams, params, body) =>
-        visitConstructor(modifiers, name, typeParams, params, body)
+      case ConstructorSimply(modifiers, typeParams, params, body) =>
+        visitConstructor(modifiers, typeParams, params, body)
       case PrimaryConstruction(params, superCall, body, modifiers) =>
         visitPrimaryConstructor(params, superCall, body, modifiers)
       case MethodConstruction(modifiers, name, typeParams, params, body, retType) =>
@@ -291,30 +293,30 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     printer.append(")")
   }
 
-  def visitNewExpression(mtype: Option[IntermediateNode], arrayInitalizer: Seq[IntermediateNode],
-                         arrayDimension: Seq[IntermediateNode],
-                         anonClass: Option[IntermediateNode]) = {
-    if (anonClass.isDefined) {
-      printer.append("new ")
-      visit(anonClass.get)
+  def visitNewExpression(mtype: IntermediateNode, arrayInitalizer: Seq[IntermediateNode],
+                         arrayDimension: Seq[IntermediateNode]) = {
+    if (arrayInitalizer.nonEmpty) {
+      visit(mtype)
+      printWithSeparator(arrayInitalizer, ", ", "(", ")")
     } else {
-      if (arrayInitalizer.nonEmpty) {
-        visit(mtype.get)
-        printWithSeparator(arrayInitalizer, ", ", "(", ")")
-      } else {
-        printer.append("new ")
-        visit(mtype.get)
-        printWithSeparator(arrayDimension, ", ", "(", ")",
-          arrayDimension != null && arrayDimension.nonEmpty && !arrayDimension.head.isInstanceOf[ExpressionList])
-      }
+      printer.append("new ")
+      visit(mtype)
+      printWithSeparator(arrayDimension, ", ", "(", ")",
+        arrayDimension != null && arrayDimension.nonEmpty && !arrayDimension.head.isInstanceOf[ExpressionList])
     }
+  }
+
+  def visitAnonimousClassExpression(anonClass: IntermediateNode) = {
+    printer.append("new ")
+    visit(anonClass)
   }
 
   def visitPoliadic(args: Seq[IntermediateNode], operation: String) = {
     printWithSeparator(args, " " + operation + " ")
   }
 
-  def visitPrefix(operand: IntermediateNode, signType: String, canBeSimplified: Boolean) = {
+  def visitPrefixPostfix(operand: IntermediateNode, signType: String,
+                         canBeSimplified: Boolean, isPostfix: Boolean = false): Unit = {
     signType match {
       case "++" =>
         if (!canBeSimplified) {
@@ -322,6 +324,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
           visit(operand)
           printer.append(" += 1; ")
           visit(operand)
+          if (isPostfix) printer.append(" - 1")
           printer.append("})")
         } else {
           visit(operand)
@@ -333,43 +336,15 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
           visit(operand)
           printer.append(" -= 1; ")
           visit(operand)
+          if (isPostfix) printer.append(" + 1")
           printer.append("})")
         } else {
           visit(operand)
           printer.append(" -= 1")
         }
-      case _ =>
+      case _ if !isPostfix =>
         printer.append(signType)
         visit(operand)
-    }
-  }
-
-  def visitPostfix(operand: IntermediateNode, signType: String, canBeSimplified: Boolean) = {
-    signType match {
-      case "++" =>
-        if (!canBeSimplified) {
-          printer.append("({")
-          visit(operand)
-          printer.append(" += 1; ")
-          visit(operand)
-          printer.append(" - 1")
-          printer.append("})")
-        } else {
-          visit(operand)
-          printer.append(" += 1")
-        }
-      case "--" =>
-        if (!canBeSimplified) {
-          printer.append("({")
-          visit(operand)
-          printer.append(" -= 1; ")
-          visit(operand)
-          printer.append(" + 1")
-          printer.append("})")
-        } else {
-          visit(operand)
-          printer.append(" -= 1")
-        }
     }
   }
 
@@ -393,12 +368,12 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     } else {
       printer.append(ftype match {
         case tc: TypeConstruction => tc.getDefaultTypeValue
-        case _ => ""
+        case _ => "null"
       })
     }
   }
 
-  def visitConstructor(modifiers: IntermediateNode, name: String, typeParams: Seq[IntermediateNode],
+  def visitConstructor(modifiers: IntermediateNode, typeParams: Seq[IntermediateNode],
                        params: IntermediateNode, body: Option[IntermediateNode]) = {
     printer.append("def ")
     printer.append("this")

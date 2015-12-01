@@ -72,7 +72,8 @@ case class ArrayConstruction(iNode: IntermediateNode) extends IntermediateNode w
 
   def getAssociations = assocoationMap.collect { case (n, Some(value)) => (n, value) }
 
-  override def getType: TypeConstruction = iNode.asInstanceOf[TypedElement].getType
+  override def getType: TypeConstruction =
+    iNode.asInstanceOf[TypedElement].getType
 }
 
 case class TypeParameterConstruction(name: String, typez: Seq[IntermediateNode]) extends IntermediateNode
