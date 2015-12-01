@@ -16,13 +16,12 @@ import com.intellij.psi._
 import com.intellij.psi.impl.JavaPsiFacadeImpl
 import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.psi.stubs.StubIndex
-import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
+import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.util.ArrayUtil
 import com.intellij.util.containers.WeakValueHashMap
-import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
+import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScModificationTrackerOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
@@ -39,7 +38,6 @@ import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-import scala.annotation.tailrec
 import scala.collection.{Seq, mutable}
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
@@ -329,38 +327,31 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 
   PsiManager.getInstance(project).addPsiTreeChangeListener(CacheInvalidator, project)
 
-  object CacheInvalidator extends PsiTreeChangeAdapter {
-    @tailrec
-    def updateModificationCount(elem: PsiElement): Unit = {
-      Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScModificationTrackerOwner])) match {
-        case Some(owner) if owner.isValidModificationTrackerOwner() => owner.incModificationCount()
-        case Some(owner) => updateModificationCount(owner.getContext)
-        case _ =>
-      }
-    }
 
+
+  object CacheInvalidator extends PsiTreeChangeAdapter {
     override def childRemoved(event: PsiTreeChangeEvent): Unit = {
-      updateModificationCount(event.getParent)
+      CachesUtil.updateModificationCount(event.getParent)
     }
 
     override def childReplaced(event: PsiTreeChangeEvent): Unit = {
-      updateModificationCount(event.getParent)
+      CachesUtil.updateModificationCount(event.getParent)
     }
 
     override def childAdded(event: PsiTreeChangeEvent): Unit = {
-      updateModificationCount(event.getParent)
+      CachesUtil.updateModificationCount(event.getParent)
     }
 
     override def childrenChanged(event: PsiTreeChangeEvent): Unit = {
-      updateModificationCount(event.getParent)
+      CachesUtil.updateModificationCount(event.getParent)
     }
 
     override def childMoved(event: PsiTreeChangeEvent): Unit = {
-      updateModificationCount(event.getParent)
+      CachesUtil.updateModificationCount(event.getParent)
     }
 
     override def propertyChanged(event: PsiTreeChangeEvent): Unit = {
-      updateModificationCount(event.getElement)
+      CachesUtil.updateModificationCount(event.getElement)
     }
   }
 

@@ -3,7 +3,6 @@ package caches
 
 
 import java.util.concurrent.ConcurrentMap
-import java.util.concurrent.locks.ReentrantReadWriteLock
 
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
@@ -269,67 +268,60 @@ object CachesUtil {
     calc(elem)
   }
 
+  @tailrec
+  def updateModificationCount(elem: PsiElement, incModCountOnTopLevel: Boolean = false): Unit = {
+    Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScModificationTrackerOwner])) match {
+      case Some(owner) if owner.isValidModificationTrackerOwner(checkForChangedReturn = true) =>
+        owner.incModificationCount()
+      case Some(owner) => updateModificationCount(owner.getContext)
+      case _ if incModCountOnTopLevel => ScalaPsiManager.instance(elem.getProject).incModificationCount()
+      case _ =>
+    }
+  }
+
   private case class ProbablyRecursionException[Dom <: PsiElement, Data, T](elem: Dom,
                                                                             data: Data,
                                                                             key: Key[T],
                                                                             set: Set[ScFunction]) extends ControlThrowable
 
   private[this] val funsRetTpToCheck = new mutable.ArrayBuffer[ScModifiableTypedDeclaration]()
-  private[this] val funsRetTpRWLock = new ReentrantReadWriteLock(true)
+  @volatile
+  private[this] var needToCheckFuns: Boolean = false
+  private[this] val currentThreadIsCheckingFuns = new ThreadLocal[Boolean] {
+    override def initialValue(): Boolean = false
+  }
 
   def incrementModCountForFunsWithModifiedReturn(): Unit = {
-    def bufferIsEmpty(): Boolean = {
-      funsRetTpRWLock.readLock().lock()
-      try {
-        funsRetTpToCheck.isEmpty
-      } finally {
-        funsRetTpRWLock.readLock().unlock()
-      }
-    }
+    def checkFuns(): Unit = funsRetTpToCheck.synchronized {
+      var i = 0
+      while (i < funsRetTpToCheck.size) {
+        val fun = funsRetTpToCheck(i)
+        if (fun.returnTypeHasChangedSinceLastCheck) {
 
-    def checkFuns(): Unit = {
-      funsRetTpRWLock.writeLock().lock()
-      try {
-        var i = 0
-        while (i < funsRetTpToCheck.size) {
-          val fun = funsRetTpToCheck(i)
-          if (fun.returnTypeHasChangedSinceLastCheck) {
+          //if there's more than one, just increment the general modCount If there's one, go up th
+          if (funsRetTpToCheck.size > 1) {
             ScalaPsiManager.instance(fun.getProject).incModificationCount()
             funsRetTpToCheck.clear()
-            return
+          } else {
+            updateModificationCount(fun.getParent, incModCountOnTopLevel = true)
           }
-          i += 1
+          return
         }
-        funsRetTpToCheck.clear()
-      } finally {
-        funsRetTpRWLock.writeLock().unlock()
+        i += 1
       }
     }
 
-    //safe to call these because readHoldCount and writeHoldCount are only counted for current thread
-    if (funsRetTpRWLock.getReadHoldCount == 0 && funsRetTpRWLock.getWriteHoldCount == 0) {
-      //prevent deadlock: same thread acquiring the same locks twice
-      //this will happen when fun.returnTypeHasChange is called, which calls getType() which calls this method
-      val isEmpty = bufferIsEmpty()
-      if (!isEmpty) {
-        checkFuns()
-      }
+    if (needToCheckFuns && !currentThreadIsCheckingFuns.get()) {
+      currentThreadIsCheckingFuns.set(true)
+      checkFuns()
+      currentThreadIsCheckingFuns.set(false)
     }
   }
 
-  def addModificationFunctionsReturnType(fun: ScModifiableTypedDeclaration): Unit = {
-    def calc(): Unit = {
-      funsRetTpRWLock.writeLock().lock()
-      try {
-        if (!funsRetTpToCheck.contains(fun)) {
-          funsRetTpToCheck += fun
-        }
-      } finally {
-        funsRetTpRWLock.writeLock().unlock()
-      }
-    }
-    if (funsRetTpRWLock.getReadHoldCount == 0 && funsRetTpRWLock.getWriteHoldCount == 0) {
-      calc()
+  def addModificationFunctionsReturnType(fun: ScModifiableTypedDeclaration): Unit = funsRetTpToCheck.synchronized {
+    if (!funsRetTpToCheck.contains(fun)) {
+      funsRetTpToCheck += fun
+      needToCheckFuns = true
     }
   }
 }

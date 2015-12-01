@@ -76,7 +76,7 @@ trait ScModificationTrackerOwner extends ScalaPsiElement with PsiModifiableCodeB
   //elem is always the child of this element because this function is called when going up the tree starting with elem
   //if this is a valid modification tracker owner, no need to change modification count
   override def shouldChangeModificationCount(elem: PsiElement) = {
-    !isValidModificationTrackerOwner(checkForChangedReturn = true)
+    !isValidModificationTrackerOwner()
   }
 
   @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
