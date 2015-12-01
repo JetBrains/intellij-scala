@@ -20,7 +20,7 @@ case class ClassCast(operand: IntermediateNode,
 
 case class ArrayInitializer(expresions: Seq[IntermediateNode]) extends IntermediateNode
 case class BinaryExpressionConstruction(firstPart: IntermediateNode, secondPart: IntermediateNode,
-                                        operation: String) extends IntermediateNode
+                                        operation: String, inExpression:Boolean) extends IntermediateNode
 
 case class ClassObjectAccess(expression: IntermediateNode) extends IntermediateNode
 case class InstanceOfConstruction(operand: IntermediateNode,
