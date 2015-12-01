@@ -38,6 +38,33 @@ object JavaToScala {
   }
 
   def isVar(element: PsiModifierListOwner, parent: PsiElement): Boolean = {
+    def usageInConstructorParams(usage: PsiReferenceExpression): Boolean = {
+      def correspondedConstructorParams: Seq[PsiParameter] = {
+        val constructor = Option(PsiTreeUtil.getParentOfType(usage, classOf[PsiMethod]))
+        if (constructor.isDefined && constructor.get.isConstructor) {
+          constructor.get.getParameterList.getParameters
+        } else {
+          Seq[PsiParameter]()
+        }
+      }
+
+      val params = correspondedConstructorParams
+      if (params.nonEmpty) {
+        val rightPart = usage.getParent match {
+          case ae: PsiAssignmentExpression if (ae.getOperationSign.getTokenType == JavaTokenType.EQ)
+            && ae.getRExpression.isInstanceOf[PsiReferenceExpression] =>
+            Option(ae.getRExpression.asInstanceOf[PsiReferenceExpression]).flatMap(e => Option(e.resolve()))
+          case _ => None
+        }
+
+        rightPart match {
+          case Some(param: PsiParameter) => !params.contains(param)
+          case _ => true
+        }
+
+      } else true
+    }
+
     val possibleVal = element.hasModifierProperty(PsiModifier.FINAL)
     val possibleVar = element.hasModifierProperty(PsiModifier.PUBLIC) || element.hasModifierProperty(PsiModifier.PROTECTED)
 
@@ -47,7 +74,7 @@ object JavaToScala {
       case 0 if possibleVal => false
       case 0 if possibleVar => true
       case 0 => false
-      case 1 if possibleVal => false
+      case 1 if possibleVal => if (element.isInstanceOf[PsiField]) usageInConstructorParams(references.head) else false
       case 1 if possibleVar => true
       case _ => true
     }
