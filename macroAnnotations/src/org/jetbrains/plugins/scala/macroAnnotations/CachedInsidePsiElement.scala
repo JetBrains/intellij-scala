@@ -14,7 +14,7 @@ import scala.reflect.macros.whitebox
   * Author: Svyatoslav Ilinskiy
   * Date: 9/25/15.
   */
-class CachedInsidePsiElement(psiElement: Any, dependencyItem: Object, useOptionalProvider: Boolean = false) extends StaticAnnotation {
+class CachedInsidePsiElement(psiElement: Any, dependencyItem: Object) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro CachedInsidePsiElement.cachedInsidePsiElementImpl
 }
 
@@ -23,22 +23,16 @@ object CachedInsidePsiElement {
     import CachedMacroUtil._
     import c.universe._
     implicit val x: c.type = c
-    def parameters: (Tree, Tree, Boolean) = {
+    def parameters: (Tree, Tree) = {
       c.prefix.tree match {
         case q"new CachedInsidePsiElement(..$params)" if params.length == 2 =>
-          (params.head, modCountParamToModTracker(c)(params(1), params.head), false)
-        case q"new CachedInsidePsiElement(..$params)" if params.length == 3 =>
-          val optional = params.last match {
-            case q"useOptionalProvider = $v" => c.eval[Boolean](c.Expr(v))
-            case q"$v" => c.eval[Boolean](c.Expr(v))
-          }
-          (params.head, modCountParamToModTracker(c)(params(1), params.head), optional)
+          (params.head, modCountParamToModTracker(c)(params(1), params.head))
         case _ => abort("Wrong annotation parameters!")
       }
     }
 
     //annotation parameters
-    val (elem, dependencyItem, useOptionalProvider) = parameters
+    val (elem, dependencyItem) = parameters
 
     annottees.toList match {
       case DefDef(mods, name, tpParams, paramss, retTp, rhs) :: Nil =>
@@ -54,9 +48,7 @@ object CachedInsidePsiElement {
         val defdefFQN = thisFunctionFQN(name.toString)
 
         val analyzeCaches = analyzeCachesEnabled(c)
-        val provider =
-          if (useOptionalProvider) TypeName("MyOptionalProvider")
-          else TypeName("MyProvider")
+        val provider = TypeName("MyProvider")
 
         val actualCalculation = transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
 

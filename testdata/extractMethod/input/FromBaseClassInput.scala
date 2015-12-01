@@ -8,9 +8,9 @@ object Bug {
   class A  {
     class B extends C {
       def foo() = {
-        /*start*/
+/*start*/
         x + 1
-        /*end*/
+/*end*/
       }
     }
   }

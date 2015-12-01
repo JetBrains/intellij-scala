@@ -57,9 +57,7 @@ class IdeClientIdea(compilerName: String,
         try {
           val reader: ClassReader = new ClassReader(content.getBuffer, content.getOffset, content.getLength)
           mappingsCallback.associate(FileUtil.toSystemIndependentName(outputFile.getPath), sourcePath, reader)
-          if (outputFile.getName == s"$packageObjectClassName.class") {
-            collectPackageObjectData(source, reader)
-          }
+          handlePackageObject(source, outputFile, reader)
         }
         catch {
           case e: Throwable =>
@@ -86,38 +84,37 @@ class IdeClientIdea(compilerName: String,
     persistPackageObjectData()
   }
 
-  private def collectPackageObjectData(source: File, reader: ClassReader): Unit = {
-    val baseTypes: Array[String] = {
-      val superClass = reader.getSuperName match {
-        case "java/lang/Object" => None
-        case sName => Some(sName)
-      }
-      val interfaces = reader.getInterfaces
+  private def handlePackageObject(source: File, outputFile: File, reader: ClassReader): Any = {
+    if (outputFile.getName == s"$packageObjectClassName.class") {
+      packageObjectsBaseClasses ++= collectPackageObjectBaseClasses(source, reader)
+    }
+  }
+
+  private def collectPackageObjectBaseClasses(source: File, reader: ClassReader): Seq[PackageObjectBaseClass] = {
+    val baseTypes: Seq[String] = {
+      val superClass = Option(reader.getSuperName).filterNot(_ == "java/lang/Object")
+      val interfaces = reader.getInterfaces.toSeq
       interfaces ++ superClass
     }
     val className = reader.getClassName
     val packageName = className.stripSuffix(packageObjectClassName).replace("/", ".")
-    baseTypes.foreach { sName =>
-      val nameWithDots = sName.replace('/', '.')
-      val packObjectBaseClass = PackageObjectBaseClass(source, packageName, nameWithDots)
-      if (!packageObjectsBaseClasses.contains(packObjectBaseClass)) {
-        packageObjectsBaseClasses += packObjectBaseClass
-      }
+    for {
+      typeName <- baseTypes.map(_.replace('/', '.'))
+      packObjectBaseClass = PackageObjectBaseClass(source, packageName, typeName)
+      if !packageObjectsBaseClasses.contains(packObjectBaseClass)
+    } yield {
+      packObjectBaseClass
     }
   }
 
   private def persistPackageObjectData(): Unit = {
     val compiledClasses = consumer.getCompiledClasses
-    packageObjectsBaseClasses.foreach { item =>
-      compiledClasses.get(item.baseClassName) match {
-        case null =>
-        case cc =>
-          val className = cc.getClassName
-          if (className != null && className.startsWith(item.packageName)) {
-            val baseClassSource = cc.getSourceFile
-            packageObjectsData.add(baseClassSource, item.packObjectSrc)
-          }
-      }
+
+    for (item <- packageObjectsBaseClasses;
+         cc <- Option(compiledClasses.get(item.baseClassName));
+         className <- Option(cc.getClassName) if className.startsWith(item.packageName)) {
+
+      packageObjectsData.add(cc.getSourceFile, item.packObjectSrc)
     }
 
     packageObjectsData.save(context)

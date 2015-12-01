@@ -1,9 +1,9 @@
 class ChangeLocalVar {
   def foo {
     var i = 23
-    /*start*/
+/*start*/
     i = 24
-    /*end*/
+/*end*/
     val j = i
   }
 }

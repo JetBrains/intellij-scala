@@ -1,10 +1,10 @@
 object SearchComments
 
 /**
- * SearchComments
- */
+  * SearchComments
+  */
 object Main {
-  /*caret*/SearchComments
+  /*caret*/ SearchComments
 }
 /*
 object NameAfterRename

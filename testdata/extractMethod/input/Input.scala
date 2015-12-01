@@ -2,14 +2,14 @@ class Input {
   def foo(x: Int) {
     val y = 34
     val z = ""
-    /*start*/
+/*start*/
     if (z == "") {
       val g = y + 1
       print(g)
     } else {
       print(x)
     }
-    /*end*/
+/*end*/
     if (x == 1) return
   }
 }

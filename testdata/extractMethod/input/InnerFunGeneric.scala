@@ -2,11 +2,11 @@ class A {
   def foo[T](x: T) {
     def goo[G](y: G) {
       val z: T = x
-      /*start*/
+/*start*/
       y: G
       z: T
       val u = x
-      /*end*/
+/*end*/
       u
     }
     goo(3)

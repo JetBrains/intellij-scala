@@ -96,7 +96,9 @@ class ScalaRenameAliasedTest extends ScalaRenameTestBase {
       |object test {
       |
       |  object A {
+      |
       |    object oldObjectName<caret>
+      |
       |  }
       |
       |  A.oldObjectName
@@ -138,7 +140,9 @@ class ScalaRenameAliasedTest extends ScalaRenameTestBase {
       |object test {
       |
       |  object A {
+      |
       |    class oldClassName<caret>
+      |
       |  }
       |
       |  new A.oldClassName: A.oldClassName

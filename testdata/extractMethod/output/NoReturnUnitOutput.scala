@@ -1,10 +1,10 @@
 class NoReturnUnitOutput {
   def foo(i: Int) {
-    /*start*/
+/*start*/
 
     val x: Unit = println("unit")
     println(i)
-    /*end*/
+/*end*/
     x
   }
 }

@@ -1,11 +1,11 @@
 class FunType {
   def a = {
     val y = (_: Int) + 1
-    /*start*/
+/*start*/
 
     val z = y
     y(1)
-    /*end*/
+/*end*/
     z
   }
 }

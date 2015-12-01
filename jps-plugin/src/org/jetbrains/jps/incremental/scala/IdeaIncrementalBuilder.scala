@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala
 
+import _root_.java.io.File
 import _root_.java.util
-import java.io.File
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.Processor
@@ -43,8 +43,8 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     val sourceDependencies = SourceDependenciesProviderService.getSourceDependenciesFor(chunk)
     if (sourceDependencies.nonEmpty) {
       val message = "IDEA incremental compiler cannot handle shared source modules: " +
-              sourceDependencies.map(_.getName).mkString(", ") +
-              ".\nPlease enable SBT incremental compiler for the project."
+        sourceDependencies.map(_.getName).mkString(", ") +
+        ".\nPlease enable SBT incremental compiler for the project."
       context.processMessage(new CompilerMessage("scala", BuildMessage.Kind.ERROR, message))
       return ExitCode.ABORT
     }
@@ -60,13 +60,12 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
       return ExitCode.NOTHING_DONE
     }
 
-    val packageObjectsData = PackageObjectsData.load(context)
+    val packageObjectsData = PackageObjectsData.getFor(context)
     if (JavaBuilderUtil.isForcedRecompilationAllJavaModules(context)) { //rebuild
       packageObjectsData.clear()
-      packageObjectsData.save(context)
     }
     else {
-      val additionalFiles = packageObjectsData.shouldInvalidateWith(sources)
+      val additionalFiles = packageObjectsData.invalidatedPackageObjects(sources).filter(_.exists)
       if (additionalFiles.nonEmpty) {
         (sources ++ additionalFiles).foreach(f => FSOperations.markDirty(context, CompilationRound.NEXT, f))
         return ExitCode.ADDITIONAL_PASS_REQUIRED
@@ -114,8 +113,8 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
   }
 
   private def collectSources(context: CompileContext,
-                     chunk: ModuleChunk,
-                     dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Seq[File] = {
+                             chunk: ModuleChunk,
+                             dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget]): Seq[File] = {
 
     val result = ListBuffer[File]()
 

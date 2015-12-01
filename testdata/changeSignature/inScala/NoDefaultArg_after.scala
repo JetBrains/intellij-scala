@@ -1,5 +1,5 @@
 class NoDefaultArg {
-  def foo(i: Int, j: Int =) {}
+  def foo(i: Int, j: Int =  ) {}
 
   foo(1)
 }

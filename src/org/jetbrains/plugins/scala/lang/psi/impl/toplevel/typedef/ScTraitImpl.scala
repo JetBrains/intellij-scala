@@ -92,6 +92,6 @@ class ScTraitImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
   }
 
   override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = {
-    SyntheticMembersInjector.inject(this)
+    SyntheticMembersInjector.inject(this, withOverride = false)
   }
 }

@@ -1,13 +1,13 @@
 class ReturnSeveralOutput1 {
   def foo(i: Int): Int = {
-    /*start*/
+/*start*/
 
     val x = i
     if (true) return x
     val y = "a"
     val z = 1
     val zz = "1"
-    /*end*/
+/*end*/
     println(x + y + z + zz)
     i
   }

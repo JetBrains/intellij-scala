@@ -1,12 +1,12 @@
 object SeveralOutputs {
   def foo(i: Int) {
     val q = i
-    /*start*/
+/*start*/
     println(q)
     val z = q + 1
     val zz = q + 2
     var zzz = q + 3
-    /*end*/
+/*end*/
 
     zzz + zz + z
   }

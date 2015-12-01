@@ -17,7 +17,14 @@ case class SbtData(interfaceJar: File,
                    javaClassVersion: String)
 
 object SbtData {
-  val dataRoot = new File(System.getProperty("user.home"), ".idea-build")
+  val compilerInterfacesKey = "scala.compiler.interfaces.dir"
+
+  private def compilerInterfacesDir = {
+    def defaultDir = new File(new File(System.getProperty("user.home"), ".idea-build"), "scala-compiler-interfaces")
+
+    val customPath = Option(System.getProperty(compilerInterfacesKey))
+    customPath.map(new File(_)).getOrElse(defaultDir)
+  }
 
   def from(classLoader: ClassLoader, pluginRoot: File, javaClassVersion: String): Either[String, SbtData] = {
     Either.cond(pluginRoot.exists, pluginRoot,
@@ -40,7 +47,7 @@ object SbtData {
               .map { sbtVersion =>
 
               val checksum = DatatypeConverter.printHexBinary(md5(sourceJar))
-              val interfacesHome = new File(new File(dataRoot, "scala-compiler-interfaces"), sbtVersion + "-idea-" + checksum)
+              val interfacesHome = new File(compilerInterfacesDir, sbtVersion + "-idea-" + checksum)
 
               new SbtData(interfaceJar, sourceJar, interfacesHome, javaClassVersion)
             }

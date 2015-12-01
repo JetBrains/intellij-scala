@@ -1,0 +1,11 @@
+object Blargle {
+  foo(<begin>""<end>)
+  def foo[T <: String](t: T) = println(t.charAt(0))
+}
+------
+object Blargle {
+  private val value: String = ""
+  foo(value)
+  def foo[T <: String](t: T) = println(t.charAt(0))
+}
+

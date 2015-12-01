@@ -4,9 +4,11 @@ class Test {
   object A {
     /*start*/1/*end*/
   }
+
   def foo() {
     1
   }
+
   1
 }
 
