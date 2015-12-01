@@ -302,7 +302,8 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       printer.append("new ")
       visit(mtype)
       printWithSeparator(arrayDimension, ", ", "(", ")",
-        arrayDimension != null && arrayDimension.nonEmpty && !arrayDimension.head.isInstanceOf[ExpressionList])
+        arrayDimension != null && arrayDimension.nonEmpty &&
+          !arrayDimension.head.isInstanceOf[ExpressionList] && arrayDimension.head != LiteralExpression("()"))
     }
   }
 
