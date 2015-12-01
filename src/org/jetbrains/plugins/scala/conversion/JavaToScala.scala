@@ -256,10 +256,9 @@ object JavaToScala {
             getFirstStatement(m).map(_.getExpression).flatMap {
               case mc: PsiMethodCallExpression if mc.getMethodExpression.getQualifiedName == "this" =>
                 Some(convertPsiToIntermdeiate(m.getBody, externalProperties))
-              case mc: PsiMethodCallExpression =>
+              case _ =>
                 Some(BlockConstruction(LiteralExpression("this()")
                   +: m.getBody.getStatements.map(convertPsiToIntermdeiate(_, externalProperties))))
-              case _ => None
             }
           } else {
             Option(m.getBody).map(convertPsiToIntermdeiate(_, externalProperties))
@@ -267,7 +266,7 @@ object JavaToScala {
         }
 
         if (m.isConstructor) {
-          ConstructorSimply(handleModifierList(m), m.getName, m.getTypeParameters.map(convertPsiToIntermdeiate(_, externalProperties)),
+          ConstructorSimply(handleModifierList(m), m.getTypeParameters.map(convertPsiToIntermdeiate(_, externalProperties)),
             convertPsiToIntermdeiate(m.getParameterList, externalProperties), body)
         } else {
           MethodConstruction(handleModifierList(m), m.getName, m.getTypeParameters.map(convertPsiToIntermdeiate(_, externalProperties)),
@@ -321,9 +320,9 @@ object JavaToScala {
 
       case n: PsiNewExpression =>
         if (n.getAnonymousClass != null) {
-          return NewExpression(Some(convertPsiToIntermdeiate(n.getAnonymousClass, externalProperties)))
+          return AnonymousClassExpression(convertPsiToIntermdeiate(n.getAnonymousClass, externalProperties))
         }
-        val mtype = Some(TypeConstruction.createStringTypePresentation(n.getType, n.getProject))
+        val mtype = TypeConstruction.createStringTypePresentation(n.getType, n.getProject)
         if (n.getArrayInitializer != null) {
           NewExpression(mtype, n.getArrayInitializer.getInitializers.map(convertPsiToIntermdeiate(_, externalProperties)),
             withArrayInitalizer = true)

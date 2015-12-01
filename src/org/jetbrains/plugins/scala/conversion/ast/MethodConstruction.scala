@@ -11,7 +11,7 @@ case class MethodConstruction(modifiers: IntermediateNode, name: String, typePar
 
 trait Constructor
 
-case class ConstructorSimply(modifiers: IntermediateNode, name: String, typeParams: Seq[IntermediateNode],
+case class ConstructorSimply(modifiers: IntermediateNode, typeParams: Seq[IntermediateNode],
                              params: IntermediateNode, body: Option[IntermediateNode]) extends IntermediateNode
 case class PrimaryConstruction(params: Seq[(String, IntermediateNode, Boolean)], superCall: IntermediateNode,
                                body: Seq[IntermediateNode],  modifiers: IntermediateNode)

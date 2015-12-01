@@ -46,24 +46,21 @@ case class SuperExpression(value: Option[IntermediateNode]) extends Intermediate
 case class LiteralExpression(literal: String) extends IntermediateNode
 case class ParenthesizedExpression(value: Option[IntermediateNode]) extends IntermediateNode
 object NewExpression {
-  def apply(anonymousClass: Option[IntermediateNode]): NewExpression = {
-    NewExpression(None, Seq[IntermediateNode](), Seq[IntermediateNode](), anonymousClass)
-  }
-
-  def apply(mtype: Option[IntermediateNode], arrayInitalizer: Seq[IntermediateNode],
+  def apply(mtype: IntermediateNode, arrayInitalizer: Seq[IntermediateNode],
             withArrayInitalizer: Boolean = true): NewExpression = {
     if (withArrayInitalizer)
-      NewExpression(mtype, arrayInitalizer, Seq[IntermediateNode](), None)
+      NewExpression(mtype, arrayInitalizer, Seq[IntermediateNode]())
     else
-      NewExpression(mtype, Seq[IntermediateNode](), arrayInitalizer, None)
+      NewExpression(mtype, Seq[IntermediateNode](), arrayInitalizer)
   }
 }
 
-case class NewExpression(mtype: Option[IntermediateNode], arrayInitalizer: Seq[IntermediateNode],
-                         arrayDimension: Seq[IntermediateNode],
-                         anonClass: Option[IntermediateNode]) extends IntermediateNode with TypedElement {
-    override def getType: TypeConstruction = mtype.asInstanceOf[TypedElement].getType
+case class NewExpression(mtype: IntermediateNode, arrayInitalizer: Seq[IntermediateNode],
+                         arrayDimension: Seq[IntermediateNode]) extends IntermediateNode with TypedElement {
+  override def getType: TypeConstruction = mtype.asInstanceOf[TypedElement].getType
 }
+
+case class AnonymousClassExpression(anonymousClass: IntermediateNode) extends IntermediateNode
 
 case class PolyadicExpression(args: Seq[IntermediateNode], operation: String) extends IntermediateNode
 
