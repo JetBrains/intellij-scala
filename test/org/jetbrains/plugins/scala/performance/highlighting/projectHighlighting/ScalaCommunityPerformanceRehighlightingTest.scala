@@ -14,7 +14,11 @@ class ScalaCommunityPerformanceRehighlightingTest extends RehighlightingPerforma
   with ScalaCommunityDownloadingAndImportingTestCase {
 
   def testTypingInScalaPsiUtil(): Unit = {
-    doTest("ScalaPsiUtil.scala", 40.seconds, Seq("val i = Some(10)\n"), new LogicalPosition(80, 1), Some("def foo() = {\n"))
+    doTest("ScalaPsiUtil.scala", 4.seconds, Seq("val i = Some(10)\n"), new LogicalPosition(80, 1), Some("def foo() = {\n"))
+  }
+
+  def testTypingInScalaPsiUtilInClassBody(): Unit = {
+    doTest("ScalaPsiUtil.scala", 40.seconds, Seq("val i = Some(10)\n"), new LogicalPosition(80, 1), None)
   }
 
   def testTypingInsideFunctionWithDefinedReturnType(): Unit = {
