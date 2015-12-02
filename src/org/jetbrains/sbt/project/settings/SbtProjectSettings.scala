@@ -34,9 +34,6 @@ class SbtProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var useOurOwnAutoImport: Boolean = false
 
-  @BeanProperty
-  var cachedUpdate: Boolean = false
-
   override def clone() = {
     val result = new SbtProjectSettings()
     copyTo(result)
@@ -45,7 +42,6 @@ class SbtProjectSettings extends ExternalProjectSettings {
     result.resolveSbtClassifiers = resolveSbtClassifiers
     result.sbtVersion = sbtVersion
     result.useOurOwnAutoImport = useOurOwnAutoImport
-    result.cachedUpdate = cachedUpdate
     result
   }
 
