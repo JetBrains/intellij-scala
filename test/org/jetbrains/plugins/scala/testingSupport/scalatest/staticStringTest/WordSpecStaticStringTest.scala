@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.staticStringTest
 
-import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
+import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
 /**
- * @author Roman.Shein
- * @since 26.06.2015.
- */
-trait WordSpecStaticStringTest extends IntegrationTest {
+  * @author Roman.Shein
+  * @since 26.06.2015.
+  */
+trait WordSpecStaticStringTest extends ScalaTestTestCase {
   val wordSpecClassName = "WordSpecStringTest"
   val wordSpecFileName = wordSpecClassName + ".scala"
 

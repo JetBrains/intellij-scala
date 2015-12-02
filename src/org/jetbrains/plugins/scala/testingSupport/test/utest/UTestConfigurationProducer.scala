@@ -62,7 +62,7 @@ class UTestConfigurationProducer extends {
     val testClassPath = testClass.qualifiedName
     val settings = RunManager.getInstance(location.getProject).
       createRunConfiguration(StringUtil.getShortName(testClassPath) +
-      (if (testName != null) "\\" + testName else ""), confFactory)
+        (if (testName != null) "\\" + testName else ""), confFactory)
     val runConfiguration = settings.getConfiguration.asInstanceOf[UTestRunConfiguration]
     runConfiguration.setTestClassPath(testClassPath)
     runConfiguration.initWorkingDir()
@@ -85,11 +85,11 @@ class UTestConfigurationProducer extends {
   override def suitePaths = List("utest.framework.TestSuite")
 
   /**
-   * Provides name of a test suite (i.e. single test defined as a val is uTest TestSuite) from a an 'apply' method call
-   * defining the suite.
-   * @param testSuite
-   * @return
-   */
+    * Provides name of a test suite (i.e. single test defined as a val is uTest TestSuite) from a an 'apply' method call
+    * defining the suite.
+    * @param testSuite
+    * @return
+    */
   private def getTestSuiteName(testSuite: ScMethodCall): Option[String] = {
     testSuite.getParent match {
       case patternDef: ScPatternDefinition => Some(patternDef.bindings.head.getName)
@@ -137,24 +137,6 @@ class UTestConfigurationProducer extends {
     case other => other.toString
   }
 
-  /**
-   * Attempts to build a test path from given expression containing test name and expression containing test scope definition.
-   * @param testNameExpr expression containing test name
-   * @param testExpr expression containing test definition
-   * @return
-   */
-  @tailrec
-  private def buildPathFromTestNameExpr(testNameExpr: ScExpression, testExpr: ScExpression): Option[String] = {
-    val subExprs = testNameExpr.getChildren.filter(_.isInstanceOf[ScExpression]).map(_.asInstanceOf[ScExpression])
-    //for now, only process tests that have simple literals as names
-    if (subExprs.length == 1) {
-      subExprs.head match {
-        case literal: ScLiteral if literal.isString || literal.isSymbol => buildTestPath(testExpr, getTestName(literal))
-        case other => buildPathFromTestNameExpr(other, testExpr)
-      }
-    } else None
-  }
-
   private def buildPathFromTestExpr(expr: ScExpression): Option[String] =
     expr.firstChild.flatMap(TestConfigurationUtil.getStaticTestName(_, allowSymbolLiterals = true)).
       flatMap(buildTestPath(expr, _))
@@ -172,22 +154,23 @@ class UTestConfigurationProducer extends {
     if (!suitePaths.exists(suitePath => TestConfigurationUtil.isInheritor(containingObject, suitePath))) return (null, null)
     val testClassPath = containingObject.qualifiedName
 
-    val testName = ScalaPsiUtil.getParentWithProperty(element, strict = false,
-      e => TestNodeProvider.isUTestInfixExpr(e) || TestNodeProvider.isUTestSuiteApplyCall(e) || TestNodeProvider.isUTestApplyCall(e)).
-      map { case infixExpr: ScInfixExpr =>
-      //test location is a scope defined through infix '-'
-      buildPathFromTestExpr(infixExpr)
-    case methodCall: ScMethodCall if TestNodeProvider.isUTestApplyCall(methodCall) =>
-      //test location is a scope define without use of '-' method
-      buildPathFromTestExpr(methodCall)
-    case methodCall: ScMethodCall =>
-      //test location is a test method definition
-      getTestSuiteName(methodCall)
-    case _ => None
-    }.flatten.getOrElse(
-        //it is also possible that element is on left-hand of test suite definition
-        TestNodeProvider.getUTestLeftHandTestDefinition(element).flatMap(getTestSuiteName).orNull
-      )
+    val nameContainer = ScalaPsiUtil.getParentWithProperty(element, strict = false,
+      e => TestNodeProvider.isUTestInfixExpr(e) || TestNodeProvider.isUTestSuiteApplyCall(e) || TestNodeProvider.isUTestApplyCall(e))
+    val testName = nameContainer.flatMap {
+      case infixExpr: ScInfixExpr =>
+        //test location is a scope defined through infix '-'
+        buildPathFromTestExpr(infixExpr)
+      case methodCall: ScMethodCall if TestNodeProvider.isUTestApplyCall(methodCall) =>
+        //test location is a scope define without use of '-' method
+        buildPathFromTestExpr(methodCall)
+      case methodCall: ScMethodCall =>
+        //test location is a test method definition
+        getTestSuiteName(methodCall)
+      case _ => None
+    }.getOrElse(
+      //it is also possible that element is on left-hand of test suite definition
+      TestNodeProvider.getUTestLeftHandTestDefinition(element).flatMap(getTestSuiteName).orNull
+    )
     (containingObject, testName)
   }
 }

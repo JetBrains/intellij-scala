@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.generators
 
-import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
+import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
 /**
- * @author Roman.Shein
- * @since 10.02.2015.
- */
-trait FlatSpecGenerator extends IntegrationTest {
+  * @author Roman.Shein
+  * @since 10.02.2015.
+  */
+trait FlatSpecGenerator extends ScalaTestTestCase {
   def flatSpecClassName = "FlatSpecTest"
+
   def flatSpecFileName = flatSpecClassName + ".scala"
 
   def addFlatSpec() {
@@ -38,21 +39,21 @@ trait FlatSpecGenerator extends IntegrationTest {
 
   def addBehaviorFlatSpec() = {
     addFileToProject("BehaviorFlatSpec.scala",
-    """
-      |import org.scalatest._
-      |
-      |class BehaviorFlatSpec extends FlatSpec with GivenWhenThen {
-      |  behavior of "FlatSpec"
-      |
-      |  it should "run scopes" in {
-      |
-      |  }
-      |
-      |  it should "do other stuff" in {
-      |
-      |  }
-      |}
-    """.stripMargin.trim()
+      """
+        |import org.scalatest._
+        |
+        |class BehaviorFlatSpec extends FlatSpec with GivenWhenThen {
+        |  behavior of "FlatSpec"
+        |
+        |  it should "run scopes" in {
+        |
+        |  }
+        |
+        |  it should "do other stuff" in {
+        |
+        |  }
+        |}
+      """.stripMargin.trim()
     )
   }
 }
