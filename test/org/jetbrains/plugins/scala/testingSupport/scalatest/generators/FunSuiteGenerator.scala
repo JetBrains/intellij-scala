@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.generators
 
-import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
+import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
 /**
- * @author Roman.Shein
- * @since 10.02.2015.
- */
-trait FunSuiteGenerator extends IntegrationTest {
+  * @author Roman.Shein
+  * @since 10.02.2015.
+  */
+trait FunSuiteGenerator extends ScalaTestTestCase {
   def addFunSuite() {
     addFileToProject("FunSuiteTest.scala",
       """

@@ -5,10 +5,10 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators._
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestAstTransformer
 
 /**
- * @author Roman.Shein
- * @since 10.02.2015.
- */
-trait FindersApiTest extends IntegrationTest with FeatureSpecGenerator with FlatSpecGenerator with FreeSpecGenerator
+  * @author Roman.Shein
+  * @since 10.02.2015.
+  */
+trait FindersApiTest extends FeatureSpecGenerator with FlatSpecGenerator with FreeSpecGenerator
 with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with PropSpecGenerator with WordSpecGenerator {
   def checkSelection(lineNumber: Int, offset: Int, fileName: String, testNames: Set[String]) = {
     val location = createLocation(lineNumber, offset, fileName)
@@ -58,7 +58,7 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
     checkSelection(16, 1, fileName, Set(flatTestName2))
   }
 
-  def testBehaviorFlatSpec(){
+  def testBehaviorFlatSpec() {
     addBehaviorFlatSpec()
 
     val testNames = Set("FlatSpec should run scopes", "FlatSpec should do other stuff")
@@ -150,7 +150,7 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
     checkSelection(9, 15, fileName, Set(testName2))
   }
 
-  def testFunSuite(){
+  def testFunSuite() {
     addFunSuite()
 
     val fileName = "FunSuiteTest.scala"

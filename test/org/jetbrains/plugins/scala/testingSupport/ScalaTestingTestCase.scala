@@ -17,20 +17,22 @@ import com.intellij.ide.util.treeView.smartTree.{NodeProvider, TreeElement, Tree
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.util.Key
+import com.intellij.psi.impl.file.PsiDirectoryFactory
 import com.intellij.psi.{PsiElement, PsiManager}
 import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestBase, ScalaVersion_2_11}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiManager, ScPackageImpl}
 import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, AbstractTestRunConfiguration}
 
 /**
- * @author Roman.Shein
- *         Date: 03.03.14
- */
+  * @author Roman.Shein
+  *         Date: 03.03.14
+  */
 abstract class ScalaTestingTestCase(private val configurationProducer: AbstractTestConfigurationProducer) extends ScalaDebuggerTestBase with IntegrationTest with ScalaVersion_2_11 {
 
   override val testDataBasePrefix = "testingSupport"
@@ -53,8 +55,8 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
   override protected def buildFileStructure(fileName: String): TreeElementWrapper = {
     val ioFile = new java.io.File(srcDir, fileName)
     val file = PsiManager.getInstance(getProject).findFile(getVirtualFile(ioFile))
-    val treeViewModel = new ScalaStructureViewModel(file.asInstanceOf[ScalaFile]){
-      override def isEnabled (provider: NodeProvider[_ <: TreeElement]): Boolean = provider.isInstanceOf[TestNodeProvider]
+    val treeViewModel = new ScalaStructureViewModel(file.asInstanceOf[ScalaFile]) {
+      override def isEnabled(provider: NodeProvider[_ <: TreeElement]): Boolean = provider.isInstanceOf[TestNodeProvider]
     }
     val wrapper = new StructureViewComponent.StructureViewTreeElementWrapper(getProject, treeViewModel.getRoot, treeViewModel)
 
@@ -79,7 +81,7 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
     val psiFile = myManager.findViewProvider(file).getPsi(ScalaFileType.SCALA_LANGUAGE)
 
     val psiElement = psiFile.findElementAt(FileDocumentManager.getInstance().getDocument(file).
-        getLineStartOffset(lineNumber) + offset)
+      getLineStartOffset(lineNumber) + offset)
 
     new PsiLocation(project, myModule, psiElement)
   }
@@ -87,19 +89,28 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
   private def failedConfigMessage(fileName: String, lineNumber: Int, offset: Int) =
     "Failed to create run configuration for test from file " + fileName + " from line " + lineNumber + " at offset " + offset
 
+  private def failedConfigMessage(packageName: String) = "Failed to create run configuration for test from package " + packageName
+
   override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings =
     configurationProducer.createConfigurationByLocation(createLocation(lineNumber, offset, fileName)).map(_._2) match {
       case Some(testConfig) => testConfig
       case _ => throw new RuntimeException(failedConfigMessage(fileName, lineNumber, offset))
     }
 
-  override protected def runTestFromConfig(
-                                   configurationCheck: RunnerAndConfigurationSettings => Boolean,
-                                   runConfig: RunnerAndConfigurationSettings,
-                                   checkOutputs: Boolean = false,
-                                   duration: Int = 3000,
-                                   debug: Boolean = false
-                                   ): (String, Option[AbstractTestProxy]) = {
+  override protected def createTestFromPackage(packageName: String): RunnerAndConfigurationSettings =
+    configurationProducer.createConfigurationByLocation(
+      new PsiLocation(getProject, PsiDirectoryFactory.getInstance(getProject).createDirectory(getProject.getBaseDir.findChild("src").findChild(packageName)))
+    ).map(_._2) match {
+      case Some(testConfig) => testConfig
+      case _ => throw new RuntimeException(failedConfigMessage(packageName))
+    }
+
+  override protected def runTestFromConfig(configurationCheck: RunnerAndConfigurationSettings => Boolean,
+                                           runConfig: RunnerAndConfigurationSettings,
+                                           checkOutputs: Boolean = false,
+                                           duration: Int = 3000,
+                                           debug: Boolean = false
+                                          ): (String, Option[AbstractTestProxy]) = {
     assert(configurationCheck(runConfig))
     assert(runConfig.getConfiguration.isInstanceOf[AbstractTestRunConfiguration])
     runConfig.getConfiguration.asInstanceOf[AbstractTestRunConfiguration].setupIntegrationTestClassPath()
@@ -136,9 +147,9 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
   }
 
   private def runProcess(runConfiguration: RunnerAndConfigurationSettings,
-                           executorClass: Class[_ <: Executor],
-                           listener: ProcessListener,
-                           runner: ProgramRunner[_ <: RunnerSettings]): (ProcessHandler, RunContentDescriptor) = {
+                         executorClass: Class[_ <: Executor],
+                         listener: ProcessListener,
+                         runner: ProgramRunner[_ <: RunnerSettings]): (ProcessHandler, RunContentDescriptor) = {
     val configuration = runConfiguration.getConfiguration
     val executor: Executor = Executor.EXECUTOR_EXTENSION_NAME.findExtension(executorClass)
     val executionEnvironmentBuilder: ExecutionEnvironmentBuilder =

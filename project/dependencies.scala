@@ -194,6 +194,8 @@ object DependencyGroups {
     "org.scalatest" % "scalatest_2.11" % "2.1.7",
     "org.scalatest" % "scalatest_2.10" % "2.1.7",
     "org.scalatest" % "scalatest_2.10" % "1.9.2",
+    "com.lihaoyi" % "utest_2.10" % "0.1.2",
+    "com.lihaoyi" % "utest_2.11" % "0.3.1",
     "com.github.julien-truffaut"  %%  "monocle-core"    % "1.2.0-SNAPSHOT",
     "com.github.julien-truffaut"  %%  "monocle-generic" % "1.2.0-SNAPSHOT",
     "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.2.0-SNAPSHOT",
