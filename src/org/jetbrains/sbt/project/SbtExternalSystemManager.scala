@@ -86,7 +86,7 @@ object SbtExternalSystemManager {
 
     new SbtExecutionSettings(realProjectPath,
       vmExecutable, vmOptions, environment, customLauncher, customSbtStructureFile, projectJdkName,
-      projectSettings.resolveClassifiers, projectSettings.resolveSbtClassifiers, projectSettings.cachedUpdate)
+      projectSettings.resolveClassifiers, projectSettings.resolveSbtClassifiers)
   }
 
   private def getProjectJdkName(project: Project, projectSettings: SbtProjectSettings): Option[String] =

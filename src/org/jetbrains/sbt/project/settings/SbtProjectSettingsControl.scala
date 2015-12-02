@@ -46,8 +46,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
   private val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
 
-  private val cachedUpdateCheckBox = new JCheckBox(SbtBundle("sbt.settings.cacheUpdateResults"))
-
   def fillExtraControls(@NotNull content: PaintAwarePanel, indentLevel: Int) {
     val label = new JLabel("Project \u001BSDK:")
     label.setLabelFor(jdkComboBox)
@@ -59,7 +57,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
     content.add(resolveClassifiersCheckBox, getFillLineConstraints(indentLevel))
     content.add(resolveSbtClassifiersCheckBox, getFillLineConstraints(indentLevel))
-    content.add(cachedUpdateCheckBox, getFillLineConstraints(indentLevel))
 
     if (context == Context.Wizard) {
       content.add(jdkPanel, getFillLineConstraints(indentLevel))
@@ -71,8 +68,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
     selectedJdkName != settings.jdkName ||
       resolveClassifiersCheckBox.isSelected != settings.resolveClassifiers ||
-      resolveSbtClassifiersCheckBox.isSelected != settings.resolveClassifiers ||
-      cachedUpdateCheckBox.isSelected != settings.cachedUpdate
+      resolveSbtClassifiersCheckBox.isSelected != settings.resolveClassifiers
   }
 
   protected def resetExtraSettings(isDefaultModuleCreation: Boolean) {
@@ -83,7 +79,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
 
     resolveClassifiersCheckBox.setSelected(settings.resolveClassifiers)
     resolveSbtClassifiersCheckBox.setSelected(settings.resolveSbtClassifiers)
-    cachedUpdateCheckBox.setSelected(settings.cachedUpdate)
   }
 
   override def updateInitialExtraSettings() {
@@ -94,7 +89,6 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.jdk = selectedJdkName.orNull
     settings.resolveClassifiers = resolveClassifiersCheckBox.isSelected
     settings.resolveSbtClassifiers = resolveSbtClassifiersCheckBox.isSelected
-    settings.cachedUpdate = cachedUpdateCheckBox.isSelected
   }
 
   private def selectedJdkName = Option(jdkComboBox.getSelectedJdk).map(_.getName)

@@ -27,13 +27,12 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
   def cancel(): Unit =
     cancellationFlag.set(true)
 
-  def read(directory: File, download: Boolean, resolveClassifiers: Boolean, resolveSbtClassifiers: Boolean, cachedUpdate: Boolean)
+  def read(directory: File, download: Boolean, resolveClassifiers: Boolean, resolveSbtClassifiers: Boolean)
           (listener: (String) => Unit): Either[Exception, Elem] = {
 
     val options = download.seq("download") ++
             resolveClassifiers.seq("resolveClassifiers") ++
-            resolveSbtClassifiers.seq("resolveSbtClassifiers") ++
-            cachedUpdate.seq("cachedUpdate")
+            resolveSbtClassifiers.seq("resolveSbtClassifiers")
 
     checkFilePresence.fold(read0(directory, options.mkString(", "))(listener))(it => Left(new FileNotFoundException(it)))
   }
