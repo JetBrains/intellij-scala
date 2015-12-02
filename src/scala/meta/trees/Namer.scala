@@ -91,6 +91,14 @@ trait Namer {
           case ptype.AnyVal => std.anyValTypeName
           case ptype.Nothing=> std.nothingTypeName
           case ptype.Null   => std.nullTypeName
+          case ptype.Unit   => std.unit
+          case ptype.Boolean=> std.boolean
+          case ptype.Char   => std.char
+          case ptype.Int    => std.int
+          case ptype.Float  => std.float
+          case ptype.Double => std.double
+          case ptype.Byte   => std.byte
+          case ptype.Short  => std.short
           case _ =>
             val clazz = ScalaPsiManager.instance(getCurrentProject).getCachedClass(GlobalSearchScope.allScope(getCurrentProject), s"scala.${x.name}")
             if (clazz != null)
@@ -143,6 +151,7 @@ trait Namer {
     tp.staticSuper.map(t=>loop(toType(t))).getOrElse(m.Name.Anonymous())
   }
 
+  // FIXME: everything
   def ctorParentName(tpe: types.ScTypeElement) = {
     val raw = toType(tpe)
     raw.stripped match {

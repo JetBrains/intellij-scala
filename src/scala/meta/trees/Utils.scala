@@ -42,9 +42,15 @@ trait Utils {
     lazy val singletonTypeName = scalaTypeName("Singleton")
 
     // boxed stuff
-//    lazy val intTypeName = scalaTypeName("Int")
-//    lazy val stringTypeName = scalaTypeName("String")
-    // ...
+    lazy val unit = scalaTypeName("Unit")
+    lazy val boolean = scalaTypeName("Boolean")
+    lazy val char = scalaTypeName("Char")
+    lazy val int = scalaTypeName("Int")
+    lazy val float = scalaTypeName("Float")
+    lazy val double = scalaTypeName("Double")
+    lazy val byte = scalaTypeName("Byte")
+    lazy val short = scalaTypeName("Short")
+
   }
 
   implicit class RichPatTpeTree(ptpe: m.Type) {
