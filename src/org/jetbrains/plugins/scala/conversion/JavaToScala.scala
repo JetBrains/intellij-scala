@@ -277,13 +277,13 @@ object JavaToScala {
         val parent = Option(PsiTreeUtil.getParentOfType(l, classOf[PsiCodeBlock], classOf[PsiBlockStatement]))
         val needVar = if (parent.isEmpty) false else isVar(l, parent)
         val initalizer = Option(l.getInitializer).map(convertPsiToIntermdeiate(_, externalProperties))
-        LocalVariable(handleModifierList(l), l.getName, convertPsiToIntermdeiate(l.getTypeElement, externalProperties),
+        LocalVariable(handleModifierList(l), l.getName, TypeConstruction.createStringTypePresentation(l.getType, l.getProject),
           needVar, initalizer)
       case f: PsiField =>
         val modifiers = handleModifierList(f)
         val needVar = isVar(f, Option(f.getContainingClass))
         val initalizer = Option(f.getInitializer).map(convertPsiToIntermdeiate(_, externalProperties))
-        FieldConstruction(modifiers, f.getName, convertPsiToIntermdeiate(f.getTypeElement, externalProperties),
+        FieldConstruction(modifiers, f.getName, TypeConstruction.createStringTypePresentation(f.getType, f.getProject),
           needVar, initalizer)
       case p: PsiParameterList =>
         ParameterListConstruction(p.getParameters.map(convertPsiToIntermdeiate(_, externalProperties)))
@@ -347,13 +347,15 @@ object JavaToScala {
         val name = p.getName
 
         if (p.isVarArgs) {
-          p.getTypeElement.getType match {
+          p.getType match {
             case at: PsiArrayType =>
               val scCompType = TypeConstruction.createStringTypePresentation(at.getComponentType, p.getProject)
               ParameterConstruction(modifiers, name, scCompType, isArray = true)
-            case _ => ParameterConstruction(modifiers, name, convertPsiToIntermdeiate(p.getTypeElement, externalProperties), isArray = false) // should not happen
+            case t =>
+              ParameterConstruction(modifiers, name, TypeConstruction.createStringTypePresentation(t, p.getProject), isArray = false) // should not happen
           }
-        } else ParameterConstruction(modifiers, name, convertPsiToIntermdeiate(p.getTypeElement, externalProperties), isArray = false)
+        } else
+          ParameterConstruction(modifiers, name, TypeConstruction.createStringTypePresentation(p.getType, p.getProject), isArray = false)
 
       case n: PsiNewExpression =>
         if (n.getAnonymousClass != null) {
