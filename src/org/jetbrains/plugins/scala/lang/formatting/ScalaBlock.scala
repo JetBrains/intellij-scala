@@ -90,6 +90,9 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
           Indent.getSpaceIndent(2 * indentSize)
         else
           Indent.getNormalIndent, null)
+      case lBrace if !isLeaf && lBrace.getNode.getElementType == ScalaTokenTypes.tLBRACE &&
+        lBrace.getParent.isInstanceOf[ScTryBlock] =>
+        new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
       case p: ScPackaging if p.isExplicit => new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScBlock =>
         val grandParent = parent.getParent
