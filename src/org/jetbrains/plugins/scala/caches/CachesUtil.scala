@@ -303,7 +303,7 @@ object CachesUtil {
             ScalaPsiManager.instance(fun.getProject).incModificationCount()
             funsRetTpToCheck.clear()
           } else {
-            updateModificationCount(fun.getParent, incModCountOnTopLevel = true)
+            updateModificationCount(fun.getContext, incModCountOnTopLevel = true)
           }
           return
         }
