@@ -23,7 +23,7 @@ case class PackageStatement(statement: IntermediateNode) extends IntermediateNod
 case class JavaCodeReferenceStatement(qualifier: Option[IntermediateNode], parametrList: Option[IntermediateNode],
                                       name: String) extends IntermediateNode
 
-case class ForeachStatement(iterParamName: String, iteratedValue: Option[IntermediateNode],
+case class ForeachStatement(iterParamName: IntermediateNode, iteratedValue: Option[IntermediateNode],
                             body: Option[IntermediateNode], isJavaCollection: Boolean) extends IntermediateNode
 
 case class ExpressionListStatement(exprs: Seq[IntermediateNode]) extends IntermediateNode
@@ -47,3 +47,5 @@ case class WhileStatement(initialization: Option[IntermediateNode], condition: O
   extends IntermediateNode
 
 case class NotSupported(iNode: Option[IntermediateNode], msg: String) extends IntermediateNode
+
+case class NameIdentifier(name: String) extends IntermediateNode

@@ -76,6 +76,6 @@ case class ArrayConstruction(iNode: IntermediateNode) extends IntermediateNode w
     iNode.asInstanceOf[TypedElement].getType
 }
 
-case class TypeParameterConstruction(name: String, typez: Seq[IntermediateNode]) extends IntermediateNode
+case class TypeParameterConstruction(name: IntermediateNode, typez: Seq[IntermediateNode]) extends IntermediateNode
 
 case class TypeParameters(data: Seq[IntermediateNode]) extends IntermediateNode
