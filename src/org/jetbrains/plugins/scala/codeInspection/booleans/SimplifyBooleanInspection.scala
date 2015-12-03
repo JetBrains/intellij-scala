@@ -42,11 +42,12 @@ class SimplifyBooleanQuickFix(expr: ScExpression) extends AbstractFixOnPsiElemen
 }
 
 object SimplifyBooleanUtil {
-  val boolInfixOperations = List("==", "!=", "&&", "&", "||", "|", "^")
+  val boolInfixOperations = Set("==", "!=", "&&", "&", "||", "|", "^")
 
   def canBeSimplified(expr: ScExpression, isTopLevel: Boolean = true): Boolean = {
     expr match {
       case _: ScLiteral if !isTopLevel => booleanConst(expr).isDefined
+      case ScParenthesisedExpr(e) => canBeSimplified(e, isTopLevel)
       case expression: ScExpression =>
         val children = getScExprChildren(expr)
         val isBooleanOperation = expression match {
@@ -60,11 +61,14 @@ object SimplifyBooleanUtil {
     }
   }
 
-  def simplify(expr: ScExpression): ScExpression = {
-    val exprCopy = expr.copy.asInstanceOf[ScExpression]
-    val children = getScExprChildren(exprCopy)
-    children.foreach(child => exprCopy.getNode.replaceChild(child.getNode, simplify(child).getNode))
-    simplifyTrivially(exprCopy)
+  def simplify(expr: ScExpression, isTopLevel: Boolean = true): ScExpression = {
+    if (canBeSimplified(expr, isTopLevel) && booleanConst(expr).isEmpty) {
+      val exprCopy = ScalaPsiElementFactory.createExpressionWithContextFromText(expr.getText, expr.getContext, expr)
+      val children = getScExprChildren(exprCopy)
+      children.foreach(child => exprCopy.getNode.replaceChild(child.getNode, simplify(child, isTopLevel = false).getNode))
+      simplifyTrivially(exprCopy)
+    }
+    else expr
   }
 
   private def isOfBooleanType(expr: ScExpression): Boolean = expr.getType(TypingContext.empty).getOrAny.conforms(lang.psi.types.Boolean, checkWeak = true)
