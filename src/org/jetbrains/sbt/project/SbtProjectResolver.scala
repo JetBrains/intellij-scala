@@ -48,7 +48,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     var warnings = new StringBuilder()
 
-    val xml = runner.read(new File(root), !isPreview, settings.resolveClassifiers, settings.resolveSbtClassifiers) { message =>
+    val xml = runner.read(new File(root), !isPreview, settings.resolveClassifiers,
+        settings.resolveJavadocs, settings.resolveSbtClassifiers) { message =>
       if (message.startsWith("[error] ") || message.startsWith("[warn] ")) {
         warnings ++= message
       }
