@@ -15,7 +15,7 @@ object ClassConstruction {
 
 }
 
-case class ClassConstruction(name: String, primaryConstructor: Option[IntermediateNode], bodyElements: Seq[IntermediateNode],
+case class ClassConstruction(name: IntermediateNode, primaryConstructor: Option[IntermediateNode], bodyElements: Seq[IntermediateNode],
                              modifiers: IntermediateNode, typeParams: Option[Seq[IntermediateNode]],
                              initalizers: Option[Seq[IntermediateNode]], classType: ClassType, companion: IntermediateNode,
                              extendsList: Option[Seq[IntermediateNode]]) extends IntermediateNode
@@ -25,4 +25,4 @@ case class AnonymousClass(mType: IntermediateNode, args: IntermediateNode, body:
   override def getType: TypeConstruction = mType.asInstanceOf[TypedElement].getType
 }
 
-case class Enum(name: String, modifiers: IntermediateNode, enumConstants: Seq[String]) extends IntermediateNode
+case class Enum(name: IntermediateNode, modifiers: IntermediateNode, enumConstants: Seq[String]) extends IntermediateNode
