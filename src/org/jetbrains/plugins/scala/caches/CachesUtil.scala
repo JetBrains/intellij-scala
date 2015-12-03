@@ -296,7 +296,7 @@ object CachesUtil {
       var i = 0
       while (i < funsRetTpToCheck.size) {
         val fun = funsRetTpToCheck(i)
-        if (fun.returnTypeHasChangedSinceLastCheck) {
+        if (fun.returnTypeHasChangedSinceLastCheck && fun.isValid) {
 
           //if there's more than one, just increment the general modCount If there's one, go up th
           if (funsRetTpToCheck.size > 1) {
