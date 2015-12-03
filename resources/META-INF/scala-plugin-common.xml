@@ -1084,9 +1084,9 @@
                          displayName="Map and getOrElse to fold" groupPath="Scala, Collections" groupName="Options"
                          shortName="MapGetOrElse" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetOrElseFalseInspection"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetOrElseBooleanInspection"
                          displayName="Map and getOrElse(false) to exists" groupPath="Scala, Collections" groupName="Options"
-                         shortName="MapGetOrElseFalse" level="WARNING"
+                         shortName="MapGetOrElseBoolean" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetOrElseNullInspection"
                          displayName="GetOrElse(null) to orNull" groupPath="Scala, Collections" groupName="Options"
