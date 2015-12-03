@@ -260,8 +260,9 @@ object CachesUtil {
       Option(PsiTreeUtil.getContextOfType(element, false, classOf[ScModificationTrackerOwner])) match {
         case Some(owner) if owner.isValidModificationTrackerOwner() => owner.getModificationTracker
         case Some(owner) => calc(owner.getContext)
-        case _ if elem != null => ScalaPsiManager.instance(elem.getProject).modificationTracker
-        case _ => ScalaPsiManager.instance(elem.getProject).modificationTracker
+        case _ if elem != null && !elem.getProject.isDisposed => ScalaPsiManager.instance(elem.getProject).modificationTracker
+        case _ if !element.getProject.isDisposed => ScalaPsiManager.instance(element.getProject).modificationTracker
+        case _ => element.getManager.getModificationTracker.getOutOfCodeBlockModificationTracker
       }
     }
 
