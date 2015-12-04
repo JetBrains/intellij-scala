@@ -100,7 +100,7 @@ trait ScTypePsiTypeBridge {
           case _ => types.Nothing
         }
       case arrayType: PsiArrayType =>
-        JavaArrayType(create(arrayType.getComponentType, project, scope, visitedRawTypes, paramTopLevel))
+        JavaArrayType(create(arrayType.getComponentType, project, scope))
       case PsiType.VOID => types.Unit
       case PsiType.BOOLEAN => types.Boolean
       case PsiType.CHAR => types.Char
