@@ -4,6 +4,7 @@ package caches
 
 import java.util.concurrent.ConcurrentMap
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
 import com.intellij.psi._
@@ -260,9 +261,8 @@ object CachesUtil {
       Option(PsiTreeUtil.getContextOfType(element, false, classOf[ScModificationTrackerOwner])) match {
         case Some(owner) if owner.isValidModificationTrackerOwner() => owner.getModificationTracker
         case Some(owner) => calc(owner.getContext)
-        case _ if elem != null && !elem.getProject.isDisposed => ScalaPsiManager.instance(elem.getProject).modificationTracker
-        case _ if !element.getProject.isDisposed => ScalaPsiManager.instance(element.getProject).modificationTracker
-        case _ => element.getManager.getModificationTracker.getOutOfCodeBlockModificationTracker
+        case _ if elem != null => ScalaPsiManager.instance(elem.getProject).modificationTracker
+        case _ => ScalaPsiManager.instance(element.getProject).modificationTracker
       }
     }
 
@@ -285,7 +285,7 @@ object CachesUtil {
                                                                             key: Key[T],
                                                                             set: Set[ScFunction]) extends ControlThrowable
 
-  private[this] val funsRetTpToCheck = new mutable.ArrayBuffer[ScModifiableTypedDeclaration]()
+  private[this] val funsRetTpToCheck = new mutable.ArrayBuffer[(ScModifiableTypedDeclaration, Project)]()
   @volatile
   private[this] var needToCheckFuns: Boolean = false
   private[this] val currentThreadIsCheckingFuns = new ThreadLocal[Boolean] {
@@ -296,32 +296,35 @@ object CachesUtil {
     def checkFuns(): Unit = funsRetTpToCheck.synchronized {
       var i = 0
       while (i < funsRetTpToCheck.size) {
-        val fun = funsRetTpToCheck(i)
-        if (fun.returnTypeHasChangedSinceLastCheck && fun.isValid) {
-
+        val (fun, proj) = funsRetTpToCheck(i)
+        val isValid: Boolean = fun.isValid
+        if (!isValid || fun.returnTypeHasChangedSinceLastCheck) {
           //if there's more than one, just increment the general modCount If there's one, go up th
-          if (funsRetTpToCheck.size > 1) {
-            ScalaPsiManager.instance(fun.getProject).incModificationCount()
+          if (!isValid || funsRetTpToCheck.size > 1) {
+            ScalaPsiManager.instance(proj).incModificationCount()
             funsRetTpToCheck.clear()
           } else {
             updateModificationCount(fun.getContext, incModCountOnTopLevel = true)
           }
-          return
         }
         i += 1
       }
+      needToCheckFuns = false
     }
 
     if (needToCheckFuns && !currentThreadIsCheckingFuns.get()) {
-      currentThreadIsCheckingFuns.set(true)
-      checkFuns()
-      currentThreadIsCheckingFuns.set(false)
+      try {
+        currentThreadIsCheckingFuns.set(true)
+        checkFuns()
+      } finally {
+        currentThreadIsCheckingFuns.set(false)
+      }
     }
   }
 
   def addModificationFunctionsReturnType(fun: ScModifiableTypedDeclaration): Unit = funsRetTpToCheck.synchronized {
-    if (!funsRetTpToCheck.contains(fun)) {
-      funsRetTpToCheck += fun
+    if (!funsRetTpToCheck.exists(_._1 == fun)) {
+      funsRetTpToCheck += ((fun, fun.getProject))
       needToCheckFuns = true
     }
   }
