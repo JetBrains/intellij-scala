@@ -26,7 +26,7 @@ case class TypeConstruction(inType: String) extends IntermediateNode with TypedE
 }
 
 object TypeConstruction {
-  def createStringTypePresentation(inType: PsiType, inProject: Project): IntermediateNode = {
+  def createIntermediateTypePresentation(inType: PsiType, inProject: Project): IntermediateNode = {
     val buffer = new ArrayBuffer[(IntermediateNode, Option[String])]()
     val result = getParts(ScType.create(inType, inProject, paramTopLevel = true), buffer)
 

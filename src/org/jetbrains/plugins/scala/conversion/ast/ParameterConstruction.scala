@@ -5,6 +5,6 @@ package org.jetbrains.plugins.scala.conversion.ast
  * on 10/27/15
  */
 case class ParameterConstruction(modifiers: IntermediateNode, name: IntermediateNode,
-                                 scCompType: IntermediateNode, isArray: Boolean) extends IntermediateNode with TypedElement{
+                                 scCompType: IntermediateNode, var isVar:Option[Boolean], isArray: Boolean) extends IntermediateNode with TypedElement{
    override def getType: TypeConstruction = scCompType.asInstanceOf[TypedElement].getType
 }

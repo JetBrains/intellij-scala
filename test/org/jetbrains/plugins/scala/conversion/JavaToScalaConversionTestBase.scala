@@ -11,6 +11,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -32,25 +33,15 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
     configureFromFileTextAdapter(getTestName(false) + ".java", fileText)
     val javaFile = getFileAdapter
     val offset = fileText.indexOf(startMarker)
+
     val startOffset = if (offset != -1) offset + startMarker.length else 0
 
     val lastPsi = javaFile.findElementAt(javaFile.getText.length - 1)
     var endOffset = fileText.indexOf(endMarker)
     if (endOffset == -1) endOffset = lastPsi.getTextRange.getStartOffset
 
-    var elem: PsiElement = javaFile.findElementAt(startOffset)
-    assert(elem.getTextRange.getStartOffset == startOffset)
-    while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] && 
-            elem.getParent.getTextRange.getStartOffset == startOffset) {
-      elem = elem.getParent
-    }
-    val buf = new ArrayBuffer[PsiElement]
-    buf += elem
-    while (elem.getTextRange.getEndOffset < endOffset) {
-      elem = elem.getNextSibling
-      buf += elem
-    }
-    var res = JavaToScala.convertPsisToText(buf.toArray)
+    val buf = collectTopElements(startOffset, endOffset, javaFile)
+    var res = JavaToScala.convertPsisToText(buf, getUsedComments(offset, endOffset, lastPsi, javaFile))
     val newFile = PsiFileFactory.getInstance(getProjectAdapter).createFileFromText("dummyForJavaToScala.scala",
       ScalaFileType.SCALA_LANGUAGE, res)
     res = CodeStyleManager.getInstance(getProjectAdapter).reformat(newFile).getText
@@ -63,5 +54,33 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
       case _ => assertTrue("Test result must be in last comment statement.", false)
     }
     assertEquals(output, res.trim)
+  }
+
+  private def collectTopElements(startOffset: Int, endOffset:Int, javaFile: PsiFile): Array[PsiElement] = {
+    val buf = new ArrayBuffer[PsiElement]
+    var elem: PsiElement = javaFile.findElementAt(startOffset)
+    assert(elem.getTextRange.getStartOffset == startOffset)
+    while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
+      elem.getParent.getTextRange.getStartOffset == startOffset) {
+      elem = elem.getParent
+    }
+
+    buf += elem
+    while (elem.getTextRange.getEndOffset < endOffset) {
+      elem = elem.getNextSibling
+      buf += elem
+    }
+    buf.toArray
+  }
+
+  private def getUsedComments(startOffset: Int, endOffset: Int,
+                              lastComment: PsiElement, javaFile: PsiFile): mutable.HashSet[PsiElement] = {
+    val usedComments = new mutable.HashSet[PsiElement]()
+    val startComment = javaFile.findElementAt(startOffset)
+    val endComment = javaFile.findElementAt(endOffset)
+    if (startComment != null) usedComments += startComment
+    if (endComment != null) usedComments += endComment
+    if (lastComment != null) usedComments += lastComment
+    usedComments
   }
 }
