@@ -8,7 +8,7 @@ import com.intellij.formatting._
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
-import com.intellij.psi.{PsiComment, PsiErrorElement, PsiWhiteSpace, TokenType}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -62,6 +62,9 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
     val indentSize = mySettings.getIndentSize(ScalaFileType.SCALA_FILE_TYPE)
     val parent = getNode.getPsi
     val braceShifted = mySettings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED
+    def isBlockOnlyScope(scope: PsiElement) = !isLeaf &&
+      Set(ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tLPARENTHESIS).contains(scope.getNode.getElementType) &&
+      (scope.getParent.isInstanceOf[ScTryBlock] || scope.getParent.isInstanceOf[ScForStatement])
     parent match {
       case m: ScMatchStmt =>
         if (m.caseClauses.length == 0) {
@@ -90,9 +93,11 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
           Indent.getSpaceIndent(2 * indentSize)
         else
           Indent.getNormalIndent, null)
-      case lBrace if !isLeaf && lBrace.getNode.getElementType == ScalaTokenTypes.tLBRACE &&
-        lBrace.getParent.isInstanceOf[ScTryBlock] =>
-        new ChildAttributes(if (braceShifted) Indent.getNoneIndent else Indent.getNormalIndent, null)
+      case scope if isBlockOnlyScope(scope) =>
+        new ChildAttributes(
+          if (scope.getNode.getElementType == ScalaTokenTypes.tLBRACE && braceShifted) Indent.getNoneIndent
+          else Indent.getNormalIndent,
+          null)
       case p: ScPackaging if p.isExplicit => new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScBlock =>
         val grandParent = parent.getParent
