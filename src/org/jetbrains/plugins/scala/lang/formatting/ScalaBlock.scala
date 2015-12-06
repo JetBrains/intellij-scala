@@ -64,7 +64,10 @@ class ScalaBlock(val myParentBlock: ScalaBlock,
     val braceShifted = mySettings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED
     def isBlockOnlyScope(scope: PsiElement) = !isLeaf &&
       Set(ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tLPARENTHESIS).contains(scope.getNode.getElementType) &&
-      (scope.getParent.isInstanceOf[ScTryBlock] || scope.getParent.isInstanceOf[ScForStatement])
+      (scope.getParent match {
+        case _: ScTryBlock | _: ScForStatement | _: ScPackaging => true
+        case _ => false
+      })
     parent match {
       case m: ScMatchStmt =>
         if (m.caseClauses.length == 0) {

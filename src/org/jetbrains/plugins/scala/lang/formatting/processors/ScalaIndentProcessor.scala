@@ -7,6 +7,7 @@ import com.intellij.formatting._
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiComment
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -89,10 +90,12 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
     }
 
     if (node.getElementType == ScalaTokenTypes.tLBRACE &&
-      Option(node.getTreeParent).exists(_.getElementType == ScalaElementTypes.TRY_BLOCK)) {
+      Option(node.getTreeParent).map(_.getElementType).
+        exists(Set[IElementType](ScalaElementTypes.TRY_BLOCK, ScalaElementTypes.PACKAGING).contains)) {
       return if (child.getElementType == ScalaTokenTypes.tLBRACE ||
         child.getElementType == ScalaTokenTypes.tRBRACE) Indent.getNoneIndent
-      else if (settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED) Indent.getNoneIndent else Indent.getNormalIndent()
+      else if (settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED) Indent.getNoneIndent
+      else Indent.getNormalIndent()
     }
 
     node.getPsi match {
@@ -103,7 +106,15 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case _ => Indent.getNormalIndent
         }
       case _: ScalaFile => Indent.getNoneIndent
-      case _: ScPackaging => Indent.getNoneIndent
+      case p: ScPackaging =>
+        if (p.isExplicit) child.getElementType match {
+          case ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tRBRACE =>
+            if (settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED ||
+              settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED2) Indent.getNormalIndent
+            else
+              Indent.getNoneIndent
+          case _ => Indent.getNoneIndent
+        } else Indent.getNoneIndent
       case _: ScMatchStmt =>
         child.getPsi match {
           case _: ScCaseClauses if settings.INDENT_CASE_FROM_SWITCH => Indent.getNormalIndent
