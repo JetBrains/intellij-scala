@@ -1412,7 +1412,7 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
-  def testSCL_2(): Unit = {
+  def testSCL8313_2(): Unit = {
     getCommonSettings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE = true
     getCommonSettings.METHOD_PARAMETERS_RPAREN_ON_NEXT_LINE = true
     getScalaSettings.USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = true
@@ -1446,6 +1446,99 @@ bars foreach {case (x, y) => list.add(x + y)}
         |      bar2: Int
         |  ) = ???
         |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+
+  def testSCL9136_1(): Unit = {
+    getCommonSettings.BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE
+
+    val before =
+      """
+        |package outer {
+        |
+        |  class OuterClass {
+        |    def foo = 42
+        |  }
+        |
+        |  package inner {
+        |
+        |    class InnerClass {
+        |      def bar = 42
+        |    }
+        |
+        |  }
+        |
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |package outer
+        |{
+        |
+        |  class OuterClass {
+        |    def foo = 42
+        |  }
+        |
+        |  package inner
+        |  {
+        |
+        |    class InnerClass {
+        |      def bar = 42
+        |    }
+        |
+        |  }
+        |
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL9136_2(): Unit = {
+    getCommonSettings.BRACE_STYLE = CommonCodeStyleSettings.NEXT_LINE_SHIFTED2
+
+    val before =
+      """
+        |package outer {
+        |
+        |  class OuterClass {
+        |    def foo = 42
+        |  }
+        |
+        |  package inner {
+        |
+        |    class InnerClass {
+        |      def bar = 42
+        |    }
+        |
+        |  }
+        |
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |package outer
+        |  {
+        |
+        |    class OuterClass {
+        |      def foo = 42
+        |    }
+        |
+        |    package inner
+        |      {
+        |
+        |        class InnerClass {
+        |          def bar = 42
+        |        }
+        |
+        |      }
+        |
+        |  }
       """.stripMargin.replace("\r", "")
 
     doTextTest(before, after)

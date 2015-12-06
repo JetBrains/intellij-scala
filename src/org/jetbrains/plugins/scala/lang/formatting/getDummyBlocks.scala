@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -101,6 +102,20 @@ object getDummyBlocks {
             subBlocks.add(new ScalaBlock(block, tail.head, tail.last, null, ScalaIndentProcessor.getChildIndent(block, tail.head),
               arrangeSuggestedWrapForChild(block, tail.head, scalaSettings, block.suggestedWrap), block.getSettings))
           }
+        }
+        return subBlocks
+      case pack: ScPackaging if pack.isExplicit =>
+        val correctChildren = children.filter(isCorrectBlock)
+        val (beforeOpenBrace, afterOpenBrace) = correctChildren.span(_.getElementType != ScalaTokenTypes.tLBRACE)
+        val hasValidTail = afterOpenBrace.nonEmpty && afterOpenBrace.head.getElementType == ScalaTokenTypes.tLBRACE &&
+          afterOpenBrace.last.getElementType == ScalaTokenTypes.tRBRACE
+        for (child <- if (hasValidTail) beforeOpenBrace else correctChildren) {
+          subBlocks.add(getSubBlock(block, scalaSettings, child,
+            indent = ScalaIndentProcessor.getChildIndent(block, child)))
+        }
+        if (hasValidTail) {
+          subBlocks.add(getSubBlock(block, scalaSettings, afterOpenBrace.head, afterOpenBrace.last,
+            ScalaIndentProcessor.getChildIndent(block, afterOpenBrace.head)))
         }
         return subBlocks
       case _: ScDocComment =>
