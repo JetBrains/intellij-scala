@@ -118,7 +118,9 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           namePatterns ++= Option(namePattern)
       }
     }
-    val foundWithPattern = filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)))
+    val packageName: Option[String] = Option(inReadAction(file.asInstanceOf[ScalaFile].getPackageName))
+
+    val foundWithPattern = filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)), packageName)
     (exactClasses ++ foundWithPattern).distinct.asJava
   }
 
@@ -210,12 +212,19 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     case _ => false
   }
 
-  private def filterAllClasses(condition: ReferenceType => Boolean): Seq[ReferenceType] = {
+  private def filterAllClasses(condition: ReferenceType => Boolean, packageName: Option[String]): Seq[ReferenceType] = {
+    def samePackage(refType: ReferenceType) = {
+      val name = refType.name()
+      val lastDot = name.lastIndexOf('.')
+      val refTypePackageName = if (lastDot < 0) "" else name.substring(0, lastDot)
+      packageName.isEmpty || packageName.contains(refTypePackageName)
+    }
+
     import scala.collection.JavaConverters._
     for {
       refType <- debugProcess.getVirtualMachineProxy.allClasses.asScala
+      if samePackage(refType)
       if refType.isInitialized
-      _ = checkForIndyLambdas(refType)
       if condition(refType)
     } yield {
       refType
