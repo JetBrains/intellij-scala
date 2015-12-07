@@ -130,7 +130,7 @@ trait Namer {
   }
 
   def ind(cr: ScStableCodeReferenceElement): m.Name.Indeterminate = {
-    m.Name.Indeterminate(cr.getCanonicalText)
+    m.Name.Indeterminate(cr.qualName).withAttrsFor(cr).setTypechecked
   }
 
   // only used in m.Term.Super/This
