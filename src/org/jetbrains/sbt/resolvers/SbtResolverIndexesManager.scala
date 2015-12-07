@@ -1,14 +1,17 @@
 package org.jetbrains.sbt
 package resolvers
 
-import java.io.File
+import java.io.{IOException, File}
 
 import com.intellij.notification.{Notification, NotificationType, Notifications}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.util.io.PersistentEnumeratorBase
 import org.apache.lucene.store.LockReleaseFailedException
+import org.jetbrains.plugins.scala.util.NotificationUtil
 
 import scala.collection.mutable
 
@@ -61,8 +64,10 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
           try {
             index.update(Some(progressIndicator))
           } catch {
-            case exc : ResolverException => notifyWarning(exc.getMessage)
-            case exc : LockReleaseFailedException => notifyWarning(SbtBundle("sbt.resolverIndexer.luceneLockException", exc.getMessage))
+            case exc : ResolverException =>
+              notifyWarning(exc.getMessage)
+            case exc : LockReleaseFailedException =>
+              notifyWarning(SbtBundle("sbt.resolverIndexer.luceneLockException", exc.getMessage))
           } finally {
             updatingIndexes synchronized {
               updatingIndexes -= index
@@ -87,9 +92,22 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
           val index = SbtResolverIndex.load(indexDir)
           indexes.add(index)
         } catch {
-          case exc : ResolverException => notifyWarning(exc.getMessage)
+          case exc : ResolverException =>
+            notifyWarning(exc.getMessage)
+          case _: PersistentEnumeratorBase.CorruptedException | _: IOException =>
+            cleanUpCorruptedIndex(indexDir)
         }
       }
+    }
+  }
+
+  private def cleanUpCorruptedIndex(indexDir: File): Unit = {
+    try {
+      FileUtil.delete(indexDir)
+      notifyWarning(SbtBundle("sbt.resolverIndexer.indexDirIsCorruptedAndRemoved", indexDir.getAbsolutePath))
+    } catch {
+      case _ : Throwable =>
+        notifyWarning(SbtBundle("sbt.resolverIndexer.indexDirIsCorruptedCantBeRemoved", indexDir.getAbsolutePath))
     }
   }
 
@@ -99,11 +117,8 @@ class SbtResolverIndexesManager(val testIndexesDir: Option[File]) extends Dispos
 object SbtResolverIndexesManager {
   val DEFAULT_INDEXES_DIR = new File(PathManager.getSystemPath) / "sbt" / "indexes"
 
-  def notifyWarning(msg: String) = {
-    val notification = new Notification("sbt", "Resolver Indexer", msg, NotificationType.WARNING)
-    notification.setImportant(false)
-    Notifications.Bus.notify(notification)
-  }
+  def notifyWarning(message: String) =
+    NotificationUtil.showMessage(null, message, title = "Resolver Indexer")
 
   def apply() = ServiceManager.getService(classOf[SbtResolverIndexesManager])
 }
