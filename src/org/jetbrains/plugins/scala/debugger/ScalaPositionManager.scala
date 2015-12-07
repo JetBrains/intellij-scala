@@ -343,6 +343,8 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   @Nullable
   private def getPsiFileByReferenceType(project: Project, refType: ReferenceType): PsiFile = {
+    if (refType == null) return null
+    if (refTypeToFileCache.contains(refType)) return refTypeToFileCache(refType)
 
     def searchForMacroDebugging(qName: String): PsiFile = {
       val directoryIndex: DirectoryIndex = DirectoryIndex.getInstance(project)
@@ -381,8 +383,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       result.get
     }
 
-    if (refType == null) return null
-
     def findFile() = {
       def withDollarTestName(originalQName: String): Option[String] = {
         val dollarTestSuffix = "$Test" //See SCL-9340
@@ -418,10 +418,11 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     }
 
     val file = inReadAction(findFile())
-    if (refType.methods().asScala.exists(isIndyLambda)) {
-      isCompiledWithIndyLambdasCache.update(file, true)
+    if (file != null && refType.methods().asScala.exists(isIndyLambda)) {
+      isCompiledWithIndyLambdasCache.put(file, true)
     }
-    refTypeToFileCache.getOrElseUpdate(refType, file)
+    refTypeToFileCache.put(refType, file)
+    file
   }
 
   private def nameMatches(elem: PsiElement, refType: ReferenceType): Boolean = {
