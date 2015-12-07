@@ -2,6 +2,8 @@ package scala.meta.converter
 
 import scala.meta.{TreeConverterTestBaseWithLibrary, TreeConverterTestBaseNoLibrary}
 import scala.meta.internal.ast._
+import scala.collection.immutable.Seq
+import scala.{Seq => _}
 
 class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
 
@@ -168,8 +170,8 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
       "trait Foo { def foo: Int = this.hashCode }",
       Defn.Trait(Nil, Type.Name("Foo"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
         Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None),
-          Some(List(Defn.Def(Nil, Term.Name("foo"), Nil, Nil, Some(Type.Name("Int")),
-            Term.Select(Term.This(Name.Indeterminate("Foo")), Term.Name("foo")))))))
+          Some(Seq(Defn.Def(Nil, Term.Name("foo"), Nil, Nil, Some(Type.Name("Int")),
+            Term.Select(Term.This(Name.Anonymous()), Term.Name("hashCode")))))))
     )
   }
 

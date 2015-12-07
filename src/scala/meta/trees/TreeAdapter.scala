@@ -309,7 +309,7 @@ trait TreeAdapter {
           .withAttrs(toType(t))
           .setTypechecked
       case t: ScThisReference =>
-        m.Term.This(t.refTemplate.map(ind).getOrElse(m.Name.Anonymous()))
+        m.Term.This(t.reference.map(ind).getOrElse(m.Name.Anonymous().withAttrsFor(t).setTypechecked))
           .withAttrs(toType(t))
           .setTypechecked
       case t: ScNewTemplateDefinition =>
