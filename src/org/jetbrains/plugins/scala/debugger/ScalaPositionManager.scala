@@ -83,16 +83,11 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val generatedClassName = file.getUserData(ScalaCompilingEvaluator.classNameKey)
 
     def hasLocations(refType: ReferenceType, position: SourcePosition): Boolean = {
-      def quickCheckFile(): Boolean = {
-        if (refTypeToFileCache.get(refType).contains(position.getFile)) true
-        else {
-          val refTypeSourceName = Try(refType.sourceName()).getOrElse("")
-          refTypeSourceName == position.getFile.getName
-        }
-      }
       try {
-        if (generatedClassName != null) refType.name().contains(generatedClassName)
-        else quickCheckFile() && locationsOfLine(refType, position).size > 0
+        val generated = generatedClassName != null && refType.name().contains(generatedClassName)
+        lazy val sameFile = getPsiFileByReferenceType(file.getProject, refType) == file
+
+        generated || sameFile && locationsOfLine(refType, position).size > 0
       } catch {
         case _: NoDataException | _: AbsentInformationException | _: ClassNotPreparedException | _: ObjectCollectedException => false
       }
