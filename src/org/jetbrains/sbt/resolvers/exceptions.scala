@@ -22,3 +22,7 @@ final case class CantCreateIndexDirectory(dir: File)
 final case class IndexVersionMismatch(indexProperties: File)
   extends RuntimeException(SbtBundle("sbt.resolverIndexer.indexVersionMismatch", indexProperties))
   with ResolverException
+
+final case class CorruptedIndexException(indexFile: File)
+  extends IOException(SbtBundle("sbt.resolverIndexer.indexFileIsCorrupted", indexFile.getAbsolutePath))
+  with ResolverException

@@ -8,8 +8,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScLiteralImpl
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.sbt.annotator.quickfix.{SbtRefreshProjectQuickFix, SbtUpdateResolverIndexesQuickFix}
-import org.jetbrains.sbt.resolvers.{SbtResolverIndexesManager, SbtResolverUtils}
+import org.jetbrains.sbt.resolvers.{ResolverException, SbtResolverIndexesManager, SbtResolverUtils}
 
 /**
  * @author Nikolay Obedin
@@ -20,7 +21,15 @@ class SbtDependencyAnnotator extends Annotator {
 
   private case class ArtifactInfo(group: String, artifact: String, version: String)
 
-  def annotate(element: PsiElement, holder: AnnotationHolder) {
+  override def annotate(element: PsiElement, holder: AnnotationHolder): Unit =
+    try {
+      doAnnotate(element, holder)
+    } catch {
+      case exc: ResolverException =>
+        NotificationUtil.showMessage(null, exc.getMessage)
+    }
+
+  private def doAnnotate(element: PsiElement, holder: AnnotationHolder): Unit = {
 
     if (ScalaPsiUtil.fileContext(element).getFileType.getName != Sbt.Name) return
 
