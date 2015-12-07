@@ -185,8 +185,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _, _) =>
         return if (getText(rightNode, fileText).apply(0) == ' ') WITHOUT_SPACING else WITH_SPACING
       case (ScalaDocTokenType.DOC_TAG_NAME, _, _, _) =>
-        val rightText = getText(rightNode, fileText) //rightString is not emantically equal for PsiError nodes
-        return if (rightText.nonEmpty && rightText.apply(0) == ' ') WITHOUT_SPACING else tagSpacing
+        val rightText = getText(rightNode, fileText) //rightString is not semantically equal for PsiError nodes
+        return if (rightText.nonEmpty && rightText.apply(0) == ' ') Spacing.getReadOnlySpacing else tagSpacing
       case (ScalaDocTokenType.DOC_TAG_VALUE_TOKEN, _, ScalaDocElementTypes.DOC_TAG, _) => return tagSpacing
       case (_, x, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => return Spacing.getReadOnlySpacing
       case (x, TokenType.ERROR_ELEMENT, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) =>
