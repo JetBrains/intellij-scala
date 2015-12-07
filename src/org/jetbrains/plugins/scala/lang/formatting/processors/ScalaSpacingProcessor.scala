@@ -75,12 +75,16 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case None => currentNode
       }
     }
-    val leftElement = dfsChildren(left.myLastNode.getOrElse(left.getNode), _.getChildren(null).toList.reverse)
-    val rightElement = dfsChildren(right.getNode, _.getChildren(null).toList)
-    val concatString = if (textRange.contains(rightElement.getTextRange) && textRange.contains(leftElement.getTextRange)) {
-      leftElement.getTextRange.substring(fileText) + rightElement.getTextRange.substring(fileText)
+    val leftNode = dfsChildren(left.myLastNode.getOrElse(left.getNode), _.getChildren(null).toList.reverse)
+    val rightNode = dfsChildren(right.getNode, _.getChildren(null).toList)
+    val concatString = if (textRange.contains(rightNode.getTextRange) && textRange.contains(leftNode.getTextRange)) {
+      leftNode.getTextRange.substring(fileText) + rightNode.getTextRange.substring(fileText)
     } else return 0
-    if (ScalaNamesUtil.isIdentifier(concatString) || ScalaNamesUtil.isKeyword(concatString)) 1 else 0
+    (leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
+      case (ScalaElementTypes.INTERPOLATED_STRING_LITERAL, _) => 0
+      case (_, ScalaElementTypes.INTERPOLATED_STRING_LITERAL) => 0
+      case _ => if (ScalaNamesUtil.isIdentifier(concatString) || ScalaNamesUtil.isKeyword(concatString)) 1 else 0
+    }
   }
 
   def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing = {
