@@ -156,7 +156,7 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
               Set("f\"\"", "s\"\"").contains(prevElement.getParent.getText)) {
         completeMultilineString(editor, project, element, offset)
       }
-    } else if (c == '.' && ScalaPsiUtil.isLineTerminator(element)) {
+    } else if (c == '.' && ScalaPsiUtil.isLineTerminator(prevElement)) {
       //hacky way to introduce indent without calling formatter; this is better then turning formatting model into a mess
       val indent = CodeStyleSettingsManager.getSettings(project).
         getCommonSettings(ScalaLanguage.Instance).getIndentOptions.CONTINUATION_INDENT_SIZE
