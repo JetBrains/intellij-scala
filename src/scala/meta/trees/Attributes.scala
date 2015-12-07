@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScToplevelElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
@@ -34,7 +35,15 @@ trait Attributes {
     }
 
     def anonDenot[P <: PsiElement](elem: P): h.Denotation = {
-      h.Denotation.Single(h.Prefix.Type(toType(elem)), toLocalSymbol(elem))
+      def walkUp(tree: PsiElement): PsiElement = {
+        tree match {
+          case t: ScMethodLike         => t
+          case t: ScTemplateDefinition => t
+          case t: ScToplevelElement    => t
+          case _ => walkUp(tree.getParent)
+        }
+      }
+      h.Denotation.Single(h.Prefix.Type(toType(walkUp(elem))), toLocalSymbol(elem))
     }
 
     def denot[P <: PsiElement](elem: Option[P]): h.Denotation = {
