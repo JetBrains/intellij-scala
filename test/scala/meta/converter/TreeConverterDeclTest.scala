@@ -151,24 +151,6 @@ class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
     )
   }
 
-  def testDefFunctionalTypeParam() {
-    doTest(
-      "def f(a: Int => Any)",
-      Decl.Def(Nil, Term.Name("f"), Nil,
-        List(List(Term.Param(Nil, Term.Name("a"),
-          Some(Type.Function(List(Type.Name("Int")), Type.Name("Any"))), None))), Type.Name("Unit"))
-    )
-  }
-
-  def testDefTupleFunctionalTypeParam() {
-    doTest(
-      "def f(a: (Int, Any) => Any)",
-      Decl.Def(Nil, Term.Name("f"), Nil,
-        List(List(Term.Param(Nil, Term.Name("a"),
-          Some(Type.Function(List(Type.Name("Int"), Type.Name("Any")), Type.Name("Any"))), None))), Type.Name("Unit"))
-    )
-  }
-
   def testDefVararg() {
     doTest(
       "def f (a: Int*)",
