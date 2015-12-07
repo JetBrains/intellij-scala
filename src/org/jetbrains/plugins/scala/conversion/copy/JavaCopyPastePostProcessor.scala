@@ -16,15 +16,14 @@ import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.util.ExceptionUtil
+import org.jetbrains.plugins.scala.conversion.ConverterUtil.{ElementPart, TextPart}
 import org.jetbrains.plugins.scala.conversion.ast.{JavaCodeReferenceStatement, LiteralExpression, MainConstruction, TypedElement}
 import org.jetbrains.plugins.scala.conversion.visitors.PrintWithComments
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings._
 
-import scala.annotation.tailrec
-import scala.collection.mutable
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import scala.collection.mutable.ListBuffer
 
 /**
  * User: Alexander Podkhalyuzin
@@ -45,46 +44,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     if (!ScalaProjectSettings.getInstance(file.getProject).isEnableJavaToScalaConversion ||
       !file.isInstanceOf[PsiJavaFile]) return null
 
-    sealed trait Part
-    case class ElementPart(elem: PsiElement) extends Part
-    case class TextPart(text: String) extends Part
-
     try {
-      def getTopElements: Seq[Part] = {
-        val buffer = new ArrayBuffer[Part]
-        for ((startOffset, endOffset) <- startOffsets.zip(endOffsets)) {
-          @tailrec
-          def findElem(offset: Int): PsiElement = {
-            if (offset > endOffset) return null
-            val elem = file.findElementAt(offset)
-            if (elem == null) return null
-            if (elem.getParent.getTextRange.getEndOffset > endOffset ||
-              elem.getParent.getTextRange.getStartOffset < startOffset) findElem(elem.getTextRange.getEndOffset + 1)
-            else elem
-          }
-          var elem: PsiElement = findElem(startOffset)
-          if (elem != null) {
-            while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
-              elem.getParent.getTextRange.getEndOffset <= endOffset &&
-              elem.getParent.getTextRange.getStartOffset >= startOffset) {
-              elem = elem.getParent
-            }
-            if (startOffset < elem.getTextRange.getStartOffset) {
-              buffer += TextPart(new TextRange(startOffset, elem.getTextRange.getStartOffset).substring(file.getText))
-            }
-            buffer += ElementPart(elem)
-            while (elem.getNextSibling != null && elem.getNextSibling.getTextRange.getEndOffset <= endOffset) {
-              elem = elem.getNextSibling
-              buffer += ElementPart(elem)
-            }
-            if (elem.getTextRange.getEndOffset < endOffset) {
-              buffer += TextPart(new TextRange(elem.getTextRange.getEndOffset, endOffset).substring(file.getText))
-            }
-          }
-        }
-        buffer.toSeq
-      }
-
       def getRefs: Seq[ReferenceData] = {
         val refs = {
           val data = referenceProcessor.collectTransferableData(file, editor, startOffsets, endOffsets)
@@ -99,17 +59,16 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
 
       val associationsHelper = new ListBuffer[AssociationHelper]()
       val resultNode = new MainConstruction
-      val topElements = getTopElements
+      val (topElements, dropElements) = ConverterUtil.getTopElements(file, startOffsets, endOffsets)
       val data = getRefs
-      val usedComments = mutable.HashSet[PsiElement]()
       for (part <- topElements) {
         part match {
           case TextPart(s) =>
             resultNode.addChild(LiteralExpression(s))
           case ElementPart(comment: PsiComment) =>
-            usedComments += comment
+            dropElements += comment
           case ElementPart(element) =>
-            val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, data, usedComments)
+            val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, data, dropElements)
             resultNode.addChild(result)
         }
       }
