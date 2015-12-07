@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package resolvers
 
-import java.io.{Closeable, File, FileNotFoundException}
+import java.io.{IOException, Closeable, File, FileNotFoundException}
 
 import com.intellij.openapi.progress.ProgressIndicator
 import org.apache.maven.index._
@@ -71,8 +71,8 @@ class SbtMavenRepoIndexer private (val root: String, val indexDir: File) extends
       else
         updateRemote(progressIndicator)
     } catch {
-      case exc : FileNotFoundException if exc.getCause.isInstanceOf[ResourceDoesNotExistException] =>
-        throw new RemoteRepositoryHasNotBeenIndexed(root)
+      case exc : IOException =>
+        throw new RepositoryIndexingException(root, exc)
     }
 
   private def updateLocal(progressIndicator: Option[ProgressIndicator]) {
