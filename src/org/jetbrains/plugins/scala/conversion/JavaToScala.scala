@@ -88,8 +88,8 @@ object JavaToScala {
                               (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
                                refs: Seq[ReferenceData] = Seq.empty,
                                usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): IntermediateNode = {
-    if (element == null) return LiteralExpression("")
-    if (element.getLanguage != JavaLanguage.INSTANCE) LiteralExpression("")
+    if (element == null || usedComments.contains(element)) return EmptyConstruction()
+    if (element.getLanguage != JavaLanguage.INSTANCE) EmptyConstruction()
     val result: IntermediateNode = element match {
       case f: PsiFile =>
         val m = MainConstruction()
@@ -852,6 +852,7 @@ object JavaToScala {
 
     def handleModifiers: Seq[IntermediateNode] = {
       val modifiers = new ArrayBuffer[IntermediateNode]()
+
       val simpleList = SIMPLE_MODIFIERS_MAP.filter {
         case (psiType, el) => owner.hasModifierProperty(psiType)
       }.values
