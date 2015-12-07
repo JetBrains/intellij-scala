@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.language.postfixOps
 import scala.meta.internal.{ast => m, semantic => h}
@@ -32,6 +33,10 @@ trait Attributes {
       }
     }
 
+    def anonDenot[P <: PsiElement](elem: P): h.Denotation = {
+      h.Denotation.Single(h.Prefix.Type(toType(elem)), toLocalSymbol(elem))
+    }
+
     def denot[P <: PsiElement](elem: Option[P]): h.Denotation = {
       def mprefix(elem: PsiElement, fqn: String = "") = Option(elem).map(cc => h.Prefix.Type(toType(cc))).getOrElse(fqnameToPrefix(fqn))
       if (elem.isEmpty) h.Denotation.Zero
@@ -39,9 +44,24 @@ trait Attributes {
         elem.get match {
             //reference has a prefix
           case cr: ScStableCodeReferenceElement if cr.qualifier.isDefined =>
-            h.Denotation.Single(h.Prefix.Type(m.Type.Singleton(toTermName(cr.qualifier.get)).setTypechecked), toSymbol(cr))
+            val results = cr.multiResolve(false)
+            if (results.length > 1) {
+              h.Denotation.Multi(h.Prefix.Type(m.Type.Singleton(toTermName(cr.qualifier.get)).setTypechecked),
+                results.map(toSymbol).toList)
+            } else if (results.isEmpty) {
+              die(s"Failed to resolve $cr")
+            } else {
+              h.Denotation.Single(h.Prefix.Type(m.Type.Singleton(toTermName(cr.qualifier.get)).setTypechecked), toSymbol(cr))
+            }
           case cr: ScStableCodeReferenceElement =>
-            h.Denotation.Single(h.Prefix.Zero, toSymbol(cr))
+            val results = cr.multiResolve(false)
+            if (results.length > 1) {
+              h.Denotation.Multi(h.Prefix.Zero, results.map(toSymbol).toList)
+            } else if (results.isEmpty) {
+              die(s"Failed to resolve $cr")
+            } else {
+              h.Denotation.Single(h.Prefix.Zero, toSymbol(results(0)))
+            }
           case td: ScFieldId =>
             val pref = td.nameContext match {  // FIXME: what?
               case vd: ScValueDeclaration    => mprefix(vd.containingClass)
@@ -96,9 +116,9 @@ trait Attributes {
 
     def withAttrsFor[P <: PsiElement](elem: Option[P]): T = {
       val denotatedTree = ptree match {
-        case ptree: m.Name.Anonymous => ptree.withAttrs(denot(elem))
+        case ptree: m.Name.Anonymous => ptree.withAttrs(anonDenot(elem.get))
         case ptree: m.Name.Indeterminate => ptree.withAttrs(denot(elem))
-        case ptree: m.Term.Name => ptree.withAttrs(denot = denot(elem), typingLike = withTypingFor(elem)).setTypechecked
+        case ptree: m.Term.Name => ptree.withAttrs(denot = denot(elem), typingLike = withTypingFor(elem)).setTypechecked // FIXME: remove setTypechecked?
         case ptree: m.Type.Name => ptree.withAttrs(denot(elem))
         // TODO: some ctor refs don't have corresponding constructor symbols in Scala (namely, ones for traits)
         // in these cases, our lsym is going to be a symbol of the trait in question

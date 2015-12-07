@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.scalameta.collections._
 
 import scala.annotation.tailrec
@@ -65,6 +66,16 @@ trait SymbolTable {
       case pc: PsiMember =>
         if (pc.getContainingClass == null) h.Symbol.EmptyPackage else toSymbol(pc.getContainingClass)
       case other => other ?!
+    }
+  }
+
+  def toSymbol(res: ResolveResult): h.Symbol = {
+    res match {
+      case ScalaResolveResult(elem: PsiNamedElement, subst) =>
+        toSymbol(elem)
+      case rr:ResolveResult if rr.isValidResult =>
+        toSymbol(rr.getElement)
+      case _ => die(s"Unresolved: $res")
     }
   }
 
