@@ -1669,6 +1669,10 @@ object ScalaPsiUtil {
     }
   }
 
+  object FakeCompanionClassOrCompanionClass {
+    def unapply(obj: ScObject): Option[PsiClass] = Option(obj.fakeCompanionClassOrCompanionClass)
+  }
+
   def withCompanionSearchScope(clazz: PsiClass): SearchScope = {
     getBaseCompanionModule(clazz) match {
       case Some(companion) => new LocalSearchScope(clazz).union(new LocalSearchScope(companion))
