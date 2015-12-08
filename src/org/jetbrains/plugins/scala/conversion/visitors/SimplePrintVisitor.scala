@@ -207,7 +207,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     visit(modifiers)
     printer.append("object ")
     visit(name)
-    printer.append(" extends Enumeration {\n")
+    printer.append(" extends Enumeration ")
 
     printBodyWithCurlyBracketes(e, visitEnumBody)
 
