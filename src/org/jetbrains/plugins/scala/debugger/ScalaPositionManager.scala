@@ -111,8 +111,10 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         case null =>
         case td: ScTypeDefinition if !DebuggerUtil.isLocalClass(td) =>
           val qName = getSpecificNameForDebugger(td)
-          if (qName != null)
-            exactClasses ++= debugProcess.getVirtualMachineProxy.classesByName(qName).asScala
+          val delayedBodyName = if (isDelayedInit(td)) Seq(s"$qName$delayedInitBody") else Nil
+          (qName +: delayedBodyName).foreach { name =>
+            exactClasses ++= debugProcess.getVirtualMachineProxy.classesByName(name).asScala
+          }
         case elem =>
           val namePattern = NamePattern.forElement(elem)
           namePatterns ++= Option(namePattern)
@@ -145,14 +147,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   override def createPrepareRequests(requestor: ClassPrepareRequestor, position: SourcePosition): util.List[ClassPrepareRequest] = {
     def isLocalOrUnderDelayedInit(definition: PsiClass): Boolean = {
-      def isDelayed = definition match {
-        case obj: ScObject =>
-          val manager: ScalaPsiManager = ScalaPsiManager.instance(obj.getProject)
-          val clazz: PsiClass = manager.getCachedClass(obj.getResolveScope, "scala.DelayedInit").orNull
-          clazz != null && manager.cachedDeepIsInheritor(obj, clazz)
-        case _ => false
-      }
-      DebuggerUtil.isLocalClass(definition) || isDelayed
+      DebuggerUtil.isLocalClass(definition) || isDelayedInit(definition)
     }
 
     def findEnclosingTypeDefinition: Option[ScTypeDefinition] = {
@@ -631,7 +626,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 object ScalaPositionManager {
   private val SCRIPT_HOLDER_CLASS_NAME: String = "Main$$anon$1"
   private val packageSuffix = ".package$"
-
+  private val delayedInitBody = "delayedInit$body"
 
   private val isCompiledWithIndyLambdasCache = mutable.HashMap[PsiFile, Boolean]()
 
@@ -795,6 +790,14 @@ object ScalaPositionManager {
       case _: ScTrait => s"$name$$class"
       case _ => name
     }
+  }
+
+  def isDelayedInit(cl: PsiClass) = cl match {
+    case obj: ScObject =>
+      val manager: ScalaPsiManager = ScalaPsiManager.instance(obj.getProject)
+      val clazz: PsiClass = manager.getCachedClass(obj.getResolveScope, "scala.DelayedInit").orNull
+      clazz != null && manager.cachedDeepIsInheritor(obj, clazz)
+    case _ => false
   }
 
   private class MyClassPrepareRequestor(position: SourcePosition, requestor: ClassPrepareRequestor) extends ClassPrepareRequestor {
