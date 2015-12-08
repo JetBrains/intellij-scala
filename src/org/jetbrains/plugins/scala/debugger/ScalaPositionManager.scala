@@ -122,7 +122,10 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     }
     val packageName: Option[String] = Option(inReadAction(file.asInstanceOf[ScalaFile].getPackageName))
 
-    val foundWithPattern = filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)), packageName)
+    val foundWithPattern =
+      if (namePatterns.isEmpty) Nil
+      else filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)), packageName)
+
     (exactClasses ++ foundWithPattern).distinct.asJava
   }
 
