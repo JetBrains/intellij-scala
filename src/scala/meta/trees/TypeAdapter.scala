@@ -5,7 +5,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
@@ -32,7 +32,7 @@ trait TypeAdapter {
       tp match {
         case t: ScSimpleTypeElement =>
           val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
-          toType(s.subst(t.getType().get))
+          toType(s.subst(t.calcType))
         case t: ScFunctionalTypeElement =>
           toType(t.paramTypeElement) match {
             case m.Type.Tuple(elements) => m.Type.Function(elements, toType(t.returnTypeElement.get))
@@ -50,6 +50,18 @@ trait TypeAdapter {
             case _ => unreachable
           }
         case t: ScTypeVariableTypeElement => die("i cannot into type variables")
+        case t: ScExistentialTypeElement =>
+          val clauses = Seq(t.clause.declarations map {
+            _ match {
+              case tp: ScTypeAliasDeclaration => toTypeDecl(tp)
+              case other => other ?!
+            }
+          } : _*)
+          val quantified = toType(t.quantified)
+          m.Type.Existential(quantified, clauses)
+        case other: ScTypeElement =>
+          LOG.warn(s"Using slow type conversion of type element ${other.getClass}: ${other.getText}")
+          toType(other.getType())
         case other => other ?!
       }
     })
@@ -78,7 +90,7 @@ trait TypeAdapter {
         case t: ScFunctionDefinition =>
           m.Type.Method(Seq(t.parameterList.clauses.map(convertParamClause):_*), toType(t.getTypeWithCachedSubst)).setTypechecked
         case t: ScFunction =>
-          m.Type.Function(Seq(t.paramTypes.map(toType(_).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType)).setTypechecked
+          m.Type.Function(Seq(t.paramTypes.map(toType(_, t).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType)).setTypechecked
         case t: ScParameter =>
           val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
           toType(s.subst(t.typeElement.get.getType().get))
@@ -109,7 +121,7 @@ trait TypeAdapter {
     })
   }
 
-  def toType(tp: ptype.ScType): m.Type = {
+  def toType(tp: ptype.ScType, pivot: PsiElement = null): m.Type = {
     typeCache.getOrElseUpdate(tp, {
       tp.isAliasType match {
         case Some(AliasType(ta, lower, upper)) => return toTypeName(ta)
@@ -117,7 +129,7 @@ trait TypeAdapter {
       }
       tp match {
         case t: ptype.ScParameterizedType =>
-          m.Type.Apply(toType(t.designator), Seq(t.typeArgs.map(toType): _*)).setTypechecked
+          m.Type.Apply(toType(t.designator), Seq(t.typeArgs.map(toType(_)): _*)).setTypechecked
         case t: ptype.ScThisType =>
           toTypeName(t.clazz).setTypechecked
         case t: ptype.ScProjectionType =>
@@ -133,17 +145,18 @@ trait TypeAdapter {
           else
             toTypeName(t.element)
         case t: ptype.ScCompoundType =>
-          m.Type.Compound(Seq(t.components.map(toType):_*), Seq.empty)
+          m.Type.Compound(Seq(t.components.map(toType(_)):_*), Seq.empty)
         case t: ptype.ScExistentialType =>
-//          t.
           val wcards = t.wildcards.map {wc =>
             val ubound = if (wc.upperBound == ptype.Any)      None else Some(toType(wc.upperBound))
             val lbound = if (wc.lowerBound == ptype.Nothing)  None else Some(toType(wc.lowerBound))
-//            def toTparam(tp: ScTypeParameterType)
-            m.Decl.Type(Nil, m.Type.Name(wc.name).withAttrs(h.Denotation.Zero).setTypechecked, Nil, m.Type.Bounds(lbound, ubound))
+            m.Decl.Type(Nil, m.Type.Name(wc.name)
+                //FIXME: pass actual prefix, when solution for recursive prefix computation is ready
+                .withAttrs(h.Denotation.Single(h.Prefix.Zero, toSymbolWtihParent(wc.name, pivot, h.Signature.Type)))
+                .setTypechecked,
+              Nil, m.Type.Bounds(lbound, ubound)).setTypechecked
           }
-          ???
-//          m.Type.Existential(toType(t.quantified), )
+          m.Type.Existential(toType(t.quantified), wcards).setTypechecked
         case t: ptype.StdType =>
           toStdTypeName(t)
         case t: ScTypeParameterType =>
