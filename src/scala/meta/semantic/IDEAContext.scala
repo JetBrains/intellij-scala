@@ -102,12 +102,12 @@ class IDEAContext(project: =>Project) extends TreeConverter with semantic.Contex
       case ptype.ScDesignatorType(elem) =>
         elem match {
           case t: ScTemplateDefinition =>
-            t.superTypes.map(toType)
+            t.superTypes.map(toType(_))
           case _ =>
             Seq.empty
         }
       case ptype.ScProjectionType(ptype.ScThisType(clazz), td: ScTemplateDefinition, superRef) =>
-        Seq(td.extendsBlock.superTypes.map(toType)    :_*)
+        Seq(td.extendsBlock.superTypes.map(toType(_))    :_*)
       case _ =>
         Seq.empty
     }

@@ -54,7 +54,7 @@ trait TreeAdapter {
       convertMods(t), toTermName(t),
       Seq(t.typeParameters map toTypeParams: _*),
       Seq(t.paramClauses.clauses.map(convertParamClause): _*),
-      t.definedReturnType.map(toType).get,
+      t.definedReturnType.map(toType(_)).get,
       expression(t.body).get
     )
   }
@@ -63,7 +63,7 @@ trait TreeAdapter {
     m.Defn.Def(convertMods(t), toTermName(t),
       Seq(t.typeParameters map toTypeParams: _*),
       Seq(t.paramClauses.clauses.map(convertParamClause): _*),
-      t.definedReturnType.map(toType).toOption,
+      t.definedReturnType.map(toType(_)).toOption,
       expression(t.body).getOrElse(m.Term.Block(Nil))
     )
   }
@@ -75,7 +75,7 @@ trait TreeAdapter {
 
   def toVarDefn(t: ScVariableDefinition): m.Defn.Var = {
     def pattern(bp: ScBindingPattern) = m.Pat.Var.Term(toTermName(bp))
-    m.Defn.Var(convertMods(t), Seq(t.bindings.map(pattern): _*), t.declaredType.map(toType), expression(t.expr))
+    m.Defn.Var(convertMods(t), Seq(t.bindings.map(pattern): _*), t.declaredType.map(toType(_)), expression(t.expr))
   }
 
   def toFunDecl(t: ScFunctionDeclaration): m.Decl.Def = {
@@ -493,9 +493,9 @@ trait TreeAdapter {
     }
 
     if(t.bindings.exists(_.isVal))
-      m.Defn.Val(convertMods(t), Seq(t.bindings.map(pattern):_*), t.declaredType.map(toType), expression(t.expr).get)
+      m.Defn.Val(convertMods(t), Seq(t.bindings.map(pattern):_*), t.declaredType.map(toType(_)), expression(t.expr).get)
     else if(t.bindings.exists(_.isVar))
-      m.Defn.Var(convertMods(t), Seq(t.bindings.map(pattern):_*), t.declaredType.map(toType), expression(t.expr))
+      m.Defn.Var(convertMods(t), Seq(t.bindings.map(pattern):_*), t.declaredType.map(toType(_)), expression(t.expr))
     else unreachable
   }
 

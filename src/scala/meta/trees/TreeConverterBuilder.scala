@@ -49,7 +49,7 @@ trait TreeConverterBuilder {
         ret = m.Defn.Def(convertMods(fun), toTermName(fun),
           Seq(fun.typeParameters map toTypeParams:_*),
           Seq(fun.paramClauses.clauses.map(convertParamClause):_*),
-          fun.definedReturnType.map(toType).toOption,
+          fun.definedReturnType.map(toType(_)).toOption,
           body
         )
       }
