@@ -66,6 +66,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
           case TextPart(s) =>
             resultNode.addChild(LiteralExpression(s))
           case ElementPart(comment: PsiComment) =>
+            if (!dropElements.contains(comment)) resultNode.addChild(LiteralExpression(comment.getText))
             dropElements += comment
           case ElementPart(element) =>
             val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, data, dropElements)

@@ -31,7 +31,7 @@ object CommentsCollector {
     val result = new ArrayBuffer[PsiElement]()
     var child = element.getFirstChild
     while (child != null && (isCommentOrSpace(child) || isEmptyElement(child)) && !usedComments.contains(child)) {
-      if (!usedComments.contains(child) && child.isInstanceOf[PsiComment]) result += child
+      if (!usedComments.contains(child) && isComment(child)) result += child
       child = child.getNextSibling
     }
     usedComments ++= result
@@ -61,10 +61,10 @@ object CommentsCollector {
     var prev = element.getPrevSibling
     val resultComments = new ArrayBuffer[PsiElement]()
     while ((prev != null) && !usedComments.contains(prev)) {
-      if (!usedComments.contains(prev) && isComment(prev))  resultComments += prev
+      if (!usedComments.contains(prev) && isComment(prev)) resultComments += prev
       prev = prev.getPrevSibling
     }
-    usedComments ++= resultComments
+    //    usedComments ++= resultComments
     resultComments
   }
 
@@ -107,8 +107,6 @@ object CommentsCollector {
     val result = collectCommentsAtStart(element)
     if (!collectedCommentsUsedInParent(innerComments)) {
       result ++= innerComments
-    } else {
-      usedComments --= innerComments
     }
 
     usedComments ++= result
