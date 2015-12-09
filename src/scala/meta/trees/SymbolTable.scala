@@ -69,6 +69,11 @@ trait SymbolTable {
     }
   }
 
+  // used for generating symbols when no direct access to parent is avaliable(e.g. ScType)
+  def toSymbolWtihParent(name: String, parent: PsiElement, signature: h.Signature) = {
+    h.Symbol.Global(toSymbol(parent), name, signature)
+  }
+
   def toSymbol(res: ResolveResult): h.Symbol = {
     res match {
       case ScalaResolveResult(elem: PsiNamedElement, subst) =>
