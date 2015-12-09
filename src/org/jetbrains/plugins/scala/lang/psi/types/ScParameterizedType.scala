@@ -125,7 +125,7 @@ class ScParameterizedType private (val designator : ScType, val typeArgs : Seq[S
   private def substitutorInner : ScSubstitutor = {
     def forParams[T](paramsIterator: Iterator[T], initial: ScSubstitutor, map: T => ScTypeParameterType): ScSubstitutor = {
       val argsIterator = typeArgs.iterator
-      val builder = ListMap.newBuilder[(String, String), ScType]
+      val builder = ListMap.newBuilder[(String, PsiElement), ScType]
       while (paramsIterator.hasNext && argsIterator.hasNext) {
         val p1 = map(paramsIterator.next())
         val p2 = argsIterator.next()
@@ -348,14 +348,7 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
              ScalaPsiManager.instance(ptp.getProject).psiTypeParameterUpperType(ptp))})}, ptp)
   }
 
-  @volatile
-  private var id: String = null
-  def getId: String = {
-    if (id == null) {
-      id = ScalaPsiUtil.getPsiElementId(param)
-    }
-    id
-  }
+  def getId: PsiElement = ScalaPsiUtil.getPsiElementId(param)
 
   def isCovariant = {
     param match {

@@ -1329,8 +1329,8 @@ object Conformance {
               undefinedSubst = t._2
             }
             if (result == null) {
-              val filterFunction: (((String, String), HashSet[ScType])) => Boolean = {
-                case (id: (String, String), types: HashSet[ScType]) =>
+              val filterFunction: (((String, PsiElement), HashSet[ScType])) => Boolean = {
+                case (id: (String, PsiElement), types: HashSet[ScType]) =>
                   !tptsMap.values.exists {
                     case tpt: ScTypeParameterType => id ==(tpt.name, ScalaPsiUtil.getPsiElementId(tpt.param))
                   }
@@ -1693,7 +1693,7 @@ object Conformance {
             undefinedSubst = t._2
             i = i + 1
           }
-          val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, String), ScType] ++ typeParameters1.zip(typeParameters2).map({
+          val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, PsiElement), ScType] ++ typeParameters1.zip(typeParameters2).map({
             tuple => ((tuple._1.name, ScalaPsiUtil.getPsiElementId(tuple._1.ptp)),
               new ScTypeParameterType(tuple._2.name,
                 tuple._2.ptp match {

@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import java.lang.ref.WeakReference
-
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.Logger
@@ -903,45 +901,20 @@ object ScalaPsiUtil {
     res
   }
 
-  private val idMap = new ConcurrentWeakHashMap[String, WeakReference[String]](10009)
-
-  def getFromMap[T](map: ConcurrentWeakHashMap[T, WeakReference[T]], s: T): T = {
-    val res = {
-      val weak = map.get(s)
-      if (weak != null) weak.get()
-      else null.asInstanceOf[T]
-    }
-    if (res != null) res
-    else {
-      map.put(s, new WeakReference(s))
-      s
-    }
-  }
-
-  def getPsiElementId(elem: PsiElement): String = {
-    if (elem == null) return "NullElement"
+  def getPsiElementId(elem: PsiElement): PsiElement = {
     try {
-      val res = elem match {
-        case tp: ScTypeParam => tp.getPsiElementId
+      elem match {
+        case typeParam: ScTypeParam => typeParam.getPsiElementId
         case p: PsiTypeParameter =>
-          val containingFile = Option(p.getContainingFile).map(_.getName).getOrElse("NoFile")
-          val containingClass =
-            (for {
-              owner <- Option(p.getOwner)
-              clazz <- Option(owner.getContainingClass)
-              name <- Option(clazz.getName)
-            } yield name).getOrElse("NoClass")
-          (" in:" + containingFile + ":" + containingClass) //Two parameters from Java can't be used with same name in same place
-        case _ =>
-          val containingFile: PsiFile = elem.getContainingFile
-          " in:" + (if (containingFile != null) containingFile.name else "NoFile") + ":" +
-            (if (elem.getTextRange != null) elem.getTextRange.getStartOffset else "NoRange")
+          val cc = for {
+            owner <- Option(p.getOwner)
+            clazz <- Option(owner.containingClass)
+          } yield clazz
+          cc.orNull
+        case _ => elem
       }
-
-      getFromMap(idMap, res)
-    }
-    catch {
-      case pieae: PsiInvalidElementAccessException => "NotValidElement"
+    } catch {
+      case _ : PsiInvalidElementAccessException => null
     }
   }
 
@@ -956,6 +929,7 @@ object ScalaPsiUtil {
           new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
     }
   }
+
   def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
                          typeParams: Seq[TypeParameter],
                          shouldUndefineParameters: Boolean = true,
@@ -1287,23 +1261,23 @@ object ScalaPsiUtil {
     isPlaceTdAncestor(td, newTd)
   }
 
-  def typesCallSubstitutor(tp: Seq[(String, String)], typeArgs: Seq[ScType]): ScSubstitutor = {
-    val map = new collection.mutable.HashMap[(String, String), ScType]
+  def typesCallSubstitutor(tp: Seq[(String, PsiElement)], typeArgs: Seq[ScType]): ScSubstitutor = {
+    val map = new collection.mutable.HashMap[(String, PsiElement), ScType]
     for (i <- 0 to math.min(tp.length, typeArgs.length) - 1) {
       map += ((tp(i), typeArgs(i)))
     }
     new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
   }
 
-  def genericCallSubstitutor(tp: Seq[(String, String)], typeArgs: Seq[ScTypeElement]): ScSubstitutor = {
-    val map = new collection.mutable.HashMap[(String, String), ScType]
+  def genericCallSubstitutor(tp: Seq[(String, PsiElement)], typeArgs: Seq[ScTypeElement]): ScSubstitutor = {
+    val map = new collection.mutable.HashMap[(String, PsiElement), ScType]
     for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
       map += ((tp(tp.length - 1 - i), typeArgs(typeArgs.length - 1 - i).getType(TypingContext.empty).getOrAny))
     }
     new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
   }
 
-  def genericCallSubstitutor(tp: Seq[(String, String)], gen: ScGenericCall): ScSubstitutor = {
+  def genericCallSubstitutor(tp: Seq[(String, PsiElement)], gen: ScGenericCall): ScSubstitutor = {
     val typeArgs: Seq[ScTypeElement] = gen.arguments
     genericCallSubstitutor(tp, typeArgs)
   }
