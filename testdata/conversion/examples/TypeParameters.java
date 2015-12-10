@@ -6,7 +6,7 @@ public abstract class JClass<T, Z extends String>  {
 abstract class JClass[T, Z <: String] {
   def t: T
 
-  def m[U] {
+  def m[U]() {
   }
 }
  */
