@@ -46,7 +46,9 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
     var res = JavaToScala.convertPsisToText(buf, getUsedComments(offset, endOffset, lastPsi, javaFile))
     val newFile = PsiFileFactory.getInstance(getProjectAdapter).createFileFromText("dummyForJavaToScala.scala",
       ScalaFileType.SCALA_LANGUAGE, res)
+
     res = inWriteAction {
+      ConverterUtil.runInspections(newFile, getProjectAdapter, 0, newFile.getText.length)
       CodeStyleManager.getInstance(getProjectAdapter).reformat(newFile).getText
     }
 
