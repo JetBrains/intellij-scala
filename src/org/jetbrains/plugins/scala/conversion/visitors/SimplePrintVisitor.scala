@@ -35,7 +35,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       case ClassObjectAccess(expression) => visitClassObjAccess(expression)
       case InstanceOfConstruction(operand, mtype) => visitInstanceOf(operand, mtype)
       case QualifiedExpression(qualifier, identifier) => visitQualifiedExpression(qualifier, identifier)
-      case MethodCallExpression(name, method, args) => visitMethodCall(name, method, args)
+      case MethodCallExpression(name, method, args, withSideEffects) => visitMethodCall(name, method, args, withSideEffects)
       case ExpressionList(data) => visitExpressionList(data)
       case ThisExpression(value) => visitWithExtraWord(value, "this")
       case SuperExpression(value) => visitWithExtraWord(value, "super")
@@ -284,11 +284,11 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     printer
   }
 
-  def visitMethodCall(name: String, method: IntermediateNode, args: IntermediateNode) = {
+  def visitMethodCall(name: String, method: IntermediateNode, args: IntermediateNode, withSideEffects: Boolean) = {
     visit(method)
     if (args != null)
       visit(args)
-    printer
+    if (withSideEffects) printer.append("()")
   }
 
   def visitExpressionList(data: Seq[IntermediateNode]) = {
