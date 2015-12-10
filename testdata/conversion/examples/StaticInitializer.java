@@ -11,12 +11,9 @@ public class JSome {
 object JSome {
   var i: Int = 0
 
-  def m: Int = {
-    123
-  }
+  def m: Int = 123
 
-  try {
-    i = m
-  }
+  try i = m
+
 }
 */

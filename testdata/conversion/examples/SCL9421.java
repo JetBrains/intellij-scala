@@ -23,12 +23,8 @@ class C {
     Label1 //todo: labels is not supported
     for (i <- array1) {
       for (j <- array2) {
-        if (i > j) {
-          break Label1 // todo: label break is not supported
-        }
-        else {
-          continue //todo: continue is not supported
-        }
+        if (i > j) break Label1 // todo: label break is not supported
+        else continue //todo: continue is not supported
       }
     }
   }

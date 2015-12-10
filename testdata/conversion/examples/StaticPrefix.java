@@ -9,9 +9,7 @@ public class TestJava {
 }
 /*
 object TestJava {
-  def foo: Int = {
-    1
-  }
+  def foo: Int = 1
 }
 
 class TestJava {

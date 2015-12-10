@@ -6,8 +6,6 @@ public class Day {
 /*
 class Day {
   @throws[Exception]
-  def s: String = {
-    "text"
-  }
+  def s: String = "text"
 }
  */
