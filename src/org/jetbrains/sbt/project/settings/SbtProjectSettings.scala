@@ -22,10 +22,13 @@ class SbtProjectSettings extends ExternalProjectSettings {
   var jdk: String = null
 
   @BeanProperty
-  var resolveClassifiers: Boolean = false
+  var resolveClassifiers: Boolean = true
 
   @BeanProperty
   var resolveSbtClassifiers: Boolean = false
+
+  @BeanProperty
+  var resolveJavadocs: Boolean = false
 
   @Nullable
   @BeanProperty
@@ -39,6 +42,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
     copyTo(result)
     result.jdk = jdk
     result.resolveClassifiers = resolveClassifiers
+    result.resolveJavadocs = resolveJavadocs
     result.resolveSbtClassifiers = resolveSbtClassifiers
     result.sbtVersion = sbtVersion
     result.useOurOwnAutoImport = useOurOwnAutoImport
