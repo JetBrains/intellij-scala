@@ -42,6 +42,8 @@ class ScLightTypeParam(t: TypeParameter, tParam: ScTypeParam)
 
   override def getOffsetInFile: Int = tParam.getOffsetInFile
 
+  override def getPsiElementId: PsiElement = tParam.getPsiElementId
+
   override def owner: ScTypeParametersOwner = tParam.owner
 
   override def isContravariant: Boolean = tParam.isContravariant
