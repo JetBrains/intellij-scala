@@ -12,7 +12,6 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -40,7 +39,7 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
     var endOffset = fileText.indexOf(endMarker)
     if (endOffset == -1) endOffset = lastPsi.getTextRange.getStartOffset
 
-    val buf = collectTopElements(startOffset, endOffset, javaFile)
+    val buf = ConverterUtil.collectTopElements(startOffset, endOffset, javaFile)
     var res = JavaToScala.convertPsisToText(buf, getUsedComments(offset, endOffset, lastPsi, javaFile))
     val newFile = PsiFileFactory.getInstance(getProjectAdapter).createFileFromText("dummyForJavaToScala.scala",
       ScalaFileType.SCALA_LANGUAGE, res)
@@ -56,23 +55,6 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
       case _ => assertTrue("Test result must be in last comment statement.", false)
     }
     assertEquals(output, res.trim)
-  }
-
-  private def collectTopElements(startOffset: Int, endOffset:Int, javaFile: PsiFile): Array[PsiElement] = {
-    val buf = new ArrayBuffer[PsiElement]
-    var elem: PsiElement = javaFile.findElementAt(startOffset)
-    assert(elem.getTextRange.getStartOffset == startOffset)
-    while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
-      elem.getParent.getTextRange.getStartOffset == startOffset) {
-      elem = elem.getParent
-    }
-
-    buf += elem
-    while (elem.getTextRange.getEndOffset < endOffset) {
-      elem = elem.getNextSibling
-      buf += elem
-    }
-    buf.toArray
   }
 
   private def getUsedComments(startOffset: Int, endOffset: Int,
