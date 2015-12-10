@@ -8,7 +8,7 @@ public class Day {
 /*
 @deprecated class Day {
   @deprecated def s: String = {
-    return "text"
+    "text"
   }
 }
  */

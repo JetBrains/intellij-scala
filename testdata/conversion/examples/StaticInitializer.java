@@ -12,7 +12,7 @@ object JSome {
   var i: Int = 0
 
   def m: Int = {
-    return 123
+    123
   }
 
   try {
