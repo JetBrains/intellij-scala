@@ -26,18 +26,18 @@ import org.jetbrains.plugins.scala.settings._
 import scala.collection.mutable.ListBuffer
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 30.11.2009
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 30.11.2009
+  */
 
 class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBlockTransferableData] {
   private val Log = Logger.getInstance(classOf[JavaCopyPastePostProcessor])
 
   private lazy val referenceProcessor = Extensions.getExtensions(CopyPastePostProcessor.EP_NAME)
-          .find(_.isInstanceOf[JavaCopyPasteReferenceProcessor]).get
+    .find(_.isInstanceOf[JavaCopyPasteReferenceProcessor]).get
 
   private lazy val scalaProcessor = Extensions.getExtensions(CopyPastePostProcessor.EP_NAME)
-          .find(_.isInstanceOf[ScalaCopyPastePostProcessor]).get.asInstanceOf[ScalaCopyPastePostProcessor]
+    .find(_.isInstanceOf[ScalaCopyPastePostProcessor]).get.asInstanceOf[ScalaCopyPastePostProcessor]
 
   protected def collectTransferableData0(file: PsiFile, editor: Editor, startOffsets: Array[Int], endOffsets: Array[Int]): TextBlockTransferableData = {
     if (DumbService.getInstance(file.getProject).isDumb) return null
@@ -102,6 +102,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     }
   }
 
+
   protected def extractTransferableData0(content: Transferable): TextBlockTransferableData = {
     if (content.isDataFlavorSupported(ConvertedCode.Flavor))
       content.getTransferData(ConvertedCode.Flavor).asInstanceOf[TextBlockTransferableData]
@@ -135,6 +136,8 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
           val manager = CodeStyleManager.getInstance(project)
           manager.reformatText(file, bounds.getStartOffset, bounds.getStartOffset + text.length)
         }
+
+        ConverterUtil.runInspections(file, project, bounds.getStartOffset, bounds.getStartOffset + text.length, editor)
 
         markedAssociations.map {
           case (association, marker) =>

@@ -1,8 +1,18 @@
 package org.jetbrains.plugins.scala.conversion
 
+import com.intellij.codeInspection.{InspectionManager, LocalQuickFixOnPsiElement, ProblemDescriptor, ProblemsHolder}
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.codeInsight.intention.RemoveBracesIntention
+import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection
+import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.{RemoveRedundantReturnInspection, ScalaUnnecessarySemicolonInspection}
 import org.jetbrains.plugins.scala.conversion.ast.CommentsCollector
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -15,7 +25,7 @@ import scala.collection.mutable.ArrayBuffer
 object ConverterUtil {
   def getTopElements(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]): (Seq[Part], mutable.HashSet[PsiElement]) = {
 
-    def buildTextPart(offset1: Int, offset2: Int, dropElements:mutable.HashSet[PsiElement]): TextPart = {
+    def buildTextPart(offset1: Int, offset2: Int, dropElements: mutable.HashSet[PsiElement]): TextPart = {
       val possibleComment = file.findElementAt(offset1)
       if (possibleComment != null && CommentsCollector.isComment(possibleComment)) dropElements += possibleComment
       TextPart(new TextRange(offset1, offset2).substring(file.getText))
@@ -49,7 +59,7 @@ object ConverterUtil {
           elem = elem.getParent
         }
         //get wrong result when copy element that has PsiComment without comment
-        val shifted = shiftedElement(elem, dropElements)
+        val shifted = shiftedElement(elem, dropElements, endOffset)
         if (shifted != elem) {
           elem = shifted
         } else if (startOffset < elem.getTextRange.getStartOffset) {
@@ -89,7 +99,7 @@ object ConverterUtil {
     }
   }
 
-  def shiftedElement(inElem: PsiElement, dropElements: mutable.HashSet[PsiElement]): PsiElement = {
+  def shiftedElement(inElem: PsiElement, dropElements: mutable.HashSet[PsiElement], endOffset: Int): PsiElement = {
     var elem = inElem
     while (elem.getPrevSibling != null &&
       !elem.getPrevSibling.isInstanceOf[PsiFile] &&
@@ -99,10 +109,56 @@ object ConverterUtil {
       dropElements += elem
     }
 
-    if (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] && elem.getParent.getFirstChild == elem) {
+    if (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] && elem.getParent.getFirstChild == elem
+      && elem.getPrevSibling.getTextRange.getEndOffset <= endOffset) {
       elem = elem.getParent
     }
     elem
+  }
+
+  //collect top elements in range
+  def collectTopElements(startOffset: Int, endOffset: Int, javaFile: PsiFile): Array[PsiElement] = {
+    val buf = new ArrayBuffer[PsiElement]
+    var elem: PsiElement = javaFile.findElementAt(startOffset)
+    assert(elem.getTextRange.getStartOffset == startOffset)
+    while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
+      elem.getParent.getTextRange.getStartOffset == startOffset) {
+      elem = elem.getParent
+    }
+
+    buf += elem
+    while (elem != null && elem.getTextRange.getEndOffset < endOffset) {
+      elem = elem.getNextSibling
+      buf += elem
+    }
+    buf.toArray
+  }
+
+  def runInspections(file: PsiFile, project: Project, offset: Int, endOffset: Int, editor: Editor = null): Unit = {
+    def handleOneProblem(problem: ProblemDescriptor) = {
+      val fixes = problem.getFixes.collect { case f: LocalQuickFixOnPsiElement => f }
+      fixes.foreach(_.applyFix)
+    }
+
+    val intention = new RemoveBracesIntention
+    val holder = new ProblemsHolder(InspectionManager.getInstance(project), file, false)
+
+    val removeReturnVisitor = (new RemoveRedundantReturnInspection).buildVisitor(holder, isOnTheFly = false)
+    val parenthesisedExpr = (new ScalaUnnecessaryParenthesesInspection).buildVisitor(holder, isOnTheFly = false)
+    val removeSemicolon = (new ScalaUnnecessarySemicolonInspection).buildVisitor(holder, isOnTheFly = false)
+
+    collectTopElements(offset, endOffset, file).foreach(_.depthFirst.foreach {
+      case el: ScFunctionDefinition =>
+        removeReturnVisitor.visitElement(el)
+      case parentized: ScParenthesisedExpr =>
+        parenthesisedExpr.visitElement(parentized)
+      case semicolon: PsiElement if semicolon.getNode.getElementType == ScalaTokenTypes.tSEMICOLON =>
+        removeSemicolon.visitElement(semicolon)
+      case el => intention.invoke(project, editor, el)
+    })
+
+    import scala.collection.JavaConversions._
+    holder.getResults.foreach(handleOneProblem)
   }
 
   sealed trait Part
