@@ -19,7 +19,7 @@ class C {
   val array1: Array[Int] = new Array[Int](3)
   val array2: Array[Int] = new Array[Int](3)
 
-  def testLabels {
+  def testLabels() {
     Label1 //todo: labels is not supported
     for (i <- array1) {
       for (j <- array2) {

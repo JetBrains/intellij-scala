@@ -15,7 +15,7 @@ object TestJava {
 }
 
 class TestJava {
-  def test {
+  def test() {
     TestJava.foo
   }
 }

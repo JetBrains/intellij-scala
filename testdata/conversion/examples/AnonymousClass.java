@@ -9,9 +9,9 @@ public class AnonymousClass {
 }
 /*
 class AnonymousClass {
-  def foo {
+  def foo() {
     new Runnable() {
-      def run {
+      def run() {
       }
     }
   }

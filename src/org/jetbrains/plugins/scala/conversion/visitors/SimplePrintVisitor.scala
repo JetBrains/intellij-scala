@@ -334,24 +334,24 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     signType match {
       case "++" =>
         if (!canBeSimplified) {
-          printer.append("({")
+          printer.append("{")
           visit(operand)
           printer.append(" += 1; ")
           visit(operand)
           if (isPostfix) printer.append(" - 1")
-          printer.append("})")
+          printer.append("}")
         } else {
           visit(operand)
           printer.append(" += 1")
         }
       case "--" =>
         if (!canBeSimplified) {
-          printer.append("({")
+          printer.append("{")
           visit(operand)
           printer.append(" -= 1; ")
           visit(operand)
           if (isPostfix) printer.append(" + 1")
-          printer.append("})")
+          printer.append("}")
         } else {
           visit(operand)
           printer.append(" -= 1")
@@ -388,19 +388,19 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
   }
 
   def visitConstructor(modifiers: IntermediateNode, typeParams: Seq[IntermediateNode],
-                       params: IntermediateNode, body: Option[IntermediateNode]) = {
+                       params: Seq[IntermediateNode], body: Option[IntermediateNode]) = {
     printer.append("def ")
     printer.append("this")
     if (typeParams.nonEmpty) {
       printWithSeparator(typeParams, ", ", "[", "]")
     }
 
-    visit(params)
+    printWithSeparator(params, ", ", "(", ")", params.nonEmpty)
     if (body.isDefined) visit(body.get)
   }
 
   def visitMethod(modifiers: IntermediateNode, name: IntermediateNode, typeParams: Seq[IntermediateNode],
-                  params: IntermediateNode, body: Option[IntermediateNode], retType: IntermediateNode) = {
+                  params: Seq[IntermediateNode], body: Option[IntermediateNode], retType: IntermediateNode) = {
     visit(modifiers)
     printer.append("def ")
     visit(name)
@@ -410,7 +410,8 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
     }
 
 
-    visit(params)
+    printWithSeparator(params, ", ", "(", ")", params.nonEmpty || (params.isEmpty && retType == null))
+
     if (retType != null) {
       printer.append(": ")
       visit(retType)

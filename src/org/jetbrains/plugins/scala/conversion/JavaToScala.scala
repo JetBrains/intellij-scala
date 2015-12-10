@@ -305,11 +305,11 @@ object JavaToScala {
 
         if (m.isConstructor) {
           ConstructorSimply(handleModifierList(m), m.getTypeParameters.map(convertPsiToIntermdeiate(_, externalProperties)),
-            convertPsiToIntermdeiate(m.getParameterList, externalProperties), body)
+            m.getParameterList.getParameters.map(convertPsiToIntermdeiate(_, externalProperties)), body)
         } else {
           val name = convertPsiToIntermdeiate(m.getNameIdentifier, externalProperties)
           MethodConstruction(handleModifierList(m), name, m.getTypeParameters.map(convertPsiToIntermdeiate(_, externalProperties)),
-            convertPsiToIntermdeiate(m.getParameterList, externalProperties), body,
+            m.getParameterList.getParameters.map(convertPsiToIntermdeiate(_, externalProperties)), body,
             if (m.getReturnType != PsiType.VOID) convertPsiToIntermdeiate(m.getReturnTypeElement, externalProperties) else null)
         }
       case c: PsiClass => createClass(c, externalProperties)

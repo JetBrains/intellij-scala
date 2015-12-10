@@ -17,7 +17,7 @@ class JSome(val t: Int //field will be dropped
            ) //comments in droppped constructor
 {
   //before func
-  def foo {
+  def foo() {
     val t: Int = 56 //last in line
     //last in func
   }
