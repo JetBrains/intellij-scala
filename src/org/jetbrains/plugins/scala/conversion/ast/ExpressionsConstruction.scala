@@ -35,11 +35,14 @@ object MethodCallExpression extends IntermediateNode {
       case "this" => LiteralExpression(methodName)
       case _ => LiteralExpression(escapeKeyword(methodName))
     }
-    MethodCallExpression(methodName, if (reciever != null) QualifiedExpression(reciever, identifier) else identifier, args)
+    MethodCallExpression(methodName, if (reciever != null)
+      QualifiedExpression(reciever, identifier) else identifier, args, withSideEffects = false)
   }
 }
 
-case class MethodCallExpression(name: String, method: IntermediateNode, args: IntermediateNode) extends IntermediateNode
+case class MethodCallExpression(name: String, method: IntermediateNode,
+                                args: IntermediateNode, withSideEffects: Boolean) extends IntermediateNode
+
 case class ExpressionList(data: Seq[IntermediateNode]) extends IntermediateNode
 case class ThisExpression(value: Option[IntermediateNode]) extends IntermediateNode
 case class SuperExpression(value: Option[IntermediateNode]) extends IntermediateNode

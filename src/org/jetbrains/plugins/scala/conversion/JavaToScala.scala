@@ -269,7 +269,8 @@ object JavaToScala {
           case _ =>
             MethodCallExpression(m.getMethodExpression.getQualifiedName,
               convertPsiToIntermdeiate(m.getMethodExpression, externalProperties),
-              convertPsiToIntermdeiate(m.getArgumentList, externalProperties))
+              convertPsiToIntermdeiate(m.getArgumentList, externalProperties),
+              (m.getType == PsiType.VOID) && m.getArgumentList.getExpressions.isEmpty)
         }
       case t: PsiThisExpression =>
         ThisExpression(Option(t.getQualifier).map(convertPsiToIntermdeiate(_, externalProperties)))
