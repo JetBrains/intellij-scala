@@ -10,7 +10,7 @@ public class TestJava {
 /*
 object TestJava {
   def foo: Int = {
-    return 1
+    1
   }
 }
 
