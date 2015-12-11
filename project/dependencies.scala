@@ -200,6 +200,7 @@ object DependencyGroups {
     "com.github.julien-truffaut"  %%  "monocle-generic" % "1.2.0-SNAPSHOT",
     "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.2.0-SNAPSHOT",
     "io.spray" %% "spray-routing" % "1.3.1",
+    "com.typesafe.slick" %% "slick" % "3.1.0",
     "org.scala-lang.modules" % "scala-async_2.11" % "0.9.5"
   )
 
