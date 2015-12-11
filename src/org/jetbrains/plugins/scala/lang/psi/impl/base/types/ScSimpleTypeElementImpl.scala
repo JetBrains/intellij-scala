@@ -11,7 +11,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference, ScUnderScoreSectionUtil}
@@ -182,7 +182,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           //4. Implicit clauses if applicable
           //5. In case of SafeCheckException return to 3 to complete update without expected type
           while (i < params.length - 1 && i < c.arguments.length - 1) {
-            nonValueType = ScalaPsiUtil.localTypeInference(nonValueType.internalType, params(i),
+            nonValueType = InferUtil.localTypeInference(nonValueType.internalType, params(i),
               c.arguments(i).exprs.map(new Expression(_)), nonValueType.typeParameters)
             i += 1
           }
@@ -191,9 +191,9 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             c.expectedType match {
               case Some(expected) if withExpected =>
                 def updateRes(expected: ScType) {
-                  nonValueType = ScalaPsiUtil.localTypeInference(nonValueType.internalType,
+                  nonValueType = InferUtil.localTypeInference(nonValueType.internalType,
                     Seq(new Parameter("", None, expected, false, false, false, 0)),
-                      Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(nonValueType.typeParameters).subst(res.inferValueType))),
+                      Seq(new Expression(InferUtil.undefineSubstitutor(nonValueType.typeParameters).subst(res.inferValueType))),
                     nonValueType.typeParameters, shouldUndefineParameters = false, filterTypeParams = false) //here should work in different way:
                 }
                 val fromUnderscore = c.newTemplate match {
@@ -213,7 +213,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
             //last clause after expected types
             if (i < params.length && i < c.arguments.length) {
-              nonValueType = ScalaPsiUtil.localTypeInference(nonValueType.internalType, params(i),
+              nonValueType = InferUtil.localTypeInference(nonValueType.internalType, params(i),
                 c.arguments(i).exprs.map(new Expression(_)), nonValueType.typeParameters, safeCheck = withExpected)
               i += 1
             }
