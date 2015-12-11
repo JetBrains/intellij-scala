@@ -110,7 +110,7 @@ object ConverterUtil {
     }
 
     if (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] && elem.getParent.getFirstChild == elem
-      && elem.getPrevSibling.getTextRange.getEndOffset <= endOffset) {
+      && elem.getParent.getTextRange.getEndOffset <= endOffset) {
       elem = elem.getParent
     }
     elem
@@ -167,4 +167,21 @@ object ConverterUtil {
 
   case class TextPart(text: String) extends Part
 
+  def getTextBetweenOffsets(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]): String = {
+    val builder = new StringBuilder()
+    val textGaps = startOffsets.zip(endOffsets).sortWith(_._1 < _._1)
+    for ((start, end) <- textGaps) {
+      if (start != end && start < end)
+        builder.append(file.getText.substring(start, end))
+    }
+    builder.toString()
+  }
+
+  def compareTextNEq(text1: String, text2: String): Boolean = {
+    def textWithoutLastSemicolon(text: String) = {
+      if (text.last == ';') text.substring(0, text.length - 1)
+      else text
+    }
+    textWithoutLastSemicolon(text1) != textWithoutLastSemicolon(text2)
+  }
 }
