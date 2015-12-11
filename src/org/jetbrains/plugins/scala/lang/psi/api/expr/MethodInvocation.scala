@@ -6,6 +6,7 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -28,6 +29,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   /**
    * For Infix, Postfix and Prefix expressions
    * it's refernce expression for operation
+ *
    * @return method reference or invoked expression for calls
    */
   def getInvokedExpr: ScExpression
@@ -39,6 +41,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
   /**
    * Unwraps parenthesised expression for method calls
+ *
    * @return unwrapped invoked expression
    */
   def getEffectiveInvokedExpr: ScExpression = getInvokedExpr
@@ -46,12 +49,14 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   /**
    * Important method for method calls like: foo(expr) = assign.
    * Usually this is same as argumentExpressions
+ *
    * @return arguments with additional argument if call in update position
    */
   def argumentExpressionsIncludeUpdateCall: Seq[ScExpression] = argumentExpressions
 
   /**
    * Seq of application problems like type mismatch.
+ *
    * @return seq of application problems
    */
   def applicationProblems: Seq[ApplicabilityProblem] = {
@@ -78,6 +83,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
   /**
    * In case if invoked expression converted implicitly to invoke apply or update method
+ *
    * @return imports used for implicit conversion
    */
   def getImportsUsed: collection.Set[ImportUsed] = {
@@ -86,6 +92,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
   /**
    * In case if invoked expression converted implicitly to invoke apply or update method
+ *
    * @return actual conversion element
    */
   def getImplicitFunction: Option[PsiNamedElement] = {
@@ -104,6 +111,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   /**
    * It's arguments for method and infix call.
    * For prefix and postfix call it's just operation.
+ *
    * @return Element, which reflects arguments
    */
   def argsElement: PsiElement
@@ -155,7 +163,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     def checkConformanceWithInference(retType: ScType, psiExprs: Seq[Expression],
                                       typeParams: Seq[TypeParameter], parameters: Seq[Parameter]) = {
       tuplizyCase(psiExprs) { t =>
-        localTypeInferenceWithApplicabilityExt(retType, parameters, t, typeParams, safeCheck = withExpectedType)
+        InferUtil.localTypeInferenceWithApplicabilityExt(retType, parameters, t, typeParams, safeCheck = withExpectedType)
       }
     }
 
