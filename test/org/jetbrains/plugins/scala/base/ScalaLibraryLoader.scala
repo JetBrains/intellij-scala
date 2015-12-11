@@ -30,7 +30,7 @@ import scala.collection.mutable.ArrayBuffer
  */
 class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
                          isIncludeScalazLibrary: Boolean = false, isIncludeReflectLibrary: Boolean = false,
-                         isIncludeSprayLibrary: Boolean = false, javaSdk: Option[Sdk] = None) {
+                         isIncludeSprayLibrary: Boolean = false, isIncludeSlickLibrary: Boolean = false, javaSdk: Option[Sdk] = None) {
 
   private val addedLibraries = ArrayBuffer[Library]()
 
@@ -53,6 +53,8 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
     if (isIncludeScalazLibrary) addLibrary(module, "scalaz", TestUtils.getMockScalazLib(libVersion))
 
     if (isIncludeSprayLibrary) addLibrary(module, "spray", TestUtils.getMockSprayLib(libVersion))
+
+    if (isIncludeSlickLibrary) addLibrary(module, "slick", TestUtils.getMockSlickLib(libVersion))
 
     javaSdk.foreach { sdk =>
       val rootModel = ModuleRootManager.getInstance(module).getModifiableModel
@@ -133,12 +135,12 @@ object ScalaLibraryLoader {
 
   def withMockJdk(project: Project, module: Module, rootPath: String,
                   isIncludeScalazLibrary: Boolean = false, isIncludeReflectLibrary: Boolean = false,
-                  isIncludeSprayLibrary: Boolean = false): ScalaLibraryLoader = {
+                  isIncludeSprayLibrary: Boolean = false, isIncludeSlickLibrary: Boolean = false): ScalaLibraryLoader = {
 
     val mockJdk = TestUtils.getDefaultJdk
     VfsRootAccess.allowRootAccess(mockJdk)
     val javaSdk = Some(JavaSdk.getInstance.createJdk("java sdk", mockJdk, false))
     new ScalaLibraryLoader(project, module, rootPath, isIncludeScalazLibrary, isIncludeReflectLibrary,
-      isIncludeSprayLibrary, javaSdk)
+      isIncludeSprayLibrary, isIncludeSlickLibrary, javaSdk)
   }
 }
