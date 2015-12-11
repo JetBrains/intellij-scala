@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -32,7 +33,7 @@ class ScalaTestLocationProvider extends SMTestLocator {
       case "scala" =>
         locationData match {
           case SpecsHintPattern(className, fileName, lineNumber) =>
-            val clazzes = ScalaPsiManager.instance(project).getClassesByName(className, GlobalSearchScope.allScope(project))
+            val clazzes = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(className, scope)
             val found = clazzes.find(c => Option(c.getContainingFile).exists(_.name == fileName))
 
             found match {
@@ -47,12 +48,13 @@ class ScalaTestLocationProvider extends SMTestLocator {
       case "scalatest" =>
         val res = new ArrayList[Location[_ <: PsiElement]]()
         locationData match {
-          case ScalaTestTopOfClassPattern(className, testName) =>
-            val classes = ScalaPsiManager.instance(project).getClassesByName(className, GlobalSearchScope.allScope(project))
+          case ScalaTestTopOfClassPattern(classFqn, testName) =>
+            val classes = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(classFqn, scope)
             val clazz = classes.find(!_.isInstanceOf[ScObject]).orElse(classes.headOption)
             clazz.foreach(c => res.add(new PsiLocationWithName(project, c, testName)))
-          case ScalaTestTopOfMethodPattern(className, methodName, testName) =>
-            val classes = ScalaPsiManager.instance(project).getClassesByName(className, GlobalSearchScope.allScope(project))
+          case ScalaTestTopOfMethodPattern(classFqn, methodName, testName) =>
+            val classes = ScalaShortNamesCacheManager.getInstance(project).
+              getClassesByFQName(classFqn, GlobalSearchScope.allScope(project))
             val methodOwner = classes.find(!_.isInstanceOf[ScObject]).orElse(classes.headOption)
             methodOwner match {
               case Some(td: ScTypeDefinition) =>
@@ -68,8 +70,8 @@ class ScalaTestLocationProvider extends SMTestLocator {
                 method => res.add(new PsiLocationWithName(project, method, testName))
               }
             }
-          case ScalaTestLineInFinePattern(className, fileName, lineNumber, testName) =>
-            val clazzes = ScalaPsiManager.instance(project).getClassesByName(className, GlobalSearchScope.allScope(project))
+          case ScalaTestLineInFinePattern(classFqn, fileName, lineNumber, testName) =>
+            val clazzes = ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), classFqn)
             val found = clazzes.find(c => Option(c.getContainingFile).exists(_.name == fileName))
             found match {
               case Some(file) =>
