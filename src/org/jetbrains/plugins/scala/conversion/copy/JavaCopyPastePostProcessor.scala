@@ -92,7 +92,8 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
           new Association(a.kind, range, a.path)
         }
 
-      new ConvertedCode(text, updatedAssociations.toArray)
+      val oldText = ConverterUtil.getTextBetweenOffsets(file, startOffsets, endOffsets)
+      new ConvertedCode(text, updatedAssociations.toArray, ConverterUtil.compareTextNEq(oldText, text))
     } catch {
       case e: Exception =>
         val selections = (startOffsets, endOffsets).zipped.map((a, b) => file.getText.substring(a, b))
@@ -116,13 +117,14 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     if (!file.isInstanceOf[ScalaFile]) return
     val dialog = new ScalaPasteFromJavaDialog(project)
-    val (text, associations) = value match {
-      case code: ConvertedCode => (code.data, code.associations)
-      case _ => ("", Array.empty[Association])
+    val (text, associations, showDialog: Boolean) = value match {
+      case code: ConvertedCode => (code.data, code.associations, code.showDialog)
+      case _ => ("", Array.empty[Association], true)
     }
     if (text == "") return //copy as usually
-    if (!ScalaProjectSettings.getInstance(project).isDontShowConversionDialog) dialog.show()
-    if (ScalaProjectSettings.getInstance(project).isDontShowConversionDialog || dialog.isOK) {
+    val needShowDialog = (!ScalaProjectSettings.getInstance(project).isDontShowConversionDialog) && showDialog
+    if (needShowDialog) dialog.show()
+    if (!needShowDialog || dialog.isOK) {
       val shiftedAssociations = inWriteAction {
         replaceByConvertedCode(editor, bounds, text)
         editor.getCaretModel.moveToOffset(bounds.getStartOffset + text.length)
@@ -186,7 +188,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     else document.replaceString(start, end, text)
   }
 
-  class ConvertedCode(val data: String, val associations: Array[Association]) extends TextBlockTransferableData {
+  class ConvertedCode(val data: String, val associations: Array[Association], val showDialog: Boolean = false) extends TextBlockTransferableData {
     def setOffsets(offsets: Array[Int], _index: Int) = {
       var index = _index
       for (association <- associations) {
