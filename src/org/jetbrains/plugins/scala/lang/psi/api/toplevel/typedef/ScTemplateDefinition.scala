@@ -288,7 +288,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         }
       return PsiClassImplUtil.processDeclarationsInClass(this, processor, oldState, null, lastChild, place, languageLevel, false)
     }
-    if (extendsBlock.templateBody != None &&
+    if (extendsBlock.templateBody.isDefined &&
       PsiTreeUtil.isContextAncestor(extendsBlock.templateBody.get, place, false) && lastParent != null) return true
     processDeclarationsForTemplateBody(processor, oldState, lastParent, place)
   }
@@ -318,7 +318,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       else ScType.designator(this))
     val eb = extendsBlock
     eb.templateParents match {
-        case Some(p) if PsiTreeUtil.isContextAncestor(p, place, true) =>
+        case Some(p) if PsiTreeUtil.isContextAncestor(p, place, false) =>
           eb.earlyDefinitions match {
             case Some(ed) => for (m <- ed.members) {
               ProgressManager.checkCanceled()
