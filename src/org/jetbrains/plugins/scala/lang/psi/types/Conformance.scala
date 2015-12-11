@@ -521,7 +521,7 @@ object Conformance {
       }
 
       if (x eq types.AnyVal) {
-        result = (r.isInstanceOf[ValType], undefinedSubst)
+        result = (r.isInstanceOf[ValType] || ValueClassType.isValueType(r), undefinedSubst)
         return
       }
       if (l.isInstanceOf[ValType] && r.isInstanceOf[ValType]) {
