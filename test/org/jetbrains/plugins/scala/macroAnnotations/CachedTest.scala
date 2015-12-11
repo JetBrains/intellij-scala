@@ -95,6 +95,8 @@ class CachedTest extends CachedTestBase {
     object Foo extends Managed {
       @Cached(synchronized = false, modificationCount = ModCount.getOutOfCodeBlockModificationCount, this)
       def currentTime: Long = System.currentTimeMillis()
+
+      def getProject = myFixture.getProject
     }
 
     val firstRes = Foo.currentTime

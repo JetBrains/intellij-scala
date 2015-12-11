@@ -4,6 +4,7 @@ package caches
 
 import java.util.concurrent.ConcurrentMap
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
 import com.intellij.psi._
@@ -11,13 +12,14 @@ import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScModificationTrackerOwner
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScModifiableTypedDeclaration, ScModificationTrackerOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.util.control.ControlThrowable
 
 /**
@@ -257,18 +259,73 @@ object CachesUtil {
     @tailrec
     def calc(element: PsiElement): ModificationTracker = {
       Option(PsiTreeUtil.getContextOfType(element, false, classOf[ScModificationTrackerOwner])) match {
-        case Some(owner) if owner.isValidModificationTrackerOwner => owner.getModificationTracker
+        case Some(owner) if owner.isValidModificationTrackerOwner() => owner.getModificationTracker
         case Some(owner) => calc(owner.getContext)
-        case _ if elem != null => elem.getManager.getModificationTracker.getOutOfCodeBlockModificationTracker
-        case _ => element.getManager.getModificationTracker.getOutOfCodeBlockModificationTracker
+        case _ if elem != null => ScalaPsiManager.instance(elem.getProject).modificationTracker
+        case _ => ScalaPsiManager.instance(element.getProject).modificationTracker
       }
     }
 
     calc(elem)
   }
 
+  @tailrec
+  def updateModificationCount(elem: PsiElement, incModCountOnTopLevel: Boolean = false): Unit = {
+    Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScModificationTrackerOwner])) match {
+      case Some(owner) if owner.isValidModificationTrackerOwner(checkForChangedReturn = true) =>
+        owner.incModificationCount()
+      case Some(owner) => updateModificationCount(owner.getContext)
+      case _ if incModCountOnTopLevel => ScalaPsiManager.instance(elem.getProject).incModificationCount()
+      case _ =>
+    }
+  }
+
   private case class ProbablyRecursionException[Dom <: PsiElement, Data, T](elem: Dom,
                                                                             data: Data,
                                                                             key: Key[T],
                                                                             set: Set[ScFunction]) extends ControlThrowable
+
+  private[this] val funsRetTpToCheck = new mutable.ArrayBuffer[(ScModifiableTypedDeclaration, Project)]()
+  @volatile
+  private[this] var needToCheckFuns: Boolean = false
+  private[this] val currentThreadIsCheckingFuns = new ThreadLocal[Boolean] {
+    override def initialValue(): Boolean = false
+  }
+
+  def incrementModCountForFunsWithModifiedReturn(): Unit = {
+    def checkFuns(): Unit = funsRetTpToCheck.synchronized {
+      var i = 0
+      while (i < funsRetTpToCheck.size) {
+        val (fun, proj) = funsRetTpToCheck(i)
+        val isValid: Boolean = fun.isValid
+        if (!isValid || fun.returnTypeHasChangedSinceLastCheck) {
+          //if there's more than one, just increment the general modCount If there's one, go up th
+          if (!isValid || funsRetTpToCheck.size > 1) {
+            ScalaPsiManager.instance(proj).incModificationCount()
+            funsRetTpToCheck.clear()
+          } else {
+            updateModificationCount(fun.getContext, incModCountOnTopLevel = true)
+          }
+        }
+        i += 1
+      }
+      needToCheckFuns = false
+    }
+
+    if (needToCheckFuns && !currentThreadIsCheckingFuns.get()) {
+      try {
+        currentThreadIsCheckingFuns.set(true)
+        checkFuns()
+      } finally {
+        currentThreadIsCheckingFuns.set(false)
+      }
+    }
+  }
+
+  def addModificationFunctionsReturnType(fun: ScModifiableTypedDeclaration): Unit = funsRetTpToCheck.synchronized {
+    if (!funsRetTpToCheck.exists(_._1 == fun)) {
+      funsRetTpToCheck += ((fun, fun.getProject))
+      needToCheckFuns = true
+    }
+  }
 }
