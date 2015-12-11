@@ -230,4 +230,25 @@ abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
     checkVariants(2, "All", "line in function main", "new ZZZ(_)", "_ => false", "new ZZZ(\"1\")")
     checkStopResumeSeveralTimes(Breakpoint(2, null))("Seq(\"a\")...", "new ZZZ(_)", "_ => false", "new ZZZ(\"1\")")
   }
+
+  addSourceFile("LineStartsWithDot.scala",
+    """object LineStartsWithDot {
+      |  def main(args: Array[String]) {
+      |    Some(1)
+      |      .map(_ + 1)
+      |      .filter(i => i % 2 == 0)
+      |      .foreach(println)
+      |  }
+      |}""".stripMargin
+  )
+  def testLineStartsWithDot(): Unit = {
+    checkVariants(2) //no variants
+    checkVariants(3, "All", "line in function main", "_ + 1")
+    checkVariants(4, "All", "line in function main", "i => i % 2 == 0")
+    checkVariants(5, "All", "line in function main", "println")
+
+    checkStopResumeSeveralTimes(Breakpoint(2, null), Breakpoint(3, -1), Breakpoint(4, 0), Breakpoint(5, null))(
+      "Some(1)", ".map...", "i => i % 2 == 0", ".foreach...", "println"
+    )
+  }
 }
