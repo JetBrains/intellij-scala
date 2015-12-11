@@ -1743,7 +1743,7 @@ object Conformance {
 
       //tail, based on class inheritance
       ScType.extractClassType(r) match {
-        case Some((clazz: PsiClass, _)) if visited.contains(clazz) => (false, uSubst)
+        case Some((clazz: PsiClass, _)) if visited.contains(clazz) => return (false, uSubst)
         case Some((rClass: PsiClass, subst: ScSubstitutor)) =>
           ScType.extractClass(l) match {
             case Some(lClass) =>
