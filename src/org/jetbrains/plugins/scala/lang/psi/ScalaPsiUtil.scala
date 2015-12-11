@@ -63,7 +63,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 import scala.collection.{Seq, Set, mutable}
 import scala.reflect.NameTransformer
 import scala.util.control.ControlThrowable
@@ -72,6 +72,29 @@ import scala.util.control.ControlThrowable
  * User: Alexander Podkhalyuzin
  */
 object ScalaPsiUtil {
+  def allSuperTypes(tp: ScType, project: Project): List[ScType] = {
+    def superTypes(t: ScType): List[ScType] = ScType.extractClassType(t, Option(project)) match {
+      case Some((cl: ScClass, sub)) => cl.superTypes.map(sub.subst)
+      case Some((cl, sub)) => cl.getSuperTypes.toList.map(psi => ScType.create(psi, project)).map(sub.subst)
+      case _ => Nil
+    }
+
+    @tailrec
+    def calc(pClasses: List[ScType], supers: ListBuffer[ScType] = ListBuffer.empty): List[ScType] = {
+      pClasses match {
+        case Nil => supers.toList
+        case head :: tail if !supers.contains(head) =>
+          val headSupers = superTypes(head)
+          supers.append(head)
+          calc((tail ::: headSupers).distinct, supers)
+        case head :: tail =>
+          calc(tail, supers)
+      }
+    }
+
+    calc(superTypes(tp))
+  }
+
   def nameWithPrefixIfNeeded(c: PsiClass): String = {
     val qName = c.qualifiedName
     if (ScalaCodeStyleSettings.getInstance(c.getProject).hasImportWithPrefix(qName)) qName.split('.').takeRight(2).mkString(".")
