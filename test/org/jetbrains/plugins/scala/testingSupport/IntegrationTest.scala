@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.testingSupport
 
+import com.intellij.testFramework.UsefulTestCase
+import com.intellij.util.concurrency.Semaphore
 import javax.swing.SwingUtilities
 
 import com.intellij.execution.testframework.AbstractTestProxy
@@ -34,6 +36,8 @@ trait IntegrationTest {
 
   protected def createTestFromPackage(packageName: String): RunnerAndConfigurationSettings
 
+  protected def createTestFromModule(moduleName: String): RunnerAndConfigurationSettings
+
   protected def createLocation(lineNumber: Int, offset: Int, fileName: String): PsiLocation[PsiElement]
 
   protected def runFileStructureViewTest(testClassName: String, status: Int, tests: String*)
@@ -53,7 +57,12 @@ trait IntegrationTest {
         root.getChildren.toList.exists(helper(_, root.getValue.asInstanceOf[TreeElement].getPresentation.getPresentableText))
     }
 
-    helper(root, "")
+    var res = false
+
+    UsefulTestCase.edt(new Runnable() {
+      override def run(): Unit = res = helper(root, "")
+    })
+    res
   }
 
   protected def buildFileStructure(fileName: String): TreeElementWrapper
@@ -67,7 +76,7 @@ trait IntegrationTest {
     checkConfig(testClass, testNames, config.asInstanceOf[AbstractTestRunConfiguration])
   }
 
-  protected def checkPackageConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, packageName: String): Boolean = {
+  protected def checkPackageConfigAndSettings(configAndSettings: RunnerAndConfigurationSettings, packageName: String = "", generatedName: String = ""): Boolean = {
     val config = configAndSettings.getConfiguration
     val testConfig = config.asInstanceOf[AbstractTestRunConfiguration]
     testConfig.testKind == TestKind.ALL_IN_PACKAGE && testConfig.getTestPackagePath == packageName
@@ -148,15 +157,24 @@ trait IntegrationTest {
                       checkOutputs: Boolean = false) = {
     val (res, testTreeRoot) = runTestFromConfig(configurationCheck, runConfig, checkOutputs, duration, debug)
 
+    val semaphore = new Semaphore
+    semaphore.down()
+
     SwingUtilities.invokeLater(new Runnable() {
       override def run(): Unit = {
-        assert(testTreeRoot.isDefined && testTreeCheck(testTreeRoot.get))
+        try {
+          assert(testTreeRoot.isDefined && testTreeCheck(testTreeRoot.get))
 
-        if (checkOutputs) {
-          assert(res == expectedText)
+          if (checkOutputs) {
+            assert(res == expectedText)
+          }
+        } finally {
+          semaphore.up()
         }
       }
     })
+
+    semaphore.waitFor()
   }
 
   def runDuplicateConfigTest(lineNumber: Int, offset: Int, fileName: String,
@@ -176,13 +194,11 @@ trait IntegrationTest {
                         sourceLine: Int) = {
     val runConfig = createTestFromLocation(lineNumber, offset, fileName)
 
-    val (res, testTreeRoot) = runTestFromConfig(configurationCheck, runConfig)
+    val (_, testTreeRoot) = runTestFromConfig(configurationCheck, runConfig)
 
-    SwingUtilities.invokeLater(new Runnable() {
-      override def run(): Unit = {
-        assert(testTreeRoot.isDefined)
-        checkGoToSourceTest(testTreeRoot.get, testNames, fileName, sourceLine)
-      }
+    assert(testTreeRoot.isDefined)
+    UsefulTestCase.edt(new Runnable() {
+      override def run(): Unit = checkGoToSourceTest(testTreeRoot.get, testNames, fileName, sourceLine)
     })
   }
 

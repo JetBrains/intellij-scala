@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala
 package testingSupport
 
-import com.intellij.execution.process.{ProcessHandler, ProcessEvent, ProcessListener}
+import com.intellij.execution.process.{ProcessEvent, ProcessListener}
 import com.intellij.openapi.util.Key
-import com.intellij.debugger.engine.SuspendContextImpl
-import com.intellij.execution.testframework.AbstractTestProxy
 
 /**
   * @author Roman.Shein
