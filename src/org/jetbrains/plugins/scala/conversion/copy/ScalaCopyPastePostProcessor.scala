@@ -14,6 +14,7 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ExceptionUtil
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.conversion.ConverterUtil
@@ -23,6 +24,9 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeArgs}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
+import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 import org.jetbrains.plugins.scala.settings._
 
 import scala.collection.JavaConversions._
@@ -101,7 +105,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
     val offset = bounds.getStartOffset
 
-    doRestoreAssociations(value, file, offset, project, bounds, editor) { bindingsToRestore =>
+    doRestoreAssociations(value, file, offset, project, editor.getUserData(JavaCopyPastePostProcessor.COPY_INFO)) { bindingsToRestore =>
       if (ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE == CodeInsightSettings.ASK) {
         val dialog = new RestoreReferencesDialog(project, bindingsToRestore.map(_.path.toOption.getOrElse("")).sorted.toArray)
         dialog.show()
@@ -115,9 +119,10 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
       }
     }
 
-    inWriteAction {
-      ConverterUtil.runInspections(file, project, bounds.getStartOffset, bounds.getEndOffset, editor)
-    }
+    if (editor.getUserData(JavaCopyPastePostProcessor.COPY_INFO))
+      inWriteAction {
+        ConverterUtil.runInspections(file, project, bounds.getStartOffset, bounds.getEndOffset, editor)
+      }
   }
 
   def restoreAssociations(value: Associations, file: PsiFile, offset: Int, project: Project) {
@@ -125,7 +130,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
   }
 
   private def doRestoreAssociations(value: Associations, file: PsiFile, offset: Int, project: Project,
-                                    bounds: RangeMarker = null, editor: Editor = null)
+                                    withOptimization: Boolean = false)
                                    (filter: Seq[Binding] => Seq[Binding]) {
     val bindings =
       (for {
@@ -142,8 +147,8 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
     if (bindings.isEmpty) return
 
 
-    val needPrefix = bindings.collect{
-      case el if ScalaCodeStyleSettings.getInstance(file.getProject).hasImportWithPrefix(el.path) =>  el.element
+    val needPrefix = bindings.collect {
+      case el if ScalaCodeStyleSettings.getInstance(file.getProject).hasImportWithPrefix(el.path) => el.element
     }
 
     val bindingsToRestore = filter(bindings.distinctBy(_.path))
@@ -151,13 +156,20 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
     if (bindingsToRestore.isEmpty) return
 
     inWriteAction {
-      needPrefix.foreach(el => ScalaPsiUtil.adjustTypes(el))
-      val filteredBindings = bindingsToRestore.filter(el => !needPrefix.contains(el.element))
+      val filteredBindings = bindingsToRestore
       for (Binding(ref, path) <- filteredBindings;
            holder = ScalaImportTypeFix.getImportHolder(ref, file.getProject))
         holder.addImportForPath(path, ref)
 
-//      ScalaCodeStyleSettings.getInstance(c.getProject).hasImportWithPrefix(qName)
+      if (withOptimization) needPrefix.foreach{
+        case el =>
+          val par = PsiTreeUtil.getParentOfType(el, classOf[ScParameterizedTypeElement])
+          if (par != null) {
+            ScalaPsiUtil.adjustTypes(par)
+          } else {
+            ScalaPsiUtil.adjustTypes(el)
+          }
+      }
     }
   }
 

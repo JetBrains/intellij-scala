@@ -12,7 +12,7 @@ import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.openapi.util.{Ref, TextRange}
+import com.intellij.openapi.util.{Key, Ref, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.util.ExceptionUtil
@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.conversion.ast.{LiteralExpression, MainConstr
 import org.jetbrains.plugins.scala.conversion.visitors.PrintWithComments
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.IntroduceTypeAliasData
 import org.jetbrains.plugins.scala.settings._
 
 import scala.collection.mutable.ListBuffer
@@ -153,7 +154,14 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
             movedAssociation
         }
       }
-      scalaProcessor.processTransferableData(project, editor, bounds, i, ref, singletonList(new Associations(shiftedAssociations)))
+
+      var result: Boolean = true
+      editor.putUserData(JavaCopyPastePostProcessor.COPY_INFO, result)
+      scalaProcessor.processTransferableData(project, editor, bounds, i, ref,
+        singletonList(new Associations(shiftedAssociations)))
+
+      result = false
+      editor.putUserData(JavaCopyPastePostProcessor.COPY_INFO, result)
     }
   }
 
@@ -222,4 +230,8 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     lazy val Flavor: DataFlavor = new DataFlavor(classOf[ConvertedCode], "JavaToScalaConvertedCode")
   }
 
+}
+
+object JavaCopyPastePostProcessor {
+  val COPY_INFO: Key[Boolean] = new Key("CopyDataInfo")
 }
