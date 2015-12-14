@@ -300,7 +300,12 @@ object CachesUtil {
         val isValid: Boolean = fun.isValid
         if (!isValid || fun.returnTypeHasChangedSinceLastCheck) {
           //if there's more than one, just increment the general modCount If there's one, go up th
-          if (!isValid || funsRetTpToCheck.size > 1) {
+          if (proj.isDisposed) {
+            funsRetTpToCheck.drop(1)
+          } else if (!isValid || funsRetTpToCheck.size > 1) {
+            if (proj.isDisposed) {
+              funsRetTpToCheck.drop(1)
+            }
             ScalaPsiManager.instance(proj).incModificationCount()
             funsRetTpToCheck.clear()
           } else {
