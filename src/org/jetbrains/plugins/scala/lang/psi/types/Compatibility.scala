@@ -8,14 +8,12 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -24,10 +22,10 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.Im
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
-import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedMappedWithRecursionGuard}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
 
-import scala.collection.{Set, Seq}
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Seq, Set}
 
 /**
  * @author ven
@@ -324,8 +322,13 @@ object Compatibility {
           param.defaultType match {
             case Some(defaultTp) if defaultTp.conforms(paramType) =>
               defaultExpr.foreach(expr => matched ::= (param, expr))
-              matchedTypes ::=(param, defaultTp)
-              undefSubst += Conformance.undefinedSubst(paramType, defaultTp)
+              val defaultWithoutTypeParams = defaultTp.recursiveVarianceUpdate ({
+                case (ScTypeParameterType(_, _, _, upper, _), ScTypeParam.Covariant) => (true, upper.v)
+                case (ScTypeParameterType(_, _, lower, _, _), ScTypeParam.Contravariant) => (true, lower.v)
+                case (tp, _) => (false, tp)
+              }, ScTypeParam.Contravariant)
+              matchedTypes ::= (param, defaultWithoutTypeParams)
+              undefSubst += Conformance.undefinedSubst(paramType, defaultWithoutTypeParams)
             case Some(defaultTp) =>
                 return ConformanceExtResult(Seq(new DefaultTypeParameterMismatch(defaultTp, paramType)), undefSubst,
                   defaultParameterUsed = true, matched, matchedTypes)
