@@ -21,7 +21,9 @@ case class ImportStatementList(imports: Seq[IntermediateNode]) extends Intermedi
 case class PackageStatement(statement: IntermediateNode) extends IntermediateNode
 
 case class JavaCodeReferenceStatement(qualifier: Option[IntermediateNode], parametrList: Option[IntermediateNode],
-                                      name: String) extends IntermediateNode
+                                      name: String) extends IntermediateNode with TypedElement {
+  override def getType: IntermediateNode = this
+}
 
 case class ForeachStatement(iterParamName: IntermediateNode, iteratedValue: Option[IntermediateNode],
                             body: Option[IntermediateNode], isJavaCollection: Boolean) extends IntermediateNode

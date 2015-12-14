@@ -17,7 +17,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.util.ExceptionUtil
 import org.jetbrains.plugins.scala.conversion.ConverterUtil.{ElementPart, TextPart}
-import org.jetbrains.plugins.scala.conversion.ast.{JavaCodeReferenceStatement, LiteralExpression, MainConstruction, TypedElement}
+import org.jetbrains.plugins.scala.conversion.ast.{LiteralExpression, MainConstruction, TypedElement}
 import org.jetbrains.plugins.scala.conversion.visitors.PrintWithComments
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -86,11 +86,17 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
           new Association(a.kind, range, a.path)
         }
 
-      updatedAssociations ++= associationsHelper.filter(_.itype.isInstanceOf[JavaCodeReferenceStatement]).
-        map { a =>
-          val range = rangeMap.getOrElse(a.itype, new TextRange(0, 0))
-          new Association(a.kind, range, a.path)
-        }
+      //      updatedAssociations ++= associationsHelper.filter(_.itype.isInstanceOf[JavaCodeReferenceStatement]).
+      //        map { a =>
+      //          val range = rangeMap.getOrElse(a.itype, new TextRange(0, 0))
+      //          new Association(a.kind, range, a.path)
+      //        }
+
+      //      val updatedAssociations = associationsHelper.filter((el: AssociationHelper) => rangeMap.contains(el.itype)).map {
+      //        a =>
+      //          val range = rangeMap.getOrElse(a.itype, new TextRange(0, 0))
+      //          new Association(a.kind, range, a.path)
+      //      }
 
       val oldText = ConverterUtil.getTextBetweenOffsets(file, startOffsets, endOffsets)
       new ConvertedCode(text, updatedAssociations.toArray, ConverterUtil.compareTextNEq(oldText, text))
@@ -138,8 +144,6 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
           val manager = CodeStyleManager.getInstance(project)
           manager.reformatText(file, bounds.getStartOffset, bounds.getStartOffset + text.length)
         }
-
-        ConverterUtil.runInspections(file, project, bounds.getStartOffset, bounds.getStartOffset + text.length, editor)
 
         markedAssociations.map {
           case (association, marker) =>

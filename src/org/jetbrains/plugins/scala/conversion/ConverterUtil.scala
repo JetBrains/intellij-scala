@@ -7,6 +7,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.codeInsight.intention.RemoveBracesIntention
 import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection
+import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection
 import org.jetbrains.plugins.scala.codeInspection.redundantReturnInspection.RemoveRedundantReturnInspection
 import org.jetbrains.plugins.scala.codeInspection.semicolon.ScalaUnnecessarySemicolonInspection
 import org.jetbrains.plugins.scala.conversion.ast.CommentsCollector
@@ -135,18 +136,19 @@ object ConverterUtil {
     buf.toArray
   }
 
-  def runInspections(file: PsiFile, project: Project, offset: Int, endOffset: Int, editor: Editor = null): Unit = {
-    def handleOneProblem(problem: ProblemDescriptor) = {
-      val fixes = problem.getFixes.collect { case f: LocalQuickFixOnPsiElement => f }
-      fixes.foreach(_.applyFix)
-    }
+  def handleOneProblem(problem: ProblemDescriptor) = {
+    val fixes = problem.getFixes.collect { case f: LocalQuickFixOnPsiElement => f }
+    fixes.foreach(_.applyFix)
+  }
 
+  def runInspections(file: PsiFile, project: Project, offset: Int, endOffset: Int, editor: Editor = null): Unit = {
     val intention = new RemoveBracesIntention
     val holder = new ProblemsHolder(InspectionManager.getInstance(project), file, false)
 
     val removeReturnVisitor = (new RemoveRedundantReturnInspection).buildVisitor(holder, isOnTheFly = false)
     val parenthesisedExpr = (new ScalaUnnecessaryParenthesesInspection).buildVisitor(holder, isOnTheFly = false)
     val removeSemicolon = (new ScalaUnnecessarySemicolonInspection).buildVisitor(holder, isOnTheFly = false)
+    val prefixed = (new ReferenceMustBePrefixedInspection).buildVisitor(holder, isOnTheFly = false)
 
     collectTopElements(offset, endOffset, file).foreach(_.depthFirst.foreach {
       case el: ScFunctionDefinition =>
@@ -155,7 +157,11 @@ object ConverterUtil {
         parenthesisedExpr.visitElement(parentized)
       case semicolon: PsiElement if semicolon.getNode.getElementType == ScalaTokenTypes.tSEMICOLON =>
         removeSemicolon.visitElement(semicolon)
-      case el => intention.invoke(project, editor, el)
+//      case prefixedType: ScReferenceElement if prefixedType.qualifier.isEmpty =>
+//        ScalaPsiUtil.adjustTypes(prefixedType)
+      case el =>
+//        prefixed.visitElement(el)
+        intention.invoke(project, editor, el)
     })
 
     import scala.collection.JavaConversions._
@@ -180,7 +186,7 @@ object ConverterUtil {
 
   def compareTextNEq(text1: String, text2: String): Boolean = {
     def textWithoutLastSemicolon(text: String) = {
-      if (text.last == ';') text.substring(0, text.length - 1)
+      if ((text.length > 0) && (text.last == ';')) text.substring(0, text.length - 1)
       else text
     }
     textWithoutLastSemicolon(text1) != textWithoutLastSemicolon(text2)

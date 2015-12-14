@@ -27,11 +27,17 @@ abstract class IntermediateNode {
   def setBeforeComments(c: ArrayBuffer[LiteralExpression]) = {
     comments.beforeComments ++= c
   }
+
+  override def hashCode(): Int = System.identityHashCode(this)
+
+  override def equals(other: Any) = {
+    other.isInstanceOf[IntermediateNode] && this.eq(other.asInstanceOf[IntermediateNode])
+  }
 }
 
 
 case class EmptyConstruction() extends IntermediateNode
 
 trait TypedElement {
-  def getType: TypeConstruction
+  def getType: IntermediateNode
 }

@@ -22,7 +22,7 @@ case class TypeConstruction(inType: String) extends IntermediateNode with TypedE
     }
   }
 
-  override def getType: TypeConstruction = this.asInstanceOf[TypeConstruction]
+  override def getType: IntermediateNode = this
 }
 
 object TypeConstruction {
@@ -45,14 +45,14 @@ object TypeConstruction {
   def getParts(scType: ScType, buffer: ArrayBuffer[(IntermediateNode, Option[String])]): IntermediateNode = {
     scType match {
       case p@ScParameterizedType(des, args) =>
-        val typeConstruction: IntermediateNode = TypeConstruction(des.presentableText)
+        val typeConstruction: IntermediateNode = TypeConstruction(ScType.presentableText(des, noPrefix = true))
         buffer += ((typeConstruction, ScType.extractClass(p).flatMap(el => Option(el.getQualifiedName))))
         val argsOnLevel = args.map(getParts(_, buffer))
         ParametrizedConstruction(typeConstruction, argsOnLevel)
       case JavaArrayType(arg) =>
         ArrayConstruction(getParts(arg, buffer))
       case otherType =>
-        val typeConstruction: IntermediateNode = TypeConstruction(otherType.presentableText)
+        val typeConstruction: IntermediateNode = TypeConstruction(ScType.presentableText(otherType, noPrefix = true))
         buffer += ((typeConstruction, ScType.extractClass(otherType).flatMap(el => Option(el.getQualifiedName))))
         typeConstruction
     }
@@ -64,7 +64,7 @@ case class ParametrizedConstruction(iNode: IntermediateNode, parts: Seq[Intermed
 
   def getAssociations = assocoationMap.collect { case (n, Some(value)) => (n, value) }
 
-  override def getType: TypeConstruction = iNode.asInstanceOf[TypedElement].getType
+  override def getType: IntermediateNode = this
 }
 
 case class ArrayConstruction(iNode: IntermediateNode) extends IntermediateNode with TypedElement {
@@ -72,8 +72,7 @@ case class ArrayConstruction(iNode: IntermediateNode) extends IntermediateNode w
 
   def getAssociations = assocoationMap.collect { case (n, Some(value)) => (n, value) }
 
-  override def getType: TypeConstruction =
-    iNode.asInstanceOf[TypedElement].getType
+  override def getType: IntermediateNode = this
 }
 
 case class TypeParameterConstruction(name: IntermediateNode, typez: Seq[IntermediateNode]) extends IntermediateNode

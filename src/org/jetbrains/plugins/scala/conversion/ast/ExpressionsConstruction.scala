@@ -15,7 +15,7 @@ case class ClassCast(operand: IntermediateNode,
     isPrimitive && List("Int", "Long", "Double", "Float", "Byte", "Char", "Short").contains(castType.asInstanceOf[TypeConstruction].inType)
 
 
-  override def getType: TypeConstruction = castType.asInstanceOf[TypedElement].getType
+  override def getType: IntermediateNode = castType.asInstanceOf[TypedElement].getType
 }
 
 case class ArrayInitializer(expresions: Seq[IntermediateNode]) extends IntermediateNode
@@ -25,7 +25,7 @@ case class BinaryExpressionConstruction(firstPart: IntermediateNode, secondPart:
 case class ClassObjectAccess(expression: IntermediateNode) extends IntermediateNode
 case class InstanceOfConstruction(operand: IntermediateNode,
                                   mtype: IntermediateNode) extends IntermediateNode with TypedElement {
-    override def getType: TypeConstruction = mtype.asInstanceOf[TypedElement].getType
+    override def getType: IntermediateNode = mtype.asInstanceOf[TypedElement].getType
 }
 
 case class QualifiedExpression(qualifier: IntermediateNode, identifier: IntermediateNode) extends IntermediateNode
@@ -60,7 +60,8 @@ object NewExpression {
 
 case class NewExpression(mtype: IntermediateNode, arrayInitalizer: Seq[IntermediateNode],
                          arrayDimension: Seq[IntermediateNode]) extends IntermediateNode with TypedElement {
-  override def getType: TypeConstruction = mtype.asInstanceOf[TypedElement].getType
+  override def getType: IntermediateNode =
+    mtype.asInstanceOf[TypedElement].getType
 }
 
 case class AnonymousClassExpression(anonymousClass: IntermediateNode) extends IntermediateNode
