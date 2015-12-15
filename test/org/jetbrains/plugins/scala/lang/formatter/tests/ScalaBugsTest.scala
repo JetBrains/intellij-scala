@@ -1544,4 +1544,30 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testParameterlessScalaDocTag(): Unit = {
+    val before =
+      """
+        |/**
+        |  * @inheritdoc
+        |  * @param resource The photo resource.
+        |  *                 ara
+        |  *                 agara
+        |  * @return The saved photo.
+        |  */
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |/**
+        |  * @inheritdoc
+        |  * @param resource The photo resource.
+        |  *                 ara
+        |  *                 agara
+        |  * @return The saved photo.
+        |  */
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
 }
