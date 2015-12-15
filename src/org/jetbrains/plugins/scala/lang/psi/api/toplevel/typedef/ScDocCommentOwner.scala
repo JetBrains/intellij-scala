@@ -19,4 +19,10 @@ trait ScDocCommentOwner extends PsiDocCommentOwner {
   def getDocComment: PsiDocComment = docComment.orNull
 
   def isDeprecated = false
+
+  def foo = {
+    val a = this
+    this.hasModifierProperty("ohi")
+    a.hasModifierProperty("")
+  }
 }
