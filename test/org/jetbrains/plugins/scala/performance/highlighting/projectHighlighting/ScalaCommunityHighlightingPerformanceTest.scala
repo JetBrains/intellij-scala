@@ -31,7 +31,6 @@ class ScalaCommunityHighlightingPerformanceTest extends PerformanceSbtProjectHig
   def testPerformanceScalaCommunityScalaSpacingProcessor() = doTest("ScalaSpacingProcessor.scala", 5.seconds)
 
   override def doTest(path: String, timeout: Int): Unit = {
-    VfsRootAccess.SHOULD_PERFORM_ACCESS_CHECK = false
     super.doTest(path, timeout)
   }
 }
