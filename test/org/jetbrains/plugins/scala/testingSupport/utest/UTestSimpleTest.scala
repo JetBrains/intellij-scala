@@ -46,8 +46,6 @@ trait UTestSimpleTest extends UTestTestCase {
         |  }
         |}
       """.stripMargin.trim())
-
-    getProject.save()
   }
 
   protected val inner2_1Path = List("[root]", uTestTestName, "tests", "outer2", "inner2_1")

@@ -5,7 +5,7 @@ object Versions {
   val scalaVersion = "2.11.6"
   val sbtVersion = "0.13.9"
   val ideaVersion = "143.1015.7"
-  val sbtStructureVersion = "5.0.1"
+  val sbtStructureVersion = "5.1.0"
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
   val sisuInjectVersion = "2.2.3"
@@ -200,6 +200,7 @@ object DependencyGroups {
     "com.github.julien-truffaut"  %%  "monocle-generic" % "1.2.0-SNAPSHOT",
     "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.2.0-SNAPSHOT",
     "io.spray" %% "spray-routing" % "1.3.1",
+    "com.typesafe.slick" %% "slick" % "3.1.0",
     "org.scala-lang.modules" % "scala-async_2.11" % "0.9.5"
   )
 

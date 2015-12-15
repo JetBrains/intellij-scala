@@ -9,7 +9,8 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{MethodValue, SafeCheckException}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
@@ -37,6 +38,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   /**
    * This method returns real type, after using implicit conversions.
    * Second parameter to return is used imports for this conversion.
+ *
    * @param expectedOption to which type we trying to convert
    * @param ignoreBaseTypes parameter to avoid value discarding, literal narrowing, widening
    *                        this parameter is useful for refactorings (introduce variable)
@@ -356,6 +358,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
    * Warning! There is a hack in scala compiler for ClassManifest and ClassTag.
    * In case of implicit parameter with type ClassManifest[T]
    * this method will return ClassManifest with substitutor of type T.
+ *
    * @return implicit parameters used for this expression
    */
   def findImplicitParameters: Option[Seq[ScalaResolveResult]] = {
@@ -453,6 +456,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   /**
    * This method should be used to get implicit conversions and used imports, while eta expanded method return was
    * implicitly converted
+ *
    * @return mirror for this expression, in case if it exists
    */
   def getAdditionalExpression: Option[(ScExpression, ScType)] = {
@@ -462,6 +466,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
   /**
    * This method returns following values:
+ *
    * @return implicit conversions, actual value, conversions from the first part, conversions from the second part
    */
   def getImplicitConversions(fromUnder: Boolean = false,

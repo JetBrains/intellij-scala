@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Condition
 import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, CodeStyleManager}
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScVariable, ScFunction, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.{ScalaLanguage, extensions}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -88,12 +88,12 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     } else if (offset > 1){
       val prevPositionElement = file.findElementAt(offset - 2)
       if (ScalaPsiUtil.isLineTerminator(prevPositionElement)) {
-        val prevNonEmptySibling = prevPositionElement.getPrevSiblingCondition(_.getTextLength != 0)
-        if (prevNonEmptySibling.exists(_.getNode.getElementType == ScalaTokenTypes.tDOT)) {
-          myTask = indentRefExprDot(file)
-        } else if (prevNonEmptySibling.exists(_.getNode.getElementType == ScalaTokenTypes.tCOMMA)) {
-          myTask = indentParametersComma(file)
-        }
+        prevPositionElement.getPrevSiblingCondition(_.getTextLength != 0).foreach(_.getNode.getElementType match {
+          case ScalaTokenTypes.tDOT => myTask = indentRefExprDot(file)
+          case ScalaTokenTypes.tCOMMA => myTask = indentParametersComma(file)
+          case ScalaTokenTypes.tASSIGN => myTask = indentDefinitionAssign(file)
+          case _ =>
+        })
       }
     }
 
@@ -298,6 +298,14 @@ class ScalaTypedHandler extends TypedHandlerDelegate {
     indentElement(file)(document, project, element, offset, _ => true,
       elem => Option(elem.getParent).map(_.getParent).exists {
         case _: ScParameterClause | _: ScArgumentExprList => true
+        case _ => false
+      })
+  }
+
+  private def indentDefinitionAssign(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int) = {
+    indentElement(file)(document, project, element, offset, _ => true,
+      elem => Option(elem.getParent).map(_.getParent).exists {
+        case _: ScFunction | _: ScVariable | _: ScValue | _: ScTypeAlias => true
         case _ => false
       })
   }

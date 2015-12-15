@@ -4,19 +4,18 @@ package lang.psi.implicits
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.SofterReference
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.ScalaRecursionManager
 import org.jetbrains.plugins.scala.caches.ScalaRecursionManager.RecursionMap
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, MacroInferUtil}
@@ -115,6 +114,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
           if (!placeCalculated) {
             place = placeForTreeWalkUp
             place match {
+              case e: ScTemplateParents => placeCalculated = true
               case m: ScModifierListOwner if m.hasModifierProperty("implicit") =>
                 placeCalculated = true //we need to check that, otherwise we will be outside
               case _ =>
@@ -162,7 +162,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
       val named = element.asInstanceOf[PsiNamedElement]
       def fromType: Option[ScType] = state.get(BaseProcessor.FROM_TYPE_KEY).toOption
       lazy val subst: ScSubstitutor = fromType match {
-        case Some(tp) => getSubst(state).followUpdateThisType(tp)
+        case Some(t) => getSubst(state).followUpdateThisType(t)
         case _ => getSubst(state)
       }
       named match {

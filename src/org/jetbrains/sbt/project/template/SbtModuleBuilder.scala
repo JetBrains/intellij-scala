@@ -1,8 +1,9 @@
 package org.jetbrains.sbt
 package project.template
 
+import java.awt.FlowLayout
 import java.io.File
-import javax.swing.JCheckBox
+import javax.swing.{JPanel, JCheckBox}
 
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.application.ApplicationManager
@@ -69,6 +70,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     scalaVersionComboBox.setItems(scalaVersions)
 
     val resolveClassifiersCheckBox    = new JCheckBox(SbtBundle("sbt.settings.resolveClassifiers"))
+    val resolveJavadocsCheckBox       = new JCheckBox(SbtBundle("sbt.settings.resolveJavadocs"))
     val resolveSbtClassifiersCheckBox = new JCheckBox(SbtBundle("sbt.settings.resolveSbtClassifiers"))
     val useAutoImportCheckBox         = new JCheckBox(ExternalSystemBundle.message("settings.label.use.auto.import"))
     val createContentDirsCheckBox     = new JCheckBox(ExternalSystemBundle.message("settings.label.create.empty.content.root.directories"))
@@ -83,6 +85,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
         settingsStep.getContext setProjectJdk myJdkComboBox.getSelectedJdk
 
         getExternalProjectSettings.setResolveClassifiers(resolveClassifiersCheckBox.isSelected)
+        getExternalProjectSettings.setResolveJavadocs(resolveJavadocsCheckBox.isSelected)
         getExternalProjectSettings.setResolveSbtClassifiers(resolveSbtClassifiersCheckBox.isSelected)
         getExternalProjectSettings.setUseAutoImport(useAutoImportCheckBox.isSelected)
         getExternalProjectSettings.setCreateEmptyContentRootDirectories(createContentDirsCheckBox.isSelected)
@@ -91,14 +94,19 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
     createContentDirsCheckBox.setSelected(true)
     resolveClassifiersCheckBox.setSelected(true)
+    resolveJavadocsCheckBox.setSelected(false)
     resolveSbtClassifiersCheckBox.setSelected(true)
 
     settingsStep.addSettingsField(SbtBundle("sbt.settings.sbtVersion"), sbtVersionComboBox)
     settingsStep.addSettingsField(SbtBundle("sbt.settings.scalaVersion"), scalaVersionComboBox)
     settingsStep.addSettingsField("", useAutoImportCheckBox)
     settingsStep.addSettingsField("", createContentDirsCheckBox)
-    settingsStep.addSettingsField("", resolveClassifiersCheckBox)
-    settingsStep.addSettingsField("", resolveSbtClassifiersCheckBox)
+
+    val downloadPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0))
+    downloadPanel.add(resolveClassifiersCheckBox)
+    downloadPanel.add(resolveJavadocsCheckBox)
+    downloadPanel.add(resolveSbtClassifiersCheckBox)
+    settingsStep.addSettingsField("Download:", downloadPanel)
 
     step
   }

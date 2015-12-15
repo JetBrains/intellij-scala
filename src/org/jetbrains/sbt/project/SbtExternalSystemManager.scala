@@ -43,9 +43,6 @@ class SbtExternalSystemManager
     classpath.add(jarWith[scala.App])
     classpath.add(jarWith[scala.xml.Node])
 
-//    val vmParameters = parameters.getVMParametersList
-//    vmParameters.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005")
-
     parameters.getVMParametersList.addProperty(
       ExternalSystemConstants.EXTERNAL_SYSTEM_ID_KEY, SbtProjectSystem.Id.getId)
 
@@ -82,11 +79,11 @@ object SbtExternalSystemManager {
     val projectJdkName = getProjectJdkName(project, projectSettings)
     val vmExecutable = getVmExecutable(projectJdkName, settings)
     val vmOptions = getVmOptions(settings)
-    val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
+    val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName) ++ getSbtOptsEnvVariable
 
     new SbtExecutionSettings(realProjectPath,
       vmExecutable, vmOptions, environment, customLauncher, customSbtStructureFile, projectJdkName,
-      projectSettings.resolveClassifiers, projectSettings.resolveSbtClassifiers)
+      projectSettings.resolveClassifiers, projectSettings.resolveJavadocs, projectSettings.resolveSbtClassifiers)
   }
 
   private def getProjectJdkName(project: Project, projectSettings: SbtProjectSettings): Option[String] =
@@ -136,6 +133,9 @@ object SbtExternalSystemManager {
           case _ : NoClassDefFoundError => None
         }
       }.getOrElse(Map.empty)
+
+  private def getSbtOptsEnvVariable: Map[String, String] =
+    Option(System.getenv("SBT_OPTS")).map(v => ("SBT_OPTS", v)).toMap
 
   private def getVmOptions(settings: SbtSystemSettings): Seq[String] = {
     val userOptions = settings.getVmParameters.split("\\s+").toSeq

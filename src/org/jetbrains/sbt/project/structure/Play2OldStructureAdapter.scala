@@ -20,7 +20,8 @@ object Play2OldStructureAdapter {
     val projectKeyValueTriples = newData.toSeq.flatMap {
       case (id, baseDir, data) => extractProjectKeyValue(id, baseDir, data)
     }
-    val oldData = projectKeyValueTriples.groupBy(_._2).mapValues(_.map({ case (_, k, v) => (k, v)}))
+    val oldData = projectKeyValueTriples.groupBy(_._2).mapValues(_.map({ case (id, _, v) => (id, v)}))
+    
     new Play2ProjectData(SbtProjectSystem.Id, avoidSL7005Bug(oldData.mapValues(_.toMap)))
   }
 
