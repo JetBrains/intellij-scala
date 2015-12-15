@@ -126,7 +126,7 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
   private var returnType: PsiType = null
 
   override def getReturnType: PsiType = {
-    if (returnType == null) {
+    if (returnType == null && !function.isConstructor) {
       val typeParameters = function.typeParameters
       val generifySubst: ScSubstitutor =
         if (typeParameters.nonEmpty) {
