@@ -14,20 +14,34 @@ import org.jetbrains.plugins.scala.util.TestUtils
   * Author: Svyatoslav Ilinskiy
   * Date: 10/29/15.
   */
-abstract class TypingPerformanceTestBase extends ScalaFixtureTestCase {
+abstract class TypingTestWithPerformanceTestBase extends ScalaFixtureTestCase {
   def doTest(stringsToType: List[String], timeoutInMillis: Int) {
-    val fileName = getTestName(false) + ".scala"
+    val fileName = getTestName(false) + ".test"
     val filePath = folderPath + fileName
     val ioFile = new File(filePath)
     var fileText: String = FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
     fileText = StringUtil.convertLineSeparators(fileText)
-    myFixture.configureByText(fileName, fileText)
+    val (input, expected) = separateText(fileText)
+    myFixture.configureByText(fileName, input)
     PlatformTestUtil.startPerformanceTest("TypingTest" + getTestName(false), timeoutInMillis, new ThrowableRunnable[Nothing] {
       override def run(): Unit = {
         stringsToType.foreach(myFixture.`type`)
       }
     }).ioBound().assertTiming()
+//    expected match {
+//      case Some(expText) =>
+//      case _ =>
+//    }
   }
 
-  protected def folderPath: String = TestUtils.getTestDataPath + "/typingPerformance/"
+  protected def folderPath: String = TestUtils.getTestDataPath + "/typing/"
+
+  protected def separateText(fileText: String): (String, Option[String]) = {
+    fileText.indexOf("-----") match {
+      case -1 => (fileText, None)
+      case other =>
+        val (before, after) = fileText.splitAt(other)
+        (before, Some(after.dropWhile(c => c == '-' || c == '\n')))
+    }
+  }
 }
