@@ -30,8 +30,6 @@ import scala.collection.mutable.ListBuffer
 abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVersion {
 
   override def setUp(): Unit = {
-    VfsRootAccess.SHOULD_PERFORM_ACCESS_CHECK = false
-
     super.setUp()
     myProject.getMessageBus.connect(myTestRootDisposable).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootAdapter {
       override def rootsChanged(event: ModuleRootEvent) {
