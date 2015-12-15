@@ -5,16 +5,21 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
+import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.codeInsight.intention.RemoveBracesIntention
 import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection
-import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection
 import org.jetbrains.plugins.scala.codeInspection.redundantReturnInspection.RemoveRedundantReturnInspection
 import org.jetbrains.plugins.scala.codeInspection.semicolon.ScalaUnnecessarySemicolonInspection
-import org.jetbrains.plugins.scala.conversion.ast.CommentsCollector
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.conversion.ast.{CommentsCollector, IntermediateNode, TypedElement}
+import org.jetbrains.plugins.scala.conversion.copy.{Association, AssociationHelper, Associations}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScParenthesisedExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -148,7 +153,6 @@ object ConverterUtil {
     val removeReturnVisitor = (new RemoveRedundantReturnInspection).buildVisitor(holder, isOnTheFly = false)
     val parenthesisedExpr = (new ScalaUnnecessaryParenthesesInspection).buildVisitor(holder, isOnTheFly = false)
     val removeSemicolon = (new ScalaUnnecessarySemicolonInspection).buildVisitor(holder, isOnTheFly = false)
-    val prefixed = (new ReferenceMustBePrefixedInspection).buildVisitor(holder, isOnTheFly = false)
 
     collectTopElements(offset, endOffset, file).foreach(_.depthFirst.foreach {
       case el: ScFunctionDefinition =>
@@ -157,10 +161,7 @@ object ConverterUtil {
         parenthesisedExpr.visitElement(parentized)
       case semicolon: PsiElement if semicolon.getNode.getElementType == ScalaTokenTypes.tSEMICOLON =>
         removeSemicolon.visitElement(semicolon)
-//      case prefixedType: ScReferenceElement if prefixedType.qualifier.isEmpty =>
-//        ScalaPsiUtil.adjustTypes(prefixedType)
       case el =>
-//        prefixed.visitElement(el)
         intention.invoke(project, editor, el)
     })
 
@@ -191,4 +192,61 @@ object ConverterUtil {
     }
     textWithoutLastSemicolon(text1) != textWithoutLastSemicolon(text2)
   }
+
+  def getBindings(value: Associations, file: PsiFile, offset: Int, project: Project, needAll: Boolean = false) = {
+    (for {
+      association <- value.associations
+      element <- elementFor(association, file, offset)
+      if needAll || !association.isSatisfiedIn(element)
+    } yield Binding(element, association.path.asString(ScalaCodeStyleSettings.getInstance(project).
+      isImportMembersUsingUnderScore))).filter {
+      case Binding(_, path) =>
+        val index = path.lastIndexOf('.')
+        index != -1 && !Set("scala", "java.lang", "scala.Predef").contains(path.substring(0, index))
+    }
+  }
+
+  def addImportsForPrefixedElements(elements: Seq[Binding], project: Project) = {
+    val manager = ScalaPsiManager.instance(project)
+    val searchScope = GlobalSearchScope.allScope(project)
+    elements.foreach {
+      case el =>
+        val cashed = Option(manager.getCachedClass(el.path, searchScope, ClassCategory.TYPE))
+        val reference = Option(el.element.getReference)
+        if (cashed.isDefined && reference.isDefined) {
+          if (reference.get.bindToElement(cashed.get) == reference.get)
+            inWriteAction(ScalaPsiUtil.adjustTypes(el.element))
+        } else
+          inWriteAction(ScalaPsiUtil.adjustTypes(el.element))
+    }
+  }
+
+  def addImportsForAssociations(associations: Seq[Association], file: PsiFile, offset: Int, project: Project): Unit = {
+    val needPrefix = associations.filter(el => needPrefixToElement(el.path.entity, project))
+    val bindings = getBindings(Associations(needPrefix), file, offset, project, needAll = true)
+    addImportsForPrefixedElements(bindings, project)
+  }
+
+  def needPrefixToElement(qn: String, project: Project): Boolean =
+    ScalaCodeStyleSettings.getInstance(project).hasImportWithPrefix(qn)
+
+
+  def updateAssociations(old: Seq[AssociationHelper], rangeMap: mutable.HashMap[IntermediateNode, TextRange]): Seq[Association] = {
+    old.filter(_.itype.isInstanceOf[TypedElement]).
+      map { a =>
+        val typedElement = a.itype.asInstanceOf[TypedElement].getType
+        val range = rangeMap.getOrElse(typedElement, new TextRange(0, 0))
+        new Association(a.kind, range, a.path)
+      }
+  }
+
+  def elementFor(dependency: Association, file: PsiFile, offset: Int): Option[PsiElement] = {
+    val range = dependency.range.shiftRight(offset)
+
+    for (ref <- Option(file.findElementAt(range.getStartOffset));
+         parent <- ref.parent if parent.getTextRange == range) yield parent
+  }
+
+  case class Binding(element: PsiElement, path: String)
+
 }

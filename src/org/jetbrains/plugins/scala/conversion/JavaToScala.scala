@@ -8,13 +8,12 @@ import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import org.jetbrains.plugins.scala.conversion.ast.ClassConstruction.ClassType
 import org.jetbrains.plugins.scala.conversion.ast._
-import org.jetbrains.plugins.scala.conversion.copy.AssociationHelper
+import org.jetbrains.plugins.scala.conversion.copy.{Association, AssociationHelper}
 import org.jetbrains.plugins.scala.conversion.visitors.PrintWithComments
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt}
 import org.jetbrains.plugins.scala.lang.dependency.{DependencyKind, Path}
@@ -87,12 +86,12 @@ object JavaToScala {
   case class WithReferenceExpression(yep: Boolean) extends ExternalProperties
 
   def convertType(inType: PsiType, project: Project) = {
-    inType match {
-      case referenceType: PsiClassReferenceType if referenceType.getReference != null =>
-        convertPsiToIntermdeiate(referenceType.getReference, null)
-      case _ =>
+//    inType match {
+//      case referenceType: PsiClassReferenceType if referenceType.getReference != null =>
+//        convertPsiToIntermdeiate(referenceType.getReference, null)
+//      case _ =>
         TypeConstruction.createIntermediateTypePresentation(inType, project)
-    }
+//    }
   }
 
   def convertPsiToIntermdeiate(element: PsiElement, externalProperties: ExternalProperties)
@@ -928,20 +927,24 @@ object JavaToScala {
   }
 
   def convertPsisToText(elements: Array[PsiElement],
-                        dropElements: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): String = {
+                        dropElements: mutable.HashSet[PsiElement]
+                        = new mutable.HashSet[PsiElement]()): (String, Seq[Association]) = {
     val resultNode = new MainConstruction
+    val associations: ListBuffer[AssociationHelper] = new ListBuffer()
     for (part <- elements) {
-      resultNode.addChild(convertPsiToIntermdeiate(part, null)(new ListBuffer(), Seq.empty, dropElements))
+      resultNode.addChild(convertPsiToIntermdeiate(part, null)(associations, Seq.empty, dropElements))
     }
     val visitor = new PrintWithComments
     visitor.visit(resultNode)
-    visitor.stringResult
+
+    (visitor.stringResult, ConverterUtil.updateAssociations(associations, visitor.rangedElementsMap))
   }
 
-  def convertPsiToText(element: PsiElement): String = {
+  def convertPsiToText(element: PsiElement): (String, Seq[Association]) = {
     val visitor = new PrintWithComments
-    visitor.visit(convertPsiToIntermdeiate(element, null))
-    visitor.stringResult
+    val associations: ListBuffer[AssociationHelper] = new ListBuffer()
+    visitor.visit(convertPsiToIntermdeiate(element, null)(associations, Seq.empty, new mutable.HashSet[PsiElement]()))
+    (visitor.stringResult, ConverterUtil.updateAssociations(associations, visitor.rangedElementsMap))
   }
 
   private def serialVersion(c: PsiClass): Option[PsiField] = {

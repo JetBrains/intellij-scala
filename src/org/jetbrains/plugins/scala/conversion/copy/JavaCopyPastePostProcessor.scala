@@ -17,11 +17,10 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.util.ExceptionUtil
 import org.jetbrains.plugins.scala.conversion.ConverterUtil.{ElementPart, TextPart}
-import org.jetbrains.plugins.scala.conversion.ast.{LiteralExpression, MainConstruction, TypedElement}
+import org.jetbrains.plugins.scala.conversion.ast.{LiteralExpression, MainConstruction}
 import org.jetbrains.plugins.scala.conversion.visitors.PrintWithComments
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.IntroduceTypeAliasData
 import org.jetbrains.plugins.scala.settings._
 
 import scala.collection.mutable.ListBuffer
@@ -78,26 +77,10 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
       val visitor = new PrintWithComments
       visitor.visit(resultNode)
       val text = visitor.stringResult
-      val rangeMap = visitor.rangedElementsMap
 
-      val updatedAssociations = associationsHelper.filter(_.itype.isInstanceOf[TypedElement]).
-        map { a =>
-          val typedElement = a.itype.asInstanceOf[TypedElement].getType
-          val range = rangeMap.getOrElse(typedElement, new TextRange(0, 0))
-          new Association(a.kind, range, a.path)
-        }
+      visitor.rangedElementsMap.foreach(el => println(el.hashCode()))
 
-      //      updatedAssociations ++= associationsHelper.filter(_.itype.isInstanceOf[JavaCodeReferenceStatement]).
-      //        map { a =>
-      //          val range = rangeMap.getOrElse(a.itype, new TextRange(0, 0))
-      //          new Association(a.kind, range, a.path)
-      //        }
-
-      //      val updatedAssociations = associationsHelper.filter((el: AssociationHelper) => rangeMap.contains(el.itype)).map {
-      //        a =>
-      //          val range = rangeMap.getOrElse(a.itype, new TextRange(0, 0))
-      //          new Association(a.kind, range, a.path)
-      //      }
+      val updatedAssociations = ConverterUtil.updateAssociations(associationsHelper, visitor.rangedElementsMap)
 
       val oldText = ConverterUtil.getTextBetweenOffsets(file, startOffsets, endOffsets)
       new ConvertedCode(text, updatedAssociations.toArray, ConverterUtil.compareTextNEq(oldText, text))
@@ -155,13 +138,11 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
         }
       }
 
-      var result: Boolean = true
-      editor.putUserData(JavaCopyPastePostProcessor.COPY_INFO, result)
+      editor.putUserData(JavaCopyPastePostProcessor.COPY_INFO, WithOptimization(true))
       scalaProcessor.processTransferableData(project, editor, bounds, i, ref,
         singletonList(new Associations(shiftedAssociations)))
 
-      result = false
-      editor.putUserData(JavaCopyPastePostProcessor.COPY_INFO, result)
+      editor.putUserData(JavaCopyPastePostProcessor.COPY_INFO, WithOptimization(false))
     }
   }
 
@@ -233,5 +214,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
 }
 
 object JavaCopyPastePostProcessor {
-  val COPY_INFO: Key[Boolean] = new Key("CopyDataInfo")
+  val COPY_INFO: Key[WithOptimization] = new Key("CopyDataInfo")
 }
+
+case class WithOptimization(value: Boolean)

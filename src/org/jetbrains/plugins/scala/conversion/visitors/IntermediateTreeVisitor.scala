@@ -20,5 +20,5 @@ trait IntermediateTreeVisitor {
 
   def stringResult = printer.toString
 
-  val rangedElementsMap = new mutable.HashMap[IntermediateNode, TextRange]
+  val rangedElementsMap = new mutable.HashMap[IntermediateNode, TextRange]()
 }

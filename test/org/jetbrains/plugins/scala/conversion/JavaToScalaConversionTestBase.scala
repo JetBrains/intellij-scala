@@ -40,10 +40,11 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
     if (endOffset == -1) endOffset = lastPsi.getTextRange.getStartOffset
 
     val buf = ConverterUtil.collectTopElements(startOffset, endOffset, javaFile)
-    var res = JavaToScala.convertPsisToText(buf, getUsedComments(offset, endOffset, lastPsi, javaFile))
+    var (res, associations) = JavaToScala.convertPsisToText(buf, getUsedComments(offset, endOffset, lastPsi, javaFile))
     val newFile = PsiFileFactory.getInstance(getProjectAdapter).createFileFromText("dummyForJavaToScala.scala",
       ScalaFileType.SCALA_LANGUAGE, res)
 
+    ConverterUtil.addImportsForAssociations(associations, newFile, 0, getProjectAdapter)
     ConverterUtil.runInspections(newFile, getProjectAdapter, 0, newFile.getText.length)
     res = CodeStyleManager.getInstance(getProjectAdapter).reformat(newFile).getText
 
