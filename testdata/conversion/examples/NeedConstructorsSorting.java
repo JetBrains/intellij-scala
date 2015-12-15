@@ -12,6 +12,7 @@ class C {
 
   C(String q) {
     System.out.println(q);
+    C.this.u = 34;
   }
 }
 
@@ -26,7 +27,7 @@ class C {
     this(a)
   }
 
-  final val u: Int = 67
+  final var u: Int = 67
 
   def foo() {
     System.out.println("foo")
@@ -35,6 +36,7 @@ class C {
   def this(q: String) {
     this()
     System.out.println(q)
+    C.this.u = 34
   }
 }
  */

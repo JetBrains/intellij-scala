@@ -37,8 +37,8 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       case QualifiedExpression(qualifier, identifier) => visitQualifiedExpression(qualifier, identifier)
       case MethodCallExpression(name, method, args, withSideEffects) => visitMethodCall(name, method, args, withSideEffects)
       case ExpressionList(data) => visitExpressionList(data)
-      case ThisExpression(value) => visitWithExtraWord(value, "this")
-      case SuperExpression(value) => visitWithExtraWord(value, "super")
+      case ThisExpression(value) => visitThisSuperExpression(value, "this")
+      case SuperExpression(value) => visitThisSuperExpression(value, "super")
       case LiteralExpression(literal) => printer.append(literal)
       case NameIdentifier(name) => printer.append(escapeKeyword(name))
       case ParenthesizedExpression(value) => visitParenthizedExpression(value)
@@ -298,6 +298,16 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
   def visitWithExtraWord(value: Option[IntermediateNode], word: String) = {
     printer.append(word)
     if (value.isDefined) visit(value.get)
+  }
+
+
+  def visitThisSuperExpression(value: Option[IntermediateNode], text: String) = {
+    if (value.isDefined) {
+      visit(value.get)
+      printer.append(".")
+    }
+
+    printer.append(text)
   }
 
   def visitParenthizedExpression(value: Option[IntermediateNode]) = {
