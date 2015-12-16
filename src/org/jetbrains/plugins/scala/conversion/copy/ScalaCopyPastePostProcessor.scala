@@ -99,7 +99,10 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
     val offset = bounds.getStartOffset
 
-    val withOptimization = editor.getUserData(JavaCopyPastePostProcessor.COPY_INFO).value
+    val withOptimization: Boolean = if (editor.getUserData(JavaCopyPastePostProcessor.COPY_INFO) != null)
+      editor.getUserData(JavaCopyPastePostProcessor.COPY_INFO).value
+    else false
+
     doRestoreAssociations(value, file, offset, project, withOptimization) { bindingsToRestore =>
       if (ScalaApplicationSettings.getInstance().ADD_IMPORTS_ON_PASTE == CodeInsightSettings.ASK) {
         val dialog = new RestoreReferencesDialog(project, bindingsToRestore.map(_.path.toOption.getOrElse("")).sorted.toArray)

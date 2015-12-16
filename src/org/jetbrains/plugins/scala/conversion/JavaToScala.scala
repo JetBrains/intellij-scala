@@ -8,6 +8,7 @@ import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
+import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
@@ -86,12 +87,15 @@ object JavaToScala {
   case class WithReferenceExpression(yep: Boolean) extends ExternalProperties
 
   def convertType(inType: PsiType, project: Project) = {
-//    inType match {
-//      case referenceType: PsiClassReferenceType if referenceType.getReference != null =>
-//        convertPsiToIntermdeiate(referenceType.getReference, null)
-//      case _ =>
+    inType match {
+      case referenceType: PsiClassReferenceType if referenceType.getReference != null
+        && ConverterUtil.needPrefixToElement(referenceType.getReference.getQualifiedName, project) =>
         TypeConstruction.createIntermediateTypePresentation(inType, project)
-//    }
+      case referenceType: PsiClassReferenceType if referenceType.getReference != null =>
+        convertPsiToIntermdeiate(referenceType.getReference, null)
+      case _ =>
+        TypeConstruction.createIntermediateTypePresentation(inType, project)
+    }
   }
 
   def convertPsiToIntermdeiate(element: PsiElement, externalProperties: ExternalProperties)
