@@ -61,6 +61,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
       val resultNode = new MainConstruction
       val (topElements, dropElements) = ConverterUtil.getTopElements(file, startOffsets, endOffsets)
       val data = getRefs
+      ConverterUtil.getTopElements2(file, startOffsets, endOffsets)
       for (part <- topElements) {
         part match {
           case TextPart(s) =>
