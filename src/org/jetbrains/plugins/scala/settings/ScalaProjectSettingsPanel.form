@@ -172,7 +172,7 @@
               </grid>
             </children>
           </grid>
-          <grid id="d23f" layout-manager="GridLayoutManager" row-count="8" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="d23f" layout-manager="GridLayoutManager" row-count="7" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="9" left="9" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title="Performance"/>
@@ -182,7 +182,7 @@
             <children>
               <vspacer id="c9804">
                 <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
               <component id="2e626" class="javax.swing.JLabel">
@@ -231,14 +231,6 @@
                 </constraints>
                 <properties>
                   <text value="Don't cache compound types (use it in case of big pauses in GC)"/>
-                </properties>
-              </component>
-              <component id="f08a" class="javax.swing.JCheckBox" binding="useOldImplicitConversionCheckBox" default-binding="true">
-                <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                </constraints>
-                <properties>
-                  <text value="Use old implicit conversion search algorithm"/>
                 </properties>
               </component>
               <component id="3075b" class="javax.swing.JCheckBox" binding="searchAllSymbolsIncludeCheckBox" default-binding="true">

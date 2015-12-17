@@ -18,9 +18,11 @@ package org.jetbrains.plugins.scala.util;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.LanguageLevelProjectExtension;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess;
+import com.intellij.pom.java.LanguageLevel;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.util.IncorrectOperationException;
@@ -272,6 +274,10 @@ public class TestUtils {
     Assert.assertNotNull("Test output points to null", input.size() > 1);
 
     return input;
+  }
+
+  public static void setLanguageLevel(Project project, LanguageLevel level) {
+    LanguageLevelProjectExtension.getInstance(project).setLanguageLevel(level);
   }
 
 }

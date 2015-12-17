@@ -3,6 +3,7 @@ package lang
 package parser
 package parsing
 
+import org.jetbrains.plugins.scala.annotator.Stats
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.Qual_Id
@@ -27,9 +28,13 @@ object CompilationUnit {
       while (builder.getTokenType != null) {
         TopStatSeq.parse(builder, waitBrace = false, hasPackage = hasPackage) match {
           case ParserState.EMPTY_STATE =>
-          case ParserState.SCRIPT_STATE => parseState = ParserState.SCRIPT_STATE
+          case ParserState.SCRIPT_STATE =>
+            Stats.trigger("scala.file.script.parsed")
+            parseState = ParserState.SCRIPT_STATE
           case ParserState.FILE_STATE if parseState != ParserState.SCRIPT_STATE => parseState = ParserState.FILE_STATE
-          case _ => parseState = ParserState.SCRIPT_STATE
+          case _ => 
+            //that means code in the file is probably invalid, so we won't call usage trigger here
+            parseState = ParserState.SCRIPT_STATE
         }
         builder.advanceLexer()
       }
