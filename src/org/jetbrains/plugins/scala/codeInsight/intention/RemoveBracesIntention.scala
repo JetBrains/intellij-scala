@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.codeInsight.intention.IntentionUtil.CommentsAroundElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -25,7 +26,7 @@ class RemoveBracesIntention extends PsiElementBaseIntentionAction {
 
   override def getText = getFamilyName
 
-  def isAvailable(project: Project, editor: Editor, element: PsiElement) = 
+  def isAvailable(project: Project, editor: Editor, element: PsiElement) =
     check(project, editor, element).isDefined && IntentionAvailabilityChecker.checkIntention(this, element)
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
@@ -94,10 +95,13 @@ class RemoveBracesIntention extends PsiElementBaseIntentionAction {
     // Everything other than case clauses is treated uniformly.
 
     // Is the expression a block containing a single expression?
-    val oneLinerBlock: Option[(ScBlockExpr, ScExpression)] = expr.flatMap {
+    val oneLinerBlock: Option[(ScBlockExpr, ScExpression, CommentsAroundElement)] = expr.flatMap {
       case blk: ScBlockExpr =>
         blk.statements match {
-          case Seq(x: ScExpression) => Some((blk, x))
+          case Seq(x: ScExpression) =>
+            val comments = IntentionUtil.collectComments(x, onElementLine = true)
+            if (!IntentionUtil.hasOtherComments(blk, comments)) Some((blk, x, comments))
+            else None
           case _ => None
         }
       case _ => None
@@ -105,8 +109,9 @@ class RemoveBracesIntention extends PsiElementBaseIntentionAction {
 
     // Create the action to unwrap that block.
     oneLinerBlock.map {
-      case (blkExpr, onlyExpr) =>
+      case (blkExpr, onlyExpr, comments) =>
         () => {
+          IntentionUtil.addComments(comments, blkExpr.getParent, blkExpr)
           CodeEditUtil.replaceChild(blkExpr.getParent.getNode, blkExpr.getNode, onlyExpr.getNode)
         }
     }
