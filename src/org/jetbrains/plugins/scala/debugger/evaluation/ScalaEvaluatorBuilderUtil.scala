@@ -1485,6 +1485,7 @@ object ScalaEvaluatorBuilderUtil {
 
       def computation = elem match {
         case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
+        case b: ScBlock if b.isAnonymousFunction => false //handled in isGenerateAnonfunSimple
         case e: ScExpression if ScalaPsiUtil.isByNameArgument(e) || ScalaPsiUtil.isArgumentOfFunctionType(e) => true
         case ScalaPsiUtil.MethodValue(_) => true
         case Both(ChildOf(argExprs: ScArgumentExprList), ScalaPositionManager.InsideAsync(call))
