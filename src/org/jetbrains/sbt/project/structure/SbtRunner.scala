@@ -118,7 +118,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
         listener(text)
     }
 
-    val handler = new OSProcessHandler(process, null, Charset.forName("UTF-8"))
+    val handler = new OSProcessHandler(process, "SBT import", Charset.forName("UTF-8"))
     handler.addProcessListener(new ListenerAdapter(processListener))
     handler.startNotify()
 

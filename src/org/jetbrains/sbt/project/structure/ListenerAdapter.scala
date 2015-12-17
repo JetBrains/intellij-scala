@@ -10,9 +10,10 @@ import com.intellij.openapi.util.Key
 class ListenerAdapter(listener: (OutputType, String) => Unit) extends ProcessAdapter {
   override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
     val textType = outputType match {
-      case ProcessOutputTypes.STDOUT => OutputType.StdOut
-      case ProcessOutputTypes.STDERR => OutputType.StdErr
+      case ProcessOutputTypes.STDOUT => Some(OutputType.StdOut)
+      case ProcessOutputTypes.STDERR => Some(OutputType.StdErr)
+      case _ => None
     }
-    listener(textType, event.getText)
+    textType.foreach(t => listener(t, event.getText))
   }
 }
