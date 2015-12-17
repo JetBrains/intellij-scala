@@ -8,6 +8,7 @@ import java.util.Collections.singletonList
 
 import com.intellij.codeInsight.editorActions._
 import com.intellij.diagnostic.LogMessageEx
+import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.extensions.Extensions
@@ -23,7 +24,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings._
 
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -61,20 +62,47 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
       val resultNode = new MainConstruction
       val (topElements, dropElements) = ConverterUtil.getTopElements(file, startOffsets, endOffsets)
       val data = getRefs
-      ConverterUtil.getTopElements2(file, startOffsets, endOffsets)
-      for (part <- topElements) {
-        part match {
-          case TextPart(s) =>
-            resultNode.addChild(LiteralExpression(s))
-          case ElementPart(comment: PsiComment) =>
-            if (!dropElements.contains(comment)) resultNode.addChild(LiteralExpression(comment.getText))
-            dropElements += comment
-          case ElementPart(element) =>
-            val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, data, dropElements)
-            resultNode.addChild(result)
+      val result = ConverterUtil.getTopElements2(file, startOffsets, endOffsets)
+      val rfile = if (result != null) {
+        val fileText = result._1
+        PsiFileFactory.getInstance(file.getProject).createFileFromText(JavaLanguage.INSTANCE, fileText)
+      } else file
+
+      val elementts = if (result != null) {
+        val result1 = new ArrayBuffer[PsiElement]()
+        for ((a, b) <- result._2._1.zip(result._2._2)) {
+          result1 ++= ConverterUtil.collectTopElements(a, b, rfile)
         }
+        result1.toSeq
+      } else {
+        val result1 = new ArrayBuffer[PsiElement]()
+        for ((a, b) <- startOffsets.zip(endOffsets)) {
+          result1 ++= ConverterUtil.collectTopElements(a, b, rfile)
+        }
+        result1.toSeq
       }
 
+      //      for (part <- topElements) {
+      //        part match {
+      //          case TextPart(s) =>
+      //            resultNode.addChild(LiteralExpression(s))
+      //          case ElementPart(comment: PsiComment) =>
+      //            if (!dropElements.contains(comment)) resultNode.addChild(LiteralExpression(comment.getText))
+      //            dropElements += comment
+      //          case ElementPart(element) =>
+      //            val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, data, dropElements)
+      //            resultNode.addChild(result)
+      //        }
+      //      }
+
+      for (el <- elementts) {
+        el match {
+          case el: PsiElement =>
+            val result = JavaToScala.convertPsiToIntermdeiate(el, null)(associationsHelper, data, dropElements)
+            resultNode.addChild(result)
+          case _ => println("UPS")
+        }
+      }
       val visitor = new PrintWithComments
       visitor.visit(resultNode)
       val text = visitor.stringResult

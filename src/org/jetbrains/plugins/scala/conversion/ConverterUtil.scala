@@ -88,33 +88,9 @@ object ConverterUtil {
   }
 
 
-  def getTopElements2(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]): (Seq[Part], mutable.HashSet[PsiElement]) = {
+  def getTopElements2(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]): (String, (Array[Int], Array[Int])) = {
     val ranges = startOffsets.zip(endOffsets).sortWith(_._1 < _._1)
       .collect { case pair: (Int, Int) if pair._1 != pair._2 => new TextRange(pair._1, pair._2) }
-
-    def canDropRange(range: TextRange) = !ranges.contains(range)
-    val rangesToDrop = new ArrayBuffer[TextRange]()
-    for (range <- ranges) {
-      val start = range.getStartOffset
-      val end = range.getEndOffset
-      val startElement = file.findElementAt(start)
-      val elementToClipLeft = getMaximalParent(startElement, new TextRange(start, end))
-
-      if (elementToClipLeft != null) {
-        val elementStart = elementToClipLeft.getTextRange.getStartOffset
-        if (elementStart < start) {
-          val clipBound = tryToClipSide(elementToClipLeft, start)
-          if (clipBound >= 0) {
-            val rangeToDrop = new TextRange(elementStart, clipBound)
-            if (canDropRange(rangeToDrop)) {
-              rangesToDrop += rangeToDrop
-            }
-          }
-        }
-      }
-
-      val endElement = file.findElementAt(end - 1)
-    }
 
     def tryToClipSide(element: PsiElement, rangeBound: Int): Int = {
       if (element.getFirstChild == null) return -100
@@ -127,7 +103,7 @@ object ConverterUtil {
         val cRange = child.getTextRange
         if (cRange.getStartOffset >= rangeBound) return clipTo
         if (cRange.getEndOffset <= rangeBound) {
-          if (!canDropElement(child)) return -100
+//          if (!canDropElement(child)) return -100
           clipTo = cRange.getEndOffset
         } else {
           // rangeBound is inside child's range
@@ -140,6 +116,29 @@ object ConverterUtil {
       clipTo
     }
 
+    def tryToClipSide2(element: PsiElement, rangeBound: Int): Int = {
+      if (element.getFirstChild == null) return -100
+
+      val range = element.getTextRange
+      var clipTo = range.getStartOffset
+
+      val children = element.getChildren.reverse
+      for (child <- children) {
+        val cRange = child.getTextRange
+        if (cRange.getStartOffset < rangeBound) return clipTo
+        if (cRange.getEndOffset > rangeBound) {
+          //          if (!canDropElement(child)) return -100
+          clipTo = cRange.getStartOffset
+        } else {
+          // rangeBound is inside child's range
+          if (child.isInstanceOf[PsiWhiteSpace]) return clipTo
+          return tryToClipSide2(child, rangeBound)
+          //        }
+        }
+
+      }
+      clipTo
+    }
 
     //TODO create ParentsWithSelfIterator
     def getParentsWithSelf(element: PsiElement): Iterable[PsiElement] = {
@@ -150,13 +149,13 @@ object ConverterUtil {
       val parentsWithSelf = getParentsWithSelf(inElement).takeWhile {
         !_.isInstanceOf[PsiDirectory]
       }.collectFirst {
-        case el if range.contains(el.getTextRange) => el
+        case el if !range.contains(el.getTextRange) => el
       }
 
       if (parentsWithSelf.isDefined) {
-        getParentsWithSelf(parentsWithSelf.get).takeWhile {
-          !_.isInstanceOf[PsiDirectory]
-        }.takeWhile(el => range.contains(getMinimizeTextRange(el))).last
+        val temp = getParentsWithSelf(parentsWithSelf.get).takeWhile(el => range.contains(getMinimizeTextRange(el)))
+        if (temp.isEmpty) null
+        else temp.last
       } else null
     }
 
@@ -182,79 +181,77 @@ object ConverterUtil {
         getMinimizeTextRange(lChild.get).getEndOffset)
     }
 
+    def canDropRange(range: TextRange) = !ranges.contains(range)
+    val rangesToDrop = new ArrayBuffer[TextRange]()
+    for (range <- ranges) {
+      val start = range.getStartOffset
+      val end = range.getEndOffset
+      val startElement = file.findElementAt(start)
+      val elementToClipLeft = getMaximalParent(startElement, range)
 
-    //    val firstNotInRange = parentsWithSelf.takeWhile { it !is PsiDirectory }.firstOrNull { it.range !in range } ?: return null
-    //    return firstNotInRange.parentsWithSelf.lastOrNull { it.minimizedTextRange() in range }
+      if (elementToClipLeft != null) {
+        val elementStart = elementToClipLeft.getTextRange.getStartOffset
+        if (elementStart < start) {
+          val clipBound = tryToClipSide(elementToClipLeft, start)
+          if (clipBound >= 0) {
+            val rangeToDrop = new TextRange(elementStart, clipBound)
+            if (canDropRange(rangeToDrop)) {
+              rangesToDrop += rangeToDrop
+            }
+          }
+        }
+      }
 
-    //    fun canDropRange(range: TextRange) = ranges.all { range !in it }
-    //
-    //    val rangesToDrop = ArrayList<TextRange>()
-    //    for (range in ranges) {
-    //      val start = range.start
-    //      val end = range.end
-    //      if (start == end) continue
-    //
-    //      val startToken = file.findElementAt(start)!!
-    //      val elementToClipLeft = startToken.maximalParentToClip(range)
-    //      if (elementToClipLeft != null) {
-    //        val elementStart = elementToClipLeft.range.start
-    //        if (elementStart < start) {
-    //          val clipBound = tryClipLeftSide(elementToClipLeft, start)
-    //          if (clipBound != null) {
-    //            val rangeToDrop = TextRange(elementStart, clipBound)
-    //            if (canDropRange(rangeToDrop)) {
-    //              rangesToDrop.add(rangeToDrop)
-    //            }
-    //          }
-    //        }
-    //      }
-    //
-    //      val endToken = file.findElementAt(end - 1)!!
-    //      val elementToClipRight = endToken.maximalParentToClip(range)
-    //      if (elementToClipRight != null) {
-    //        val elementEnd = elementToClipRight.range.end
-    //        if (elementEnd > end) {
-    //          val clipBound = tryClipRightSide(elementToClipRight, end)
-    //          if (clipBound != null) {
-    //            val rangeToDrop = TextRange(clipBound, elementEnd)
-    //            if (canDropRange(rangeToDrop)) {
-    //              rangesToDrop.add(rangeToDrop)
-    //            }
-    //          }
-    //        }
-    //      }
-    //    }
-    //
-    //    if (rangesToDrop.isEmpty()) return null
-    //
-    //    val newFileText = StringBuilder {
-    //      var offset = 0
-    //      for (range in rangesToDrop) {
-    //        assert(range.start >= offset)
-    //        append(fileText.substring(offset, range.start))
-    //        offset = range.end
-    //      }
-    //      append(fileText.substring(offset, fileText.length()))
-    //    }.toString()
-    //
-    //    fun IntArray.update() {
-    //      for (range in rangesToDrop.asReversed()) {
-    //        for (i in indices) {
-    //          val offset = this[i]
-    //          if (offset >= range.end) {
-    //            this[i] = offset - range.length
-    //          }
-    //          else {
-    //            assert(offset <= range.start)
-    //          }
-    //        }
-    //      }
-    //    }
-    //
-    //    startOffsets.update()
-    //    endOffsets.update()
+      val endElement = file.findElementAt(end - 1)
+      val elementToClipRight = getMaximalParent(endElement, range)
+      if (elementToClipRight != null) {
+        val elementEnd = elementToClipRight.getTextRange.getEndOffset
+        if (elementEnd > end) {
+          val clipRight = tryToClipSide2(elementToClipRight, end)
+          if (clipRight >= 0) {
+            val rangeToDrop = new TextRange(clipRight, elementEnd)
+            if (canDropRange(rangeToDrop)) {
+              rangesToDrop += rangeToDrop
+            }
+          }
+        }
+      }
 
-    null
+
+      if (rangesToDrop.isEmpty) return null
+
+
+    }
+
+    val fileText = file.getText
+    val newFile = new StringBuilder()
+    var offset = 0
+    for (range <- rangesToDrop) {
+      newFile.append(fileText.substring(offset, range.getStartOffset))
+      offset = range.getEndOffset
+    }
+    newFile.append(fileText.substring(offset, fileText.length()))
+
+    val newFileText = newFile.toString()
+
+    def updateIndexes(offsets: Array[Int]) = {
+      val resultOffsets = new ArrayBuffer[Int]()
+      for (range <- rangesToDrop.reverse) {
+        for (offset <- offsets) {
+          if (offset >= range.getEndOffset) {
+            resultOffsets += offset - range.getLength
+          } else {
+            resultOffsets += offset
+          }
+        }
+      }
+
+      resultOffsets.toArray
+    }
+
+    val newStartOffsets = updateIndexes(startOffsets)
+    val newEndOffsets = updateIndexes(endOffsets)
+    (newFileText, (newStartOffsets, newEndOffsets))
   }
 
   def canDropElement(element: PsiElement): Boolean = {
