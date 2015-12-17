@@ -251,4 +251,22 @@ abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
       "Some(1)", ".map...", "i => i % 2 == 0", ".foreach...", "println"
     )
   }
+
+  addSourceFile("PartialFunctionArg.scala",
+    s"""object PartialFunctionArg {
+       |  def main(args: Array[String]) {
+       |    Seq(Option(1)).exists {
+       |      case None =>
+       |        true
+       |      case Some(i) =>
+       |        false
+       |    }
+       |  }
+       |}
+    """.stripMargin.trim)
+  def testPartialFunctionArg(): Unit = {
+    checkStopResumeSeveralTimes(Breakpoint(5, null), Breakpoint(6, null))(
+      "case Some(i) =>", "false"
+    )
+  }
 }
