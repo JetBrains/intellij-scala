@@ -53,14 +53,9 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase with Pr
     super.setUpInWriteAction()
     setUpProjectDirectory()
     setUpSbtLauncherAndStructure(myProject)
-    if ("true".equals(System.getProperty("idea.debug.mode")))
-      setUpExternalSystemToPerformImportInIdeaProcess()
   }
 
   private def setUpProjectDirectory(): Unit =
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(testProjectDir)
-
-  private def setUpExternalSystemToPerformImportInIdeaProcess(): Unit =
-    Registry.get(SbtProjectSystem.Id + ExternalSystemConstants.USE_IN_PROCESS_COMMUNICATION_REGISTRY_KEY_SUFFIX).setValue(true)
 }
 
