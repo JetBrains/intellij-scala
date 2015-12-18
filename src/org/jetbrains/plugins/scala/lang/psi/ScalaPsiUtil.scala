@@ -283,21 +283,29 @@ object ScalaPsiUtil {
       case p: ScParameterizedType => Some(p)
       case _ => None
     }
-    def specialExtractParameterType(rr: ScalaResolveResult): Option[ScType] = {
-      InferUtil.extractImplicitParameterType(rr) match {
-        case f@ScFunctionType(_, _) => Some(f)
-        case tp =>
-          funType match {
-            case Some(ft) =>
-              if (tp.conforms(ft)) {
-                Conformance.undefinedSubst(ft, tp).getSubstitutor match {
-                  case Some(subst) => Some(subst.subst(ft).removeUndefines())
-                  case _ => None
-                }
-              } else None
-            case _ => None
-          }
+
+    def specialExtractParameterType(rr: ScalaResolveResult): (Option[ScType], Seq[TypeParameter]) = {
+      def inner(tp: ScType) = {
+        tp match {
+          case f@ScFunctionType(_, _) => Some(f)
+          case _ =>
+            funType match {
+              case Some(ft) =>
+                if (tp.conforms(ft)) {
+                  Conformance.undefinedSubst(ft, tp).getSubstitutor match {
+                    case Some(subst) => Some(subst.subst(ft).removeUndefines())
+                    case _ => None
+                  }
+                } else None
+              case _ => None
+            }
+        }
       }
+      val typeParams = rr.unresolvedTypeParameters match {
+        case Some(tParams) if tParams.nonEmpty => tParams
+        case _ => Seq.empty
+      }
+      (inner(InferUtil.extractImplicitParameterType(rr)), typeParams)
     }
 
     //TODO! remove this after find a way to improve implicits according to compiler.
@@ -321,7 +329,7 @@ object ScalaPsiUtil {
           predicate = Some((rr, subst) => {
             ProgressManager.checkCanceled()
             specialExtractParameterType(rr) match {
-              case Some(ScFunctionType(tp, _)) =>
+              case (Some(ScFunctionType(tp, _)), _) =>
                 if (!isHardCoded || !tp.isInstanceOf[ValType]) {
                   val newProc = new ResolveProcessor(kinds, ref, refName)
                   newProc.processType(tp, e, ResolveState.initial)
@@ -380,8 +388,9 @@ object ScalaPsiUtil {
     if (implicitMap.length == 1) {
       val rr = implicitMap.head
       specialExtractParameterType(rr) match {
-        case Some(ScFunctionType(tp, _)) =>
-          Some(ImplicitResolveResult(tp, rr.getElement, rr.importsUsed, rr.substitutor, ScSubstitutor.empty, isFromCompanion = false)) //todo: from companion parameter
+        case (Some(ScFunctionType(tp, _)), typeParams) =>
+          Some(ImplicitResolveResult(tp, rr.getElement, rr.importsUsed, rr.substitutor, ScSubstitutor.empty, isFromCompanion = false, //todo: from companion parameter
+            unresolvedTypeParameters = typeParams))
         case _ => None
       }
     } else None
@@ -470,6 +479,7 @@ object ScalaPsiUtil {
             case _ =>
           }
           state = state.put(BaseProcessor.FROM_TYPE_KEY, res.tp)
+          state = state.put(BaseProcessor.UNRESOLVED_TYPE_PARAMETERS_KEY, res.unresolvedTypeParameters)
           processor.processType(res.getTypeWithDependentSubstitutor, expr, state)
         case _ =>
       }

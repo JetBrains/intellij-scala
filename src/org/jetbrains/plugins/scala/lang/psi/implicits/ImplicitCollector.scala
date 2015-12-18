@@ -262,6 +262,9 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                 else None
             }
           case fun: ScFunction if !PsiTreeUtil.isContextAncestor(fun, place, false) =>
+            if (fun.name == "ZeroOneSyntax") {
+              "stop here"
+            }
             if (isImplicitConversion && (fun.name == "conforms" || fun.name == "$conforms") &&
               fun.containingClass != null && fun.containingClass.qualifiedName == "scala.Predef") return None
             if (!fun.hasTypeParameters && withLocalTypeInference) return None
@@ -304,20 +307,27 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                         val methodType = lastImplicit.map(li => subst.subst(ScMethodType(ret, li.getSmartParameters, isImplicit = true)
                           (place.getProject, place.getResolveScope))).getOrElse(ret)
                         val polymorphicTypeParameters = typeParameters.map(new TypeParameter(_))
-                        def inferValueType(tp: ScType): ScType = {
+                        def inferValueType(tp: ScType): (ScType, Seq[TypeParameter]) = {
+                          if (fun.name == "ZeroOneSyntax") {
+                            "stop here"
+                          }
                           if (isExtensionConversion) {
                             tp match {
                               case ScTypePolymorphicType(internalType, typeParams) =>
                                 val filteredTypeParams =
                                   typeParams.filter(tp => !tp.lowerType().equiv(types.Nothing) || !tp.upperType().equiv(types.Any))
                                 val newPolymorphicType = ScTypePolymorphicType(internalType, filteredTypeParams)
-                                newPolymorphicType.inferValueType.recursiveUpdate {
+                                (newPolymorphicType.inferValueType.recursiveUpdate {
                                   case u: ScUndefinedType => (true, u.tpt)
                                   case tp: ScType => (false, tp)
-                                }
-                              case _ => tp.inferValueType
+                                }, typeParams)
+                              case _ => (tp.inferValueType, Seq.empty)
                             }
-                          } else tp.inferValueType
+                          } else tp match {
+                            case ScTypePolymorphicType(internalType, typeParams) =>
+                              (tp.inferValueType, typeParams)
+                            case _ => (tp.inferValueType, Seq.empty)
+                          }
                         }
                         var nonValueType: TypeResult[ScType] =
                           Success(if (polymorphicTypeParameters.isEmpty) methodType
@@ -342,7 +352,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                               predicate match {
                                 case Some(predicateFunction) if isExtensionConversion =>
                                   inferValueType(nonValueType.getOrElse(return reportWrong(BadTypeResult))) match {
-                                    case ScFunctionType(rt, _) =>
+                                    case (ScFunctionType(rt, _), _) =>
                                       if (predicateFunction(c.copy(implicitParameterType = Some(rt)), subst).isEmpty)
                                         return reportWrong(CantFindExtensionMethodResult)
                                     //this is not a function, when we still need to pass implicit?..
@@ -361,18 +371,20 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                               if (fullInfo && results.exists(_.exists(_.name == InferUtil.notFoundParameterName)))
                                 return Some(c.copy(implicitParameters = results.getOrElse(Seq.empty),
                                   implicitReason = ImplicitParameterNotFoundResult), subst)
-                              val valueType = inferValueType(resType)
+                              val (valueType, typeParams) = inferValueType(resType)
                               def addImportsUsed(result: ScalaResolveResult, results: Seq[ScalaResolveResult]): ScalaResolveResult = {
                                 results.foldLeft(result) {
                                   case (r1: ScalaResolveResult, r2: ScalaResolveResult) => r1.copy(importsUsed = r1.importsUsed ++ r2.importsUsed)
                                 }
                               }
                               Some(addImportsUsed(c.copy(implicitParameterType = Some(valueType),
-                                implicitParameters = results.getOrElse(Seq.empty), implicitReason = OkResult),
+                                implicitParameters = results.getOrElse(Seq.empty), implicitReason = OkResult,
+                                unresolvedTypeParameters = Some(typeParams)),
                                 results.getOrElse(Seq.empty)), subst)
                             } else {
-                              Some(c.copy(implicitParameterType = Some(inferValueType(nonValueType.getOrElse(return reportWrong(BadTypeResult)))),
-                                implicitReason = OkResult), subst)
+                              val (valueType, typeParams) = inferValueType(nonValueType.getOrElse(return reportWrong(BadTypeResult)))
+                              Some(c.copy(implicitParameterType = Some(valueType),
+                                implicitReason = OkResult, unresolvedTypeParameters = Some(typeParams)), subst)
                             }
                           }
 

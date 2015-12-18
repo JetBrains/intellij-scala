@@ -61,6 +61,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
     def implType: Option[ScType] = state.get(CachesUtil.IMPLICIT_TYPE).toOption
     def isNamedParameter: Boolean = state.get(CachesUtil.NAMED_PARAM_KEY).toOption.exists(_.booleanValue)
     def fromType: Option[ScType] = state.get(BaseProcessor.FROM_TYPE_KEY).toOption
+    def unresolvedTypeParameters: Option[Seq[TypeParameter]] = state.get(BaseProcessor.UNRESOLVED_TYPE_PARAMETERS_KEY).toOption
     def nameShadow: Option[String] = Option(state.get(ResolverEnv.nameKey))
     def forwardReference: Boolean = isForwardReference(state)
     if (nameAndKindMatch(named, state) || constructorResolve) {
@@ -75,7 +76,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
         case m: PsiMethod =>
           addResult(new ScalaResolveResult(m, s, getImports(state), nameShadow, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,
-            isForwardReference = forwardReference))
+            isForwardReference = forwardReference, unresolvedTypeParameters = unresolvedTypeParameters))
         case cc: ScClass =>
         case o: ScObject if o.isPackageObject =>  // do not resolve to package object
         case obj: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] =>
@@ -94,26 +95,29 @@ class MethodResolveProcessor(override val ref: PsiElement,
             case (m, subst) =>
               new ScalaResolveResult(m, subst, getImports(state), nameShadow, implicitConversionClass,
                 implicitFunction = implFunction, implicitType = implType, fromType = fromType, parentElement = Some(obj),
-                isAccessible = accessible && isAccessible(m, ref), isForwardReference = forwardReference)
+                isAccessible = accessible && isAccessible(m, ref), isForwardReference = forwardReference,
+                unresolvedTypeParameters = unresolvedTypeParameters)
           }.filter {
             case r => !accessibility || r.isAccessible
           }
           if (seq.nonEmpty) addResults(seq)
           else addResult(new ScalaResolveResult(named, s, getImports(state), nameShadow, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType, isNamedParameter = isNamedParameter,
-            fromType = fromType, isAccessible = accessible, isForwardReference = forwardReference))
+            fromType = fromType, isAccessible = accessible, isForwardReference = forwardReference,
+            unresolvedTypeParameters = unresolvedTypeParameters))
         case synthetic: ScSyntheticFunction =>
           addResult(new ScalaResolveResult(synthetic, s, getImports(state), nameShadow, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,
-            isForwardReference = forwardReference))
+            isForwardReference = forwardReference, unresolvedTypeParameters = unresolvedTypeParameters))
         case pack: PsiPackage =>
           addResult(new ScalaResolveResult(ScPackageImpl(pack), s, getImports(state), nameShadow, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,
-            isForwardReference = forwardReference))
+            isForwardReference = forwardReference, unresolvedTypeParameters = unresolvedTypeParameters))
         case _ =>
           addResult(new ScalaResolveResult(named, s, getImports(state), nameShadow, implicitConversionClass,
             implicitFunction = implFunction, implicitType = implType, isNamedParameter = isNamedParameter,
-            fromType = fromType, isAccessible = accessible, isForwardReference = forwardReference))
+            fromType = fromType, isAccessible = accessible, isForwardReference = forwardReference,
+            unresolvedTypeParameters = unresolvedTypeParameters))
       }
     }
     true

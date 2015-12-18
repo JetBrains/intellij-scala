@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, Parameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
@@ -135,19 +135,19 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                   (uSubst + additionalUSubst).getSubstitutor match {
                     case Some(innerSubst) =>
                       result += ImplicitResolveResult(innerSubst.subst(retTp), r.element, r.importsUsed, r.substitutor,
-                        implicitDepSusbt, isFromCompanion)
+                        implicitDepSusbt, isFromCompanion, Seq.empty)
                     case None =>
                       result += ImplicitResolveResult(substitutor.subst(retTp), r.element, r.importsUsed, r.substitutor,
-                        implicitDepSusbt, isFromCompanion)
+                        implicitDepSusbt, isFromCompanion, Seq.empty)
                   }
                 case None =>
                   result += ImplicitResolveResult(substitutor.subst(retTp), r.element, r.importsUsed, r.substitutor,
-                    implicitDepSusbt, isFromCompanion)
+                    implicitDepSusbt, isFromCompanion, Seq.empty)
               }
             case _ =>
           }
         case _ =>
-          result += ImplicitResolveResult(retTp, r.element, r.importsUsed, r.substitutor, implicitDepSusbt, isFromCompanion)
+          result += ImplicitResolveResult(retTp, r.element, r.importsUsed, r.substitutor, implicitDepSusbt, isFromCompanion, Seq.empty)
       }
     }
 
@@ -510,7 +510,8 @@ object ScImplicitlyConvertible {
                                implicitDependentSubst: ScSubstitutor)
 
   case class ImplicitResolveResult(tp: ScType, element: PsiNamedElement, importUsed: Set[ImportUsed],
-                                   subst: ScSubstitutor, implicitDependentSubst: ScSubstitutor, isFromCompanion: Boolean) {
+                                   subst: ScSubstitutor, implicitDependentSubst: ScSubstitutor, isFromCompanion: Boolean,
+                                   unresolvedTypeParameters: Seq[TypeParameter]) {
     def getClazz: Option[PsiClass] = {
       element.getParent match {
         case tb: ScTemplateBody => Some(PsiTreeUtil.getParentOfType(tb, classOf[PsiClass]))
@@ -520,6 +521,4 @@ object ScImplicitlyConvertible {
 
     def getTypeWithDependentSubstitutor: ScType = implicitDependentSubst.subst(tp)
   }
-
-
 }
