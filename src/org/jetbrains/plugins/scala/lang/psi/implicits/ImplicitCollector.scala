@@ -262,9 +262,6 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                 else None
             }
           case fun: ScFunction if !PsiTreeUtil.isContextAncestor(fun, place, false) =>
-            if (fun.name == "ZeroOneSyntax") {
-              "stop here"
-            }
             if (isImplicitConversion && (fun.name == "conforms" || fun.name == "$conforms") &&
               fun.containingClass != null && fun.containingClass.qualifiedName == "scala.Predef") return None
             if (!fun.hasTypeParameters && withLocalTypeInference) return None
@@ -308,9 +305,6 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                           (place.getProject, place.getResolveScope))).getOrElse(ret)
                         val polymorphicTypeParameters = typeParameters.map(new TypeParameter(_))
                         def inferValueType(tp: ScType): (ScType, Seq[TypeParameter]) = {
-                          if (fun.name == "ZeroOneSyntax") {
-                            "stop here"
-                          }
                           if (isExtensionConversion) {
                             tp match {
                               case ScTypePolymorphicType(internalType, typeParams) =>
