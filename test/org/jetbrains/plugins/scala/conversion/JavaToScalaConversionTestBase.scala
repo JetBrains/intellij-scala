@@ -11,11 +11,9 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 
-import scala.collection.mutable
-
 /**
- * @author Alexander Podkhalyuzin
- */
+  * @author Alexander Podkhalyuzin
+  */
 abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private val startMarker = "/*start*/"
   private val endMarker = "/*end*/"
@@ -37,10 +35,14 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
 
     val lastPsi = javaFile.findElementAt(javaFile.getText.length - 1)
     var endOffset = fileText.indexOf(endMarker)
-    if (endOffset == -1) endOffset = lastPsi.getTextRange.getStartOffset
+    if (endOffset == -1) endOffset = lastPsi.getPrevSibling.getTextRange.getEndOffset - 1
+    else {
+      val prevSibiling = javaFile.findElementAt(endOffset).getPrevSibling.getTextRange.getEndOffset
+      if (prevSibiling == endOffset) endOffset = prevSibiling - 1
+      else endOffset = prevSibiling
+    }
 
-    val buf = ConverterUtil.collectTopElements(startOffset, endOffset, javaFile)
-    var (res, associations) = JavaToScala.convertPsisToText(buf, getUsedComments(offset, endOffset, lastPsi, javaFile))
+    var (res, associations) = ConverterUtil.convertData(javaFile, Array(startOffset), Array(endOffset))
     val newFile = PsiFileFactory.getInstance(getProjectAdapter).createFileFromText("dummyForJavaToScala.scala",
       ScalaFileType.SCALA_LANGUAGE, res)
 
@@ -56,16 +58,5 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
       case _ => assertTrue("Test result must be in last comment statement.", false)
     }
     assertEquals(output, res.trim)
-  }
-
-  private def getUsedComments(startOffset: Int, endOffset: Int,
-                              lastComment: PsiElement, javaFile: PsiFile): mutable.HashSet[PsiElement] = {
-    val usedComments = new mutable.HashSet[PsiElement]()
-    val startComment = javaFile.findElementAt(startOffset)
-    val endComment = javaFile.findElementAt(endOffset)
-    if (startComment != null) usedComments += startComment
-    if (endComment != null) usedComments += endComment
-    if (lastComment != null) usedComments += lastComment
-    usedComments
   }
 }

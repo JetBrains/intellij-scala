@@ -16,6 +16,8 @@ object Comments {
     new Comments(new ArrayBuffer[LiteralExpression](),
       new ArrayBuffer[LiteralExpression](), new ArrayBuffer[LiteralExpression]())
   }
+
+  val topElements = new mutable.HashSet[PsiElement]()
 }
 
 case class Comments(beforeComments: ArrayBuffer[LiteralExpression],
@@ -58,6 +60,7 @@ object CommentsCollector {
                                     (implicit usedComments:
                                     mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): ArrayBuffer[PsiElement] = {
 
+    if (Comments.topElements.contains(element)) return new ArrayBuffer[PsiElement]()
     var prev = element.getPrevSibling
     val resultComments = new ArrayBuffer[PsiElement]()
     while ((prev != null) && !usedComments.contains(prev)) {
@@ -71,6 +74,7 @@ object CommentsCollector {
   def collectCommentsAndSpacesAfter(element: PsiElement, resultComments: ArrayBuffer[PsiElement])
                                    (implicit usedComments:
                                    mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): ArrayBuffer[PsiElement] = {
+    if (Comments.topElements.contains(element)) return new ArrayBuffer[PsiElement]()
     val next = element.getNextSibling
     if (next != null) {
       if (isCommentOrSpace(next)) {

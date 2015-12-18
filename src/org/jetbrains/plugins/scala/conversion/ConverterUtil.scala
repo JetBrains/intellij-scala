@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.conversion
 
+import com.intellij.codeInsight.editorActions.ReferenceData
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFixOnPsiElement, ProblemDescriptor, ProblemsHolder}
+import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -10,8 +12,9 @@ import org.jetbrains.plugins.scala.codeInsight.intention.RemoveBracesIntention
 import org.jetbrains.plugins.scala.codeInspection.parentheses.ScalaUnnecessaryParenthesesInspection
 import org.jetbrains.plugins.scala.codeInspection.redundantReturnInspection.RemoveRedundantReturnInspection
 import org.jetbrains.plugins.scala.codeInspection.semicolon.ScalaUnnecessarySemicolonInspection
-import org.jetbrains.plugins.scala.conversion.ast.{CommentsCollector, IntermediateNode, TypedElement}
+import org.jetbrains.plugins.scala.conversion.ast._
 import org.jetbrains.plugins.scala.conversion.copy.{Association, AssociationHelper, Associations}
+import org.jetbrains.plugins.scala.conversion.visitors.PrintWithComments
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -23,22 +26,15 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{ListBuffer, ArrayBuffer}
 
 /**
   * Created by Kate Ustyuzhanina
   * on 12/8/15
   */
 object ConverterUtil {
-  def getTopElements(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]): (Seq[Part], mutable.HashSet[PsiElement]) = {
-
-    def buildTextPart(offset1: Int, offset2: Int, dropElements: mutable.HashSet[PsiElement]): TextPart = {
-      val possibleComment = file.findElementAt(offset1)
-      if (possibleComment != null && CommentsCollector.isComment(possibleComment)) dropElements += possibleComment
-      TextPart(new TextRange(offset1, offset2).substring(file.getText))
-    }
-
-    val dropElements = new mutable.HashSet[PsiElement]()
+  //old method spilt current text on psi & text parts
+  def getElementsBetweenOffsets(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]): Seq[Part] = {
     val buffer = new ArrayBuffer[Part]
     for ((startOffset, endOffset) <- startOffsets.zip(endOffsets)) {
       @tailrec
@@ -46,18 +42,11 @@ object ConverterUtil {
         if (offset > endOffset) return null
         val elem = file.findElementAt(offset)
         if (elem == null) return null
-
         if (elem.getParent.getTextRange.getEndOffset > endOffset ||
-          elem.getParent.getTextRange.getStartOffset < startOffset) {
-          if (CommentsCollector.isComment(elem) && !dropElements.contains(elem)) {
-            buffer += TextPart(elem.getText + "\n")
-            dropElements += elem
-          }
-          findElem(elem.getTextRange.getEndOffset + 1)
-        }
-        else
-          elem
+          elem.getParent.getTextRange.getStartOffset < startOffset) findElem(elem.getTextRange.getEndOffset + 1)
+        else elem
       }
+
       var elem: PsiElement = findElem(startOffset)
       if (elem != null) {
         while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
@@ -65,123 +54,104 @@ object ConverterUtil {
           elem.getParent.getTextRange.getStartOffset >= startOffset) {
           elem = elem.getParent
         }
-        //get wrong result when copy element that has PsiComment without comment
-        val shifted = shiftedElement(elem, dropElements, endOffset)
-        if (shifted != elem) {
-          elem = shifted
-        } else if (startOffset < elem.getTextRange.getStartOffset) {
-          buffer += buildTextPart(startOffset, elem.getTextRange.getStartOffset, dropElements)
+        if (startOffset < elem.getTextRange.getStartOffset) {
+          buffer += TextPart(new TextRange(startOffset, elem.getTextRange.getStartOffset).substring(file.getText))
         }
-
         buffer += ElementPart(elem)
         while (elem.getNextSibling != null && elem.getNextSibling.getTextRange.getEndOffset <= endOffset) {
           elem = elem.getNextSibling
           buffer += ElementPart(elem)
         }
-
         if (elem.getTextRange.getEndOffset < endOffset) {
-          buffer += buildTextPart(elem.getTextRange.getEndOffset, endOffset, dropElements)
+          buffer += TextPart(new TextRange(elem.getTextRange.getEndOffset, endOffset).substring(file.getText))
         }
       }
     }
-    (buffer.toSeq, dropElements)
+    buffer.toSeq
   }
 
+  def newFileTextWithOffsets(file: PsiFile, startOffsets: Array[Int],
+                             endOffsets: Array[Int]): (String, Array[Int], Array[Int]) = {
+    def transformInt(value: Int) = Int.MaxValue - value
 
-  def getTopElements2(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]): (String, (Array[Int], Array[Int])) = {
-    val ranges = startOffsets.zip(endOffsets).sortWith(_._1 < _._1)
-      .collect { case pair: (Int, Int) if pair._1 != pair._2 => new TextRange(pair._1, pair._2) }
+    def tryClipRight(element: PsiElement, rangeBound: Int): Option[Int] =
+      tryToClipSide(element, transformInt(rangeBound), isRight = true).map(el => transformInt(el))
 
-    def tryToClipSide(element: PsiElement, rangeBound: Int): Int = {
-      if (element.getFirstChild == null) return -100
+    def tryToClipSide(element: PsiElement, rangeBound: Int, isRight: Boolean = false): Option[Int] = {
+      def getChildren(element: PsiElement) = if (isRight) element.getChildren.reverse else element.getChildren
 
-      val range = element.getTextRange
-      var clipTo = range.getStartOffset
+      def transform(textRange: TextRange) =
+        new TextRange(transformInt(textRange.getEndOffset), transformInt(textRange.getStartOffset))
 
-      val children = element.getChildren
+      if (element.getFirstChild == null) return None
+
+      var clipTo = transform(element.getTextRange).getStartOffset
+      val children = getChildren(element)
       for (child <- children) {
-        val cRange = child.getTextRange
-        if (cRange.getStartOffset >= rangeBound) return clipTo
-        if (cRange.getEndOffset <= rangeBound) {
-//          if (!canDropElement(child)) return -100
-          clipTo = cRange.getEndOffset
-        } else {
-          // rangeBound is inside child's range
-          if (child.isInstanceOf[PsiWhiteSpace]) return clipTo
-          return tryToClipSide(child, rangeBound)
-          //        }
+        val (start, end) = (transform(child.getTextRange).getStartOffset, transform(child.getTextRange).getEndOffset)
+        if (start >= rangeBound) return Some(clipTo)
+        if (end <= rangeBound) clipTo = end
+        else {
+          if (child.isInstanceOf[PsiWhiteSpace]) return Some(clipTo)
+          return tryToClipSide(child, rangeBound, isRight)
         }
-
       }
-      clipTo
+      Some(clipTo)
     }
 
-    def tryToClipSide2(element: PsiElement, rangeBound: Int): Int = {
-      if (element.getFirstChild == null) return -100
-
-      val range = element.getTextRange
-      var clipTo = range.getStartOffset
-
-      val children = element.getChildren.reverse
-      for (child <- children) {
-        val cRange = child.getTextRange
-        if (cRange.getStartOffset < rangeBound) return clipTo
-        if (cRange.getEndOffset > rangeBound) {
-          //          if (!canDropElement(child)) return -100
-          clipTo = cRange.getStartOffset
-        } else {
-          // rangeBound is inside child's range
-          if (child.isInstanceOf[PsiWhiteSpace]) return clipTo
-          return tryToClipSide2(child, rangeBound)
-          //        }
-        }
-
-      }
-      clipTo
-    }
-
-    //TODO create ParentsWithSelfIterator
-    def getParentsWithSelf(element: PsiElement): Iterable[PsiElement] = {
-      Iterable[PsiElement](element) ++ element.parents
-    }
+    def getParentsWithSelf(element: PsiElement): Iterator[PsiElement] = element.parentsWithSelfInFile
 
     def getMaximalParent(inElement: PsiElement, range: TextRange): PsiElement = {
-      val parentsWithSelf = getParentsWithSelf(inElement).takeWhile {
-        !_.isInstanceOf[PsiDirectory]
-      }.collectFirst {
+      def getMinimizeTextRange(element: PsiElement): TextRange = {
+        if (element.children.isEmpty) return element.getTextRange
+
+        val fRange = element.getFirstChild.nextElements.collectFirst { case el if !canDropElement(el) => el }
+          .getOrElse(return element.getTextRange)
+
+        val lChild = element.getLastChild.prevElements.collectFirst { case el if !canDropElement(el) => el }
+          .getOrElse(return element.getTextRange)
+
+        new TextRange(getMinimizeTextRange(fRange).getStartOffset, getMinimizeTextRange(lChild).getEndOffset)
+      }
+
+      val parentsWithSelf = getParentsWithSelf(inElement).collectFirst {
         case el if !range.contains(el.getTextRange) => el
       }
 
       if (parentsWithSelf.isDefined) {
-        val temp = getParentsWithSelf(parentsWithSelf.get).takeWhile(el => range.contains(getMinimizeTextRange(el)))
+        val temp = getParentsWithSelf(parentsWithSelf.get).takeWhile { el => range.contains(getMinimizeTextRange(el)) }
         if (temp.isEmpty) null
-        else temp.last
+        else temp.next()
       } else null
     }
 
-
-    //TODO lots of NULL may occure
-    def getMinimizeTextRange(element: PsiElement): TextRange = {
-      if (element.children.isEmpty) return element.getTextRange
-      val fChild = element.getFirstChild
-      val fRange = if (fChild != null) {
-        if (!canDropElement(fChild)) Some(fChild)
-        else fChild.nextSiblings.collectFirst { case el if !canDropElement(el) => el }
-      } else None
-
-      if (fChild == null || fRange.isEmpty) return element.getTextRange
-
-      //        return element.getTextRange
-      //      }
-
-      val lChild =
-        if (!canDropElement(element.getLastChild)) Some(element.getLastChild)
-        else element.getLastChild.prevSiblings.collectFirst { case el if !canDropElement(el) => el }
-      new TextRange(getMinimizeTextRange(fRange.get).getStartOffset,
-        getMinimizeTextRange(lChild.get).getEndOffset)
+    def newFileText(rangesToDrop: ArrayBuffer[TextRange]) = {
+      val oldFileText = file.getText
+      val newFile = new StringBuilder()
+      var offset = 0
+      for (range <- rangesToDrop) {
+        newFile.append(oldFileText.substring(offset, range.getStartOffset))
+        offset = range.getEndOffset
+      }
+      newFile.append(oldFileText.substring(offset, oldFileText.length()))
+      newFile.toString()
     }
 
-    def canDropRange(range: TextRange) = !ranges.contains(range)
+    def update(offsets: Array[Int], rangesToDrop: ArrayBuffer[TextRange]) = {
+      for (range <- rangesToDrop.reverse) {
+        for (offset <- offsets) {
+          if (offset >= range.getEndOffset)
+            offsets(offsets.indexOf(offset)) -= range.getLength
+        }
+      }
+      offsets
+    }
+
+    def canDropRange(range: TextRange, allRanges: Seq[TextRange]) = !allRanges.contains(range)
+
+    val ranges = startOffsets.zip(endOffsets).sortWith(_._1 < _._1)
+      .collect { case pair: (Int, Int) if pair._1 != pair._2 => new TextRange(pair._1, pair._2) }
+
     val rangesToDrop = new ArrayBuffer[TextRange]()
     for (range <- ranges) {
       val start = range.getStartOffset
@@ -193,9 +163,9 @@ object ConverterUtil {
         val elementStart = elementToClipLeft.getTextRange.getStartOffset
         if (elementStart < start) {
           val clipBound = tryToClipSide(elementToClipLeft, start)
-          if (clipBound >= 0) {
-            val rangeToDrop = new TextRange(elementStart, clipBound)
-            if (canDropRange(rangeToDrop)) {
+          if (clipBound.isDefined) {
+            val rangeToDrop = new TextRange(elementStart, clipBound.get)
+            if (canDropRange(rangeToDrop, ranges)) {
               rangesToDrop += rangeToDrop
             }
           }
@@ -207,51 +177,20 @@ object ConverterUtil {
       if (elementToClipRight != null) {
         val elementEnd = elementToClipRight.getTextRange.getEndOffset
         if (elementEnd > end) {
-          val clipRight = tryToClipSide2(elementToClipRight, end)
-          if (clipRight >= 0) {
-            val rangeToDrop = new TextRange(clipRight, elementEnd)
-            if (canDropRange(rangeToDrop)) {
+          val clipRight = tryClipRight(elementToClipRight, end)
+          if (clipRight.isDefined) {
+            val rangeToDrop = new TextRange(clipRight.get, elementEnd)
+            if (canDropRange(rangeToDrop, ranges)) {
               rangesToDrop += rangeToDrop
             }
           }
         }
       }
 
-
       if (rangesToDrop.isEmpty) return null
-
-
     }
 
-    val fileText = file.getText
-    val newFile = new StringBuilder()
-    var offset = 0
-    for (range <- rangesToDrop) {
-      newFile.append(fileText.substring(offset, range.getStartOffset))
-      offset = range.getEndOffset
-    }
-    newFile.append(fileText.substring(offset, fileText.length()))
-
-    val newFileText = newFile.toString()
-
-    def updateIndexes(offsets: Array[Int]) = {
-      val resultOffsets = new ArrayBuffer[Int]()
-      for (range <- rangesToDrop.reverse) {
-        for (offset <- offsets) {
-          if (offset >= range.getEndOffset) {
-            resultOffsets += offset - range.getLength
-          } else {
-            resultOffsets += offset
-          }
-        }
-      }
-
-      resultOffsets.toArray
-    }
-
-    val newStartOffsets = updateIndexes(startOffsets)
-    val newEndOffsets = updateIndexes(endOffsets)
-    (newFileText, (newStartOffsets, newEndOffsets))
+    (newFileText(rangesToDrop), update(startOffsets, rangesToDrop), update(endOffsets, rangesToDrop))
   }
 
   def canDropElement(element: PsiElement): Boolean = {
@@ -271,29 +210,6 @@ object ConverterUtil {
       case c: PsiCodeBlock if c.getParent.isInstanceOf[PsiMethod] => true
       case o => o.getFirstChild == null
     }
-  }
-
-  def shiftedElement(inElem: PsiElement, dropElements: mutable.HashSet[PsiElement], endOffset: Int): PsiElement = {
-    var elem = inElem
-    while (elem.getPrevSibling != null &&
-      !elem.getPrevSibling.isInstanceOf[PsiFile] &&
-      canDropElement(elem.getPrevSibling)) {
-
-      elem = elem.getPrevSibling
-      dropElements += elem
-    }
-
-    if (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] && elem.getParent.getFirstChild == elem
-      && elem.getParent.getTextRange.getEndOffset <= endOffset) {
-      elem = elem.getParent
-    } else if (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile]
-      && elem.getParent.getTextRange.getEndOffset <= endOffset) {
-      val it = elem.getParent.children.takeWhile(el => canDropElement(el)).toSeq
-      dropElements ++= it
-      elem = elem.getParent
-    }
-
-    elem
   }
 
   //collect top elements in range
@@ -422,4 +338,42 @@ object ConverterUtil {
 
   case class Binding(element: PsiElement, path: String)
 
+
+  def prepareDataForConversion(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]) = {
+    val updatedFileTextAndOffsets = ConverterUtil.newFileTextWithOffsets(file, startOffsets, endOffsets)
+    val (newFile, newStartOffsets, newEndOffsets) = updatedFileTextAndOffsets match {
+      case (n, s, e) =>
+        (PsiFileFactory.getInstance(file.getProject).createFileFromText(JavaLanguage.INSTANCE, n), s, e)
+      case _ => (file, startOffsets, endOffsets)
+    }
+
+    ConverterUtil.getElementsBetweenOffsets(newFile, newStartOffsets, newEndOffsets)
+  }
+
+  def convertData(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int],
+                  refs: Seq[ReferenceData] = Seq.empty): (String, Array[Association]) = {
+    val associationsHelper = new ListBuffer[AssociationHelper]()
+    val resultNode = new MainConstruction
+
+    val parts = prepareDataForConversion(file, startOffsets, endOffsets)
+    Comments.topElements ++= parts.collect { case el: ElementPart => el }.map((el: ElementPart) => el.elem)
+    val used = new mutable.HashSet[PsiElement]()
+    for (part <- parts) {
+      part match {
+        case TextPart(s) =>
+          resultNode.addChild(LiteralExpression(s))
+        case ElementPart(element) =>
+          val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, refs, used)
+          resultNode.addChild(result)
+      }
+    }
+
+    val visitor = new PrintWithComments
+    visitor.visit(resultNode)
+    val text = visitor.stringResult
+
+    visitor.rangedElementsMap.foreach(el => println(el.hashCode()))
+    val updatedAssociations = ConverterUtil.updateAssociations(associationsHelper, visitor.rangedElementsMap)
+    (text, updatedAssociations.toArray)
+  }
 }
