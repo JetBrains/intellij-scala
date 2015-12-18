@@ -80,8 +80,11 @@ object ConverterUtil {
     def tryToClipSide(element: PsiElement, rangeBound: Int, isRight: Boolean = false): Option[Int] = {
       def getChildren(element: PsiElement) = if (isRight) element.getChildren.reverse else element.getChildren
 
-      def transform(textRange: TextRange) =
-        new TextRange(transformInt(textRange.getEndOffset), transformInt(textRange.getStartOffset))
+      def transform(textRange: TextRange) = {
+        if (isRight)
+          new TextRange(transformInt(textRange.getEndOffset), transformInt(textRange.getStartOffset))
+        else textRange
+      }
 
       if (element.getFirstChild == null) return None
 
