@@ -18,8 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScFunctionType, ScType, ScTypeText}
 
 /**
  * Pavel.Fatin, 28.04.2010
@@ -147,7 +147,16 @@ abstract class UpdateStrategy extends Strategy {
           case _ => someOrNone
         }
         Seq(ScalaPsiElementFactory.createTypeElementFromText(tp.canonicalText, context.getManager))
-      case f => Seq(ScalaPsiElementFactory.createTypeElementFromText(f.canonicalText, context.getManager))
+      case tp =>
+        ScType.extractClass(tp, Option(context.getProject)) match {
+          case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(_.hasModifierProperty("sealed")) =>
+            val file = sc.containingFile
+            val baseTypes = BaseTypes.get(tp).filter { tp =>
+              ScType.extractClass(tp, Option(context.getProject)).exists(_.containingFile == file)
+            } :+ tp
+            baseTypes.map(_.canonicalText).map(ScalaPsiElementFactory.createTypeElementFromText(_, context.getManager))
+          case _ => Seq(ScalaPsiElementFactory.createTypeElementFromText(tp.canonicalText, context.getManager))
+        }
     }
     val added = addActualType(tps.head)
 
