@@ -30,9 +30,8 @@ abstract class IntermediateNode {
 
   override def hashCode(): Int = System.identityHashCode(this)
 
-  override def equals(other: Any) = {
+  override def equals(other: Any) =
     other.isInstanceOf[IntermediateNode] && this.eq(other.asInstanceOf[IntermediateNode])
-  }
 }
 
 

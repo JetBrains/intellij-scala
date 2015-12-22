@@ -444,7 +444,6 @@ object ConverterUtil {
     visitor.visit(resultNode)
     val text = visitor.stringResult
 
-    visitor.rangedElementsMap.foreach(el => println(el.hashCode()))
     val updatedAssociations = ConverterUtil.updateAssociations(associationsHelper, visitor.rangedElementsMap)
     (text, updatedAssociations.toArray)
   }

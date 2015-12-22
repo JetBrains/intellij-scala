@@ -86,17 +86,7 @@ object JavaToScala {
 
   case class WithReferenceExpression(yep: Boolean) extends ExternalProperties
 
-  def convertType(inType: PsiType, project: Project) = {
-    inType match {
-      case referenceType: PsiClassReferenceType if referenceType.getReference != null
-        && ConverterUtil.needPrefixToElement(referenceType.getReference.getQualifiedName, project) =>
-        TypeConstruction.createIntermediateTypePresentation(inType, project)
-      case referenceType: PsiClassReferenceType if referenceType.getReference != null =>
-        convertPsiToIntermdeiate(referenceType.getReference, null)
-      case _ =>
-        TypeConstruction.createIntermediateTypePresentation(inType, project)
-    }
-  }
+  def convertType(inType: PsiType, project: Project) = TypeConstruction.createIntermediateTypePresentation(inType, project)
 
   def convertPsiToIntermdeiate(element: PsiElement, externalProperties: ExternalProperties)
                               (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
@@ -112,9 +102,7 @@ object JavaToScala {
       case e: PsiExpressionStatement => convertPsiToIntermdeiate(e.getExpression, externalProperties)
       case l: PsiLiteralExpression => LiteralExpression(l.getText)
       case n: PsiIdentifier => NameIdentifier(n.getText)
-      case t: PsiTypeElement =>
-        //        TypeConstruction.createIntermediateTypePresentation(t.getType, t.getProject)
-        convertType(t.getType, t.getProject)
+      case t: PsiTypeElement => convertType(t.getType, t.getProject)
       case w: PsiWhiteSpace => LiteralExpression(w.getText)
       case r: PsiReturnStatement => ReturnStatement(convertPsiToIntermdeiate(r.getReturnValue, externalProperties))
       case t: PsiThrowStatement => ThrowStatement(convertPsiToIntermdeiate(t.getException, externalProperties))
