@@ -5,6 +5,8 @@ public class JSome {
     i = m();
   }
 
+  boolean value = Boolean.TRUE;
+
   public static int m() { return 123; }
 }
 /*
@@ -15,5 +17,9 @@ object JSome {
 
   try i = m
 
+}
+
+class JSome {
+  val value: Boolean = java.lang.Boolean.TRUE
 }
 */

@@ -40,3 +40,9 @@ case class EmptyConstruction() extends IntermediateNode
 trait TypedElement {
   def getType: IntermediateNode
 }
+
+trait TypedElementWithAssociations extends TypedElement{
+  val assocoationMap = ArrayBuffer[(IntermediateNode, Option[String])]()
+
+  def getAssociations = assocoationMap.collect { case (n, Some(value)) => (n, value) }
+}

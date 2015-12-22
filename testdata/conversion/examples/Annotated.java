@@ -2,7 +2,7 @@ package java;
 
 import java.lang.SuppressWarnings;
 
-@SuppressWarnings(value = "foo")
+@SuppressWarnings(value = {"foo", "pom"})
 @SuppressWarnings("bar")
 public class Annotated {
 
@@ -17,7 +17,7 @@ package java
 import java.lang.SuppressWarnings
 
 
-@SuppressWarnings(value = Array("foo"))
+@SuppressWarnings(value = Array("foo", "pom"))
 @SuppressWarnings(Array("bar")) object Annotated {
   @SuppressWarnings(value = Array("bar"), x = 1, array = Array(1, 2, 3), inner = new SuppressWarnings) def main(@SuppressWarnings(Array("baz")) @deprecated args: Array[String]) {
   }

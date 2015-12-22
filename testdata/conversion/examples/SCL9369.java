@@ -20,7 +20,7 @@ class T extends Foo {
 class Foo(val b: Int) {
   def this(a: String, b: Int) {
     this(b)
-    System.out.println(a)
+    println(a)
   }
 }
 

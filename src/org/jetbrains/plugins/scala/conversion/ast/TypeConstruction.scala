@@ -10,7 +10,7 @@ import scala.collection.mutable.ArrayBuffer
   * Created by Kate Ustyuzhanina
   * on 10/22/15
   */
-case class TypeConstruction(inType: String) extends IntermediateNode with TypedElement {
+case class TypeConstruction(inType: String) extends IntermediateNode with TypedElementWithAssociations {
   def getDefaultTypeValue: String = {
     inType match {
       case "Int" | "Byte" | "Short" | "Char" => "0"
@@ -31,13 +31,9 @@ object TypeConstruction {
     val result = getParts(ScType.create(inType, inProject, paramTopLevel = true), buffer)
 
     result match {
-      case parametrized: ParametrizedConstruction =>
-        parametrized.assocoationMap = buffer.toSeq
-        parametrized
-      case array: ArrayConstruction =>
-        array.assocoationMap = buffer.toSeq
-        array
-      case _ => result
+      case typedWithAssociations: TypedElementWithAssociations =>
+        typedWithAssociations.assocoationMap ++= buffer.toSeq
+        typedWithAssociations
     }
   }
 
@@ -59,19 +55,12 @@ object TypeConstruction {
   }
 }
 
-case class ParametrizedConstruction(iNode: IntermediateNode, parts: Seq[IntermediateNode]) extends IntermediateNode with TypedElement {
-  var assocoationMap = Seq[(IntermediateNode, Option[String])]()
-
-  def getAssociations = assocoationMap.collect { case (n, Some(value)) => (n, value) }
-
+case class ParametrizedConstruction(iNode: IntermediateNode, parts: Seq[IntermediateNode])
+  extends IntermediateNode with TypedElementWithAssociations {
   override def getType: IntermediateNode = this
 }
 
-case class ArrayConstruction(iNode: IntermediateNode) extends IntermediateNode with TypedElement {
-  var assocoationMap = Seq[(IntermediateNode, Option[String])]()
-
-  def getAssociations = assocoationMap.collect { case (n, Some(value)) => (n, value) }
-
+case class ArrayConstruction(iNode: IntermediateNode) extends IntermediateNode with TypedElementWithAssociations {
   override def getType: IntermediateNode = this
 }
 

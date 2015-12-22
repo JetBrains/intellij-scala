@@ -24,7 +24,7 @@ try
   val oss: FileOutputStream = new FileOutputStream("test")
   try oss.write(0)
   finally {
-    System.out.println("In finally")
+    println("In finally")
     if (oss != null) oss.close()
   }
   */

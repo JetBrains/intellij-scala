@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.conversion
 
-import com.intellij.codeInsight.editorActions.ReferenceData
+import com.intellij.codeInsight.editorActions
+import com.intellij.codeInsight.editorActions.{ReferenceTransferableData, CopyPastePostProcessor, ReferenceData}
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFixOnPsiElement, ProblemDescriptor, ProblemsHolder}
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.editor.Editor
@@ -246,20 +247,25 @@ object ConverterUtil {
     val removeReturnVisitor = (new RemoveRedundantReturnInspection).buildVisitor(holder, isOnTheFly = false)
     val parenthesisedExpr = (new ScalaUnnecessaryParenthesesInspection).buildVisitor(holder, isOnTheFly = false)
     val removeSemicolon = (new ScalaUnnecessarySemicolonInspection).buildVisitor(holder, isOnTheFly = false)
+    val elementsToIntention = new ArrayBuffer[PsiElement]()
+    inReadAction {
+      collectTopElements(offset, endOffset, file).foreach(_.depthFirst.foreach {
+        case el: ScFunctionDefinition =>
+          removeReturnVisitor.visitElement(el)
+        case parentized: ScParenthesisedExpr =>
+          parenthesisedExpr.visitElement(parentized)
+        case semicolon: PsiElement if semicolon.getNode.getElementType == ScalaTokenTypes.tSEMICOLON =>
+          removeSemicolon.visitElement(semicolon)
+        case el => elementsToIntention += el
+      })
+    }
 
-    collectTopElements(offset, endOffset, file).foreach(_.depthFirst.foreach {
-      case el: ScFunctionDefinition =>
-        removeReturnVisitor.visitElement(el)
-      case parentized: ScParenthesisedExpr =>
-        parenthesisedExpr.visitElement(parentized)
-      case semicolon: PsiElement if semicolon.getNode.getElementType == ScalaTokenTypes.tSEMICOLON =>
-        removeSemicolon.visitElement(semicolon)
-      case el =>
-        intention.invoke(project, editor, el)
-    })
+    inWriteCommandAction(project) {
+      import scala.collection.JavaConversions._
+      elementsToIntention.foreach(el => intention.invoke(project, editor, el))
 
-    import scala.collection.JavaConversions._
-    holder.getResults.foreach(handleOneProblem)
+      holder.getResults.foreach(handleOneProblem)
+    }
   }
 
   sealed trait Part
@@ -287,100 +293,48 @@ object ConverterUtil {
   }
 
   def getBindings(value: Associations, file: PsiFile, offset: Int, project: Project, needAll: Boolean = false) = {
-    (for {
-      association <- value.associations
-      element <- elementFor(association, file, offset)
-      if needAll || !association.isSatisfiedIn(element)
-    } yield Binding(element, association.path.asString(ScalaCodeStyleSettings.getInstance(project).
-      isImportMembersUsingUnderScore))).filter {
-      case Binding(_, path) =>
-        val index = path.lastIndexOf('.')
-        index != -1 && !Set("scala", "java.lang", "scala.Predef").contains(path.substring(0, index))
-    }
-  }
-
-  def getOrCreateIndicator: ProgressIndicator = {
-    class MyEmptyProgressIndicator extends EmptyProgressIndicator {
-      private var myText: String = null
-      private var myText2: String = null
-      private var myFraction: Double = .0
-
-      override def setText(text: String) {
-        myText = text
+    val data = new ArrayBuffer[Binding]()
+    ProgressManager.getInstance().runProcessWithProgressSynchronously(new Runnable {
+      override def run(): Unit = {
+        inReadAction {
+          data ++= (for {
+            association <- value.associations
+            element <- elementFor(association, file, offset)
+            if needAll || !association.isSatisfiedIn(element)
+          } yield Binding(element, association.path.asString(ScalaCodeStyleSettings.getInstance(project).
+            isImportMembersUsingUnderScore))).filter {
+            case Binding(_, path) =>
+              val index = path.lastIndexOf('.')
+              index != -1 && !Set("scala", "java.lang", "scala.Predef").contains(path.substring(0, index))
+          }
+        }
       }
-
-      override def getText: String = {
-        myText
-      }
-
-      override def setText2(text: String) {
-        myText2 = text
-      }
-
-      override def getText2: String = {
-        myText2
-      }
-
-      override def setFraction(fraction: Double) {
-        myFraction = fraction
-      }
-
-      override def getFraction: Double = {
-        myFraction
-      }
-    }
-    var progress: ProgressIndicator = ProgressManager.getInstance.getProgressIndicator
-    if (progress == null) progress = new MyEmptyProgressIndicator
-    progress
+    }, "Prepare for add imports...", true, null)
+    data.toSeq
   }
 
   def addImportsForPrefixedElements(elements: Seq[Binding], project: Project) = {
-    //    val indicator: ProgressIndicator = getOrCreateIndicator
-    //    if (indicator != null) indicator.setText2(": analyzing imports usage")
-    //
-    //
-    //    val list: util.ArrayList[Binding] = new util.ArrayList[Binding]()
-    //
-    //    def addChildren(elements: Seq[Binding]): Unit = {
-    //      for (el <- elements)
-    //        list.add(el)
-    //    }
-    //    addChildren(elements)
-    //
-    //    val i = new AtomicInteger(0)
-    //    val size = list.size()
-    //    JobLauncher.getInstance().invokeConcurrentlyUnderProgress(list, indicator, true, true, new Processor[Binding] {
-    //      override def process(element: Binding): Boolean = {
-    //        val manager = ScalaPsiManager.instance(project)
-    //        val searchScope = GlobalSearchScope.allScope(project)
-    //        val count: Int = i.getAndIncrement
-    //        if (count <= size && indicator != null) indicator.setFraction(count.toDouble / size)
-    //        element match {
-    //          case el =>
-    //            val cashed = Option(manager.getCachedClass(el.path, searchScope, ClassCategory.TYPE))
-    //            val reference = Option(el.element.getReference)
-    //            if (cashed.isDefined && reference.isDefined) {
-    //              if (reference.get.bindToElement(cashed.get) == reference.get)
-    //                inWriteAction(ScalaPsiUtil.adjustTypes(el.element))
-    //              true
-    //            } else {
-    //              inWriteAction(ScalaPsiUtil.adjustTypes(el.element))
-    //              true
-    //            }
-    //        }
-    //      }
-    //    })
     val manager = ScalaPsiManager.instance(project)
     val searchScope = GlobalSearchScope.allScope(project)
     elements.foreach {
       case el =>
-        val cashed = Option(manager.getCachedClass(el.path, searchScope, ClassCategory.TYPE))
-        val reference = Option(el.element.getReference)
-        if (cashed.isDefined && reference.isDefined) {
-          if (reference.get.bindToElement(cashed.get) == reference.get)
-            inWriteAction(ScalaPsiUtil.adjustTypes(el.element))
-        } else
-          inWriteAction(ScalaPsiUtil.adjustTypes(el.element))
+        val cashed = inReadAction(Option(manager.getCachedClass(el.path, searchScope, ClassCategory.TYPE)))
+        if (inReadAction {
+          el.element != null && el.element.isValid
+        }) {
+          val reference = Option(el.element.getReference)
+          if (cashed.isDefined && reference.isDefined) {
+            if (inWriteCommandAction(project) {
+              reference.get.bindToElement(cashed.get)
+            } == reference.get)
+              inWriteCommandAction(project) {
+                ScalaPsiUtil.adjustTypes(el.element)
+              }
+          } else
+            inWriteCommandAction(project) {
+              ScalaPsiUtil.adjustTypes(el.element)
+            }
+        }
     }
   }
 
@@ -424,18 +378,26 @@ object ConverterUtil {
     (ConverterUtil.getElementsBetweenOffsets(newFile, newStartOffsets, newEndOffsets), newFile)
   }
 
-  def convertData(parts:Seq[Part], refs: Seq[ReferenceData] = Seq.empty): (String, Array[Association]) = {
+  def convertData(parts: Seq[Part], refs: Seq[ReferenceData] = Seq.empty): (String, Array[Association]) = {
     val associationsHelper = new ListBuffer[AssociationHelper]()
     val resultNode = new MainConstruction
 
     Comments.topElements ++= parts.collect { case el: ElementPart => el }.map((el: ElementPart) => el.elem)
     val used = new mutable.HashSet[PsiElement]()
+
+    //this will call on paste, after finding element
+    def needNotCheek(name: String) = {
+      val index = name.lastIndexOf('.')
+      index != -1 && !Set("scala", "java.lang", "scala.Predef").contains(name.substring(0, index))
+    }
+    val r = refs.filter(r => needNotCheek(r.qClassName))
+
     for (part <- parts) {
       part match {
         case TextPart(s) =>
           resultNode.addChild(LiteralExpression(s))
         case ElementPart(element) =>
-          val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, refs, used)
+          val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, r, used)
           resultNode.addChild(result)
       }
     }
@@ -446,5 +408,23 @@ object ConverterUtil {
 
     val updatedAssociations = ConverterUtil.updateAssociations(associationsHelper, visitor.rangedElementsMap)
     (text, updatedAssociations.toArray)
+  }
+
+  def getRefs(file: PsiFile, referenceProcessor: CopyPastePostProcessor[_ <: editorActions.TextBlockTransferableData],
+              startOffsets: Array[Int], endOffsets: Array[Int], editor: Editor): Seq[ReferenceData] = {
+    val refs = {
+      val data = referenceProcessor.collectTransferableData(file, editor, startOffsets, endOffsets)
+      if (data.isEmpty) null else data.get(0).asInstanceOf[ReferenceTransferableData]
+    }
+    val shift = startOffsets.headOption.getOrElse(0)
+    if (refs != null)
+      refs.getData.map { it =>
+        new ReferenceData(it.startOffset + shift, it.endOffset + shift, it.qClassName, it.staticMemberName)
+      } else Seq.empty
+  }
+
+  def hasPrimitive(value: String) = {
+    val data = Seq("Boolean", "Char", "Byte", "Short", "Int", "Float", "Long", "Double")
+    data.contains(value)
   }
 }

@@ -8,7 +8,6 @@ import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import com.intellij.psi.impl.source.PsiClassReferenceType
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
@@ -188,6 +187,10 @@ object JavaToScala {
           return JavaCodeReferenceStatement(t, args, refName)
         } else {
           r.resolve() match {
+            case c: PsiClass if ConverterUtil.hasPrimitive(c.getName) =>
+              val nameParts = c.qualifiedName.split("\\.")
+              if (nameParts.nonEmpty && nameParts.last == refName)
+                return JavaCodeReferenceStatement(Some(LiteralExpression(nameParts.dropRight(1).mkString("."))), args, refName)
             case f: PsiMember
               if f.hasModifierProperty("static") =>
               val clazz = f.containingClass
@@ -246,17 +249,19 @@ object JavaToScala {
           convertPsiToIntermdeiate(i.getOperand, externalProperties),
           convertPsiToIntermdeiate(i.getCheckType, externalProperties))
       case m: PsiMethodCallExpression =>
+        def checkCanBeSpecialMethod(name: String, qName: String, method: PsiMethod): Boolean = {
+          method.getName == name && m.getArgumentList.getExpressions.length == 1 &&
+            method.getContainingClass.qualifiedName == qName && method.getContainingClass != null
+        }
+
         m.getMethodExpression.resolve() match {
-          case method: PsiMethod if method.getName == "parseInt" && m.getArgumentList.getExpressions.length == 1 &&
-            method.getContainingClass != null && method.getContainingClass.qualifiedName == "java.lang.Integer" =>
+          case method: PsiMethod if checkCanBeSpecialMethod("parseInt", "java.lang.Integer", method) =>
             ClassCast(convertPsiToIntermdeiate(m.getArgumentList.getExpressions.apply(0), externalProperties),
               TypeConstruction("Int"), isPrimitive = true)
-          case method: PsiMethod if method.getName == "parseDouble" && m.getArgumentList.getExpressions.length == 1 &&
-            method.getContainingClass != null && method.getContainingClass.qualifiedName == "java.lang.Double" =>
+          case method: PsiMethod if checkCanBeSpecialMethod("parseDouble", "java.lang.Double", method) =>
             ClassCast(convertPsiToIntermdeiate(m.getArgumentList.getExpressions.apply(0), externalProperties),
               TypeConstruction("Double"), isPrimitive = true)
-          case method: PsiMethod if method.getName == "round" && m.getArgumentList.getExpressions.length == 1 &&
-            method.getContainingClass != null && method.getContainingClass.qualifiedName == "java.lang.Math" =>
+          case method: PsiMethod if checkCanBeSpecialMethod("round", "java.lang.Math", method) =>
             MethodCallExpression.build(
               convertPsiToIntermdeiate(m.getArgumentList.getExpressions.apply(0), externalProperties), ".round", null)
           case method: PsiMethod if method.getName == "equals" && m.getTypeArguments.isEmpty
@@ -265,6 +270,14 @@ object JavaToScala {
               Option(m.getMethodExpression.getQualifierExpression).map(convertPsiToIntermdeiate(_, externalProperties))
                 .getOrElse(LiteralExpression("this")),
               " == ", convertPsiToIntermdeiate(m.getArgumentList.getExpressions.apply(0), externalProperties))
+          case method:PsiMethod if method.getName == "println"
+            && method.getContainingClass.qualifiedName == "java.io.PrintStream" =>
+            MethodCallExpression.build(null, "println",
+              convertPsiToIntermdeiate(m.getArgumentList, externalProperties))
+          case method:PsiMethod if method.getName == "print"
+            && method.getContainingClass.qualifiedName == "java.io.PrintStream" =>
+            MethodCallExpression.build(null, "print",
+              convertPsiToIntermdeiate(m.getArgumentList, externalProperties))
           case _ =>
             MethodCallExpression(m.getMethodExpression.getQualifiedName,
               convertPsiToIntermdeiate(m.getMethodExpression, externalProperties),
@@ -333,16 +346,24 @@ object JavaToScala {
           }
         }
 
+        def convertAttributValue(attribute: PsiNameValuePair) = {
+          Option(attribute.getValue).map {
+            case v: PsiAnnotationMemberValue if isArrayAnnotationParameter(attribute) =>
+              v match {
+                case el: PsiArrayInitializerMemberValue =>
+                  convertPsiToIntermdeiate(el, externalProperties)
+                case _ => ArrayInitializer(Seq(convertPsiToIntermdeiate(v, externalProperties)))
+              }
+            case _ => convertPsiToIntermdeiate(attribute.getValue, externalProperties)
+          }
+        }
+
         val attributes = annot.getParameterList.getAttributes
         val attrResult = new ArrayBuffer[(Option[IntermediateNode], Option[IntermediateNode])]()
         for (attribute <- attributes) {
-          val value = Option(attribute.getValue) match {
-            case Some(v: PsiAnnotationMemberValue) if isArrayAnnotationParameter(attribute) =>
-              ArrayInitializer(Seq(convertPsiToIntermdeiate(v, externalProperties)))
-            case Some(_) => convertPsiToIntermdeiate(attribute.getValue, externalProperties)
-            case _ => null
-          }
-          attrResult += ((Option(attribute.getNameIdentifier).map(convertPsiToIntermdeiate(_, externalProperties)), Option(value)))
+          val value = convertAttributValue(attribute)
+          attrResult += ((Option(attribute.getNameIdentifier)
+            .map(convertPsiToIntermdeiate(_, externalProperties)), value))
         }
 
         val inAnnotation = PsiTreeUtil.getParentOfType(annot, classOf[PsiAnnotation]) != null
@@ -379,7 +400,7 @@ object JavaToScala {
           val argList: Seq[IntermediateNode] = if (n.getArgumentList != null) {
             if (n.getArgumentList.getExpressions.isEmpty) {
               n.getParent match {
-                case r: PsiJavaCodeReferenceElement if n == r.getQualifier => Seq(LiteralExpression("()"))
+                case r: PsiJavaCodeReferenceElement if n == r.getQualifier => Seq(EmptyConstruction())
                 case _ => null
               }
             } else {
@@ -443,27 +464,18 @@ object JavaToScala {
                          (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
                           refs: Seq[ReferenceData] = Seq.empty,
                           usedComments: mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()) = {
-    element match {
-      case expression: PsiNewExpression if expression.getClassReference != null =>
-        associations ++= associationFor(expression.getClassReference)
-      case e: PsiElement => associations ++= associationFor(e)
-      case _ =>
-    }
+    val refNames = refs.map(_.qClassName)
 
     result match {
-      case typed: TypedElement =>
+      case typed: TypedElement if !typed.getType.isInstanceOf[JavaCodeReferenceStatement] =>
         typed.getType match {
-          case parametrizedConstruction: ParametrizedConstruction =>
-            associations ++= parametrizedConstruction.getAssociations.map {
-              case (node, path) => AssociationHelper(DependencyKind.Reference, node, Path(path))
-            }
-          case arrayConstruction: ArrayConstruction =>
-            associations ++= arrayConstruction.getAssociations.map {
+          case withAssociations: TypedElementWithAssociations =>
+            associations ++= withAssociations.getAssociations.filter(el => refNames.contains(el._2)).map {
               case (node, path) => AssociationHelper(DependencyKind.Reference, node, Path(path))
             }
           case _ =>
         }
-      case _ =>
+      case e: IntermediateNode => associations ++= associationFor(element)
     }
 
     def associationFor(range: PsiElement): Option[AssociationHelper] = {

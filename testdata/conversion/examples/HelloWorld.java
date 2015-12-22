@@ -13,7 +13,7 @@ package java
 object HelloWorld {
   // method main(): ALWAYS the APPLICATION entry point
   def main(args: Array[String]) {
-    System.out.println("Hello World!")
+    println("Hello World!")
   }
 }
 */

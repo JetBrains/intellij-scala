@@ -116,11 +116,6 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
         bindingsToRestore
       }
     }
-
-    if (withOptimization)
-      inWriteAction {
-        ConverterUtil.runInspections(file, project, bounds.getStartOffset, bounds.getEndOffset, editor)
-      }
   }
 
   def restoreAssociations(value: Associations, file: PsiFile, offset: Int, project: Project) {
@@ -141,19 +136,27 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
     if (bindingsToRestore.isEmpty) return
 
-    inWriteAction {
-      val needPrefix = bindings.collect {
-        case el if ConverterUtil.needPrefixToElement(el.path, project) => el
-      }.filter(el => bindingsToRestore.map(_.path).contains(el.path))
+    ProgressManager.getInstance().runProcessWithProgressSynchronously(new Runnable {
+      override def run(): Unit = {
+        val needPrefix = bindings.collect {
+          case el if ConverterUtil.needPrefixToElement(el.path, project) => el
+        }.filter(el => bindingsToRestore.map(_.path).contains(el.path))
 
-      val filteredBindings = if (withOptimization)
-        bindingsToRestore.filter(el => !needPrefix.contains(el)) else bindingsToRestore
+        val filteredBindings = if (withOptimization)
+          bindingsToRestore.filter(el => !needPrefix.contains(el))
+        else bindingsToRestore
 
-      for (ConverterUtil.Binding(ref, path) <- filteredBindings;
-           holder = ScalaImportTypeFix.getImportHolder(ref, file.getProject))
-        holder.addImportForPath(path, ref)
 
-      if (withOptimization) ConverterUtil.addImportsForPrefixedElements(needPrefix, project)
-    }
+        for (ConverterUtil.Binding(ref, path) <- filteredBindings;
+             holder = inReadAction {
+               ScalaImportTypeFix.getImportHolder(ref, file.getProject)
+             })
+          inWriteCommandAction(project) {
+            holder.addImportForPath(path, ref)
+          }
+
+        ConverterUtil.addImportsForPrefixedElements(needPrefix, project)
+      }
+    }, "Add imports...", true, project)
   }
 }

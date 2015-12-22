@@ -11,6 +11,7 @@ import com.intellij.diagnostic.LogMessageEx
 import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.extensions.Extensions
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.{Key, Ref, TextRange}
 import com.intellij.psi._
@@ -40,20 +41,12 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
       !file.isInstanceOf[PsiJavaFile]) return null
 
     try {
-      def getRefs(file: PsiFile): Seq[ReferenceData] = {
-        val refs = {
-          val data = referenceProcessor.collectTransferableData(file, editor, startOffsets, endOffsets)
-          if (data.isEmpty) null else data.get(0).asInstanceOf[ReferenceTransferableData]
-        }
-        val shift = startOffsets.headOption.getOrElse(0)
-        if (refs != null)
-          refs.getData.map { it =>
-            new ReferenceData(it.startOffset + shift, it.endOffset + shift, it.qClassName, it.staticMemberName)
-          } else Seq.empty
-      }
+      if (!ScalaProjectSettings.getInstance(file.getProject).isEnableJavaToScalaConversion)
+        return new ConvertedCode("", Array[Association]())
 
       val (parts, newFile) = ConverterUtil.prepareDataForConversion(file, startOffsets, endOffsets)
-      val (text, associations) = ConverterUtil.convertData(parts, getRefs(newFile))
+      val refs = ConverterUtil.getRefs(newFile, referenceProcessor, startOffsets, endOffsets, editor)
+      val (text, associations) = ConverterUtil.convertData(parts, refs)
       val oldText = ConverterUtil.getTextBetweenOffsets(file, startOffsets, endOffsets)
       new ConvertedCode(text, associations, ConverterUtil.compareTextNEq(oldText, text))
     } catch {
@@ -87,34 +80,36 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     val needShowDialog = (!ScalaProjectSettings.getInstance(project).isDontShowConversionDialog) && showDialog
     if (needShowDialog) dialog.show()
     if (!needShowDialog || dialog.isOK) {
-      val shiftedAssociations = inWriteAction {
+      inWriteAction {
         replaceByConvertedCode(editor, bounds, text)
         editor.getCaretModel.moveToOffset(bounds.getStartOffset + text.length)
         PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
-
-        val markedAssociations = associations.toList.zipMapped { dependency =>
-          editor.getDocument.createRangeMarker(dependency.range.shiftRight(bounds.getStartOffset))
-        }
-
-        withSpecialStyleIn(project) {
-          val manager = CodeStyleManager.getInstance(project)
-          manager.reformatText(file, bounds.getStartOffset, bounds.getStartOffset + text.length)
-        }
-
-        markedAssociations.map {
-          case (association, marker) =>
-            val movedAssociation = association.copy(range = new TextRange(marker.getStartOffset - bounds.getStartOffset,
-              marker.getEndOffset - bounds.getStartOffset))
-            marker.dispose()
-            movedAssociation
-        }
       }
 
+      val markedRange = editor.getDocument.createRangeMarker(
+        new TextRange(bounds.getStartOffset, bounds.getStartOffset + text.length))
       editor.putUserData(JavaCopyPastePostProcessor.COPY_INFO, WithOptimization(true))
       scalaProcessor.processTransferableData(project, editor, bounds, i, ref,
-        singletonList(new Associations(shiftedAssociations)))
+        singletonList(new Associations(associations)))
 
       editor.putUserData(JavaCopyPastePostProcessor.COPY_INFO, WithOptimization(false))
+
+      ProgressManager.getInstance().runProcessWithProgressSynchronously(new Runnable {
+        override def run(): Unit = {
+          inWriteCommandAction(project) {
+            withSpecialStyleIn(project) {
+              val manager = CodeStyleManager.getInstance(project)
+              val start = markedRange.getStartOffset
+              val end = markedRange.getEndOffset
+              manager.reformatText(file, start, end)
+            }
+          }
+
+          ConverterUtil.runInspections(file, project, markedRange.getStartOffset, markedRange.getEndOffset, editor)
+        }
+      }, "Make optimization...", true, project)
+
+      markedRange.dispose()
     }
   }
 
@@ -153,7 +148,8 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     else document.replaceString(start, end, text)
   }
 
-  class ConvertedCode(val data: String, val associations: Array[Association], val showDialog: Boolean = false) extends TextBlockTransferableData {
+  class ConvertedCode(val data: String, val associations: Array[Association],
+                      val showDialog: Boolean = false) extends TextBlockTransferableData {
     def setOffsets(offsets: Array[Int], _index: Int) = {
       var index = _index
       for (association <- associations) {

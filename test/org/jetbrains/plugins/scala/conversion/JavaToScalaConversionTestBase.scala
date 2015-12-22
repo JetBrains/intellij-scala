@@ -4,6 +4,8 @@ package conversion
 
 import java.io.File
 
+import com.intellij.codeInsight.editorActions._
+import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
@@ -42,8 +44,13 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
       else endOffset = prevSibiling
     }
 
-    val (parts, _) = ConverterUtil.prepareDataForConversion(javaFile, Array(startOffset), Array(endOffset))
-    var (res, associations) = ConverterUtil.convertData(parts)
+    val (parts, updatedFile) = ConverterUtil.prepareDataForConversion(javaFile, Array(startOffset), Array(endOffset))
+
+    val referenceProcessor = Extensions.getExtensions(CopyPastePostProcessor.EP_NAME)
+      .find(_.isInstanceOf[JavaCopyPasteReferenceProcessor]).get
+
+    val refs = ConverterUtil.getRefs(updatedFile, referenceProcessor, Array(startOffset), Array(endOffset), null)
+    var (res, associations) = ConverterUtil.convertData(parts, refs)
     val newFile = PsiFileFactory.getInstance(getProjectAdapter).createFileFromText("dummyForJavaToScala.scala",
       ScalaFileType.SCALA_LANGUAGE, res)
 

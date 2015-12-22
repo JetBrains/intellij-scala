@@ -20,7 +20,7 @@ class C {
 class C {
   def this(a: Int) {
     this()
-    System.out.println(a)
+    println(a)
   }
 
   def this(a: Int, b: Int) {
@@ -30,12 +30,12 @@ class C {
   final var u: Int = 67
 
   def foo() {
-    System.out.println("foo")
+    println("foo")
   }
 
   def this(q: String) {
     this()
-    System.out.println(q)
+    println(q)
     C.this.u = 34
   }
 }
