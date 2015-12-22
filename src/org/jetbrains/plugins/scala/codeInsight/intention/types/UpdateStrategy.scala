@@ -1,17 +1,24 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intention.types
 
-import com.intellij.psi.PsiElement
+import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
+import com.intellij.codeInsight.template._
+import com.intellij.codeInsight.template.impl.TemplateManagerImpl
+import com.intellij.openapi.editor.Editor
+import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScFunctionType, ScType, ScTypeText}
 
 /**
  * Pavel.Fatin, 28.04.2010
@@ -28,9 +35,9 @@ object AddOnlyStrategy extends UpdateStrategy {
 }
 
 abstract class UpdateStrategy extends Strategy {
-  def addToFunction(function: ScFunctionDefinition) {
+  def addToFunction(function: ScFunctionDefinition, editor: Option[Editor]) {
     function.returnType.foreach {
-      addTypeAnnotation(_, function, function.paramClauses)
+      addTypeAnnotation(_, function.getParent, function.paramClauses, editor)
     }
   }
 
@@ -38,9 +45,9 @@ abstract class UpdateStrategy extends Strategy {
     function.returnTypeElement.foreach(removeTypeAnnotation)
   }
 
-  def addToValue(value: ScPatternDefinition) {
+  def addToValue(value: ScPatternDefinition, editor: Option[Editor]) {
     value.getType(TypingContext.empty).toOption.foreach {
-      addTypeAnnotation(_, value, value.pList)
+      addTypeAnnotation(_, value, value.pList, editor)
     }
   }
 
@@ -48,9 +55,9 @@ abstract class UpdateStrategy extends Strategy {
     value.typeElement.foreach(removeTypeAnnotation)
   }
 
-  def addToVariable(variable: ScVariableDefinition) {
+  def addToVariable(variable: ScVariableDefinition, editor: Option[Editor]) {
     variable.getType(TypingContext.empty).toOption.foreach {
-      addTypeAnnotation(_, variable, variable.pList)
+      addTypeAnnotation(_, variable, variable.pList, editor)
     }
   }
 
@@ -58,15 +65,15 @@ abstract class UpdateStrategy extends Strategy {
     variable.typeElement.foreach(removeTypeAnnotation)
   }
 
-  def addToPattern(pattern: ScBindingPattern) {
+  def addToPattern(pattern: ScBindingPattern, editor: Option[Editor]) {
     pattern.expectedType.foreach {
-      addTypeAnnotation(_, pattern.getParent, pattern)
+      addTypeAnnotation(_, pattern.getParent, pattern, None)
     }
   }
 
   def addToWildcardPattern(pattern: ScWildcardPattern) {
     pattern.expectedType.foreach {
-      addTypeAnnotation(_, pattern.getParent, pattern)
+      addTypeAnnotation(_, pattern.getParent, pattern, None)
     }
   }
 
@@ -75,7 +82,7 @@ abstract class UpdateStrategy extends Strategy {
     pattern.replace(newPattern)
   }
 
-  def addToParameter(param: ScParameter) {
+  def addToParameter(param: ScParameter, editor: Option[Editor]) {
     param.parentsInFile.findByType(classOf[ScFunctionExpr]) match {
       case Some(func) =>
         val index = func.parameters.indexOf(param)
@@ -90,7 +97,7 @@ abstract class UpdateStrategy extends Strategy {
                   clause.asInstanceOf[ScParameterClause].parameters.head
                 case _ => param
               }
-              addTypeAnnotation(paramExpectedType, param1.getParent, param1)
+              addTypeAnnotation(paramExpectedType, param1.getParent, param1, None)
             }
           case _ =>
         }
@@ -110,14 +117,89 @@ abstract class UpdateStrategy extends Strategy {
     }
   }
 
-  def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement) {
-    val annotation = ScalaPsiElementFactory.createTypeElementFromText(t.canonicalText, context.getManager)
-    val added = context.addAfter(annotation, anchor)
+  def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement, editor: Option[Editor]) {
+    def addActualType(annotation: ScTypeElement) = {
+      val added = anchor.getParent.addAfter(annotation, anchor)
+      val colon = ScalaPsiElementFactory.createColon(context.getManager)
+      anchor.getParent.addAfter(colon, anchor)
+      added
+    }
 
-    val colon = ScalaPsiElementFactory.createColon(context.getManager)
-    context.addAfter(colon, anchor)
+    val tps: Seq[ScTypeElement] = t match {
+      case ScCompoundType(comps, _, _) =>
+        val uselessTypes = Set("_root_.scala.Product", "_root_.scala.Serializable", "_root_.java.lang.Object")
+        comps.map(_.canonicalText).filterNot(uselessTypes.contains) match {
+          case Seq(base) =>
+            val te = ScalaPsiElementFactory.createTypeElementFromText(base, context.getManager)
+            Seq(te)
+          case types => (Seq(types.mkString(" with ")) ++ types).flatMap { t =>
+            val te = ScalaPsiElementFactory.createTypeElementFromText(t, context.getManager)
+            Seq(te)
+          }
+        }
+      case f => Seq(ScalaPsiElementFactory.createTypeElementFromText(f.canonicalText, context.getManager))
+    }
+    val added = addActualType(tps.head)
 
-    ScalaPsiUtil.adjustTypes(added)
+    editor match {
+      case Some(e) if tps.size > 1 =>
+        val project = context.getProject
+        val expression = new Expression {
+          val lookupItems: Array[LookupElement] = {
+            val texts: Seq[ScTypeText] = tps.flatMap(_.getType().toOption).map(ScTypeText)
+            texts.map { typeText =>
+              val useCanonicalText: Boolean = texts.exists {
+                s => s.tp.ne(typeText.tp) && s.presentableText == typeText.presentableText
+              }
+              val text =
+                if (useCanonicalText) typeText.canonicalText.replace("_root_.", "")
+                else typeText.presentableText
+              LookupElementBuilder.create(typeText.tp, text).withInsertHandler(new InsertHandler[LookupElement] {
+                override def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
+                  val topLevelEditor = InjectedLanguageUtil.getTopLevelEditor(context.getEditor)
+                  val templateState = TemplateManagerImpl.getTemplateState(topLevelEditor)
+                  if (templateState != null) {
+                    val range = templateState.getCurrentVariableRange
+                    if (range != null) {
+                      //need to insert with FQNs
+                      val newText = item.getObject.asInstanceOf[ScType].canonicalText
+                      topLevelEditor.getDocument.replaceString(range.getStartOffset, range.getEndOffset, newText)
+                    }
+                  }
+                }
+              })
+            }.toArray
+          }
+
+          val default = lookupItems.head
+
+          override def calculateResult(context: ExpressionContext): Result = {
+            new TextResult(default.getLookupString)
+          }
+
+          override def calculateLookupItems(context: ExpressionContext): Array[LookupElement] = {
+            if (lookupItems.length > 1) lookupItems
+            else null
+          }
+
+          override def calculateQuickResult(context: ExpressionContext): Result = calculateResult(context)
+        }
+
+        PsiDocumentManager.getInstance(project).commitAllDocuments()
+        PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(e.getDocument)
+        val builder: TemplateBuilderImpl = new TemplateBuilderImpl(added)
+        builder.replaceElement(added, expression)
+        e.getCaretModel.moveToOffset(added.getNode.getStartOffset)
+        TemplateManager.getInstance(project).startTemplate(e, builder.buildInlineTemplate(), new TemplateEditingAdapter {
+          override def templateFinished(template: Template, brokenOff: Boolean): Unit = {
+            if (!brokenOff) {
+              ScalaPsiUtil.adjustTypes(context)
+            }
+            super.templateFinished(template, brokenOff)
+          }
+        })
+      case _ => ScalaPsiUtil.adjustTypes(added)
+    }
   }
 
   def removeTypeAnnotation(e: PsiElement) {
