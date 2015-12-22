@@ -75,12 +75,16 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         case None => currentNode
       }
     }
-    val leftElement = dfsChildren(left.myLastNode.getOrElse(left.getNode), _.getChildren(null).toList.reverse)
-    val rightElement = dfsChildren(right.getNode, _.getChildren(null).toList)
-    val concatString = if (textRange.contains(rightElement.getTextRange) && textRange.contains(leftElement.getTextRange)) {
-      leftElement.getTextRange.substring(fileText) + rightElement.getTextRange.substring(fileText)
+    val leftNode = dfsChildren(left.myLastNode.getOrElse(left.getNode), _.getChildren(null).toList.reverse)
+    val rightNode = dfsChildren(right.getNode, _.getChildren(null).toList)
+    val concatString = if (textRange.contains(rightNode.getTextRange) && textRange.contains(leftNode.getTextRange)) {
+      leftNode.getTextRange.substring(fileText) + rightNode.getTextRange.substring(fileText)
     } else return 0
-    if (ScalaNamesUtil.isIdentifier(concatString) || ScalaNamesUtil.isKeyword(concatString)) 1 else 0
+    (leftNode.getTreeParent.getElementType, rightNode.getTreeParent.getElementType) match {
+      case (ScalaElementTypes.INTERPOLATED_STRING_LITERAL, _) => 0
+      case (_, ScalaElementTypes.INTERPOLATED_STRING_LITERAL) => 0
+      case _ => if (ScalaNamesUtil.isIdentifier(concatString) || ScalaNamesUtil.isKeyword(concatString)) 1 else 0
+    }
   }
 
   def getSpacing(left: ScalaBlock, right: ScalaBlock): Spacing = {
@@ -181,8 +185,8 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, _, _, _) =>
         return if (getText(rightNode, fileText).apply(0) == ' ') WITHOUT_SPACING else WITH_SPACING
       case (ScalaDocTokenType.DOC_TAG_NAME, _, _, _) =>
-        val rightText = getText(rightNode, fileText) //rightString is not emantically equal for PsiError nodes
-        return if (rightText.nonEmpty && rightText.apply(0) == ' ') WITHOUT_SPACING else tagSpacing
+        val rightText = getText(rightNode, fileText) //rightString is not semantically equal for PsiError nodes
+        return if (rightText.nonEmpty && rightText.apply(0) == ' ') Spacing.getReadOnlySpacing else tagSpacing
       case (ScalaDocTokenType.DOC_TAG_VALUE_TOKEN, _, ScalaDocElementTypes.DOC_TAG, _) => return tagSpacing
       case (_, x, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) => return Spacing.getReadOnlySpacing
       case (x, TokenType.ERROR_ELEMENT, _, _) if ScalaDocTokenType.ALL_SCALADOC_TOKENS.contains(x) =>

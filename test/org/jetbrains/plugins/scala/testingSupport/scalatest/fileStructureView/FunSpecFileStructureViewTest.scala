@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.fileStructureView
 
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement._
-import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
+import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
 /**
- * @author Roman.Shein
- * @since 20.04.2015.
- */
-trait FunSpecFileStructureViewTest extends IntegrationTest {
+  * @author Roman.Shein
+  * @since 20.04.2015.
+  */
+trait FunSpecFileStructureViewTest extends ScalaTestTestCase {
   private val className = "FunSpecViewTest"
 
   def addFunSpecViewTest(): Unit = {

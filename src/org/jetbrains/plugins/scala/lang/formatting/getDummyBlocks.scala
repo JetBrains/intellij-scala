@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -103,6 +104,20 @@ object getDummyBlocks {
           }
         }
         return subBlocks
+      case pack: ScPackaging if pack.isExplicit =>
+        val correctChildren = children.filter(isCorrectBlock)
+        val (beforeOpenBrace, afterOpenBrace) = correctChildren.span(_.getElementType != ScalaTokenTypes.tLBRACE)
+        val hasValidTail = afterOpenBrace.nonEmpty && afterOpenBrace.head.getElementType == ScalaTokenTypes.tLBRACE &&
+          afterOpenBrace.last.getElementType == ScalaTokenTypes.tRBRACE
+        for (child <- if (hasValidTail) beforeOpenBrace else correctChildren) {
+          subBlocks.add(getSubBlock(block, scalaSettings, child,
+            indent = ScalaIndentProcessor.getChildIndent(block, child)))
+        }
+        if (hasValidTail) {
+          subBlocks.add(getSubBlock(block, scalaSettings, afterOpenBrace.head, afterOpenBrace.last,
+            ScalaIndentProcessor.getChildIndent(block, afterOpenBrace.head)))
+        }
+        return subBlocks
       case _: ScDocComment =>
         var scalaDocPrevChildTag: Option[String] = None
         var contextAlignment: Alignment = Alignment.createAlignment(true)
@@ -148,7 +163,11 @@ object getDummyBlocks {
           case tagName :: tail if Option(docTag.getNameElement).map(_.getNode).exists(_ == tagName) =>
             subBlocks.add(getSubBlock(block, scalaSettings, tagName))
             if (tail.nonEmpty) {
-              subBlocks.add(getSubBlock(block, scalaSettings, tail.head, tail.last))
+              if (tail.head.getElementType != ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS)
+                subBlocks.add(getSubBlock(block, scalaSettings, tail.head, tail.last))
+              else for (child <- tail) {
+                subBlocks.add(getSubBlock(block, scalaSettings, child))
+              }
             }
           case _ =>
         }

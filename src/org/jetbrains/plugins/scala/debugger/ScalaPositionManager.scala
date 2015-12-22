@@ -83,16 +83,11 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val generatedClassName = file.getUserData(ScalaCompilingEvaluator.classNameKey)
 
     def hasLocations(refType: ReferenceType, position: SourcePosition): Boolean = {
-      def quickCheckFile(): Boolean = {
-        if (refTypeToFileCache.get(refType).contains(position.getFile)) true
-        else {
-          val refTypeSourceName = Try(refType.sourceName()).getOrElse("")
-          refTypeSourceName == position.getFile.getName
-        }
-      }
       try {
-        if (generatedClassName != null) refType.name().contains(generatedClassName)
-        else quickCheckFile() && locationsOfLine(refType, position).size > 0
+        val generated = generatedClassName != null && refType.name().contains(generatedClassName)
+        lazy val sameFile = getPsiFileByReferenceType(file.getProject, refType) == file
+
+        generated || sameFile && locationsOfLine(refType, position).size > 0
       } catch {
         case _: NoDataException | _: AbsentInformationException | _: ClassNotPreparedException | _: ObjectCollectedException => false
       }
@@ -116,14 +111,21 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         case null =>
         case td: ScTypeDefinition if !DebuggerUtil.isLocalClass(td) =>
           val qName = getSpecificNameForDebugger(td)
-          if (qName != null)
-            exactClasses ++= debugProcess.getVirtualMachineProxy.classesByName(qName).asScala
+          val delayedBodyName = if (isDelayedInit(td)) Seq(s"$qName$delayedInitBody") else Nil
+          (qName +: delayedBodyName).foreach { name =>
+            exactClasses ++= debugProcess.getVirtualMachineProxy.classesByName(name).asScala
+          }
         case elem =>
           val namePattern = NamePattern.forElement(elem)
           namePatterns ++= Option(namePattern)
       }
     }
-    val foundWithPattern = filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)))
+    val packageName: Option[String] = Option(inReadAction(file.asInstanceOf[ScalaFile].getPackageName))
+
+    val foundWithPattern =
+      if (namePatterns.isEmpty) Nil
+      else filterAllClasses(c => hasLocations(c, position) && namePatterns.exists(_.matches(c)), packageName)
+
     (exactClasses ++ foundWithPattern).distinct.asJava
   }
 
@@ -148,14 +150,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   override def createPrepareRequests(requestor: ClassPrepareRequestor, position: SourcePosition): util.List[ClassPrepareRequest] = {
     def isLocalOrUnderDelayedInit(definition: PsiClass): Boolean = {
-      def isDelayed = definition match {
-        case obj: ScObject =>
-          val manager: ScalaPsiManager = ScalaPsiManager.instance(obj.getProject)
-          val clazz: PsiClass = manager.getCachedClass(obj.getResolveScope, "scala.DelayedInit").orNull
-          clazz != null && manager.cachedDeepIsInheritor(obj, clazz)
-        case _ => false
-      }
-      DebuggerUtil.isLocalClass(definition) || isDelayed
+      DebuggerUtil.isLocalClass(definition) || isDelayedInit(definition)
     }
 
     def findEnclosingTypeDefinition: Option[ScTypeDefinition] = {
@@ -215,12 +210,19 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     case _ => false
   }
 
-  private def filterAllClasses(condition: ReferenceType => Boolean): Seq[ReferenceType] = {
+  private def filterAllClasses(condition: ReferenceType => Boolean, packageName: Option[String]): Seq[ReferenceType] = {
+    def samePackage(refType: ReferenceType) = {
+      val name = refType.name()
+      val lastDot = name.lastIndexOf('.')
+      val refTypePackageName = if (lastDot < 0) "" else name.substring(0, lastDot)
+      packageName.isEmpty || packageName.contains(refTypePackageName)
+    }
+
     import scala.collection.JavaConverters._
     for {
       refType <- debugProcess.getVirtualMachineProxy.allClasses.asScala
+      if samePackage(refType)
       if refType.isInitialized
-      _ = checkForIndyLambdas(refType)
       if condition(refType)
     } yield {
       refType
@@ -343,6 +345,8 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
   @Nullable
   private def getPsiFileByReferenceType(project: Project, refType: ReferenceType): PsiFile = {
+    if (refType == null) return null
+    if (refTypeToFileCache.contains(refType)) return refTypeToFileCache(refType)
 
     def searchForMacroDebugging(qName: String): PsiFile = {
       val directoryIndex: DirectoryIndex = DirectoryIndex.getInstance(project)
@@ -381,8 +385,6 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       result.get
     }
 
-    if (refType == null) return null
-
     def findFile() = {
       def withDollarTestName(originalQName: String): Option[String] = {
         val dollarTestSuffix = "$Test" //See SCL-9340
@@ -418,10 +420,11 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     }
 
     val file = inReadAction(findFile())
-    if (refType.methods().asScala.exists(isIndyLambda)) {
-      isCompiledWithIndyLambdasCache.update(file, true)
+    if (file != null && refType.methods().asScala.exists(isIndyLambda)) {
+      isCompiledWithIndyLambdasCache.put(file, true)
     }
-    refTypeToFileCache.getOrElseUpdate(refType, file)
+    refTypeToFileCache.put(refType, file)
+    file
   }
 
   private def nameMatches(elem: PsiElement, refType: ReferenceType): Boolean = {
@@ -626,7 +629,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 object ScalaPositionManager {
   private val SCRIPT_HOLDER_CLASS_NAME: String = "Main$$anon$1"
   private val packageSuffix = ".package$"
-
+  private val delayedInitBody = "delayedInit$body"
 
   private val isCompiledWithIndyLambdasCache = mutable.HashMap[PsiFile, Boolean]()
 
@@ -672,7 +675,7 @@ object ScalaPositionManager {
       }
 
       def findParent(element: PsiElement): Option[PsiElement] = {
-        val parentsOnTheLine = element.parentsInFile.takeWhile(e => e.getTextOffset > startLine).toIndexedSeq
+        val parentsOnTheLine = element +: element.parentsInFile.takeWhile(e => e.getTextOffset > startLine).toIndexedSeq
         val anon = parentsOnTheLine.collectFirst {
           case e if isLambda(e) => e
           case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) => newTd
@@ -680,6 +683,8 @@ object ScalaPositionManager {
         val filteredParents = parentsOnTheLine.reverse.filter {
           case _: ScExpression => true
           case _: ScConstructorPattern | _: ScInfixPattern | _: ScBindingPattern => true
+          case callRefId childOf ((ref: ScReferenceExpression) childOf (_: ScMethodCall))
+            if ref.nameId == callRefId && ref.getTextRange.getStartOffset < startLine => true
           case _: ScTypeDefinition => true
           case _ => false
         }
@@ -790,6 +795,14 @@ object ScalaPositionManager {
       case _: ScTrait => s"$name$$class"
       case _ => name
     }
+  }
+
+  def isDelayedInit(cl: PsiClass) = cl match {
+    case obj: ScObject =>
+      val manager: ScalaPsiManager = ScalaPsiManager.instance(obj.getProject)
+      val clazz: PsiClass = manager.getCachedClass(obj.getResolveScope, "scala.DelayedInit").orNull
+      clazz != null && manager.cachedDeepIsInheritor(obj, clazz)
+    case _ => false
   }
 
   private class MyClassPrepareRequestor(position: SourcePosition, requestor: ClassPrepareRequestor) extends ClassPrepareRequestor {

@@ -29,7 +29,7 @@ object ScSubstitutor {
   private val followLimit = 800
 }
 
-class ScSubstitutor(val tvMap: Map[(String, String), ScType],
+class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                     val aliasesMap: Map[String, Suspension[ScType]],
                     val updateThisType: Option[ScType]) {
   //use ScSubstitutor.empty instead
@@ -39,7 +39,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
     this(Map.empty, Map.empty, Some(updateThisType))
   }
 
-  def this(tvMap: Map[(String, String), ScType],
+  def this(tvMap: Map[(String, PsiElement), ScType],
                     aliasesMap: Map[String, Suspension[ScType]],
                     updateThisType: Option[ScType],
                     follower: ScSubstitutor) = {
@@ -71,7 +71,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   override def toString: String =
     s"ScSubstitutor($tvMap, $aliasesMap, $updateThisType)${ if (follower != null) " >> " + follower.toString else "" }"
 
-  def bindT(name : (String, String), t: ScType) = {
+  def bindT(name : (String, PsiElement), t: ScType) = {
     val res = new ScSubstitutor(tvMap + ((name, t)), aliasesMap, updateThisType, follower)
     res.myDependentMethodTypesFun = myDependentMethodTypesFun
     res.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
@@ -181,7 +181,7 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
       }
 
       override def visitTypeVariable(tv: ScTypeVariable): Unit = {
-        result = tvMap.get((tv.name, "")) match {
+        result = tvMap.get((tv.name, null)) match {
           case None => tv
           case Some(v) => v
         }
@@ -440,19 +440,19 @@ class ScSubstitutor(val tvMap: Map[(String, String), ScType],
   }
 }
 
-class ScUndefinedSubstitutor(val upperMap: Map[(String, String), HashSet[ScType]] = HashMap.empty,
-                             val lowerMap: Map[(String, String), HashSet[ScType]] = HashMap.empty,
-                             val upperAdditionalMap: Map[(String, String), HashSet[ScType]] = HashMap.empty,
-                             val lowerAdditionalMap: Map[(String, String), HashSet[ScType]] = HashMap.empty) {
+class ScUndefinedSubstitutor(val upperMap: Map[(String, PsiElement), HashSet[ScType]] = HashMap.empty,
+                             val lowerMap: Map[(String, PsiElement), HashSet[ScType]] = HashMap.empty,
+                             val upperAdditionalMap: Map[(String, PsiElement), HashSet[ScType]] = HashMap.empty,
+                             val lowerAdditionalMap: Map[(String, PsiElement), HashSet[ScType]] = HashMap.empty) {
 
-  def copy(upperMap: Map[(String, String), HashSet[ScType]] = upperMap,
-           lowerMap: Map[(String, String), HashSet[ScType]] = lowerMap,
-           upperAdditionalMap: Map[(String, String), HashSet[ScType]] = upperAdditionalMap,
-           lowerAdditionalMap: Map[(String, String), HashSet[ScType]] = lowerAdditionalMap): ScUndefinedSubstitutor = {
+  def copy(upperMap: Map[(String, PsiElement), HashSet[ScType]] = upperMap,
+           lowerMap: Map[(String, PsiElement), HashSet[ScType]] = lowerMap,
+           upperAdditionalMap: Map[(String, PsiElement), HashSet[ScType]] = upperAdditionalMap,
+           lowerAdditionalMap: Map[(String, PsiElement), HashSet[ScType]] = lowerAdditionalMap): ScUndefinedSubstitutor = {
     new ScUndefinedSubstitutor(upperMap, lowerMap, upperAdditionalMap, lowerAdditionalMap)
   }
 
-  type Name = (String, String)
+  type Name = (String, PsiElement)
 
   def isEmpty: Boolean = upperMap.isEmpty && lowerMap.isEmpty && upperAdditionalMap.isEmpty && lowerAdditionalMap.isEmpty
 

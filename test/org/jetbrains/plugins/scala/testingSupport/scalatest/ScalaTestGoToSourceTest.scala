@@ -1,44 +1,48 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest
 
-import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
-
 /**
- * @author Roman.Shein
- * @since 17.01.2015.
- */
-trait ScalaTestGoToSourceTest extends IntegrationTest {
+  * @author Roman.Shein
+  * @since 17.01.2015.
+  */
+trait ScalaTestGoToSourceTest extends ScalaTestTestCase {
 
   def getSuccessfulTestPath: List[String]
+
   def getPendingTestPath: List[String]
+
   def getIgnoredTestPath: List[String]
+
   def getFailedTestPath: List[String]
-  
+
   def getSuccessfulLocationLine: Int
+
   def getPendingLocationLine: Int
+
   def getIgnoredLocationLine: Int
+
   def getFailedLocationLine: Int
 
   private def addGoToSourceTest(testName: String) =
     addFileToProject(testName + ".scala",
       "import org.scalatest._\n\n" +
-          "class " + testName + " extends FlatSpec with GivenWhenThen {" +
-          """
-            | "Successful test" should "run fine" in {
-            | }
-            |
-            | "pending test" should "be pending" in {
-            |   pending
-            | }
-            |
-            | ignore should "be ignored" in {
-            | }
-            |
-            | "failed test" should "fail" in {
-            |   fail
-            | }
-            |}
-            |
-          """.stripMargin
+        "class " + testName + " extends FlatSpec with GivenWhenThen {" +
+        """
+          | "Successful test" should "run fine" in {
+          | }
+          |
+          | "pending test" should "be pending" in {
+          |   pending
+          | }
+          |
+          | ignore should "be ignored" in {
+          | }
+          |
+          | "failed test" should "fail" in {
+          |   fail
+          | }
+          |}
+          |
+        """.stripMargin
     )
 
   def testGoToSuccessfulLocation(): Unit = {

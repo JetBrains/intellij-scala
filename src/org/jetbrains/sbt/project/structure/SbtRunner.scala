@@ -27,13 +27,13 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
   def cancel(): Unit =
     cancellationFlag.set(true)
 
-  def read(directory: File, download: Boolean, resolveClassifiers: Boolean, resolveSbtClassifiers: Boolean, cachedUpdate: Boolean)
+  def read(directory: File, download: Boolean, resolveClassifiers: Boolean, resolveJavadocs: Boolean, resolveSbtClassifiers: Boolean)
           (listener: (String) => Unit): Either[Exception, Elem] = {
 
     val options = download.seq("download") ++
             resolveClassifiers.seq("resolveClassifiers") ++
-            resolveSbtClassifiers.seq("resolveSbtClassifiers") ++
-            cachedUpdate.seq("cachedUpdate")
+            resolveJavadocs.seq("resolveJavadocs") ++
+            resolveSbtClassifiers.seq("resolveSbtClassifiers")
 
     checkFilePresence.fold(read0(directory, options.mkString(", "))(listener))(it => Left(new FileNotFoundException(it)))
   }
@@ -63,9 +63,10 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
     usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
       val sbtCommands = Seq(
         s"""set shellPrompt := { _ => "" }""",
-        s"""set artifactPath := file("${path(structureFile)}")""",
-        s"""set artifactClassifier := Some("$options")""",
-        s"""apply -cp "${path(pluginFile)}" org.jetbrains.sbt.ReadProject""",
+        s"""set SettingKey[Option[File]]("sbt-structure-output-file") in Global := Some(file("${path(structureFile)}"))""",
+        s"""set SettingKey[String]("sbt-structure-options") in Global := "${options}" """,
+        s"""apply -cp "${path(pluginFile)}" org.jetbrains.sbt.CreateTasks""",
+        s"""*/*:dump-structure""",
         s"""exit""")
 
       val processCommandsRaw =
@@ -73,7 +74,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
         "-Djline.terminal=jline.UnsupportedTerminal" +:
         "-Dsbt.log.noformat=true" +:
         "-Dfile.encoding=UTF-8" +:
-        (vmOptions ++ SbtOpts.loadFrom(directory)) :+
+        (vmOptions ++ SbtOpts.loadFrom(directory) ++ environment.get("SBT_OPTS").toSeq) :+
         "-jar" :+
         path(SbtLauncher)
       val processCommands = processCommandsRaw.filterNot(_.isEmpty)
@@ -151,7 +152,6 @@ object SbtRunner {
 
   def getDefaultLauncher = getSbtLauncherDir / "sbt-launch.jar"
 
-  private[structure] val DefaultSbtVersion = "0.13.8"
   private val SinceSbtVersion = "0.12.4"
 
   private def numbersOf(version: String): Seq[String] = version.split("\\.").toSeq
@@ -165,7 +165,7 @@ object SbtRunner {
     sbtVersionIn(directory)
       .orElse(sbtVersionInBootPropertiesOf(sbtLauncher))
       .orElse(implementationVersionOf(sbtLauncher))
-      .getOrElse(DefaultSbtVersion)
+      .getOrElse(Sbt.LatestVersion)
 
   private def implementationVersionOf(jar: File): Option[String] =
     readManifestAttributeFrom(jar, "Implementation-Version")

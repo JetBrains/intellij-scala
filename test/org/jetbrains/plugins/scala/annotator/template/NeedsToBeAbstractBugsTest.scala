@@ -2,6 +2,10 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
+import com.intellij.openapi.extensions.Extensions
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
+import org.jetbrains.plugins.scala.lang.typeInference.testInjectors.SCL9446Injector
+
 
 class NeedsToBeAbstractBugsTest extends AnnotatorTestBase(NeedsToBeAbstract) {
 
@@ -47,6 +51,30 @@ class B extends A {
       """.stripMargin
     assertMatches(messages(code)) {
       case Nil =>
+    }
+  }
+
+  def testSCL9446(): Unit = {
+    val extensionPoint = Extensions.getRootArea.getExtensionPoint(SyntheticMembersInjector.EP_NAME)
+    val injector = new SCL9446Injector
+    extensionPoint.registerExtension(injector)
+    try {
+      val code =
+        """
+          |object ppp {
+          |trait A {
+          |  def foo(): Int
+          |}
+          |
+          |class B extends A {
+          |}
+          |}
+        """.stripMargin
+      assertMatches(messages(code)) {
+        case Nil =>
+      }
+    } finally {
+      extensionPoint.unregisterExtension(injector)
     }
   }
 }

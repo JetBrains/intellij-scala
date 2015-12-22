@@ -7,8 +7,7 @@ package base
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
@@ -17,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -75,7 +75,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   //todo: duplicate ScSimpleTypeElementImpl
   def parameterize(tp: ScType, clazz: PsiClass, subst: ScSubstitutor): ScType = {
-    if (clazz.getTypeParameters.length == 0) {
+    if (clazz.getTypeParameters.isEmpty) {
       tp
     } else {
       ScParameterizedType(tp, clazz.getTypeParameters.map {
@@ -87,7 +87,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   def shapeType(i: Int): TypeResult[ScType] = {
     val seq = shapeMultiType(i)
-    if (seq.length == 1) seq(0)
+    if (seq.length == 1) seq.head
     else Failure("Can't resolve type", Some(this))
   }
 
@@ -116,16 +116,16 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           ResolveUtils.javaMethodType(method, subst, getResolveScope, Some(subst.subst(tp)))
       }
       val typeParameters: Seq[TypeParameter] = r.getActualElement match {
-        case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 =>
+        case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
           tp.typeParameters.map(new TypeParameter(_))
-        case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.length > 0 =>
+        case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.nonEmpty =>
           ptp.getTypeParameters.toSeq.map(new TypeParameter(_))
         case _ => return Success(res, Some(this))
       }
       s.getParent match {
         case p: ScParameterizedTypeElement =>
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
-          val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ zipped.map {
+          val appSubst = new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ zipped.map {
             case (arg, typeParam) =>
               ((typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)), arg.getType(TypingContext.empty).getOrAny)
           }, Map.empty, None)
@@ -135,9 +135,9 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
           expectedType match {
             case Some(expected) =>
               try {
-                nonValueType = ScalaPsiUtil.localTypeInference(nonValueType.internalType,
+                nonValueType = InferUtil.localTypeInference(nonValueType.internalType,
                   Seq(new Parameter("", None, expected, false, false, false, 0)),
-                  Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(nonValueType.typeParameters).
+                  Seq(new Expression(InferUtil.undefineSubstitutor(nonValueType.typeParameters).
                     subst(subst.subst(tp).inferValueType))),
                   nonValueType.typeParameters, shouldUndefineParameters = false, filterTypeParams = false)
               } catch {

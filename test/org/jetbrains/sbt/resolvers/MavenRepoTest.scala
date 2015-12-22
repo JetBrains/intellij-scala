@@ -27,7 +27,7 @@ class MavenRepoTest extends IndexingTestCase with UsefulTestCaseHelper {
 
   def testNonIndexedRepoUpdate() = {
     val repoUrl = "http://dl.bintray.com/scalaz/releases/"
-    assertException[RemoteRepositoryHasNotBeenIndexed](Some(SbtBundle("sbt.resolverIndexer.remoteRepositoryHasNotBeenIndexed", repoUrl))) {
+    assertException[RepositoryIndexingException](None) {
       createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Maven, "Scalaz Bintray repo", repoUrl))
     }
   }

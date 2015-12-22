@@ -29,9 +29,7 @@ trait ScTypeParam extends ScalaPsiElement with ScPolymorphicElement with PsiType
 
   def typeParameterText: String
 
-  def getPsiElementId: String = {
-    s" in:$getContainingFileName:$getOffsetInFile"
-  }
+  def getPsiElementId: PsiElement
 }
 
 object ScTypeParam {

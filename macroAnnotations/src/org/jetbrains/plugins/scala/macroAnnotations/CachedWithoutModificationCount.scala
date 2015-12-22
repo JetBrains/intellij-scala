@@ -164,6 +164,7 @@ object CachedWithoutModificationCount {
           def $cachedFunName(): $retTp = {
             $actualCalculation
           }
+          $cachesUtilFQN.incrementModCountForFunsWithModifiedReturn()
           $functionContentsInSynchronizedBlock
         """
         val updatedDef = DefDef(mods, name, tpParams, paramss, retTp, updatedRhs)

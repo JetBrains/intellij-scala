@@ -106,7 +106,7 @@ object ScalaRefactoringUtil {
     expr.expectedType().foreach(types += _)
     if (types.isEmpty) types += psi.types.Any
     val unit = psi.types.Unit
-    val sorted = types.distinct.sortWith((t1, t2) => t1.conforms(t2))
+    val sorted = types.map(_.removeAbstracts).distinct.sortWith((t1, t2) => t1.conforms(t2))
     val result = if (sorted.contains(unit)) (sorted - unit) :+ unit else sorted
     result.toArray
   }

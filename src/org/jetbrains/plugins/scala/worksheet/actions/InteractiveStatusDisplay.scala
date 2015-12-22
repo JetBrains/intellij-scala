@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.worksheet.actions
 
 import java.awt.geom.AffineTransform
-import java.awt.{Component, Graphics, Graphics2D}
+import java.awt.{Color, Component, Graphics, Graphics2D}
+import javax.swing.border.LineBorder
 import javax.swing.{Icon, JComponent, JPanel}
 
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.ui.roots.ScalableIconComponent
 import com.intellij.util.ui.{EmptyIcon, AnimatedIcon}
 
@@ -25,33 +27,38 @@ class InteractiveStatusDisplay extends TopComponentDisplayable {
   override def init(panel: JPanel): Unit = {
     myPanel.add(createSimpleIcon(EMPTY_ICON), 0)
     panel.add(myPanel, 0)
+    setBorder(OTHER_BORDER)  
   }
   
   def onStartCompiling() {
-    if (current == null) {
-      current = successIcon
-      clearAndAdd()
-    }
-    
+    setCurrentIcon(successIcon)
     current.resume()
+    setBorder(OTHER_BORDER)
   }
   
   def onFailedCompiling() {
-    if (current != failIcon) {
-      current = failIcon
-      clearAndAdd()
-    }
-    
+    setCurrentIcon(failIcon)
     current.suspend()
+    setBorder(ERROR_BORDER)
   }
   
   def onSuccessfulCompiling() {
-    if (current != successIcon) {
-      current = successIcon
-      clearAndAdd()
-    }
-    
+    setCurrentIcon(successIcon)
     current.suspend()
+    setBorder(OK_BORDER)
+  }
+  
+  private def setBorder(border: LineBorder) {
+    ApplicationManager.getApplication.invokeLater(new Runnable {
+      override def run(): Unit = myPanel.setBorder(border)  
+    })    
+  }
+  
+  private def setCurrentIcon(icon: AnimatedIcon) {
+    if (current == icon) return 
+    
+    current = icon
+    clearAndAdd()
   }
   
   private def clearAndAdd() {
@@ -83,6 +90,10 @@ object InteractiveStatusDisplay {
   
   private val ICON_CYCLE_LENGTH = 1300
   private val ICON_STEP_COUNT = 10
+  
+  private val OK_BORDER = new LineBorder(Color.GREEN)
+  private val ERROR_BORDER = new LineBorder(Color.RED)
+  private val OTHER_BORDER = new LineBorder(Color.LIGHT_GRAY)
   
   private class RotatedIcon(delegate: Icon, rotation: Double) extends Icon {
     override def getIconHeight: Int = delegate.getIconWidth

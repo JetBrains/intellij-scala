@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatting.processors
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiManager, PsiElement}
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.source.codeStyle.PreFormatProcessor
@@ -55,9 +56,21 @@ class ScalaDocNewlinedPreFormatProcessor extends ScalaRecursiveElementVisitor wi
         }
       case _ =>
     }
-    if (isNewLine(prevElement) && !Set(ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, ScalaDocTokenType.DOC_COMMENT_END).contains(element.getNode.getElementType)) {
-      prevElement.getParent.
-        addAfter(ScalaPsiElementFactory.createLeadingAsterisk(PsiManager.getInstance(element.getProject)), prevElement)
+    fixAsterisk(element)
+  }
+
+  private def fixAsterisk(element: PsiElement): Unit = {
+    val nextElement = PsiTreeUtil.nextLeaf(element)
+    if (nextElement != null && ScalaDocNewlinedPreFormatProcessor.isNewLine(element) &&
+      !Set(ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, ScalaDocTokenType.DOC_COMMENT_END).
+        contains(nextElement.getNode.getElementType)) {
+      element.getParent.
+        addAfter(ScalaPsiElementFactory.createLeadingAsterisk(PsiManager.getInstance(element.getProject)), element)
+    }
+    var curElement = element.getLastChild
+    while (curElement != null) {
+      fixAsterisk(curElement)
+      curElement = curElement.getPrevSibling
     }
   }
 

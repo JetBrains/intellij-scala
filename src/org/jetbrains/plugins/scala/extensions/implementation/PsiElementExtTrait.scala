@@ -57,7 +57,7 @@ trait PsiElementExtTrait {
 
   def getPrevSiblingCondition(condition: PsiElement => Boolean, strict: Boolean = true): Option[PsiElement] = {
     if (!strict && condition(repr)) return Some(repr)
-    var prev: PsiElement = repr.getPrevSibling
+    var prev: PsiElement = PsiTreeUtil.prevLeaf(repr)
     while (prev != null && !condition(prev)) {
       prev = prev.getPrevSibling
     }

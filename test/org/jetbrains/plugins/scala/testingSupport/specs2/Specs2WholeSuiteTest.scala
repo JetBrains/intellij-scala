@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2
 
 /**
- * @author Roman.Shein
- * @since 11.02.2015.
- */
+  * @author Roman.Shein
+  * @since 11.02.2015.
+  */
 abstract class Specs2WholeSuiteTest extends Specs2TestCase {
   def testSpecification() {
     addFileToProject("SpecificationTest.scala",
@@ -29,8 +29,7 @@ abstract class Specs2WholeSuiteTest extends Specs2TestCase {
     runTestByLocation(3, 14, "SpecificationTest.scala",
       checkConfigAndSettings(_, "SpecificationTest"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", "SpecificationTest", "The 'SpecificationTest' should", "run single test") &&
-          checkResultTreeHasExactNamedPath(root, "[root]", "SpecificationTest", "The 'SpecificationTest' should", "ignore other test"),
-      debug = true
+        checkResultTreeHasExactNamedPath(root, "[root]", "SpecificationTest", "The 'SpecificationTest' should", "ignore other test")
     )
   }
 }

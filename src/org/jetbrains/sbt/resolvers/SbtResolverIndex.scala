@@ -5,7 +5,7 @@ import java.io._
 import java.util.Properties
 
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.util.io.{DataExternalizer, EnumeratorStringDescriptor, PersistentHashMap}
+import com.intellij.util.io.{PersistentEnumeratorBase, DataExternalizer, EnumeratorStringDescriptor, PersistentHashMap}
 import org.apache.maven.index.ArtifactInfo
 
 import scala.collection.JavaConversions._
@@ -78,13 +78,13 @@ class SbtResolverIndex private (val kind: SbtResolver.Kind.Value, val root: Stri
   }
 
   def groups() = Option(groupToArtifactMap.getAllKeysWithExistingMapping) map { _.toSet } getOrElse Set.empty
-  def groups(artifact: String) = secureResults(artifactToGroupMap.get(artifact))
+  def groups(artifact: String) = artifactToGroupMap.getOrEmpty(artifact)
 
   def artifacts() = Option(artifactToGroupMap.getAllKeysWithExistingMapping) map { _.toSet } getOrElse Set.empty
-  def artifacts(group: String) = secureResults(groupToArtifactMap.get(group))
+  def artifacts(group: String) = groupToArtifactMap.getOrEmpty(group)
 
   def versions(group: String, artifact: String) =
-    secureResults(groupArtifactToVersionMap.get(SbtResolverUtils.joinGroupArtifact(group, artifact)))
+    groupArtifactToVersionMap.getOrEmpty(SbtResolverUtils.joinGroupArtifact(group, artifact))
 
   def isLocal: Boolean = kind == SbtResolver.Kind.Ivy || root.startsWith("file:")
 
@@ -95,9 +95,15 @@ class SbtResolverIndex private (val kind: SbtResolver.Kind.Value, val root: Stri
   }
 
   private def createPersistentMap(file: File) =
-    new PersistentHashMap[String, Set[String]](file, new EnumeratorStringDescriptor, new SetDescriptor)
-
-  private def secureResults(results: Set[String]) = Option(results) getOrElse Set.empty
+    new PersistentHashMap[String, Set[String]](file, new EnumeratorStringDescriptor, new SetDescriptor) {
+      def getOrEmpty(key: String): Set[String] =
+        try {
+          Option(get(key)).getOrElse(Set.empty)
+        } catch {
+          case _: PersistentEnumeratorBase.CorruptedException | _: EOFException =>
+            throw new CorruptedIndexException(file)
+        }
+    }
 }
 
 object SbtResolverIndex {

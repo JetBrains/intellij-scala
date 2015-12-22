@@ -26,6 +26,10 @@ class GetAllClassesTest_212 extends GetAllClassesTestBase with ScalaVersion_2_12
     checkGetAllClasses("ByNameParamInBlock$")
   }
 
+  override def testPartialFunctionArg(): Unit = {
+    checkGetAllClasses("PartialFunctionArg$", "PartialFunctionArg$", "PartialFunctionArg$")
+  }
+
 }
 
 abstract class GetAllClassesTestBase extends PositionManagerTestBase {
@@ -280,5 +284,22 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
     """.stripMargin.trim)
   def testClassInBlock(): Unit = {
     checkGetAllClasses("ClassInBlock$A$1")
+  }
+
+  setupFile("PartialFunctionArg.scala",
+    s"""
+       |object PartialFunctionArg {
+       |  def main(args: Array[String]) {
+       |    ${offsetMarker}Seq(Option(1)).exists {
+       |      case None =>
+       |        ${offsetMarker}true
+       |      case Some(i) =>
+       |        ${offsetMarker}false$bp
+       |    }
+       |  }
+       |}
+    """.stripMargin.trim)
+  def testPartialFunctionArg(): Unit = {
+    checkGetAllClasses("PartialFunctionArg$", "PartialFunctionArg$$anonfun$main$1", "PartialFunctionArg$$anonfun$main$1")
   }
 }
