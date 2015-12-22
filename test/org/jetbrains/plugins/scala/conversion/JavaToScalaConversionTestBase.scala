@@ -42,7 +42,8 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
       else endOffset = prevSibiling
     }
 
-    var (res, associations) = ConverterUtil.convertData(javaFile, Array(startOffset), Array(endOffset))
+    val (parts, _) = ConverterUtil.prepareDataForConversion(javaFile, Array(startOffset), Array(endOffset))
+    var (res, associations) = ConverterUtil.convertData(parts)
     val newFile = PsiFileFactory.getInstance(getProjectAdapter).createFileFromText("dummyForJavaToScala.scala",
       ScalaFileType.SCALA_LANGUAGE, res)
 

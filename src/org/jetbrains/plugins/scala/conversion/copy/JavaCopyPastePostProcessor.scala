@@ -40,7 +40,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
       !file.isInstanceOf[PsiJavaFile]) return null
 
     try {
-      def getRefs: Seq[ReferenceData] = {
+      def getRefs(file: PsiFile): Seq[ReferenceData] = {
         val refs = {
           val data = referenceProcessor.collectTransferableData(file, editor, startOffsets, endOffsets)
           if (data.isEmpty) null else data.get(0).asInstanceOf[ReferenceTransferableData]
@@ -52,8 +52,9 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
           } else Seq.empty
       }
 
+      val (parts, newFile) = ConverterUtil.prepareDataForConversion(file, startOffsets, endOffsets)
+      val (text, associations) = ConverterUtil.convertData(parts, getRefs(newFile))
       val oldText = ConverterUtil.getTextBetweenOffsets(file, startOffsets, endOffsets)
-      val (text, associations) = ConverterUtil.convertData(file, startOffsets, endOffsets, getRefs)
       new ConvertedCode(text, associations, ConverterUtil.compareTextNEq(oldText, text))
     } catch {
       case e: Exception =>

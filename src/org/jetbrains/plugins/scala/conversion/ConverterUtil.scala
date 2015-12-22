@@ -4,6 +4,7 @@ import com.intellij.codeInsight.editorActions.ReferenceData
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFixOnPsiElement, ProblemDescriptor, ProblemsHolder}
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.progress.{EmptyProgressIndicator, ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
@@ -26,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.collection.mutable.{ListBuffer, ArrayBuffer}
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 /**
   * Created by Kate Ustyuzhanina
@@ -298,7 +299,77 @@ object ConverterUtil {
     }
   }
 
+  def getOrCreateIndicator: ProgressIndicator = {
+    class MyEmptyProgressIndicator extends EmptyProgressIndicator {
+      private var myText: String = null
+      private var myText2: String = null
+      private var myFraction: Double = .0
+
+      override def setText(text: String) {
+        myText = text
+      }
+
+      override def getText: String = {
+        myText
+      }
+
+      override def setText2(text: String) {
+        myText2 = text
+      }
+
+      override def getText2: String = {
+        myText2
+      }
+
+      override def setFraction(fraction: Double) {
+        myFraction = fraction
+      }
+
+      override def getFraction: Double = {
+        myFraction
+      }
+    }
+    var progress: ProgressIndicator = ProgressManager.getInstance.getProgressIndicator
+    if (progress == null) progress = new MyEmptyProgressIndicator
+    progress
+  }
+
   def addImportsForPrefixedElements(elements: Seq[Binding], project: Project) = {
+    //    val indicator: ProgressIndicator = getOrCreateIndicator
+    //    if (indicator != null) indicator.setText2(": analyzing imports usage")
+    //
+    //
+    //    val list: util.ArrayList[Binding] = new util.ArrayList[Binding]()
+    //
+    //    def addChildren(elements: Seq[Binding]): Unit = {
+    //      for (el <- elements)
+    //        list.add(el)
+    //    }
+    //    addChildren(elements)
+    //
+    //    val i = new AtomicInteger(0)
+    //    val size = list.size()
+    //    JobLauncher.getInstance().invokeConcurrentlyUnderProgress(list, indicator, true, true, new Processor[Binding] {
+    //      override def process(element: Binding): Boolean = {
+    //        val manager = ScalaPsiManager.instance(project)
+    //        val searchScope = GlobalSearchScope.allScope(project)
+    //        val count: Int = i.getAndIncrement
+    //        if (count <= size && indicator != null) indicator.setFraction(count.toDouble / size)
+    //        element match {
+    //          case el =>
+    //            val cashed = Option(manager.getCachedClass(el.path, searchScope, ClassCategory.TYPE))
+    //            val reference = Option(el.element.getReference)
+    //            if (cashed.isDefined && reference.isDefined) {
+    //              if (reference.get.bindToElement(cashed.get) == reference.get)
+    //                inWriteAction(ScalaPsiUtil.adjustTypes(el.element))
+    //              true
+    //            } else {
+    //              inWriteAction(ScalaPsiUtil.adjustTypes(el.element))
+    //              true
+    //            }
+    //        }
+    //      }
+    //    })
     val manager = ScalaPsiManager.instance(project)
     val searchScope = GlobalSearchScope.allScope(project)
     elements.foreach {
@@ -342,7 +413,7 @@ object ConverterUtil {
   case class Binding(element: PsiElement, path: String)
 
 
-  def prepareDataForConversion(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]) = {
+  def prepareDataForConversion(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]): (Seq[Part], PsiFile) = {
     val updatedFileTextAndOffsets = ConverterUtil.newFileTextWithOffsets(file, startOffsets, endOffsets)
     val (newFile, newStartOffsets, newEndOffsets) = updatedFileTextAndOffsets match {
       case (n, s, e) =>
@@ -350,15 +421,13 @@ object ConverterUtil {
       case _ => (file, startOffsets, endOffsets)
     }
 
-    ConverterUtil.getElementsBetweenOffsets(newFile, newStartOffsets, newEndOffsets)
+    (ConverterUtil.getElementsBetweenOffsets(newFile, newStartOffsets, newEndOffsets), newFile)
   }
 
-  def convertData(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int],
-                  refs: Seq[ReferenceData] = Seq.empty): (String, Array[Association]) = {
+  def convertData(parts:Seq[Part], refs: Seq[ReferenceData] = Seq.empty): (String, Array[Association]) = {
     val associationsHelper = new ListBuffer[AssociationHelper]()
     val resultNode = new MainConstruction
 
-    val parts = prepareDataForConversion(file, startOffsets, endOffsets)
     Comments.topElements ++= parts.collect { case el: ElementPart => el }.map((el: ElementPart) => el.elem)
     val used = new mutable.HashSet[PsiElement]()
     for (part <- parts) {
