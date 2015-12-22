@@ -19,7 +19,7 @@ class AddReturnTypeFix(fun: ScFunctionDefinition, tp: ScType) extends IntentionA
   override def getFamilyName: String = getText
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
-    AddOnlyStrategy.addTypeAnnotation(tp, fun, fun.parameterList)
+    AddOnlyStrategy.addTypeAnnotation(tp, fun.getParent, fun.parameterList, Option(editor))
   }
 
   override def startInWriteAction(): Boolean = true

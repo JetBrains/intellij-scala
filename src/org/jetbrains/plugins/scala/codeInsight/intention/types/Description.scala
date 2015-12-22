@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
+import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
@@ -9,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
  */
 
 class Description(message: String => Unit) extends Strategy {
-  def addToFunction(function: ScFunctionDefinition) {
+  def addToFunction(function: ScFunctionDefinition, editor: Option[Editor]) {
     message("intention.type.annotation.function.add.text")
   }
 
@@ -17,7 +18,7 @@ class Description(message: String => Unit) extends Strategy {
     message("intention.type.annotation.function.remove.text")
   }
 
-  def addToValue(value: ScPatternDefinition) {
+  def addToValue(value: ScPatternDefinition, editor: Option[Editor]) {
     message("intention.type.annotation.value.add.text")
   }
 
@@ -25,7 +26,7 @@ class Description(message: String => Unit) extends Strategy {
     message("intention.type.annotation.value.remove.text")
   }
 
-  def addToVariable(variable: ScVariableDefinition) {
+  def addToVariable(variable: ScVariableDefinition, editor: Option[Editor]) {
     message("intention.type.annotation.variable.add.text")
   }
 
@@ -33,7 +34,7 @@ class Description(message: String => Unit) extends Strategy {
     message("intention.type.annotation.variable.remove.text")
   }
 
-  def addToPattern(pattern: ScBindingPattern) {
+  def addToPattern(pattern: ScBindingPattern, editor: Option[Editor]) {
     message("intention.type.annotation.pattern.add.text")
   }
 
@@ -45,7 +46,7 @@ class Description(message: String => Unit) extends Strategy {
     message("intention.type.annotation.pattern.remove.text")
   }
 
-  def addToParameter(param: ScParameter) {
+  def addToParameter(param: ScParameter, editor: Option[Editor]) {
     message("intention.type.annotation.parameter.add.text")
   }
 
