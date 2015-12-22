@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScFunctionType, ScType, ScTypeText}
@@ -137,6 +138,15 @@ abstract class UpdateStrategy extends Strategy {
             Seq(te)
           }
         }
+      case someOrNone if Set("_root_.scala.Some", "_root_.scala.None").exists(someOrNone.canonicalText.startsWith) =>
+        val tp = ScType.extractClassType(someOrNone, Option(context.getProject)) match {
+          case Some((cl: ScTypeDefinition, sub)) => cl.superTypes.find(_.canonicalText.startsWith("_root_.scala.Option")) match {
+            case Some(typ) => sub.subst(typ)
+            case _ => someOrNone
+          }
+          case _ => someOrNone
+        }
+        Seq(ScalaPsiElementFactory.createTypeElementFromText(tp.canonicalText, context.getManager))
       case f => Seq(ScalaPsiElementFactory.createTypeElementFromText(f.canonicalText, context.getManager))
     }
     val added = addActualType(tps.head)
