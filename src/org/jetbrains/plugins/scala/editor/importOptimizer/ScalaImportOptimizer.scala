@@ -67,15 +67,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val textCreator = getImportTextCreator
 
     val usedImports = ContainerUtil.newConcurrentSet[ImportUsed]()
-    val list: util.ArrayList[PsiElement] = new util.ArrayList[PsiElement]()
-    val notProcessed = new ArrayBuffer[PsiElement]()
-    def addChildren(element: PsiElement): Unit = {
-      list.add(element)
-      element.getChildren.foreach(addChildren)
-    }
-    addChildren(scalaFile)
+    val allElementsInFile = allElementsIn(scalaFile)
 
-    val size = list.size * 2
+    val size = allElementsInFile.size * 2
     val progressManager: ProgressManager = ProgressManager.getInstance()
     val indicator: ProgressIndicator =
       if (progressIndicator != null) progressIndicator
@@ -83,7 +77,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       else null
     if (indicator != null) indicator.setText2(file.getName + ": analyzing imports usage")
     val i = new AtomicInteger(0)
-    JobLauncher.getInstance().invokeConcurrentlyUnderProgress(list, indicator, true, true, new Processor[PsiElement] {
+    JobLauncher.getInstance().invokeConcurrentlyUnderProgress(allElementsInFile, indicator, true, true, new Processor[PsiElement] {
       override def process(element: PsiElement): Boolean = {
         val count: Int = i.getAndIncrement
         if (count <= size && indicator != null) indicator.setFraction(count.toDouble / size)
@@ -106,21 +100,21 @@ class ScalaImportOptimizer extends ImportOptimizer {
             }
           case _ =>
         }
-        val imports = element match {
-          case expression: ScExpression => checkTypeForExpression(expression)
-          case _ => ScalaImportOptimizer.NO_IMPORT_USED
+        //separate match to have reference expressions processed
+        element match {
+          case expression: ScExpression => importsUsedFor(expression).foreach(usedImports.add)
+          case _ =>
         }
-        imports.foreach(usedImports.add)
         true
       }
     })
 
     if (indicator != null) indicator.setText2(file.getName + ": collecting additional info")
 
-    def collectRanges(rangeStarted: ScImportStmt => Set[String],
+    def collectRanges(namesAtRangeStart: ScImportStmt => Set[String],
                       createInfo: ScImportStmt => Seq[ImportInfo]): ConcurrentMap[TextRange, (Set[String], Seq[ImportInfo], Boolean)] = {
       val importsInfo = ContainerUtil.newConcurrentMap[TextRange, (Set[String], Seq[ImportInfo], Boolean)]()
-      JobLauncher.getInstance().invokeConcurrentlyUnderProgress(list, indicator, true, true, new Processor[PsiElement] {
+      JobLauncher.getInstance().invokeConcurrentlyUnderProgress(allElementsInFile, indicator, true, true, new Processor[PsiElement] {
         override def process(element: PsiElement): Boolean = {
           val count: Int = i.getAndIncrement
           if (count <= size && indicator != null) indicator.setFraction(count.toDouble / size)
@@ -172,7 +166,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
                           rangeEnd = imp.getTextRange.getEndOffset
                         case _ => initRange(imp)
                       }
-                      rangeNames = rangeStarted(imp)
+                      rangeNames = namesAtRangeStart(imp)
                     } else {
                       rangeEnd = imp.getTextRange.getEndOffset
                     }
@@ -189,7 +183,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       importsInfo
     }
 
-    def rangeStarted(imp: ScImportStmt): Set[String] = {
+    def namesAtRangeStart(imp: ScImportStmt): Set[String] = {
       val refText = "someIdentifier"
       val reference = ScalaPsiElementFactory.createReferenceFromText(refText, imp.getContext, imp)
       val rangeNamesSet = new mutable.HashSet[String]()
@@ -233,7 +227,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       )
     }
 
-    val importsInfo = collectRanges(rangeStarted, createInfo)
+    val importsInfo = collectRanges(namesAtRangeStart, createInfo)
 
     val addFullQualifiedImports = settings.isAddFullQualifiedImports
     val isLocalImportsCanBeRelative = settings.isDoNotChangeLocalImportsOnOptimize
@@ -425,10 +419,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
   protected def isImportDelimiter(psi: PsiElement) = psi.isInstanceOf[PsiWhiteSpace]
 
-  private def checkTypeForExpression(expr: ScExpression): Set[ImportUsed] = {
-    var res: scala.collection.mutable.HashSet[ImportUsed] =
-      scala.collection.mutable.HashSet(expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType()).
-        importsUsed.toSeq: _*)
+  private def importsUsedFor(expr: ScExpression): Set[ImportUsed] = {
+    val res: mutable.HashSet[ImportUsed] =
+      expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType()).importsUsed.to[mutable.HashSet]
     expr match {
       case call: ScMethodCall =>
         res ++= call.getImportsUsed
@@ -448,6 +441,15 @@ class ScalaImportOptimizer extends ImportOptimizer {
     res
   }
 
+  private def allElementsIn(container: PsiElement): util.ArrayList[PsiElement] = {
+    val result = new util.ArrayList[PsiElement]()
+    def addChildren(elem: PsiElement): Unit = {
+      result.add(elem)
+      elem.getChildren.foreach(addChildren)
+    }
+    addChildren(container)
+    result
+  }
 
   def supports(file: PsiFile): Boolean = file.isInstanceOf[ScalaFile] && file.getViewProvider.getAllFiles.size() < 3
 }
