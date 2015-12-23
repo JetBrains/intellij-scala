@@ -21,7 +21,7 @@ class ReplaceDangerousCatchAllQuickFix(caseClause: ScCaseClause)
     if (pattern == null) return
 
     pattern match {
-      case p: ScWildcardPattern => AddOnlyStrategy.addToWildcardPattern(p)
+      case p: ScWildcardPattern => AddOnlyStrategy.addToWildcardPattern(p, None)
       case p: ScReferencePattern => AddOnlyStrategy.addToPattern(p, None)
       //if pattern has another type - it's a bug
     }
