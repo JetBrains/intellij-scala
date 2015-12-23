@@ -10,7 +10,7 @@ import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.scope._
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
+import org.jetbrains.plugins.scala.editor.importOptimizer.{OptimizeImportSettings, ScalaImportOptimizer}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -223,9 +223,10 @@ trait ScImportsHolder extends ScalaPsiElement {
       else (s.substring(0, index), s.substring(index + 1))
     }
 
-    val settings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(getProject)
-    if (!settings.isCollectImports &&
-        selectors.length < settings.getClassCountToUseImportOnDemand - 1) {
+    val settings = OptimizeImportSettings(getProject)
+
+    if (!settings.collectImports &&
+        selectors.length < settings.classCountToUseImportOnDemand - 1) {
       toDelete.clear()
       firstPossibleGoodPlace = None
       selectors.clear()
@@ -237,7 +238,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     simpleName +=: selectors
 
     val wildcardImport: Boolean = selectors.contains("_") ||
-      selectors.length >= settings.getClassCountToUseImportOnDemand
+      selectors.length >= settings.classCountToUseImportOnDemand
     if (wildcardImport) {
       selectors.clear()
       selectors += "_"
@@ -332,7 +333,7 @@ trait ScImportsHolder extends ScalaPsiElement {
         if (ScalaNamesUtil.isKeyword(s)) importString = "`" + s + "`" + "." + importString
         else importString = s + "." + importString
       }
-      if ((!settings.isAddFullQualifiedImports ||
+      if ((!settings.addFullQualifiedImports ||
               classPackageQualifier.indexOf(".") == -1) &&
               packages.contains(classPackageQualifier)) {
         val s = packs.find(_.getQualifiedName == classPackageQualifier) match {
@@ -519,22 +520,22 @@ trait ScImportsHolder extends ScalaPsiElement {
                 else false
               def compare: Boolean = {
                 val l: String = getImportPrefixQualifier(im)
-                ScalaImportOptimizer.greater(l, pathQualifier, im.getText, importSt.getText, getProject)
+                ScalaImportOptimizer.greater(l, pathQualifier, im.getText, importSt.getText, settings)
               }
               val cond2 = compare && processPackage(im)
               if (nextImportContainsRef || cond2) {
                 added = true
-                val ourIndex = ScalaImportOptimizer.findGroupIndex(pathQualifier, getProject)
-                val imIndex = ScalaImportOptimizer.findGroupIndex(getImportPrefixQualifier(im), getProject)
+                val ourIndex = ScalaImportOptimizer.findGroupIndex(pathQualifier, settings)
+                val imIndex = ScalaImportOptimizer.findGroupIndex(getImportPrefixQualifier(im), settings)
                 val prevIndex =
                   if (prevStmt == null) -1
-                  else ScalaImportOptimizer.findGroupIndex(getImportPrefixQualifier(prevStmt), getProject)
+                  else ScalaImportOptimizer.findGroupIndex(getImportPrefixQualifier(prevStmt), settings)
                 if (prevIndex != ourIndex) {
                   addImportBefore(importSt, im)
                   if (ourIndex < imIndex) {
                     var blankLines = ""
                     var currentGroupIndex = ourIndex
-                    val groups = ScalaCodeStyleSettings.getInstance(getProject).getImportLayout
+                    val groups = settings.importLayout
                     def iteration() {
                       currentGroupIndex += 1
                       while (groups(currentGroupIndex) == ScalaCodeStyleSettings.BLANK_LINE) {
@@ -558,8 +559,8 @@ trait ScImportsHolder extends ScalaPsiElement {
         //if our stmt is the biggest lexicographically import statement we add this to the end
         if (!added) {
           if (prevStmt != null) {
-            val ourIndex = ScalaImportOptimizer.findGroupIndex(pathQualifier, getProject)
-            val prevIndex = ScalaImportOptimizer.findGroupIndex(getImportPrefixQualifier(prevStmt), getProject)
+            val ourIndex = ScalaImportOptimizer.findGroupIndex(pathQualifier, settings)
+            val prevIndex = ScalaImportOptimizer.findGroupIndex(getImportPrefixQualifier(prevStmt), settings)
             addImportAfterPrevStmt(ourIndex, prevIndex)
           } else {
             addImportAfter(importSt, getLastChild)
