@@ -146,16 +146,28 @@ abstract class UpdateStrategy extends Strategy {
       case tp =>
         ScType.extractClass(tp, Option(context.getProject)) match {
           case Some(sc: ScTypeDefinition) if (sc +: sc.supers).filter(_.isInstanceOf[ScClass]).exists(_.hasModifierProperty("sealed")) =>
-            val file = sc.containingFile
             val baseTypes = BaseTypes.get(tp).filter { tp =>
-              ScType.extractClass(tp, Option(context.getProject)).exists(_.containingFile == file)
+              ScType.extractClass(tp, Option(context.getProject)) match {
+                case Some(cl: ScClass) if cl.hasModifierProperty("sealed") => true
+                case _ => false
+              }
             } :+ tp
             baseTypes.map(_.canonicalText).map(ScalaPsiElementFactory.createTypeElementFromText(_, context.getManager))
+          case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName.startsWith("scala.collection") =>
+            val goodTypes = Set(
+              "_root_.scala.collection.Seq[",
+              "_root_.scala.collection.mutable.Seq[",
+              "_root_.scala.collection.immutable.Seq[",
+              "_root_.scala.collection.Set[",
+              "_root_.scala.collection.mutable.Set[",
+              "_root_.scala.collection.immutable.Set[",
+              "_root_.scala.collection.Map[")
+            val baseTypes = BaseTypes.get(tp).map(_.canonicalText).filter(t => goodTypes.exists(t.startsWith))
+            (tp.canonicalText +: baseTypes).map(ScalaPsiElementFactory.createTypeElementFromText(_, context.getManager))
           case _ => Seq(ScalaPsiElementFactory.createTypeElementFromText(tp.canonicalText, context.getManager))
         }
     }
     val added = addActualType(tps.head)
-
     editor match {
       case Some(e) if tps.size > 1 =>
         val texts = tps.flatMap(_.getType().toOption).map(ScTypeText)
