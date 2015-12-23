@@ -27,14 +27,16 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
       def message(key: String) {
         setText(ScalaBundle.message(key))
       }
-      complete(new Description(message), element, Option(editor))
+      ToggleTypeAnnotation.complete(new Description(message), element, Option(editor))
     }
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    complete(AddOrRemoveStrategy, element, Option(editor))
+    ToggleTypeAnnotation.complete(AddOrRemoveStrategy, element, Option(editor))
   }
+}
 
+object ToggleTypeAnnotation {
   def complete(strategy: Strategy, element: PsiElement, editor: Option[Editor]): Boolean = {
     for {function <- element.parentsInFile.findByType(classOf[ScFunctionDefinition])
          if function.hasAssign
@@ -42,7 +44,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
          if !body.isAncestorOf(element)} {
 
       if (function.returnTypeElement.isDefined)
-        strategy.removeFromFunction(function)
+        strategy.removeFromFunction(function, editor)
       else
         strategy.addToFunction(function, editor)
 
@@ -50,14 +52,14 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
     }
 
     for {value <- element.parentsInFile.findByType(classOf[ScPatternDefinition])
-         if value.expr.map(!_.isAncestorOf(element)).getOrElse(true)
+         if value.expr.forall(!_.isAncestorOf(element))
          if value.pList.allPatternsSimple
          bindings = value.bindings
          if bindings.size == 1
          binding <- bindings} {
 
       if (value.typeElement.isDefined)
-        strategy.removeFromValue(value)
+        strategy.removeFromValue(value, editor)
       else
         strategy.addToValue(value, editor)
 
@@ -65,14 +67,14 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
     }
 
     for {variable <- element.parentsInFile.findByType(classOf[ScVariableDefinition])
-         if variable.expr.map(!_.isAncestorOf(element)).getOrElse(true)
+         if variable.expr.forall(!_.isAncestorOf(element))
          if variable.pList.allPatternsSimple
          bindings = variable.bindings
          if bindings.size == 1
          binding <- bindings} {
 
       if (variable.typeElement.isDefined)
-        strategy.removeFromVariable(variable)
+        strategy.removeFromVariable(variable, editor)
       else
         strategy.addToVariable(variable, editor)
 
@@ -85,7 +87,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
       param.parentsInFile.findByType(classOf[ScFunctionExpr]) match {
         case Some(func) =>
           if (param.typeElement.isDefined) {
-            strategy.removeFromParameter(param)
+            strategy.removeFromParameter(param, editor)
             return true
           } else {
             val index = func.parameters.indexOf(param)
@@ -105,7 +107,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
     for (pattern <- element.parentsInFile.findByType(classOf[ScBindingPattern])) {
       pattern match {
         case p: ScTypedPattern if p.typePattern.isDefined =>
-          strategy.removeFromPattern(p)
+          strategy.removeFromPattern(p, editor)
           return true
         case _: ScReferencePattern =>
           strategy.addToPattern(pattern, editor)
@@ -114,7 +116,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
       }
     }
     for (pattern <- element.parentsInFile.findByType(classOf[ScWildcardPattern])) {
-      strategy.addToWildcardPattern(pattern)
+      strategy.addToWildcardPattern(pattern, editor)
       return true
     }
 

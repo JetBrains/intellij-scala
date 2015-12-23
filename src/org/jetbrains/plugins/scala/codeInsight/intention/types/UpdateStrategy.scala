@@ -1,14 +1,10 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intention.types
 
-import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
-import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
-import com.intellij.codeInsight.template._
-import com.intellij.codeInsight.template.impl.TemplateManagerImpl
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
+import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import org.jetbrains.plugins.scala.codeInsight.intention.IntentionUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
@@ -16,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
@@ -28,11 +24,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 object AddOrRemoveStrategy extends UpdateStrategy
 
 object AddOnlyStrategy extends UpdateStrategy {
-  override def removeFromFunction(function: ScFunctionDefinition): Unit = {}
-  override def removeFromParameter(param: ScParameter): Unit = {}
-  override def removeFromPattern(pattern: ScTypedPattern): Unit = {}
-  override def removeFromValue(value: ScPatternDefinition): Unit = {}
-  override def removeFromVariable(variable: ScVariableDefinition): Unit = {}
+  override def removeFromFunction(function: ScFunctionDefinition, editor: Option[Editor]): Unit = {}
+  override def removeFromParameter(param: ScParameter, editor: Option[Editor]): Unit = {}
+  override def removeFromPattern(pattern: ScTypedPattern, editor: Option[Editor]): Unit = {}
+  override def removeFromValue(value: ScPatternDefinition, editor: Option[Editor]): Unit = {}
+  override def removeFromVariable(variable: ScVariableDefinition, editor: Option[Editor]): Unit = {}
 }
 
 abstract class UpdateStrategy extends Strategy {
@@ -42,7 +38,7 @@ abstract class UpdateStrategy extends Strategy {
     }
   }
 
-  def removeFromFunction(function: ScFunctionDefinition) {
+  def removeFromFunction(function: ScFunctionDefinition, editor: Option[Editor]) {
     function.returnTypeElement.foreach(removeTypeAnnotation)
   }
 
@@ -52,7 +48,7 @@ abstract class UpdateStrategy extends Strategy {
     }
   }
 
-  def removeFromValue(value: ScPatternDefinition) {
+  def removeFromValue(value: ScPatternDefinition, editor: Option[Editor]) {
     value.typeElement.foreach(removeTypeAnnotation)
   }
 
@@ -62,7 +58,7 @@ abstract class UpdateStrategy extends Strategy {
     }
   }
 
-  def removeFromVariable(variable: ScVariableDefinition) {
+  def removeFromVariable(variable: ScVariableDefinition, editor: Option[Editor]) {
     variable.typeElement.foreach(removeTypeAnnotation)
   }
 
@@ -72,13 +68,13 @@ abstract class UpdateStrategy extends Strategy {
     }
   }
 
-  def addToWildcardPattern(pattern: ScWildcardPattern) {
+  def addToWildcardPattern(pattern: ScWildcardPattern, editor: Option[Editor]) {
     pattern.expectedType.foreach {
       addTypeAnnotation(_, pattern.getParent, pattern, None)
     }
   }
 
-  def removeFromPattern(pattern: ScTypedPattern) {
+  def removeFromPattern(pattern: ScTypedPattern, editor: Option[Editor]) {
     val newPattern = ScalaPsiElementFactory.createPatternFromText(pattern.name, pattern.getManager)
     pattern.replace(newPattern)
   }
@@ -106,7 +102,7 @@ abstract class UpdateStrategy extends Strategy {
     }
   }
 
-  def removeFromParameter(param: ScParameter) {
+  def removeFromParameter(param: ScParameter, editor: Option[Editor]) {
     val newParam = ScalaPsiElementFactory.createParameterFromText(param.name, param.getManager)
     val newClause = ScalaPsiElementFactory.createClauseForFunctionExprFromText(newParam.getText, param.getManager)
     val expr : ScFunctionExpr = PsiTreeUtil.getParentOfType(param, classOf[ScFunctionExpr], false)
@@ -149,7 +145,7 @@ abstract class UpdateStrategy extends Strategy {
         Seq(ScalaPsiElementFactory.createTypeElementFromText(tp.canonicalText, context.getManager))
       case tp =>
         ScType.extractClass(tp, Option(context.getProject)) match {
-          case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(_.hasModifierProperty("sealed")) =>
+          case Some(sc: ScTypeDefinition) if (sc +: sc.supers).filter(_.isInstanceOf[ScClass]).exists(_.hasModifierProperty("sealed")) =>
             val file = sc.containingFile
             val baseTypes = BaseTypes.get(tp).filter { tp =>
               ScType.extractClass(tp, Option(context.getProject)).exists(_.containingFile == file)
@@ -162,61 +158,9 @@ abstract class UpdateStrategy extends Strategy {
 
     editor match {
       case Some(e) if tps.size > 1 =>
-        val project = context.getProject
-        val expression = new Expression {
-          val lookupItems: Array[LookupElement] = {
-            val texts: Seq[ScTypeText] = tps.flatMap(_.getType().toOption).map(ScTypeText)
-            texts.map { typeText =>
-              val useCanonicalText: Boolean = texts.exists {
-                s => s.tp.ne(typeText.tp) && s.presentableText == typeText.presentableText
-              }
-              val text =
-                if (useCanonicalText) typeText.canonicalText.replace("_root_.", "")
-                else typeText.presentableText
-              LookupElementBuilder.create(typeText.tp, text).withInsertHandler(new InsertHandler[LookupElement] {
-                override def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
-                  val topLevelEditor = InjectedLanguageUtil.getTopLevelEditor(context.getEditor)
-                  val templateState = TemplateManagerImpl.getTemplateState(topLevelEditor)
-                  if (templateState != null) {
-                    val range = templateState.getCurrentVariableRange
-                    if (range != null) {
-                      //need to insert with FQNs
-                      val newText = item.getObject.asInstanceOf[ScType].canonicalText
-                      topLevelEditor.getDocument.replaceString(range.getStartOffset, range.getEndOffset, newText)
-                    }
-                  }
-                }
-              })
-            }.toArray
-          }
-
-          val default = lookupItems.head
-
-          override def calculateResult(context: ExpressionContext): Result = {
-            new TextResult(default.getLookupString)
-          }
-
-          override def calculateLookupItems(context: ExpressionContext): Array[LookupElement] = {
-            if (lookupItems.length > 1) lookupItems
-            else null
-          }
-
-          override def calculateQuickResult(context: ExpressionContext): Result = calculateResult(context)
-        }
-
-        PsiDocumentManager.getInstance(project).commitAllDocuments()
-        PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(e.getDocument)
-        val builder: TemplateBuilderImpl = new TemplateBuilderImpl(added)
-        builder.replaceElement(added, expression)
-        e.getCaretModel.moveToOffset(added.getNode.getStartOffset)
-        TemplateManager.getInstance(project).startTemplate(e, builder.buildInlineTemplate(), new TemplateEditingAdapter {
-          override def templateFinished(template: Template, brokenOff: Boolean): Unit = {
-            if (!brokenOff) {
-              ScalaPsiUtil.adjustTypes(context)
-            }
-            super.templateFinished(template, brokenOff)
-          }
-        })
+        val texts = tps.flatMap(_.getType().toOption).map(ScTypeText)
+        val expr = new ChooseTypeTextExpression(texts)
+        IntentionUtil.startTemplate(added, context, expr, e)
       case _ => ScalaPsiUtil.adjustTypes(added)
     }
   }
@@ -225,4 +169,28 @@ abstract class UpdateStrategy extends Strategy {
     e.prevSiblings.find(_.getText == ":").foreach(_.delete())
     e.delete()
   }
+}
+
+class StrategyAdapter extends Strategy {
+  override def addToFunction(function: ScFunctionDefinition, editor: Option[Editor]): Unit = ()
+
+  override def removeFromPattern(pattern: ScTypedPattern, editor: Option[Editor]): Unit = ()
+
+  override def addToVariable(variable: ScVariableDefinition, editor: Option[Editor]): Unit = ()
+
+  override def removeFromParameter(param: ScParameter, editor: Option[Editor]): Unit = ()
+
+  override def addToParameter(param: ScParameter, editor: Option[Editor]): Unit = ()
+
+  override def removeFromVariable(variable: ScVariableDefinition, editor: Option[Editor]): Unit = ()
+
+  override def addToWildcardPattern(pattern: ScWildcardPattern, editor: Option[Editor]): Unit = ()
+
+  override def removeFromFunction(function: ScFunctionDefinition, editor: Option[Editor]): Unit = ()
+
+  override def addToValue(value: ScPatternDefinition, editor: Option[Editor]): Unit = ()
+
+  override def removeFromValue(value: ScPatternDefinition, editor: Option[Editor]): Unit = ()
+
+  override def addToPattern(pattern: ScBindingPattern, editor: Option[Editor]): Unit = ()
 }

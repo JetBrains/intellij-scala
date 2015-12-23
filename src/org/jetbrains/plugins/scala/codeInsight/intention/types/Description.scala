@@ -14,7 +14,7 @@ class Description(message: String => Unit) extends Strategy {
     message("intention.type.annotation.function.add.text")
   }
 
-  def removeFromFunction(function: ScFunctionDefinition) {
+  def removeFromFunction(function: ScFunctionDefinition, editor: Option[Editor]) {
     message("intention.type.annotation.function.remove.text")
   }
 
@@ -22,7 +22,7 @@ class Description(message: String => Unit) extends Strategy {
     message("intention.type.annotation.value.add.text")
   }
 
-  def removeFromValue(value: ScPatternDefinition) {
+  def removeFromValue(value: ScPatternDefinition, editor: Option[Editor]) {
     message("intention.type.annotation.value.remove.text")
   }
 
@@ -30,7 +30,7 @@ class Description(message: String => Unit) extends Strategy {
     message("intention.type.annotation.variable.add.text")
   }
 
-  def removeFromVariable(variable: ScVariableDefinition) {
+  def removeFromVariable(variable: ScVariableDefinition, editor: Option[Editor]) {
     message("intention.type.annotation.variable.remove.text")
   }
 
@@ -38,11 +38,11 @@ class Description(message: String => Unit) extends Strategy {
     message("intention.type.annotation.pattern.add.text")
   }
 
-  def addToWildcardPattern(pattern: ScWildcardPattern) {
+  def addToWildcardPattern(pattern: ScWildcardPattern, editor: Option[Editor]) {
     message("intention.type.annotation.pattern.add.text")
   }
 
-  def removeFromPattern(pattern: ScTypedPattern) {
+  def removeFromPattern(pattern: ScTypedPattern, editor: Option[Editor]) {
     message("intention.type.annotation.pattern.remove.text")
   }
 
@@ -50,7 +50,7 @@ class Description(message: String => Unit) extends Strategy {
     message("intention.type.annotation.parameter.add.text")
   }
 
-  def removeFromParameter(param: ScParameter) {
+  def removeFromParameter(param: ScParameter, editor: Option[Editor]) {
     message("intention.type.annotation.parameter.remove.text")
   }
 }
