@@ -50,4 +50,21 @@
       <option name="SCALA_XML" value="true"/>
     </context>
   </template>
+  <template name="unapply" value="def unapply(arg: $ARG_TYPE$): Option[$RET_TYPE$] = $END$"
+            description="Template for unapply" toReformat="true" toShortenFQNames="true">
+    <variable name="ARG_TYPE" expression="scala_className" defaultValue="X" alwaysStopAt="false"/>
+	<variable name="RET_TYPE" expression="scala_primaryConstructorParamTypes" defaultValue="Int" alwaysStopAt="true"/>
+	<context>
+	  <option name="SCALA_CODE" value="true"/>
+	</context>
+  </template>
+  <template name="apply" value="def apply($ARGS$): $RET_TYPE$ = new $RET_TYPE$($ARGS_NO_TYPES$)" description="Template for apply"
+            toReformat="true" toShortenFQNames="true">
+    <variable name="ARGS" expression="scala_primaryConstructorParams" defaultValue="x" alwaysStopAt="true"/>
+	<variable name="RET_TYPE" expression="scala_className" defaultValue="x" alwaysStopAt="false"/>
+	<variable name="ARGS_NO_TYPES" expression="scala_primaryConstructorParamNames" defaultValue="x" alwaysStopAt="true"/>
+	<context>
+	  <option name="SCALA_CODE" value="true"/>
+	</context>
+  </template>
 </templateSet>

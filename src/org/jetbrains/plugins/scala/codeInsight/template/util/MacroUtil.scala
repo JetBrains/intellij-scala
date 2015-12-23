@@ -8,7 +8,7 @@ import com.intellij.psi._
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, JavaArrayType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
@@ -54,6 +54,12 @@ object MacroUtil {
         lookupItem
     }
   }
+
+  def getPrimaryConbstructorParams(context: ExpressionContext) =
+    Option(PsiTreeUtil.getParentOfType(context.getPsiElementAtStartOffset, classOf[PsiClass])).map {
+    case obj: ScObject => obj.fakeCompanionClassOrCompanionClass
+    case other => other
+  }.filter(_.isInstanceOf[ScClass]).flatMap(_.asInstanceOf[ScClass].constructor).map(_.parameters)
 
   val scalaIdPrefix = "scala_"
   val scalaPresentablePrefix = "scala_"
