@@ -1,34 +1,26 @@
 package org.jetbrains.plugins.scala
 package worksheet.actions
 
-import java.awt.FlowLayout
-import java.awt.event.{ActionEvent, ActionListener}
 import java.lang.ref.WeakReference
 import java.util
-import javax.swing.event.{ChangeEvent, ChangeListener}
-import javax.swing.{JLabel, JCheckBox, JPanel}
+import javax.swing._
 
-import com.intellij.application.options.ModulesComboBox
 import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.openapi.actionSystem.impl.ActionButton
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileEditor._
-import com.intellij.openapi.module.{ModuleManager, Module}
 import com.intellij.openapi.project.DumbService.DumbModeListener
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
-import com.intellij.ui.JBSplitter
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
 import org.jetbrains.plugins.scala.components.StopWorksheetAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
-import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
-import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinter, WorksheetFoldGroup}
+import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinter, WorksheetFoldGroup, WorksheetUiConstructor}
 
 /**
  * User: Dmitry Naydanov
@@ -98,29 +90,12 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
             }
           })
       }
-      val panel = new WorksheetFileHook.MyPanel(file)
-
-      panel.setLayout(new FlowLayout(FlowLayout.LEFT))
-
+      
+      val panel  = new WorksheetFileHook.MyPanel(file)
+      val constructor = new WorksheetUiConstructor(panel, project)
 
       extensions.inReadAction {
-        if (RunWorksheetAction.isScratchWorksheet(Option(file), project)) {
-          panel.add(createSelectClassPathList(Option(RunWorksheetAction.getModuleFor(PsiManager getInstance project findFile file).getName), file), 0)
-          panel.add(new JLabel("Use class path of module:"), 0)
-        }
-
-        val statusDisplayN = new InteractiveStatusDisplay()
-        statusDisplay = Option(statusDisplayN)
-        
-        statusDisplayN.init(panel)
-        if (run) statusDisplayN.onSuccessfulCompiling() else statusDisplayN.onStartCompiling()
-        
-        panel.add(createMakeProjectChb(file), 0)
-        panel.add(createAutorunChb(file), 0)
-
-        new CopyWorksheetAction().init(panel)
-        new CleanWorksheetAction().init(panel)
-        if (run) new RunWorksheetAction().init(panel) else exec foreach (new StopWorksheetAction(_).init(panel))
+        statusDisplay = constructor.initTopPanel(panel, file, run, exec)
       }
 
       myFileEditorManager.addTopComponent(editor, panel)
@@ -135,59 +110,6 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
   def enableRun(file: VirtualFile, hasErrors: Boolean) {
     cleanAndAdd(file, Some(new RunWorksheetAction))
     statusDisplay.foreach(display => if (hasErrors) display.onFailedCompiling() else display.onSuccessfulCompiling())
-  }
-  
-  //todo split all the UI stuff
-  private def createSelectClassPathList(defaultModule: Option[String], file: VirtualFile) = {
-    val modulesBox = new ModulesComboBox()
-    
-    modulesBox fillModules project  
-    modulesBox.setToolTipText("Using class path of the module...")  
-    
-    defaultModule foreach {
-      case nn =>
-        val foundModule: Module = ModuleManager getInstance project findModuleByName nn
-        if (foundModule != null) modulesBox setSelectedModule foundModule
-    }
-    
-    modulesBox.addActionListener(new ActionListener {
-      override def actionPerformed(e: ActionEvent) {
-        val m = modulesBox.getSelectedModule
-        
-        if (m == null) return 
-        
-        WorksheetCompiler.setModuleForCpName(PsiManager getInstance project findFile file, m.getName)  
-      }
-    })  
-    
-    modulesBox
-  }
-  
-  private def createMakeProjectChb(file: VirtualFile) = {
-    val makeProjectCb: JCheckBox = new JCheckBox("Make project",
-      WorksheetCompiler.isMakeBeforeRun(PsiManager getInstance project findFile file))
-
-    makeProjectCb addChangeListener new ChangeListener {
-      override def stateChanged(e: ChangeEvent) {
-        WorksheetCompiler.setMakeBeforeRun(PsiManager getInstance project findFile file, makeProjectCb.isSelected)
-      }
-    }
-
-    makeProjectCb
-  }
-
-  private def createAutorunChb(file: VirtualFile) = {
-    val psiFile = PsiManager getInstance project findFile file
-
-    import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner._
-    val autorunChb = new JCheckBox("Interactive Mode",
-      if (isSetEnabled(psiFile)) true else if (isSetDisabled(psiFile)) false else ScalaProjectSettings.getInstance(project).isInteractiveMode)
-    autorunChb addChangeListener new ChangeListener {
-      override def stateChanged(e: ChangeEvent) {
-        WorksheetAutoRunner.setAutorun(psiFile, autorunChb.isSelected)
-      }
-    }
-    autorunChb
   }
 
   private def cleanAndAdd(file: VirtualFile, action: Option[TopComponentDisplayable]) {

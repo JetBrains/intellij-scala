@@ -9,6 +9,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.ui.roots.ScalableIconComponent
 import com.intellij.util.ui.{EmptyIcon, AnimatedIcon}
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetUiConstructor
 
 /**
   * User: Dmitry.Naydanov
@@ -27,7 +28,8 @@ class InteractiveStatusDisplay extends TopComponentDisplayable {
   override def init(panel: JPanel): Unit = {
     myPanel.add(createSimpleIcon(EMPTY_ICON), 0)
     panel.add(myPanel, 0)
-    setBorder(OTHER_BORDER)  
+    setBorder(OTHER_BORDER)
+    WorksheetUiConstructor.fixUnboundMaxSize(myPanel)  
   }
   
   def onStartCompiling() {
@@ -49,10 +51,12 @@ class InteractiveStatusDisplay extends TopComponentDisplayable {
   }
   
   private def setBorder(border: LineBorder) {
-    ApplicationManager.getApplication.invokeLater(new Runnable {
+    if (isBorderEnabled) ApplicationManager.getApplication.invokeLater(new Runnable {
       override def run(): Unit = myPanel.setBorder(border)  
     })    
   }
+  
+  private def isBorderEnabled = false //right now we don't need it (?) 
   
   private def setCurrentIcon(icon: AnimatedIcon) {
     if (current == icon) return 
