@@ -44,6 +44,9 @@ object ScalaPostfixTemplateProvider {
     new ScalaDoWhilePostfixTemplate,
     new ScalaIsNullPostfixTemplate,
     new ScalaNotNullPostfixTemplate,
-    new ScalaNotNullPostfixTemplate("nn")
+    new ScalaNotNullPostfixTemplate("nn"),
+    new ScalaOptionPostfixTemplate,
+    new ScalaSeqPostfixTemplate,
+    new ScalaListPostfixTemplate
   )
 }
