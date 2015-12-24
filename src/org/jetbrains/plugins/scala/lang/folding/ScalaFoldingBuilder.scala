@@ -3,7 +3,7 @@ package lang
 package folding
 
 import com.intellij.lang.ASTNode
-import com.intellij.lang.folding.{FoldingBuilder, FoldingDescriptor}
+import com.intellij.lang.folding.{CustomFoldingBuilder, FoldingDescriptor}
 import com.intellij.openapi.editor.{Document, FoldingGroup}
 import com.intellij.openapi.project.PossiblyDumbAware
 import com.intellij.openapi.util._
@@ -28,24 +28,24 @@ import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
 import org.jetbrains.plugins.scala.worksheet.WorksheetFoldingBuilder
 
 import _root_.scala.collection._
-import _root_.scala.collection.mutable._
 
 /*
 *
 @author Ilya Sergey
 */
 
-class ScalaFoldingBuilder extends FoldingBuilder with PossiblyDumbAware {
+class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
 
   import org.jetbrains.plugins.scala.lang.folding.ScalaFoldingUtil._
 
   private def appendDescriptors(node: ASTNode,
                                 document: Document,
-                                descriptors: ArrayBuffer[FoldingDescriptor],
+                                descriptors: java.util.List[FoldingDescriptor],
                                 processedComments: mutable.HashSet[PsiElement],
                                 processedRegions: mutable.HashSet[PsiElement]) {
     val nodeTextRange = node.getTextRange
     if (nodeTextRange.getStartOffset + 1 >= nodeTextRange.getEndOffset) return
+    import collection.JavaConversions._
 
     val psi = node.getPsi
     if (isMultiline(node) || isMultilineImport(node)) {
@@ -164,15 +164,14 @@ class ScalaFoldingBuilder extends FoldingBuilder with PossiblyDumbAware {
     }
   }
 
-  def buildFoldRegions(astNode: ASTNode, document: Document): Array[FoldingDescriptor] = {
-    val descriptors = new ArrayBuffer[FoldingDescriptor]
+  override def buildLanguageFoldRegions(descriptors: java.util.List[FoldingDescriptor], root: PsiElement, document: Document,
+                               quick: Boolean): Unit = {
     val processedComments = new mutable.HashSet[PsiElement]
     val processedRegions = new mutable.HashSet[PsiElement]
-    appendDescriptors(astNode, document, descriptors, processedComments, processedRegions)
-    descriptors.toArray
+    appendDescriptors(root.getNode, document, descriptors, processedComments, processedRegions)
   }
 
-  def getPlaceholderText(node: ASTNode): String = {
+  override def getLanguagePlaceholderText(node: ASTNode, textRange: TextRange): String = {
     if (isMultiline(node) || isMultilineImport(node) && !isWorksheetResults(node)) {
       node.getElementType match {
         case ScalaElementTypes.BLOCK_EXPR => return "{...}"
@@ -229,7 +228,7 @@ class ScalaFoldingBuilder extends FoldingBuilder with PossiblyDumbAware {
     null
   }
 
-  def isCollapsedByDefault(node: ASTNode): Boolean = {
+  override def isRegionCollapsedByDefault(node: ASTNode): Boolean = {
     node.getPsi.getContainingFile match {
       case sc: ScalaFile if sc.isWorksheetFile => return false
       case _ =>
@@ -373,7 +372,8 @@ class ScalaFoldingBuilder extends FoldingBuilder with PossiblyDumbAware {
   }
 
   private def addCommentFolds(comment: PsiComment, processedComments: mutable.Set[PsiElement],
-                              descriptors: ArrayBuffer[FoldingDescriptor]) {
+                              descriptors: java.util.List[FoldingDescriptor]) {
+    import collection.JavaConversions._
     if (processedComments.contains(comment) || comment.getTokenType != ScalaTokenTypes.tLINE_COMMENT) {
       return
     }
@@ -407,8 +407,9 @@ class ScalaFoldingBuilder extends FoldingBuilder with PossiblyDumbAware {
   }
 
   private def addCustomRegionFolds(element: PsiElement, processedRegions: mutable.Set[PsiElement],
-                                   descriptors: ArrayBuffer[FoldingDescriptor], isTagRegion: Boolean,
+                                   descriptors: java.util.List[FoldingDescriptor], isTagRegion: Boolean,
                                    stack: mutable.Stack[PsiElement]) {
+    import collection.JavaConversions._
     var end: PsiElement = null
     var current: PsiElement = element.getNextSibling
     var flag = true
