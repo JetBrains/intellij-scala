@@ -429,7 +429,7 @@ object ScPattern {
       extractPossibleProductParts(receiverType, place, isOneArgCaseClass)
     }
 
-    val level = place.languageLevel
+    val level = place.scalaLanguageLevelOrDefault
     if (level >= Scala_2_11) collectFor2_11
     else {
       returnType match {

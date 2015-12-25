@@ -14,6 +14,9 @@ package scala.tools.scalap
 package scalax
 package rules
 
+import scala.language.postfixOps
+import scala.language.implicitConversions
+
 trait Name {
   def name : String
   override def toString = name

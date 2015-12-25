@@ -200,6 +200,7 @@ object TypeDefinitionMembers {
           case td: ScTypeDefinition =>
             td.fakeCompanionModule match {
               case Some(obj) => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+              case _ =>
             }
           case _ =>
         }
@@ -468,6 +469,7 @@ object TypeDefinitionMembers {
           case td: ScTypeDefinition =>
             td.fakeCompanionModule match {
               case Some(obj) => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+              case _ =>
             }
           case _ =>
         }

@@ -295,7 +295,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                     //todo: currently it looks like a hack in the right place, probably whole this class should be
                     //todo: rewritten in more clean and clear way.
                     val dependentSubst = new ScSubstitutor(() => {
-                      val level = place.languageLevel
+                      val level = place.scalaLanguageLevelOrDefault
                       if (level >= Scala_2_10) {
                         f.paramClauses.clauses.headOption.map(_.parameters).toSeq.flatten.map {
                           case (param: ScParameter) => (new Parameter(param), typez)
@@ -318,7 +318,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                     }
 
                     val implicitDependentSubst = new ScSubstitutor(() => {
-                      val level = place.languageLevel
+                      val level = place.scalaLanguageLevelOrDefault
                       if (level >= Scala_2_10) {
                         if (probablyHasDepententMethodTypes) {
                           val params: Seq[Parameter] = f.paramClauses.clauses.last.effectiveParameters.map(
