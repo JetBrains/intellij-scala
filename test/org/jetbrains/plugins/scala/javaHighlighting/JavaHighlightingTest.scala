@@ -399,6 +399,54 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "SCL9412"))
   }
 
+  def testHigherKinded(): Unit = {
+    val scalaCode =
+      """
+        |class BarSCL9661A[F, T[F]]() extends scala.AnyRef {
+        |  def foo(t: T[F]): T[F] = t
+        |}
+      """.stripMargin
+    val javaCode =
+      """
+        |import java.util.*;
+        |
+        |public class SCL9661A {
+        |    public void create() {
+        |        BarSCL9661A<String, List> bar = new BarSCL9661A<>();
+        |        bar.foo(new ArrayList<Integer>());
+        |    }
+        |}
+      """.stripMargin
+    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "SCL9661A"))
+  }
+
+  def testSCL9661(): Unit = {
+    val scalaCode =
+      """
+        |object Moo extends scala.AnyRef {
+        |  def builder[M]() : Builder[M] = ???
+        |
+        |  class Builder[+Mat] {
+        |    def graph[S <: Shape](graph : Graph[S, _]) : S = { ??? }
+        |  }
+        |}
+        |
+        |class UniformFanOutShape[I, O] extends Shape
+        |abstract class Shape
+        |trait Graph[+S <: Shape, +M]
+      """.stripMargin
+    val javaCode =
+      """
+        |public class SCL9661 {
+        |    public void create() {
+        |        UniformFanOutShape<String, String> ass = Moo.builder().graph(null);
+        |    }
+        |}
+      """.stripMargin
+
+    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "SCL9661"))
+  }
+
   def messagesFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     myFixture.addFileToProject("dummy.scala", scalaFileText)
     val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)

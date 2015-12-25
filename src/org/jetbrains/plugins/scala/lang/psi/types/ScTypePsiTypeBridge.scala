@@ -149,7 +149,7 @@ trait ScTypePsiTypeBridge {
 
     def createType(c: PsiClass, subst: PsiSubstitutor = PsiSubstitutor.EMPTY, raw: Boolean = false): PsiType = {
       val psiType = JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
-      if (c.hasTypeParameters || raw) psiType.rawType()
+      if (raw) psiType.rawType()
       else psiType
     }
 
