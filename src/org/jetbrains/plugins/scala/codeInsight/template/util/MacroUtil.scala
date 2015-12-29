@@ -59,7 +59,14 @@ object MacroUtil {
     Option(PsiTreeUtil.getParentOfType(context.getPsiElementAtStartOffset, classOf[PsiClass])).map {
     case obj: ScObject => obj.fakeCompanionClassOrCompanionClass
     case other => other
-  }.filter(_.isInstanceOf[ScClass]).flatMap(_.asInstanceOf[ScClass].constructor).map(_.parameters)
+  }.filter(_.isInstanceOf[ScClass]).flatMap(_.asInstanceOf[ScClass].constructor).map(_.parameterList)
+
+  def paramPairs(params: String): List[(String, String)] =
+    if (params.length < 2) List()
+    else params.substring(1, params.length - 1).split(",").map(l => l.split(":").map(_.trim).toList match {
+      case a :: b :: Nil => (a, b)
+      case _ => ("", "")
+    }).toList
 
   val scalaIdPrefix = "scala_"
   val scalaPresentablePrefix = "scala_"
