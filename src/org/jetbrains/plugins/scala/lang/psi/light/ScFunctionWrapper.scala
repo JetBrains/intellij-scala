@@ -262,10 +262,13 @@ object ScFunctionWrapper {
         if (varargs) param.getType(TypingContext.empty)
         else param.getRealParameterType(TypingContext.empty)
       tt match {
+        case Success(tp, _) if param.isCallByNameParameter =>
+          builder.append("scala.Function0<")
+          val psiType = ScType.toPsi(subst.subst(tp), function.getProject, function.getResolveScope, noPrimitives = true)
+          builder.append(psiType.getCanonicalText)
+          builder.append(">")
         case Success(tp, _) =>
-          if (param.isCallByNameParameter) builder.append("scala.Function0<")
           builder.append(JavaConversionUtil.typeText(subst.subst(tp), function.getProject, function.getResolveScope))
-          if (param.isCallByNameParameter) builder.append(">")
         case _ => builder.append("java.lang.Object")
       }
 
