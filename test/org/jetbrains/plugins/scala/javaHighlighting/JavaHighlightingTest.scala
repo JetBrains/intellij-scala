@@ -252,6 +252,28 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     assertNoErrors(messagesFromJavaCode(scala, java, javaClassName = "CaseClassExtended"))
   }
 
+  def testOverrideDefaultWithStaticSCL8861(): Unit = {
+    def scala =
+      """
+        |class TestKit2SCL8861 extends TestKitBase2SCL8861
+        |
+        |object TestKit2SCL8861 {
+        |  def awaitCond(interval: String = ???): Boolean = {
+        |    ???
+        |  }
+        |}
+        |trait TestKitBase2SCL8861 {
+        |  def awaitCond(interval: String = ???) = ???
+        |}
+      """.stripMargin
+    val java =
+      """
+        |public class SCL8861 extends TestKit2SCL8861 {
+        |
+        |}
+      """.stripMargin
+    assertNoErrors(messagesFromJavaCode(scala, java, "SCL8861"))
+  }
 
   def testClassParameter(): Unit = {
     val scala =
