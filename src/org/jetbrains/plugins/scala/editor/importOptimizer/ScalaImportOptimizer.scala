@@ -340,8 +340,8 @@ object ScalaImportOptimizer {
   case class ImportInfo(importsUsed: Set[ImportUsed], prefixQualifier: String,
                         relative: Option[String], allNames: Set[String],
                         singleNames: Set[String], renames: Map[String, String],
-                        hiddenNames: Set[String], hasWildcard: Boolean, rootUsed: Boolean) {
-    def withoutRelative(holderNames: Set[String]): ImportInfo =
+                        hiddenNames: Set[String], hasWildcard: Boolean, rootUsed: Boolean, isStableImport: Boolean = true) {
+    def withoutRelative: ImportInfo =
       if (relative.isDefined || rootUsed) copy(relative = None) else this
   }
 
@@ -359,21 +359,28 @@ object ScalaImportOptimizer {
     val needReplaceWithFqnImports = addFullQualifiedImports && !(isLocalRange && isLocalImportsCanBeRelative)
 
     if (needReplaceWithFqnImports)
-      buffer ++= withoutRelativeImports(importInfos, namesAtRangeStart)
+      buffer ++= importInfos.map(_.withoutRelative)
     else
       buffer ++= importInfos
 
     if (sortImports) sortImportInfos(buffer, settings)
 
-    if (collectImports) mergeImportInfos(buffer)
-    else buffer.flatMap(split)
+    val result =
+      if (collectImports) mergeImportInfos(buffer)
+      else buffer.flatMap(split)
+
+    updateRootUsed(result, namesAtRangeStart)
   }
 
-  private def withoutRelativeImports(importInfos: Seq[ImportInfo], namesAtRangeStart: Set[String]): Seq[ImportInfo] = {
+  def updateRootUsed(importInfos: Seq[ImportInfo], namesAtRangeStart: Set[String]): Seq[ImportInfo] = {
     val holderNames = new mutable.HashSet[String]()
     holderNames ++= namesAtRangeStart
+
     importInfos.map { info =>
-      val res = info.withoutRelative(holderNames)
+      val canAddRoot = info.relative.isEmpty && !info.rootUsed && info.isStableImport
+      val res =
+        if (canAddRoot && holderNames.contains(getFirstId(info.prefixQualifier))) info.copy(rootUsed = true)
+        else info
       holderNames ++= info.allNames
       res
     }
@@ -436,7 +443,7 @@ object ScalaImportOptimizer {
       new ImportInfo(first.importsUsed ++ second.importsUsed, first.prefixQualifier, relative,
         first.allNames ++ second.allNames, first.singleNames ++ second.singleNames,
         first.renames ++ second.renames, first.hiddenNames ++ second.hiddenNames,
-        first.hasWildcard || second.hasWildcard, rootUsed)
+        first.hasWildcard || second.hasWildcard, rootUsed, first.isStableImport && second.isStableImport)
     }
     def samePrefixAfter(i: Int): Int = {
       var j = i + 1
@@ -648,8 +655,15 @@ object ScalaImportOptimizer {
       if (isRelative) Some(explicitQualifierString(qualifier, withDeepest = true))
       else None
 
+    val isStableImport = {
+      deepRef.resolve() match {
+        case named: PsiNamedElement => ScalaPsiUtil.hasStablePath(named)
+        case _ => false
+      }
+    }
+
     Some(new ImportInfo(importsUsed.toSet, prefixQualifier, relativeQualifier, allNames.toSet,
-      singleNames.toSet, renames.toMap, hiddenNames.toSet, hasWildcard, rootUsed))
+      singleNames.toSet, renames.toMap, hiddenNames.toSet, hasWildcard, rootUsed, isStableImport))
   }
 
   def getFirstId(s: String): String = {
