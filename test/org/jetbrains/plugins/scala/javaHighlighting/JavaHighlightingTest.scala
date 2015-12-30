@@ -365,6 +365,23 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "SCL8866B"))
   }
 
+  def testDefaultConstructorArguments(): Unit = {
+    val scalaCode =
+      """
+        |class MooSCL7582(j: Int)(d: Int = j)
+      """.stripMargin
+    val javaCode =
+      """
+        |public class TestSCL7582 {
+        |    public static void main(String[] args) {
+        |        MooSCL7582 m =  new MooSCL7582(1, MooSCL7582.$lessinit$greater$default$2(1));
+        |    }
+        |}
+      """.stripMargin
+
+    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "TestSCL7582"))
+  }
+
   def testSpecializedFields(): Unit = {
     val scalaCode = "class SpecClass[@specialized(Int) T](val t: T, val s: String)"
     val javaCode =

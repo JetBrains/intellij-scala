@@ -121,6 +121,12 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
     } {
       buffer += new ScPrimaryConstructorWrapper(this, isJavaVarargs = true)
     }
+
+    val params = parameters
+    for (i <- params.indices if params(i).baseDefaultParam) {
+      buffer += new ScPrimaryConstructorWrapper(this, forDefault = Some(i + 1))
+    }
+
     buffer.toSeq
   }
 }
