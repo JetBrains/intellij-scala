@@ -39,6 +39,21 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     assertNoErrors(messagesFromScalaCode(scala, java))
   }
 
+  def testTraitIsAbstract(): Unit = {
+    val scalaCode = "trait MooSCL4289"
+    val javaCode =
+      """
+        |public class TestSCL4289 {
+        |    public static void main(String[] args) {
+        |        new MooSCL4289();
+        |    }
+        |}
+      """.stripMargin
+    assertMatches(messagesFromJavaCode(scalaCode, javaCode, "TestSCL4289")) {
+      case Error("new MooSCL4289()", CannotBeInstantianted()) :: Nil =>
+    }
+  }
+
   def testValueTypes(): Unit = {
     val scala =
       """
@@ -440,6 +455,7 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
 
   val CannotResolveMethod = ContainsPattern("Cannot resolve method")
   val CannotBeApplied = ContainsPattern("cannot be applied")
+  val CannotBeInstantianted = ContainsPattern("is abstract; cannot be instantiated")
 
   case class ContainsPattern(fragment: String) {
     def unapply(s: String) = s.contains(fragment)
