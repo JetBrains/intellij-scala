@@ -1,17 +1,18 @@
-package org.jetbrains.plugins.scala.util
+package org.jetbrains.plugins.scala.lang.macros.expansion
 
 import java.io._
-import java.util
 import java.util.regex.Pattern
 
-import com.intellij.codeInsight.actions.{TextRangeType, ReformatCodeRunOptions, LastRunReformatCodeOptionsProvider}
-import com.intellij.ide.util.PropertiesComponent
 import com.intellij.internal.statistic.UsageTrigger
+import com.intellij.notification.{NotificationGroup, NotificationType}
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.openapi.wm.ToolWindowId
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -22,9 +23,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScBlock, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import com.intellij.openapi.util.Key
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -38,6 +38,7 @@ class MacroExpandAction extends AnAction {
   private val LOG = Logger.getInstance(getClass)
 
   override def actionPerformed(e: AnActionEvent): Unit = {
+
     implicit val currentEvent = e
 
     UsageTrigger.trigger(ScalaBundle.message("macro.expand.action.id"))
@@ -48,6 +49,8 @@ class MacroExpandAction extends AnAction {
       case file: ScalaFile => findCandidatesInFile(file)
       case _ => Seq.empty
     }
+
+    suggestUsingCompilerFlag(e, psiFile)
 
     val expansions = deserializeExpansions(e)
     val filtered = expansions.filter { exp =>
@@ -267,9 +270,35 @@ class MacroExpandAction extends AnAction {
     }
     res
   }
+
+
+  def suggestUsingCompilerFlag(e: AnActionEvent, file: PsiFile): Unit = {
+
+    import org.jetbrains.plugins.scala.project._
+
+    import scala.collection._
+
+    val module = ProjectRootManager.getInstance(e.getProject).getFileIndex.getModuleForFile(file.getVirtualFile)
+    if (module == null) return
+    val state = module.scalaCompilerSettings.getState
+
+    val options = state.additionalCompilerOptions.to[mutable.ListBuffer]
+    if (!options.contains(MacroExpandAction.MACRO_DEBUG_OPTION)) {
+      options += MacroExpandAction.MACRO_DEBUG_OPTION
+      state.additionalCompilerOptions = options.toArray
+      module.scalaCompilerSettings.loadState(state)
+        NotificationGroup.toolWindowGroup("macroexpand", ToolWindowId.PROJECT_VIEW)
+        .createNotification(
+          """Macro debugging options have been enabled for current module
+            |Please recompile the file to gather macro expansions""".stripMargin, NotificationType.INFORMATION)
+        .notify(e.getProject)
+    }
+  }
 }
 
 object MacroExpandAction {
+
+  val MACRO_DEBUG_OPTION = "-Ymacro-debug-lite"
 
   val EXPANDED_KEY = new Key[String]("MACRO_EXPANDED_KEY")
 }

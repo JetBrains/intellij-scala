@@ -161,7 +161,7 @@
         <readWriteAccessDetector implementation="org.jetbrains.plugins.scala.highlighter.readWriteAccess.ScalaReadWriteAccessDetector"/>
         <directClassInheritorsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaDirectClassInheritorsSearcher"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaLineMarkerProvider"/>
-        <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.util.macroDebug.GoToExpandedMacroCallProviderExt"/>
+        <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpansionProvider"/>
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler"/>
         <debuggerClassFilterProvider implementation="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerClassFilterProvider"/>
@@ -1352,7 +1352,7 @@
           <add-to-group group-id="IntroduceActionsGroup"/>
         </action>
         <action id="Scala.MacroExpand"
-            class="org.jetbrains.plugins.scala.util.MacroExpandAction"
+            class="org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction"
             description="Expand macro application under cursor">
             <keyboard-shortcut first-keystroke="ctrl alt shift Z" keymap="$default"/>
         </action>
