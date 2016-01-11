@@ -49,9 +49,7 @@ class SimplePrintVisitor extends IntermediateTreeVisitor {
       case PrefixExpression(operand, signType, canBeSimplified) => visitPrefixPostfix(operand, signType, canBeSimplified)
       case PostfixExpression(operand, signType, canBeSimplified) =>
         visitPrefixPostfix(operand, signType, canBeSimplified, isPostfix = true)
-      case FieldConstruction(modifiers, name, ftype, isVar, initalaizer) =>
-        visitVariable(modifiers, name, ftype, isVar, initalaizer)
-      case LocalVariable(modifiers, name, ftype, isVar, initalaizer) =>
+      case Variable(modifiers, name, ftype, isVar, initalaizer) =>
         visitVariable(modifiers, name, ftype, isVar, initalaizer)
       case ConstructorSimply(modifiers, typeParams, params, body) =>
         visitConstructor(modifiers, typeParams, params, body)

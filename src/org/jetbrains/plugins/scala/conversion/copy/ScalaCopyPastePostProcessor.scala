@@ -146,7 +146,6 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
           bindingsToRestore.filter(el => !needPrefix.contains(el))
         else bindingsToRestore
 
-
         for (ConverterUtil.Binding(ref, path) <- filteredBindings;
              holder = inReadAction {
                ScalaImportTypeFix.getImportHolder(ref, file.getProject)
@@ -155,7 +154,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
             holder.addImportForPath(path, ref)
           }
 
-        ConverterUtil.addImportsForPrefixedElements(needPrefix, project)
+        if (withOptimization) ConverterUtil.addImportsForPrefixedElements(needPrefix, project)
       }
     }, "Add imports...", true, project)
   }

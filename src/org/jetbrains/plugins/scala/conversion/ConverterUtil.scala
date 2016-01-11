@@ -35,7 +35,6 @@ import scala.collection.mutable.{ArrayBuffer, ListBuffer}
   * on 12/8/15
   */
 object ConverterUtil {
-  //old method spilt current text on psi & text parts
   def getElementsBetweenOffsets(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]): Seq[Part] = {
     val buffer = new ArrayBuffer[Part]
     for ((startOffset, endOffset) <- startOffsets.zip(endOffsets)) {
@@ -91,16 +90,18 @@ object ConverterUtil {
       if (element.getFirstChild == null) return None
 
       var clipTo = transform(element.getTextRange).getStartOffset
-      val children = getChildren(element)
-      for (child <- children) {
-        val (start, end) = (transform(child.getTextRange).getStartOffset, transform(child.getTextRange).getEndOffset)
-        if (start >= rangeBound) return Some(clipTo)
-        if (end <= rangeBound) clipTo = end
-        else {
-          if (child.isInstanceOf[PsiWhiteSpace]) return Some(clipTo)
-          return tryToClipSide(child, rangeBound, isRight)
-        }
+
+      getChildren(element).foreach {
+        case child =>
+          val (start, end) = (transform(child.getTextRange).getStartOffset, transform(child.getTextRange).getEndOffset)
+          if (start >= rangeBound) return Some(clipTo)
+          if (end <= rangeBound) clipTo = end
+          else {
+            if (!child.isInstanceOf[PsiWhiteSpace]) return tryToClipSide(child, rangeBound, isRight)
+            return Some(clipTo)
+          }
       }
+
       Some(clipTo)
     }
 
@@ -154,13 +155,12 @@ object ConverterUtil {
 
     def canDropRange(range: TextRange, allRanges: Seq[TextRange]) = !allRanges.contains(range)
 
-    val ranges = startOffsets.zip(endOffsets).sortWith(_._1 < _._1)
-      .collect { case pair: (Int, Int) if pair._1 != pair._2 => new TextRange(pair._1, pair._2) }
+    val ranges = startOffsets.zip(endOffsets).sortBy(_._1)
+      .collect { case (first: Int, second: Int) if first != second => new TextRange(first, second) }
 
     val rangesToDrop = new ArrayBuffer[TextRange]()
     for (range <- ranges) {
-      val start = range.getStartOffset
-      val end = range.getEndOffset
+      val (start, end) = (range.getStartOffset, range.getEndOffset)
       val startElement = file.findElementAt(start)
       val elementToClipLeft = getMaximalParent(startElement, range)
 
@@ -390,14 +390,16 @@ object ConverterUtil {
       val index = name.lastIndexOf('.')
       index != -1 && !Set("scala", "java.lang", "scala.Predef").contains(name.substring(0, index))
     }
-    val r = refs.filter(r => needNotCheek(r.qClassName))
 
+    val updateReferences = refs.filter(r => needNotCheek(r.qClassName))
+
+    JavaToScala.fieldParamaterMap.clear()
     for (part <- parts) {
       part match {
         case TextPart(s) =>
           resultNode.addChild(LiteralExpression(s))
         case ElementPart(element) =>
-          val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, r, used)
+          val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, updateReferences)
           resultNode.addChild(result)
       }
     }

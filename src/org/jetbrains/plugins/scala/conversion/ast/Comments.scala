@@ -26,54 +26,90 @@ case class Comments(beforeComments: ArrayBuffer[LiteralExpression],
 
 
 object CommentsCollector {
-
-  def collectCommentsAtStart(element: PsiElement)
-                            (implicit usedComments:
-                            mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): ArrayBuffer[PsiElement] = {
+  def getAllInsideComments(element: PsiElement)
+                          (implicit usedComments:
+                          mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): ArrayBuffer[PsiElement] = {
     val result = new ArrayBuffer[PsiElement]()
-    var child = element.getFirstChild
-    while (child != null && (isCommentOrSpace(child) || isEmptyElement(child)) && !usedComments.contains(child)) {
-      if (!usedComments.contains(child) && isComment(child)) result += child
-      child = child.getNextSibling
+    element.depthFirst.foreach {
+      case c: PsiComment => if (!usedComments.contains(c)) result += c
+      case _ =>
     }
+
     usedComments ++= result
     result
   }
 
+  def allCommentsForElement(element: PsiElement)
+                           (implicit usedComments:
+                           mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): Comments = {
+    val before = getAllBeforeComments(element)
+    val after = getAllAfterComments(element)
+    val latest = collectCommentsAtTheEnd(element)
+
+    Comments(new ArrayBuffer[LiteralExpression]() ++ before,
+      new ArrayBuffer[LiteralExpression]() ++ after, new ArrayBuffer[LiteralExpression]() ++ latest.map(convertComment))
+  }
+
   def collectCommentsAtTheEnd(element: PsiElement)
                              (implicit usedComments:
-                             mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): ArrayBuffer[PsiElement] = {
-    val result = new ArrayBuffer[PsiElement]()
-    var child = element.getLastChild
-    if (child != null && !isCommentOrSpace(child)) child = child.getPrevSibling
+                             mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): Array[PsiElement] = {
+    val child = element.getLastChild
+    if (child == null) return Array[PsiElement]()
+    val iterator = if (!isCommentOrSpace(child)) child.prevSiblings else child.prevElements
 
-    while ((child != null) && (isCommentOrSpace(child) || isEmptyElement(child)) && !usedComments.contains(child)) {
-      if (!usedComments.contains(child) && isComment(child)) result += child
-      child = child.getPrevSibling
-    }
+    val result = iterator.takeWhile(child =>
+      (child != null) && (isCommentOrSpace(child) || isEmptyElement(child)) && !usedComments.contains(child))
+      .filter(child => isComment(child)).toArray
+
     usedComments ++= result
     result.reverse
   }
 
-  //collect all comments before, while there is no other elements or next comment is used
-  def collectCommentsAndSpacesBefore(element: PsiElement)
-                                    (implicit usedComments:
-                                    mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): ArrayBuffer[PsiElement] = {
-
-    if (Comments.topElements.contains(element)) return new ArrayBuffer[PsiElement]()
-    var prev = element.getPrevSibling
-    val resultComments = new ArrayBuffer[PsiElement]()
-    while ((prev != null) && !usedComments.contains(prev)) {
-      if (!usedComments.contains(prev) && isComment(prev)) resultComments += prev
-      prev = prev.getPrevSibling
+  def getAllBeforeComments(element: PsiElement)
+                          (implicit usedComments:
+                          mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()) = {
+    def collectedCommentsUsedInParent(comments: Seq[PsiElement]): Boolean = {
+      comments.size match {
+        case 0 => false
+        case _ => Option(comments.head.getParent) match {
+          case Some(value: PsiElement) =>
+            comments.contains(value.getFirstChild)
+          case _ => false
+        }
+      }
     }
-    //    usedComments ++= resultComments
-    resultComments
+
+    val innerComments = collectCommentsAndSpacesBefore(element).reverse
+    val startComments = collectCommentsAtStart(element)
+    val result = if (!collectedCommentsUsedInParent(innerComments)) {
+      startComments ++ innerComments
+    } else startComments
+
+    usedComments ++= result
+    result.map(convertComment)
   }
 
-  def collectCommentsAndSpacesAfter(element: PsiElement, resultComments: ArrayBuffer[PsiElement])
-                                   (implicit usedComments:
-                                   mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): ArrayBuffer[PsiElement] = {
+  //collect all comments before, while there is no other elements or next comment is used
+  private def collectCommentsAndSpacesBefore(element: PsiElement)
+                                            (implicit usedComments:
+                                            mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): Array[PsiElement] = {
+
+    if (Comments.topElements.contains(element)) return Array[PsiElement]()
+    element.prevSiblings.takeWhile(prev => (prev != null) && !usedComments.contains(prev))
+      .filter(prev => isComment(prev)).toArray
+  }
+
+  private def collectCommentsAtStart(element: PsiElement)
+                                    (implicit usedComments:
+                                    mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): Array[PsiElement] = {
+    element.children.takeWhile(child =>
+      child != null && (isCommentOrSpace(child) || isEmptyElement(child)) && !usedComments.contains(child))
+      .filter(child => isComment(child)).toArray
+  }
+
+  private def collectCommentsAndSpacesAfter(element: PsiElement, resultComments: ArrayBuffer[PsiElement])
+                                           (implicit usedComments:
+                                           mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): ArrayBuffer[PsiElement] = {
     if (Comments.topElements.contains(element)) return new ArrayBuffer[PsiElement]()
     val next = element.getNextSibling
     if (next != null) {
@@ -93,60 +129,12 @@ object CommentsCollector {
     resultComments
   }
 
-  def getAllBeforeComments(element: PsiElement)
-                          (implicit usedComments:
-                          mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): ArrayBuffer[LiteralExpression] = {
-    def collectedCommentsUsedInParent(comments: Seq[PsiElement]): Boolean = {
-      comments.size match {
-        case 0 => false
-        case _ => Option(comments.head.getParent) match {
-          case Some(value: PsiElement) =>
-            comments.contains(value.getFirstChild)
-          case _ => false
-        }
-      }
-    }
-
-    val innerComments = collectCommentsAndSpacesBefore(element).reverse
-    val result = collectCommentsAtStart(element)
-    if (!collectedCommentsUsedInParent(innerComments)) {
-      result ++= innerComments
-    }
-
-    usedComments ++= result
-    result.map(convertComment)
-  }
-
-  def getAllInsideComments(element: PsiElement)
-                          (implicit usedComments:
-                          mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): ArrayBuffer[PsiElement] = {
-    val result = new ArrayBuffer[PsiElement]()
-    element.depthFirst.foreach {
-      case c: PsiComment =>
-        if (!usedComments.contains(c)) result += c
-      case _ =>
-    }
-
-    usedComments ++= result
-    result
-  }
-
   def getAllAfterComments(element: PsiElement)
                          (implicit usedComments:
-                         mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): ArrayBuffer[LiteralExpression] = {
+                         mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): Array[LiteralExpression] = {
     val buffer = new ArrayBuffer[PsiElement]()
-    val result = collectCommentsAndSpacesAfter(element, buffer)
+    val result = collectCommentsAndSpacesAfter(element, buffer).toArray
     result.map(c => LiteralExpression(c.getText))
-  }
-
-  def allCommentsForElement(element: PsiElement)
-                           (implicit usedComments:
-                           mutable.HashSet[PsiElement] = new mutable.HashSet[PsiElement]()): Comments = {
-    val before = getAllBeforeComments(element)
-    val after = getAllAfterComments(element)
-    val latest = collectCommentsAtTheEnd(element)
-
-    Comments(before, after, latest.map(convertComment))
   }
 
   def isCommentOrSpace(element: PsiElement): Boolean =
