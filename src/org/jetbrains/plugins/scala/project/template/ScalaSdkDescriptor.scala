@@ -7,8 +7,8 @@ import com.intellij.openapi.roots.libraries.NewLibraryConfiguration
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.LibraryEditor
 import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
-import org.jetbrains.plugins.scala.project.template.Artifact.ScalaLibrary
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.template.Artifact.ScalaLibrary
 
 /**
  * @author Pavel Fatin
@@ -41,7 +41,13 @@ case class ScalaSdkDescriptor(version: Option[Version],
   }
 }
 
-object ScalaSdkDescriptor {
+object ScalaSdkDescriptor extends SdkDescriptor {
+  override protected val compilerArtifact = Artifact.ScalaCompiler
+}
+
+trait SdkDescriptor {
+  protected val compilerArtifact: Artifact
+
   def from(components: Seq[Component]): Either[String, ScalaSdkDescriptor] = {
     val (binaryComponents, sourceComponents, docComponents) = {
       val componentsByKind = components.groupBy(_.kind)
@@ -57,9 +63,9 @@ object ScalaSdkDescriptor {
       }
     }
 
-    val requiredBinaryArtifacts: Set[Artifact] =
-      if (reflectRequired) Set(Artifact.ScalaLibrary, Artifact.ScalaCompiler, Artifact.ScalaReflect)
-      else Set(Artifact.ScalaLibrary, Artifact.ScalaCompiler)
+    val requiredBinaryArtifacts = Set(Artifact.ScalaLibrary, compilerArtifact) ++ (
+      if (reflectRequired) Set(Artifact.ScalaReflect)
+      else Set())
 
     val existingBinaryArtifacts = binaryComponents.map(_.artifact).toSet
 

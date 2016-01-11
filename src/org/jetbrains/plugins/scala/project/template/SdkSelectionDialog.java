@@ -1,11 +1,14 @@
 package org.jetbrains.plugins.scala.project.template;
 
 import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.table.TableView;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import org.jetbrains.plugins.scala.project.Versions;
+import com.intellij.util.ui.ListTableModel;
+import org.jetbrains.plugins.scala.extensions.package$;
+import org.jetbrains.plugins.scala.project.Versions$;
 import scala.Function0;
 import scala.Function1;
 import scala.Option;
@@ -21,7 +24,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
-import static org.jetbrains.plugins.scala.extensions.package$.MODULE$;
+import static java.lang.String.format;
 
 public class SdkSelectionDialog extends JDialog {
     private JPanel contentPane;
@@ -32,17 +35,27 @@ public class SdkSelectionDialog extends JDialog {
     private TableView<SdkChoice> myTable;
 
     private final JComponent myParent;
-    private Function0<List<SdkChoice>> myProvider;
-    private final SdkTableModel myTableModel = new SdkTableModel();
+    private final Function0<List<SdkChoice>> myProvider;
+    private final ListTableModel<SdkChoice> myTableModel;
+    private final VirtualFile myContextDirectory;
     private ScalaSdkDescriptor mySelectedSdk;
 
-    public SdkSelectionDialog(JComponent parent, Function0<List<SdkChoice>> provider) {
+    public SdkSelectionDialog(JComponent parent, Function0<List<SdkChoice>> provider, VirtualFile contentDirectory) {
+        this(parent, provider, new SdkTableModel(), contentDirectory);
+    }
+
+    public SdkSelectionDialog(JComponent parent,
+                              Function0<List<SdkChoice>> provider,
+                              ListTableModel<SdkChoice> tableModel,
+                              VirtualFile contentDirectory) {
         super((Window) parent.getTopLevelAncestor());
 
         myParent = parent;
         myProvider = provider;
+        myTableModel = tableModel;
+        myContextDirectory = contentDirectory;
 
-        setTitle("Select JAR's for the new Scala SDK");
+        setTitle(format("Select JAR's for the new %s SDK", getLanguageName()));
 
         setContentPane(contentPane);
         setModal(true);
@@ -107,33 +120,37 @@ public class SdkSelectionDialog extends JDialog {
         return -1;
     }
 
+    protected String getLanguageName() {
+        return "Scala";
+    }
+
+    protected String getLoaderName() {
+        return "SBT";
+    }
+
+    protected VirtualFile getContextDirectory() {
+        return myContextDirectory;
+    }
+
     private void onDownload() {
-        String[] scalaVersions = MODULE$.withProgressSynchronously("Fetching available Scala versions",
-            new AbstractFunction1<Function1<String, BoxedUnit>, String[]>() {
-                @Override
-                public String[] apply(Function1<String, BoxedUnit> listener) {
-                    return Versions.loadScalaVersions();
-                }
-            });
+        String languageName = getLanguageName();
+        String loaderName = getLoaderName();
+        String[] scalaVersions = package$.MODULE$.withProgressSynchronously(
+                format("Fetching available %s versions", languageName), fetchVersions());
 
         final SelectionDialog<String> dialog = new SelectionDialog<String>(contentPane,
-            "Download (via SBT)", "Scala version:", scalaVersions);
+                format("Download (via %s)", loaderName), format("%s version:", languageName), scalaVersions);
 
         if (dialog.showAndGet()) {
-            final String version = dialog.getSelectedValue();
-
-            Try<BoxedUnit> result = MODULE$.withProgressSynchronouslyTry("Downloading Scala " + version + " (via SBT)",
-                new AbstractFunction1<Function1<String, BoxedUnit>, BoxedUnit>() {
-                    @Override
-                    public BoxedUnit apply(Function1<String, BoxedUnit> listener) {
-                        Downloader.downloadScala(version, listener);
-                        return BoxedUnit.UNIT;
-                    }
-                });
+            String version = dialog.getSelectedValue();
+            Try<BoxedUnit> result = package$.MODULE$.withProgressSynchronouslyTry(
+                    format("Downloading %s %s (via %s)", languageName, version, loaderName),
+                    downloadVersion(version));
 
             if (result.isFailure()) {
                 Throwable exception = ((Failure) result).exception();
-                Messages.showErrorDialog(contentPane, exception.getMessage(), "Error Downloading Scala " + version);
+                Messages.showErrorDialog(contentPane, exception.getMessage(),
+                        format("Error Downloading %s %s", languageName, version));
                 return;
             }
 
@@ -148,6 +165,16 @@ public class SdkSelectionDialog extends JDialog {
         }
     }
 
+    protected Function1<Function1<String, BoxedUnit>, BoxedUnit> downloadVersion(final String version) {
+        return new AbstractFunction1<Function1<String, BoxedUnit>, BoxedUnit>() {
+            @Override
+            public BoxedUnit apply(Function1<String, BoxedUnit> listener) {
+                Downloader.downloadScala(version, listener);
+                return BoxedUnit.UNIT;
+            }
+        };
+    }
+
     private void onBrowse() {
         Option<ScalaSdkDescriptor> result = SdkSelection.chooseScalaSdkFiles(myTable);
 
@@ -155,6 +182,15 @@ public class SdkSelectionDialog extends JDialog {
             mySelectedSdk = result.get();
             dispose();
         }
+    }
+
+    protected Function1<Function1<String, BoxedUnit>, String[]> fetchVersions() {
+        return new AbstractFunction1<Function1<String, BoxedUnit>, String[]>() {
+            @Override
+            public String[] apply(Function1<String, BoxedUnit> listener) {
+                return Versions$.MODULE$.loadScalaVersions();
+            }
+        };
     }
 
     private void onOK() {

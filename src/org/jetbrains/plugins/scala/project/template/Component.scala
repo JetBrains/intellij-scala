@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package project.template
 
-import java.io.{InputStream, IOException, BufferedInputStream, File}
+import java.io.{BufferedInputStream, File, IOException, InputStream}
 import java.net.URL
 import java.util.Properties
 import java.util.regex.Pattern
@@ -30,7 +30,7 @@ sealed class Artifact(val prefix: String, resource: Option[String] = None) {
 }
 
 object Artifact {
-  def values: Set[Artifact] = Set(ScalaLibrary, ScalaCompiler, ScalaReflect,
+  def values: Set[Artifact] = Set(ScalaLibrary, ScalaCompiler, DottyCompiler, ScalaReflect,
     ScalaXml, ScalaSwing, ScalaCombinators, ScalaActors)
 
   private def readProperty(file: File, resource: String, name: String): Option[String] = {
@@ -51,6 +51,8 @@ object Artifact {
   case object ScalaLibrary extends Artifact("scala-library", Some("library.properties"))
 
   case object ScalaCompiler extends Artifact("scala-compiler", Some("compiler.properties"))
+
+  case object DottyCompiler extends Artifact("dotty-compiler")
 
   case object ScalaReflect extends Artifact("scala-reflect", Some("reflect.properties"))
 

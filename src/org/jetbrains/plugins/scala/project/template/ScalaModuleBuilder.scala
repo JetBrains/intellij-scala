@@ -10,13 +10,14 @@ import com.intellij.ide.util.projectWizard.{JavaModuleBuilder, ModuleWizardStep,
 import com.intellij.openapi.module.{JavaModuleType, Module}
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.libraries.Library
+import com.intellij.openapi.roots.ui.configuration.libraries.CustomLibraryDescription
 import com.intellij.openapi.roots.ui.configuration.projectRoot.{LibrariesContainer, LibrariesContainerFactory}
 import com.intellij.openapi.util.Disposer
 
 /**
  * @author Pavel Fatin
  */
-class ScalaModuleBuilder extends JavaModuleBuilder {
+class ScalaModuleBuilder(languageName: String, libraryDescription: CustomLibraryDescription) extends JavaModuleBuilder {
   private var librariesContainer: LibrariesContainer = _
 
   private var libraryCompositionSettings: LibraryCompositionSettings = _
@@ -36,10 +37,10 @@ class ScalaModuleBuilder extends JavaModuleBuilder {
   private class ScalaStep(settingsStep: SettingsStep) extends ModuleWizardStep() {
     private val javaStep = JavaModuleType.getModuleType.modifyProjectTypeStep(settingsStep, ScalaModuleBuilder.this)
 
-    private val libraryPanel = new LibraryOptionsPanel(ScalaLibraryDescription, "",
+    private val libraryPanel = new LibraryOptionsPanel(libraryDescription, "",
       FrameworkLibraryVersionFilter.ALL, librariesContainer, false)
 
-    settingsStep.addSettingsField("Scala S\u001BDK:", libraryPanel.getSimplePanel)
+    settingsStep.addSettingsField(s"$languageName S\u001BDK:", libraryPanel.getSimplePanel)
 
     override def updateDataModel() {
       libraryCompositionSettings = libraryPanel.apply()

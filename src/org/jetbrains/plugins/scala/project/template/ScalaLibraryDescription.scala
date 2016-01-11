@@ -3,9 +3,11 @@ package project
 package template
 
 import java.io.File
+import java.util
 import java.util.Collections
 import javax.swing.JComponent
 
+import com.intellij.openapi.roots.libraries.PersistentLibraryKind
 import com.intellij.openapi.roots.ui.configuration.libraries.CustomLibraryDescription
 import com.intellij.openapi.roots.ui.configuration.projectRoot.LibrariesContainer
 import com.intellij.openapi.util.SystemInfo
@@ -17,26 +19,21 @@ import scala.collection.JavaConverters._
 /**
  * @author Pavel Fatin
  */
-object ScalaLibraryDescription extends CustomLibraryDescription {
-  def getSuitableLibraryKinds = Collections.singleton(ScalaLibraryKind)
+object ScalaLibraryDescription extends ScalaLibraryDescription {
+  override val libraryKind = ScalaLibraryKind
 
-  def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile) = {
-    implicit val ordering = implicitly[Ordering[Version]].reverse
+  override val sdkDescriptor = ScalaSdkDescriptor
 
-    def sdks = localSkdsIn(virtualToIoFile(contextDirectory)).map(SdkChoice(_, "Project")) ++
-            systemSdks.sortBy(_.version).map(SdkChoice(_, "System")) ++
-            ivySdks.sortBy(_.version).map(SdkChoice(_, "Ivy")) ++
-            mavenSdks.sortBy(_.version).map(SdkChoice(_, "Maven"))
-
-    val dialog = new SdkSelectionDialog(parentComponent, () => sdks.asJava)
-
-    Option(dialog.open()).map(_.createNewLibraryConfiguration()).orNull
+  override def dialog(parentComponent: JComponent, provider: () => util.List[SdkChoice], contextDirectory: VirtualFile) = {
+    new SdkSelectionDialog(parentComponent, provider, contextDirectory)
   }
 
-  override def getDefaultLevel = LibrariesContainer.LibraryLevel.GLOBAL
+  override def sdks(contextDirectory: VirtualFile) = super.sdks(contextDirectory) ++
+    systemSdks.sortBy(_.version).map(SdkChoice(_, "System")) ++
+    ivySdks.sortBy(_.version).map(SdkChoice(_, "Ivy")) ++
+    mavenSdks.sortBy(_.version).map(SdkChoice(_, "Maven"))
 
-  private def localSkdsIn(directory: File): Seq[ScalaSdkDescriptor] =
-    Seq(directory / "lib").flatMap(sdkIn)
+  override def getDefaultLevel = LibrariesContainer.LibraryLevel.GLOBAL
 
   def systemSdks: Seq[ScalaSdkDescriptor] =
     systemScalaRoots.flatMap(path => sdkIn(new File(path)).toSeq)
@@ -75,12 +72,6 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
             .find(_.toLowerCase.contains("scala"))
             .map(_.replaceFirst("""[/\\]?bin[/\\]?$""", ""))
 
-  private def sdkIn(root: File): Option[ScalaSdkDescriptor] = {
-    val components = Component.discoverIn(root.allFiles)
-
-    ScalaSdkDescriptor.from(components).right.toOption
-  }
-
   def mavenSdks: Seq[ScalaSdkDescriptor] = {
     val root = new File(System.getProperty("user.home")) / ".m2"
 
@@ -99,6 +90,37 @@ object ScalaLibraryDescription extends CustomLibraryDescription {
     components.groupBy(_.version).mapValues(ScalaSdkDescriptor.from).toSeq.collect {
       case (Some(version), Right(sdk)) => sdk
     }
+  }
+}
+
+trait ScalaLibraryDescription extends CustomLibraryDescription {
+  val libraryKind: PersistentLibraryKind[ScalaLibraryProperties]
+
+  val sdkDescriptor: SdkDescriptor
+
+  def dialog(parentComponent: JComponent, provide: () => java.util.List[SdkChoice],
+             contextDirectory: VirtualFile): SdkSelectionDialog
+
+  def sdks(contextDirectory: VirtualFile): Seq[SdkChoice] = {
+    localSkdsIn(virtualToIoFile(contextDirectory)).map(SdkChoice(_, "Project"))
+  }
+
+  def getSuitableLibraryKinds = Collections.singleton(libraryKind)
+
+  def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile) = {
+    implicit val ordering = implicitly[Ordering[Version]].reverse
+
+    Option(dialog(parentComponent, () => sdks(contextDirectory).asJava, contextDirectory).open())
+      .map(_.createNewLibraryConfiguration())
+      .orNull
+  }
+
+  private def localSkdsIn(directory: File): Seq[ScalaSdkDescriptor] = Seq(directory / "lib").flatMap(sdkIn)
+
+  protected def sdkIn(root: File): Option[ScalaSdkDescriptor] = {
+    val components = Component.discoverIn(root.allFiles)
+
+    sdkDescriptor.from(components).right.toOption
   }
 }
 
