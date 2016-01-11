@@ -4,7 +4,7 @@ import sbt._
 object Versions {
   val scalaVersion = "2.11.6"
   val sbtVersion = "0.13.9"
-  val ideaVersion = "143.1015.7"
+  val ideaVersion = "143.1653.2"
   val sbtStructureVersion = "5.1.0"
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
@@ -194,8 +194,6 @@ object DependencyGroups {
     "org.scalatest" % "scalatest_2.11" % "2.1.7",
     "org.scalatest" % "scalatest_2.10" % "2.1.7",
     "org.scalatest" % "scalatest_2.10" % "1.9.2",
-    "com.lihaoyi" % "utest_2.10" % "0.3.1",
-    "com.lihaoyi" % "utest_2.11" % "0.3.1",
     "com.github.julien-truffaut"  %%  "monocle-core"    % "1.2.0",
     "com.github.julien-truffaut"  %%  "monocle-generic" % "1.2.0",
     "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.2.0",
