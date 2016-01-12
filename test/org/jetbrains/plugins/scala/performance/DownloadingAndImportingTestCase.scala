@@ -128,5 +128,5 @@ trait ScalaCommunityDownloadingAndImportingTestCase {
 
   def githubRepoName: String = "intellij-scala"
 
-  def revision: String = "752b3c8575ff506a249159c86bbfba3cdb96a317"
+  def revision: String = "d2906113e9cdca0e302437cfd412fcb19d288720"
 }
