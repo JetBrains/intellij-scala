@@ -69,7 +69,6 @@ class WorksheetUiConstructor(base: JComponent, project: Project) {
       new CleanWorksheetAction().init(panel)
       addFiller()
       if (run) new RunWorksheetAction().init(panel) else exec foreach (new StopWorksheetAction(_).init(panel))
-      addFiller()
     }
 
     Option(statusDisplayN)
