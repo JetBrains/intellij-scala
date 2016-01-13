@@ -13,7 +13,7 @@ class MonocleInjector extends SyntheticMembersInjector {
       // Monocle lenses generation
       case obj: ScObject =>
         obj.fakeCompanionClassOrCompanionClass match {
-          case clazz: ScClass if clazz.findAnnotationNoAliases("monocle.macros.Lenses") != null => mkLens(obj)
+          case clazz: ScClass if clazz.findAnnotation("monocle.macros.Lenses") != null => mkLens(obj)
           case _ => Seq.empty
         }
       case _ => Seq.empty
