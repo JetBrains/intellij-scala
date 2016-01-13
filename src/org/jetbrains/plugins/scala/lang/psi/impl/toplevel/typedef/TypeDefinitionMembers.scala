@@ -777,6 +777,7 @@ object TypeDefinitionMembers {
 
     val processVals = shouldProcessVals(processor)
     val processMethods = shouldProcessMethods(processor)
+    val processMethodRefs = shouldProcessMethodRefs(processor)
     val processValsForScala = isScalaProcessor && processVals
     val processOnlyStable = shouldProcessOnlyStable(processor)
 
@@ -973,10 +974,12 @@ object TypeDefinitionMembers {
       }
     }
 
-    if (processOnlyStable) {
-      if (!process(parameterlessSignatures())) return false
-    } else {
-      if (!process(signatures())) return false
+    if (processMethodRefs) {
+      if (processOnlyStable) {
+        if (!process(parameterlessSignatures())) return false
+      } else {
+        if (!process(signatures())) return false
+      }
     }
 
     //inner classes
@@ -1023,6 +1026,12 @@ object TypeDefinitionMembers {
     case _ =>
       val hint = processor.getHint(ElementClassHint.KEY)
       hint == null || hint.shouldProcess(ElementClassHint.DeclarationKind.METHOD)
+  }
+
+  def shouldProcessMethodRefs(processor: PsiScopeProcessor) = processor match {
+    case b: BaseProcessor if b.isImplicitProcessor => false
+    case BaseProcessor(kinds) => (kinds contains METHOD) || (kinds contains VAL) || (kinds contains VAR)
+    case _ => false //important: do not process inner classes!
   }
 
   def shouldProcessTypes(processor: PsiScopeProcessor) = processor match {
