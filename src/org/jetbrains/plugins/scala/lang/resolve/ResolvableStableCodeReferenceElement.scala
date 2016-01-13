@@ -37,7 +37,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   private object ShapesResolverAllConstructors extends StableCodeReferenceElementResolver(this, true, true, false)
   private object ImportResolverNoMethods extends StableCodeReferenceElementResolver(this, false, false, false) {
     override protected def getKindsFor(ref: ScStableCodeReferenceElement) = {
-      ref.getKinds(incomplete = false) -- StdKinds.methodsOnly
+      ref.getKinds(incomplete = false) -- StdKinds.methodRef
     }
   }
   private object ImportResolverNoTypes extends StableCodeReferenceElementResolver(this, false, false, false) {
