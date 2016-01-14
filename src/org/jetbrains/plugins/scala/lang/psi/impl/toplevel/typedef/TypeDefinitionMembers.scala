@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.resolve.processor.{ImplicitProcessor, CompletionProcessor, BaseProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 
 import scala.reflect.NameTransformer
@@ -200,6 +200,7 @@ object TypeDefinitionMembers {
           case td: ScTypeDefinition =>
             td.fakeCompanionModule match {
               case Some(obj) => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+              case _ =>
             }
           case _ =>
         }
@@ -468,6 +469,7 @@ object TypeDefinitionMembers {
           case td: ScTypeDefinition =>
             td.fakeCompanionModule match {
               case Some(obj) => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+              case _ =>
             }
           case _ =>
         }
@@ -1027,9 +1029,8 @@ object TypeDefinitionMembers {
   }
 
   def shouldProcessMethodRefs(processor: PsiScopeProcessor) = processor match {
-    case b: BaseProcessor if b.isImplicitProcessor => false
-    case BaseProcessor(kinds) => (kinds contains METHOD) || (kinds contains VAL) || (kinds contains VAR)
-    case _ => false //important: do not process inner classes!
+    case BaseProcessor(kinds) => (kinds contains METHOD) || (kinds contains VAR) || (kinds contains VAL)
+    case _ => true
   }
 
   def shouldProcessTypes(processor: PsiScopeProcessor) = processor match {
