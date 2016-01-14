@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ImplicitProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 
 import scala.reflect.NameTransformer
@@ -1029,9 +1029,8 @@ object TypeDefinitionMembers {
   }
 
   def shouldProcessMethodRefs(processor: PsiScopeProcessor) = processor match {
-    case b: BaseProcessor if b.isImplicitProcessor => false
-    case BaseProcessor(kinds) => (kinds contains METHOD) || (kinds contains VAL) || (kinds contains VAR)
-    case _ => false //important: do not process inner classes!
+    case BaseProcessor(kinds) => (kinds contains METHOD) || (kinds contains VAR) || (kinds contains VAL)
+    case _ => true
   }
 
   def shouldProcessTypes(processor: PsiScopeProcessor) = processor match {
