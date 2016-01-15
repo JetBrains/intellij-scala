@@ -287,25 +287,6 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     super.getFields ++ fields.flatten
   }
 
-  override def getFields: Array[PsiField] = {
-    val fields = constructor match {
-      case Some(constr) => constr.parameters.map { param =>
-        param.getType(TypingContext.empty) match {
-          case Success(tp: ScTypeParameterType, _) if tp.param.findAnnotation("scala.specialized") != null =>
-            val factory: PsiElementFactory = PsiElementFactory.SERVICE.getInstance(getProject)
-            val psiTypeText: String = ScType.toPsi(tp, getProject, getResolveScope).getCanonicalText
-            val text = s"public final $psiTypeText ${param.name};"
-            val elem = new LightField(getManager, factory.createFieldFromText(text, this), this)
-            elem.setNavigationElement(param)
-            Option(elem)
-          case _ => None
-        }
-      }
-      case _ => Seq.empty
-    }
-    super.getFields ++ fields.flatten
-  }
-
   override def getTypeParameterList: PsiTypeParameterList = typeParametersClause.orNull
 
   override def getInterfaces: Array[PsiClass] = {
