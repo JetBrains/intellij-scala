@@ -199,7 +199,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
         case None =>
       }
     }
-    SyntheticMembersInjector.inject(this) ++: buf.toSeq
+    SyntheticMembersInjector.inject(this, withOverride = false) ++: buf.toSeq
   }
 
   private def copyMethodText: String = {

@@ -146,6 +146,10 @@ public class TestUtils {
     return getIvyCachePath() + "/io.spray/spray-routing_2.11/bundles/spray-routing_2.11-1.3.1.jar" ;
   }
 
+  public static String getMockSlickLib(ScalaSdkVersion version) {
+    return getIvyCachePath() + "/com.typesafe.slick/slick_2.11/bundles/slick_2.11-3.1.0.jar" ;
+  }
+
   public static String getScalaLibrarySrc(ScalaSdkVersion version) {
     String fileName = "scala-library-" + version.getMinor() + "-sources.jar";
     return getIvyCachePath() + "/org.scala-lang/scala-library/srcs/" + fileName;
