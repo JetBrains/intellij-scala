@@ -78,6 +78,7 @@
     zzAtBOL = true;
     zzEndRead = end;
     
+    haveIdInString = false;
     nestedString.clear();
     
     yybegin(initialState);
@@ -93,6 +94,7 @@
     zzAtBOL = true;
     zzEndRead = buffer.length();
     
+    haveIdInString = false;
     nestedString.clear();
     
     yybegin(initialState);

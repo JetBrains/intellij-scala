@@ -3,11 +3,10 @@ package lang
 package superMember
 
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiFile, PsiMember, PsiNamedElement}
+import com.intellij.psi.{PsiFile, PsiMember}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 /**
@@ -33,10 +32,7 @@ object SuperMethodTestUtil {
               else ""
             case _ => ""
           }
-          res.append(s + (sign.namedElement match {
-                    case x: ScNamedElement => x.name
-                    case x: PsiNamedElement => x.getName
-                  }) + "\n")
+          res.append(s + sign.namedElement.name + "\n")
         }
         resa = if (res.toString == "") "" else res.substring(0, res.length - 1).toString
       case _ => resa = "Not implemented test"

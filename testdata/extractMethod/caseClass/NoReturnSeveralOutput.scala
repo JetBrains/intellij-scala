@@ -15,12 +15,12 @@ class NoReturnSeveralOutput {
 //case class
 class NoReturnSeveralOutput {
   def foo(i: Int) {
-    /*start*/
+
 
     val testMethodNameResult: TestMethodNameResult = testMethodName
     val TestMethodNameResult(x: Int, y: String, z: Int, zz: String) = testMethodNameResult
 
-    /*end*/
+
     println(x + y + z + zz)
   }
 

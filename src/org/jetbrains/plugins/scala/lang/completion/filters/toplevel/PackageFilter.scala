@@ -30,14 +30,13 @@ class PackageFilter extends ElementFilter {
           var node = leaf.getPrevSibling
           if (node.isInstanceOf[PsiWhiteSpace]) node = node.getPrevSibling
           node match {
-            case x: PsiErrorElement => {
+            case x: PsiErrorElement =>
               val s = ErrMsg("wrong.top.statment.declaration")
               x.getErrorDescription match {
-                case `s` => return  true
-                case _ => return  false
+                case `s` => return true
+                case _ => return false
               }
-            }
-            case _ => return  true
+            case _ => return true
           }
         }
       }

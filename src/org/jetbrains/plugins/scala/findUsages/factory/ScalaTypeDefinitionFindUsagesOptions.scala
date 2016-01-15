@@ -1,17 +1,19 @@
 package org.jetbrains.plugins.scala
 package findUsages.factory
 
-import java.util.LinkedHashSet
+import java.util
 
 import com.intellij.find.FindBundle
 import com.intellij.find.findUsages.JavaFindUsagesOptions
 import com.intellij.openapi.project.Project
 
 /**
- * @author Alefas
- * @since 15.12.12
- */
+  * @author Alefas
+  * @since 15.12.12
+  */
 class ScalaTypeDefinitionFindUsagesOptions(project: Project) extends JavaFindUsagesOptions(project) {
+  isSearchForTextOccurrences = false
+
   var isImplementingTypeDefinitions = false
   var isMembersUsages = false
   var isSearchCompanionModule = false
@@ -36,7 +38,7 @@ class ScalaTypeDefinitionFindUsagesOptions(project: Project) extends JavaFindUsa
     res
   }
 
-  protected override def addUsageTypes(strings: LinkedHashSet[String]) {
+  protected override def addUsageTypes(strings: util.LinkedHashSet[String]) {
     if (isUsages || isMembersUsages) {
       strings.add(FindBundle.message("find.usages.panel.title.usages"))
     }

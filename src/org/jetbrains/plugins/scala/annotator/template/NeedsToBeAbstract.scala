@@ -31,14 +31,14 @@ object NeedsToBeAbstract extends AnnotatorPart[ScTemplateDefinition] {
       if !member.isInstanceOf[ScAliasMember] // See SCL-2887
     } yield (member.getText, member.getParentNodeDelegate.getText)
 
-    if(!undefined.isEmpty) {
+    if(undefined.nonEmpty) {
       val annotation = holder.createErrorAnnotation(definition.nameId,
         message(kindOf(definition), definition.name, undefined.iterator.next))
       definition match {
         case owner: ScModifierListOwner => annotation.registerFix(new AddModifierQuickFix(owner, "abstract"))
         case _ =>
       }
-      if(!getMembersToImplement(definition).isEmpty) {
+      if(getMembersToImplement(definition).nonEmpty) {
         annotation.registerFix(new ImplementMethodsQuickFix(definition))
       }
     }

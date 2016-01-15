@@ -135,7 +135,9 @@ object ActivatorRepoProcessor {
 
   private val log = Logger.getInstance(classOf[ActivatorRepoProcessor])
 
-  case class DocData(id: String, title: String, author: String, src: String, category: String, desc: String, tags: String)
+  case class DocData(id: String, title: String, author: String, src: String, category: String, desc: String, tags: String) {
+    override def toString: String = title
+  }
 
   object Keys {
     class Key(val keyName: String) {

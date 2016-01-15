@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  *                 | Literal
  *                 | StableId
  *                 | StableId '(' [Patterns [',']] ')'
- *                 | StableId '(' [Patterns ','] [varid '@'] '_' '*'')'
+ *                 | StableId '(' [Patterns ','] [(varid | '_' ) '@'] '_' '*'')'
  *                 |'(' [Patterns [',']] ')'
  *                 | XmlPattern
  */
@@ -142,9 +142,11 @@ object SimplePattern extends ParserNode {
 
           def parseSeqWildcardBinding(withComma: Boolean): Boolean = {
             if (if (withComma) lookAhead(builder, ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT,
-            ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
+            ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER) || lookAhead(builder, ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tAT,
+              ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
             else lookAhead(builder, ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT,
-            ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
+            ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER) || lookAhead(builder, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tAT,
+              ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
               val wild = builder.mark
               if (withComma) builder.advanceLexer() // ,
               builder.getTokenType

@@ -32,15 +32,19 @@ abstract class AdjustTypesTestBase extends ScalaLightPlatformCodeInsightTestCase
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
-    val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
-    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
-    val offset = fileText.indexOf(startMarker)
-    val startOffset = offset + startMarker.length
 
-    assert(offset != -1, "Not specified start marker in test case. Use /*start*/ in scala file for this.")
+    var fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
+
+    val startOffset = fileText.indexOf(startMarker)
+    assert(startOffset != -1, "Not specified start marker in test case. Use /*start*/ in scala file for this.")
+    fileText = fileText.replace(startMarker, "")
+
     val endOffset = fileText.indexOf(endMarker)
     assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
+    fileText = fileText.replace(endMarker, "")
+
+    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
+    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     val element = PsiTreeUtil.findElementOfClassAtRange(scalaFile, startOffset, endOffset, classOf[PsiElement])
 
     var res: String = null
@@ -66,10 +70,9 @@ abstract class AdjustTypesTestBase extends ScalaLightPlatformCodeInsightTestCase
       case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
       case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
         text.substring(2, text.length - 2).trim
-      case _ => {
+      case _ =>
         assertTrue("Test result must be in last comment statement.", false)
         ""
-      }
     }
     assertEquals(output, res)
   }

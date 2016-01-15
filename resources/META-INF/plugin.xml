@@ -13,15 +13,15 @@
   ~ limitations under the License.
   -->
 
-<!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
+<!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.jetbrains.com/plugin.dtd">
 <idea-plugin url="http://www.jetbrains.net/confluence/display/SCA/Scala+Plugin+for+IntelliJ+IDEA" version="2"
     xmlns:xi="http://www.w3.org/2001/XInclude">
     <id>org.intellij.scala</id>
     <name>Scala</name>
     <description>Plugin for Scala language support</description>
     <version>VERSION</version>
-    <vendor url="http://www.jetbrains.com" logo="/org/jetbrains/plugins/scala/images/scala-small-logo.png">JetBrains Inc.</vendor>
-    <idea-version since-build="144.2151" until-build="145.0"/>
+    <vendor url="http://www.jetbrains.com" logo="/org/jetbrains/plugins/scala/images/scala-small-logo.png">JetBrains</vendor>
+    <idea-version since-build="144.2925" until-build="145.0"/>
     <depends optional="true" config-file="scala-maven-integration.xml">org.jetbrains.idea.maven</depends>
     <depends optional="true" config-file="intellilang-scala-support.xml">org.intellij.intelliLang</depends>
     <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>

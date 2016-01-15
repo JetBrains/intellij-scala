@@ -6,11 +6,13 @@ package base
 
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.caches.CachesUtil
+import com.intellij.psi.util.PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedInsidePsiElement}
 
 /**
  * A member that can be converted to a ScMethodType, ie a method or a constructor.
@@ -27,12 +29,22 @@ trait ScMethodLike extends ScMember with PsiMethod {
    * in that context it will have different meaning. See SCL-3095.
    * @return generated type parameters only for constructors
    */
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def getConstructorTypeParameters: Option[ScTypeParamClause] = {
-    CachesUtil.get(this, CachesUtil.CONSTRUCTOR_TYPE_PARAMETERS_KEY,
-      new CachesUtil.MyProvider[ScMethodLike, Option[ScTypeParamClause]](
-        this, (value: ScMethodLike) => value.getConstructorTypeParametersImpl
-      )(PsiModificationTracker.MODIFICATION_COUNT)
-    )
+    this match {
+      case method: PsiMethod if method.isConstructor =>
+        val clazz = method.containingClass
+        clazz match {
+          case c: ScTypeDefinition =>
+            c.typeParametersClause.map((typeParamClause: ScTypeParamClause) => {
+              val paramClauseText = typeParamClause.getTextByStub
+              ScalaPsiElementFactory.createTypeParameterClauseFromTextWithContext(paramClauseText,
+                typeParamClause.getContext, typeParamClause)
+            })
+          case _ => None
+        }
+      case _ => None
+    }
   }
 
   /** If this is a primary or auxilliary constructor, return the containing classes type parameter clause */
@@ -58,23 +70,6 @@ trait ScMethodLike extends ScMember with PsiMethod {
       parameterList.addClause(newClause)
     }
     this
-  }
-
-  private def getConstructorTypeParametersImpl: Option[ScTypeParamClause] = {
-    this match {
-      case method: PsiMethod if method.isConstructor =>
-        val clazz = method.containingClass
-        clazz match {
-          case c: ScTypeDefinition =>
-            c.typeParametersClause.map((typeParamClause: ScTypeParamClause) => {
-              val paramClauseText = typeParamClause.getTextByStub
-              ScalaPsiElementFactory.createTypeParameterClauseFromTextWithContext(paramClauseText,
-                typeParamClause.getContext, typeParamClause)
-            })
-          case _ => None
-        }
-      case _ => None
-    }
   }
 
   def isExtensionMethod: Boolean = false

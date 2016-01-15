@@ -26,12 +26,11 @@ class ElseFilter extends ElementFilter {
           parent.getPrevSibling.getPrevSibling != null) {
         val ifStmt = parent.getPrevSibling match {
           case x: ScIfStmt => x
-          case x if x.isInstanceOf[PsiWhiteSpace] || x.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE => {
+          case x if x.isInstanceOf[PsiWhiteSpace] || x.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE =>
             x.getPrevSibling match {
               case x: ScIfStmt => x
               case _ => null
             }
-          }
           case _ => null
         }
         var text = ""

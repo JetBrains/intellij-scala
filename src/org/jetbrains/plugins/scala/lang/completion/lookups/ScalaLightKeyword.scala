@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.completion.lookups
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiManager}
-import com.intellij.util.containers.ConcurrentWeakHashMap
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -34,7 +34,7 @@ class ScalaLightKeyword private (manager: PsiManager, text: String)
 }
 
 object ScalaLightKeyword {
-  private val keywords = new ConcurrentWeakHashMap[(PsiManager, String), ScalaLightKeyword]()
+  private val keywords = ContainerUtil.newConcurrentMap[(PsiManager, String), ScalaLightKeyword]()
 
   def apply(manager: PsiManager, text: String): ScalaLightKeyword = {
     var res = keywords.get((manager, text))

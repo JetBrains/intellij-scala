@@ -102,7 +102,7 @@ object AnnotatorHighlighter {
       } else if (conformsByNames(resolvedType, JAVA_COLLECTIONS_BASES)) {
         simpleAnnotate(ScalaBundle.message("java.collection"), DefaultHighlighter.JAVA_COLLECTION)
       } else if (resolvedType.canonicalText.startsWith(SCALA_COLLECTION_GENERIC_BASE) && refElement.isInstanceOf[ScReferenceExpression]) {
-        refElement.asInstanceOf[ScReferenceExpression].getType(TypingContext.empty).foreach(_ match {
+        refElement.asInstanceOf[ScReferenceExpression].getType(TypingContext.empty).foreach {
           case f@ScFunctionType(returnType, params) => Option(returnType).foreach(a =>
             if (a.canonicalText.startsWith(SCALA_COLLECTION_MUTABLE_BASE)) {
               simpleAnnotate(ScalaBundle.message("scala.mutable.collection"), DefaultHighlighter.MUTABLE_COLLECTION)
@@ -110,7 +110,7 @@ object AnnotatorHighlighter {
               simpleAnnotate(ScalaBundle.message("scala.immutable.collection"), DefaultHighlighter.IMMUTABLE_COLLECTION)
             })
           case _ =>
-        })
+        }
       }
     }
 
@@ -120,10 +120,7 @@ object AnnotatorHighlighter {
 
     val c = ScalaPsiUtil.getParentOfType(refElement, classOf[ScConstructor])
 
-    c match {
-      case null =>
-      case c => if (c.getParent.isInstanceOf[ScAnnotationExpr]) return
-    }
+    if (c != null && c.getParent.isInstanceOf[ScAnnotationExpr]) return
 
     val resolvedElement = refElement.resolve()
     if (PsiTreeUtil.getParentOfType(refElement, classOf[ScImportExpr]) == null && resolvedElement.isInstanceOf[PsiClass]) {
@@ -141,7 +138,7 @@ object AnnotatorHighlighter {
       case x: ScTypeAlias =>
         x.getOriginalElement match {
           case originalElement: ScTypeAliasDefinition =>
-            originalElement.aliasedType.foreach(annotateCollectionByType(_))
+            originalElement.aliasedType.foreach(annotateCollectionByType)
           case _ =>
         }
         annotation.setTextAttributes(DefaultHighlighter.TYPE_ALIAS)
@@ -166,7 +163,7 @@ object AnnotatorHighlighter {
         parent match {
           case r@(_: ScValue | _: ScVariable) =>
             Option(x.containingClass).foreach(a => if (SCALA_PREDEFINED_OBJECTS.contains(a.qualifiedName)) {
-              x.getType(TypingContext.empty).foreach(annotateCollectionByType(_))
+              x.getType(TypingContext.empty).foreach(annotateCollectionByType)
             })
 
             getParentByStub(parent) match {

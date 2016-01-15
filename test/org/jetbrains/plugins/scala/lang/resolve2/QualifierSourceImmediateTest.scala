@@ -10,15 +10,15 @@ class QualifierSourceImmediateTest extends ResolveTestBase {
     super.folderPath + "qualifier/source/immediate/"
   }
 
-  def testCaseClass = doTest
+  def testCaseClass() = doTest()
   //TODO
 //  def testCaseClassObject = doTest
   //TODO
 //  def testCaseClassObjectSyntetic = doTest
-  def testCaseObject = doTest
+  def testCaseObject() = doTest()
   //TODO
 //  def testCaseObjectSyntetic = doTest
-  def testClass = doTest
-  def testObject = doTest
-  def testTrait = doTest
+  def testClass() = doTest()
+  def testObject() = doTest()
+  def testTrait() = doTest()
 }

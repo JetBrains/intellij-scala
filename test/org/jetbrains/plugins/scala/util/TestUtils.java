@@ -25,7 +25,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.LocalTimeCounter;
-import junit.framework.AssertionFailedError;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.Console;
 import org.jetbrains.plugins.scala.debugger.DebuggerTestUtil$;
@@ -230,7 +229,7 @@ public class TestUtils {
         assertTiming(message, expected, finish - start);
         break;
       }
-      catch (AssertionFailedError e) {
+      catch (AssertionError e) {
         if (attempts == 0) throw e;
         System.gc();
         System.gc();

@@ -25,16 +25,16 @@ object Qual_Id {
   def parse(builder: ScalaPsiBuilder, qualMarker: PsiBuilder.Marker): Boolean = {
     //parsing td identifier
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => {
-        builder.advanceLexer//Ate identifier
+      case ScalaTokenTypes.tIDENTIFIER =>
+        builder.advanceLexer //Ate identifier
         //Look for dot
         builder.getTokenType match {
           case ScalaTokenTypes.tDOT => {
             val newMarker = qualMarker.precede
             qualMarker.done(ScalaElementTypes.REFERENCE)
-            builder.advanceLexer//Ate dot
+            builder.advanceLexer //Ate dot
             //recursively parse qualified identifier
-            Qual_Id parse (builder,newMarker)
+            Qual_Id parse(builder, newMarker)
             return true
           }
           case _ => {
@@ -43,12 +43,10 @@ object Qual_Id {
             return true
           }
         }
-      }
-      case _ => {
+      case _ =>
         builder error ScalaBundle.message("wrong.qual.identifier")
         qualMarker.drop
         return true
-      }
     }
   }
 }

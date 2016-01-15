@@ -24,7 +24,7 @@ class SbtAnnotator extends Annotator {
         SbtSystemSettings.getInstance(file.getProject)
           .getLinkedProjectSettings(file)
           .safeMap(_.sbtVersion)
-          .getOrElse(Sbt.DefaultVersion)
+          .getOrElse(Sbt.LatestVersion)
       new Worker(file.children.toVector, sbtVersion, holder).annotate()
     case _ =>
   }

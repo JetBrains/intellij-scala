@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api.base
 
-import com.intellij.psi.util.PsiModificationTracker
+import com.intellij.psi.util.{PsiTreeUtil, PsiModificationTracker}
 import com.intellij.psi.{PsiElement, PsiReference}
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedPrefixReference, ScInterpolatedStringPartReference}
+import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedInsidePsiElement}
 
 import scala.collection.mutable.ListBuffer
 
@@ -34,17 +34,13 @@ trait ScInterpolated extends ScalaPsiElement {
     res.toArray
   }
 
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def getStringContextExpression: Option[ScExpression] = {
-    def getExpandedExprBuilder(l: ScInterpolated) = {
-      val quote = if (l.isMultiLineString) "\"\"\"" else "\""
-      val parts = getStringParts(l).mkString(quote, s"$quote, $quote", quote) //making list of string literals
-      val params = l.getInjections.map(_.getText).mkString("(", ",", ")")
-      if (getContext == null) None else Option(ScalaPsiElementFactory.createExpressionWithContextFromText(
-        s"_root_.scala.StringContext($parts).${getFirstChild.getText}$params", getContext, this))
-    }
-
-    CachesUtil.get(this, CachesUtil.STRING_CONTEXT_EXPANDED_EXPR_KEY,
-      new CachesUtil.MyProvider[ScInterpolated, Option[ScExpression]](this, getExpandedExprBuilder)(PsiModificationTracker.MODIFICATION_COUNT))
+    val quote = if (isMultiLineString) "\"\"\"" else "\""
+    val parts = getStringParts(this).mkString(quote, s"$quote, $quote", quote) //making list of string literals
+    val params = getInjections.map(_.getText).mkString("(", ",", ")")
+    if (getContext == null) None else Option(ScalaPsiElementFactory.createExpressionWithContextFromText(
+      s"_root_.scala.StringContext($parts).${getFirstChild.getText}$params", getContext, this))
   }
 
   def getInjections: Array[ScExpression] = {

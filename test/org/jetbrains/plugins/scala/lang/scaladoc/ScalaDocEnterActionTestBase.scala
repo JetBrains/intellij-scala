@@ -4,6 +4,7 @@ package lang.scaladoc
 import com.intellij.openapi.actionSystem.{DataContext, IdeActions}
 import com.intellij.openapi.editor.actionSystem.EditorActionManager
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
  * User: Dmitry Naydanov
@@ -11,6 +12,11 @@ import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAda
  */
 
 abstract class ScalaDocEnterActionTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+  override protected def setUp(): Unit = {
+    super.setUp()
+    getCurrentCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings]).USE_SCALADOC2_FORMATTING = false
+  }
+
   protected def checkGeneratedTextFromString(header: String,  footer: String,  assumedStub: String) {
     checkGeneratedTextFromString(header, footer, assumedStub, a => a)
   }

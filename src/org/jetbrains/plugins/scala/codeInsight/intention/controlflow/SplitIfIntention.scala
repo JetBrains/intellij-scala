@@ -72,7 +72,7 @@ class SplitIfIntention extends PsiElementBaseIntentionAction {
       newIfStmt.asInstanceOf[ScIfStmt].getTextRange.getStartOffset
 
     inWriteAction {
-      ifStmt.replaceExpression(newIfStmt, true)
+      ifStmt.replaceExpression(newIfStmt, removeParenthesis = true)
       editor.getCaretModel.moveToOffset(start + diff)
       PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
     }

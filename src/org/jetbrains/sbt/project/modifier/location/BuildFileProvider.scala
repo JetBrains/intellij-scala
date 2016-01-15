@@ -3,11 +3,12 @@ package org.jetbrains.sbt.project.modifier.location
 import java.io.File
 
 import com.intellij.openapi.module.{Module => IJModule}
-import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile, VfsUtil}
-import com.intellij.psi.{PsiManager, PsiFile}
+import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore, VirtualFile}
+import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.testFramework.LightVirtualFile
 import com.intellij.util.LocalTimeCounter
 import org.jetbrains.sbt.project.modifier.BuildFileElementType
+
 import scala.collection.mutable
 
 /**
@@ -17,15 +18,23 @@ import scala.collection.mutable
 trait BuildFileProvider {
   def findBuildFile(module: IJModule, elementType: BuildFileElementType,
                     vfsFileToCopy: mutable.Map[VirtualFile, LightVirtualFile]): Option[BuildFileEntry[PsiFile]] = {
-    //TODO: rewrite this mess
-    findIoFile(module, elementType).map { case BuildFileEntry(buildFile, isModuleLocal) =>
-      Option(VfsUtil.findFileByIoFile(buildFile, true)).map(originalFile =>
-        vfsFileToCopy.getOrElseUpdate(originalFile,
-          new LightVirtualFile(originalFile, VfsUtilCore.loadText(originalFile), LocalTimeCounter.currentTime))).
-          map(vFile => Option(PsiManager.getInstance(module.getProject).findFile(vFile))).flatten.map(BuildFileEntry
-          (_, isModuleLocal))
-    }.flatten
+
+    def findVirtualFile(file: File) = Option(VfsUtil.findFileByIoFile(file, true))
+
+    def toLightVirtualFile(origFile: VirtualFile) = vfsFileToCopy.getOrElseUpdate(origFile,
+      new LightVirtualFile(origFile, VfsUtilCore.loadText(origFile), LocalTimeCounter.currentTime))
+
+    def toPsiFile(vFile: VirtualFile) = Option(PsiManager.getInstance(module.getProject).findFile(vFile))
+
+    findIoFile(module, elementType).flatMap {
+      case BuildFileEntry(buildFile, isModuleLocal) =>
+        findVirtualFile(buildFile)
+          .map(toLightVirtualFile)
+          .flatMap(toPsiFile)
+          .map(BuildFileEntry(_, isModuleLocal))
+    }
   }
+
 
   def findIoFile(module: IJModule, elementType: BuildFileElementType): Option[BuildFileEntry[File]]
 }

@@ -52,12 +52,12 @@ object ScalaMarkerType {
         case method: ScFunction =>
           val signatures: Seq[Signature] = method.superSignaturesIncludingSelfType
           //removed assertion, because can be change before adding gutter, so just need to return ""
-          if (signatures.length == 0) return ""
-          val optionClazz = ScalaPsiUtil.nameContext(signatures(0).namedElement) match {
+          if (signatures.isEmpty) return ""
+          val optionClazz = ScalaPsiUtil.nameContext(signatures.head.namedElement) match {
             case member: PsiMember => Option(member.containingClass)
             case _ => None
           }
-          assert(optionClazz != None)
+          assert(optionClazz.isDefined)
           val clazz = optionClazz.get
           if (!GutterUtil.isOverrides(element, signatures))
             ScalaBundle.message("implements.method.from.super", clazz.qualifiedName)
@@ -66,20 +66,20 @@ object ScalaMarkerType {
           val signatures = new ArrayBuffer[Signature]
           val bindings = elem match {case v: ScDeclaredElementsHolder => v.declaredElements case _ => return null}
           for (z <- bindings) signatures ++= ScalaPsiUtil.superValsSignatures(z, withSelfType = true)
-          assert(signatures.length != 0)
+          assert(signatures.nonEmpty)
           val optionClazz = ScalaPsiUtil.nameContext(signatures(0).namedElement) match {
             case member: PsiMember => Option(member.containingClass)
             case _ => None
           }
-          assert(optionClazz != None)
+          assert(optionClazz.isDefined)
           val clazz = optionClazz.get
           if (!GutterUtil.isOverrides(element, signatures))
             ScalaBundle.message("implements.val.from.super", clazz.qualifiedName)
           else ScalaBundle.message("overrides.val.from.super", clazz.qualifiedName)
         case x@(_: ScTypeDefinition | _: ScTypeAlias) =>
           val superMembers = ScalaPsiUtil.superTypeMembers(x.asInstanceOf[PsiNamedElement], withSelfType = true)
-          assert(superMembers.length != 0)
-          val optionClazz = superMembers(0)
+          assert(superMembers.nonEmpty)
+          val optionClazz = superMembers.head
           ScalaBundle.message("overrides.type.from.super", optionClazz.name)
         case _ => null
       }
@@ -177,7 +177,7 @@ object ScalaMarkerType {
       }
       val overrides = new ArrayBuffer[PsiNamedElement]
       for (member <- members) overrides ++= ScalaOverridingMemberSearcher.search(member, withSelfType = true)
-      if (overrides.length == 0) return
+      if (overrides.isEmpty) return
       val title = if (GutterUtil.isAbstract(element)) ScalaBundle.
               message("navigation.title.implementation.member", members(0).name, "" + overrides.length)
                   else ScalaBundle.message("navigation.title.overrider.member", members(0).name, "" + overrides.length)
@@ -212,7 +212,7 @@ object ScalaMarkerType {
         case _ => return
       }
       val inheritors = ClassInheritorsSearch.search(clazz, clazz.getUseScope, true).toArray(PsiClass.EMPTY_ARRAY)
-      if (inheritors.length == 0) return
+      if (inheritors.isEmpty) return
       val title = clazz match {
         case _: ScTrait => ScalaBundle.message("goto.implementation.chooser.title", clazz.name, "" + inheritors.length)
         case _ => ScalaBundle.message("navigation.title.subclass", clazz.name, "" + inheritors.length)

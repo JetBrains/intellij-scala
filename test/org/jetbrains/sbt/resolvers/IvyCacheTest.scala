@@ -1,18 +1,13 @@
 package org.jetbrains.sbt
 package resolvers
 
-import java.io.{IOException, File}
-
 import com.intellij.openapi.util.SystemInfo
-import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 
 /**
  * @author Nikolay Obedin
  * @since 8/22/14.
  */
 class IvyCacheTest extends IndexingTestCase with UsefulTestCaseHelper {
-
-  import junit.framework.Assert._
 
   def testIndexUpdate() = {
     val testIndex = createAndUpdateIndex(

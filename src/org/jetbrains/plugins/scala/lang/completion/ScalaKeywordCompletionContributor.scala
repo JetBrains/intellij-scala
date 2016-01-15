@@ -17,14 +17,14 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
  * Date: 17.09.2009
  */
 
-class ScalaKeywordCompletionContributor extends CompletionContributor {
+class ScalaKeywordCompletionContributor extends ScalaCompletionContributor {
   private def registerStandardCompletion(filter: ElementFilter, keywords: String*) {
     extend(CompletionType.BASIC, PlatformPatterns.psiElement.
             and(new FilterPattern(new AndFilter(new NotFilter(new LeftNeighbour(new TextFilter("."))), filter))),
       new CompletionProvider[CompletionParameters] {
         def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
           for (keyword <- keywords) {
-            result.addElement(LookupElementManager.getKeywrodLookupElement(keyword, parameters.getPosition))
+            result.addElement(LookupElementManager.getKeywrodLookupElement(keyword, positionFromParameters(parameters)))
           }
         }
       })
@@ -36,7 +36,7 @@ class ScalaKeywordCompletionContributor extends CompletionContributor {
       new CompletionProvider[CompletionParameters] {
         def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
           for (keyword <- keywords) {
-            result.addElement(LookupElementManager.getKeywrodLookupElement(keyword, parameters.getPosition))
+            result.addElement(LookupElementManager.getKeywrodLookupElement(keyword, positionFromParameters(parameters)))
           }
         }
       })

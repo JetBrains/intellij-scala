@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
-import java.util.LinkedList
+import java.util
 
 import com.intellij.debugger.DebuggerBundle
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
@@ -11,9 +11,9 @@ import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 07.11.11
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 07.11.11
+  */
 class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, typeEvaluator: TypeEvaluator) extends Evaluator {
   def getModifier: Modifier = null
 
@@ -22,7 +22,7 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, typeEvaluator: TypeE
     if (value == null) {
       return DebuggerUtilsEx.createValue(context.getDebugProcess.getVirtualMachineProxy, PsiType.BOOLEAN.getPresentableText, false)
     }
-    if (!(value.isInstanceOf[ObjectReference])) {
+    if (!value.isInstanceOf[ObjectReference]) {
       throw EvaluationException(DebuggerBundle.message("evaluation.error.object.reference.expected"))
     }
     try {
@@ -30,14 +30,13 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, typeEvaluator: TypeE
       val classObject: ClassObjectReference = refType.classObject
       val classRefType: ClassType = classObject.referenceType.asInstanceOf[ClassType]
       val method: Method = classRefType.concreteMethodByName("isAssignableFrom", "(Ljava/lang/Class;)Z")
-      val args: java.util.List[Object] = new LinkedList[Object]
-      args.add((value.asInstanceOf[ObjectReference]).referenceType.classObject)
+      val args: java.util.List[Object] = new util.LinkedList[Object]
+      args.add(value.asInstanceOf[ObjectReference].referenceType.classObject)
       context.getDebugProcess.invokeMethod(context, classObject, method, args)
     }
     catch {
-      case e: Exception => {
+      case e: Exception =>
         throw EvaluationException(e)
-      }
     }
   }
 }

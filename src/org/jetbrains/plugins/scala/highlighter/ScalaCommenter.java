@@ -83,6 +83,7 @@ public class ScalaCommenter implements CodeDocumentationAwareCommenter, ScalaTok
   }
 
   public boolean isDocumentationComment(PsiComment element) {
-    return element.getText().startsWith(getDocumentationCommentPrefix());
+    String prefix = getDocumentationCommentPrefix();
+    return prefix != null && element.getText().startsWith(prefix);
   }
 }

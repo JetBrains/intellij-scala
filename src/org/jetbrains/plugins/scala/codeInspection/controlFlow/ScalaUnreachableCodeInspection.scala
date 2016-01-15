@@ -45,11 +45,11 @@ class ScalaUnreachableCodeInspection extends AbstractInspection("ScalaUnreachabl
     val children = commonParent.children.toSeq
     val firstIdx = children.indexWhere(_.getTextRange.contains(startRange))
     val lastIdx = children.indexWhere(_.getTextRange.contains(endRange))
-    children.take(lastIdx + 1).drop(firstIdx)
+    children.slice(firstIdx, lastIdx + 1)
   }
 
   private def fragments(instructions: Iterable[Instruction]): Iterable[Seq[PsiElement]] = {
-    if (instructions.size == 0) return Seq.empty
+    if (instructions.isEmpty) return Seq.empty
 
     @tailrec
     def getParentStmt(element: PsiElement): Option[PsiElement] = {

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package findUsages
 package setter
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{PsiSearchHelper, SearchScope, TextOccurenceProcessor, UsageSearchContext}
@@ -21,65 +22,65 @@ class SetterMethodSearcher extends QueryExecutor[PsiReference, ReferencesSearch.
   private val suffixJava = "_$eq"
 
   def execute(queryParameters: ReferencesSearch.SearchParameters, cons: Processor[PsiReference]): Boolean = {
-    inReadAction {
-      implicit val scope = queryParameters.getEffectiveSearchScope
-      implicit val consumer = cons
-      val element = queryParameters.getElementToSearch
-      if (element.isValid) {
-        element match {
-          case fun: ScFunction if fun.name endsWith suffixScala =>
-            processAssignments(fun, fun.name)
-            processSimpleUsages(fun, fun.name)
-          case refPattern: ScReferencePattern if ScalaPsiUtil.nameContext(refPattern).isInstanceOf[ScVariable] =>
-            val name = refPattern.name
-            processAssignments(refPattern, name)
-            processSimpleUsages(refPattern, name + suffixScala)
-            processSimpleUsages(refPattern, name + suffixJava)
-          case _ =>
-        }
-      }
+    implicit val scope = inReadAction(queryParameters.getEffectiveSearchScope)
+    implicit val consumer = cons
+    val element = queryParameters.getElementToSearch
+    val project = queryParameters.getProject
+    element match {
+      case _ if !inReadAction(element.isValid) => true
+      case fun: ScFunction if fun.name endsWith suffixScala =>
+        processAssignments(fun, fun.name, project)
+        processSimpleUsages(fun, fun.name, project)
+      case refPattern: ScReferencePattern if inReadAction(ScalaPsiUtil.nameContext(refPattern)).isInstanceOf[ScVariable] =>
+        val name = refPattern.name
+        processAssignments(refPattern, name, project)
+        processSimpleUsages(refPattern, name + suffixScala, project)
+        processSimpleUsages(refPattern, name + suffixJava, project)
+      case _ => true
     }
-    true
-
   }
 
-  private def processAssignments(element: PsiElement, name: String)(implicit consumer: Processor[PsiReference], scope: SearchScope) = {
+  private def processAssignments(element: PsiElement, name: String, project: Project)(implicit consumer: Processor[PsiReference], scope: SearchScope) = {
     val processor = new TextOccurenceProcessor {
       def execute(elem: PsiElement, offsetInElement: Int): Boolean = {
-        elem match {
-          case Parent(Parent(assign: ScAssignStmt)) => assign.resolveAssignment match {
-            case Some(res) if res.element.getNavigationElement == element =>
-              Option(assign.getLExpression).foreach {
-                case ref: ScReferenceElement => if (!consumer.process(ref)) return false
-              }
+        inReadAction {
+          elem match {
+            case Parent(Parent(assign: ScAssignStmt)) => assign.resolveAssignment match {
+              case Some(res) if res.element.getNavigationElement == element =>
+                Option(assign.getLExpression).foreach {
+                  case ref: ScReferenceElement => if (!consumer.process(ref)) return false
+                }
+              case _ =>
+            }
             case _ =>
           }
-          case _ =>
+          true
         }
-        true
       }
     }
-    val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(element.getProject)
+    val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(project)
     helper.processElementsWithWord(processor, scope, name.stripSuffix(suffixScala), UsageSearchContext.IN_CODE, true)
   }
 
-  private def processSimpleUsages(element: PsiElement, name: String)(implicit consumer: Processor[PsiReference], scope: SearchScope) = {
+  private def processSimpleUsages(element: PsiElement, name: String, project: Project)(implicit consumer: Processor[PsiReference], scope: SearchScope) = {
     val processor = new TextOccurenceProcessor {
       def execute(elem: PsiElement, offsetInElement: Int): Boolean = {
-        elem match {
-          case ref: PsiReference => ref.resolve() match {
-            case fakeMethod: FakePsiMethod if fakeMethod.navElement == element =>
-              if (!consumer.process(ref)) return false
-            case wrapper: PsiTypedDefinitionWrapper if wrapper.typedDefinition == element =>
-              if (!consumer.process(ref)) return false
+        inReadAction {
+          elem match {
+            case ref: PsiReference => ref.resolve() match {
+              case fakeMethod: FakePsiMethod if fakeMethod.navElement == element =>
+                if (!consumer.process(ref)) return false
+              case wrapper: PsiTypedDefinitionWrapper if wrapper.typedDefinition == element =>
+                if (!consumer.process(ref)) return false
+              case _ =>
+            }
             case _ =>
           }
-          case _ =>
         }
         true
       }
     }
-    val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(element.getProject)
+    val helper: PsiSearchHelper = PsiSearchHelper.SERVICE.getInstance(project)
     helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
   }
 }

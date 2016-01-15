@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScClass}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.junit.Assert
 
@@ -31,12 +31,15 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   private def generateNested(fileText: String, className: String, elementName: String, assumedTest: String) {
     configureFromFileTextAdapter("dummy.scala", fileText.stripMargin('|').replaceAll("\r", "").trim())
-    getFileAdapter.asInstanceOf[ScalaFile].getClasses find {
-      case a => a.getName == className
-    } flatMap  (clazz => clazz.asInstanceOf[ScTemplateDefinition].members.find(_.getName == elementName)) map {
+    val td = getFileAdapter.asInstanceOf[ScalaFile].getClasses collectFirst {
+      case a: ScTemplateDefinition if a.name == className => a
+    }
+    val member = td flatMap (c => c.members.find(_.getName == elementName))
+    if (member.isEmpty) Assert.fail()
+    else member foreach {
       case m: ScFunctionWrapper => generateByElement(m.function, assumedTest)
       case member: ScMember => generateByElement(member, assumedTest)
-    } getOrElse Assert.assertTrue(false)
+    }
   }
 
   def testSimpleSyntax() {
@@ -330,6 +333,24 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     generateNested(fileText, "C", "boo", test)
   }
   
+  def testMacroWiki(): Unit = {
+    val fileText =
+      """
+        |/**
+        | * @define none `None`
+        | */
+        | class A {
+        |   /**
+        |    * && $none &&
+        |    */
+        |    def foo() = {}
+        | }
+      """.stripMargin
+    val test = " <tt>None</tt> "
+    
+    generateNested(fileText, "A", "foo", test)
+  }
+  
   def testAnnotationArgs() {
     val fileText =
       """
@@ -341,7 +362,7 @@ class QuickDocTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     val expected =
       """<html><body><PRE>@<a href="psi_element://scala.deprecated"><code>deprecated</code></a>("use 'foo' instead", "1.2.3")
         |@<a href="psi_element://scala.throws"><code>throws</code></a>[<a href="psi_element://scala"><code>scala</code></a>.Exception](classOf[Exception])
-        |def <b>boo</b>(): Unit</PRE></body></html>""".stripMargin
+        |def <b>boo</b>(): Unit</PRE></body></html>""".stripMargin.replaceAll("\r", "")
 
     configureFromFileTextAdapter("dummy.scala", fileText.stripMargin('|').replaceAll("\r", "").trim())
     val element = getFileAdapter.getLastChild

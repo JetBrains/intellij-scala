@@ -17,12 +17,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 
-import scala.collection.mutable.HashSet
+import scala.collection.mutable
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 08.11.2008
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 08.11.2008
+  */
 class ScalaGoToSuperActionHandler extends LanguageCodeInsightActionHandler {
   def startInWriteAction = false
 
@@ -45,7 +45,7 @@ class ScalaGoToSuperActionHandler extends LanguageCodeInsightActionHandler {
     }
 
     (superClasses, superSignatureElements) match {
-      case (Seq(), Seq()) => return
+      case (Seq(), Seq()) =>
       case (Seq(c: NavigatablePsiElement), Seq()) if c.canNavigate => c.navigate(true)
       case (Seq(), Seq(c: NavigatablePsiElement)) if c.canNavigate => c.navigate(true)
       case (superClassElems, Seq()) =>
@@ -65,7 +65,7 @@ private object ScalaGoToSuperActionHandler {
     var element = file.findElementAt(offset)
     def test(e: PsiElement): Boolean = e match {
       case _: ScTemplateDefinition | _: ScFunction | _: ScValue
-              | _: ScVariable | _: ScTypeAlias | _: ScObject => true
+           | _: ScVariable | _: ScTypeAlias | _: ScObject => true
       case _ => false
     }
     while (element != null && !test(element)) element = element.getParent
@@ -73,7 +73,7 @@ private object ScalaGoToSuperActionHandler {
     def templateSupers(template: ScTemplateDefinition): Array[PsiElement] = {
       def ignored = Set("java.lang.Object", "scala.ScalaObject", "scala.Any", "scala.AnyRef", "scala.AnyVal")
       val supers = template.supers.filterNot((x: PsiClass) => ignored.contains(x.qualifiedName))
-      HashSet[PsiClass](supers: _*).toArray
+      mutable.HashSet[PsiClass](supers: _*).toArray
     }
 
     // TODO refactor a bit more.
@@ -82,10 +82,10 @@ private object ScalaGoToSuperActionHandler {
       val elOrig = el
       while (el != null && !(el.isInstanceOf[ScTypedDefinition] && el != elOrig)) el = el.getParent
       val elements = d.declaredElements
-      if (elements.length == 0) return empty
-      val supers = HashSet[NavigatablePsiElement]((if (el != null && elements.contains(el.asInstanceOf[ScTypedDefinition])) {
+      if (elements.isEmpty) return empty
+      val supers = mutable.HashSet[NavigatablePsiElement]((if (el != null && elements.contains(el.asInstanceOf[ScTypedDefinition])) {
         ScalaPsiUtil.superValsSignatures(el.asInstanceOf[ScTypedDefinition])
-      } else ScalaPsiUtil.superValsSignatures(elements(0))).flatMap(_.namedElement match {
+      } else ScalaPsiUtil.superValsSignatures(elements.head)).flatMap(_.namedElement match {
         case n: NavigatablePsiElement => Some(n)
         case _ => None
       }): _*)
@@ -98,7 +98,7 @@ private object ScalaGoToSuperActionHandler {
       case template: ScTemplateDefinition =>
         (templateSupers(template), ScalaPsiUtil.superTypeMembers(template))
       case func: ScFunction =>
-        val supers = HashSet[NavigatablePsiElement](func.superSignatures.flatMap(_.namedElement match {
+        val supers = mutable.HashSet[NavigatablePsiElement](func.superSignatures.flatMap(_.namedElement match {
           case n: NavigatablePsiElement => Some(n)
           case _ => None
         }): _*)

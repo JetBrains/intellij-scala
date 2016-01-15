@@ -7,7 +7,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
-import com.intellij.refactoring.rename.inplace.{VariableInplaceRenameHandler, VariableInplaceRenamer}
+import com.intellij.refactoring.rename.inplace.{InplaceRefactoring, VariableInplaceRenameHandler, VariableInplaceRenamer}
 
 /**
  * Nikolay.Tropin
@@ -32,4 +32,11 @@ class ScalaLocalInplaceRenameHandler extends VariableInplaceRenameHandler with S
     UsageTrigger.trigger(ScalaBundle.message("rename.local.id"))
     super.invoke(project, editor, file, dataContext)
   }
+
+  override def doRename(elementToRename: PsiElement, editor: Editor, dataContext: DataContext): InplaceRefactoring = {
+    afterElementSubstitution(elementToRename, editor, dataContext) {
+      super.doRename(_, editor, dataContext)
+    }
+  }
+
 }

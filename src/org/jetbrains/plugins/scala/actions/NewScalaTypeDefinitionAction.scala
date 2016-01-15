@@ -37,7 +37,7 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
     builder.addKind("Object", Icons.OBJECT, ScalaFileTemplateUtil.SCALA_OBJECT)
     builder.addKind("Trait", Icons.TRAIT, ScalaFileTemplateUtil.SCALA_TRAIT)
 
-    for (template <- FileTemplateManager.getInstance.getAllTemplates) {
+    for (template <- FileTemplateManager.getInstance(project).getAllTemplates) {
       if (isScalaTemplate(template) && checkPackageExists(directory)) {
         builder.addKind(template.getName, Icons.FILE_TYPE_LOGO, template.getName)
       }
@@ -74,14 +74,11 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
   def getNavigationElement(createdElement: ScTypeDefinition): PsiElement = createdElement.extendsBlock
 
   def doCreate(directory: PsiDirectory, newName: String, templateName: String): ScTypeDefinition = {
-    val file: PsiFile = createClassFromTemplate(directory, newName, templateName)
-    file match {
+    createClassFromTemplate(directory, newName, templateName) match {
       case scalaFile: ScalaFile =>
-        val typeDefinitions = scalaFile.typeDefinitions
-        if (typeDefinitions.length == 1) return typeDefinitions(0)
-      case _ =>
+        scalaFile.typeDefinitions.headOption.orNull
+      case _ => null
     }
-    null
   }
 
   override def isAvailable(dataContext: DataContext): Boolean = {
@@ -126,9 +123,9 @@ object NewScalaTypeDefinitionAction {
 
   def createFromTemplate(directory: PsiDirectory, name: String, fileName: String, templateName: String,
                          parameters: String*): PsiFile = {
-    val template: FileTemplate = FileTemplateManager.getInstance.getInternalTemplate(templateName)
     val project = directory.getProject
-    val properties: Properties = new Properties(FileTemplateManager.getInstance.getDefaultProperties(project))
+    val template: FileTemplate = FileTemplateManager.getInstance(project).getInternalTemplate(templateName)
+    val properties: Properties = new Properties(FileTemplateManager.getInstance(project).getDefaultProperties())
     JavaTemplateUtil.setPackageNameAttribute(properties, directory)
     properties.setProperty(NAME_TEMPLATE_PROPERTY, name)
     properties.setProperty(LOW_CASE_NAME_TEMPLATE_PROPERTY, name.substring(0, 1).toLowerCase + name.substring(1))
@@ -145,9 +142,8 @@ object NewScalaTypeDefinitionAction {
       text = template.getText(properties)
     }
     catch {
-      case e: Exception => {
+      case e: Exception =>
         throw new RuntimeException("Unable to load template for " + FileTemplateManager.getInstance.internalTemplateToSubject(templateName), e)
-      }
     }
     val factory: PsiFileFactory = PsiFileFactory.getInstance(project)
     val file: PsiFile = factory.createFileFromText(fileName, ScalaFileType.SCALA_FILE_TYPE, text)

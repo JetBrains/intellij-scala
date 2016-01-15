@@ -34,7 +34,7 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
     (scalaDoc.replace("</body></html>", "") + sbtDoc) + "</body></html>"
 
   private def extractDoc(element: PsiElement): String = element match {
-    case settingKey: ScNamedElement if (isElementInSbtFile(element)) =>
+    case settingKey: ScNamedElement if isElementInSbtFile(element) =>
       extractDocFromSettingKey(settingKey)
     case _ =>
       ""
@@ -88,5 +88,5 @@ class SbtDocumentationProvider extends AbstractDocumentationProvider {
 
   private def getDocForKeyReference(docs: Seq[String]): Option[String] =
     // val someKey = SettingKey[Unit](someOtherKey)
-    docs.lift(0).map("<br/><b><i>" + _ + "</i></b>")
+    docs.headOption.map("<br/><b><i>" + _ + "</i></b>")
 }

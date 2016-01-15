@@ -22,23 +22,21 @@ object Refinement {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val refineMarker = builder.mark
     if (builder.twoNewlinesBeforeCurrentToken) {
-      refineMarker.drop
+      refineMarker.drop()
       return false
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tLBRACE => {
+      case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer //Ate {
         builder.enableNewlines
-      }
-      case _ => {
+      case _ =>
         refineMarker.rollbackTo
         return false
-      }
     }
     def foo() {
       RefineStatSeq parse builder
     }
-    ParserUtils.parseLoopUntilRBrace(builder, foo _)
+    ParserUtils.parseLoopUntilRBrace(builder, foo)
     builder.restoreNewlinesState
     refineMarker.done(ScalaElementTypes.REFINEMENT)
     return true

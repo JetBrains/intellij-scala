@@ -4,12 +4,12 @@ import com.intellij.lang.PsiBuilderFactory
 import com.intellij.psi.impl.source.DummyHolderFactory
 import com.intellij.psi.impl.source.tree.{FileElement, TreeElement}
 import com.intellij.psi.{PsiElement, PsiFileFactory}
-import junit.framework.Assert
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
+import org.junit.Assert
 
 /**
  * @author Alexander Podkhalyuzin

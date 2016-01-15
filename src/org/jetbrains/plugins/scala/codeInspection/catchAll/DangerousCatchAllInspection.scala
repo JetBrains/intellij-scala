@@ -30,8 +30,8 @@ class DangerousCatchAllInspection extends LocalInspectionTool {
             if (pattern == null) return (false, null)
             val guard = caseClause.guard.orNull
             pattern match {
-              case p: ScWildcardPattern if (guard == null) => (true, caseClause)
-              case p: ScReferencePattern if (guard == null) => (true, caseClause)
+              case p: ScWildcardPattern if guard == null => (true, caseClause)
+              case p: ScReferencePattern if guard == null => (true, caseClause)
               case _ => (false, null)
             }
           case _ => (false, null)

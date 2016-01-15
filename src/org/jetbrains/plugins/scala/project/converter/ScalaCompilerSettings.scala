@@ -46,7 +46,7 @@ object ScalaCompilerSettings {
     "Source file attribute" -> "Source",
     "Source and line number information" -> "Line",
     "Source, line number and local variable information" -> "Vars",
-    "Complete, no tail call optimization" -> "Notc")
+    "Complete, no tail call optimization" -> "Notailcalls")
 
   private val DefaultComipileOrder = "Mixed"
 

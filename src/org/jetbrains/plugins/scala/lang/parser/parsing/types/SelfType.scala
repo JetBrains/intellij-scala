@@ -21,13 +21,13 @@ object SelfType {
   def parse(builder: ScalaPsiBuilder) {
     val selfTypeMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.kTHIS | ScalaTokenTypes.tUNDER => {
+      case ScalaTokenTypes.kTHIS | ScalaTokenTypes.tUNDER =>
         builder.advanceLexer // Ate this or _
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON => {
             builder.advanceLexer //Ate ':'
             if (!parseType(builder)) {
-             selfTypeMarker.rollbackTo
+              selfTypeMarker.rollbackTo
               return
             }
             else {
@@ -49,14 +49,13 @@ object SelfType {
             return
           }
         }
-      }
-      case ScalaTokenTypes.tIDENTIFIER => {
+      case ScalaTokenTypes.tIDENTIFIER =>
         builder.advanceLexer //Ate identifier
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON => {
             builder.advanceLexer //Ate ':'
             if (!parseType(builder)) {
-             selfTypeMarker.rollbackTo
+              selfTypeMarker.rollbackTo
               return
             }
             else {
@@ -83,27 +82,24 @@ object SelfType {
             return
           }
         }
-      }
-      case _ => {
+      case _ =>
         selfTypeMarker.rollbackTo
         return
-      }
     }
   }
 
   def parseType(builder : ScalaPsiBuilder) : Boolean = {
     val typeMarker = builder.mark
-    if (!InfixType.parse(builder, false, true)) {
-      typeMarker.drop
+    if (!InfixType.parse(builder, star = false, isPattern = true)) {
+      typeMarker.drop()
       return false
     }
 
     builder.getTokenType match {
-      case ScalaTokenTypes.kFOR_SOME => {
+      case ScalaTokenTypes.kFOR_SOME =>
         ExistentialClause parse builder
         typeMarker.done(ScalaElementTypes.EXISTENTIAL_TYPE)
-      }
-      case _ => typeMarker.drop
+      case _ => typeMarker.drop()
     }
     true
   }

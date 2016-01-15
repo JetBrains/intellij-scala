@@ -12,7 +12,7 @@ object ContainingClass {
       None
     } else {
       val aClass = e.containingClass
-      if (aClass == null) None else Some(aClass)
+      Option(aClass)
     }
   }
 }

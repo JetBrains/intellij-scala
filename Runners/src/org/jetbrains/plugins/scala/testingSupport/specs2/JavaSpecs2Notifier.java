@@ -131,7 +131,7 @@ public class JavaSpecs2Notifier implements Notifier {
     detail = writer.getBuffer().toString();
     String res = "\n##teamcity[testFailed name='" + escapeString(name) + "' message='" + escapeString(message) +
         "' details='" + escapeString(detail) + "'";
-    if (error) res += "error = '" + error + "'";
+    if (error) res += "error = 'true'";
     res += actualExpectedAttrs;
     res += " timestamp='" + escapeString(formatCurrentTimestamp()) +  "' nodeId='" + getCurrentId() + "']";
     System.out.println(res);

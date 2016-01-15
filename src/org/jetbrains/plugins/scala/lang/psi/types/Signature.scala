@@ -248,9 +248,5 @@ object PhysicalSignature {
 class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
         extends Signature(method.name, PhysicalSignature.typesEval(method), PhysicalSignature.paramLength(method),
           TypeParameter.fromArray(method.getTypeParameters), substitutor, method, PhysicalSignature.hasRepeatedParam(method)) {
-  def updateThisType(thisType: ScType): PhysicalSignature = updateSubst(_.addUpdateThisType(thisType))
-
-  def updateSubst(f: ScSubstitutor => ScSubstitutor): PhysicalSignature = new PhysicalSignature(method, f(substitutor))
-
   override def isJava = method.getLanguage == JavaFileType.INSTANCE.getLanguage
 }

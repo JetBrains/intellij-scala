@@ -8,7 +8,7 @@ object ParameterAsQualifier {
 object ParameterAsQualifier {
   def foo(first: String, second: String) {
     val i = 0
-    /*start*/testMethodName(first, i)/*end*/ || testMethodName(second, 1)
+    testMethodName(first, i) || testMethodName(second, 1)
   }
 
   def testMethodName(first: String, i: Int): Boolean = {

@@ -9,6 +9,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
@@ -27,13 +28,14 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
 
   val memberOptions = new ScalaMemberFindUsagesOptions(project)
 
-  val paramOptions = new ScalaParameterFindUsagesOptions(project)
+  val localOptions = new ScalaLocalFindUsagesOptions(project)
 
   override def canFindUsages(element: PsiElement): Boolean = {
     element match {
       case _: FakePsiMethod => true
       case _: ScTypedDefinition => true
       case _: ScTypeDefinition => true
+      case _: ScTypeParam => true
       case _: PsiClassWrapper => true
       case _: ScFunctionWrapper => true
       case _: StaticPsiMethodWrapper => true
@@ -73,7 +75,7 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
       case function: ScFunction if function.isLocal => Array(function)
       case named: ScNamedElement if !forHighlightUsages =>
         val supers = RenameSuperMembersUtil.allSuperMembers(named, withSelfType = true).filter(needToAsk)
-        if (supers.length != 0) chooseSuper(named.name, supers)
+        if (supers.nonEmpty) chooseSuper(named.name, supers)
       case _ =>
     }
     if (replacedElement == null) return FindUsagesHandler.NULL_HANDLER

@@ -38,13 +38,9 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
     super(path);
   }
 
-  private File myFile = null;
-
   public abstract String transform(String testName, String[] data) throws Exception;
 
   protected void runTest(final File myTestFile) throws Throwable {
-
-    myFile = myTestFile;
 
     String content = new String(FileUtil.loadFileText(myTestFile, "UTF-8"));
     Assert.assertNotNull(content);
@@ -89,7 +85,6 @@ public abstract class BaseScalaFileSetTestCase extends ScalaFileSetTestCase {
     Assert.assertEquals(result.trim(), transformed.trim());
 
     //fixTestData(..., input, transformed)
-    myFile = null;
   }
 
   //creates directory on dataPath1 with new fixed testData

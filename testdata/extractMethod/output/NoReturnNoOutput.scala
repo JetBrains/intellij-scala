@@ -1,18 +1,18 @@
 class NoReturnNoOutput {
   def foo(i: Int) {
-    /*start*/
+/*start*/
     if (true) {}
     println(i)
-    /*end*/
+/*end*/
     println()
   }
 }
 /*
 class NoReturnNoOutput {
   def foo(i: Int) {
-    /*start*/
+
     testMethodName(i)
-    /*end*/
+
     println()
   }
 

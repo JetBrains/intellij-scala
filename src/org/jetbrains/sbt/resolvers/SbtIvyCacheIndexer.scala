@@ -1,7 +1,7 @@
 package org.jetbrains.sbt
 package resolvers
 
-import java.io.{IOException, File, FilenameFilter}
+import java.io.{File, FilenameFilter}
 
 import org.apache.maven.index.ArtifactInfo
 
@@ -22,8 +22,8 @@ class SbtIvyCacheIndexer(val cacheDir: File) {
   private def listArtifacts(dir: File): Stream[ArtifactInfo] = {
     if (!dir.isDirectory)
       throw new InvalidRepository(dir.getAbsolutePath)
-    val artifactsHere = dir.listFiles(ivyFileFilter).map(extractArtifact).flatten.toStream
-    artifactsHere ++ dir.listFiles.toStream.filter(_.isDirectory).map(listArtifacts).flatten
+    val artifactsHere = dir.listFiles(ivyFileFilter).flatMap(extractArtifact).toStream
+    artifactsHere ++ dir.listFiles.toStream.filter(_.isDirectory).flatMap(listArtifacts)
   }
 
   private def extractArtifact(ivyFile: File): Option[ArtifactInfo] = {

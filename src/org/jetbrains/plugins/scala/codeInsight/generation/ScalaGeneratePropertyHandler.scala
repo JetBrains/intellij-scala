@@ -36,7 +36,7 @@ class ScalaGeneratePropertyHandler extends LanguageCodeInsightActionHandler {
   }
 
   private def addPropertyMembers(varDef: ScVariableDefinition) = {
-    val name = varDef.bindings(0).name
+    val name = varDef.bindings.head.name
     val typeText = varDef.getType(TypingContext.empty).getOrAny.canonicalText
     val defaultValue = varDef.expr.fold("???")(_.getText)
     val modifiers = varDef.getModifierList.getText

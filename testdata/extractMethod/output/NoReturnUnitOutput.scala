@@ -1,20 +1,20 @@
 class NoReturnUnitOutput {
   def foo(i: Int) {
-    /*start*/
+/*start*/
 
     val x: Unit = println("unit")
     println(i)
-    /*end*/
+/*end*/
     x
   }
 }
 /*
 class NoReturnUnitOutput {
   def foo(i: Int) {
-    /*start*/
+
 
     val x: Unit = testMethodName(i)
-    /*end*/
+
     x
   }
 

@@ -36,7 +36,7 @@ public class FileHeaderChecker {
   private static final Logger LOG = Logger.getInstance("#com.intellij.codeInspection.defaultFileTemplateUsage.FileHeaderChecker");
 
   static ProblemDescriptor checkFileHeader(final PsiFile file, final InspectionManager manager, boolean onTheFly) {
-    FileTemplate template = FileTemplateManager.getInstance().getDefaultTemplate(FileTemplateManager.FILE_HEADER_TEMPLATE_NAME);
+    FileTemplate template = FileTemplateManager.getInstance(file.getProject()).getDefaultTemplate(FileTemplateManager.FILE_HEADER_TEMPLATE_NAME);
     TIntObjectHashMap<String> offsetToProperty = new TIntObjectHashMap<String>();
     String templateText = template.getText().trim();
     String regex = templateToRegex(templateText, offsetToProperty);
@@ -60,7 +60,7 @@ public class FileHeaderChecker {
   }
 
   private static Properties computeProperties(final Matcher matcher, final TIntObjectHashMap<String> offsetToProperty) {
-    Properties properties = new Properties(FileTemplateManager.getInstance().getDefaultProperties());
+    Properties properties = new Properties(FileTemplateManager.getDefaultInstance().getDefaultProperties());
     int[] offsets = offsetToProperty.keys();
     Arrays.sort(offsets);
 
@@ -77,7 +77,8 @@ public class FileHeaderChecker {
   private static LocalQuickFix[] createQuickFix(final PsiDocComment element,
                                               final Matcher matcher,
                                               final TIntObjectHashMap<String> offsetToProperty) {
-    final FileTemplate template = FileTemplateManager.getInstance().getPattern(FileTemplateManager.FILE_HEADER_TEMPLATE_NAME);
+    final FileTemplate template = FileTemplateManager.getInstance(element.getProject())
+            .getPattern(FileTemplateManager.FILE_HEADER_TEMPLATE_NAME);
     final Runnable runnable = new Runnable() {
       public void run() {
         ApplicationManager.getApplication().runWriteAction(new Runnable() {
@@ -133,16 +134,17 @@ public class FileHeaderChecker {
 
   private static String templateToRegex(final String text, TIntObjectHashMap<String> offsetToProperty) {
     String regex = text;
-    @NonNls Collection<String> properties = new ArrayList<String>((Collection)FileTemplateManager.getInstance().getDefaultProperties().keySet());
+    FileTemplateManager fileTemplateManager = FileTemplateManager.getDefaultInstance();
+    @NonNls Collection<String> properties = new ArrayList<String>((Collection) fileTemplateManager.getDefaultProperties().keySet());
     properties.add("PACKAGE_NAME");
 
     regex = escapeRegexChars(regex);
     // first group is a whole file header
     int groupNumber = 1;
     for (String name : properties) {
-      String escaped = escapeRegexChars("${"+name+"}");
+      String escaped = escapeRegexChars("${" + name + "}");
       boolean first = true;
-      for (int i = regex.indexOf(escaped); i!=-1 && i<regex.length(); i = regex.indexOf(escaped,i+1)) {
+      for (int i = regex.indexOf(escaped); i != -1 && i < regex.length(); i = regex.indexOf(escaped, i + 1)) {
         String replacement = first ? "(.*)" : "\\" + groupNumber;
         final int delta = escaped.length() - replacement.length();
         int[] offs = offsetToProperty.keys();
@@ -153,7 +155,7 @@ public class FileHeaderChecker {
           }
         }
         offsetToProperty.put(i, name);
-        regex = regex.substring(0,i) + replacement + regex.substring(i+escaped.length());
+        regex = regex.substring(0, i) + replacement + regex.substring(i + escaped.length());
         if (first) {
           groupNumber++;
           first = false;

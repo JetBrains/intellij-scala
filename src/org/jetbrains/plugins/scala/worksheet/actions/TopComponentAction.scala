@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
  * User: Dmitry Naydanov
  * Date: 2/17/14
  */
-trait TopComponentAction {
+trait TopComponentAction extends TopComponentDisplayable {
   this: AnAction =>
   
   def shortcutId: Option[String] = None
@@ -34,7 +34,7 @@ trait TopComponentAction {
     button
   }
   
-  def init(panel: JPanel) {
+  override def init(panel: JPanel) {
     val presentation = getTemplatePresentation
 
     presentation setIcon actionIcon
@@ -82,13 +82,7 @@ trait TopComponentAction {
           case _ => disable()
         }
       }
-//
-//      val psiFile = extensions.inReadAction(PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument))
-//
-//      psiFile match {
-//        case sf: ScalaFile if sf.isWorksheetFile => enable()
-//        case _ => disable()
-//      }
+
     } catch {
       case e: Exception => disable()
     }

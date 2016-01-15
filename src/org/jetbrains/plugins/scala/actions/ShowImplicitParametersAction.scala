@@ -83,7 +83,7 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
         expr.extendsBlock.templateParents match {
           case Some(tp) =>
             val elements = tp.typeElements
-            if (elements.length > 0) {
+            if (elements.nonEmpty) {
               checkTypeElement(elements.head) match {
                 case Some(x) => return x
                 case None =>
@@ -141,7 +141,7 @@ class ShowImplicitParametersAction extends AnAction("Show implicit parameters ac
         var parent = element
         while (parent != null) {
           implicitParams(parent) match {
-            case Some(seq) if seq.length > 0 =>
+            case Some(seq) if seq.nonEmpty =>
               parent match {
                 case constr: ScConstructor =>
                   var p = constr.getParent
@@ -311,7 +311,7 @@ class ImplicitParametersTreeStructure(project: Project,
                 case BadTypeResult =>
                 case CantFindExtensionMethodResult =>
                 case FunctionForParameterResult =>
-                case implicitResult => list.add(new ImplicitParametersNode(r, Some(implicitResult)))
+                case implicitRes => list.add(new ImplicitParametersNode(r, Some(implicitRes)))
               }
             }
             if (list.isEmpty) addErrorLeaf("Applicable by type implicits were not found")

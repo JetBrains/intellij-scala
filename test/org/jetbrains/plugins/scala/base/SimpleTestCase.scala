@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert
 
-import scala.reflect.{classTag, ClassTag}
+import scala.reflect.{ClassTag, classTag}
 
 /**
  * Pavel.Fatin, 18.05.2010
@@ -82,5 +82,9 @@ abstract class SimpleTestCase extends UsefulTestCase {
       parse.depthFirst.findByType(aClass).getOrElse {
         throw new RuntimeException("Unable to find PSI element with type " + aClass.getSimpleName)
       }
+  }
+
+  case class ContainsPattern(fragment: String) {
+    def unapply(s: String) = s.contains(fragment)
   }
 }

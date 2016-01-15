@@ -62,6 +62,8 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     val client = new IdeClientSbt("scala", context, modules.map(_.getName).toSeq, outputConsumer, filesToCompile.get)
 
+    logCustomSbtIncOptions(context, chunk, client)
+
     compile(context, chunk, sources, modules, client) match {
       case Left(error) =>
         client.error(error)
@@ -195,5 +197,11 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
     }
 
     dependencies.filter(_.isInstanceOf[ModuleBuildTarget]).map(_.asInstanceOf[ModuleBuildTarget]).toSeq
+  }
+
+  private def logCustomSbtIncOptions(context: CompileContext, chunk: ModuleChunk, client: Client): Unit = {
+    val settings = projectSettings(context).getCompilerSettings(chunk)
+    val options = settings.getSbtIncrementalOptions
+    client.debug(s"Custom sbt incremental compiler options for ${chunk.getPresentableShortName}: ${options.nonDefault}")
   }
 }

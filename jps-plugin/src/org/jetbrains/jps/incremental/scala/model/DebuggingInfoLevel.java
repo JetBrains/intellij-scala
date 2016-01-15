@@ -8,5 +8,5 @@ public enum DebuggingInfoLevel {
   Source,
   Line,
   Vars,
-  Notc
+  Notailcalls
 }

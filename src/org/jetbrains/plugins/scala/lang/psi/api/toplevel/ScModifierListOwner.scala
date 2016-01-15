@@ -18,15 +18,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 */
 
 trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
-  private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner")
-
   override def getModifierList: ScModifierList = {
     this match {
-      case st: ScalaStubBasedElementImpl[_] => {
+      case st: ScalaStubBasedElementImpl[_] =>
         val stub: StubElement[_ <: PsiElement] = st.getStub
         if (stub != null) {
           val array = stub.getChildrenByType(ScalaElementTypes.MODIFIERS, JavaArrayFactoryUtil.ScModifierListFactory)
-          if (array.length == 0) {
+          if (array.isEmpty) {
             val faultyContainer: VirtualFile = PsiUtilCore.getVirtualFile(this)
             if (faultyContainer != null && faultyContainer.isValid) {
               FileBasedIndex.getInstance.requestReindex(faultyContainer)
@@ -35,14 +33,9 @@ trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
           }
           else return array.apply(0)
         }
-      }
       case _ =>
     }
-    val res = findChildByClassScala(classOf[ScModifierList])
-//    if (res == null) {
-//      throw new IncorrectOperationException("null modifier list for: " + getText)
-//    }
-    res
+    findChildByClassScala(classOf[ScModifierList])
   }
 
   def hasModifierProperty(name: String): Boolean = {
@@ -62,7 +55,7 @@ trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
 
   private def hasModifierPropertyInner(name: String): Boolean = {
     this match {
-      case st: ScalaStubBasedElementImpl[_] =>  {
+      case st: ScalaStubBasedElementImpl[_] =>
         val stub: StubElement[_ <: PsiElement] = st.getStub
         if (stub != null) {
           val mod = stub.findChildStubByType(ScalaElementTypes.MODIFIERS)
@@ -71,7 +64,6 @@ trait ScModifierListOwner extends ScalaPsiElement with PsiModifierListOwner {
           }
           return false
         }
-      }
       case _ =>
     }
     if (getModifierList != null) getModifierList.hasModifierProperty(name: String)

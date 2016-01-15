@@ -15,10 +15,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 22.05.2008
-*/
+import scala.annotation.tailrec
+
+/**
+  * @author Alexander Podkhalyuzin
+  *         Date: 22.05.2008
+  */
 
 class DefinitionsFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
@@ -32,10 +34,11 @@ class DefinitionsFilter extends ElementFilter {
         case _: ScReferenceExpression =>
         case _ => return false
       }
+      @tailrec
       def findParent(p: PsiElement): PsiElement = {
         if (p == null) return null
         p.getParent match {
-          case parent@(_: ScBlock | _: ScCaseClause | _: ScTemplateBody | _: ScClassParameter | _: ScalaFile) => {
+          case parent@(_: ScBlock | _: ScCaseClause | _: ScTemplateBody | _: ScClassParameter | _: ScalaFile) =>
             parent match {
               case clause: ScCaseClause =>
                 clause.funType match {
@@ -52,7 +55,6 @@ class DefinitionsFilter extends ElementFilter {
                     !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement])))
                 return p
             null
-          }
           case _ => findParent(p.getParent)
         }
       }

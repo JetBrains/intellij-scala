@@ -8,12 +8,13 @@ import com.intellij.openapi.externalSystem.model.settings.ExternalSystemExecutio
 /**
  * @author Pavel Fatin
  */
-class SbtExecutionSettings(val vmExecutable: File,
+class SbtExecutionSettings(val realProjectPath: String,
+                           val vmExecutable: File,
                            val vmOptions: Seq[String],
                            val environment: Map[String,String],
                            val customLauncher: Option[File],
-                           val customSbtStructureDir: Option[String],
+                           val customSbtStructureFile: Option[File],
                            val jdk: Option[String],
                            val resolveClassifiers: Boolean,
-                           val resolveSbtClassifiers: Boolean,
-                           val cachedUpdate: Boolean) extends ExternalSystemExecutionSettings
+                           val resolveJavadocs: Boolean,
+                           val resolveSbtClassifiers: Boolean) extends ExternalSystemExecutionSettings

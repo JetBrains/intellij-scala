@@ -52,7 +52,7 @@ class SbtSystemSettings(project: Project)
   var customVMPath: String = ""
 
   @BeanProperty
-  var customSbtStructureDir: String = ""
+  var customSbtStructurePath: String = ""
 
   def checkSettings(old: SbtProjectSettings, current: SbtProjectSettings) {
     if (old.jdkName != current.jdkName) {
@@ -78,7 +78,7 @@ class SbtSystemSettings(project: Project)
     state.vmParameters          = vmParameters
     state.customVMEnabled       = customVMEnabled
     state.customVMPath          = customVMPath
-    state.customSbtStructureDir = customSbtStructureDir
+    state.customSbtStructureDir = customSbtStructurePath
     state
   }
 
@@ -90,7 +90,7 @@ class SbtSystemSettings(project: Project)
     vmParameters          = state.vmParameters
     customVMEnabled       = state.customVMEnabled
     customVMPath          = state.customVMPath
-    customSbtStructureDir = state.customSbtStructureDir
+    customSbtStructurePath = state.customSbtStructureDir
   }
 
   def subscribe(listener: ExternalSystemSettingsListener[SbtProjectSettings]) {

@@ -25,18 +25,18 @@ object PatDef {
     val someMarker = builder.mark
     val pattern2sMarker = builder.mark
 
-    if (!Pattern2.parse(builder, true)) {
-      pattern2sMarker.rollbackTo
-      someMarker.drop
+    if (!Pattern2.parse(builder, forDef = true)) {
+      pattern2sMarker.rollbackTo()
+      someMarker.drop()
       return false
     }
 
     while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
 
-      if (!Pattern2.parse(builder, true))  {
-        pattern2sMarker.rollbackTo
-        someMarker.drop
+      if (!Pattern2.parse(builder, forDef = true))  {
+        pattern2sMarker.rollbackTo()
+        someMarker.drop()
         return false
       }
     }
@@ -55,8 +55,8 @@ object PatDef {
       hasTypeDcl = true
     }
     if (!ScalaTokenTypes.tASSIGN.equals(builder.getTokenType)) {
-      someMarker.rollbackTo
-      return false
+      someMarker.rollbackTo()
+      false
     } else {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
 
@@ -64,10 +64,8 @@ object PatDef {
         builder error "expression expected"
       }
 
-      someMarker.drop
-      return true
+      someMarker.drop()
+      true
     }
-
-    return false
   }
 }

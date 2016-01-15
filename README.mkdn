@@ -1,0 +1,50 @@
+# Scala Plugin for IntelliJ IDEA
+
+Plugin that implements Scala, SBT, Play 2, SSP and Hocon support in IntelliJ
+IDEA.
+
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/JetBrains/intellij-scala)
+
+## General information
+
+- To get information about how to install and use this plugin in IDEA, please
+  use [IntelliJ IDEA online help](https://www.jetbrains.com/idea/help/scala.html).
+
+- If you have any question about Scala plugin, we'd be glad to answer it in [our
+  developer community](https://devnet.jetbrains.com/community/idea/scala).
+
+- If you found a bug, please report it on [our issue
+  tracker](https://youtrack.jetbrains.com/newissue).
+
+## Developing Scala plugin
+
+In order to take part in Scala plugin development, you need to:
+
+1. Install the following software:
+    - SBT 0.13.5 or higher
+    - IntelliJ IDEA 14 or higher with compatible version of Scala plugin
+
+2. Fork this repository and clone it to your computer
+
+  ```
+  $ git clone https://github.com/JetBrains/intellij-scala.git
+  ```
+
+3. Switch to the main developement branch
+
+  ```
+  $ git checkout idea15.x
+  ```
+
+4. Open IntelliJ IDEA, select `File -> New -> Project from existing sources`, point to
+the directory where Scala plugin repository is and then import it as SBT project.
+
+5. When importing is finished, go to Scala plugin repo directory and run
+
+  ```
+  $ git checkout .idea
+  ```
+
+  in order to get artifacts and run configurations for IDEA project.
+
+

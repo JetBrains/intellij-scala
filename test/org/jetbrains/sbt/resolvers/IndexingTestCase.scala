@@ -3,7 +3,7 @@ package org.jetbrains.sbt.resolvers
 import java.io.File
 
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
-import junit.framework.Assert._
+import org.junit.Assert._
 
 /**
  * @author Nikolay Obedin

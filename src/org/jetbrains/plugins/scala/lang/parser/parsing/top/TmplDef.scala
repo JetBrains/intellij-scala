@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
 object TmplDef {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val templateMarker = builder.mark
-    templateMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEEDING_COMMENTS_TOKEN, null);
+    templateMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEEDING_COMMENTS_TOKEN, null)
     val annotationsMarker = builder.mark
     while (Annotation.parse(builder)) {}
     annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
@@ -39,7 +39,7 @@ object TmplDef {
       builder.advanceLexer() //Ate case
     //parsing template body
     builder.getTokenType match {
-      case ScalaTokenTypes.kCLASS => {
+      case ScalaTokenTypes.kCLASS =>
         caseMarker.drop()
         modifierMarker.done(ScalaElementTypes.MODIFIERS)
         builder.advanceLexer() //Ate class
@@ -49,8 +49,7 @@ object TmplDef {
           templateMarker.drop()
         }
         true
-      }
-      case ScalaTokenTypes.kOBJECT => {
+      case ScalaTokenTypes.kOBJECT =>
         caseMarker.drop()
         modifierMarker.done(ScalaElementTypes.MODIFIERS)
         builder.advanceLexer() //Ate object
@@ -60,8 +59,7 @@ object TmplDef {
           templateMarker.drop()
         }
         true
-      }
-      case ScalaTokenTypes.kTRAIT => {
+      case ScalaTokenTypes.kTRAIT =>
         caseMarker.rollbackTo()
         modifierMarker.done(ScalaElementTypes.MODIFIERS)
         builder.getTokenType match {
@@ -85,13 +83,11 @@ object TmplDef {
             true
           }
         }
-      }
       //it's error
-      case _ => {
+      case _ =>
         templateMarker.rollbackTo()
         //builder.advanceLexer //Ate something
         false
-      }
     }
   }
 }

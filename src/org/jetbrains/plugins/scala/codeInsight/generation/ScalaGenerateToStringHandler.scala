@@ -10,7 +10,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.codeInsight.generation.ui.ScalaGenerateToStringWizard
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScTrait, ScObject, ScClass}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
 
@@ -24,7 +24,7 @@ class ScalaGenerateToStringHandler extends LanguageCodeInsightActionHandler {
     if (CodeInsightUtilBase.prepareEditorForWrite(editor) &&
         FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) {
       GenerationUtil.elementOfTypeAtCaret(editor, psiFile, classOf[ScClass],
-        classOf[ScObject], classOf[ScTrait]).map { aType =>
+        classOf[ScObject], classOf[ScTrait]).foreach { aType =>
         val toStringMethod = createToString(aType, project)
 
         extensions.inWriteAction {

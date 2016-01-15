@@ -18,7 +18,7 @@ class PsiElementMock(val name: String, children: PsiElementMock*) extends Abstra
   
   for(child <- children) { child.parent = this }
   
-  if(!children.isEmpty) {
+  if(children.nonEmpty) {
     for((a, b) <- children.zip(children.tail)) {
       a.nextSibling = b
       b.prevSibling = a

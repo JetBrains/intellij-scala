@@ -3,6 +3,7 @@ package lang.refactoring.rename
 
 import java.util
 
+import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
@@ -166,5 +167,10 @@ object ScalaRenameUtil {
     if (name.endsWith("_=")) "_="
     else if (name.endsWith("_$eq")) "_$eq"
     else ""
+  }
+
+  def sameElement(range: RangeMarker, element: PsiElement): Boolean = {
+    val newElemRange = Option(ScalaRenameUtil.findSubstituteElement(element)).map(_.getTextRange)
+    newElemRange.exists(nr => nr.getStartOffset == range.getStartOffset && nr.getEndOffset == range.getEndOffset)
   }
 }

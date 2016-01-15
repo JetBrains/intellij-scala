@@ -414,7 +414,7 @@ object WorksheetEditorPrinter {
   
   def deleteWorksheetEvaluation(file: ScalaFile) {
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, "")
-    FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RESULT, file, 0.5f.toString)
+    FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RATIO, file, 0.5f.toString)
   }
 
   def newWorksheetUiFor(editor: Editor, virtualFile: VirtualFile) = newUiFor(editor, virtualFile, true)

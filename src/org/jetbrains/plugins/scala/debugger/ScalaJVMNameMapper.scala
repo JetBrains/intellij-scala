@@ -19,7 +19,7 @@ class ScalaJVMNameMapper extends NameMapper {
           case obj: ScObject => obj.qualifiedName + "$"
           case tr: ScTrait => tr.qualifiedName
           case templDef: ScTemplateDefinition => templDef.qualifiedName
-          case psiClass => psiClass.getQualifiedName
+          case psiClass => null
         }
       }
     })

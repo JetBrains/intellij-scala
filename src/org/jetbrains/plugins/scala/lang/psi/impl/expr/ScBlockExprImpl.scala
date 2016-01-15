@@ -8,11 +8,10 @@ package expr
 import java.util
 
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
-import com.intellij.psi.{PsiClass, PsiElement, PsiElementVisitor, PsiModifiableCodeBlock}
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -20,7 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue,
 */
 
 class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaElementTypes.BLOCK_EXPR, text)
-  with ScBlockExpr with PsiModifiableCodeBlock {
+  with ScBlockExpr {
+
   //todo: bad architecture to have it duplicated here, as ScBlockExprImpl is not instance of ScalaPsiElementImpl
   override def getContext: PsiElement = {
     context match {
@@ -50,27 +50,6 @@ class ScBlockExprImpl(text: CharSequence) extends LazyParseablePsiElement(ScalaE
       cur = cur.getNextSibling
     }
     null
-  }
-
-  def shouldChangeModificationCount(place: PsiElement): Boolean = {
-    var parent = getParent
-    while (parent != null) {
-      parent match {
-        case f: ScFunction => f.returnTypeElement match {
-          case Some(ret) => return false
-          case None =>
-            if (!f.hasAssign) return false
-            return ScalaPsiUtil.shouldChangeModificationCount(f)
-        }
-        case v: ScValue => return ScalaPsiUtil.shouldChangeModificationCount(v)
-        case v: ScVariable => return ScalaPsiUtil.shouldChangeModificationCount(v)
-        case t: PsiClass => return true
-        case bl: ScBlockExprImpl => return bl.shouldChangeModificationCount(this)
-        case _ =>
-      }
-      parent = parent.getParent
-    }
-    false
   }
 
   override def accept(visitor: ScalaElementVisitor) = {visitor.visitBlockExpression(this)}

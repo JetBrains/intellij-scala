@@ -9,9 +9,9 @@ import com.intellij.openapi.editor.markup.SeparatorPlacement
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.fixtures.LightCodeInsightFixtureTestCase
 import com.intellij.testFramework.fixtures.impl.JavaCodeInsightTestFixtureImpl
-import junit.framework.Assert._
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.Assert._
 
 import scala.collection.JavaConversions._
 import scala.io.Source
@@ -26,8 +26,8 @@ abstract class LineMarkerTestBase extends LightCodeInsightFixtureTestCase {
   protected override def getBasePath = TestUtils.getTestDataPath + "/methodSeparator/"
 
 
-  override def setUp = {
-    super.setUp
+  override def setUp() = {
+    super.setUp()
     myFixture.setTestDataPath(getBasePath)
   }
 
@@ -37,7 +37,7 @@ abstract class LineMarkerTestBase extends LightCodeInsightFixtureTestCase {
     myFixture.configureByText(ScalaFileType.SCALA_FILE_TYPE, input.replaceAll(marker, ""))
 
     DaemonCodeAnalyzerSettings.getInstance.SHOW_METHOD_SEPARATORS = true
-    (myFixture.asInstanceOf[JavaCodeInsightTestFixtureImpl]).doHighlighting
+    myFixture.asInstanceOf[JavaCodeInsightTestFixtureImpl].doHighlighting()
 
     val expected = getSeparatorsFrom(input)
     val actual = getSeparatorsFrom(myFixture.getEditor, myFixture.getProject)

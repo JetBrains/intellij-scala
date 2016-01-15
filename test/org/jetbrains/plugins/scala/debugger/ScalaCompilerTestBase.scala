@@ -9,17 +9,16 @@ import com.intellij.compiler.CompilerTestUtil
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
 import com.intellij.openapi.projectRoots._
-import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.roots._
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
-import junit.framework.Assert
 import org.jetbrains.plugins.scala.base.ScalaLibraryLoader
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
+import org.junit.Assert
 
 import scala.collection.mutable.ListBuffer
 
@@ -28,6 +27,9 @@ import scala.collection.mutable.ListBuffer
  * 2/26/14
  */
 abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVersion {
+
+  private var deleteProjectAtTearDown = false
+  private var scalaLibraryLoader: ScalaLibraryLoader = null
 
   override def setUp(): Unit = {
     super.setUp()
@@ -39,58 +41,63 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
     CompilerTestUtil.enableExternalCompiler()
 
     addRoots()
+    DebuggerTestUtil.setCompileServerSettings()
+    DebuggerTestUtil.forceJdk8ForBuildProcess()
+
+    getProject.save()
   }
 
   protected def addRoots() {
+    def getOrCreateChildDir(name: String) = {
+      val file = new File(getBaseDir.getCanonicalPath, name)
+      if (!file.exists()) file.mkdir()
+      LocalFileSystem.getInstance.refreshAndFindFileByPath(file.getCanonicalPath)
+    }
+
     inWriteAction {
-      val srcRoot = getBaseDir.findChild("src").toOption.getOrElse(
-        getBaseDir.createChildDirectory(this, "src")
-      )
+      val srcRoot = getOrCreateChildDir("src")
       PsiTestUtil.addSourceRoot(getModule, srcRoot, false)
-      val output = getBaseDir.findChild("out").toOption.getOrElse(
-        getBaseDir.createChildDirectory(this, "out")
-      )
+      val output = getOrCreateChildDir("out")
       CompilerProjectExtension.getInstance(getProject).setCompilerOutputUrl(output.getUrl)
     }
   }
 
   protected def addScalaSdk(loadReflect: Boolean = true) {
-    ScalaLoader.loadScala()
-    val cl = SyntheticClasses.get(getProject)
-    if (!cl.isClassesRegistered) cl.registerClasses()
+    scalaLibraryLoader = new ScalaLibraryLoader(getProject, getModule, getSourceRootDir.getCanonicalPath,
+      isIncludeReflectLibrary = loadReflect, javaSdk = Some(getTestProjectJdk))
 
-    ScalaLibraryLoader.addScalaSdk(myModule, scalaSdkVersion, loadReflect)
+    scalaLibraryLoader.loadScala(scalaSdkVersion)
   }
 
   override protected def getTestProjectJdk: Sdk = {
-    val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
-    if (scalaVersion.startsWith("2.12")) {
+//    val jdkTable = JavaAwareProjectJdkTableImpl.getInstanceEx
+//    if (scalaVersion.startsWith("2.12")) {
+//      DebuggerTestUtil.findJdk8()
+//    }
+//    else {
+//      jdkTable.getInternalJdk
+//    }
       DebuggerTestUtil.findJdk8()
-    }
-    else {
-      jdkTable.getInternalJdk
-    }
   }
 
   protected def forceFSRescan() = BuildManager.getInstance.clearState(myProject)
 
   protected override def tearDown() {
     CompilerTestUtil.disableExternalCompiler(myProject)
-
+    val baseDir = getBaseDir
+    scalaLibraryLoader.clean()
     super.tearDown()
+
+    if (deleteProjectAtTearDown) VfsTestUtil.deleteFile(baseDir)
   }
 
   protected def make(): List[String] = {
-    DebuggerTestUtil.findJdk8()
-    DebuggerTestUtil.setCompileServerSettings()
-
     val semaphore: Semaphore = new Semaphore
     semaphore.down()
     val callback = new ErrorReportingCallback(semaphore)
     UIUtil.invokeAndWaitIfNeeded(new Runnable {
       def run() {
         try {
-          getProject.save()
           CompilerTestUtil.saveApplicationSettings()
           val ioFile: File = VfsUtilCore.virtualToIoFile(myModule.getModuleFile)
           if (!ioFile.exists) {
@@ -113,7 +120,10 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
       i += 1
     }
     Assert.assertTrue(s"Too long compilation of test data for ${getClass.getSimpleName}.test${getTestName(false)}", i < maxCompileTime)
-    callback.throwException()
+    if (callback.hasError) {
+      deleteProjectAtTearDown = true
+      callback.throwException()
+    }
     callback.getMessages
   }
 
@@ -144,6 +154,8 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
       }
     }
 
+    def hasError = myError != null
+
     def throwException() {
       if (myError != null) throw new RuntimeException(myError)
     }
@@ -158,7 +170,7 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
   }
 
   protected def addFileToProject(relativePath: String, text: String) {
-    VfsTestUtil.createFile(getSourceRootDir, relativePath, text)
+    VfsTestUtil.createFile(getSourceRootDir, relativePath, StringUtil.convertLineSeparators(text))
   }
 
   protected def getSourceRootDir: VirtualFile = {

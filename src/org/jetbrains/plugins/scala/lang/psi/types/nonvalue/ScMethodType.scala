@@ -3,7 +3,7 @@ package lang.psi.types.nonvalue
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{PsiParameter, PsiTypeParameter}
+import com.intellij.psi.{PsiElement, PsiParameter, PsiTypeParameter}
 import org.jetbrains.plugins.scala.extensions.PsiParameterExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
@@ -29,16 +29,17 @@ trait NonValueType extends ScType {
  * Some difference
  */
 case class Parameter(name: String, deprecatedName: Option[String], paramType: ScType, expectedType: ScType,
-                     isDefault: Boolean, isRepeated: Boolean,
-                     isByName: Boolean, index: Int = -1, psiParam: Option[PsiParameter] = None) {
-  def this(name: String, deprecatedName: Option[String], paramType: ScType, isDefault: Boolean, isRepeated: Boolean,
-           isByName: Boolean, index: Int) {
+                     isDefault: Boolean, isRepeated: Boolean, isByName: Boolean,
+                     index: Int = -1, psiParam: Option[PsiParameter] = None, defaultType: Option[ScType] = None) {
+
+  def this(name: String, deprecatedName: Option[String], paramType: ScType,
+           isDefault: Boolean, isRepeated: Boolean, isByName: Boolean, index: Int) {
     this(name, deprecatedName, paramType, paramType, isDefault, isRepeated, isByName, index)
   }
 
   def this(param: ScParameter) {
-    this(param.name, param.deprecatedName, param.getType(TypingContext.empty).getOrAny, param.getType(TypingContext.empty).getOrAny,
-      param.isDefaultParam, param.isRepeatedParameter, param.isCallByNameParameter, param.index, Some(param))
+    this(param.name, param.deprecatedName, param.getType(TypingContext.empty).getOrNothing, param.getType(TypingContext.empty).getOrNothing,
+      param.isDefaultParam, param.isRepeatedParameter, param.isCallByNameParameter, param.index, Some(param), param.getDefaultExpression.flatMap(_.getType().toOption))
   }
 
   def this(param: PsiParameter) {
@@ -51,7 +52,9 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
   }
 
   def nameInCode = psiParam.map(_.getName)
+
 }
+
 
 /**
  * Class representing type parameters in our type system. Can be constructed from psi.
@@ -139,8 +142,9 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
       if (!p.isRepeated) inferredParamType
       else {
         val seqClass = ScalaPsiManager.instance(project).getCachedClass(scope, "scala.collection.Seq")
-        if (seqClass == null) inferredParamType
-        else ScParameterizedType(ScDesignatorType(seqClass), Seq(inferredParamType))
+        seqClass.fold(inferredParamType) { inferred =>
+            ScParameterizedType(ScDesignatorType(inferred), Seq(inferredParamType))
+        }
       }
     }))(project, scope)
   }
@@ -207,7 +211,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
   def polymorphicTypeSubstitutor: ScSubstitutor = polymorphicTypeSubstitutor(inferValueType = false)
 
   def polymorphicTypeSubstitutor(inferValueType: Boolean): ScSubstitutor =
-    new ScSubstitutor(new HashMap[(String, String), ScType] ++ typeParameters.map(tp => {
+    new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ typeParameters.map(tp => {
       var contraVariant = 0
       var coOrInVariant = 0
       internalType.recursiveVarianceUpdate {
@@ -219,7 +223,8 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
             case _ => null
           }
           if (pair != null) {
-            if ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)) == pair) {
+            val (tpName, id) = pair
+            if (tp.name == tpName && id == ScalaPsiUtil.getPsiElementId(tp.ptp)) {
               if (i == -1) contraVariant += 1
               else coOrInVariant += 1
             }
@@ -247,7 +252,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
       }
       hasRecursiveTypeParameters
     }
-    new ScSubstitutor(new HashMap[(String, String), ScType] ++ typeParameters.map(tp => {
+    new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ typeParameters.map(tp => {
       val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType())) Nothing else tp.lowerType()
       val upperType: ScType = if (hasRecursiveTypeParameters(tp.upperType())) Any else tp.upperType()
       ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
@@ -256,8 +261,9 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
   }
 
   def typeParameterTypeSubstitutor: ScSubstitutor =
-    new ScSubstitutor(new HashMap[(String, String), ScType] ++ typeParameters.map(tp => ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-            new ScTypeParameterType(tp.ptp, ScSubstitutor.empty))), Map.empty, None)
+    new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ typeParameters.map { tp =>
+      ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), new ScTypeParameterType(tp.ptp, ScSubstitutor.empty))
+    }, Map.empty, None)
 
   def inferValueType: ValueType = {
     polymorphicTypeSubstitutor(inferValueType = true).subst(internalType.inferValueType).asInstanceOf[ValueType]
@@ -322,7 +328,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
           undefinedSubst = t._2
           i = i + 1
         }
-        val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, String), ScType] ++
+        val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, PsiElement), ScType] ++
                 typeParameters.zip(p.typeParameters).map({
           tuple => ((tuple._1.name, ScalaPsiUtil.getPsiElementId(tuple._1.ptp)), new ScTypeParameterType(tuple._2.name,
             tuple._2.ptp match {

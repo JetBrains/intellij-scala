@@ -20,19 +20,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 class ValueDefinitionFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context);
+    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
       val parent = leaf.getParent
       
       parent.getParent match {
-        case _: ScGenerator | _: ScEnumerator | _: ScExistentialClause => {
+        case _: ScGenerator | _: ScEnumerator | _: ScExistentialClause =>
           if ((leaf.getPrevSibling == null || leaf.getPrevSibling.getPrevSibling == null ||
             leaf.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaTokenTypes.kDEF) &&
             (parent.getPrevSibling == null || parent.getPrevSibling.getPrevSibling == null ||
               (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementTypes.MATCH_STMT ||
                 !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement])))
             return true
-        }
         case _ =>
       }
     }
@@ -45,6 +44,6 @@ class ValueDefinitionFilter extends ElementFilter {
 
   @NonNls
   override def toString: String = {
-    "val keyword filter";
+    "val keyword filter"
   }
 }

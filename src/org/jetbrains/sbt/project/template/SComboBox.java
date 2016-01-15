@@ -5,14 +5,14 @@ import javax.swing.*;
 /**
  * @author Pavel Fatin
  */
-class SComboBox<T> extends JComboBox {
+class SComboBox extends JComboBox {
   public SComboBox(String[] items) {
     super(items);
   }
 
   @Override
-  public T getSelectedItem() {
-    return (T) super.getSelectedItem();
+  public String getSelectedItem() {
+    return (String) super.getSelectedItem();
   }
 
   public void setItems(String[] items) {

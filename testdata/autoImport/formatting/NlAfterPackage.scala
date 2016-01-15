@@ -17,6 +17,6 @@ import scala.collection.mutable.ArrayBuffer
 
 
 class A {
-  val x: /*ref*/ArrayBuffer
+  val x: ArrayBuffer
 }
 */

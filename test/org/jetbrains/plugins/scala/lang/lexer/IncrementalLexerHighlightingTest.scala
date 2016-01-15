@@ -103,7 +103,7 @@ class IncrementalLexerHighlightingTest extends ScalaLightCodeInsightFixtureTestA
          |     ${"\"\"\""}.stripMargin
          |   } bbb"}
          | ${"\"\"\""}$CARET_MARKER
-         |)""".stripMargin
+         |)""".stripMargin.replace("\r", "")
 
     genericTestHighlighting(text, ',', ' ', '\r', '\r')
   }
@@ -227,5 +227,25 @@ class Sincronizador(servidor: String, ruta: String, soporte: String, tblsProcesa
 }"""
 
      genericTestHighlighting(text, '\r', ' ', ' ', '\r', '\r')
+  }
+  
+  def testScl9396(): Unit = {
+    val text =
+      """
+        |package azaza
+        |
+        |
+        |object Main {
+        |  def fooboo() {
+        |    val paymentType = 123
+        |
+        |    if (true) {
+        |      """ + CARET_MARKER + """"Unsupported payment type: [$paymentType]" ; val a = 1
+        |    }
+        |  }
+        |}
+      """.stripMargin
+    
+    genericTestHighlighting(text, 's')
   }
 }

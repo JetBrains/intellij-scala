@@ -31,6 +31,8 @@ import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetEditorPrinter, Workshe
  * Date: 1/24/14
  */
 class WorksheetFileHook(private val project: Project) extends ProjectComponent {
+  private var statusDisplay: Option[InteractiveStatusDisplay] = None
+  
   override def disposeComponent() {}
 
   override def initComponent() {}
@@ -98,8 +100,14 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
 
 
       extensions.inReadAction {
-        panel add createMakeProjectChb(file)
-        panel add createAutorunChb(file)
+        val statusDisplayN = new InteractiveStatusDisplay()
+        statusDisplay = Option(statusDisplayN)
+        
+        statusDisplayN.init(panel)
+        if (run) statusDisplayN.onSuccessfulCompiling() else statusDisplayN.onStartCompiling()
+        
+        panel.add(createMakeProjectChb(file), 0)
+        panel.add(createAutorunChb(file), 0)
 
         new CopyWorksheetAction().init(panel)
         new CleanWorksheetAction().init(panel)
@@ -112,10 +120,12 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
 
   def disableRun(file: VirtualFile, exec: Option[CompilationProcess]) {
     cleanAndAdd(file, exec map (new StopWorksheetAction(_)))
+    statusDisplay.foreach(_.onStartCompiling())
   }
 
-  def enableRun(file: VirtualFile) {
+  def enableRun(file: VirtualFile, hasErrors: Boolean) {
     cleanAndAdd(file, Some(new RunWorksheetAction))
+    statusDisplay.foreach(display => if (hasErrors) display.onFailedCompiling() else display.onSuccessfulCompiling())
   }
 
   private def createMakeProjectChb(file: VirtualFile) = {
@@ -145,7 +155,7 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
     autorunChb
   }
 
-  private def cleanAndAdd(file: VirtualFile, action: Option[TopComponentAction]) {
+  private def cleanAndAdd(file: VirtualFile, action: Option[TopComponentDisplayable]) {
     WorksheetFileHook getPanel file foreach {
       case panelRef =>
         val panel = panelRef.get()
@@ -199,7 +209,8 @@ class WorksheetFileHook(private val project: Project) extends ProjectComponent {
             PsiDocumentManager getInstance project getPsiFile ext.getDocument match {
               case scalaFile: ScalaFile => WorksheetEditorPrinter.loadWorksheetEvaluation(scalaFile) foreach {
                 case (result, ratio) if !result.isEmpty =>
-                  val viewer = WorksheetEditorPrinter.createRightSideViewer(ext, file, WorksheetEditorPrinter.createWorksheetEditor(ext), true)
+                  val viewer = WorksheetEditorPrinter.createRightSideViewer(
+                    ext, file, WorksheetEditorPrinter.createWorksheetEditor(ext), modelSync = true)
                   val document = viewer.getDocument
 
                   val splitter = WorksheetEditorPrinter.DIFF_SPLITTER_KEY.get(viewer)

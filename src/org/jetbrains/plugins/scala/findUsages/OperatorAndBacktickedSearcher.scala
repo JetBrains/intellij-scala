@@ -13,10 +13,11 @@ import com.intellij.psi.impl.cache.impl.id.{IdIndex, IdIndexEntry}
 import com.intellij.psi.impl.search.PsiSearchHelperImpl
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
-import com.intellij.psi.{PsiElement, PsiReference}
+import com.intellij.psi.{PsiElement, PsiManager, PsiReference}
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.indexing.FileBasedIndex
 import com.intellij.util.{CommonProcessors, Processor, QueryExecutor}
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -26,37 +27,41 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
  */
 class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[PsiReference]): Boolean = {
-    extensions.inReadAction{
-      val scope = queryParameters.getEffectiveSearchScope
-      val element = queryParameters.getElementToSearch
-      if (!element.isValid) return true
-      val toProcess: Seq[(PsiElement, String)] = element match {
+    val scope = inReadAction(queryParameters.getEffectiveSearchScope)
+    val element = queryParameters.getElementToSearch
+    val manager = PsiManager.getInstance(queryParameters.getProject)
+
+    val toProcess: Seq[(PsiElement, String)] = inReadAction {
+      element match {
+        case e if !e.isValid => Nil
         case ScalaNamesUtil.isBackticked(name) => if (name != "") Seq((element, name), (element, s"`$name`")) else Seq((element, "``"))
         case named: ScNamedElement if named.name.exists(ScalaNamesUtil.isOpCharacter) => Seq((named, named.name))
         case _ => Nil
       }
-      toProcess.foreach { case (elem, name) =>
-        val processor = new TextOccurenceProcessor {
-          def execute(element: PsiElement, offsetInElement: Int): Boolean = {
-            val references = element.getReferences
-            for (ref <- references if ref.getRangeInElement.contains(offsetInElement)) {
+    }
+    toProcess.foreach { case (elem, name) =>
+      val processor = new TextOccurenceProcessor {
+        def execute(element: PsiElement, offsetInElement: Int): Boolean = {
+          val references = inReadAction(element.getReferences)
+          for (ref <- references if ref.getRangeInElement.contains(offsetInElement)) {
+            inReadAction {
               if (ref.isReferenceTo(elem) || ref.resolve() == elem) {
                 if (!consumer.process(ref)) return false
               }
             }
-            true
           }
-        }
-        val helper: PsiSearchHelper = new ScalaPsiSearchHelper(elem.getManager.asInstanceOf[PsiManagerEx])
-        try {
-          helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
-        }
-        catch {
-          case ignore: IndexNotReadyException =>
+          true
         }
       }
-      true
+      val helper: PsiSearchHelper = new ScalaPsiSearchHelper(manager.asInstanceOf[PsiManagerEx])
+      try {
+        helper.processElementsWithWord(processor, scope, name, UsageSearchContext.IN_CODE, true)
+      }
+      catch {
+        case ignore: IndexNotReadyException =>
+      }
     }
+    true
   }
 
   private class ScalaPsiSearchHelper(manager: PsiManagerEx) extends PsiSearchHelperImpl(manager) {
@@ -71,7 +76,7 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
       val checker = new Condition[Integer] {
         def value(integer: Integer): Boolean = (integer.intValue & searchContext) != 0
       }
-      extensions.inReadAction {
+      inReadAction {
         FileBasedIndex.getInstance.processFilesContainingAllKeys(IdIndex.NAME, entries, scope, checker, collectProcessor)
       }
       val index: FileIndexFacade = FileIndexFacade.getInstance(manager.getProject)

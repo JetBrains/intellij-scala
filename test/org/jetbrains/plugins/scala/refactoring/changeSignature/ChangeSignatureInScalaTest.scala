@@ -3,11 +3,11 @@ package refactoring.changeSignature
 
 import com.intellij.psi.PsiMember
 import com.intellij.refactoring.changeSignature.{ChangeSignatureProcessorBase, ParameterInfo}
-import junit.framework.Assert._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureHandler, ScalaParameterInfo}
+import org.junit.Assert._
 
 /**
  * Nikolay.Tropin
@@ -118,5 +118,14 @@ class ChangeSignatureInScalaTest extends ChangeSignatureTestBase {
     isAddDefaultValue = false
     val params = Seq(Seq(parameterInfo("b", 0, types.Boolean)), Seq(parameterInfo("x", -1, types.Int, "10"), parameterInfo("i", 1, types.Int, isRep = true)))
     doTest(null, "AddClauseConstructorVararg", null, params)
+  }
+
+  def testCaseClass(): Unit = {
+    isAddDefaultValue = true
+    val params = Seq(
+      Seq(parameterInfo("ii", 0, types.Int), parameterInfo("argss", 2, types.Int, isRep = true)),
+      Seq(parameterInfo("cc", 1, types.Char), parameterInfo("b", -1, types.Boolean, "true"))
+    )
+    doTest(null, "CClass", null, params)
   }
 }

@@ -21,6 +21,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.annotator.importsTracker.ScalaRefCountHolder
+import org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -37,6 +38,8 @@ import scala.collection.mutable
 class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHighlightingPass(file.getProject, editor.getDocument) {
   val findUsageProvider: FindUsagesProvider = LanguageFindUsages.INSTANCE.forLanguage(ScalaFileType.SCALA_LANGUAGE)
   val highlightInfos = mutable.Buffer[HighlightInfo]()
+
+  private val inspectionSuppressor = new ScalaInspectionSuppressor
 
   case class UnusedConfig(checkLocalUnused: Boolean, localUnusedSeverity: HighlightSeverity,
                           checkLocalAssign: Boolean, localAssignSeverity: HighlightSeverity)
@@ -143,20 +146,22 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
             }
           }
           holder.retrieveUnusedReferencesInfo(runnable)
-          if (!used && state.config.checkLocalUnused) {
+          if (!used && state.config.checkLocalUnused && !isUnusedSymbolSuppressed(decElem)) {
             hasAtLeastOneUnusedHighlight = true
             val elementTypeDesc = findUsageProvider.getType(declElementHolder)
             val severity = state.config.localUnusedSeverity
             val message = "%s '%s' is never used".format(elementTypeDesc, decElem.name)
-            val annotation = state.annotationHolder.createAnnotation(severity, decElem.nameId.getTextRange, message)
-            annotation.registerFix(new DeleteElementFix(elem))
+            val key = HighlightDisplayKey.find(ScalaUnusedSymbolInspection.ShortName)
+            val range = decElem.nameId.getTextRange
+            val annotation = state.annotationHolder.createAnnotation(severity, range, message)
+            annotation.registerFix(new DeleteElementFix(elem), range, key)
             state.annotations += annotation
           }
           if (hasAssign) hasAtLeastOneAssign = true
         case _ =>
       }
     }
-    if (isVar && !hasAtLeastOneAssign && !hasAtLeastOneUnusedHighlight) {
+    if (isVar && !hasAtLeastOneAssign && !hasAtLeastOneUnusedHighlight && !isVarCouldBeValSuppressed(declElementHolder)) {
       val (message, nameOpt) = declElementHolder.declaredElements match {
         case Seq(n: ScNamedElement) =>
           ("var '%s' could be a val".format(n.name), Some(n.name))
@@ -166,14 +171,25 @@ class ScalaUnusedSymbolPass(file: PsiFile, editor: Editor) extends TextEditorHig
       val severity = state.config.localAssignSeverity
       val start = declElementHolder.asInstanceOf[ScVariableDefinition].varKeyword.getTextRange.getStartOffset
       val end = declElementHolder.getTextRange.getEndOffset
+      val range = TextRange.create(start, end)
       val annotation = state.annotationHolder.createAnnotation(severity, new TextRange(start, end), message)
-      annotation.registerFix(new VarToValFix(declElementHolder.asInstanceOf[ScVariableDefinition], nameOpt))
+      val key = HighlightDisplayKey.find(VarCouldBeValInspection.ShortName)
+      val fix = new VarToValFix(declElementHolder.asInstanceOf[ScVariableDefinition], nameOpt)
+      annotation.registerFix(fix, range, key)
       state.annotations += annotation
     }
   }
 
   import scala.collection.JavaConversions._
   override def getInfos: java.util.List[HighlightInfo] = highlightInfos.toList
+
+  private def isUnusedSymbolSuppressed(element: PsiElement) = {
+    inspectionSuppressor.isSuppressedFor(element, ScalaUnusedSymbolInspection.ShortName)
+  }
+
+  private def isVarCouldBeValSuppressed(element: PsiElement) = {
+    inspectionSuppressor.isSuppressedFor(element, VarCouldBeValInspection.ShortName)
+  }
 }
 
 class DeleteElementFix(element: PsiElement) extends IntentionAction {

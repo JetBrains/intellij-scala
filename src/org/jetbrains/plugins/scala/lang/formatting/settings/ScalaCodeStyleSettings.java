@@ -37,6 +37,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean ALIGN_COMPOSITE_PATTERN = true;
   public boolean DO_NOT_ALIGN_BLOCK_EXPR_PARAMS = false;
 
+  public boolean USE_ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = false;
+  public int ALTERNATE_CONTINUATION_INDENT_FOR_PARAMS = 4;
+
   public boolean SPACE_AFTER_MODIFIERS_CONSTRUCTOR = false;
 
   public boolean SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES = false;
@@ -45,6 +48,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACE_BEFORE_TYPE_COLON = false;
   public boolean SPACE_AFTER_TYPE_COLON = true;
   public boolean INDENT_BRACED_FUNCTION_ARGS = true;
+  public boolean DO_NOT_INDENT_CASE_CLAUSE_BODY = false;
 
   //todo: add to spacing settings
   //spacing settings:
@@ -60,6 +64,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACES_IN_ONE_LINE_BLOCKS = false;
   public boolean SPACES_IN_IMPORTS = false;
   public boolean SPACES_AROUND_AT_IN_PATTERNS = false;
+  public boolean NEWLINE_AFTER_ANNOTATIONS = false;
 
   //xml formatting
   public boolean KEEP_XML_FORMATTING = false;
@@ -90,6 +95,19 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public int PRIVATE_METHOD_TYPE_ANNOTATION = TypeAnnotationRequirement.Optional.ordinal();
   public int OVERRIDING_METHOD_TYPE_ANNOTATION = TypeAnnotationPolicy.Regular.ordinal();
   public int SIMPLE_METHOD_TYPE_ANNOTATION = TypeAnnotationPolicy.Optional.ordinal();
+
+  //scaladoc formatting
+  public boolean ENABLE_SCALADOC_FORMATTING = true;
+  public boolean SD_ALIGN_OTHER_TAGS_COMMENTS = true;
+  public boolean SD_ALIGN_PARAMETERS_COMMENTS = true;
+  public boolean SD_ALIGN_EXCEPTION_COMMENTS = true;
+  public boolean SD_ALIGN_RETURN_COMMENTS = true;
+
+  public boolean SD_BLANK_LINE_BEFORE_TAGS = true;
+  public boolean SD_BLANK_LINE_AFTER_PARAMETERS_COMMENTS = false;
+  public boolean SD_BLANK_LINE_AFTER_RETURN_COMMENTS = false;
+
+  public boolean SD_PRESERVE_SPACES_IN_TAGS = false;
 
   //other
   public boolean ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT = true;

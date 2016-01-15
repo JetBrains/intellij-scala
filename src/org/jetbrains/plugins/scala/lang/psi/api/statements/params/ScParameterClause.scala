@@ -30,19 +30,15 @@ trait ScParameterClause extends ScalaPsiElement {
 
   def implicitToken: Option[PsiElement] = Option(findFirstChildByType(ScalaTokenTypes.kIMPLICIT))
 
-  def hasRepeatedParam: Boolean = parameters.length > 0 && parameters.apply(parameters.length - 1).isRepeatedParameter
+  def hasRepeatedParam: Boolean = parameters.lastOption.exists(_.isRepeatedParameter)
 
-  def getSmartParameters: Seq[Parameter] = {
-    effectiveParameters.map { param =>
-        new Parameter(param.name, param.deprecatedName, param.getType(TypingContext.empty).getOrNothing,
-          param.getType(TypingContext.empty).getOrNothing, param.isDefaultParam, param.isRepeatedParameter,
-          param.isCallByNameParameter, param.index, Some(param))
-    }
-  }
+  def getSmartParameters: Seq[Parameter] = effectiveParameters.map(new Parameter(_))
 
   /**
     * add parameter as last parameter in clause
     * if clause has repeated parameter, add before this parameter.
     */
   def addParameter(param: ScParameter): ScParameterClause
+
+  def owner: PsiElement
 }

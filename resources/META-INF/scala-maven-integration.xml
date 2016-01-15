@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 
-<!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
+<!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.jetbrains.com/plugin.dtd">
 <idea-plugin version="2">
   <extensions xmlns="org.jetbrains.idea.maven">
     <importer implementation="org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter"/>

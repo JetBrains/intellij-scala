@@ -262,9 +262,9 @@ object ScalaPluginUpdater {
         override def run() = {
           val buildNumber = ApplicationInfo.getInstance().getBuild.asString()
           val pluginVersion = pluginDescriptor.getVersion
-          val os = URLEncoder.encode(SystemInfo.OS_NAME, CharsetToolkit.UTF8)
+          val os = URLEncoder.encode(SystemInfo.OS_NAME + " " + SystemInfo.OS_VERSION, CharsetToolkit.UTF8)
           val uid = UpdateChecker.getInstallationUID(PropertiesComponent.getInstance())
-          val url = s"https://plugins.jetbrains.com/plugins/list?pluginId=$scalaPluginId&build=$buildNumber&pluginVersion=$pluginVersion&os=$os&uuid=a$uid"
+          val url = s"https://plugins.jetbrains.com/plugins/list?pluginId=$scalaPluginId&build=$buildNumber&pluginVersion=$pluginVersion&os=$os&uuid=$uid"
           PropertiesComponent.getInstance().setValue(key, System.currentTimeMillis().toString)
           doneUpdating = true
           try {

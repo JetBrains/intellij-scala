@@ -8,7 +8,7 @@ import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.UnnamedConfigurable;
 import com.intellij.openapi.options.ex.ConfigurableWrapper;
-import com.intellij.openapi.options.newEditor.OptionsEditor;
+import com.intellij.openapi.options.ex.Settings;
 import com.intellij.profile.codeInspection.ui.ErrorsConfigurable;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.ui.EnumComboBoxModel;
@@ -69,17 +69,17 @@ public class TypeAnnotationsPanel extends CodeStyleAbstractPanel {
     link.addHyperlinkListener(new HyperlinkListener() {
       public void hyperlinkUpdate(final HyperlinkEvent e) {
         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-          final OptionsEditor optionsEditor =
-              OptionsEditor.KEY.getData(DataManager.getInstance().getDataContextFromFocus().getResultSync());
+          final Settings optionsEditor =
+              Settings.KEY.getData(DataManager.getInstance().getDataContextFromFocus().getResultSync());
           if (optionsEditor != null) {
             UnnamedConfigurable configurable =
-                optionsEditor.findConfigurableById(CONFIGURABLE_ID);
+                optionsEditor.find(CONFIGURABLE_ID);
             if (configurable instanceof ConfigurableWrapper) {
               configurable = ((ConfigurableWrapper) configurable).getConfigurable();
             }
             if (configurable != null && configurable instanceof ErrorsConfigurable) {
               final ErrorsConfigurable errorsConfigurable = (ErrorsConfigurable) configurable;
-              optionsEditor.clearSearchAndSelect((Configurable) configurable).doWhenDone(new Runnable() {
+              optionsEditor.select((Configurable) configurable).doWhenDone(new Runnable() {
                 public void run() {
                   errorsConfigurable.selectInspectionTool("TypeAnnotation");
                 }

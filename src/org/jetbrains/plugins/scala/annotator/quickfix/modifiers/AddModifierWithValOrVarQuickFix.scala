@@ -25,7 +25,7 @@ class AddModifierWithValOrVarQuickFix(member: ScModifierListOwner, modifier: Str
         decl.findFirstChildByType(ScalaTokenTypes.kVAR)
       }
     member.addAfter(psiKeyword, member.getModifierList)
-    member.setModifierProperty(modifier, true)
+    member.setModifierProperty(modifier, value = true)
   }
   
 }

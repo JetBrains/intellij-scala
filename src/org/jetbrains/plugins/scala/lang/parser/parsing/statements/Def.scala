@@ -25,8 +25,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
  */
 
 object Def {
-  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, true)
-  def parse(builder: ScalaPsiBuilder, isMod: Boolean): Boolean = parse(builder, isMod, false)
+  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, isMod = true)
+  def parse(builder: ScalaPsiBuilder, isMod: Boolean): Boolean = parse(builder, isMod, isImplicit = false)
   def parse(builder: ScalaPsiBuilder, isMod: Boolean, isImplicit: Boolean): Boolean = {
     val defMarker = builder.mark
     defMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEEDING_COMMENTS_TOKEN, null)
@@ -54,7 +54,7 @@ object Def {
     }
     //Look for val,var,def or type
     builder.getTokenType match {
-      case ScalaTokenTypes.kVAL => {
+      case ScalaTokenTypes.kVAL =>
         builder.advanceLexer() //Ate val
         if (PatDef parse builder) {
           defMarker.done(ScalaElementTypes.PATTERN_DEFINITION)
@@ -64,8 +64,7 @@ object Def {
           defMarker.rollbackTo()
           false
         }
-      }
-      case ScalaTokenTypes.kVAR => {
+      case ScalaTokenTypes.kVAR =>
         builder.advanceLexer() //Ate var
         if (VarDef parse builder) {
           defMarker.done(ScalaElementTypes.VARIABLE_DEFINITION)
@@ -75,8 +74,7 @@ object Def {
           defMarker.rollbackTo()
           false
         }
-      }
-      case ScalaTokenTypes.kDEF => {
+      case ScalaTokenTypes.kDEF =>
         if (MacroDef parse builder) {
           defMarker.done(ScalaElementTypes.MACRO_DEFINITION)
           true
@@ -87,8 +85,7 @@ object Def {
           defMarker.rollbackTo()
           false
         }
-      }
-      case ScalaTokenTypes.kTYPE => {
+      case ScalaTokenTypes.kTYPE =>
         if (TypeDef parse builder) {
           defMarker.done(ScalaElementTypes.TYPE_DEFINITION)
           true
@@ -97,16 +94,13 @@ object Def {
           defMarker.rollbackTo()
           false
         }
-      }
       case ScalaTokenTypes.kCASE | ScalaTokenTypes.kCLASS
-      | ScalaTokenTypes.kOBJECT | ScalaTokenTypes.kTRAIT => {
+           | ScalaTokenTypes.kOBJECT | ScalaTokenTypes.kTRAIT =>
         defMarker.rollbackTo()
         TmplDef parse builder
-      }
-      case _ => {
+      case _ =>
         defMarker.rollbackTo()
         false
-      }
     }
   }
 }

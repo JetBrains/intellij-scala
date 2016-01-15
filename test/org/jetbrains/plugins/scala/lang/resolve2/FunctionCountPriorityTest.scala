@@ -10,8 +10,8 @@ class FunctionCountPriorityTest extends ResolveTestBase {
     super.folderPath + "function/count/priority/"
   }
 
-  def testEmptyToAll = doTest
-  def testNoneToAll = doTest
-  def testOneToAll = doTest
-  def testTwoToAll = doTest
+  def testEmptyToAll() = doTest()
+  def testNoneToAll() = doTest()
+  def testOneToAll() = doTest()
+  def testTwoToAll() = doTest()
 }

@@ -8,8 +8,7 @@ package types
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
-import org.jetbrains.plugins.scala.caches.CachesUtil
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
@@ -28,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 
 import scala.collection.immutable.HashMap
 
@@ -55,19 +55,12 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   protected def innerType(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true)
 
-  override def getTypeNoConstructor(ctx: TypingContext): TypeResult[ScType] = {
-    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.SIMPLE_TYPE_ELEMENT_TYPE_NO_CONSTRUCTOR_KEY,
-      new CachesUtil.MyProvider[ScSimpleTypeElement, TypeResult[ScType]](
-        this, elem => innerNonValueType(ctx, inferValueType = true, noConstructor = true)
-      )(PsiModificationTracker.MODIFICATION_COUNT), Failure("Recursive type of type element", Some(this)))
-  }
+  override def getTypeNoConstructor(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true, noConstructor = true)
 
-  override def getNonValueType(ctx: TypingContext, withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult[ScType] = {
-    CachesUtil.getMappedWithRecursionPreventingWithRollback[ScSimpleTypeElementImpl, Boolean, TypeResult[ScType]](this,
-      withUnnecessaryImplicitsUpdate, CachesUtil.NON_VALUE_TYPE_ELEMENT_TYPE_KEY,
-        (elem, withUnnecessaryImplicitsUpdate) => elem.innerNonValueType(ctx, inferValueType = false, withUnnecessaryImplicitsUpdate),
-      Failure("Recursive non value type of type element", Some(this)), PsiModificationTracker.MODIFICATION_COUNT)
-  }
+  @CachedWithRecursionGuard[ScSimpleTypeElement](this, Failure("Recursive non value type of type element", Some(this)),
+    ModCount.getBlockModificationCount)
+  override def getNonValueType(ctx: TypingContext, withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = false)
+
 
   private def innerNonValueType(ctx: TypingContext, inferValueType: Boolean, noConstructor: Boolean = false, withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
@@ -85,21 +78,20 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     }
 
     def getConstructorParams(constr: PsiMethod, subst: ScSubstitutor): (Seq[Seq[Parameter]], Boolean) = {
+
       constr match {
         case fun: ScFunction =>
           (fun.effectiveParameterClauses.map(_.effectiveParameters.map { p =>
             val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
-            new Parameter(p.name, p.deprecatedName,
-              paramType, paramType, p.isDefaultParam,
-              p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p))
+            new Parameter(p.name, p.deprecatedName, paramType, paramType, p.isDefaultParam,p.isRepeatedParameter,
+              p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.getType().toOption))
           }),
             fun.parameterList.clauses.lastOption.exists(_.isImplicit))
         case f: ScPrimaryConstructor =>
           (f.effectiveParameterClauses.map(_.effectiveParameters.map { p =>
             val paramType: ScType = subst.subst(p.getType(TypingContext.empty).getOrAny)
-            new Parameter(p.name, p.deprecatedName,
-              paramType, paramType, p.isDefaultParam,
-              p.isRepeatedParameter, p.isCallByNameParameter, p.index, Some(p))
+            new Parameter(p.name, p.deprecatedName, paramType, paramType, p.isDefaultParam, p.isRepeatedParameter,
+              p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.getType().toOption))
           }),
             f.parameterList.clauses.lastOption.exists(_.isImplicit))
         case m: PsiMethod =>
@@ -169,11 +161,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       getContext match {
         case p: ScParameterizedTypeElement =>
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
-          val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ zipped.map{case (arg, typeParam) =>
-            ((typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)),
-              arg.getType(TypingContext.empty).getOrAny
-              )},
-            Map.empty, None)
+          val appSubst = new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ zipped.map{
+            case (arg, typeParam) =>
+              ((typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)), arg.getType(TypingContext.empty).getOrAny)
+          }, Map.empty, None)
           val newRes = appSubst.subst(res)
           updateImplicits(newRes, withExpected = false, params = params, lastImplicit = lastImplicit)
           return newRes
@@ -277,11 +268,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           }
 
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
-          val appSubst = new ScSubstitutor(new HashMap[(String, String), ScType] ++ zipped.map { case (arg, typeParam) =>
-            ((typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)),
-                    arg.getType(TypingContext.empty).getOrAny)
-          },
-            Map.empty, None)
+          val appSubst = new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ zipped.map {
+            case (arg, typeParam) =>
+              ((typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)), arg.getType(TypingContext.empty).getOrAny)
+          }, Map.empty, None)
           (appSubst.subst(res), appSubst)
         }
         val constrRef = ref.isConstructorReference && !noConstructor
@@ -354,6 +344,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 }
 
 object ScSimpleTypeElementImpl {
+
   def calculateReferenceType(path: ScPathElement, shapesOnly: Boolean): TypeResult[ScType] = {
     path match {
       case ref: ScStableCodeReferenceElement => calculateReferenceType(ref, shapesOnly)

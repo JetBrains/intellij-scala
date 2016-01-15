@@ -24,31 +24,26 @@ object ParamClause {
       return false
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tLPARENTHESIS => {
+      case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer() //Ate (
         builder.disableNewlines
-      }
-      case _ => {
+      case _ =>
         paramMarker.rollbackTo()
         return false
-      }
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.kIMPLICIT => {
+      case ScalaTokenTypes.kIMPLICIT =>
         paramMarker.rollbackTo()
         builder.restoreNewlinesState
         return false
-      }
-      case _ => {}
+      case _ =>
     }
     Params parse builder
     builder.getTokenType match {
-      case ScalaTokenTypes.tRPARENTHESIS => {
+      case ScalaTokenTypes.tRPARENTHESIS =>
         builder.advanceLexer() //Ate )
-      }
-      case _ => {
+      case _ =>
         builder error ScalaBundle.message("rparenthesis.expected")
-      }
     }
     builder.restoreNewlinesState
     paramMarker.done(ScalaElementTypes.PARAM_CLAUSE)

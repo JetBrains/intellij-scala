@@ -11,6 +11,8 @@ import com.intellij.testFramework.{IdeaTestUtil, LightProjectDescriptor}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.util.TestUtils
 
+import scala.language.existentials
+
 /**
  * @author ilyas
  */
@@ -40,7 +42,7 @@ object LightScalaTestCase {
       val srcRoot = new File(TestUtils.getScalaLibrarySrc)
       modifiableModel.addRoot(VfsUtil.getUrlForLibraryRoot(srcRoot), OrderRootType.SOURCES)
       // do not forget to commit a model!
-      modifiableModel.commit
+      modifiableModel.commit()
     }
   }
 }

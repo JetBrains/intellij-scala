@@ -39,7 +39,7 @@ object TypeProjection {
 
   class ParamBox[S] extends Box {override type T = S}
 
-  class Inner /*start*/{
+  class Inner {
     val intBox: IntBox = new IntBox()
     val i: Int = intBox.id(1)
     val i2: Int = intBox.id(1)
@@ -54,6 +54,6 @@ object TypeProjection {
     def foo[S](s: S, pb: ParamBox[S]): Unit = {
       val s1: S = pb.id(s)
     }
-  }/*end*/
+  }
 }
 */

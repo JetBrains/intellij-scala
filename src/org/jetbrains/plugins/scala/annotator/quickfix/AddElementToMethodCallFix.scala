@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 
 /**
- * Created by Svyatoslav ILINSKIY on 7/2/2014.
+ * @author Svyatoslav ILINSKIY
  */
 class AddElementToMethodCallFix(call: ScMethodCall, elementToAdd: PsiElement, nameOfElement: String) extends IntentionAction {
   override def getText: String = s"Add $nameOfElement"
@@ -17,7 +17,7 @@ class AddElementToMethodCallFix(call: ScMethodCall, elementToAdd: PsiElement, na
 
   override def startInWriteAction(): Boolean = true
 
-  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = call.isValid() &&
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = call.isValid &&
           call.getManager.isInProject(file) && elementToAdd != null
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {

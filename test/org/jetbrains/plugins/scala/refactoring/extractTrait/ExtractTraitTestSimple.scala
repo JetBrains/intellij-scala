@@ -194,6 +194,7 @@ class ExtractTraitTestSimple extends ExtractTraitTestBase {
     val text =
       """
         |class A {<caret>
+        |
         |  class Inner
         |
         |  val a = 1
@@ -203,6 +204,7 @@ class ExtractTraitTestSimple extends ExtractTraitTestBase {
     val result =
       """
         |class A extends ExtractedTrait {
+        |
         |  class Inner
         |
         |}

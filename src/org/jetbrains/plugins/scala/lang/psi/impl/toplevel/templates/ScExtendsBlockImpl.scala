@@ -10,8 +10,6 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.util.PsiModificationTracker
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
@@ -22,8 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScDesignatorType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScDesignatorType, _}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 
 import scala.annotation.tailrec
 import scala.collection.Seq
@@ -76,21 +75,8 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
     res
   }
 
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def superTypes: List[ScType] = {
-    CachesUtil.get(this, CachesUtil.EXTENDS_BLOCK_SUPER_TYPES_KEY,
-      new CachesUtil.MyProvider(this, (expr: ScExtendsBlockImpl) => expr.superTypesInner)
-      (PsiModificationTracker.MODIFICATION_COUNT))
-  }
-
-  def isScalaObject: Boolean = {
-    getParentByStub match {
-      case clazz: PsiClass =>
-        clazz.qualifiedName == "scala.ScalaObject"
-      case _ => false
-    }
-  }
-
-  private def superTypesInner: List[ScType] = {
     val buffer = new ListBuffer[ScType]
     def addType(t: ScType) {
       t match {
@@ -143,7 +129,59 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
     buffer.toList
   }
 
-  private def supersInner: Seq[PsiClass] = {
+  def isScalaObject: Boolean = {
+    getParentByStub match {
+      case clazz: PsiClass =>
+        clazz.qualifiedName == "scala.ScalaObject"
+      case _ => false
+    }
+  }
+
+  private def scalaProductClass: PsiClass =
+    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Product").orNull
+
+  private def scalaSerializableClass: PsiClass =
+    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Serializable").orNull
+
+  private def scalaObjectClass: PsiClass =
+    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.ScalaObject").orNull
+
+  private def javaObjectClass: PsiClass =
+    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.Object").orNull
+
+  private def scalaProduct: ScType = {
+    val sp = scalaProductClass
+    if (sp != null) ScType.designator(sp) else null
+  }
+
+  private def scalaSerializable: ScType = {
+    val sp = scalaSerializableClass
+    if (sp != null) ScType.designator(sp) else null
+  }
+
+  private def scalaObject: ScDesignatorType = {
+    val so = scalaObjectClass
+    if (so != null) ScDesignatorType(so) else null
+  }
+
+  private def javaObject: ScDesignatorType = {
+    val so = javaObjectClass
+    if (so != null) ScDesignatorType(so) else null
+  }
+
+  def isAnonymousClass: Boolean = {
+    getParent match {
+      case _: ScNewTemplateDefinition =>
+      case _ => return false
+    }
+    templateBody match {
+      case Some(x) => true
+      case None => false
+    }
+  }
+
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  def supers: Seq[PsiClass] = {
     val buffer = new ListBuffer[PsiClass]
     def addClass(t: PsiClass) {
       buffer += t
@@ -182,55 +220,6 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
           buffer += javaObjectClass
     }
     buffer.toSeq
-  }
-
-  private def scalaProductClass: PsiClass =
-    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Product")
-
-  private def scalaSerializableClass: PsiClass =
-    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Serializable")
-
-  private def scalaObjectClass: PsiClass =
-    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.ScalaObject")
-
-  private def javaObjectClass: PsiClass =
-    ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.Object")
-
-  private def scalaProduct: ScType = {
-    val sp = scalaProductClass
-    if (sp != null) ScType.designator(sp) else null
-  }
-
-  private def scalaSerializable: ScType = {
-    val sp = scalaSerializableClass
-    if (sp != null) ScType.designator(sp) else null
-  }
-
-  private def scalaObject: ScDesignatorType = {
-    val so = scalaObjectClass
-    if (so != null) ScDesignatorType(so) else null
-  }
-
-  private def javaObject: ScDesignatorType = {
-    val so = javaObjectClass
-    if (so != null) ScDesignatorType(so) else null
-  }
-
-  def isAnonymousClass: Boolean = {
-    getParent match {
-      case _: ScNewTemplateDefinition =>
-      case _ => return false
-    }
-    templateBody match {
-      case Some(x) => true
-      case None => false
-    }
-  }
-
-  def supers: Seq[PsiClass] = {
-    CachesUtil.get(this, CachesUtil.EXTENDS_BLOCK_SUPERS_KEY,
-      new CachesUtil.MyProvider(this, (expr: ScExtendsBlockImpl) => expr.supersInner)
-      (PsiModificationTracker.MODIFICATION_COUNT))
   }
 
   def directSupersNames: Seq[String] = {

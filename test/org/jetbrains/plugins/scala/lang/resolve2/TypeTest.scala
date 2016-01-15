@@ -11,14 +11,14 @@ class TypeTest extends ResolveTestBase {
     super.folderPath + "type/"
   }
 
-  def testClassParameter = doTest
-  def testClassTypeParameter = doTest
-  def testDependentMethodTypeBound = doTest
-  def testFunction = doTest
-  def testFunctionParameter = doTest
-  def testFunctionTypeParameter = doTest
-  def testValue = doTest
-  def testVariable = doTest
-  def testThis = doTest
-  def testTypeProjection = doTest
+  def testClassParameter() = doTest()
+  def testClassTypeParameter() = doTest()
+  def testDependentMethodTypeBound() = doTest()
+  def testFunction() = doTest()
+  def testFunctionParameter() = doTest()
+  def testFunctionTypeParameter() = doTest()
+  def testValue() = doTest()
+  def testVariable() = doTest()
+  def testThis() = doTest()
+  def testTypeProjection() = doTest()
 }

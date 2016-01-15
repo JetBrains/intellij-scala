@@ -1,18 +1,13 @@
 package org.jetbrains.sbt
 package resolvers
 
-import java.io.{IOException, File}
-
 import com.intellij.openapi.util.SystemInfo
-import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 
 /**
  * @author Nikolay Obedin
  * @since 8/1/14.
  */
 class MavenRepoTest extends IndexingTestCase with UsefulTestCaseHelper {
-
-  import junit.framework.Assert._
 
   def testIndexUpdate() = {
     val testIndex = createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Maven, "Test repo", "file:/%s/sbt/resolvers/testRepository" format rootPath))
@@ -32,7 +27,7 @@ class MavenRepoTest extends IndexingTestCase with UsefulTestCaseHelper {
 
   def testNonIndexedRepoUpdate() = {
     val repoUrl = "http://dl.bintray.com/scalaz/releases/"
-    assertException[RemoteRepositoryHasNotBeenIndexed](Some(SbtBundle("sbt.resolverIndexer.remoteRepositoryHasNotBeenIndexed", repoUrl))) {
+    assertException[RepositoryIndexingException](None) {
       createAndUpdateIndex(SbtResolver(SbtResolver.Kind.Maven, "Scalaz Bintray repo", repoUrl))
     }
   }

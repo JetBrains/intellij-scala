@@ -10,13 +10,13 @@ class PredefElementTest extends ResolveTestBase {
     super.folderPath + "predef/element/"
   }
 
-  def testClass = doTest
+  def testClass() = doTest()
   //TODO getClass
 //  def testCompanionObject = doTest
-  def testFunction = doTest
-  def testObject = doTest
+  def testFunction() = doTest()
+  def testObject() = doTest()
   //TODO packageobject
 //  def testPackage = doTest
-  def testTrait = doTest
-  def testTypeAlias = doTest
+  def testTrait() = doTest()
+  def testTypeAlias() = doTest()
 }
