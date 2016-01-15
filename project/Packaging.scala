@@ -1,5 +1,5 @@
+import sbt.Keys._
 import sbt._
-import Keys._
 
 object Packaging {
   sealed trait PackageEntry {
@@ -29,7 +29,7 @@ object Packaging {
     val resolvedLibraries = (for {
       jarFile <- libraries
       moduleId <- jarFile.get(moduleID.key)
-      key = (moduleId.organization % moduleId.name % moduleId.revision)
+      key = moduleId.organization % moduleId.name % moduleId.revision
     } yield (key, jarFile.data)).toMap
     entries.map(e => convertEntry(e, resolvedLibraries))
   }
@@ -57,8 +57,8 @@ object Packaging {
         source -> destination
       case Artifact(source, destination) =>
         source -> destination
-      case MergedArtifact(sources, destination) =>
-        mergeIntoTemporaryJar(sources:_*) -> destination
+      case MergedArtifact(srcs, destination) =>
+        mergeIntoTemporaryJar(srcs:_*) -> destination
       case Library(libraryId, destination) =>
         val libKey = libraryId.organization % libraryId.name % libraryId.revision
         resolvedLibraries(libKey) -> destination

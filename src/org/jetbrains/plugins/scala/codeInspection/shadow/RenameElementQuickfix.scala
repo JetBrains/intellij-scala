@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.extensions._
  * Date: 06.02.12
  */
 
-class RenameElementQuickfix(ref: PsiElement, name: String) extends AbstractFixOnPsiElement(name, ref) {
+class RenameElementQuickfix(myRef: PsiElement, name: String) extends AbstractFixOnPsiElement(name, myRef) {
   def doApplyFix(project: Project) {
     val elem = getElement
     if (!elem.isValid) return
@@ -34,6 +34,7 @@ class RenameElementQuickfix(ref: PsiElement, name: String) extends AbstractFixOn
     import scala.collection.JavaConversions._
     import scala.collection.mutable
 
+    val ref = getElement
     val map = mutable.Map[String, AnyRef]()
     val containingFile = ref.getContainingFile
     val editor: Editor = InjectedLanguageUtil.openEditorFor(containingFile, project)

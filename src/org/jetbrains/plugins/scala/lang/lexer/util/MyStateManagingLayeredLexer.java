@@ -6,6 +6,7 @@ import com.intellij.lexer.LexerPosition;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.containers.HashMap;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -13,7 +14,7 @@ import java.util.Map;
 /**
  * Carefully copypasted from {@link com.intellij.lexer.LayeredLexer} to enable smart state managing of 
  * registered lexers
- * 
+ *
  * @see StateManager
  */
 public class MyStateManagingLayeredLexer extends DelegateLexer {
@@ -25,10 +26,12 @@ public class MyStateManagingLayeredLexer extends DelegateLexer {
     }
 
     @Override
-    public void layerStarted(Lexer lexer, CharSequence buf, int start, int end) { }
+    public void layerStarted(Lexer lexer, CharSequence buf, int start, int end) {
+    }
 
     @Override
-    public void layerFinished(Lexer lexer, CharSequence buf, int start, int end) { }
+    public void layerFinished(Lexer lexer, CharSequence buf, int start, int end) {
+    }
   };
   private static final int IN_LAYER_STATE = 1024; // TODO: Other value?
   private static final int IN_LAYER_LEXER_FINISHED_STATE = 2048;
@@ -44,14 +47,14 @@ public class MyStateManagingLayeredLexer extends DelegateLexer {
   private int myBaseTokenEnd = -1;
 
   private final HashSet<Lexer> mySelfStoppingLexers = new HashSet<Lexer>(1);
-  private final HashMap<Lexer, IElementType[]> myStopTokens = new HashMap<Lexer,IElementType[]>(1);
+  private final HashMap<Lexer, IElementType[]> myStopTokens = new HashMap<Lexer, IElementType[]>(1);
   private final StateManager myStateManager;
 
 
   public MyStateManagingLayeredLexer(Lexer baseLexer) {
     this(baseLexer, DEFAULT_STATE_MANAGER);
   }
-  
+
   public MyStateManagingLayeredLexer(Lexer baseLexer, StateManager stateManager) {
     super(baseLexer);
     myStateManager = stateManager;
@@ -82,12 +85,12 @@ public class MyStateManagingLayeredLexer extends DelegateLexer {
       myBaseTokenEnd = end;
       myStateManager.layerStarted(myCurrentLayerLexer, bufferSequence, start, end);
       myCurrentLayerLexer.start(bufferSequence, start, end, myStateManager.getState(myCurrentLayerLexer, bufferSequence, start, end));
-      
+
       if (mySelfStoppingLexers.contains(myCurrentLayerLexer)) super.advance();
     }
   }
 
-  public void start(CharSequence buffer, int startOffset, int endOffset, int initialState) {
+  public void start(@NotNull CharSequence buffer, int startOffset, int endOffset, int initialState) {
     LOG.assertTrue(initialState != IN_LAYER_STATE, "Restoring to layer is not supported.");
     myState = initialState;
     myCurrentLayerLexer = null;
@@ -122,7 +125,7 @@ public class MyStateManagingLayeredLexer extends DelegateLexer {
   }
 
   public void advance() {
-    if (myState == IN_LAYER_LEXER_FINISHED_STATE){
+    if (myState == IN_LAYER_LEXER_FINISHED_STATE) {
       myState = super.getState();
       return;
     }
@@ -149,7 +152,7 @@ public class MyStateManagingLayeredLexer extends DelegateLexer {
           if (tokenEnd != myBaseTokenEnd) {
             if (LOG.isDebugEnabled()) {
               LOG.debug("We've got not covered gap from layered lexer: " + activeLayerLexer +
-                  "\n on token: " + getBufferSequence().subSequence(myLayerLeftPart, myBaseTokenEnd));
+                      "\n on token: " + getBufferSequence().subSequence(myLayerLeftPart, myBaseTokenEnd));
             }
             myState = IN_LAYER_LEXER_FINISHED_STATE;
             myLayerLeftPart = tokenEnd;
@@ -157,10 +160,10 @@ public class MyStateManagingLayeredLexer extends DelegateLexer {
           }
         }
       }
-      
+
       if (myCurrentLayerLexer == null) {
-        myStateManager.layerFinished(activeLayerLexer, activeLayerLexer.getBufferSequence(), 
-            activeLayerLexer.getTokenStart(), activeLayerLexer.getTokenEnd());
+        myStateManager.layerFinished(activeLayerLexer, activeLayerLexer.getBufferSequence(),
+                activeLayerLexer.getTokenStart(), activeLayerLexer.getTokenEnd());
       }
     } else {
       super.advance();
@@ -169,11 +172,12 @@ public class MyStateManagingLayeredLexer extends DelegateLexer {
     myState = isLayerActive() ? IN_LAYER_STATE : super.getState();
   }
 
+  @NotNull
   public LexerPosition getCurrentPosition() {
     return new LexerPositionImpl(getTokenStart(), getState());
   }
 
-  public void restore(LexerPosition position) {
+  public void restore(@NotNull LexerPosition position) {
     start(getBufferSequence(), position.getOffset(), getBufferEnd(), position.getState());
   }
 
@@ -191,7 +195,7 @@ public class MyStateManagingLayeredLexer extends DelegateLexer {
   }
 
   /**
-   * Carefully copypasted from {@link com.intellij.lexer.LexerPositionImpl}  
+   * Carefully copypasted from {@link com.intellij.lexer.LexerPositionImpl}
    * because of access restriction 
    */
   public static class LexerPositionImpl implements LexerPosition {
@@ -212,11 +216,13 @@ public class MyStateManagingLayeredLexer extends DelegateLexer {
     public int getState() {
       return myState;
     }
-  }             
-  
+  }
+
   public interface StateManager {
     int getState(Lexer lexer, CharSequence buf, int start, int end);
+
     void layerStarted(Lexer lexer, CharSequence buf, int start, int end);
+
     void layerFinished(Lexer lexer, CharSequence buf, int start, int end);
   }
 }

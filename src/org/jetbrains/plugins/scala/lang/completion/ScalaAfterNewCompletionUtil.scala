@@ -72,7 +72,7 @@ object ScalaAfterNewCompletionUtil {
     }
     val lookupElement = getLookupElementFromTypeAndClass(noUndefType, clazz, ScSubstitutor.empty,
       new AfterNewLookupElementRenderer(_, _, _), new ScalaConstructorInsertHandler, renamesMap)
-    if (undefines.length > 0) {
+    if (undefines.nonEmpty) {
       lookupElement.typeParametersProblem = true
     }
     lookupElement
@@ -93,14 +93,13 @@ object ScalaAfterNewCompletionUtil {
         case _ => ""
       })
       psiClass match {
-        case clazz: PsiClass => {
+        case clazz: PsiClass =>
           if (psiClass.isInterface || psiClass.isInstanceOf[ScTrait] ||
             psiClass.hasModifierPropertyScala("abstract")) {
             tailText += " {...}"
           }
           val location: String = clazz.getPresentation.getLocationString
           presentation.setTailText(tailText + " " + location, true)
-        }
         case _ =>
       }
       presentation.setIcon(psiClass.getIcon(0))
@@ -122,7 +121,7 @@ object ScalaAfterNewCompletionUtil {
       override def renderElement(presentation: LookupElementPresentation) {
         renderer(tp, psiClass, subst).renderElement(this, presentation)
         isRenamed match {
-          case Some(name) => presentation.setItemText(name + " <= " + presentation.getItemText)
+          case Some(nme) => presentation.setItemText(nme + " <= " + presentation.getItemText)
           case _ =>
         }
       }
@@ -184,13 +183,13 @@ object ScalaAfterNewCompletionUtil {
               new ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
             )
             val predefinedType =
-              if (clazz.getTypeParameters.length >= 1) {
+              if (clazz.getTypeParameters.nonEmpty) {
                 ScParameterizedType(ScDesignatorType(clazz), undefines)
               }
               else
                 ScDesignatorType(clazz)
             val noUndefType =
-              if (clazz.getTypeParameters.length >= 1) {
+              if (clazz.getTypeParameters.nonEmpty) {
                 ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(ptp =>
                   new ScTypeParameterType(ptp, ScSubstitutor.empty)
                 ))

@@ -17,9 +17,8 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.SbtResolver
-
 import org.jetbrains.sbt.structure.XmlSerializer._
-import org.jetbrains.sbt.{structure=>sbtStructure}
+import org.jetbrains.sbt.{structure => sbtStructure}
 
 import scala.collection.immutable.HashMap
 
@@ -33,23 +32,24 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   protected var taskListener: TaskListener = SilentTaskListener
 
   def resolveProjectInfo(id: ExternalSystemTaskId,
-                         projectPath: String,
+                         wrongProjectPathDontUseIt: String,
                          isPreview: Boolean,
                          settings: SbtExecutionSettings,
                          listener: ExternalSystemTaskNotificationListener): DataNode[ProjectData] = {
     val root = {
-      val file = new File(projectPath)
+      val file = new File(settings.realProjectPath)
       if (file.isDirectory) file.getPath else file.getParent
     }
 
     runner = new SbtRunner(settings.vmExecutable, settings.vmOptions, settings.environment,
-                           settings.customLauncher, settings.customSbtStructureDir)
+                           settings.customLauncher, settings.customSbtStructureFile)
 
     taskListener = new ExternalTaskListener(listener, id)
 
     var warnings = new StringBuilder()
 
-    val xml = runner.read(new File(root), !isPreview, settings.resolveClassifiers, settings.resolveSbtClassifiers, settings.cachedUpdate) { message =>
+    val xml = runner.read(new File(root), !isPreview, settings.resolveClassifiers,
+        settings.resolveJavadocs, settings.resolveSbtClassifiers) { message =>
       if (message.startsWith("[error] ") || message.startsWith("[warn] ")) {
         warnings ++= message
       }
@@ -83,23 +83,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val javacOptions = project.java.map(_.options).getOrElse(Seq.empty)
     val sbtVersion = data.sbtVersion
     val projectJdk = project.android.map(android => Android(android.targetVersion))
-            .orElse(jdk.map(JdkByVersion))
+            .orElse(jdk.map(JdkByName))
 
     projectNode.add(new SbtProjectNode(basePackages, projectJdk, javacOptions, sbtVersion, root))
 
-    project.play2 map {
-      case play2Data =>
-        import Play2Keys.AllKeys._
-        val oldPlay2Data = play2Data.keys.map { case sbtStructure.Play2Key(name, values) =>
-          val newVals = values.mapValues {
-            case sbtStructure.PlayString(str) => new StringParsedValue(str)
-            case sbtStructure.PlaySeqString(strs) => new SeqStringParsedValue(strs)
-          }
-          def avoidSL7005Bug[K, V](m: Map[K,V]): Map[K, V] = HashMap(m.toSeq:_*)
-          (name, avoidSL7005Bug(newVals))
-        }
-        projectNode.add(new Play2ProjectNode(oldPlay2Data.toMap))
-    }
+    val newPlay2Data = projects.flatMap(p => p.play2.map(d => (p.id, p.base, d)))
+    projectNode.add(new Play2ProjectNode(Play2OldStructureAdapter(newPlay2Data)))
 
     val libraryNodes = createLibraries(data, projects)
     projectNode.addAll(libraryNodes)
@@ -135,7 +124,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val unmanagedSourcesAndDocsLibrary = libraryNodes.map(_.data).find(_.getExternalName == Sbt.UnmanagedSourcesAndDocsName)
     projects.map { project =>
       val moduleNode = createModule(project, moduleFilesDirectory)
-      moduleNode.add(createContentRoot(project))
+      val contentRootNode = createContentRoot(project)
+      project.android.foreach(a => a.apklibs.foreach(addApklibDirs(contentRootNode, _)))
+      moduleNode.add(contentRootNode)
       moduleNode.addAll(createLibraryDependencies(project.dependencies.modules)(moduleNode, libraryNodes.map(_.data)))
       moduleNode.add(createModuleExtData(project))
       moduleNode.addAll(project.android.map(createFacet(project, _)).toSeq)
@@ -177,8 +168,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createFacet(project: sbtStructure.ProjectData, android: sbtStructure.AndroidData): AndroidFacetNode = {
-    new AndroidFacetNode(android.targetVersion, android.manifestPath, android.apkPath,
-                         android.resPath, android.assetsPath, android.genPath, android.libsPath,
+    new AndroidFacetNode(android.targetVersion, android.manifest, android.apk,
+                         android.res, android.assets, android.gen, android.libs,
                          android.isLibrary, android.proguardConfig)
   }
 
@@ -366,6 +357,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val result = new LibraryDependencyNode(moduleData, libraryNode, LibraryLevel.MODULE)
     result.setScope(scope)
     result
+  }
+
+  private def addApklibDirs(contentRootNode: ContentRootNode, apklib: sbtStructure.ApkLib): Unit = {
+    contentRootNode.storePath(ExternalSystemSourceType.SOURCE, apklib.sources.canonicalPath)
+    contentRootNode.storePath(ExternalSystemSourceType.SOURCE_GENERATED, apklib.gen.canonicalPath)
+    contentRootNode.storePath(ExternalSystemSourceType.RESOURCE, apklib.resources.canonicalPath)
   }
 
   protected def scopeFor(configurations: Seq[sbtStructure.Configuration]): DependencyScope = {

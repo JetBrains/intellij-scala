@@ -3,8 +3,8 @@ package lang
 package completion
 package filters.expression
 
-import com.intellij.psi.{PsiElement, PsiErrorElement, _}
 import com.intellij.psi.filters.ElementFilter
+import com.intellij.psi.{PsiElement, PsiErrorElement, _}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.parser._
@@ -20,9 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 class StatementFilter extends ElementFilter {
   def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange().getStartOffset(), context);
+    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
-      val parent = leaf.getParent();
+      val parent = leaf.getParent
       if (parent.isInstanceOf[ScReferenceExpression] &&
               !parent.getParent.isInstanceOf[ScStableReferenceElementPattern] &&
               (!parent.getParent.isInstanceOf[ScInfixExpr]) && (parent.getPrevSibling == null ||
@@ -37,15 +37,15 @@ class StatementFilter extends ElementFilter {
         return true
       }
     }
-    return false;
+    false
   }
 
   def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = {
-    return true;
+    true
   }
 
   @NonNls
-  override def toString(): String = {
-    return "statements keyword filter"
+  override def toString: String = {
+    "statements keyword filter"
   }
 }

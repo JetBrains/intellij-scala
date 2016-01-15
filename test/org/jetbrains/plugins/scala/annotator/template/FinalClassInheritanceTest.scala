@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.annotator.template
 
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error, Message}
 
 /**
@@ -8,8 +9,9 @@ import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error, Message}
 
 class FinalClassInheritanceTest extends AnnotatorTestBase(FinalClassInheritance) {
   private val Message = "Illegal inheritance from final class (\\w+)".r
+  private val ValueClassMessage = ScalaBundle.message("illegal.inheritance.from.value.class", "C")
 
-  def testOrdinaryClass {
+  def testOrdinaryClass(): Unit = {
     assertNothing(messages("class C; new C"))
     assertNothing(messages("class C; new C {}"))
     assertNothing(messages("class C; new C with Object"))
@@ -24,7 +26,7 @@ class FinalClassInheritanceTest extends AnnotatorTestBase(FinalClassInheritance)
     assertNothing(messages("class C; class X extends Object with C {}"))
   }
 
-  def testFinalClass {
+  def testFinalClass(): Unit = {
     val expectation: PartialFunction[List[Message], Unit] = {
       case Error("C", Message("C")) :: Nil =>
     }
@@ -41,5 +43,15 @@ class FinalClassInheritanceTest extends AnnotatorTestBase(FinalClassInheritance)
     assertMatches(messages("final class C; class X extends C with Object {}"))(expectation)
     assertMatches(messages("final class C; class X extends Object with C"))(expectation)
     assertMatches(messages("final class C; class X extends Object with C {}"))(expectation)
+  }
+
+  def testValueClass(): Unit = {
+    val expectation: PartialFunction[List[Message], Unit] = {
+      case Error("C", ValueClassMessage) :: Nil =>
+    }
+
+    assertNothing(messages("class C(val x: Int) extends AnyVal; new C"))
+    assertMatches(messages("class C(val x: Int) extends AnyVal; new C {}"))(expectation)
+    assertMatches(messages("class C(val x: Int) extends AnyVal; class X extends C(2)"))(expectation)
   }
 }

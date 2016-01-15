@@ -1,13 +1,13 @@
 object WithDefinition {
   def foo(i: Int) {
-    /*start*/
+/*start*/
 
     def bar = {
       val y = 0
       y + 1
     }
     println(bar + i)
-    /*end*/
+/*end*/
   }
 
   def foofoo() {
@@ -21,10 +21,10 @@ object WithDefinition {
 /*
 object WithDefinition {
   def foo(i: Int) {
-    /*start*/
+
 
     testMethodName(i)
-    /*end*/
+
   }
 
   def testMethodName(i: Int): Unit = {

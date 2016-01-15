@@ -40,6 +40,13 @@ trait ScalaPsiElement extends PsiElement with PsiElementExtTrait with MonadTrans
     }
   }
 
+  def startOffsetInParent: Int = {
+    child match {
+      case s: ScalaPsiElement => s.startOffsetInParent
+      case _ => getStartOffsetInParent
+    }
+  }
+
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T
 
   protected def findChildrenByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): Array[T]

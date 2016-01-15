@@ -5,10 +5,9 @@ import java.io.File
 
 import org.jetbrains.jps.incremental.scala.data.CompilationData
 import org.jetbrains.jps.incremental.scala.model.CompileOrder
-import org.jetbrains.plugin.scala.compiler.NameHashing
+import sbt.compiler.IC.Result
 import sbt.compiler._
 import sbt.inc.{Analysis, AnalysisStore, IncOptions, Locate}
-import sbt.{CompileOptions, CompileSetup}
 
 /**
  * @author Pavel Fatin
@@ -18,26 +17,22 @@ class SbtCompiler(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileTo
 
     client.progress("Searching for changed files...")
 
-    val compileSetup = {
-      val output = CompileOutput(compilationData.output)
-      val options = new CompileOptions(compilationData.scalaOptions, compilationData.javaOptions)
-      val compilerVersion = scalac.map(_.scalaInstance.version).getOrElse("none")
-      val order = compilationData.order match {
-        case CompileOrder.Mixed => xsbti.compile.CompileOrder.Mixed
-        case CompileOrder.JavaThenScala => xsbti.compile.CompileOrder.JavaThenScala
-        case CompileOrder.ScalaThenJava => xsbti.compile.CompileOrder.ScalaThenJava
-      }
-      val nameHashingValue = compilationData.nameHashing match {
-        case NameHashing.DEFAULT => IncOptions.Default.nameHashing
-        case NameHashing.ENABLED => true
-        case NameHashing.DISABLED => false
-      }
-      new CompileSetup(output, options, compilerVersion, order, nameHashingValue)
+    val order = compilationData.order match {
+      case CompileOrder.Mixed => xsbti.compile.CompileOrder.Mixed
+      case CompileOrder.JavaThenScala => xsbti.compile.CompileOrder.JavaThenScala
+      case CompileOrder.ScalaThenJava => xsbti.compile.CompileOrder.ScalaThenJava
     }
 
-    val compile = new AggressiveCompile(compilationData.cacheFile)
+    val compileOutput = CompileOutput(compilationData.output)
 
     val analysisStore = fileToStore(compilationData.cacheFile)
+    val (previousAnalysis, previousSetup) = {
+      analysisStore.get().map {
+        case (a, s) => (a, Some(s))
+      } getOrElse {
+        (Analysis.Empty, None)
+      }
+    }
 
     val progress = getProgress(client)
     val reporter = getReporter(client)
@@ -48,22 +43,38 @@ class SbtCompiler(javac: JavaCompiler, scalac: Option[AnalyzingCompiler], fileTo
       (output, analysis)
     }
 
+    val incOptions = compilationData.sbtIncOptions match {
+      case None => IncOptions.Default
+      case Some(opt) =>
+        IncOptions.Default.withNameHashing(opt.nameHashing)
+                          .withRecompileOnMacroDef(opt.recompileOnMacroDef)
+                          .withTransitiveStep(opt.transitiveStep)
+                          .withRecompileAllFraction(opt.recompileAllFraction)
+    }
+
     try {
-      compile.compile1(
-        compilationData.sources,
-        compilationData.classpath,
-        compileSetup,
-        Some(progress),
-        analysisStore,
-        outputToAnalysisMap.get,
-        Locate.definesClass,
+      val Result(analysis, setup, hasModified) = IC.incrementalCompile(
         scalac.orNull,
         javac,
-        reporter,
-        skip = false,
+        compilationData.sources,
+        compilationData.classpath,
+        compileOutput,
         CompilerCache.fresh,
-        IncOptions.Default.withNameHashing(compileSetup.nameHashing)
+        Some(progress),
+        compilationData.scalaOptions,
+        compilationData.javaOptions,
+        previousAnalysis,
+        previousSetup,
+        outputToAnalysisMap.get,
+        Locate.definesClass,
+        reporter,
+        order,
+        skip = false,
+        incOptions
       )(logger)
+
+      analysisStore.set(analysis, setup)
+
     } catch {
       case _: xsbti.CompileFailed => // the error should be already handled via the `reporter`
     }

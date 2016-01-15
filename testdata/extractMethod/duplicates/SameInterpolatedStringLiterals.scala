@@ -18,7 +18,7 @@ object SameInterpolatedStringLiterals {
   def log(message: String, level: Int) {
     level match {
       case 0 =>
-        /*start*/testMethodName(level, message)/*end*/
+        testMethodName(level, message)
       case 1 =>
         val level2 = level
         testMethodName(level2, message)

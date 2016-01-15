@@ -50,7 +50,10 @@ public class ScalaNewClassInstanceEvaluator implements Evaluator {
     if (myParamsEvaluators != null) {
       arguments = new ArrayList<Object>(myParamsEvaluators.length);
       for (Evaluator evaluator : myParamsEvaluators) {
-        arguments.add(evaluator.evaluate(context));
+        Object result = evaluator.evaluate(context);
+        if (!FromLocalArgEvaluator.skipMarker().equals(result)) {
+          arguments.add(result);
+        }
       }
     }
     else {

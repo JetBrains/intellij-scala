@@ -28,7 +28,7 @@ class TypeFilter extends ElementFilter {
         case _ => return false
       }
     }
-    return false
+    false
   }
 
   override def toString: String = "'type' keyword filter"

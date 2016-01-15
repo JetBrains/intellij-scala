@@ -75,7 +75,7 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
                           val substituted = subst.subst(aliased)
                           ScType.presentableText(substituted)
                         }
-                        addInfo(paramType, simplified)
+                        addInfo(paramType, simplified())
                       }
                     }
                   case _ =>

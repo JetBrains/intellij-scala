@@ -2,7 +2,7 @@ package org.jetbrains.jps.incremental.scala
 package local
 
 import java.lang.ref.SoftReference
-import java.util.LinkedHashMap
+import java.util
 import java.util.Map.Entry
 
 /**
@@ -11,7 +11,7 @@ import java.util.Map.Entry
 class Cache[K, V](capacity: Int) {
   private val lock = new Object()
 
-  private val map = new LinkedHashMap[K, SoftReference[V]](capacity, 0.75F, true) {
+  private val map = new util.LinkedHashMap[K, SoftReference[V]](capacity, 0.75F, true) {
     override def removeEldestEntry(eldest: Entry[K, SoftReference[V]]) = size > capacity
   }
 

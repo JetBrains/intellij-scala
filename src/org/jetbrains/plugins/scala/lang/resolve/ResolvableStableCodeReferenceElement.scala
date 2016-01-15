@@ -3,11 +3,9 @@ package lang
 package resolve
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.roots.{ProjectRootManager, ProjectRootModificationTracker}
-import com.intellij.openapi.util.Key
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
@@ -23,8 +21,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaP
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.resolve.ResolvableStableCodeReferenceElement.EMPTY_ARRAY
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ExtractorResolveProcessor}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, CachedWithRecursionGuard, ModCount}
+
+import scala.collection.Set
+import scala.concurrent.Future
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this, false, false, false)
@@ -32,29 +35,62 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   private object NoConstructorResolver extends StableCodeReferenceElementResolver(this, false, false, true)
   private object ShapesResolver extends StableCodeReferenceElementResolver(this, true, false, false)
   private object ShapesResolverAllConstructors extends StableCodeReferenceElementResolver(this, true, true, false)
+  private object ImportResolverNoMethods extends StableCodeReferenceElementResolver(this, false, false, false) {
+    override protected def getKindsFor(ref: ScStableCodeReferenceElement) = {
+      ref.getKinds(incomplete = false) -- StdKinds.methodRef
+    }
+  }
+  private object ImportResolverNoTypes extends StableCodeReferenceElementResolver(this, false, false, false) {
+    override protected def getKindsFor(ref: ScStableCodeReferenceElement) = {
+      ref.getKinds(incomplete = false) -- StdKinds.stableClass
+    }
+  }
 
   @volatile
   private var resolveResult: Array[ResolveResult] = Array.empty
   @volatile
   private var resolveResultCount: Long = -1L
 
+  def resolveTypesOnly(incomplete: Boolean) = {
+
+    @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
+    def doResolve(incomplete: Boolean):Array[ResolveResult] = ImportResolverNoMethods.resolve(this, incomplete)
+
+    resolveWithCompiled(incomplete, ImportResolverNoMethods, doResolve)
+  }
+
+  def resolveMethodsOnly(incomplete: Boolean) = {
+
+    @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
+    def doResolve(incomplete: Boolean):Array[ResolveResult] = ImportResolverNoTypes.resolve(this, incomplete)
+
+    resolveWithCompiled(incomplete, ImportResolverNoTypes, doResolve)
+  }
+
   def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
+    resolveWithCompiled(incomplete, Resolver, multiResolveCached)
+  }
+
+  private def resolveWithCompiled(incomplete: Boolean,
+                                  resolver: StableCodeReferenceElementResolver,
+                                  elsebr: Boolean => Array[ResolveResult]) = {
     ScalaPsiUtil.fileContext(this) match {
       case s: ScalaFile if s.isCompiled =>
         val count = ProjectRootManager.getInstance(getProject).getModificationCount
         if (count == resolveResultCount) resolveResult
         else {
-          val res = Resolver.resolve(this, incomplete)
+          val res = resolver.resolve(this, incomplete)
           resolveResult = res
           resolveResultCount = count
           res
         }
       case _=>
-        CachesUtil.getMappedWithRecursionPreventingWithRollback[ResolvableStableCodeReferenceElement, Boolean, Array[ResolveResult]](
-          this, incomplete, CachesUtil.RESOLVE_KEY, Resolver.resolve, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
+        elsebr(incomplete)
     }
-
   }
+
+  @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
+  private def multiResolveCached(incomplete: Boolean): Array[ResolveResult] = Resolver.resolve(this, incomplete)
 
   protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement) {
     res match {
@@ -117,10 +153,11 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
         importHolder.getImportStatements.takeWhile(_ != importStmt).foreach {
           case stmt: ScImportStmt =>
             stmt.importExprs.foreach {
-              case expr: ScImportExpr => expr.reference match {
+              case expr: ScImportExpr if expr.singleWildcard => expr.reference match {
                 case Some(reference) => reference.resolve()
                 case None => expr.qualifier.resolve()
               }
+              case _ =>
             }
         }
       }
@@ -224,35 +261,44 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
     }
   }
 
+  @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, ModCount.getBlockModificationCount)
+  private def resolveNoConstructorImpl(): Array[ResolveResult] = NoConstructorResolver.resolve(this, incomplete = false)
+
+
+
   def resolveNoConstructor: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.NO_CONSTRUCTOR_RESOLVE_KEY,
-      new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
-        NoConstructorResolver.resolve(expr, incomplete = false))
-      (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
+    resolveNoConstructorImpl()
   }
+
+  @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, ModCount.getBlockModificationCount)
+  private def resolveAllConstructorsImpl(): Array[ResolveResult] = ResolverAllConstructors.resolve(this, incomplete = false)
 
   def resolveAllConstructors: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.REF_ELEMENT_RESOLVE_CONSTR_KEY,
-      new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
-        ResolverAllConstructors.resolve(expr, incomplete = false))
-      (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
+    resolveAllConstructorsImpl()
   }
+
+
+  @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, ModCount.getBlockModificationCount)
+  private def shapeResolveImpl(): Array[ResolveResult] = ShapesResolver.resolve(this, incomplete = false)
 
   def shapeResolve: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_KEY,
-      new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
-        ShapesResolver.resolve(expr, incomplete = false))
-      (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
+
+    shapeResolveImpl()
   }
+
+
+  @CachedWithRecursionGuard[ResolvableStableCodeReferenceElement](this, EMPTY_ARRAY, ModCount.getBlockModificationCount)
+  private def shapeResolveConstrImpl(): Array[ResolveResult] = ShapesResolverAllConstructors.resolve(this, incomplete = false)
 
   def shapeResolveConstr: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.REF_ELEMENT_SHAPE_RESOLVE_CONSTR_KEY,
-      new CachesUtil.MyProvider(this, (expr: ResolvableStableCodeReferenceElement) =>
-        ShapesResolverAllConstructors.resolve(expr, incomplete = false))
-      (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
+    shapeResolveConstrImpl()
   }
+}
+
+object ResolvableStableCodeReferenceElement {
+  val EMPTY_ARRAY: Array[ResolveResult] = Array.empty[ResolveResult]
 }

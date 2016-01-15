@@ -4,9 +4,7 @@ package psi
 package api
 package statements
 
-import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.psi.{PsiClass, PsiElement}
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -14,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{Equivalence, ScParameterizedType, ScType, ScTypeParameterType}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -38,11 +37,8 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
     }
   }
 
-  def aliasedType: TypeResult[ScType] = CachesUtil.get(
-      this, CachesUtil.ALIASED_KEY,
-      new CachesUtil.MyProvider(this, {ta: ScTypeAliasDefinition => ta.aliasedType(TypingContext.empty)})
-        (PsiModificationTracker.MODIFICATION_COUNT)
-    )
+  @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
+  def aliasedType: TypeResult[ScType] = aliasedType(TypingContext.empty)
 
   def lowerBound: TypeResult[ScType] = aliasedType(TypingContext.empty)
   def upperBound: TypeResult[ScType] = aliasedType(TypingContext.empty)

@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportStmtStub
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableStableCodeReferenceElement, ResolveTargets, ScalaResolveResult, StdKinds}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Set
@@ -82,7 +82,22 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
           case None if importExpr.singleWildcard => ref
           case None => ref.qualifier.getOrElse(return true)
         }
-        val resolve: Array[ResolveResult] = ref.multiResolve(false)
+
+        val resolve: Array[ResolveResult] = processor match {
+          case p:ResolveProcessor=>
+            ref match {
+              // do not process methodrefs when importing a type from a type
+              case ref: ResolvableStableCodeReferenceElement
+                if p.kinds.contains(ResolveTargets.CLASS) &&
+                  ref.getKinds(incomplete = false).contains(ResolveTargets.CLASS) &&
+                  ref.getKinds(incomplete = false).contains(ResolveTargets.METHOD) =>
+                ref.resolveTypesOnly(false)
+//              case ref: ResolvableStableCodeReferenceElement if p.kinds.contains(ResolveTargets.METHOD) =>
+//                ref.resolveMethodsOnly(false)
+              case _ => ref.multiResolve(false)
+            }
+          case _ => ref.multiResolve(false)
+        }
 
         //todo: making lazy next two definitions leads to compiler failure
         val poOpt = () => exprQual.bind() match {

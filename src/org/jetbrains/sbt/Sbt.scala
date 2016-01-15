@@ -47,7 +47,7 @@ object Sbt {
 
   val DefaultImplicitImports = Seq("sbt._", "Process._", "Keys._")
 
-  val DefaultVersion = "0.13.8"
+  val LatestVersion = "0.13.9"
 
   lazy val Icon = IconLoader.getIcon("/sbt.png")
 
@@ -56,8 +56,8 @@ object Sbt {
   def isProjectDefinitionFile(project: Project, file: File): Boolean = {
     val baseDir = new File(project.getBasePath)
     val projectDir = baseDir / Sbt.ProjectDirectory
-    (file.getName == Sbt.BuildFile && file.isUnder(baseDir) ||
+    file.getName == Sbt.BuildFile && file.isUnder(baseDir) ||
       file.getName.endsWith(s".${Sbt.FileExtension}") && file.isUnder(baseDir) ||
-      file.getName.endsWith(".scala") && file.isUnder(projectDir))
+      file.getName.endsWith(".scala") && file.isUnder(projectDir)
   }
 }

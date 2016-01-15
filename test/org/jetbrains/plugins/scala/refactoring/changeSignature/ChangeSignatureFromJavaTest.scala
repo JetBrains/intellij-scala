@@ -3,7 +3,7 @@ package refactoring.changeSignature
 
 import com.intellij.psi.{PsiEllipsisType, PsiMember, PsiMethod, PsiType}
 import com.intellij.refactoring.changeSignature._
-import junit.framework.Assert._
+import org.junit.Assert._
 
 /**
  * Nikolay.Tropin

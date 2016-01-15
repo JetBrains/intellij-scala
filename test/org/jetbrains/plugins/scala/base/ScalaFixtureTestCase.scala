@@ -20,7 +20,7 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase {
     super.setUp()
 
     libLoader = ScalaLibraryLoader.withMockJdk(myFixture.getProject, myFixture.getModule, rootPath)
-    libLoader.loadLibrary(TestUtils.DEFAULT_SCALA_SDK_VERSION)
+    libLoader.loadScala(TestUtils.DEFAULT_SCALA_SDK_VERSION)
   }
 
   override def tearDown(): Unit = {

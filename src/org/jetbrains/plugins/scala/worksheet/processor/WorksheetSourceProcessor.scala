@@ -29,7 +29,7 @@ import scala.collection.mutable
 object WorksheetSourceProcessor {
   val END_TOKEN_MARKER = "###worksheet###$$end$$"
   val END_OUTPUT_MARKER = "###worksheet###$$end$$!@#$%^&*(("
-  val END_GENERATED_MARKER = "/* ###worksheet### generated $$end$$ */"
+  val END_GENERATED_MARKER = "/* ###worksheet### generated $$end$$ */ "
 
   val WORKSHEET_PRE_CLASS_KEY = new Key[String]("WorksheetPreClassKey")
 
@@ -108,9 +108,11 @@ object WorksheetSourceProcessor {
     val eraseClassName = ".replace(\"" + instanceName + ".\", \"\")"
     val erasePrefixName = ".stripPrefix(\"" + name + "$" + name + "$\")"
     
+    @inline def countNls(str: String) = str.count(_ == '\n')
+    
     @inline def insertNlsFromWs(psi: PsiElement) = psi.getNextSibling match {
       case ws: PsiWhiteSpace =>
-        val c = ws.getText count (_ == '\n')
+        val c = countNls(ws.getText)
         if (c == 0) ";" else StringUtil.repeat("\n", c)
       case _ => ";"
     }
@@ -164,12 +166,18 @@ object WorksheetSourceProcessor {
     
     @inline def appendPsiComment(comment: PsiComment) {
       val range = comment.getTextRange
+      val backOffset = comment.getPrevSibling match {
+        case ws: PsiWhiteSpace if countNls(ws.getText) > 0 => 0
+        case _ => 1
+      }
+      
       ifDocument map {
-        document => document.getLineNumber(range.getEndOffset) - document.getLineNumber(range.getStartOffset) + 1
+        document => document.getLineNumber(range.getEndOffset) - document.getLineNumber(range.getStartOffset) + (1 - backOffset)
       } map {
         case differ => for (_ <- 0 until differ) objectRes append printMethodName append "()\n"
       } getOrElse {
-        val count = comment.getText count (_ == '\n')
+        val count = countNls(comment.getText) - backOffset
+        
         for (_ <- 0 until count) objectRes append printMethodName append "()\n"
       }
     }
@@ -180,14 +188,14 @@ object WorksheetSourceProcessor {
 
       val count = ifDocument map {
         case d => d.getLineNumber(range.getEndOffset) - d.getLineNumber(range.getStartOffset) + 1
-      } getOrElse comment.getText.count(_ == '\n')
+      } getOrElse countNls(comment.getText)
 
       for (_ <- 0 until count) classRes append "//\n"
       classRes append insertNlsFromWs(comment).stripPrefix("\n")
     }
     
     @inline def appendPsiWhitespace(ws: PsiWhiteSpace) {
-      val count = ws.getText count (_ == '\n')
+      val count = countNls(ws.getText)
       for (_ <- 1 until count) objectRes append printMethodName append "()\n"
     }
     

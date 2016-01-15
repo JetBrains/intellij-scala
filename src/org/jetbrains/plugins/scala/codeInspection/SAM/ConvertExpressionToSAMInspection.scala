@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.SAM
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
@@ -29,7 +30,7 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
         definition.members match {
           case Seq(fun: ScFunctionDefinition) =>
             fun.body match {
-              case Some(body) if expectedMethodType.conforms(fun.getType().getOrNothing) =>
+              case Some(funBody) if expectedMethodType.conforms(fun.getType().getOrNothing) =>
                 lazy val replacement: String = {
                   val res = new StringBuilder
                   fun.effectiveParameterClauses.headOption match {
@@ -38,12 +39,15 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
                       res.append(" => ")
                     case _ =>
                   }
-                  res.append(fun.body.getOrElse(fun).getText)
+                  res.append(funBody.getText)
                   res.toString()
                 }
                 val fix = new ReplaceExpressionWithSAMQuickFix(definition, replacement)
-                holder.registerProblem(definition, inspectionName,
-                  ProblemHighlightType.GENERIC_ERROR_OR_WARNING, fix)
+                val extendsBlock = definition.extendsBlock
+                val lBraceInParent = extendsBlock.templateBody.map(_.startOffsetInParent + extendsBlock.startOffsetInParent)
+                val rangeInElement: TextRange = lBraceInParent.map(new TextRange(0, _)).orNull
+                holder.registerProblem(definition, inspectionName, ProblemHighlightType.LIKE_UNUSED_SYMBOL,
+                  rangeInElement, fix)
               case _ =>
             }
           case _ =>

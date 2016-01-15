@@ -16,6 +16,7 @@ import com.intellij.packaging.elements.PackagingElementResolvingContext;
 import com.intellij.packaging.impl.elements.ArchivePackagingElement;
 import com.intellij.packaging.impl.elements.DirectoryPackagingElement;
 import com.intellij.packaging.impl.elements.ManifestFileUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -86,7 +87,7 @@ public class ArtifactsTestUtil {
   public static void setOutput(final Project project, final String artifactName, final String outputPath) {
     new WriteAction() {
       @Override
-      protected void run(final Result result) {
+      protected void run(@NotNull final Result result) {
         final ModifiableArtifactModel model = ArtifactManager.getInstance(project).createModifiableModel();
         model.getOrCreateModifiableArtifact(findArtifact(project, artifactName)).setOutputPath(outputPath);
         model.commit();
@@ -97,7 +98,7 @@ public class ArtifactsTestUtil {
   public static void addArtifactToLayout(final Project project, final Artifact parent, final Artifact toAdd) {
     new WriteAction() {
       @Override
-      protected void run(final Result result) {
+      protected void run(@NotNull final Result result) {
         final ModifiableArtifactModel model = ArtifactManager.getInstance(project).createModifiableModel();
         final PackagingElement<?> artifactElement = PackagingElementFactory.getInstance().createArtifactElement(toAdd, project);
         model.getOrCreateModifiableArtifact(parent).getRootElement().addOrFindChild(artifactElement);

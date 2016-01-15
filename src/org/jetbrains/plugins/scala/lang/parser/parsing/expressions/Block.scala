@@ -74,7 +74,7 @@ object Block {
         }
       }
     }
-    if (tts.drop(1).headOption == Some(ScalaTokenTypes.tSEMICOLON)) i -= 1  // See unit_to_unit.test
+    if (tts.drop(1).headOption.contains(ScalaTokenTypes.tSEMICOLON)) i -= 1  // See unit_to_unit.test
 
     i
   }

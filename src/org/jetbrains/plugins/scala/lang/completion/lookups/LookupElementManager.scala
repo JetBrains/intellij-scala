@@ -57,7 +57,7 @@ object LookupElementManager {
             }
         case _ =>
       }
-      val isUnderlined = resolveResult.implicitFunction != None
+      val isUnderlined = resolveResult.implicitFunction.isDefined
       element match {
         case doc: PsiDocCommentOwner if doc.isDeprecated => isDeprecated = true
         case _ =>

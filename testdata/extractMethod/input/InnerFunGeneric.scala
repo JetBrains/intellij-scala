@@ -2,11 +2,11 @@ class A {
   def foo[T](x: T) {
     def goo[G](y: G) {
       val z: T = x
-      /*start*/
+/*start*/
       y: G
       z: T
       val u = x
-      /*end*/
+/*end*/
       u
     }
     goo(3)
@@ -17,9 +17,9 @@ class A {
   def foo[T](x: T) {
     def goo[G](y: G) {
       val z: T = x
-      /*start*/
+
       val u: T = testMethodName(x, y, z)
-      /*end*/
+
       u
     }
     goo(3)

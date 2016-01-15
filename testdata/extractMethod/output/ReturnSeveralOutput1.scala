@@ -1,13 +1,13 @@
 class ReturnSeveralOutput1 {
   def foo(i: Int): Int = {
-    /*start*/
+/*start*/
 
     val x = i
     if (true) return x
     val y = "a"
     val z = 1
     val zz = "1"
-    /*end*/
+/*end*/
     println(x + y + z + zz)
     i
   }
@@ -15,13 +15,13 @@ class ReturnSeveralOutput1 {
 /*
 class ReturnSeveralOutput1 {
   def foo(i: Int): Int = {
-    /*start*/
+
 
     val (x: Int, y: String, z: Int, zz: String) = testMethodName(i) match {
       case Left(toReturn) => return toReturn
       case Right(result) => result
     }
-    /*end*/
+
     println(x + y + z + zz)
     i
   }

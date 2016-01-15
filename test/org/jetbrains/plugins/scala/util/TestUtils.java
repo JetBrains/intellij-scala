@@ -25,7 +25,6 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.LocalTimeCounter;
-import junit.framework.AssertionFailedError;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.Console;
 import org.jetbrains.plugins.scala.debugger.DebuggerTestUtil$;
@@ -147,6 +146,10 @@ public class TestUtils {
     return getIvyCachePath() + "/io.spray/spray-routing_2.11/bundles/spray-routing_2.11-1.3.1.jar" ;
   }
 
+  public static String getMockSlickLib(ScalaSdkVersion version) {
+    return getIvyCachePath() + "/com.typesafe.slick/slick_2.11/bundles/slick_2.11-3.1.0.jar" ;
+  }
+
   public static String getScalaLibrarySrc(ScalaSdkVersion version) {
     String fileName = "scala-library-" + version.getMinor() + "-sources.jar";
     return getIvyCachePath() + "/org.scala-lang/scala-library/srcs/" + fileName;
@@ -230,7 +233,7 @@ public class TestUtils {
         assertTiming(message, expected, finish - start);
         break;
       }
-      catch (AssertionFailedError e) {
+      catch (AssertionError e) {
         if (attempts == 0) throw e;
         System.gc();
         System.gc();

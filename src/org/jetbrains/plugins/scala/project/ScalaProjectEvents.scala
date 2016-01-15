@@ -2,10 +2,9 @@ package org.jetbrains.plugins.scala
 package project
 
 import com.intellij.ProjectTopics
-import com.intellij.openapi.project.{Project, ModuleAdapter}
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.components.AbstractProjectComponent
-import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootAdapter}
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.{ModuleRootAdapter, ModuleRootEvent}
 
 /**
  * @author Pavel Fatin
@@ -24,6 +23,7 @@ class ScalaProjectEvents(project: Project) extends AbstractProjectComponent(proj
   }
 
   override def projectClosed() {
+    listeners = Nil
     connection.disconnect()
   }
 

@@ -8,6 +8,6 @@ object A {
 import java.util.AbstractMap.SimpleEntry
 
 object A {
-  val immutEntry: /*start*/SIE/*end*/ = null
+  val immutEntry: SIE = null
 }
 */

@@ -37,6 +37,8 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
 
   override def toString: String = "TypeParameter: " + name
 
+  override def getPsiElementId: PsiElement = this
+
   def getOffsetInFile: Int = {
     val stub = getStub
     if (stub != null) {
@@ -93,7 +95,7 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
     getText
   }
 
-  def owner  = getContext.getContext.asInstanceOf[ScTypeParametersOwner]
+  def owner: ScTypeParametersOwner = getContext.getContext.asInstanceOf[ScTypeParametersOwner]
 
   override def getUseScope  = new LocalSearchScope(owner).intersectWith(super.getUseScope)
 
@@ -128,14 +130,6 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
       stub.asInstanceOf[ScTypeParamStub].getUpperTypeElement
     } else super.upperTypeElement
   }
-
-  def addAnnotation(p1: String): PsiAnnotation = null
-
-  def getAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
-
-  def getApplicableAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
-
-  def findAnnotation(p1: String): PsiAnnotation = null
 
   override def getIcon(flags: Int) = {
     Icons.TYPE_ALIAS

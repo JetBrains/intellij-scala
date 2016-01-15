@@ -37,7 +37,7 @@ object ScalaStubsUtil {
     if (name == null) return Seq.empty
     val inheritors = new ArrayBuffer[ScTemplateDefinition]
     val iterator: java.util.Iterator[ScExtendsBlock] =
-      StubIndex.getElements(ScDirectInheritorsIndex.KEY, name, clazz.getProject, new ScalaSourceFilterScope(scope, scope.getProject), classOf[ScExtendsBlock]).iterator
+      StubIndex.getElements(ScDirectInheritorsIndex.KEY, name, clazz.getProject, new ScalaSourceFilterScope(scope, clazz.getProject), classOf[ScExtendsBlock]).iterator
     while (iterator.hasNext) {
       val extendsBlock: PsiElement = iterator.next
       val stub = extendsBlock.asInstanceOf[ScExtendsBlockImpl].getStub

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.completion.lookups
 
-import java.util.Set
+import java.util
 
 import com.intellij.codeInsight.completion.InsertionContext
 import com.intellij.codeInsight.lookup.{LookupElementDecorator, LookupElementPresentation}
@@ -8,13 +8,13 @@ import gnu.trove.THashSet
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler
 
 /**
- * @author Alefas
- * @since 31.03.12
- */
+  * @author Alefas
+  * @since 31.03.12
+  */
 
 class ScalaChainLookupElement(val prefix: ScalaLookupItem, val element: ScalaLookupItem) extends LookupElementDecorator[ScalaLookupItem](element) {
-  override def getAllLookupStrings: Set[String] = {
-    val strings: Set[String] = getDelegate.getAllLookupStrings
+  override def getAllLookupStrings: util.Set[String] = {
+    val strings: util.Set[String] = getDelegate.getAllLookupStrings
     val result: THashSet[String] = new THashSet[String]
     result.addAll(strings)
     result.add(getLookupString)
@@ -48,8 +48,8 @@ class ScalaChainLookupElement(val prefix: ScalaLookupItem, val element: ScalaLoo
     val addParams = status._1 >= 0 && (status._1 > 0 || !status._3)
     if (addParams) {
       document.insertString(offsetForPrefix, "()")
-//      val offset = editor.getCaretModel.getOffset
-//      editor.getCaretModel.moveToOffset(offset + 2)
+      //      val offset = editor.getCaretModel.getOffset
+      //      editor.getCaretModel.moveToOffset(offset + 2)
     }
   }
 }

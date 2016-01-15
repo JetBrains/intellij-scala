@@ -9,6 +9,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.sun.jdi.{AbsentInformationException, Location, Method, ReferenceType}
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil.Opcodes
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement, ScMatchStmt, ScTryStmt}
@@ -18,8 +19,8 @@ import scala.collection.JavaConverters._
 import scala.util.Try
 
 /**
- * @author Nikolay.Tropin
- */
+  * @author Nikolay.Tropin
+  */
 trait LocationLineManager {
   self: ScalaPositionManager =>
 
@@ -91,7 +92,20 @@ trait LocationLineManager {
 
     //scalac sometimes generates very strange line numbers for <init> method
     def customizeLineForConstructors(): Unit = {
-      def shouldCustomize(location: Location): Boolean = {
+      //2.12 generates line number for return of constructor, it has no use in debugger
+      def isReturnInstr(location: Location): Boolean = {
+        try {
+          val bytecodes = location.method().bytecodes()
+          val index = location.codeIndex()
+          bytecodes(index.toInt) == Opcodes.voidReturn
+        } catch {
+          case e: Throwable => false
+        }
+      }
+
+      def shouldPointAtStartLine(location: Location): Boolean = {
+        if (location.codeIndex() != 0) return false
+
         val lineNumber = ScalaPositionManager.checkedLineNumber(location)
         if (lineNumber < 0) return true
 
@@ -103,19 +117,26 @@ trait LocationLineManager {
 
       val methods = refType.methodsByName("<init>").asScala.filter(_.declaringType() == refType)
       for {
-        location <- methods.map(_.location())
-        if shouldCustomize(location)
+        location <- methods.flatMap(_.allLineLocations().asScala)
       } {
-        val significantElem = DebuggerUtil.getSignificantElement(generatingElem)
-        val lineNumber = elementStartLine(significantElem)
-        cacheCustomLine(location, lineNumber)
+        if (shouldPointAtStartLine(location)) {
+          val significantElem = DebuggerUtil.getSignificantElement(generatingElem)
+          val lineNumber = elementStartLine(significantElem)
+          if (lineNumber != ScalaPositionManager.checkedLineNumber(location))
+            cacheCustomLine(location, lineNumber)
+        }
+        else if (isReturnInstr(location)) {
+          cacheCustomLine(location, -1)
+        }
       }
     }
 
     def customizeCaseClauses(): Unit = {
 
       def skipTypeCheckOptimization(method: Method, caseLineLocations: Seq[Location]): Unit = {
-        val bytecodes = method.bytecodes()
+        val bytecodes =
+          try method.bytecodes()
+          catch {case t: Throwable => return }
 
         def cacheCorrespondingIloadLocations(iconst_0Loc: Location): Unit = {
           val codeIndex = iconst_0Loc.codeIndex().toInt
@@ -141,7 +162,9 @@ trait LocationLineManager {
       }
 
       def skipReturnValueAssignment(method: Method, caseLinesLocations: Seq[Seq[Location]]): Unit = {
-        val bytecodes = method.bytecodes()
+        val bytecodes =
+          try method.bytecodes()
+          catch {case t: Throwable => return }
 
         def storeCode(location: Location): Option[Seq[Byte]] = {
           val codeIndex = location.codeIndex().toInt
@@ -167,16 +190,27 @@ trait LocationLineManager {
         loadLocations.foreach(cacheCustomLine(_, -1))
       }
 
-      def skipLoadExpressionValue(method: Method, baseLine: Int): Unit = {
+      def skipBaseLineExtraLocations(method: Method, baseLine: Int): Unit = {
         val locations = locationsOfLine(method, baseLine).filter(!customizedLocationsCache.contains(_))
         if (locations.size <= 1) return
-        
-        val bytecodes = method.bytecodes()
 
-        val toSkip = locations.tail.filter {l =>
+        val bytecodes =
+          try method.bytecodes()
+          catch {
+            case t: Throwable => return
+          }
+
+        val tail: Seq[Location] = locations.tail
+
+        val loadExpressionValueLocations = tail.filter { l =>
           BytecodeUtil.readLoadCode(l.codeIndex().toInt, bytecodes).nonEmpty
         }
-        toSkip.foreach(cacheCustomLine(_, -1))
+
+        val returnLocations = tail.filter { l =>
+          BytecodeUtil.returnCodes.contains(bytecodes(l.codeIndex().toInt))
+        }
+
+        (loadExpressionValueLocations ++ returnLocations).foreach(cacheCustomLine(_, -1))
       }
 
       def customizeFor(caseClauses: ScCaseClauses): Unit = {
@@ -210,7 +244,7 @@ trait LocationLineManager {
           line <- baseLine
           if locationsOfLine(m, line).size > 1
         } {
-          skipLoadExpressionValue(m, line)
+          skipBaseLineExtraLocations(m, line)
         }
       }
 

@@ -6,15 +6,15 @@ import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.lang.TokenSets
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
-import scala.collection.mutable.Stack
+import scala.collection.mutable
 
 /**
- * @author Alexander Podkhalyuzin
- */
+  * @author Alexander Podkhalyuzin
+  */
 
 class ScalaPsiBuilderImpl(builder: PsiBuilder)
   extends PsiBuilderAdapter(builder) with ScalaPsiBuilder {
-  private final val newlinesEnabled: Stack[Boolean] = new Stack[Boolean]
+  private final val newlinesEnabled: mutable.Stack[Boolean] = new mutable.Stack[Boolean]
 
   def newlineBeforeCurrentToken: Boolean = {
     countNewlineBeforeCurrentToken() > 0
@@ -25,12 +25,12 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
   }
 
   /**
-   * @return 0 if new line is disabled here, or there is no \n chars between tokens
-   *         1 if there is no blank lines between tokens
-   *         2 otherwise
-   */
+    * @return 0 if new line is disabled here, or there is no \n chars between tokens
+    *         1 if there is no blank lines between tokens
+    *         2 otherwise
+    */
   private def countNewlineBeforeCurrentToken(): Int = {
-    if (!newlinesEnabled.isEmpty && !newlinesEnabled.top) return 0
+    if (newlinesEnabled.nonEmpty && !newlinesEnabled.top) return 0
     if (eof) return 0
     if (!ParserUtils.elementCanStartStatement(getTokenType, this)) return 0
 
@@ -54,7 +54,7 @@ class ScalaPsiBuilderImpl(builder: PsiBuilder)
   }
 
   def restoreNewlinesState {
-    assert(newlinesEnabled.size >= 1)
+    assert(newlinesEnabled.nonEmpty)
     newlinesEnabled.pop()
   }
 }

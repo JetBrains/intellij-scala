@@ -4,7 +4,7 @@ package resolve
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import com.intellij.psi.util.{PsiTreeUtil, PsiModificationTracker}
+import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor._
+import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedMappedWithRecursionGuard, CachedWithRecursionGuard}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -33,22 +34,21 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object Resolver extends ReferenceExpressionResolver(false)
   private object ShapesResolver extends ReferenceExpressionResolver(true)
 
+  @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
+  def multiResolveImpl(incomplete: Boolean): Array[ResolveResult] = Resolver.resolve(this, incomplete)
+
   def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
-    if (resolveFunction != null) return resolveFunction()
-    CachesUtil.getMappedWithRecursionPreventingWithRollback[ResolvableReferenceExpression, Boolean, Array[ResolveResult]](
-      this, incomplete, CachesUtil.RESOLVE_KEY, Resolver.resolve, Array.empty, PsiModificationTracker.MODIFICATION_COUNT)
+    if (resolveFunction != null) resolveFunction()
+    else multiResolveImpl(incomplete)
   }
+
+  @CachedWithRecursionGuard[ResolvableReferenceExpression](this, Array.empty[ResolveResult], ModCount.getBlockModificationCount)
+  private def shapeResolveImpl: Array[ResolveResult] = ShapesResolver.resolve(this, incomplete = false)
 
   def shapeResolve: Array[ResolveResult] = {
     ProgressManager.checkCanceled()
-    if (shapeResolveFunction != null) return shapeResolveFunction()
-    CachesUtil.getWithRecursionPreventingWithRollback(this, CachesUtil.REF_EXPRESSION_SHAPE_RESOLVE_KEY,
-      new CachesUtil.MyProvider(this, (expr: ResolvableReferenceExpression) => expr.shapeResolveInner)
-      (PsiModificationTracker.MODIFICATION_COUNT), Array.empty[ResolveResult])
-  }
-
-  private def shapeResolveInner: Array[ResolveResult] = {
-    ShapesResolver.resolve(this, incomplete = false)
+    if (shapeResolveFunction != null) shapeResolveFunction()
+    else shapeResolveImpl
   }
 
   def isAssignmentOperator = {
@@ -436,7 +436,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
 
   private def processDynamic(aType: ScType, reference: ScReferenceExpression, e: ScExpression,
                              baseProcessor: BaseProcessor): BaseProcessor = {
-    val cachedClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Dynamic")
+    val cachedClass = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "scala.Dynamic").orNull
     if (cachedClass == null) return baseProcessor
     val dynamicType = ScDesignatorType(cachedClass)
 

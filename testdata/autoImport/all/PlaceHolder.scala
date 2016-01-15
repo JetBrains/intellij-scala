@@ -12,5 +12,5 @@ import collection.mutable.ArrayBuffer
 import collection.mutable.End
 import collection.mutable.FlatHashTable
 
-val x: /*ref*/SourceInside4
+val x: SourceInside4
 */

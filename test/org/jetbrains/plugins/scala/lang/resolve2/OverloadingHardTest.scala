@@ -9,23 +9,23 @@ class OverloadingHardTest extends ResolveTestBase {
     super.folderPath + "overloading/hardOverloadings/"
   }
 
-  def testIgnoreValue = doTest
-  def testImplicitsPriority = doTest
-  def testNoOverloading = doTest
-  def testValueFunction1 = doTest
-  def testValueFunction2 = doTest
-  def testValueFunction3 = doTest
-  def testValueFunction4 = doTest
-  def testValueFunction5 = doTest
-  def testValueFunction6 = doTest
-  def testValueFunction7 = doTest
-  def testValueFunction8 = doTest
-  def testValueFunction9 = doTest
+  def testIgnoreValue() = doTest()
+  def testImplicitsPriority() = doTest()
+  def testNoOverloading() = doTest()
+  def testValueFunction1() = doTest()
+  def testValueFunction2() = doTest()
+  def testValueFunction3() = doTest()
+  def testValueFunction4() = doTest()
+  def testValueFunction5() = doTest()
+  def testValueFunction6() = doTest()
+  def testValueFunction7() = doTest()
+  def testValueFunction8() = doTest()
+  def testValueFunction9() = doTest()
   //TODO
 //  def testValueFunction10 = doTest
-  def testFunctionObject = doTest
-  def testFunctionObject1 = doTest
-  def testFunctionObject2 = doTest
-  def testParameterlessFunction = doTest
-  def testParameterlessFunction2 = doTest
+  def testFunctionObject() = doTest()
+  def testFunctionObject1() = doTest()
+  def testFunctionObject2() = doTest()
+  def testParameterlessFunction() = doTest()
+  def testParameterlessFunction2() = doTest()
 }

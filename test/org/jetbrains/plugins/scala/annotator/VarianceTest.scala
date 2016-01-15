@@ -197,8 +197,4 @@ class VarianceTest extends SimpleTestCase {
   val CovariantPosition = ContainsPattern("occurs in covariant position")
   val AbstractModifier = ContainsPattern("Abstract member may not have private modifier")
   val NotConformsUpper = ContainsPattern("doesn't conform to upper bound")
-
-  case class ContainsPattern(fragment: String) {
-    def unapply(s: String) = s.contains(fragment)
-  }
 }

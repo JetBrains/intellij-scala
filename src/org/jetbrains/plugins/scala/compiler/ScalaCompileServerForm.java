@@ -190,8 +190,8 @@ public class ScalaCompileServerForm implements Configurable {
         myCompilationServerPanel.add(myCompilationServerMaximumHeapSize, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label3 = new JLabel();
         label3.setText("JVM SDK:");
-        label3.setDisplayedMnemonic('S');
-        label3.setDisplayedMnemonicIndex(4);
+        label3.setDisplayedMnemonic('J');
+        label3.setDisplayedMnemonicIndex(0);
         myCompilationServerPanel.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         myNote = new MultiLineLabel();
         myNote.setText(" \nCompile server is application-wide (there is a single instance for all projects).\nJVM SDK is used to instantiate compile server and to invoke in-process Java compiler\n(when JVM SDK and module SDK match).");

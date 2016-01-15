@@ -34,6 +34,7 @@ object JavaToScala {
     override def toString = value.toString
   }
 
+  //noinspection ScalaWrongMethodsUsage
   def convertPsiToText(element: PsiElement)
                       (implicit associations: ListBuffer[Association] = new ListBuffer(),
                        refs: Seq[ReferenceData] = Seq.empty, offset: Offset = new Offset(0)): String = {
@@ -49,7 +50,7 @@ object JavaToScala {
       refs.find(ref => new TextRange(ref.startOffset, ref.endOffset) == element.getTextRange).map { ref =>
         val i = startOffset.value
         val range = new TextRange(i, i + element.getTextLength)
-        if(ref.staticMemberName == null) {
+        if (ref.staticMemberName == null) {
           Association(DependencyKind.Reference, range, Path(ref.qClassName))
         } else {
           Association(DependencyKind.Reference, range, Path(ref.qClassName, ref.staticMemberName))
@@ -63,9 +64,9 @@ object JavaToScala {
       if (elements.nonEmpty) {
         res.append(prefix)
         val it = elements.iterator
-        while(it.hasNext) {
+        while (it.hasNext) {
           res.append(convertPsiToText(it.next()))
-          if(it.hasNext) res.append(separator)
+          if (it.hasNext) res.append(separator)
         }
         res.append(suffix)
       }
@@ -85,15 +86,15 @@ object JavaToScala {
         res.append(escapeKeyword(p.getName))
         val typez = new ArrayBuffer[PsiJavaCodeReferenceElement]
         if (p.getExtendsList != null) typez ++= p.getExtendsList.getReferenceElements
-        if (typez.length > 0) res.append(" <: ")
+        if (typez.nonEmpty) res.append(" <: ")
         for (tp <- typez) {
           res.append(convertPsiToText(tp)).append(" with ")
         }
-        if (typez.length > 0) res.delete(res.length - 5, res.length)
+        if (typez.nonEmpty) res.delete(res.length - 5, res.length)
       //statements
       case f: PsiIfStatement =>
         res.append("if (").append(convertPsiToText(f.getCondition)).append(") ").
-                append(convertPsiToText(f.getThenBranch))
+          append(convertPsiToText(f.getThenBranch))
         if (f.getElseElement != null) {
           res.append("\nelse ").append(convertPsiToText(f.getElseBranch))
         }
@@ -107,10 +108,10 @@ object JavaToScala {
         res.append("}")
       case w: PsiWhileStatement =>
         res.append("while (").append(convertPsiToText(w.getCondition)).append(") ").
-                append(convertPsiToText(w.getBody))
+          append(convertPsiToText(w.getBody))
       case d: PsiDoWhileStatement =>
         res.append("do ").append(convertPsiToText(d.getBody)).append("while (").
-                append(convertPsiToText(d.getCondition)).append(")")
+          append(convertPsiToText(d.getCondition)).append(")")
       case r: PsiReturnStatement => res.append("return ").append(convertPsiToText(r.getReturnValue))
       case a: PsiAssertStatement =>
         res.append("assert(").append(convertPsiToText(a.getAssertCondition))
@@ -122,10 +123,10 @@ object JavaToScala {
         else res.append("break //todo: break is not supported")
       case c: PsiContinueStatement => res.append("continue //todo: continue is not supported")
       case d: PsiDeclarationStatement =>
-        for  (decl <- d.getDeclaredElements) {
+        for (decl <- d.getDeclaredElements) {
           res.append(convertPsiToText(decl)).append("\n")
         }
-        if (d.getDeclaredElements.length > 0) res.delete(res.length - 1, res.length)
+        if (d.getDeclaredElements.nonEmpty) res.delete(res.length - 1, res.length)
       case e: PsiExpressionListStatement =>
         for (expr <- e.getExpressionList.getExpressions) {
           res.append(convertPsiToText(expr)).append("\n")
@@ -160,22 +161,22 @@ object JavaToScala {
           res.append("import scala.collection.JavaConversions._\n")
         }
         res.append("for (").append(escapeKeyword(f.getIterationParameter.getName)).append(" <- ").
-                append(convertPsiToText(f.getIteratedValue)).append(") ").
-                append(convertPsiToText(f.getBody))
+          append(convertPsiToText(f.getIteratedValue)).append(") ").
+          append(convertPsiToText(f.getBody))
       case s: PsiLabeledStatement =>
         res.append(convertPsiToText(s.getStatement)).append("//todo: labels is not supported")
       case t: PsiThrowStatement =>
         res.append("throw ").append(convertPsiToText(t.getException))
       case s: PsiSynchronizedStatement =>
         res.append(convertPsiToText(s.getLockExpression)).append(" synchronized ").
-                append(convertPsiToText(s.getBody))
+          append(convertPsiToText(s.getBody))
       case s: PsiSwitchLabelStatement =>
         val arrow = ScalaPsiUtil.functionArrow(s.getProject)
         res.append("case ").append(if (s.isDefaultCase) "_" else convertPsiToText(s.getCaseValue)).
-                append(s" $arrow ")
+          append(s" $arrow ")
       case s: PsiSwitchStatement =>
         res.append(convertPsiToText(s.getExpression)).append(" match ").
-                append(convertPsiToText(s.getBody))
+          append(convertPsiToText(s.getBody))
       case t: PsiTryStatement =>
         import scala.collection.JavaConversions._
         val resourceList = t.getResourceList
@@ -187,12 +188,12 @@ object JavaToScala {
         }
         res.append("try ").append(convertPsiToText(t.getTryBlock))
         val catchs = t.getCatchSections
-        if (catchs.length > 0) {
+        if (catchs.nonEmpty) {
           res.append("\ncatch {\n")
           for (section: PsiCatchSection <- catchs) {
             val arrow = ScalaPsiUtil.functionArrow(t.getProject)
             res.append("case ").append(convertPsiToText(section.getParameter)).append(s" $arrow ").
-                    append(convertPsiToText(section.getCatchBlock))
+              append(convertPsiToText(section.getCatchBlock))
           }
           res.append("}")
         }
@@ -222,7 +223,7 @@ object JavaToScala {
       //expressions
       case a: PsiArrayAccessExpression =>
         res.append(convertPsiToText(a.getArrayExpression)).append("(").
-                append(convertPsiToText(a.getIndexExpression)).append(")")
+          append(convertPsiToText(a.getIndexExpression)).append(")")
       case a: PsiArrayInitializerExpression =>
         res.append("Array(")
         for (init <- a.getInitializers) {
@@ -233,11 +234,11 @@ object JavaToScala {
       case a: PsiAssignmentExpression =>
         if (!a.getParent.isInstanceOf[PsiExpression]) {
           res.append(convertPsiToText(a.getLExpression)).append(" ").
-                append(a.getOperationSign.getText).append(" ").append(convertPsiToText(a.getRExpression))
+            append(a.getOperationSign.getText).append(" ").append(convertPsiToText(a.getRExpression))
         } else {
           res.append("({").append(convertPsiToText(a.getLExpression)).append(" ").
-                append(a.getOperationSign.getText).append(" ").append(convertPsiToText(a.getRExpression)).
-                  append("; ").append(convertPsiToText(a.getLExpression)).append("})")
+            append(a.getOperationSign.getText).append(" ").append(convertPsiToText(a.getRExpression)).
+            append("; ").append(convertPsiToText(a.getLExpression)).append("})")
         }
       case b: PsiBinaryExpression =>
         def isOk: Boolean = {
@@ -254,17 +255,17 @@ object JavaToScala {
           case x => x
         }
         res.append(convertPsiToText(b.getLOperand)).append(" ").
-                append(operation).append(" ").append(convertPsiToText(b.getROperand))
+          append(operation).append(" ").append(convertPsiToText(b.getROperand))
       case c: PsiClassObjectAccessExpression =>
         res.append("classOf[").append(convertPsiToText(c.getOperand)).append("]")
       case c: PsiConditionalExpression =>
         res.append("if (").append(convertPsiToText(c.getCondition)).append(") ").
-                append(convertPsiToText(c.getThenExpression)).append(" else ").append(convertPsiToText(c.getElseExpression))
+          append(convertPsiToText(c.getThenExpression)).append(" else ").append(convertPsiToText(c.getElseExpression))
       case i: PsiInstanceOfExpression =>
         res.append(convertPsiToText(i.getOperand)).append(".isInstanceOf[").
-                append(convertPsiToText(i.getCheckType)).append("]")
+          append(convertPsiToText(i.getCheckType)).append("]")
       case m: PsiMethodCallExpression if m.getMethodExpression.getReferenceName == "equals" &&
-        m.getTypeArguments.length == 0 && m.getArgumentList.getExpressions.length == 1 =>
+        m.getTypeArguments.isEmpty && m.getArgumentList.getExpressions.length == 1 =>
         val parentIsExpr = m.getParent.isInstanceOf[PsiExpression]
         if (parentIsExpr) res.append("(")
         res.append(Option(m.getMethodExpression.getQualifierExpression).
@@ -286,7 +287,7 @@ object JavaToScala {
             res.append(convertPsiToText(m.getMethodExpression)).append(convertPsiToText(m.getArgumentList))
         }
       case e: PsiExpressionList =>
-        if (e.getExpressions.length != 0) {
+        if (e.getExpressions.nonEmpty) {
           res.append("(")
           for (expr <- e.getExpressions) {
             res.append(convertPsiToText(expr)).append(", ")
@@ -363,20 +364,20 @@ object JavaToScala {
         res.append("super")
       case n: PsiNewExpression if n.getAnonymousClass == null =>
         if (n.getArrayInitializer != null) {
-          for(ref <- Option(n.getClassReference)) associations ++= associationFor(ref).toSeq
+          for (ref <- Option(n.getClassReference)) associations ++= associationFor(ref).toSeq
           res.append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
           append(n.getArrayInitializer.getInitializers)
-        } else if (n.getArrayDimensions.length > 0) {
+        } else if (n.getArrayDimensions.nonEmpty) {
           res.append("new ")
-          for(ref <- Option(n.getClassReference)) associations ++= associationFor(ref).toSeq
+          for (ref <- Option(n.getClassReference)) associations ++= associationFor(ref).toSeq
           res.append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
           append(n.getArrayDimensions)
         } else {
           res.append("new ")
-          for(ref <- Option(n.getClassReference)) associations ++= associationFor(ref).toSeq
+          for (ref <- Option(n.getClassReference)) associations ++= associationFor(ref).toSeq
           res.append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
           if (n.getArgumentList != null) {
-            if (n.getArgumentList.getExpressions.size == 0) {
+            if (n.getArgumentList.getExpressions.isEmpty) {
               // if the new expression is used as a qualifier, force parentheses for empty argument list
               n.getParent match {
                 case r: PsiJavaCodeReferenceElement if n == r.getQualifier => res.append("()")
@@ -520,7 +521,7 @@ object JavaToScala {
           } else forClass += method
         }
         val serialVersionUID = serialVersion(c)
-        for (field <- c.getFields if Some(field) != serialVersionUID) {
+        for (field <- c.getFields if !serialVersionUID.contains(field)) {
           if (field.hasModifierProperty("static")) {
             forObject += field
           } else forClass += field
@@ -573,7 +574,7 @@ object JavaToScala {
               case clazz: PsiAnonymousClass =>
                 val tp = ScType.create(c.asInstanceOf[PsiAnonymousClass].getBaseClassType, c.getProject)
                 res.append(ScType.presentableText(tp))
-                if (clazz.getArgumentList.getExpressions.length > 0)
+                if (clazz.getArgumentList.getExpressions.nonEmpty)
                   res.append("(").append(convertPsiToText(clazz.getArgumentList)).append(")")
                 else res.append("()")
               case _ =>
@@ -588,11 +589,11 @@ object JavaToScala {
             val typez = new ArrayBuffer[PsiJavaCodeReferenceElement]
             if (c.getExtendsList != null) typez ++= c.getExtendsList.getReferenceElements
             if (c.getImplementsList != null) typez ++= c.getImplementsList.getReferenceElements
-            if (typez.length > 0) res.append(if (c.isInstanceOf[PsiAnonymousClass]) " with " else " extends ")
+            if (typez.nonEmpty) res.append(if (c.isInstanceOf[PsiAnonymousClass]) " with " else " extends ")
             for (tp <- typez) {
               res.append(convertPsiToText(tp)).append(" with ")
             }
-            if (typez.length > 0) res.delete(res.length - 5, res.length)
+            if (typez.nonEmpty) res.delete(res.length - 5, res.length)
             res.append(" {\n")
             for (memb <- forClass) {
               res.append(convertPsiToText(memb)).append("\n")
@@ -629,30 +630,30 @@ object JavaToScala {
         }
       case t: PsiTypeElement =>
         res.append(ScType.presentableText(ScType.create(t.getType, t.getProject)))
-        /*if (t.getText.endsWith("[]")) {
-          res.append("Array[").append(convertPsiToText(t.getFirstChild)).append("]")
-        } else {
-          t.getFirstChild match {
-            case k: PsiKeyword => {
-              k.getText match {
-                case "int" => res.append("Int")
-                case "long" => res.append("Long")
-                case "boolean" => res.append("Boolean")
-                case "short" => res.append("Short")
-                case "double" => res.append("Double")
-                case "void" => res.append("Unit")
-                case "float" => res.append("Float")
-                case "byte" => res.append("Byte")
-                case "char" => res.append("Char")
-              }
+      /*if (t.getText.endsWith("[]")) {
+        res.append("Array[").append(convertPsiToText(t.getFirstChild)).append("]")
+      } else {
+        t.getFirstChild match {
+          case k: PsiKeyword => {
+            k.getText match {
+              case "int" => res.append("Int")
+              case "long" => res.append("Long")
+              case "boolean" => res.append("Boolean")
+              case "short" => res.append("Short")
+              case "double" => res.append("Double")
+              case "void" => res.append("Unit")
+              case "float" => res.append("Float")
+              case "byte" => res.append("Byte")
+              case "char" => res.append("Char")
             }
-            case x => res.append(convertPsiToText(x))
           }
-        }*/
+          case x => res.append(convertPsiToText(x))
+        }
+      }*/
       case m: PsiModifierList =>
         for {
           a <- m.getAnnotations
-          if Option(a.getQualifiedName) != Some("java.lang.Override")
+          if !Option(a.getQualifiedName).contains("java.lang.Override")
         } {
           res.append(convertPsiToText(a)).append(" ")
         }
@@ -735,9 +736,9 @@ object JavaToScala {
             }
             val value = attribute.getValue
             value match {
-              case a:PsiArrayInitializerMemberValue => res.append(convertPsiToText(value))
-              case v:PsiAnnotationMemberValue if isArrayAnnotationParameter(attribute) =>
-                    res.append("Array(").append(convertPsiToText(value)).append(")")
+              case a: PsiArrayInitializerMemberValue => res.append(convertPsiToText(value))
+              case v: PsiAnnotationMemberValue if isArrayAnnotationParameter(attribute) =>
+                res.append("Array(").append(convertPsiToText(value)).append(")")
               case _ => res.append(convertPsiToText(value))
             }
             res.append(", ")
@@ -746,7 +747,7 @@ object JavaToScala {
           res.append(")")
         }
         res.append(" ")
-      case v:PsiArrayInitializerMemberValue =>
+      case v: PsiArrayInitializerMemberValue =>
         res.append("Array")
         append(v.getInitializers)
       case r: PsiReferenceParameterList =>

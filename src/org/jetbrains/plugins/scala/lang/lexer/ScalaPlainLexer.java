@@ -19,6 +19,7 @@ import com.intellij.lexer.Lexer;
 import com.intellij.lexer.LexerPosition;
 import com.intellij.lexer.LexerState;
 import com.intellij.psi.tree.IElementType;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.core.ScalaCoreLexer;
 import org.jetbrains.plugins.scala.lang.lexer.core.ScalaSplittingLexer;
 
@@ -72,7 +73,7 @@ public class ScalaPlainLexer extends Lexer {     //todo delete if we don't need 
     public boolean newLineAllowed;
   }
 
-  public void start(final CharSequence buffer, final int startOffset, final int endOffset, final int initialState) {
+  public void start(@NotNull final CharSequence buffer, final int startOffset, final int endOffset, final int initialState) {
     mySplittingLexer.start(buffer, startOffset, endOffset, initialState & SPLIT_MASK);
     myLastScalaState = (initialState & SCALA_CORE_MASK) >> SCALA_CORE_SHIFT;
     myTokenQueue = new LinkedList<Token>();
@@ -81,6 +82,7 @@ public class ScalaPlainLexer extends Lexer {     //todo delete if we don't need 
     myBufferEnd = endOffset;
   }
 
+  @NotNull
   public CharSequence getBufferSequence() {
     return mySplittingLexer.getBufferSequence();
   }
@@ -155,18 +157,19 @@ public class ScalaPlainLexer extends Lexer {     //todo delete if we don't need 
     }
   }
 
+  @NotNull
   public LexerPosition getCurrentPosition() {
     return new MyPosition(myTokenStart,
-        new MyState(
-            new LinkedList<Token>(myTokenQueue),
-            mySplittingLexer.getState(),
-            mySplittingLexer.getTokenStart(),
-            myScalaLexer.getState()
-        )
+            new MyState(
+                    new LinkedList<Token>(myTokenQueue),
+                    mySplittingLexer.getState(),
+                    mySplittingLexer.getTokenStart(),
+                    myScalaLexer.getState()
+            )
     );
   }
 
-  public void restore(LexerPosition position) {
+  public void restore(@NotNull LexerPosition position) {
     MyPosition pos = (MyPosition) position;
 
     myTokenType = null;
@@ -198,7 +201,7 @@ public class ScalaPlainLexer extends Lexer {     //todo delete if we don't need 
 
   private void fedQueueFromLexer(Lexer lexer) {
     lexer.start(mySplittingLexer.getBufferSequence(), mySplittingLexer.getTokenStart(), mySplittingLexer.getTokenEnd(),
-        lexer instanceof ScalaCoreLexer ? myLastScalaState : 0);
+            lexer instanceof ScalaCoreLexer ? myLastScalaState : 0);
     mySplittingLexer.advance();
     do {
       IElementType type = lexer.getTokenType();

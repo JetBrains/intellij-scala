@@ -14,12 +14,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTra
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
 
-import scala.collection.mutable.{HashMap, HashSet}
+import scala.collection.mutable
 
 /**
- * User: Dmitry Naidanov
- * Date: 11/21/11
- */
+  * User: Dmitry Naidanov
+  * Date: 11/21/11
+  */
 
 class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
@@ -27,15 +27,15 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     new ScalaElementVisitor {
       override def visitDocComment(s: ScDocComment) {
-        val tagParams = HashMap[String,ScDocTag]()
-        val tagTypeParams = HashMap[String,ScDocTag]()
-        val duplicatingParams = HashSet[ScDocTag]()
-        
+        val tagParams = mutable.HashMap[String, ScDocTag]()
+        val tagTypeParams = mutable.HashMap[String, ScDocTag]()
+        val duplicatingParams = mutable.HashSet[ScDocTag]()
+
         import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.convertMemberName
         def insertDuplicating(element: Option[ScDocTag], duplicateElement: ScDocTag) {
-          element.foreach(duplicatingParams += (_, duplicateElement))
+          element.foreach(duplicatingParams +=(_, duplicateElement))
         }
-        
+
         def paramsDif(paramList: scala.Seq[ScParameter], tagParamList: scala.Seq[ScTypeParam]) {
           if (paramList != null) {
             for (funcParam <- paramList) {
@@ -48,7 +48,7 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
             }
           }
         }
-        
+
         def collectDocParams() {
           for (tagParam <- s.findTagsByName(Set("@param", "@tparam").contains(_))) {
             if (tagParam.getValueElement != null) {
@@ -63,7 +63,7 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
             }
           }
         }
-        
+
         def registerBadParams() {
           for ((_, badParameter) <- tagParams) {
             holder.registerProblem(holder.getManager.createProblemDescriptor(
@@ -80,15 +80,15 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
               duplicatingParam.getValueElement, "One param/tparam Tag for one param/type param allowed",
               true, ProblemHighlightType.GENERIC_ERROR, isOnTheFly,
               new ScalaDocDeleteDuplicatingParamQuickFix(duplicatingParam, true)))
-          }  
+          }
         }
-        
+
         def doInspection(paramList: scala.Seq[ScParameter], tagParamList: scala.Seq[ScTypeParam]) {
           collectDocParams()
           paramsDif(paramList, tagParamList)
           registerBadParams()
         }
-        
+
         s.getOwner match {
           case func: ScFunction =>
             doInspection(func.parameters, func.typeParameters)
@@ -113,11 +113,11 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
                 true, ProblemHighlightType.WEAK_WARNING, isOnTheFly))
             }
           case _ => //we can't have params/tparams here
-            for (tag <- s.findTagsByName(Set(MyScaladocParsing.PARAM_TAG, MyScaladocParsing.TYPE_PARAM_TAG).contains(_))
+            for (tag <- s.findTagsByName(Set(MyScaladocParsing.PARAM_TAG, MyScaladocParsing.TYPE_PARAM_TAG).contains _)
                  if tag.isInstanceOf[ScDocTag]) {
               holder.registerProblem(holder.getManager.createProblemDescriptor(
                 tag.getFirstChild, "@param and @tparams tags arn't allowed there",
-                true, ProblemHighlightType.GENERIC_ERROR, isOnTheFly, 
+                true, ProblemHighlightType.GENERIC_ERROR, isOnTheFly,
                 new ScalaDocDeleteDuplicatingParamQuickFix(tag.asInstanceOf[ScDocTag], false)))
             }
         }
@@ -128,8 +128,8 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
 
 
 class ScalaDocDeleteDuplicatingParamQuickFix(paramTag: ScDocTag, isDuplicating: Boolean)
-        extends AbstractFixOnPsiElement(
-          if (isDuplicating) ScalaBundle.message("delete.duplicating.param") else ScalaBundle.message("delete.tag"), paramTag) {
+  extends AbstractFixOnPsiElement(
+    if (isDuplicating) ScalaBundle.message("delete.duplicating.param") else ScalaBundle.message("delete.tag"), paramTag) {
   override def getFamilyName: String = InspectionsUtil.SCALADOC
 
   def doApplyFix(project: Project) {

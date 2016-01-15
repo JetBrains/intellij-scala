@@ -14,37 +14,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 trait PsiElementExtTrait {
   protected def repr: PsiElement
 
-  def firstChild: Option[PsiElement] = {
-    val child = repr.getFirstChild
-    if (child == null) None else Some(child)
-  }
-
-  def lastChild: Option[PsiElement] = {
-    val child = repr.getLastChild
-    if (child == null) None else Some(child)
-  }
-
-  def elementAt(offset: Int): Option[PsiElement] = {
-    val e = repr.findElementAt(offset)
-    if (e == null) None else Some(e)
-  }
-
-  def referenceAt(offset: Int): Option[PsiReference] = {
-    val e = repr.findReferenceAt(offset)
-    if (e == null) None else Some(e)
-  }
-
-  def parent: Option[PsiElement] = {
-    val p = repr.getParent
-    if (p == null) None else Some(p)
-  }
-
+  def firstChild: Option[PsiElement] = Option(repr.getFirstChild)
+  def lastChild: Option[PsiElement] = Option(repr.getLastChild)
+  def elementAt(offset: Int): Option[PsiElement] = Option(repr.findElementAt(offset))
+  def referenceAt(offset: Int): Option[PsiReference] = Option(repr.findReferenceAt(offset))
+  def parent: Option[PsiElement] = Option(repr.getParent)
   def parents: Iterator[PsiElement] = new ParentsIterator(repr)
-
-  def containingFile: Option[PsiFile] = {
-    val f = repr.getContainingFile
-    if (f == null) None else Some(f)
-  }
+  def containingFile: Option[PsiFile] = Option(repr.getContainingFile)
 
   def parentsInFile: Iterator[PsiElement] = {
     repr match {
@@ -71,6 +47,15 @@ trait PsiElementExtTrait {
     prev
   }
 
+  def getPrevSiblingCondition(condition: PsiElement => Boolean, strict: Boolean = true): Option[PsiElement] = {
+    if (!strict && condition(repr)) return Some(repr)
+    var prev: PsiElement = repr.getPrevSibling
+    while (prev != null && !condition(prev)) {
+      prev = prev.getPrevSibling
+    }
+    Option(prev)
+  }
+
   def getNextSiblingNotWhitespace: PsiElement = {
     var next: PsiElement = repr.getNextSibling
     while (next != null && (next.isInstanceOf[PsiWhiteSpace] ||
@@ -86,15 +71,8 @@ trait PsiElementExtTrait {
     next
   }
 
-  def prevSibling: Option[PsiElement] = {
-    val sibling = repr.getPrevSibling
-    if (sibling == null) None else Some(sibling)
-  }
-
-  def nextSibling: Option[PsiElement] = {
-    val sibling = repr.getNextSibling
-    if (sibling == null) None else Some(sibling)
-  }
+  def prevSibling: Option[PsiElement] = Option(repr.getPrevSibling)
+  def nextSibling: Option[PsiElement] = Option(repr.getNextSibling)
 
   def prevSiblings: Iterator[PsiElement] = new PrevSiblignsIterator(repr)
 
@@ -122,7 +100,7 @@ trait PsiElementExtTrait {
 
   def isScope: Boolean = ScalaPsiUtil.isScope(repr)
 
-  def scopes: Iterator[PsiElement] = contexts.filter(ScalaPsiUtil.isScope(_))
+  def scopes: Iterator[PsiElement] = contexts.filter(ScalaPsiUtil.isScope)
 
   def containingScalaFile: Option[ScalaFile] = repr.getContainingFile match {
     case sf: ScalaFile => Some(sf)

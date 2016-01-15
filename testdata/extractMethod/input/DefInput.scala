@@ -3,12 +3,12 @@ class DefInput {
     def goo(x: Int): Int = x + 4
 
     val g = 77
-    /*start*/
+/*start*/
     g match {
       case 77 => print(g)
       case _ => print(goo(g))
     }
-    /*end*/
+/*end*/
     print("exit")
   }
 }
@@ -18,9 +18,9 @@ class DefInput {
     def goo(x: Int): Int = x + 4
 
     val g = 77
-    /*start*/
+
     testMethodName(g, goo _)
-    /*end*/
+
     print("exit")
   }
 

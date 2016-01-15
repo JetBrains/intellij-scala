@@ -21,33 +21,28 @@ object CaseClause {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val caseClauseMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.kCASE => {
+      case ScalaTokenTypes.kCASE =>
         builder.advanceLexer()
         builder.disableNewlines
-      }
-      case _ => {
+      case _ =>
         caseClauseMarker.drop()
         return false
-      }
     }
     if (!Pattern.parse(builder)) builder error ErrMsg("pattern.expected")
     builder.getTokenType match {
-      case ScalaTokenTypes.kIF => {
+      case ScalaTokenTypes.kIF =>
         Guard parse builder
-      }
-      case _ => {}
+      case _ =>
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tFUNTYPE => {
+      case ScalaTokenTypes.tFUNTYPE =>
         builder.advanceLexer()
         builder.restoreNewlinesState
-      }
-      case _ => {
+      case _ =>
         builder.restoreNewlinesState
         builder error ErrMsg("fun.sign.expected")
         caseClauseMarker.done(ScalaElementTypes.CASE_CLAUSE)
         return true
-      }
     }
     if (!Block.parse(builder, hasBrace = false, needNode = true)) {
       builder error ErrMsg("wrong.expression")

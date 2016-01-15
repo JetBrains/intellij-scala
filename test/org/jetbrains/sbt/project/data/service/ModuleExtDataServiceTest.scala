@@ -3,11 +3,9 @@ package org.jetbrains.sbt.project.data.service
 import java.io.File
 
 import com.intellij.compiler.CompilerConfiguration
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ex.ApplicationManagerEx
+import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
-import com.intellij.openapi.externalSystem.model.{DataNode, ExternalSystemException}
-import com.intellij.openapi.externalSystem.service.notification.{NotificationCategory, NotificationSource}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.projectRoots
 import com.intellij.openapi.projectRoots.ProjectJdkTable
@@ -15,12 +13,11 @@ import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModuleRootManager}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{IdeaTestUtil, UsefulTestCase}
-import junit.framework.Assert._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{DebuggingInfoLevel, Version}
 import org.jetbrains.sbt.UsefulTestCaseHelper
-import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data._
+import org.junit.Assert._
 
 import scala.collection.JavaConverters._
 
@@ -116,29 +113,29 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
     importProjectData(testProject)
   }
 
-  def testValidJavaSdk: Unit =
-    doTestSdk(Some(JdkByVersion("1.8")),
+  def testValidJavaSdk(): Unit =
+    doTestSdk(Some(JdkByName("1.8")),
       ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdk18.getName),
       LanguageLevel.JDK_1_8)
 
-  def testValidJavaSdkWithDifferentLanguageLevel: Unit =
-    doTestSdk(Some(JdkByVersion("1.8")),
+  def testValidJavaSdkWithDifferentLanguageLevel(): Unit =
+    doTestSdk(Some(JdkByName("1.8")),
       Seq("-source", "1.6"),
       ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdk18.getName),
       LanguageLevel.JDK_1_6)
 
-  def testInvalidSdk: Unit =
-    doTestSdk(Some(JdkByVersion("20")), defaultJdk, LanguageLevel.JDK_1_7)
+  def testInvalidSdk(): Unit =
+    doTestSdk(Some(JdkByName("20")), defaultJdk, LanguageLevel.JDK_1_7)
 
-  def testAbsentSdk: Unit =
+  def testAbsentSdk(): Unit =
     doTestSdk(None, defaultJdk, LanguageLevel.JDK_1_7)
 
-  def testValidJdkByHome: Unit = {
+  def testValidJdkByHome(): Unit = {
     val jdk = ProjectJdkTable.getInstance().findJdk(IdeaTestUtil.getMockJdk18.getName)
     doTestSdk(Some(JdkByHome(new File(jdk.getHomePath))), jdk, LanguageLevel.JDK_1_8)
   }
 
-  def testJavacOptions: Unit = {
+  def testJavacOptions(): Unit = {
     val options = Seq(
       "-g:none",
       "-nowarn",
@@ -152,7 +149,7 @@ class ModuleExtDataServiceTest extends ProjectDataServiceTestCase with UsefulTes
     assertEquals("1.8", compilerConfiguration.getBytecodeTargetLevel(getModule))
   }
 
-  def testScalaSdkForEvictedVersion: Unit = {
+  def testScalaSdkForEvictedVersion(): Unit = {
     import org.jetbrains.plugins.scala.project._
 
     val evictedVersion = "2.11.2"

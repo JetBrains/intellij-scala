@@ -18,6 +18,8 @@ public class IntroduceVariableTest extends AbstractIntroduceVariableTestBase {
   @NonNls
   private static final String DATA_PATH = "/introduceVariable/data";
 
+  private ScalaLibraryLoader myLibraryLoader = null;
+
   public IntroduceVariableTest() {
     super(TestUtils.getTestDataPath() + DATA_PATH);
   }
@@ -30,7 +32,12 @@ public class IntroduceVariableTest extends AbstractIntroduceVariableTestBase {
   protected void setUp(Project project) {
     super.setUp(project);
     Module[] modules = ModuleManager.getInstance(project).getModules();
-    ScalaLibraryLoader loader = ScalaLibraryLoader.withMockJdk(project, modules[0], null, false, false, false);
-    loader.loadLibrary(TestUtils.DEFAULT_SCALA_SDK_VERSION);
+    myLibraryLoader = ScalaLibraryLoader.withMockJdk(project, modules[0], null, false, false, false, false);
+    myLibraryLoader.loadScala(TestUtils.DEFAULT_SCALA_SDK_VERSION);
+  }
+
+  public void tearDown() throws Exception {
+    myLibraryLoader.clean();
+    myLibraryLoader = null;
   }
 }

@@ -1,0 +1,38 @@
+@annot(1)("")
+def foo() = ???
+-----
+ScalaFile
+  ScFunctionDefinition: foo
+    AnnotationsList
+      Annotation
+        PsiElement(@)('@')
+        AnnotationExpression
+          Constructor
+            SimpleTypeElement: annot
+              CodeReferenceElement: annot
+                PsiElement(identifier)('annot')
+            ArgumentList
+              PsiElement(()('(')
+              Literal
+                PsiElement(integer)('1')
+              PsiElement())(')')
+            ArgumentList
+              PsiElement(()('(')
+              Literal
+                PsiElement(string content)('""')
+              PsiElement())(')')
+    Modifiers
+      <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('foo')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement())(')')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    ReferenceExpression: ???
+      PsiElement(identifier)('???')

@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.lang.refactoring.util
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.search.{GlobalSearchScopesCore, PsiSearchHelper}
-import com.intellij.psi.{PsiDirectory, PsiElement, PsiFile, PsiNamedElement}
+import com.intellij.psi.{PsiDirectory, PsiFile, PsiElement, PsiNamedElement}
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.ScalaBundle
 

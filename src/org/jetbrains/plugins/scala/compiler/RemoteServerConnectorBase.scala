@@ -10,7 +10,6 @@ import com.intellij.openapi.roots.OrderEnumerator
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
 import org.jetbrains.jps.incremental.scala.data.SbtData
-import org.jetbrains.plugin.scala.compiler.NameHashing
 import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
@@ -22,8 +21,8 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 
 abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, outputDir: File) {
   private val libRoot = {
-    if (ApplicationManager.getApplication.isUnitTestMode)
-      new File("../out/cardea/artifacts/Scala/lib") else new File(PathUtil.getJarPathForClass(getClass)).getParentFile
+    if (ApplicationManager.getApplication.isUnitTestMode) new File("./out/plugin/Scala/lib").getAbsoluteFile
+    else new File(PathUtil.getJarPathForClass(getClass)).getParentFile
   }
 
   private val libCanonicalPath = PathUtil.getCanonicalPath(libRoot.getPath)
@@ -107,7 +106,7 @@ abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, ou
     fileToCompile.getParentFile,
     outputDir,
     worksheetArgs,
-    NameHashing.DEFAULT.name()
+    compilerSettings.sbtIncOptions.asString
   )
   
   protected def configurationError(message: String) = throw new IllegalArgumentException(message)

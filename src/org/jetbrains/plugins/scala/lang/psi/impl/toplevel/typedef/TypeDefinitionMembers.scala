@@ -6,12 +6,11 @@ package toplevel
 package typedef
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
 import com.intellij.psi.util._
-import org.jetbrains.plugins.scala.caches.CachesUtil.MyOptionalProvider
+import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.convertMemberName
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScPrimaryConstructor}
@@ -23,7 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.resolve.processor.{ImplicitProcessor, CompletionProcessor, BaseProcessor}
+import org.jetbrains.plugins.scala.lang.resolve.processor._
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 
 import scala.reflect.NameTransformer
 
@@ -123,7 +123,7 @@ object TypeDefinitionMembers {
       if (template.qualifiedName == "scala.AnyVal") {
         //we need to add Object members
         val obj = ScalaPsiManager.instance(template.getProject).getCachedClass(template.getResolveScope, "java.lang.Object")
-        if (obj != null) {
+        obj.map { obj =>
           for (method <- obj.getMethods) {
             method.getName match {
               case "hashCode" | "toString" =>
@@ -197,6 +197,11 @@ object TypeDefinitionMembers {
       for (td <- template.syntheticTypeDefinitions) {
         td match {
           case obj: ScObject => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+          case td: ScTypeDefinition =>
+            td.fakeCompanionModule match {
+              case Some(obj) => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+              case _ =>
+            }
           case _ =>
         }
       }
@@ -359,7 +364,7 @@ object TypeDefinitionMembers {
       if (template.qualifiedName == "scala.AnyVal") {
         //we need to add Object members
         val obj = ScalaPsiManager.instance(template.getProject).getCachedClass(template.getResolveScope, "java.lang.Object")
-        if (obj != null) {
+        obj.map { obj =>
           for (method <- obj.getMethods) {
             method.getName match {
               case "equals" | "hashCode" | "toString" =>
@@ -461,6 +466,11 @@ object TypeDefinitionMembers {
       for (td <- template.syntheticTypeDefinitions) {
         td match {
           case obj: ScObject => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+          case td: ScTypeDefinition =>
+            td.fakeCompanionModule match {
+              case Some(obj) => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+              case _ =>
+            }
           case _ =>
         }
       }
@@ -495,13 +505,11 @@ object TypeDefinitionMembers {
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
-  val typesKey: Key[CachedValue[TMap]] = Key.create("types key")
-  val signaturesKey: Key[CachedValue[SMap]] = Key.create("signatures key")
-  val parameterlessKey: Key[CachedValue[PMap]] = Key.create("parameterless key")
-
-  import org.jetbrains.plugins.scala.caches.CachesUtil.get
 
   def getParameterlessSignatures(clazz: PsiClass): PMap = {
+    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)(), useOptionalProvider = true)
+    def inner(): PMap = ParameterlessNodes.build(clazz)
+
     clazz match {
       case o: ScObject =>
         val qual = o.qualifiedName
@@ -510,12 +518,14 @@ object TypeDefinitionMembers {
         }
       case _ =>
     }
-    get(clazz, parameterlessKey, new MyOptionalProvider(clazz, {clazz: PsiClass => ParameterlessNodes.build(clazz)})(
-      ScalaPsiUtil.getDependentItem(clazz)
-    ))
+
+    inner()
   }
 
   def getTypes(clazz: PsiClass): TMap = {
+    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)(), useOptionalProvider = true)
+    def inner(): TMap =TypeNodes.build(clazz)
+
     clazz match {
       case o: ScObject =>
         val qual = o.qualifiedName
@@ -524,12 +534,14 @@ object TypeDefinitionMembers {
         }
       case _ =>
     }
-    get(clazz, typesKey, new MyOptionalProvider(clazz, {clazz: PsiClass => TypeNodes.build(clazz)})(
-      ScalaPsiUtil.getDependentItem(clazz)
-    ))
+
+    inner()
   }
 
   def getSignatures(clazz: PsiClass, place: Option[PsiElement] = None): SMap = {
+    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)(), useOptionalProvider = true)
+    def buildNodesClass(): SMap = SignatureNodes.build(clazz)
+
     clazz match {
       case o: ScObject =>
         val qual = o.qualifiedName
@@ -538,9 +550,7 @@ object TypeDefinitionMembers {
         }
       case _ =>
     }
-    val ans = get(clazz, signaturesKey, new MyOptionalProvider(clazz, {c: PsiClass => SignatureNodes.build(c)})(
-      ScalaPsiUtil.getDependentItem(clazz)
-    ))
+    val ans = buildNodesClass()
     place.foreach {
       case _: ScInterpolatedPrefixReference =>
         val allowedNames = ans.keySet
@@ -552,12 +562,18 @@ object TypeDefinitionMembers {
                 c match {
                   case o: ScObject =>
                     if (allowedNames.contains(o.name)) {
-                      val add = get(o, signaturesKey, new MyOptionalProvider(clazz, {c: PsiClass => SignatureNodes.build(c)})(ScalaPsiUtil.getDependentItem(o)))
+                      @CachedInsidePsiElement(o, CachesUtil.getDependentItem(o)(), useOptionalProvider = true)
+                      def buildNodesObject(): SMap = SignatureNodes.build(o)
+
+                      val add = buildNodesObject()
                       ans ++= add
                     }
                   case c: ScClass =>
                     if (allowedNames.contains(c.name)) {
-                      val add = get(c, signaturesKey, new MyOptionalProvider(clazz, {c: PsiClass => SignatureNodes.build(c)})(ScalaPsiUtil.getDependentItem(c)))
+                      @CachedInsidePsiElement(c, CachesUtil.getDependentItem(c)(), useOptionalProvider = true)
+                      def buildNodesClass2(): SMap = SignatureNodes.build(c)
+
+                      val add = buildNodesClass2()
                       ans ++= add
                     }
                   case _ =>
@@ -761,6 +777,7 @@ object TypeDefinitionMembers {
 
     val processVals = shouldProcessVals(processor)
     val processMethods = shouldProcessMethods(processor)
+    val processMethodRefs = shouldProcessMethodRefs(processor)
     val processValsForScala = isScalaProcessor && processVals
     val processOnlyStable = shouldProcessOnlyStable(processor)
 
@@ -924,17 +941,9 @@ object TypeDefinitionMembers {
           }
 
           //todo: this is hack, better to split imports resolve into import for types and for expressions.
-          val shouldCheckSynthetics = processor match {
-            case c: CompletionProcessor => true
-            case o: ImplicitProcessor => true
-            case b: BaseProcessor => b.candidates.isEmpty
-            case _ => true
-          }
-          if (shouldCheckSynthetics) {
-            runIterator(syntheticMethods().iterator) match {
-              case Some(x) => return x
-              case None =>
-            }
+          runIterator(syntheticMethods().iterator) match {
+            case Some(x) => return x
+            case None =>
           }
         }
       }
@@ -965,10 +974,12 @@ object TypeDefinitionMembers {
       }
     }
 
-    if (processOnlyStable) {
-      if (!process(parameterlessSignatures())) return false
-    } else {
-      if (!process(signatures())) return false
+    if (processMethodRefs) {
+      if (processOnlyStable) {
+        if (!process(parameterlessSignatures())) return false
+      } else {
+        if (!process(signatures())) return false
+      }
     }
 
     //inner classes
@@ -1015,6 +1026,11 @@ object TypeDefinitionMembers {
     case _ =>
       val hint = processor.getHint(ElementClassHint.KEY)
       hint == null || hint.shouldProcess(ElementClassHint.DeclarationKind.METHOD)
+  }
+
+  def shouldProcessMethodRefs(processor: PsiScopeProcessor) = processor match {
+    case BaseProcessor(kinds) => (kinds contains METHOD) || (kinds contains VAR) || (kinds contains VAL)
+    case _ => true
   }
 
   def shouldProcessTypes(processor: PsiScopeProcessor) = processor match {

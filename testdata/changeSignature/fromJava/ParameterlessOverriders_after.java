@@ -1,3 +1,3 @@
 public interface ParameterlessOverriders {
-  public int bar();
+    public int bar();
 }

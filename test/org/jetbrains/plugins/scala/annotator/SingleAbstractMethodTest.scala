@@ -558,6 +558,54 @@ class SingleAbstractMethodTest extends ScalaLightPlatformCodeInsightTestCaseAdap
     checkCodeHasNoErrors(code)
   }
 
+  def testSAMNumericWidening(): Unit = {
+    val code =
+      """
+        |  abstract class A {
+        |    def foo(): Long
+        |  }
+        |
+        |  class B
+        |  class C
+        |
+        |  def foo(): Int = 1
+        |  val a: A = foo
+      """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
+  def testSAMCorrectWildcardExtrapolationWithParameterizedTypes(): Unit = {
+    val code =
+      """
+        |trait MyObservableValue[T] {
+        |  def addListener(listener: MyChangeListener[_ >: T])
+        |}
+        |
+        |trait MyChangeListener[T] {
+        |  def changed(observable: MyObservableValue[T])
+        |}
+        |
+        |val observableValue: MyObservableValue[Int] = ???
+        |observableValue.addListener((observable: MyObservableValue[Int]) => ())
+        """.stripMargin
+    checkCodeHasNoErrors(code)
+  }
+
+  def testSAMCorrectWildcardExtrapolationWithExistentialTypes(): Unit = {
+    val code =
+      """
+        |class P[R]
+        |
+        |trait MyChangeListener[T] {
+        |  def changed(observable: P[_ <: T])
+        |}
+        |
+        |def l[T]: MyChangeListener[_ >: T] = (observable: P[_ <: T]) => ()
+      """.stripMargin
+
+    checkCodeHasNoErrors(code)
+  }
+
   def checkCodeHasNoErrors(scalaCode: String, javaCode: Option[String] = None) {
     assertMatches(messages(scalaCode, javaCode)) {
       case Nil =>

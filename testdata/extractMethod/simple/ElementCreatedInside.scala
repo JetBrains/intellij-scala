@@ -1,9 +1,9 @@
 class A {
   def foo {
-    /*start*/
+/*start*/
 
     val j = 77
-    /*end*/
+/*end*/
 
     val i = j
   }
@@ -11,10 +11,10 @@ class A {
 /*
 class A {
   def foo {
-    /*start*/
+
 
     val j: Int = testMethodName
-    /*end*/
+
 
     val i = j
   }

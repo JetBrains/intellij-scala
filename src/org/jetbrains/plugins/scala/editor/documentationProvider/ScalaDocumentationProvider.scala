@@ -56,9 +56,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
     }
   }
 
-  def getUrlFor(element: PsiElement, originalElement: PsiElement): java.util.List[String] = {
-    null
-  }
+  def getUrlFor(element: PsiElement, originalElement: PsiElement): java.util.List[String] = null
 
   def getQuickNavigateInfo(element: PsiElement, originalElement: PsiElement): String = {
     val substitutor = originalElement match {
@@ -69,6 +67,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         }
       case _ => ScSubstitutor.empty
     }
+    
     val text = element match {
       case clazz: ScTypeDefinition => generateClassInfo(clazz, substitutor)
       case function: ScFunction => generateFunctionInfo(function, substitutor)
@@ -79,8 +78,8 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
       case b: ScBindingPattern => generateBindingPatternInfo(b, substitutor)
       case _ => null
     }
-    if (text != null) text.replace("<", "&lt;")
-    else null
+    
+    if (text != null) text.replace("<", "&lt;") else null
   }
 
   def getDocumentationElementForLink(psiManager: PsiManager, link: String, context: PsiElement): PsiElement = {
@@ -89,11 +88,11 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
   def generateDoc(element: PsiElement, originalElement: PsiElement): String = {
     val containingFile = element.getContainingFile
-    
+
     if (!containingFile.isInstanceOf[ScalaFile]) {
       if (element.isInstanceOf[ScalaPsiElement])
         debugMessage("Asked to build doc for a scala element, but it is in non scala file (1)", element)
-      
+
       return null
     }
 
@@ -154,7 +153,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         buffer.append(parseType(fun, ScType.urlText))
         buffer.append("</PRE>")
         buffer.append(parseDocComment(fun))
-        
+
         "<html><body>" + buffer.toString + "</body></html>"
       case decl: ScDeclaredElementsHolder if decl.isInstanceOf[ScValue] || decl.isInstanceOf[ScVariable] =>
         val buffer: StringBuilder = new StringBuilder("")
@@ -171,7 +170,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         } )
         buffer.append("</PRE>")
         decl match {case doc: ScDocCommentOwner => buffer.append(parseDocComment(doc)) case _ =>}
-        
+
         "<html><body>" + buffer.toString + "</body></html>"
       case param: ScParameter =>
         val buffer: StringBuilder = new StringBuilder("")
@@ -185,7 +184,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         })
         buffer.append("<b>" + escapeHtml(param.name) + "</b>")
         buffer.append(parseType(param, ScType.urlText))
-        
+
         "<html><body>" + buffer.toString + "</body></html>"
       case typez: ScTypeAlias =>
         val buffer: StringBuilder = new StringBuilder("")
@@ -203,7 +202,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         }
         buffer.append("</PRE>")
         buffer.append(parseDocComment(typez))
-        
+
         "<html><body>" + buffer.toString + "</body></html>"
       case pattern: ScBindingPattern =>
         val buffer: StringBuilder = new StringBuilder("")
@@ -216,7 +215,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
             case co: PsiDocCommentOwner => buffer.append(parseDocComment(co, withDescription = false))
             case _ =>
           }
-        
+
         "<html><body>" + buffer.toString + "</body></html>"
       case _ => null
     }
@@ -256,7 +255,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
 object ScalaDocumentationProvider {
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider")
-  
+
   private def debugMessage(msg: String, elem: PsiElement) {
     val footer = if (!elem.isValid) {
       s"[Invalid Element: ${elem.getNode} ${elem.getClass.getName}]"
@@ -266,10 +265,18 @@ object ScalaDocumentationProvider {
 
     LOG debug s"[ScalaDocProvider] [ $msg ] $footer"
   }
-  
+
   val replaceWikiScheme = Map("__" -> "u>", "'''" -> "b>", "''" -> "i>", "`" -> "tt>", ",," -> "sub>", "^" -> "sup>")
 
-  private class MacroFinder(comment: ScDocComment) {
+  private trait MacroFinder {
+    def getMacroBody(name: String): Option[String]
+  }
+
+  private class MacroFinderDummy extends MacroFinder {
+    override def getMacroBody(name: String): Option[String] = None
+  }
+
+  private class MacroFinderImpl(comment: ScDocComment, handler: PsiElement => String = {element => element.getText}) extends MacroFinder {
     private val myCache = mutable.HashMap[String, String]()
     private var lastProcessedComment: Option[PsiDocComment] = None
 
@@ -287,7 +294,7 @@ object ScalaDocumentationProvider {
           case c => c.getTags.filter(_.getName == MyScaladocParsing.DEFINE_TAG) map {
             case tag: ScDocTag =>
               val vEl = tag.getValueElement
-              val a = (if (vEl != null) vEl.getText else "", tag.getCommentDataText().trim)
+              val a = (if (vEl != null) vEl.getText else "", tag.getAllText(handler).trim)
 
               if (a._1 != "") myCache += a
               a
@@ -322,7 +329,7 @@ object ScalaDocumentationProvider {
 
             member match {
               case named: ScNamedElement =>
-                ScalaPsiUtil.superValsSignatures(named, false) map {
+                ScalaPsiUtil.superValsSignatures(named, withSelfType = false) map {
                   case sig => sig.namedElement
                 } foreach {
                   case od: ScDocCommentOwner => tc += od
@@ -397,7 +404,7 @@ object ScalaDocumentationProvider {
 
   def createScalaDocStub(commentOwner: PsiDocCommentOwner): String = {
     if (!commentOwner.getContainingFile.isInstanceOf[ScalaFile]) return ""
-    
+
     val buffer = new StringBuilder("")
     val leadingAsterisks = "* "
 
@@ -415,7 +422,7 @@ object ScalaDocumentationProvider {
     def processProbablyJavaDocCommentWithOwner(owner: PsiDocCommentOwner) {
       owner.getDocComment match {
         case scalaComment: ScDocComment =>
-          for (docTag <- scalaComment.findTagsByName(Set(PARAM_TAG, TYPE_PARAM_TAG) contains _)) {
+          for (docTag <- scalaComment.findTagsByName(Set(PARAM_TAG, TYPE_PARAM_TAG).contains _)) {
             docTag.name match {
               case PARAM_TAG => registerInheritedParam(inheritedParams, docTag)
               case TYPE_PARAM_TAG => registerInheritedParam(inheritedTParams, docTag)
@@ -549,7 +556,7 @@ object ScalaDocumentationProvider {
 
     buffer.toString()
   }
-  
+
   def parseParameter(param: ScParameter, typeToString: ScType => String, escape: Boolean = true): String = {
     val buffer: StringBuilder = new StringBuilder("")
     buffer.append(parseAnnotations(param, typeToString, ' ', escape))
@@ -594,7 +601,7 @@ object ScalaDocumentationProvider {
       case Some(x: ScTemplateParents) =>
         val seq = x.typeElements
         buffer.append(ScType.urlText(seq.head.getType(TypingContext.empty).getOrAny) + "\n")
-        for (i <- 1 to seq.length - 1)
+        for (i <- 1 until seq.length)
           buffer append " with " + ScType.urlText(seq(i).getType(TypingContext.empty).getOrAny)
       case None =>
         buffer.append("<a href=\"psi_element://scala.ScalaObject\"><code>ScalaObject</code></a>")
@@ -639,10 +646,10 @@ object ScalaDocumentationProvider {
       val res = new StringBuilder("@")
       val constr: ScConstructor = elem.constructor
       res.append(typeToString(constr.typeElement.getType(TypingContext.empty).getOrAny))
-      
+
       val attrs = elem.annotationExpr.getAnnotationParameters
       if (attrs.nonEmpty) res append attrs.map(_.getText).mkString("(", ", " ,")")
-      
+
       res.toString()
     }
     for (ann <- elem.annotations) {
@@ -652,6 +659,7 @@ object ScalaDocumentationProvider {
   }
 
 
+  @tailrec
   private def parseDocComment(elem: PsiDocCommentOwner, withDescription: Boolean = false): String = {
     def getParams(fun: ScParameterOwner): String = {
       fun.parameters.map((param: ScParameter) => "int     " + escapeHtml(param.name)).mkString("(", ",\n", ")")
@@ -673,7 +681,7 @@ object ScalaDocumentationProvider {
         val text = elem match {
           case clazz: ScClass =>
             "\nclass A {\n " + xText + " \npublic " + getTypeParams(clazz) + "void f" +
-                    getParams(clazz) + " {\n}\n}"
+              getParams(clazz) + " {\n}\n}"
           case typeAlias: ScTypeAlias => xText + "\n class A" + getTypeParams(typeAlias) + " {}"
           case _: ScTypeDefinition => xText + "\nclass A {\n }"
           case f: ScFunction =>
@@ -694,7 +702,7 @@ object ScalaDocumentationProvider {
         }
         val (s1, s2) = elem.containingClass match {
           case e: PsiClass if withDescription => ("<b>Description copied from class: </b><a href=\"psi_element://" +
-                  escapeHtml(e.qualifiedName) + "\"><code>" + escapeHtml(e.name) + "</code></a><p>", "</p>")
+            escapeHtml(e.qualifiedName) + "\"><code>" + escapeHtml(e.name) + "</code></a><p>", "</p>")
           case _ => ("", "")
         }
         s1 + (elem match {
@@ -738,140 +746,144 @@ object ScalaDocumentationProvider {
     }
   }
 
-  private def replaceWikiWithTags(comment: PsiDocComment): PsiDocComment = {
-    if (!comment.isInstanceOf[ScDocComment]) return comment
-    val macroFinder = new MacroFinder(comment.asInstanceOf[ScDocComment])
-    
-    def getTextRepresentation(comment: PsiDocComment): (mutable.StringBuilder, mutable.StringBuilder) = {
-      val commentBody = new StringBuilder("")
-      val tagsPart = new StringBuilder("")
-      var isFirst = true
+  private def getWikiTextRepresentation(macroFinder: MacroFinder)(comment: PsiElement): (mutable.StringBuilder, mutable.StringBuilder) = {
+    val commentBody = new StringBuilder("")
+    val tagsPart = new StringBuilder("")
+    var isFirst = true
 
-      def visitTags(element: ScDocTag) {
-        element.name match {
-          case MyScaladocParsing.TODO_TAG | MyScaladocParsing.NOTE_TAG | MyScaladocParsing.EXAMPLE_TAG =>
-            if (isFirst) {
-              commentBody.append("<br/><br/>")
-              isFirst = false
-            }
-            element.getNode.getChildren(null).foreach(node => visitElementInner(node.getPsi))
+    def visitTags(element: ScDocTag) {
+      element.name match {
+        case MyScaladocParsing.TODO_TAG | MyScaladocParsing.NOTE_TAG | MyScaladocParsing.EXAMPLE_TAG =>
+          if (isFirst) {
             commentBody.append("<br/><br/>")
-          case MyScaladocParsing.SEE_TAG =>
-            element.getNode.getChildren(null).foreach(node => visitElementInner(node.getPsi, commentBody))
-            commentBody.append("</dl>")
-          case MyScaladocParsing.INHERITDOC_TAG =>
-            element.getNode.getChildren(null).foreach(node => visitElementInner(node.getPsi, commentBody))
-          case _ =>
-            element.getNode.getChildren(null).foreach(node => visitElementInner(node.getPsi, tagsPart))
-        }
-      }
-
-      def visitElementInner(element: PsiElement, result: StringBuilder = commentBody) {
-        if (element.getFirstChild == null) {
-          element.getNode.getElementType match {
-            case ScalaDocTokenType.DOC_TAG_NAME =>
-              element.getText match {
-                case MyScaladocParsing.TYPE_PARAM_TAG => result.append("@param ")
-                case MyScaladocParsing.NOTE_TAG | MyScaladocParsing.TODO_TAG | MyScaladocParsing.EXAMPLE_TAG =>
-                  result.append("<b>").append(element.getText.substring(1).capitalize).append(":</b><br/>")
-                case MyScaladocParsing.SEE_TAG => result.append("<dl><dt><b>See Also:</b></dt>")
-
-                case MyScaladocParsing.INHERITDOC_TAG =>
-                  val inherited = element.getParent.getParent.getParent match {
-                    case fun: ScFunction => (fun.superMethod map (_.getDocComment)).orNull
-                    case clazz: ScTemplateDefinition => (clazz.supers.headOption map (_.getDocComment)).orNull
-                    case _ => null
-                  }
-
-                  if (inherited != null) {
-                    val (inheritedBody, _) = getTextRepresentation(inherited)
-                    result append inheritedBody.toString().stripPrefix("/**").stripSuffix("*/")
-                  }
-                case _ => result.append(element.getText)
-              }
-            case ScalaDocTokenType.DOC_TAG_VALUE_TOKEN
-              if element.getParent.getParent.getFirstChild.getText == MyScaladocParsing.TYPE_PARAM_TAG  =>
-              result.append("<" + element.getText + ">")
-            case ScalaDocTokenType.DOC_INNER_CODE_TAG => result.append(" <pre> {@code ")
-            case ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG => result.append(" } </pre> ")
-            case ScalaDocTokenType.VALID_DOC_HEADER =>
-              val headerSize = if (element.getText.length() <= 6) element.getText.length() else 6
-              result.append("<h" + headerSize + ">")
-            case ScalaDocTokenType.DOC_HEADER =>
-              if (element.getParent.getFirstChild.getNode.getElementType == ScalaDocTokenType.VALID_DOC_HEADER) {
-                val headerSize = if (element.getText.length() <= 6) element.getText.length() else 6
-                result.append("</h" + headerSize + ">")
-              } else {
-                result.append(element.getText)
-              }
-            case ScalaDocTokenType.DOC_HTTP_LINK_TAG =>
-              result.append("<a href=\"")
-            case ScalaDocTokenType.DOC_LINK_TAG => result.append("{@link ")
-            case ScalaDocTokenType.DOC_LINK_CLOSE_TAG =>
-              if (element.getParent.getNode.getFirstChildNode.getElementType == ScalaDocTokenType.DOC_HTTP_LINK_TAG) {
-                val linkText = element.getPrevSibling.getText
-                if (linkText.trim().contains(" ")) {
-                  val trimmedText = linkText.trim()
-                  val spaceIndex = trimmedText.indexOf(" ")
-                  result.append(trimmedText.substring(0, spaceIndex)).append("\">").append(trimmedText.substring(spaceIndex + 1)).append("</a>")
-                } else {
-                  result.append("\">" + linkText + "</a>")
-                }
-              } else {
-                result.append("}")
-              }
-            case ScalaDocTokenType.DOC_COMMENT_DATA if element.getParent.isInstanceOf[ScDocTag] &&
-              element.getParent.asInstanceOf[ScDocTag].name == MyScaladocParsing.SEE_TAG =>
-              result.append("<dd>").append(element.getText.trim()).append("</dd>")
-            case ScalaDocTokenType.DOC_COMMENT_DATA
-              if element.getPrevSibling != null && element.getPrevSibling.getNode.getElementType == ScalaDocTokenType.DOC_HTTP_LINK_TAG =>
-              if (!element.getText.trim().contains(" ")) {
-                result.append(element.getText)
-              }
-            case _ if replaceWikiScheme.contains(element.getText) &&
-              (element.getParent.getFirstChild == element || element.getParent.getLastChild == element) =>
-              val prefix =  if (element.getParent.getFirstChild == element) "<" else "</"
-              result.append(prefix + replaceWikiScheme.get(element.getText).get)
-            case _ if element.getParent.getLastChild == element &&                 // do not swap this & last cases
-              replaceWikiScheme.contains(element.getParent.getFirstChild.getText) =>
-              result.append(element.getText).append("</")
-              result.append(replaceWikiScheme.get(element.getParent.getFirstChild.getText).get)
-            case ScalaDocTokenType.DOC_COMMENT_END => tagsPart.append(element.getText)
-            case ScalaDocTokenType.DOC_MACROS => try {
-              macroFinder.getMacroBody(element.getText.stripPrefix("$")).map(a => result append a).getOrElse(result append s"[Cannot find macro: ${element.getText}]")
-            } catch {
-              case ee: Exception =>
-            }
-            case _ => result.append(element.getText)
+            isFirst = false
           }
-        } else {
-          for (child <- element.getNode.getChildren(null)) {
-            child.getPsi match {
-              case tag: ScDocTag => visitTags(tag)
-              case _ => visitElementInner(child.getPsi, result)
-            }
-          }
-        }
+          element.getNode.getChildren(null).foreach(node => visitElementInner(node.getPsi))
+          commentBody.append("<br/><br/>")
+        case MyScaladocParsing.SEE_TAG =>
+          element.getNode.getChildren(null).foreach(node => visitElementInner(node.getPsi, commentBody))
+          commentBody.append("</dl>")
+        case MyScaladocParsing.INHERITDOC_TAG =>
+          element.getNode.getChildren(null).foreach(node => visitElementInner(node.getPsi, commentBody))
+        case _ =>
+          element.getNode.getChildren(null).foreach(node => visitElementInner(node.getPsi, tagsPart))
       }
-
-
-      visitElementInner(comment)
-      (commentBody, tagsPart)
     }
 
-    val (commentBody, tagsPart) = getTextRepresentation(comment)
+    def visitElementInner(element: PsiElement, result: StringBuilder = commentBody) {
+      if (element.getFirstChild == null) {
+        element.getNode.getElementType match {
+          case ScalaDocTokenType.DOC_TAG_NAME =>
+            element.getText match {
+              case MyScaladocParsing.TYPE_PARAM_TAG => result.append("@param ")
+              case MyScaladocParsing.NOTE_TAG | MyScaladocParsing.TODO_TAG | MyScaladocParsing.EXAMPLE_TAG =>
+                result.append("<b>").append(element.getText.substring(1).capitalize).append(":</b><br/>")
+              case MyScaladocParsing.SEE_TAG => result.append("<dl><dt><b>See Also:</b></dt>")
+
+              case MyScaladocParsing.INHERITDOC_TAG =>
+                val inherited = element.getParent.getParent.getParent match {
+                  case fun: ScFunction => (fun.superMethod map (_.getDocComment)).orNull
+                  case clazz: ScTemplateDefinition => (clazz.supers.headOption map (_.getDocComment)).orNull
+                  case _ => null
+                }
+
+                if (inherited != null) {
+                  val (inheritedBody, _) = getWikiTextRepresentation(macroFinder)(inherited)
+                  result append inheritedBody.toString().stripPrefix("/**").stripSuffix("*/")
+                }
+              case _ => result.append(element.getText)
+            }
+          case ScalaDocTokenType.DOC_TAG_VALUE_TOKEN
+            if element.getParent.getParent.getFirstChild.getText == MyScaladocParsing.TYPE_PARAM_TAG  =>
+            result.append("<" + element.getText + ">")
+          case ScalaDocTokenType.DOC_INNER_CODE_TAG => result.append(" <pre> {@code ")
+          case ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG => result.append(" } </pre> ")
+          case ScalaDocTokenType.VALID_DOC_HEADER =>
+            val headerSize = if (element.getText.length() <= 6) element.getText.length() else 6
+            result.append("<h" + headerSize + ">")
+          case ScalaDocTokenType.DOC_HEADER =>
+            if (element.getParent.getFirstChild.getNode.getElementType == ScalaDocTokenType.VALID_DOC_HEADER) {
+              val headerSize = if (element.getText.length() <= 6) element.getText.length() else 6
+              result.append("</h" + headerSize + ">")
+            } else {
+              result.append(element.getText)
+            }
+          case ScalaDocTokenType.DOC_HTTP_LINK_TAG =>
+            result.append("<a href=\"")
+          case ScalaDocTokenType.DOC_LINK_TAG => result.append("{@link ")
+          case ScalaDocTokenType.DOC_LINK_CLOSE_TAG =>
+            if (element.getParent.getNode.getFirstChildNode.getElementType == ScalaDocTokenType.DOC_HTTP_LINK_TAG) {
+              val linkText = element.getPrevSibling.getText
+              if (linkText.trim().contains(" ")) {
+                val trimmedText = linkText.trim()
+                val spaceIndex = trimmedText.indexOf(" ")
+                result.append(trimmedText.substring(0, spaceIndex)).append("\">").append(trimmedText.substring(spaceIndex + 1)).append("</a>")
+              } else {
+                result.append("\">" + linkText + "</a>")
+              }
+            } else {
+              result.append("}")
+            }
+          case ScalaDocTokenType.DOC_COMMENT_DATA if element.getParent.isInstanceOf[ScDocTag] &&
+            element.getParent.asInstanceOf[ScDocTag].name == MyScaladocParsing.SEE_TAG =>
+            result.append("<dd>").append(element.getText.trim()).append("</dd>")
+          case ScalaDocTokenType.DOC_COMMENT_DATA
+            if element.getPrevSibling != null && element.getPrevSibling.getNode.getElementType == ScalaDocTokenType.DOC_HTTP_LINK_TAG =>
+            if (!element.getText.trim().contains(" ")) {
+              result.append(element.getText)
+            }
+          case _ if replaceWikiScheme.contains(element.getText) &&
+            (element.getParent.getFirstChild == element || element.getParent.getLastChild == element) =>
+            val prefix =  if (element.getParent.getFirstChild == element) "<" else "</"
+            result.append(prefix + replaceWikiScheme.get(element.getText).get)
+          case _ if element.getParent.getLastChild == element &&                 // do not swap this & last cases
+            replaceWikiScheme.contains(element.getParent.getFirstChild.getText) =>
+            result.append(element.getText).append("</")
+            result.append(replaceWikiScheme.get(element.getParent.getFirstChild.getText).get)
+          case ScalaDocTokenType.DOC_COMMENT_END => tagsPart.append(element.getText)
+          case ScalaDocTokenType.DOC_MACROS => try {
+            macroFinder.getMacroBody(element.getText.stripPrefix("$")).map(a => result append a).getOrElse(result append s"[Cannot find macro: ${element.getText}]")
+          } catch {
+            case ee: Exception =>
+          }
+          case _ => result.append(element.getText)
+        }
+      } else {
+        for (child <- element.getNode.getChildren(null)) {
+          child.getPsi match {
+            case tag: ScDocTag => visitTags(tag)
+            case _ => visitElementInner(child.getPsi, result)
+          }
+        }
+      }
+    }
+
+
+    visitElementInner(comment)
+    (commentBody, tagsPart)
+  }
+
+  private def replaceWikiWithTags(comment: PsiDocComment): PsiDocComment = {
+    if (!comment.isInstanceOf[ScDocComment]) return comment
+    val macroFinder = new MacroFinderImpl(comment.asInstanceOf[ScDocComment], {element =>
+      val a = getWikiTextRepresentation(new MacroFinderDummy)(element)
+      a._1.result()
+    })
+
+    val (commentBody, tagsPart) = getWikiTextRepresentation(macroFinder)(comment)
     val scalaComment = ScalaPsiElementFactory.createScalaFile(commentBody.append("<br/>\n").
       append(tagsPart).toString() + " class a {}", comment.getManager).typeDefinitions.head.getDocComment
 
     scalaComment
   }
 
+  @tailrec
   private def getDocedElement(originalElement: PsiElement): PsiElement = {
     originalElement match {
       case null => null
       case wrapper: ScFunctionWrapper => wrapper.function
       case _: ScTypeDefinition | _: ScTypeAlias | _: ScValue
-              | _: ScVariable | _: ScFunction | _: ScParameter | _: ScBindingPattern => originalElement
+           | _: ScVariable | _: ScFunction | _: ScParameter | _: ScBindingPattern => originalElement
       case _ => getDocedElement(originalElement.getParent)
     }
   }
@@ -1020,14 +1032,16 @@ object ScalaDocumentationProvider {
   }
 
   def generateParameterInfo(parameter: ScParameter, subst: ScSubstitutor): String = {
+    val defaultText = s"${parameter.name}: ${ScType.presentableText(subst.subst(parameter.getType(TypingContext.empty).getOrAny))}"
+
     (parameter match {
       case clParameter: ScClassParameter =>
         val clazz = PsiTreeUtil.getParentOfType(clParameter, classOf[ScTypeDefinition])
-        clazz.name + " " + clazz.getPresentation.getLocationString + "\n" +
+
+        if (clazz == null) defaultText else clazz.name + " " + clazz.getPresentation.getLocationString + "\n" +
                 (if (clParameter.isVal) "val " else if (clParameter.isVar) "var " else "") + clParameter.name +
                 ": " + ScType.presentableText(subst.subst(clParameter.getType(TypingContext.empty).getOrAny))
-      case _ => parameter.name + ": " +
-        ScType.presentableText(subst.subst(parameter.getType(TypingContext.empty).getOrAny))}) +
+      case _ => defaultText}) +
         (if (parameter.isRepeatedParameter) "*" else "")
-  }  
+  }
 }

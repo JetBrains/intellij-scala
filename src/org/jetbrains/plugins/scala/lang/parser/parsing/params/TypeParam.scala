@@ -25,27 +25,24 @@ object TypeParam {
     var exist = false
     while (Annotation.parse(builder)) {exist = true}
     if (exist) annotationMarker.done(ScalaElementTypes.ANNOTATIONS)
-    else annotationMarker.drop
+    else annotationMarker.drop()
 
     if (mayHaveVariance) {
       builder.getTokenText match {
-        case "+" | "-" => builder.advanceLexer
+        case "+" | "-" => builder.advanceLexer()
         case _ =>
       }
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER => {
+      case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
         builder.advanceLexer //Ate identifier
-      }
-      case _ => {
+      case _ =>
         paramMarker.rollbackTo
         return false
-      }
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tLSQBRACKET => {
+      case ScalaTokenTypes.tLSQBRACKET =>
         TypeParamClause parse builder
-      }
       case _ =>
     }
 
@@ -61,11 +58,10 @@ object TypeParam {
 
   def parseBound(builder: ScalaPsiBuilder)(bound: String): Boolean = {
     builder.getTokenText match {
-      case x if x == bound => {
+      case x if x == bound =>
         builder.advanceLexer
         if (!Type.parse(builder)) builder error ErrMsg("wrong.type")
         true
-      }
       case _ => false
     }
   }

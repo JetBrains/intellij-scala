@@ -128,11 +128,11 @@ class XmlClosingTagAutoCompletionTest extends ScalaLightCodeInsightFixtureTestAd
       """).stripMargin.replace("\r", "")
 
     val assumedStub =
-      ("""
-      | xml match {
-      |   case <aaa></aaa>
-      |}
-      """).stripMargin.replace("\r", "")
+      """
+        | xml match {
+        |   case <aaa></aaa>
+        |}
+      """.stripMargin.replace("\r", "")
 
     checkGeneratedTextGt(text, assumedStub)
   }
@@ -146,11 +146,11 @@ class XmlClosingTagAutoCompletionTest extends ScalaLightCodeInsightFixtureTestAd
       """).stripMargin.replace("\r", "")
 
     val assumedStub =
-      ("""
-      | xml match {
-      |   case <aaa/>
-      |}
-      """).stripMargin.replace("\r", "")
+      """
+        | xml match {
+        |   case <aaa/>
+        |}
+      """.stripMargin.replace("\r", "")
 
     checkGeneratedTextSlash(text, assumedStub)
   }
@@ -165,12 +165,12 @@ class XmlClosingTagAutoCompletionTest extends ScalaLightCodeInsightFixtureTestAd
       """).stripMargin.replace("\r", "")
 
     val assumedStub =
-      ("""
-      | xml match {
-      |   case <a></a> =>
-      |   case <aaa></aaa>
-      | }
-      """).stripMargin.replace("\r", "")
+      """
+        | xml match {
+        |   case <a></a> =>
+        |   case <aaa></aaa>
+        | }
+      """.stripMargin.replace("\r", "")
 
     checkGeneratedTextGt(text, assumedStub)
   }
@@ -185,12 +185,12 @@ class XmlClosingTagAutoCompletionTest extends ScalaLightCodeInsightFixtureTestAd
       """).stripMargin.replace("\r", "")
 
     val assumedStub =
-      ("""
-      | xml match {
-      |   case <a></a> =>
-      |   case <aaa/>
-      | }
-      """).stripMargin.replace("\r", "")
+      """
+        | xml match {
+        |   case <a></a> =>
+        |   case <aaa/>
+        | }
+      """.stripMargin.replace("\r", "")
 
     checkGeneratedTextSlash(text, assumedStub)
   }

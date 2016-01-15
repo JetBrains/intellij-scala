@@ -8,33 +8,33 @@ class OptimizeImportsSimpleTest extends OptimizeImportsTestBase {
 
   protected override def rootPath(): String = folderPath
 
-  def testSorted = doTest
+  def testSorted() = doTest()
 
-  def testSortedInPackage = doTest
+  def testSortedInPackage() = doTest()
 
-  def testTwoExpressions = doTest
+  def testTwoExpressions() = doTest()
 
-  def testDeleteBraces = doTest
+  def testDeleteBraces() = doTest()
 
-  def testDontSaveNotResolved = doTest
+  def testDontSaveNotResolved() = doTest()
 
-  def testImportChainUsed = doTest
+  def testImportChainUsed() = doTest()
 
-  def testLanguageFeatures = doTest
+  def testLanguageFeatures() = doTest()
 
-  def testNewLines = doTest
+  def testNewLines() = doTest()
 
-  def testOneImport = doTest
+  def testOneImport() = doTest()
 
   def testScalaDoc(): Unit = doTest()
 
   def testSCL7275(): Unit = doTest()
 
-  def testSomeTrait = doTest
+  def testSomeTrait() = doTest()
 
-  def testUnusedImportChain = doTest
+  def testUnusedImportChain() = doTest()
 
-  def testUnusedSelector = doTest
+  def testUnusedSelector() = doTest()
 
-  def testUsedImport = doTest
+  def testUsedImport() = doTest()
 }

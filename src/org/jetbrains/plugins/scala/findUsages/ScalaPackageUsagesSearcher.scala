@@ -15,23 +15,21 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 class ScalaPackageUsagesSearcher extends QueryExecutorBase[PsiReference, ReferencesSearch.SearchParameters](true) {
 
   def processQuery(@NotNull parameters: ReferencesSearch.SearchParameters, @NotNull consumer: Processor[PsiReference]) {
-    extensions.inReadAction {
-      val target: PsiElement = parameters.getElementToSearch
-      val scPack = target match {
-        case pack: PsiPackage => ScPackageImpl(pack)
-        case _ => return
-      }
-      val name = scPack.name
-      if (name == null || StringUtil.isEmptyOrSpaces(name)) return
-      val scope: SearchScope = parameters.getEffectiveSearchScope // TODO PsiUtil.restrictScopeToGroovyFiles(parameters.getEffectiveSearchScope)
-      val collector: SearchRequestCollector = parameters.getOptimizer
-      val session: SearchSession = collector.getSearchSession
-      collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(scPack, null, session))
+    val target: PsiElement = parameters.getElementToSearch
+    val scPack = target match {
+      case pack: PsiPackage => ScPackageImpl(pack)
+      case _ => return
     }
+    val name = scPack.name
+    if (name == null || StringUtil.isEmptyOrSpaces(name)) return
+    val scope: SearchScope = inReadAction(parameters.getEffectiveSearchScope) // TODO PsiUtil.restrictScopeToGroovyFiles(parameters.getEffectiveSearchScope)
+    val collector: SearchRequestCollector = parameters.getOptimizer
+    val session: SearchSession = collector.getSearchSession
+    collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, new MyProcessor(scPack, null, session))
   }
 
   private class MyProcessor(myTarget: PsiElement, @Nullable prefix: String, mySession: SearchSession) extends RequestResultProcessor(myTarget, prefix) {
-    def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = {
+    def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[PsiReference]): Boolean = inReadAction {
       val reference: PsiReference = element.getReference
       if (reference == null || !reference.isReferenceTo(myTarget)) {
         true

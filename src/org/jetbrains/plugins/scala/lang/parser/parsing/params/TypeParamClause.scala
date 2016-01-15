@@ -20,31 +20,27 @@ object TypeParamClause {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val typeMarker = builder.mark
     builder.getTokenType match {
-      case ScalaTokenTypes.tLSQBRACKET => {
+      case ScalaTokenTypes.tLSQBRACKET =>
         builder.advanceLexer //Ate [
         builder.disableNewlines
-      }
-      case _ => {
+      case _ =>
         typeMarker.drop
         return false
-      }
     }
-    if (!TypeParam.parse(builder, true)) {
+    if (!TypeParam.parse(builder, mayHaveVariance = true)) {
       builder error ScalaBundle.message("wrong.parameter")
     }
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
-      builder.advanceLexer //Ate
-      if (!TypeParam.parse(builder, true)) {
+      builder.advanceLexer() //Ate
+      if (!TypeParam.parse(builder, mayHaveVariance = true)) {
         builder error ScalaBundle.message("wrong.parameter")
       }
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tRSQBRACKET => {
+      case ScalaTokenTypes.tRSQBRACKET =>
         builder.advanceLexer //Ate ]
-      }
-      case _ => {
+      case _ =>
         builder error ScalaBundle.message("rsqbracket.expected")
-      }
     }
     builder.restoreNewlinesState
     typeMarker.done(ScalaElementTypes.TYPE_PARAM_CLAUSE)

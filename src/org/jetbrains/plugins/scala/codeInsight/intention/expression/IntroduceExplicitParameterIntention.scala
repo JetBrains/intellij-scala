@@ -60,7 +60,7 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
       else expr.getTextRange.getStartOffset
     val parentEndOffset =
       if (ApplicationManager.getApplication.isUnitTestMode) {
-        if (underscores.size > 0) underscores(underscores.size - 1).getTextRange.getEndOffset
+        if (underscores.nonEmpty) underscores(underscores.size - 1).getTextRange.getEndOffset
         else underscores(0).getTextRange.getEndOffset
       } else expr.getTextRange.getEndOffset
 
@@ -103,7 +103,7 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
 
       var un = names(0)
       if (macros.contains(un)) {
-        if (names.size > 1) {
+        if (names.length > 1) {
           un = names(1)
         } else {
           un = "value"

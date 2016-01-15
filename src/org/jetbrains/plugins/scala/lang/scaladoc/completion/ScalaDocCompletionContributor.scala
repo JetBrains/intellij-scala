@@ -7,6 +7,7 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionContributor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -19,12 +20,12 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
  * Date: 11/26/11
  */
 
-class ScalaDocCompletionContributor extends CompletionContributor {
+class ScalaDocCompletionContributor extends ScalaCompletionContributor {
   extend(CompletionType.BASIC, PlatformPatterns.psiElement(ScalaDocTokenType.DOC_TAG_NAME), new CompletionProvider[CompletionParameters]() {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
-      var posParent = parameters.getPosition.getParent
+      var posParent = positionFromParameters(parameters).getContext
       while (posParent != null && !posParent.isInstanceOf[ScDocComment]) {
-        posParent = posParent.getParent
+        posParent = posParent.getContext
       }
       
       if (posParent != null) {

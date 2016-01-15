@@ -23,27 +23,23 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, EmptyDcl
 object ExistentialDclSeq {
   def parse(builder: ScalaPsiBuilder) {
     builder.getTokenType match {
-      case ScalaTokenTypes.kTYPE | ScalaTokenTypes.kVAL => {
-        if (!Dcl. parse (builder,false)) {
-          EmptyDcl.parse(builder, false)
+      case ScalaTokenTypes.kTYPE | ScalaTokenTypes.kVAL =>
+        if (!Dcl.parse(builder, isMod = false)) {
+          EmptyDcl.parse(builder, isMod = false)
         }
-      }
-      case _ => {
+      case _ =>
         //builder error ScalaBundle.message("wrong.existential.declaration")
         return
-      }
     }
     while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON || builder.newlineBeforeCurrentToken) {
-      if (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) builder.advanceLexer //Ate semi
+      if (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) builder.advanceLexer() //Ate semi
       builder.getTokenType match {
-        case ScalaTokenTypes.kTYPE | ScalaTokenTypes.kVAL => {
-          if (!Dcl.parse(builder, false)) {
-            EmptyDcl.parse(builder, false)
+        case ScalaTokenTypes.kTYPE | ScalaTokenTypes.kVAL =>
+          if (!Dcl.parse(builder, isMod = false)) {
+            EmptyDcl.parse(builder, isMod = false)
           }
-        }
-        case _ => {
+        case _ =>
           builder error ScalaBundle.message("wrong.existential.declaration")
-        }
       }
     }
   }

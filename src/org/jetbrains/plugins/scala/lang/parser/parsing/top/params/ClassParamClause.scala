@@ -20,12 +20,12 @@ object ClassParamClause {
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val classParamMarker = builder.mark
     if (builder.twoNewlinesBeforeCurrentToken) {
-      classParamMarker.rollbackTo
+      classParamMarker.rollbackTo()
       return false
     }
     //Look for '('
     builder.getTokenType match {
-      case ScalaTokenTypes.tLPARENTHESIS => {
+      case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer //Ate '('
         builder.disableNewlines
         builder.getTokenType match {
@@ -45,26 +45,22 @@ object ClassParamClause {
             }
           }
         }
-      }
-      case _ => {
+      case _ =>
         classParamMarker.rollbackTo
         return false
-      }
     }
     //Look for ')'
     builder.getTokenType match {
-      case ScalaTokenTypes.tRPARENTHESIS => {
+      case ScalaTokenTypes.tRPARENTHESIS =>
         builder.advanceLexer //Ate )
         builder.restoreNewlinesState
         classParamMarker.done(ScalaElementTypes.PARAM_CLAUSE)
         return true
-      }
-      case _ => {
+      case _ =>
         classParamMarker.done(ScalaElementTypes.PARAM_CLAUSE)
         builder error ErrMsg("rparenthesis.expected")
         builder.restoreNewlinesState
         return true
-      }
     }
   }
 }

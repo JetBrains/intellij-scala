@@ -32,12 +32,11 @@ class ScalaReadWriteAccessDetector extends ReadWriteAccessDetector {
 
   def isDeclarationWriteAccess(element: PsiElement): Boolean = {
     element match {
-      case x: PsiNamedElement => {
-         ScalaPsiUtil.nameContext(x) match {
-           case _: ScVariableDefinition | _: ScPatternDefinition => true
-           case _ => false
-         }
-      }
+      case x: PsiNamedElement =>
+        ScalaPsiUtil.nameContext(x) match {
+         case _: ScVariableDefinition | _: ScPatternDefinition => true
+         case _ => false
+       }
       case _ => false
     }
   }

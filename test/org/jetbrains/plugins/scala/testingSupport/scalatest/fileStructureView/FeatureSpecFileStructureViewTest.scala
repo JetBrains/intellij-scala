@@ -1,20 +1,20 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.fileStructureView
 
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement._
-import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
+import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 
 /**
- * @author Roman.Shein
- * @since 19.04.2015.
- */
-trait FeatureSpecFileStructureViewTest extends IntegrationTest {
+  * @author Roman.Shein
+  * @since 19.04.2015.
+  */
+trait FeatureSpecFileStructureViewTest extends ScalaTestTestCase {
 
   private val className = "FeatureSpecViewTest"
 
   private def runTest(status: Int, names: String*) {
     addFeatureSpec()
-    runFileStructureViewTest(className, status, names:_*)
+    runFileStructureViewTest(className, status, names: _*)
   }
 
   private def runTest(testName: String, parent: Option[String] = None): Unit = {

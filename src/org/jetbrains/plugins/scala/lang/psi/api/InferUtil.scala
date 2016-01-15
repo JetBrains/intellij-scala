@@ -214,7 +214,7 @@ object InferUtil {
                                     fromImplicitParameters: Boolean,
                                     filterTypeParams: Boolean,
                                     expectedType: Option[ScType], expr: PsiElement,
-                                    check: Boolean, forEtaExpansion: Boolean = false): TypeResult[ScType] = {
+                                    check: Boolean): TypeResult[ScType] = {
     var nonValueType = _nonValueType
     nonValueType match {
       case Success(ScTypePolymorphicType(m@ScMethodType(internal, params, impl), typeParams), _)
@@ -264,15 +264,10 @@ object InferUtil {
           expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(dummyExpr, expectedRet))
 
           new ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
-        case Some(tp) if !fromSAM && ScalaPsiUtil.isSAMEnabled(expr) && forEtaExpansion =>
-          ScalaPsiUtil.toSAMType(tp, expr.getResolveScope) match {
-            case Some(ScFunctionType(retTp, _)) if retTp.equiv(Unit) =>
-              //example:
-              //def f(): () => Unit = () => println()
-              //val f1: Runnable = f
-              ScFunctionType(Unit, Seq.empty)(expr.getProject, expr.getResolveScope)
-            case _ => applyImplicitViewToResult(mt, ScalaPsiUtil.toSAMType(tp, expr.getResolveScope), fromSAM = true)
-          }
+        case Some(tp) if !fromSAM && ScalaPsiUtil.isSAMEnabled(expr) =>
+          //we do this to update additional expression, so that implicits work correctly
+          //@see SingleAbstractMethodTest.testEtaExpansionImplicit
+          applyImplicitViewToResult(mt, ScalaPsiUtil.toSAMType(tp, expr.getResolveScope), fromSAM = true)
         case _ => mt
       }
     }

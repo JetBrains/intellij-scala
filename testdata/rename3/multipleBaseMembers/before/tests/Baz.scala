@@ -12,7 +12,9 @@ object Baz2 extends Baz {
   override val baz = 3
 }
 
-object Baz3 extends {override var /*caret*/baz = 1} with Baz with Bazzz {}
+object Baz3 extends {
+  override var /*caret*/baz = 1
+} with Baz with Bazzz {}
 
 object Test {
   Baz2.baz

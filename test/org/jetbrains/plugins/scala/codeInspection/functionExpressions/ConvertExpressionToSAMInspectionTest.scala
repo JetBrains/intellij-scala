@@ -4,6 +4,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection
 import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaLightInspectionFixtureTestAdapter}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 /**
  * Author: Svyatoslav Ilinskiy
@@ -19,6 +20,9 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
     defaultProfile.setSettings(newSettings)
   }
 
+
+  override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+
   override protected def classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ConvertExpressionToSAMInspection]
 
   override protected def annotation: String = InspectionBundle.message("convert.expression.to.sam")
@@ -26,9 +30,9 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
   def testThreadRunnable(): Unit = {
     val code =
       s"""
-         |new Thread(${START}new Runnable {
+         |new Thread(${START}new Runnable $END{
          |override def run() = println()
-         |}$END
+         |}
       """.stripMargin
     check(code)
     val text =
@@ -44,9 +48,9 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
   def testValueDefinition(): Unit = {
     val code =
       s"""
-        |val y: Runnable = ${START}new Runnable {
+        |val y: Runnable = ${START}new Runnable $END{
         |  override def run(): Unit = ???
-        |}$END
+        |}
       """.stripMargin
     check(code)
     val text =
@@ -76,9 +80,9 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
         |  def foo(): String
         |}
         |def bar(a: A) = println()
-        |bar(${START}new A {
+        |bar(${START}new A $END{
         |  override def foo(): String = "something"
-        |}$END)
+        |})
       """.stripMargin
     check(code)
     val text =
@@ -135,13 +139,13 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
   def testInner(): Unit = {
     val code =
       s"""
-        |new Thread(${START}new Runnable {
+        |new Thread(${START}new Runnable $END{
         |  def run() {
         |    def foo(i: Int) = i
         |
         |    println(foo(10))
         |  }
-        |}$END)
+        |})
       """.stripMargin
     check(code)
     val text =
@@ -168,13 +172,13 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
   def testMultiLine(): Unit = {
     val code =
       s"""
-        |new Thread(${START}new Runnable {
+        |new Thread(${START}new Runnable $END{
         |  override def run(): Unit = {
         |    val i = 2 + 3
         |    val z = 2
         |    println(i - z)
         |  }
-        |}$END)
+        |})
       """.stripMargin
     check(code)
     val text =

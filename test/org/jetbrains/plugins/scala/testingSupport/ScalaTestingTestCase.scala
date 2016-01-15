@@ -16,30 +16,41 @@ import com.intellij.ide.structureView.newStructureView.StructureViewComponent
 import com.intellij.ide.util.treeView.smartTree.{NodeProvider, TreeElement, TreeElementWrapper}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
-import com.intellij.psi.{PsiElement, PsiManager}
-import com.intellij.testFramework.{PsiTestUtil, UsefulTestCase}
+import com.intellij.psi.impl.file.PsiDirectoryFactory
+import com.intellij.psi.{PsiDirectory, PsiElement, PsiManager}
+import com.intellij.testFramework.UsefulTestCase
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.debugger.{ScalaDebuggerTestBase, ScalaVersion_2_11}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
 import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructureViewElement
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, AbstractTestRunConfiguration}
-import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
- * @author Roman.Shein
- *         Date: 03.03.14
- */
+  * @author Roman.Shein
+  *         Date: 03.03.14
+  */
 abstract class ScalaTestingTestCase(private val configurationProducer: AbstractTestConfigurationProducer) extends ScalaDebuggerTestBase with IntegrationTest with ScalaVersion_2_11 {
 
-  protected def addIvyCacheLibrary(libraryName: String, libraryPath: String, jarNames: String*) {
-    val libsPath = TestUtils.getIvyCachePath
-    val pathExtended = s"$libsPath/$libraryPath/"
-    VfsRootAccess.allowRootAccess(pathExtended)
-    PsiTestUtil.addLibrary(myModule, libraryName, pathExtended, jarNames: _*)
+  override protected def isRunInEdt = false
+
+  override protected def addFileToProject(fileName: String, fileText: String) = {
+    UsefulTestCase.edt(new Runnable() {
+      override def run(): Unit = {
+        ScalaTestingTestCase.super.addFileToProject(fileName, fileText)
+      }
+    })
+  }
+
+  override protected def tearDown() = {
+    UsefulTestCase.edt(new Runnable() {
+      override def run(): Unit = ScalaTestingTestCase.super.tearDown()
+    })
   }
 
   override val testDataBasePrefix = "testingSupport"
@@ -61,18 +72,23 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
 
   override protected def buildFileStructure(fileName: String): TreeElementWrapper = {
     val ioFile = new java.io.File(srcDir, fileName)
-    val file = PsiManager.getInstance(getProject).findFile(getVirtualFile(ioFile))
-    val treeViewModel = new ScalaStructureViewModel(file.asInstanceOf[ScalaFile]){
-      override def isEnabled (provider: NodeProvider[_ <: TreeElement]): Boolean = provider.isInstanceOf[TestNodeProvider]
-    }
-    val wrapper = new StructureViewComponent.StructureViewTreeElementWrapper(getProject, treeViewModel.getRoot, treeViewModel)
+    var wrapper: StructureViewComponent.StructureViewTreeElementWrapper = null
+    UsefulTestCase.edt(new Runnable(){
+      override def run(): Unit = {
+        val file = PsiManager.getInstance(getProject).findFile(getVirtualFile(ioFile))
+        val treeViewModel = new ScalaStructureViewModel(file.asInstanceOf[ScalaFile]) {
+          override def isEnabled(provider: NodeProvider[_ <: TreeElement]): Boolean = provider.isInstanceOf[TestNodeProvider]
+        }
+        wrapper = new StructureViewComponent.StructureViewTreeElementWrapper(getProject, treeViewModel.getRoot, treeViewModel)
 
-    def initTree(wrapper: StructureViewComponent.StructureViewTreeElementWrapper) {
-      import scala.collection.JavaConversions._
-      wrapper.initChildren()
-      wrapper.getChildren.toList.foreach(node => initTree(node.asInstanceOf[StructureViewComponent.StructureViewTreeElementWrapper]))
-    }
-    initTree(wrapper)
+        def initTree(wrapper: StructureViewComponent.StructureViewTreeElementWrapper) {
+          import scala.collection.JavaConversions._
+          wrapper.initChildren()
+          wrapper.getChildren.toList.foreach(node => initTree(node.asInstanceOf[StructureViewComponent.StructureViewTreeElementWrapper]))
+        }
+        initTree(wrapper)
+      }
+    })
     wrapper
   }
 
@@ -85,10 +101,15 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
 
     val myManager = PsiManager.getInstance(project)
 
-    val psiFile = myManager.findViewProvider(file).getPsi(ScalaFileType.SCALA_LANGUAGE)
+    var psiElement: PsiElement = null
 
-    val psiElement = psiFile.findElementAt(FileDocumentManager.getInstance().getDocument(file).
-        getLineStartOffset(lineNumber) + offset)
+    UsefulTestCase.edt(new Runnable() {
+      override def run(): Unit = {
+        val psiFile = myManager.findViewProvider(file).getPsi(ScalaFileType.SCALA_LANGUAGE)
+        psiElement = psiFile.findElementAt(FileDocumentManager.getInstance().getDocument(file).
+          getLineStartOffset(lineNumber) + offset)
+      }
+    })
 
     new PsiLocation(project, myModule, psiElement)
   }
@@ -96,19 +117,51 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
   private def failedConfigMessage(fileName: String, lineNumber: Int, offset: Int) =
     "Failed to create run configuration for test from file " + fileName + " from line " + lineNumber + " at offset " + offset
 
-  override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings =
-    configurationProducer.createConfigurationByLocation(createLocation(lineNumber, offset, fileName)).map(_._2) match {
+  private def failedConfigMessage(packageName: String) = "Failed to create run configuration for test from package " + packageName
+
+  override protected def createTestFromLocation(lineNumber: Int, offset: Int, fileName: String): RunnerAndConfigurationSettings = {
+    var res: RunnerAndConfigurationSettings = null
+    UsefulTestCase.edt(new Runnable {
+      override def run(): Unit = {
+        res = configurationProducer.createConfigurationByLocation(createLocation(lineNumber, offset, fileName)).map(_._2) match {
+          case Some(testConfig) => testConfig
+          case _ => throw new RuntimeException(failedConfigMessage(fileName, lineNumber, offset))
+        }
+      }
+    })
+    res
+  }
+
+  override protected def createTestFromPackage(packageName: String): RunnerAndConfigurationSettings =
+    createTestFromDirectory(
+      ScalaPsiManager.instance(getProject).getCachedPackage(packageName) match {
+        case Some(myPackage) => myPackage.getDirectories().head
+        case _ => throw new RuntimeException(failedConfigMessage(packageName))
+      }
+    )
+
+  override protected def createTestFromModule(moduleName: String): RunnerAndConfigurationSettings = {
+    var module: Module = null
+    UsefulTestCase.edt(new Runnable() {
+      override def run(): Unit =
+        module = ModuleManager.getInstance(ScalaTestingTestCase.this.getProject).findModuleByName(moduleName)
+    })
+    createTestFromDirectory(PsiDirectoryFactory.getInstance(getProject).
+      createDirectory(ModuleRootManager.getInstance(module).getContentRoots.head))
+  }
+
+  private def createTestFromDirectory(directory: PsiDirectory) =
+    configurationProducer.createConfigurationByLocation(new PsiLocation(getProject, directory)).map(_._2) match {
       case Some(testConfig) => testConfig
-      case _ => throw new RuntimeException(failedConfigMessage(fileName, lineNumber, offset))
+      case _ => throw new RuntimeException(failedConfigMessage(directory.getName))
     }
 
-  override protected def runTestFromConfig(
-                                   configurationCheck: RunnerAndConfigurationSettings => Boolean,
-                                   runConfig: RunnerAndConfigurationSettings,
-                                   checkOutputs: Boolean = false,
-                                   duration: Int = 3000,
-                                   debug: Boolean = false
-                                   ): (String, Option[AbstractTestProxy]) = {
+  override protected def runTestFromConfig(configurationCheck: RunnerAndConfigurationSettings => Boolean,
+                                           runConfig: RunnerAndConfigurationSettings,
+                                           checkOutputs: Boolean = false,
+                                           duration: Int = 3000,
+                                           debug: Boolean = false
+                                          ): (String, Option[AbstractTestProxy]) = {
     assert(configurationCheck(runConfig))
     assert(runConfig.getConfiguration.isInstanceOf[AbstractTestRunConfiguration])
     runConfig.getConfiguration.asInstanceOf[AbstractTestRunConfiguration].setupIntegrationTestClassPath()
@@ -139,15 +192,13 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
       }
     })
 
-    val res = testResultListener.waitForTestEnd(duration)
-
-    (res, testTreeRoot)
+    (testResultListener.waitForTestEnd(duration), testTreeRoot)
   }
 
   private def runProcess(runConfiguration: RunnerAndConfigurationSettings,
-                           executorClass: Class[_ <: Executor],
-                           listener: ProcessListener,
-                           runner: ProgramRunner[_ <: RunnerSettings]): (ProcessHandler, RunContentDescriptor) = {
+                         executorClass: Class[_ <: Executor],
+                         listener: ProcessListener,
+                         runner: ProgramRunner[_ <: RunnerSettings]): (ProcessHandler, RunContentDescriptor) = {
     val configuration = runConfiguration.getConfiguration
     val executor: Executor = Executor.EXECUTOR_EXTENSION_NAME.findExtension(executorClass)
     val executionEnvironmentBuilder: ExecutionEnvironmentBuilder =

@@ -52,6 +52,12 @@ trait ApplicationAnnotator {
                     holder.createErrorAnnotation(genCall.typeArgs.getOrElse(genCall), f.name + " does not take type parameters")
                   case ExcessTypeArgument(arg) =>
                     holder.createErrorAnnotation(arg, "Too many type arguments for " + f.name)
+                  case DefaultTypeParameterMismatch(expected, actual) => genCall.typeArgs match {
+                    case Some(typeArgs) =>
+                      val message: String = ScalaBundle.message("type.mismatch.default.args.expected.actual", expected, actual)
+                      holder.createErrorAnnotation(typeArgs, message)
+                    case _ =>
+                  }
                   case _ =>
                     //holder.createErrorAnnotation(call.argsElement, "Not applicable to " + signatureOf(f))
                 }
@@ -211,6 +217,7 @@ trait ApplicationAnnotator {
       case ParameterSpecifiedMultipleTimes(assignment) =>
         holder.createErrorAnnotation(assignment.getLExpression, "Parameter specified multiple times")
       case ExpectedTypeMismatch => // it will be reported later
+      case DefaultTypeParameterMismatch(_, _) => //it will be reported later
       case _ => holder.createErrorAnnotation(call.argsElement, "Not applicable")
     }
   }

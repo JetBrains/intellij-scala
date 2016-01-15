@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.project.settings
 
+import org.jetbrains.jps.incremental.scala.data.SbtIncrementalOptions
 import org.jetbrains.plugins.scala.project.{CompileOrder, DebuggingInfoLevel}
 
 /**
@@ -13,6 +14,11 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
   loadState(state)
 
   var compileOrder: CompileOrder = _
+
+  var nameHashing: Boolean = _
+  var recompileOnMacroDef: Boolean = _
+  var transitiveStep: Int = _
+  var recompileAllFraction: Double = _
 
   var dynamics: Boolean = _
   var postfixOps: Boolean = _
@@ -59,7 +65,7 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
     "-g:source" -> DebuggingInfoLevel.Source,
     "-g:line" -> DebuggingInfoLevel.Line,
     "-g:vars" -> DebuggingInfoLevel.Vars,
-    "-g:notc" -> DebuggingInfoLevel.Notc)
+    "-g:notailcalls" -> DebuggingInfoLevel.Notailcalls)
 
   private val PluginOptionPattern = "-Xplugin:(.+)".r
 
@@ -80,6 +86,8 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
   def initFrom(options: Seq[String]) {
     initFrom0(normalized(options))
   }
+
+  def sbtIncOptions = SbtIncrementalOptions(nameHashing, recompileOnMacroDef, transitiveStep, recompileAllFraction)
 
   private def initFrom0(options: Seq[String]) {
     val optionToSetter = ToggleOptions.map(it => (it._1, it._3)).toMap
@@ -112,6 +120,11 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
   def loadState(state: ScalaCompilerSettingsState) {
     compileOrder = state.compileOrder
 
+    nameHashing = state.nameHashing
+    recompileOnMacroDef = state.recompileOnMacroDef
+    transitiveStep = state.transitiveStep
+    recompileAllFraction = state.recompileAllFraction
+
     dynamics = state.dynamics
     postfixOps = state.postfixOps
     reflectiveCalls = state.reflectiveCalls
@@ -138,6 +151,11 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
   def getState = {
     val state = new ScalaCompilerSettingsState()
     state.compileOrder = compileOrder
+
+    state.nameHashing = nameHashing
+    state.recompileOnMacroDef = recompileOnMacroDef
+    state.transitiveStep = transitiveStep
+    state.recompileAllFraction = recompileAllFraction
 
     state.dynamics = dynamics
     state.postfixOps = postfixOps

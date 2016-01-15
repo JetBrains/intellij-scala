@@ -13,9 +13,9 @@ class TypeAliasInput {
   def foo {
     type x = String
     val z: x = ""
-    /*start*/
+
     val y: String = testMethodName(z)
-    /*end*/
+
     y
   }
 

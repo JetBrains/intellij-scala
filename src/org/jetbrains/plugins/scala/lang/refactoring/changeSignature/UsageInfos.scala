@@ -6,7 +6,7 @@ import com.intellij.refactoring.changeSignature.{ChangeInfo, JavaChangeInfo}
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -155,14 +155,15 @@ private[changeSignature] case class ParameterUsageInfo(oldIndex: Int, newName: S
 
 private[changeSignature] case class ImportUsageInfo(imp: ScReferenceElement) extends UsageInfo(imp: PsiElement)
 
-private[changeSignature] object UsageUtil {
+private[changeSignature] trait PatternUsageInfo {
+  def pattern: ScPattern
+}
 
-  def invocation(usage: UsageInfo): MethodInvocation = usage match {
-    case MethodCallUsageInfo(_, call) => call
-    case InfixExprUsageInfo(inf) => inf
-    case PostfixExprUsageInfo(post) => post
-    case _ => null
-  }
+private[changeSignature] case class ConstructorPatternUsageInfo(pattern: ScConstructorPattern) extends UsageInfo(pattern) with PatternUsageInfo
+
+private[changeSignature] case class InfixPatternUsageInfo(pattern: ScInfixPattern) extends UsageInfo(pattern) with PatternUsageInfo
+
+private[changeSignature] object UsageUtil {
 
   def scalaUsage(usage: UsageInfo): Boolean = usage match {
     case ScalaNamedElementUsageInfo(_) | _: ParameterUsageInfo | _: MethodUsageInfo | _: AnonFunUsageInfo | _: ImportUsageInfo => true

@@ -39,7 +39,11 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
     if (!(obj.isInstanceOf[ObjectReference] || obj.isInstanceOf[ClassType])) {
       throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName))
     }
-    val args = argumentEvaluators.map(arg => arg.evaluate(context))
+    val args = argumentEvaluators.flatMap { ev =>
+      val result = ev.evaluate(context)
+      if (result == FromLocalArgEvaluator.skipMarker) None
+      else Some(result)
+    }
     try {
       val referenceType: ReferenceType =
       obj match {
@@ -51,7 +55,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
         case _ =>
           null
       }
-      val sign: String = if (signature != null) signature.getName(debugProcess) else null
+      val sign: String = if (signature != null && args.size == argumentEvaluators.size) signature.getName(debugProcess) else null
       var mName: String = DebuggerUtilsEx.methodName(referenceType.name, methodName, sign)
       def findMethod(referenceType: ReferenceType): Method = {
         import scala.collection.JavaConversions._
@@ -84,14 +88,14 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
             val filtered = sortedMethodCandidates.filter {
               m =>
                 try {
-                  if (m.isVarArgs) args.length >= m.arguments().size()
-                  else args.length == m.arguments().size()
+                  if (m.isVarArgs) args.length >= m.argumentTypeNames().size()
+                  else args.length == m.argumentTypeNames().size()
                 } catch {
                   case a: AbsentInformationException => true
                 }
             }
-            if (filtered.length == 0) jdiMethod = sortedMethodCandidates(0)
-            else if (filtered.length == 1) jdiMethod = filtered(0)
+            if (filtered.isEmpty) jdiMethod = sortedMethodCandidates.head
+            else if (filtered.length == 1) jdiMethod = filtered.head
             else {
               val newFiltered = filtered.filter(m => {
                 var result = true
@@ -109,10 +113,10 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
                 result
               })
               if (newFiltered.isEmpty)
-                jdiMethod = filtered(0)
-              else jdiMethod = newFiltered(0)
+                jdiMethod = filtered.head
+              else jdiMethod = newFiltered.head
             }
-          } else if (sortedMethodCandidates.length == 1) jdiMethod = sortedMethodCandidates(0)
+          } else if (sortedMethodCandidates.length == 1) jdiMethod = sortedMethodCandidates.head
         }
         jdiMethod
       }

@@ -17,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 
+import scala.annotation.tailrec
+
 /**
  * Nikolay.Tropin
  * 2014-08-29
@@ -44,13 +46,20 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler {
           val message = ScalaBundle.message("change.signature.not.supported.implicit.functions")
           showErrorHint(message)
           false
+        case fun: ScFunction if fun.name == "unapply" || fun.name == "unapplySeq" =>
+          val message = ScalaBundle.message("change.signature.not.supported.extractors")
+          showErrorHint(message)
+          false
         case _ => true
       }
     }
 
-    def unwrapMethod(element: PsiElement) = element match {
+    @tailrec
+    def unwrapMethod(element: PsiElement): Option[PsiMethod] = element match {
       case null => None
-      case isWrapper(fun: ScFunction) => Some(fun)
+      case isWrapper(fun: ScFunction) => unwrapMethod(fun)
+      case fun: ScFunction if fun.isSynthetic =>
+        fun.syntheticCaseClass.flatMap(_.constructor)
       case m: PsiMethod => Some(m)
       case _ => None
     }

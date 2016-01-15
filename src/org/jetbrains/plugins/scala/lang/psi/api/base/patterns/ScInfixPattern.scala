@@ -13,5 +13,5 @@ package patterns
 trait ScInfixPattern extends ScPattern {
   def leftPattern: ScPattern = findChildByClassScala(classOf[ScPattern])
   def rightPattern: Option[ScPattern] = findLastChild(classOf[ScPattern])
-  def refernece: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
+  def reference: ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])
 }

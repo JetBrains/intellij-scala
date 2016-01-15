@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest
 
-import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
-
 /**
- * @author Roman.Shein
- * @since 18.01.2015.
- */
-trait SpecialCharactersTest extends IntegrationTest {
+  * @author Roman.Shein
+  * @since 18.01.2015.
+  */
+trait SpecialCharactersTest extends ScalaTestTestCase {
 
   val commaTestPath = List("[root]", "TestComma", "Comma , test", "should contain , comma")
   val exclamationTestPath = List("[root]", "TestExclamation", "! test", "should contain !")
@@ -17,25 +15,25 @@ trait SpecialCharactersTest extends IntegrationTest {
   private def addSpecialCharactersTest(testName: String) =
     addFileToProject(testName + ".scala",
       "import org.scalatest._\n\n" +
-          "class " + testName + " extends FlatSpec with GivenWhenThen {" +
-          """
-            | "Comma , test" should "contain , comma" in {
-            | }
-            |
-            | "! test" should "contain !" in {
-            | }
-            |
-            | "tick ' test" should "contain '" in {
-            | }
-            |
-            | "backtick ` test" should "contain `" in {
-            | }
-            |
-            | "tilde ~ test" should "contain ~" in {
-            | }
-            |}
-            |
-          """.stripMargin
+        "class " + testName + " extends FlatSpec with GivenWhenThen {" +
+        """
+          | "Comma , test" should "contain , comma" in {
+          | }
+          |
+          | "! test" should "contain !" in {
+          | }
+          |
+          | "tick ' test" should "contain '" in {
+          | }
+          |
+          | "backtick ` test" should "contain `" in {
+          | }
+          |
+          | "tilde ~ test" should "contain ~" in {
+          | }
+          |}
+          |
+        """.stripMargin
     )
 
   def testComma() {
@@ -44,7 +42,7 @@ trait SpecialCharactersTest extends IntegrationTest {
 
     runTestByLocation(3, 3, testName + ".scala",
       checkConfigAndSettings(_, testName, "Comma , test should contain , comma"),
-      root => checkResultTreeHasExactNamedPath(root, commaTestPath:_*)
+      root => checkResultTreeHasExactNamedPath(root, commaTestPath: _*)
     )
   }
 
@@ -54,7 +52,7 @@ trait SpecialCharactersTest extends IntegrationTest {
 
     runTestByLocation(6, 3, testName + ".scala",
       checkConfigAndSettings(_, testName, "! test should contain !"),
-      root => checkResultTreeHasExactNamedPath(root, exclamationTestPath:_*)
+      root => checkResultTreeHasExactNamedPath(root, exclamationTestPath: _*)
     )
   }
 
@@ -63,7 +61,7 @@ trait SpecialCharactersTest extends IntegrationTest {
     addSpecialCharactersTest(testName)
     runTestByLocation(9, 3, testName + ".scala",
       checkConfigAndSettings(_, testName, "tick ' test should contain '"),
-      root => checkResultTreeHasExactNamedPath(root, tickTestPath:_*)
+      root => checkResultTreeHasExactNamedPath(root, tickTestPath: _*)
     )
   }
 
@@ -72,7 +70,7 @@ trait SpecialCharactersTest extends IntegrationTest {
     addSpecialCharactersTest(testName)
     runTestByLocation(15, 3, testName + ".scala",
       checkConfigAndSettings(_, testName, "tilde ~ test should contain ~"),
-      root => checkResultTreeHasExactNamedPath(root, tildeTestPath:_*)
+      root => checkResultTreeHasExactNamedPath(root, tildeTestPath: _*)
     )
   }
 
@@ -81,7 +79,7 @@ trait SpecialCharactersTest extends IntegrationTest {
     addSpecialCharactersTest(testName)
     runTestByLocation(12, 3, testName + ".scala",
       checkConfigAndSettings(_, testName, "backtick ` test should contain `"),
-      root => checkResultTreeHasExactNamedPath(root, backtickTestPath:_*)
+      root => checkResultTreeHasExactNamedPath(root, backtickTestPath: _*)
     )
   }
 

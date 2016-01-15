@@ -88,7 +88,9 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
             if (!consumer.process(inheritor)) return false
           case _ =>
             val closestClass = sameNameInheritors.maxBy { inheritor =>
-              StringUtil.commonPrefixLength(getJarFile(inheritor).getCanonicalPath, clazzJar.getCanonicalPath)
+              val jarFile = getJarFile(inheritor)
+              if (jarFile == null) 0
+              else StringUtil.commonPrefixLength(jarFile.getCanonicalPath, clazzJar.getCanonicalPath)
             }
             if (!consumer.process(closestClass)) return false
         }

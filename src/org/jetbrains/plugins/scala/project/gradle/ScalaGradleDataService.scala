@@ -58,7 +58,11 @@ private object ScalaGradleDataService {
       }
       val compilerVersion = compilerVersionOption.get
 
-      val scalaLibraryOption = getScalaLibraries.find(_.scalaVersion.contains(compilerVersion))
+      val scalaLibraries = getScalaLibraries
+      if (scalaLibraries.isEmpty)
+        return
+
+      val scalaLibraryOption = scalaLibraries.find(_.scalaVersion.contains(compilerVersion))
       if (scalaLibraryOption.isEmpty) {
         showWarning(ScalaBundle.message("gradle.dataService.scalaLibraryIsNotFound", compilerVersion.number, module.getName))
         return
@@ -77,22 +81,24 @@ private object ScalaGradleDataService {
     private def getVersionFromJar(scalaLibrary: File): Option[Version] =
       JarVersion.findFirstIn(scalaLibrary.getName).map(Version(_))
 
-    private def compilerOptionsFrom(data: ScalaModelData): Seq[String] = {
-      val options = data.getScalaCompileOptions
+    private def compilerOptionsFrom(data: ScalaModelData): Seq[String] =
+      Option(data.getScalaCompileOptions).toSeq.flatMap { options =>
+        val presentations = Seq(
+          options.isDeprecation -> "-deprecation",
+          options.isUnchecked -> "-unchecked",
+          options.isOptimize -> "-optimise",
+          !isEmpty(options.getDebugLevel) -> s"-g:${options.getDebugLevel}",
+          !isEmpty(options.getEncoding) -> s"-encoding",
+          // the encoding value needs to be a separate option, otherwise the -encoding flag and the value will be
+          // treated as a single flag
+          !isEmpty(options.getEncoding) -> options.getEncoding,
+          !isEmpty(data.getTargetCompatibility) -> s"-target:jvm-${data.getTargetCompatibility}")
 
-      val presentations = Seq(
-        options.isDeprecation -> "-deprecation",
-        options.isUnchecked -> "-unchecked",
-        options.isOptimize -> "-optimise",
-        !isEmpty(options.getDebugLevel) -> s"-g:${options.getDebugLevel}",
-        !isEmpty(options.getEncoding) -> s"-encoding ${options.getEncoding}",
-        !isEmpty(data.getTargetCompatibility) -> s"-target:jvm-${data.getTargetCompatibility}")
+        val additionalOptions =
+          if (options.getAdditionalParameters != null) options.getAdditionalParameters.asScala else Seq.empty
 
-      val additionalOptions =
-        if (options.getAdditionalParameters != null) options.getAdditionalParameters.asScala else Seq.empty
-
-      presentations.flatMap((include _).tupled) ++ additionalOptions
-    }
+        presentations.flatMap((include _).tupled) ++ additionalOptions
+      }
 
     private def isEmpty(s: String) = s == null || s.isEmpty
 

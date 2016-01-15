@@ -521,7 +521,7 @@ object Conformance {
       }
 
       if (x eq types.AnyVal) {
-        result = (r.isInstanceOf[ValType], undefinedSubst)
+        result = (r.isInstanceOf[ValType] || ValueClassType.isValueType(r), undefinedSubst)
         return
       }
       if (l.isInstanceOf[ValType] && r.isInstanceOf[ValType]) {
@@ -1040,7 +1040,7 @@ object Conformance {
               case (lt, u: ScUndefinedType) =>
                 undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), lt, variance = 0)
                 undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt, variance = 0)
-              case (tp, _) if tp.isAliasType != None && tp.isAliasType.get.ta.isExistentialTypeAlias =>
+              case (tp, _) if tp.isAliasType.isDefined && tp.isAliasType.get.ta.isExistentialTypeAlias =>
                 val y = Conformance.conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
                 if (!y._1) {
                   result = (false, undefinedSubst)
@@ -1329,11 +1329,11 @@ object Conformance {
               undefinedSubst = t._2
             }
             if (result == null) {
-              val filterFunction: (((String, String), HashSet[ScType])) => Boolean = {
-                case (id: (String, String), types: HashSet[ScType]) =>
-                  tptsMap.values.find {
+              val filterFunction: (((String, PsiElement), HashSet[ScType])) => Boolean = {
+                case (id: (String, PsiElement), types: HashSet[ScType]) =>
+                  !tptsMap.values.exists {
                     case tpt: ScTypeParameterType => id ==(tpt.name, ScalaPsiUtil.getPsiElementId(tpt.param))
-                  }.isEmpty
+                  }
               }
               val newUndefSubst = new ScUndefinedSubstitutor(
                 unSubst.upperMap.filter(filterFunction), unSubst.lowerMap.filter(filterFunction),
@@ -1693,7 +1693,7 @@ object Conformance {
             undefinedSubst = t._2
             i = i + 1
           }
-          val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, String), ScType] ++ typeParameters1.zip(typeParameters2).map({
+          val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, PsiElement), ScType] ++ typeParameters1.zip(typeParameters2).map({
             tuple => ((tuple._1.name, ScalaPsiUtil.getPsiElementId(tuple._1.ptp)),
               new ScTypeParameterType(tuple._2.name,
                 tuple._2.ptp match {
@@ -1743,7 +1743,7 @@ object Conformance {
 
       //tail, based on class inheritance
       ScType.extractClassType(r) match {
-        case Some((clazz: PsiClass, _)) if visited.contains(clazz) => (false, uSubst)
+        case Some((clazz: PsiClass, _)) if visited.contains(clazz) => return (false, uSubst)
         case Some((rClass: PsiClass, subst: ScSubstitutor)) =>
           ScType.extractClass(l) match {
             case Some(lClass) =>

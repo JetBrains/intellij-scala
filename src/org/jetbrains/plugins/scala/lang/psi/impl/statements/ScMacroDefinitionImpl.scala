@@ -7,6 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.scope._
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -42,7 +43,7 @@ class ScMacroDefinitionImpl private (stub: StubElement[ScFunction], nodeType: IE
         case Some(x)
           if lastParent != null &&
             (!needCheckProcessingDeclarationsForBody ||
-            x.getStartOffsetInParent == lastParent.getStartOffsetInParent) =>
+            x.startOffsetInParent == lastParent.startOffsetInParent) =>
           for (p <- parameterIncludingSynthetic) {
             ProgressManager.checkCanceled()
             if (!processor.execute(p, state)) return false

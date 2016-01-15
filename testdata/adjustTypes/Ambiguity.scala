@@ -1,8 +1,13 @@
 package test {
+
 object A {
+
   object A {}
+
   class A {}
+
 }
+
 }
 
 object B {
@@ -12,13 +17,18 @@ object B {
 /*
 import test.A.A
 package test {
+
 object A {
+
   object A {}
+
   class A {}
+
 }
+
 }
 
 object B {
-  val a: /*start*/A/*end*/ = null
+  val a: A = null
 }
 */

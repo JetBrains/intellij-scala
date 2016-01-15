@@ -26,7 +26,7 @@ object Main {
   }
   
   def main(args: Array[String]) {
-    make(args, System.out, true)
+    make(args, System.out, standalone = true)
   }
   
   private def make(arguments: Seq[String], out: PrintStream, standalone: Boolean) {

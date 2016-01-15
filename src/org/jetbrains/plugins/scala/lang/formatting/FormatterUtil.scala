@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIfStmt
 object FormatterUtil {
   def calcIndent(node: ASTNode): Int = {
     node.getTreeParent.getPsi match {
-      case ifStmt: ScIfStmt => {
+      case ifStmt: ScIfStmt =>
         ifStmt.getParent match {
           case parent: ScIfStmt if parent.getLastChild == ifStmt && parent.elseBranch != None => calcIndent(node.getTreeParent)
           case parent => calcAbsolutePosition(node) - calcAbsolutePosition(parent.getNode) match {
@@ -24,7 +24,6 @@ object FormatterUtil {
             case _ => calcIndent(parent.getNode)
           }
         }
-      }
       case _: ScalaFile => 0
       case _ => calcIndent(node.getTreeParent)
     }

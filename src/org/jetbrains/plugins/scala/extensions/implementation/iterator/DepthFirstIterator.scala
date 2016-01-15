@@ -11,7 +11,7 @@ import scala.collection.mutable
 class DepthFirstIterator(element: PsiElement, predicate: PsiElement => Boolean) extends Iterator[PsiElement] {
   private val stack = mutable.Stack[PsiElement](element)
 
-  def hasNext = !stack.isEmpty
+  def hasNext = stack.nonEmpty
 
   def next() = {
     val element = stack.pop()

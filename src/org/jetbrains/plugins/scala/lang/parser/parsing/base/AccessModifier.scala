@@ -22,14 +22,13 @@ object AccessModifier {
     val accessMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kPRIVATE |
-           ScalaTokenTypes.kPROTECTED => builder.advanceLexer //Ate modifier
-      case _ => {
+           ScalaTokenTypes.kPROTECTED => builder.advanceLexer() //Ate modifier
+      case _ =>
         accessMarker.drop
         return false
-      }
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tLSQBRACKET => {
+      case ScalaTokenTypes.tLSQBRACKET =>
         builder.advanceLexer //Ate [
         builder.disableNewlines
         builder.getTokenType match {
@@ -44,11 +43,9 @@ object AccessModifier {
         builder.restoreNewlinesState
         accessMarker.done(ScalaElementTypes.ACCESS_MODIFIER)
         return true
-      }
-      case _ => {
+      case _ =>
         accessMarker.done(ScalaElementTypes.ACCESS_MODIFIER)
         return true
-      }
     }
   }
 }

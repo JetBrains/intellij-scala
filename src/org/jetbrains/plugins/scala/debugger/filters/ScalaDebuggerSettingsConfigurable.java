@@ -35,7 +35,7 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
   public ScalaDebuggerSettingsConfigurable(final ScalaDebuggerSettings settings) {
     mySettings = settings;
     final Boolean flag = settings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS;
-    myIgnoreScalaMethods.setSelected(flag == null || flag.booleanValue());
+    myIgnoreScalaMethods.setSelected(flag == null || flag);
     friendlyDisplayOfScalaCheckBox.setSelected(settings.FRIENDLY_COLLECTION_DISPLAY_ENABLED);
     doNotExpandStreamsCheckBox.setSelected(settings.DO_NOT_DISPLAY_STREAMS);
     dontShowRuntimeRefs.setSelected(settings.DONT_SHOW_RUNTIME_REFS);
@@ -96,7 +96,7 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
 
   public void reset() {
     final Boolean flag = mySettings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS;
-    myIgnoreScalaMethods.setSelected(flag == null || flag.booleanValue());
+    myIgnoreScalaMethods.setSelected(flag == null || flag);
   }
 
   public void disposeUIResources() {

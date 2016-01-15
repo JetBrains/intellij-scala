@@ -5,6 +5,7 @@ object StringPlusMethod {
   }
 
   def warning(message: String) = println("warning: " + message)
+
   def info(message: String) = println("info: " + message)
 }
 /*
@@ -19,6 +20,7 @@ object StringPlusMethod {
   }
 
   def warning(message: String) = testMethodName("warning: ", message)
+
   def info(message: String) = testMethodName("info: ", message)
 }
 */

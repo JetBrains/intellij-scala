@@ -14,12 +14,12 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 */
 
 object Patterns {
-  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,false)
+  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,underParams = false)
   def parse(builder: ScalaPsiBuilder, underParams: Boolean): Boolean = {
     val patternsMarker = builder.mark
     if (!Pattern.parse(builder)) {
       builder.getTokenType match {
-        case ScalaTokenTypes.tUNDER => {
+        case ScalaTokenTypes.tUNDER =>
           builder.advanceLexer()
           builder.getTokenText match {
             case "*" => {
@@ -29,16 +29,15 @@ object Patterns {
             }
             case _ =>
           }
-        }
-        case _=>
+        case _ =>
       }
-      patternsMarker.rollbackTo
+      patternsMarker.rollbackTo()
       return false
     }
     builder.getTokenType match {
-      case ScalaTokenTypes.tCOMMA => {
+      case ScalaTokenTypes.tCOMMA =>
         builder.advanceLexer //Ate ,
-        var end = false
+      var end = false
         while ((!end || !underParams) && Pattern.parse(builder)) {
           builder.getTokenType match {
             case ScalaTokenTypes.tCOMMA => {
@@ -56,11 +55,9 @@ object Patterns {
         }
         patternsMarker.done(ScalaElementTypes.PATTERNS)
         return true
-      }
-      case _ => {
+      case _ =>
         patternsMarker.rollbackTo
         return false
-      }
     }
   }
 }
@@ -76,16 +73,16 @@ object XmlPatterns extends ParserNode {
       if (if (withComma)
         lookAhead(builder, ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
       else lookAhead(builder, ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
-        if (withComma) builder.advanceLexer
+        if (withComma) builder.advanceLexer()
         val wild = builder.mark
-        builder.getTokenType()
-        builder.advanceLexer
+        builder.getTokenType
+        builder.advanceLexer()
         if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && "*".equals(builder.getTokenText)) {
-          builder.advanceLexer
+          builder.advanceLexer()
           wild.done(ScalaElementTypes.SEQ_WILDCARD)
           true
         } else {
-          wild.rollbackTo
+          wild.rollbackTo()
           false
         }
       } else {
@@ -98,24 +95,24 @@ object XmlPatterns extends ParserNode {
         ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)
       else lookAhead(builder, ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT,
         ScalaTokenTypes.tUNDER, ScalaTokenTypes.tIDENTIFIER)) {
-        if (withComma) builder.advanceLexer // ,
+        if (withComma) builder.advanceLexer() // ,
         val wild = builder.mark
         builder.getTokenType
         if (isVarId) {
-          builder.advanceLexer // id
+          builder.advanceLexer() // id
         } else {
-          wild.rollbackTo
+          wild.rollbackTo()
           return false
         }
         builder.getTokenType
-        builder.advanceLexer // @
+        builder.advanceLexer() // @
         builder.getTokenType
         if (ParserUtils.eatSeqWildcardNext(builder)) {
           wild.done(ScalaElementTypes.NAMING_PATTERN)
           return true
         }
         else {
-          wild.rollbackTo
+          wild.rollbackTo()
           return false
         }
       }
@@ -124,7 +121,7 @@ object XmlPatterns extends ParserNode {
 
     if (!parseSeqWildcard(false) && !parseSeqWildcardBinding(false) && Pattern.parse(builder)) {
       while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !parseSeqWildcard(true) && !parseSeqWildcardBinding(true)) {
-        builder.advanceLexer // eat comma
+        builder.advanceLexer() // eat comma
         Pattern.parse(builder)
       }
     }

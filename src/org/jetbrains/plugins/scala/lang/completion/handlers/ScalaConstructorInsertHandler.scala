@@ -51,17 +51,16 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
             }
           })
         }
-        return
       case item@ScalaLookupItem(clazz: PsiClass) =>
-        val isRenamed = item.isRenamed != None
+        val isRenamed = item.isRenamed.isDefined
         var hasNonEmptyParams = false
         clazz match {
           case c: ScClass =>
             c.constructor match {
-              case Some(constr) if constr.parameters.length > 0 => hasNonEmptyParams = true
+              case Some(constr) if constr.parameters.nonEmpty => hasNonEmptyParams = true
               case _ =>
             }
-            c.secondaryConstructors.foreach(fun => if (fun.parameters.length > 0) hasNonEmptyParams = true)
+            c.secondaryConstructors.foreach(fun => if (fun.parameters.nonEmpty) hasNonEmptyParams = true)
           case _ =>
             clazz.getConstructors.foreach(meth => if (meth.getParameterList.getParametersCount > 0) hasNonEmptyParams = true)
         }
@@ -70,7 +69,7 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
           document.insertString(endOffset, "[]")
           endOffset += 2
           editor.getCaretModel.moveToOffset(endOffset - 1)
-        } else if (item.typeParameters.length > 0) {
+        } else if (item.typeParameters.nonEmpty) {
           val str = item.typeParameters.map(ScType.canonicalText).mkString("[", ", ", "]")
           document.insertString(endOffset, str)
           endOffset += str.length()
@@ -99,7 +98,7 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
             case Some(tp: ScTemplateParents) =>
               val elements = tp.typeElements
               if (elements.length == 1) {
-                val element: ScTypeElement = elements(0)
+                val element: ScTypeElement = elements.head
                 val ref: ScStableCodeReferenceElement = element match {
                   case simple: ScSimpleTypeElement => simple.reference.orNull
                   case par: ScParameterizedTypeElement => par.typeElement match {

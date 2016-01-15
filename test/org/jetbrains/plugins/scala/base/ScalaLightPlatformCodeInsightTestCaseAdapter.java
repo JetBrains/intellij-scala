@@ -6,6 +6,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
@@ -51,8 +52,8 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
   protected void setUp(TestUtils.ScalaSdkVersion libVersion) throws Exception {
     super.setUp();
     myLibraryLoader = new ScalaLibraryLoader(getProject(), getModule(), rootPath(),
-        isIncludeScalazLibrary(), isIncludeReflectLibrary(), isIncludeSprayLibrary(), ScalaLibraryLoader.getSdkNone());
-    myLibraryLoader.loadLibrary(libVersion);
+        isIncludeScalazLibrary(), isIncludeReflectLibrary(), isIncludeSprayLibrary(), isIncludeSlickLibrary(), ScalaLibraryLoader.getSdkNone());
+    myLibraryLoader.loadScala(libVersion);
     //libLoader.clean();
   }
 
@@ -69,6 +70,10 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
   }
 
   protected boolean isIncludeSprayLibrary() {
+    return false;
+  }
+
+  protected boolean isIncludeSlickLibrary() {
     return false;
   }
 
@@ -106,7 +111,7 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
   protected void configureFromFileTextAdapter(@NonNls final String fileName,
                                               @NonNls final String fileText) throws IOException {
-    configureFromFileText(fileName, fileText);
+    configureFromFileText(fileName, StringUtil.convertLineSeparators(fileText));
   }
 
   @Override

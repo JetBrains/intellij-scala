@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.hierarchy
 
-import java.util.{Comparator, Map}
+import java.util
+import java.util.Comparator
 import javax.swing.{JComponent, JTree}
 
 import com.intellij.ide.hierarchy.CallHierarchyBrowserBase._
@@ -13,11 +14,11 @@ import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.ui.PopupHandler
 
 /**
- * @author Alexander Podkhalyuzin
- */
+  * @author Alexander Podkhalyuzin
+  */
 final class ScalaCallHierarchyBrowser(project: Project, method: PsiMethod)
   extends CallHierarchyBrowserBase(project, method) {
-  protected def createTrees(type2TreeMap: Map[String, JTree]): Unit = {
+  protected def createTrees(type2TreeMap: util.Map[String, JTree]): Unit = {
     var group: ActionGroup = ActionManager.getInstance.getAction(IdeActions.GROUP_CALL_HIERARCHY_POPUP).asInstanceOf[ActionGroup]
     val tree1: JTree = createTree(false)
     PopupHandler.installPopupHandler(tree1, group, ActionPlaces.CALL_HIERARCHY_VIEW_POPUP, ActionManager.getInstance)

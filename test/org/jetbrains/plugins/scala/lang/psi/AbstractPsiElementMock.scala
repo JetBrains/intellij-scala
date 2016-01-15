@@ -43,9 +43,9 @@ abstract class AbstractPsiElementMock extends PsiElement {
 
   def deleteChildRange(first: PsiElement, last: PsiElement) = {}
 
-  def checkDelete = {}
+  def checkDelete() = {}
 
-  def delete = {}
+  def delete() = {}
 
   def addRangeAfter(first: PsiElement, last: PsiElement, anchor: PsiElement) = null
 

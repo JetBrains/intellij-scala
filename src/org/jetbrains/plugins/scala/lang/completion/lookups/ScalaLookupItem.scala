@@ -85,7 +85,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
   override def renderElement(presentation: LookupElementPresentation) {
     val tailText: String = element match {
       case t: ScFun =>
-        if (t.typeParameters.length > 0) t.typeParameters.map(param => presentationString(param, substitutor)).
+        if (t.typeParameters.nonEmpty) t.typeParameters.map(param => presentationString(param, substitutor)).
           mkString("[", ", ", "]")
         else ""
       case t: ScTypeParametersOwner =>
@@ -93,7 +93,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
           case Some(tp) => presentationString(tp, substitutor)
           case None => ""
         }
-      case p: PsiTypeParameterListOwner if p.getTypeParameters.length > 0 =>
+      case p: PsiTypeParameterListOwner if p.getTypeParameters.nonEmpty =>
         p.getTypeParameters.map(ptp => presentationString(ptp)).mkString("[", ", ", "]")
       case p: PsiPackage => s"    (${p.getQualifiedName})"
       case _ => ""
@@ -180,7 +180,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
       presentation.setIcon(element.getIcon(0))
     else presentation.setIcon(IconUtil.getEmptyIcon(false))
     var itemText: String =
-      if (isRenamed == None) if (isClassName && shouldImport) {
+      if (isRenamed.isEmpty) if (isClassName && shouldImport) {
         if (containingClass != null) containingClass.name + "." + name
         else name
       } else name
@@ -213,7 +213,7 @@ class ScalaLookupItem(val element: PsiNamedElement, _name: String, containingCla
     else if (isClassName || prefixCompletion) {
       context.commitDocument()
       element match {
-        case TypeToImport(_) if isRenamed != None => //do nothing
+        case TypeToImport(_) if isRenamed.isDefined => //do nothing
         case TypeToImport(cl) =>
           if (isInSimpleString) {
             val literal = context.getFile.findElementAt(context.getStartOffset).getParent

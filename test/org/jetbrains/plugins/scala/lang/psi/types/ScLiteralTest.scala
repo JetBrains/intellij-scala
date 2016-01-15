@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import junit.framework.Assert
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.junit.Assert
 
 /**
  * Pavel Fatin

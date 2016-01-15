@@ -19,7 +19,7 @@ package testing.b {
 import testing.a.{AAA => BBB}
 
 class B {
-  val aaa: /*start*/BBB/*end*/ = null
+  val aaa: BBB = null
 }
 }
 

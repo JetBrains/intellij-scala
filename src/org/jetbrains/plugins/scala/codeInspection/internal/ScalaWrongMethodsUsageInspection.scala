@@ -9,16 +9,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwn
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
-import scala.collection.mutable.HashMap
+import scala.collection.mutable
 
 
 /**
- * @author Alefas
- * @since 02.04.12
- */
+  * @author Alefas
+  * @since 02.04.12
+  */
 
 class ScalaWrongMethodsUsageInspection extends LocalInspectionTool {
-  override def isEnabledByDefault: Boolean =  true
+  override def isEnabledByDefault: Boolean = true
 
   override def getID: String = "ScalaWrongMethodsUsage"
 
@@ -35,7 +35,7 @@ class ScalaWrongMethodsUsageInspection extends LocalInspectionTool {
     new ScalaElementVisitor {
       override def visitReferenceExpression(ref: ScReferenceExpression) {
         val resolve = ref.resolve()
-        val map = new HashMap[String, Seq[String]]()
+        val map = new mutable.HashMap[String, Seq[String]]()
         map += (("getContainingClass", Seq("com.intellij.psi.PsiMember")))
         map += (("getQualifiedName", Seq("com.intellij.psi.PsiClass")))
         map += (("getName", Seq("com.intellij.navigation.NavigationItem", "com.intellij.psi.PsiNamedElement")))
@@ -50,7 +50,7 @@ class ScalaWrongMethodsUsageInspection extends LocalInspectionTool {
                 classes.find {
                   case clazz =>
                     val instance = ScalaPsiManager.instance(holder.getProject)
-                    val cachedClass = instance.getCachedClass(m.getResolveScope, clazz)
+                    val cachedClass = instance.getCachedClass(m.getResolveScope, clazz).orNull
                     if (cachedClass != null && containingClass != null) {
                       if (cachedClass == containingClass || instance.cachedDeepIsInheritor(cachedClass, containingClass)) {
                         true

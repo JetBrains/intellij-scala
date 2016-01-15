@@ -4,6 +4,7 @@ class Test {
   def foo() {
     1
   }
+
   def bar() {
     /*start*/1/*end*/
   }
@@ -17,8 +18,9 @@ class Test {
   def foo() {
     i
   }
+
   def bar() {
-    /*start*/i/*end*/
+    i
   }
 }
 */

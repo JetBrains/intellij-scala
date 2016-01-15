@@ -23,15 +23,6 @@ abstract class CodeFragmentEvaluationTestBase extends ScalaDebuggerTestCase {
       """.stripMargin.trim()
   )
 
-  def evaluateCodeFragments(fragmentsWithResults: (String, String)*): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
-      fragmentsWithResults.foreach {
-        case (fragment, result) => evalEquals(fragment.stripMargin.trim().replace("\r", ""), result)
-      }
-    }
-  }
-
   def testCodeFragments(): Unit = {
     evaluateCodeFragments(
       """1 + 1

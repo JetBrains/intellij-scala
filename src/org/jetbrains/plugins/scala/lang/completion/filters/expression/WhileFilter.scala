@@ -23,12 +23,11 @@ class WhileFilter extends ElementFilter {
         parent.getPrevSibling.getPrevSibling != null) {
         val doStmt = parent.getPrevSibling match {
           case x: ScDoStmt => x
-          case x if x.isInstanceOf[PsiWhiteSpace] || x.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE => {
+          case x if x.isInstanceOf[PsiWhiteSpace] || x.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE =>
             x.getPrevSibling match {
               case x: ScDoStmt => x
               case _ => null
             }
-          }
           case _ => null
         }
         var text = ""

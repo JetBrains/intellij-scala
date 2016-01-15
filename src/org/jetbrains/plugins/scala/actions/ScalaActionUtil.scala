@@ -5,23 +5,30 @@ import java.awt.Point
 import java.awt.event.{MouseEvent, MouseMotionAdapter}
 
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
-import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys}
+import com.intellij.openapi.actionSystem.{Presentation, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.editor.Editor
 import com.intellij.ui.LightweightHint
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 object ScalaActionUtil {
+  def enablePresentation(presentation: Presentation): Unit = {
+    presentation setEnabled true
+    presentation setVisible true
+  }
+  
+  def disablePresentation(presentation: Presentation): Unit = {
+    presentation setEnabled false
+    presentation setVisible false
+  }
+  
   def enableAndShowIfInScalaFile(e: AnActionEvent) {
     val presentation = e.getPresentation
-    def enable() {
-      presentation.setEnabled(true)
-      presentation.setVisible(true)
-    }
-    def disable() {
-      presentation.setEnabled(false)
-      presentation.setVisible(false)
-    }
+    
+    @inline def enable(): Unit = enablePresentation(presentation)
+    
+    @inline def disable(): Unit = disablePresentation(presentation)
+    
     try {
       val dataContext = e.getDataContext
       val file = CommonDataKeys.PSI_FILE.getData(dataContext)

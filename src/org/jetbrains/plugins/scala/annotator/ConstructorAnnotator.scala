@@ -29,7 +29,7 @@ trait ConstructorAnnotator {
 
         val missed = for (MissedValueParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
         val argsElement = constructor.args.getOrElse(constructor.typeElement)
-        if (!missed.isEmpty)
+        if (missed.nonEmpty)
           holder.createErrorAnnotation(argsElement,
             "Unspecified value parameters: " + missed.mkString(", "))
 
@@ -60,6 +60,12 @@ trait ConstructorAnnotator {
             holder.createErrorAnnotation(assignment.getLExpression, "Parameter specified multiple times")
           case WrongTypeParameterInferred => //todo: ?
           case ExpectedTypeMismatch => //will be reported later
+          case DefaultTypeParameterMismatch(expected, actual) => constructor.typeArgList match {
+            case Some(tpArgList) =>
+              val message: String = ScalaBundle.message("type.mismatch.default.args.expected.actual", expected, actual)
+              holder.createErrorAnnotation(tpArgList, message)
+            case _ =>
+          }
           case _ => holder.createErrorAnnotation(argsElement, "Not applicable." /* TODO + signatureOf(f)*/)
         }
       case results =>

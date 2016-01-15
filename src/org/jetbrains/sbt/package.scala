@@ -7,10 +7,11 @@ import _root_.java.security.MessageDigest
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.util.{Pair => IdeaPair, Computable}
+import com.intellij.openapi.util.{Computable, Pair => IdeaPair}
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
-import com.intellij.util.{PathUtil, Function => IdeaFunction}
+import com.intellij.util.{Function => IdeaFunction, PathUtil}
 
+import scala.annotation.tailrec
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
@@ -72,6 +73,7 @@ package object sbt {
   }
 
   private object RichFile {
+    @tailrec
     def parent(file: File, level: Int): File =
       if (level > 0) parent(file.getParentFile, level - 1) else file
   }

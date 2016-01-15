@@ -1,3 +1,3 @@
 public interface ParameterlessOverriders {
-  public int <caret>foo();
+    public int <caret>foo();
 }
