@@ -11,7 +11,6 @@ import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.platform.templates.github.ZipUtil
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScope}
@@ -86,7 +85,6 @@ abstract class DownloadingAndImportingTestCase extends ExternalSystemImportingTe
   override def setUp(): Unit = {
     super.setUp()
 
-    VfsRootAccess.SHOULD_PERFORM_ACCESS_CHECK = false
     importProject()
   }
 
