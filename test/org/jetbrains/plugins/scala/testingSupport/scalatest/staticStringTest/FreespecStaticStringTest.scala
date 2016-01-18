@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.staticStringTest
 
-import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
+import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
 /**
- * @author Roman.Shein
- * @since 26.06.2015.
- */
-trait FreeSpecStaticStringTest extends IntegrationTest {
+  * @author Roman.Shein
+  * @since 26.06.2015.
+  */
+trait FreeSpecStaticStringTest extends ScalaTestTestCase {
   val freeSpecClassName = "FreeSpecStringTest"
   val freeSpecFileName = freeSpecClassName + ".scala"
 

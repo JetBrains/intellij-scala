@@ -6,6 +6,7 @@ import com.intellij.execution.configurations.JavaParameters
 import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.icons.AllIcons
+import com.intellij.ide.scratch.{ScratchRootType, ScratchFileService}
 import com.intellij.ide.util.EditorHelper
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
@@ -13,16 +14,17 @@ import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.keymap.{KeymapManager, KeymapUtil}
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{ModuleManager, Module}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil}
 import com.intellij.openapi.roots.{ModuleRootManager, ProjectFileIndex}
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.VirtualFileWithId
-import com.intellij.psi.{PsiDocumentManager, PsiFile}
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
+import com.intellij.psi.{PsiManager, PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetViewerInfo
@@ -183,11 +185,27 @@ object RunWorksheetAction {
 
     handler.startNotify()
   }
+  
+  def isScratchWorksheet(vFileOpt: Option[VirtualFile], project: Project): Boolean = vFileOpt.exists {
+    case vFile =>  ScratchFileService.getInstance().getRootType(vFile).isInstanceOf[ScratchRootType] &&
+      ScalaProjectSettings.getInstance(project).isTreatScratchFilesAsWorksheet
+  }  
+  
+  def isScratchWorksheet(file: PsiFile): Boolean = isScratchWorksheet(Option(file.getVirtualFile), file.getProject)
 
-  def getModuleFor(file: PsiFile): Module = file.getVirtualFile match {
-    case _: VirtualFileWithId => 
-      Option(ProjectFileIndex.SERVICE getInstance file.getProject getModuleForFile 
-        file.getVirtualFile) getOrElse file.getProject.anyScalaModule.map(_.module).orNull
-    case _ => file.getProject.anyScalaModule.map(_.module).orNull
+  def getModuleFor(vFile: VirtualFile, project: Project): Module = {
+    vFile match {
+      case _: VirtualFileWithId =>
+        Option(ProjectFileIndex.SERVICE getInstance project getModuleForFile
+          vFile) getOrElse project.anyScalaModule.map(_.module).orNull
+      case _ => project.anyScalaModule.map(_.module).orNull
+    }
   }
+  
+  def getModuleFor(file: PsiFile): Module = WorksheetCompiler.getModuleForCpName(file) flatMap {
+    case name => 
+      scala.extensions.inReadAction {
+        Option(ModuleManager getInstance file.getProject findModuleByName name)
+      }
+  } getOrElse getModuleFor(file.getVirtualFile, file.getProject)
 }

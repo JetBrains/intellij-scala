@@ -43,8 +43,6 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
     addRoots()
     DebuggerTestUtil.setCompileServerSettings()
     DebuggerTestUtil.forceJdk8ForBuildProcess()
-
-    getProject.save()
   }
 
   protected def addRoots() {
@@ -100,10 +98,8 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
         try {
           CompilerTestUtil.saveApplicationSettings()
           val ioFile: File = VfsUtilCore.virtualToIoFile(myModule.getModuleFile)
-          if (!ioFile.exists) {
-            getProject.save()
-            assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
-          }
+          getProject.save()
+          assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
           CompilerManager.getInstance(getProject).rebuild(callback)
         }
         catch {

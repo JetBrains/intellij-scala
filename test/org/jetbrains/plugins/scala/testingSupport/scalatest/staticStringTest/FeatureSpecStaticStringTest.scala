@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.staticStringTest
 
-import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
+import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
 /**
- * @author Roman.Shein
- * @since 24.06.2015.
- */
-trait FeatureSpecStaticStringTest extends IntegrationTest {
+  * @author Roman.Shein
+  * @since 24.06.2015.
+  */
+trait FeatureSpecStaticStringTest extends ScalaTestTestCase {
   val featureSpecClassName = "FeatureSpecStringTest"
   val featureSpecFileName = featureSpecClassName + ".scala"
 

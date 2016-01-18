@@ -11,6 +11,8 @@ package scalax
 package rules
 package scalasig
 
+import scala.language.{implicitConversions, postfixOps}
+
 object ScalaSigParser {
 
   def getScalaSig(clazz : Class[_]) : Option[ByteCode] = {

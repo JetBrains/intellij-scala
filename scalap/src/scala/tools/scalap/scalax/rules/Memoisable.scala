@@ -15,6 +15,7 @@ package scalax
 package rules
 
 import scala.collection.mutable.HashMap
+import scala.language.reflectiveCalls
 
 trait MemoisableRules extends Rules {
   def memo[In <: Memoisable, Out, A, X](key : AnyRef)(toRule : => In => Result[Out, A, X]) = {

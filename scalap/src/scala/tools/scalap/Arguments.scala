@@ -52,9 +52,9 @@ object Arguments {
       val eqls = str.indexOf(separator)
       if (eqls < 0) {
         error("missing '" + separator + "' in binding '" + str + "'")
-        Pair("", "")
+        ("", "")
       } else
-        Pair(str.substring(0, eqls).trim(),
+        (str.substring(0, eqls).trim(),
            str.substring(eqls + 1).trim())
     }
 
@@ -165,7 +165,7 @@ class Arguments {
       }
     }
 
-  def addBinding(tag: String, binding: Pair[String, String]) {
+  def addBinding(tag: String, binding: (String, String)) {
     addBinding(tag, binding._1, binding._2)
   }
 

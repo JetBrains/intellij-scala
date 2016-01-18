@@ -99,6 +99,7 @@
         <lang.smartEnterProcessor language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor"/>
         <lang.smartEnterProcessor language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.smartEnter.PackageSplitLinesProcessor"/>
         <lang.inspectionSuppressor language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor"/>
+        <problemHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemHighlightFilter"/>
 
       <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"/>
@@ -160,7 +161,7 @@
         <readWriteAccessDetector implementation="org.jetbrains.plugins.scala.highlighter.readWriteAccess.ScalaReadWriteAccessDetector"/>
         <directClassInheritorsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaDirectClassInheritorsSearcher"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaLineMarkerProvider"/>
-        <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.util.macroDebug.GoToExpandedMacroCallProviderExt"/>
+        <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpansionProvider"/>
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
         <gotoDeclarationHandler implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler"/>
         <debuggerClassFilterProvider implementation="org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerClassFilterProvider"/>
@@ -265,6 +266,9 @@
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaQualifiedClassNameMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaSubtypesMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaTypeOfVariableMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorParamTypes"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorParamNames"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorParams"/>
         <liveTemplatePreprocessor implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaTemplatePreprocessor"/>
 
         <codeInsight.template.postfixTemplateProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.postfix.templates.ScalaPostfixTemplateProvider"/>
@@ -1086,9 +1090,9 @@
                          displayName="Map and getOrElse to fold" groupPath="Scala, Collections" groupName="Options"
                          shortName="MapGetOrElse" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetOrElseFalseInspection"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetOrElseBooleanInspection"
                          displayName="Map and getOrElse(false) to exists" groupPath="Scala, Collections" groupName="Options"
-                         shortName="MapGetOrElseFalse" level="WARNING"
+                         shortName="MapGetOrElseBoolean" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetOrElseNullInspection"
                          displayName="GetOrElse(null) to orNull" groupPath="Scala, Collections" groupName="Options"
@@ -1348,7 +1352,7 @@
           <add-to-group group-id="IntroduceActionsGroup"/>
         </action>
         <action id="Scala.MacroExpand"
-            class="org.jetbrains.plugins.scala.util.MacroExpandAction"
+            class="org.jetbrains.plugins.scala.lang.macros.expansion.MacroExpandAction"
             description="Expand macro application under cursor">
             <keyboard-shortcut first-keystroke="ctrl alt shift Z" keymap="$default"/>
         </action>

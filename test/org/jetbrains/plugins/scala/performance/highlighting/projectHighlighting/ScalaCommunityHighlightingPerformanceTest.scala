@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.performance.highlighting.projectHighlighting
 
-import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.performance.ScalaCommunityDownloadingAndImportingTestCase
 import org.junit.experimental.categories.Category
 
 /**
@@ -9,15 +9,8 @@ import org.junit.experimental.categories.Category
   * Date: 10/23/15.
   */
 @Category(Array(classOf[SlowTests]))
-class ScalaCommunityHighlightingPerformanceTest extends PerformanceSbtProjectHighlightingTestBase {
-
-  override protected def getExternalSystemConfigFileName: String = "build.sbt"
-
-  override def githubUsername: String = "JetBrains"
-
-  override def githubRepoName: String = "intellij-scala"
-
-  override def revision: String = "752b3c8575ff506a249159c86bbfba3cdb96a317"
+class ScalaCommunityHighlightingPerformanceTest extends PerformanceSbtProjectHighlightingTestBase
+  with ScalaCommunityDownloadingAndImportingTestCase {
 
   def testPerformanceScalaCommunityScalaPsiUtil() = doTest("ScalaPsiUtil.scala", 25.seconds)
 

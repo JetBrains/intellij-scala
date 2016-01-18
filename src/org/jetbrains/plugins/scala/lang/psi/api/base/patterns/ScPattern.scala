@@ -5,29 +5,24 @@ package api
 package base
 package patterns
 
-import com.intellij.openapi.project.ProjectManager
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.util.PsiModificationTracker
-import com.intellij.psi.util.PsiModificationTracker._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeVariableTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.FakeCompanionClassOrCompanionClass
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScClass, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
-import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScPatternArgumentListImpl
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
-import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedInsidePsiElement}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project._
 
@@ -241,6 +236,18 @@ trait ScPattern extends ScalaPsiElement {
             }
           case _ => None
         }
+      case Some(ScalaResolveResult(FakeCompanionClassOrCompanionClass(cl: ScClass), subst: ScSubstitutor))
+        if cl.isCase && cl.tooBigForUnapply =>
+        val undefSubst = subst.followed(new ScSubstitutor(ScThisType(cl)))
+        val params: Seq[ScParameter] = cl.parameters
+        val types = params.map(_.getType(TypingContext.empty).getOrAny).map(undefSubst.subst)
+        val args = if (types.nonEmpty && params.last.isVarArgs) {
+          val lastType = types.last
+          val tp = ScalaPsiElementFactory.createTypeFromText(s"scala.collection.Seq[${lastType.canonicalText}]", cl, cl)
+          types.dropRight(1) :+ tp
+        } else types
+        if (argIndex < args.length) Some(args(argIndex))
+        else None
       case _ => None
     }
   }
@@ -422,7 +429,7 @@ object ScPattern {
       extractPossibleProductParts(receiverType, place, isOneArgCaseClass)
     }
 
-    val level = place.languageLevel
+    val level = place.scalaLanguageLevelOrDefault
     if (level >= Scala_2_11) collectFor2_11
     else {
       returnType match {

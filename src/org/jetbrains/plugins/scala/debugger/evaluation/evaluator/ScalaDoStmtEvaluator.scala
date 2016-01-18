@@ -24,7 +24,7 @@ class ScalaDoStmtEvaluator(cond: Evaluator, expr: Evaluator) extends Evaluator {
         case _ => throw EvaluationException("condition has wrong type")
       }
     }
-    context.getDebugProcess.getVirtualMachineProxy.mirrorOf()
+    context.getDebugProcess.getVirtualMachineProxy.mirrorOfVoid()
   }
 
   def getModifier: Modifier = null

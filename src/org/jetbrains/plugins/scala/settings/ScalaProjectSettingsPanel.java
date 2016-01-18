@@ -57,7 +57,6 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox myAotCompletion;
   private JCheckBox useEclipseCompatibilityModeCheckBox;
   private JTextField scalaTestDefaultSuperClass;
-  private JCheckBox useOldImplicitConversionCheckBox;
   private JCheckBox treatScalaScratchFilesCheckBox;
   private JSlider autoRunDelaySlider;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
@@ -117,7 +116,6 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setEnableJavaToScalaConversion(enableConversionOnCopyCheckBox.isSelected());
     scalaProjectSettings.setDontShowConversionDialog(donTShowDialogCheckBox.isSelected());
     scalaProjectSettings.setTreatDocCommentAsBlockComment(treatDocCommentAsBlockComment.isSelected());
-    scalaProjectSettings.setUseOldImplicitConversionAlg(useOldImplicitConversionCheckBox.isSelected());
 
     scalaProjectSettings.setShowImplisitConversions(showImplicitConversionsInCheckBox.isSelected());
     scalaProjectSettings.setShowArgumentsToByNameParams(showArgumentsToByNameParametersCheckBox.isSelected());
@@ -161,24 +159,24 @@ public class ScalaProjectSettingsPanel {
     if (!ScalaPluginUpdater.getScalaPluginBranch().equals(updateChannel.getModel().getSelectedItem())) return true;
 
     if (!scalaProjectSettings.getBasePackages().equals(
-        getBasePackages())) return true;
+            getBasePackages())) return true;
     if (!scalaProjectSettings.getScalaTestDefaultSuperClass().equals(
-        scalaTestDefaultSuperClass.getText())) return true;
+            scalaTestDefaultSuperClass.getText())) return true;
     if (scalaProjectSettings.isShowImplisitConversions() !=
-        showImplicitConversionsInCheckBox.isSelected()) return true;
+            showImplicitConversionsInCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isShowArgumentsToByNameParams() !=
-        showArgumentsToByNameParametersCheckBox.isSelected()) return true;
+            showArgumentsToByNameParametersCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isIncludeBlockExpressions() !=
-        includeBlockExpressionsExpressionsCheckBox.isSelected()) return true;
+            includeBlockExpressionsExpressionsCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isIncludeLiterals() !=
-        includeLiteralsCheckBox.isSelected()) return true;
+            includeLiteralsCheckBox.isSelected()) return true;
 
     if (scalaProjectSettings.getImplicitParametersSearchDepth() !=
-        (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
+            (Integer) implicitParametersSearchDepthSpinner.getValue()) return true;
     if (scalaProjectSettings.getOutputLimit() !=
-        (Integer) outputSpinner.getValue()) return true;
+            (Integer) outputSpinner.getValue()) return true;
     if (scalaProjectSettings.isInProcessMode() !=
-        runWorksheetInTheCheckBox.isSelected()) return true;
+            runWorksheetInTheCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isInteractiveMode() != worksheetInteractiveModeCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isUseEclipseCompatibility() != useEclipseCompatibilityModeCheckBox.isSelected())
       return true;
@@ -186,15 +184,13 @@ public class ScalaProjectSettingsPanel {
       return true;
 
     if (scalaProjectSettings.isSearchAllSymbols() !=
-        searchAllSymbolsIncludeCheckBox.isSelected()) return true;
+            searchAllSymbolsIncludeCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isEnableJavaToScalaConversion() !=
-        enableConversionOnCopyCheckBox.isSelected()) return true;
+            enableConversionOnCopyCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isDontShowConversionDialog() !=
-        donTShowDialogCheckBox.isSelected()) return true;
+            donTShowDialogCheckBox.isSelected()) return true;
     if (scalaProjectSettings.isTreatDocCommentAsBlockComment() !=
-        treatDocCommentAsBlockComment.isSelected()) return true;
-    if (scalaProjectSettings.isUseOldImplicitConversionAlg() !=
-        useOldImplicitConversionCheckBox.isSelected()) return true;
+            treatDocCommentAsBlockComment.isSelected()) return true;
 
     if (scalaProjectSettings.isIgnorePerformance() != myResolveToAllClassesCheckBox.isSelected())
       return true;
@@ -212,7 +208,7 @@ public class ScalaProjectSettingsPanel {
       return true;
 
     if (scalaProjectSettings.getCollectionTypeHighlightingLevel() !=
-        collectionHighlightingChooser.getSelectedIndex()) return true;
+            collectionHighlightingChooser.getSelectedIndex()) return true;
 
     if (scalaProjectSettings.getAutoRunDelay() != getWorksheetDelay()) return true;
 
@@ -251,7 +247,6 @@ public class ScalaProjectSettingsPanel {
     setValue(enableConversionOnCopyCheckBox, scalaProjectSettings.isEnableJavaToScalaConversion());
     setValue(donTShowDialogCheckBox, scalaProjectSettings.isDontShowConversionDialog());
     setValue(treatDocCommentAsBlockComment, scalaProjectSettings.isTreatDocCommentAsBlockComment());
-    setValue(useOldImplicitConversionCheckBox, scalaProjectSettings.isUseOldImplicitConversionAlg());
 
     setValue(showImplicitConversionsInCheckBox, scalaProjectSettings.isShowImplisitConversions());
     setValue(showArgumentsToByNameParametersCheckBox, scalaProjectSettings.isShowArgumentsToByNameParams());
@@ -378,10 +373,10 @@ public class ScalaProjectSettingsPanel {
     delaySpinner = new JSpinner();
     panel2.add(delaySpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel3 = new JPanel();
-    panel3.setLayout(new GridLayoutManager(8, 2, new Insets(9, 9, 0, 0), -1, -1));
+    panel3.setLayout(new GridLayoutManager(7, 2, new Insets(9, 9, 0, 0), -1, -1));
     tabbedPane1.addTab("Performance", panel3);
     final Spacer spacer2 = new Spacer();
-    panel3.add(spacer2, new GridConstraints(7, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    panel3.add(spacer2, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
     final JLabel label2 = new JLabel();
     label2.setText("Implicit parameters search depth (-1 for none):");
     panel3.add(label2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -399,9 +394,6 @@ public class ScalaProjectSettingsPanel {
     myDontCacheCompound = new JCheckBox();
     myDontCacheCompound.setText("Don't cache compound types (use it in case of big pauses in GC)");
     panel3.add(myDontCacheCompound, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-    useOldImplicitConversionCheckBox = new JCheckBox();
-    useOldImplicitConversionCheckBox.setText("Use old implicit conversion search algorithm");
-    panel3.add(useOldImplicitConversionCheckBox, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     searchAllSymbolsIncludeCheckBox = new JCheckBox();
     searchAllSymbolsIncludeCheckBox.setText("Search all symbols (include locals)");
     panel3.add(searchAllSymbolsIncludeCheckBox, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));

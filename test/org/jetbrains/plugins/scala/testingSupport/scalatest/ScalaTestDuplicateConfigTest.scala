@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest
 
-import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
-
 /**
- * @author Roman.Shein
- * @since 17.01.2015.
- */
-trait ScalaTestDuplicateConfigTest extends IntegrationTest {
+  * @author Roman.Shein
+  * @since 17.01.2015.
+  */
+trait ScalaTestDuplicateConfigTest extends ScalaTestTestCase {
   def testDuplicateConfig() {
     addFileToProject("DuplicateConfigTest.scala",
       """

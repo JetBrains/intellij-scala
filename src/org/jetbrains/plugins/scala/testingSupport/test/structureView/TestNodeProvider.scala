@@ -260,11 +260,11 @@ object TestNodeProvider {
   private def extractScalaTestScInfixExpr(expr: ScInfixExpr, entry: ExtractEntry, project: Project):
   Option[TestStructureViewElement] = {
     if (entry.canIgnore && (checkScInfixExpr(expr, "ignore", List("void")) || checkIgnoreExpr(expr))) {
-      Some(ignoredScalaTestElement(expr, getInfixExprTestName(expr), entry.children()))
+      Some(ignoredScalaTestElement(expr, getInfixExprTestName(expr), entry.children(())))
     } else if (checkScInfixExpr(expr, "is", List("org.scalatest.PendingNothing")) || checkPendingInfixExpr(expr)) {
-      Some(pendingScalaTestElement(expr, getInfixExprTestName(expr), entry.children()))
+      Some(pendingScalaTestElement(expr, getInfixExprTestName(expr), entry.children(())))
     } else if (checkScInfixExpr(expr, entry.funName, entry.args: _*)) {
-      Some(new TestStructureViewElement(expr, getInfixExprTestName(expr), entry.children()))
+      Some(new TestStructureViewElement(expr, getInfixExprTestName(expr), entry.children(())))
     } else None
   }
 
@@ -335,11 +335,11 @@ object TestNodeProvider {
   private def extractScMethodCall(expr: ScMethodCall, entry: ExtractEntry, project: Project):
   Option[TestStructureViewElement] = {
     if (entry.canIgnore && checkScMethodCall(expr, "ignore", scMethodCallDefaultArg: _*)) {
-      Some(ignoredScalaTestElement(expr, getMethodCallTestName(expr), entry.children()))
+      Some(ignoredScalaTestElement(expr, getMethodCallTestName(expr), entry.children(())))
     } else if (entry.canPend && checkMethodCallPending(expr)) {
-      Some(pendingScalaTestElement(expr, getMethodCallTestName(expr), entry.children()))
+      Some(pendingScalaTestElement(expr, getMethodCallTestName(expr), entry.children(())))
     } else if (checkScMethodCall(expr, entry.funName, entry.args: _*) || checkScMethodCallApply(expr, entry.funName, scMethodCallDefaultArg:_*)) {
-      Some(new TestStructureViewElement(expr, getMethodCallTestName(expr), entry.children()))
+      Some(new TestStructureViewElement(expr, getMethodCallTestName(expr), entry.children(())))
     } else None
   }
 

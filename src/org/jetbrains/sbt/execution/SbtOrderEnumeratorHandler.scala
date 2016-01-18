@@ -15,12 +15,12 @@ class SbtOrderEnumeratorHandlerFactory extends OrderEnumerationHandler.Factory {
   override def createHandler(module: Module): OrderEnumerationHandler = new SbtOrderEnumeratorHandler
 
   override def isApplicable(project: Project): Boolean = {
-//    ModuleManager.getInstance(project).getModules.exists(isApplicable)
+    //    ModuleManager.getInstance(project).getModules.exists(isApplicable)
     false
   }
 
   override def isApplicable(module: Module): Boolean = {
-//    SbtSystemSettings.getInstance(module.getProject).getLinkedProjectSettings(module).isDefined
+    //    SbtSystemSettings.getInstance(module.getProject).getLinkedProjectSettings(module).isDefined
     false
   }
 }

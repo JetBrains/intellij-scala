@@ -14,6 +14,9 @@ package scala.tools.scalap
 package scalax
 package rules
 
+import scala.language.postfixOps
+import scala.language.reflectiveCalls
+
 /** 
  * A workaround for the difficulties of dealing with
  * a contravariant 'In' parameter type...

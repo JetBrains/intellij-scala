@@ -86,10 +86,11 @@ object SbtExternalSystemManager {
       projectSettings.resolveClassifiers, projectSettings.resolveJavadocs, projectSettings.resolveSbtClassifiers)
   }
 
-  private def getProjectJdkName(project: Project, projectSettings: SbtProjectSettings): Option[String] =
-    Option(ProjectRootManager.getInstance(project).getProjectSdk)
-      .map(_.getName)
-      .orElse(projectSettings.jdkName)
+  private def getProjectJdkName(project: Project, projectSettings: SbtProjectSettings): Option[String] = {
+    val jdkInProject = Option(ProjectRootManager.getInstance(project).getProjectSdk).map(_.getName)
+    val jdkInImportSettings = projectSettings.jdkName
+    jdkInImportSettings.orElse(jdkInProject)
+  }
 
   private def getVmExecutable(projectJdkName: Option[String], settings: SbtSystemSettings): File =
       if (!ApplicationManager.getApplication.isUnitTestMode)

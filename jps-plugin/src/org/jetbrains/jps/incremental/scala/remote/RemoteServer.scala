@@ -18,12 +18,16 @@ class RemoteServer(val address: InetAddress, val port: Int) extends Server with 
       ExitCode.OK
     } catch {
       case e: ConnectException =>
-        val message = "Cannot connect to compile server at %s:%s\nTrying to compile without it".format(address.toString, port)
+        val firstLine = s"Cannot connect to compile server at ${address.toString}:$port"
+        val secondLine = "Trying to compile without it"
+        val message = s"$firstLine\n$secondLine"
         client.warning(message)
+        client.debug(s"$firstLine\n${e.toString}\n${e.getStackTrace.mkString("\n")}")
         ScalaBuilder.localServer.compile(sbtData, compilerData, compilationData, client)
       case e: UnknownHostException =>
         val message = "Unknown IP address of compile server host: " + address.toString
         client.error(message)
+        client.debug(s"$message\n${e.toString}\n${e.getStackTrace.mkString("\n")}")
         ExitCode.ABORT
     }
   }

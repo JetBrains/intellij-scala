@@ -14,6 +14,9 @@ package scala.tools.scalap
 package scalax
 package rules
 
+import scala.language.higherKinds
+import scala.language.implicitConversions
+
 trait Functor[+A] { 
   type M[+A] <: Functor[A]
   def map[B](f : A => B) : M[B]

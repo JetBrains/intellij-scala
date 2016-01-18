@@ -3,6 +3,7 @@ package javaHighlighting
 
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator, _}
 import org.jetbrains.plugins.scala.base.{ScalaFixtureTestCase, ScalaLibraryLoader}
@@ -377,6 +378,75 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "Pair"))
   }
 
+  def testConstructorReturnTypeNull(): Unit = {
+    val scalaCode =
+      """
+        |class Scala(val s: String) {
+        |  def this(i: Integer) = this(i.toString)
+        |}
+      """.stripMargin
+    val javaCode =
+      """
+        |import java.util.stream.Stream;
+        |
+        |public class SCL9412 {
+        |    Stream<Scala> testScala() {
+        |        return Stream.of(1).map(Scala::new);
+        |    }
+        |}
+      """.stripMargin
+
+    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "SCL9412"))
+  }
+
+  def testHigherKinded(): Unit = {
+    val scalaCode =
+      """
+        |class BarSCL9661A[F, T[F]]() extends scala.AnyRef {
+        |  def foo(t: T[F]): T[F] = t
+        |}
+      """.stripMargin
+    val javaCode =
+      """
+        |import java.util.*;
+        |
+        |public class SCL9661A {
+        |    public void create() {
+        |        BarSCL9661A<String, List> bar = new BarSCL9661A<>();
+        |        bar.foo(new ArrayList<Integer>());
+        |    }
+        |}
+      """.stripMargin
+    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "SCL9661A"))
+  }
+
+  def testSCL9661(): Unit = {
+    val scalaCode =
+      """
+        |object Moo extends scala.AnyRef {
+        |  def builder[M]() : Builder[M] = ???
+        |
+        |  class Builder[+Mat] {
+        |    def graph[S <: Shape](graph : Graph[S, _]) : S = { ??? }
+        |  }
+        |}
+        |
+        |class UniformFanOutShape[I, O] extends Shape
+        |abstract class Shape
+        |trait Graph[+S <: Shape, +M]
+      """.stripMargin
+    val javaCode =
+      """
+        |public class SCL9661 {
+        |    public void create() {
+        |        UniformFanOutShape<String, String> ass = Moo.builder().graph(null);
+        |    }
+        |}
+      """.stripMargin
+
+    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "SCL9661"))
+  }
+
   def messagesFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     myFixture.addFileToProject("dummy.scala", scalaFileText)
     val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
@@ -423,10 +493,13 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     def unapply(s: String) = s.contains(fragment)
   }
 
-  private var scalaLibraryLoader = new ScalaLibraryLoader(getProject, myFixture.getModule, null)
+  private var scalaLibraryLoader: ScalaLibraryLoader = null
 
   override def setUp() = {
     super.setUp()
+
+    TestUtils.setLanguageLevel(getProject, LanguageLevel.JDK_1_8)
+    scalaLibraryLoader = new ScalaLibraryLoader(getProject, myFixture.getModule, null)
     scalaLibraryLoader.loadScala(TestUtils.DEFAULT_SCALA_SDK_VERSION)
   }
 

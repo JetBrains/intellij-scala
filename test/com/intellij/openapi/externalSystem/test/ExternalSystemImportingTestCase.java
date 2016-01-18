@@ -276,7 +276,7 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
       public Object fun(ModuleOrderEntry entry) {
         return entry.getScope();
       }
-    }), scopes);
+    }), new Object[]{scopes});
   }
 
   @NotNull

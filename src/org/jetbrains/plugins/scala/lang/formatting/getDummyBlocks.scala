@@ -163,7 +163,11 @@ object getDummyBlocks {
           case tagName :: tail if Option(docTag.getNameElement).map(_.getNode).exists(_ == tagName) =>
             subBlocks.add(getSubBlock(block, scalaSettings, tagName))
             if (tail.nonEmpty) {
-              subBlocks.add(getSubBlock(block, scalaSettings, tail.head, tail.last))
+              if (tail.head.getElementType != ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS)
+                subBlocks.add(getSubBlock(block, scalaSettings, tail.head, tail.last))
+              else for (child <- tail) {
+                subBlocks.add(getSubBlock(block, scalaSettings, child))
+              }
             }
           case _ =>
         }

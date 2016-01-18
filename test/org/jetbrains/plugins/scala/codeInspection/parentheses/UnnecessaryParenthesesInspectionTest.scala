@@ -119,4 +119,23 @@ class UnnecessaryParenthesesInspectionTest extends ScalaLightInspectionFixtureTe
     checkTextHasNoErrors(text)
   }
 
+  def test_10(): Unit = {
+    val selected = START + "(/*b*/ 1 + /*a*/ 1 /*comment*/)" + END
+    check(selected)
+
+    val text = "(<caret>/*b*/ 1 + /*a*/ 1 /*comment*/)"
+    val result = "/*b*/ 1 + /*a*/ 1 /*comment*/"
+    val hint = hintBeginning + " (1 + 1)"
+    testFix(text, result, hint)
+  }
+
+  def test_11(): Unit = {
+    val selected = START + "(/*1*/ 6 /*2*/ /*3*/)" + END
+    check(selected)
+
+    val text = "(<caret>/*1*/ 6 /*2*/ /*3*/)"
+    val result = "/*1*/ 6 /*2*/\n\r/*3*/"
+    val hint = hintBeginning + " (6)"
+    testFix(text, result, hint)
+  }
 }

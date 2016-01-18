@@ -675,7 +675,7 @@ object ScalaPositionManager {
       }
 
       def findParent(element: PsiElement): Option[PsiElement] = {
-        val parentsOnTheLine = element.parentsInFile.takeWhile(e => e.getTextOffset > startLine).toIndexedSeq
+        val parentsOnTheLine = element +: element.parentsInFile.takeWhile(e => e.getTextOffset > startLine).toIndexedSeq
         val anon = parentsOnTheLine.collectFirst {
           case e if isLambda(e) => e
           case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) => newTd
@@ -683,6 +683,8 @@ object ScalaPositionManager {
         val filteredParents = parentsOnTheLine.reverse.filter {
           case _: ScExpression => true
           case _: ScConstructorPattern | _: ScInfixPattern | _: ScBindingPattern => true
+          case callRefId childOf ((ref: ScReferenceExpression) childOf (_: ScMethodCall))
+            if ref.nameId == callRefId && ref.getTextRange.getStartOffset < startLine => true
           case _: ScTypeDefinition => true
           case _ => false
         }

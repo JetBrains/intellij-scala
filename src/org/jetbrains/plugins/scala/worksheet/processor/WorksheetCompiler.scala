@@ -130,6 +130,7 @@ class WorksheetCompiler {
 
 object WorksheetCompiler extends WorksheetPerFileConfig {
   private val MAKE_BEFORE_RUN = new FileAttribute("ScalaWorksheetMakeBeforeRun", 1, true)
+  private val CP_MODULE_NAME = new FileAttribute("ScalaWorksheetModuleForCp", 1, false)
   private val ERROR_CONTENT_NAME = "Worksheet errors"
 
   val CONFIG_ERROR_HEADER = "Worksheet configuration error:"
@@ -142,6 +143,10 @@ object WorksheetCompiler extends WorksheetPerFileConfig {
   def setMakeBeforeRun(file: PsiFile, isMake: Boolean) = {
     setEnabled(file, MAKE_BEFORE_RUN, isMake)
   }
+  
+  def getModuleForCpName(file: PsiFile) = FileAttributeUtilCache.readAttribute(CP_MODULE_NAME, file)
+  
+  def setModuleForCpName(file: PsiFile, moduleName: String) = FileAttributeUtilCache.writeAttribute(CP_MODULE_NAME, file, moduleName)  
 
   def getRunType(project: Project): WorksheetMakeType = {
     if (ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED) {
