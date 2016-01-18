@@ -7,16 +7,18 @@ import javax.swing.SwingUtilities
 import com.intellij.ProjectTopics
 import com.intellij.compiler.CompilerTestUtil
 import com.intellij.compiler.server.BuildManager
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
 import com.intellij.openapi.projectRoots._
 import com.intellij.openapi.roots._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
-import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
-import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
+import com.intellij.testFramework.{ModuleTestCase, PsiTestUtil, VfsTestUtil}
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.base.ScalaLibraryLoader
+import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert
 
@@ -26,7 +28,7 @@ import scala.collection.mutable.ListBuffer
  * Nikolay.Tropin
  * 2/26/14
  */
-abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVersion {
+abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
 
   private var deleteProjectAtTearDown = false
   private var scalaLibraryLoader: ScalaLibraryLoader = null
@@ -82,6 +84,7 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
 
   protected override def tearDown() {
     CompilerTestUtil.disableExternalCompiler(myProject)
+    CompileServerLauncher.instance.stop()
     val baseDir = getBaseDir
     scalaLibraryLoader.clean()
     super.tearDown()
@@ -98,7 +101,7 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
         try {
           CompilerTestUtil.saveApplicationSettings()
           val ioFile: File = VfsUtilCore.virtualToIoFile(myModule.getModuleFile)
-          getProject.save()
+          saveProject()
           assert(ioFile.exists, "File does not exist: " + ioFile.getPath)
           CompilerManager.getInstance(getProject).rebuild(callback)
         }
@@ -171,6 +174,14 @@ abstract class ScalaCompilerTestBase extends CompileServerTestBase with ScalaVer
 
   protected def getSourceRootDir: VirtualFile = {
     getBaseDir.findChild("src")
+  }
+
+  protected def saveProject(): Unit = {
+    val applicationEx = ApplicationManagerEx.getApplicationEx
+    val setting = applicationEx.isDoNotSave
+    applicationEx.doNotSave(false)
+    getProject.save()
+    applicationEx.doNotSave(setting)
   }
 }
 
