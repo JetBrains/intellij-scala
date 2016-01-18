@@ -313,7 +313,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
   @Nullable
   def packageName: String = {
-    if (isScriptFile || isWorksheetFile) return null
+    if (isScriptFile(withCaching = false) || isWorksheetFile) return null
     var res: String = ""
     var x: ScToplevelElement = this
     while (true) {
