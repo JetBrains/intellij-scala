@@ -7,8 +7,8 @@ import com.intellij.openapi.util.Key
 /**
  * @author Pavel Fatin
  */
-class ProcessWatcher(process: Process) {
-  private val processHandler = new OSProcessHandler(process)
+class ProcessWatcher(process: Process, commandLine: String) {
+  private val processHandler = new OSProcessHandler(process, commandLine)
   private var errorLines = Vector[String]()
   private var errorInStdOut = false
   private val lock = new Object()
