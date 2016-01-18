@@ -460,11 +460,13 @@ public class ScalaTestAstTransformer {
             String containingClassName;
             if (resolve != null) {
                 if (resolve instanceof ScMember) {
-                    containingClassName = ((ScMember) resolve).containingClass().qualifiedName();
+                    ScTemplateDefinition containingClass = ((ScMember) resolve).containingClass();
+                    containingClassName = containingClass == null ? null : containingClass.qualifiedName();
                 } else if (resolve instanceof ScBindingPattern) {
                     PsiElement context = ((ScBindingPattern) resolve).nameContext();
                     if (context instanceof ScMember) {
-                        containingClassName = ((ScMember) context).containingClass().qualifiedName();
+                        ScTemplateDefinition containingClass = ((ScMember) context).containingClass();
+                        containingClassName = containingClass == null ? null : containingClass.qualifiedName();
                     } else {
                         containingClassName = null;
                     }
