@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package debugger.evaluation
 
 import java.io.File
-import java.util.concurrent.TimeUnit
 
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.impl.{DebuggerManagerAdapter, DebuggerSession}
@@ -19,9 +18,6 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent._
-import scala.concurrent.duration.Duration
 
 /**
  * Nikolay.Tropin
@@ -79,18 +75,13 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
     val outputDir = tempDir()
     val file = writeToTempFile(fileText)
     val connector = new ServerConnector(module, file, outputDir)
-    val futureFiles = Future(connector.compile())
-    val timeToWait =
-      if (ApplicationManager.getApplication.isUnitTestMode) Duration(20, TimeUnit.SECONDS)
-      else Duration(5, TimeUnit.SECONDS)
     try {
-      Await.result(futureFiles, timeToWait) match {
+      connector.compile() match {
         case Left(files) => files
         case Right(errors) => throw EvaluationException(errors.mkString("\n"))
       }
     }
     catch {
-      case _: TimeoutException => throw EvaluationException("Too long compilation")
       case e: Exception => throw EvaluationException("Could not compile:\n" + e.getMessage)
     }
   }
