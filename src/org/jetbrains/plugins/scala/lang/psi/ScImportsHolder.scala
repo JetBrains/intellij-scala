@@ -179,6 +179,9 @@ trait ScImportsHolder extends ScalaPsiElement {
     var classPackageQualifier = qualifiedName.substring(0, index)
     val pathQualifier = classPackageQualifier
 
+    val ourPackageName = Option(PsiTreeUtil.getParentOfType(this, classOf[ScPackaging], false)).map(_.fullPackageName)
+    if (ourPackageName.contains(classPackageQualifier)) return //don't add imports for elements from the current package
+
     //collecting selectors to add into new import statement
     var firstPossibleGoodPlace: Option[ScImportExpr] = None
     val toDelete: ArrayBuffer[ScImportExpr] = new ArrayBuffer[ScImportExpr]()
