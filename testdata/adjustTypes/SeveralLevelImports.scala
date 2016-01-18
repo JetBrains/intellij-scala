@@ -6,6 +6,10 @@ object AA {
 
 }
 
+import testing.a
+import a.AA
+import AA.{AAA => A}
+
 class B {
   val aaa: /*start*/testing.a.AA.AAA/*end*/ = null
 }
