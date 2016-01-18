@@ -119,7 +119,7 @@ class CompileServerLauncher extends ApplicationComponent {
         catching(classOf[IOException]).either(builder.start())
                 .left.map(_.getMessage)
                 .right.map { process =>
-          val watcher = new ProcessWatcher(process)
+          val watcher = new ProcessWatcher(process, "scalaCompileServer")
           serverInstance = Some(ServerInstance(watcher, freePort, builder.directory()))
           watcher.startNotify()
           process
