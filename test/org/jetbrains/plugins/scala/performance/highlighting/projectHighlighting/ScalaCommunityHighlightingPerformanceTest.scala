@@ -22,8 +22,4 @@ class ScalaCommunityHighlightingPerformanceTest extends PerformanceSbtProjectHig
   def testPerformanceScalaCommunityConformance() = doTest("Conformance.scala", 11.seconds)
 
   def testPerformanceScalaCommunityScalaSpacingProcessor() = doTest("ScalaSpacingProcessor.scala", 5.seconds)
-
-  override def doTest(path: String, timeout: Int): Unit = {
-    super.doTest(path, timeout)
-  }
 }
