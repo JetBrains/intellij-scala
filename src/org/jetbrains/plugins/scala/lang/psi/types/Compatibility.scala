@@ -8,26 +8,24 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsParameterImpl
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
-import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
-import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedMappedWithRecursionGuard}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
 
-import scala.collection.{Set, Seq}
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.{Seq, Set}
 
 /**
  * @author ven
@@ -56,22 +54,39 @@ object Compatibility {
       expectedOption match {
         case Some(expected) if typez.conforms(expected) => (Success(typez, None), Set.empty)
         case Some(expected) =>
-          val convertible = new ScImplicitlyConvertible(place, p => Some(typez))
-          val firstPart = convertible.implicitMapFirstPart(Some(expected), fromUnder = false, exprType = Some(typez))
-          var f: Seq[ImplicitResolveResult] =
-            firstPart.filter(_.tp.conforms(expected))
-          if (f.isEmpty) {
-            f = convertible.implicitMapSecondPart(Some(expected), fromUnder = false, exprType = Some(typez)).
-              filter(_.tp.conforms(expected))
-          }
-          if (f.length == 1) (Success(f.head.getTypeWithDependentSubstitutor, Some(place)), f.head.importUsed)
-          else if (f.isEmpty) (Success(typez, None), Set.empty)
-          else {
-            MostSpecificUtil(place, 1).mostSpecificForImplicit(f.toSet) match {
-              case Some(innerRes) => (Success(innerRes.getTypeWithDependentSubstitutor, Some(place)), innerRes.importUsed)
-              case None => (Success(typez, None), Set.empty)
+          val defaultResult: (TypeResult[ScType], Set[ImportUsed]) = (Success(typez, None), Set.empty)
+          val functionType = ScFunctionType(expected, Seq(typez))(place.getProject, place.getResolveScope)
+          val results = new ImplicitCollector(place, functionType, functionType, None,
+            isImplicitConversion = true, isExtensionConversion = false).collect()
+          if (results.length == 1) {
+            val res = results.head
+            val paramType = InferUtil.extractImplicitParameterType(res)
+            paramType match {
+              case ScFunctionType(rt, Seq(param)) => (Success(rt, Some(place)), res.importsUsed)
+              case _ =>
+                ScalaPsiManager.instance(place.getProject).getCachedClass(
+                  "scala.Function1", place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
+                ) match {
+                  case function1: ScTrait =>
+                    ScParameterizedType(ScType.designator(function1), function1.typeParameters.map(tp =>
+                      new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1))) match {
+                      case funTp: ScParameterizedType =>
+                        val secondArg = funTp.typeArgs(1)
+                        Conformance.undefinedSubst(funTp, paramType).getSubstitutor match {
+                          case Some(subst) =>
+                            val rt = subst.subst(secondArg)
+                            if (rt.isInstanceOf[ScUndefinedType]) defaultResult
+                            else {
+                              (Success(rt, Some(place)), res.importsUsed)
+                            }
+                          case None => defaultResult
+                        }
+                      case _ => defaultResult
+                    }
+                  case _ => defaultResult
+                }
             }
-          }
+          } else defaultResult
         case _ => (Success(typez, None), Set.empty)
       }
     }
