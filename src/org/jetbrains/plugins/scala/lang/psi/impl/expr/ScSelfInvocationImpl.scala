@@ -38,11 +38,11 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
   }
 
   private def bindMultiInternal(shapeResolve: Boolean): Seq[PsiElement] = {
-    val psiClass = PsiTreeUtil.getParentOfType(this, classOf[PsiClass])
+    val psiClass = PsiTreeUtil.getContextOfType(this, classOf[PsiClass])
     if (psiClass == null) return Seq.empty
     if (!psiClass.isInstanceOf[ScClass]) return Seq.empty
     val clazz = psiClass.asInstanceOf[ScClass]
-    val method = PsiTreeUtil.getParentOfType(this, classOf[ScFunction])
+    val method = PsiTreeUtil.getContextOfType(this, classOf[ScFunction])
     if (method == null) return Seq.empty
     val expressions: Seq[Expression] = args match {
       case Some(arguments) => arguments.exprs.map(new Expression(_))
