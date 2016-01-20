@@ -709,13 +709,11 @@ object ScalaPositionManager {
   }
 
   def isAnonfunType(refType: ReferenceType) = {
-    val name = NameTransformer.decode(refType.name())
-    val separator = "$$"
-    val index = name.lastIndexOf(separator)
-    if (index < 0) false
-    else {
-      val lastPart = name.substring(index + separator.length)
-      lastPart.startsWith("anonfun") && lastPart.count(_ == '$') < 3
+    refType match {
+      case ct: ClassType =>
+        val supClass = ct.superclass()
+        supClass != null && supClass.name().startsWith("scala.runtime.AbstractFunction")
+      case _ => false
     }
   }
 
