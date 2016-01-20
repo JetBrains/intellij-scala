@@ -4,11 +4,12 @@ package compiler
 import java.io.File
 import java.net.{URL, URLClassLoader}
 
+import com.btr.proxy.util.PlatformUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.OrderEnumerator
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.PathUtil
+import com.intellij.util.{PlatformUtils, PathUtil}
 import org.jetbrains.jps.incremental.scala.data.SbtData
 import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.project._
@@ -21,7 +22,10 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 
 abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, outputDir: File) {
   private val libRoot = {
-    if (ApplicationManager.getApplication.isUnitTestMode) new File("./out/plugin/Scala/lib").getAbsoluteFile
+    if (ApplicationManager.getApplication.isUnitTestMode) {
+      if (PlatformUtils.isIdeaCommunity) new File("./out/plugin/Scala/lib").getAbsoluteFile
+      else new File("../../out/plugin/Scala/lib").getAbsoluteFile
+    }
     else new File(PathUtil.getJarPathForClass(getClass)).getParentFile
   }
 
