@@ -26,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, Import
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, Expr}
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ImplicitParamClause, ParamClauses, TypeParamClause}
-import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, Def}
+import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{ConstrExpr, Dcl, Def}
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.{ClassParamClause, ClassParamClauses, ImplicitClassParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types._
@@ -951,6 +951,15 @@ object ScalaPsiElementFactory {
         val res = if (call.argumentExpressions.size > 0) call.argumentExpressions.apply(0) else null
         if (res != null) res.setContext(context, child)
         res
+      case _ => null
+    }
+  }
+
+  def createConstructorBodyWithContextFromText(text: String, context: PsiElement, child: PsiElement): ScExpression = {
+    createElementWithContext(s"$text", context, child, ConstrExpr.parse(_)) match {
+      case expr: ScExpression =>
+        expr.setContext(context, child)
+        expr
       case _ => null
     }
   }

@@ -79,11 +79,15 @@ trait ScModificationTrackerOwner extends ScalaPsiElement with PsiModifiableCodeB
     !isValidModificationTrackerOwner()
   }
 
+  def createMirror(text: String): PsiElement = {
+    ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
+  }
+
   @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
   def getMirrorPositionForCompletion(dummyIdentifier: String, pos: Int): Option[PsiElement] = {
     val text = new StringBuilder(getText)
     text.insert(pos, dummyIdentifier)
-    val newBlock = ScalaPsiElementFactory.createExpressionWithContextFromText(text.toString(), getContext, this)
+    val newBlock = createMirror(text.toString())
     Option(newBlock).map(_.findElementAt(pos))
   }
 }
