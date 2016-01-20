@@ -49,7 +49,7 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
     ("-language:implicitConversions", () => implicitConversions, implicitConversions = _),
     ("-language:higherKinds", () => higherKinds, higherKinds = _),
     ("-language:existentials", () => existentials, existentials = _),
-    ("-language:experimental.macros", () => macros, macros = _),
+    ("-language:macros", () => macros, macros = _),
     ("-Xexperimental", () => experimental, experimental = _),
     ("-nowarn", () => !warnings, (b: Boolean) => warnings = !b),
     ("-deprecation", () => deprecationWarnings, deprecationWarnings = _),
