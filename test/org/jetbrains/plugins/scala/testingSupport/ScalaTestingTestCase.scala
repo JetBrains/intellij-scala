@@ -162,37 +162,39 @@ abstract class ScalaTestingTestCase(private val configurationProducer: AbstractT
                                            duration: Int = 3000,
                                            debug: Boolean = false
                                           ): (String, Option[AbstractTestProxy]) = {
-    assert(configurationCheck(runConfig))
-    assert(runConfig.getConfiguration.isInstanceOf[AbstractTestRunConfiguration])
-    runConfig.getConfiguration.asInstanceOf[AbstractTestRunConfiguration].setupIntegrationTestClassPath()
-    val testResultListener = new TestResultListener(runConfig.getName)
-    var testTreeRoot: Option[AbstractTestProxy] = None
-    UsefulTestCase.edt(new Runnable {
-      def run() {
-        if (needMake) {
-          make()
-          saveChecksums()
-        }
-        val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find {
-          _.getClass == classOf[DefaultJavaProgramRunner]
-        }.get
-        val (handler, runContentDescriptor) = runProcess(runConfig, classOf[DefaultRunExecutor], new ProcessAdapter {
-          override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
-            val text = event.getText
-            if (debug) print(text)
-          }
-        }, runner)
-
-        runContentDescriptor.getExecutionConsole match {
-          case descriptor: SMTRunnerConsoleView =>
-            testTreeRoot = Some(descriptor.getResultsViewer.getRoot)
-          case _ =>
-        }
-        handler.addProcessListener(testResultListener)
-      }
-    })
-
-    (testResultListener.waitForTestEnd(duration), testTreeRoot)
+    //TODO temporarily failing all these tests to see whether all other debug tests run fine
+//    assert(configurationCheck(runConfig))
+//    assert(runConfig.getConfiguration.isInstanceOf[AbstractTestRunConfiguration])
+//    runConfig.getConfiguration.asInstanceOf[AbstractTestRunConfiguration].setupIntegrationTestClassPath()
+//    val testResultListener = new TestResultListener(runConfig.getName)
+//    var testTreeRoot: Option[AbstractTestProxy] = None
+//    UsefulTestCase.edt(new Runnable {
+//      def run() {
+//        if (needMake) {
+//          make()
+//          saveChecksums()
+//        }
+//        val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find {
+//          _.getClass == classOf[DefaultJavaProgramRunner]
+//        }.get
+//        val (handler, runContentDescriptor) = runProcess(runConfig, classOf[DefaultRunExecutor], new ProcessAdapter {
+//          override def onTextAvailable(event: ProcessEvent, outputType: Key[_]) {
+//            val text = event.getText
+//            if (debug) print(text)
+//          }
+//        }, runner)
+//
+//        runContentDescriptor.getExecutionConsole match {
+//          case descriptor: SMTRunnerConsoleView =>
+//            testTreeRoot = Some(descriptor.getResultsViewer.getRoot)
+//          case _ =>
+//        }
+//        handler.addProcessListener(testResultListener)
+//      }
+//    })
+//
+//    (testResultListener.waitForTestEnd(duration), testTreeRoot)
+    ("No result", None)
   }
 
   private def runProcess(runConfiguration: RunnerAndConfigurationSettings,

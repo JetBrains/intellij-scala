@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport
 
 import com.intellij.testFramework.UsefulTestCase
-import com.intellij.util.concurrency.Semaphore
-import javax.swing.SwingUtilities
 
 import com.intellij.execution.testframework.AbstractTestProxy
 import com.intellij.execution.{PsiLocation, RunnerAndConfigurationSettings}
@@ -157,24 +155,15 @@ trait IntegrationTest {
                       checkOutputs: Boolean = false) = {
     val (res, testTreeRoot) = runTestFromConfig(configurationCheck, runConfig, checkOutputs, duration, debug)
 
-    val semaphore = new Semaphore
-    semaphore.down()
+    UsefulTestCase.edt(new Runnable() {
+      override def run() = {
+        assert(testTreeRoot.isDefined && testTreeCheck(testTreeRoot.get))
 
-    SwingUtilities.invokeLater(new Runnable() {
-      override def run(): Unit = {
-        try {
-          assert(testTreeRoot.isDefined && testTreeCheck(testTreeRoot.get))
-
-          if (checkOutputs) {
-            assert(res == expectedText)
-          }
-        } finally {
-          semaphore.up()
+        if (checkOutputs) {
+          assert(res == expectedText)
         }
       }
     })
-
-    semaphore.waitFor()
   }
 
   def runDuplicateConfigTest(lineNumber: Int, offset: Int, fileName: String,
