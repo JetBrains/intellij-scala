@@ -1,0 +1,106 @@
+import scala.concurrent.Future
+
+val f1 = Future(1)
+val f2 = Future(2)
+
+for {
+  _ <- f1
+  _ <- f2
+  -
+} yield ()
+-------
+ScalaFile
+  ScImportStatement
+    PsiElement(import)('import')
+    PsiWhiteSpace(' ')
+    ImportExpression
+      CodeReferenceElement: scala.concurrent.Future
+        CodeReferenceElement: scala.concurrent
+          CodeReferenceElement: scala
+            PsiElement(identifier)('scala')
+          PsiElement(.)('.')
+          PsiElement(identifier)('concurrent')
+        PsiElement(.)('.')
+        PsiElement(identifier)('Future')
+  PsiWhiteSpace('\n\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f1
+        PsiElement(identifier)('f1')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Future
+        PsiElement(identifier)('Future')
+      ArgumentList
+        PsiElement(()('(')
+        Literal
+          PsiElement(integer)('1')
+        PsiElement())(')')
+  PsiWhiteSpace('\n')
+  ScPatternDefinition
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(val)('val')
+    PsiWhiteSpace(' ')
+    ListOfPatterns
+      ReferencePattern: f2
+        PsiElement(identifier)('f2')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    PsiWhiteSpace(' ')
+    MethodCall
+      ReferenceExpression: Future
+        PsiElement(identifier)('Future')
+      ArgumentList
+        PsiElement(()('(')
+        Literal
+          PsiElement(integer)('2')
+        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ForStatement
+    PsiElement(for)('for')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    Enumerators
+      Generator
+        WildcardPattern
+          PsiElement(_)('_')
+        PsiWhiteSpace(' ')
+        PsiElement(<-)('<-')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: f1
+          PsiElement(identifier)('f1')
+      PsiWhiteSpace('\n  ')
+      Generator
+        WildcardPattern
+          PsiElement(_)('_')
+        PsiWhiteSpace(' ')
+        PsiElement(<-)('<-')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: f2
+          PsiElement(identifier)('f2')
+    PsiErrorElement:'}' expected
+      <empty list>
+    PsiWhiteSpace('\n  ')
+    PsiElement(identifier)('-')
+    PsiErrorElement:Enumerators expected in the 'for' statement
+      <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')
+    PsiWhiteSpace(' ')
+    PsiElement(yield)('yield')
+    PsiWhiteSpace(' ')
+    UnitExpression
+      PsiElement(()('(')
+      PsiElement())(')')
