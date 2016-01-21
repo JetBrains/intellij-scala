@@ -39,6 +39,32 @@ class JavaHighlightingTest extends ScalaFixtureTestCase {
     assertNoErrors(messagesFromScalaCode(scala, java))
   }
 
+  def testCallByNameParameterNoPrimitives(): Unit = {
+    val scala =
+      """
+        |object MooSCL8823 {
+        |  def ensure(f: => Unit): Unit = ???
+        |}
+      """.stripMargin
+    val java =
+      """
+        |import scala.runtime.AbstractFunction0;
+        |import scala.runtime.BoxedUnit;
+        |
+        |public class SCL8823 {
+        |    public static void main( String[] args ) {
+        |        MooSCL8823.ensure(new AbstractFunction0<BoxedUnit>() {
+        |            public BoxedUnit apply() {
+        |                System.out.println("foo");
+        |                return BoxedUnit.UNIT;
+        |            }
+        |        });
+        |    }
+        |}
+      """.stripMargin
+    assertNoErrors(messagesFromJavaCode(scala, java, "SCL8823"))
+  }
+
   def testValueTypes(): Unit = {
     val scala =
       """
