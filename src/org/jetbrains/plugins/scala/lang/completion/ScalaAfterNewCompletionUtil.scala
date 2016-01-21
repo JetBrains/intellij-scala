@@ -186,17 +186,14 @@ object ScalaAfterNewCompletionUtil {
               if (clazz.getTypeParameters.nonEmpty) {
                 ScParameterizedType(ScDesignatorType(clazz), undefines)
               }
-              else
-                ScDesignatorType(clazz)
+              else ScDesignatorType(clazz)
             val noUndefType =
               if (clazz.getTypeParameters.nonEmpty) {
                 ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(ptp =>
                   new ScTypeParameterType(ptp, ScSubstitutor.empty)
                 ))
               }
-              else
-                ScDesignatorType(clazz)
-
+              else ScDesignatorType(clazz)
             if (!predefinedType.conforms(typez)) return true
             val undef = Conformance.undefinedSubst(typez, predefinedType)
             undef.getSubstitutor match {

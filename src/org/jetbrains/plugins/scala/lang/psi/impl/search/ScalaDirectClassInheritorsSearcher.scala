@@ -32,7 +32,12 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
 
     val scope = inReadAction {
       val useScope = clazz.getUseScope match {
-        case _: LocalSearchScope => clazz.containingScalaFile.map(GlobalSearchScope.fileScope)
+        case _: LocalSearchScope =>
+          clazz.containingScalaFile match {
+            case Some(f) if f.getVirtualFile != null => clazz.containingScalaFile.map(GlobalSearchScope.fileScope)
+            case Some(f) => Some(GlobalSearchScope.allScope(f.getProject))
+            case None => None
+          }
         case global: GlobalSearchScope => Some(global)
         case _ => None
       }
@@ -86,6 +91,10 @@ class ScalaDirectClassInheritorsSearcher extends QueryExecutor[PsiClass, DirectC
         } match {
           case Some(inheritor) =>
             if (!consumer.process(inheritor)) return false
+          case _ if clazzJar == null => //this is possible during completion
+            for (inheritor <- sameNameInheritors) {
+              if (!consumer.process(inheritor)) return false
+            }
           case _ =>
             val closestClass = sameNameInheritors.maxBy { inheritor =>
               val jarFile = getJarFile(inheritor)
