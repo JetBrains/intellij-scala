@@ -17,7 +17,18 @@ case class ScalaSdkDescriptor(version: Option[Version],
                               compilerFiles: Seq[File],
                               libraryFiles: Seq[File],
                               sourceFiles: Seq[File],
-                              docFiles: Seq[File]) {
+                              docFiles: Seq[File]) extends SdkDescriptor {
+  override protected val LanguageName = "scala"
+}
+
+trait SdkDescriptor {
+  val version: Option[Version]
+  val compilerFiles: Seq[File]
+  val libraryFiles: Seq[File]
+  val sourceFiles: Seq[File]
+  val docFiles: Seq[File]
+
+  protected val LanguageName: String
 
   def createNewLibraryConfiguration() = {
     val properties = new ScalaLibraryProperties()
@@ -25,7 +36,7 @@ case class ScalaSdkDescriptor(version: Option[Version],
     properties.languageLevel = version.flatMap(ScalaLanguageLevel.from).getOrElse(ScalaLanguageLevel.Default)
     properties.compilerClasspath = compilerFiles
 
-    val name = "scala-sdk-" + version.map(_.number).getOrElse("Unknown")
+    val name = s"$LanguageName-sdk-" + version.map(_.number).getOrElse("Unknown")
 
     new NewLibraryConfiguration(name, ScalaLibraryType.instance, properties) {
       override def addRoots(editor: LibraryEditor): Unit = {
@@ -41,14 +52,18 @@ case class ScalaSdkDescriptor(version: Option[Version],
   }
 }
 
-object ScalaSdkDescriptor extends SdkDescriptor {
-  override protected val compilerArtifact = Artifact.ScalaCompiler
+object ScalaSdkDescriptor extends SdkDescriptorCompanion {
+  override protected val RequiredAdditionalBinaries = Set[Artifact]()
+
+  override protected def createSdkDescriptor = ScalaSdkDescriptor(_, _, _, _, _)
 }
 
-trait SdkDescriptor {
-  protected val compilerArtifact: Artifact
+trait SdkDescriptorCompanion {
+  protected val RequiredAdditionalBinaries: Set[Artifact]
 
-  def from(components: Seq[Component]): Either[String, ScalaSdkDescriptor] = {
+  protected def createSdkDescriptor: (Option[Version], Seq[File], Seq[File], Seq[File], Seq[File]) => SdkDescriptor
+
+  def from(components: Seq[Component]): Either[String, SdkDescriptor] = {
     val (binaryComponents, sourceComponents, docComponents) = {
       val componentsByKind = components.groupBy(_.kind)
 
@@ -63,7 +78,7 @@ trait SdkDescriptor {
       }
     }
 
-    val requiredBinaryArtifacts = Set(Artifact.ScalaLibrary, compilerArtifact) ++ (
+    val requiredBinaryArtifacts = Set(Artifact.ScalaLibrary, Artifact.ScalaCompiler) ++ RequiredAdditionalBinaries ++ (
       if (reflectRequired) Set(Artifact.ScalaReflect)
       else Set())
 
@@ -82,7 +97,7 @@ trait SdkDescriptor {
 
       val libraryVersion = binaryComponents.find(_.artifact == ScalaLibrary).flatMap(_.version)
 
-      val descriptor = ScalaSdkDescriptor(
+      val descriptor = createSdkDescriptor(
         libraryVersion,
         compilerBinaries.map(_.file),
         libraryBinaries.map(_.file),

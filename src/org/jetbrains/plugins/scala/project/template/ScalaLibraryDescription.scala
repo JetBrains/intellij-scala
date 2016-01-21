@@ -20,9 +20,9 @@ import scala.collection.JavaConverters._
  * @author Pavel Fatin
  */
 object ScalaLibraryDescription extends ScalaLibraryDescription {
-  override val libraryKind = ScalaLibraryKind
+  override protected val LibraryKind = ScalaLibraryKind
 
-  override val sdkDescriptor = ScalaSdkDescriptor
+  override protected val SdkDescriptor = ScalaSdkDescriptor
 
   override def dialog(parentComponent: JComponent, provider: () => util.List[SdkChoice], contextDirectory: VirtualFile) = {
     new SdkSelectionDialog(parentComponent, provider, contextDirectory)
@@ -35,7 +35,7 @@ object ScalaLibraryDescription extends ScalaLibraryDescription {
 
   override def getDefaultLevel = LibrariesContainer.LibraryLevel.GLOBAL
 
-  def systemSdks: Seq[ScalaSdkDescriptor] =
+  def systemSdks: Seq[SdkDescriptor] =
     systemScalaRoots.flatMap(path => sdkIn(new File(path)).toSeq)
 
   private def systemScalaRoots: Seq[String] = {
@@ -72,31 +72,31 @@ object ScalaLibraryDescription extends ScalaLibraryDescription {
             .find(_.toLowerCase.contains("scala"))
             .map(_.replaceFirst("""[/\\]?bin[/\\]?$""", ""))
 
-  def mavenSdks: Seq[ScalaSdkDescriptor] = {
+  def mavenSdks: Seq[SdkDescriptor] = {
     val root = new File(System.getProperty("user.home")) / ".m2"
 
     sdksIn(root / "repository" / "org" / "scala-lang")
   }
 
-  def ivySdks: Seq[ScalaSdkDescriptor] = {
+  def ivySdks: Seq[SdkDescriptor] = {
     val root = new File(System.getProperty("user.home")) / ".ivy2"
 
     sdksIn(root / "cache" / "org.scala-lang")
   }
 
-  private def sdksIn(root: File): Seq[ScalaSdkDescriptor] = {
+  private def sdksIn(root: File): Seq[SdkDescriptor] = {
     val components = Component.discoverIn(root.allFiles)
 
-    components.groupBy(_.version).mapValues(ScalaSdkDescriptor.from).toSeq.collect {
+    components.groupBy(_.version).mapValues(SdkDescriptor.from).toSeq.collect {
       case (Some(version), Right(sdk)) => sdk
     }
   }
 }
 
 trait ScalaLibraryDescription extends CustomLibraryDescription {
-  val libraryKind: PersistentLibraryKind[ScalaLibraryProperties]
+  protected val LibraryKind: PersistentLibraryKind[ScalaLibraryProperties]
 
-  val sdkDescriptor: SdkDescriptor
+  protected val SdkDescriptor: SdkDescriptorCompanion
 
   def dialog(parentComponent: JComponent, provide: () => java.util.List[SdkChoice],
              contextDirectory: VirtualFile): SdkSelectionDialog
@@ -105,7 +105,7 @@ trait ScalaLibraryDescription extends CustomLibraryDescription {
     localSkdsIn(virtualToIoFile(contextDirectory)).map(SdkChoice(_, "Project"))
   }
 
-  def getSuitableLibraryKinds = Collections.singleton(libraryKind)
+  def getSuitableLibraryKinds = Collections.singleton(LibraryKind)
 
   def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile) = {
     implicit val ordering = implicitly[Ordering[Version]].reverse
@@ -115,13 +115,13 @@ trait ScalaLibraryDescription extends CustomLibraryDescription {
       .orNull
   }
 
-  private def localSkdsIn(directory: File): Seq[ScalaSdkDescriptor] = Seq(directory / "lib").flatMap(sdkIn)
+  private def localSkdsIn(directory: File): Seq[SdkDescriptor] = Seq(directory / "lib").flatMap(sdkIn)
 
-  protected def sdkIn(root: File): Option[ScalaSdkDescriptor] = {
+  protected def sdkIn(root: File): Option[SdkDescriptor] = {
     val components = Component.discoverIn(root.allFiles)
 
-    sdkDescriptor.from(components).right.toOption
+    SdkDescriptor.from(components).right.toOption
   }
 }
 
-case class SdkChoice(sdk: ScalaSdkDescriptor, source: String)
+case class SdkChoice(sdk: SdkDescriptor, source: String)

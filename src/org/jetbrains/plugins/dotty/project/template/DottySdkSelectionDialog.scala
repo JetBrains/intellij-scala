@@ -3,6 +3,7 @@ package org.jetbrains.plugins.dotty.project.template
 import javax.swing.JComponent
 
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.ui.table.TableView
 import org.jetbrains.plugins.dotty.project.DottyVersions
 import org.jetbrains.plugins.scala.project.template.{SdkChoice, SdkSelectionDialog}
 
@@ -27,4 +28,6 @@ class DottySdkSelectionDialog(parent: JComponent, provider: () => java.util.List
       DottyDownloader.downloadDotty(version, s => listener(s), getContextDirectory)
       BoxedUnit.UNIT
   }
+
+  override protected def getResult(table: TableView[SdkChoice]) = DottySdkSelection.chooseDottySdkFiles(table)
 }

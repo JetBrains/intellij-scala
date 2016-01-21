@@ -30,7 +30,7 @@ sealed class Artifact(val prefix: String, resource: Option[String] = None) {
 }
 
 object Artifact {
-  def values: Set[Artifact] = Set(ScalaLibrary, ScalaCompiler, DottyCompiler, ScalaReflect,
+  def values: Set[Artifact] = Set(ScalaLibrary, ScalaCompiler, DottyCompiler, JLine, ScalaReflect,
     ScalaXml, ScalaSwing, ScalaCombinators, ScalaActors)
 
   private def readProperty(file: File, resource: String, name: String): Option[String] = {
@@ -53,6 +53,9 @@ object Artifact {
   case object ScalaCompiler extends Artifact("scala-compiler", Some("compiler.properties"))
 
   case object DottyCompiler extends Artifact("dotty-compiler")
+
+  // TODO: dotty compiler dependency, to be removed
+  case object JLine extends Artifact("jline")
 
   case object ScalaReflect extends Artifact("scala-reflect", Some("reflect.properties"))
 

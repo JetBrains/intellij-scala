@@ -38,7 +38,7 @@ public class SdkSelectionDialog extends JDialog {
     private final Function0<List<SdkChoice>> myProvider;
     private final ListTableModel<SdkChoice> myTableModel;
     private final VirtualFile myContextDirectory;
-    private ScalaSdkDescriptor mySelectedSdk;
+    private SdkDescriptor mySelectedSdk;
 
     public SdkSelectionDialog(JComponent parent, Function0<List<SdkChoice>> provider, VirtualFile contentDirectory) {
         this(parent, provider, new SdkTableModel(), contentDirectory);
@@ -175,8 +175,12 @@ public class SdkSelectionDialog extends JDialog {
         };
     }
 
+    protected Option<SdkDescriptor> getResult(TableView<SdkChoice> table) {
+        return SdkSelection$.MODULE$.chooseScalaSdkFiles(table);
+    }
+
     private void onBrowse() {
-        Option<ScalaSdkDescriptor> result = SdkSelection.chooseScalaSdkFiles(myTable);
+        Option<SdkDescriptor> result = getResult(myTable);
 
         if (result.isDefined()) {
             mySelectedSdk = result.get();
@@ -203,7 +207,7 @@ public class SdkSelectionDialog extends JDialog {
         dispose();
     }
 
-    public ScalaSdkDescriptor open() {
+    public SdkDescriptor open() {
         pack();
         setLocationRelativeTo(myParent.getTopLevelAncestor());
         setVisible(true);

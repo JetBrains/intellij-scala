@@ -11,9 +11,9 @@ import org.jetbrains.plugins.scala.project.template.{ScalaLibraryDescription, Sd
   * @author adkozlov
   */
 object DottyLibraryDescription extends ScalaLibraryDescription {
-  override val libraryKind = DottyLibraryKind
+  override protected val LibraryKind = DottyLibraryKind
 
-  override val sdkDescriptor = DottySdkDescriptor
+  override protected val SdkDescriptor = DottySdkDescriptor
 
   override def dialog(parentComponent: JComponent, provider: () => util.List[SdkChoice], contextDirectory: VirtualFile) = {
     new DottySdkSelectionDialog(parentComponent, provider, contextDirectory)

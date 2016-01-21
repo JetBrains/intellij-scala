@@ -12,9 +12,9 @@ import org.jetbrains.sbt.project.template.activator.ActivatorDownloadUtil._
 object DottyVersions extends Versions {
   val DottyVersion = Dotty.defaultVersion
 
-  private final val RepositoryUrl = "https://oss.jfrog.org/artifactory/oss-snapshot-local/me/d-d/dotty-bootstrapped/0.1-SNAPSHOT"
+  private final val RepositoryUrl = "https://oss.jfrog.org/artifactory/oss-snapshot-local/me/d-d/dotty_2.11/0.1-SNAPSHOT"
 
-  private val SnapshotVersionLine = ".+>(dotty-bootstrapped-0.1)-(\\d+.\\d+)-(\\d+).jar<.*".r
+  private val SnapshotVersionLine = ".+>(dotty_2.11-0.1)-(\\d+.\\d+)-(\\d+).jar<.*".r
 
   def loadDottyVersions = loadVersionsOf(Dotty, { case SnapshotVersionLine(_, _, number) => "0.1." + number })
 
