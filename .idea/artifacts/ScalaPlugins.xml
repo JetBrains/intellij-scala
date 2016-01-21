@@ -32,7 +32,7 @@
         <element id="archive" name="scala-nailgun-runner.jar">
           <element id="module-output" name="nailgunRunners" />
         </element>
-        <element id="library" level="project" name="SBT: org.scalastyle:scalastyle_2.11:0.7.0:jar" />
+        <element id="library" level="project" name="SBT: org.scalastyle:scalastyle_2.11:0.8.0:jar" />
         <element id="library" level="project" name="SBT: org.scalariform:scalariform_2.11:0.1.7:jar" />
         <element id="library" level="project" name="SBT: org.codehaus.plexus:plexus-container-default:1.5.5:jar" />
         <element id="library" level="project" name="SBT: org.apache.httpcomponents:httpclient:4.3.1:jar" />
