@@ -43,7 +43,7 @@ object CompilationData {
 
     val classpath = ProjectPaths.getCompilationClasspathFiles(chunk, chunk.containsTests, false, true).asScala.toSeq
     val compilerSettings = SettingsManager.getProjectSettings(module.getProject).getCompilerSettings(chunk)
-    val noBootCp = Seq("-nobootcp", "-javabootclasspath", File.pathSeparator)
+    val noBootCp = if (CompilerData.isDotty(chunk)) Nil else Seq("-nobootcp", "-javabootclasspath", File.pathSeparator)
     val scalaOptions = noBootCp ++: compilerSettings.getCompilerOptions
     val order = compilerSettings.getCompileOrder
 

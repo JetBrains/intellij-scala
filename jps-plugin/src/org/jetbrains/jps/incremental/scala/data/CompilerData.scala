@@ -69,6 +69,15 @@ object CompilerData {
     }
   }
 
+  def isDottyModule(module: JpsModule) = {
+    compilerJarsIn(module) match {
+      case Right(jars) => jars.dotty.isDefined
+      case _ => false
+    }
+  }
+
+  def isDotty(chunk: ModuleChunk) = chunk.getModules.asScala.exists(isDottyModule)
+
   private def compilerJarsIn(module: JpsModule): Either[String, CompilerJars] = {
     val sdk = SettingsManager.getScalaSdk(module)
 

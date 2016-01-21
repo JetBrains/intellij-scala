@@ -12,6 +12,7 @@ import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.fs.CompilationRound
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.ScalaBuilder._
+import org.jetbrains.jps.incremental.scala.data.CompilerData
 import org.jetbrains.jps.incremental.scala.local.{IdeClientIdea, PackageObjectsData, ScalaReflectMacroExpansionParser}
 import org.jetbrains.jps.incremental.scala.model.{CompileOrder, IncrementalityType}
 
@@ -79,7 +80,10 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     val successfullyCompiled = mutable.Set[File]()
 
-    val client = new IdeClientIdea("scalac", context, modules.map(_.getName).toSeq, outputConsumer, callback, successfullyCompiled, packageObjectsData)
+    val compilerName = if (modules.exists(CompilerData.isDottyModule)) "dotc" else "scalac"
+
+    val client = new IdeClientIdea(compilerName, context, modules.map(_.getName).toSeq, outputConsumer,
+      callback, successfullyCompiled, packageObjectsData)
 
     val scalaSources = sources.filter(_.getName.endsWith(".scala")).asJava
 

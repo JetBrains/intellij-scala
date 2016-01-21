@@ -4,7 +4,7 @@ package compiler
 import java.io.{File, IOException}
 import javax.swing.event.HyperlinkEvent
 
-import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
+import com.intellij.notification.{NotificationType, Notifications, Notification, NotificationListener}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.project.Project
@@ -17,6 +17,8 @@ import gnu.trove.TByteArrayList
 import org.jetbrains.jps.incremental.BuilderService
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.util.NotificationUtil
 
 import scala.collection.JavaConverters._
 import scala.util.control.Exception._
@@ -89,6 +91,10 @@ class CompileServerLauncher extends ApplicationComponent {
 
     compilerJars.partition(_.exists) match {
       case (presentFiles, Seq()) =>
+        val bootClassPathLibs = bootClasspath(project).map(_.getAbsolutePath)
+        val bootclasspathArg =
+          if (bootClassPathLibs.isEmpty) Nil
+          else Seq("-Xbootclasspath/a:" + bootClassPathLibs.mkString(File.pathSeparator))
         val classpath = (jdk.tools +: presentFiles).map(_.canonicalPath).mkString(File.pathSeparator)
         val settings = ScalaCompileServerSettings.getInstance
 
@@ -107,7 +113,7 @@ class CompileServerLauncher extends ApplicationComponent {
           Seq(s"-Dshutdown.delay=$shutdownDelay")
         } else Nil
 
-        val commands = jdk.executable.canonicalPath +: "-cp" +: classpath +: jvmParameters ++: shutdownDelayArg ++:
+        val commands = jdk.executable.canonicalPath +: bootclasspathArg ++: "-cp" +: classpath +: jvmParameters ++: shutdownDelayArg ++:
                 ngRunnerFqn +: freePort.toString +: id.toString +: Nil
 
         val builder = new ProcessBuilder(commands.asJava)
@@ -179,8 +185,14 @@ object CompileServerLauncher {
       new File(jpsRoot, "nailgun.jar"),
       new File(jpsRoot, "sbt-interface.jar"),
       new File(jpsRoot, "incremental-compiler.jar"),
-      new File(jpsRoot, "jline.jar"),
-      new File(jpsRoot, "scala-jps-plugin.jar"))
+      new File(jpsRoot, "scala-jps-plugin.jar"),
+      new File(jpsRoot, "dotty-callback.jar")
+    )
+  }
+
+  def bootClasspath(project: Project) = {
+    val dottySdk = project.scalaModules.map(_.sdk).find(_.languageLevel.isDotty)
+    dottySdk.toSeq.flatMap(_.compilerClasspath)
   }
 
   def jvmParameters: Seq[String] = {

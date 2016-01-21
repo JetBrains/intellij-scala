@@ -61,7 +61,10 @@ lazy val jpsPlugin  =
   newProject("jpsPlugin", file("jps-plugin"))
   .dependsOn(compilerSettings)
   .enablePlugins(SbtIdeaPlugin)
-  .settings(libraryDependencies ++= Seq(Dependencies.nailgun) ++ DependencyGroups.sbtBundled)
+  .settings(
+    libraryDependencies ++= Seq(Dependencies.nailgun) ++ DependencyGroups.sbtBundled,
+    unmanagedJars in Compile ++= unmanagedJarsFrom(sdkDirectory.value, "dotty")
+  )
 
 lazy val compilerSettings =
   newProject("compilerSettings", file("compiler-settings"))
@@ -217,7 +220,9 @@ lazy val pluginPackager =
         Library(Dependencies.sbtInterface,
           "lib/jps/sbt-interface.jar"),
         Library(Dependencies.bundledJline,
-          "lib/jps/jline.jar")
+          "lib/jps/jline.jar"),
+        Directory(sdkDirectory.value / "dotty",
+          "lib/jps")
       )
       val launcher = Seq(
         Library(Dependencies.sbtStructureExtractor012,
