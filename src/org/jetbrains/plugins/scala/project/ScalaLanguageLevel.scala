@@ -57,7 +57,7 @@ object ScalaLanguageLevel {
 
   object Scala_2_12 extends ScalaLanguageLevel(5, "2.12")
 
-  object Dotty extends ScalaLanguageLevel(5, "0.0") {
+  object Dotty extends ScalaLanguageLevel(5, "0.1-SNAPSHOT") {
     override def name: String = "Dotty " + version
   }
 }

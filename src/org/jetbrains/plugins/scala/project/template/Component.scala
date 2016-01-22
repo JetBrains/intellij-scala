@@ -17,7 +17,7 @@ sealed class Artifact(val prefix: String, resource: Option[String] = None) {
   def versionOf(file: File): Option[Version] = externalVersionOf(file).orElse(internalVersionOf(file))
 
   private def externalVersionOf(file: File): Option[Version] = {
-    val FileName = (prefix + "-(.*?)(?:-src|-sources|-javadoc).jar").r
+    val FileName = (prefix + "-(.*?)(?:-src|-sources|-javadoc)?\\.jar").r
 
     file.getName match {
       case FileName(number) => Some(Version(number))
@@ -52,7 +52,9 @@ object Artifact {
 
   case object ScalaCompiler extends Artifact("scala-compiler", Some("compiler.properties"))
 
-  case object DottyCompiler extends Artifact("dotty_2.11")
+  case object DottyCompiler extends Artifact("(?:dotty_2\\.11|jline)") {
+    override def title = "(dotty_2.11|jline)*.jar"
+  }
 
   case object ScalaReflect extends Artifact("scala-reflect", Some("reflect.properties"))
 

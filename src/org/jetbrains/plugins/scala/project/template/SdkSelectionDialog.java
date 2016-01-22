@@ -40,6 +40,12 @@ public class SdkSelectionDialog extends JDialog {
 
     public SdkSelectionDialog(JComponent parent,
                               Function0<List<SdkChoice>> provider) {
+        this(parent, provider, true);
+    }
+
+    public SdkSelectionDialog(JComponent parent,
+                              Function0<List<SdkChoice>> provider,
+                              boolean canBrowse) {
         super((Window) parent.getTopLevelAncestor());
 
         myParent = parent;
@@ -61,6 +67,7 @@ public class SdkSelectionDialog extends JDialog {
                 onBrowse();
             }
         });
+        buttonBrowse.setVisible(canBrowse);
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onOK();
@@ -156,12 +163,8 @@ public class SdkSelectionDialog extends JDialog {
         };
     }
 
-    protected Option<SdkDescriptor> getResult(TableView<SdkChoice> table) {
-        return SdkSelection$.MODULE$.chooseScalaSdkFiles(table);
-    }
-
     private void onBrowse() {
-        Option<SdkDescriptor> result = getResult(myTable);
+        Option<SdkDescriptor> result = SdkSelection$.MODULE$.chooseScalaSdkFiles(myTable);
 
         if (result.isDefined()) {
             mySelectedSdk = result.get();
