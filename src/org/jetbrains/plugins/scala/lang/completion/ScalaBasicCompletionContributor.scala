@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScModificationTrackerOwner, ScNewTemplateDefinition, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable, ScFun}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -207,10 +207,17 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                   case f: FakePsiMethod if f.name.endsWith("_=") && parameters.getInvocationCount < 2 => //don't show _= methods for vars in basic completion
                   case fun: ScFun => addElement(el)
                   case param: ScClassParameter =>
+                    el.isLocalVariable = true
                     addElement(el)
                   case patt: ScBindingPattern =>
                     val context = ScalaPsiUtil.nameContext(patt)
                     context match {
+                      case sValue: ScValue if sValue.isLocal =>
+                        el.isLocalVariable = true
+                        addElement(el)
+                      case sVar: ScVariable if sVar.isLocal =>
+                        el.isLocalVariable = true
+                        addElement(el)
                       case memb: PsiMember =>
                         if (parameters.getInvocationCount > 1 ||
                           ResolveUtils.isAccessible(memb, position, forCompletion = true)) addElement(el)
