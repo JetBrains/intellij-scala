@@ -30,7 +30,7 @@ import org.jetbrains.sbt.project.template.activator.ActivatorRepoProcessor.DocDa
 class ActivatorProjectBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings](SbtProjectSystem.Id, new SbtProjectSettings) {
   //TODO Refactor me
   private var allTemplates: Map[String, DocData] = Map.empty
-  private val repoProcessor = new ActivatorRepoProcessor
+  private val repoProcessor = new ActivatorCachedRepoProcessor
   private lazy val settingsComponents = {
     downloadTemplateList()
     new ActivatorTemplateList(allTemplates.toArray)
@@ -123,17 +123,10 @@ class ActivatorProjectBuilder extends AbstractExternalModuleBuilder[SbtProjectSe
   private def error(msg: String) = throw new ConfigurationException(msg, "Error")
 
   private def createStub(id: String, path: String) {
-    val contentDir = FileUtilRt.createTempDirectory(s"$id-template-content", "", true)
-    val contentFile =  new File(contentDir, "content.zip")
-
-    contentFile.createNewFile()
-
     val moduleDir = new File(path)
     if (!moduleDir.exists()) moduleDir.mkdirs()
 
-    doWithProgress(ActivatorRepoProcessor.downloadTemplateFromRepo(id, contentFile, error), "Downloading template...")
-
-    ZipUtil.extract(contentFile, moduleDir, null)
+    doWithProgress(repoProcessor.createTemplate(id, moduleDir, error), "Downloading template...")
   }
 
   private def downloadTemplateList() {

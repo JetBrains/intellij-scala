@@ -1,18 +1,12 @@
 package org.jetbrains.sbt.project.template.activator
 
 import java.io.{File, IOException}
-import java.net.{URLClassLoader, HttpURLConnection}
+import java.net.HttpURLConnection
 
-import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.options.ConfigurationException
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
-import com.intellij.openapi.util.io.{FileUtil, StreamUtil}
-import com.intellij.util.io.ZipUtil
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.util.io.StreamUtil
 import com.intellij.util.net.HttpConfigurable
 import org.apache.lucene.document.Document
-import org.apache.lucene.index.{DirectoryReader, IndexReader}
-import org.apache.lucene.store.FSDirectory
-import org.jetbrains.plugins.scala.project.template
 
 
 /**
@@ -21,119 +15,17 @@ import org.jetbrains.plugins.scala.project.template
  *
  *
  */
-class ActivatorRepoProcessor {
-  import org.jetbrains.sbt.project.template.activator.ActivatorRepoProcessor._
-
-  private var extractedHash: Option[String] = None
-  private var indexFile: Option[(String, File)] = None
-
-
-  private def error(msg: String, ex: Throwable = null) {
-    ActivatorRepoProcessor.log.error(msg, ex)
-    throw new ConfigurationException(msg)
-  }
-
-  private def errorStr(msg: String) = error(msg, null)
-
-  private def urlString = s"$REPO_URI/$INDEX_DIR/$VERSION"
-
-  private def extractHash(): Option[String] = {
-    if (extractedHash.isEmpty) extractedHash = {
-      var downloaded: Option[String] = None
-
-      try {
-        downloaded = ActivatorRepoProcessor.downloadStringFromRepo(s"$urlString/$PROPERTIES")
-      } catch {
-        case io: IOException => error("Can't download index", io)
-      }
-
-      downloaded flatMap {
-        case str => str.split('\n').find {
-          case s => s.trim startsWith CACHE_HASH
-        } map {
-          case hashStr => hashStr.trim.stripPrefix(CACHE_HASH)
-        }
-      }
-    }
-
-    extractedHash
-  }
-
-  private def downloadIndex(): Option[File] = {
-    if (extractedHash.flatMap(a => indexFile.map(b => (a, b._1))).exists(a => a._1 == a._2)) indexFile.map(_._2) else {
-      extractHash() flatMap {
-        case hash =>
-          val tmpFile = FileUtil.createTempFile(s"index-$hash", ".zip", true)
-          val downloaded = ActivatorRepoProcessor.downloadFile(s"$urlString/${indexName(hash)}",
-            tmpFile.getCanonicalPath, errorStr, ProgressManager.getInstance().getProgressIndicator)
-
-          if (downloaded) {
-            indexFile = Some((hash, tmpFile))
-            Some(tmpFile)
-          } else None
-      }
-    }
-  }
-
-  private def processIndex(location: File): Map[String, DocData] = {
-    if (!location.exists()) return Map.empty
-
-    var reader: IndexReader = null
-
-    try {
-      template.usingTempDirectoryWithHandler("index-activator", None)(
-      {case io: IOException => error("Can't process templates list", io); Map.empty[String, ActivatorRepoProcessor.DocData]}, {case io: IOException => }) {
-        extracted =>
-
-          ZipUtil.extract(location, extracted, null)
-
-          import org.apache.lucene
-          import org.apache.lucene.search.IndexSearcher
-
-          val loader = getClass.getClassLoader match { //hack to avoid lucene 2.4.1 from bundled maven plugin
-            case urlLoader: URLClassLoader =>
-              new URLClassLoader(urlLoader.getURLs, null)
-            case other => other
-          }
-          loader.loadClass("org.apache.lucene.store.FSDirectory")
-
-          reader = DirectoryReader.open(FSDirectory.open(extracted))
-          val searcher = new IndexSearcher(reader)
-          val docs = searcher.search(new lucene.search.MatchAllDocsQuery, reader.maxDoc())
-          val data = docs.scoreDocs.map { case doc => reader document doc.doc }
-
-          data.map {
-            case docData => Keys.from(docData)
-          }.toMap
-      }
-    } catch {
-      case io: IOException =>
-        error("Can't process templates list", io)
-        Map.empty
-    } finally {
-      if (reader != null) reader.close()
-    }
-  }
-
-  def extractRepoData(): Map[String, DocData] = downloadIndex() match {
-    case None => error("No index file"); Map.empty
-    case Some(file) => processIndex(file)
-  }
-}
-
 object ActivatorRepoProcessor {
   val REPO_URI = "http://downloads.typesafe.com/typesafe-activator"
-  private val INDEX_DIR = "index"
-  private val TEMPLATES_DIR = "templates"
-  private val VERSION = "v2"
-  private val PROPERTIES = "current.properties"
-  private val CACHE_HASH = "cache.hash="
+  val INDEX_DIR = "index"
+  val TEMPLATES_DIR = "templates"
+  val VERSION = "v2"
+  val PROPERTIES = "current.properties"
+  val CACHE_HASH = "cache.hash="
 
-  private def indexName(hash: String) = s"index-$hash.zip"
-  private def templateFileName(id: String) = s"$id.zip"
-  private def calculateHash(id: String): String = id.take(2) + "/" + id.take(6) + "/"
-
-  private val log = Logger.getInstance(classOf[ActivatorRepoProcessor])
+  def indexName(hash: String) = s"index-$hash.zip"
+  def templateFileName(id: String) = s"$id.zip"
+  def calculateHash(id: String): String = id.take(2) + "/" + id.take(6) + "/"
 
   case class DocData(id: String, title: String, author: String, src: String, category: String, desc: String, tags: String) {
     override def toString: String = title
@@ -189,7 +81,7 @@ object ActivatorRepoProcessor {
     } catch {
       case io: IOException =>
         onError(io.getMessage)
-        log.error(s"Can't download $url", io)
+        ActivatorCachedRepoProcessor.logError(s"Can't download $url", io)
         false
     }
   }
@@ -200,7 +92,7 @@ object ActivatorRepoProcessor {
       ActivatorDownloadUtil.downloadContentToFile(indicator, url, pathTo)
     } catch {
       case io: IOException =>
-        log.error(s"Can't download template $id", io)
+//        log.error(s"Can't download template $id", io) - it is not an error anymore
         onError(io.getMessage)
     }
 
