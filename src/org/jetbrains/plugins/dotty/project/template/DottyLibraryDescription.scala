@@ -3,7 +3,6 @@ package org.jetbrains.plugins.dotty.project.template
 import java.util
 import javax.swing.JComponent
 
-import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.dotty.project.DottyLibraryKind
 import org.jetbrains.plugins.scala.project.template.{ScalaLibraryDescription, SdkChoice}
 
@@ -15,7 +14,7 @@ object DottyLibraryDescription extends ScalaLibraryDescription {
 
   override protected val SdkDescriptor = DottySdkDescriptor
 
-  override def dialog(parentComponent: JComponent, provider: () => util.List[SdkChoice], contextDirectory: VirtualFile) = {
-    new DottySdkSelectionDialog(parentComponent, provider, contextDirectory)
+  override def dialog(parentComponent: JComponent, provider: () => util.List[SdkChoice]) = {
+    new DottySdkSelectionDialog(parentComponent, provider)
   }
 }

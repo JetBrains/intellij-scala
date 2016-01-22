@@ -53,13 +53,13 @@ trait SdkDescriptor {
 }
 
 object ScalaSdkDescriptor extends SdkDescriptorCompanion {
-  override protected val RequiredAdditionalBinaries = Set[Artifact]()
+  override protected val CompilerBinary = Artifact.ScalaCompiler
 
   override protected def createSdkDescriptor = ScalaSdkDescriptor(_, _, _, _, _)
 }
 
 trait SdkDescriptorCompanion {
-  protected val RequiredAdditionalBinaries: Set[Artifact]
+  protected val CompilerBinary: Artifact
 
   protected def createSdkDescriptor: (Option[Version], Seq[File], Seq[File], Seq[File], Seq[File]) => SdkDescriptor
 
@@ -72,13 +72,13 @@ trait SdkDescriptorCompanion {
               componentsByKind.getOrElse(Kind.Docs, Seq.empty))
     }
 
-    val reflectRequired = binaryComponents.exists { component =>
-      component.version.exists { version =>
-        ScalaLanguageLevel.from(version).exists(_ >= Scala_2_10)
+    val reflectRequired = binaryComponents.exists {
+      _.version.exists {
+        _.toLanguageLevel.exists(_ >= Scala_2_10)
       }
     }
 
-    val requiredBinaryArtifacts = Set(Artifact.ScalaLibrary, Artifact.ScalaCompiler) ++ RequiredAdditionalBinaries ++ (
+    val requiredBinaryArtifacts = Set(Artifact.ScalaLibrary, CompilerBinary) ++ (
       if (reflectRequired) Set(Artifact.ScalaReflect)
       else Set())
 

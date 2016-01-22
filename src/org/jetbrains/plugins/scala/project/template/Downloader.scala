@@ -8,8 +8,17 @@ import com.intellij.openapi.util.Key
 /**
  * @author Pavel Fatin
  */
-object Downloader {
-  def downloadScala(version: String, listener: String => Unit) {
+object Downloader extends Downloader {
+  def downloadScala(version: String, listener: String => Unit) = download(version, listener)
+
+  override protected def sbtCommandsFor(version: String) = Seq(s"""set scalaVersion := "$version"""") ++
+    super.sbtCommandsFor(version)
+}
+
+trait Downloader {
+  protected def sbtCommandsFor(version: String) = Seq("updateClassifiers")
+
+  protected def download(version: String, listener: String => Unit) {
     val buffer = new StringBuffer()
 
     usingTempFile("sbt-commands") { file =>
@@ -50,10 +59,6 @@ object Downloader {
     } else {
       throw new FileNotFoundException(launcher.getPath)
     }
-  }
-
-  private def sbtCommandsFor(version: String) = {
-    Seq( s"""set scalaVersion := "$version"""", "updateClassifiers")
   }
 }
 

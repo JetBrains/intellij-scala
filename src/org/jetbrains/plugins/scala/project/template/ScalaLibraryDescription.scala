@@ -24,8 +24,8 @@ object ScalaLibraryDescription extends ScalaLibraryDescription {
 
   override protected val SdkDescriptor = ScalaSdkDescriptor
 
-  override def dialog(parentComponent: JComponent, provider: () => util.List[SdkChoice], contextDirectory: VirtualFile) = {
-    new SdkSelectionDialog(parentComponent, provider, contextDirectory)
+  override def dialog(parentComponent: JComponent, provider: () => util.List[SdkChoice]) = {
+    new SdkSelectionDialog(parentComponent, provider)
   }
 
   override def sdks(contextDirectory: VirtualFile) = super.sdks(contextDirectory) ++
@@ -98,8 +98,7 @@ trait ScalaLibraryDescription extends CustomLibraryDescription {
 
   protected val SdkDescriptor: SdkDescriptorCompanion
 
-  def dialog(parentComponent: JComponent, provide: () => java.util.List[SdkChoice],
-             contextDirectory: VirtualFile): SdkSelectionDialog
+  def dialog(parentComponent: JComponent, provide: () => java.util.List[SdkChoice]): SdkSelectionDialog
 
   def sdks(contextDirectory: VirtualFile): Seq[SdkChoice] = {
     localSkdsIn(virtualToIoFile(contextDirectory)).map(SdkChoice(_, "Project"))
@@ -110,7 +109,7 @@ trait ScalaLibraryDescription extends CustomLibraryDescription {
   def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile) = {
     implicit val ordering = implicitly[Ordering[Version]].reverse
 
-    Option(dialog(parentComponent, () => sdks(contextDirectory).asJava, contextDirectory).open())
+    Option(dialog(parentComponent, () => sdks(contextDirectory).asJava).open())
       .map(_.createNewLibraryConfiguration())
       .orNull
   }

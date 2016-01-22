@@ -17,7 +17,7 @@ case class DottySdkDescriptor(version: Option[Version],
 }
 
 object DottySdkDescriptor extends SdkDescriptorCompanion {
-  override protected val RequiredAdditionalBinaries = Set[Artifact](Artifact.DottyCompiler, Artifact.JLine)
+  override protected val CompilerBinary = Artifact.DottyCompiler
 
   override protected def createSdkDescriptor = DottySdkDescriptor(_, _, _, _, _)
 }

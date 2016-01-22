@@ -4,6 +4,7 @@ import com.intellij.util.net.HttpConfigurable
 
 import scala.io.Source
 import scala.util.Try
+import scala.util.matching.Regex
 
 /**
  * @author Pavel Fatin
@@ -13,15 +14,11 @@ object Versions extends Versions {
 
   val DefaultSbtVersion = Sbt.defaultVersion
 
-  private val ReleaseVersionLine = ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r
+  override protected val ReleaseVersionLine = ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r
 
   def loadScalaVersions = loadVersionsOf(Scala)
 
   def loadSbtVersions = loadVersionsOf(Sbt)
-
-  private def loadVersionsOf(entity: Entity): Array[String] = loadVersionsOf(entity, {
-    case ReleaseVersionLine(number) => number
-  })
 
   private object Scala extends Entity("http://repo1.maven.org/maven2/org/scala-lang/scala-compiler/",
     Version("2.8.0"), Seq("2.8.2", "2.9.3", "2.10.4", "2.11.5"))
@@ -31,9 +28,12 @@ object Versions extends Versions {
 }
 
 trait Versions {
-  protected def loadVersionsOf(entity: Entity,
-                               filter: PartialFunction[String, String]): Array[String] = {
-    loadVersionsFrom(entity.url, filter)
+  protected val ReleaseVersionLine: Regex
+
+  protected def loadVersionsOf(entity: Entity): Array[String] = {
+    loadVersionsFrom(entity.url, {
+      case ReleaseVersionLine(number) => number
+    })
       .getOrElse(entity.hardcodedVersions)
       .map(Version(_))
       .filter(_ >= entity.minVersion)

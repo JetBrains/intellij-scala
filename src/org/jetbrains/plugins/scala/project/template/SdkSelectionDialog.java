@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.project.template;
 
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.table.TableView;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -36,24 +35,15 @@ public class SdkSelectionDialog extends JDialog {
 
     private final JComponent myParent;
     private final Function0<List<SdkChoice>> myProvider;
-    private final ListTableModel<SdkChoice> myTableModel;
-    private final VirtualFile myContextDirectory;
+    private final ListTableModel<SdkChoice> myTableModel = new SdkTableModel();
     private SdkDescriptor mySelectedSdk;
 
-    public SdkSelectionDialog(JComponent parent, Function0<List<SdkChoice>> provider, VirtualFile contentDirectory) {
-        this(parent, provider, new SdkTableModel(), contentDirectory);
-    }
-
     public SdkSelectionDialog(JComponent parent,
-                              Function0<List<SdkChoice>> provider,
-                              ListTableModel<SdkChoice> tableModel,
-                              VirtualFile contentDirectory) {
+                              Function0<List<SdkChoice>> provider) {
         super((Window) parent.getTopLevelAncestor());
 
         myParent = parent;
         myProvider = provider;
-        myTableModel = tableModel;
-        myContextDirectory = contentDirectory;
 
         setTitle(format("Select JAR's for the new %s SDK", getLanguageName()));
 
@@ -124,27 +114,18 @@ public class SdkSelectionDialog extends JDialog {
         return "Scala";
     }
 
-    protected String getLoaderName() {
-        return "SBT";
-    }
-
-    protected VirtualFile getContextDirectory() {
-        return myContextDirectory;
-    }
-
     private void onDownload() {
         String languageName = getLanguageName();
-        String loaderName = getLoaderName();
         String[] scalaVersions = package$.MODULE$.withProgressSynchronously(
                 format("Fetching available %s versions", languageName), fetchVersions());
 
         final SelectionDialog<String> dialog = new SelectionDialog<String>(contentPane,
-                format("Download (via %s)", loaderName), format("%s version:", languageName), scalaVersions);
+                "Download (via SBT)", format("%s version:", languageName), scalaVersions);
 
         if (dialog.showAndGet()) {
             String version = dialog.getSelectedValue();
             Try<BoxedUnit> result = package$.MODULE$.withProgressSynchronouslyTry(
-                    format("Downloading %s %s (via %s)", languageName, version, loaderName),
+                    format("Downloading %s %s (via SBT)", languageName, version),
                     downloadVersion(version));
 
             if (result.isFailure()) {
@@ -169,7 +150,7 @@ public class SdkSelectionDialog extends JDialog {
         return new AbstractFunction1<Function1<String, BoxedUnit>, BoxedUnit>() {
             @Override
             public BoxedUnit apply(Function1<String, BoxedUnit> listener) {
-                Downloader.downloadScala(version, listener);
+                Downloader$.MODULE$.downloadScala(version, listener);
                 return BoxedUnit.UNIT;
             }
         };
