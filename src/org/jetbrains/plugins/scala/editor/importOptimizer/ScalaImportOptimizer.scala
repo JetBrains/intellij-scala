@@ -182,22 +182,21 @@ class ScalaImportOptimizer extends ImportOptimizer {
     }
     val newLineWithIndent: String = "\n" + indentForOffset(range.getStartOffset)
 
-    var currentGroupIndex = -1
-    def groupSeparatorsBefore(info: ImportInfo) = {
-      val index = findGroupIndex(info.prefixQualifier, settings)
-      if (index <= currentGroupIndex || currentGroupIndex == -1) ""
+    var prevGroupIndex = -1
+    def groupSeparatorsBefore(info: ImportInfo, currentGroupIndex: Int) = {
+      if (currentGroupIndex <= prevGroupIndex || prevGroupIndex == -1) ""
       else {
         def isBlankLine(i: Int) = importLayout(i) == ScalaCodeStyleSettings.BLANK_LINE
         val blankLineNumber =
-          Range(index - 1, currentGroupIndex, -1).dropWhile(!isBlankLine(_)).takeWhile(isBlankLine).size
+          Range(currentGroupIndex - 1, prevGroupIndex, -1).dropWhile(!isBlankLine(_)).takeWhile(isBlankLine).size
         newLineWithIndent * blankLineNumber
       }
     }
 
     val text = importInfos.map { info =>
       val index: Int = findGroupIndex(info.prefixQualifier, settings)
-      val blankLines = groupSeparatorsBefore(info)
-      currentGroupIndex = index
+      val blankLines = groupSeparatorsBefore(info, index)
+      prevGroupIndex = index
       blankLines + textCreator.getImportText(info, isUnicodeArrow, spacesInImports, sortImports)
     }.mkString(newLineWithIndent).replaceAll("""\n[ \t]+\n""", "\n\n")
 
@@ -213,8 +212,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
   }
 
   private def collectImportRanges(holder: ScImportsHolder,
-                                      namesAtRangeStart: ScImportStmt => Set[String],
-                                      createInfo: ScImportStmt => Seq[ImportInfo]): Map[TextRange, RangeInfo] = {
+                                  namesAtRangeStart: ScImportStmt => Set[String],
+                                  createInfo: ScImportStmt => Seq[ImportInfo]): Map[TextRange, RangeInfo] = {
     val result = mutable.Map[TextRange, RangeInfo]()
     var rangeStart = -1
     var rangeEnd = -1
