@@ -285,7 +285,7 @@ object CachesUtil {
                                                                             key: Key[T],
                                                                             set: Set[ScFunction]) extends ControlThrowable
 
-  private[this] val funsRetTpToCheck = new mutable.ArrayBuffer[(ScModifiableTypedDeclaration, Project)]()
+  private[this] val funsRetTpToCheck = new mutable.Queue[(ScModifiableTypedDeclaration, Project)]()
   @volatile
   private[this] var needToCheckFuns: Boolean = false
   private[this] val currentThreadIsCheckingFuns = new ThreadLocal[Boolean] {
@@ -294,25 +294,18 @@ object CachesUtil {
 
   def incrementModCountForFunsWithModifiedReturn(): Unit = {
     def checkFuns(): Unit = funsRetTpToCheck.synchronized {
-      var i = 0
-      while (i < funsRetTpToCheck.size) {
-        val (fun, proj) = funsRetTpToCheck(i)
+      while (funsRetTpToCheck.nonEmpty) {
+        val (fun, proj) = funsRetTpToCheck.dequeue()
         val isValid: Boolean = fun.isValid
-        if (!isValid || fun.returnTypeHasChangedSinceLastCheck) {
+        if ((!isValid || fun.returnTypeHasChangedSinceLastCheck) && !proj.isDisposed) {
           //if there's more than one, just increment the general modCount If there's one, go up th
-          if (proj.isDisposed) {
-            funsRetTpToCheck.drop(1)
-          } else if (!isValid || funsRetTpToCheck.size > 1) {
-            if (proj.isDisposed) {
-              funsRetTpToCheck.drop(1)
-            }
+          if (!isValid || funsRetTpToCheck.size > 1) {
             ScalaPsiManager.instance(proj).incModificationCount()
             funsRetTpToCheck.clear()
           } else {
             updateModificationCount(fun.getContext, incModCountOnTopLevel = true)
           }
         }
-        i += 1
       }
       needToCheckFuns = false
     }
@@ -329,7 +322,7 @@ object CachesUtil {
 
   def addModificationFunctionsReturnType(fun: ScModifiableTypedDeclaration): Unit = funsRetTpToCheck.synchronized {
     if (!funsRetTpToCheck.exists(_._1 == fun)) {
-      funsRetTpToCheck += ((fun, fun.getProject))
+      funsRetTpToCheck.enqueue((fun, fun.getProject))
       needToCheckFuns = true
     }
   }
