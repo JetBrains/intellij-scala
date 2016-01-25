@@ -22,9 +22,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReferenceElement, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScModificationTrackerOwner, ScNewTemplateDefinition, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable, ScFun}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScNewTemplateDefinition, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
@@ -33,7 +33,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceEleme
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScTypeProjectionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -46,65 +45,7 @@ import scala.util.Random
  * Date: 16.05.2008
  */
 abstract class ScalaCompletionContributor extends CompletionContributor {
-  def getDummyIdentifier(offset: Int, file: PsiFile): String = {
-    def isOpChar(c: Char): Boolean = {
-      ScalaNamesUtil.isIdentifier("+" + c)
-    }
-
-    val element = file.findElementAt(offset)
-    val ref = file.findReferenceAt(offset)
-    if (element != null && ref != null) {
-      val text = ref match {
-        case ref: PsiElement => ref.getText
-        case ref: PsiReference => ref.getElement.getText //this case for anonymous method in ScAccessModifierImpl
-      }
-      val id = if (isOpChar(text(text.length - 1))) {
-        "+++++++++++++++++++++++"
-      } else {
-        val rest = ref match {
-          case ref: PsiElement => text.substring(offset - ref.getTextRange.getStartOffset + 1)
-          case ref: PsiReference =>
-            val from = offset - ref.getElement.getTextRange.getStartOffset + 1
-            if (from < text.length && from >= 0) text.substring(from) else ""
-        }
-        if (ScalaNamesUtil.isKeyword(rest)) {
-          CompletionUtil.DUMMY_IDENTIFIER
-        } else {
-          CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
-        }
-      }
-
-      if (ref.getElement != null &&
-        ref.getElement.getPrevSibling != null &&
-        ref.getElement.getPrevSibling.getNode.getElementType == ScalaTokenTypes.tSTUB) id + "`" else id
-    } else {
-      if (element != null && element.getNode.getElementType == ScalaTokenTypes.tSTUB) {
-        CompletionUtil.DUMMY_IDENTIFIER_TRIMMED + "`"
-      } else {
-        val actualElement = file.findElementAt(offset + 1)
-        if (actualElement != null && ScalaNamesUtil.isKeyword(actualElement.getText)) {
-          CompletionUtil.DUMMY_IDENTIFIER
-        } else {
-          CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
-        }
-      }
-    }
-  }
-
-  def positionFromParameters(parameters: CompletionParameters): PsiElement = {
-
-    @tailrec
-    def inner(element: PsiElement): PsiElement = element match {
-      case null => parameters.getPosition //we got to the top of the tree and didn't find a modificationTrackerOwner
-      case owner: ScModificationTrackerOwner if owner.isValidModificationTrackerOwner() =>
-        if (owner.containingFile.contains(parameters.getOriginalFile)) {
-          owner.getMirrorPositionForCompletion(getDummyIdentifier(parameters.getOffset, parameters.getOriginalFile),
-            parameters.getOffset - owner.getTextRange.getStartOffset).getOrElse(parameters.getPosition)
-        } else parameters.getPosition
-      case _ => inner(element.getContext)
-    }
-    inner(parameters.getOriginalPosition)
-  }
+  def positionFromParameters(parameters: CompletionParameters) = ScalaCompletionUtil.positionFromParameters(parameters)
 }
 
 class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
@@ -207,6 +148,8 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                   case f: FakePsiMethod if f.name.endsWith("_=") && parameters.getInvocationCount < 2 => //don't show _= methods for vars in basic completion
                   case fun: ScFun => addElement(el)
                   case param: ScClassParameter =>
+                    addElement(el)
+                  case param: ScParameter =>
                     el.isLocalVariable = true
                     addElement(el)
                   case patt: ScBindingPattern =>
@@ -327,7 +270,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
     addedElements.clear()
     val offset: Int = context.getStartOffset - 1
     val file: PsiFile = context.getFile
-    context.setDummyIdentifier(getDummyIdentifier(offset, file))
+    context.setDummyIdentifier(ScalaCompletionUtil.getDummyIdentifier(offset, file))
     super.beforeCompletion(context)
   }
 

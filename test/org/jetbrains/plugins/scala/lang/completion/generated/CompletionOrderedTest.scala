@@ -1,18 +1,18 @@
 package org.jetbrains.plugins.scala.lang.completion.generated
 
+import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.lang.completion.CompletionTestBase
 
 /**
-  * Created by user
+  * Created by kate
   * on 1/22/16
   */
 class CompletionOrderedTest extends CompletionTestBase {
   override def folderPath: String = super.folderPath + "Ordered/"
 
-  override def chechResult(got: Array[String], expected: String) {
-    import _root_.junit.framework.Assert._
+  override def checkResult(got: Array[String], _expected: String) {
     val res = got.mkString("\n")
-    assertEquals(expected, res.trim)
+    UsefulTestCase.assertSameLines(_expected, res.trim)
   }
 
   def testLocalBefore() = doTest() //expect localOrParam, membersCurrentClass(fields before methods), membersRest

@@ -4,15 +4,14 @@ import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeighe
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
   * Created by kate
@@ -20,19 +19,14 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
   */
 class ScalaKindCompletionWeigher extends CompletionWeigher {
   override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
-    if (!ScalaProjectSettings.getInstance(location.getProject).isScalaPriority) return null
-
-    val position = location.getCompletionParameters.getPosition
-    val originalPosition = location.getCompletionParameters.getOriginalPosition
-
-    val isTypeDefiniton = Option(PsiTreeUtil.getParentOfType(position, classOf[ScTypeElement])).isDefined
+    val position = ScalaCompletionUtil.positionFromParameters(location.getCompletionParameters)
+    def isTypeDefiniton = Option(PsiTreeUtil.getParentOfType(position, classOf[ScTypeElement])).isDefined
 
     import KindWeights._
 
     def inCurrentClassDef(inMember: PsiMember): Boolean = {
       val cclass = inMember.getContainingClass
-      (cclass != null) && ((position != null && PsiTreeUtil.isContextAncestor(cclass, position, false)) ||
-        (originalPosition != null && PsiTreeUtil.isContextAncestor(cclass, originalPosition, false)))
+      (cclass != null) && (position != null && PsiTreeUtil.isContextAncestor(cclass, position, false))
     }
 
     def handleMember(inMember: PsiMember, position: PsiElement): KindWeights.Value = {
@@ -42,8 +36,8 @@ class ScalaKindCompletionWeigher extends CompletionWeigher {
       val inCurrentClass = inCurrentClassDef(inMember)
       if (inCurrentClass) {
         inMember match {
-          case f: ScValue if !f.isLocal => currentClassField
-          case f: ScVariable if !f.isLocal => currentClassField
+          case f: ScValue => currentClassField
+          case f: ScVariable => currentClassField
           case f: PsiField => currentClassField
           case m: PsiMethod => currentClassMethod
           case _ => currentClassMember
@@ -51,8 +45,8 @@ class ScalaKindCompletionWeigher extends CompletionWeigher {
       } else {
         inMember match {
           case f: ScFunction if noClass => localFunc
-          case f: ScValue if !f.isLocal => field
-          case f: ScVariable if !f.isLocal => currentClassField
+          case f: ScValue => field
+          case f: ScVariable => field
           case f: PsiField => field
           case m: PsiMethod => method
           case _ => member
@@ -60,22 +54,23 @@ class ScalaKindCompletionWeigher extends CompletionWeigher {
       }
     }
 
-    def weight = ScalaLookupItem.original(element) match {
-      case s: ScalaLookupItem if s.isLocalVariable => KindWeights.local
-      case s: ScalaLookupItem =>
-        s.element match {
-          case p: ScParameter => KindWeights.local
-          case patt: ScBindingPattern =>
-            val context = ScalaPsiUtil.nameContext(patt)
-            context match {
-              case m: PsiMember => handleMember(m, position)
-              case _ => null
-            }
-          case m: PsiMember => handleMember(m, position)
-          case _ => null
-        }
-      case _ => null
-    }
+    def weight =
+      ScalaLookupItem.original(element) match {
+        case s: ScalaLookupItem if s.isLocalVariable => KindWeights.local
+        case s: ScalaLookupItem =>
+          s.element match {
+            case p: ScClassParameter if inCurrentClassDef(p) => KindWeights.currentClassField
+            case p: ScClassParameter => KindWeights.field
+            case patt: ScTypedDefinition =>
+              patt.nameContext match {
+                case m: PsiMember => handleMember(m, position)
+                case _ => null
+              }
+            case m: PsiMember => handleMember(m, position)
+            case _ => null
+          }
+        case _ => null
+      }
 
     def typedWeight =
       ScalaLookupItem.original(element) match {

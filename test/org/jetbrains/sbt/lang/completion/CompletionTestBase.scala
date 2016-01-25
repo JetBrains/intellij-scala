@@ -47,7 +47,7 @@ abstract class CompletionTestBase extends completion.CompletionTestBase with Moc
     fileText
   }
 
-  override def chechResult(got: Array[String], _expected: String) {
+  override def checkResult(got: Array[String], _expected: String) {
     import scala.collection.JavaConversions._
     val expected = _expected.split("\n")
     UsefulTestCase.assertContainsElements[String](got.toSet.toSeq, expected.toSeq)
