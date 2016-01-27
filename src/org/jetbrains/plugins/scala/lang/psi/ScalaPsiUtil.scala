@@ -2035,12 +2035,12 @@ object ScalaPsiUtil {
   }
 
   /**
-   * Should we check if it's a Single Abstract Method?
-   * In 2.11 works with -Xexperimental
-   * In 2.12 works by default
- *
-   * @return true if language level and flags are correct
-   */
+    * Should we check if it's a Single Abstract Method?
+    * In 2.11 works with -Xexperimental
+    * In 2.12 works by default
+    *
+    * @return true if language level and flags are correct
+    */
   def isSAMEnabled(e: PsiElement) = e.scalaLanguageLevel match {
     case Some(lang) if lang < Scala_2_11 => false
     case Some(lang) if lang == Scala_2_11 =>
@@ -2053,11 +2053,11 @@ object ScalaPsiUtil {
   }
 
   /**
-   * Determines if expected can be created with a Single Abstract Method and if so return the required ScType for it
- *
-   * @see SCL-6140
-   * @see https://github.com/scala/scala/pull/3018/
-   */
+    * Determines if expected can be created with a Single Abstract Method and if so return the required ScType for it
+    *
+    * @see SCL-6140
+    * @see https://github.com/scala/scala/pull/3018/
+    */
   def toSAMType(expected: ScType, scalaScope: GlobalSearchScope): Option[ScType] = {
 
     def constructorValidForSAM(constructors: Array[PsiMethod]): Boolean = {
@@ -2181,6 +2181,18 @@ object ScalaPsiUtil {
           case _ => None
         }
       case _ => None
+    }
+  }
+
+  def isImplicit(namedElement: PsiNamedElement) = {
+    namedElement match {
+      case s: ScModifierListOwner => s.hasModifierProperty("implicit")
+      case named: ScNamedElement =>
+        ScalaPsiUtil.nameContext(named) match {
+          case s: ScModifierListOwner => s.hasModifierProperty("implicit")
+          case _ => false
+        }
+      case _ => false
     }
   }
 }

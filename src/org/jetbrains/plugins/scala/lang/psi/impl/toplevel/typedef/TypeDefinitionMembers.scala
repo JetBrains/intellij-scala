@@ -88,17 +88,7 @@ object TypeDefinitionMembers {
       case _ => false
     }
 
-    def isImplicit(t: Signature) = {
-      t.namedElement match {
-        case s: ScModifierListOwner => s.hasModifierProperty("implicit")
-        case named: ScNamedElement =>
-          ScalaPsiUtil.nameContext(named) match {
-            case s: ScModifierListOwner => s.hasModifierProperty("implicit")
-            case _ => false
-          }
-        case _ => false
-      }
-    }
+    def isImplicit(t: Signature) = ScalaPsiUtil.isImplicit(t.namedElement)
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       for (method <- clazz.getMethods if nonBridge(place, method) &&
@@ -330,17 +320,7 @@ object TypeDefinitionMembers {
       case _ => false
     }
 
-    def isImplicit(t: Signature) = {
-      t.namedElement match {
-        case s: ScModifierListOwner => s.hasModifierProperty("implicit")
-        case named: ScNamedElement =>
-          ScalaPsiUtil.nameContext(named) match {
-            case s: ScModifierListOwner => s.hasModifierProperty("implicit")
-            case _ => false
-          }
-        case _ => false
-      }
-    }
+    def isImplicit(t: Signature) = ScalaPsiUtil.isImplicit(t.namedElement)
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       for (method <- clazz.getMethods if nonBridge(place, method) &&
