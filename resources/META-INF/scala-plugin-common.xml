@@ -24,7 +24,7 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-      <project.converterProvider 
+      <project.converterProvider
           implementation="org.jetbrains.plugins.scala.project.converter.ScalaProjectConverterProvider"/>
       <statistics.usagesCollector
                 implementation="org.jetbrains.plugins.scala.statistics.ScalaApplicationUsagesCollector" />
@@ -129,13 +129,15 @@
                       implementationClass="org.jetbrains.plugins.scala.lang.completion.statistician.ScalaCompletionStatistician"/>
         <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.ScalaImportStaticLookupActionProvider"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaContainingClassWiegher"
-                 id="scalaContainingClassWeigher" order="after scalaKindWeigher, before scalaParameterCompletionWeigher"/>
+                 id="scalaContainingClassWeigher" order="after prefix, before scalaKindWeigher"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaMethodCompletionWeigher"
                  id="scalaMethodCompletionWeigher" order="after scalaContainingClassWeigher, before proximity"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaParameterCompletionWeigher"
                  id="scalaParameterCompletionWeigher" order="after scalaMethodCompletionWeigher, before proximity"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaClassesCompletionWeigher"
                  id="scalaClassesCompletionWeigher" order="after prefix, before proximity"/>
+        <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByTypeWeigher"
+                 id="scalaTypeCompletionWeigher" order="before scalaContainingClassWeigher"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaKindCompletionWeigher"
                  id="scalaKindWeigher" order="after prefix, before proximity"/>
         <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaClassObjectWeigher"

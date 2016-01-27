@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScTypeProjectionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -91,15 +91,9 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
         case _ => return
       }
       result.restartCompletionWhenNothingMatches()
-      val expectedTypesAfterNew: Array[ScType] =
-      if (afterNewPattern.accepts(position, context)) {
-        val element = position
-        val newExpr: ScNewTemplateDefinition = PsiTreeUtil.getContextOfType(element, classOf[ScNewTemplateDefinition])
-        newExpr.expectedTypes().map {
-          case ScAbstractType(_, lower, upper) => upper
-          case tp                              => tp
-        }
-      } else Array.empty
+
+      val (expectedTypesAfterNew, isAfterNew) = ScalaAfterNewCompletionUtil.expectedTypesAfterNew(position, context)
+
       //if prefix is capitalized, class name completion is enabled
       val classNameCompletion = shouldRunClassNameCompletion(positionFromParameters(parameters), parameters, result.getPrefixMatcher)
       val insertedElement: PsiElement = position
@@ -138,8 +132,9 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                     })
 
                     if (!isExcluded && !classNameCompletion && (!lookingForAnnotations || clazz.isAnnotationType)) {
-                      if (afterNewPattern.accepts(position, context)) {
-                        addElement(getLookupElementFromClass(expectedTypesAfterNew, clazz, renamedMap))
+                      if (isAfterNew) {
+                        val lookupElement = getLookupElementFromClass(expectedTypesAfterNew, clazz, renamedMap)
+                        addElement(lookupElement)
                       } else {
                         addElement(el)
                       }
@@ -161,6 +156,9 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                       case sVar: ScVariable if sVar.isLocal =>
                         el.isLocalVariable = true
                         addElement(el)
+                      case caseClasuse: ScCaseClause =>
+                        el.isLocalVariable = true
+                        addElement(el)
                       case memb: PsiMember =>
                         if (parameters.getInvocationCount > 1 ||
                           ResolveUtils.isAccessible(memb, position, forCompletion = true)) addElement(el)
@@ -170,7 +168,8 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                     if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(memb, position,
                       forCompletion = true))
                       addElement(el)
-                  case _ => addElement(el)
+                  case _ =>
+                    addElement(el)
                 }
               case _ =>
             }
