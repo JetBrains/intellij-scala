@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.delayedInit
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, InspectionsUtil}
-import org.jetbrains.plugins.scala.extensions.{Both, ContainingClass}
+import org.jetbrains.plugins.scala.extensions.{LazyVal, Both, ContainingClass}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
@@ -30,6 +30,7 @@ class FieldFromDelayedInitInspection extends AbstractInspection("FieldFromDelaye
   object FieldInDelayedInit {
     def unapply(srr: ScalaResolveResult): Option[PsiClass] = {
       ScalaPsiUtil.nameContext(srr.getElement) match {
+        case LazyVal(_) => None
         case Both((_: ScPatternDefinition | _: ScVariableDefinition), ContainingClass(clazz @ (_: ScClass | _: ScObject))) =>
           if (srr.fromType.exists(InspectionsUtil.conformsToTypeFromClass(_, "scala.DelayedInit", clazz.getProject))) Some(clazz)
           else None

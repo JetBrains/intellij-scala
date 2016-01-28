@@ -6,8 +6,9 @@ import java.util.Collections
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.evaluation.{EvaluationContext, TextWithImports, TextWithImportsImpl}
 import com.intellij.debugger.engine.{DebuggerUtils, FrameExtraVariablesProvider}
-import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.search.{LocalSearchScope, SearchScope}
+import com.intellij.psi.impl.PsiManagerEx
+import com.intellij.psi.impl.search.PsiSearchHelperImpl
+import com.intellij.psi.search.{LocalSearchScope, TextOccurenceProcessor, UsageSearchContext}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement, ResolveState}
 import com.intellij.xdebugger.impl.breakpoints.XExpressionImpl
@@ -52,8 +53,9 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
       return Collections.emptySet()
 
     val element = inReadAction(sourcePosition.getElementAt)
-    val result = if (element == null) mutable.SortedSet[String]() else getVisibleVariables(element, evaluationContext, alreadyCollected)
-    result.map(toTextWithImports).asJava
+
+    if (element == null) Collections.emptySet()
+    else getVisibleVariables(element, evaluationContext, alreadyCollected).map(toTextWithImports).asJava
   }
 
   private def getVisibleVariables(elem: PsiElement, evaluationContext: EvaluationContext, alreadyCollected: util.Set[String]) = {
@@ -64,7 +66,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
         .filter(srr => !alreadyCollected.asScala.map(ScalaParameterNameAdjuster.fixName).contains(srr.name))
         .filter(canEvaluate(_, elem))
     }
-    val candidates = initialCandidates.filter(canEvaluateLongNoReadAction(_, elem, evaluationContext))
+    val candidates = initialCandidates.filter(canEvaluateLong(_, elem, evaluationContext))
     val sorted = mutable.SortedSet()(Ordering.by[ScalaResolveResult, Int](_.getElement.getTextRange.getStartOffset))
     inReadAction {
       candidates.foreach(sorted += _)
@@ -99,10 +101,10 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
     }
   }
 
-  private def canEvaluateLongNoReadAction(srr: ScalaResolveResult, place: PsiElement, evaluationContext: EvaluationContext) = {
+  private def canEvaluateLong(srr: ScalaResolveResult, place: PsiElement, evaluationContext: EvaluationContext) = {
     srr.getElement match {
       case named if generatorNotFromBody(named, place) => tryEvaluate(named.name, place, evaluationContext).isSuccess
-      case named if notUsedInCurrentClass(named, place) => tryEvaluate(named.name, place, evaluationContext).isSuccess
+      case named: PsiNamedElement if notUsedInCurrentClass(named, place) => tryEvaluate(named.name, place, evaluationContext).isSuccess
       case _ => true
     }
   }
@@ -127,7 +129,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
     }
   }
 
-  private def notUsedInCurrentClass(named: PsiElement, place: PsiElement): Boolean = {
+  private def notUsedInCurrentClass(named: PsiNamedElement, place: PsiElement): Boolean = {
     inReadAction {
       val contextClass = ScalaEvaluatorBuilderUtil.getContextClass(place, strict = false)
       val containingClass = ScalaEvaluatorBuilderUtil.getContextClass(named)
@@ -146,11 +148,21 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
           }
         }
       })
-      val scopes = placesToSearch.map(new LocalSearchScope(_).asInstanceOf[SearchScope])
-      if (scopes.isEmpty) true
+      if (placesToSearch.isEmpty) true
       else {
-        val searchScope = scopes.reduce(_ union _)
-        ReferencesSearch.search(named, searchScope).findFirst() == null
+        val scopes = placesToSearch.map(new LocalSearchScope(_))
+        val helper = new PsiSearchHelperImpl(place.getManager.asInstanceOf[PsiManagerEx])
+        var used = false
+        val processor = new TextOccurenceProcessor {
+          override def execute(element: PsiElement, offsetInElement: Int): Boolean = {
+            used = true
+            false
+          }
+        }
+        scopes.foreach { scope =>
+          helper.processElementsWithWord(processor, scope, named.name, UsageSearchContext.IN_CODE, /*caseSensitive =*/ true)
+        }
+        !used
       }
     }
   }
