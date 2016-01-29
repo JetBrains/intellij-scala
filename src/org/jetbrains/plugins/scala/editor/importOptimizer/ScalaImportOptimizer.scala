@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Set, immutable, mutable}
+import scala.collection.{immutable, mutable}
 
 /**
   * User: Alexander Podkhalyuzin
@@ -321,17 +321,23 @@ object ScalaImportOptimizer {
       import importInfo._
 
       val groupStrings = new ArrayBuffer[String]
-      groupStrings ++= singleNames
+
+      def addGroup(names: Iterable[String]) = {
+        if (sortLexicografically) groupStrings ++= names.toSeq.sorted
+        else groupStrings ++= names
+      }
+
       val arrow = if (isUnicodeArrow) ScalaTypedHandler.unicodeCaseArrow else "=>"
-      groupStrings ++= renames.map(pair => s"${pair._1} $arrow ${pair._2}")
-      groupStrings ++= hiddenNames.map(_ + s" $arrow _")
-      val sortedGroupStrings = if (sortLexicografically) groupStrings.sorted else groupStrings
-      if (hasWildcard) sortedGroupStrings += "_"
+      addGroup(singleNames)
+      addGroup(renames.map(pair => s"${pair._1} $arrow ${pair._2}"))
+      addGroup(hiddenNames.map(_ + s" $arrow _"))
+
+      if (hasWildcard) groupStrings += "_"
       val space = if (spacesInImports) " " else ""
       val root = if (rootUsed) s"${_root_prefix}." else ""
       val postfix =
-        if (sortedGroupStrings.length > 1 || renames.nonEmpty || hiddenNames.nonEmpty) sortedGroupStrings.mkString(s"{$space", ", ", s"$space}")
-        else sortedGroupStrings(0)
+        if (groupStrings.length > 1 || renames.nonEmpty || hiddenNames.nonEmpty) groupStrings.mkString(s"{$space", ", ", s"$space}")
+        else groupStrings(0)
       s"import $root${relative.getOrElse(prefixQualifier)}.$postfix"
     }
 
@@ -359,12 +365,12 @@ object ScalaImportOptimizer {
       else buffer.flatMap(_.split)
 
     updateToWildcardImports(result, namesAtRangeStart, usedImportedNames, settings)
-    updateRootUsed(result, namesAtRangeStart)
+    updateRootPrefix(result, namesAtRangeStart)
 
     result.to[immutable.Seq]
   }
 
-  def updateRootUsed(importInfos: ArrayBuffer[ImportInfo], namesAtRangeStart: Set[String]): Unit = {
+  def updateRootPrefix(importInfos: ArrayBuffer[ImportInfo], namesAtRangeStart: Set[String]): Unit = {
     val holderNames = new mutable.HashSet[String]()
     holderNames ++= namesAtRangeStart
 
@@ -372,7 +378,7 @@ object ScalaImportOptimizer {
       val info = importInfos(i)
       val canAddRoot = info.relative.isEmpty && !info.rootUsed && info.isStableImport
       if (canAddRoot && holderNames.contains(getFirstId(info.prefixQualifier)))
-        importInfos.update(i, info.copy(rootUsed = true))
+        importInfos.update(i, info.withRootPrefix)
       holderNames ++= info.allNames
     }
   }
@@ -415,32 +421,85 @@ object ScalaImportOptimizer {
 
     for ((info, i) <- infos.zipWithIndex) {
       if (shouldUpdate(info)) {
-        val newInfo = info.copy(hasWildcard = true, singleNames = Set.empty, allNames = info.allNamesForWildcard)
+        val newInfo = info.toWildcardInfo
         infos.update(i, newInfo)
       }
     }
   }
 
-  def insertInto(infos: ArrayBuffer[ImportInfo], infoToInsert: ImportInfo, settings: OptimizeImportSettings): Unit = {
+  def insertInto(infos: ArrayBuffer[ImportInfo],
+                 infoToInsert: ImportInfo,
+                 usedImportedNames: Set[String],
+                 settings: OptimizeImportSettings): Unit = {
+
     import settings._
 
-    def addLastAndMoveUpwards(): Unit = {
+    def addLastAndMoveUpwards(newInfo: ImportInfo): Unit = {
       var i = infos.size
-      infos.insert(i, infoToInsert)
+      infos.insert(i, newInfo)
       while(i > 0 && greater(infos(i - 1), infos(i), settings) && swapWithNext(infos, i - 1)) {
         i -= 1
       }
     }
 
-    val samePrefix = infos.zipWithIndex.reverse.find(_._1.prefixQualifier == infoToInsert.prefixQualifier)
-    samePrefix match {
-      case Some((info, idx)) if collectImports =>
-        val merged = ImportInfo.merge(info, infoToInsert)
-        infos.update(idx, merged)
-      case Some((info, idx)) =>
-        infos.insert(idx, infoToInsert)
-      case None =>
-        addLastAndMoveUpwards()
+    def replace(oldInfos: Seq[ImportInfo], newInfos: Seq[ImportInfo]) = {
+      val oldIndices = oldInfos.map(infos.indexOf).filter(_ >= 0).sorted(Ordering[Int].reverse)
+      if (oldIndices.nonEmpty) {
+        val minIndex = oldIndices.last
+        oldIndices.foreach(infos.remove)
+        infos.insert(minIndex, newInfos: _*)
+      }
+      else {
+        newInfos.foreach(addLastAndMoveUpwards)
+      }
+    }
+
+    val (samePrefixInfos, otherInfos) = infos.partition(_.prefixQualifier == infoToInsert.prefixQualifier)
+    val samePrefixWithNewSplitted = samePrefixInfos.flatMap(_.split) ++ infoToInsert.split
+    val (simpleInfos, notSimpleInfos) = samePrefixWithNewSplitted.partition(_.singleNames.nonEmpty)
+
+    def insertInfoWithWildcard(): Unit = {
+      val (wildcard, withArrows) = notSimpleInfos.partition(_.hasWildcard)
+      val namesFromOtherWildcards = otherInfos.flatMap(_.namesFromWildcard).toSet
+      val simpleInfosToRemain = simpleInfos.filter(si => namesFromOtherWildcards.contains(si.singleNames.head))
+      val simpleNamesToRemain = simpleInfosToRemain.flatMap(_.singleNames).toSet
+      val renames = withArrows.flatMap(_.renames)
+      val hiddenNames = withArrows.flatMap(_.hiddenNames)
+      val newHiddenNames =
+        (infoToInsert.allNamesForWildcard -- simpleNamesToRemain -- renames.map(_._1) -- hiddenNames) &
+          namesFromOtherWildcards & usedImportedNames
+
+      withArrows ++= newHiddenNames.map(infoToInsert.toHiddenNameInfo)
+
+      val notSimpleMerged = ImportInfo.merge(withArrows ++ wildcard)
+      if (collectImports) {
+        val simpleMerged = ImportInfo.merge(simpleInfosToRemain ++ notSimpleMerged)
+        replace(samePrefixInfos, simpleMerged.toSeq)
+      }
+      else {
+        replace(samePrefixInfos, simpleInfosToRemain ++ notSimpleMerged)
+      }
+    }
+
+    if (infoToInsert.hasWildcard) {
+      insertInfoWithWildcard()
+    }
+    else if (simpleInfos.size >= settings.classCountToUseImportOnDemand && !infoToInsert.wildcardHasUnusedImplicit) {
+      notSimpleInfos += infoToInsert.toWildcardInfo
+      insertInfoWithWildcard()
+    }
+    else {
+      samePrefixInfos.lastOption match {
+        case Some(info) =>
+          val idx = infos.indexOf(info)
+          if (collectImports) {
+            val merged = info.merge(infoToInsert)
+            infos.update(idx, merged)
+          }
+          else infos.insert(idx + 1, infoToInsert)
+        case None =>
+          addLastAndMoveUpwards(infoToInsert)
+      }
     }
   }
 
@@ -475,7 +534,7 @@ object ScalaImportOptimizer {
       val prefixIndex: Int = samePrefixAfter(i)
       if (prefixIndex != -1) {
         if (prefixIndex == i + 1) {
-          val merged = ImportInfo.merge(buffer(i), buffer(i + 1))
+          val merged = buffer(i).merge(buffer(i + 1))
           buffer(i) = merged
           buffer.remove(i + 1)
         } else {
@@ -487,7 +546,7 @@ object ScalaImportOptimizer {
               j += 1
             }
             if (!break) {
-              val merged = ImportInfo.merge(buffer(j), buffer(j + 1))
+              val merged = buffer(i).merge(buffer(j + 1))
               buffer(j) = merged
               buffer.remove(j + 1)
             }
@@ -561,7 +620,7 @@ object ScalaImportOptimizer {
         }
       case _ =>
     }
-    res
+    res.toSet
   }
 
   private def collectImportsUsed(element: PsiElement): (Set[ImportUsed], Set[String]) = {
@@ -591,7 +650,7 @@ object ScalaImportOptimizer {
       case expression: ScExpression => result ++= importsUsedFor(expression)
       case _ =>
     }
-    (result, importedNames)
+    (result.toSet, importedNames.toSet)
   }
 
   def namesAtRangeStart(imp: ScImportStmt): Set[String] = {

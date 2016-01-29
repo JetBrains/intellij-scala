@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportStmt, ScImportExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -20,8 +20,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Set, mutable}
 
 /**
   * @author Nikolay.Tropin
@@ -45,19 +45,45 @@ case class ImportInfo(importsUsed: Set[ImportUsed],
   def split: Seq[ImportInfo] = {
     val result = new ArrayBuffer[ImportInfo]()
     result ++= singleNames.toSeq.sorted.map { name =>
-      copy(singleNames = Set(name), renames = Map.empty, hiddenNames = Set.empty, hasWildcard = false)
+      template.copy(singleNames = Set(name))
     }
     result ++= renames.map { rename =>
-      copy(renames = Map(rename), singleNames = Set.empty, hiddenNames = Set.empty, hasWildcard = false)
+      template.copy(renames = Map(rename))
     }
-    result ++= hiddenNames.map { hided =>
-      copy(hiddenNames = Set(hided), singleNames = Set.empty, renames = Map.empty, hasWildcard = false)
+    result ++= hiddenNames.map { hidden =>
+      this.toHiddenNameInfo(hidden)
     }
     if (hasWildcard) {
-      result += copy(singleNames = Set.empty, renames = Map.empty, hiddenNames = Set.empty)
+      result += this.toWildcardInfo
     }
     result
   }
+
+  def merge(second: ImportInfo): ImportInfo = {
+    val relative = this.relative.orElse(second.relative)
+    val rootUsed = relative.isEmpty && (this.rootUsed || second.rootUsed)
+    new ImportInfo(this.importsUsed ++ second.importsUsed, this.prefixQualifier, relative,
+      this.allNames ++ second.allNames, this.singleNames ++ second.singleNames,
+      this.renames ++ second.renames, this.hiddenNames ++ second.hiddenNames,
+      this.hasWildcard || second.hasWildcard, rootUsed, this.isStableImport && second.isStableImport,
+      this.allNamesForWildcard)
+  }
+
+  def isSimpleWildcard = hasWildcard && singleNames.isEmpty && renames.isEmpty && hiddenNames.isEmpty
+
+  def namesFromWildcard: Set[String] = {
+    if (hasWildcard) allNames -- singleNames -- renames.keySet
+    else Set.empty[String]
+  }
+
+  private def template: ImportInfo =
+    copy(singleNames = Set.empty, renames = Map.empty, hiddenNames = Set.empty, allNames = allNamesForWildcard, hasWildcard = false)
+
+  def toWildcardInfo: ImportInfo = template.copy(hasWildcard = true)
+
+  def toHiddenNameInfo(name: String): ImportInfo = template.copy(hiddenNames = Set(name))
+
+  def withRootPrefix: ImportInfo = copy(rootUsed = true)
 }
 
 object ImportInfo {
@@ -266,17 +292,8 @@ object ImportInfo {
 
     Some(new ImportInfo(importsUsed.toSet, prefixQualifier, relativeQualifier, allNames.toSet,
       singleNames.toSet, renames.toMap, hiddenNames.toSet, hasWildcard, rootUsed,
-      isStableImport, namesForWildcard, hasNonUsedImplicits))
+      isStableImport, namesForWildcard.toSet, hasNonUsedImplicits))
   }
 
-
-  def merge(first: ImportInfo, second: ImportInfo): ImportInfo = {
-    val relative = first.relative.orElse(second.relative)
-    val rootUsed = relative.isEmpty && (first.rootUsed || second.rootUsed)
-    new ImportInfo(first.importsUsed ++ second.importsUsed, first.prefixQualifier, relative,
-      first.allNames ++ second.allNames, first.singleNames ++ second.singleNames,
-      first.renames ++ second.renames, first.hiddenNames ++ second.hiddenNames,
-      first.hasWildcard || second.hasWildcard, rootUsed, first.isStableImport && second.isStableImport,
-      first.allNamesForWildcard)
-  }
+  def merge(infos: Seq[ImportInfo]): Option[ImportInfo] = infos.reduceOption(_ merge _)
 }

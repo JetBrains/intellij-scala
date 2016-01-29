@@ -85,7 +85,7 @@ class ScalaCodeFragment(project: Project, text: String) extends {
 
   override def isScriptFile(withCashing: Boolean): Boolean = false
 
-  override def addImportForPath(path: String, ref: PsiElement, explicitly: Boolean) {
+  override def addImportForPath(path: String, ref: PsiElement) {
     imports += path
     myManager.beforeChange(false)
     val project: Project = myManager.getProject

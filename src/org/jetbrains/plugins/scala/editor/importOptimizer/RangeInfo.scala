@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.editor.importOptimizer
 
-import scala.collection.Set
-
 /**
   * @author Nikolay.Tropin
   */

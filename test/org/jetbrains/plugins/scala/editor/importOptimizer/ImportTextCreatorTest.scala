@@ -37,7 +37,7 @@ class ImportTextCreatorTest extends TestCase {
   def testGetImportText_Renames_Hidden_Singles_Wildcard_Spaces(): Unit = {
     val info = ImportInfo(Set.empty, "java.lang", None, Set.empty, Set("Integer", "Character", "Runtime"),
       Map("Long" -> "JLong", "Float" -> "JFloat"), Set("System"), hasWildcard = true, rootUsed = false)
-    Assert.assertEquals("import java.lang.{ Character, Float => JFloat, Integer, Long => JLong, Runtime, System => _, _ }",
+    Assert.assertEquals("import java.lang.{ Character, Integer, Runtime, Float => JFloat, Long => JLong, System => _, _ }",
       textCreator.getImportText(info, isUnicodeArrow = false, spacesInImports = true, sortLexicografically = true))
   }
 
