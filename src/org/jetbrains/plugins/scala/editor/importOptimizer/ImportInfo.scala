@@ -26,8 +26,7 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * @author Nikolay.Tropin
   */
-case class ImportInfo(importsUsed: Set[ImportUsed],
-                      prefixQualifier: String,
+case class ImportInfo(prefixQualifier: String,
                       relative: Option[String],
                       allNames: Set[String],
                       singleNames: Set[String],
@@ -62,7 +61,7 @@ case class ImportInfo(importsUsed: Set[ImportUsed],
   def merge(second: ImportInfo): ImportInfo = {
     val relative = this.relative.orElse(second.relative)
     val rootUsed = relative.isEmpty && (this.rootUsed || second.rootUsed)
-    new ImportInfo(this.importsUsed ++ second.importsUsed, this.prefixQualifier, relative,
+    new ImportInfo(this.prefixQualifier, relative,
       this.allNames ++ second.allNames, this.singleNames ++ second.singleNames,
       this.renames ++ second.renames, this.hiddenNames ++ second.hiddenNames,
       this.hasWildcard || second.hasWildcard, rootUsed, this.isStableImport && second.isStableImport,
@@ -290,7 +289,7 @@ object ImportInfo {
       }
     }
 
-    Some(new ImportInfo(importsUsed.toSet, prefixQualifier, relativeQualifier, allNames.toSet,
+    Some(new ImportInfo(prefixQualifier, relativeQualifier, allNames.toSet,
       singleNames.toSet, renames.toMap, hiddenNames.toSet, hasWildcard, rootUsed,
       isStableImport, namesForWildcard.toSet, hasNonUsedImplicits))
   }
