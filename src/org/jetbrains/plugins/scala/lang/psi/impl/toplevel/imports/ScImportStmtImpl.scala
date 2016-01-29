@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableStableCodeReferenceElement, ResolveTargets, ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Set
@@ -256,7 +257,7 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
                       }
 
                       override def execute(element: PsiElement, state: ResolveState): Boolean = {
-                        if (shadowed.exists(p => element == p._2)) return true
+                        if (shadowed.exists(p => ScEquivalenceUtil.smartEquivalence(element, p._2))) return true
 
                         var newState = state.put(ScSubstitutor.key, subst)
 
