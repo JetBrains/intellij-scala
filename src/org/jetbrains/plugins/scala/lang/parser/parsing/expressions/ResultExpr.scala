@@ -7,7 +7,7 @@ package expressions
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.CompoundType
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.{CompoundType, Type}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -18,8 +18,17 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.CompoundType
  * ResultExpr ::= Expr1
  *              | (Bindings | id ':' CompoundType) '=>' Block
  */
+object ResultExpr extends ResultExpr {
+  override protected val bindings = Bindings
+  override protected val `type` = CompoundType
+  override protected val block = Block
+}
 
-object ResultExpr {
+trait ResultExpr {
+  protected val bindings: Bindings
+  protected val `type`: Type
+  protected val block: Block
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val resultMarker = builder.mark
     val backupMarker = builder.mark
@@ -27,7 +36,7 @@ object ResultExpr {
     def parseFunctionEnd() = builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE =>
         builder.advanceLexer() //Ate =>
-        Block parse (builder, hasBrace = false, needNode = true)
+        block parse(builder, hasBrace = false, needNode = true)
         backupMarker.drop()
         resultMarker.done(ScalaElementTypes.FUNCTION_EXPR)
         true
@@ -43,7 +52,7 @@ object ResultExpr {
       if (ScalaTokenTypes.tCOLON == builder.getTokenType) {
         builder.advanceLexer() // ate ':'
         val pt = builder.mark
-        CompoundType.parse(builder, isPattern = false)
+        `type`.parse(builder, isPattern = false)
         pt.done(ScalaElementTypes.PARAM_TYPE)
       }
       builder.getTokenType match {
@@ -62,7 +71,7 @@ object ResultExpr {
 
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS =>
-        Bindings parse builder
+        bindings parse builder
         return parseFunctionEnd()
       case ScalaTokenTypes.kIMPLICIT =>
         val pmarker = builder.mark()

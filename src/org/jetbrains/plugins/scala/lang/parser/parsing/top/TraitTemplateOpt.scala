@@ -16,9 +16,18 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
 /*
  * TraitTemplateOpt ::= 'extends' TraitTemplate | [['extends'] TemplateBody]
  */
+object TraitTemplateOpt extends TraitTemplateOpt {
+  override protected val templateBody = TemplateBody
+  override protected val earlyDef = EarlyDef
+  override protected val mixinParents = MixinParents
+}
 
 //It's very similar code to ClassTemplateOpt
-object TraitTemplateOpt {
+trait TraitTemplateOpt {
+  protected val templateBody: TemplateBody
+  protected val earlyDef: EarlyDef
+  protected val mixinParents: MixinParents
+
   def parse(builder: ScalaPsiBuilder): Unit = {
     val extendsMarker = builder.mark
     //try to find extends keyword
@@ -29,7 +38,7 @@ object TraitTemplateOpt {
           extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
           return
         }
-        TemplateBody parse builder
+        templateBody parse builder
         extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
         return
       case _ =>
@@ -41,8 +50,8 @@ object TraitTemplateOpt {
       //hardly case, becase it's same token for ClassParents and TemplateBody
       case ScalaTokenTypes.tLBRACE =>
         //try to parse early definition if we can't => it's template body
-        if (EarlyDef parse builder) {
-          MixinParents parse builder
+        if (earlyDef parse builder) {
+          mixinParents parse builder
           //parse template body
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE => {
@@ -50,7 +59,7 @@ object TraitTemplateOpt {
                 extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
                 return
               }
-              TemplateBody parse builder
+              templateBody parse builder
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
@@ -64,7 +73,7 @@ object TraitTemplateOpt {
           //parse template body
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE => {
-              TemplateBody parse builder
+              templateBody parse builder
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
@@ -77,7 +86,7 @@ object TraitTemplateOpt {
       //if we find nl => it could be TemplateBody only, but we can't find nl after extends keyword
       //In this case of course it's ClassParents
       case _ =>
-        MixinParents parse builder
+        mixinParents parse builder
         //parse template body
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE => {
@@ -85,7 +94,7 @@ object TraitTemplateOpt {
               extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
               return
             }
-            TemplateBody parse builder
+            templateBody parse builder
             extendsMarker.done(ScalaElementTypes.EXTENDS_BLOCK)
             return
           }

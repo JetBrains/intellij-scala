@@ -13,8 +13,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 * @author Alexander Podkhalyuzin
 * Date: 13.02.2008
 */
+object TypeDef extends TypeDef {
+  override protected val `type` = Type
+  override protected val typeParamClause = TypeParamClause
+}
 
-object TypeDef {
+trait TypeDef {
+  protected val `type`: Type
+  protected val typeParamClause: TypeParamClause
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val faultMarker = builder.mark
     builder.getTokenType match {
@@ -32,13 +39,13 @@ object TypeDef {
         faultMarker.rollbackTo
         return false
     }
-    val isTypeParamClause = if (TypeParamClause parse builder) {
+    val isTypeParamClause = if (typeParamClause parse builder) {
       true
     } else false
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN =>
         builder.advanceLexer //Ate =
-        if (Type.parse(builder)) {
+        if (`type`.parse(builder)) {
           faultMarker.drop
           return true
         }

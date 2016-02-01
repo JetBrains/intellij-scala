@@ -15,11 +15,16 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * PostfixExpr ::= InfixExpr [id [nl]]
  */
+object PostfixExpr extends PostfixExpr {
+  override protected val infixExpr = InfixExpr
+}
 
-object PostfixExpr {
+trait PostfixExpr {
+  protected val infixExpr: InfixExpr
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val postfixMarker = builder.mark
-    if (!InfixExpr.parse(builder)) {
+    if (!infixExpr.parse(builder)) {
       postfixMarker.drop()
       return false
     }

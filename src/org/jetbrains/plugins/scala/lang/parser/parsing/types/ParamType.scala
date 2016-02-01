@@ -18,15 +18,21 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
  *               '=>' Type |
  *               Type '*'
  */
+object ParamType extends ParamType {
+  override protected val `type` = Type
+}
 
-object ParamType {
+trait ParamType {
+  protected val `type`: Type
+
   def parseInner(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE =>
         builder.advanceLexer() //Ate '=>'
-        Type.parse(builder)
+        `type`.parse(builder)
       case _ =>
-        if (!Type.parse(builder, star = true)) false else {
+        if (!`type`.parse(builder, star = true)) false
+        else {
           builder.getTokenText match {
             case "*" => builder.advanceLexer() // Ate '*'
             case _ => /* nothing needs to be done */

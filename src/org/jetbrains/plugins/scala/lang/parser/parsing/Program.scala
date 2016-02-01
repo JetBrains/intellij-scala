@@ -9,8 +9,12 @@ import org.jetbrains.plugins.scala.util.DebugPrint
 /*
  * Program parses all content in scala source file
  */
+object Program extends Program {
+  override protected val compilationUnit = CompilationUnit
+}
 
-object Program {
+trait Program {
+  protected val compilationUnit: CompilationUnit
 
   def parse(builder: ScalaPsiBuilder): Int = {
     var parseState = 0
@@ -18,7 +22,7 @@ object Program {
     DebugPrint.displayLog = false  
 
     if ( !builder.eof() ){
-      parseState = CompilationUnit.parse(builder)
+      parseState = compilationUnit.parse(builder)
     }
 
     if (!builder.eof()) {

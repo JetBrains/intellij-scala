@@ -17,8 +17,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 /*
  * VarDcl ::= ids ':' Type
  */
+object VarDcl extends VarDcl {
+  override protected val `type` = Type
+}
 
-object VarDcl {
+trait VarDcl {
+  protected val `type`: Type
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val returnMarker = builder.mark
     //Look for val
@@ -36,7 +41,7 @@ object VarDcl {
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON => {
             builder.advanceLexer //Ate :
-            if (Type.parse(builder)) {
+            if (`type`.parse(builder)) {
               returnMarker.drop
             }
             else {

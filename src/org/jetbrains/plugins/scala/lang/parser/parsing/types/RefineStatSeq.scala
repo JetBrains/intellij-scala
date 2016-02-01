@@ -11,8 +11,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 * @author Alexander Podkhalyuzin
 * Date: 28.02.2008
 */
+object RefineStatSeq extends RefineStatSeq {
+  override protected val refineStat = RefineStat
+}
 
-object RefineStatSeq {
+trait RefineStatSeq {
+  protected val refineStat: RefineStat
+
   def parse(builder: ScalaPsiBuilder) {
     while (true) {
       builder.getTokenType match {
@@ -21,7 +26,7 @@ object RefineStatSeq {
         case ScalaTokenTypes.tSEMICOLON => builder.advanceLexer() //not interesting case
         //otherwise parse TopStat
         case _ =>
-          if (!RefineStat.parse(builder)) {
+          if (!refineStat.parse(builder)) {
             builder error ScalaBundle.message("wrong.top.statment.declaration")
             return
           }

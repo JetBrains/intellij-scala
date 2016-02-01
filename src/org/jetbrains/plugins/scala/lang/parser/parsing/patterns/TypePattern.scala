@@ -16,7 +16,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{ExistentialClause,
 /*
  * TypePattern ::= Type (but it can't be InfixType => Type (because case A => B => C?))
  */
-object TypePattern {
+object TypePattern extends TypePattern {
+  override protected val `type` = Type
+  override protected val infixType = InfixType
+}
+
+trait TypePattern {
+  protected val `type`: Type
+  protected val infixType: InfixType
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val typeMarker = builder.mark
     builder.getTokenType match {
@@ -28,7 +36,7 @@ object TypePattern {
           case ScalaTokenTypes.tFUNTYPE | ScalaTokenTypes.tRPARENTHESIS =>
             if (builder.getTokenType == ScalaTokenTypes.tFUNTYPE) {
               builder.advanceLexer() //Ate =>
-              if (!Type.parse(builder, star = false, isPattern = true)) {
+              if (!`type`.parse(builder, star = false, isPattern = true)) {
                 builder error ScalaBundle.message("wrong.type")
               }
             }
@@ -45,7 +53,7 @@ object TypePattern {
               case _ =>
                 builder error ScalaBundle.message("fun.sign.expected")
             }
-            if (!Type.parse(builder, star = false, isPattern = true)) {
+            if (!`type`.parse(builder, star = false, isPattern = true)) {
               builder error ScalaBundle.message("wrong.type")
             }
             typeMarker.done(ScalaElementTypes.TYPE_PATTERN)
@@ -57,7 +65,7 @@ object TypePattern {
         }
       case _ =>
     }
-    if (!InfixType.parse(builder, star = false, isPattern = true)) {
+    if (!infixType.parse(builder, star = false, isPattern = true)) {
       typeMarker.drop()
       return false
     }

@@ -21,15 +21,28 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
  *         | 'def' FunDcl
  *         | 'type' {nl} TypeDcl)
  */
+object Dcl extends Dcl {
+  override protected val funDcl = FunDcl
+  override protected val annotation = Annotation
+  override protected val typeDcl = TypeDcl
+  override protected val varDcl = VarDcl
+  override protected val valDcl = ValDcl
+}
 
-object Dcl {
+trait Dcl {
+  protected val funDcl: FunDcl
+  protected val annotation: Annotation
+  protected val valDcl: ValDcl
+  protected val varDcl: VarDcl
+  protected val typeDcl: TypeDcl
+
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,isMod = true)
   def parse(builder: ScalaPsiBuilder, isMod: Boolean): Boolean = {
     val dclMarker = builder.mark
     dclMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEEDING_COMMENTS_TOKEN, null)
     if (isMod) {
       val annotationsMarker = builder.mark
-      while (Annotation.parse(builder)) {}
+      while (annotation.parse(builder)) {}
       annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
       annotationsMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.DEFAULT_LEFT_EDGE_BINDER, null)
       //parse modifiers
@@ -47,7 +60,7 @@ object Dcl {
     //Look for val,var,def or type
     builder.getTokenType match {
       case ScalaTokenTypes.kVAL =>
-        if (ValDcl parse builder) {
+        if (valDcl parse builder) {
           dclMarker.done(ScalaElementTypes.VALUE_DECLARATION)
           true
         }
@@ -56,7 +69,7 @@ object Dcl {
           false
         }
       case ScalaTokenTypes.kVAR =>
-        if (VarDcl parse builder) {
+        if (varDcl parse builder) {
           dclMarker.done(ScalaElementTypes.VARIABLE_DECLARATION)
           true
         }
@@ -65,7 +78,7 @@ object Dcl {
           false
         }
       case ScalaTokenTypes.kDEF =>
-        if (FunDcl parse builder) {
+        if (funDcl parse builder) {
           dclMarker.done(ScalaElementTypes.FUNCTION_DECLARATION)
           true
         }
@@ -74,7 +87,7 @@ object Dcl {
           false
         }
       case ScalaTokenTypes.kTYPE =>
-        if (TypeDcl parse builder) {
+        if (typeDcl parse builder) {
           dclMarker.done(ScalaElementTypes.TYPE_DECLARATION)
           true
         }

@@ -15,8 +15,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * ParamClause ::= [nl] '(' [Params] ')'
  */
+object ParamClause extends ParamClause {
+  override protected val params = Params
+}
 
-object ParamClause {
+trait ParamClause {
+  protected val params: Params
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark
     if (builder.twoNewlinesBeforeCurrentToken) {
@@ -38,7 +43,7 @@ object ParamClause {
         return false
       case _ =>
     }
-    Params parse builder
+    params parse builder
     builder.getTokenType match {
       case ScalaTokenTypes.tRPARENTHESIS =>
         builder.advanceLexer() //Ate )

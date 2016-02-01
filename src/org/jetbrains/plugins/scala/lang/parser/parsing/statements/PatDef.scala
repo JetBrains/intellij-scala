@@ -19,13 +19,23 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 /*
  * PatDef ::= Pattern2 {',' Pattern2} [':' Type] '=' Expr
  */
+object PatDef extends PatDef {
+  override protected val expr = Expr
+  override protected val pattern2 = Pattern2
+  override protected val `type` = Type
+}
+
 //TODO: Rewrite this
-object PatDef {
+trait PatDef {
+  protected val expr: Expr
+  protected val pattern2: Pattern2
+  protected val `type`: Type
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val someMarker = builder.mark
     val pattern2sMarker = builder.mark
 
-    if (!Pattern2.parse(builder, forDef = true)) {
+    if (!pattern2.parse(builder, forDef = true)) {
       pattern2sMarker.rollbackTo()
       someMarker.drop()
       return false
@@ -34,7 +44,7 @@ object PatDef {
     while (ScalaTokenTypes.tCOMMA.equals(builder.getTokenType)) {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tCOMMA)
 
-      if (!Pattern2.parse(builder, forDef = true))  {
+      if (!pattern2.parse(builder, forDef = true)) {
         pattern2sMarker.rollbackTo()
         someMarker.drop()
         return false
@@ -48,7 +58,7 @@ object PatDef {
     if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
 
-      if (!Type.parse(builder)) {
+      if (!`type`.parse(builder)) {
         builder error "type declaration expected"
       }
 
@@ -60,7 +70,7 @@ object PatDef {
     } else {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tASSIGN)
 
-      if (!Expr.parse(builder)) {
+      if (!expr.parse(builder)) {
         builder error "expression expected"
       }
 

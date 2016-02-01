@@ -16,8 +16,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 /*
  * FunDcl ::= FunSig [':' Type]
  */
+object FunDcl extends FunDcl {
+  override protected val funSig = FunSig
+  override protected val `type` = Type
+}
 
-object FunDcl {
+trait FunDcl {
+  protected val funSig: FunSig
+  protected val `type`: Type
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     //val returnMarker = builder.mark
     builder.getTokenType match {
@@ -27,14 +34,14 @@ object FunDcl {
         //returnMarker.drop
         return false
     }
-    if (!(FunSig parse builder)) {
+    if (!(funSig parse builder)) {
       //returnMarker.drop
       return false
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer //Ate :
-        if (Type.parse(builder)) {
+        if (`type`.parse(builder)) {
           //returnMarker.drop
           return true
         }

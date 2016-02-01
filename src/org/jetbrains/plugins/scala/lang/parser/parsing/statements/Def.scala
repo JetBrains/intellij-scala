@@ -23,8 +23,25 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
  *         | 'def' MacroDef
  *         | 'type' {nl} TypeDef)
  */
+object Def extends Def {
+  override protected val funDef = FunDef
+  override protected val patDef = PatDef
+  override protected val varDef = VarDef
+  override protected val tmplDef = TmplDef
+  override protected val macroDef = MacroDef
+  override protected val typeDef = TypeDef
+  override protected val annotation = Annotation
+}
 
-object Def {
+trait Def {
+  protected val funDef: FunDef
+  protected val macroDef: MacroDef
+  protected val tmplDef: TmplDef
+  protected val patDef: PatDef
+  protected val varDef: VarDef
+  protected val typeDef: TypeDef
+  protected val annotation: Annotation
+
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, isMod = true)
   def parse(builder: ScalaPsiBuilder, isMod: Boolean): Boolean = parse(builder, isMod, isImplicit = false)
   def parse(builder: ScalaPsiBuilder, isMod: Boolean, isImplicit: Boolean): Boolean = {
@@ -32,7 +49,7 @@ object Def {
     defMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEEDING_COMMENTS_TOKEN, null)
     if (isMod || isImplicit) {
       val annotationsMarker = builder.mark
-      while (Annotation.parse(builder)) {}
+      while (annotation.parse(builder)) {}
       annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
       annotationsMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.DEFAULT_LEFT_EDGE_BINDER, null)
       //parse modifiers
@@ -56,7 +73,7 @@ object Def {
     builder.getTokenType match {
       case ScalaTokenTypes.kVAL =>
         builder.advanceLexer() //Ate val
-        if (PatDef parse builder) {
+        if (patDef parse builder) {
           defMarker.done(ScalaElementTypes.PATTERN_DEFINITION)
           true
         }
@@ -66,7 +83,7 @@ object Def {
         }
       case ScalaTokenTypes.kVAR =>
         builder.advanceLexer() //Ate var
-        if (VarDef parse builder) {
+        if (varDef parse builder) {
           defMarker.done(ScalaElementTypes.VARIABLE_DEFINITION)
           true
         }
@@ -75,10 +92,10 @@ object Def {
           false
         }
       case ScalaTokenTypes.kDEF =>
-        if (MacroDef parse builder) {
+        if (macroDef parse builder) {
           defMarker.done(ScalaElementTypes.MACRO_DEFINITION)
           true
-        } else if (FunDef parse builder) {
+        } else if (funDef parse builder) {
           defMarker.done(ScalaElementTypes.FUNCTION_DEFINITION)
           true
         } else {
@@ -86,7 +103,7 @@ object Def {
           false
         }
       case ScalaTokenTypes.kTYPE =>
-        if (TypeDef parse builder) {
+        if (typeDef parse builder) {
           defMarker.done(ScalaElementTypes.TYPE_DEFINITION)
           true
         }
@@ -97,7 +114,7 @@ object Def {
       case ScalaTokenTypes.kCASE | ScalaTokenTypes.kCLASS
            | ScalaTokenTypes.kOBJECT | ScalaTokenTypes.kTRAIT =>
         defMarker.rollbackTo()
-        TmplDef parse builder
+        tmplDef parse builder
       case _ =>
         defMarker.rollbackTo()
         false

@@ -15,8 +15,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * ClassParamClause ::= [nl] '(' [ClassParam {',' ClassParam}] ')'
  */
+object ClassParamClause extends ClassParamClause {
+  override protected val classParam = ClassParam
+}
 
-object ClassParamClause {
+trait ClassParamClause {
+  protected val classParam: ClassParam
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val classParamMarker = builder.mark
     if (builder.twoNewlinesBeforeCurrentToken) {
@@ -37,10 +42,10 @@ object ClassParamClause {
           case _ => {}
         }
         //ok, let's parse parameters
-        if (ClassParam parse builder) {
+        if (classParam parse builder) {
           while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
             builder.advanceLexer //Ate ,
-            if (!(ClassParam parse builder)) {
+            if (!(classParam parse builder)) {
               builder error ErrMsg("wrong.parameter")
             }
           }

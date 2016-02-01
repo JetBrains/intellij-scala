@@ -12,12 +12,17 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 * @author Alexander Podkhalyuzin
 * Date: 29.02.2008
 */
+object Patterns extends Patterns {
+  override protected val pattern = Pattern
+}
 
-object Patterns {
+trait Patterns {
+  protected val pattern: Pattern
+
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,underParams = false)
   def parse(builder: ScalaPsiBuilder, underParams: Boolean): Boolean = {
     val patternsMarker = builder.mark
-    if (!Pattern.parse(builder)) {
+    if (!pattern.parse(builder)) {
       builder.getTokenType match {
         case ScalaTokenTypes.tUNDER =>
           builder.advanceLexer()
@@ -38,7 +43,7 @@ object Patterns {
       case ScalaTokenTypes.tCOMMA =>
         builder.advanceLexer //Ate ,
       var end = false
-        while ((!end || !underParams) && Pattern.parse(builder)) {
+        while ((!end || !underParams) && pattern.parse(builder)) {
           builder.getTokenType match {
             case ScalaTokenTypes.tCOMMA => {
               builder.advanceLexer //Ate ,

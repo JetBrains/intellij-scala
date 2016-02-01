@@ -19,14 +19,19 @@ import scala.annotation.tailrec
 /*
  *  CompilationUnit ::= [package QualId StatementSeparator] TopStatSeq
  */
+object CompilationUnit extends CompilationUnit {
+  override protected val topStatSeq = TopStatSeq
+}
 
-object CompilationUnit {
+trait CompilationUnit {
+  protected val topStatSeq: TopStatSeq
+
   def parse(builder: ScalaPsiBuilder): Int = {
     var parseState = ParserState.EMPTY_STATE
 
     def parsePackagingBody(hasPackage: Boolean) = {
       while (builder.getTokenType != null) {
-        TopStatSeq.parse(builder, waitBrace = false, hasPackage = hasPackage) match {
+        topStatSeq.parse(builder, waitBrace = false, hasPackage = hasPackage) match {
           case ParserState.EMPTY_STATE =>
           case ParserState.SCRIPT_STATE =>
             Stats.trigger("scala.file.script.parsed")

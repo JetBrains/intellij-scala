@@ -15,15 +15,22 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 /*
  * AnnotType ::= {Annotation} SimpleType
  */
+object AnnotType extends AnnotType {
+  override protected val annotation = Annotation
+  override protected val simpleType = SimpleType
+}
 
-object AnnotType {
+trait AnnotType {
+  protected val annotation: Annotation
+  protected val simpleType: SimpleType
+
   def parse(builder: ScalaPsiBuilder, isPattern: Boolean, multipleSQBrackets: Boolean = true): Boolean = {
     val annotMarker = builder.mark
     var isAnnotation = false
     //parse Simple type
-    if (SimpleType.parse(builder, isPattern, multipleSQBrackets)) {
+    if (simpleType.parse(builder, isPattern, multipleSQBrackets)) {
       val annotationsMarker = builder.mark
-      while (!builder.newlineBeforeCurrentToken && Annotation.parse(builder,
+      while (!builder.newlineBeforeCurrentToken && annotation.parse(builder,
         countLinesAfterAnnotation = false)) {isAnnotation = true}
 
       if (isAnnotation) annotationsMarker.done(ScalaElementTypes.ANNOTATIONS) else annotationsMarker.drop()
