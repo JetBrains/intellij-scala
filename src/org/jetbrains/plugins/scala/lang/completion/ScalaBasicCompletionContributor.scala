@@ -144,7 +144,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                   case fun: ScFun => addElement(el)
                   case param: ScClassParameter =>
                     addElement(el)
-                  case param: ScParameter =>
+                  case param: ScParameter if !el.isNamedParameter=>
                     el.isLocalVariable = true
                     addElement(el)
                   case patt: ScBindingPattern =>
