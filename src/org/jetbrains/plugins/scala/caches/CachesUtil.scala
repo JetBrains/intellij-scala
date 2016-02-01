@@ -344,9 +344,8 @@ object CachesUtil {
   def addModificationFunctionsReturnType(fun: ScModifiableTypedDeclaration): Unit = {
     val project = fun.getProject
     
-    val eligible = doQueueWithLock(queue => !queue.exists(_._1 == fun))
-    if (eligible) {
-      doQueueWithLock(queue => {queue.enqueue((fun, project)); needToCheckFuns = true})
-    }
+    doQueueWithLock(
+      queue => {if (!queue.exists(_._1 == fun)) {queue.enqueue((fun, project)); needToCheckFuns = true}}
+    )
   }
 }
