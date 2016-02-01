@@ -19,9 +19,17 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  *  ValDef ::= PatDef |
  *             ids ':' Type '=' '_'
  */
-object VarDef {
+object VarDef extends VarDef {
+  override protected val patDef = PatDef
+  override protected val `type` = Type
+}
+
+trait VarDef {
+  protected val patDef: PatDef
+  protected val `type`: Type
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
-    if (PatDef parse builder) {
+    if (patDef parse builder) {
       return true
     }
 
@@ -34,7 +42,7 @@ object VarDef {
 
         if (ScalaTokenTypes.tCOLON.equals(builder.getTokenType)) {
           ParserUtils.eatElement(builder, ScalaTokenTypes.tCOLON)
-          if (!Type.parse(builder)) {
+          if (!`type`.parse(builder)) {
             builder error "type declaration expected"
           }
           hasTypeDcl = true

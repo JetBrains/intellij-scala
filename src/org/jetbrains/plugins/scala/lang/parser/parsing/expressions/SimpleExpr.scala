@@ -33,8 +33,21 @@ import scala.annotation.tailrec
  *               | SimpleExpr1 ArgumentExprs
  *               | XmlExpr
  */
+object SimpleExpr extends SimpleExpr {
+  override protected val argumentExprs = ArgumentExprs
+  override protected val classTemplate = ClassTemplate
+  override protected val literal = Literal
+  override protected val blockExpr = BlockExpr
+  override protected val expr = Expr
+}
 
-object SimpleExpr extends ParserNode with ScalaTokenTypes {
+trait SimpleExpr extends ParserNode with ScalaTokenTypes {
+  protected val argumentExprs: ArgumentExprs
+  protected val expr: Expr
+  protected val blockExpr: BlockExpr
+  protected val classTemplate: ClassTemplate
+  protected val literal: Literal
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val simpleMarker = builder.mark
     var newMarker: PsiBuilder.Marker = null
@@ -42,7 +55,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
     builder.getTokenType match {
       case ScalaTokenTypes.kNEW =>
         builder.advanceLexer() //Ate new
-        if (!ClassTemplate.parse(builder, nonEmpty = true)) {
+        if (!classTemplate.parse(builder, nonEmpty = true)) {
           builder error ErrMsg("identifier.expected")
           simpleMarker.drop()
           return false
@@ -52,7 +65,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
       case ScalaTokenTypes.tLBRACE =>
         newMarker = simpleMarker.precede
         simpleMarker.drop()
-        if (!BlockExpr.parse(builder)) {
+        if (!blockExpr.parse(builder)) {
           newMarker.drop()
           return false
         }
@@ -72,7 +85,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
             newMarker = simpleMarker.precede
             simpleMarker.done(ScalaElementTypes.UNIT_EXPR)
           case _ =>
-            if (!Expr.parse(builder)) {
+            if (!expr.parse(builder)) {
               builder error ErrMsg("rparenthesis.expected")
               builder.restoreNewlinesState
               newMarker = simpleMarker.precede
@@ -83,7 +96,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
                 !lookAhead(builder, ScalaTokenTypes.tCOMMA, ScalaTokenTypes.tRPARENTHESIS)) {
                 isTuple = true
                 builder.advanceLexer()
-                if (!Expr.parse(builder)) {
+                if (!expr.parse(builder)) {
                   builder error ErrMsg("wrong.expression")
                 }
               }
@@ -103,7 +116,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
         }
       case _ =>
         state = true
-        if (!Literal.parse(builder)) {
+        if (!literal.parse(builder)) {
           if (!XmlExpr.parse(builder)) {
             if (!Path.parse(builder, ScalaElementTypes.REFERENCE_EXPRESSION)) {
               simpleMarker.drop()
@@ -142,7 +155,7 @@ object SimpleExpr extends ParserNode with ScalaTokenTypes {
           }
         case ScalaTokenTypes.tLPARENTHESIS | ScalaTokenTypes.tLBRACE if
         builder.getTokenType != ScalaTokenTypes.tLPARENTHESIS || !builder.newlineBeforeCurrentToken =>
-          if (state && ArgumentExprs.parse(builder)) {
+          if (state && argumentExprs.parse(builder)) {
             val tMarker = marker.precede
             marker.done(ScalaElementTypes.METHOD_CALL)
             subparse(tMarker)

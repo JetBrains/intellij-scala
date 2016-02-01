@@ -26,8 +26,19 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  *                 |'(' [Patterns [',']] ')'
  *                 | XmlPattern
  */
+object SimplePattern extends SimplePattern {
+  override protected val literal = Literal
+  override protected val interpolationPattern = InterpolationPattern
+  override protected val pattern = Pattern
+  override protected val patterns = Patterns
+}
 
-object SimplePattern extends ParserNode {
+trait SimplePattern extends ParserNode {
+  protected val literal: Literal
+  protected val pattern: Pattern
+  protected val interpolationPattern: InterpolationPattern
+  protected val patterns: Patterns
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     def isVarId = builder.getTokenText.substring(0, 1).toLowerCase ==
             builder.getTokenText.substring(0, 1) && !(
@@ -56,7 +67,7 @@ object SimplePattern extends ParserNode {
             return true
           case _ =>
         }
-        if (Patterns parse builder) {
+        if (patterns parse builder) {
           builder.getTokenType match {
             case ScalaTokenTypes.tRPARENTHESIS =>
               builder.advanceLexer() //Ate )
@@ -70,7 +81,7 @@ object SimplePattern extends ParserNode {
               return true
           }
         }
-        if (Pattern parse builder) {
+        if (pattern parse builder) {
           builder.getTokenType match {
             case ScalaTokenTypes.tRPARENTHESIS =>
               builder.advanceLexer() //Ate )
@@ -83,12 +94,12 @@ object SimplePattern extends ParserNode {
         }
       case _ =>
     }
-    if (InterpolationPattern parse builder) {
+    if (interpolationPattern parse builder) {
       simplePatternMarker.done(ScalaElementTypes.INTERPOLATION_PATTERN)
       return true
     }
 
-    if (Literal parse builder) {
+    if (literal parse builder) {
       simplePatternMarker.done(ScalaElementTypes.LITERAL_PATTERN)
       return true
     }
@@ -171,10 +182,10 @@ object SimplePattern extends ParserNode {
             false
           }
 
-          if (!parseSeqWildcard(withComma = false) && !parseSeqWildcardBinding(withComma = false) && Pattern.parse(builder)) {
+          if (!parseSeqWildcard(withComma = false) && !parseSeqWildcardBinding(withComma = false) && pattern.parse(builder)) {
             while (builder.getTokenType == ScalaTokenTypes.tCOMMA) {
               builder.advanceLexer() // eat comma
-              if (!parseSeqWildcard(withComma = false) && !parseSeqWildcardBinding(withComma = false)) Pattern.parse(builder)
+              if (!parseSeqWildcard(withComma = false) && !parseSeqWildcardBinding(withComma = false)) pattern.parse(builder)
             }
           }
           builder.getTokenType match {

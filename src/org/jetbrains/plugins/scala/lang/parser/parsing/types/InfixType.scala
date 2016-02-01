@@ -5,6 +5,7 @@ package parsing
 package types
 
 import com.intellij.lang.PsiBuilder
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
@@ -16,8 +17,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * InfixType ::= CompoundType {id [nl] CompoundType}
  */
+object InfixType extends InfixType {
+  override protected val componentType = CompoundType
+  override protected val errorMessage = ScalaBundle.message("compound.type.expected")
+}
 
-object InfixType {
+trait InfixType {
+  protected val componentType: Type
+  protected val errorMessage: String
+
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, star = false)
   def parse(builder: ScalaPsiBuilder, star: Boolean): Boolean = parse(builder,star,isPattern = false)
   def parse(builder: ScalaPsiBuilder, star: Boolean, isPattern: Boolean): Boolean = {
@@ -37,7 +45,7 @@ object InfixType {
           case _ =>
         }
       case _ =>
-        if (!CompoundType.parse(builder, isPattern)) {
+        if (!componentType.parse(builder, star, isPattern)) {
           infixTypeMarker.rollbackTo()
           return false
         }
@@ -62,15 +70,13 @@ object InfixType {
             case -1 => builder error ScalaBundle.message("wrong.type.associativity")
           }
       }
-      val idMarker = builder.mark
-      builder.advanceLexer() //Ate id
-      idMarker.done(ScalaElementTypes.REFERENCE)
+      parseId(builder)
       if (assoc == -1) {
         val newMarker = builder.mark
         markerList = newMarker :: markerList
       }
       if (builder.twoNewlinesBeforeCurrentToken) {
-        builder.error(ScalaBundle.message("compound.type.expected"))
+        builder.error(errorMessage)
       }
       builder.getTokenType match {
         case ScalaTokenTypes.tUNDER => //wildcard is possible for infix types, like for parameterized. No bounds possible
@@ -78,7 +84,7 @@ object InfixType {
           builder.advanceLexer()
           typeMarker.done(ScalaElementTypes.WILDCARD_TYPE)
         case _ =>
-          if (!CompoundType.parse(builder, isPattern)) builder error ScalaBundle.message("compound.type.expected")
+          if (!componentType.parse(builder, star, isPattern)) builder error errorMessage
       }
       if (assoc == 1) {
         val newMarker = infixTypeMarker.precede
@@ -105,5 +111,11 @@ object InfixType {
       }
     }
     true
+  }
+
+  protected def parseId(builder: ScalaPsiBuilder, elementType: IElementType = ScalaElementTypes.REFERENCE) {
+    val idMarker = builder.mark
+    builder.advanceLexer() //Ate id
+    idMarker.done(elementType)
   }
 }

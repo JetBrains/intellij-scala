@@ -17,8 +17,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * Pattern3 ::= SimplePattern
  *            | SimplePattern { id [nl] SimplePattern}
  */
+object Pattern3 extends Pattern3 {
+  override protected val simplePattern = SimplePattern
+}
 
-object Pattern3 {
+trait Pattern3 {
+  protected val simplePattern: SimplePattern
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     type Stack[X] = _root_.scala.collection.mutable.Stack[X]
     val markerStack = new Stack[PsiBuilder.Marker]
@@ -26,7 +31,7 @@ object Pattern3 {
     //val infixMarker = builder.mark
     var backupMarker = builder.mark
     var count = 0
-    if (!SimplePattern.parse(builder)) {
+    if (!simplePattern.parse(builder)) {
       //infixMarker.drop
       backupMarker.drop()
       return false
@@ -64,7 +69,7 @@ object Pattern3 {
       }
       backupMarker.drop()
       backupMarker = builder.mark
-      if (!SimplePattern.parse(builder)) {
+      if (!simplePattern.parse(builder)) {
         builder error ScalaBundle.message("simple.pattern.expected")
       }
     }

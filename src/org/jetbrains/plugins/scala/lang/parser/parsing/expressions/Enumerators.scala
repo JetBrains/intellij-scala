@@ -16,11 +16,20 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Guard
 /*
  * Enumerators ::= Generator {semi Enumerator}
  */
+object Enumerators extends Enumerators {
+  override protected val generator = Generator
+  override protected val guard = Guard
+  override protected val enumerator = Enumerator
+}
 
-object Enumerators {
+trait Enumerators {
+  protected val generator: Generator
+  protected val enumerator: Enumerator
+  protected val guard: Guard
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val enumsMarker = builder.mark
-    if (!Generator.parse(builder)) {
+    if (!generator.parse(builder)) {
       enumsMarker.drop()
       return false
     }
@@ -31,10 +40,10 @@ object Enumerators {
           builder.advanceLexer()
           false
         case _ if builder.newlineBeforeCurrentToken => false
-        case _ if Guard.parse(builder) => true
+        case _ if this.guard.parse(builder) => true
         case _ => exit = false; true
       }
-      if (!guard && !Enumerator.parse(builder)) exit = false
+      if (!guard && !enumerator.parse(builder)) exit = false
     }
     enumsMarker.done(ScalaElementTypes.ENUMERATORS)
     return true

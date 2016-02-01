@@ -16,8 +16,17 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{AnnotType, SimpleT
 /*
  * Constr ::= AnnotType {ArgumentExprs}
  */
+object Constructor extends Constructor {
+  override protected val argumentExprs = ArgumentExprs
+  override protected val annotType = AnnotType
+  override protected val simpleType = SimpleType
+}
 
-object Constructor {
+trait Constructor {
+  protected val argumentExprs: ArgumentExprs
+  protected val annotType: AnnotType
+  protected val simpleType: SimpleType
+
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, isAnnotation = false)
   
   def parse(builder: ScalaPsiBuilder, isAnnotation: Boolean): Boolean = {
@@ -27,18 +36,18 @@ object Constructor {
       (latestDoneMarker.getTokenType != ScalaElementTypes.TYPE_GENERIC_CALL && 
         latestDoneMarker.getTokenType != ScalaElementTypes.MODIFIERS && 
         latestDoneMarker.getTokenType != ScalaElementTypes.TYPE_PARAM_CLAUSE)
-    
-    if ((!isAnnotation && !AnnotType.parse(builder, isPattern = false, multipleSQBrackets = false)) ||
-      (isAnnotation && !SimpleType.parse(builder, isPattern = false))) {
+
+    if ((!isAnnotation && !annotType.parse(builder, isPattern = false, multipleSQBrackets = false)) ||
+      (isAnnotation && !simpleType.parse(builder, isPattern = false))) {
       constrMarker.drop()
       return false
     }
     
     if (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
       if (!builder.newlineBeforeCurrentToken)
-        ArgumentExprs parse builder
+        argumentExprs parse builder
       while (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS && (!isAnnotation || annotationAllowed) && !builder.newlineBeforeCurrentToken) {
-        ArgumentExprs parse builder
+        argumentExprs parse builder
       }
     }
     constrMarker.done(ScalaElementTypes.CONSTRUCTOR)

@@ -12,15 +12,22 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{BlockStat, S
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
 */
+object ConstrBlock extends ConstrBlock {
+  override protected val selfInvocation = SelfInvocation
+  override protected val blockStat = BlockStat
+}
 
-object ConstrBlock {
+trait ConstrBlock {
+  protected val selfInvocation: SelfInvocation
+  protected val blockStat: BlockStat
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val constrExprMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer() //Ate {
         builder.enableNewlines
-        SelfInvocation parse builder
+        selfInvocation parse builder
         while (true) {
           builder.getTokenType match {
             case ScalaTokenTypes.tRBRACE => {
@@ -31,10 +38,10 @@ object ConstrBlock {
             }
             case ScalaTokenTypes.tSEMICOLON => {
               builder.advanceLexer() //Ate semi
-              BlockStat parse builder
+              blockStat parse builder
             }
             case _ if builder.newlineBeforeCurrentToken =>
-              if (!BlockStat.parse(builder)) {
+              if (!blockStat.parse(builder)) {
                 builder error ErrMsg("rbrace.expected")
                 builder.restoreNewlinesState
                 while (!builder.eof && !ScalaTokenTypes.tRBRACE.eq(builder.getTokenType) &&

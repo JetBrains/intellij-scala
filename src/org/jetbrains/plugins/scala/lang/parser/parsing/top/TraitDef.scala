@@ -16,8 +16,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * TraitDef ::= id [TypeParamClause] TraitTemplateOpt
  */
+object TraitDef extends TraitDef {
+  override protected val traitTemplateOpt = TraitTemplateOpt
+}
 
-object TraitDef {
+trait TraitDef {
+  protected val traitTemplateOpt: TraitTemplateOpt
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => builder.advanceLexer() //Ate identifier
@@ -30,7 +35,7 @@ object TraitDef {
       case ScalaTokenTypes.tLSQBRACKET => TypeParamClause parse builder
       case _ => /*it could be without type parameters*/
     }
-    TraitTemplateOpt parse builder
+    traitTemplateOpt parse builder
     return true
   }
 }

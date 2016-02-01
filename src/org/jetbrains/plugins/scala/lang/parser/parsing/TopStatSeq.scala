@@ -14,8 +14,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
 *  TopStatSeq ::= TopStat {semi TopStat}
 */
+object TopStatSeq extends TopStatSeq {
+  override protected val topStat = TopStat
+}
 
-object TopStatSeq {
+trait TopStatSeq {
+  protected val topStat: TopStat
+
   def parse(builder: ScalaPsiBuilder): Int = parse(builder, waitBrace = false)
   def parse(builder: ScalaPsiBuilder, waitBrace: Boolean): Int = parse(builder, waitBrace, hasPackage = false)
   def parse(builder: ScalaPsiBuilder, waitBrace: Boolean, hasPackage: Boolean): Int = {
@@ -34,7 +39,7 @@ object TopStatSeq {
             builder error ScalaBundle.message("wrong.top.statment.declaration")
             builder.advanceLexer
           }
-          (parseState, TopStat.parse(builder, parseState)) match {
+          (parseState, topStat.parse(builder, parseState)) match {
             case (_, 0) => error
             case (0, i) => {
               parseState = i % 3

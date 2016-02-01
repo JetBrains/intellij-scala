@@ -14,15 +14,20 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  *  CaseClauses ::= CaseClause {CaseClause}
  */
+object CaseClauses extends CaseClauses {
+  override protected val caseClause = CaseClause
+}
 
-object CaseClauses {
+trait CaseClauses {
+  protected val caseClause: CaseClause
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val caseClausesMarker = builder.mark
-    if (!CaseClause.parse(builder)) {
+    if (!caseClause.parse(builder)) {
       caseClausesMarker.drop()
       return false
     }
-    while (CaseClause parse builder) {}
+    while (caseClause parse builder) {}
     caseClausesMarker.done(ScalaElementTypes.CASE_CLAUSES)
     return true
   }

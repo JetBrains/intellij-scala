@@ -16,12 +16,17 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
 /*
  * MixinParents ::= AnnotType {'with' AnnotType}
  */
+object MixinParents extends MixinParents {
+  override protected val annotType = AnnotType
+}
 
-object MixinParents {
+trait MixinParents {
+  protected val annotType: AnnotType
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val mixinMarker = builder.mark
     //Look for parent
-    if (!AnnotType.parse(builder, isPattern = false)) {
+    if (!annotType.parse(builder, isPattern = false)) {
       builder error ScalaBundle.message("wrong.simple.type")
       mixinMarker.done(ScalaElementTypes.TRAIT_PARENTS)
       return false
@@ -29,7 +34,7 @@ object MixinParents {
     //Look for mixin
     while (builder.getTokenType == ScalaTokenTypes.kWITH) {
       builder.advanceLexer() //Ate with
-      if (!AnnotType.parse(builder, isPattern = false)) {
+      if (!annotType.parse(builder, isPattern = false)) {
         builder error ScalaBundle.message("wrong.simple.type")
         mixinMarker.done(ScalaElementTypes.TRAIT_PARENTS)
         return false

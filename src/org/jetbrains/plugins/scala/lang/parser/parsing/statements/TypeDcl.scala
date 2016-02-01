@@ -17,7 +17,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 /*
  * TypeDcl ::= id [TypeParamClause] ['>:' Type] ['<:' Type]
  */
-object TypeDcl {
+object TypeDcl extends TypeDcl {
+  override protected val `type` = Type
+  override protected val typeParamClause = TypeParamClause
+}
+
+trait TypeDcl {
+  protected val `type`: Type
+  protected val typeParamClause: TypeParamClause
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val returnMarker = builder.mark
     builder.getTokenType match {
@@ -35,11 +43,11 @@ object TypeDcl {
         returnMarker.drop()
         return false
     }
-    TypeParamClause parse builder
+    typeParamClause parse builder
     builder.getTokenText match {
       case ">:" =>
         builder.advanceLexer()
-        if (!Type.parse(builder)) {
+        if (!`type`.parse(builder)) {
           builder error ScalaBundle.message("wrong.type")
         }
       case _ => //nothing
@@ -47,7 +55,7 @@ object TypeDcl {
     builder.getTokenText match {
       case "<:" =>
         builder.advanceLexer()
-        if (!Type.parse(builder)) {
+        if (!`type`.parse(builder)) {
           builder error ScalaBundle.message("wrong.type")
         }
       case _ => //nothing

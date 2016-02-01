@@ -21,13 +21,24 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
  *          | trait TraitDef
  *
  */
+object TmplDef extends TmplDef {
+  override protected val classDef = ClassDef
+  override protected val objectDef = ObjectDef
+  override protected val traitDef = TraitDef
+  override protected val annotation = Annotation
+}
 
-object TmplDef {
+trait TmplDef {
+  protected val classDef: ClassDef
+  protected val objectDef: ObjectDef
+  protected val traitDef: TraitDef
+  protected val annotation: Annotation
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val templateMarker = builder.mark
     templateMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEEDING_COMMENTS_TOKEN, null)
     val annotationsMarker = builder.mark
-    while (Annotation.parse(builder)) {}
+    while (annotation.parse(builder)) {}
     annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
     annotationsMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.DEFAULT_LEFT_EDGE_BINDER, null)
     //parsing modifiers
@@ -43,7 +54,7 @@ object TmplDef {
         caseMarker.drop()
         modifierMarker.done(ScalaElementTypes.MODIFIERS)
         builder.advanceLexer() //Ate class
-        if (ClassDef parse builder) {
+        if (classDef parse builder) {
           templateMarker.done(ScalaElementTypes.CLASS_DEF)
         } else {
           templateMarker.drop()
@@ -53,7 +64,7 @@ object TmplDef {
         caseMarker.drop()
         modifierMarker.done(ScalaElementTypes.MODIFIERS)
         builder.advanceLexer() //Ate object
-        if (ObjectDef parse builder) {
+        if (objectDef parse builder) {
           templateMarker.done(ScalaElementTypes.OBJECT_DEF)
         } else {
           templateMarker.drop()
@@ -65,7 +76,7 @@ object TmplDef {
         builder.getTokenType match {
           case ScalaTokenTypes.kTRAIT => {
             builder.advanceLexer() //Ate trait
-            if (TraitDef.parse(builder)) {
+            if (traitDef.parse(builder)) {
               templateMarker.done(ScalaElementTypes.TRAIT_DEF)
             } else {
               templateMarker.drop()
@@ -78,7 +89,7 @@ object TmplDef {
             builder.advanceLexer() //Ate case
             builder.getTokenText
             builder.advanceLexer() //Ate trait
-            TraitDef.parse(builder)
+            traitDef.parse(builder)
             templateMarker.done(ScalaElementTypes.TRAIT_DEF)
             true
           }

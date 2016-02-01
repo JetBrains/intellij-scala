@@ -9,13 +9,18 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
 /**
  * @author Alexander Podkhalyuzin
  */
+object EmptyDcl extends EmptyDcl {
+  override protected val annotation = Annotation
+}
 
-object EmptyDcl {
+trait EmptyDcl {
+  protected val annotation: Annotation
+
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder,isMod = true)
   def parse(builder: ScalaPsiBuilder, isMod: Boolean): Boolean = {
     val dclMarker = builder.mark
     if (isMod) {
-      while (Annotation.parse(builder)) {}
+      while (annotation.parse(builder)) {}
       while (Modifier.parse(builder)) {}
     }
     builder.getTokenType match {

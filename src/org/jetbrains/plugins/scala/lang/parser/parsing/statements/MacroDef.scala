@@ -14,7 +14,17 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Type, TypeArgs}
  *
  * MacroDef ::= MacroDef ::= FunSig [‘:’ Type] ‘=’ ‘macro’ QualId [TypeArgs]
  */
-object MacroDef {
+object MacroDef extends MacroDef {
+  override protected val funSig = FunSig
+  override protected val `type` = Type
+  override protected val typeArgs = TypeArgs
+}
+
+trait MacroDef {
+  protected val funSig: FunSig
+  protected val `type`: Type
+  protected val typeArgs: TypeArgs
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark
     builder.getTokenType match {
@@ -25,11 +35,11 @@ object MacroDef {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
-        FunSig parse builder
+        funSig parse builder
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON =>
             builder.advanceLexer() //Ate :
-            if (Type.parse(builder)) {
+            if (`type`.parse(builder)) {
               builder.getTokenType match {
                 case ScalaTokenTypes.tASSIGN =>
                   builder.advanceLexer() //Ate =
@@ -38,7 +48,7 @@ object MacroDef {
                       builder.advanceLexer() //Ate `macro`
                       if (Qual_Id.parse(builder)) {
                         if (builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
-                          TypeArgs.parse(builder, isPattern = false)
+                          typeArgs.parse(builder, isPattern = false)
                         }
                         marker.drop()
                         true
@@ -66,7 +76,7 @@ object MacroDef {
                 builder.advanceLexer() //Ate `macro`
                 if (Qual_Id.parse(builder)) {
                   if (builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
-                    TypeArgs.parse(builder, isPattern = false)
+                    typeArgs.parse(builder, isPattern = false)
                   }
                   marker.drop()
                   true

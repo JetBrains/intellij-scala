@@ -17,7 +17,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  *            | '_' ':' TypePat
  *            | Pattern2
  */
-object Pattern1 {
+object Pattern1 extends Pattern1 {
+  override protected val pattern2 = Pattern2
+  override protected val typePattern = TypePattern
+}
+
+trait Pattern1 {
+  protected val pattern2: Pattern2
+  protected val typePattern: TypePattern
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
 
     def isVarId = {
@@ -39,7 +47,7 @@ object Pattern1 {
             case ScalaTokenTypes.tCOLON =>
               builder.advanceLexer() //Ate :
               backupMarker.drop()
-              if (!TypePattern.parse(builder)) {
+              if (!typePattern.parse(builder)) {
                 builder error ScalaBundle.message("wrong.type")
               }
               pattern1Marker.done(ScalaElementTypes.TYPED_PATTERN)
@@ -55,7 +63,7 @@ object Pattern1 {
           case ScalaTokenTypes.tCOLON =>
             builder.advanceLexer() //Ate :
             backupMarker.drop()
-            if (!TypePattern.parse(builder)) {
+            if (!typePattern.parse(builder)) {
               builder error ScalaBundle.message("wrong.type")
             }
             pattern1Marker.done(ScalaElementTypes.TYPED_PATTERN)
@@ -67,6 +75,6 @@ object Pattern1 {
         backupMarker.drop()
     }
     pattern1Marker.drop()
-    Pattern2.parse(builder, forDef = false)
+    pattern2.parse(builder, forDef = false)
   }
 }

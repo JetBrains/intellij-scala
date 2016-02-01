@@ -18,7 +18,13 @@ import scala.annotation.tailrec
 /*
  * EarlyDef ::= '{' [PatVarDef {semi PatVarDef}] '}' 'with'
  */
-object EarlyDef {
+object EarlyDef extends EarlyDef {
+  override protected val patVarDef = PatVarDef
+}
+
+trait EarlyDef {
+  protected val patVarDef: PatVarDef
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val earlyMarker = builder.mark
     //Look for {
@@ -39,7 +45,7 @@ object EarlyDef {
           builder.advanceLexer() //Ate }
           true
         case _ =>
-          if (PatVarDef parse builder) {
+          if (patVarDef parse builder) {
             builder.getTokenType match {
               case ScalaTokenTypes.tRBRACE => {
                 builder.advanceLexer() //Ate }
