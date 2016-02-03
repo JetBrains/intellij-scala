@@ -90,6 +90,9 @@ object ImportInfo {
   def apply(imp: ScImportExpr, isImportUsed: ImportUsed => Boolean): Option[ImportInfo] = {
     def name(s: String) = ScalaNamesUtil.changeKeyword(s)
 
+    val qualifier = imp.qualifier
+    if (qualifier == null) return None //ignore invalid imports
+
     val importsUsed = ArrayBuffer[ImportUsed]()
     val allNames = mutable.HashSet[String]()
     val singleNames = mutable.HashSet[String]()
@@ -178,13 +181,10 @@ object ImportInfo {
         }
       }
     }
-    allNames --= hiddenNames
-    hasNonUsedImplicits = (implicitNames -- singleNames).nonEmpty
-
     if (importsUsed.isEmpty) return None //all imports are empty
 
-    val qualifier = imp.qualifier
-    if (qualifier == null) return None //ignore invalid imports
+    allNames --= hiddenNames
+    hasNonUsedImplicits = (implicitNames -- singleNames).nonEmpty
 
     @tailrec
     def deepestQualifier(ref: ScStableCodeReferenceElement): ScStableCodeReferenceElement = {
