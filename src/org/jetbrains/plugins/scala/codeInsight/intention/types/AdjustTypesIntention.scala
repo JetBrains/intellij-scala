@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
@@ -42,7 +42,7 @@ class AdjustTypesIntention extends PsiElementBaseIntentionAction {
       case _ => return
     }
     val elements = ScalaRefactoringUtil.selectedElements(editor, file, trimComments = true)
-    elements.foreach(ScalaPsiUtil.adjustTypes(_))
+    TypeAdjuster.adjustFor(elements)
   }
 
   private def containsPossiblyAdjustableRef(elem: PsiElement) = elem.depthFirst.exists {

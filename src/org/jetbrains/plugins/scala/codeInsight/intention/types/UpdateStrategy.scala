@@ -4,7 +4,7 @@ package codeInsight.intention.types
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
@@ -117,7 +117,7 @@ abstract class UpdateStrategy extends Strategy {
     val colon = ScalaPsiElementFactory.createColon(context.getManager)
     context.addAfter(colon, anchor)
 
-    ScalaPsiUtil.adjustTypes(added)
+    TypeAdjuster.markToAdjust(added)
   }
 
   def removeTypeAnnotation(e: PsiElement) {

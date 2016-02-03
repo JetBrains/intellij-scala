@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingD
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
@@ -277,7 +277,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
     def addElementBefore(elem: PsiElement, nextSibling: PsiElement) = {
       val added = nextSibling.getParent.addBefore(elem, nextSibling)
-      ScalaPsiUtil.adjustTypes(added)
+      TypeAdjuster.markToAdjust(added)
       added
     }
 
