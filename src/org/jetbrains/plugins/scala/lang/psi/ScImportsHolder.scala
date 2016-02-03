@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportStmt}
@@ -151,7 +152,8 @@ trait ScImportsHolder extends ScalaPsiElement {
     import ScalaImportOptimizer._
 
     def samePackage(path: String) = {
-      val pathQualifier = path.substring(0, path.lastIndexOf('.'))
+      val ref = ScalaPsiElementFactory.createReferenceFromText(path, this.getManager)
+      val pathQualifier = Option(ref).flatMap(_.qualifier.map(_.getText)).getOrElse("")
       val ourPackageName: Option[String] =
         Option(PsiTreeUtil.getParentOfType(this, classOf[ScPackaging], false)).map(_.fullPackageName)
       ourPackageName.contains(pathQualifier)
@@ -195,7 +197,11 @@ trait ScImportsHolder extends ScalaPsiElement {
 
     val importRanges = optimizer.collectImportRanges(this, namesAtRangeStart, createInfo(_))
 
-    if (importRanges.isEmpty) {
+    val needToInsertFirst =
+      if (importRanges.isEmpty) true
+      else refsContainer == null && hasCodeBeforeImports
+
+    if (needToInsertFirst) {
       val dummyImport = ScalaPsiElementFactory.createImportFromText("import dummy._", getManager)
       val usedNames = collectUsedImportedNames(this)
       val inserted = insertFirstImport(dummyImport, getFirstChild).asInstanceOf[ScImportStmt]
@@ -230,6 +236,19 @@ trait ScImportsHolder extends ScalaPsiElement {
 
   def addImportForPath(path: String, ref: PsiElement = null): Unit = {
     addImportsForPaths(Seq(path), ref)
+  }
+
+  private def hasCodeBeforeImports: Boolean = {
+    val firstChild = childBeforeFirstImport.getOrElse(getFirstChild)
+    var nextChild = firstChild
+    while (nextChild != null) {
+      nextChild match {
+        case _: ScImportStmt => return false
+        case _: ScBlockStatement => return true
+        case _ => nextChild = nextChild.getNextSibling
+      }
+    }
+    true
   }
 
   protected def insertFirstImport(importSt: ScImportStmt, first: PsiElement): PsiElement = {
