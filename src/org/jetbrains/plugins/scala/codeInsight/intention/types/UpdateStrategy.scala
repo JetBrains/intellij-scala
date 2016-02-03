@@ -115,6 +115,8 @@ abstract class UpdateStrategy extends Strategy {
     val added = context.addAfter(annotation, anchor)
 
     val colon = ScalaPsiElementFactory.createColon(context.getManager)
+    val whitespace = ScalaPsiElementFactory.createWhitespace(context.getManager)
+    context.addAfter(whitespace, anchor)
     context.addAfter(colon, anchor)
 
     TypeAdjuster.markToAdjust(added)
