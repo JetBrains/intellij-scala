@@ -8,7 +8,7 @@ import com.intellij.lang.{ASTNode, ParserDefinition}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IFileElementType, TokenSet}
 import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
-import org.jetbrains.plugins.dotty.lang.parser.DottyParser
+import org.jetbrains.plugins.dotty.lang.parser.{DottyParser, DottyPsiCreator}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -17,7 +17,9 @@ import org.jetbrains.plugins.scala.settings._
 /**
  * @author ilyas
  */
-class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
+class ScalaParserDefinition extends ScalaParserDefinitionWrapper {
+
+  private var hasDotty = false
 
   def createLexer(project: Project) = {
     val treatDocCommentAsBlockComment = ScalaProjectSettings.getInstance(project).isTreatDocCommentAsBlockComment
@@ -25,7 +27,8 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
   }
 
   def createParser(project: Project) = {
-    if (project.hasDotty) new DottyParser else new ScalaParser
+    hasDotty = project.hasDotty
+    if (hasDotty) new DottyParser else new ScalaParser
   }
 
   def getFileNodeType: IFileElementType = ScalaElementTypes.FILE
@@ -36,7 +39,7 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
 
   def getWhitespaceTokens: TokenSet = ScalaTokenTypes.WHITES_SPACES_TOKEN_SET
 
-  def createElement(astNode: ASTNode): PsiElement = ScalaPsiCreator.createElement(astNode)
+  def createElement(astNode: ASTNode): PsiElement = (if (hasDotty) DottyPsiCreator else ScalaPsiCreator).createElement(astNode)
 
   def createFile(fileViewProvider: FileViewProvider): PsiFile = {
     ScalaFileFactory.EP_NAME.getExtensions
@@ -58,5 +61,4 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
       case _ => super.spaceExistanceTypeBetweenTokens(leftNode, rightNode)
     }
   }
-
 }

@@ -6,9 +6,9 @@ package psi
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.parser.PsiCreator
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScaladocSyntaxElementType
-import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl._
@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl._
 * Date: 22.07.2008
 */
 
-object ScalaDocPsiCreator {
+object ScalaDocPsiCreator extends PsiCreator {
   import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes._
   def createElement(node: ASTNode): PsiElement =
     node.getElementType match {
