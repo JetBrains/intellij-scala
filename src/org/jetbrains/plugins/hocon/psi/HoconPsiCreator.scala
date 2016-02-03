@@ -2,8 +2,9 @@ package org.jetbrains.plugins.hocon.psi
 
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
+import org.jetbrains.plugins.scala.lang.parser.PsiCreator
 
-object HoconPsiCreator {
+object HoconPsiCreator extends PsiCreator {
 
   import org.jetbrains.plugins.hocon.parser.HoconElementType._
 

@@ -21,7 +21,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.ScalaDocPsiCreator
 
-object ScalaPsiCreator {
+object ScalaPsiCreator extends ScalaPsiCreator {
+
+}
+
+trait ScalaPsiCreator extends PsiCreator {
   def createElement(node: ASTNode): PsiElement =     
     node.getElementType match {
      case s: SelfPsiCreator => s.createElement(node)
@@ -134,7 +138,7 @@ object ScalaPsiCreator {
 
 
   //to prevent stack overflow in type checker let's introduce helper method
-  private def inner(node: ASTNode): PsiElement = node.getElementType match {
+  protected def inner(node: ASTNode): PsiElement = node.getElementType match {
 
 
 
@@ -254,8 +258,11 @@ object ScalaPsiCreator {
     case ScalaElementTypes.XML_ELEMENT => new ScXmlElementImpl(node)
     case _ => new ASTWrapperPsiElement(node)
   }
-  
-  trait SelfPsiCreator {
-    def createElement(node: ASTNode): PsiElement
-  }
+
+  trait SelfPsiCreator extends PsiCreator
+
+}
+
+trait PsiCreator {
+  def createElement(node: ASTNode): PsiElement
 }
