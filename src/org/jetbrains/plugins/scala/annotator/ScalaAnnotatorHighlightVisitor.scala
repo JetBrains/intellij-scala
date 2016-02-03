@@ -38,7 +38,7 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
   }
 
   def analyze(file: PsiFile, updateWholeFile: Boolean, holder: HighlightInfoHolder, action: Runnable): Boolean = {
-    val time = System.currentTimeMillis()
+//    val time = System.currentTimeMillis()
     var success = true
     try {
       myHolder = holder
@@ -66,8 +66,11 @@ class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVisitor 
       myAnnotationHolder = null
       myRefCountHolder = null
     }
-    val method: Long = System.currentTimeMillis() - time
-    if (method > 100 && ApplicationManager.getApplication.isInternal) println(s"File: ${file.getName}, Time: $method")
+    // TODO We should probably create a dedicated registry property that enables printing of the running time.
+    // Otherwise, the output always pollutes the console, even when there's no need for that data.
+    // IDEA's "internal mode" is a too coarse-grained switch for that.
+//    val method: Long = System.currentTimeMillis() - time
+//    if (method > 100 && ApplicationManager.getApplication.isInternal) println(s"File: ${file.getName}, Time: $method")
     success
   }
 
