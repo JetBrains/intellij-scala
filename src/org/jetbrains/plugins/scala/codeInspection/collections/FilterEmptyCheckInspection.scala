@@ -18,7 +18,7 @@ object FilterIsEmptyCheck extends SimplificationType {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case CheckIsEmpty(qual`.filter`(pred), s, e) if !hasSideEffects(pred) =>
+      case CheckIsEmpty(qual`.filter`(pred), s, e) if qual != null && !hasSideEffects(pred) =>
         val notExistsText = invocationText(negation = true, qual, "exists", pred)
         val start = Math.min(s, qual.end)
         val end = Math.max(e, expr.end)
@@ -45,7 +45,7 @@ object FilterNotIsEmptyCheck extends SimplificationType {
   override def hint: String = InspectionBundle.message("filterNot.empty.check.hint")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
-    case CheckIsEmpty(qual`.filterNot`(pred), s, e) =>
+    case CheckIsEmpty(qual`.filterNot`(pred), s, e) if qual != null =>
       val start = Math.min(s, qual.end)
       val end = Math.max(e, expr.end)
       val forallText = invocationText(qual, "forall", pred)

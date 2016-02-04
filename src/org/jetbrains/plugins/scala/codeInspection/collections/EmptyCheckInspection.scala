@@ -23,10 +23,10 @@ object CheckIsEmpty extends SimplificationType {
 
   def unapply(expr: ScExpression): Option[(ScExpression, Int, Int)] = {
     val firstLevel = expr match {
-      case (coll`.sizeOrLength`()) `==` literal("0") => Some((coll, coll.end, expr.end))
-      case coll`.isEmpty`() => Some((coll, coll.end, expr.end))
-      case `!`(CheckNonEmpty(coll, _, _)) => Some((coll, expr.start, expr.end))
-      case `!`(CheckIsDefined(coll, _, _)) => Some((coll, expr.start, expr.end))
+      case (coll`.sizeOrLength`()) `==` literal("0") if coll != null => Some((coll, coll.end, expr.end))
+      case coll`.isEmpty`() if coll != null => Some((coll, coll.end, expr.end))
+      case `!`(CheckNonEmpty(coll, _, _)) if coll != null => Some((coll, expr.start, expr.end))
+      case `!`(CheckIsDefined(coll, _, _)) if coll != null=> Some((coll, expr.start, expr.end))
       case coll `==` scalaNone() if isOption(coll) => Some((coll, coll.end, expr.end))
       case scalaNone() `==` coll if isOption(coll) => Some((coll, expr.start, coll.start))
       case _ => None
@@ -37,9 +37,9 @@ object CheckIsEmpty extends SimplificationType {
   def extractInner(firstLevel: Option[(ScExpression, Int, Int)]): Option[(ScExpression, Int, Int)] = {
     firstLevel match {
       case None => None
-      case Some((inner @ coll`.headOption`(), start, end)) =>
+      case Some((inner @ coll`.headOption`(), start, end)) if coll != null =>
         Some(coll, Math.min(coll.end, start), Math.max(inner.end, end))
-      case Some((inner @ coll`.lastOption`(), start, end)) =>
+      case Some((inner @ coll`.lastOption`(), start, end)) if coll != null =>
         Some(coll, Math.min(coll.end, start), Math.max(inner.end, end))
       case _ => firstLevel
     }
@@ -58,11 +58,11 @@ object CheckNonEmpty extends SimplificationType {
 
   def unapply(expr: ScExpression): Option[(ScExpression, Int, Int)] = {
     val firstLevel = expr match {
-      case qual`.nonEmpty`() => Some((qual, qual.end, expr.end))
-      case (qual`.sizeOrLength`()) `!=` literal("0") => Some((qual, qual.end, expr.end))
-      case (qual`.sizeOrLength`()) `>` literal("0") => Some((qual, qual.end, expr.end))
-      case (qual`.sizeOrLength`()) `>=` literal("1") => Some((qual, qual.end, expr.end))
-      case `!`(CheckIsEmpty(qual, _, _)) => Some(qual, expr.start, expr.end)
+      case qual`.nonEmpty`() if qual != null => Some((qual, qual.end, expr.end))
+      case (qual`.sizeOrLength`()) `!=` literal("0") if qual != null => Some((qual, qual.end, expr.end))
+      case (qual`.sizeOrLength`()) `>` literal("0") if qual != null => Some((qual, qual.end, expr.end))
+      case (qual`.sizeOrLength`()) `>=` literal("1") if qual != null => Some((qual, qual.end, expr.end))
+      case `!`(CheckIsEmpty(qual, _, _)) if qual != null => Some(qual, expr.start, expr.end)
       case qual `!=` scalaNone() if isOption(qual) => Some(qual, qual.end, expr.end)
       case scalaNone() `!=` qual if isOption(qual) => Some(qual, expr.start, qual.start)
       case qual`.isDefined`() if isOption(qual) => Some(qual, qual.end, expr.end)
