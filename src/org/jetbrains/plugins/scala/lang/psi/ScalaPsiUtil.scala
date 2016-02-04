@@ -1561,8 +1561,11 @@ object ScalaPsiUtil {
             val equivCall = ScalaPsiElementFactory.createEquivMethodCall(inf)
             val argsList = equivCall.args
             val idx = tuple.exprs.indexOf(exp)
-            val newExpr = argsList.exprs(idx)
-            forArgumentList(newExpr, argsList)
+            if (argsList.exprs.size != tuple.exprs.size || idx < 0) None
+            else {
+              val newExpr = argsList.exprs(idx)
+              forArgumentList(newExpr, argsList)
+            }
           case args: ScArgumentExprList => forArgumentList(exp, args)
           case _ => None
         }

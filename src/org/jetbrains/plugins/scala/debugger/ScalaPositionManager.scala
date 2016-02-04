@@ -8,7 +8,7 @@ import com.intellij.debugger.engine._
 import com.intellij.debugger.requests.ClassPrepareRequestor
 import com.intellij.debugger.{MultiRequestPositionManager, NoDataException, PositionManager, SourcePosition}
 import com.intellij.openapi.editor.Document
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.impl.DirectoryIndex
 import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vfs.VirtualFile
@@ -218,12 +218,14 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       packageName.isEmpty || packageName.contains(refTypePackageName)
     }
 
+    def isAppropriate(refType: ReferenceType) = {
+      Try(samePackage(refType) && refType.isInitialized && condition(refType)).getOrElse(false)
+    }
+
     import scala.collection.JavaConverters._
     for {
       refType <- debugProcess.getVirtualMachineProxy.allClasses.asScala
-      if samePackage(refType)
-      if refType.isInitialized
-      if condition(refType)
+      if isAppropriate(refType)
     } yield {
       refType
     }
@@ -578,13 +580,13 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
   private def findByShortName(refType: ReferenceType): Option[PsiClass] = {
     val project = debugProcess.getProject
 
-    val file = getPsiFileByReferenceType(project, refType)
+    if (DumbService.getInstance(project).isDumb) return None
+
     lazy val sourceName = Try(refType.sourceName()).getOrElse("")
 
-    def checkFile(elem: PsiElement) = {
+    def sameFileName(elem: PsiElement) = {
       val containingFile = elem.getContainingFile
-      if (file != null) containingFile == file
-      else containingFile != null && containingFile.name == sourceName
+      containingFile != null && containingFile.name == sourceName
     }
 
     val originalQName = NameTransformer.decode(refType.name)
@@ -600,15 +602,14 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
     val cacheManager = ScalaShortNamesCacheManager.getInstance(project)
     val classes = cacheManager.getClassesByName(name, GlobalSearchScope.allScope(project))
 
-    val inSameFile = classes.filter(checkFile)
-    val clazz =
-      if (inSameFile.length == 1) classes.headOption
-      else if (inSameFile.length >= 2) {
-        if (isScalaObject) inSameFile.find(_.isInstanceOf[ScObject])
-        else inSameFile.find(!_.isInstanceOf[ScObject])
-      }
-      else None
-    clazz.filter(_.isValid)
+    val inSameFile = classes.filter(c => c.isValid && sameFileName(c))
+
+    if (inSameFile.length == 1) classes.headOption
+    else if (inSameFile.length >= 2) {
+      if (isScalaObject) inSameFile.find(_.isInstanceOf[ScObject])
+      else inSameFile.find(!_.isInstanceOf[ScObject])
+    }
+    else None
   }
 
   private def findContainingClass(refType: ReferenceType): Option[PsiElement] = {
@@ -634,6 +635,8 @@ object ScalaPositionManager {
   private val isCompiledWithIndyLambdasCache = mutable.HashMap[PsiFile, Boolean]()
 
   def positionsOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
+    if (lineNumber < 0) return Seq.empty
+
     val scFile = file match {
       case sf: ScalaFile => sf
       case _ => return Seq.empty
