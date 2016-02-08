@@ -876,6 +876,10 @@
                          displayName="Field from DelayedInit" groupPath="Scala" groupName="General"
                          shortName="FieldFromDelayedInit" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.hashCodeUsesVar.HashCodeUsesVarInspection"
+                         displayName="Non-value field is accessed in 'hashCode()'" groupPath="Scala" groupName="General"
+                         shortName="HashCodeUsesVar" level="WEAK WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
                         displayName="All Errors Tool" groupPath="Scala" groupName="General"
                         shortName="ScalaAllErrors" level="WARNING"
