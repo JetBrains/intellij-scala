@@ -13,8 +13,13 @@ import org.jetbrains.plugins.scala.util.TestUtils
   * Created by kate
   * on 2/10/16
   */
-class ScalaCompletionSortingTestCase(completionType: CompletionType,
+abstract class ScalaCompletionSortingTestCase(completionType: CompletionType,
                                      relativePath: String) extends LightFixtureCompletionTestCase {
+
+  def this(relativePath: String) {
+    this(CompletionType.BASIC, relativePath)
+  }
+
   @throws[Exception]
   override protected def setUp():Unit =  {
     super.setUp()

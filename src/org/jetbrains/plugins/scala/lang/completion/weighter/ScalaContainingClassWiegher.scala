@@ -4,6 +4,7 @@ import com.intellij.codeInsight.completion.{CompletionLocation, CompletionWeighe
 import com.intellij.codeInsight.lookup.LookupElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 
 /**
   * @author Alexander Podkhalyuzin
@@ -17,7 +18,12 @@ class ScalaContainingClassWiegher extends CompletionWeigher {
       case si: ScalaLookupItem if si.isUnderlined => underlined
       case si: ScalaLookupItem if si.isDeprecated => deprecated
       case p: ScalaLookupItem if p.isNamedParameter => nparam
-      case si: ScalaLookupItem if si.bold => bold
+      case sii: ScalaLookupItem if sii.bold =>
+        sii.element match {
+          case withImplicit: ScModifierListOwner if withImplicit.hasModifierPropertyScala("implicit") =>
+           underlined
+          case _ => bold
+        }
       case si: ScalaLookupItem =>
         si.element match {
           case func: ScFunction if func.getContainingClass == null => localFunc
