@@ -36,27 +36,29 @@ class ScalaCaseClassParametersNameContributer extends ScalaCompletionContributor
 
       if (caseClassParams.isEmpty) return
 
-      val (corespondedParameter, myPosition) = getCorrespondedParameterForPosition(position, caseClassParams)
+      val parameterWithPosition = getCorrespondedParameterForPosition(position, caseClassParams)
+
+      val corespondedParameter = parameterWithPosition.parameter
+      val myPosition = parameterWithPosition.position
+
       val result = addByOrderSorter(parameters, _result, myPosition, caseClassParams)
 
       byClassParamCompletionsItems(caseClassParams, result)
       byTypeCompletionsItems(position, corespondedParameter, result)
-
-      result.stopHere()
     }
 
-    def byTypeCompletionsItems(position: PsiElement, parameter: ScParameter, result: CompletionResultSet) = {
+    def byTypeCompletionsItems(position: PsiElement, parameter: Option[ScParameter], result: CompletionResultSet) = {
       position.getContext match {
-        case pattern: ScPattern if pattern.expectedType.isDefined && parameter != null =>
+        case pattern: ScPattern if pattern.expectedType.isDefined && parameter.isDefined =>
           val lookups =
-            NameSuggester.suggestNamesByType(pattern.expectedType.get).map(name => new ScalaLookupItem(parameter, name))
-          lookups.foreach(l => result.addElement(l))
+            NameSuggester.suggestNamesByType(pattern.expectedType.get).map(name => new ScalaLookupItem(parameter.get, name))
+          lookups.foreach(l => addLocalScalaLookUpItem(result, l))
         case _ =>
       }
     }
 
     def byClassParamCompletionsItems(params: Seq[ScParameter], result: CompletionResultSet): Unit = {
-      params.map(p => new ScalaLookupItem(p, p.name)).foreach(l => result.addElement(l))
+      params.map(p => new ScalaLookupItem(p, p.name)).foreach(l => addLocalScalaLookUpItem(result, l))
     }
 
     def addByOrderSorter(parameters: CompletionParameters, result: CompletionResultSet,
@@ -83,20 +85,28 @@ class ScalaCaseClassParametersNameContributer extends ScalaCompletionContributor
       result.withRelevanceSorter(sorter)
     }
 
-    def getCorrespondedParameterForPosition(position: PsiElement, classParams: Seq[ScParameter]): (ScParameter, Int) = {
+    private def addLocalScalaLookUpItem(result: CompletionResultSet, lookupElement: ScalaLookupItem): Unit = {
+      lookupElement.isLocalVariable = true
+      result.addElement(lookupElement)
+    }
+
+    private def getCorrespondedParameterForPosition(position: PsiElement, classParams: Seq[ScParameter]): ParameterWithPosition = {
       val me = PsiTreeUtil.getContextOfType(position, classOf[ScPattern])
-      if (me == null) return (null, -1)
+      if (me == null) return ParameterWithPosition(None, -1)
 
       val patterns = Option(PsiTreeUtil.getContextOfType(position, classOf[ScPatternArgumentList])).map(_.patterns)
 
       if (patterns.isEmpty || (patterns.isDefined && patterns.get.length > classParams.length))
-        return (null, -1) //try to type more param than can be
+        return ParameterWithPosition(None, -1) //try to type more param than can be
 
       val myPosition = patterns.get.indexOf(me)
       val coresponedParameter =
-        if ((myPosition >= 0) && (myPosition != classParams.length)) classParams.apply(myPosition) else null
+        if ((myPosition >= 0) && (myPosition != classParams.length)) Some(classParams.apply(myPosition)) else None
 
-      (coresponedParameter, myPosition)
+      ParameterWithPosition(coresponedParameter, myPosition)
     }
+
+    case class ParameterWithPosition(parameter: Option[ScParameter], position: Int)
+
   })
 }

@@ -15,7 +15,7 @@ class ScalaCompletionStatistician extends CompletionStatistician {
   def serialize(element: LookupElement, location: CompletionLocation): StatisticsInfo = {
     val currentElement = Option(element.as(LookupItem.CLASS_CONDITION_KEY)).getOrElse(return null)
     ScalaLookupItem.original(currentElement) match {
-      case s: ScalaLookupItem if s.isLocalVariable => StatisticsInfo.EMPTY
+      case s: ScalaLookupItem if s.isLocalVariable || s.isNamedParameter => StatisticsInfo.EMPTY
       case s: ScalaLookupItem => helper(s.element, location)
       case _ => null //don't impact on java Lookups, no statistics for scala keyword elements
     }
@@ -27,11 +27,11 @@ class ScalaCompletionStatistician extends CompletionStatistician {
         val key = ScalaStatisticManager.memberKey(member).getOrElse(return StatisticsInfo.EMPTY)
         val containingClass = member.getContainingClass
         if (containingClass != null) {
-          val context = ScalaStatisticManager.memberKey(containingClass)
-            .getOrElse(return new StatisticsInfo("scalaMember#", key))
-          return new StatisticsInfo(context, key)
+          val context = ScalaStatisticManager.memberKey(containingClass).getOrElse("scalaMember#")
+          new StatisticsInfo(context, key)
+        } else {
+          new StatisticsInfo("scalaMember#", key)
         }
-        new StatisticsInfo("scalaMember#", key)
       case _ => StatisticsInfo.EMPTY
     }
   }
