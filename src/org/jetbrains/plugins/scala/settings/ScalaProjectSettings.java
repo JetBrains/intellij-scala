@@ -38,6 +38,8 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean INCLUDE_LITERALS = false;
   private boolean IGNORE_PERFORMANCE_TO_FIND_ALL_CLASS_NAMES = false;
 
+  private boolean CUSTOM_SCALATEST_SYNTAX_HIGHLIGHTING = false;
+
   private boolean TREAT_DOC_COMMENT_AS_BLOCK_COMMENT = false;
   private boolean DISABLE_LANGUAGE_INJECTION = true;
   private boolean DISABLE_I18N = false;
@@ -145,6 +147,14 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setShowArgumentsToByNameParams(boolean value) {
     SHOW_ARGUMENTS_TO_BY_NAME_PARAMETERS = value;
+  }
+
+  public boolean isCustomScalatestSyntaxHighlighting() {
+    return CUSTOM_SCALATEST_SYNTAX_HIGHLIGHTING;
+  }
+
+  public void setCustomScalatestSyntaxHighlighting(boolean value) {
+    CUSTOM_SCALATEST_SYNTAX_HIGHLIGHTING = value;
   }
 
   public boolean isIncludeBlockExpressions() {

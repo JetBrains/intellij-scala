@@ -251,6 +251,8 @@ public class DefaultHighlighter {
   static final String IMPLICIT_FIRST_PART_ID = "Implicit conversion first part";
   @NonNls
   static final String IMPLICIT_SECOND_PART_ID = "Implicit conversion second part";
+  @NonNls
+  static final String SCALATEST_KEYWORD_ID = "Scalatest keyword";
 
   public static TextAttributesKey LINE_COMMENT = createKey(LINE_COMMENT_ID, DefaultLanguageHighlighterColors.LINE_COMMENT);
   public static TextAttributesKey BLOCK_COMMENT = createKey(BLOCK_COMMENT_ID, DefaultLanguageHighlighterColors.BLOCK_COMMENT);
@@ -313,6 +315,8 @@ public class DefaultHighlighter {
 
   public static TextAttributesKey IMPLICIT_FIRST_PART = createKey(IMPLICIT_FIRST_PART_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
   public static TextAttributesKey IMPLICIT_SECOND_PART = createKey(IMPLICIT_SECOND_PART_ID, DefaultLanguageHighlighterColors.IDENTIFIER);
+
+  public static TextAttributesKey SCALATEST_KEYWORD = createKey(SCALATEST_KEYWORD_ID, DefaultLanguageHighlighterColors.KEYWORD);
 
   private static TextAttributesKey createKey(String externalName, TextAttributesKey prototype) {
     return TextAttributesKey.createTextAttributesKey(externalName, prototype);
