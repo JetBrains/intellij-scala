@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
@@ -118,6 +118,14 @@ object AnnotatorHighlighter {
       annotateCollectionByType(ScType.designator(resolvedClazz))
     }
 
+    def isHighlightableScalaTestKeyword(fun: ScMember): Boolean = {
+      fun.getContainingClass != null &&
+        ScalaTestHighlighterUtil.isHighlightableScalaTestKeyword(fun.getContainingClass.getQualifiedName, fun match {
+          case p: ScPatternDefinition => p.bindings.headOption.map(_.getName).orNull
+          case _ => fun.getName
+        }, fun.getProject)
+    }
+
     val c = ScalaPsiUtil.getParentOfType(refElement, classOf[ScConstructor])
 
     if (c != null && c.getParent.isInstanceOf[ScAnnotationExpr]) return
@@ -171,6 +179,8 @@ object AnnotatorHighlighter {
                 r match {
                   case mod: ScModifierListOwner if mod.hasModifierProperty("lazy") =>
                     annotation.setTextAttributes(DefaultHighlighter.LAZY)
+                  case v: ScValue if isHighlightableScalaTestKeyword(v) =>
+                    annotation.setTextAttributes(DefaultHighlighter.SCALATEST_KEYWORD)
                   case _: ScValue => annotation.setTextAttributes(DefaultHighlighter.VALUES)
                   case _: ScVariable => annotation.setTextAttributes(DefaultHighlighter.VARIABLES)
                   case _ =>
@@ -202,7 +212,9 @@ object AnnotatorHighlighter {
             annotateCollection(clazz)
           }
         }
-        if (x != null) {
+        if (isHighlightableScalaTestKeyword(x.asInstanceOf[ScFunction])) {
+          annotation.setTextAttributes(DefaultHighlighter.SCALATEST_KEYWORD)
+        } else {
           val fun = x.asInstanceOf[ScFunction]
           val clazz = fun.containingClass
           clazz match {
