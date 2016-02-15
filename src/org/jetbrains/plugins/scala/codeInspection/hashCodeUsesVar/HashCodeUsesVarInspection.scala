@@ -18,11 +18,6 @@ class HashCodeUsesVarInspection extends AbstractInspection {
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case hashCodeMethod: PsiMethod if MethodUtils.isHashCode(hashCodeMethod) =>
       hashCodeMethod.accept(new ScalaRecursiveElementVisitor {
-
-        override def visitClass(exp: ScClass) = {
-          // Do not recurse into
-        }
-
         override def visitReferenceExpression(exp: ScReferenceExpression): Unit = {
           super.visitReferenceExpression(exp)
           exp.resolve() match {
