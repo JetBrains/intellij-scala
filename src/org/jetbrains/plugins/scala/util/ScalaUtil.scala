@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.util
 
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.{PathManager, ApplicationManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
 import com.intellij.util.PathUtil
@@ -30,5 +30,9 @@ object ScalaUtil {
 
   def testingSupportTestPath(): String = {
     PathUtil.getJarPathForClass(classOf[Client]).replace("compiler-settings", "Runners")
+  }
+
+  def getScalaPluginSystemPath: String = {
+    PathManager.getSystemPath + "/scala"
   }
 }
