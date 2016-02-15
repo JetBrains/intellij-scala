@@ -5,6 +5,7 @@ import java.util
 import java.util.Collections
 
 import com.intellij.debugger.engine._
+import com.intellij.debugger.jdi.VirtualMachineProxyImpl
 import com.intellij.debugger.requests.ClassPrepareRequestor
 import com.intellij.debugger.{MultiRequestPositionManager, NoDataException, PositionManager, SourcePosition}
 import com.intellij.openapi.editor.Document
@@ -50,8 +51,10 @@ import scala.util.Try
   */
 class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManager with MultiRequestPositionManager with LocationLineManager {
 
-  protected val caches = ScalaPositionManagerCaches.instance(debugProcess)
+  protected val caches = new ScalaPositionManagerCaches(debugProcess)
   import caches._
+
+  ScalaPositionManager.cacheInstance(this)
 
   @Nullable
   def getSourcePosition(@Nullable location: Location): SourcePosition = {
@@ -634,6 +637,34 @@ object ScalaPositionManager {
 
   private val isCompiledWithIndyLambdasCache = mutable.HashMap[PsiFile, Boolean]()
 
+  private val instances = mutable.HashMap[DebugProcess, ScalaPositionManager]()
+  private def cacheInstance(scPosManager: ScalaPositionManager) = {
+    val debugProcess = scPosManager.debugProcess
+
+    instances.put(debugProcess, scPosManager)
+    debugProcess.addDebugProcessListener(new DebugProcessAdapter {
+      override def processDetached(process: DebugProcess, closedByUser: Boolean): Unit = {
+        ScalaPositionManager.instances.remove(process)
+        debugProcess.removeDebugProcessListener(this)
+      }
+    })
+  }
+
+  def instance(vm: VirtualMachine): Option[ScalaPositionManager] = instances.collectFirst {
+    case (process, manager) if getVM(process).contains(vm) => manager
+  }
+
+  def instance(debugProcess: DebugProcess): Option[ScalaPositionManager] = instances.get(debugProcess)
+
+  def instance(mirror: Mirror): Option[ScalaPositionManager] = instance(mirror.virtualMachine())
+
+  private def getVM(debugProcess: DebugProcess) = {
+    debugProcess.getVirtualMachineProxy match {
+      case impl: VirtualMachineProxyImpl => Option(impl.getVirtualMachine)
+      case _ => None
+    }
+  }
+
   def positionsOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {
     if (lineNumber < 0) return Seq.empty
 
@@ -785,7 +816,7 @@ object ScalaPositionManager {
   def isInsideMacro(elem: PsiElement): Boolean = InsideMacro.unapply(elem).isDefined
 
   def shouldSkip(location: Location, debugProcess: DebugProcess) = {
-    new ScalaPositionManager(debugProcess).shouldSkip(location)
+    ScalaPositionManager.instance(debugProcess).forall(_.shouldSkip(location))
   }
 
   private def getSpecificNameForDebugger(td: ScTypeDefinition): String = {
@@ -930,6 +961,7 @@ object ScalaPositionManager {
     debugProcess.addDebugProcessListener(new DebugProcessAdapter {
       override def processDetached(process: DebugProcess, closedByUser: Boolean): Unit = {
         clear()
+        process.removeDebugProcessListener(this)
       }
     })
 
@@ -941,7 +973,7 @@ object ScalaPositionManager {
     val seenRefTypes = mutable.Set[ReferenceType]()
 
     def clear(): Unit = {
-      ScalaPositionManagerCaches.isCompiledWithIndyLambdasCache.clear()
+      isCompiledWithIndyLambdasCache.clear()
 
       refTypeToFileCache.clear()
       refTypeToElementCache.clear()
@@ -951,15 +983,4 @@ object ScalaPositionManager {
       seenRefTypes.clear()
     }
   }
-
-  private[debugger] object ScalaPositionManagerCaches {
-    private val cachesMap = mutable.WeakHashMap[DebugProcess, ScalaPositionManagerCaches]()
-
-    private val isCompiledWithIndyLambdasCache = mutable.HashSet[PsiFile]()
-
-    def instance(debugProcess: DebugProcess) = {
-      cachesMap.getOrElseUpdate(debugProcess, new ScalaPositionManagerCaches(debugProcess))
-    }
-  }
-
 }

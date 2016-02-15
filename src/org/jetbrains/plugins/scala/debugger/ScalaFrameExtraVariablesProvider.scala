@@ -119,8 +119,9 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
         val twi = toTextWithImports(name)
         val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(twi, place, evaluationContext.getProject)
         val location = evaluationContext.getFrameProxy.location()
-        val sourcePosition = new ScalaPositionManager(evaluationContext.getDebugProcess).getSourcePosition(location)
-        ScalaEvaluatorBuilder.build(codeFragment, sourcePosition) match {
+        val sourcePosition = ScalaPositionManager.instance(evaluationContext.getDebugProcess).map(_.getSourcePosition(location))
+        if (sourcePosition.isEmpty) throw EvaluationException("Debug process is detached.")
+        ScalaEvaluatorBuilder.build(codeFragment, sourcePosition.get) match {
           case _: ScalaCompilingEvaluator => throw EvaluationException("Don't use compiling evaluator here")
           case e => e
         }

@@ -48,7 +48,7 @@ abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
         managed {
           val location = suspendContext.getFrameProxy.getStackFrame.location
           inReadAction {
-            val sourcePosition = new ScalaPositionManager(getDebugProcess).getSourcePosition(location)
+            val sourcePosition = ScalaPositionManager.instance(getDebugProcess).get.getSourcePosition(location)
             val text: String = highlightedText(sourcePosition)
             Assert.assertTrue(message(expected, text), text.startsWith(expected.stripSuffix("...")))
           }
