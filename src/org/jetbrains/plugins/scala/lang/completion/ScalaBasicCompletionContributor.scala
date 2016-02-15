@@ -176,11 +176,13 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
           }
           def postProcessMethod(resolveResult: ScalaResolveResult) {
             import org.jetbrains.plugins.scala.lang.psi.types.Nothing
+            val probablyContinigClass = Option(PsiTreeUtil.getContextOfType(position, classOf[PsiClass]))
             val qualifierType = resolveResult.fromType.getOrElse(Nothing)
             val lookupItems: Seq[ScalaLookupItem] = LookupElementManager.getLookupElement(
               resolveResult,
               isInImport = isInImport,
               qualifierType = qualifierType,
+              containingClass = probablyContinigClass,
               isInStableCodeReference = ref.isInstanceOf[ScStableCodeReferenceElement])
             lookupItems.foreach(applyVariant(_))
           }

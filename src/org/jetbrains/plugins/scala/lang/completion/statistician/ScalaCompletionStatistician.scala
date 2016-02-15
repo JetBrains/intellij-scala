@@ -10,19 +10,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
-  * @author Alefas
-  * @since 06.07.12
-  */
+ * @author Alefas
+ * @since 06.07.12
+ */
 
 class ScalaCompletionStatistician extends CompletionStatistician {
   def serialize(element: LookupElement, location: CompletionLocation): StatisticsInfo = {
     val currentElement = Option(element.as(LookupItem.CLASS_CONDITION_KEY)).getOrElse(return null)
 
     ScalaLookupItem.original(currentElement) match {
-      case s: ScalaLookupItem if s.isLocalVariable || s.isNamedParameter => StatisticsInfo.EMPTY
+      case s: ScalaLookupItem if s.isLocalVariable || s.isNamedParameter || s.isUnderlined => StatisticsInfo.EMPTY
       case s: ScalaLookupItem =>
         s.element match {
-          // TODO: this should be handled on processor level
           case withImplicit: ScModifierListOwner if withImplicit.hasModifierPropertyScala("implicit") =>
             StatisticsInfo.EMPTY
           case _ => helper(s.element, location)
