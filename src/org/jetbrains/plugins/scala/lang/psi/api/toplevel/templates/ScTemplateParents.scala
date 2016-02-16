@@ -5,13 +5,17 @@ package api
 package toplevel
 package templates
 
+import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, Cached}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -21,10 +25,22 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 trait ScTemplateParents extends ScalaPsiElement {
   def typeElements: Seq[ScTypeElement]
+  @Cached(false, ModCount.getBlockModificationCount, this)
+  def syntheticTypeElements: Seq[ScTypeElement] = {
+    getContext.getContext match {
+      case td: ScTypeDefinition => SyntheticMembersInjector.injectSupers(td)
+      case _ => Seq.empty
+    }
+  }
+  def allTypeElements: Seq[ScTypeElement] = typeElements ++ syntheticTypeElements
   def typeElementsWithoutConstructor: Seq[ScTypeElement] =
     findChildrenByClassScala(classOf[ScTypeElement])
   def superTypes: Seq[ScType]
-  def supers: Seq[PsiClass] = {
+  def supers: Seq[PsiClass] = ScTemplateParents.extractSupers(allTypeElements, getProject)
+}
+
+object ScTemplateParents {
+  def extractSupers(typeElements: Seq[ScTypeElement], project: Project): Seq[PsiClass] = {
     typeElements.map {
       case element: ScTypeElement =>
         def tail(): PsiClass = {
@@ -43,7 +59,7 @@ trait ScTemplateParents extends ScalaPsiElement {
               case ScalaResolveResult(c: PsiClass, _) => c
               case ScalaResolveResult(ta: ScTypeAliasDefinition, _) =>
                 ta.aliasedType match {
-                  case Success(te, _) => ScType.extractClass(te, Some(getProject)) match {
+                  case Success(te, _) => ScType.extractClass(te, Some(project)) match {
                     case Some(c) => c
                     case _ => null
                   }
