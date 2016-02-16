@@ -34,7 +34,7 @@ class ScalaDocNewlinedPreFormatProcessor extends ScalaRecursiveElementVisitor wi
     import ScalaDocNewlinedPreFormatProcessor._
     val prevElement = element.getPrevSibling
     if (prevElement == null) return
-    (isTag(prevElement), isTag(element)) match {
+    if (scalaSettings.ENABLE_SCALADOC_FORMATTING) (isTag(prevElement), isTag(element)) match {
       case (true, true) =>
         //process newlines between tags
         val newlinesNew = if (isParamTag(prevElement) && !isParamTag(element)) {
