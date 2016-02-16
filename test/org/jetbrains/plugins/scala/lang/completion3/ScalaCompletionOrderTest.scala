@@ -36,6 +36,14 @@ class ScalaCompletionOrderTest extends ScalaCompletionSortingTestCase(Completion
     checkPreferredItems(0, "aname", "asurName", "aimark", "sporta")
   }
 
+  def testUnapplyInCaseCluase(): Unit ={
+    checkPreferredItems(0, "arg")
+  }
+
+  def testSCL2022(){
+    checkPreferredItems(0, "re", "replacer")
+  }
+
   def testWithStat(): Unit = {
     val lookup = invokeCompletion(getTestName(false) + ".scala")
     assertPreferredItems(0, "fbar", "fboo")

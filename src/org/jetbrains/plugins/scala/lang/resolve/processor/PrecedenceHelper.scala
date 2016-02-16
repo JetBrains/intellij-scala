@@ -176,6 +176,7 @@ trait PrecedenceHelper[T] {
   protected def getPrecedence(result: ScalaResolveResult): Int = {
     specialPriority match {
       case Some(priority) => priority
+      case None if result.prefixCompletion => PrecedenceHelper.PrecedenceTypes.PREFIX_COMPLETION
       case None => result.getPrecedence(getPlace, placePackageName)
     }
   }
@@ -183,6 +184,7 @@ trait PrecedenceHelper[T] {
 
 object PrecedenceHelper {
   object PrecedenceTypes {
+    val PREFIX_COMPLETION = 0
     val JAVA_LANG = 1
     val SCALA = 2
     val SCALA_PREDEF = 3
