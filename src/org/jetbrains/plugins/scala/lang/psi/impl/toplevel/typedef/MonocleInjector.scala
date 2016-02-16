@@ -39,10 +39,4 @@ class MonocleInjector extends SyntheticMembersInjector {
     })
     buffer
   }
-
-  override def injectSupers(source: ScTypeDefinition): Seq[String] = {
-    if (source.name == "A") {
-      Seq("something.B")
-    } else Seq.empty
-  }
 }
