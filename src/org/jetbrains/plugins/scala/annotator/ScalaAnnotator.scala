@@ -1102,8 +1102,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             case ScSimpleTypeElement(Some(ResolvesTo(ScPrimaryConstructor.ofClass(c)))) => noHigherKinds(c)
             case _ => false
           }
-        case infix: ScInfixTypeElement if infix.lOp == simpleTypeElement || infix.rOp.contains(simpleTypeElement) =>
-          infix.ref.resolve() match {
+        case infix: ScReferenceableInfixTypeElement if infix.leftTypeElement == simpleTypeElement || infix.rightTypeElement.contains(simpleTypeElement) =>
+          infix.reference.resolve() match {
             case owner: ScTypeParametersOwner => noHigherKinds(owner)
             case _ => false
           }

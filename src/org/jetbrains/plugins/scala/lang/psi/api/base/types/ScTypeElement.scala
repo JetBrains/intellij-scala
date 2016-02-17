@@ -6,6 +6,7 @@ package base
 package types
 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext, TypingContextOwner}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
@@ -64,4 +65,17 @@ trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
 
   @volatile
   private[this] var _analog: Option[ScTypeElement] = None
+}
+
+trait ScDesugarizableTypeElement extends ScTypeElement {
+  def desugarizedText: String
+
+  def computeDesugarizedType = Option(typeElementFromText(desugarizedText))
+
+  def typeElementFromText: String => ScTypeElement = createTypeElementFromText(_, getContext, this)
+
+  override protected def innerType(ctx: TypingContext): TypeResult[ScType] = computeDesugarizedType match {
+    case Some(typeElement) => typeElement.getType(ctx)
+    case _ => Failure(s"Cannot desugarize $typeName", Some(this))
+  }
 }

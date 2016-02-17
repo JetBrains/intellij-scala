@@ -5,21 +5,24 @@ package api
 package base
 package types
 
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 13.03.2008
 */
 
-trait ScParameterizedTypeElement extends ScTypeElement {
+trait ScParameterizedTypeElement extends ScDesugarizableTypeElement {
   override protected val typeName = "ParametrizedType"
 
-  def typeArgList: ScTypeArgs
+  def typeArgList = findChildByClassScala(classOf[ScTypeArgs])
 
-  def typeElement: ScTypeElement
+  def typeElement = findChildByClassScala(classOf[ScTypeElement])
 
-  def findConstructor: Option[ScConstructor]
-
-  def computeDesugarizedType: Option[ScTypeElement]
+  def findConstructor = getContext match {
+    case constructor: ScConstructor => Some(constructor)
+    case _ => None
+  }
 }
 
 object ScParameterizedTypeElement {
@@ -28,5 +31,13 @@ object ScParameterizedTypeElement {
       case null => None
       case _ => Some(pte.typeElement, pte.typeArgList.typeArgs)
     }
+  }
+}
+
+trait ScDesugarizableToParametrizedTypeElement extends ScDesugarizableTypeElement {
+  @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
+  override final def computeDesugarizedType: Option[ScParameterizedTypeElement] = super.computeDesugarizedType match {
+    case Some(typeElement: ScParameterizedTypeElement) => Some(typeElement)
+    case _ => None
   }
 }
