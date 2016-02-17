@@ -55,11 +55,25 @@ object ScalaCollectionRenderer {
   val streamClassName = "scala.collection.immutable.Stream"
   val streamViewClassName = "scala.collection.immutable.StreamView"
   val viewClassName = "scala.collection.IterableView"
+  val iteratorClassName = "scala.collection.Iterator"
 
   val sizeLabelRenderer = createSizeLabelRenderer()
 
-  def hasDefiniteSize(value: Value, evaluationContext: EvaluationContext) = evaluateBoolean(value, evaluationContext, hasDefiniteSizeEval)
-  def nonEmpty(value: Value, evaluationContext: EvaluationContext) = evaluateBoolean(value, evaluationContext, nonEmptyEval)
+  def hasDefiniteSize(value: Value, evaluationContext: EvaluationContext) = {
+    value.`type`() match {
+      case ct: ClassType if ct.name.startsWith("scala.collection") &&
+        !DebuggerUtils.instanceOf(ct, streamClassName) && !DebuggerUtils.instanceOf(ct, iteratorClassName) => true
+      case _ => evaluateBoolean(value, evaluationContext, hasDefiniteSizeEval)
+    }
+  }
+
+  def nonEmpty(value: Value, evaluationContext: EvaluationContext) = {
+    value.`type`() match {
+      case ct: ClassType if ct.name.toLowerCase.contains("empty") || ct.name.contains("Nil") => false
+      case _ => evaluateBoolean(value, evaluationContext, nonEmptyEval)
+    }
+  }
+
   def size(value: Value, evaluationContext: EvaluationContext) = evaluateInt(value, evaluationContext, sizeEval)
 
   /**
