@@ -11,6 +11,8 @@ package types
 */
 
 trait ScFunctionalTypeElement extends ScTypeElement {
+  override protected val typeName = "FunctionalType"
+
   def paramTypeElement = findChildByClassScala(classOf[ScTypeElement])
 
   def returnTypeElement = findChildrenByClassScala(classOf[ScTypeElement]) match {

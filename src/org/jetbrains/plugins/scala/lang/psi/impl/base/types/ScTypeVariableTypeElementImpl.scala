@@ -6,8 +6,8 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeVariable, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeVariable}
 
 /**
  * @author Alefas
@@ -18,5 +18,5 @@ class ScTypeVariableTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(n
 
   override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 
-  override def toString: String = s"TypeVariable: $name"
+  override def toString: String = s"$typeName: $name"
 }

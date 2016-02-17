@@ -10,6 +10,8 @@ package types
 * Date: 07.03.2008
 */
 trait ScTupleTypeElement extends ScTypeElement {
+  override protected val typeName = "TupleType"
+
   def typeList = findChildByClassScala(classOf[ScTypes])
 
   def components = typeList.types

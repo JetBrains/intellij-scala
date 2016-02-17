@@ -18,8 +18,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
  */
 
 class ScTupleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTupleTypeElement {
-  override def toString: String = "TupleType: " + getText
-
   @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
   def desugarizedInfixType: Option[ScParameterizedTypeElement] = {
     val n = components.length
@@ -38,14 +36,14 @@ class ScTupleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     }
   }
 
-    override def accept(visitor: ScalaElementVisitor) {
-        visitor.visitTupleTypeElement(this)
-      }
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitTupleTypeElement(this)
+  }
 
-      override def accept(visitor: PsiElementVisitor) {
-        visitor match {
-          case s: ScalaElementVisitor => s.visitTupleTypeElement(this)
-          case _ => super.accept(visitor)
-        }
-      }
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => s.visitTupleTypeElement(this)
+      case _ => super.accept(visitor)
+    }
+  }
 }
