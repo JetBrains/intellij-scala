@@ -241,8 +241,8 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
             case Some(ref) => acc :+ ref.refName
             case _ => acc
           }
-        case infixType: ScInfixTypeElement =>
-          acc :+ infixType.ref.refName
+        case infixType: ScReferenceableInfixTypeElement =>
+          acc :+ infixType.reference.refName
         case x: ScParameterizedTypeElement =>
           x.typeElement match {
             case scType: ScTypeElement => process(scType, acc)

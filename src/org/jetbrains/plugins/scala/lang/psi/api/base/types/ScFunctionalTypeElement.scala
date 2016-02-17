@@ -10,7 +10,7 @@ package types
 * Date: 22.02.2008
 */
 
-trait ScFunctionalTypeElement extends ScTypeElement {
+trait ScFunctionalTypeElement extends ScDesugarizableToParametrizedTypeElement {
   override protected val typeName = "FunctionalType"
 
   def paramTypeElement = findChildByClassScala(classOf[ScTypeElement])
