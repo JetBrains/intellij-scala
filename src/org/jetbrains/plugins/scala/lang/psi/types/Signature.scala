@@ -9,6 +9,7 @@ import com.intellij.psi.util.MethodSignatureUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 
 import scala.collection.mutable.ArrayBuffer
@@ -190,6 +191,32 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
 }
 
 object Signature {
+  def apply(function: ScFunction) = new Signature(
+    function.name,
+    PhysicalSignature.typesEval(function),
+    PhysicalSignature.paramLength(function),
+    TypeParameter.fromArray(function.getTypeParameters),
+    ScSubstitutor.empty,
+    function,
+    PhysicalSignature.hasRepeatedParam(function)
+  )
+
+  def getter(definition: ScTypedDefinition) = new Signature(
+    definition.name,
+    Seq.empty,
+    0,
+    ScSubstitutor.empty,
+    definition
+  )
+
+  def setter(definition: ScTypedDefinition) = new Signature(
+    s"$definition.name_=",
+    Seq(() => definition.getType().getOrAny),
+    1,
+    ScSubstitutor.empty,
+    definition
+  )
+
   def unify(subst: ScSubstitutor, tps1: Array[TypeParameter], tps2: Array[TypeParameter]) = {
     var res = subst
     val iterator1 = tps1.iterator

@@ -149,7 +149,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
 
     val superTypes = t.extendsBlock.superTypes
     if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
-      ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList, ScSubstitutor.empty)
+      ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList)
     } else superTypes(0)
   }
 

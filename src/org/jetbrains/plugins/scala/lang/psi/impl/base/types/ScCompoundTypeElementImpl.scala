@@ -10,8 +10,8 @@ import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.types
+import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScSubstitutor}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -22,7 +22,7 @@ class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
     val comps = components.map(_.getType(ctx))
     refinement match {
       case None => collectFailures(comps, types.Any)(new ScCompoundType(_, Map.empty, Map.empty))
-      case Some(r) => collectFailures(comps, types.Any)(ScCompoundType.fromPsi(_, r.holders.toList, r.types.toList, ScSubstitutor.empty))
+      case Some(r) => collectFailures(comps, types.Any)(ScCompoundType.fromPsi(_, r.holders.toList, r.types.toList))
     }
   }
 
