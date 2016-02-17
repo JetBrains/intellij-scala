@@ -1195,7 +1195,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |/**
         |  *    Pooly formatted scalaDoc.
         |    *Will still be formatted poorly.
-        | *
+        |
         |*                If formatting
         |   is disabled.
         |  Asterisks will be aligned and added though, like in java.
@@ -1532,6 +1532,29 @@ bars foreach {case (x, y) => list.add(x + y)}
       """.stripMargin.replace("\r", "")
 
     doTextTest(before)
+  }
+
+  def testScalaDocBlankLineBetweenParameters(): Unit = {
+    getScalaSettings.SD_BLANK_LINE_BETWEEN_PARAMETERS = true
+
+    val before =
+      """
+        |/**
+        |  * @param foo is foo
+        |  * @param bar is bar
+        |  */
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |/**
+        |  * @param foo is foo
+        |  *
+        |  * @param bar is bar
+        |  */
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
   }
 
   def doTextTest(value: String): Unit = doTextTest(value, value)
