@@ -9,25 +9,25 @@ ScalaFile
         ExtendsBlock
           ClassParents
             Constructor
-              ParametrizedTypeElement: X[Int]
-                SimpleTypeElement: X
+              ParametrizedType: X[Int]
+                SimpleType: X
                   CodeReferenceElement: X
                     PsiElement(identifier)('X')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleTypeElement: Int
+                  SimpleType: Int
                     CodeReferenceElement: Int
                       PsiElement(identifier)('Int')
                   PsiElement(])(']')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleTypeElement: String
+        SimpleType: String
           CodeReferenceElement: String
             PsiElement(identifier)('String')
         PsiElement(])(']')
     TypeArgumentsList
       PsiElement([)('[')
-      SimpleTypeElement: Boolean
+      SimpleType: Boolean
         CodeReferenceElement: Boolean
           PsiElement(identifier)('Boolean')
       PsiElement(])(']')

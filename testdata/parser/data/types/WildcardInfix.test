@@ -21,7 +21,7 @@ ScalaFile
       CodeReferenceElement: ::
         PsiElement(identifier)('::')
       PsiWhiteSpace(' ')
-      SimpleTypeElement: String
+      SimpleType: String
         CodeReferenceElement: String
           PsiElement(identifier)('String')
     PsiWhiteSpace(' ')
@@ -43,7 +43,7 @@ ScalaFile
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
     InfixType: String :: _
-      SimpleTypeElement: String
+      SimpleType: String
         CodeReferenceElement: String
           PsiElement(identifier)('String')
       PsiWhiteSpace(' ')

@@ -42,21 +42,21 @@ ScalaFile
   T
             InfixType: T op
   T
-              SimpleTypeElement: T
+              SimpleType: T
                 CodeReferenceElement: T
                   PsiElement(identifier)('T')
               PsiWhiteSpace(' ')
               CodeReferenceElement: op
                 PsiElement(identifier)('op')
               PsiWhiteSpace('\n  ')
-              SimpleTypeElement: T
+              SimpleType: T
                 CodeReferenceElement: T
                   PsiElement(identifier)('T')
             PsiWhiteSpace(' ')
             CodeReferenceElement: op
               PsiElement(identifier)('op')
             PsiWhiteSpace('\n  ')
-            SimpleTypeElement: T
+            SimpleType: T
               CodeReferenceElement: T
                 PsiElement(identifier)('T')
         PsiWhiteSpace('\n')

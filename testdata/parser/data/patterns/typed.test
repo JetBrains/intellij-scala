@@ -36,7 +36,7 @@ ScalaFile
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
                   TypePattern
-                    SimpleTypeElement: Type
+                    SimpleType: Type
                       CodeReferenceElement: Type
                         PsiElement(identifier)('Type')
                 PsiWhiteSpace(' ')
@@ -47,7 +47,7 @@ ScalaFile
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
                   TypePattern
-                    SimpleTypeElement: Type
+                    SimpleType: Type
                       CodeReferenceElement: Type
                         PsiElement(identifier)('Type')
               PsiElement(=>)('=>')

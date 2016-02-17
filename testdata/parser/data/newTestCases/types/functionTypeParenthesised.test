@@ -36,7 +36,7 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           FunctionalType: Type => (Type => Type)
-            SimpleTypeElement: Type
+            SimpleType: Type
               CodeReferenceElement: Type
                 PsiElement(identifier)('Type')
             PsiWhiteSpace(' ')
@@ -45,13 +45,13 @@ ScalaFile
             TypeInParenthesis: (Type => Type)
               PsiElement(()('(')
               FunctionalType: Type => Type
-                SimpleTypeElement: Type
+                SimpleType: Type
                   CodeReferenceElement: Type
                     PsiElement(identifier)('Type')
                 PsiWhiteSpace(' ')
                 PsiElement(=>)('=>')
                 PsiWhiteSpace(' ')
-                SimpleTypeElement: Type
+                SimpleType: Type
                   CodeReferenceElement: Type
                     PsiElement(identifier)('Type')
               PsiElement())(')')

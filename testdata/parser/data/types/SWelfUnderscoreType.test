@@ -16,18 +16,18 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       TraitParents
-        ParametrizedTypeElement: Replyable[Any, Any]
-          SimpleTypeElement: Replyable
+        ParametrizedType: Replyable[Any, Any]
+          SimpleType: Replyable
             CodeReferenceElement: Replyable
               PsiElement(identifier)('Replyable')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleTypeElement: Any
+            SimpleType: Any
               CodeReferenceElement: Any
                 PsiElement(identifier)('Any')
             PsiElement(,)(',')
             PsiWhiteSpace(' ')
-            SimpleTypeElement: Any
+            SimpleType: Any
               CodeReferenceElement: Any
                 PsiElement(identifier)('Any')
             PsiElement(])(']')
@@ -39,7 +39,7 @@ ScalaFile
           PsiElement(_)('_')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement: ReplyReactor
+          SimpleType: ReplyReactor
             CodeReferenceElement: ReplyReactor
               PsiElement(identifier)('ReplyReactor')
           PsiWhiteSpace(' ')

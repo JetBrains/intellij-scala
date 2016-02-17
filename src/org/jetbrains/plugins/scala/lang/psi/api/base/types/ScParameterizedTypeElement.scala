@@ -11,6 +11,7 @@ package types
 */
 
 trait ScParameterizedTypeElement extends ScTypeElement {
+  override protected val typeName = "ParametrizedType"
 
   def typeArgList: ScTypeArgs
 

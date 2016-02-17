@@ -6,18 +6,17 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
-import org.jetbrains.plugins.scala.lang.psi.types
-import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{Any, Nothing, ScExistentialArgument, ScType}
 
 /**
  * @author Alefas
  * @since 26/09/14.
  */
 class ScTypeVariableTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeVariableTypeElement {
-  override protected def innerType(ctx: TypingContext): TypeResult[ScType] = Success(ScExistentialArgument(name, List.empty, types.Nothing, types.Any), Some(this))
+  override protected def innerType(ctx: TypingContext): TypeResult[ScType] = Success(ScExistentialArgument(name, List.empty, Nothing, Any), Some(this))
 
   override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 
-  override def toString: String = s"TypeVariable: $name"
+  override def toString: String = s"$typeName: $name"
 }

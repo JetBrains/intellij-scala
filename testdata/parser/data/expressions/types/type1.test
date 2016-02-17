@@ -28,7 +28,7 @@ ScalaFile
               TypeInParenthesis: (a=>(c,d)=>e)
                 PsiElement(()('(')
                 FunctionalType: a=>(c,d)=>e
-                  SimpleTypeElement: a
+                  SimpleType: a
                     CodeReferenceElement: a
                       PsiElement(identifier)('a')
                   PsiElement(=>)('=>')
@@ -36,16 +36,16 @@ ScalaFile
                     TupleType: (c,d)
                       PsiElement(()('(')
                       TypesList
-                        SimpleTypeElement: c
+                        SimpleType: c
                           CodeReferenceElement: c
                             PsiElement(identifier)('c')
                         PsiElement(,)(',')
-                        SimpleTypeElement: d
+                        SimpleType: d
                           CodeReferenceElement: d
                             PsiElement(identifier)('d')
                       PsiElement())(')')
                     PsiElement(=>)('=>')
-                    SimpleTypeElement: e
+                    SimpleType: e
                       CodeReferenceElement: e
                         PsiElement(identifier)('e')
                 PsiElement())(')')

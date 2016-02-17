@@ -11,5 +11,7 @@ package types
 */
 
 trait ScAnnotTypeElement extends ScTypeElement {
+  override protected val typeName = "TypeWithAnnotation"
+
   def typeElement = findChildByClassScala(classOf[ScTypeElement])
 }

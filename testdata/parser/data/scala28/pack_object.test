@@ -29,7 +29,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          SimpleTypeElement: collection.immuteble.List
+          SimpleType: collection.immuteble.List
             CodeReferenceElement: collection.immuteble.List
               CodeReferenceElement: collection.immuteble
                 CodeReferenceElement: collection

@@ -13,25 +13,25 @@ ScalaFile
       <empty list>
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    ParametrizedTypeElement: Either[?, Int][String]
-      ParametrizedTypeElement: Either[?, Int]
-        SimpleTypeElement: Either
+    ParametrizedType: Either[?, Int][String]
+      ParametrizedType: Either[?, Int]
+        SimpleType: Either
           CodeReferenceElement: Either
             PsiElement(identifier)('Either')
         TypeArgumentsList
           PsiElement([)('[')
-          SimpleTypeElement: ?
+          SimpleType: ?
             CodeReferenceElement: ?
               PsiElement(identifier)('?')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
-          SimpleTypeElement: Int
+          SimpleType: Int
             CodeReferenceElement: Int
               PsiElement(identifier)('Int')
           PsiElement(])(']')
       TypeArgumentsList
         PsiElement([)('[')
-        SimpleTypeElement: String
+        SimpleType: String
           CodeReferenceElement: String
             PsiElement(identifier)('String')
         PsiElement(])(']')

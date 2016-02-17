@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  * Date: 22.02.2008
  */
 trait ScSimpleTypeElement extends ScTypeElement with ImplicitParametersOwner {
+  override protected val typeName = "SimpleType"
 
   def reference: Option[ScStableCodeReferenceElement] = findChild(classOf[ScStableCodeReferenceElement])
   def pathElement: ScPathElement = findChildByClassScala(classOf[ScPathElement])
@@ -29,7 +30,8 @@ trait ScSimpleTypeElement extends ScTypeElement with ImplicitParametersOwner {
    * Warning! There is a hack in scala compiler for ClassManifest and ClassTag.
    * In case of implicit parameter with type ClassManifest[T]
    * this method will return ClassManifest with substitutor of type T.
-   * @return implicit parameters used for this expression
+    *
+    * @return implicit parameters used for this expression
    */
   def findImplicitParameters: Option[Seq[ScalaResolveResult]] = {
     ProgressManager.checkCanceled()

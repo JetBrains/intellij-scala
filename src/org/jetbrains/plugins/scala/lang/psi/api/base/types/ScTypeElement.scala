@@ -15,11 +15,13 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, M
 */
 
 trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
+  protected val typeName: String
+
+  override def toString: String = s"$typeName: $getText"
+
   @CachedWithRecursionGuard[ScTypeElement](this, Failure("Recursive type of type element", Some(this)),
     ModCount.getBlockModificationCount)
   def getType(ctx: TypingContext): TypeResult[ScType] = innerType(ctx)
-
-  override def toString: String = super.toString
 
   def getTypeNoConstructor(ctx: TypingContext): TypeResult[ScType] = getType(ctx)
 

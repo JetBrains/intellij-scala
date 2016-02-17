@@ -44,13 +44,13 @@ ScalaFile
                   TypeInParenthesis: (Manifest[Byte] @serializable)
                     PsiElement(()('(')
                     TypeWithAnnotation: Manifest[Byte] @serializable
-                      ParametrizedTypeElement: Manifest[Byte]
-                        SimpleTypeElement: Manifest
+                      ParametrizedType: Manifest[Byte]
+                        SimpleType: Manifest
                           CodeReferenceElement: Manifest
                             PsiElement(identifier)('Manifest')
                         TypeArgumentsList
                           PsiElement([)('[')
-                          SimpleTypeElement: Byte
+                          SimpleType: Byte
                             CodeReferenceElement: Byte
                               PsiElement(identifier)('Byte')
                           PsiElement(])(']')
@@ -60,7 +60,7 @@ ScalaFile
                           PsiElement(@)('@')
                           AnnotationExpression
                             Constructor
-                              SimpleTypeElement: serializable
+                              SimpleType: serializable
                                 CodeReferenceElement: serializable
                                   PsiElement(identifier)('serializable')
                     PsiElement())(')')

@@ -50,7 +50,7 @@ ScalaFile
                   PsiElement(:)(':')
                   PsiWhiteSpace(' ')
                   ParameterType
-                    SimpleTypeElement: Ven
+                    SimpleType: Ven
                       CodeReferenceElement: Ven
                         PsiElement(identifier)('Ven')
                 PsiElement())(')')

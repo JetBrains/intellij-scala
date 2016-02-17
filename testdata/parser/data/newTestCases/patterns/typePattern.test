@@ -38,7 +38,7 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 TypePattern
-                  SimpleTypeElement: Int
+                  SimpleType: Int
                     CodeReferenceElement: Int
                       PsiElement(identifier)('Int')
               PsiWhiteSpace(' ')
@@ -56,7 +56,7 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 TypePattern
-                  SimpleTypeElement: Boolean
+                  SimpleType: Boolean
                     CodeReferenceElement: Boolean
                       PsiElement(identifier)('Boolean')
               PsiWhiteSpace(' ')

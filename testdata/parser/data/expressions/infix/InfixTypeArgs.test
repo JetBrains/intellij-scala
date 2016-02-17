@@ -8,7 +8,7 @@ ScalaFile
       ExtendsBlock
         ClassParents
           Constructor
-            SimpleTypeElement: M
+            SimpleType: M
               CodeReferenceElement: M
                 PsiElement(identifier)('M')
             ArgumentList
@@ -19,7 +19,7 @@ ScalaFile
       PsiElement(identifier)('map')
     TypeArgumentsList
       PsiElement([)('[')
-      SimpleTypeElement: String
+      SimpleType: String
         CodeReferenceElement: String
           PsiElement(identifier)('String')
       PsiElement(])(']')

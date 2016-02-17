@@ -47,7 +47,7 @@ ScalaFile
             ExtendsBlock
               ClassParents
                 Constructor
-                  SimpleTypeElement: ResolveTargets
+                  SimpleType: ResolveTargets
                     CodeReferenceElement: ResolveTargets
                       PsiElement(identifier)('ResolveTargets')
         PsiWhiteSpace('\n')

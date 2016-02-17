@@ -11,6 +11,8 @@ package types
 */
 
 trait ScInfixTypeElement extends ScTypeElement {
+  override protected val typeName = "InfixType"
+
   def lOp : ScTypeElement = findChildByClassScala(classOf[ScTypeElement])
   def rOp : Option[ScTypeElement] 
   def ref : ScStableCodeReferenceElement = findChildByClassScala(classOf[ScStableCodeReferenceElement])

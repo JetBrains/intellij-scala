@@ -20,7 +20,7 @@ ScalaFile
           PsiElement(@)('@')
           AnnotationExpression
             Constructor
-              SimpleTypeElement: Nullable
+              SimpleType: Nullable
                 CodeReferenceElement: Nullable
                   PsiElement(identifier)('Nullable')
       Modifiers

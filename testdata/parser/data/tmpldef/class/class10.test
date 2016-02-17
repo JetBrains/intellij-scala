@@ -28,7 +28,7 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              SimpleTypeElement: Unit
+              SimpleType: Unit
                 CodeReferenceElement: Unit
                   PsiElement(identifier)('Unit')
           PsiElement())(')')

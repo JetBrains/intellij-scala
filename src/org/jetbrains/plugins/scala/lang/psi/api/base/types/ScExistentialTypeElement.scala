@@ -11,6 +11,8 @@ package types
 */
 
 trait ScExistentialTypeElement extends ScTypeElement {
+  override protected val typeName = "ExistentialType"
+
   def quantified = findChildByClassScala(classOf[ScTypeElement])
   def clause = findChildByClassScala(classOf[ScExistentialClause])
 }

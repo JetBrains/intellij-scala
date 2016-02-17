@@ -18,8 +18,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
  */
 
 class ScFunctionalTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScFunctionalTypeElement {
-  override def toString: String = "FunctionalType: " + getText
-
   @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
   def desugarizedInfixType: Option[ScParameterizedTypeElement] = {
     val paramTypes = paramTypeElement match {
@@ -44,14 +42,14 @@ class ScFunctionalTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(nod
     }
   }
 
-    override def accept(visitor: ScalaElementVisitor) {
-        visitor.visitFunctionalTypeElement(this)
-      }
+  override def accept(visitor: ScalaElementVisitor) {
+    visitor.visitFunctionalTypeElement(this)
+  }
 
-      override def accept(visitor: PsiElementVisitor) {
-        visitor match {
-          case s: ScalaElementVisitor => s.visitFunctionalTypeElement(this)
-          case _ => super.accept(visitor)
-        }
-      }
+  override def accept(visitor: PsiElementVisitor) {
+    visitor match {
+      case s: ScalaElementVisitor => s.visitFunctionalTypeElement(this)
+      case _ => super.accept(visitor)
+    }
+  }
 }

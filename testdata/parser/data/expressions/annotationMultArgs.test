@@ -8,7 +8,7 @@ ScalaFile
         PsiElement(@)('@')
         AnnotationExpression
           Constructor
-            SimpleTypeElement: annot
+            SimpleType: annot
               CodeReferenceElement: annot
                 PsiElement(identifier)('annot')
             ArgumentList

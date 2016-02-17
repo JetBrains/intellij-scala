@@ -8,7 +8,7 @@ ScalaFile
     ExtendsBlock
       ClassParents
         Constructor
-          SimpleTypeElement: ASDGASDF
+          SimpleType: ASDGASDF
             CodeReferenceElement: ASDGASDF
               PsiElement(identifier)('ASDGASDF')
           ArgumentList

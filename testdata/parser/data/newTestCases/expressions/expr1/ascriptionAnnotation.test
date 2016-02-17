@@ -34,7 +34,7 @@ ScalaFile
               PsiElement(@)('@')
               AnnotationExpression
                 Constructor
-                  SimpleTypeElement: throwable
+                  SimpleType: throwable
                     CodeReferenceElement: throwable
                       PsiElement(identifier)('throwable')
         PsiWhiteSpace('\n')

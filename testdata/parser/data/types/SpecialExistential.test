@@ -13,8 +13,8 @@ ScalaFile
         PsiElement(identifier)('x')
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
-    ParametrizedTypeElement: Class[_ <: Test]
-      SimpleTypeElement: Class
+    ParametrizedType: Class[_ <: Test]
+      SimpleType: Class
         CodeReferenceElement: Class
           PsiElement(identifier)('Class')
       TypeArgumentsList
@@ -24,7 +24,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
           PsiWhiteSpace(' ')
-          SimpleTypeElement: Test
+          SimpleType: Test
             CodeReferenceElement: Test
               PsiElement(identifier)('Test')
         PsiElement(])(']')

@@ -23,7 +23,7 @@ ScalaFile
       ClassParents
         Constructor
           TypeWithAnnotation: A@t(2+2,3)
-            SimpleTypeElement: A
+            SimpleType: A
               CodeReferenceElement: A
                 PsiElement(identifier)('A')
             AnnotationsList
@@ -31,7 +31,7 @@ ScalaFile
                 PsiElement(@)('@')
                 AnnotationExpression
                   Constructor
-                    SimpleTypeElement: t
+                    SimpleType: t
                       CodeReferenceElement: t
                         PsiElement(identifier)('t')
                     ArgumentList

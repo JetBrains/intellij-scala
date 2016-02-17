@@ -15,7 +15,7 @@ ScalaFile
           PsiElement(@)('@')
           AnnotationExpression
             Constructor
-              SimpleTypeElement: scala.serializable
+              SimpleType: scala.serializable
                 CodeReferenceElement: scala.serializable
                   CodeReferenceElement: scala
                     PsiElement(identifier)('scala')
@@ -36,7 +36,7 @@ ScalaFile
               PsiElement(@)('@')
               AnnotationExpression
                 Constructor
-                  SimpleTypeElement: scala.specialized
+                  SimpleType: scala.specialized
                     CodeReferenceElement: scala.specialized
                       CodeReferenceElement: scala
                         PsiElement(identifier)('scala')
@@ -53,7 +53,7 @@ ScalaFile
               PsiElement(@)('@')
               AnnotationExpression
                 Constructor
-                  SimpleTypeElement: scala.specialized
+                  SimpleType: scala.specialized
                     CodeReferenceElement: scala.specialized
                       CodeReferenceElement: scala
                         PsiElement(identifier)('scala')
@@ -81,7 +81,7 @@ ScalaFile
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
               ParameterType
-                SimpleTypeElement: T1
+                SimpleType: T1
                   CodeReferenceElement: T1
                     PsiElement(identifier)('T1')
             PsiElement(,)(',')
@@ -96,7 +96,7 @@ ScalaFile
               PsiElement(:)(':')
               PsiWhiteSpace(' ')
               ParameterType
-                SimpleTypeElement: T2
+                SimpleType: T2
                   CodeReferenceElement: T2
                     PsiElement(identifier)('T2')
             PsiElement())(')')

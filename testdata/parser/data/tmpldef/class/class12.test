@@ -32,13 +32,13 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              ParametrizedTypeElement: Term[Boolean]
-                SimpleTypeElement: Term
+              ParametrizedType: Term[Boolean]
+                SimpleType: Term
                   CodeReferenceElement: Term
                     PsiElement(identifier)('Term')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleTypeElement: Boolean
+                  SimpleType: Boolean
                     CodeReferenceElement: Boolean
                       PsiElement(identifier)('Boolean')
                   PsiElement(])(']')
@@ -53,13 +53,13 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              ParametrizedTypeElement: Term[T]
-                SimpleTypeElement: Term
+              ParametrizedType: Term[T]
+                SimpleType: Term
                   CodeReferenceElement: Term
                     PsiElement(identifier)('Term')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleTypeElement: T
+                  SimpleType: T
                     CodeReferenceElement: T
                       PsiElement(identifier)('T')
                   PsiElement(])(']')
@@ -74,13 +74,13 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              ParametrizedTypeElement: Term[T]
-                SimpleTypeElement: Term
+              ParametrizedType: Term[T]
+                SimpleType: Term
                   CodeReferenceElement: Term
                     PsiElement(identifier)('Term')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleTypeElement: T
+                  SimpleType: T
                     CodeReferenceElement: T
                       PsiElement(identifier)('T')
                   PsiElement(])(']')
@@ -91,13 +91,13 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          ParametrizedTypeElement: Term[T]
-            SimpleTypeElement: Term
+          ParametrizedType: Term[T]
+            SimpleType: Term
               CodeReferenceElement: Term
                 PsiElement(identifier)('Term')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleTypeElement: T
+              SimpleType: T
                 CodeReferenceElement: T
                   PsiElement(identifier)('T')
               PsiElement(])(']')

@@ -39,13 +39,13 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(>:)('>:')
           PsiWhiteSpace(' ')
-          SimpleTypeElement: Any
+          SimpleType: Any
             CodeReferenceElement: Any
               PsiElement(identifier)('Any')
           PsiWhiteSpace(' ')
           PsiElement(<:)('<:')
           PsiWhiteSpace(' ')
-          SimpleTypeElement: Boolean
+          SimpleType: Boolean
             CodeReferenceElement: Boolean
               PsiElement(identifier)('Boolean')
         PsiWhiteSpace('\n')

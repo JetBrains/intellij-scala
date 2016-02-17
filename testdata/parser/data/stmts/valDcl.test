@@ -30,7 +30,7 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              SimpleTypeElement: Int
+              SimpleType: Int
                 CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
           PsiElement())(')')
@@ -72,7 +72,7 @@ ScalaFile
               PsiElement(identifier)('t')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement: Int
+          SimpleType: Int
             CodeReferenceElement: Int
               PsiElement(identifier)('Int')
         PsiWhiteSpace('\n')

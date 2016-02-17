@@ -36,7 +36,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement: Symbol
+          SimpleType: Symbol
             CodeReferenceElement: Symbol
               PsiElement(identifier)('Symbol')
           PsiWhiteSpace(' ')

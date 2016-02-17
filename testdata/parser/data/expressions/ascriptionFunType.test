@@ -53,7 +53,7 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  SimpleTypeElement: Int
+                  SimpleType: Int
                     CodeReferenceElement: Int
                       PsiElement(identifier)('Int')
               PsiElement(,)(',')
@@ -67,7 +67,7 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  SimpleTypeElement: Boolean
+                  SimpleType: Boolean
                     CodeReferenceElement: Boolean
                       PsiElement(identifier)('Boolean')
               PsiElement(,)(',')
@@ -82,13 +82,13 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 ParameterType
                   FunctionalType: T => Any
-                    SimpleTypeElement: T
+                    SimpleType: T
                       CodeReferenceElement: T
                         PsiElement(identifier)('T')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')
                     PsiWhiteSpace(' ')
-                    SimpleTypeElement: Any
+                    SimpleType: Any
                       CodeReferenceElement: Any
                         PsiElement(identifier)('Any')
               PsiElement())(')')
@@ -130,7 +130,7 @@ ScalaFile
                   PsiElement(_)('_')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleTypeElement: Boolean
+                SimpleType: Boolean
                   CodeReferenceElement: Boolean
                     PsiElement(identifier)('Boolean')
               PsiElement(,)(',')
@@ -141,13 +141,13 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 FunctionalType: T => Any
-                  SimpleTypeElement: T
+                  SimpleType: T
                     CodeReferenceElement: T
                       PsiElement(identifier)('T')
                   PsiWhiteSpace(' ')
                   PsiElement(=>)('=>')
                   PsiWhiteSpace(' ')
-                  SimpleTypeElement: Any
+                  SimpleType: Any
                     CodeReferenceElement: Any
                       PsiElement(identifier)('Any')
               PsiElement())(')')
@@ -184,7 +184,7 @@ ScalaFile
                   PsiElement(_)('_')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleTypeElement: Boolean
+                SimpleType: Boolean
                   CodeReferenceElement: Boolean
                     PsiElement(identifier)('Boolean')
               PsiElement(,)(',')
@@ -194,18 +194,18 @@ ScalaFile
                   PsiElement(_)('_')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                ParametrizedTypeElement: Function1[T, Any]
-                  SimpleTypeElement: Function1
+                ParametrizedType: Function1[T, Any]
+                  SimpleType: Function1
                     CodeReferenceElement: Function1
                       PsiElement(identifier)('Function1')
                   TypeArgumentsList
                     PsiElement([)('[')
-                    SimpleTypeElement: T
+                    SimpleType: T
                       CodeReferenceElement: T
                         PsiElement(identifier)('T')
                     PsiElement(,)(',')
                     PsiWhiteSpace(' ')
-                    SimpleTypeElement: Any
+                    SimpleType: Any
                       CodeReferenceElement: Any
                         PsiElement(identifier)('Any')
                     PsiElement(])(']')

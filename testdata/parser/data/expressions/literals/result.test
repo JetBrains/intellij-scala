@@ -43,7 +43,7 @@ ScalaFile
                   PsiElement(identifier)('a')
                   PsiElement(:)(':')
                   ParameterType
-                    SimpleTypeElement: T
+                    SimpleType: T
                       CodeReferenceElement: T
                         PsiElement(identifier)('T')
                 PsiElement(,)(',')
@@ -53,7 +53,7 @@ ScalaFile
                   PsiElement(identifier)('b')
                   PsiElement(:)(':')
                   ParameterType
-                    SimpleTypeElement: S
+                    SimpleType: S
                       CodeReferenceElement: S
                         PsiElement(identifier)('S')
                 PsiElement())(')')
