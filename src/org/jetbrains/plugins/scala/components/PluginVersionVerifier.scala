@@ -58,7 +58,7 @@ object ScalaPluginVersionVerifier {
 
   val EP_NAME: ExtensionPointName[ScalaPluginVersionVerifier] = ExtensionPointName.create("org.intellij.scala.scalaPluginVersionVerifier")
 
-  def getPluginVersion: Option[Version] = {
+  lazy val getPluginVersion: Option[Version] = {
     getClass.getClassLoader match {
       case pluginLoader: PluginClassLoader =>
         Version.parse(PluginManager.getPlugin(pluginLoader.getPluginId).getVersion)
