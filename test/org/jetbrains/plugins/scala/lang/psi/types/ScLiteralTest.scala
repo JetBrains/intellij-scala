@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.junit.Assert
 
@@ -12,35 +12,35 @@ import org.junit.Assert
 
 class ScLiteralTest extends SimpleTestCase {
   def testNullLiteral() {
-    assertTypeIs("null", types.Null)
+    assertTypeIs("null", Null)
   }
 
   def testIntLiteral() {
-    assertTypeIs("1", types.Int)
+    assertTypeIs("1", Int)
   }
 
   def testLongLiteral() {
-    assertTypeIs("1l", types.Long)
-    assertTypeIs("1L", types.Long)
+    assertTypeIs("1l", Long)
+    assertTypeIs("1L", api.Long)
   }
 
   def testFloatLiteral() {
-    assertTypeIs("1f", types.Float)
-    assertTypeIs("1F", types.Float)
+    assertTypeIs("1f", api.Float)
+    assertTypeIs("1F", api.Float)
   }
 
   def testDoubleLiteral() {
-    assertTypeIs("1d", types.Double)
-    assertTypeIs("1D", types.Double)
+    assertTypeIs("1d", api.Double)
+    assertTypeIs("1D", api.Double)
   }
 
   def testCharLiteral() {
-    assertTypeIs("'c'", types.Char)
+    assertTypeIs("'c'", Char)
   }
 
   def testBooleanLiteral() {
-    assertTypeIs("true", types.Boolean)
-    assertTypeIs("false", types.Boolean)
+    assertTypeIs("true", Boolean)
+    assertTypeIs("false", api.Boolean)
   }
 
   private def assertTypeIs(code: String, expectation: ScType) {
