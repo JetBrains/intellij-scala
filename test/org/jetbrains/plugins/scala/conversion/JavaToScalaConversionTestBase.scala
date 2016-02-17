@@ -10,6 +10,8 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -53,7 +55,9 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
     var res = JavaToScala.convertPsisToText(buf.toArray)
     val newFile = PsiFileFactory.getInstance(getProjectAdapter).createFileFromText("dummyForJavaToScala.scala",
       ScalaFileType.SCALA_LANGUAGE, res)
-    res = CodeStyleManager.getInstance(getProjectAdapter).reformat(newFile).getText
+    res = inWriteAction {
+      CodeStyleManager.getInstance(getProjectAdapter).reformat(newFile).getText
+    }
 
     val text = lastPsi.getText
     val output = lastPsi.getNode.getElementType match {
