@@ -174,9 +174,12 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       showCustomOption("SD_ALIGN_RETURN_COMMENTS", "Align return value description", ScalaDocFormattingPanel.ALIGNMENT_GROUP)
       showCustomOption("SD_ALIGN_OTHER_TAGS_COMMENTS", "Align other tags descriptions", ScalaDocFormattingPanel.ALIGNMENT_GROUP)
 
+      showCustomOption("SD_KEEP_BLANK_LINES_BETWEEN_TAGS", "Keep (blank lines between tags will not be removed)", ScalaDocFormattingPanel.BLANK_LINES_GROUP)
       showCustomOption("SD_BLANK_LINE_BEFORE_TAGS", ApplicationBundle.message("checkbox.after.description"), ScalaDocFormattingPanel.BLANK_LINES_GROUP)
       showCustomOption("SD_BLANK_LINE_AFTER_PARAMETERS_COMMENTS", ApplicationBundle.message("checkbox.after.parameter.descriptions"), ScalaDocFormattingPanel.BLANK_LINES_GROUP)
       showCustomOption("SD_BLANK_LINE_AFTER_RETURN_COMMENTS",  ApplicationBundle.message("checkbox.after.return.tag"), ScalaDocFormattingPanel.BLANK_LINES_GROUP)
+      showCustomOption("SD_BLANK_LINE_BETWEEN_PARAMETERS", "Between parameter descriptions", ScalaDocFormattingPanel.BLANK_LINES_GROUP)
+      showCustomOption("SD_BLANK_LINE_BEFORE_PARAMETERS", "Before parameter descriptions", ScalaDocFormattingPanel.BLANK_LINES_GROUP)
 
       showCustomOption("SD_PRESERVE_SPACES_IN_TAGS", "Preserve spaces in tags", ScalaDocFormattingPanel.OTHER_GROUP)
     }
