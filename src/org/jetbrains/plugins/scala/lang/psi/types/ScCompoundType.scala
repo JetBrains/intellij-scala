@@ -9,7 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 import scala.collection.mutable
 
@@ -215,8 +214,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
 }
 
 object ScCompoundType {
-  def fromPsi(components: Seq[ScType], decls: Seq[ScDeclaredElementsHolder],
-              typeDecls: Seq[ScTypeAlias], subst: ScSubstitutor): ScCompoundType = {
+  def fromPsi(components: Seq[ScType], decls: Seq[ScDeclaredElementsHolder], typeDecls: Seq[ScTypeAlias]): ScCompoundType = {
     val signatureMapVal: mutable.HashMap[Signature, ScType] = new mutable.HashMap[Signature, ScType] {
       override def elemHashCode(s : Signature) = s.name.hashCode * 31 + {
         val length = s.paramLength
@@ -224,35 +222,29 @@ object ScCompoundType {
         else length.hashCode()
       }
     }
-    val typesVal = new mutable.HashMap[String, TypeAliasSignature]
-
-    for (typeDecl <- typeDecls) {
-      typesVal += ((typeDecl.name, new TypeAliasSignature(typeDecl)))
-    }
-
 
     for (decl <- decls) {
       decl match {
-        case fun: ScFunction =>
-          signatureMapVal += ((new Signature(fun.name, PhysicalSignature.typesEval(fun), PhysicalSignature.paramLength(fun),
-            TypeParameter.fromArray(fun.getTypeParameters), subst, fun, PhysicalSignature.hasRepeatedParam(fun)),
-            fun.returnType.getOrAny))
+        case fun: ScFunction => signatureMapVal += ((Signature(fun), fun.returnType.getOrAny))
         case varDecl: ScVariable =>
-          for (e <- varDecl.declaredElements) {
-            val varType = e.getType(TypingContext.empty)
-            signatureMapVal += ((new Signature(e.name, Seq.empty, 0, subst, e), varType.getOrAny))
-            signatureMapVal += ((new Signature(e.name + "_=", Seq(() => varType.getOrAny), 1, subst, e), psi.types.Unit)) //setter
+          signatureMapVal ++= varDecl.declaredElements.map {
+            e => (Signature.getter(e), e.getType().getOrAny)
+          }
+          signatureMapVal ++= varDecl.declaredElements.map {
+            e => (Signature.setter(e), e.getType().getOrAny)
           }
         case valDecl: ScValue =>
-          for (e <- valDecl.declaredElements) {
-            val valType = e.getType(TypingContext.empty)
-            signatureMapVal += ((new Signature(e.name, Seq.empty, 0, subst, e), valType.getOrAny))
+          signatureMapVal ++= valDecl.declaredElements.map {
+            e => (Signature.getter(e), e.getType().getOrAny)
           }
       }
     }
 
-    ScCompoundType(components, signatureMapVal.toMap, typesVal.toMap)
+    ScCompoundType(
+      components,
+      signatureMapVal.toMap,
+      typeDecls.map {
+        typeDecl => (typeDecl.name, new TypeAliasSignature(typeDecl))
+      }.toMap)
   }
-
-  class CompoundSignature()
 }
