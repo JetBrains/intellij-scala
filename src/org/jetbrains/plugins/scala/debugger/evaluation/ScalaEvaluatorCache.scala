@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package debugger.evaluation
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
-import com.intellij.debugger.engine.evaluation.expression.ExpressionEvaluator
+import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator}
 import com.intellij.debugger.impl.{DebuggerManagerAdapter, DebuggerSession}
 import com.intellij.debugger.{DebuggerManagerEx, SourcePosition}
 import com.intellij.openapi.components.AbstractProjectComponent
@@ -17,7 +17,7 @@ import scala.collection.mutable
  */
 class ScalaEvaluatorCache(project: Project) extends AbstractProjectComponent(project) {
 
-  private val cachedEvaluators = mutable.HashMap[(PsiFile, Int), mutable.HashMap[PsiElement, ExpressionEvaluator]]()
+  private val cachedEvaluators = mutable.HashMap[(PsiFile, Int), mutable.HashMap[PsiElement, Evaluator]]()
   private val cachedStamp = mutable.HashMap[PsiFile, Long]()
 
   private val listener = new DebuggerManagerAdapter {
@@ -39,7 +39,7 @@ class ScalaEvaluatorCache(project: Project) extends AbstractProjectComponent(pro
     cachedStamp.clear()
   }
 
-  def get(position: SourcePosition, element: PsiElement): Option[ExpressionEvaluator] = {
+  def get(position: SourcePosition, element: PsiElement): Option[Evaluator] = {
     if (position == null) return None
 
     val file = position.getFile
@@ -62,7 +62,7 @@ class ScalaEvaluatorCache(project: Project) extends AbstractProjectComponent(pro
     }
   }
 
-  def add(position: SourcePosition, element: PsiElement, evaluator: ExpressionEvaluator): ExpressionEvaluator = {
+  def add(position: SourcePosition, element: PsiElement, evaluator: Evaluator): Evaluator = {
     if (position != null) {
       val file = position.getFile
       val offset = position.getOffset

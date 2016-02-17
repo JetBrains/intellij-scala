@@ -14,7 +14,7 @@ import com.intellij.openapi.fileTypes.StdFileTypes
 import com.intellij.psi.{PsiElement, PsiManager}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
-import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{ScalaFieldEvaluator, ScalaMethodEvaluator, ScalaThisEvaluator}
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{ScalaDuplexEvaluator, ScalaFieldEvaluator, ScalaMethodEvaluator, ScalaThisEvaluator}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -47,9 +47,9 @@ object ScalaCollectionRenderer {
     def exprEval = new ExpressionEvaluatorImpl(e)
   }
 
-  private val hasDefiniteSizeEval = new ScalaMethodEvaluator(new ScalaThisEvaluator(), "hasDefiniteSize", JVMNameUtil.getJVMRawText("()Z"), Nil).exprEval
-  private val nonEmptyEval = new ScalaMethodEvaluator(new ScalaThisEvaluator(), "nonEmpty", JVMNameUtil.getJVMRawText("()Z"), Nil).exprEval
-  private val sizeEval = new ScalaMethodEvaluator(new ScalaThisEvaluator(), "size", JVMNameUtil.getJVMRawText("()I"), Nil).exprEval
+  private val hasDefiniteSizeEval = new ScalaMethodEvaluator(new ScalaThisEvaluator(), "hasDefiniteSize", JVMNameUtil.getJVMRawText("()Z"), Nil)
+  private val nonEmptyEval = new ScalaMethodEvaluator(new ScalaThisEvaluator(), "nonEmpty", JVMNameUtil.getJVMRawText("()Z"), Nil)
+  private val sizeEval = new ScalaMethodEvaluator(new ScalaThisEvaluator(), "size", JVMNameUtil.getJVMRawText("()I"), Nil)
 
   val collectionClassName = "scala.collection.GenIterable"
   val streamClassName = "scala.collection.immutable.Stream"
@@ -64,7 +64,8 @@ object ScalaCollectionRenderer {
 
   /**
    * util method for collection displaying in debugger
-   * @param name name encoded for jvm (for example, scala.collection.immutable.$colon$colon)
+    *
+    * @param name name encoded for jvm (for example, scala.collection.immutable.$colon$colon)
    * @return decoded nonqualified part (:: in example)
    */
   def transformName(name: String) = getNonQualifiedName(NameTransformer decode name)
@@ -96,28 +97,28 @@ object ScalaCollectionRenderer {
     labelRenderer
   }
 
-  private def evaluateBoolean(value: Value, context: EvaluationContext, evaluator: ExpressionEvaluator): Boolean = {
+  private def evaluateBoolean(value: Value, context: EvaluationContext, evaluator: Evaluator): Boolean = {
     evaluate(value, context, evaluator) match {
       case b: BooleanValue => b.booleanValue()
       case x => throw EvaluationException(s"$x is not a boolean")
     }
   }
 
-  private def evaluateInt(value: Value, context: EvaluationContext, evaluator: ExpressionEvaluator): Int = {
+  private def evaluateInt(value: Value, context: EvaluationContext, evaluator: Evaluator): Int = {
     evaluate(value, context, evaluator) match {
       case i: IntegerValue => i.intValue()
       case x => throw EvaluationException(s"$x is not an integer")
     }
   }
 
-  private def evaluate(value: Value, context: EvaluationContext, evaluator: ExpressionEvaluator) = {
+  private def evaluate(value: Value, context: EvaluationContext, evaluator: Evaluator) = {
     if (value != null) {
       val newContext = context.createEvaluationContext(value)
-      evaluator.evaluate(newContext)
+      evaluator.exprEval.evaluate(newContext)
     }
     else if (value != null) {
       val newContext = context.createEvaluationContext(value)
-      evaluator.evaluate(newContext) match {
+      evaluator.exprEval.evaluate(newContext) match {
         case b: BooleanValue => b.booleanValue()
         case _ => throw EvaluationException("Cannot evaluate expression")
       }
@@ -127,27 +128,20 @@ object ScalaCollectionRenderer {
 
   object ScalaToArrayRenderer extends ReferenceRenderer(collectionClassName) with ChildrenRenderer {
 
-    private lazy val classTagObjectEval = {
-      val classTagEval = stableObjectEval("scala.reflect.ClassTag$")
-      ScalaMethodEvaluator(classTagEval, "Object", null, Nil)
-    }
-
-    private lazy val manifestObjectEval = {
-      val predefEval = stableObjectEval("scala.Predef$")
-      val manifestEval = new ScalaMethodEvaluator(predefEval, "Manifest", null, Nil)
-      new ScalaMethodEvaluator(manifestEval, "Object", null, Nil)
-    }
-
-    private def toArrayEvaluator(tp: ReferenceType) = {
-      val methods = tp.methodsByName("toArray")
-      if (methods.isEmpty) throw EvaluationException(s"${tp.name()} has no `toArray` method")
-      else {
-        val argEval =
-          if (methods.asScala.exists(_.signature().contains("ClassTag")))
-            classTagObjectEval
-          else manifestObjectEval
-        new ScalaMethodEvaluator(new ScalaThisEvaluator(), "toArray", null, Seq(argEval)).exprEval
+    private lazy val toArrayEvaluator = {
+      val classTagObjectEval = {
+        val classTagEval = stableObjectEval("scala.reflect.ClassTag$")
+        ScalaMethodEvaluator(classTagEval, "Object", null, Nil)
       }
+
+      val manifestObjectEval = {
+        val predefEval = stableObjectEval("scala.Predef$")
+        val manifestEval = new ScalaMethodEvaluator(predefEval, "Manifest", null, Nil)
+        new ScalaMethodEvaluator(manifestEval, "Object", null, Nil)
+      }
+      val argEval = ScalaDuplexEvaluator(classTagObjectEval, manifestObjectEval)
+
+      new ScalaMethodEvaluator(new ScalaThisEvaluator(), "toArray", null, Seq(argEval))
     }
 
     override def getUniqueId: String = "ScalaToArrayRenderer"
@@ -205,15 +199,10 @@ object ScalaCollectionRenderer {
     private def stableObjectEval(name: String) = new ScalaFieldEvaluator(new TypeEvaluator(JVMNameUtil.getJVMRawText(name)), "MODULE$", false)
 
     private def evaluateChildren(context: EvaluationContext, descriptor: NodeDescriptor): Value = {
-      val thisObj = context.getThisObject
-      thisObj.`type`() match {
-        case rt: ReferenceType =>
-          val evaluator: ExpressionEvaluator = toArrayEvaluator(rt)
-          val value: Value = evaluator.evaluate(context)
-          DebuggerUtilsEx.keep(value, context)
-          value
-        case _ => throw EvaluationException("Cannot evaluate children")
-      }
+      val evaluator: ExpressionEvaluator = toArrayEvaluator.exprEval
+      val value: Value = evaluator.evaluate(context)
+      DebuggerUtilsEx.keep(value, context)
+      value
     }
   }
 }

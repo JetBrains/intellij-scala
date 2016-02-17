@@ -8,7 +8,7 @@ import java.util
 import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.debugger.engine._
 import com.intellij.debugger.engine.evaluation._
-import com.intellij.debugger.engine.evaluation.expression.{ExpressionEvaluator, Modifier}
+import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, Modifier}
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
 import com.intellij.debugger.{DebuggerInvocationUtil, EvaluatingComputable, SourcePosition}
 import com.intellij.openapi.module.ModuleUtilCore
@@ -34,8 +34,16 @@ import scala.collection.JavaConverters._
  * 2014-10-09
  */
 
+class ScalaCompilingExpressionEvaluator(evaluator: ScalaCompilingEvaluator) extends ExpressionEvaluator {
+  override def evaluate(context: EvaluationContext): Value = evaluator.evaluate(context.asInstanceOf[EvaluationContextImpl])
+
+  override def getValue: Value = null
+
+  override def getModifier: Modifier = evaluator.getModifier
+}
+
 class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragment)
-        extends ExpressionEvaluator {
+        extends Evaluator {
 
   import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingEvaluator._
 
@@ -43,15 +51,13 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
   private val generatedClass = GeneratedClass(fragment, psiContext)
   private var classLoader: ClassLoaderReference = null
 
-  override def getValue: Value = null
-
   override def getModifier: Modifier = null
 
-  override def evaluate(evaluationContext: EvaluationContext): Value = {
-    val process: DebugProcess = evaluationContext.getDebugProcess
+  override def evaluate(context: EvaluationContextImpl): Value = {
+    val process: DebugProcess = context.getDebugProcess
 
     try {
-      if (classLoader == null || classLoader.isCollected) classLoader = getClassLoader(evaluationContext)
+      if (classLoader == null || classLoader.isCollected) classLoader = getClassLoader(context)
     }
     catch {
       case e: Exception =>
@@ -59,7 +65,7 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
     }
 
     try {
-      defineClasses(generatedClass.compiledClasses, evaluationContext, process, classLoader)
+      defineClasses(generatedClass.compiledClasses, context, process, classLoader)
     }
     catch {
       case e: Exception =>
@@ -67,9 +73,9 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
     }
 
     try {
-      val evaluator = callEvaluator(evaluationContext)
-      evaluationContext.asInstanceOf[EvaluationContextImpl].setClassLoader(classLoader)
-      evaluator.evaluate(evaluationContext)
+      val evaluator = callEvaluator(context)
+      context.asInstanceOf[EvaluationContextImpl].setClassLoader(classLoader)
+      evaluator.evaluate(context)
     }
     catch {
       case e: Exception =>
