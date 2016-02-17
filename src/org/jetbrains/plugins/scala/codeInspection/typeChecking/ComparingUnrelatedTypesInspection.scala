@@ -13,6 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
+
+import scala.annotation.tailrec
 
 /**
  * Nikolay.Tropin
@@ -26,7 +29,9 @@ object ComparingUnrelatedTypesInspection {
   private val seqFunctions = Seq("contains", "indexOf", "lastIndexOf")
 
   def cannotBeCompared(type1: ScType, type2: ScType): Boolean = {
-    val types = Seq(type1, type2).map(tryExtractSingletonType)
+    if (undefinedTypeAlias(type1) || undefinedTypeAlias(type2)) return false
+
+    val types = Seq(type1, type2).map(extractActualType)
     val Seq(unboxed1, unboxed2) =
       if (types.contains(Null)) types else types.map(StdType.unboxedType)
 
@@ -40,6 +45,20 @@ object ComparingUnrelatedTypesInspection {
       case Byte | Char | Short | Int | Long | Float | Double => true
       case ScDesignatorType(c: ScClass) => c.supers.headOption.map(_.qualifiedName).contains("scala.math.ScalaNumber")
       case _ => false
+    }
+  }
+
+  def undefinedTypeAlias(tp: ScType) = tp.isAliasType match {
+    case Some(ScTypeUtil.AliasType(_, lower, upper)) =>
+      lower.isEmpty || upper.isEmpty || !lower.get.equiv(upper.get)
+    case _ => false
+  }
+
+  @tailrec
+  def extractActualType(tp: ScType): ScType = {
+    tp.isAliasType match {
+      case Some(ScTypeUtil.AliasType(_, Success(rhs, _), _)) => extractActualType(rhs)
+      case _ => tryExtractSingletonType(tp)
     }
   }
 

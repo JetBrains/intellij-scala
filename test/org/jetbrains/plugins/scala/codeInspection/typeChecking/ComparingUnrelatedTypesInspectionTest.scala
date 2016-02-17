@@ -154,4 +154,37 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaLightInspectionFixtureT
     checkTextHasError(s"${START}BigInt(1) == true$END")
     checkTextHasError(s"${START}BigInt(1) == 1.toString$END")
   }
+
+  def testTypeAlias(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |object A {
+        |  type Coord = Float
+        |  def isZero(n: Coord): Boolean = {
+        |    n == 0
+        |  }
+        |}
+      """.stripMargin)
+
+    checkTextHasError(
+      s"""
+        |object A {
+        |  type Coord = String
+        |  def isZero(n: Coord): Boolean = {
+        |    ${START}n == 0$END
+        |  }
+        |}
+      """.stripMargin)
+
+    checkTextHasNoErrors(
+      """
+        |trait A {
+        |  type Coord
+        |
+        |  def isZero(n: Coord): Boolean = {
+        |    n == 0
+        |  }
+        |}
+      """.stripMargin)
+  }
 }
