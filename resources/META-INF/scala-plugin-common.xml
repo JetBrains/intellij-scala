@@ -145,6 +145,8 @@
                  id="scalaKindWeigher" order="after prefix, before proximity"/>
         <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaClassObjectWeigher"
                  id="scalaClassObjectWeigher" order="before samePsiMember"/>
+        <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaScopeWeigher"
+                 id="ScopeWeigher" order="after scalaKindWeigher, before proximity"/>
         <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaExplicitlyImportedWeigher"
                  id="scalaExplicitlyImportedWeigher" order="before explicitlyImported"/>
         <psi.referenceContributor implementation="org.jetbrains.plugins.scala.lang.references.ScalaReferenceContributor"/>
