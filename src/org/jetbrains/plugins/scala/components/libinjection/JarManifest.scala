@@ -4,6 +4,9 @@ package org.jetbrains.plugins.scala.components.libinjection
   * Created by mucianm on 10.02.16.
   */
 
+import java.io.File
+
+import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier.Version
 
 import scala.collection.immutable.Seq
@@ -14,7 +17,7 @@ class InvalidManifest(where: Node, expected: String)
 
 case class InjectorDescriptor(version: Int, iface: String, impl: String, sources: Seq[String])
 case class PluginDescriptor(since: Version, until: Version, injectors: Seq[InjectorDescriptor])
-case class LibraryManifest(pluginDescriptors: Seq[PluginDescriptor]) {
+case class JarManifest(pluginDescriptors: Seq[PluginDescriptor], jarPath: String, modTimeStamp: Long) {
   def serialize() = {
     <intellij-compat> {
         for (PluginDescriptor(since, until, injtors) <- pluginDescriptors) {
@@ -33,10 +36,17 @@ case class LibraryManifest(pluginDescriptors: Seq[PluginDescriptor]) {
   }
 }
 
-object LibraryManifest {
-  def deserialize(elem: Elem): LibraryManifest = {
+object JarManifest {
+  def deserialize(f: VirtualFile, containingJar: VirtualFile = null) = {
+    if (containingJar == null)
+      deserialize(XML.load(f.getInputStream), VfsUtilCore.getVirtualFileForJar(f))
+    else
+      deserialize(XML.load(f.getInputStream), containingJar)
+  }
+
+  def deserialize(elem: Elem, containingJar: VirtualFile): JarManifest = {
     def buildInjectorDescriptor(n: Node): InjectorDescriptor = {
-      val version = (n \ "@version").headOption.map(_.text.toInt).getOrElse(throw new InvalidManifest(n, "version"))
+      val version = (n \ "@version").headOption.map(_.text.toInt).getOrElse(0)
       val iface   = (n \ "@interface").headOption.map(_.text).getOrElse(throw new InvalidManifest(n, "interface"))
       val impl    = (n \ "@implementation").headOption.map(_.text).getOrElse(throw new InvalidManifest(n, "implementation"))
       val sources = (n \\ "source").map(_.text)
@@ -50,7 +60,7 @@ object LibraryManifest {
     }
     elem match {
       case <intellij-compat>{nodes}</intellij-compat> =>
-        LibraryManifest(nodes.map(buildPluginDescriptor))
+        JarManifest(nodes.map(buildPluginDescriptor), containingJar.getPath, new File(containingJar.getPath).lastModified())
       case _ => throw new InvalidManifest(elem, "<intellij-compat> with plugin descriptors")
     }
   }
