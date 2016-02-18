@@ -4,7 +4,7 @@ import sbt._
 object Versions {
   val scalaVersion = "2.11.6"
   val sbtVersion = "0.13.9"
-  val ideaVersion = "144.3143.6"
+  val ideaVersion = "144.4199.16"
   val sbtStructureVersion = "5.1.0"
   val luceneVersion = "4.8.1"
   val aetherVersion = "1.0.0.v20140518"
@@ -67,7 +67,7 @@ object Dependencies {
 
   val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
 
-  val scalastyle_2_11 = "org.scalastyle" % "scalastyle_2.11" % "0.7.0"
+  val scalastyle_2_11 = "org.scalastyle" % "scalastyle_2.11" % "0.8.0"
   val scalariform_2_11 = "org.scalariform" % "scalariform_2.11" % "0.1.7"
   val macroParadise = "org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full
 
@@ -181,6 +181,7 @@ object DependencyGroups {
     "org.specs2" % "specs2-core_2.11" % "3.0.1",
     "org.specs2" % "specs2-common_2.11" % "3.0.1",
     "org.specs2" % "specs2-matcher_2.11" % "3.0.1",
+    "com.lihaoyi" % "utest_2.10" % "0.1.3" % "provided",
     "org.scalaz" % "scalaz-core_2.11" % "7.1.0",
     "org.scalaz" % "scalaz-concurrent_2.11" % "7.1.0",
     "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.2",

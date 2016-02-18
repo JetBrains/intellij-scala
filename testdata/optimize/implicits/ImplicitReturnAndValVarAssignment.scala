@@ -5,14 +5,17 @@ trait Scratch {
   case object W
   case object X
 
-  object Implicits {
+  object Implicits1 {
     implicit def TToInt(t: T.type): Int = 0
     implicit def UToInt(t: U.type): Int = 0
     implicit def VToInt(t: V.type): Int = 0
+  }
+  object Implicits2 {
     implicit def WToInt(t: W.type): Int = 0
     implicit def XToInt(t: X.type): Int = 0
   }
-  import Implicits.{TToInt, UToInt, VToInt, WToInt, XToInt}
+  import Implicits1.{TToInt, UToInt, VToInt}
+  import Implicits2.{WToInt, XToInt}
 
   def t: Int = {
     return T
@@ -35,14 +38,17 @@ trait Scratch {
   case object W
   case object X
 
-  object Implicits {
+  object Implicits1 {
     implicit def TToInt(t: T.type): Int = 0
     implicit def UToInt(t: U.type): Int = 0
     implicit def VToInt(t: V.type): Int = 0
+  }
+  object Implicits2 {
     implicit def WToInt(t: W.type): Int = 0
     implicit def XToInt(t: X.type): Int = 0
   }
-  import Implicits.{TToInt, UToInt, VToInt, WToInt, XToInt}
+  import Implicits1.{TToInt, UToInt, VToInt}
+  import Implicits2.{WToInt, XToInt}
 
   def t: Int = {
     return T

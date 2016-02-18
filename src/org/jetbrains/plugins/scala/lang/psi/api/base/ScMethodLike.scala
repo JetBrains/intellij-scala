@@ -5,14 +5,11 @@ package api
 package base
 
 import com.intellij.psi.PsiMethod
-import com.intellij.psi.util.PsiModificationTracker
-import com.intellij.psi.util.PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedInsidePsiElement}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 
 /**
  * A member that can be converted to a ScMethodType, ie a method or a constructor.

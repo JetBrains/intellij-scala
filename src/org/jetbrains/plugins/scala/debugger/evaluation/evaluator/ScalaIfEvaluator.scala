@@ -34,7 +34,7 @@ class ScalaIfEvaluator(condition: Evaluator, ifBranch: Evaluator, elseBranch: Op
     }
     
     if (elseBranch.isEmpty)
-      value = context.getDebugProcess.getVirtualMachineProxy.mirrorOf()
+      value = context.getDebugProcess.getVirtualMachineProxy.mirrorOfVoid()
 
     value
   }

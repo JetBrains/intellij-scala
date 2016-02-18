@@ -58,6 +58,27 @@ class MatchToPartialFunctionInspectionTest extends ScalaLightInspectionFixtureTe
     testFix(text, result, annotation)
   }
 
+  def testWithPossibleImplicitConversion() {
+    val text =
+      s"""
+         |val list = List(Some(1))
+         |list.map {
+         |  ${START}x => x match $END{
+         |    case Some(value) => value
+         |    case None => 0
+         |  }
+         |}"""
+    val result =
+      """
+        |val list = List(Some(1))
+        |list.map {
+        |  case Some(value) => value
+        |  case None => 0
+        |}"""
+    checkTextHasError(text)
+    testFix(text, result, annotation)
+  }
+
   def testInArgumentList() {
     val text =
     s"""def foo(f: Int => Any, i: Int)

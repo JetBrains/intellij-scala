@@ -25,11 +25,8 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
 """
 someMethod(new Something, abc, def)
 """.replace("\r", "")
-    val after =
-"""
-someMethod(new Something, abc, def)
-""".replace("\r", "")
-    doTextTest(before, after)
+
+    doTextTest(before)
   }
 
   def testSCL2425() {
@@ -37,11 +34,8 @@ someMethod(new Something, abc, def)
 """
 import foo.{Foo, Bar}
 """.replace("\r", "")
-    val after =
-"""
-import foo.{Foo, Bar}
-""".replace("\r", "")
-    doTextTest(before, after)
+
+    doTextTest(before)
   }
 
   def testSCL2477() {
@@ -857,9 +851,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |}
       """.stripMargin.replace("\r", "")
 
-    val after = before
-
-    doTextTest(before, after)
+    doTextTest(before)
   }
 
   def testSCL5427(): Unit = {
@@ -921,15 +913,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |}
       """.stripMargin.replace("\r", "")
 
-    val after =
-      """
-        |class Test {
-        |  println(a)
-        |//  println(b)
-        |}
-      """.stripMargin.replace("\r", "")
-
-    doTextTest(before, after)
+    doTextTest(before)
   }
 
   def testSCL9387(): Unit = {
@@ -1034,15 +1018,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |}
       """.stripMargin.replace("\r", "")
 
-    val after =
-      """
-        |{
-        |  case (i) =>
-        |  testExpr
-        |}
-      """.stripMargin.replace("\r", "")
-
-    doTextTest(before, after)
+    doTextTest(before)
   }
 
   def testSCL2454(): Unit = {
@@ -1219,10 +1195,10 @@ bars foreach {case (x, y) => list.add(x + y)}
         |/**
         |  *    Pooly formatted scalaDoc.
         |    *Will still be formatted poorly.
-        | *
+        |
         |*                If formatting
         |   is disabled.
-        | * Asterisks will be aligned and added though, like in java.
+        |  Asterisks will be aligned and added though, like in java.
         |   */
       """.stripMargin.replace("\r", "")
 
@@ -1234,7 +1210,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  *
         |  *                If formatting
         |  *is disabled.
-        |  * Asterisks will be aligned and added though, like in java.
+        |  *Asterisks will be aligned and added though, like in java.
         |  */
       """.stripMargin.replace("\r", "")
 
@@ -1362,23 +1338,7 @@ bars foreach {case (x, y) => list.add(x + y)}
         |def foo(x: Int, longParamName: Int): Int
       """.stripMargin.replace("\r", "")
 
-    val after =
-      """
-        |/**
-        |  * Foos the given x, returning foo'ed x.
-        |  *
-        |  * @param x             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        |  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        |  * @param longParamName Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        |  *                      eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        |  * @return Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-        |  *         eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        |  * @throws RuntimeException whenever it feels like it
-        |  */
-        |def foo(x: Int, longParamName: Int): Int
-      """.stripMargin.replace("\r", "")
-
-    doTextTest(before, after)
+    doTextTest(before)
   }
 
   def testSCL8313_1(): Unit = {
@@ -1544,4 +1504,58 @@ bars foreach {case (x, y) => list.add(x + y)}
     doTextTest(before, after)
   }
 
+  def testParameterlessScalaDocTag(): Unit = {
+    val before =
+      """
+        |/**
+        |  * @inheritdoc
+        |  * @param resource The photo resource.
+        |  *                 ara
+        |  *                 agara
+        |  * @return The saved photo.
+        |  */
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before)
+  }
+
+  def testDisabledScalaDocTagsNewline(): Unit = {
+    getScalaSettings.ENABLE_SCALADOC_FORMATTING = false
+
+    val before =
+      """
+        |/**
+        |  * @param foo is foo
+        |  *
+        |  * @param bar is bar
+        |  */
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before)
+  }
+
+  def testScalaDocBlankLineBetweenParameters(): Unit = {
+    getScalaSettings.SD_BLANK_LINE_BETWEEN_PARAMETERS = true
+
+    val before =
+      """
+        |/**
+        |  * @param foo is foo
+        |  * @param bar is bar
+        |  */
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |/**
+        |  * @param foo is foo
+        |  *
+        |  * @param bar is bar
+        |  */
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def doTextTest(value: String): Unit = doTextTest(value, value)
 }

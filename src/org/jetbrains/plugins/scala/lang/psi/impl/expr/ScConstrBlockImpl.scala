@@ -5,7 +5,7 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElementVisitor
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
@@ -25,5 +25,9 @@ class ScConstrBlockImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       case s: ScalaElementVisitor => s.visitConstrBlock(this)
       case _ => super.accept(visitor)
     }
+  }
+
+  override def createMirror(text: String): PsiElement = {
+    ScalaPsiElementFactory.createConstructorBodyWithContextFromText(text, getContext, this)
   }
 }

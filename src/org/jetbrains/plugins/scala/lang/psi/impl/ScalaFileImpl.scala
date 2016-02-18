@@ -20,7 +20,7 @@ import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.impl.{DebugUtil, ResolveScopeManager}
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
-import com.intellij.psi.util.{PsiModificationTracker, PsiUtilCore}
+import com.intellij.psi.util.PsiUtilCore
 import com.intellij.util.Processor
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.annotations.Nullable
@@ -313,7 +313,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
   @Nullable
   def packageName: String = {
-    if (isScriptFile || isWorksheetFile) return null
+    if (isScriptFile(withCaching = false) || isWorksheetFile) return null
     var res: String = ""
     var x: ScToplevelElement = this
     while (true) {
@@ -375,7 +375,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
   def icon = Icons.FILE_TYPE_LOGO
 
-  @CachedInsidePsiElement(this, PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT)
+  @CachedInsidePsiElement(this, ScalaPsiManager.instance(getProject).modificationTracker)
   protected def isScalaPredefinedClass: Boolean = {
     typeDefinitions.length == 1 && Set("scala", "scala.Predef").contains(typeDefinitions.head.qualifiedName)
   }

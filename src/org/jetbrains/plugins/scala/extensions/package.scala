@@ -54,10 +54,12 @@ package object extensions {
     }
 
     def hasQueryLikeName = {
+      def startsWith(name: String, prefix: String) =
+        name.length > prefix.length && name.startsWith(prefix) && name.charAt(prefix.length).isUpper
+
       repr.getName match {
         case "getInstance" => false // TODO others?
-        case name if name.startsWith("getAnd") && name.charAt("getAnd".length).isUpper => false
-        case name if name.startsWith("getOr") && name.charAt("getOr".length).isUpper => false
+        case name if startsWith(name, "getAnd") || startsWith(name, "getOr") => false
         case AccessorNamePattern() => true
         case _ => false
       }

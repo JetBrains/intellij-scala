@@ -7,5 +7,5 @@ class AutoImportFixingImportTest extends AutoImportTestBase {
 
   def testFixImport() = doTest()
 
-  def testMutable() = doTest()
+  def testImmutable() = doTest()
 }

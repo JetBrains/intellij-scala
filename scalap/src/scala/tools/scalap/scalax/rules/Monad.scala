@@ -14,6 +14,8 @@ package scala.tools.scalap
 package scalax
 package rules
 
+import scala.language.higherKinds
+
 trait Monad[+A] extends Functor[A] { 
   type M[+A] <: Monad[A]
   def flatMap[B](f : A => M[B]) : M[B]

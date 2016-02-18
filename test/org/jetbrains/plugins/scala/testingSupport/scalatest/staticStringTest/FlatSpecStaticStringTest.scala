@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.staticStringTest
 
-import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
+import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
 /**
- * @author Roman.Shein
- * @since 26.06.2015.
- */
-trait FlatSpecStaticStringTest extends IntegrationTest {
+  * @author Roman.Shein
+  * @since 26.06.2015.
+  */
+trait FlatSpecStaticStringTest extends ScalaTestTestCase {
   val flatSpecClassName = "FlatSpecStringTest"
   val flatSpecFileName = flatSpecClassName + ".scala"
 
@@ -31,7 +31,7 @@ trait FlatSpecStaticStringTest extends IntegrationTest {
         | it should "not accept this: " + System.currentTimeMillis() in {
         | }
         |}
-        """.stripMargin.trim()
+      """.stripMargin.trim()
     )
   }
 
@@ -60,8 +60,8 @@ trait FlatSpecStaticStringTest extends IntegrationTest {
     addFlatSpec()
 
     assert(checkConfigAndSettings(createTestFromLocation(15, 7, flatSpecFileName), flatSpecClassName,
-        "Static strings should accept sums",
-        "Static strings should work with consts",
-        "Static strings should work with sums of consts"))
+      "Static strings should accept sums",
+      "Static strings should work with consts",
+      "Static strings should work with sums of consts"))
   }
 }

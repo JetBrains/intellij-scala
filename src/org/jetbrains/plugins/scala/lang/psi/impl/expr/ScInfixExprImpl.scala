@@ -35,17 +35,6 @@ class ScInfixExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIn
   }
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
-    def cacheBaseParts(inf: ScInfixExpr): Unit = {
-      inf.getBaseExpr match {
-        case inf: ScInfixExpr =>
-          cacheBaseParts(inf)
-        case _ =>
-      }
-      inf.getBaseExpr.getType(TypingContext.empty)
-    }
-
-    cacheBaseParts(this)
-
     operation.bind() match {
       //this is assignment statement: x += 1 equals to x = x + 1
       case Some(r) if r.element.name + "=" == operation.refName =>

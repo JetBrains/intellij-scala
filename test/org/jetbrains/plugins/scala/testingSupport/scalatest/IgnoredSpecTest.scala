@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest
 
-import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
-
 /**
- * @author Roman.Shein
- * @since 22.01.2015.
- */
-trait IgnoredSpecTest extends IntegrationTest {
+  * @author Roman.Shein
+  * @since 22.01.2015.
+  */
+trait IgnoredSpecTest extends ScalaTestTestCase {
   val ignoredTestPath: List[String] = List("[root]", "IgnoredTestSpec", "An IgnoredTestSpec", "should be ignored and have proper suffix !!! IGNORED !!!")
   val succeededTestPath: List[String] = List("[root]", "IgnoredTestSpec", "An IgnoredTestSpec", "should run tests")
 
@@ -37,8 +35,8 @@ trait IgnoredSpecTest extends IntegrationTest {
 
     runTestByLocation(2, 7, "IgnoredTest.scala",
       checkConfigAndSettings(_, "IgnoredTestSpec"),
-      root => checkResultTreeHasExactNamedPath(root, succeededTestPath:_*) &&
-          checkResultTreeHasExactNamedPath(root, ignoredTestPath:_*)
+      root => checkResultTreeHasExactNamedPath(root, succeededTestPath: _*) &&
+        checkResultTreeHasExactNamedPath(root, ignoredTestPath: _*)
     )
   }
 }

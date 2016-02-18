@@ -14,10 +14,7 @@ import scala.reflect.macros.whitebox
   * Author: Svyatoslav Ilinskiy
   * Date: 9/28/15.
   */
-class CachedWithRecursionGuard[T](element: Any,
-                                   defaultValue: => Any,
-                                   dependecyItem: Object,
-                                   useOptionalProvider: Boolean = false) extends StaticAnnotation {
+class CachedWithRecursionGuard[T](element: Any, defaultValue: => Any, dependecyItem: Object) extends StaticAnnotation {
   def macroTransform(annottees: Any*) = macro CachedWithRecursionGuard.cachedWithRecursionGuardImpl
 }
 
@@ -27,19 +24,13 @@ object CachedWithRecursionGuard {
     import c.universe._
     implicit val x: c.type = c
 
-    def parameters: (Tree, Tree, Tree, Tree, Boolean) = c.prefix.tree match {
+    def parameters: (Tree, Tree, Tree, Tree) = c.prefix.tree match {
       case q"new CachedWithRecursionGuard[$t](..$params)" if params.length == 3 =>
-        (params.head, params(1), modCountParamToModTracker(c)(params(2), params.head), t, false) //false is for default parameter
-      case q"new CachedWithRecursionGuard[$t](..$params)" if params.length == 4 =>
-        val optional = params.last match {
-          case q"useOptionalProvider = $v" => c.eval[Boolean](c.Expr(v))
-          case q"$v" => c.eval[Boolean](c.Expr(v))
-        }
-        (params.head, params(1), modCountParamToModTracker(c)(params(2), params.head), t, optional)
+        (params.head, params(1), modCountParamToModTracker(c)(params(2), params.head), t)
       case _ => abort("Wrong annotation parameters!")
     }
 
-    val (element, defaultValue, dependencyItem, providerType, useOptionalProvider) = parameters
+    val (element, defaultValue, dependencyItem, providerType) = parameters
 
     annottees.toList match {
       case DefDef(mods, name, tpParams, params, retTp, rhs) :: Nil =>
@@ -55,9 +46,7 @@ object CachedWithRecursionGuard {
         val analyzeCaches = CachedMacroUtil.analyzeCachesEnabled(c)
         val defdefFQN = q"""getClass.getName ++ "." ++ ${name.toString}"""
 
-        val provider =
-          if (useOptionalProvider) TypeName("MyOptionalProvider")
-          else TypeName("MyProvider")
+        val provider = TypeName("MyProvider")
 
         val cachedFunRHS = transformRhsToAnalyzeCaches(c)(cacheStatsName, retTp, rhs)
 
@@ -67,6 +56,7 @@ object CachedWithRecursionGuard {
         val updatedRhs = q"""
           ${if (analyzeCaches) q"$cacheStatsName.aboutToEnterCachedArea()" else EmptyTree}
           $fun
+          $cachesUtilFQN.incrementModCountForFunsWithModifiedReturn()
           $cachesUtilFQN.getWithRecursionPreventingWithRollback[$providerType, $retTp]($element, $keyVarName, $builder, $defaultValue)
           """
         val updatedDef = DefDef(mods, name, tpParams, params, retTp, updatedRhs)

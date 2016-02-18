@@ -197,4 +197,30 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
         |}"""
     checkTextHasNoErrors(text)
   }
+
+  def testImplicits(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |import scala.language.implicitConversions
+        |
+        |object TupleMethod extends App {
+        |
+        |  case class Coord(x: Int, y: Int)
+        |
+        |  class Render {
+        |    def lineTo(x: Int, y: Int) = println(s"$x, $y")
+        |  }
+        |
+        |  implicit class ExtRender(val r: Render) extends AnyVal {
+        |    def lineTo(xy: Coord) = r.lineTo(xy.x, xy.y)
+        |  }
+        |
+        |  val s = List(Coord(0, 0), Coord(1, 1), Coord(2, 2))
+        |
+        |  val r = new Render
+        |  s.foreach(r.lineTo(_))
+        |
+        |}
+      """.stripMargin)
+  }
 }

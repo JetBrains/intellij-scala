@@ -2,6 +2,8 @@ package scala.tools.scalap
 package scalax
 package rules
 
+import scala.language.higherKinds
+
 trait Arrows extends UnitFunctors  {
   type Arr[-A, +B] <: Arrow[A, B]
   type M[+B] = Arr[Nothing, B]

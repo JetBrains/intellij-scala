@@ -1,18 +1,23 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.finders
 
+import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
 import org.jetbrains.plugins.scala.testingSupport.scalatest.generators._
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestAstTransformer
+import org.scalatest.finders.Selection
 
 /**
- * @author Roman.Shein
- * @since 10.02.2015.
- */
-trait FindersApiTest extends IntegrationTest with FeatureSpecGenerator with FlatSpecGenerator with FreeSpecGenerator
+  * @author Roman.Shein
+  * @since 10.02.2015.
+  */
+trait FindersApiTest extends FeatureSpecGenerator with FlatSpecGenerator with FreeSpecGenerator
 with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with PropSpecGenerator with WordSpecGenerator {
   def checkSelection(lineNumber: Int, offset: Int, fileName: String, testNames: Set[String]) = {
     val location = createLocation(lineNumber, offset, fileName)
-    val selection = new ScalaTestAstTransformer().testSelection(location)
+    var selection: Selection = null
+    UsefulTestCase.edt(new Runnable(){
+      override def run(): Unit = selection = new ScalaTestAstTransformer().testSelection(location)
+    })
     assert(selection != null)
     assert(selection.testNames().map(_.trim).toSet == testNames)
   }
@@ -58,7 +63,7 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
     checkSelection(16, 1, fileName, Set(flatTestName2))
   }
 
-  def testBehaviorFlatSpec(){
+  def testBehaviorFlatSpec() {
     addBehaviorFlatSpec()
 
     val testNames = Set("FlatSpec should run scopes", "FlatSpec should do other stuff")
@@ -150,7 +155,7 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
     checkSelection(9, 15, fileName, Set(testName2))
   }
 
-  def testFunSuite(){
+  def testFunSuite() {
     addFunSuite()
 
     val fileName = "FunSuiteTest.scala"

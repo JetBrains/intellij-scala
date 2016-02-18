@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterCl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiUtil, types}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.overrideImplement._
@@ -77,7 +77,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
           editor.getScrollingModel.scrollToCaret(ScrollType.RELATIVE)
           editor.getSelectionModel.removeSelection()
         }
-        generatedMethods.foreach(ScalaPsiUtil.adjustTypes(_))
+        TypeAdjuster.adjustFor(generatedMethods)
       }
       catch {
         case e: IncorrectOperationException => throw new IncorrectOperationException(s"Could not delegate methods to ${target.getText}")

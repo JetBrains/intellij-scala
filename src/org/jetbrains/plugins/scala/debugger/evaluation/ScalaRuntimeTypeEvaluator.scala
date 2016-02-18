@@ -83,7 +83,7 @@ object ScalaRuntimeTypeEvaluator {
   private def findPsiClass(project: Project, jdiType: Type): PsiClass = {
     val token: AccessToken = ReadAction.start
     try {
-      new ScalaPsiManager(project).getCachedClass(GlobalSearchScope.allScope(project), jdiType.name()).orNull
+      ScalaPsiManager.instance(project).getCachedClass(GlobalSearchScope.allScope(project), jdiType.name()).orNull
     }
     finally {
       token.finish()

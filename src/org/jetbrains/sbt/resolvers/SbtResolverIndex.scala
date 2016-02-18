@@ -10,6 +10,7 @@ import org.apache.maven.index.ArtifactInfo
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
+import scala.language.reflectiveCalls
 
 /**
  * @author Nikolay Obedin

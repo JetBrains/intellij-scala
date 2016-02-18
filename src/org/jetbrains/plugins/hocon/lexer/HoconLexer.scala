@@ -20,6 +20,7 @@ object HoconLexer {
   val States = Array(Initial, Value, SubStarting, SubStarted, Substitution)
 
   val ForbiddenChars = """$"{}[]:=,+#`^?!@*&\""".toSet
+  val ForbiddenCharsAndDot = ForbiddenChars + '.'
   val SpecialWhitespace = "\u00A0\u2007\u202F\uFEFF"
 }
 

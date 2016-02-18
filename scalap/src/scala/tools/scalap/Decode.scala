@@ -9,9 +9,10 @@
 
 package scala.tools.scalap
 
+import scala.language.postfixOps
 import scala.reflect.internal.pickling.ByteCodecs
-import scala.tools.nsc.util.ScalaClassLoader
-import scala.tools.nsc.util.ScalaClassLoader.appLoader
+import scala.reflect.internal.util.ScalaClassLoader
+import scala.reflect.internal.util.ScalaClassLoader.appLoader
 import scala.tools.scalap.Main.{BYTES_VALUE, SCALA_SIG_ANNOTATION}
 import scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.{Annotation, ConstValueIndex}
 import scala.tools.scalap.scalax.rules.scalasig._

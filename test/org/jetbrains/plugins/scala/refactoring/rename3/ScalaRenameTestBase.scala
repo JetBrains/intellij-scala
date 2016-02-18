@@ -16,6 +16,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.refactoring.rename.{RenameProcessor, RenamePsiElementProcessor}
 import com.intellij.testFramework.{LightPlatformCodeInsightTestCase, LightPlatformTestCase, PlatformTestUtil, PsiTestUtil}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.TestUtils
 
@@ -86,7 +87,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
       }
       val result = findOffsets(text).map(offset => CaretPosition(file, offset))
       if (result.nonEmpty) {
-        FileDocumentManager.getInstance().getDocument(file).replaceString(0, fileLength, text)
+        inWriteAction(FileDocumentManager.getInstance().getDocument(file).replaceString(0, fileLength, text))
       }
       result
     }
@@ -104,7 +105,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
 
   protected override def tearDown() {
     super.tearDown()
-    extensions.inWriteAction(LightPlatformTestCase.closeAndDeleteProject())
+    inWriteAction(LightPlatformTestCase.closeAndDeleteProject())
   }
 
   private def projectAdapter = getProjectAdapter
@@ -117,7 +118,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
     assert(element != null, "Reference is not specified.")
     val searchInComments = element.getText != null && element.getText.contains("Comments")
     var oldName: String = ""
-    extensions.inWriteAction {
+    inWriteAction {
       val subst = RenamePsiElementProcessor.forElement(element).substituteElementToRename(element, getEditorAdapter)
       if (subst != null) {
         oldName = ScalaNamesUtil.scalaName(subst)

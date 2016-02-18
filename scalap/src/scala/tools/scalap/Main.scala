@@ -12,8 +12,9 @@ import java.io.{ByteArrayOutputStream, OutputStreamWriter, PrintStream}
 
 import scala.reflect.internal.pickling.ByteCodecs
 import scala.tools.nsc.io.AbstractFile
-import scala.tools.nsc.util.ClassPath
-import scala.tools.nsc.util.ClassPath.DefaultJavaContext
+import scala.tools.nsc.util.{JavaClassPath, ClassPath}
+import scala.tools.nsc.Settings
+import scala.tools.nsc.util.ClassPath.{JavaContext, DefaultJavaContext}
 import scala.tools.scalap.scalax.rules.scalasig.ClassFileParser.{Annotation, ConstValueIndex}
 import scala.tools.scalap.scalax.rules.scalasig._
 import scala.tools.util.PathResolver
@@ -249,6 +250,12 @@ object Main {
       Console.println("class/object " + classname + " not found.")
   }
 
+  def fromPathString(path: String, context: JavaContext = DefaultJavaContext): JavaClassPath = {
+    val s = new Settings()
+    s.classpath.value = path
+    new PathResolver(s, context).result
+  }
+
   /**The main method of this object.
    */
   def main(args: Array[String]) {
@@ -273,7 +280,7 @@ object Main {
       printPrivates = arguments contains "-private"
       // construct a custom class path
       def cparg = List("-classpath", "-cp") map (arguments getArgument _) reduceLeft (_ orElse _)
-      val path = cparg map (PathResolver fromPathString _) getOrElse EmptyClasspath
+      val path = cparg map (fromPathString(_)) getOrElse EmptyClasspath
       // print the classpath if output is verbose
       if (verbose) {
         Console.println(Console.BOLD + "CLASSPATH" + Console.RESET + " = " + path)

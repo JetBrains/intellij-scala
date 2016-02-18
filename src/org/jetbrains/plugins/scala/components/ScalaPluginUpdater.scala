@@ -1,4 +1,3 @@
-
 package org.jetbrains.plugins.scala.components
 
 import java.io.{File, IOException}
@@ -18,6 +17,7 @@ import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent}
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.updateSettings.UpdateStrategyCustomization
 import com.intellij.openapi.updateSettings.impl._
 import com.intellij.openapi.util.{BuildNumber, JDOMUtil, SystemInfo}
 import com.intellij.openapi.vfs.CharsetToolkit
@@ -216,7 +216,12 @@ object ScalaPluginUpdater {
         }
       })
       if(info.isDefined) {
-        val strategy = new UpdateStrategy(infoImpl.getMajorVersion.toInt, infoImpl.getBuild, info.get, UpdateSettings.getInstance())
+        val strategy = new UpdateStrategy(infoImpl.getMajorVersion.toInt,
+          infoImpl.getBuild,
+          info.get,
+          UpdateSettings.getInstance(),
+          UpdateStrategyCustomization.getInstance()
+        )
         Some(strategy.checkForUpdates())
       } else None
     }
@@ -305,7 +310,7 @@ object ScalaPluginUpdater {
     tempFile.delete()
   }
 
-  @deprecated
+  @deprecated("Unsafe method, use patchPluginVersion instead", "")
   def patchPluginVersionReflection() = {
     // crime of reflection goes below - workaround until force updating is available
     try {

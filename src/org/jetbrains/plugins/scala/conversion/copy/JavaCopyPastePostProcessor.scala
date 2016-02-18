@@ -16,7 +16,8 @@ import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiJavaFile}
 import com.intellij.util.ExceptionUtil
-import org.jetbrains.plugins.scala.conversion.JavaToScala.Offset
+import org.jetbrains.plugins.scala.conversion.ast.{JavaCodeReferenceStatement, LiteralExpression, MainConstruction, TypedElement}
+import org.jetbrains.plugins.scala.conversion.visitors.SimplePrintVisitor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings._
@@ -47,63 +48,87 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     case class ElementPart(elem: PsiElement) extends Part
     case class TextPart(text: String) extends Part
 
-    val buffer = new ArrayBuffer[Part]
-
     try {
-      for ((startOffset, endOffset) <- startOffsets.zip(endOffsets)) {
-        @tailrec
-        def findElem(offset: Int): PsiElement = {
-          if (offset > endOffset) return null
-          val elem = file.findElementAt(offset)
-          if (elem == null) return null
-          if (elem.getParent.getTextRange.getEndOffset > endOffset ||
-            elem.getParent.getTextRange.getStartOffset < startOffset) findElem(elem.getTextRange.getEndOffset + 1)
-          else elem
-        }
-        var elem: PsiElement = findElem(startOffset)
-        if (elem != null) {
-          while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
-            elem.getParent.getTextRange.getEndOffset <= endOffset &&
-            elem.getParent.getTextRange.getStartOffset >= startOffset) {
-            elem = elem.getParent
+      def getTopElements: Seq[Part] = {
+        val buffer = new ArrayBuffer[Part]
+        for ((startOffset, endOffset) <- startOffsets.zip(endOffsets)) {
+          @tailrec
+          def findElem(offset: Int): PsiElement = {
+            if (offset > endOffset) return null
+            val elem = file.findElementAt(offset)
+            if (elem == null) return null
+            if (elem.getParent.getTextRange.getEndOffset > endOffset ||
+              elem.getParent.getTextRange.getStartOffset < startOffset) findElem(elem.getTextRange.getEndOffset + 1)
+            else elem
           }
-          if (startOffset < elem.getTextRange.getStartOffset) {
-            buffer += TextPart(new TextRange(startOffset, elem.getTextRange.getStartOffset).substring(file.getText))
-          }
-          buffer += ElementPart(elem)
-          while (elem.getNextSibling != null && elem.getNextSibling.getTextRange.getEndOffset <= endOffset) {
-            elem = elem.getNextSibling
+          var elem: PsiElement = findElem(startOffset)
+          if (elem != null) {
+            while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
+              elem.getParent.getTextRange.getEndOffset <= endOffset &&
+              elem.getParent.getTextRange.getStartOffset >= startOffset) {
+              elem = elem.getParent
+            }
+            if (startOffset < elem.getTextRange.getStartOffset) {
+              buffer += TextPart(new TextRange(startOffset, elem.getTextRange.getStartOffset).substring(file.getText))
+            }
             buffer += ElementPart(elem)
-          }
-          if (elem.getTextRange.getEndOffset < endOffset) {
-            buffer += TextPart(new TextRange(elem.getTextRange.getEndOffset, endOffset).substring(file.getText))
+            while (elem.getNextSibling != null && elem.getNextSibling.getTextRange.getEndOffset <= endOffset) {
+              elem = elem.getNextSibling
+              buffer += ElementPart(elem)
+            }
+            if (elem.getTextRange.getEndOffset < endOffset) {
+              buffer += TextPart(new TextRange(elem.getTextRange.getEndOffset, endOffset).substring(file.getText))
+            }
           }
         }
+        buffer.toSeq
       }
 
-      val refs = {
-        val data = referenceProcessor.collectTransferableData(file, editor, startOffsets, endOffsets)
-        if (data.isEmpty) null else data.get(0).asInstanceOf[ReferenceTransferableData]
+      def getRefs: Seq[ReferenceData] = {
+        val refs = {
+          val data = referenceProcessor.collectTransferableData(file, editor, startOffsets, endOffsets)
+          if (data.isEmpty) null else data.get(0).asInstanceOf[ReferenceTransferableData]
+        }
+        val shift = startOffsets.headOption.getOrElse(0)
+        if (refs != null)
+          refs.getData.map { it =>
+            new ReferenceData(it.startOffset + shift, it.endOffset + shift, it.qClassName, it.staticMemberName)
+          } else Seq.empty
       }
 
-      val associations = new ListBuffer[Association]()
-
-      val shift = startOffsets.headOption.getOrElse(0)
-
-      val data: Seq[ReferenceData] = if (refs != null)
-        refs.getData.map {it =>
-          new ReferenceData(it.startOffset + shift, it.endOffset + shift, it.qClassName, it.staticMemberName)
-        } else Seq.empty
-
-      val res = new StringBuilder("")
-      for (part <- buffer) {
+      val associationsHelper = new ListBuffer[AssociationHelper]()
+      val resultNode = new MainConstruction
+      val topElements = getTopElements
+      val data = getRefs
+      for (part <- topElements) {
         part match {
-          case TextPart(text) => res.append(text)
+          case TextPart(s) =>
+            resultNode.addChild(LiteralExpression(s))
           case ElementPart(element) =>
-            res.append(JavaToScala.convertPsiToText(element)(associations, data, new Offset(res.length)))
+            val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, data, withComments = true)
+            resultNode.addChild(result)
         }
       }
-      new ConvertedCode(res.toString(), associations.toArray)
+
+      val visitor = new SimplePrintVisitor
+      visitor.visit(resultNode)
+      val text = visitor.stringResult
+      val rangeMap = visitor.rangedElementsMap
+
+      val updatedAssociations = associationsHelper.filter(_.itype.isInstanceOf[TypedElement]).
+        map { a =>
+          val typedElement = a.itype.asInstanceOf[TypedElement].getType
+          val range = rangeMap.getOrElse(typedElement, new TextRange(0, 0))
+          new Association(a.kind, range, a.path)
+        }
+
+      updatedAssociations ++= associationsHelper.filter(_.itype.isInstanceOf[JavaCodeReferenceStatement]).
+        map { a =>
+          val range = rangeMap.getOrElse(a.itype, new TextRange(0, 0))
+          new Association(a.kind, range, a.path)
+        }
+
+      new ConvertedCode(text, updatedAssociations.toArray)
     } catch {
       case e: Exception =>
         val selections = (startOffsets, endOffsets).zipped.map((a, b) => file.getText.substring(a, b))
@@ -138,7 +163,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
         editor.getCaretModel.moveToOffset(bounds.getStartOffset + text.length)
         PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
 
-        val markedAssociations = associations.toList.zipMapped {dependency =>
+        val markedAssociations = associations.toList.zipMapped { dependency =>
           editor.getDocument.createRangeMarker(dependency.range.shiftRight(bounds.getStartOffset))
         }
 
@@ -223,4 +248,5 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
   object ConvertedCode {
     lazy val Flavor: DataFlavor = new DataFlavor(classOf[ConvertedCode], "JavaToScalaConvertedCode")
   }
+
 }

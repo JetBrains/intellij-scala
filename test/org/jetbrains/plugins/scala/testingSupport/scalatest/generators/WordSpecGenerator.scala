@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.generators
 
-import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
+import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
 /**
- * @author Roman.Shein
- * @since 10.02.2015.
- */
-trait WordSpecGenerator extends IntegrationTest {
+  * @author Roman.Shein
+  * @since 10.02.2015.
+  */
+trait WordSpecGenerator extends ScalaTestTestCase {
   def wordSpecClassName = "WordSpecTest"
+
   def wordSpecFileName = wordSpecClassName + ".scala"
 
   def addWordSpec() {

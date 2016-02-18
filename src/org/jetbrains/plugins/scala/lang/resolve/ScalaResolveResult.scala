@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.{ImplicitState, NoResult, ImplicitResult}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 
 import scala.annotation.tailrec
 
@@ -49,11 +50,12 @@ class ScalaResolveResult(val element: PsiNamedElement,
                          val implicitParameterType: Option[ScType] = None,
                          val implicitParameters: Seq[ScalaResolveResult] = Seq.empty,
                          val implicitReason: ImplicitResult = NoResult,
-                         val implicitSearchState: Option[ImplicitState] = None) extends ResolveResult {
+                         val implicitSearchState: Option[ImplicitState] = None,
+                         val unresolvedTypeParameters: Option[Seq[TypeParameter]] = None) extends ResolveResult {
   if (element == null) throw new NullPointerException("element is null")
 
   def getElement = element
-  
+
   lazy val name: String = element.name
 
   /**
@@ -89,7 +91,7 @@ class ScalaResolveResult(val element: PsiNamedElement,
            tuplingUsed: Boolean = tuplingUsed,
            isSetterFunction: Boolean = isSetterFunction,
            isAssignment: Boolean = isAssignment,
-           notCheckedResolveResult: Boolean = notCheckedResolveResult, 
+           notCheckedResolveResult: Boolean = notCheckedResolveResult,
            isAccessible: Boolean = isAccessible, resultUndef: Option[ScUndefinedSubstitutor] = None,
            isDynamic: Boolean = isDynamic,
            isForwardReference: Boolean = isForwardReference,
@@ -97,13 +99,14 @@ class ScalaResolveResult(val element: PsiNamedElement,
            importsUsed: collection.Set[ImportUsed] = importsUsed,
            implicitParameters: Seq[ScalaResolveResult] = implicitParameters,
            implicitReason: ImplicitResult = implicitReason,
-           implicitSearchState: Option[ImplicitState] = implicitSearchState): ScalaResolveResult =
+           implicitSearchState: Option[ImplicitState] = implicitSearchState,
+           unresolvedTypeParameters: Option[Seq[TypeParameter]] = unresolvedTypeParameters): ScalaResolveResult =
     new ScalaResolveResult(element, subst, importsUsed, nameShadow, implicitConversionClass, problems, boundClass,
       implicitFunction, implicitType, defaultParameterUsed, innerResolveResult, parentElement,
       isNamedParameter, fromType, tuplingUsed, isSetterFunction, isAssignment, notCheckedResolveResult,
       isAccessible, resultUndef, isDynamic = isDynamic, isForwardReference = isForwardReference,
       implicitParameterType = implicitParameterType, implicitParameters = implicitParameters,
-      implicitReason = implicitReason, implicitSearchState = implicitSearchState)
+      implicitReason = implicitReason, implicitSearchState = implicitSearchState, unresolvedTypeParameters = unresolvedTypeParameters)
 
   //In valid program we should not have two resolve results with the same element but different substitutor,
   // so factor by element

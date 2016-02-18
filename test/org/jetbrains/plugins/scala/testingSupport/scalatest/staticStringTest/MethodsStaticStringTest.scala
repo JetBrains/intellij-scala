@@ -1,43 +1,43 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.staticStringTest
 
-import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
+import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 
 /**
- * @author Roman.Shein
- * @since 02.07.2015.
- */
-trait MethodsStaticStringTest extends IntegrationTest {
+  * @author Roman.Shein
+  * @since 02.07.2015.
+  */
+trait MethodsStaticStringTest extends ScalaTestTestCase {
   val methodsClassName = "ScalaTestMethodsTest"
   val methodsFileName = methodsClassName + ".scala"
 
   def addMethodsTest() = {
     addFileToProject(methodsFileName,
-    """
-      |import org.scalatest._
-      |
-      |class ScalaTestMethodsTest extends PropSpec {
-      |  property(" testName ".trim + "1") {
-      |  }
-      |
-      |  property("TeStNaMe2".toLowerCase) {
-      |  }
-      |
-      |  property("testName3Suffix".stripSuffix("Suffix")) {
-      |  }
-      |
-      |  property("prefixtestName4".stripPrefix("prefix")) {
-      |  }
-      |
-      |  property("junktestName5".substring(4)) {
-      |  }
-      |
-      |  property("JunktestName6Junk".substring(4, 13)) {
-      |  }
-      |
-      |  property("testReplace7".replace("Replace", "Name")) {
-      |  }
-      |}
-      |
+      """
+        |import org.scalatest._
+        |
+        |class ScalaTestMethodsTest extends PropSpec {
+        |  property(" testName ".trim + "1") {
+        |  }
+        |
+        |  property("TeStNaMe2".toLowerCase) {
+        |  }
+        |
+        |  property("testName3Suffix".stripSuffix("Suffix")) {
+        |  }
+        |
+        |  property("prefixtestName4".stripPrefix("prefix")) {
+        |  }
+        |
+        |  property("junktestName5".substring(4)) {
+        |  }
+        |
+        |  property("JunktestName6Junk".substring(4, 13)) {
+        |  }
+        |
+        |  property("testReplace7".replace("Replace", "Name")) {
+        |  }
+        |}
+        |
       """.stripMargin.trim)
   }
 

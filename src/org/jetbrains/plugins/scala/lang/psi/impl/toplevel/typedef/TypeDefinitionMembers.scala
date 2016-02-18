@@ -88,17 +88,7 @@ object TypeDefinitionMembers {
       case _ => false
     }
 
-    def isImplicit(t: Signature) = {
-      t.namedElement match {
-        case s: ScModifierListOwner => s.hasModifierProperty("implicit")
-        case named: ScNamedElement =>
-          ScalaPsiUtil.nameContext(named) match {
-            case s: ScModifierListOwner => s.hasModifierProperty("implicit")
-            case _ => false
-          }
-        case _ => false
-      }
-    }
+    def isImplicit(t: Signature) = ScalaPsiUtil.isImplicit(t.namedElement)
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       for (method <- clazz.getMethods if nonBridge(place, method) &&
@@ -200,6 +190,7 @@ object TypeDefinitionMembers {
           case td: ScTypeDefinition =>
             td.fakeCompanionModule match {
               case Some(obj) => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+              case _ =>
             }
           case _ =>
         }
@@ -329,17 +320,7 @@ object TypeDefinitionMembers {
       case _ => false
     }
 
-    def isImplicit(t: Signature) = {
-      t.namedElement match {
-        case s: ScModifierListOwner => s.hasModifierProperty("implicit")
-        case named: ScNamedElement =>
-          ScalaPsiUtil.nameContext(named) match {
-            case s: ScModifierListOwner => s.hasModifierProperty("implicit")
-            case _ => false
-          }
-        case _ => false
-      }
-    }
+    def isImplicit(t: Signature) = ScalaPsiUtil.isImplicit(t.namedElement)
 
     def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement]) {
       for (method <- clazz.getMethods if nonBridge(place, method) &&
@@ -468,6 +449,7 @@ object TypeDefinitionMembers {
           case td: ScTypeDefinition =>
             td.fakeCompanionModule match {
               case Some(obj) => addSignature(new Signature(obj.name, Seq.empty, 0, subst, obj))
+              case _ =>
             }
           case _ =>
         }
@@ -505,7 +487,7 @@ object TypeDefinitionMembers {
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
 
   def getParameterlessSignatures(clazz: PsiClass): PMap = {
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)(), useOptionalProvider = true)
+    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def inner(): PMap = ParameterlessNodes.build(clazz)
 
     clazz match {
@@ -521,7 +503,7 @@ object TypeDefinitionMembers {
   }
 
   def getTypes(clazz: PsiClass): TMap = {
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)(), useOptionalProvider = true)
+    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def inner(): TMap =TypeNodes.build(clazz)
 
     clazz match {
@@ -537,7 +519,7 @@ object TypeDefinitionMembers {
   }
 
   def getSignatures(clazz: PsiClass, place: Option[PsiElement] = None): SMap = {
-    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)(), useOptionalProvider = true)
+    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def buildNodesClass(): SMap = SignatureNodes.build(clazz)
 
     clazz match {
@@ -560,7 +542,7 @@ object TypeDefinitionMembers {
                 c match {
                   case o: ScObject =>
                     if (allowedNames.contains(o.name)) {
-                      @CachedInsidePsiElement(o, CachesUtil.getDependentItem(o)(), useOptionalProvider = true)
+                      @CachedInsidePsiElement(o, CachesUtil.getDependentItem(o)())
                       def buildNodesObject(): SMap = SignatureNodes.build(o)
 
                       val add = buildNodesObject()
@@ -568,7 +550,7 @@ object TypeDefinitionMembers {
                     }
                   case c: ScClass =>
                     if (allowedNames.contains(c.name)) {
-                      @CachedInsidePsiElement(c, CachesUtil.getDependentItem(c)(), useOptionalProvider = true)
+                      @CachedInsidePsiElement(c, CachesUtil.getDependentItem(c)())
                       def buildNodesClass2(): SMap = SignatureNodes.build(c)
 
                       val add = buildNodesClass2()

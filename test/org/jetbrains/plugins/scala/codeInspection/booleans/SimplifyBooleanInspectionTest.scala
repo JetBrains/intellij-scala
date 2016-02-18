@@ -156,4 +156,11 @@ class SimplifyBooleanInspectionTest extends ScalaLightCodeInsightFixtureTestAdap
 
     checkHasNoErrors(text)
   }
+
+  def testParentheses(): Unit = {
+    testFix(
+      "true<caret> && (2 - 1) * 0 == 0",
+      "(2 - 1) * 0 == 0",
+      "Simplify true && (2 - 1) * 0 == 0")
+  }
 }

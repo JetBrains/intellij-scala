@@ -1,0 +1,5 @@
+k = <caret>simple
+-----
+[two.parts]
+-----
+k = two.parts
