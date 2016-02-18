@@ -21,9 +21,9 @@ case class JarManifest(pluginDescriptors: Seq[PluginDescriptor], jarPath: String
   def serialize() = {
     <intellij-compat> {
         for (PluginDescriptor(since, until, injtors) <- pluginDescriptors) {
-          <scala-plugin since-version={since} until-version={until}> {
+          <scala-plugin since-version={since.toString} until-version={until.toString}> {
             for (InjectorDescriptor(version, iface, impl, srcs) <- injtors) {
-              <psi-injector version={version} ifnterface={iface} implementation={impl}> {
+              <psi-injector version={version.toString} ifnterface={iface} implementation={impl}> {
                   for (src <- srcs) <source>{src}</source>
                 }
               </psi-injector>
@@ -37,7 +37,7 @@ case class JarManifest(pluginDescriptors: Seq[PluginDescriptor], jarPath: String
 }
 
 object JarManifest {
-  def deserialize(f: VirtualFile, containingJar: VirtualFile = null) = {
+  def deserialize(f: VirtualFile, containingJar: VirtualFile = null): JarManifest = {
     if (containingJar == null)
       deserialize(XML.load(f.getInputStream), VfsUtilCore.getVirtualFileForJar(f))
     else
@@ -58,10 +58,10 @@ object JarManifest {
       val injectors = (n \\ "psi-injector").map(buildInjectorDescriptor)
       PluginDescriptor(since, until, injectors)
     }
-    elem match {
-      case <intellij-compat>{nodes}</intellij-compat> =>
-        JarManifest(nodes.map(buildPluginDescriptor), containingJar.getPath, new File(containingJar.getPath).lastModified())
-      case _ => throw new InvalidManifest(elem, "<intellij-compat> with plugin descriptors")
+    elem \\ "intellij-compat" match {
+      case NodeSeq.Empty => throw new InvalidManifest(elem, "<intellij-compat> with plugin descriptors")
+      case xss: NodeSeq =>
+        JarManifest((xss \\ "scala-plugin").map(buildPluginDescriptor), containingJar.getPath, new File(containingJar.getPath).lastModified())
     }
   }
 }
