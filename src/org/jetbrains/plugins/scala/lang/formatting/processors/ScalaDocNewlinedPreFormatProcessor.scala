@@ -74,7 +74,9 @@ class ScalaDocNewlinedPreFormatProcessor extends ScalaRecursiveElementVisitor wi
         parent.addAfter(ScalaPsiElementFactory.createDocWhiteSpace(manager), element)
         parent.addAfter(ScalaPsiElementFactory.createLeadingAsterisk(PsiManager.getInstance(element.getProject)), element)
       }
-      val newElement = element.replace(ScalaPsiElementFactory.createDocWhiteSpace(manager))
+      val newElement =
+        if (element.getText.count(_ == '\n') > 1) element.replace(ScalaPsiElementFactory.createDocWhiteSpace(manager))
+        else element
       if (!Set(ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS, ScalaDocTokenType.DOC_COMMENT_END).
         contains(nextElement.getNode.getElementType))
         parent.addAfter(ScalaPsiElementFactory.createLeadingAsterisk(manager), newElement)
