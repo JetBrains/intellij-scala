@@ -15,6 +15,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier.Version
+import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.collection.mutable
@@ -83,7 +84,8 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
       val stream = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(f)))
       stream.writeObject(c)
     } catch {
-      case e: Throwable => LOG.error("Failed to save injector cache", e)
+      case e: Throwable =>
+        LOG.error("Failed to save injector cache", e)
     }
   }
 
@@ -110,7 +112,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     val libs = LibraryTablesRegistrar.getInstance().getLibraryTable(project).getLibraries
     val allJars = libs.flatMap(getJarsFromLibrary)
     val jarsWithManifest = allJars.flatMap(l => extractLibraryManifest(l))
-    val outdatedJars = jarsWithManifest.filter(lm => isJarCacheUpToDate(lm))
+    val outdatedJars = jarsWithManifest.filterNot(lm => isJarCacheUpToDate(lm))
     for (manifest <- outdatedJars) {
       findMatchingInjectors(manifest) match {
         case descriptors =>
@@ -121,7 +123,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
               loadInjectors(manifest)
               jarCache.cache(manifest.jarPath) = manifest
             }
-        case Seq.empty =>
+        case Nil =>
       }
     }
   }
@@ -143,27 +145,32 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   def extractLibraryManifest(jar: VirtualFile, skipIncompatible: Boolean = true): Option[JarManifest] = {
-    val manifestFile = Option(jar.findChild(INJECTOR_MANIFEST_NAME))
+    val manifestFile = Option(jar.findFileByRelativePath(s"META-INF/$INJECTOR_MANIFEST_NAME"))
     manifestFile
       .map(JarManifest.deserialize(_, jar))
       .filterNot(m => skipIncompatible && findMatchingInjectors(m).isEmpty)
   }
 
   private def compileInjectorFromLibrary(sources: Seq[File]): Seq[File] = {
-    ???
+    withHelperModule {
+//      ScalaEvaluatorCompileHelper.instance(project).compile()
+    }
+    Seq.empty
   }
 
   private def loadInjectors(jarManifest: JarManifest) = {
     myClassLoader.addUrl(getLibraryCacheDir(new File(jarManifest.jarPath)).toURI.toURL)
 
-    ???
+    // TODO
   }
 
   private def findMatchingInjectors(libraryManifest: JarManifest): Seq[InjectorDescriptor] = {
     val curVer = ScalaPluginVersionVerifier.getPluginVersion
     libraryManifest.pluginDescriptors
-      .find(d => curVer.get > d.since && curVer.get < d.until)
-        .map(_.injectors).getOrElse(Seq.empty)
+      // FIXME: fix debug version(VERSION) handling
+//      .find(d => curVer.get > d.since && curVer.get < d.until)
+//        .map(_.injectors).getOrElse(Seq.empty)
+      .flatMap(_.injectors)
   }
 
   // don't forget to remove temp directory after compilation
@@ -180,8 +187,8 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
         targetStream.close()
       }
     }
-    if (tmpDir.mkdir()) {
-      val root = VirtualFileManager.getInstance().findFileByUrl(jar.toURI.toURL.toString)
+    if (tmpDir.delete() && tmpDir.mkdir()) {
+      val root = VirtualFileManager.getInstance().findFileByUrl("jar://"+jar.getAbsolutePath+"/")
       if (root != null) {
         injectorDescriptor.sources.flatMap(path => {
           Option(root.findFileByRelativePath(path)).map { f =>
