@@ -187,4 +187,86 @@ class ComparingUnrelatedTypesInspectionTest extends ScalaLightInspectionFixtureT
         |}
       """.stripMargin)
   }
+
+  def testOverridenMethods(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |case class Dummy(v: Int) {
+        |  def ==(value: Int): String = v + " == " + value
+        |  def !=(value: Int): Boolean = v != value
+        |}
+        |
+        |object Test {
+        |  val a: String = Dummy(5) == 10
+        |  val b: Boolean = Dummy(5) != 10
+        |}""".stripMargin)
+
+    checkTextHasError(
+      s"""
+        |case class Dummy(v: Int) {
+        |  def ==(value: Int): String = v + " == " + value
+        |  def !=(value: Int): Boolean = v != value
+        |}
+        |
+        |object Test {
+        |  val b: Boolean = ${START}Dummy(5) eq 10$END
+        |}""".stripMargin)
+
+  }
+
+  def testOverridenWithImplicitParam(): Unit = {
+    checkTextHasError(
+      s"""
+        |class Store(val foo: Int, val bar: String)
+        |trait Binder[T] {
+        |  def get(implicit store: Store): T
+        |  def ==(other: Binder[T])(implicit store: Store) = get == other.get
+        |  def ==(other: T)(implicit store: Store) = get == other
+        |}
+        |class FooBinder extends Binder[Int] {
+        |  def get(implicit store: Store) = store.foo
+        |}
+        |class BarBinder extends Binder[String] {
+        |  def get(implicit store: Store) = store.bar
+        |}
+        |
+        |val fooBinder = new FooBinder
+        |val barBinder = new BarBinder
+        |
+        |{
+        |  implicit val store = new Store(12, ":)")
+        |  (fooBinder == 12, fooBinder == 3, ${START}fooBinder == ":)"$END, barBinder == ":)") // (true, false, false, true)
+        |}
+      """.stripMargin
+    )
+
+  }
+
+  def testOverridenEquals(): Unit = {
+    checkTextHasError(
+      s"""
+         |case class Dummy(v: Int) {
+         |  override def equals(other: Any): Boolean = other match {
+         |    case Dummy(o) => o == v
+         |    case _ => false
+         |  }
+         |}
+         |
+         |object Test {
+         |  val b: Boolean = ${START}Dummy(5) equals 10$END
+         |}""".stripMargin)
+
+    checkTextHasError(
+      s"""
+         |case class Dummy(v: Int) {
+         |  override def equals(other: Any): Boolean = other match {
+         |    case Dummy(o) => o == v
+         |    case _ => false
+         |  }
+         |}
+         |
+           |object Test {
+         |  val b: Boolean = ${START}Dummy(5) == 10$END
+         |}""".stripMargin)
+  }
 }
