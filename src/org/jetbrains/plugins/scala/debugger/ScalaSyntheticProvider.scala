@@ -43,8 +43,21 @@ object ScalaSyntheticProvider {
     method.name.contains("$mc") && method.name.endsWith("$sp")
   }
 
+  private val defaultArgPattern = """\$default\$\d+""".r
+
   private def isDefaultArg(m: Method): Boolean = {
-    m.name.contains("$default$")
+    val methodName = m.name()
+    if (!methodName.contains("$default$")) false
+    else {
+      val lastDefault = defaultArgPattern.findAllMatchIn(methodName).toSeq.lastOption
+      lastDefault.map(_.matched) match {
+        case Some(s) if methodName.endsWith(s) =>
+          val origMethodName = methodName.stripSuffix(s)
+          val refType = m.declaringType
+          !refType.methodsByName(origMethodName).isEmpty
+        case _ => false
+      }
+    }
   }
 
   private def isTraitForwarder(m: Method): Boolean = {
