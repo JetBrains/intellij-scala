@@ -19,16 +19,12 @@ class C {
   val array1: Array[Int] = new Array[Int](3)
   val array2: Array[Int] = new Array[Int](3)
 
-  def testLabels {
+  def testLabels() {
     Label1 //todo: labels is not supported
     for (i <- array1) {
       for (j <- array2) {
-        if (i > j) {
-          break Label1 // todo: label break is not supported
-        }
-        else {
-          continue //todo: continue is not supported
-        }
+        if (i > j) break Label1 // todo: label break is not supported
+        else continue //todo: continue is not supported
       }
     }
   }

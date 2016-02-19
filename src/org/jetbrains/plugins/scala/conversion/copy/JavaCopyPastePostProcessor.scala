@@ -11,124 +11,44 @@ import com.intellij.diagnostic.LogMessageEx
 import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.extensions.Extensions
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.openapi.util.{Ref, TextRange}
+import com.intellij.openapi.util.{Key, Ref, TextRange}
+import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiJavaFile}
 import com.intellij.util.ExceptionUtil
-import org.jetbrains.plugins.scala.conversion.ast.{JavaCodeReferenceStatement, LiteralExpression, MainConstruction, TypedElement}
-import org.jetbrains.plugins.scala.conversion.visitors.SimplePrintVisitor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings._
 
-import scala.annotation.tailrec
-import scala.collection.mutable.{ArrayBuffer, ListBuffer}
-
 /**
- * User: Alexander Podkhalyuzin
- * Date: 30.11.2009
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 30.11.2009
+  */
 
 class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBlockTransferableData] {
   private val Log = Logger.getInstance(classOf[JavaCopyPastePostProcessor])
 
   private lazy val referenceProcessor = Extensions.getExtensions(CopyPastePostProcessor.EP_NAME)
-          .find(_.isInstanceOf[JavaCopyPasteReferenceProcessor]).get
+    .find(_.isInstanceOf[JavaCopyPasteReferenceProcessor]).get
 
   private lazy val scalaProcessor = Extensions.getExtensions(CopyPastePostProcessor.EP_NAME)
-          .find(_.isInstanceOf[ScalaCopyPastePostProcessor]).get.asInstanceOf[ScalaCopyPastePostProcessor]
+    .find(_.isInstanceOf[ScalaCopyPastePostProcessor]).get.asInstanceOf[ScalaCopyPastePostProcessor]
 
   protected def collectTransferableData0(file: PsiFile, editor: Editor, startOffsets: Array[Int], endOffsets: Array[Int]): TextBlockTransferableData = {
     if (DumbService.getInstance(file.getProject).isDumb) return null
     if (!ScalaProjectSettings.getInstance(file.getProject).isEnableJavaToScalaConversion ||
-        !file.isInstanceOf[PsiJavaFile]) return null
-
-    sealed trait Part
-    case class ElementPart(elem: PsiElement) extends Part
-    case class TextPart(text: String) extends Part
+      !file.isInstanceOf[PsiJavaFile]) return null
 
     try {
-      def getTopElements: Seq[Part] = {
-        val buffer = new ArrayBuffer[Part]
-        for ((startOffset, endOffset) <- startOffsets.zip(endOffsets)) {
-          @tailrec
-          def findElem(offset: Int): PsiElement = {
-            if (offset > endOffset) return null
-            val elem = file.findElementAt(offset)
-            if (elem == null) return null
-            if (elem.getParent.getTextRange.getEndOffset > endOffset ||
-              elem.getParent.getTextRange.getStartOffset < startOffset) findElem(elem.getTextRange.getEndOffset + 1)
-            else elem
-          }
-          var elem: PsiElement = findElem(startOffset)
-          if (elem != null) {
-            while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] &&
-              elem.getParent.getTextRange.getEndOffset <= endOffset &&
-              elem.getParent.getTextRange.getStartOffset >= startOffset) {
-              elem = elem.getParent
-            }
-            if (startOffset < elem.getTextRange.getStartOffset) {
-              buffer += TextPart(new TextRange(startOffset, elem.getTextRange.getStartOffset).substring(file.getText))
-            }
-            buffer += ElementPart(elem)
-            while (elem.getNextSibling != null && elem.getNextSibling.getTextRange.getEndOffset <= endOffset) {
-              elem = elem.getNextSibling
-              buffer += ElementPart(elem)
-            }
-            if (elem.getTextRange.getEndOffset < endOffset) {
-              buffer += TextPart(new TextRange(elem.getTextRange.getEndOffset, endOffset).substring(file.getText))
-            }
-          }
-        }
-        buffer.toSeq
-      }
+      if (!ScalaProjectSettings.getInstance(file.getProject).isEnableJavaToScalaConversion)
+        return new ConvertedCode("", Array[Association]())
 
-      def getRefs: Seq[ReferenceData] = {
-        val refs = {
-          val data = referenceProcessor.collectTransferableData(file, editor, startOffsets, endOffsets)
-          if (data.isEmpty) null else data.get(0).asInstanceOf[ReferenceTransferableData]
-        }
-        val shift = startOffsets.headOption.getOrElse(0)
-        if (refs != null)
-          refs.getData.map { it =>
-            new ReferenceData(it.startOffset + shift, it.endOffset + shift, it.qClassName, it.staticMemberName)
-          } else Seq.empty
-      }
-
-      val associationsHelper = new ListBuffer[AssociationHelper]()
-      val resultNode = new MainConstruction
-      val topElements = getTopElements
-      val data = getRefs
-      for (part <- topElements) {
-        part match {
-          case TextPart(s) =>
-            resultNode.addChild(LiteralExpression(s))
-          case ElementPart(element) =>
-            val result = JavaToScala.convertPsiToIntermdeiate(element, null)(associationsHelper, data, withComments = true)
-            resultNode.addChild(result)
-        }
-      }
-
-      val visitor = new SimplePrintVisitor
-      visitor.visit(resultNode)
-      val text = visitor.stringResult
-      val rangeMap = visitor.rangedElementsMap
-
-      val updatedAssociations = associationsHelper.filter(_.itype.isInstanceOf[TypedElement]).
-        map { a =>
-          val typedElement = a.itype.asInstanceOf[TypedElement].getType
-          val range = rangeMap.getOrElse(typedElement, new TextRange(0, 0))
-          new Association(a.kind, range, a.path)
-        }
-
-      updatedAssociations ++= associationsHelper.filter(_.itype.isInstanceOf[JavaCodeReferenceStatement]).
-        map { a =>
-          val range = rangeMap.getOrElse(a.itype, new TextRange(0, 0))
-          new Association(a.kind, range, a.path)
-        }
-
-      new ConvertedCode(text, updatedAssociations.toArray)
+      val (parts, newFile) = ConverterUtil.prepareDataForConversion(file, startOffsets, endOffsets)
+      val refs = ConverterUtil.getRefs(newFile, referenceProcessor, startOffsets, endOffsets, editor)
+      val (text, associations) = ConverterUtil.convertData(parts, refs)
+      val oldText = ConverterUtil.getTextBetweenOffsets(file, startOffsets, endOffsets)
+      new ConvertedCode(text, associations, ConverterUtil.compareTextNEq(oldText, text))
     } catch {
       case e: Exception =>
         val selections = (startOffsets, endOffsets).zipped.map((a, b) => file.getText.substring(a, b))
@@ -137,6 +57,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
         null
     }
   }
+
 
   protected def extractTransferableData0(content: Transferable): TextBlockTransferableData = {
     if (content.isDataFlavorSupported(ConvertedCode.Flavor))
@@ -151,36 +72,44 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     val file = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     if (!file.isInstanceOf[ScalaFile]) return
     val dialog = new ScalaPasteFromJavaDialog(project)
-    val (text, associations) = value match {
-      case code: ConvertedCode => (code.data, code.associations)
-      case _ => ("", Array.empty[Association])
+    val (text, associations, showDialog: Boolean) = value match {
+      case code: ConvertedCode => (code.data, code.associations, code.showDialog)
+      case _ => ("", Array.empty[Association], true)
     }
     if (text == "") return //copy as usually
-    if (!ScalaProjectSettings.getInstance(project).isDontShowConversionDialog) dialog.show()
-    if (ScalaProjectSettings.getInstance(project).isDontShowConversionDialog || dialog.isOK) {
-      val shiftedAssociations = inWriteAction {
+    val needShowDialog = (!ScalaProjectSettings.getInstance(project).isDontShowConversionDialog) && showDialog
+    if (needShowDialog) dialog.show()
+    if (!needShowDialog || dialog.isOK) {
+      inWriteAction {
         replaceByConvertedCode(editor, bounds, text)
         editor.getCaretModel.moveToOffset(bounds.getStartOffset + text.length)
         PsiDocumentManager.getInstance(file.getProject).commitDocument(editor.getDocument)
-
-        val markedAssociations = associations.toList.zipMapped { dependency =>
-          editor.getDocument.createRangeMarker(dependency.range.shiftRight(bounds.getStartOffset))
-        }
-
-        withSpecialStyleIn(project) {
-          val manager = CodeStyleManager.getInstance(project)
-          manager.reformatText(file, bounds.getStartOffset, bounds.getStartOffset + text.length)
-        }
-
-        markedAssociations.map {
-          case (association, marker) =>
-            val movedAssociation = association.copy(range = new TextRange(marker.getStartOffset - bounds.getStartOffset,
-              marker.getEndOffset - bounds.getStartOffset))
-            marker.dispose()
-            movedAssociation
-        }
       }
-      scalaProcessor.processTransferableData(project, editor, bounds, i, ref, singletonList(new Associations(shiftedAssociations)))
+
+      val markedRange = editor.getDocument.createRangeMarker(
+        new TextRange(bounds.getStartOffset, bounds.getStartOffset + text.length))
+      editor.putUserData(JavaCopyPastePostProcessor.COPY_INFO, WithOptimization(true))
+      scalaProcessor.processTransferableData(project, editor, bounds, i, ref,
+        singletonList(new Associations(associations)))
+
+      editor.putUserData(JavaCopyPastePostProcessor.COPY_INFO, WithOptimization(false))
+
+      ProgressManager.getInstance().runProcessWithProgressSynchronously(new Runnable {
+        override def run(): Unit = {
+          inWriteCommandAction(project) {
+            withSpecialStyleIn(project) {
+              val manager = CodeStyleManager.getInstance(project)
+              val start = markedRange.getStartOffset
+              val end = markedRange.getEndOffset
+              manager.reformatText(file, start, end)
+            }
+          }
+
+          ConverterUtil.runInspections(file, project, markedRange.getStartOffset, markedRange.getEndOffset, editor)
+        }
+      }, "Make optimization...", true, project)
+
+      markedRange.dispose()
     }
   }
 
@@ -219,7 +148,8 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
     else document.replaceString(start, end, text)
   }
 
-  class ConvertedCode(val data: String, val associations: Array[Association]) extends TextBlockTransferableData {
+  class ConvertedCode(val data: String, val associations: Array[Association],
+                      val showDialog: Boolean = false) extends TextBlockTransferableData {
     def setOffsets(offsets: Array[Int], _index: Int) = {
       var index = _index
       for (association <- associations) {
@@ -250,3 +180,9 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[TextBloc
   }
 
 }
+
+object JavaCopyPastePostProcessor {
+  val COPY_INFO: Key[WithOptimization] = new Key("CopyDataInfo")
+}
+
+case class WithOptimization(value: Boolean)

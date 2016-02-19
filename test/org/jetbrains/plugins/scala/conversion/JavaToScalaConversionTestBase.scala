@@ -4,14 +4,14 @@ package conversion
 
 import java.io.File
 
+import com.intellij.codeInsight.editorActions._
+import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-
-import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author Alexander Podkhalyuzin
@@ -32,27 +32,30 @@ abstract class JavaToScalaConversionTestBase extends ScalaLightPlatformCodeInsig
     configureFromFileTextAdapter(getTestName(false) + ".java", fileText)
     val javaFile = getFileAdapter
     val offset = fileText.indexOf(startMarker)
+
     val startOffset = if (offset != -1) offset + startMarker.length else 0
 
     val lastPsi = javaFile.findElementAt(javaFile.getText.length - 1)
     var endOffset = fileText.indexOf(endMarker)
-    if (endOffset == -1) endOffset = lastPsi.getTextRange.getStartOffset
+    if (endOffset == -1) endOffset = lastPsi.getPrevSibling.getTextRange.getEndOffset - 1
+    else {
+      val prevSibiling = javaFile.findElementAt(endOffset).getPrevSibling.getTextRange.getEndOffset
+      if (prevSibiling == endOffset) endOffset = prevSibiling - 1
+      else endOffset = prevSibiling
+    }
 
-    var elem: PsiElement = javaFile.findElementAt(startOffset)
-    assert(elem.getTextRange.getStartOffset == startOffset)
-    while (elem.getParent != null && !elem.getParent.isInstanceOf[PsiFile] && 
-            elem.getParent.getTextRange.getStartOffset == startOffset) {
-      elem = elem.getParent
-    }
-    val buf = new ArrayBuffer[PsiElement]
-    buf += elem
-    while (elem.getTextRange.getEndOffset < endOffset) {
-      elem = elem.getNextSibling
-      buf += elem
-    }
-    var res = JavaToScala.convertPsisToText(buf.toArray)
+    val (parts, updatedFile) = ConverterUtil.prepareDataForConversion(javaFile, Array(startOffset), Array(endOffset))
+
+    val referenceProcessor = Extensions.getExtensions(CopyPastePostProcessor.EP_NAME)
+      .find(_.isInstanceOf[JavaCopyPasteReferenceProcessor]).get
+
+    val refs = ConverterUtil.getRefs(updatedFile, referenceProcessor, Array(startOffset), Array(endOffset), null)
+    var (res, associations) = ConverterUtil.convertData(parts, refs)
     val newFile = PsiFileFactory.getInstance(getProjectAdapter).createFileFromText("dummyForJavaToScala.scala",
       ScalaFileType.SCALA_LANGUAGE, res)
+
+    ConverterUtil.addImportsForAssociations(associations, newFile, 0, getProjectAdapter)
+    ConverterUtil.runInspections(newFile, getProjectAdapter, 0, newFile.getText.length)
     res = CodeStyleManager.getInstance(getProjectAdapter).reformat(newFile).getText
 
     val text = lastPsi.getText

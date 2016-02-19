@@ -2,13 +2,12 @@ package org.jetbrains.plugins.scala
 package conversion
 
 import com.intellij.notification.{NotificationDisplayType, NotificationType}
-import com.intellij.openapi.actionSystem.{CommonDataKeys, AnAction, AnActionEvent, LangDataKeys}
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys, LangDataKeys}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import com.intellij.psi.{PsiDocumentManager, PsiJavaFile}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaUtils}
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaUtils}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -80,9 +79,9 @@ class RenameJavaToScalaAction extends AnAction {
                   return
                 }
                 val file = directory.createFile(name + ".scala")
-                val newText = JavaToScala.convertPsiToText(jFile).trim
+                val (newText, associations) = JavaToScala.convertPsiToText(jFile)
                 val document = PsiDocumentManager.getInstance(file.getProject).getDocument(file)
-                document.insertString(0, newText)
+                document.insertString(0, newText.trim)
                 PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
                 val manager: CodeStyleManager = CodeStyleManager.getInstance(file.getProject)
                 val settings = CodeStyleSettingsManager.getSettings(file.getProject).getCommonSettings(ScalaFileType.SCALA_LANGUAGE)
@@ -93,7 +92,9 @@ class RenameJavaToScalaAction extends AnAction {
                 settings.KEEP_BLANK_LINES_IN_DECLARATIONS = 0
                 settings.KEEP_BLANK_LINES_BEFORE_RBRACE = 0
                 try {
+                  ConverterUtil.addImportsForAssociations(associations, file, 0, jFile.getProject)
                   manager.reformatText(file, 0, file.getTextLength)
+                  ConverterUtil.runInspections(file, jFile.getProject, 0, file.getTextLength)
                 } finally {
                   settings.KEEP_BLANK_LINES_IN_CODE = keep_blank_lines_in_code
                   settings.KEEP_BLANK_LINES_IN_DECLARATIONS = keep_blank_lines_in_declarations

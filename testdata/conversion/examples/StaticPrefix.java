@@ -9,13 +9,11 @@ public class TestJava {
 }
 /*
 object TestJava {
-  def foo: Int = {
-    return 1
-  }
+  def foo: Int = 1
 }
 
 class TestJava {
-  def test {
+  def test() {
     TestJava.foo
   }
 }

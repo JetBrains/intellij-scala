@@ -32,4 +32,6 @@ class JavaToScalaConversionStatementsTest extends JavaToScalaConversionTestBase 
   def testToByteToInt() = doTest()
 
   def testTryWithResources(): Unit = doTest()
+
+  def testWithComments() = doTest()
 }

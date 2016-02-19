@@ -5,18 +5,21 @@ public class JSome {
     i = m();
   }
 
+  boolean value = Boolean.TRUE;
+
   public static int m() { return 123; }
 }
 /*
 object JSome {
   var i: Int = 0
 
-  def m: Int = {
-    return 123
-  }
+  def m: Int = 123
 
-  try {
-    i = m
-  }
+  try i = m
+
+}
+
+class JSome {
+  val value: Boolean = java.lang.Boolean.TRUE
 }
 */

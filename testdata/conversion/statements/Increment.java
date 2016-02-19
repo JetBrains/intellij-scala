@@ -5,9 +5,9 @@ class OnlyIf {
   }
 }
 /*
-if (({
+if ( {
   i += 1; i
-}) == ({
+} == {
   i += 1; i - 1
-})) true
+}) true
 */

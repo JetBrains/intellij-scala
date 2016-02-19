@@ -12,11 +12,13 @@ class A {
   }
 }
 /*
+import java.util
+
 val l: util.List[Integer] = new util.ArrayList[Integer]
 
 import scala.collection.JavaConversions._
 
 for (integer <- l) {
-  System.out.println(integer)
+  println(integer)
 }
 */

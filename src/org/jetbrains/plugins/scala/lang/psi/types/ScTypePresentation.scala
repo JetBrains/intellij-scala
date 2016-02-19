@@ -20,8 +20,8 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 trait ScTypePresentation {
-  def presentableText(t: ScType) = typeText(t, {
-    case c: PsiClass => ScalaPsiUtil.nameWithPrefixIfNeeded(c)
+  def presentableText(t: ScType, noPrefix: Boolean = false) = typeText(t, {
+    case c: PsiClass if !noPrefix => ScalaPsiUtil.nameWithPrefixIfNeeded(c)
     case e => e.name
   }, {
       case obj: ScObject if Set("scala.Predef", "scala").contains(obj.qualifiedName) => ""
@@ -274,7 +274,7 @@ trait ScTypePresentation {
           projectionTypeText(proj, needDotType)
         case ScParameterizedType(des, typeArgs) =>
           innerTypeText(des) + typeSeqText(typeArgs, "[", ", ", "]", checkWildcard = true)
-        case j@JavaArrayType(arg) => 
+        case j@JavaArrayType(arg) =>
           s"Array[${innerTypeText(arg)}]"
         case ScSkolemizedType(name, _, _, _) => name
         case ScTypeParameterType(name, _, _, _, _) => name

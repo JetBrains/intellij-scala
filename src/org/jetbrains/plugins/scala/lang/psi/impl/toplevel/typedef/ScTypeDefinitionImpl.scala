@@ -51,10 +51,10 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
   override def add(element: PsiElement): PsiElement = {
     element match {
       case member: PsiMember if member.getLanguage.isKindOf(JavaLanguage.INSTANCE) =>
-        val newMemberText = JavaToScala.convertPsiToText(member).trim()
+        val (newMemberText, _) = JavaToScala.convertPsiToText(member)
         val mem: Option[ScMember] = member match {
           case method: PsiMethod =>
-            Some(ScalaPsiElementFactory.createMethodFromText(newMemberText, getManager))
+            Some(ScalaPsiElementFactory.createMethodFromText(newMemberText.trim, getManager))
           case _ => None
         }
         mem match {
