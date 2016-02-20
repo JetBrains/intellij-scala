@@ -74,9 +74,8 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
     compile(fileText, module, tempDir())
   }
 
-  def compile(fileText: String, module: Module, outputDir: File): Array[(File, String)] = {
+  def compile(file: File, module: Module, outputDir: File): Array[(File, String)] = {
     CompileServerLauncher.ensureServerRunning(project)
-    val file = writeToTempFile(fileText)
     val connector = new ServerConnector(module, file, outputDir)
     try {
       connector.compile() match {
@@ -87,6 +86,10 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
     catch {
       case e: Exception => throw EvaluationException("Could not compile:\n" + e.getMessage)
     }
+  }
+
+  def compile(fileText: String, module: Module, outputDir: File): Array[(File, String)] = {
+    compile(writeToTempFile(fileText), module, outputDir)
   }
 
   def writeToTempFile(text: String): File = {
