@@ -13,7 +13,8 @@ class AccessorLikeMethodIsEmptyParenInspection extends AbstractMethodSignatureIn
   "ScalaAccessorLikeMethodIsEmptyParen", "Method with accessor-like name is empty-paren") {
 
   def actionFor(holder: ProblemsHolder) = {
-    case f: ScFunction if f.hasQueryLikeName && f.isEmptyParen && !f.hasUnitResultType && f.superMethods.isEmpty =>
+    case f: ScFunction if f.hasQueryLikeName && f.isEmptyParen && !f.hasUnitResultType &&
+        f.superMethods.isEmpty && !isScalaJSFacade(f.getContainingClass) =>
       holder.registerProblem(f.nameId, getDisplayName, new RemoveParentheses(f))
   }
 }
