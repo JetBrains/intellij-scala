@@ -46,10 +46,21 @@ object ScalaPluginVersionVerifier {
 
   }
 
+  class DebugVersion extends Version(-1, -1, -1) with Serializable {
+    override def <(v: Version): Boolean = true
+
+    override def ==(v: Version): Boolean = true
+
+    override def >(other: Version): Boolean = true
+
+    override def toString: String = "VERSION"
+  }
+
   object Version {
     def parse(version: String): Option[Version] = {
       val VersionRegex = "([0-9]*)[.]([0-9]*)[.]([0-9]*)".r
       version match {
+        case "VERSION" => Some(new DebugVersion)
         case VersionRegex(major: String, minor: String, build: String) => Some(Version(major.toInt, minor.toInt, build.toInt))
         case _ => None
       }
