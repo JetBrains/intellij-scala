@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.components.libinjection
 
 import java.io._
-import java.net.{URL, URLClassLoader}
+import java.net.URL
+import java.util
 
 import com.intellij.ide.plugins.cl.PluginClassLoader
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module._
@@ -18,11 +19,9 @@ import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier.Version
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
-import scala.collection.mutable
-
 class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
-  class DynamicClassLoader(urls: Array[URL], parent: ClassLoader) extends URLClassLoader(urls, parent) {
+  class DynamicClassLoader(urls: Array[URL], parent: ClassLoader) extends java.net.URLClassLoader(urls, parent) {
     def addUrl(url: URL) = {
       super.addURL(url)
     }
@@ -40,7 +39,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   // reset cache if plugin has been updated
   // cache: jarFilePath -> jarManifest
-  case class InjectorPersistentCache(pluginVersion: Version, cache: mutable.HashMap[String, JarManifest])
+  case class InjectorPersistentCache(pluginVersion: Version, cache: java.util.HashMap[String, JarManifest])
 
   override def projectClosed(): Unit = {
     saveJarCache(jarCache, myInjectorCacheIndex)
@@ -64,9 +63,13 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   override def getComponentName: String = "ScalaLibraryInjectorLoader"
 
-  @inline def invokeLater(f: => Unit) = ApplicationManager.getApplication.executeOnPooledThread(toRunnable(f))
+  @inline def invokeLater(f: => Unit) = ApplicationManager.getApplication.invokeLater(toRunnable(f))
 
   @inline def toRunnable(f: => Unit) = new Runnable { override def run(): Unit = f }
+
+  @inline def inReadAction(f: => Unit) = ApplicationManager.getApplication.runReadAction(toRunnable(f))
+
+  @inline def inWriteAction[T](f: => T) = invokeLater(ApplicationManager.getApplication.runWriteAction(toRunnable(f)))
 
   private def loadJarCache(f: File): InjectorPersistentCache = {
     try {
@@ -74,8 +77,8 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
       stream.readObject().asInstanceOf[InjectorPersistentCache]
     } catch {
       case e: Throwable =>
-        LOG.warn("Failed to load injector cache, continuing with empty", e)
-        InjectorPersistentCache(ScalaPluginVersionVerifier.getPluginVersion.get, mutable.HashMap.empty)
+        LOG.warn(s"Failed to load injector cache, continuing with empty(${e.getMessage})")
+        InjectorPersistentCache(ScalaPluginVersionVerifier.getPluginVersion.get, new util.HashMap())
     }
   }
 
@@ -91,12 +94,13 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   private def verifyLibraryCache(cache: InjectorPersistentCache): InjectorPersistentCache = {
     if (ScalaPluginVersionVerifier.getPluginVersion.exists(_ != cache.pluginVersion))
-      InjectorPersistentCache(ScalaPluginVersionVerifier.getPluginVersion.get, mutable.HashMap.empty)
+      InjectorPersistentCache(ScalaPluginVersionVerifier.getPluginVersion.get, new util.HashMap())
     else
       cache
   }
 
   private def loadCachedInjectors() = {
+    import scala.collection.JavaConversions._
     val libs = LibraryTablesRegistrar.getInstance().getLibraryTable(project).getLibraries
     val allProjectJars = libs.flatMap(getJarsFromLibrary).map(_.getPath).toSet
     val cachedProjectJars = jarCache.cache.filter(c=>allProjectJars.contains(c._1)).values
@@ -109,6 +113,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   private def rescanAllJars() = {
+    import scala.collection.JavaConversions._
     val libs = LibraryTablesRegistrar.getInstance().getLibraryTable(project).getLibraries
     val allJars = libs.flatMap(getJarsFromLibrary)
     val jarsWithManifest = allJars.flatMap(l => extractLibraryManifest(l))
@@ -119,7 +124,9 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
           descriptors
             .filter(askUser)
             .foreach { descriptor =>
-              compileInjectorFromLibrary(extractInjectorSources(new File(manifest.jarPath), descriptor))
+              compileInjectorFromLibrary(
+                extractInjectorSources(new File(manifest.jarPath), descriptor),
+                getLibraryCacheDir(new File(manifest.jarPath.dropRight(1))))
               loadInjectors(manifest)
               jarCache.cache(manifest.jarPath) = manifest
             }
@@ -151,11 +158,10 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
       .filterNot(m => skipIncompatible && findMatchingInjectors(m).isEmpty)
   }
 
-  private def compileInjectorFromLibrary(sources: Seq[File]): Seq[File] = {
-    withHelperModule {
-//      ScalaEvaluatorCompileHelper.instance(project).compile()
+  private def compileInjectorFromLibrary(sources: Seq[File], outDir: File): Seq[File] = {
+    withHelperModule { m =>
+      sources.flatMap(ScalaEvaluatorCompileHelper.instance(project).compile(_, m, outDir)).map(_._1)
     }
-    Seq.empty
   }
 
   private def loadInjectors(jarManifest: JarManifest) = {
@@ -188,7 +194,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
       }
     }
     if (tmpDir.delete() && tmpDir.mkdir()) {
-      val root = VirtualFileManager.getInstance().findFileByUrl("jar://"+jar.getAbsolutePath+"/")
+      val root = VirtualFileManager.getInstance().findFileByUrl("jar://"+jar.getAbsolutePath+"!/")
       if (root != null) {
         injectorDescriptor.sources.flatMap(path => {
           Option(root.findFileByRelativePath(path)).map { f =>
@@ -214,20 +220,25 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   def getLibraryCacheDir(jar: File): File = {
     val f = new File(myInjectorCacheDir,
-      (jar.getName + ScalaPluginVersionVerifier.getPluginVersion.get.toString).replaceAll(".", "_"))
+      (jar.getName + ScalaPluginVersionVerifier.getPluginVersion.get.toString).replaceAll("\\.", "_"))
     f.mkdir()
     f
   }
 
   def createIdeaModule(): Module = {
     import org.jetbrains.plugins.scala.project._
+
     import scala.collection.JavaConversions._
 
     val model  = ModuleManager.getInstance(project).getModifiableModel
     val module = model.newModule(injectorModuleName, JavaModuleType.getModuleType.getId)
-    val urls   = this.getClass.getClassLoader.asInstanceOf[PluginClassLoader].getUrls
-//    urls.addAll(module.getClass.lo)
-    val lib    = module.createLibraryFromJarUrl(urls, "scala-plugin-dev")
+    val urls   = this.getClass.getClassLoader.asInstanceOf[PluginClassLoader].getUrls.map(u=>s"jar://${u.getFile}!/")
+    // 0_o
+    val parentUrls = ApplicationManager.getApplication.getClass.getClassLoader.getClass.getDeclaredMethods
+      .find(_.getName == "getUrls").map(_.invoke(ApplicationManager.getApplication.getClass.getClassLoader).asInstanceOf[java.util.List[URL]])
+    parentUrls.map(_.map(u=>s"jar://${u.getFile}!/")).foreach(urls.addAll(_))
+    val lib    = module.createLibraryFromJar(urls, "scala-plugin-dev")
+    module.configureScalaCompilerSettingsFrom("Default", Seq())
     module.attach(lib)
     module.attach(project.modulesWithScala.head.scalaSdk.get)
     module.libraries
@@ -236,6 +247,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   private def removeIdeaModule() = {
+    // TODO: remove libraries as well
     val model  = ModuleManager.getInstance(project).getModifiableModel
     val module = model.findModuleByName(injectorModuleName)
     if (module != null) {
@@ -245,11 +257,17 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     }
   }
 
-  private def withHelperModule[T](f: => T) = {
-    createIdeaModule()
-    val res = f
-    removeIdeaModule()
-    res
+  private def withHelperModule[T](f: Module => T) = {
+    var module: Module = null
+    var res: Any = null
+    ApplicationManager.getApplication.invokeAndWait(
+      toRunnable(inWriteAction {
+        module = createIdeaModule()
+        res = f(module)
+        removeIdeaModule()
+      }), ModalityState.NON_MODAL
+    )
+    res.asInstanceOf[T]
   }
 
 }
