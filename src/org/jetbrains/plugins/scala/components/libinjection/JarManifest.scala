@@ -15,6 +15,7 @@ import scala.xml._
 class InvalidManifest(where: Node, expected: String)
   extends Exception(s"Malformed library manifest at '$where', expected $expected")
 
+// TODO: allow user to provide compiler settings for sources set
 case class InjectorDescriptor(version: Int, iface: String, impl: String, sources: Seq[String])
 case class PluginDescriptor(since: Version, until: Version, injectors: Seq[InjectorDescriptor])
 case class JarManifest(pluginDescriptors: Seq[PluginDescriptor], jarPath: String, modTimeStamp: Long) {
@@ -61,7 +62,9 @@ object JarManifest {
     elem \\ "intellij-compat" match {
       case NodeSeq.Empty => throw new InvalidManifest(elem, "<intellij-compat> with plugin descriptors")
       case xss: NodeSeq =>
-        JarManifest((xss \\ "scala-plugin").map(buildPluginDescriptor), containingJar.getPath, new File(containingJar.getPath).lastModified())
+        JarManifest((xss \\ "scala-plugin").map(buildPluginDescriptor),
+          containingJar.getPath.replaceAll("!", ""),
+          new File(containingJar.getPath.replaceAll("!", "")).lastModified())
     }
   }
 }
