@@ -12,14 +12,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, T
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
-class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVarargs: Boolean = false) extends {
+class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVarargs: Boolean = false, forDefault: Option[Int] = None) extends {
   val elementFactory = JavaPsiFacade.getInstance(constr.getProject).getElementFactory
   val containingClass = {
       val res: PsiClass = constr.containingClass
       assert(res != null, s"Method: ${constr.getText}\nhas null containing class. \nContaining file text: ${constr.getContainingFile.getText}")
       res
   }
-  val methodText = ScFunctionWrapper.methodText(constr, false, false, None, isJavaVarargs)
+  val methodText = ScFunctionWrapper.methodText(constr, isStatic = forDefault.isDefined, isInterface = false, None, isJavaVarargs, forDefault)
   val method: PsiMethod = {
     try {
       elementFactory.createMethodFromText(methodText, containingClass)
@@ -43,10 +43,17 @@ class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVararg
 
   override def getTextOffset: Int = constr.getTextOffset
 
-  override def hasModifierProperty(name: String): Boolean = {
-    name match {
-      case _ => super.hasModifierProperty(name)
+  var returnType: PsiType = null
+
+  override def getReturnType: PsiType = {
+    forDefault match {
+      case Some(i) if returnType == null =>
+        val param = constr.parameters(i - 1)
+        val scalaType = param.getType(TypingContext.empty).getOrAny
+        returnType = ScType.toPsi(scalaType, constr.getProject, constr.getResolveScope)
+      case _ =>
     }
+    returnType
   }
 
   override def getPrevSibling: PsiElement = constr.getPrevSibling
@@ -126,7 +133,8 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
   private var returnType: PsiType = null
 
   override def getReturnType: PsiType = {
-    if (returnType == null && !function.isConstructor) {
+    val isConstructor = function.isConstructor && forDefault.isEmpty
+    if (returnType == null && !isConstructor) {
       val typeParameters = function.typeParameters
       val generifySubst: ScSubstitutor =
         if (typeParameters.nonEmpty) {
@@ -219,32 +227,31 @@ object ScFunctionWrapper {
       case None => None
     }
 
-    function match {
-      case function: ScFunction if !function.isConstructor =>
-        def evalType(typeResult: TypeResult[ScType]) {
-          typeResult match {
-            case Success(tp, _) =>
-              val typeText = JavaConversionUtil.typeText(subst.subst(tp), function.getProject, function.getResolveScope)
-              builder.append(typeText)
-            case _ => builder.append("java.lang.Object")
-          }
-        }
-        defaultParam match {
-          case Some(param) => evalType(param.getType(TypingContext.empty))
-          case None =>
-            if (function.hasExplicitType) evalType(function.returnType)
-            else builder.append("FromTypeInference")
-        }
-      case _ =>
+    def evalType(typeResult: TypeResult[ScType]) {
+      typeResult match {
+        case Success(tp, _) =>
+          val typeText = JavaConversionUtil.typeText(subst.subst(tp), function.getProject, function.getResolveScope)
+          builder.append(typeText)
+        case _ => builder.append("java.lang.Object")
+      }
+    }
+    defaultParam match {
+      case Some(param) => evalType(param.getType(TypingContext.empty))
+      case _ => function match {
+        case fun: ScFunction if !fun.isConstructor =>
+          if (fun.hasExplicitType) evalType(fun.returnType)
+          else builder.append("FromTypeInference")
+        case _ =>
+      }
     }
 
     builder.append(" ")
-    val name = if (!function.isConstructor) {
-      forDefault match {
-        case Some(i) => function.getName + "$default$" + i
-        case _ => function.getName
-      }
-    } else function.containingClass.getName
+    val name = forDefault match {
+      case Some(i) if function.isConstructor => "$lessinit$greater$default$" + i
+      case Some(i) => function.getName + "$default$" + i
+      case _ if function.isConstructor => function.containingClass.getName
+      case _ => function.getName
+    }
     builder.append(name)
 
     builder.append(function.effectiveParameterClauses.takeWhile { clause =>
