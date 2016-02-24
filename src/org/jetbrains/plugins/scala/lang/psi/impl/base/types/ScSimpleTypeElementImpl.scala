@@ -396,7 +396,13 @@ object ScSimpleTypeElementImpl {
               Success(ScProjectionType(ScDesignatorType(obj), resolvedElement,
                 superReference = false), Some(ref))
             } else {
-              Success(ScType.designator(resolvedElement), Some(ref))
+              fromType match {
+                case Some(ScDesignatorType(obj: ScObject)) if obj.isPackageObject =>
+                  Success(ScProjectionType(ScDesignatorType(obj), resolvedElement,
+                    superReference = false), Some(ref))
+                case _ =>
+                  Success(ScType.designator(resolvedElement), Some(ref))
+              }
             }
           case _ =>
             calculateReferenceType(qual, shapesOnly) match {
