@@ -19,7 +19,7 @@ class ScalaCompletionStatistician extends CompletionStatistician {
     val currentElement = Option(element.as(LookupItem.CLASS_CONDITION_KEY)).getOrElse(return null)
 
     ScalaLookupItem.original(currentElement) match {
-      case s: ScalaLookupItem if s.isLocalVariable || s.isNamedParameter || s.isUnderlined => StatisticsInfo.EMPTY
+      case s: ScalaLookupItem if s.isLocalVariable || s.isNamedParameter || s.isDeprecated => StatisticsInfo.EMPTY
       case s: ScalaLookupItem =>
         s.element match {
           case withImplicit: ScModifierListOwner if withImplicit.hasModifierPropertyScala("implicit") =>
