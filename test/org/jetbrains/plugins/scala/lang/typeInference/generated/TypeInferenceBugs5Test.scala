@@ -35,6 +35,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testForStmtBug(): Unit = doTest()
 
+  def testFromTwitter(): Unit = doTest()
+
   def testImplicitClause(): Unit = doTest()
 
   def testImplicitlyAddedExtractor(): Unit = doTest()
