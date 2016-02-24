@@ -145,6 +145,8 @@
                  id="scalaKindWeigher" order="after prefix, before proximity"/>
         <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaClassObjectWeigher"
                  id="scalaClassObjectWeigher" order="before samePsiMember"/>
+        <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaScopeWeigher"
+                 id="ScopeWeigher" order="after scalaKindWeigher, before proximity"/>
         <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaExplicitlyImportedWeigher"
                  id="scalaExplicitlyImportedWeigher" order="before explicitlyImported"/>
         <psi.referenceContributor implementation="org.jetbrains.plugins.scala.lang.references.ScalaReferenceContributor"/>
@@ -839,6 +841,10 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.ComparingUnrelatedTypesInspection"
                          displayName="Comparing unrelated types" groupPath="Scala" groupName="General"
                          shortName="ComparingUnrelatedTypes" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.PatternMayNeverMatchInspection"
+                         displayName="Pattern may never match" groupPath="Scala" groupName="General"
+                         shortName="PatternMayNeverMatch" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection"
                          displayName="Match statement convertible to pattern matching anonymous function" groupPath="Scala" groupName="General"

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext, TypingContextOwner}
-import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, ScProjectionType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
@@ -34,42 +34,56 @@ object LookupElementManager {
       case Some(x) if element.name != x => Some(x)
       case _ => None
     }
+
+    def isCurrentClassMember: Boolean = {
+      def checkIsExpectedClassMember(expectedClass: Option[PsiClass]): Boolean = {
+        if (expectedClass.isDefined) {
+          ScalaPsiUtil.nameContext(element) match {
+            case m: PsiMember if m.containingClass == expectedClass.get =>
+              return true
+            case _ =>
+          }
+        }
+        false
+      }
+
+      qualifierType match {
+        case proj: ScProjectionType =>
+          ScType.extractDesignated(qualifierType, withoutAliases = false) match {
+            case Some((named, _)) =>
+              val clazz: Option[PsiClass] = named match {
+                case cl: PsiClass => Some(cl)
+                case tp: TypingContextOwner => tp.getType(TypingContext.empty).map(ScType.extractClass(_)) match {
+                  case Success(cl, _) => cl
+                  case _ => None
+                }
+                case _ => None
+              }
+              checkIsExpectedClassMember(clazz)
+            case _ => false
+          }
+        case _ => checkIsExpectedClassMember(containingClass)
+      }
+    }
+
+    def isDeprecated: Boolean = {
+      element match {
+        case doc: PsiDocCommentOwner if doc.isDeprecated => true
+        case _ => false
+      }
+    }
+
     def getLookupElementInternal(isAssignment: Boolean, name: String): ScalaLookupItem = {
       val lookupItem: ScalaLookupItem = new ScalaLookupItem(element, name, containingClass)
       lookupItem.isClassName = isClassName
-      var isBold = false
-      var isDeprecated = false
-      ScType.extractDesignated(qualifierType, withoutAliases = false) match {
-        case Some((named, _)) =>
-          val clazz: PsiClass = named match {
-            case cl: PsiClass => cl
-            case tp: TypingContextOwner => tp.getType(TypingContext.empty).map(ScType.extractClass(_)) match {
-              case Success(Some(cl), _) => cl
-              case _ => null
-            }
-            case _ => null
-          }
-          if (clazz != null)
-            ScalaPsiUtil.nameContext(element) match {
-              case m: PsiMember =>
-                if (m.containingClass == clazz) isBold = true
-              case _ =>
-            }
-        case _ =>
-      }
-      val isUnderlined = resolveResult.implicitFunction.isDefined
-      element match {
-        case doc: PsiDocCommentOwner if doc.isDeprecated => isDeprecated = true
-        case _ =>
-      }
       lookupItem.isNamedParameter = resolveResult.isNamedParameter
       lookupItem.isDeprecated = isDeprecated
       lookupItem.isOverloadedForClassName = isOverloadedForClassName
       lookupItem.isRenamed = isRenamed
-      lookupItem.isUnderlined = isUnderlined
+      lookupItem.isUnderlined = resolveResult.implicitFunction.isDefined
       lookupItem.isAssignment = isAssignment
       lookupItem.isInImport = isInImport
-      lookupItem.bold = isBold
+      lookupItem.bold = isCurrentClassMember
       lookupItem.shouldImport = shouldImport
       lookupItem.isInStableCodeReference = isInStableCodeReference
       lookupItem.substitutor = substitutor
