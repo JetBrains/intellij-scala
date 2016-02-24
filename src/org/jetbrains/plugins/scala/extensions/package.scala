@@ -252,7 +252,7 @@ package object extensions {
         case fun: ScFunction if !fun.isConstructor =>
           val wrappers = fun.getFunctionWrappers(isStatic, isInterface = fun.isAbstractMember, concreteClassFor(fun))
           wrappers.foreach(processMethod)
-          processName(fun.name)
+          wrappers.foreach(w => processName(w.name))
         case method: PsiMethod if !method.isConstructor =>
           if (isStatic) {
             if (method.containingClass != null && method.containingClass.qualifiedName != "java.lang.Object") {
