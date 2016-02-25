@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
-import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
@@ -10,47 +9,47 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
  */
 
 class Description(message: String => Unit) extends Strategy {
-  def addToFunction(function: ScFunctionDefinition, editor: Option[Editor]) {
+  def addToFunction(function: ScFunctionDefinition) {
     message("intention.type.annotation.function.add.text")
   }
 
-  def removeFromFunction(function: ScFunctionDefinition, editor: Option[Editor]) {
+  def removeFromFunction(function: ScFunctionDefinition) {
     message("intention.type.annotation.function.remove.text")
   }
 
-  def addToValue(value: ScPatternDefinition, editor: Option[Editor]) {
+  def addToValue(value: ScPatternDefinition) {
     message("intention.type.annotation.value.add.text")
   }
 
-  def removeFromValue(value: ScPatternDefinition, editor: Option[Editor]) {
+  def removeFromValue(value: ScPatternDefinition) {
     message("intention.type.annotation.value.remove.text")
   }
 
-  def addToVariable(variable: ScVariableDefinition, editor: Option[Editor]) {
+  def addToVariable(variable: ScVariableDefinition) {
     message("intention.type.annotation.variable.add.text")
   }
 
-  def removeFromVariable(variable: ScVariableDefinition, editor: Option[Editor]) {
+  def removeFromVariable(variable: ScVariableDefinition) {
     message("intention.type.annotation.variable.remove.text")
   }
 
-  def addToPattern(pattern: ScBindingPattern, editor: Option[Editor]) {
+  def addToPattern(pattern: ScBindingPattern) {
     message("intention.type.annotation.pattern.add.text")
   }
 
-  def addToWildcardPattern(pattern: ScWildcardPattern, editor: Option[Editor]) {
+  def addToWildcardPattern(pattern: ScWildcardPattern) {
     message("intention.type.annotation.pattern.add.text")
   }
 
-  def removeFromPattern(pattern: ScTypedPattern, editor: Option[Editor]) {
+  def removeFromPattern(pattern: ScTypedPattern) {
     message("intention.type.annotation.pattern.remove.text")
   }
 
-  def addToParameter(param: ScParameter, editor: Option[Editor]) {
+  def addToParameter(param: ScParameter) {
     message("intention.type.annotation.parameter.add.text")
   }
 
-  def removeFromParameter(param: ScParameter, editor: Option[Editor]) {
+  def removeFromParameter(param: ScParameter) {
     message("intention.type.annotation.parameter.remove.text")
   }
 }

@@ -7,7 +7,6 @@ import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiDocumentManager, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 
 object IntentionUtil {
   def collectComments(element: PsiElement, onElementLine: Boolean = false): CommentsAroundElement = {
@@ -53,18 +52,12 @@ object IntentionUtil {
 
   def startTemplate(elem: PsiElement, context: PsiElement, expression: Expression, editor: Editor): Unit = {
     val project = context.getProject
-    PsiDocumentManager.getInstance(project).commitAllDocuments()
-    PsiDocumentManager.getInstance(project).doPostponedOperationsAndUnblockDocument(editor.getDocument)
+    val manager = PsiDocumentManager.getInstance(project)
+    manager.commitAllDocuments()
+    manager.doPostponedOperationsAndUnblockDocument(editor.getDocument)
     val builder: TemplateBuilderImpl = new TemplateBuilderImpl(elem)
     builder.replaceElement(elem, expression)
     editor.getCaretModel.moveToOffset(elem.getNode.getStartOffset)
-    TemplateManager.getInstance(project).startTemplate(editor, builder.buildInlineTemplate(), new TemplateEditingAdapter {
-      override def templateFinished(template: Template, brokenOff: Boolean): Unit = {
-        if (!brokenOff) {
-          ScalaPsiUtil.adjustTypes(context)
-        }
-        super.templateFinished(template, brokenOff)
-      }
-    })
+    TemplateManager.getInstance(project).startTemplate(editor, builder.buildInlineTemplate())
   }
 }

@@ -27,26 +27,26 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
       def message(key: String) {
         setText(ScalaBundle.message(key))
       }
-      ToggleTypeAnnotation.complete(new Description(message), element, Option(editor))
+      ToggleTypeAnnotation.complete(new Description(message), element)
     }
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    ToggleTypeAnnotation.complete(AddOrRemoveStrategy, element, Option(editor))
+    ToggleTypeAnnotation.complete(new AddOrRemoveStrategy(Option(editor)), element)
   }
 }
 
 object ToggleTypeAnnotation {
-  def complete(strategy: Strategy, element: PsiElement, editor: Option[Editor]): Boolean = {
+  def complete(strategy: Strategy, element: PsiElement): Boolean = {
     for {function <- element.parentsInFile.findByType(classOf[ScFunctionDefinition])
          if function.hasAssign
          body <- function.body
          if !body.isAncestorOf(element)} {
 
       if (function.returnTypeElement.isDefined)
-        strategy.removeFromFunction(function, editor)
+        strategy.removeFromFunction(function)
       else
-        strategy.addToFunction(function, editor)
+        strategy.addToFunction(function)
 
       return true
     }
@@ -59,9 +59,9 @@ object ToggleTypeAnnotation {
          binding <- bindings} {
 
       if (value.typeElement.isDefined)
-        strategy.removeFromValue(value, editor)
+        strategy.removeFromValue(value)
       else
-        strategy.addToValue(value, editor)
+        strategy.addToValue(value)
 
       return true
     }
@@ -74,9 +74,9 @@ object ToggleTypeAnnotation {
          binding <- bindings} {
 
       if (variable.typeElement.isDefined)
-        strategy.removeFromVariable(variable, editor)
+        strategy.removeFromVariable(variable)
       else
-        strategy.addToVariable(variable, editor)
+        strategy.addToVariable(variable)
 
       return true
     }
@@ -87,14 +87,14 @@ object ToggleTypeAnnotation {
       param.parentsInFile.findByType(classOf[ScFunctionExpr]) match {
         case Some(func) =>
           if (param.typeElement.isDefined) {
-            strategy.removeFromParameter(param, editor)
+            strategy.removeFromParameter(param)
             return true
           } else {
             val index = func.parameters.indexOf(param)
             func.expectedType() match {
               case Some(ScFunctionType(_, params)) =>
                 if (index >= 0 && index < params.length) {
-                  strategy.addToParameter(param, editor)
+                  strategy.addToParameter(param)
                   return true
                 }
               case _ =>
@@ -107,16 +107,16 @@ object ToggleTypeAnnotation {
     for (pattern <- element.parentsInFile.findByType(classOf[ScBindingPattern])) {
       pattern match {
         case p: ScTypedPattern if p.typePattern.isDefined =>
-          strategy.removeFromPattern(p, editor)
+          strategy.removeFromPattern(p)
           return true
         case _: ScReferencePattern =>
-          strategy.addToPattern(pattern, editor)
+          strategy.addToPattern(pattern)
           return true
         case _ =>
       }
     }
     for (pattern <- element.parentsInFile.findByType(classOf[ScWildcardPattern])) {
-      strategy.addToWildcardPattern(pattern, editor)
+      strategy.addToWildcardPattern(pattern)
       return true
     }
 

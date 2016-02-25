@@ -6,10 +6,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInsight.intention.IntentionUtil
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, ScTypeText}
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
@@ -19,7 +21,7 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
   */
 class MakeTypeMoreSpecificIntention extends PsiElementBaseIntentionAction {
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    ToggleTypeAnnotation.complete(MakeTypeMoreSpecificStrategy, element, Option(editor))
+    ToggleTypeAnnotation.complete(new MakeTypeMoreSpecificStrategy(Option(editor)), element)
   }
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
@@ -31,35 +33,35 @@ class MakeTypeMoreSpecificIntention extends PsiElementBaseIntentionAction {
         isAvailable = true
       }
       val desc = new StrategyAdapter {
-        override def removeFromVariable(variable: ScVariableDefinition, editor: Option[Editor]): Unit = {
+        override def removeFromVariable(variable: ScVariableDefinition): Unit = {
           for {
             declared <- variable.declaredType
             expr <- variable.expr
             tp <- expr.getType()
-            if MakeTypeMoreSpecificStrategy.computeBaseTypes(declared, tp).toSet.size > 1
+            if MakeTypeMoreSpecificStrategy.computeBaseTypes(declared, tp).nonEmpty
           } text(ScalaBundle.message("make.type.more.specific"))
         }
 
-        override def removeFromValue(value: ScPatternDefinition, editor: Option[Editor]): Unit = {
+        override def removeFromValue(value: ScPatternDefinition): Unit = {
           for {
             declared <- value.declaredType
             expr <- value.expr
             tp <- expr.getType()
-            if MakeTypeMoreSpecificStrategy.computeBaseTypes(declared, tp).toSet.size > 1
+            if MakeTypeMoreSpecificStrategy.computeBaseTypes(declared, tp).nonEmpty
           } text(ScalaBundle.message("make.type.more.specific"))
         }
 
-        override def removeFromFunction(function: ScFunctionDefinition, editor: Option[Editor]): Unit = {
+        override def removeFromFunction(function: ScFunctionDefinition): Unit = {
           for {
             declared <- function.returnType
             expr <- function.body
             tp <- expr.getType()
-            if MakeTypeMoreSpecificStrategy.computeBaseTypes(declared, tp).toSet.size > 1
+            if MakeTypeMoreSpecificStrategy.computeBaseTypes(declared, tp).nonEmpty
           } text(ScalaBundle.message("make.type.more.specific.fun"))
         }
       }
 
-      ToggleTypeAnnotation.complete(desc, element, Option(editor))
+      ToggleTypeAnnotation.complete(desc, element)
       isAvailable
     }
   }
@@ -67,21 +69,23 @@ class MakeTypeMoreSpecificIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("make.type.more.specific")
 }
 
-object MakeTypeMoreSpecificStrategy extends Strategy {
-  def computeBaseTypes(declaredType: ScType, dynamicType: ScType): Seq[ScType] = {
-    val baseTypes = dynamicType +: BaseTypes.get(dynamicType) :+ declaredType
-    baseTypes.filter(_.conforms(declaredType))
-  }
+class MakeTypeMoreSpecificStrategy(editor: Option[Editor]) extends Strategy {
+  import MakeTypeMoreSpecificStrategy._
 
   def doTemplate(te: ScTypeElement, declaredType: ScType, dynamicType: ScType, context: PsiElement, editor: Editor): Unit = {
     val types = computeBaseTypes(declaredType, dynamicType).sortWith((t1, t2) => t1.conforms(t2))
-    val texts = types.map(ScTypeText)
-    val expr = new ChooseTypeTextExpression(texts, ScTypeText(declaredType))
-    IntentionUtil.startTemplate(te, context, expr, editor)
+    if (types.size == 1) {
+      val replaced = te.replace(ScalaPsiElementFactory.createTypeElementFromText(types.head.canonicalText, te.getContext, te))
+      TypeAdjuster.markToAdjust(replaced)
+    } else {
+      val texts = types.map(ScTypeText)
+      val expr = new ChooseTypeTextExpression(texts, ScTypeText(declaredType))
+      IntentionUtil.startTemplate(te, context, expr, editor)
+    }
   }
 
 
-  override def removeFromFunction(function: ScFunctionDefinition, editor: Option[Editor]): Unit = {
+  override def removeFromFunction(function: ScFunctionDefinition): Unit = {
     for {
       edit <- editor
       te <- function.returnTypeElement
@@ -91,7 +95,7 @@ object MakeTypeMoreSpecificStrategy extends Strategy {
     } doTemplate(te, declared, tp, function.getParent, edit)
   }
 
-  override def removeFromValue(value: ScPatternDefinition, editor: Option[Editor]): Unit = {
+  override def removeFromValue(value: ScPatternDefinition): Unit = {
     for {
       edit <- editor
       te <- value.typeElement
@@ -101,7 +105,7 @@ object MakeTypeMoreSpecificStrategy extends Strategy {
     } doTemplate(te, declared, tp, value.getParent, edit)
   }
 
-  override def removeFromVariable(variable: ScVariableDefinition, editor: Option[Editor]): Unit = {
+  override def removeFromVariable(variable: ScVariableDefinition): Unit = {
     for {
       edit <- editor
       te <- variable.typeElement
@@ -111,19 +115,26 @@ object MakeTypeMoreSpecificStrategy extends Strategy {
     } doTemplate(te, declared, tp, variable.getParent, edit)
   }
 
-  override def addToPattern(pattern: ScBindingPattern, editor: Option[Editor]): Unit = ()
+  override def addToPattern(pattern: ScBindingPattern): Unit = ()
 
-  override def addToWildcardPattern(pattern: ScWildcardPattern, editor: Option[Editor]): Unit = ()
+  override def addToWildcardPattern(pattern: ScWildcardPattern): Unit = ()
 
-  override def addToValue(value: ScPatternDefinition, editor: Option[Editor]): Unit = ()
+  override def addToValue(value: ScPatternDefinition): Unit = ()
 
-  override def addToFunction(function: ScFunctionDefinition, editor: Option[Editor]): Unit = ()
+  override def addToFunction(function: ScFunctionDefinition): Unit = ()
 
-  override def removeFromPattern(pattern: ScTypedPattern, editor: Option[Editor]): Unit = ()
+  override def removeFromPattern(pattern: ScTypedPattern): Unit = ()
 
-  override def addToVariable(variable: ScVariableDefinition, editor: Option[Editor]): Unit = ()
+  override def addToVariable(variable: ScVariableDefinition): Unit = ()
 
-  override def removeFromParameter(param: ScParameter, editor: Option[Editor]): Unit = ()
+  override def removeFromParameter(param: ScParameter): Unit = ()
 
-  override def addToParameter(param: ScParameter, editor: Option[Editor]): Unit = ()
+  override def addToParameter(param: ScParameter): Unit = ()
+}
+
+object MakeTypeMoreSpecificStrategy {
+  def computeBaseTypes(declaredType: ScType, dynamicType: ScType): Seq[ScType] = {
+    val baseTypes = dynamicType +: BaseTypes.get(dynamicType)
+    baseTypes.filter(t => t.conforms(declaredType) && !t.equiv(declaredType))
+  }
 }

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
-import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
@@ -10,25 +9,25 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
  */
 
 trait Strategy {
-  def addToFunction(function: ScFunctionDefinition, editor: Option[Editor])
+  def addToFunction(function: ScFunctionDefinition)
 
-  def removeFromFunction(function: ScFunctionDefinition, editor: Option[Editor])
+  def removeFromFunction(function: ScFunctionDefinition)
 
-  def addToValue(value: ScPatternDefinition, editor: Option[Editor])
+  def addToValue(value: ScPatternDefinition)
 
-  def removeFromValue(value: ScPatternDefinition, editor: Option[Editor])
+  def removeFromValue(value: ScPatternDefinition)
 
-  def addToVariable(variable: ScVariableDefinition, editor: Option[Editor])
+  def addToVariable(variable: ScVariableDefinition)
 
-  def removeFromVariable(variable: ScVariableDefinition, editor: Option[Editor])
+  def removeFromVariable(variable: ScVariableDefinition)
 
-  def addToPattern(pattern: ScBindingPattern, editor: Option[Editor])
+  def addToPattern(pattern: ScBindingPattern)
 
-  def addToWildcardPattern(pattern: ScWildcardPattern, editor: Option[Editor])
+  def addToWildcardPattern(pattern: ScWildcardPattern)
 
-  def removeFromPattern(pattern: ScTypedPattern, editor: Option[Editor])
+  def removeFromPattern(pattern: ScTypedPattern)
 
-  def addToParameter(param: ScParameter, editor: Option[Editor])
+  def addToParameter(param: ScParameter)
 
-  def removeFromParameter(param: ScParameter, editor: Option[Editor])
+  def removeFromParameter(param: ScParameter)
 }

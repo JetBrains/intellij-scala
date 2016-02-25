@@ -20,9 +20,10 @@ class ReplaceDangerousCatchAllQuickFix(caseClause: ScCaseClause)
     val pattern = cc.pattern.orNull
     if (pattern == null) return
 
+    val strategy = AddOnlyStrategy.withoutEditor
     pattern match {
-      case p: ScWildcardPattern => AddOnlyStrategy.addToWildcardPattern(p, None)
-      case p: ScReferencePattern => AddOnlyStrategy.addToPattern(p, None)
+      case p: ScWildcardPattern => strategy.addToWildcardPattern(p)
+      case p: ScReferencePattern => strategy.addToPattern(p)
       //if pattern has another type - it's a bug
     }
   }
