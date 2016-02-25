@@ -19,6 +19,8 @@ import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier.Version
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
+case class InjectorPersistentCache(pluginVersion: Version, cache: java.util.HashMap[String, JarManifest])
+
 class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   class DynamicClassLoader(urls: Array[URL], parent: ClassLoader) extends java.net.URLClassLoader(urls, parent) {
@@ -32,14 +34,13 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   val injectorModuleName     = "ijscala-plugin-injector-compile.iml" // TODO: use UUID
   val myInjectorCacheDir     = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/")
   val myInjectorCacheIndex   = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/libs.index")
-  private val myClassLoader  = new DynamicClassLoader(Array(myInjectorCacheDir.toURI.toURL), project.getClass.getClassLoader)
+  private val myClassLoader  = new DynamicClassLoader(Array(myInjectorCacheDir.toURI.toURL), this.getClass.getClassLoader)
   private val LOG = Logger.getInstance(getClass)
 
   private var jarCache: InjectorPersistentCache = null
 
   // reset cache if plugin has been updated
   // cache: jarFilePath -> jarManifest
-  case class InjectorPersistentCache(pluginVersion: Version, cache: java.util.HashMap[String, JarManifest])
 
   override def projectClosed(): Unit = {
     saveJarCache(jarCache, myInjectorCacheIndex)
@@ -83,12 +84,14 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   private def saveJarCache(c: InjectorPersistentCache, f: File) = {
+    val stream = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(f)))
     try {
-      val stream = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(f)))
       stream.writeObject(c)
     } catch {
       case e: Throwable =>
         LOG.error("Failed to save injector cache", e)
+    } finally {
+      stream.close()
     }
   }
 
@@ -103,7 +106,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     import scala.collection.JavaConversions._
     val libs = LibraryTablesRegistrar.getInstance().getLibraryTable(project).getLibraries
     val allProjectJars = libs.flatMap(getJarsFromLibrary).map(_.getPath).toSet
-    val cachedProjectJars = jarCache.cache.filter(c=>allProjectJars.contains(c._1)).values
+    val cachedProjectJars = jarCache.cache.filter(c=>allProjectJars.contains(c._1.substring(0, c._1.length-1)+"!/")).values
     for (manifest <- cachedProjectJars) {
       if (isJarCacheUpToDate(manifest))
         loadInjectors(manifest)
