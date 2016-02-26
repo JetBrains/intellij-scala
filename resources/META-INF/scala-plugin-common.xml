@@ -140,7 +140,7 @@
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaClassesCompletionWeigher"
                  id="scalaClassesCompletionWeigher" order="after prefix, before proximity"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByTypeWeigher"
-                 id="scalaTypeCompletionWeigher" order="before scalaContainingClassWeigher"/>
+                 id="scalaTypeCompletionWeigher" order="before stats"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaKindCompletionWeigher"
                  id="scalaKindWeigher" order="after prefix, before proximity"/>
         <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaClassObjectWeigher"

@@ -24,7 +24,7 @@ class ScalaCompletionOrderTest extends ScalaCompletionSortingTestCase(Completion
     checkPreferredItems(0, "fok", "foo", "fol", "fos", "fob", "fooa")
   }
 
-  def testLocaBeforeNameParams(): Unit = {
+  def testLocalBeforeNameParams(): Unit = {
     checkPreferredItems(0, "namelocal", "nameParam")
   }
 
@@ -42,6 +42,26 @@ class ScalaCompletionOrderTest extends ScalaCompletionSortingTestCase(Completion
 
   def testSCL2022(){
     checkPreferredItems(0, "re", "replacer")
+  }
+
+  def UseNameAfterNew(): Unit ={
+    checkPreferredItems(0, "Frost", "BadFrost")
+  }
+
+  def UseNameInCast(): Unit ={
+    checkPreferredItems(0, "Frost")
+  }
+
+  def UseNameCaseLabelType(): Unit ={
+    checkPreferredItems(0, "BadFrost")
+  }
+
+  def testUseNameWithError(): Unit ={
+    checkPreferredItems(0, "Abrakadabra")
+  }
+
+  def UseNameWithErrorVarTypeSuggestion(): Unit ={
+    checkPreferredItems(0, "Frost")
   }
 
   def testWithStat(): Unit = {
