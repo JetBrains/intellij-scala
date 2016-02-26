@@ -30,8 +30,9 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   val MAX_JARS               = 16 // dirty hack to avoid slowdowns on enormous libs such as scala-plugin's unmanaged-jars
+  val HELPER_LIBRARY_NAME    = "scala-plugin-dev"
   val INJECTOR_MANIFEST_NAME = "intellij-compat.xml"
-  val injectorModuleName     = "ijscala-plugin-injector-compile.iml" // TODO: use UUID
+  val INJECTOR_MODULE_NAME   = "ijscala-plugin-injector-compile.iml" // TODO: use UUID
   val myInjectorCacheDir     = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/")
   val myInjectorCacheIndex   = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/libs.index")
   private val myClassLoader  = new DynamicClassLoader(Array(myInjectorCacheDir.toURI.toURL), this.getClass.getClassLoader)
@@ -122,18 +123,17 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     val jarsWithManifest = allJars.flatMap(l => extractLibraryManifest(l))
     val outdatedJars = jarsWithManifest.filterNot(lm => isJarCacheUpToDate(lm))
     for (manifest <- outdatedJars) {
-      findMatchingInjectors(manifest) match {
-        case descriptors =>
-          descriptors
-            .filter(askUser)
-            .foreach { descriptor =>
-              compileInjectorFromLibrary(
-                extractInjectorSources(new File(manifest.jarPath), descriptor),
-                getLibraryCacheDir(new File(manifest.jarPath.dropRight(1))))
-              loadInjectors(manifest)
-              jarCache.cache(manifest.jarPath) = manifest
-            }
-        case Nil =>
+      withHelperModule { m =>
+        findMatchingInjectors(manifest)
+          .filter(askUser)
+          .foreach { descriptor =>
+            compileInjectorFromLibrary(
+              extractInjectorSources(new File(manifest.jarPath), descriptor),
+              getLibraryCacheDir(new File(manifest.jarPath.dropRight(1))),
+              m)
+            loadInjectors(manifest)
+            jarCache.cache(manifest.jarPath) = manifest
+          }
       }
     }
   }
@@ -161,10 +161,12 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
       .filterNot(m => skipIncompatible && findMatchingInjectors(m).isEmpty)
   }
 
-  private def compileInjectorFromLibrary(sources: Seq[File], outDir: File): Seq[File] = {
-    withHelperModule { m =>
-      sources.flatMap(ScalaEvaluatorCompileHelper.instance(project).compile(_, m, outDir)).map(_._1)
-    }
+  private def compileInjectorFromLibrary(sources: Seq[File], outDir: File, m: Module): Seq[File] = {
+    val res = sources.flatMap(ScalaEvaluatorCompileHelper.instance(project).compile(_, m, outDir)).map(_._1)
+    val parentDir = sources.headOption
+    sources.foreach(_.delete())
+    parentDir.foreach(_.delete())
+    res
   }
 
   private def loadInjectors(jarManifest: JarManifest) = {
@@ -234,13 +236,13 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     import scala.collection.JavaConversions._
 
     val model  = ModuleManager.getInstance(project).getModifiableModel
-    val module = model.newModule(injectorModuleName, JavaModuleType.getModuleType.getId)
+    val module = model.newModule(INJECTOR_MODULE_NAME, JavaModuleType.getModuleType.getId)
     val urls   = this.getClass.getClassLoader.asInstanceOf[PluginClassLoader].getUrls.map(u=>s"jar://${u.getFile}!/")
     // 0_o
     val parentUrls = ApplicationManager.getApplication.getClass.getClassLoader.getClass.getDeclaredMethods
       .find(_.getName == "getUrls").map(_.invoke(ApplicationManager.getApplication.getClass.getClassLoader).asInstanceOf[java.util.List[URL]])
     parentUrls.map(_.map(u=>s"jar://${u.getFile}!/")).foreach(urls.addAll(_))
-    val lib    = module.createLibraryFromJar(urls, "scala-plugin-dev")
+    val lib    = module.createLibraryFromJar(urls, HELPER_LIBRARY_NAME)
     module.configureScalaCompilerSettingsFrom("Default", Seq())
     module.attach(lib)
     module.attach(project.modulesWithScala.head.scalaSdk.get)
@@ -252,11 +254,19 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   private def removeIdeaModule() = {
     // TODO: remove libraries as well
     val model  = ModuleManager.getInstance(project).getModifiableModel
-    val module = model.findModuleByName(injectorModuleName)
+    val module = model.findModuleByName(INJECTOR_MODULE_NAME)
     if (module != null) {
       model.disposeModule(module)
+      val libsModel = LibraryTablesRegistrar.getInstance().getLibraryTable(project).getModifiableModel
+      val library   = libsModel.getLibraryByName(HELPER_LIBRARY_NAME)
+      if (library == null) {
+        libsModel.removeLibrary(library)
+        libsModel.commit()
+      } else {
+        LOG.warn(s"Failed to remove helper library - $HELPER_LIBRARY_NAME not found")
+      }
     } else {
-      LOG.warn(s"Failed to remove helper module - $injectorModuleName not found")
+      LOG.warn(s"Failed to remove helper module - $INJECTOR_MODULE_NAME not found")
     }
   }
 
