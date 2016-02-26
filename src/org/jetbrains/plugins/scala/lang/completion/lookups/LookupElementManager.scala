@@ -5,8 +5,8 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext, TypingContextOwner}
-import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, ScProjectionType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, TypingContextOwner}
+import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
@@ -47,8 +47,11 @@ object LookupElementManager {
         false
       }
 
+      def usedImportForElement = resolveResult.importsUsed.nonEmpty
+      def isPredef = resolveResult.fromType.exists(_.presentableText == "Predef.type")
+
       qualifierType match {
-        case proj: ScProjectionType =>
+        case _ if !isPredef && !usedImportForElement =>
           ScType.extractDesignated(qualifierType, withoutAliases = false) match {
             case Some((named, _)) =>
               val clazz: Option[PsiClass] = named match {
