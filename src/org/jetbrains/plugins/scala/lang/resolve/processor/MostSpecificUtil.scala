@@ -212,7 +212,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         }
         u.getSubstitutor.isDefined
       case (_, m2: PsiMethod) => true
-      case (e1, e2) => Compatibility.compatibleWithViewApplicability(getType(e1, r1.implicitCase), getType(e2, r2.implicitCase))
+      case (e1, e2) => Compatibility.compatibleWithViewApplicability(getType(e2, r2.implicitCase), getType(e1, r1.implicitCase))
     }
   }
 
