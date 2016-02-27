@@ -655,7 +655,6 @@ object ScalaPsiUtil {
             case _          =>
           }
         case ScAbstractType(_, lower, upper) =>
-          collectParts(lower)
           collectParts(upper)
         case ScExistentialType(quant, _) => collectParts(quant)
         case ScTypeParameterType(_, _, _, upper, _) => collectParts(upper.v)
