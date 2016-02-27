@@ -260,6 +260,30 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     }), Map.empty, None)
   }
 
+  def abstractOrLowerTypeSubstitutor: ScSubstitutor = {
+    def hasRecursiveTypeParameters(typez: ScType): Boolean = {
+      var hasRecursiveTypeParameters = false
+      typez.recursiveUpdate {
+        case tpt: ScTypeParameterType =>
+          typeParameters.find(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)) == (tpt.name, tpt.getId)) match {
+            case None => (true, tpt)
+            case _ =>
+              hasRecursiveTypeParameters = true
+              (true, tpt)
+          }
+        case tp: ScType => (hasRecursiveTypeParameters, tp)
+      }
+      hasRecursiveTypeParameters
+    }
+    new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ typeParameters.map(tp => {
+      val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType())) Nothing else tp.lowerType()
+      val upperType: ScType = if (hasRecursiveTypeParameters(tp.upperType())) Any else tp.upperType()
+      ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+        if (lowerType.equiv(Nothing)) new ScAbstractType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty), lowerType, upperType)
+        else lowerType)
+    }), Map.empty, None)
+  }
+
   def typeParameterTypeSubstitutor: ScSubstitutor =
     new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ typeParameters.map { tp =>
       ((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), new ScTypeParameterType(tp.ptp, ScSubstitutor.empty))

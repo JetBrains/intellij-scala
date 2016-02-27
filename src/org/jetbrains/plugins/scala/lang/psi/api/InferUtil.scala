@@ -76,7 +76,7 @@ object InferUtil {
             resInner = t.copy(internalType = mt.copy(returnType = updatedType)(mt.project, mt.scope))
         }
       case t@ScTypePolymorphicType(mt@ScMethodType(retType, params, impl), typeParams) if impl =>
-        val fullAbstractSubstitutor = t.abstractTypeSubstitutor
+        val fullAbstractSubstitutor = t.abstractOrLowerTypeSubstitutor
         val coreTypes = params.map(p => fullAbstractSubstitutor.subst(p.paramType))
         val splitMethodType = params.reverse.foldLeft(retType) {
           case (tp: ScType, param: Parameter) => ScMethodType(tp, Seq(param), isImplicit = true)(mt.project, mt.scope)
@@ -90,7 +90,7 @@ object InferUtil {
             resInner match {
               case t@ScTypePolymorphicType(mt@ScMethodType(retTypeSingle, paramsSingle, _), typeParamsSingle) =>
                 val polymorphicSubst = t.polymorphicTypeSubstitutor
-                val abstractSubstitutor: ScSubstitutor = t.abstractTypeSubstitutor
+                val abstractSubstitutor: ScSubstitutor = t.abstractOrLowerTypeSubstitutor
                 val (paramsForInfer, exprs, resolveResults) =
                   findImplicits(paramsSingle, coreElement, element, check, searchImplicitsRecursively, abstractSubstitutor, polymorphicSubst)
                 resInner = localTypeInference(retTypeSingle, paramsForInfer, exprs, typeParamsSingle,
