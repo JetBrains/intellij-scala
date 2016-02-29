@@ -510,7 +510,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                             val teAnnotation = holder.createErrorAnnotation(te, null)
                             teAnnotation.setHighlightType(ProblemHighlightType.INFORMATION)
                             teAnnotation.registerFix(fix)
-                          case None =>
+                          case _ =>
                         }
                       }
                     }
