@@ -274,13 +274,9 @@ object CachesUtil {
 
   @tailrec
   def updateModificationCount(elem: PsiElement, incModCountOnTopLevel: Boolean = false): Unit = {
-    if (elem == null) return
-
-    Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScModificationTrackerOwner])) match {
-      case Some(owner)
-        if elem.getContainingFile.isInstanceOf[ScalaCodeFragment] &&
-          owner.getContainingFile != elem.getContainingFile => //do not update
-      case Some(owner) if owner.isValidModificationTrackerOwner(checkForChangedReturn = true) =>
+    Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScModificationTrackerOwner], classOf[ScalaCodeFragment])) match {
+      case Some(_: ScalaCodeFragment) => //do not update on changes in dummy file
+      case Some(owner: ScModificationTrackerOwner) if owner.isValidModificationTrackerOwner(checkForChangedReturn = true) =>
         owner.incModificationCount()
       case Some(owner) => updateModificationCount(owner.getContext)
       case _ if incModCountOnTopLevel => ScalaPsiManager.instance(elem.getProject).incModificationCount()
