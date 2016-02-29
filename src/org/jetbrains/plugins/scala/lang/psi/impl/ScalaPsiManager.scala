@@ -167,6 +167,8 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 
       ArrayUtil.mergeArrays(classes, SyntheticClassProducer.getAllClasses(fqn, scope))
     }
+    if (DumbService.getInstance(project).isDumb) return Array.empty
+
     val classes = getCachedFacadeClasses(scope, fqn)
     val fromScala = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(fqn, scope)
     ArrayUtil.mergeArrays(classes, ArrayUtil.mergeArrays(fromScala.toArray, SyntheticClassProducer.getAllClasses(fqn, scope)))
