@@ -201,4 +201,29 @@ class ConvertExpressionToSAMInspectionTest extends ScalaLightInspectionFixtureTe
       """.stripMargin
     testFix(text, res, annotation)
   }
+
+  def testByNameAndDefaultParams(): Unit = {
+    val code =
+      s"""trait SAM { def test(s: ⇒ String, x: Int = 0): Unit }
+         |
+         |val sm: SAM = ${START}new SAM $END{
+         |  override def test(s: => String, x: Int = 1): Unit = println(s)
+         |}
+      """.stripMargin
+    check(code)
+    val text =
+      """trait SAM { def test(s: ⇒ String, x: Int = 0): Unit }
+        |
+        |val sm: SAM = new SAM {
+        |  override def test(s: => String, x: Int = 1): Unit = println(s)
+        |}
+      """.stripMargin
+    def res =
+      """trait SAM { def test(s: ⇒ String, x: Int = 0): Unit }
+        |
+        |val sm: SAM = (s: String, x: Int) => println(s)
+      """.stripMargin
+    testFix(text, res, annotation)
+  }
+
 }
