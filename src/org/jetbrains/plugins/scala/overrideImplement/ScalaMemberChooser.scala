@@ -49,7 +49,16 @@ object ScalaMemberChooser {
       val supers = targetClass.supers
       sortedClasses ++= supers
     }
-    sortedClasses ++= groupedMembers.keys.toSeq.sortWith((c1, c2) => c1.isInheritor(c2, true))
+    val ordering = new Ordering[PsiClass] {
+      override def compare(c1: PsiClass, c2: PsiClass): Int = {
+        val less = c1.isInheritor(c2, /*checkDeep =*/ true)
+        val more = c2.isInheritor(c1, /*checkDeep =*/ true)
+        if (less && more) 0 //it is possible to have cyclic inheritance for generic traits in scala
+        else if (less) -1
+        else 1
+      }
+    }
+    sortedClasses ++= groupedMembers.keys.toSeq.sorted(ordering)
 
     sortedClasses.flatMap(c => groupedMembers.getOrElse(c, Seq.empty)).toSeq
   }
