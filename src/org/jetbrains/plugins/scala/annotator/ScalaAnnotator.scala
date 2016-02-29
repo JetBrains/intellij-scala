@@ -1127,7 +1127,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
   def modifierIsThis(toCheck: PsiElement): Boolean = {
     toCheck match {
-      case modifierOwner: ScModifierListOwner => modifierOwner.getModifierList.accessModifier.exists(_.isThis)
+      case modifierOwner: ScModifierListOwner =>
+        Option(modifierOwner.getModifierList).flatMap(_.accessModifier).exists(_.isThis)
       case _ => false
     }
   }
