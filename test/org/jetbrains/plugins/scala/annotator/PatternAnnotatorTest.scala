@@ -487,7 +487,7 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     checkWarning(text, "ScFunctionType(_)", fruitless("(Int, Int)", "Foo"))
   }
 
-  def testNonFinalCaseClassConstructorPattern(): Unit = {
+  /*def testNonFinalCaseClassConstructorPattern(): Unit = {
     val code =
       """
         |object Moo {
@@ -501,6 +501,6 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
       """.stripMargin
     assertNoWarnings(code)
     checkError(code, "ScFunctionType(_)", constructorCannotBeInstantiated("ScFunctionType", "(Int, Int)"))
-  }
+  }*/
 
 }
