@@ -114,7 +114,7 @@ class ScalaByTypeWeigher extends CompletionWeigher {
         case s: ScalaLookupItem =>
           lazy val byTextResult = handleByText(s.element)
           s.element match {
-            case (_: ScTypeAlias) | (_: ScTypeDefinition) | (_: PsiClass) if byTextResult.isDefined => byTextResult
+            case _: ScTypeAlias | _: ScTypeDefinition | _: PsiClass if byTextResult.isDefined => byTextResult
             case ta: ScTypeAlias if ta.isLocal => Some(LOCAL_FUNC)
             case ta: ScTypeAlias => Some(TYPED_DEFINITION)
             case te: ScTypeDefinition if !te.isObject && (te.isLocal || inFunction(te)) => Some(LOCAL_FUNC)
