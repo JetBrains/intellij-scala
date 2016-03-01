@@ -205,8 +205,11 @@ trait IntroduceExpressions {
 
       val element = file.findElementAt(model.getSelectionStart)
       var parent = element
-      def atSameLine(offsets: Int*) = offsets.forall(document.getLineNumber(_) == lineNumber)
-      while (parent != null && atSameLine(parent.getTextRange.getStartOffset, parent.getTextRange.getEndOffset)) {
+      def atSameLine(elem: PsiElement) = {
+        val offsets = Seq(elem.getTextRange.getStartOffset, elem.getTextRange.getEndOffset)
+        offsets.forall(document.getLineNumber(_) == lineNumber)
+      }
+      while (parent != null && !parent.isInstanceOf[PsiFile] && atSameLine(parent)) {
         parent = parent.getParent
       }
       val insideExpression = parent match {
