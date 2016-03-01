@@ -3,13 +3,15 @@ package org.jetbrains.plugins.scala.components.libinjection
 import java.io._
 import java.net.URL
 import java.util
+import javax.swing.event.HyperlinkEvent
 
 import com.intellij.ide.plugins.cl.PluginClassLoader
+import com.intellij.notification._
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module._
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.util.io.FileUtil
@@ -29,6 +31,9 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     }
   }
 
+  type AttributedManifest = (JarManifest, Seq[InjectorDescriptor])
+  type ManifestToDescriptors = Seq[AttributedManifest]
+
   val MAX_JARS               = 16 // dirty hack to avoid slowdowns on enormous libs such as scala-plugin's unmanaged-jars
   val HELPER_LIBRARY_NAME    = "scala-plugin-dev"
   val INJECTOR_MANIFEST_NAME = "intellij-compat.xml"
@@ -37,11 +42,11 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   val myInjectorCacheIndex   = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/libs.index")
   private val myClassLoader  = new DynamicClassLoader(Array(myInjectorCacheDir.toURI.toURL), this.getClass.getClassLoader)
   private val LOG = Logger.getInstance(getClass)
-
-  private var jarCache: InjectorPersistentCache = null
+  private val GROUP = new NotificationGroup("Injector", NotificationDisplayType.STICKY_BALLOON, false)
 
   // reset cache if plugin has been updated
   // cache: jarFilePath -> jarManifest
+  private var jarCache: InjectorPersistentCache = null
 
   override def projectClosed(): Unit = {
     saveJarCache(jarCache, myInjectorCacheIndex)
@@ -50,9 +55,10 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   override def projectOpened(): Unit = {
     jarCache = verifyLibraryCache(loadJarCache(myInjectorCacheIndex))
     loadCachedInjectors()
-    invokeLater {
-      rescanAllJars()
-    }
+    DumbService.getInstance(project).smartInvokeLater(toRunnable(rescanAllJars()))
+//    invokeLater {
+//      rescanAllJars()
+//    }
   }
 
   override def initComponent(): Unit = {
@@ -122,20 +128,8 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     val allJars = libs.flatMap(getJarsFromLibrary)
     val jarsWithManifest = allJars.flatMap(l => extractLibraryManifest(l))
     val outdatedJars = jarsWithManifest.filterNot(lm => isJarCacheUpToDate(lm))
-    for (manifest <- outdatedJars) {
-      withHelperModule { m =>
-        findMatchingInjectors(manifest)
-          .filter(askUser)
-          .foreach { descriptor =>
-            compileInjectorFromLibrary(
-              extractInjectorSources(new File(manifest.jarPath), descriptor),
-              getLibraryCacheDir(new File(manifest.jarPath.dropRight(1))),
-              m)
-            loadInjectors(manifest)
-            jarCache.cache(manifest.jarPath) = manifest
-          }
-      }
-    }
+    val candidates = outdatedJars.map(manifest => manifest -> findMatchingInjectors(manifest))
+    askUser(candidates)
   }
 
   def getJarsFromLibrary(library: Library): Seq[VirtualFile] = {
@@ -219,8 +213,46 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     }
   }
 
-  private def askUser(injectorDescriptor: InjectorDescriptor): Boolean = {
-    true // TODO: GUI
+  private def askUser(candidates: ManifestToDescriptors) = {
+    val message = s"Some of your project's libraries have IDEA support features.\nWould you like to load them?" +
+      s"""<p/><a href="Yes">Yes</a>""" +
+      s"""<p/><a href="No">No</a>"""
+    val listener = new NotificationListener {
+      override def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent): Unit = {
+        notification.expire()
+        if (event.getDescription == "Yes")
+          compile(showReviewDialogAndFilter(candidates))
+      }
+    }
+    GROUP.createNotification("ASDAF", message, NotificationType.INFORMATION, listener).notify(project)
+  }
+
+  private def showReviewDialogAndFilter(candidates: ManifestToDescriptors): ManifestToDescriptors  = {
+    candidates.filter { a=>
+      val dialog = new InjectorReviewDialog(project, a)
+      dialog.showAndGet()
+    }
+  }
+
+  private def compile(data: ManifestToDescriptors) = {
+    withHelperModule { module =>
+      for ((manifest, injectors) <- data) {
+        for (injectorDescriptor <- injectors) {
+          try {
+            compileInjectorFromLibrary(
+              extractInjectorSources(new File(manifest.jarPath), injectorDescriptor),
+              getLibraryCacheDir(new File(manifest.jarPath.dropRight(1))),
+              module
+            )
+            loadInjectors(manifest)
+            jarCache.cache.put(manifest.jarPath, manifest)
+          } catch {
+            case e: Throwable =>
+              LOG.error("Failed to compile injector", e)
+          }
+        }
+      }
+    }
   }
 
   def getLibraryCacheDir(jar: File): File = {
@@ -238,9 +270,11 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     val model  = ModuleManager.getInstance(project).getModifiableModel
     val module = model.newModule(INJECTOR_MODULE_NAME, JavaModuleType.getModuleType.getId)
     val urls   = this.getClass.getClassLoader.asInstanceOf[PluginClassLoader].getUrls.map(u=>s"jar://${u.getFile}!/")
-    // 0_o
+    // get application classloader urls using reflection :(
     val parentUrls = ApplicationManager.getApplication.getClass.getClassLoader.getClass.getDeclaredMethods
-      .find(_.getName == "getUrls").map(_.invoke(ApplicationManager.getApplication.getClass.getClassLoader).asInstanceOf[java.util.List[URL]])
+      .find(_.getName == "getUrls")
+      .map(_.invoke(ApplicationManager.getApplication.getClass.getClassLoader)
+        .asInstanceOf[java.util.List[URL]])
     parentUrls.map(_.map(u=>s"jar://${u.getFile}!/")).foreach(urls.addAll(_))
     val lib    = module.createLibraryFromJar(urls, HELPER_LIBRARY_NAME)
     module.configureScalaCompilerSettingsFrom("Default", Seq())
