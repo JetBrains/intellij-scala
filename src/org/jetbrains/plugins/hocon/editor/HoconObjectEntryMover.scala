@@ -75,6 +75,7 @@ class HoconObjectEntryMover extends LineMover {
       entry.parent.exists(_.getTextRange.getStartOffset <= lineStart) &&
         entry.previousEntry.forall(_.getTextRange.getEndOffset < lineStart)
     }
+    
     def canInsertAfter(entry: HObjectEntry) = {
       val lineEnd = document.getLineEndOffset(endLine(entry))
       entry.parent.exists(_.getTextRange.getEndOffset >= lineEnd) &&
@@ -122,8 +123,8 @@ class HoconObjectEntryMover extends LineMover {
         def canInsert(field: HObjectField) =
           if (down) canInsertAfter(field) else canInsertBefore(field)
 
-        field.parent.prefixingField.map(_.enclosingObjectField)
-          .filter(of => edgeLine(of) == edgeLine(field.parent) && canInsert(of))
+        field.parent.flatMap(_.prefixingField).map(_.enclosingObjectField)
+          .filter(of => field.parent.exists(pp => edgeLine(of) == edgeLine(pp)) && canInsert(of))
           .map(of => (of, of.keyedField.fieldsInPathForward.map(keyString).toList))
       } else None
 
