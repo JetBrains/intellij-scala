@@ -62,7 +62,9 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
     val elementType = position.getNode.getElementType
     if (elementType != ScalaTokenTypes.tIDENTIFIER) return
     val call = PsiTreeUtil.getContextOfType(position, classOf[ScMethodCall])
-    val index = PsiTreeUtil.getContextOfType(position, classOf[ScArgumentExprList]).invocationCount - 1
+    val args = PsiTreeUtil.getContextOfType(position, classOf[ScArgumentExprList])
+    if (call == null || args == null) return
+    val index = args.invocationCount - 1
     call.deepestInvokedExpr match {
       case ref: ScReferenceExpression =>
         ref.qualifier match {
