@@ -25,9 +25,10 @@ import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingD
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.showErrorHint
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -53,12 +54,14 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
   private def invokeOnEditor(project: Project, editor: Editor, file: ScalaFile, dataContext: DataContext) {
     if (!ScalaRefactoringUtil.ensureFileWritable(project, file)) {
-      showErrorMessage(ScalaBundle.message("file.is.not.writable"), project, editor)
+      showErrorHint(ScalaBundle.message("file.is.not.writable"), project, editor, REFACTORING_NAME)
+      return
     }
     if (!editor.getSelectionModel.hasSelection) return
     val elements: Seq[PsiElement] = ScalaRefactoringUtil.selectedElements(editor, file, trimComments = false)
 
-    ScalaRefactoringUtil.showNotPossibleWarnings(elements, project, editor, REFACTORING_NAME)
+    val hasWarnings = ScalaRefactoringUtil.showNotPossibleWarnings(elements, project, editor, REFACTORING_NAME)
+    if (hasWarnings) return
 
     def checkLastReturn(elem: PsiElement): Boolean = {
       elem match {
@@ -98,7 +101,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     val stopAtScope: PsiElement = findScopeBound(elements).getOrElse(file)
     val siblings: Array[PsiElement] = getSiblings(elements.head, stopAtScope)
     if (siblings.length == 0) {
-      showErrorMessage(ScalaBundle.message("extract.method.cannot.find.possible.scope"), project, editor)
+      showErrorHint(ScalaBundle.message("extract.method.cannot.find.possible.scope"), project, editor, REFACTORING_NAME)
+      return
     }
     val array = elements.toArray
     if (ApplicationManager.getApplication.isUnitTestMode && siblings.length > 0) {
@@ -206,7 +210,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     val input = info.inputVariables
     val output = info.outputVariables
     if (output.exists(_.element.isInstanceOf[ScFunctionDefinition])) {
-      showErrorMessage(ScalaBundle.message("cannot.extract.used.function.definition"), project, editor)
+      showErrorHint(ScalaBundle.message("cannot.extract.used.function.definition"), project, editor, REFACTORING_NAME)
+      return
     }
     val settings: ScalaExtractMethodSettings =
       if (!ApplicationManager.getApplication.isUnitTestMode) {
@@ -323,7 +328,4 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       editor.getSelectionModel.removeSelection()
     }
   }
-
-  private def showErrorMessage(text: String, project: Project, editor: Editor) =
-    ScalaRefactoringUtil.showErrorMessage(text, project, editor, REFACTORING_NAME)
 }
