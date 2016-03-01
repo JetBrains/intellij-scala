@@ -158,7 +158,9 @@ public class SdkSelectionDialog extends JDialog {
     }
 
     private void onOK() {
-        mySelectedSdk = myTableModel.getItems().get(myTable.getSelectedRow()).sdk();
+        if (myTable.getSelectedRowCount() > 0) {
+            mySelectedSdk = myTableModel.getItems().get(myTable.getSelectedRow()).sdk();
+        }
         dispose();
     }
 
