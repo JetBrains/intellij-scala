@@ -27,14 +27,16 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
       def message(key: String) {
         setText(ScalaBundle.message(key))
       }
-      complete(new Description(message), element)
+      ToggleTypeAnnotation.complete(new Description(message), element)
     }
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
-    complete(AddOrRemoveStrategy, element)
+    ToggleTypeAnnotation.complete(new AddOrRemoveStrategy(Option(editor)), element)
   }
+}
 
+object ToggleTypeAnnotation {
   def complete(strategy: Strategy, element: PsiElement): Boolean = {
     for {function <- element.parentsInFile.findByType(classOf[ScFunctionDefinition])
          if function.hasAssign
@@ -50,7 +52,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
     }
 
     for {value <- element.parentsInFile.findByType(classOf[ScPatternDefinition])
-         if value.expr.map(!_.isAncestorOf(element)).getOrElse(true)
+         if value.expr.forall(!_.isAncestorOf(element))
          if value.pList.allPatternsSimple
          bindings = value.bindings
          if bindings.size == 1
@@ -65,7 +67,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
     }
 
     for {variable <- element.parentsInFile.findByType(classOf[ScVariableDefinition])
-         if variable.expr.map(!_.isAncestorOf(element)).getOrElse(true)
+         if variable.expr.forall(!_.isAncestorOf(element))
          if variable.pList.allPatternsSimple
          bindings = variable.bindings
          if bindings.size == 1

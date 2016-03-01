@@ -5,9 +5,7 @@ import com.intellij.codeInsight.lookup.{LookupElement, LookupElementDecorator, L
 import com.intellij.openapi.util.TextRange
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.{Consumer, ProcessingContext}
-import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.completion.MyConsumer._
 import org.jetbrains.plugins.scala.lang.completion.MyInsertHandler._
 import org.jetbrains.plugins.scala.lang.completion.ScalaAotCompletionContributor._
@@ -15,7 +13,8 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypedDeclaration, ScValueDeclaration, ScVariableDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypedDeclaration, ScValueDeclaration, ScVariableDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -87,16 +86,12 @@ private object ScalaAotCompletionContributor {
     if (s.length == 0) s else s.substring(0, 1).toUpperCase + s.substring(1)
 
   def createParameterFrom(text: String, original: PsiElement): ScParameter = {
-    val fragment = new ScalaCodeFragment(original.getProject, "def f(" + text + ") {}")
-    fragment.forceResolveScope(original.getResolveScope)
-    val function = fragment.getFirstChild.asInstanceOf[ScFunction]
-    function.parameters.head
+    val clauses = ScalaPsiElementFactory.createParamClausesWithContext(s"($text)", original.getContext, original)
+    clauses.params.head
   }
 
   def createValueDeclarationFrom(text: String, original: PsiElement): ScValueDeclaration = {
-    val fragment = new ScalaCodeFragment(original.getProject, "val " + text)
-    fragment.forceResolveScope(GlobalSearchScope.fileScope(original.getContainingFile))
-    fragment.getFirstChild.asInstanceOf[ScValueDeclaration]
+    ScalaPsiElementFactory.createDeclarationFromText(s"val $text", original.getContext, original).asInstanceOf[ScValueDeclaration]
   }
 }
 

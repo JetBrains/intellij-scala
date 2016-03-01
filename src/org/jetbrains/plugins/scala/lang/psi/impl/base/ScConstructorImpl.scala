@@ -42,7 +42,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   def expectedType: Option[ScType] = {
     getContext match {
       case parents: ScClassParents =>
-        if (parents.typeElements.length != 1) None
+        if (parents.allTypeElements.length != 1) None
         else {
           parents.getContext match {
             case e: ScExtendsBlock =>

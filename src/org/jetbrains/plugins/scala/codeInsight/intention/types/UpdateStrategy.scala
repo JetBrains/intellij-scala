@@ -1,25 +1,33 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intention.types
 
-import com.intellij.psi.PsiElement
+import com.intellij.openapi.editor.Editor
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiElement}
+import org.jetbrains.plugins.scala.codeInsight.intention.IntentionUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
 
 /**
  * Pavel.Fatin, 28.04.2010
  */
 
-object AddOrRemoveStrategy extends UpdateStrategy
+class AddOrRemoveStrategy(editor: Option[Editor]) extends UpdateStrategy(editor)
 
-object AddOnlyStrategy extends UpdateStrategy {
+object AddOrRemoveStrategy {
+  def withoutEditor = new AddOrRemoveStrategy(None)
+}
+
+class AddOnlyStrategy(editor: Option[Editor]) extends UpdateStrategy(editor) {
   override def removeFromFunction(function: ScFunctionDefinition): Unit = {}
   override def removeFromParameter(param: ScParameter): Unit = {}
   override def removeFromPattern(pattern: ScTypedPattern): Unit = {}
@@ -27,7 +35,11 @@ object AddOnlyStrategy extends UpdateStrategy {
   override def removeFromVariable(variable: ScVariableDefinition): Unit = {}
 }
 
-abstract class UpdateStrategy extends Strategy {
+object AddOnlyStrategy {
+  def withoutEditor = new AddOrRemoveStrategy(None)
+}
+
+abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
   def addToFunction(function: ScFunctionDefinition) {
     function.returnType.foreach {
       addTypeAnnotation(_, function, function.paramClauses)
@@ -111,17 +123,91 @@ abstract class UpdateStrategy extends Strategy {
   }
 
   def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement) {
-    val annotation = ScalaPsiElementFactory.createTypeElementFromText(t.canonicalText, context.getManager)
-    val added = context.addAfter(annotation, anchor)
+    def addActualType(annotation: ScTypeElement) = {
+      val added = anchor.getParent.addAfter(annotation, anchor)
+      val colon = ScalaPsiElementFactory.createColon(context.getManager)
+      anchor.getParent.addAfter(colon, anchor)
+      added
+    }
 
-    val colon = ScalaPsiElementFactory.createColon(context.getManager)
-    context.addAfter(colon, anchor)
+    def typeElemfromText(s: String) = ScalaPsiElementFactory.createTypeElementFromText(s, context.getManager)
+    def typeElemFromType(tp: ScType) = typeElemfromText(tp.canonicalText)
 
-    ScalaPsiUtil.adjustTypes(added)
+    def isSealed(c: PsiClass) = c match {
+      case _: ScClass | _: ScTrait => c.hasModifierPropertyScala("sealed")
+      case _ => false
+    }
+
+    val tps: Seq[ScTypeElement] = t match {
+      case ScCompoundType(comps, _, _) =>
+        val uselessTypes = Set("_root_.scala.Product", "_root_.scala.Serializable", "_root_.java.lang.Object")
+        comps.map(_.canonicalText).filterNot(uselessTypes.contains) match {
+          case Seq(base) => Seq(typeElemfromText(base))
+          case types => (Seq(types.mkString(" with ")) ++ types).flatMap { t =>
+            Seq(typeElemfromText(t))
+          }
+        }
+      case someOrNone if Set("_root_.scala.Some", "_root_.scala.None").exists(someOrNone.canonicalText.startsWith) =>
+        val replacement = BaseTypes.get(someOrNone).find(_.canonicalText.startsWith("_root_.scala.Option")).getOrElse(someOrNone)
+        Seq(typeElemFromType(replacement))
+      case tp =>
+        ScType.extractClass(tp, Option(context.getProject)) match {
+          case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
+            val sealedType = BaseTypes.get(tp).find(ScType.extractClass(_, Option(context.getProject)).exists(isSealed))
+            (sealedType.toSeq :+ tp).map(typeElemFromType)
+          case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName.startsWith("scala.collection") =>
+            val goodTypes = Set(
+              "_root_.scala.collection.Seq[",
+              "_root_.scala.collection.mutable.Seq[",
+              "_root_.scala.collection.immutable.Seq[",
+              "_root_.scala.collection.Set[",
+              "_root_.scala.collection.mutable.Set[",
+              "_root_.scala.collection.immutable.Set[",
+              "_root_.scala.collection.Map[",
+              "_root_.scala.collection.mutable.Map[",
+              "_root_.scala.collection.immutable.Map["
+            )
+            val baseTypes = BaseTypes.get(tp).map(_.canonicalText).filter(t => goodTypes.exists(t.startsWith))
+            (tp.canonicalText +: baseTypes).map(typeElemfromText)
+          case _ => Seq(typeElemFromType(tp))
+        }
+    }
+    val added = addActualType(tps.head)
+    editor match {
+      case Some(e) if tps.size > 1 =>
+        val texts = tps.flatMap(_.getType().toOption).map(ScTypeText)
+        val expr = new ChooseTypeTextExpression(texts)
+        IntentionUtil.startTemplate(added, context, expr, e)
+      case _ => TypeAdjuster.markToAdjust(added)
+    }
   }
 
   def removeTypeAnnotation(e: PsiElement) {
     e.prevSiblings.find(_.getText == ":").foreach(_.delete())
     e.delete()
   }
+}
+
+class StrategyAdapter extends Strategy {
+  override def addToFunction(function: ScFunctionDefinition): Unit = ()
+
+  override def removeFromPattern(pattern: ScTypedPattern): Unit = ()
+
+  override def addToVariable(variable: ScVariableDefinition): Unit = ()
+
+  override def removeFromParameter(param: ScParameter): Unit = ()
+
+  override def addToParameter(param: ScParameter): Unit = ()
+
+  override def removeFromVariable(variable: ScVariableDefinition): Unit = ()
+
+  override def addToWildcardPattern(pattern: ScWildcardPattern): Unit = ()
+
+  override def removeFromFunction(function: ScFunctionDefinition): Unit = ()
+
+  override def addToValue(value: ScPatternDefinition): Unit = ()
+
+  override def removeFromValue(value: ScPatternDefinition): Unit = ()
+
+  override def addToPattern(pattern: ScBindingPattern): Unit = ()
 }

@@ -62,12 +62,12 @@ class ScNewTemplateDefinitionImpl private (stub: StubElement[ScTemplateDefinitio
     }
 
 
-    if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
+    if (superTypes.length > 1 || holders.nonEmpty || aliases.nonEmpty) {
       new Success(ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList, ScSubstitutor.empty), Some(this))
     } else {
       extendsBlock.templateParents match {
-        case Some(tp) if tp.typeElements.length == 1 =>
-          tp.typeElements(0).getNonValueType(ctx)
+        case Some(tp) if tp.allTypeElements.length == 1 =>
+          tp.allTypeElements.head.getNonValueType(ctx)
         case _ =>
           superTypes.headOption match {
             case s@Some(t) => Success(t, Some(this))

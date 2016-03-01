@@ -3,6 +3,7 @@ package caches
 
 
 import java.util.concurrent.ConcurrentMap
+import java.util.concurrent.locks.ReentrantLock
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
@@ -11,6 +12,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
+import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScModifiableTypedDeclaration, ScModificationTrackerOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -39,7 +41,8 @@ object CachesUtil {
 
   /**
    * Do not delete this type alias, it is used by [[org.jetbrains.plugins.scala.macroAnnotations.CachedMappedWithRecursionGuard]]
-   * @see [[CachesUtil.getOrCreateKey]] for more info
+    *
+    * @see [[CachesUtil.getOrCreateKey]] for more info
    */
   type MappedKey[Data, Result] = Key[CachedValue[ConcurrentMap[Data, Result]]]
   private val keys = ContainerUtil.newConcurrentMap[String, Any]()
@@ -271,7 +274,12 @@ object CachesUtil {
 
   @tailrec
   def updateModificationCount(elem: PsiElement, incModCountOnTopLevel: Boolean = false): Unit = {
+    if (elem == null) return
+
     Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScModificationTrackerOwner])) match {
+      case Some(owner)
+        if elem.getContainingFile.isInstanceOf[ScalaCodeFragment] &&
+          owner.getContainingFile != elem.getContainingFile => //do not update
       case Some(owner) if owner.isValidModificationTrackerOwner(checkForChangedReturn = true) =>
         owner.incModificationCount()
       case Some(owner) => updateModificationCount(owner.getContext)
@@ -285,7 +293,17 @@ object CachesUtil {
                                                                             key: Key[T],
                                                                             set: Set[ScFunction]) extends ControlThrowable
 
-  private[this] val funsRetTpToCheck = new mutable.ArrayBuffer[(ScModifiableTypedDeclaration, Project)]()
+  private[this] val funsRetTpToCheck = new mutable.Queue[(ScModifiableTypedDeclaration, Project)]()
+  private[this] val associatedQueueLock = new ReentrantLock(true)
+  private def doQueueWithLock[T](ac: mutable.Queue[(ScModifiableTypedDeclaration, Project)] => T): T = {
+    try {
+      associatedQueueLock.lock()
+      ac(funsRetTpToCheck)
+    } finally {
+      if (associatedQueueLock.isHeldByCurrentThread) associatedQueueLock.unlock()
+    }
+  } 
+  
   @volatile
   private[this] var needToCheckFuns: Boolean = false
   private[this] val currentThreadIsCheckingFuns = new ThreadLocal[Boolean] {
@@ -293,28 +311,30 @@ object CachesUtil {
   }
 
   def incrementModCountForFunsWithModifiedReturn(): Unit = {
-    def checkFuns(): Unit = funsRetTpToCheck.synchronized {
-      var i = 0
-      while (i < funsRetTpToCheck.size) {
-        val (fun, proj) = funsRetTpToCheck(i)
+    def checkFuns(): Unit = {
+      @inline def nextElement = doQueueWithLock(queue => if (queue.nonEmpty) queue.dequeue() else null)
+      @inline def checkSize = doQueueWithLock(queue => queue.size > 1)
+      @inline def clearQueue() = doQueueWithLock(queue => queue.clear())
+      
+      var cur = nextElement
+      
+      while (cur != null) {
+        val (fun, proj) = cur
         val isValid: Boolean = fun.isValid
-        if (!isValid || fun.returnTypeHasChangedSinceLastCheck) {
+        if ((!isValid || fun.returnTypeHasChangedSinceLastCheck) && !proj.isDisposed) {
           //if there's more than one, just increment the general modCount If there's one, go up th
-          if (proj.isDisposed) {
-            funsRetTpToCheck.drop(1)
-          } else if (!isValid || funsRetTpToCheck.size > 1) {
-            if (proj.isDisposed) {
-              funsRetTpToCheck.drop(1)
-            }
+          if (!isValid || checkSize) {
             ScalaPsiManager.instance(proj).incModificationCount()
-            funsRetTpToCheck.clear()
+            clearQueue()
           } else {
             updateModificationCount(fun.getContext, incModCountOnTopLevel = true)
           }
         }
-        i += 1
+        
+        cur = nextElement
       }
-      needToCheckFuns = false
+
+      doQueueWithLock(_ => {needToCheckFuns = false})
     }
 
     if (needToCheckFuns && !currentThreadIsCheckingFuns.get()) {
@@ -327,10 +347,11 @@ object CachesUtil {
     }
   }
 
-  def addModificationFunctionsReturnType(fun: ScModifiableTypedDeclaration): Unit = funsRetTpToCheck.synchronized {
-    if (!funsRetTpToCheck.exists(_._1 == fun)) {
-      funsRetTpToCheck += ((fun, fun.getProject))
-      needToCheckFuns = true
-    }
+  def addModificationFunctionsReturnType(fun: ScModifiableTypedDeclaration): Unit = {
+    val project = fun.getProject
+    
+    doQueueWithLock(
+      queue => {if (!queue.exists(_._1 == fun)) {queue.enqueue((fun, project)); needToCheckFuns = true}}
+    )
   }
 }

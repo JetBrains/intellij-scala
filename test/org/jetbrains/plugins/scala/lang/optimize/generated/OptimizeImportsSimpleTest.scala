@@ -37,4 +37,6 @@ class OptimizeImportsSimpleTest extends OptimizeImportsTestBase {
   def testUnusedSelector() = doTest()
 
   def testUsedImport() = doTest()
+
+  def testRelativeNameConflict() = doTest()
 }

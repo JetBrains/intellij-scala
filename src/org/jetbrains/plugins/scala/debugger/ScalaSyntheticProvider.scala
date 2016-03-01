@@ -43,8 +43,21 @@ object ScalaSyntheticProvider {
     method.name.contains("$mc") && method.name.endsWith("$sp")
   }
 
+  private val defaultArgPattern = """\$default\$\d+""".r
+
   private def isDefaultArg(m: Method): Boolean = {
-    m.name.contains("$default$")
+    val methodName = m.name()
+    if (!methodName.contains("$default$")) false
+    else {
+      val lastDefault = defaultArgPattern.findAllMatchIn(methodName).toSeq.lastOption
+      lastDefault.map(_.matched) match {
+        case Some(s) if methodName.endsWith(s) =>
+          val origMethodName = methodName.stripSuffix(s)
+          val refType = m.declaringType
+          !refType.methodsByName(origMethodName).isEmpty
+        case _ => false
+      }
+    }
   }
 
   private def isTraitForwarder(m: Method): Boolean = {
@@ -80,8 +93,15 @@ object ScalaSyntheticProvider {
       case ct: ClassType =>
         val interfaces = ct.allInterfaces().asScala
         val vm = ct.virtualMachine()
-        val traitImpls = interfaces.flatMap(i => vm.classesByName(i.name() + "$class").asScala)
-        traitImpls.exists(ti => !ti.methodsByName(m.name()).isEmpty)
+        val allTraitImpls = vm.allClasses().asScala.filter(_.name().endsWith("$class"))
+        for {
+          interface <- interfaces
+          traitImpl <- allTraitImpls
+          if traitImpl.name().stripSuffix("$class") == interface.name() && !traitImpl.methodsByName(m.name).isEmpty
+        } {
+          return true
+        }
+        false
       case _ => false
     }
   }

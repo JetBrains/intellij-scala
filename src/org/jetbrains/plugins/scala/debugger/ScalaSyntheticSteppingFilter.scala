@@ -26,8 +26,11 @@ class ScalaSyntheticSteppingFilter extends ExtraSteppingFilter {
 
   override def getStepRequestDepth(context: SuspendContext): Int = StepRequest.STEP_INTO
 
-  def isSynthetic(location: Location, debugProcess: DebugProcess): Boolean = {
-    val positionManager = new ScalaPositionManager(debugProcess)
+  private def isSynthetic(location: Location, debugProcess: DebugProcess): Boolean = {
+    val positionManager = ScalaPositionManager.instance(debugProcess) match {
+      case Some(m) => m
+      case None => return true
+    }
 
     val method = location.method()
     val name = method.name()

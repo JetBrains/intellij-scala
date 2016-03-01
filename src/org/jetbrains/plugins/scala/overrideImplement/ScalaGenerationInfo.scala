@@ -13,7 +13,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -51,7 +51,7 @@ class ScalaGenerationInfo(classMember: ClassMember)
         val m = ScalaPsiElementFactory.createOverrideImplementType(alias, substitutor, alias.getManager, needsOverride)
         val added = templDef.addMember(m, Option(anchor))
         myMember = added
-        ScalaPsiUtil.adjustTypes(added)
+        TypeAdjuster.markToAdjust(added)
       case _: ScValueMember | _: ScVariableMember =>
         val isVal = classMember match {case _: ScValueMember => true case _: ScVariableMember => false}
         val value = classMember match {case x: ScValueMember => x.element case x: ScVariableMember => x.element}
@@ -64,7 +64,7 @@ class ScalaGenerationInfo(classMember: ClassMember)
           addOverride, isVal, needsInferType)
         val added = templDef.addMember(m, Option(anchor))
         myMember = added
-        ScalaPsiUtil.adjustTypes(added)
+        TypeAdjuster.markToAdjust(added)
       case _ =>
     }
   }
@@ -192,7 +192,7 @@ object ScalaGenerationInfo {
     val needsOverride = !isImplement || toAddOverrideToImplemented
     val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, needsOverride, needsInferType, body)
     val added = td.addMember(m, Option(anchor))
-    ScalaPsiUtil.adjustTypes(added)
+    TypeAdjuster.markToAdjust(added)
     added.asInstanceOf[ScFunction]
   }
 

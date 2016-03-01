@@ -361,7 +361,10 @@ package object collections {
 
   def isOption(expr: ScExpression): Boolean = isOfClassFrom(expr, likeOptionClasses)
 
-  def isArray(expr: ScExpression): Boolean = isOfClassFrom(expr, Array("scala.Array"))
+  def isArray(expr: ScExpression): Boolean = expr match {
+    case ExpressionType(JavaArrayType(_)) => true
+    case _ => isOfClassFrom(expr, Array("scala.Array"))
+  }
 
   def isSet(expr: ScExpression): Boolean = isExpressionOfType("scala.collection.GenSet", expr)
 

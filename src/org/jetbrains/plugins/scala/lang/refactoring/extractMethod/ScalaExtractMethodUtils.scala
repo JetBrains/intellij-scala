@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableI
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScSubstitutor, ScType, Unit}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicateMatch
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
@@ -427,7 +427,7 @@ object ScalaExtractMethodUtils {
         val expr = ScalaPsiElementFactory.createExpressionFromText(exprText, manager)
         val declaration = ScalaPsiElementFactory.createDeclaration(pattern, "", isVariable = !isVal, expr, manager)
         val result = elements.head.replace(declaration)
-        ScalaPsiUtil.adjustTypes(result)
+        TypeAdjuster.markToAdjust(result)
         result
       }
     }
@@ -496,7 +496,7 @@ object ScalaExtractMethodUtils {
     val stmt = insertCallStmt()
     insertAssignsFromMultipleReturn(stmt)
     removeReplacedElements()
-    ScalaPsiUtil.adjustTypes(stmt.getParent)
+    TypeAdjuster.markToAdjust(stmt.getParent)
   }
 
   private def typeParametersText(settings: ScalaExtractMethodSettings) =

@@ -52,14 +52,12 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
-import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveTargets, ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
@@ -657,7 +655,6 @@ object ScalaPsiUtil {
             case _          =>
           }
         case ScAbstractType(_, lower, upper) =>
-          collectParts(lower)
           collectParts(upper)
         case ScExistentialType(quant, _) => collectParts(quant)
         case ScTypeParameterType(_, _, _, upper, _) => collectParts(upper.v)
@@ -1083,112 +1080,7 @@ object ScalaPsiUtil {
     new LightModifierList(manager, ScalaFileType.SCALA_LANGUAGE)
 
   def adjustTypes(element: PsiElement, addImports: Boolean = true, useTypeAliases: Boolean = true) {
-    def adjustTypesChildren(): Unit = {
-      element.children.foreach(adjustTypes(_, addImports, useTypeAliases))
-    }
-
-    def replaceStablePath(ref: ScReferenceElement, name: String, qualName: Option[String], toBind: PsiElement): PsiElement = {
-      if (!addImports) {
-        val checkRef = ScalaPsiElementFactory.createReferenceFromText(name, ref.getContext, ref)
-        val resolved = checkRef.resolve()
-        if (resolved == null || !PsiEquivalenceUtil.areElementsEquivalent(resolved, toBind)) {
-          return ref
-        }
-      }
-      val replacedText: String = qualName match {
-        case Some(qName) if ScalaCodeStyleSettings.getInstance(ref.getProject).hasImportWithPrefix(qName) =>
-          qName.split('.').takeRight(2).mkString(".")
-        case _ => name
-      }
-      val replaced = ref.replace(ScalaPsiElementFactory.createReferenceFromText(replacedText, toBind.getManager))
-      replaced.asInstanceOf[ScStableCodeReferenceElement].bindToElement(toBind)
-    }
-
-    def useUnqualifiedIfPossible(ref: ScReferenceElement): Unit = {
-      ref.resolve() match {
-        case named: PsiNamedElement =>
-          val newRef = ScalaPsiElementFactory.createReferenceFromText(named.name, ref.getContext, ref)
-          val resolved = newRef.resolve()
-          if (resolved != null && PsiEquivalenceUtil.areElementsEquivalent(resolved, named)) {
-            //cannot use newRef because of bug with indentation
-            val refToReplace = ScalaPsiElementFactory.createReferenceFromText(named.name, ref.getManager)
-            adjustTypes(ref.replace(refToReplace), addImports, useTypeAliases)
-          }
-          else adjustTypesChildren()
-        case _ => adjustTypesChildren()
-      }
-    }
-
-    def expandTypeAliasesIfPossible(te: ScTypeElement): Unit = {
-      te.getType() match {
-        case Success(tp: ScType, _) =>
-          val withoutAliases = ScType.removeAliasDefinitions(tp, implementationsOnly = true)
-          if (withoutAliases != tp) {
-            val newTypeElem = ScalaPsiElementFactory.createTypeElementFromText(withoutAliases.canonicalText, te.getManager)
-            adjustTypes(te.replace(newTypeElem), addImports, useTypeAliases)
-          }
-          else adjustTypesChildren()
-        case _ => adjustTypesChildren()
-      }
-    }
-
-    def availableTypeAliasFor(clazz: PsiClass, position: PsiElement): Option[ScTypeAliasDefinition] = {
-      if (!useTypeAliases) None
-      else {
-        class FindTypeAliasProcessor extends BaseProcessor(ValueSet(ResolveTargets.CLASS)) {
-          var collected: Option[ScTypeAliasDefinition] = None
-
-          override def execute(element: PsiElement, state: ResolveState): Boolean = {
-            element match {
-              case ta: ScTypeAliasDefinition if ta.isAliasFor(clazz) && !ta.isImplementation =>
-                collected = Some(ta)
-                false
-              case _ => true
-            }
-          }
-        }
-        val processor = new FindTypeAliasProcessor
-        PsiTreeUtil.treeWalkUp(processor, position, null, ResolveState.initial())
-        processor.collected
-      }
-    }
-
-    if (element == null) return
-    if (element.isInstanceOf[ScImportStmt] || PsiTreeUtil.getParentOfType(element, classOf[ScImportStmt]) != null) return
-
-    element match {
-      case (ref: ScStableCodeReferenceElement) withFirstChild (_: ScThisReference) =>
-        useUnqualifiedIfPossible(ref)
-      case tp: ScTypeProjection if tp.typeElement.getText.endsWith(".type") =>
-        val newText = tp.typeElement.getText.stripSuffix(".type") + "." + tp.refName
-        val newTypeElem = ScalaPsiElementFactory.createTypeElementFromText(newText, tp.getManager)
-        adjustTypes(tp.replace(newTypeElem), addImports, useTypeAliases)
-      case te: ScTypeElement =>
-        expandTypeAliasesIfPossible(te)
-      case stableRef: ScStableCodeReferenceElement =>
-        var aliasedRef: Option[ScReferenceElement] = None
-        @tailrec
-        def update(elem: PsiElement): Unit = elem match {
-          case resolved if {aliasedRef = importAliasFor(resolved, stableRef); aliasedRef.isDefined} =>
-            stableRef.replace(aliasedRef.get)
-          case fun: ScFunction if fun.isConstructor => update(fun.containingClass)
-          case m: PsiMethod if m.isConstructor => update(m.containingClass)
-          case named: PsiNamedElement if hasStablePath(named) =>
-            named match {
-              case clazz: PsiClass =>
-                availableTypeAliasFor(clazz, element) match {
-                  case Some(ta) if !ta.isAncestorOf(stableRef) => replaceStablePath(stableRef, ta.name, None, ta)
-                  case _ => replaceStablePath(stableRef, clazz.name, Option(clazz.qualifiedName), clazz)
-                }
-              case typeAlias: ScTypeAlias => replaceStablePath(stableRef, typeAlias.name, None, typeAlias)
-              case binding: ScBindingPattern => replaceStablePath(stableRef, binding.name, None, binding)
-              case _ => adjustTypesChildren()
-            }
-          case _ => adjustTypesChildren()
-        }
-        update(stableRef.resolve())
-      case _ => adjustTypesChildren()
-    }
+    TypeAdjuster.adjustFor(Seq(element), addImports, useTypeAliases)
   }
 
   def getMethodPresentableText(method: PsiMethod, subst: ScSubstitutor = ScSubstitutor.empty): String = {
@@ -1668,8 +1560,11 @@ object ScalaPsiUtil {
             val equivCall = ScalaPsiElementFactory.createEquivMethodCall(inf)
             val argsList = equivCall.args
             val idx = tuple.exprs.indexOf(exp)
-            val newExpr = argsList.exprs(idx)
-            forArgumentList(newExpr, argsList)
+            if (argsList.exprs.size != tuple.exprs.size || idx < 0) None
+            else {
+              val newExpr = argsList.exprs(idx)
+              forArgumentList(newExpr, argsList)
+            }
           case args: ScArgumentExprList => forArgumentList(exp, args)
           case _ => None
         }
@@ -1893,14 +1788,14 @@ object ScalaPsiUtil {
     aliases.filter(_._1.getTextRange.getEndOffset < position.getTextOffset).filter(correctResolve).toSet
   }
 
-  def importAliasFor(element: PsiElement, position: PsiElement): Option[ScReferenceElement] = {
-    val importAliases = availableImportAliases(position)
+  def importAliasFor(element: PsiElement, refPosition: PsiElement): Option[ScReferenceElement] = {
+    val importAliases = availableImportAliases(refPosition)
     val suitableAliases = importAliases.collect {
       case (aliasRef, aliasName)
         if aliasRef.multiResolve(false).exists(rr => ScEquivalenceUtil.smartEquivalence(rr.getElement, element)) => aliasName
     }
     if (suitableAliases.nonEmpty) {
-      val newRef: ScStableCodeReferenceElement = ScalaPsiElementFactory.createReferenceFromText(suitableAliases.head, position.getManager)
+      val newRef: ScStableCodeReferenceElement = ScalaPsiElementFactory.createReferenceFromText(suitableAliases.head, refPosition.getManager)
       Some(newRef)
     } else None
   }
@@ -2035,12 +1930,12 @@ object ScalaPsiUtil {
   }
 
   /**
-   * Should we check if it's a Single Abstract Method?
-   * In 2.11 works with -Xexperimental
-   * In 2.12 works by default
- *
-   * @return true if language level and flags are correct
-   */
+    * Should we check if it's a Single Abstract Method?
+    * In 2.11 works with -Xexperimental
+    * In 2.12 works by default
+    *
+    * @return true if language level and flags are correct
+    */
   def isSAMEnabled(e: PsiElement) = e.scalaLanguageLevel match {
     case Some(lang) if lang < Scala_2_11 => false
     case Some(lang) if lang == Scala_2_11 =>
@@ -2053,11 +1948,11 @@ object ScalaPsiUtil {
   }
 
   /**
-   * Determines if expected can be created with a Single Abstract Method and if so return the required ScType for it
- *
-   * @see SCL-6140
-   * @see https://github.com/scala/scala/pull/3018/
-   */
+    * Determines if expected can be created with a Single Abstract Method and if so return the required ScType for it
+    *
+    * @see SCL-6140
+    * @see https://github.com/scala/scala/pull/3018/
+    */
   def toSAMType(expected: ScType, scalaScope: GlobalSearchScope): Option[ScType] = {
 
     def constructorValidForSAM(constructors: Array[PsiMethod]): Boolean = {
@@ -2181,6 +2076,18 @@ object ScalaPsiUtil {
           case _ => None
         }
       case _ => None
+    }
+  }
+
+  def isImplicit(namedElement: PsiNamedElement) = {
+    namedElement match {
+      case s: ScModifierListOwner => s.hasModifierProperty("implicit")
+      case named: ScNamedElement =>
+        ScalaPsiUtil.nameContext(named) match {
+          case s: ScModifierListOwner => s.hasModifierProperty("implicit")
+          case _ => false
+        }
+      case _ => false
     }
   }
 }

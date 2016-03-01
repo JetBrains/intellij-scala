@@ -111,4 +111,6 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
   def getClassToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kCLASS)
 
   def getObjectClassOrTraitToken = getClassToken
+
+  override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitClass(this)
 }

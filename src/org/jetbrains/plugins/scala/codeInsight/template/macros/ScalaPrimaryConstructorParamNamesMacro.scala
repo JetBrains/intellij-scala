@@ -7,12 +7,12 @@ import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
   * @author Roman.Shein
   *         Date: 21.12.2015
   */
-class ScalaPrimaryConstructorParamNames extends Macro {
+class ScalaPrimaryConstructorParamNamesMacro extends Macro {
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result =
-    MacroUtil.getPrimaryConbstructorParams(context).
-      map(_.map(param => param.getName)).
-      map { params => if (params.isEmpty) "" else params.tail.foldLeft(params.head)(_ + ", " + _) }.
-      map(new TextResult(_)).orNull
+    Option(params.head.calculateResult(context).toString).map(MacroUtil.paramPairs(_).map(_._1)) match {
+      case Some(head::tail) => new TextResult(tail.foldLeft(head)(_ + ", " + _))
+      case _ => null
+    }
 
   def getName: String = MacroUtil.scalaIdPrefix + "primaryConstructorParamNames"
 

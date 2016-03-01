@@ -81,6 +81,7 @@ class ConvertJavaToScalaCollectionIntentionTest extends ScalaIntentionTestBase {
     val text =
       """
         |import java.util
+        |
         |import scala.collection.JavaConverters._
         |
         |class UsesJavaCollections {
@@ -90,6 +91,7 @@ class ConvertJavaToScalaCollectionIntentionTest extends ScalaIntentionTestBase {
     val resultText =
       """
         |import java.util
+        |
         |import scala.collection.JavaConverters._
         |
         |class UsesJavaCollections {

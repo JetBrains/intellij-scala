@@ -19,10 +19,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScDesignatorType, _}
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
 import scala.annotation.tailrec
 import scala.collection.Seq
@@ -86,7 +87,7 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
     }
     templateParents match {
       case Some(parents: ScTemplateParents) => parents.superTypes.foreach(addType)
-      case _ =>
+      case _ => syntheticTypeElements.map(_.getType(TypingContext.empty).getOrAny).foreach(addType)
     }
 
     if (isUnderCaseClass) {
@@ -180,6 +181,15 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
     }
   }
 
+  @Cached(false, ModCount.getBlockModificationCount, this)
+  def syntheticTypeElements: Seq[ScTypeElement] = {
+    if (templateParents.nonEmpty) return Seq.empty //will be handled separately
+    getContext match {
+      case td: ScTypeDefinition => SyntheticMembersInjector.injectSupers(td)
+      case _ => Seq.empty
+    }
+  }
+
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def supers: Seq[PsiClass] = {
     val buffer = new ListBuffer[PsiClass]
@@ -187,8 +197,8 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
       buffer += t
     }
     templateParents match {
-      case Some(parents: ScTemplateParents) => parents.supers foreach {t => addClass(t)}
-      case _ =>
+      case Some(parents: ScTemplateParents) => parents.supers foreach { t => addClass(t) }
+      case _ => ScTemplateParents.extractSupers(syntheticTypeElements, getProject) foreach { t => addClass(t) }
     }
     if (isUnderCaseClass) {
       val prod = scalaProductClass
@@ -260,7 +270,7 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
     templateParents match {
       case None => Seq.empty
       case Some(parents) =>
-        val parentElements:Seq[ScTypeElement] = parents.typeElements.toIndexedSeq
+        val parentElements:Seq[ScTypeElement] = parents.allTypeElements.toIndexedSeq
         val results:Seq[String] = parentElements flatMap( process(_, Vector[String]()) )
         search(results)(isUnderCaseClass).toBuffer
     }

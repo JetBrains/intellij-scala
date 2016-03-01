@@ -7,5 +7,5 @@ class D
 class E
 
 package bon {
-  class F
+  class G
 }

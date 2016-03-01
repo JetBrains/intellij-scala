@@ -44,6 +44,10 @@ class ScalaCompletionOrderTest extends ScalaCompletionSortingTestCase(Completion
     checkPreferredItems(0, "re", "replacer")
   }
 
+  def testSortByScope(): Unit ={
+    checkPreferredItems(0, "v1", "v2", "v3")
+  }
+
   def UseNameAfterNew(): Unit ={
     checkPreferredItems(0, "Frost", "BadFrost")
   }

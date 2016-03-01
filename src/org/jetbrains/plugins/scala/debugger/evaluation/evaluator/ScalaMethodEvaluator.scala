@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{DisableGC, Evaluator, Modifier}
-import com.intellij.debugger.engine.{DebugProcessImpl, JVMName}
+import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, JVMName}
 import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.{DebuggerBundle, SourcePosition}
 import com.intellij.openapi.application.ApplicationManager
@@ -10,6 +10,8 @@ import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+
+import scala.collection.mutable
 
 /**
  * User: Alefas
@@ -24,9 +26,26 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
   private val localMethod = localMethodIndex > 0
   private val localMethodName = methodName + "$" + localMethodIndex
 
+  private var prevProcess: DebugProcess = null
+  private val jdiMethodsCache = mutable.HashMap[ReferenceType, Option[Method]]()
+
+  private def initCache(process: DebugProcess): Unit = {
+    if (process != null) {
+      prevProcess = process
+      jdiMethodsCache.clear()
+    }
+  }
+
+  private def getOrUpdateMethod(referenceType: ReferenceType, findMethod: ReferenceType => Method): Option[Method] = {
+    jdiMethodsCache.getOrElseUpdate(referenceType, Option(findMethod(referenceType)))
+  }
+
   def evaluate(context: EvaluationContextImpl): AnyRef = {
-    if (!context.getDebugProcess.isAttached) return null
     val debugProcess: DebugProcessImpl = context.getDebugProcess
+    if (!debugProcess.isAttached) return null
+    if (debugProcess != prevProcess) {
+      initCache(debugProcess)
+    }
     val requiresSuperObject: Boolean = objectEvaluator.isInstanceOf[ScSuperEvaluator] ||
       (objectEvaluator.isInstanceOf[DisableGC] &&
         objectEvaluator.asInstanceOf[DisableGC].getDelegate.isInstanceOf[ScSuperEvaluator])
@@ -123,7 +142,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
       if (obj.isInstanceOf[ClassType]) {
         referenceType match {
           case classType: ClassType =>
-            val jdiMethod = findMethod(referenceType)
+            val jdiMethod = getOrUpdateMethod(referenceType, findMethod).orNull
             if (jdiMethod != null && methodName == "<init>") {
               import scala.collection.JavaConversions._
               return debugProcess.newInstance(context, classType, jdiMethod, unwrappedArgs(args, jdiMethod))
@@ -152,7 +171,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
             _refType = referenceType.asInstanceOf[ClassType].superclass
         }
       }
-      val jdiMethod: Method = findMethod(_refType)
+      val jdiMethod: Method = getOrUpdateMethod(_refType, findMethod).orNull
       if (jdiMethod == null) {
         throw EvaluationException(DebuggerBundle.message("evaluation.error.no.instance.method", mName))
       }

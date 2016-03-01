@@ -48,7 +48,7 @@ abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
         managed {
           val location = suspendContext.getFrameProxy.getStackFrame.location
           inReadAction {
-            val sourcePosition = new ScalaPositionManager(getDebugProcess).getSourcePosition(location)
+            val sourcePosition = ScalaPositionManager.instance(getDebugProcess).get.getSourcePosition(location)
             val text: String = highlightedText(sourcePosition)
             Assert.assertTrue(message(expected, text), text.startsWith(expected.stripSuffix("...")))
           }
@@ -253,7 +253,7 @@ abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
   }
 
   addSourceFile("PartialFunctionArg.scala",
-    s"""object PartialFunctionArg {
+     """object PartialFunctionArg {
        |  def main(args: Array[String]) {
        |    Seq(Option(1)).exists {
        |      case None =>
@@ -269,4 +269,22 @@ abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
       "case Some(i) =>", "false"
     )
   }
+
+  addSourceFile("LikeDefaultArgName.scala",
+  """object LikeDefaultArgName {
+    |  def main(args: Array[String]) {
+    |    def default() = {
+    |      "stop here"
+    |    }
+    |
+    |    None.getOrElse(default())
+    |  }
+    |}""".stripMargin)
+
+  def testLikeDefaultArgName(): Unit = {
+    checkStopResumeSeveralTimes(Breakpoint(3, null))(
+      "\"stop here\""
+    )
+  }
+
 }
