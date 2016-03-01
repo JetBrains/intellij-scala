@@ -222,7 +222,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   private def askUser(candidates: ManifestToDescriptors) = {
     val message = s"Some of your project's libraries have IDEA support features.</p>Would you like to load them?" +
-      s"""<p/><a href="Yes">Yes</a>""" +
+      s"""<p/><a href="Yes">Yes</a> """ +
       s"""<a href="No">No</a>"""
     val listener = new NotificationListener {
       override def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent): Unit = {
@@ -276,8 +276,10 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
     import scala.collection.JavaConversions._
 
+    val scalaSDK = project.modulesWithScala.head.scalaSdk.get
     val model  = ModuleManager.getInstance(project).getModifiableModel
-    val module = model.newModule(INJECTOR_MODULE_NAME, JavaModuleType.getModuleType.getId)
+    val module = model.newModule(project.getProjectFile.getParent.getPath + "/modules/"+ INJECTOR_MODULE_NAME, JavaModuleType.getModuleType.getId)
+    model.commit()
     val urls   = this.getClass.getClassLoader.asInstanceOf[PluginClassLoader].getUrls.map(u=>s"jar://${u.getFile}!/")
     // get application classloader urls using reflection :(
     val parentUrls = ApplicationManager.getApplication.getClass.getClassLoader.getClass.getDeclaredMethods
@@ -288,9 +290,8 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     val lib    = module.createLibraryFromJar(urls, HELPER_LIBRARY_NAME)
     module.configureScalaCompilerSettingsFrom("Default", Seq())
     module.attach(lib)
-    module.attach(project.modulesWithScala.head.scalaSdk.get)
+    module.attach(scalaSDK)
     module.libraries
-    model.commit()
     module
   }
 
@@ -305,9 +306,10 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     }
 
     val model  = ModuleManager.getInstance(project).getModifiableModel
-    val module = model.findModuleByName(INJECTOR_MODULE_NAME)
+    val module = model.findModuleByName(INJECTOR_MODULE_NAME.replaceAll("\\.iml$", ""))
     if (module != null) {
       model.disposeModule(module)
+      model.commit()
     } else {
       LOG.warn(s"Failed to remove helper module - $INJECTOR_MODULE_NAME not found")
     }

@@ -48,7 +48,7 @@ class InjectorReviewDialog(project: Project, manifest: LibraryInjectorLoader#Att
   }
 
   override def dispose(): Unit = {
-    editors.foreach(EditorFactory.getInstance().releaseEditor)
+    editors.foreach(e => if (!e.isDisposed) EditorFactory.getInstance().releaseEditor(e))
     super.dispose()
   }
 }
