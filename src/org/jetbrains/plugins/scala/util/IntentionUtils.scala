@@ -8,6 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.openapi.ui.popup.{JBPopupFactory, PopupStep}
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.ui.awt.RelativePoint
@@ -34,59 +35,54 @@ import scala.collection.mutable.ArrayBuffer
 object IntentionUtils {
 
   def addNameToArgumentsFix(element: PsiElement, onlyBoolean: Boolean): Option[() => Unit] = {
-    val containingArgList: Option[ScArgumentExprList] = element.parents.collectFirst {
-      case al: ScArgumentExprList if !al.isBraceArgs => al
+    val argList: ScArgumentExprList = PsiTreeUtil.getParentOfType(element, classOf[ScArgumentExprList])
+    if (argList == null || argList.isBraceArgs) return None
+    val currentArg = argList.exprs.find { e =>
+      PsiTreeUtil.isAncestor(e, element, /*strict =*/false)
     }
-    containingArgList match {
-      case Some(al) =>
-        val index = al.exprs.indexWhere(argExpr => PsiTreeUtil.isAncestor(argExpr, element, false))
-        index match {
-          case -1 => None
-          case i =>
-            val argExprsToNamify = al.exprs.drop(index)
-            val argsAndMatchingParams: Seq[(ScExpression, Option[Parameter])] = argExprsToNamify.map {
-              arg => (arg, al.parameterOf(arg))
+    currentArg match {
+      case None => return None
+      case Some(assign: ScAssignStmt) if assign.isNamedParameter => return None
+      case _ =>
+    }
+
+    def matchedParamsAfter(): Seq[(ScExpression, Parameter)] = {
+      val sortedMatchedArgs = argList.matchedParameters.sortBy(_._1.getTextOffset)
+      sortedMatchedArgs.dropWhile {
+        case (e, p) => !PsiTreeUtil.isAncestor(e, element, /*strict =*/false)
+        case _ => true
+      }
+    }
+
+    val argsAndMatchedParams = matchedParamsAfter()
+    val hasRepeated = argsAndMatchedParams.exists {
+      case (_, param) if param.isRepeated => true
+      case _ => false
+    }
+    val allNamesDefined = argsAndMatchedParams.forall {
+      case (_, param) => !StringUtil.isEmpty(param.name)
+    }
+    val hasUnderscore = argsAndMatchedParams.exists {
+      case (underscore: ScUnderscoreSection, _) => true
+      case _ => false
+    }
+
+    if (hasRepeated || !allNamesDefined || hasUnderscore) None
+    else {
+      val doIt = () => {
+        argsAndMatchedParams.foreach {
+          case (argExpr childOf (a: ScAssignStmt), param) if a.getLExpression.getText == param.name =>
+          case (argExpr, param) =>
+            if (!onlyBoolean || (onlyBoolean && param.paramType == Boolean)) {
+              val newArgExpr = ScalaPsiElementFactory.createExpressionFromText(param.name + " = " + argExpr.getText, element.getManager)
+              inWriteAction {
+                argExpr.replace(newArgExpr)
+              }
             }
-            val isRepeated = argsAndMatchingParams.exists {
-              case (_, Some(param)) if param.isRepeated => true
-              case _ => false
-            }
-            val hasName = argsAndMatchingParams.exists {
-              case (_, Some(param)) if !param.name.isEmpty => true
-              case _ => false
-            }
-            val hasUnderscore = argsAndMatchingParams.exists {
-              case (_, Some(param)) if param.isInstanceOf[ScUnderscoreSection] => true
-              case (underscore: ScUnderscoreSection, Some(param)) => true
-              case param: ScUnderscoreSection => true
-              case _ => false
-            }
-            argsAndMatchingParams.headOption match {
-              case _ if isRepeated => None
-              case _ if !hasName => None
-              case _ if hasUnderscore => None
-              case Some((assign: ScAssignStmt, Some(param))) if assign.getLExpression.getText == param.name =>
-                None
-              case None | Some((_, None)) =>
-                None
-              case _ =>
-                val doIt = () => {
-                  argsAndMatchingParams.foreach {
-                    case (argExpr: ScAssignStmt, Some(param)) if argExpr.getLExpression.getText == param.name =>
-                    case (argExpr, Some(param)) =>
-                      if (!onlyBoolean || (onlyBoolean && param.paramType == Boolean)) {
-                        val newArgExpr = ScalaPsiElementFactory.createExpressionFromText(param.name + " = " + argExpr.getText, element.getManager)
-                        inWriteAction {
-                          argExpr.replace(newArgExpr)
-                        }
-                      }
-                    case _ =>
-                  }
-                }
-                Some(doIt)
-            }
+          case _ =>
         }
-      case None => None
+      }
+      Some(doIt)
     }
   }
 
