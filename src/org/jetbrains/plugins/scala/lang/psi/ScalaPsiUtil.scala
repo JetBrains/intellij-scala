@@ -1507,39 +1507,17 @@ object ScalaPsiUtil {
    */
   @tailrec
   def parameterOf(exp: ScExpression): Option[Parameter] = {
-    def forArgumentList(expr: ScExpression, args: ScArgumentExprList): Option[Parameter] = {
-      args.getParent match {
-        case constructor: ScConstructor =>
-          val paramClauses = constructor.reference.flatMap(r => Option(r.resolve())) match {
-            case Some(pc: ScPrimaryConstructor) => pc.parameterList.clauses.map(_.parameters)
-            case Some(fun: ScFunction) if fun.isConstructor => fun.parameterList.clauses.map(_.parameters)
-            case Some(m: PsiMethod) if m.isConstructor => Seq(m.getParameterList.getParameters.toSeq)
-            case _ => Seq.empty
-          }
-          val clauseIndex = constructor.arguments.indexOf(args)
-          paramClauses.lift(clauseIndex) match {
-            case None => None
-            case Some(paramClause) =>
-              val paramIndex = Math.min(args.exprs.indexOf(expr), paramClause.size - 1)
-              paramClause.lift(paramIndex).map(new Parameter(_))
-          }
-        case _ =>
-          val matchedParams = args.matchedParameters.getOrElse(Seq.empty)
-          matchedParams.collectFirst {
-            case (e, p) if e == expr => p
-          }
+    def fromMatchedParams(matched: Seq[(ScExpression, Parameter)]) = {
+      matched.collectFirst {
+        case (e, p) if e == exp => p
       }
     }
     exp match {
-      case assignment: ScAssignStmt =>
-        assignment.getLExpression match {
-          case ref: ScReferenceExpression =>
-            ref.resolve().asOptionOf[ScParameter].map(p => new Parameter(p))
-          case _ => None
-        }
+      case ScAssignStmt(ResolvesTo(p: ScParameter), Some(expr)) => Some(new Parameter(p))
       case _ =>
         exp.getParent match {
           case parenth: ScParenthesisedExpr => parameterOf(parenth)
+          case named: ScAssignStmt => parameterOf(named)
           case block: ScBlock if block.statements == Seq(exp) => parameterOf(block)
           case ie: ScInfixExpr if exp == (if (ie.isLeftAssoc) ie.lOp else ie.rOp) =>
             ie.operation match {
@@ -1551,12 +1529,8 @@ object ScalaPsiUtil {
                 }
               case _ => None
             }
-          case (tuple: ScTuple) childOf (inf: ScInfixExpr) =>
-            val matchedParams = inf.matchedParameters
-            matchedParams.collectFirst {
-              case (e, p) if e == exp => p
-            }
-          case args: ScArgumentExprList => forArgumentList(exp, args)
+          case (_: ScTuple) childOf (inf: ScInfixExpr) => fromMatchedParams(inf.matchedParameters)
+          case args: ScArgumentExprList => fromMatchedParams(args.matchedParameters)
           case _ => None
         }
     }

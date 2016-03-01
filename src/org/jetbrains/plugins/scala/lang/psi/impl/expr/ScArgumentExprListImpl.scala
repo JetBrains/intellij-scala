@@ -7,6 +7,7 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
@@ -60,17 +61,20 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
     }
   }
 
-  def matchedParameters: Option[Seq[(ScExpression, Parameter)]] = {
+  def matchedParameters: Seq[(ScExpression, Parameter)] = {
     getContext match {
-      case call: ScMethodCall =>
-        Some(call.matchedParameters)
-      case _ => None
+      case call: ScMethodCall => call.matchedParameters
+      case constr: ScConstructor =>
+        constr.matchedParameters.filter {
+          case (e, p) => this.isAncestorOf(e)
+        }
+      case _ => Seq.empty
     }
   }
 
   override def addBefore(element: PsiElement, anchor: PsiElement): PsiElement = {
     if (anchor == null) {
-      if (exprs.length == 0) {
+      if (exprs.isEmpty) {
         val par: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
         if (par == null) return super.addBefore(element, anchor)
         super.addAfter(element, par)

@@ -54,7 +54,7 @@ class ScalaMethodCallFixer extends ScalaFixer {
               }
 
               rightArgs.matchedParameters match {
-                case Some(mm) if mm.nonEmpty && mm.head._2.paramInCode.isDefined =>
+                case mm if mm.nonEmpty && mm.head._2.paramInCode.isDefined =>
                   mm.head._2.paramInCode.get.getParent match {
                     case resolvedCl: ScParameterClause if cl.contains(resolvedCl) && resolvedCl != cl.last =>
                       moveToEnd(editor, args.getLastChild)

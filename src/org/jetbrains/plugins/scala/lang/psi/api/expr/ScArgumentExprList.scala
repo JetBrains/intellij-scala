@@ -55,7 +55,7 @@ trait ScArgumentExprList extends ScArguments {
    * Mapping from argument expressions to corresponding parameters, as found during
    * applicability checking.
    */
-  def matchedParameters: Option[Seq[(ScExpression, Parameter)]]
+  def matchedParameters: Seq[(ScExpression, Parameter)]
 
   def parameterOf(argExpr: ScExpression): Option[Parameter] = ScalaPsiUtil.parameterOf(argExpr)
 
