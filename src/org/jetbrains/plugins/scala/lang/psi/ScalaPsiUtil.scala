@@ -4,7 +4,6 @@ package psi
 
 import java.util.concurrent.ConcurrentMap
 
-import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.{JavaModuleType, Module, ModuleUtil}
@@ -1526,13 +1525,9 @@ object ScalaPsiUtil {
           }
         case _ =>
           val matchedParams = args.matchedParameters.getOrElse(Seq.empty)
-          val same = matchedParams.collectFirst {
+          matchedParams.collectFirst {
             case (e, p) if e == expr => p
           }
-          val equiv = matchedParams.collectFirst {
-            case (e, p) if PsiEquivalenceUtil.areElementsEquivalent(e, expr) => p
-          }
-          same orElse equiv
       }
     }
     exp match {
@@ -1557,13 +1552,9 @@ object ScalaPsiUtil {
               case _ => None
             }
           case (tuple: ScTuple) childOf (inf: ScInfixExpr) =>
-            val equivCall = ScalaPsiElementFactory.createEquivMethodCall(inf)
-            val argsList = equivCall.args
-            val idx = tuple.exprs.indexOf(exp)
-            if (argsList.exprs.size != tuple.exprs.size || idx < 0) None
-            else {
-              val newExpr = argsList.exprs(idx)
-              forArgumentList(newExpr, argsList)
+            val matchedParams = inf.matchedParameters
+            matchedParams.collectFirst {
+              case (e, p) if e == exp => p
             }
           case args: ScArgumentExprList => forArgumentList(exp, args)
           case _ => None
