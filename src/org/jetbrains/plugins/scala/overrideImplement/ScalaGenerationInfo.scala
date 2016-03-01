@@ -129,46 +129,42 @@ object ScalaGenerationInfo {
         editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
     }
   }
-  
-  def insertMethod(member: ScMethodMember, td: ScTemplateDefinition, anchor: PsiElement): ScFunction = {
-    def callSuperText(td: ScTemplateDefinition, method: PsiMethod): String = {
-      val superOrSelfQual: String = td.selfType match {
-        case None => "super."
-        case Some(st: ScType) =>
-          val psiClass = ScType.extractClass(st, Option(td.getProject)).getOrElse(return "super.")
 
-          def nonStrictInheritor(base: PsiClass, inheritor: PsiClass): Boolean = {
-            if (base == null || inheritor == null) false
-            else base == inheritor || inheritor.isInheritorDeep(base, null)
-          }
+  private def callSuperText(td: ScTemplateDefinition, method: PsiMethod): String = {
+    val superOrSelfQual: String = td.selfType match {
+      case None => "super."
+      case Some(st: ScType) =>
+        val psiClass = ScType.extractClass(st, Option(td.getProject)).getOrElse(return "super.")
 
-          if (nonStrictInheritor(method.containingClass, psiClass))
-            td.selfTypeElement.get.name + "."
-          else "super."
-      }
-      def paramText(param: PsiParameter) = {
-        val name = ScalaNamesUtil.changeKeyword(param.name).toOption.getOrElse("")
-        val whitespace = if (name.endsWith("_")) " " else ""
-        name + (if (param.isVarArgs) whitespace + ": _*" else "")
-      }
-      val methodName = ScalaNamesUtil.changeKeyword(method.name)
-      val parametersText: String = {
-        method match {
-          case fun: ScFunction =>
-            val clauses = fun.paramClauses.clauses.filter(!_.isImplicit)
-            clauses.map(_.parameters.map(_.name).mkString("(", ", ", ")")).mkString
-          case method: PsiMethod =>
-            if (method.isAccessor && method.getParameterList.getParametersCount == 0) ""
-            else method.getParameterList.getParameters.map(paramText).mkString("(", ", ", ")")
+        def nonStrictInheritor(base: PsiClass, inheritor: PsiClass): Boolean = {
+          if (base == null || inheritor == null) false
+          else base == inheritor || inheritor.isInheritorDeep(base, null)
         }
-      }
-      superOrSelfQual + methodName + parametersText
+
+        if (nonStrictInheritor(method.containingClass, psiClass))
+          td.selfTypeElement.get.name + "."
+        else "super."
     }
+    def paramText(param: PsiParameter) = {
+      val name = ScalaNamesUtil.changeKeyword(param.name).toOption.getOrElse("")
+      val whitespace = if (name.endsWith("_")) " " else ""
+      name + (if (param.isVarArgs) whitespace + ": _*" else "")
+    }
+    val methodName = ScalaNamesUtil.changeKeyword(method.name)
+    val parametersText: String = {
+      method match {
+        case fun: ScFunction =>
+          val clauses = fun.paramClauses.clauses.filter(!_.isImplicit)
+          clauses.map(_.parameters.map(_.name).mkString("(", ", ", ")")).mkString
+        case method: PsiMethod =>
+          if (method.isAccessor && method.getParameterList.getParametersCount == 0) ""
+          else method.getParameterList.getParameters.map(paramText).mkString("(", ", ", ")")
+      }
+    }
+    superOrSelfQual + methodName + parametersText
+  }
 
-    val method: PsiMethod = member.getElement
-    val sign = member.sign
-
-    val isImplement = !member.isOverride
+  def getMethodBody(member: ScMethodMember, td: ScTemplateDefinition, isImplement: Boolean):String = {
     val templateName =
       if (isImplement) ScalaFileTemplateUtil.SCALA_IMPLEMENTED_METHOD_TEMPLATE
       else ScalaFileTemplateUtil.SCALA_OVERRIDDEN_METHOD_TEMPLATE
@@ -180,6 +176,9 @@ object ScalaGenerationInfo {
     val returnType = member.scType
 
     val standardValue = ScalaPsiElementFactory.getStandardValue(returnType)
+
+    val method = member.getElement
+
     properties.setProperty(FileTemplate.ATTRIBUTE_RETURN_TYPE, ScType.presentableText(returnType))
     properties.setProperty(FileTemplate.ATTRIBUTE_DEFAULT_RETURN_VALUE, standardValue)
     properties.setProperty(FileTemplate.ATTRIBUTE_CALL_SUPER, callSuperText(td, method))
@@ -187,7 +186,16 @@ object ScalaGenerationInfo {
 
     ScalaFileTemplateUtil.setClassAndMethodNameProperties(properties, method.containingClass, method)
 
-    val body = template.getText(properties)
+    template.getText(properties)
+  }
+
+  def insertMethod(member: ScMethodMember, td: ScTemplateDefinition, anchor: PsiElement): ScFunction = {
+    val method: PsiMethod = member.getElement
+    val sign = member.sign
+
+    val isImplement = !member.isOverride
+
+    val body = getMethodBody(member, td, isImplement)
 
     val needsOverride = !isImplement || toAddOverrideToImplemented
     val m = ScalaPsiElementFactory.createOverrideImplementMethod(sign, method.getManager, needsOverride, needsInferType, body)
