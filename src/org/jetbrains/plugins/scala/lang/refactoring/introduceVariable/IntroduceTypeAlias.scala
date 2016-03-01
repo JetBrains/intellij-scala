@@ -50,7 +50,7 @@ trait IntroduceTypeAlias {
       ScalaRefactoringUtil.checkFile(file, project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
 
       val typeElement: ScTypeElement = ScalaRefactoringUtil.checkTypeElement(inTypeElement).
-        getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.valid.type"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME))
+        getOrElse(showErrorMessageWithException(ScalaBundle.message("cannot.refactor.not.valid.type"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME))
 
       val currentDataObject = editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO)
 
@@ -59,7 +59,7 @@ trait IntroduceTypeAlias {
       }
 
       if (currentDataObject.possibleScopes.isEmpty) {
-        showErrorMessage(ScalaBundle.message("cannot.refactor.scope.not.found"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
+        showErrorMessageWithException(ScalaBundle.message("cannot.refactor.scope.not.found"), project, editor, INTRODUCE_TYPEALIAS_REFACTORING_NAME)
       }
 
 

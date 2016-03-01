@@ -16,7 +16,7 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.util.CommonRefactoringUtil
-import com.intellij.refactoring.{HelpID, RefactoringActionHandler, RefactoringBundle}
+import com.intellij.refactoring.{RefactoringActionHandler, RefactoringBundle}
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.IntroduceImplicitParameterIntention
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -27,11 +27,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.{ReachingDefintionsCollector, VariableInfo}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{Any => scTypeAny, ScFunctionType, ScType, StdType, Unit => scTypeUnit}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType, StdType, Any => scTypeAny, Unit => scTypeUnit}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaMethodDescriptor, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.IntroduceException
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{IntroduceException, showErrorHint}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil, ScalaVariableValidator}
 
 import scala.collection.mutable.ArrayBuffer
@@ -47,7 +47,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
   def invoke(project: Project, editor: Editor, file: PsiFile, dataContext: DataContext) {
     if (!file.isInstanceOf[ScalaFile]) return
     if (!ScalaRefactoringUtil.ensureFileWritable(project, file)) {
-      showErrorMessage(ScalaBundle.message("file.is.not.writable"), project, editor, REFACTORING_NAME)
+      showErrorHint(ScalaBundle.message("file.is.not.writable"), project, editor, REFACTORING_NAME)
       return
     }
 
@@ -129,9 +129,10 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
         case None => ScalaRefactoringUtil.selectedElements(editor, file.asInstanceOf[ScalaFile], trimComments = false)
       }
 
-      ScalaRefactoringUtil.showNotPossibleWarnings(elems, project, editor, REFACTORING_NAME)
+      val hasWarnings = ScalaRefactoringUtil.showNotPossibleWarnings(elems, project, editor, REFACTORING_NAME)
+      if (hasWarnings) return None
       if (haveReturnStmts(elems)) {
-        showErrorMessage("Refactoring is not supported: selection contains return statement", project, editor, REFACTORING_NAME)
+        showErrorHint("Refactoring is not supported: selection contains return statement", project, editor, REFACTORING_NAME)
         return None
       }
 
@@ -275,7 +276,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
     else if (validEnclosingMethods.size == 1 || ApplicationManager.getApplication.isUnitTestMode) {
       action(validEnclosingMethods.head)
     } else {
-      showErrorMessage(ScalaBundle.message("cannot.refactor.no.function"), elem.getProject, editor, REFACTORING_NAME)
+      showErrorHint(ScalaBundle.message("cannot.refactor.no.function"), elem.getProject, editor, REFACTORING_NAME)
     }
   }
 
@@ -293,11 +294,6 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
         return true
     }
     false
-  }
-
-  private def showErrorMessage(text: String, project: Project, editor: Editor, refactoringName: String): Unit = {
-    if (ApplicationManager.getApplication.isUnitTestMode) throw new RuntimeException(text)
-    CommonRefactoringUtil.showErrorHint(project, editor, text, refactoringName, HelpID.INTRODUCE_PARAMETER)
   }
 }
 
