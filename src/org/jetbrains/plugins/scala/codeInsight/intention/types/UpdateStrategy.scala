@@ -6,7 +6,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.intention.IntentionUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
@@ -178,7 +178,7 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
         val texts = tps.flatMap(_.getType().toOption).map(ScTypeText)
         val expr = new ChooseTypeTextExpression(texts)
         IntentionUtil.startTemplate(added, context, expr, e)
-      case _ => TypeAdjuster.markToAdjust(added)
+      case _ => ScalaPsiUtil.adjustTypes(added)
     }
   }
 
