@@ -112,6 +112,73 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
       cache
   }
 
+  private def verifyManifest(manifest: JarManifest): Option[JarManifest] = {
+    def verifyInjector(injector: InjectorDescriptor): Option[InjectorDescriptor] = {
+      if (injector.sources.isEmpty) {
+        LOG.warn(s"Injector $injector has no sources, skipping")
+        None
+      } else {
+        val sourcesValid = injector.sources.forall { source =>
+          VirtualFileManager.getInstance.findFileByUrl(s"jar://${manifest.jarPath}!/$source") != null
+        }
+        if (!sourcesValid) {
+          LOG.warn(s"Injector $injector has invalid source roots")
+          None
+        } else {
+          try {
+            myClassLoader.loadClass(injector.iface)
+            Some(injector)
+          } catch {
+            case e: ClassNotFoundException =>
+              LOG.warn(s"Interface class ${injector.iface} not found, skipping injector")
+              None
+            case e: Throwable =>
+              LOG.warn(s"Error while verifying injector interface - ${e.getMessage}, skipping")
+              None
+          }
+        }
+      }
+    }
+
+    def verifyDescriptor(descriptor: PluginDescriptor): Option[PluginDescriptor] = {
+      if (descriptor.since > descriptor.until || descriptor.since == descriptor.until) {
+        LOG.warn(s"Plugin descriptor since >= until in $descriptor")
+        None
+      } else if (descriptor.injectors.isEmpty) {
+        LOG.warn(s"Plugin descriptor has no injectors in $descriptor")
+        None
+      } else {
+        val checkedInjectors = descriptor.injectors.flatMap(verifyInjector)
+        if (checkedInjectors.nonEmpty)
+          Some(descriptor.copy(injectors = checkedInjectors))
+        else {
+          LOG.warn(s"Descriptor $descriptor has no valid injectors, skipping")
+          None
+        }
+      }
+    }
+
+    if (!new File(manifest.jarPath).exists())
+      LOG.warn(s"Manifest has wrong JAR path(jar doesn't exist) - ${manifest.jarPath}")
+    if (manifest.modTimeStamp > System.currentTimeMillis())
+      LOG.warn(s"Manifest timestamp for ${manifest.jarPath} is in the future")
+    if (manifest.pluginDescriptors.isEmpty) {
+      LOG.warn(s"Manifest for ${manifest.jarPath} has no plugin descriptors")
+    }
+
+    val checkedDescriptor = findMatchingPluginDecriptor(manifest) match {
+      case Some(descriptor) => verifyDescriptor(descriptor)
+      case None =>
+        LOG.info(s"No extensions found for current IDEA version")
+        None
+    }
+    checkedDescriptor match {
+      case Some(descriptor) => Some(manifest.copy(pluginDescriptors = Seq(descriptor)))
+      case None => None
+    }
+  }
+
+
   private def loadCachedInjectors() = {
     import scala.collection.JavaConversions._
     val allProjectJars = getAllJarsWithManifest.map(_.getPath).toSet
@@ -127,7 +194,8 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   private def rescanAllJars() = {
     val parsedManifests = getAllJarsWithManifest.flatMap(f=>extractLibraryManifest(f)).filterNot(isJarCacheUpToDate)
-    val candidates = parsedManifests.map(manifest => manifest -> findMatchingInjectors(manifest))
+    val validManifests = parsedManifests.flatMap(verifyManifest)
+    val candidates = validManifests.map(manifest => manifest -> findMatchingInjectors(manifest))
     if (candidates.nonEmpty)
       askUser(candidates)
   }
@@ -176,13 +244,14 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     // TODO
   }
 
-  private def findMatchingInjectors(libraryManifest: JarManifest): Seq[InjectorDescriptor] = {
+  private def findMatchingPluginDecriptor(libraryManifest: JarManifest): Option[PluginDescriptor] = {
     val curVer = ScalaPluginVersionVerifier.getPluginVersion
     libraryManifest.pluginDescriptors
-      // FIXME: fix debug version(VERSION) handling
-//      .find(d => curVer.get > d.since && curVer.get < d.until)
-//        .map(_.injectors).getOrElse(Seq.empty)
-      .flatMap(_.injectors)
+      .find(d => (curVer.get > d.since && curVer.get < d.until) || curVer.get.isDebug)
+  }
+
+  private def findMatchingInjectors(libraryManifest: JarManifest): Seq[InjectorDescriptor] = {
+    findMatchingPluginDecriptor(libraryManifest).map(_.injectors).getOrElse(Seq.empty)
   }
 
   // don't forget to remove temp directory after compilation
@@ -249,7 +318,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
           try {
             compileInjectorFromLibrary(
               extractInjectorSources(new File(manifest.jarPath), injectorDescriptor),
-              getLibraryCacheDir(new File(manifest.jarPath.dropRight(1))),
+              getLibraryCacheDir(new File(manifest.jarPath)),
               module
             )
             loadInjectors(manifest)
