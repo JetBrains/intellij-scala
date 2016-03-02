@@ -236,7 +236,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   private def showReviewDialogAndFilter(candidates: ManifestToDescriptors): ManifestToDescriptors  = {
     candidates.filter { a=>
-      val dialog = new InjectorReviewDialog(project, a)
+      val dialog = new InjectorReviewDialog(project, a, LOG)
       dialog.showAndGet()
     }
   }
