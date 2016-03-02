@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.components.libinjection
 
-import java.awt.event.ActionEvent
+import java.awt.event.{KeyEvent, ActionEvent}
 import java.awt.{BorderLayout, CardLayout}
-import javax.swing.{Action, JComponent, JPanel}
+import javax.swing.{KeyStroke, Action, JComponent, JPanel}
 
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
@@ -66,12 +67,14 @@ class InjectorReviewDialog(project: Project, manifest: LibraryInjectorLoader#Att
 
   override def createLeftSideActions(): Array[Action] = {
     val next = new DialogWrapperAction("Next") {
+      putValue(Action.SMALL_ICON, AllIcons.Actions.Right)
       override def doAction(e: ActionEvent): Unit = layout.next(editorsPanel)
     }
     val prev = new DialogWrapperAction("Prev") {
+      putValue(Action.SMALL_ICON, AllIcons.Actions.Left)
       override def doAction(e: ActionEvent): Unit = layout.previous(editorsPanel)
     }
-    Array(next, prev)
+    Array(prev, next)
   }
 
   override def dispose(): Unit = {
