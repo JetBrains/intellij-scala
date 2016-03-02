@@ -42,6 +42,8 @@ object ScalaPluginVersionVerifier {
 
     def >(other: Version) = !(this < other) && !(this == other)
 
+    def isDebug = false
+
     override def toString = s"$major.$minor.$build"
 
   }
@@ -52,6 +54,8 @@ object ScalaPluginVersionVerifier {
     override def ==(v: Version): Boolean = true
 
     override def >(other: Version): Boolean = true
+
+    override def isDebug = true
 
     override def toString: String = "VERSION"
   }
