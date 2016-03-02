@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.completion3
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert
 
 /**
@@ -133,7 +134,7 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "HashSet").get, '[')
     checkResultByText(resultText)
   }
-  
+
   def testFilterPrivates() {
     val fileText =
       """
@@ -389,8 +390,12 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
       |  val x: Java = a<caret>
       |}
       """.stripMargin('|').replaceAll("\r", "").trim()
-    val myVFile = getSourceRootAdapter.createChildDirectory(null, "a").createChildData(null, "Java.java")
-    VfsUtil.saveText(myVFile, javaFileText)
+
+    inWriteAction {
+      val myVFile = getSourceRootAdapter.createChildDirectory(null, "a").createChildData(null, "Java.java")
+      VfsUtil.saveText(myVFile, javaFileText)
+    }
+
     configureFromFileTextAdapter("dummy.scala", fileText)
     val (activeLookup, _) = complete(1, CompletionType.SMART)
 
@@ -528,7 +533,7 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
     if (activeLookup != null) completeLookupItem(activeLookup.find(le => le.getLookupString == "B").get, '\t')
     checkResultByText(resultText)
   }
-  
+
   def testChainedSecondCompletion() {
     val fileText =
       """

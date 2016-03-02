@@ -4,6 +4,7 @@ import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.LookupElementPresentation
 import com.intellij.openapi.vfs.VfsUtil
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightTestBase
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert
 
 /**
@@ -27,8 +28,12 @@ class ScalaLookupRenderingTest extends ScalaCodeInsightTestBase {
       |  Java.fo<caret>
       |}
       """.stripMargin('|').replaceAll("\r", "").trim()
-    val myVFile = getSourceRootAdapter.createChildDirectory(null, "a").createChildData(null, "Java.java")
-    VfsUtil.saveText(myVFile, javaFileText)
+
+    inWriteAction {
+      val myVFile = getSourceRootAdapter.createChildDirectory(null, "a").createChildData(null, "Java.java")
+      VfsUtil.saveText(myVFile, javaFileText)
+    }
+
     configureFromFileTextAdapter("dummy.scala", fileText)
     val (activeLookup, _) = complete(1, CompletionType.BASIC)
 
