@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
-import com.intellij.codeInsight.completion.{CompletionUtil, CompletionParameters, PrefixMatcher}
+import com.intellij.codeInsight.completion.{CompletionParameters, CompletionUtil, PrefixMatcher}
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -261,7 +262,7 @@ object ScalaCompletionUtil {
 
   /**
    * @param leaf Start PsiElement
-   * @return (End PsiElement, ContainingFile.isScriptFile) 
+   * @return (End PsiElement, ContainingFile.isScriptFile)
    */
   def processPsiLeafForFilter(leaf: PsiElement): (PsiElement, Boolean) = Option(leaf) map {
     l => l.getContainingFile match {
@@ -333,5 +334,7 @@ object ScalaCompletionUtil {
     inner(parameters.getOriginalPosition)
   }
 
+  def isTypeDefiniton(position: PsiElement): Boolean =
+    Option(PsiTreeUtil.getParentOfType(position, classOf[ScTypeElement])).isDefined
 
 }

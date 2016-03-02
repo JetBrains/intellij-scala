@@ -36,36 +36,36 @@ class ScalaCompletionOrderTest extends ScalaCompletionSortingTestCase(Completion
     checkPreferredItems(0, "aname", "asurName", "aimark", "sporta")
   }
 
-  def testUnapplyInCaseCluase(): Unit ={
+  def testUnapplyInCaseCluase(): Unit = {
     checkPreferredItems(0, "arg")
   }
 
-  def testSCL2022(){
+  def testSCL2022() {
     checkPreferredItems(0, "re", "replacer")
   }
 
-  def testSortByScope(): Unit ={
+  def testSortByScope(): Unit = {
     checkPreferredItems(0, "v1", "v2", "v3")
   }
 
-  def UseNameAfterNew(): Unit ={
-    checkPreferredItems(0, "Frost", "BadFrost")
-  }
-
-  def UseNameInCast(): Unit ={
+  def testUseNameAfterNew(): Unit = {
     checkPreferredItems(0, "Frost")
   }
 
-  def UseNameCaseLabelType(): Unit ={
+  def testUseNameCaseLabelType(): Unit = {
     checkPreferredItems(0, "BadFrost")
   }
 
-  def testUseNameWithError(): Unit ={
+  def testUseNameWithError(): Unit = {
     checkPreferredItems(0, "Abrakadabra")
   }
 
-  def UseNameWithErrorVarTypeSuggestion(): Unit ={
+  def testUseNameWithErrorVarTypeSuggestion(): Unit = {
     checkPreferredItems(0, "Frost")
+  }
+
+  def testUseNameInAssignement(): Unit = {
+    checkPreferredItems(0, "Fast")
   }
 
   def testWithStat(): Unit = {
