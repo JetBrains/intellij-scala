@@ -9,7 +9,6 @@ import java.io.File
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier.Version
 
-import scala.collection.immutable.Seq
 import scala.xml._
 
 class InvalidManifest(where: Node, expected: String)
@@ -63,8 +62,8 @@ object JarManifest {
       case NodeSeq.Empty => throw new InvalidManifest(elem, "<intellij-compat> with plugin descriptors")
       case xss: NodeSeq =>
         JarManifest((xss \\ "scala-plugin").map(buildPluginDescriptor),
-          containingJar.getPath.replaceAll("!", ""),
-          new File(containingJar.getPath.replaceAll("!", "")).lastModified())
+          containingJar.getPath.replaceAll("!/", ""),
+          new File(containingJar.getPath.replaceAll("!/", "")).lastModified())
     }
   }
 }

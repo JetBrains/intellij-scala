@@ -23,7 +23,7 @@ class InjectorReviewDialog(project: Project, manifest: LibraryInjectorLoader#Att
   val layout = new CardLayout()
   var editorsPanel: JPanel = null
   val editors: Seq[Editor] = {
-    val containingJar = manifest._1.jarPath.dropRight(1)
+    val containingJar = manifest._1.jarPath
     val files = manifest._2
       .flatMap {
         injectorDescriptor =>
