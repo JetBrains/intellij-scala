@@ -31,7 +31,8 @@ class ScalaCaseClassParametersNameContributer extends ScalaCompletionContributor
       val caseClassParams = classRef.resolve() match {
         case funcDef: ScFunctionDefinition if funcDef.syntheticCaseClass.isDefined =>
           funcDef.syntheticCaseClass.get.parameters
-        case fundef: ScFunctionDefinition if fundef.getName == "unapply" =>
+        case fundef: ScFunctionDefinition
+          if fundef.getName == "unapply" || fundef.getName == "unapplySeq" =>
           fundef.getParameterList.params
         case _ => return
       }
