@@ -182,7 +182,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   private def loadCachedInjectors() = {
     import scala.collection.JavaConversions._
     val allProjectJars = getAllJarsWithManifest.map(_.getPath).toSet
-    val cachedProjectJars = jarCache.cache.filter(c=>allProjectJars.contains(c._1.substring(0, c._1.length-1)+"!/")).values
+    val cachedProjectJars = jarCache.cache.filter(cacheItem => allProjectJars.contains(s"${cacheItem._1}!/")).values
     for (manifest <- cachedProjectJars) {
       if (isJarCacheUpToDate(manifest))
         loadInjectors(manifest)
