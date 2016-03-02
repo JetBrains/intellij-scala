@@ -257,8 +257,8 @@ object JavaToScala {
               case mc: PsiMethodCallExpression if mc.getMethodExpression.getQualifiedName == "this" =>
                 Some(convertPsiToIntermdeiate(m.getBody, externalProperties))
               case _ =>
-                Some(BlockConstruction(LiteralExpression("this()")
-                  +: m.getBody.getStatements.map(convertPsiToIntermdeiate(_, externalProperties))))
+                getStatements(m).map(statements => BlockConstruction(LiteralExpression("this()")
+                  +: statements.map(convertPsiToIntermdeiate(_, externalProperties))))
             }
           } else {
             Option(m.getBody).map(convertPsiToIntermdeiate(_, externalProperties))
@@ -587,15 +587,8 @@ object JavaToScala {
   }
 
   def getFirstStatement(constructor: PsiMethod): Option[PsiExpressionStatement] = {
-    val statements = constructor.getBody.getStatements
-    if (statements.nonEmpty) {
-      Option(constructor.getBody.getStatements.head).flatMap {
-        case statement: PsiExpressionStatement => Some(statement)
-        case _ => None
-      }
-    } else {
-      None
-    }
+    Option(constructor.getBody).map(_.getStatements)
+      .flatMap(_.headOption).collect { case exp: PsiExpressionStatement => exp }
   }
 
   // build map of constructor and constructor that it call
@@ -717,9 +710,12 @@ object JavaToScala {
 
         val superCall = getSuperCall(dropStatements)
 
-        PrimaryConstruction(updatedParams.toSeq, superCall,
-          constructor.getBody.getStatements.filter(notContains(_, dropStatements))
-            .map(convertPsiToIntermdeiate(_, WithReferenceExpression(true))), handleModifierList(constructor))
+        getStatements(constructor).map {
+          statements =>
+            PrimaryConstruction(updatedParams, superCall,
+              statements.filter(notContains(_, dropStatements))
+                .map(convertPsiToIntermdeiate(_, WithReferenceExpression(true))), handleModifierList(constructor))
+        }.orNull
       }
 
       createContructor
@@ -785,7 +781,7 @@ object JavaToScala {
       } {
         annotations.append(convertPsiToIntermdeiate(a, null))
       }
-      annotations.toSeq
+      annotations
     }
 
     def handleModifiers: Seq[IntermediateNode] = {
@@ -838,11 +834,12 @@ object JavaToScala {
         }
       }
 
-      modifiers.toSeq
+      modifiers
     }
 
     ModifiersConstruction(handleAnnotations, handleModifiers)
   }
+
 
   def convertPsisToText(elements: Array[PsiElement]): String = {
     val resultNode = new MainConstruction
@@ -859,6 +856,8 @@ object JavaToScala {
     visitor.visit(convertPsiToIntermdeiate(element, null))
     visitor.stringResult
   }
+
+  private def getStatements(m: PsiMethod): Option[Array[PsiStatement]] = Option(m.getBody).map(_.getStatements)
 
   private def serialVersion(c: PsiClass): Option[PsiField] = {
     val serialField = c.findFieldByName("serialVersionUID", false)
