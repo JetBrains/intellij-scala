@@ -16,9 +16,9 @@ import org.jetbrains.jps.incremental.messages.{CompilerMessage, FileDeletedEvent
  * 11/18/13
  */
 abstract class IdeClient(compilerName: String,
-                                 context: CompileContext,
-                                 modules: Seq[String],
-                                 consumer: OutputConsumer) extends Client {
+                         context: CompileContext,
+                         modules: Seq[String],
+                         consumer: OutputConsumer) extends Client {
 
   private var hasErrors = false
 
@@ -35,7 +35,13 @@ abstract class IdeClient(compilerName: String,
     if (kind == Kind.WARNING && ScalaReflectMacroExpansionParser.isMacroMessage(text)) {
       ScalaReflectMacroExpansionParser.processMessage(text)
     } else {
-      context.processMessage(new CompilerMessage(name, kind, text, sourcePath.orNull,
+      val withoutPointer =
+        if (sourcePath.isDefined && line.isDefined && column.isDefined) {
+          val lines = text.split('\n')
+          lines.filterNot(_.trim == "^").mkString("\n")
+        }
+        else text
+      context.processMessage(new CompilerMessage(name, kind, withoutPointer, sourcePath.orNull,
         -1L, -1L, -1L, line.getOrElse(-1L), column.getOrElse(-1L)))
     }
   }
