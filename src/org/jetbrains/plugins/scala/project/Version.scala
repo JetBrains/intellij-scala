@@ -19,7 +19,7 @@ case class Version(number: String) extends AnyVal with Comparable[Version] {
 
   def <(other: Version): Boolean = compareTo(other) < 0
 
-  def <=(other: Version): Boolean = compareTo(other) < 0
+  def <=(other: Version): Boolean = compareTo(other) <= 0
 
   def toLanguageLevel: Option[ScalaLanguageLevel] = ScalaLanguageLevel.from(this)
 }
