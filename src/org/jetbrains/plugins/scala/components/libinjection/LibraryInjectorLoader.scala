@@ -11,6 +11,10 @@ import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module._
+import com.intellij.openapi.progress.Task.Backgroundable
+import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
+import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator
+import com.intellij.openapi.progress.util.{AbstractProgressIndicatorBase, ProgressIndicatorBase}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
@@ -81,7 +85,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   @inline def inReadAction(f: => Unit) = ApplicationManager.getApplication.runReadAction(toRunnable(f))
 
-  @inline def inWriteAction[T](f: => T) = invokeLater(ApplicationManager.getApplication.runWriteAction(toRunnable(f)))
+  @inline def inWriteAction[T](f: => T) = ApplicationManager.getApplication.runWriteAction(toRunnable(f))
 
   private def loadJarCache(f: File): InjectorPersistentCache = {
     var stream: ObjectInputStream = null
@@ -199,10 +203,11 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   private def rescanAllJars() = {
-    val parsedManifests = getAllJarsWithManifest.flatMap(f=>extractLibraryManifest(f)).filterNot(isJarCacheUpToDate)
+    val parsedManifests = getAllJarsWithManifest.flatMap(f=>extractLibraryManifest(f))
+      .filterNot(jarCache.cache.values().contains)
     val validManifests = parsedManifests.flatMap(verifyManifest)
     val candidates = validManifests.map(manifest => manifest -> findMatchingInjectors(manifest))
-    LOG.trace(s"Found ${candidates.size} jars with embedded extensions")
+    LOG.trace(s"Found ${candidates.size} new jars with embedded extensions")
     if (candidates.nonEmpty)
       askUser(candidates)
   }
@@ -319,26 +324,30 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   private def compile(data: ManifestToDescriptors): Unit = {
     if (data.isEmpty) return
+    val indicator = new ProgressIndicatorBase()
     val startTime = System.currentTimeMillis()
     LOG.trace(s"Compiling ${data.size} injectors")
     runWithHelperModule { module =>
-      for ((manifest, injectors) <- data) {
-        for (injectorDescriptor <- injectors) {
-          try {
-            compileInjectorFromLibrary(
-              extractInjectorSources(new File(manifest.jarPath), injectorDescriptor),
-              getLibraryCacheDir(new File(manifest.jarPath)),
-              module
-            )
-            loadInjectors(manifest)
-            jarCache.cache.put(manifest.jarPath, manifest)
-          } catch {
-            case e: Throwable =>
-              LOG.error("Failed to compile injector", e)
+      ProgressManager.getInstance().runProcess(toRunnable {
+        indicator.setIndeterminate(true)
+        for ((manifest, injectors) <- data) {
+          for (injectorDescriptor <- injectors) {
+            try {
+              compileInjectorFromLibrary(
+                extractInjectorSources(new File(manifest.jarPath), injectorDescriptor),
+                getLibraryCacheDir(new File(manifest.jarPath)),
+                module
+              )
+              loadInjectors(manifest)
+              jarCache.cache.put(manifest.jarPath, manifest)
+            } catch {
+              case e: Throwable =>
+                LOG.error("Failed to compile injector", e)
+            }
           }
         }
-      }
-      LOG.trace(s"Compiled in ${(System.currentTimeMillis() - startTime) / 1000} seconds")
+        LOG.trace(s"Compiled in ${(System.currentTimeMillis() - startTime) / 1000} seconds")
+      }, indicator)
     }
   }
 
@@ -397,11 +406,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   private def runWithHelperModule[T](f: Module => T) = {
     inWriteAction {
       val module = createIdeaModule()
-      inReadAction(
-        f(module)
-      )
-    }
-    inWriteAction {
+      f(module)
       removeIdeaModule()
     }
   }
