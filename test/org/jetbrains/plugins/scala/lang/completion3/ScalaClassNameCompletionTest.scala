@@ -136,7 +136,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
 
       val resultText =
         """
-          |import scala.collection.mutable.{ListMap, Builder, Queue, ArrayBuffer}
+          |import collection.mutable.{ArrayBuffer, Builder, ListMap, Queue}
           |import scala.collection.immutable.HashMap
           |
           |object Sandbox extends App {
@@ -175,13 +175,12 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
 
     val resultText =
       """
-        |import scala.collection.immutable._
-        |import scala.collection.mutable.HashMap
+        |import scala.collection.immutable.{HashMap => _, _}
         |import scala.collection.mutable._
         |
         |class Test2 {
         |  val x: HashMap[String, String] = HashMap.empty
-        |  val z: ListSet<caret> = null
+        |  val z: ListSet = null
         |}
       """.stripMargin.replaceAll("\r", "").trim()
 

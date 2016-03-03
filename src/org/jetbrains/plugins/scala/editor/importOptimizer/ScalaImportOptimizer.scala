@@ -461,8 +461,8 @@ object ScalaImportOptimizer {
     def insertInfoWithWildcard(): Unit = {
       val (wildcard, withArrows) = notSimpleInfos.partition(_.hasWildcard)
       val namesFromOtherWildcards = otherInfos.flatMap(_.namesFromWildcard).toSet
-      val simpleInfosToRemain = simpleInfos.filter(si => namesFromOtherWildcards.contains(si.singleNames.head))
-      val simpleNamesToRemain = simpleInfosToRemain.flatMap(_.singleNames).toSet
+      val simpleNamesToRemain = simpleInfos.flatMap(_.singleNames).toSet & namesFromOtherWildcards & usedImportedNames
+      val simpleInfosToRemain = simpleInfos.filter(si => simpleNamesToRemain.contains(si.singleNames.head))
       val renames = withArrows.flatMap(_.renames)
       val hiddenNames = withArrows.flatMap(_.hiddenNames)
       val newHiddenNames =
@@ -488,19 +488,11 @@ object ScalaImportOptimizer {
       notSimpleInfos += infoToInsert.toWildcardInfo
       insertInfoWithWildcard()
     }
-    else {
-      samePrefixInfos.lastOption match {
-        case Some(info) =>
-          val idx = infos.indexOf(info)
-          if (collectImports) {
-            val merged = info.merge(infoToInsert)
-            infos.update(idx, merged)
-          }
-          else infos.insert(idx + 1, infoToInsert)
-        case None =>
-          addLastAndMoveUpwards(infoToInsert)
-      }
+    else if (collectImports) {
+      val merged = ImportInfo.merge(samePrefixInfos :+ infoToInsert)
+      replace(samePrefixInfos, merged.toSeq)
     }
+    else addLastAndMoveUpwards(infoToInsert)
   }
 
   private def swapWithNext(buffer: ArrayBuffer[ImportInfo], i: Int): Boolean = {
