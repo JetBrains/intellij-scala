@@ -18,6 +18,7 @@ import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile, VirtualFileManager}
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
+import com.intellij.util.Time
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier.Version
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper
@@ -83,13 +84,18 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   @inline def inWriteAction[T](f: => T) = invokeLater(ApplicationManager.getApplication.runWriteAction(toRunnable(f)))
 
   private def loadJarCache(f: File): InjectorPersistentCache = {
+    var stream: ObjectInputStream = null
     try {
-      val stream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(f)))
-      stream.readObject().asInstanceOf[InjectorPersistentCache]
+      stream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(f)))
+      val cache = stream.readObject().asInstanceOf[InjectorPersistentCache]
+      LOG.trace(s"Loaded cache with ${cache.cache.size()} entries")
+      cache
     } catch {
       case e: Throwable =>
         LOG.warn(s"Failed to load injector cache, continuing with empty(${e.getMessage})")
         InjectorPersistentCache(ScalaPluginVersionVerifier.getPluginVersion.get, new util.HashMap())
+    } finally {
+      if (stream != null) stream.close()
     }
   }
 
@@ -166,7 +172,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
       LOG.warn(s"Manifest for ${manifest.jarPath} has no plugin descriptors")
     }
 
-    val checkedDescriptor = findMatchingPluginDecriptor(manifest) match {
+    val checkedDescriptor = findMatchingPluginDescriptor(manifest) match {
       case Some(descriptor) => verifyDescriptor(descriptor)
       case None =>
         LOG.info(s"No extensions found for current IDEA version")
@@ -189,13 +195,14 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
       else
         jarCache.cache.remove(manifest.jarPath)
     }
-    LOG.info(s"Loaded ${cachedProjectJars.size} jars")
+    LOG.trace(s"Loaded injectors from ${cachedProjectJars.size} jars")
   }
 
   private def rescanAllJars() = {
     val parsedManifests = getAllJarsWithManifest.flatMap(f=>extractLibraryManifest(f)).filterNot(isJarCacheUpToDate)
     val validManifests = parsedManifests.flatMap(verifyManifest)
     val candidates = validManifests.map(manifest => manifest -> findMatchingInjectors(manifest))
+    LOG.trace(s"Found ${candidates.size} jars with embedded extensions")
     if (candidates.nonEmpty)
       askUser(candidates)
   }
@@ -207,7 +214,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   @deprecated
-  def getJarsFromLibrary(library: Library): Seq[VirtualFile] = {
+  private def getJarsFromLibrary(library: Library): Seq[VirtualFile] = {
     val files = library.getFiles(OrderRootType.CLASSES)
     if (files.length < MAX_JARS)
       files.toSeq
@@ -215,7 +222,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
       Seq.empty
   }
 
-  def isJarCacheUpToDate(manifest: JarManifest): Boolean = {
+  private def isJarCacheUpToDate(manifest: JarManifest): Boolean = {
     val jarFile = new File(manifest.jarPath)
     jarFile.exists() &&
       jarFile.isFile &&
@@ -223,7 +230,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
       getLibraryCacheDir(jarFile).list().nonEmpty
   }
 
-  def extractLibraryManifest(jar: VirtualFile, skipIncompatible: Boolean = true): Option[JarManifest] = {
+  private def extractLibraryManifest(jar: VirtualFile, skipIncompatible: Boolean = true): Option[JarManifest] = {
     val manifestFile = Option(jar.findFileByRelativePath(s"META-INF/$INJECTOR_MANIFEST_NAME"))
     manifestFile
       .map(JarManifest.deserialize(_, jar))
@@ -244,14 +251,14 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     // TODO
   }
 
-  private def findMatchingPluginDecriptor(libraryManifest: JarManifest): Option[PluginDescriptor] = {
+  private def findMatchingPluginDescriptor(libraryManifest: JarManifest): Option[PluginDescriptor] = {
     val curVer = ScalaPluginVersionVerifier.getPluginVersion
     libraryManifest.pluginDescriptors
       .find(d => (curVer.get > d.since && curVer.get < d.until) || curVer.get.isDebug)
   }
 
   private def findMatchingInjectors(libraryManifest: JarManifest): Seq[InjectorDescriptor] = {
-    findMatchingPluginDecriptor(libraryManifest).map(_.injectors).getOrElse(Seq.empty)
+    findMatchingPluginDescriptor(libraryManifest).map(_.injectors).getOrElse(Seq.empty)
   }
 
   // don't forget to remove temp directory after compilation
@@ -300,7 +307,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
           compile(showReviewDialogAndFilter(candidates))
       }
     }
-    GROUP.createNotification("ASDAF", message, NotificationType.INFORMATION, listener).notify(project)
+    GROUP.createNotification("IDEA Extensions", message, NotificationType.INFORMATION, listener).notify(project)
   }
 
   private def showReviewDialogAndFilter(candidates: ManifestToDescriptors): ManifestToDescriptors  = {
@@ -312,6 +319,8 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   private def compile(data: ManifestToDescriptors): Unit = {
     if (data.isEmpty) return
+    val startTime = System.currentTimeMillis()
+    LOG.trace(s"Compiling ${data.size} injectors")
     runWithHelperModule { module =>
       for ((manifest, injectors) <- data) {
         for (injectorDescriptor <- injectors) {
@@ -329,18 +338,19 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
           }
         }
       }
+      LOG.trace(s"Compiled in ${(System.currentTimeMillis() - startTime) / 1000} seconds")
     }
   }
 
-  def getLibraryCacheDir(jar: File): File = {
-    val f = new File(myInjectorCacheDir,
+  private def getLibraryCacheDir(jar: File): File = {
+    val file = new File(myInjectorCacheDir,
       (jar.getName + ScalaPluginVersionVerifier.getPluginVersion.get.toString).replaceAll("\\.", "_")
     )
-    f.mkdir()
-    f
+    file.mkdir()
+    file
   }
 
-  def createIdeaModule(): Module = {
+  private def createIdeaModule(): Module = {
     import org.jetbrains.plugins.scala.project._
 
     import scala.collection.JavaConversions._
