@@ -114,19 +114,24 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
     val newParam = ScalaPsiElementFactory.createParameterFromText(param.name, param.getManager)
     val newClause = ScalaPsiElementFactory.createClauseForFunctionExprFromText(newParam.getText, param.getManager)
     val expr : ScFunctionExpr = PsiTreeUtil.getParentOfType(param, classOf[ScFunctionExpr], false)
-    if (expr != null && expr.parameters.size == 1 &&
-            (expr.params.clauses(0).getText.startsWith("(") && expr.params.clauses(0).getText.endsWith(")"))) {
-      expr.params.clauses(0).replace(newClause)
-    } else {
-      param.replace(newParam)
+    if (expr != null) {
+      val firstClause = expr.params.clauses.head
+      val fcText = firstClause.getText
+      if (expr.parameters.size == 1 && fcText.startsWith("(") && fcText.endsWith(")"))
+        firstClause.replace(newClause)
+      else param.replace(newParam)
     }
+    else param.replace(newParam)
   }
 
   def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement) {
     def addActualType(annotation: ScTypeElement) = {
-      val added = anchor.getParent.addAfter(annotation, anchor)
+      val parent = anchor.getParent
+      val added = parent.addAfter(annotation, anchor)
       val colon = ScalaPsiElementFactory.createColon(context.getManager)
-      anchor.getParent.addAfter(colon, anchor)
+      val whitespace = ScalaPsiElementFactory.createWhitespace(context.getManager)
+      parent.addAfter(whitespace, anchor)
+      parent.addAfter(colon, anchor)
       added
     }
 
