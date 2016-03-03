@@ -277,4 +277,45 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
       checkResultByText(resultText)
     }
   }
+
+  def testSCL4087_2() {
+    withRelativeImports {
+      val fileText =
+        """
+          |package a.b.z {
+          |
+          |  class XXXX
+          |
+          |}
+          |
+          |import a.{b => c}
+          |
+          |trait Y {
+          |  val x: XXXX<caret>
+          |}
+        """.stripMargin.replaceAll("\r", "").trim()
+      configureFromFileTextAdapter("dummy.scala", fileText)
+      val (activeLookup, _) = complete(2, CompletionType.BASIC)
+
+      val resultText =
+        """
+          |package a.b.z {
+          |
+          |  class XXXX
+          |
+          |}
+          |
+          |import a.{b => c}
+          |import c.z.XXXX
+          |
+          |trait Y {
+          |  val x: XXXX
+          |}
+        """.stripMargin.replaceAll("\r", "").trim()
+
+      completeLookupItem(activeLookup.find(_.getLookupString == "XXXX").get, '\t')
+      checkResultByText(resultText)
+    }
+  }
+
 }
