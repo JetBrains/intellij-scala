@@ -16,22 +16,18 @@ import org.jetbrains.plugins.scala.util.TestUtils
   */
 abstract class TypingTestWithPerformanceTestBase extends ScalaFixtureTestCase {
   def doTest(stringsToType: List[String], timeoutInMillis: Int) {
-    val fileName = getTestName(false) + ".test"
+    val fileName = getTestName(true) + ".test"
     val filePath = folderPath + fileName
     val ioFile = new File(filePath)
     var fileText: String = FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
     fileText = StringUtil.convertLineSeparators(fileText)
-    val (input, expected) = separateText(fileText)
+    val (input, _) = separateText(fileText)
     myFixture.configureByText(fileName, input)
     PlatformTestUtil.startPerformanceTest("TypingTest" + getTestName(false), timeoutInMillis, new ThrowableRunnable[Nothing] {
       override def run(): Unit = {
         stringsToType.foreach(myFixture.`type`)
       }
     }).ioBound().assertTiming()
-//    expected match {
-//      case Some(expText) =>
-//      case _ =>
-//    }
   }
 
   protected def folderPath: String = TestUtils.getTestDataPath + "/typing/"
