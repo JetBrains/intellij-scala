@@ -8,7 +8,10 @@ import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.android.facet.AndroidFacet
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.sbt.project.data.AndroidFacetNode
+
+import scala.io.Source
 
 /**
  * @author Nikolay Obedin
@@ -67,7 +70,7 @@ class AndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
       import scala.collection.JavaConverters._
       val proguardConfigPath = FileUtil.toSystemDependentName(getProject.getBasePath + "/proguard-sbt.txt")
       assert(properties.myProGuardCfgFiles.asScala.toSeq == Seq(proguardConfigPath))
-      val actualProguardConfig = scala.io.Source.fromFile(proguardConfigPath).getLines().toSeq
+      val actualProguardConfig = using(Source.fromFile(proguardConfigPath))(_.getLines().toVector)
       assert(actualProguardConfig == proguardConfig)
     }
   }

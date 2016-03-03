@@ -30,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 import scala.collection.generic.CanBuildFrom
+import scala.io.Source
 import scala.language.higherKinds
 import scala.reflect.{ClassTag, classTag}
 import scala.runtime.NonLocalReturnControl
@@ -526,6 +527,14 @@ package object extensions {
       block(resource)
     } finally {
       resource.close()
+    }
+  }
+
+  def using[B](source: Source)(block: Source => B): B = {
+    try {
+      block(source)
+    } finally {
+      source.close()
     }
   }
 
