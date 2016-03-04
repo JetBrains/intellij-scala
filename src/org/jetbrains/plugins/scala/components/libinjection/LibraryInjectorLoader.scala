@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier.Version
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable
 
 case class InjectorPersistentCache(pluginVersion: Version, cache: java.util.HashMap[String, JarManifest])
 
@@ -53,7 +53,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   // reset cache if plugin has been updated
   // cache: jarFilePath -> jarManifest
   private var jarCache: InjectorPersistentCache = null
-  private val loadedInjectors: ListBuffer[String] = scala.collection.mutable.ListBuffer()
+  private val loadedInjectors: mutable.HashMap[Class[_], mutable.ListBuffer[String]] = mutable.HashMap()
 
   override def projectClosed(): Unit = {
     saveJarCache(jarCache, myInjectorCacheIndex)
@@ -87,8 +87,12 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   @inline def inWriteAction[T](f: => T) = ApplicationManager.getApplication.runWriteAction(toRunnable(f))
 
-  def getInjectorClasses: Seq[Class[_]] = {
-    loadedInjectors.map(myClassLoader.loadClass)
+  def getInjectorClasses[T](interface: Class[T]): Seq[Class[T]] = {
+    loadedInjectors.getOrElse(interface, Seq.empty).map(myClassLoader.loadClass(_).asInstanceOf[Class[T]])
+  }
+
+  def getInjectorInstances[T](interface: Class[T]): Seq[T] = {
+    getInjectorClasses(interface).map(_.newInstance())
   }
 
   private def loadJarCache(f: File): InjectorPersistentCache = {
@@ -258,7 +262,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     myClassLoader.addUrl(getLibraryCacheDir(new File(jarManifest.jarPath)).toURI.toURL)
     val injectors = findMatchingInjectors(jarManifest)
     for (injector <- injectors) {
-      loadedInjectors += injector.impl
+      loadedInjectors(getClass.getClassLoader.loadClass(injector.iface)) += injector.impl
     }
   }
 
@@ -417,4 +421,8 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     }
   }
 
+}
+
+object LibraryInjectorLoader {
+  def getInstance(project: Project) = project.getComponent(classOf[LibraryInjectorLoader])
 }
