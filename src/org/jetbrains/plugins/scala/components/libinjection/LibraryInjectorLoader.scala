@@ -7,26 +7,25 @@ import javax.swing.event.HyperlinkEvent
 
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.notification._
-import com.intellij.openapi.application.{ApplicationManager, ModalityState}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module._
-import com.intellij.openapi.progress.Task.Backgroundable
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
-import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator
-import com.intellij.openapi.progress.util.{AbstractProgressIndicatorBase, ProgressIndicatorBase}
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
-import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
+import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile, VirtualFileManager}
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
-import com.intellij.util.Time
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier.Version
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper
 import org.jetbrains.plugins.scala.util.ScalaUtil
+
+import scala.collection.mutable.ListBuffer
 
 case class InjectorPersistentCache(pluginVersion: Version, cache: java.util.HashMap[String, JarManifest])
 
@@ -54,6 +53,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   // reset cache if plugin has been updated
   // cache: jarFilePath -> jarManifest
   private var jarCache: InjectorPersistentCache = null
+  private val loadedInjectors: ListBuffer[String] = scala.collection.mutable.ListBuffer()
 
   override def projectClosed(): Unit = {
     saveJarCache(jarCache, myInjectorCacheIndex)
@@ -86,6 +86,10 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   @inline def inReadAction(f: => Unit) = ApplicationManager.getApplication.runReadAction(toRunnable(f))
 
   @inline def inWriteAction[T](f: => T) = ApplicationManager.getApplication.runWriteAction(toRunnable(f))
+
+  def getInjectorClasses: Seq[Class[_]] = {
+    loadedInjectors.map(myClassLoader.loadClass)
+  }
 
   private def loadJarCache(f: File): InjectorPersistentCache = {
     var stream: ObjectInputStream = null
@@ -252,8 +256,10 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   private def loadInjectors(jarManifest: JarManifest) = {
     myClassLoader.addUrl(getLibraryCacheDir(new File(jarManifest.jarPath)).toURI.toURL)
-
-    // TODO
+    val injectors = findMatchingInjectors(jarManifest)
+    for (injector <- injectors) {
+      loadedInjectors += injector.impl
+    }
   }
 
   private def findMatchingPluginDescriptor(libraryManifest: JarManifest): Option[PluginDescriptor] = {
