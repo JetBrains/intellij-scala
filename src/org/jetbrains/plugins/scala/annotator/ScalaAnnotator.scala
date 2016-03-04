@@ -918,7 +918,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             case param: ScParameter =>
               if (!param.isDefaultParam) return //performance optimization
               param.getRealParameterType() match {
-                case Success(paramType, _) if !paramType.isGenericType(Option(expr.getProject)) =>
+                case Success(paramType, _) if ScType.extractClass(paramType, Option(expr.getProject)).isDefined =>
                 //do not check generic types. See SCL-3508
                 case _ => return
               }

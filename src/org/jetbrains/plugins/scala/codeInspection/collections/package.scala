@@ -147,7 +147,7 @@ package object collections {
     }
   }
 
-  val returnsBoolean = new FunctionExpressionWithReturnTypeTemplate(StdType.BOOLEAN)
+  val returnsBoolean = new FunctionExpressionWithReturnTypeTemplate(Boolean)
 
   object binaryOperation {
     def unapply(expr: ScExpression): Option[String] = {

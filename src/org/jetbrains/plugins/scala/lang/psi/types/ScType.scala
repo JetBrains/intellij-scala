@@ -19,8 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, T
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 import scala.annotation.tailrec
-import scala.collection.immutable.{HashMap, HashSet}
-import scala.collection.mutable
+import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
 trait ScType {
@@ -35,21 +34,7 @@ trait ScType {
 
   protected def isAliasTypeInner: Option[AliasType] = None
 
-  final def equiv(t: ScType): Boolean = Equivalence.equiv(this, t)
-
-  /**
-   * Checks, whether the following assignment is correct:
-   * val x: t = (y: this)
-   */
-  final def conforms(t: ScType, checkWeak: Boolean = false): Boolean = Conformance.conforms(t, this, checkWeak)
-
-  final def weakConforms(t: ScType): Boolean = Conformance.conforms(t, this, checkWeak = true)
-
-  final def presentableText = ScType.presentableText(this)
-
-  final def canonicalText = ScType.canonicalText(this)
-
-  override def toString = presentableText
+  override final def toString = this.presentableText
 
   def isValue: Boolean
 
@@ -78,28 +63,6 @@ trait ScType {
    * todo rewrite with recursiveUpdate method
    */
   def removeAbstracts: ScType = this
-
-  def removeVarianceAbstracts(variance: Int): ScType = {
-    var index = 0
-    recursiveVarianceUpdate((tp: ScType, i: Int) => {
-      tp match {
-        case ScAbstractType(_, lower, upper) =>
-          i match {
-            case -1 => (true, lower)
-            case 1 => (true, upper)
-            case 0 => (true, ScSkolemizedType(s"_$$${index += 1; index}", Nil, lower, upper))
-          }
-        case _ => (false, tp)
-      }
-    }, variance).unpackedType
-  }
-
-  def removeUndefines(): ScType = {
-    recursiveUpdate {
-      case u: ScUndefinedType => (true, Any)
-      case tp: ScType => (false, tp)
-    }
-  }
 
   def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     (false, uSubst)
@@ -138,29 +101,9 @@ trait ScType {
     else this
   }
 
-  def collectAbstracts: Seq[ScAbstractType] = {
-    val set: mutable.HashSet[ScAbstractType] = new mutable.HashSet[ScAbstractType]
-
-    recursiveUpdate(tp => {
-      tp match {
-        case a: ScAbstractType => set += a
-        case _ =>
-      }
-      (false, tp)
-    })
-
-    set.toSeq
-  }
-
-  def getValType: Option[StdType] = None
-
   def visitType(visitor: ScalaTypeVisitor)
 
   def typeDepth: Int = 1
-
-  def baseTypeSeqDepth: Int = 1 //todo: should be implemented according to Scala compiler sources. However concerns about performance stops me.
-
-  def isGenericType(project: Option[Project] = None): Boolean = ScType.extractClass(this, project).isEmpty
 }
 
 object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
@@ -198,19 +141,6 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
       case _ => 1
     }
   }
-
-  val baseTypesQualMap: Map[String, StdType] = HashMap(
-    "scala.Unit" -> Unit,
-    "scala.Boolean" -> Boolean,
-    "scala.Char" -> Char,
-    "scala.Int" -> Int,
-    "scala.Long" -> Long,
-    "scala.Float" -> Float,
-    "scala.Double" -> Double,
-    "scala.Byte" -> Byte,
-    "scala.Short" -> Short,
-    "scala.AnyVal" -> AnyVal
-  )
 
   @tailrec
   def extractClass(t: ScType, project: Option[Project] = None): Option[PsiClass] = {
@@ -257,7 +187,8 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
   /**
    * Returns named element associated with type `t`.
    * If withoutAliases is `true` expands alias definitions first
-   * @param t type
+    *
+    * @param t type
    * @param withoutAliases need to expand alias or not
    * @return element and substitutor
    */

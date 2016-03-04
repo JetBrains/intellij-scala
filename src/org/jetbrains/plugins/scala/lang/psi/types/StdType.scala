@@ -20,7 +20,8 @@ abstract class StdType(val name: String, val tSuper: Option[StdType]) extends Va
   /**
    * Return wrapped to option appropriate synthetic class.
    * In dumb mode returns None (or before it ends to register classes).
-   * @param project in which project to find this class
+    *
+    * @param project in which project to find this class
    * @return If possible class to represent this type.
    */
   def asClass(project: Project): Option[ScSyntheticClass] = {
@@ -32,19 +33,17 @@ abstract class StdType(val name: String, val tSuper: Option[StdType]) extends Va
   override def equivInner(r: ScType, subst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     (this, r) match {
       case (l: StdType, _: StdType) => (l == r, subst)
-      case (AnyRef, _) => {
+      case (AnyRef, _) =>
         ScType.extractClass(r) match {
           case Some(clazz) if clazz.qualifiedName == "java.lang.Object" => (true, subst)
           case _ => (false, subst)
         }
-      }
-      case (_, _) => {
+      case (_, _) =>
         ScType.extractClass(r) match {
           case Some(o: ScObject)  => (false, subst)
           case Some(clazz) if clazz.qualifiedName == "scala." + name => (true, subst)
           case _ => (false, subst)
         }
-      }
     }
   }
 }
@@ -67,22 +66,6 @@ object StdType {
     "scala.Nothing" -> Nothing,
     "scala.Singleton" -> Singleton
   )
-
-  val ANY = Any
-  val ANYREF = AnyRef
-  val ANYVAL = AnyVal
-  val UNIT = Unit
-  val BOOLEAN = Boolean
-  val BYTE = Byte
-  val SHORT = Short
-  val CHAR = Char
-  val INT = Int
-  val LONG = Long
-  val DOUBLE = Double
-  val FLOAT = Float
-  val NULL = Null
-  val NOTHING = Nothing
-  val SINGLETON = Singleton
 
   import com.intellij.psi.CommonClassNames._
   val fqnBoxedToScType = Map(
@@ -127,9 +110,7 @@ case object Singleton extends StdType("Singleton", Some(AnyRef)) {
   override def isFinalType = true
 }
 
-case object AnyVal extends StdType("AnyVal", Some(Any)) {
-  override def getValType: Option[StdType] = Some(this)
-}
+case object AnyVal extends StdType("AnyVal", Some(Any))
 
 abstract class ValType(override val name: String) extends StdType(name, Some(AnyVal)) {
   def apply(element: PsiElement): ScType = {
@@ -141,8 +122,6 @@ abstract class ValType(override val name: String) extends StdType(name, Some(Any
       ScalaPsiManager.instance(manager.getProject).getCachedClass(scope, "scala." + name)
     clazz.map(ScDesignatorType(_)).getOrElse(this)
   }
-
-  override def getValType: Option[StdType] = Some(this)
 
   override def isFinalType = true
 }

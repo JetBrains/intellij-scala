@@ -50,12 +50,28 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           return Success(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesType)), Some(this))
         case _ =>
           val et = expectedType(fromUnderscore = false).getOrElse(return Failure("Cannot infer type without expected type", Some(this)))
+
+          def removeVarianceAbstracts(scType: ScType) = {
+            var index = 0
+            scType.recursiveVarianceUpdate((tp: ScType, i: Int) => {
+              tp match {
+                case ScAbstractType(_, lower, upper) =>
+                  i match {
+                    case -1 => (true, lower)
+                    case 1 => (true, upper)
+                    case 0 => (true, ScSkolemizedType(s"_$$${index += 1; index}", Nil, lower, upper))
+                  }
+                case _ => (false, tp)
+              }
+            }, 1).unpackedType
+          }
+
           return et match {
             case f@ScFunctionType(_, params) =>
-              Success(ScFunctionType(clausesType, params.map(_.removeVarianceAbstracts(1)))
+              Success(ScFunctionType(clausesType, params.map(removeVarianceAbstracts))
                 (getProject, getResolveScope), Some(this))
             case f@ScPartialFunctionType(_, param) =>
-              Success(ScPartialFunctionType(clausesType, param.removeVarianceAbstracts(1))
+              Success(ScPartialFunctionType(clausesType, removeVarianceAbstracts(param))
                 (getProject, getResolveScope), Some(this))
             case _ =>
               Failure("Cannot infer type without expected type of scala.FunctionN or scala.PartialFunction", Some(this))
@@ -74,12 +90,12 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           if (visited.contains(t)) return t
           val visitedWithT = visited + t
           t match {
-            case ScDesignatorType(p: ScParameter) if p.owner.isInstanceOf[ScFunctionExpr] && p.owner.asInstanceOf[ScFunctionExpr].result == Some(this) =>
+            case ScDesignatorType(p: ScParameter) if p.owner.isInstanceOf[ScFunctionExpr] && p.owner.asInstanceOf[ScFunctionExpr].result.contains(this) =>
               val t = existize(p.getType(TypingContext.empty).getOrAny, visitedWithT)
               m.put(p.name, new ScExistentialArgument(p.name, Nil, t, t))
               new ScTypeVariable(p.name)
             case ScDesignatorType(typed: ScBindingPattern) if typed.nameContext.isInstanceOf[ScCaseClause] &&
-              typed.nameContext.asInstanceOf[ScCaseClause].expr == Some(this) =>
+              typed.nameContext.asInstanceOf[ScCaseClause].expr.contains(this) =>
               val t = existize(typed.getType(TypingContext.empty).getOrAny, visitedWithT)
               m.put(typed.name, new ScExistentialArgument(typed.name, Nil, t, t))
               new ScTypeVariable(typed.name)

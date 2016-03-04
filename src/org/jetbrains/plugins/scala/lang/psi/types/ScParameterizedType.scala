@@ -86,7 +86,7 @@ case class JavaArrayType(arg: ScType) extends ValueType {
   override def typeDepth: Int = arg.typeDepth
 }
 
-class ScParameterizedType private (val designator : ScType, val typeArgs : Seq[ScType]) extends ValueType {
+class ScParameterizedType private(val designator: ScType, val typeArgs: Seq[ScType]) extends ScalaType with ValueType {
   override protected def isAliasTypeInner: Option[AliasType] = {
     this match {
       case ScParameterizedType(ScDesignatorType(ta: ScTypeAlias), args) =>
@@ -321,8 +321,8 @@ object ScParameterizedType {
 }
 
 case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
-                              lower: Suspension[ScType], upper: Suspension[ScType],
-                              param: PsiTypeParameter) extends ValueType {
+                               lower: Suspension[ScType], upper: Suspension[ScType],
+                               param: PsiTypeParameter) extends ScalaType with ValueType {
   private var hash: Int = -1
 
   override def hashCode: Int = {
@@ -397,7 +397,7 @@ private[types] object CyclicHelper {
   }
 }
 
-case class ScTypeVariable(name: String) extends ValueType {
+case class ScTypeVariable(name: String) extends ScalaType with ValueType {
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitTypeVariable(this)
   }

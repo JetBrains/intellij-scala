@@ -251,10 +251,29 @@ trait ScTypePresentation {
       }
     }
 
+    def abstractTypeText(abstractType: ScAbstractType) = {
+      val ScAbstractType(tpt, lower, upper) = abstractType
+
+      val buffer = new StringBuilder
+      buffer.append("?")
+      buffer.append(ScTypePresentation.ABSTRACT_TYPE_PREFIX + tpt.name.capitalize)
+      buffer.append("/*")
+      if (!lower.equiv(Nothing)) {
+        val lowerText: String = " >: " + lower.toString
+        buffer.append(lowerText)
+      }
+      if (!upper.equiv(Any)) {
+        val upperText: String = " <: " + upper.toString
+        buffer.append(upperText)
+      }
+      buffer.append("*/")
+      buffer.toString()
+    }
+
     def innerTypeText(t: ScType, needDotType: Boolean = true, checkWildcard: Boolean = false): String = {
       t match {
-        case ScAbstractType(tpt, lower, upper) =>
-          ScTypePresentation.ABSTRACT_TYPE_PREFIX + tpt.name.capitalize
+        case abstractType: ScAbstractType =>
+          abstractTypeText(abstractType)
         case StdType(name, _) =>
           name
         case f@ScFunctionType(ret, params) if !t.isAliasType.isDefined =>

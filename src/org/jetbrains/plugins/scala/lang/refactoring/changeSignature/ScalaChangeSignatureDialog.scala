@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, StdType}
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaComboBoxVisibilityPanel
@@ -287,7 +287,7 @@ class ScalaChangeSignatureDialog(val project: Project, val method: ScalaMethodDe
   protected def returnTypeText: String = Option(myReturnTypeCodeFragment).fold("")(_.getText)
 
   protected def returnType: ScType = {
-    if (myReturnTypeCodeFragment == null) StdType.ANY
+    if (myReturnTypeCodeFragment == null) Any
     else {
       val fragment = myReturnTypeCodeFragment
       ScalaPsiElementFactory.createTypeFromText(fragment.getText, fragment.getContext, fragment)

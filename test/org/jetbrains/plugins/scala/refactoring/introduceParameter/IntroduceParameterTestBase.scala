@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.types.StdType
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureProcessor, ScalaMethodDescriptor, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler
@@ -86,7 +86,7 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
 
             val (methodLike: ScMethodLike, returnType) =
               if (toPrimaryConstructor)
-                (PsiTreeUtil.getContextOfType(elems.head, true, classOf[ScClass]).constructor.get, StdType.ANY)
+                (PsiTreeUtil.getContextOfType(elems.head, true, classOf[ScClass]).constructor.get, Any)
               else {
                 val fun = PsiTreeUtil.getContextOfType(elems.head, true, classOf[ScFunctionDefinition])
                 (fun, fun.returnType.getOrAny)

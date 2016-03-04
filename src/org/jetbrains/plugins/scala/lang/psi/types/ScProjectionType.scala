@@ -6,7 +6,6 @@ package types
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition, ScValue}
@@ -19,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
-import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedMappedWithRecursionGuard}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.collection.immutable.HashSet
@@ -60,7 +59,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
   override protected def isAliasTypeInner: Option[AliasType] = {
     if (actualElement.isInstanceOf[ScTypeAlias]) {
       actualElement match {
-        case ta: ScTypeAlias if ta.typeParameters.length == 0 =>
+        case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
           val subst: ScSubstitutor = actualSubst
           Some(AliasType(ta, ta.lowerBound.map(subst.subst), ta.upperBound.map(subst.subst)))
         case ta: ScTypeAlias => //higher kind case
@@ -388,7 +387,7 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
 case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
   override protected def isAliasTypeInner: Option[AliasType] = {
     element match {
-      case ta: ScTypeAlias if ta.typeParameters.length == 0 =>
+      case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
         Some(AliasType(ta, ta.lowerBound, ta.upperBound))
       case ta: ScTypeAlias => //higher kind case
         ta match {
@@ -422,13 +421,10 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
     }
   }
 
-  override def getValType: Option[StdType] = {
-    element match {
-      case o: ScObject => None
-      case clazz: PsiClass =>
-        ScType.baseTypesQualMap.get(clazz.qualifiedName)
-      case _ => None
-    }
+  def getValType: Option[StdType] = element match {
+    case o: ScObject => None
+    case clazz: PsiClass => StdType.QualNameToType.get(clazz.qualifiedName)
+    case _ => None
   }
 
   private var isStaticClass = false

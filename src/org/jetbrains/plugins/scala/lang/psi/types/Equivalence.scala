@@ -58,11 +58,20 @@ object Equivalence {
     val uSubst = new ScUndefinedSubstitutor()
 
     def comp(): (Boolean, ScUndefinedSubstitutor) = {
-      if (l.isInstanceOf[ScDesignatorType] && l.getValType.isDefined) {
-        return equivInner(l.getValType.get, r, subst, falseUndef)
+      l match {
+        case designator: ScDesignatorType => designator.getValType match {
+          case Some(valType) => return equivInner(valType, r, subst, falseUndef)
+          case _ =>
+        }
+        case _ =>
       }
-      if (r.isInstanceOf[ScDesignatorType] && r.getValType.isDefined) {
-        return equivInner(l, r.getValType.get, subst, falseUndef)
+
+      r match {
+        case designator: ScDesignatorType => designator.getValType match {
+          case Some(valType) => return equivInner(l, valType, subst, falseUndef)
+          case _ =>
+        }
+        case _ =>
       }
 
       r.isAliasType match {

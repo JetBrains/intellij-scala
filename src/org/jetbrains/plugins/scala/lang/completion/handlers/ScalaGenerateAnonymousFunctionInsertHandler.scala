@@ -23,8 +23,22 @@ import scala.collection.mutable
 
 class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs: Boolean) extends InsertHandler[LookupElement] {
   def handleInsert(context: InsertionContext, item: LookupElement) {
+    def collectAbstracts(`type`: ScType): Seq[ScAbstractType] = {
+      val set: mutable.HashSet[ScAbstractType] = new mutable.HashSet[ScAbstractType]
+
+      `type`.recursiveUpdate(tp => {
+        tp match {
+          case a: ScAbstractType => set += a
+          case _ =>
+        }
+        (false, tp)
+      })
+
+      set.toSeq
+    }
+
     val abstracts = new mutable.HashSet[ScAbstractType]
-    for (param <- params) abstracts ++= param.collectAbstracts
+    for (param <- params) abstracts ++= collectAbstracts(param)
 
     val editor = context.getEditor
     val document = editor.getDocument

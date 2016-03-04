@@ -16,7 +16,7 @@ import scala.collection.mutable
  * Substitutor should be meaningful only for decls and typeDecls. Components shouldn't be applied by substitutor.
  */
 case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, ScType],
-                          typesMap: Map[String, TypeAliasSignature]) extends ValueType {
+                          typesMap: Map[String, TypeAliasSignature]) extends ScalaType with ValueType {
   private var hash: Int = -1
 
   override def hashCode: Int = {

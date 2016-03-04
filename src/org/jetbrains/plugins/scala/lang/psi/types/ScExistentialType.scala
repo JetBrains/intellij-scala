@@ -20,7 +20,7 @@ import scala.collection.mutable.ArrayBuffer
 * @author ilyas
 */
 case class ScExistentialType(quantified : ScType,
-                             wildcards : List[ScExistentialArgument]) extends ValueType {
+                             wildcards: List[ScExistentialArgument]) extends ScalaType with ValueType {
 
   @volatile
   private var _boundNames: List[String] = null
@@ -497,13 +497,13 @@ case class ScExistentialType(quantified : ScType,
 }
 
 object ScExistentialType {
-  def simpleExistential(name: String, args: List[ScTypeParameterType], lowerBound: ScType, upperBound: ScType): ScExistentialType = {
+  def simpleExistential(lowerBound: ScType, upperBound: ScType, name: String = "_$1", args: List[ScTypeParameterType] = Nil): ScExistentialType = {
     ScExistentialType(ScTypeVariable(name), List(ScExistentialArgument(name, args, lowerBound, upperBound)))
   }
 }
 
-case class ScExistentialArgument(name : String, args : List[ScTypeParameterType],
-                                 lowerBound : ScType, upperBound : ScType) {
+case class ScExistentialArgument(name: String, args: List[ScTypeParameterType],
+                                 lowerBound: ScType, upperBound: ScType) {
   def unpack = new ScSkolemizedType(name, args, lowerBound, upperBound)
 
   def withoutAbstracts: ScExistentialArgument = ScExistentialArgument(name, args, lowerBound.removeAbstracts, upperBound.removeAbstracts)
@@ -533,8 +533,8 @@ case class ScExistentialArgument(name : String, args : List[ScTypeParameterType]
   }
 }
 
-case class ScSkolemizedType(name : String, args : List[ScTypeParameterType], lower : ScType, upper : ScType)
-  extends ValueType {
+case class ScSkolemizedType(name: String, args: List[ScTypeParameterType], lower: ScType, upper: ScType)
+  extends ScalaType with ValueType {
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitSkolemizedType(this)
   }

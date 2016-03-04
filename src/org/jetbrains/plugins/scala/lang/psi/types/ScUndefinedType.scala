@@ -52,23 +52,6 @@ case class ScUndefinedType(tpt: ScTypeParameterType) extends NonValueType {
 case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType) extends NonValueType {
   private var hash: Int = -1
 
-  override def toString: String = {
-    val buffer = new StringBuilder
-    buffer.append("?")
-    buffer.append(super.toString)
-    buffer.append("/*")
-    if (!lower.equiv(Nothing)) {
-      val lowerText: String = " >: " + lower.toString
-      buffer.append(lowerText)
-    }
-    if (!upper.equiv(Any)) {
-      val upperText: String = " <: " + upper.toString
-      buffer.append(upperText)
-    }
-    buffer.append("*/")
-    buffer.toString()
-  }
-
   override def hashCode: Int = {
     if (hash == -1) {
       hash = (upper.hashCode() * 31 + lower.hashCode()) * 31 + tpt.args.hashCode()
