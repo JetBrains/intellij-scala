@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.components.libinjection
 
-import java.awt.event.{KeyEvent, ActionEvent}
+import java.awt.event.ActionEvent
 import java.awt.{BorderLayout, CardLayout}
-import javax.swing.{KeyStroke, Action, JComponent, JPanel}
+import javax.swing.{Action, JComponent, JPanel}
 
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.diagnostic.Logger
