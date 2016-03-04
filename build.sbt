@@ -20,9 +20,9 @@ onLoad in Global := ((s: State) => { "updateIdea" :: s}) compose (onLoad in Glob
 
 addCommandAlias("downloadIdea", "updateIdea")
 
-addCommandAlias("packagePlugin", "pluginPackager/package")
+addCommandAlias("packagePluginCommunity", "pluginPackagerCommunity/package")
 
-addCommandAlias("packagePluginZip", "pluginCompressor/package")
+addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package")
 
 // Main projects
 lazy val scalaCommunity: Project =
@@ -192,8 +192,8 @@ lazy val packagedPluginDir = settingKey[File]("Path to packaged, but not yet com
 
 packagedPluginDir in ThisBuild := baseDirectory.in(ThisBuild).value / "out" / "plugin" / "Scala"
 
-lazy val pluginPackager =
-  newProject("pluginPackager")
+lazy val pluginPackagerCommunity =
+  newProject("pluginPackagerCommunity")
   .settings(
     artifactPath := packagedPluginDir.value,
     dependencyClasspath <<= (
@@ -262,12 +262,12 @@ lazy val pluginPackager =
     }
   )
 
-lazy val pluginCompressor =
-  newProject("pluginCompressor")
+lazy val pluginCompressorCommunity =
+  newProject("pluginCompressorCommunity")
   .settings(
     artifactPath := baseDirectory.in(ThisBuild).value / "out" / "scala-plugin.zip",
     pack := {
-      Packaging.compressPackagedPlugin(pack.in(pluginPackager).value, artifactPath.value)
+      Packaging.compressPackagedPlugin(pack.in(pluginPackagerCommunity).value, artifactPath.value)
       artifactPath.value
     }
   )

@@ -136,7 +136,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
 
       val resultText =
         """
-          |import scala.collection.mutable.{ListMap, Builder, Queue, ArrayBuffer}
+          |import collection.mutable.{ArrayBuffer, Builder, ListMap, Queue}
           |import scala.collection.immutable.HashMap
           |
           |object Sandbox extends App {
@@ -175,13 +175,12 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
 
     val resultText =
       """
-        |import scala.collection.immutable._
-        |import scala.collection.mutable.HashMap
+        |import scala.collection.immutable.{HashMap => _, _}
         |import scala.collection.mutable._
         |
         |class Test2 {
         |  val x: HashMap[String, String] = HashMap.empty
-        |  val z: ListSet<caret> = null
+        |  val z: ListSet = null
         |}
       """.stripMargin.replaceAll("\r", "").trim()
 
@@ -278,4 +277,45 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
       checkResultByText(resultText)
     }
   }
+
+  def testSCL4087_2() {
+    withRelativeImports {
+      val fileText =
+        """
+          |package a.b.z {
+          |
+          |  class XXXX
+          |
+          |}
+          |
+          |import a.{b => c}
+          |
+          |trait Y {
+          |  val x: XXXX<caret>
+          |}
+        """.stripMargin.replaceAll("\r", "").trim()
+      configureFromFileTextAdapter("dummy.scala", fileText)
+      val (activeLookup, _) = complete(2, CompletionType.BASIC)
+
+      val resultText =
+        """
+          |package a.b.z {
+          |
+          |  class XXXX
+          |
+          |}
+          |
+          |import a.{b => c}
+          |import c.z.XXXX
+          |
+          |trait Y {
+          |  val x: XXXX
+          |}
+        """.stripMargin.replaceAll("\r", "").trim()
+
+      completeLookupItem(activeLookup.find(_.getLookupString == "XXXX").get, '\t')
+      checkResultByText(resultText)
+    }
+  }
+
 }

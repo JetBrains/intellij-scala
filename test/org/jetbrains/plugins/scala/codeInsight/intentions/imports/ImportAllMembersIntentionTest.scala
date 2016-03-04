@@ -3,6 +3,7 @@ package codeInsight.intentions.imports
 
 import org.jetbrains.plugins.scala.codeInsight.intention.imports.ImportAllMembersIntention
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
  * Nikolay.Tropin
@@ -199,6 +200,7 @@ class ImportAllMembersIntentionTest extends ScalaIntentionTestBase {
   def testImportConflicts() {
     val text =
       """import java.lang.Math._
+        |
         |import scala.math.{abs, sin => sine}
         |
         |object A {
@@ -206,15 +208,40 @@ class ImportAllMembersIntentionTest extends ScalaIntentionTestBase {
         |  abs(sine(math.Pi + E))
         |}""".stripMargin
     val result =
-      """import java.lang.Math.E
-        |import java.lang.Math._
-        |import scala.math.abs
-        |import scala.math.{sin => sine, _}
+      """import java.lang.Math._
+        |
+        |import scala.math.{abs, sin => sine, E => _, _}
         |
         |object A {
-        |  val i: <caret>BigInt = null
+        |  val i: BigInt = null
         |  abs(sine(Pi + E))
         |}""".stripMargin
     doTest(text, result)
+  }
+
+  def testImportConflictsNoMerge() {
+    val settings = ScalaCodeStyleSettings.getInstance(getProject)
+    settings.setCollectImports(false)
+    val text =
+      """import java.lang.Math._
+        |
+        |import scala.math.{abs, sin => sine}
+        |
+        |object A {
+        |  val i: <caret>math.BigInt = null
+        |  abs(sine(math.Pi + E))
+        |}""".stripMargin
+    val result =
+      """import java.lang.Math._
+        |
+        |import scala.math.abs
+        |import scala.math.{sin => sine, E => _, _}
+        |
+        |object A {
+        |  val i: BigInt = null
+        |  abs(sine(Pi + E))
+        |}""".stripMargin
+    doTest(text, result)
+    settings.setCollectImports(true)
   }
 }

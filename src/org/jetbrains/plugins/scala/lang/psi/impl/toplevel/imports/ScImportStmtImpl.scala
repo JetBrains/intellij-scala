@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableStableCodeReferenceElement, ResolveTargets, ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
 import scala.collection.immutable.Set
@@ -92,8 +93,8 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
                   ref.getKinds(incomplete = false).contains(ResolveTargets.CLASS) &&
                   ref.getKinds(incomplete = false).contains(ResolveTargets.METHOD) =>
                 ref.resolveTypesOnly(false)
-//              case ref: ResolvableStableCodeReferenceElement if p.kinds.contains(ResolveTargets.METHOD) =>
-//                ref.resolveMethodsOnly(false)
+              case ref: ResolvableStableCodeReferenceElement if p.kinds.contains(ResolveTargets.METHOD) =>
+                ref.resolveMethodsOnly(false)
               case _ => ref.multiResolve(false)
             }
           case _ => ref.multiResolve(false)
@@ -256,7 +257,7 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
                       }
 
                       override def execute(element: PsiElement, state: ResolveState): Boolean = {
-                        if (shadowed.exists(p => element == p._2)) return true
+                        if (shadowed.exists(p => ScEquivalenceUtil.smartEquivalence(element, p._2))) return true
 
                         var newState = state.put(ScSubstitutor.key, subst)
 

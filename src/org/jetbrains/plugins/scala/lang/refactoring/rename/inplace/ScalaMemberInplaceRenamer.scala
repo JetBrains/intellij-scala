@@ -3,7 +3,7 @@ package lang.refactoring.rename.inplace
 
 import java.util
 
-import com.intellij.codeInsight.TargetElementUtilBase
+import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.lang.Language
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.{Editor, ScrollType}
@@ -64,7 +64,7 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
     editor.putUserData(ScalaMemberInplaceRenamer.REVERT_INFO, revertInfo)
 
     val file = PsiDocumentManager.getInstance(myProject).getPsiFile(myEditor.getDocument)
-    val offset = TargetElementUtilBase.adjustOffset(file, editor.getDocument, editor.getCaretModel.getOffset)
+    val offset = TargetElementUtil.adjustOffset(file, editor.getDocument, editor.getCaretModel.getOffset)
     val range = file.findElementAt(offset).getTextRange
     myCaretRangeMarker = myEditor.getDocument.createRangeMarker(range)
     myCaretRangeMarker.setGreedyToLeft(true)
@@ -88,8 +88,8 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
           myEditor.getScrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
           PsiDocumentManager.getInstance(myEditor.getProject).commitDocument(document)
           val clazz = myElementToRename.getClass
-          val element = TargetElementUtilBase.findTargetElement(myEditor,
-            TargetElementUtilBase.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtilBase.ELEMENT_NAME_ACCEPTED)
+          val element = TargetElementUtil.findTargetElement(myEditor,
+            TargetElementUtil.REFERENCED_ELEMENT_ACCEPTED | TargetElementUtil.ELEMENT_NAME_ACCEPTED)
           myElementToRename = element match {
             case null => null
             case named: PsiNamedElement if named.getClass == clazz => named
@@ -110,7 +110,8 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
 
   override def getVariable: PsiNamedElement = {
     Option(super.getVariable).getOrElse {
-      if (myElementToRename.isValid && oldName == ScalaNamesUtil.scalaName(myElementToRename)) myElementToRename
+      if (myElementToRename != null && myElementToRename.isValid && oldName == ScalaNamesUtil.scalaName(myElementToRename))
+        myElementToRename
       else null
     }
   }

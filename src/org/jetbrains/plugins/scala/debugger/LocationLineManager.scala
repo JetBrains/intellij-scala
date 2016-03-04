@@ -40,6 +40,8 @@ trait LocationLineManager {
   }
 
   def shouldSkip(location: Location): Boolean = {
+    if (!DebuggerUtil.isScala(location.declaringType(), default = false)) return false
+
     val synth = DebuggerSettings.getInstance().SKIP_SYNTHETIC_METHODS && syntheticProvider.isSynthetic(location.method())
     synth || exactLineNumber(location) < 0
   }

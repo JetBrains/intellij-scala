@@ -20,11 +20,11 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReferenceElement, ScStableCodeReferenceElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScModificationTrackerOwner, ScNewTemplateDefinition, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScNewTemplateDefinition, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
@@ -32,8 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScTypeProjectionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -46,65 +45,7 @@ import scala.util.Random
  * Date: 16.05.2008
  */
 abstract class ScalaCompletionContributor extends CompletionContributor {
-  def getDummyIdentifier(offset: Int, file: PsiFile): String = {
-    def isOpChar(c: Char): Boolean = {
-      ScalaNamesUtil.isIdentifier("+" + c)
-    }
-
-    val element = file.findElementAt(offset)
-    val ref = file.findReferenceAt(offset)
-    if (element != null && ref != null) {
-      val text = ref match {
-        case ref: PsiElement => ref.getText
-        case ref: PsiReference => ref.getElement.getText //this case for anonymous method in ScAccessModifierImpl
-      }
-      val id = if (isOpChar(text(text.length - 1))) {
-        "+++++++++++++++++++++++"
-      } else {
-        val rest = ref match {
-          case ref: PsiElement => text.substring(offset - ref.getTextRange.getStartOffset + 1)
-          case ref: PsiReference =>
-            val from = offset - ref.getElement.getTextRange.getStartOffset + 1
-            if (from < text.length && from >= 0) text.substring(from) else ""
-        }
-        if (ScalaNamesUtil.isKeyword(rest)) {
-          CompletionUtil.DUMMY_IDENTIFIER
-        } else {
-          CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
-        }
-      }
-
-      if (ref.getElement != null &&
-        ref.getElement.getPrevSibling != null &&
-        ref.getElement.getPrevSibling.getNode.getElementType == ScalaTokenTypes.tSTUB) id + "`" else id
-    } else {
-      if (element != null && element.getNode.getElementType == ScalaTokenTypes.tSTUB) {
-        CompletionUtil.DUMMY_IDENTIFIER_TRIMMED + "`"
-      } else {
-        val actualElement = file.findElementAt(offset + 1)
-        if (actualElement != null && ScalaNamesUtil.isKeyword(actualElement.getText)) {
-          CompletionUtil.DUMMY_IDENTIFIER
-        } else {
-          CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
-        }
-      }
-    }
-  }
-
-  def positionFromParameters(parameters: CompletionParameters): PsiElement = {
-
-    @tailrec
-    def inner(element: PsiElement): PsiElement = element match {
-      case null => parameters.getPosition //we got to the top of the tree and didn't find a modificationTrackerOwner
-      case owner: ScModificationTrackerOwner if owner.isValidModificationTrackerOwner() =>
-        if (owner.containingFile.contains(parameters.getOriginalFile)) {
-          owner.getMirrorPositionForCompletion(getDummyIdentifier(parameters.getOffset, parameters.getOriginalFile),
-            parameters.getOffset - owner.getTextRange.getStartOffset).getOrElse(parameters.getPosition)
-        } else parameters.getPosition
-      case _ => inner(element.getContext)
-    }
-    inner(parameters.getOriginalPosition)
-  }
+  def positionFromParameters(parameters: CompletionParameters) = ScalaCompletionUtil.positionFromParameters(parameters)
 }
 
 class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
@@ -150,15 +91,9 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
         case _ => return
       }
       result.restartCompletionWhenNothingMatches()
-      val expectedTypesAfterNew: Array[ScType] =
-      if (afterNewPattern.accepts(position, context)) {
-        val element = position
-        val newExpr: ScNewTemplateDefinition = PsiTreeUtil.getContextOfType(element, classOf[ScNewTemplateDefinition])
-        newExpr.expectedTypes().map {
-          case ScAbstractType(_, lower, upper) => upper
-          case tp                              => tp
-        }
-      } else Array.empty
+
+      val (expectedTypesAfterNew, isAfterNew) = ScalaAfterNewCompletionUtil.expectedTypesAfterNew(position, context)
+
       //if prefix is capitalized, class name completion is enabled
       val classNameCompletion = shouldRunClassNameCompletion(positionFromParameters(parameters), parameters, result.getPrefixMatcher)
       val insertedElement: PsiElement = position
@@ -197,8 +132,9 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                     })
 
                     if (!isExcluded && !classNameCompletion && (!lookingForAnnotations || clazz.isAnnotationType)) {
-                      if (afterNewPattern.accepts(position, context)) {
-                        addElement(getLookupElementFromClass(expectedTypesAfterNew, clazz, renamedMap))
+                      if (isAfterNew) {
+                        val lookupElement = getLookupElementFromClass(expectedTypesAfterNew, clazz, renamedMap)
+                        addElement(lookupElement)
                       } else {
                         addElement(el)
                       }
@@ -208,9 +144,21 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                   case fun: ScFun => addElement(el)
                   case param: ScClassParameter =>
                     addElement(el)
+                  case param: ScParameter if !el.isNamedParameter=>
+                    el.isLocalVariable = true
+                    addElement(el)
                   case patt: ScBindingPattern =>
                     val context = ScalaPsiUtil.nameContext(patt)
                     context match {
+                      case sValue: ScValue if sValue.isLocal =>
+                        el.isLocalVariable = true
+                        addElement(el)
+                      case sVar: ScVariable if sVar.isLocal =>
+                        el.isLocalVariable = true
+                        addElement(el)
+                      case caseClasuse: ScCaseClause =>
+                        el.isLocalVariable = true
+                        addElement(el)
                       case memb: PsiMember =>
                         if (parameters.getInvocationCount > 1 ||
                           ResolveUtils.isAccessible(memb, position, forCompletion = true)) addElement(el)
@@ -220,18 +168,21 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
                     if (parameters.getInvocationCount > 1 || ResolveUtils.isAccessible(memb, position,
                       forCompletion = true))
                       addElement(el)
-                  case _ => addElement(el)
+                  case _ =>
+                    addElement(el)
                 }
               case _ =>
             }
           }
           def postProcessMethod(resolveResult: ScalaResolveResult) {
             import org.jetbrains.plugins.scala.lang.psi.types.Nothing
+            val probablyContinigClass = Option(PsiTreeUtil.getContextOfType(position, classOf[PsiClass]))
             val qualifierType = resolveResult.fromType.getOrElse(Nothing)
             val lookupItems: Seq[ScalaLookupItem] = LookupElementManager.getLookupElement(
               resolveResult,
               isInImport = isInImport,
               qualifierType = qualifierType,
+              containingClass = probablyContinigClass,
               isInStableCodeReference = ref.isInstanceOf[ScStableCodeReferenceElement])
             lookupItems.foreach(applyVariant(_))
           }
@@ -320,7 +271,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
     addedElements.clear()
     val offset: Int = context.getStartOffset - 1
     val file: PsiFile = context.getFile
-    context.setDummyIdentifier(getDummyIdentifier(offset, file))
+    context.setDummyIdentifier(ScalaCompletionUtil.getDummyIdentifier(offset, file))
     super.beforeCompletion(context)
   }
 

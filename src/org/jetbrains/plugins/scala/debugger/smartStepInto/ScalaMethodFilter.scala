@@ -19,16 +19,17 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
  */
 
 class ScalaMethodFilter(function: ScMethodLike, callingExpressionLines: Range[Integer]) extends MethodFilter {
-
-  val myTargetMethodSignature = DebuggerUtil.getFunctionJVMSignature(function)
-  val myDeclaringClassName = {
+  private val unknownName: String = "!unknownName!"
+  private val myTargetMethodSignature = DebuggerUtil.getFunctionJVMSignature(function)
+  private val myDeclaringClassName = {
     val clazz = PsiTreeUtil.getParentOfType(function, classOf[ScTemplateDefinition])
-    DebuggerUtil.getClassJVMName(clazz, clazz.isInstanceOf[ScObject] || ValueClassType.isValueClass(clazz))
+    if (clazz == null) JVMNameUtil.getJVMRawText(unknownName)
+    else DebuggerUtil.getClassJVMName(clazz, clazz.isInstanceOf[ScObject] || ValueClassType.isValueClass(clazz))
   }
-  val funName = function match {
+  private val funName = function match {
     case c: ScMethodLike if c.isConstructor => "<init>"
     case fun: ScFunction => ScalaNamesUtil.toJavaName(fun.name)
-    case _ => "!unknownName!"
+    case _ => unknownName
   }
 
   override def locationMatches(process: DebugProcessImpl, location: Location): Boolean = {
@@ -36,6 +37,8 @@ class ScalaMethodFilter(function: ScMethodLike, callingExpressionLines: Range[In
     if (!method.name.contains(funName)) return false
 
     val className = myDeclaringClassName.getName(process)
+    if (className == unknownName) return false
+
     val locationTypeName = location.declaringType().name()
 
     if (locationTypeName.endsWith("$class")) className == locationTypeName.stripSuffix("$class")

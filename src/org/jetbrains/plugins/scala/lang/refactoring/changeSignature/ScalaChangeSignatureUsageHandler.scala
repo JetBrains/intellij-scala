@@ -6,7 +6,7 @@ import com.intellij.refactoring.changeSignature._
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
 import org.jetbrains.plugins.scala.extensions.{ChildOf, ElementText}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -86,7 +86,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     oldTypeElem match {
       case Some(te) =>
         val replaced = te.replace(newTypeElem)
-        ScalaPsiUtil.adjustTypes(replaced)
+        TypeAdjuster.markToAdjust(replaced)
       case None =>
         val (context, anchor) = ScalaPsiUtil.nameContext(element) match {
           case f: ScFunction => (f, f.paramClauses)
@@ -95,7 +95,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
           case cp: ScClassParameter => (cp.getParent, cp)
           case ctx => (ctx, ctx.getLastChild)
         }
-        AddOnlyStrategy.addTypeAnnotation(substType, context, anchor)
+        AddOnlyStrategy.withoutEditor.addTypeAnnotation(substType, context, anchor)
     }
   }
 
@@ -151,7 +151,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     val newFunExprText = s"$clause => $exprText"
     val funExpr = ScalaPsiElementFactory.createExpressionFromText(newFunExprText, usage.expr.getManager)
     val replaced = usage.expr.replaceExpression(funExpr, removeParenthesis = true).asInstanceOf[ScFunctionExpr]
-    ScalaPsiUtil.adjustTypes(replaced)
+    TypeAdjuster.markToAdjust(replaced)
     replaced.result match {
       case Some(infix: ScInfixExpr) =>
         handleInfixUsage(change, InfixExprUsageInfo(infix))
@@ -189,7 +189,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case Some(p) => p.replace(newClauses)
       case None => nameId.getParent.addAfter(newClauses, nameId)
     }
-    ScalaPsiUtil.adjustTypes(result)
+    TypeAdjuster.markToAdjust(result)
   }
 
   protected def handleUsageArguments(change: ChangeInfo, usage: UsageInfo): Unit = {

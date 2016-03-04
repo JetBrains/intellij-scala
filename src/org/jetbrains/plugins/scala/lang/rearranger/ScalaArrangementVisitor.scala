@@ -94,7 +94,12 @@ class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo, document: Do
   override def visitElement(v: ScalaPsiElement) = v match {
     case packaging: ScPackaging => packaging.acceptChildren(this)
     case _ => super.visitElement(v)
-  } 
+  }
+
+  override def visitClass(scClass: ScClass) =
+    processEntry(
+      createNewEntry(scClass.getParent, expandTextRangeToComment(scClass), CLASS, scClass.getName, canArrange = true),
+      scClass, scClass.extendsBlock.templateBody.orNull)
   
   override def visitValueDeclaration(v: ScValueDeclaration) =
     processEntry(createNewEntry(v.getParent, expandTextRangeToComment(v), VAL, v.getName, canArrange = true), v, null)

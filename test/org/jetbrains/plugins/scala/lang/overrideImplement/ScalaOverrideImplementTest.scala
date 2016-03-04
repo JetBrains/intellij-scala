@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.overrideImplement
 
+import java.util
+
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -423,10 +425,10 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     runTest(methodName, fileText, expectedText, isImplement, needsInferType)
   }
 
-  def testList() {
+  def testMap() {
     val fileText =
       """
-        |class ExtendsList extends java.util.List {
+        |class ExtendsMap[K, V] extends java.util.Map[K, V] {
         |  <caret>
         |}
       """
@@ -434,11 +436,11 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
       """
         |import java.util
         |
-        |class ExtendsList extends java.util.List {
-        |  def removeAll(c: util.Collection[_]): Boolean = <selection>???</selection>
+        |class ExtendsMap[K, V] extends java.util.Map[K, V] {
+        |  def putAll(m: util.Map[_ <: K, _ <: V]): Unit = <selection>???</selection>
         |}
       """
-    val methodName: String = "removeAll"
+    val methodName: String = "putAll"
     val isImplement = true
     val needsInferType = true
     runTest(methodName, fileText, expectedText, isImplement, needsInferType)

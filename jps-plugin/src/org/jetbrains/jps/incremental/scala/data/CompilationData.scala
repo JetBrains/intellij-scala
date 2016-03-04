@@ -146,14 +146,16 @@ object CompilationData {
   }
 
   private def targetsIn(context: CompileContext): Seq[ModuleBuildTarget] = {
-    val targets = {
-      val buildTargetIndex = context.getProjectDescriptor.getBuildTargetIndex
-      JavaModuleBuildTargetType.ALL_TYPES.asScala.flatMap(buildTargetIndex.getAllTargets(_).asScala)
-    }
-
-    targets.distinct.filterNot { target =>
+    def isExcluded(target: ModuleBuildTarget): Boolean = {
       val chunk = new ModuleChunk(Collections.singleton(target))
       ChunkExclusionService.isExcluded(chunk)
+    }
+
+    val buildTargetIndex = context.getProjectDescriptor.getBuildTargetIndex
+    val targets = JavaModuleBuildTargetType.ALL_TYPES.asScala.flatMap(buildTargetIndex.getAllTargets(_).asScala)
+
+    targets.distinct.filterNot { target =>
+      buildTargetIndex.isDummy(target) || isExcluded(target)
     }
   }
 
@@ -161,7 +163,7 @@ object CompilationData {
     val outputToTargetsMap = targetToOutput.groupBy(_._2).mapValues(_.map(_._1))
 
     val errors = outputToTargetsMap.collect {
-      case (output, targets) if targets.length > 1 =>
+      case (output, targets) if output != null && targets.length > 1 =>
         val targetNames = targets.map(_.getPresentableName).mkString(", ")
         "Output path %s is shared between: %s".format(output, targetNames)
     }

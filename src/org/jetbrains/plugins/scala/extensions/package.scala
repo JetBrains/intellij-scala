@@ -30,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 import scala.collection.generic.CanBuildFrom
+import scala.io.Source
 import scala.language.higherKinds
 import scala.reflect.{ClassTag, classTag}
 import scala.runtime.NonLocalReturnControl
@@ -54,10 +55,12 @@ package object extensions {
     }
 
     def hasQueryLikeName = {
+      def startsWith(name: String, prefix: String) =
+        name.length > prefix.length && name.startsWith(prefix) && name.charAt(prefix.length).isUpper
+
       repr.getName match {
         case "getInstance" => false // TODO others?
-        case name if name.startsWith("getAnd") && name.charAt("getAnd".length).isUpper => false
-        case name if name.startsWith("getOr") && name.charAt("getOr".length).isUpper => false
+        case name if startsWith(name, "getAnd") || startsWith(name, "getOr") => false
         case AccessorNamePattern() => true
         case _ => false
       }
@@ -250,7 +253,7 @@ package object extensions {
         case fun: ScFunction if !fun.isConstructor =>
           val wrappers = fun.getFunctionWrappers(isStatic, isInterface = fun.isAbstractMember, concreteClassFor(fun))
           wrappers.foreach(processMethod)
-          processName(fun.name)
+          wrappers.foreach(w => processName(w.name))
         case method: PsiMethod if !method.isConstructor =>
           if (isStatic) {
             if (method.containingClass != null && method.containingClass.qualifiedName != "java.lang.Object") {
@@ -524,6 +527,14 @@ package object extensions {
       block(resource)
     } finally {
       resource.close()
+    }
+  }
+
+  def using[B](source: Source)(block: Source => B): B = {
+    try {
+      block(source)
+    } finally {
+      source.close()
     }
   }
 

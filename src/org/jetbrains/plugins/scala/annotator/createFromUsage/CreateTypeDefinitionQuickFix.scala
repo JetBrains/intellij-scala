@@ -53,7 +53,8 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
             case inner childOf (_: ScTemplateBody) => inner
             case td: ScTypeDefinition if td.isTopLevel => td
           }
-          val possibleSiblings = file +: inThisFile.toSeq.reverse
+          val fileOption = if (file == null || file.getContainingDirectory == null) None else Some(file)
+          val possibleSiblings = fileOption ++: inThisFile.toSeq.reverse
           createClassWithLevelChoosing(editor, possibleSiblings)
         case _ =>
       }
@@ -61,7 +62,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
   }
 
   private def createClassInPackage(psiPackage: PsiPackage): Unit = {
-    val directory = psiPackage.getDirectories match {
+    val directory = psiPackage.getDirectories.filter(_.isWritable) match {
       case Array(dir) => dir
       case Array() => throw new IllegalStateException(s"Cannot find directory for the package `${psiPackage.getName}`")
       case dirs => 

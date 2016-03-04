@@ -5,10 +5,13 @@ package api
 package base
 
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement, ScTypeArgs, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+
+import scala.collection.Seq
 
 /**
 * @author Alexander Podkhalyuzin
@@ -41,6 +44,8 @@ trait ScConstructor extends ScalaPsiElement {
   def multiType(i: Int): Seq[TypeResult[ScType]]
 
   def reference: Option[ScStableCodeReferenceElement]
+
+  def matchedParameters: Seq[(ScExpression, Parameter)]
 }
 
 object ScConstructor {
@@ -52,10 +57,13 @@ object ScConstructor {
     def unapply(ref: ScReferenceElement): Option[ScConstructor] = {
       PsiTreeUtil.getParentOfType(ref, classOf[ScConstructor]) match {
         case null => None
-        case c if c.reference == Some(ref) => Some(c)
+        case c if c.reference.contains(ref) => Some(c)
         case _ => None
       }
     }
   }
+  
+  new A(i = 1)(s = "A")
 }
 
+class A(i: Int)(s: String)

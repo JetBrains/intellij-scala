@@ -10,9 +10,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScExpression, ScNewTemplateDefinition, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.collection.Seq
 import scala.collection.immutable.HashMap
@@ -42,7 +43,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   def expectedType: Option[ScType] = {
     getContext match {
       case parents: ScClassParents =>
-        if (parents.typeElements.length != 1) None
+        if (parents.allTypeElements.length != 1) None
         else {
           parents.getContext match {
             case e: ScExtendsBlock =>
@@ -198,5 +199,29 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       case s: ScalaElementVisitor => s.visitConstructor(this)
       case _ => super.accept(visitor)
     }
+  }
+
+  @Cached(true, ModCount.getBlockModificationCount, this)
+  def matchedParameters: Seq[(ScExpression, Parameter)] = {
+    val paramClauses = this.reference.flatMap(r => Option(r.resolve())) match {
+      case Some(pc: ScPrimaryConstructor) => pc.parameterList.clauses.map(_.parameters)
+      case Some(fun: ScFunction) if fun.isConstructor => fun.parameterList.clauses.map(_.parameters)
+      case Some(m: PsiMethod) if m.isConstructor => Seq(m.getParameterList.getParameters.toSeq)
+      case _ => Seq.empty
+    }
+    (for {
+      (paramClause, argList) <- paramClauses.zip(arguments)
+      (arg, idx) <- argList.exprs.zipWithIndex
+    } yield {
+      arg match {
+        case ScAssignStmt(refToParam: ScReferenceExpression, Some(expr)) =>
+          val param = paramClause.find(_.getName == refToParam.refName)
+            .orElse(refToParam.resolve().asOptionOf[ScParameter])
+          param.map(p => (expr, new Parameter(p))).toSeq
+        case expr =>
+          val paramIndex = Math.min(idx, paramClause.size - 1)
+          paramClause.lift(paramIndex).map(p => (expr, new Parameter(p))).toSeq
+      }
+    }).flatten
   }
 }

@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackageContainerStub
@@ -180,5 +181,10 @@ class ScPackagingImpl private (stub: StubElement[ScPackageContainer], nodeType: 
               getTextRange.getStartOffset
       if (startOffset >= endOffset) "" else text.substring(startOffset, endOffset)
     }
+  }
+
+  override protected def childBeforeFirstImport: Option[PsiElement] = {
+    if (isExplicit) Option(findChildByType[PsiElement](ScalaTokenTypes.tLBRACE))
+    else reference
   }
 }

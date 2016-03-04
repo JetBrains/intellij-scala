@@ -8,6 +8,8 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
+import com.intellij.refactoring.HelpID
+import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -36,15 +38,19 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
       PsiDocumentManager.getInstance(project).commitAllDocuments()
       ScalaRefactoringUtil.checkFile(file, project, editor, REFACTORING_NAME)
 
-      val (expr: ScExpression, types: Array[ScType]) = getExpression(project, editor, file, startOffset, endOffset).
-              getOrElse(showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor, REFACTORING_NAME))
+      val (expr: ScExpression, types: Array[ScType]) = getExpression(project, editor, file, startOffset, endOffset) match {
+        case Some((e, tps)) => (e, tps)
+        case None =>
+          showErrorMessage(ScalaBundle.message("cannot.refactor.not.expression"), project, editor)
+          return
+      }
 
       afterClassChoosing[ScExpression](expr, types, project, editor, file, "Choose class for Introduce Field") {
         convertExpressionToField
       }
     }
     catch {
-      case _: IntroduceException => return
+      case _: IntroduceException =>
     }
   }
 
@@ -62,13 +68,13 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
 
   def convertExpressionToField(ifc: IntroduceFieldContext[ScExpression]) {
 
-    ScalaRefactoringUtil.checkCanBeIntroduced(ifc.element, showErrorMessage(_, ifc.project, ifc.editor, REFACTORING_NAME))
+    val possiblePlace = ScalaRefactoringUtil.checkCanBeIntroduced(ifc.element, showErrorMessage(_, ifc.project, ifc.editor))
+    if (!possiblePlace) return
 
     def runWithDialog() {
       val settings = new IntroduceFieldSettings(ifc)
       if (!settings.canBeInitInDeclaration && !settings.canBeInitLocally) {
-        ScalaRefactoringUtil.showErrorMessage("Cannot create field from this expression", ifc.project, ifc.editor,
-          ScalaBundle.message("introduce.field.title"))
+        showErrorMessage("Cannot create field from this expression", ifc.project, ifc.editor)
       } else {
         val dialog = getDialog(ifc, settings)
         if (dialog.isOK) {
@@ -86,8 +92,10 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     val occurrencesToReplace = if (settings.replaceAll) ifc.occurrences else mainOcc
     val aClass = ifc.aClass
     val checkAnchor: PsiElement = anchorForNewDeclaration(expression, occurrencesToReplace, aClass)
-    if (checkAnchor == null)
-      ScalaRefactoringUtil.showErrorMessage("Cannot find place for the new field", ifc.project, ifc.editor, ScalaBundle.message("introduce.field.title"))
+    if (checkAnchor == null) {
+      showErrorMessage("Cannot find place for the new field", ifc.project, ifc.editor)
+      return
+    }
     val manager = aClass.getManager
     val name = settings.name
     val typeName = Option(settings.scType).map(_.canonicalText).getOrElse("")
@@ -172,6 +180,10 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
 
   private def onOneLine(document: Document, range: TextRange): Boolean = {
     document.getLineNumber(range.getStartOffset) == document.getLineNumber(range.getEndOffset)
+  }
+
+  private def showErrorMessage(text: String, project: Project, editor: Editor) = {
+    CommonRefactoringUtil.showErrorHint(project, editor, text, REFACTORING_NAME, HelpID.INTRODUCE_FIELD)
   }
 
 }

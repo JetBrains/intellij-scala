@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.quickfixes.addModifier
 
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 
 /**
@@ -15,7 +17,7 @@ class AddModifierTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
     val place = getFileAdapter.findElementAt(getEditorAdapter.getCaretModel.getOffset)
     val owner = PsiTreeUtil.getParentOfType(place, classOf[ScModifierListOwner])
     assert(owner != null)
-    owner.setModifierProperty(modifier, value)
+    inWriteAction(owner.setModifierProperty(modifier, value))
     checkResultByText(result)
   }
   

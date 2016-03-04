@@ -109,12 +109,14 @@ class ScalaCompilerSettings(state: ScalaCompilerSettingsState) {
     }
   }
 
-  private def normalized(options: Seq[String]): Seq[String] = options.flatMap { option =>
-    if (option.startsWith("-language:")) {
-      option.substring(10).split(",").map("-language:" + _)
-    } else {
-      Seq(option)
-    }
+  private def normalized(options: Seq[String]): Seq[String] = options.flatMap {
+    case "-language:macros" =>
+      Seq("-language:experimental.macros")
+    case option =>
+      if (option.startsWith("-language:"))
+        option.substring(10).split(",").map("-language:" + _)
+      else
+        Seq(option)
   }
 
   def loadState(state: ScalaCompilerSettingsState) {

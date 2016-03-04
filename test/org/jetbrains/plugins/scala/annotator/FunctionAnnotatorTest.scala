@@ -98,6 +98,23 @@ class FunctionAnnotatorTest extends SimpleTestCase {
     }
   }
 
+  def testTry(): Unit = {
+    assertMatches(messages(
+      """
+        |def myFunc(): Int = {
+        |  try {
+        |    val something = "some string"
+        |    val someOtherValue = List()
+        |  } catch {
+        |    case e: Exception => throw e
+        |  }
+        |}
+      """.stripMargin
+    )) {
+      case Error("}", TypeMismatch()) :: Nil =>
+    }
+  }
+
   def testTypeAbsolutelyEmpty() {
     assertMatches(messages("def f: A = {}")) {
       case Error("}", TypeMismatch()) :: Nil =>

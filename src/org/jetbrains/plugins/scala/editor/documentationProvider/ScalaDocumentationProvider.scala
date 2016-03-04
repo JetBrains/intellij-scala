@@ -599,7 +599,7 @@ object ScalaDocumentationProvider {
     val buffer: StringBuilder = new StringBuilder("extends ")
     elem.templateParents match {
       case Some(x: ScTemplateParents) =>
-        val seq = x.typeElements
+        val seq = x.allTypeElements
         buffer.append(ScType.urlText(seq.head.getType(TypingContext.empty).getOrAny) + "\n")
         for (i <- 1 until seq.length)
           buffer append " with " + ScType.urlText(seq(i).getType(TypingContext.empty).getOrAny)

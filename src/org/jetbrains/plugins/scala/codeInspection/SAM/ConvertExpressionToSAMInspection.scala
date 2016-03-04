@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, Abst
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
@@ -35,7 +36,7 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
                   val res = new StringBuilder
                   fun.effectiveParameterClauses.headOption match {
                     case Some(paramClause) =>
-                      res.append(paramClause.getText)
+                      res.append(cleanedParamsText(paramClause))
                       res.append(" => ")
                     case _ =>
                   }
@@ -55,10 +56,22 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
       case _ =>
     }
   }
+
+  //to get rid of by-name and default params
+  private def cleanedParamsText(paramClause: ScParameterClause) = {
+    val parameters = paramClause.parameters
+    val namesWithTypes = parameters.map { p =>
+      val name = p.name
+      val typeText = p.typeElement.map(_.getText).getOrElse("")
+      s"$name: $typeText"
+    }
+    namesWithTypes.mkString("(", ", ", ")")
+  }
 }
 
-class ReplaceExpressionWithSAMQuickFix(elem: PsiElement, replacement: => String) extends AbstractFixOnPsiElement(
-  inspectionName, elem) {
+class ReplaceExpressionWithSAMQuickFix(elem: PsiElement, replacement: => String)
+  extends AbstractFixOnPsiElement(inspectionName, elem) {
+  
   override def doApplyFix(project: Project): Unit = {
     val element = getElement
     if (!element.isValid) return

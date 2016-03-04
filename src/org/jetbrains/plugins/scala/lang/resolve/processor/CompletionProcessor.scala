@@ -85,7 +85,7 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
 
     def _addResult(result: ScalaResolveResult) {
       val signature: Option[Signature] = getSignature(element, substitutor)
-      val forImplicit = implFunction != None
+      val forImplicit = implFunction.isDefined
       if (!forImplicit) {
         if (levelSet.contains(result)) {
           if (result.prefixCompletion) {

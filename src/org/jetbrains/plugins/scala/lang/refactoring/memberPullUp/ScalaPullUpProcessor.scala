@@ -7,7 +7,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.refactoring.{BaseRefactoringProcessor, RefactoringBundle}
 import com.intellij.usageView.{UsageInfo, UsageViewDescriptor}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
@@ -67,7 +67,7 @@ class ScalaPullUpProcessor(project: Project,
 
         templateBody.addBefore(ScalaPsiElementFactory.createNewLine(manager), anchor)
         val added = templateBody.addBefore(memberCopy, anchor).asInstanceOf[ScMember]
-        if (info.isToAbstract) ScalaPsiUtil.adjustTypes(added)
+        if (info.isToAbstract) TypeAdjuster.markToAdjust(added)
         else movedDefinitions += added
       }
       templateBody.addBefore(ScalaPsiElementFactory.createNewLine(manager), anchor)

@@ -23,7 +23,6 @@ import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.refactoring.HelpID
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -817,18 +816,21 @@ object ScalaRefactoringUtil {
   /**
    * @throws IntroduceException
    */
-  def showErrorMessage(text: String, project: Project, editor: Editor, refactoringName: String): Nothing = {
-    if (ApplicationManager.getApplication.isUnitTestMode) throw new RuntimeException(text)
-    CommonRefactoringUtil.showErrorHint(project, editor, text, refactoringName, HelpID.INTRODUCE_PARAMETER)
+  def showErrorMessageWithException(text: String, project: Project, editor: Editor, refactoringName: String): Nothing = {
+    CommonRefactoringUtil.showErrorHint(project, editor, text, refactoringName, null)
     throw new IntroduceException
+  }
+
+  def showErrorHint(text: String, project: Project, editor: Editor, refactoringName: String) = {
+    CommonRefactoringUtil.showErrorHint(project, editor, text, refactoringName, null)
   }
 
   def checkFile(file: PsiFile, project: Project, editor: Editor, refactoringName: String) {
     if (!file.isInstanceOf[ScalaFile])
-      showErrorMessage(ScalaBundle.message("only.for.scala"), project, editor, refactoringName)
+      showErrorMessageWithException(ScalaBundle.message("only.for.scala"), project, editor, refactoringName)
 
     if (!ScalaRefactoringUtil.ensureFileWritable(project, file))
-      showErrorMessage(ScalaBundle.message("file.is.not.writable"), project, editor, refactoringName)
+      showErrorMessageWithException(ScalaBundle.message("file.is.not.writable"), project, editor, refactoringName)
   }
 
   def checkCanBeIntroduced(expr: ScExpression, action: (String) => Unit = s => {}): Boolean = {
@@ -1106,12 +1108,12 @@ object ScalaRefactoringUtil {
 
     val messages = elements.flatMap(errors).distinct
     if (messages.nonEmpty) {
-      showErrorMessage(messages.mkString("\n"), project, editor, refactoringName)
+      showErrorHint(messages.mkString("\n"), project, editor, refactoringName)
       return true
     }
 
     if (elements.isEmpty || !elements.exists(_.isInstanceOf[ScBlockStatement])) {
-      showErrorMessage(ScalaBundle.message("cannot.extract.empty.message"), project, editor, refactoringName)
+      showErrorHint(ScalaBundle.message("cannot.extract.empty.message"), project, editor, refactoringName)
       return true
     }
 

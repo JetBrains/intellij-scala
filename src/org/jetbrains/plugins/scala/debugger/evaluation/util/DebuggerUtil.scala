@@ -335,7 +335,7 @@ object DebuggerUtil {
   }
 
   def isScala(refType: ReferenceType, default: Boolean = true): Boolean = {
-    Try(refType.sourceName().endsWith(".scala")).getOrElse(default)
+    ScalaPositionManager.cachedSourceName(refType).map(_.endsWith(".scala")).getOrElse(default)
   }
 
   def jvmClassAtPosition(sourcePosition: SourcePosition, debugProcess: DebugProcess): Option[ReferenceType] = {

@@ -33,7 +33,7 @@ object FindIsEmpty extends SimplificationType() {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case CheckIsEmpty(qual`.find`(cond), s, e) =>
+      case CheckIsEmpty(qual`.find`(cond), s, e) if qual != null =>
         val start = Math.min(s, qual.end)
         val end = Math.max(e, expr.end)
         val notExistsText = invocationText(negation = true, qual, "exists", cond)

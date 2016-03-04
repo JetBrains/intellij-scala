@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.util.ScalaLanguageDerivative
 /**
  * See com.intellij.codeInsight.daemon.impl.RefCountHolder
  */
-class ScalaRefCountHolder private (file: PsiFile) {
+class ScalaRefCountHolder private () {
   private final val myState: AtomicReference[Integer] = new AtomicReference[Integer](State.VIRGIN)
   private object State {val VIRGIN = 0; val WRITE = 1; val READY = 2; val READ = 3;}
   private val myImportUsed = ContainerUtil.newConcurrentSet[ImportUsed]()
@@ -134,7 +134,7 @@ object ScalaRefCountHolder {
     
     Option(myFile getUserData SCALA_REF_COUNT_HOLDER_IN_FILE_KEY) getOrElse {
       myFile.asInstanceOf[UserDataHolderEx] putUserDataIfAbsent (
-        SCALA_REF_COUNT_HOLDER_IN_FILE_KEY, new ScalaRefCountHolder(myFile)
+        SCALA_REF_COUNT_HOLDER_IN_FILE_KEY, new ScalaRefCountHolder
       )
     }
   }

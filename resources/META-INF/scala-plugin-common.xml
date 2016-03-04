@@ -24,7 +24,7 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-      <project.converterProvider 
+      <project.converterProvider
           implementation="org.jetbrains.plugins.scala.project.converter.ScalaProjectConverterProvider"/>
       <statistics.usagesCollector
                 implementation="org.jetbrains.plugins.scala.statistics.ScalaApplicationUsagesCollector" />
@@ -102,14 +102,19 @@
         <problemHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemHighlightFilter"/>
 
       <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
-        <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"/>
+        <completion.contributor language="Scala" id="keywordCompletionContributor"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor"/>
-        <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaMemberNameCompletionContributor"/>
+        <completion.contributor language="Scala" id="memberNameCompletionContributor"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaMemberNameCompletionContributor"/>
         <completion.contributor language="Scala" id="scaladocTagsCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.scaladoc.completion.ScalaDocCompletionContributor"/>
         <completion.contributor language="Scala" id="scalaIdentifierCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaAotCompletionContributor"
                                 order="before scalaCompletionContrubutor"/>
+        <completion.contributor language="Scala" id="scalaClassParamContributor"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCaseClassParametersNameContributer"
+                                order="before keywordCompletionContributor, before memberNameCompletionContributor"/>
         <completion.contributor language="Scala" id="scalaCompletionContrubutor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaBasicCompletionContributor"/>
         <completion.contributor language="Scala" id="sameSignatureCallParametersProvider"
@@ -129,15 +134,19 @@
                       implementationClass="org.jetbrains.plugins.scala.lang.completion.statistician.ScalaCompletionStatistician"/>
         <lookup.actionProvider implementation="org.jetbrains.plugins.scala.lang.completion.ScalaImportStaticLookupActionProvider"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaContainingClassWiegher"
-                 id="scalaContainingClassWeigher" order="after prefix, before scalaParameterCompletionWeigher"/>
+                 id="scalaContainingClassWeigher" order="after prefix, before scalaKindWeigher"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaMethodCompletionWeigher"
-                 id="scalaMethodCompletionWeigher" order="after prefix, before proximity"/>
-        <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaParameterCompletionWeigher"
-                 id="scalaParameterCompletionWeigher" order="after scalaMethodCompletionWeigher, before proximity"/>
+                 id="scalaMethodCompletionWeigher" order="after scalaContainingClassWeigher, before proximity"/>
         <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaClassesCompletionWeigher"
                  id="scalaClassesCompletionWeigher" order="after prefix, before proximity"/>
+        <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByTypeWeigher"
+                 id="scalaTypeCompletionWeigher" order="before scalaContainingClassWeigher"/>
+        <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaKindCompletionWeigher"
+                 id="scalaKindWeigher" order="after prefix, before proximity"/>
         <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaClassObjectWeigher"
                  id="scalaClassObjectWeigher" order="before samePsiMember"/>
+        <weigher key="completion" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaScopeWeigher"
+                 id="ScopeWeigher" order="after scalaKindWeigher, before proximity"/>
         <weigher key="proximity" implementationClass="org.jetbrains.plugins.scala.lang.completion.weighter.ScalaExplicitlyImportedWeigher"
                  id="scalaExplicitlyImportedWeigher" order="before explicitlyImported"/>
         <psi.referenceContributor implementation="org.jetbrains.plugins.scala.lang.references.ScalaReferenceContributor"/>
@@ -266,9 +275,9 @@
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaQualifiedClassNameMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaSubtypesMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaTypeOfVariableMacro"/>
-        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorParamTypes"/>
-        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorParamNames"/>
-        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorParams"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorParamTypesMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorParamNamesMacro"/>
+        <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaPrimaryConstructorParamsMacro"/>
         <liveTemplatePreprocessor implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaTemplatePreprocessor"/>
 
         <codeInsight.template.postfixTemplateProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.postfix.templates.ScalaPostfixTemplateProvider"/>
@@ -398,6 +407,11 @@
         <intentionAction>
             <category>Scala/Type</category>
             <className>org.jetbrains.plugins.scala.codeInsight.intention.types.ToggleTypeAnnotation</className>
+        </intentionAction>
+
+        <intentionAction>
+            <category>Scala/Type</category>
+            <className>org.jetbrains.plugins.scala.codeInsight.intention.types.MakeTypeMoreSpecificIntention</className>
         </intentionAction>
 
         <intentionAction>
@@ -833,6 +847,10 @@
                          displayName="Comparing unrelated types" groupPath="Scala" groupName="General"
                          shortName="ComparingUnrelatedTypes" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.PatternMayNeverMatchInspection"
+                         displayName="Pattern may never match" groupPath="Scala" groupName="General"
+                         shortName="PatternMayNeverMatch" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection"
                          displayName="Match statement convertible to pattern matching anonymous function" groupPath="Scala" groupName="General"
                          shortName="MatchToPartialFunction" level="WARNING"
@@ -868,6 +886,10 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.delayedInit.FieldFromDelayedInitInspection"
                          displayName="Field from DelayedInit" groupPath="Scala" groupName="General"
                          shortName="FieldFromDelayedInit" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.hashCodeUsesVar.HashCodeUsesVarInspection"
+                         displayName="Non-value field is accessed in 'hashCode()'" groupPath="Scala" groupName="General"
+                         shortName="HashCodeUsesVar" level="WEAK WARNING"
                          enabledByDefault="true" language="Scala"/>
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
                         displayName="All Errors Tool" groupPath="Scala" groupName="General"

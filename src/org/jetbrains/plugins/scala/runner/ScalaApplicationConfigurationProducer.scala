@@ -19,12 +19,17 @@ import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, ScFunctionWr
  * @author Alefas
  * @since 02.03.12
  */
-class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProduceBaseAdapter[ApplicationConfiguration](ApplicationConfigurationType.getInstance) with Cloneable {
+class ScalaApplicationConfigurationProducer
+  extends BaseScalaApplicationConfigurationProducer[ApplicationConfiguration](ApplicationConfigurationType.getInstance)
+
+abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfiguration](configurationType: ApplicationConfigurationType)
+  extends JavaRuntimeConfigurationProduceBaseAdapter[T](configurationType)
+    with Cloneable {
   import ScalaApplicationConfigurationProducer._
   
   def getSourceElement: PsiElement = myPsiElement
 
-  def createConfigurationByElement(_location: Location[_ <: PsiElement], context: ConfigurationContext, configuration: ApplicationConfiguration): Boolean = {
+  def createConfigurationByElement(_location: Location[_ <: PsiElement], context: ConfigurationContext, configuration: T): Boolean = {
     val location = JavaExecutionUtil.stepIntoSingleClass(_location)
     if (location == null) return false
     val element: PsiElement = location.getPsiElement
@@ -55,7 +60,7 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
   }
 
   private def createConfiguration(aClass: PsiClass, context: ConfigurationContext,
-                                  location: Location[_ <: PsiElement], configuration: ApplicationConfiguration) {
+                                  location: Location[_ <: PsiElement], configuration: T): Unit = {
     configuration.MAIN_CLASS_NAME = JavaExecutionUtil.getRuntimeQualifiedName(aClass)
     configuration.setName(configuration.suggestedName())
     setupConfigurationModule(context, configuration)
@@ -82,7 +87,7 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
     false
   }
 
-  override def isConfigurationFromContext(configuration: ApplicationConfiguration, context: ConfigurationContext): Boolean = {
+  override def isConfigurationFromContext(configuration: T, context: ConfigurationContext): Boolean = {
     val location = context.getLocation
     if (location == null) return false
     //use fast psi location check to filter off obvious candidates
@@ -90,12 +95,12 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
     val aClass: PsiClass = getMainClass(context.getPsiLocation)
     if (aClass == null) return false
     val predefinedModule: Module = RunManagerEx.getInstanceEx(location.getProject).asInstanceOf[RunManagerImpl].
-      getConfigurationTemplate(getConfigurationFactory).getConfiguration.asInstanceOf[ApplicationConfiguration].getConfigurationModule.getModule
+      getConfigurationTemplate(getConfigurationFactory).getConfiguration.asInstanceOf[T].getConfigurationModule.getModule
     JavaExecutionUtil.getRuntimeQualifiedName(aClass) == configuration.MAIN_CLASS_NAME &&
       (location.getModule == configuration.getConfigurationModule.getModule || predefinedModule == configuration.getConfigurationModule.getModule)
   }
 
-  override def setupConfigurationFromContext(configuration: ApplicationConfiguration, context: ConfigurationContext, sourceElement: Ref[PsiElement]): Boolean = {
+  override def setupConfigurationFromContext(configuration: T, context: ConfigurationContext, sourceElement: Ref[PsiElement]): Boolean = {
     val location = JavaExecutionUtil.stepIntoSingleClass(context.getLocation)
     if (location == null) return false
     val element: PsiElement = location.getPsiElement

@@ -79,7 +79,7 @@ object SbtExternalSystemManager {
     val projectJdkName = getProjectJdkName(project, projectSettings)
     val vmExecutable = getVmExecutable(projectJdkName, settings)
     val vmOptions = getVmOptions(settings)
-    val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName) ++ getSbtOptsEnvVariable
+    val environment = Map.empty ++ getAndroidEnvironmentVariables(projectJdkName)
 
     new SbtExecutionSettings(realProjectPath,
       vmExecutable, vmOptions, environment, customLauncher, customSbtStructureFile, projectJdkName,
@@ -134,9 +134,6 @@ object SbtExternalSystemManager {
           case _ : NoClassDefFoundError => None
         }
       }.getOrElse(Map.empty)
-
-  private def getSbtOptsEnvVariable: Map[String, String] =
-    Option(System.getenv("SBT_OPTS")).map(v => ("SBT_OPTS", v)).toMap
 
   private def getVmOptions(settings: SbtSystemSettings): Seq[String] = {
     val userOptions = settings.getVmParameters.split("\\s+").toSeq

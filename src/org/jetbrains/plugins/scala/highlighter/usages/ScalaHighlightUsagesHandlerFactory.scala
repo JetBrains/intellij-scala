@@ -90,7 +90,7 @@ class ScalaHighlightUsagesHandlerFactory extends  HighlightUsagesHandlerFactory 
       case ScalaTokenTypes.kCLASS | ScalaTokenTypes.kTRAIT | ScalaTokenTypes.kOBJECT =>
         val templateDef = PsiTreeUtil.getParentOfType(element, classOf[ScTemplateDefinition])
         if (templateDef != null) {
-          new ScalaHighlightPrimaryConstructorExpressionsHandler(templateDef, editor, file, element)
+          return new ScalaHighlightPrimaryConstructorExpressionsHandler(templateDef, editor, file, element)
         }
       case _ =>
     }

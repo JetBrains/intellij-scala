@@ -72,13 +72,14 @@ class HoconObjectEntryMover extends LineMover {
 
     def canInsertBefore(entry: HObjectEntry) = {
       val lineStart = document.getLineStartOffset(startLine(entry))
-      entry.parent.getTextRange.getStartOffset <= lineStart &&
-        entry.previousEntry.forall(_.getTextRange.getEndOffset < lineStart)
+      entry.parent.exists(_.getTextRange.getStartOffset <= lineStart &&
+        entry.previousEntry.forall(_.getTextRange.getEndOffset < lineStart))
     }
+    
     def canInsertAfter(entry: HObjectEntry) = {
       val lineEnd = document.getLineEndOffset(endLine(entry))
-      entry.parent.getTextRange.getEndOffset >= lineEnd &&
-        entry.nextEntry.forall(_.getTextRange.getStartOffset > lineEnd)
+      entry.parent.exists(_.getTextRange.getEndOffset >= lineEnd &&
+        entry.nextEntry.forall(_.getTextRange.getStartOffset > lineEnd))
     }
 
     // Checks if lines occupied by this entry do not overlap with any adjacent entry or
@@ -94,10 +95,10 @@ class HoconObjectEntryMover extends LineMover {
       case _ => enclosingAnchoredEntry(el.getParent)
     }
 
-    def isByEdge(entry: HObjectEntry) = !entry.parent.isToplevel && {
-      if (down) entry.nextEntry.forall(ne => startLine(ne) == endLine(entry.parent))
-      else entry.previousEntry.forall(pe => endLine(pe) == startLine(entry.parent))
-    }
+    def isByEdge(entry: HObjectEntry) = !entry.parent.exists(_.isToplevel && { // todo suspicious
+      if (down) entry.nextEntry.forall(ne => entry.parent.exists(pp => startLine(ne) == endLine(pp)))
+      else entry.previousEntry.forall(pe => entry.parent.exists(pp => endLine(pe) == startLine(pp)))
+    })
 
     def keyString(keyedField: HKeyedField) =
       keyedField.key.map(_.getText).getOrElse("")
@@ -122,8 +123,8 @@ class HoconObjectEntryMover extends LineMover {
         def canInsert(field: HObjectField) =
           if (down) canInsertAfter(field) else canInsertBefore(field)
 
-        field.parent.prefixingField.map(_.enclosingObjectField)
-          .filter(of => edgeLine(of) == edgeLine(field.parent) && canInsert(of))
+        field.parent.flatMap(_.prefixingField).map(_.enclosingObjectField)
+          .filter(of => field.parent.exists(pp => edgeLine(of) == edgeLine(pp)) && canInsert(of))
           .map(of => (of, of.keyedField.fieldsInPathForward.map(keyString).toList))
       } else None
 

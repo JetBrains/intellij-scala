@@ -63,6 +63,7 @@ object JavaConversionUtil {
   def annotations(holder: ScAnnotationsHolder): Seq[String] = {
     val convertibleAnnotations = holder.annotations.filterNot { a =>
       a.getQualifiedName match {
+        case null => true
         case s if keywordAnnotations.keySet.contains(s) => true
         case s if Set("scala.throws", "scala.inline", "scala.unchecked").contains(s) => true
         case s if s.endsWith("BeanProperty") => true
