@@ -180,8 +180,8 @@ trait ScTypePsiTypeBridge {
       case types.Null => javaObj
       case types.Nothing => javaObj
       case ScCompoundType(Seq(typez, _*), _, _) => toPsi(typez, project, scope)
-      case ScDesignatorType(c: ScTypeDefinition) if ScType.baseTypesQualMap.contains(c.qualifiedName) =>
-        toPsi(ScType.baseTypesQualMap.get(c.qualifiedName).get, project, scope, noPrimitives, skolemToWildcard)
+      case ScDesignatorType(c: ScTypeDefinition) if StdType.QualNameToType.contains(c.qualifiedName) =>
+        toPsi(StdType.QualNameToType.get(c.qualifiedName).get, project, scope, noPrimitives, skolemToWildcard)
       case ScDesignatorType(valType: ScClass) if isValueType(valType) =>
         valType.parameters.head.getRealParameterType(TypingContext.empty) match {
           case Success(tp, _) if !(noPrimitives && ScalaEvaluatorBuilderUtil.isPrimitiveScType(tp)) =>

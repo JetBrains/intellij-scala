@@ -5,13 +5,13 @@ import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
-import org.jetbrains.plugins.scala.lang.psi.types.StdType
+import org.jetbrains.plugins.scala.lang.psi.types._
 
 /**
  * @author Nikolay.Tropin
  */
 class FakeAnonymousClassConstructor(templ: ScNewTemplateDefinition, interfaceName: String)
-        extends FakePsiMethod(templ, interfaceName, Array.empty, StdType.UNIT, _ => false) {
+  extends FakePsiMethod(templ, interfaceName, Array.empty, Unit, _ => false) {
   override def isConstructor: Boolean = true
 
   override def getIcon(flags: Int): Icon = Icons.CLASS

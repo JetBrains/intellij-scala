@@ -59,7 +59,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
   override protected def isAliasTypeInner: Option[AliasType] = {
     if (actualElement.isInstanceOf[ScTypeAlias]) {
       actualElement match {
-        case ta: ScTypeAlias if ta.typeParameters.length == 0 =>
+        case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
           val subst: ScSubstitutor = actualSubst
           Some(AliasType(ta, ta.lowerBound.map(subst.subst), ta.upperBound.map(subst.subst)))
         case ta: ScTypeAlias => //higher kind case
@@ -423,13 +423,10 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
     }
   }
 
-  override def getValType: Option[StdType] = {
-    element match {
-      case o: ScObject => None
-      case clazz: PsiClass =>
-        ScType.baseTypesQualMap.get(clazz.qualifiedName)
-      case _ => None
-    }
+  def getValType: Option[StdType] = element match {
+    case o: ScObject => None
+    case clazz: PsiClass => StdType.QualNameToType.get(clazz.qualifiedName)
+    case _ => None
   }
 
   private var isStaticClass = false

@@ -20,7 +20,7 @@ import scala.collection.mutable.ArrayBuffer
 * @author ilyas
 */
 case class ScExistentialType(quantified : ScType,
-                             wildcards : List[ScExistentialArgument]) extends ValueType {
+                             wildcards: List[ScExistentialArgument]) extends ScalaType with ValueType {
 
   @volatile
   private var _boundNames: List[String] = null
@@ -446,7 +446,7 @@ object ScExistentialType {
   }
 }
 
-case class ScExistentialArgument(name: String, args: List[ScTypeParameterType], lower: ScType, upper: ScType) extends ValueType {
+case class ScExistentialArgument(name: String, args: List[ScTypeParameterType], lower: ScType, upper: ScType) extends ScalaType with ValueType {
   def withoutAbstracts: ScExistentialArgument = ScExistentialArgument(name, args, lower.removeAbstracts, upper.removeAbstracts)
 
   def recursiveUpdateNoUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScExistentialArgument = {

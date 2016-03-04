@@ -298,7 +298,15 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                     case _ => None
                   }
                 }
-                (valType.getValType, expected.getValType) match {
+
+                def getValType: ScType => Option[ScType] = {
+                  case AnyVal => Some(AnyVal)
+                  case valType: ValType => Some(valType)
+                  case designatorType: ScDesignatorType => designatorType.getValType
+                  case _ => None
+                }
+
+                (getValType(valType), getValType(expected)) match {
                   case (Some(l), Some(r)) => checkWidening(l, r) match {
                     case Some(x) => x
                     case _ => Success(valType, Some(ScExpression.this))

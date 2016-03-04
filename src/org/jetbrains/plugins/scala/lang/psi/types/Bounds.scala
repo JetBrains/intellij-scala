@@ -34,7 +34,8 @@ object Bounds {
 
   def baseTypeSeqDepth(ts: Seq[ScType]): Int = {
     @tailrec def loop(tps: Seq[ScType], acc: Int): Int = tps match {
-      case tp :: rest => loop(rest, acc max tp.baseTypeSeqDepth)
+      // TODO: should be implemented according to Scala compiler sources. However concerns about performance stops me.
+      case tp :: rest => loop(rest, acc max 1)
       case _          => acc
     }
     loop(ts, 0)

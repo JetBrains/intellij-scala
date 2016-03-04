@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScCl
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType, ScTypeExt, StdType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -137,7 +137,7 @@ object AnnotatorHighlighter {
 
     val annotation = holder.createInfoAnnotation(refElement.nameId, null)
      resolvedElement match {
-      case c: PsiClass if ScType.baseTypesQualMap.contains(c.qualifiedName) => //this is td, it's important!
+       case c: PsiClass if StdType.QualNameToType.contains(c.qualifiedName) => //this is td, it's important!
         annotation.setTextAttributes(DefaultHighlighter.PREDEF)
       case x: ScClass if x.getModifierList.has(ScalaTokenTypes.kABSTRACT) =>
         annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)

@@ -41,7 +41,7 @@ object InspectionsUtil {
       }
     }
 
-    if (scType == StdType.NULL || scType == StdType.NOTHING) false
+    if (scType == Null || scType == Nothing) false
     else typeFromClassName(className, project).exists(scType.conforms(_))
   }
 }
