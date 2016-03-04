@@ -8,7 +8,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.MethodSignatureUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, TypeParameterExt}
@@ -66,6 +66,11 @@ case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], low
   override def hashCode(): Int = {
     val state = Seq(name, typeParams, lowerBound, upperBound, isDefinition)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
+
+  def getType = ta match {
+    case definition: ScTypeAliasDefinition => definition.aliasedType.toOption
+    case _ => None
   }
 }
 

@@ -12,6 +12,7 @@ import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore}
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.CommonProcessors.CollectProcessor
 import com.intellij.util.Processor
+import org.jetbrains.plugins.dotty.lang.psi.types.DottyTypeSystem
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
@@ -182,7 +183,7 @@ package object project {
       ProjectLibraryTable.getInstance(project).removeLibrary(library)
     }
 
-    def typeSystem: TypeSystem = ScalaTypeSystem
+    def typeSystem: TypeSystem = if (hasDotty) DottyTypeSystem else ScalaTypeSystem
   }
 
   class ScalaModule(val module: Module) {
