@@ -67,6 +67,11 @@ case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], low
     val state = Seq(name, typeParams, lowerBound, upperBound, isDefinition)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
+
+  def getType = ta match {
+    case definition: ScTypeAliasDefinition => definition.aliasedType.toOption
+    case _ => None
+  }
 }
 
 class Signature(val name: String, private val typesEval: List[Seq[() => ScType]], val paramLength: List[Int],
