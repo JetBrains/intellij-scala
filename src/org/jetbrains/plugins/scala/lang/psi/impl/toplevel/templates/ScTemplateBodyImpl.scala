@@ -80,4 +80,8 @@ class ScTemplateBodyImpl private (stub: StubElement[ScTemplateBody], nodeType: I
   }
 
   override def controlFlowScope: Option[ScalaPsiElement] = Some(this)
+
+  override protected def childBeforeFirstImport: Option[PsiElement] = {
+    selfTypeElement.orElse(super.childBeforeFirstImport)
+  }
 }

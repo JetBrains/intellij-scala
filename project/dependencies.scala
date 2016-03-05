@@ -67,7 +67,7 @@ object Dependencies {
 
   val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
 
-  val scalastyle_2_11 = "org.scalastyle" % "scalastyle_2.11" % "0.7.0"
+  val scalastyle_2_11 = "org.scalastyle" % "scalastyle_2.11" % "0.8.0"
   val scalariform_2_11 = "org.scalariform" % "scalariform_2.11" % "0.1.7"
   val macroParadise = "org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full
 
@@ -165,7 +165,7 @@ object DependencyGroups {
   val runners = Seq(
     "org.specs2" %% "specs2" % "2.3.11" % "provided"  excludeAll ExclusionRule(organization = "org.ow2.asm"),
     "org.scalatest" % "scalatest_2.11" % "2.2.1" % "provided",
-    "com.lihaoyi" %% "utest" % "0.1.3" % "provided"
+    "com.lihaoyi" %% "utest" % "0.3.1" % "provided"
   )
 
   val sbtLaunchTestDownloader =
@@ -181,6 +181,7 @@ object DependencyGroups {
     "org.specs2" % "specs2-core_2.11" % "3.0.1",
     "org.specs2" % "specs2-common_2.11" % "3.0.1",
     "org.specs2" % "specs2-matcher_2.11" % "3.0.1",
+    "com.lihaoyi" % "utest_2.10" % "0.3.1" % "provided",
     "org.scalaz" % "scalaz-core_2.11" % "7.1.0",
     "org.scalaz" % "scalaz-concurrent_2.11" % "7.1.0",
     "org.scala-lang.modules" % "scala-xml_2.11" % "1.0.2",
@@ -198,6 +199,7 @@ object DependencyGroups {
     "com.github.julien-truffaut"  %%  "monocle-generic" % "1.2.0",
     "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.2.0",
     "io.spray" %% "spray-routing" % "1.3.1",
+    "com.typesafe.slick" %% "slick" % "3.1.0",
     "org.scala-lang.modules" % "scala-async_2.11" % "0.9.5"
   )
 

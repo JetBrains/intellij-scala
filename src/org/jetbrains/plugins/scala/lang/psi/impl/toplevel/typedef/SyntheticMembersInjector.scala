@@ -5,6 +5,7 @@ import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.DumbService
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -17,34 +18,49 @@ import scala.collection.mutable.ArrayBuffer
  */
 class SyntheticMembersInjector {
   /**
-   * This method allows to add custom functions to any class, object or trait.
-   * This includes synthetic companion object.
-   *
-   * Context for this method will be class. So inner types and imports of this class
-   * will not be available. But you can use anything outside of
-   * @param source class to inject functions
-   * @return sequence of functions text
-   */
+    * This method allows to add custom functions to any class, object or trait.
+    * This includes synthetic companion object.
+    *
+    * Context for this method will be class. So inner types and imports of this class
+    * will not be available. But you can use anything outside of it.
+    *
+    * Injected method will not participate in class overriding hierarchy unless this method
+    * is marked with override modifier. Use it carefully, only when this behaviour is intended.
+    *
+    * @param source class to inject functions
+    * @return sequence of functions text
+    */
   def injectFunctions(source: ScTypeDefinition): Seq[String] = Seq.empty
 
   /**
-   * This method allows to add custom inner classes or objects to any class, object or trait.
-   * This includes synthetic companion object.
-   *
-   * Context for this inner will be class. So inner types and imports of this class
-   * will not be available. But you can use anything outside of
-   * @param source class to inject functions
-   * @return sequence of inners text
-   */
+    * This method allows to add custom inner classes or objects to any class, object or trait.
+    * This includes synthetic companion object.
+    *
+    * Context for this inner will be class. So inner types and imports of this class
+    * will not be available. But you can use anything outside of it.
+    *
+    * @param source class to inject functions
+    * @return sequence of inners text
+    */
   def injectInners(source: ScTypeDefinition): Seq[String] = Seq.empty
 
   /**
-   * Use this method to mark class or trait, that it requires companion object.
-   * Note that object as source is not possible.
-   * @param source class or trait
-   * @return if this source requires companion object
-   */
+    * Use this method to mark class or trait, that it requires companion object.
+    * Note that object as source is not possible.
+    *
+    * @param source class or trait
+    * @return if this source requires companion object
+    */
   def needsCompanionObject(source: ScTypeDefinition): Boolean = false
+
+  /**
+    * Use this method to add supers to class, trait or object. This supers will be added to the end of source supers.
+    * Be careful and avoid cycles as you can't use information about current supers of this class.
+    *
+    * @param source class, trait or object
+    * @return sequence of strings, containing super types.
+    */
+  def injectSupers(source: ScTypeDefinition): Seq[String] = Seq.empty
 }
 
 object SyntheticMembersInjector {
@@ -58,7 +74,7 @@ object SyntheticMembersInjector {
   val EP_NAME: ExtensionPointName[SyntheticMembersInjector] =
     ExtensionPointName.create("org.intellij.scala.syntheticMemberInjector")
 
-  def inject(source: ScTypeDefinition): Seq[ScFunction] = {
+  def inject(source: ScTypeDefinition, withOverride: Boolean): Seq[ScFunction] = {
     val buffer = new ArrayBuffer[ScFunction]()
     for {
       injector <- EP_NAME.getExtensions
@@ -71,7 +87,7 @@ object SyntheticMembersInjector {
       val function = ScalaPsiElementFactory.createMethodWithContext(template, context, source)
       function.setSynthetic(context)
       function.syntheticContainingClass = Some(source)
-      buffer += function
+      if (withOverride ^ !function.hasModifierProperty("override")) buffer += function
     } catch {
       case e: Throwable =>
         LOG.error(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
@@ -113,5 +129,24 @@ object SyntheticMembersInjector {
   def needsCompanion(source: ScTypeDefinition): Boolean = {
     if (DumbService.getInstance(source.getProject).isDumb) return false
     EP_NAME.getExtensions.exists(_.needsCompanionObject(source))
+  }
+
+  def injectSupers(source: ScTypeDefinition): Seq[ScTypeElement] = {
+    val buffer = new ArrayBuffer[ScTypeElement]()
+    for {
+      injector <- EP_NAME.getExtensions
+      supers <- injector.injectSupers(source)
+    } try {
+      val context = source match {
+        case o: ScObject if o.isSyntheticObject => ScalaPsiUtil.getCompanionModule(o).getOrElse(source)
+        case _ => source
+      }
+      buffer += ScalaPsiElementFactory.createTypeElementFromText(supers, context, source)
+    } catch {
+      case p: ProcessCanceledException => throw p
+      case e: Throwable =>
+        LOG.error(s"Error during parsing type element from injector: ${injector.getClass.getName}", e)
+    }
+    buffer
   }
 }

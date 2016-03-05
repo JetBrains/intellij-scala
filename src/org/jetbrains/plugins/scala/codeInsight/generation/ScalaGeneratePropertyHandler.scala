@@ -5,7 +5,7 @@ import com.intellij.lang.LanguageCodeInsightActionHandler
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
@@ -57,12 +57,11 @@ class ScalaGeneratePropertyHandler extends LanguageCodeInsightActionHandler {
     val setter_0 = createDefinition(setterText)
 
     val parent = varDef.getParent
-    Seq(backingVar_0, getter_0, setter_0).map { elem =>
+    val added = Seq(backingVar_0, getter_0, setter_0).map { elem =>
       parent.addBefore(ScalaPsiElementFactory.createNewLine(varDef.getManager), varDef)
       parent.addBefore(elem, varDef)
-    }.foreach {
-      ScalaPsiUtil.adjustTypes(_)
     }
+    TypeAdjuster.adjustFor(added)
   }
 
   override def startInWriteAction(): Boolean = true

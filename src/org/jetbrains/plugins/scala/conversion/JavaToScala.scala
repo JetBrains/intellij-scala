@@ -7,792 +7,857 @@ import com.intellij.codeInsight.editorActions.ReferenceData
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.conversion.copy.Association
-import org.jetbrains.plugins.scala.extensions.PsiMemberExt
+import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
+import org.jetbrains.plugins.scala.conversion.ast.ClassConstruction.ClassType
+import org.jetbrains.plugins.scala.conversion.ast._
+import org.jetbrains.plugins.scala.conversion.copy.AssociationHelper
+import org.jetbrains.plugins.scala.conversion.visitors.SimplePrintVisitor
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt}
 import org.jetbrains.plugins.scala.lang.dependency.{DependencyKind, Path}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, ListBuffer}
+import scala.language.postfixOps
 
 /**
- * Author: Alexander Podkhalyuzin
- * Date: 23.07.2009
- */
-
+  * Author: Alexander Podkhalyuzin
+  * Date: 23.07.2009
+  */
 object JavaToScala {
   private val context: ThreadLocal[mutable.Stack[(Boolean, String)]] = new ThreadLocal[mutable.Stack[(Boolean, String)]] {
     override def initialValue(): mutable.Stack[(Boolean, String)] = new mutable.Stack[(Boolean, String)]()
   }
 
-  def escapeKeyword(name : String): String = if (ScalaNamesUtil.isKeyword(name)) "`" + name + "`" else name
-
-  class Offset(val value: Int) {
-    override def toString = value.toString
+  def findVariableUsage(elementToFind: PsiElement, elementWhereFind: PsiElement): Seq[PsiReferenceExpression] = {
+    import scala.collection.JavaConverters._
+    ReferencesSearch.search(elementToFind, new LocalSearchScope(elementWhereFind)).findAll().asScala.toSeq
+      .filter(_.isInstanceOf[PsiReferenceExpression]).map(_.asInstanceOf[PsiReferenceExpression])
   }
 
-  //noinspection ScalaWrongMethodsUsage
-  def convertPsiToText(element: PsiElement)
-                      (implicit associations: ListBuffer[Association] = new ListBuffer(),
-                       refs: Seq[ReferenceData] = Seq.empty, offset: Offset = new Offset(0)): String = {
-    if (element == null) return ""
-    if (element.getLanguage != JavaLanguage.INSTANCE) return ""
+  def isVar(element: PsiModifierListOwner, parent: PsiElement): Boolean = {
+    val possibleVal = element.hasModifierProperty(PsiModifier.FINAL)
+    val possibleVar = element.hasModifierProperty(PsiModifier.PUBLIC) || element.hasModifierProperty(PsiModifier.PROTECTED)
 
-    val res = new StringBuilder("")
+    val references = findVariableUsage(element, parent).filter((el: PsiReferenceExpression) => PsiUtil.isAccessedForWriting(el))
 
-    class SpecificOffset(override val value: Int) extends Offset(value)
-    implicit def startOffset: SpecificOffset = new SpecificOffset(offset.value + res.length)
-
-    def associationFor(element: PsiElement) = {
-      refs.find(ref => new TextRange(ref.startOffset, ref.endOffset) == element.getTextRange).map { ref =>
-        val i = startOffset.value
-        val range = new TextRange(i, i + element.getTextLength)
-        if (ref.staticMemberName == null) {
-          Association(DependencyKind.Reference, range, Path(ref.qClassName))
-        } else {
-          Association(DependencyKind.Reference, range, Path(ref.qClassName, ref.staticMemberName))
-        }
-      }
+    references.length match {
+      case 0 if possibleVal => false
+      case 0 if possibleVar => true
+      case 0 => false
+      case 1 if possibleVal => false
+      case 1 if possibleVar => true
+      case _ => true
     }
+  }
 
-    associations ++= associationFor(element).toSeq
+  trait ExternalProperties {}
 
-    def append(elements: Seq[PsiElement], prefix: String = "(", separator: String = ", ", suffix: String = ")") {
-      if (elements.nonEmpty) {
-        res.append(prefix)
-        val it = elements.iterator
-        while (it.hasNext) {
-          res.append(convertPsiToText(it.next()))
-          if (it.hasNext) res.append(separator)
-        }
-        res.append(suffix)
-      }
-    }
+  case class WithReferenceExpression(yep: Boolean) extends ExternalProperties
 
-    element match {
-      case docCommentOwner: PsiDocCommentOwner if docCommentOwner.getDocComment != null =>
-        res.append(docCommentOwner.getDocComment.getText).append("\n")
-      case _ =>
-    }
-    element match {
+  def convertPsiToIntermdeiate(element: PsiElement, externalProperties: ExternalProperties)
+                              (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
+                               refs: Seq[ReferenceData] = Seq.empty,
+                               withComments: Boolean = false): IntermediateNode = {
+    if (element == null) return LiteralExpression("")
+    if (element.getLanguage != JavaLanguage.INSTANCE) LiteralExpression("")
+    val result: IntermediateNode = element match {
       case f: PsiFile =>
-        for (child <- f.getChildren) {
-          res.append(convertPsiToText(child)).append("\n")
-        }
-      case p: PsiTypeParameter =>
-        res.append(escapeKeyword(p.getName))
-        val typez = new ArrayBuffer[PsiJavaCodeReferenceElement]
-        if (p.getExtendsList != null) typez ++= p.getExtendsList.getReferenceElements
-        if (typez.nonEmpty) res.append(" <: ")
-        for (tp <- typez) {
-          res.append(convertPsiToText(tp)).append(" with ")
-        }
-        if (typez.nonEmpty) res.delete(res.length - 5, res.length)
-      //statements
-      case f: PsiIfStatement =>
-        res.append("if (").append(convertPsiToText(f.getCondition)).append(") ").
-          append(convertPsiToText(f.getThenBranch))
-        if (f.getElseElement != null) {
-          res.append("\nelse ").append(convertPsiToText(f.getElseBranch))
-        }
-      case l: PsiLiteralExpression => res.append(l.getText)
-      case e: PsiExpressionStatement => res.append(convertPsiToText(e.getExpression))
-      case b: PsiBlockStatement =>
-        res.append(convertPsiToText(b.getCodeBlock))
-      case b: PsiCodeBlock =>
-        res.append("{\n")
-        for (st <- b.getStatements) res.append(convertPsiToText(st)).append("\n")
-        res.append("}")
-      case w: PsiWhileStatement =>
-        res.append("while (").append(convertPsiToText(w.getCondition)).append(") ").
-          append(convertPsiToText(w.getBody))
-      case d: PsiDoWhileStatement =>
-        res.append("do ").append(convertPsiToText(d.getBody)).append("while (").
-          append(convertPsiToText(d.getCondition)).append(")")
-      case r: PsiReturnStatement => res.append("return ").append(convertPsiToText(r.getReturnValue))
-      case a: PsiAssertStatement =>
-        res.append("assert(").append(convertPsiToText(a.getAssertCondition))
-        val v = a.getAssertDescription
-        if (v != null) res.append(", ").append(convertPsiToText(v))
-        res.append(")")
-      case b: PsiBreakStatement =>
-        if (b.getLabelIdentifier != null) res.append("break //todo: label break is not supported")
-        else res.append("break //todo: break is not supported")
-      case c: PsiContinueStatement => res.append("continue //todo: continue is not supported")
-      case d: PsiDeclarationStatement =>
-        for (decl <- d.getDeclaredElements) {
-          res.append(convertPsiToText(decl)).append("\n")
-        }
-        if (d.getDeclaredElements.nonEmpty) res.delete(res.length - 1, res.length)
-      case e: PsiExpressionListStatement =>
-        for (expr <- e.getExpressionList.getExpressions) {
-          res.append(convertPsiToText(expr)).append("\n")
-        }
-        res.delete(res.length - 1, res.length)
-      case f: PsiForStatement =>
-        if (f.getInitialization != null && !f.getInitialization.isInstanceOf[PsiEmptyStatement]) {
-          res.append("\n{\n").append(convertPsiToText(f.getInitialization)).append("\n")
-        }
-        val condition: String = f.getCondition match {
-          case empty: PsiEmptyStatement => "true"
-          case null => "true"
-          case _ => convertPsiToText(f.getCondition)
-        }
-        res.append("while (").append(condition).append(") ")
-        if (f.getUpdate != null) {
-          res.append("{\n")
-        }
-        res.append(convertPsiToText(f.getBody))
-        if (f.getUpdate != null) {
-          res.append("\n").append(convertPsiToText(f.getUpdate)).append("\n}")
-        }
-        if (f.getInitialization != null && !f.getInitialization.isInstanceOf[PsiEmptyStatement]) {
-          res.append("\n}")
-        }
-      case f: PsiForeachStatement =>
-        val iteratedValue: PsiExpression = f.getIteratedValue
-        val tp = if (iteratedValue == null) null else iteratedValue.getType
-        val isJavaCollection =
-          if (tp == null) true else !tp.isInstanceOf[PsiArrayType]
-        if (isJavaCollection) {
-          res.append("import scala.collection.JavaConversions._\n")
-        }
-        res.append("for (").append(escapeKeyword(f.getIterationParameter.getName)).append(" <- ").
-          append(convertPsiToText(f.getIteratedValue)).append(") ").
-          append(convertPsiToText(f.getBody))
-      case s: PsiLabeledStatement =>
-        res.append(convertPsiToText(s.getStatement)).append("//todo: labels is not supported")
-      case t: PsiThrowStatement =>
-        res.append("throw ").append(convertPsiToText(t.getException))
-      case s: PsiSynchronizedStatement =>
-        res.append(convertPsiToText(s.getLockExpression)).append(" synchronized ").
-          append(convertPsiToText(s.getBody))
-      case s: PsiSwitchLabelStatement =>
-        val arrow = ScalaPsiUtil.functionArrow(s.getProject)
-        res.append("case ").append(if (s.isDefaultCase) "_" else convertPsiToText(s.getCaseValue)).
-          append(s" $arrow ")
-      case s: PsiSwitchStatement =>
-        res.append(convertPsiToText(s.getExpression)).append(" match ").
-          append(convertPsiToText(s.getBody))
-      case t: PsiTryStatement =>
-        import scala.collection.JavaConversions._
-        val resourceList = t.getResourceList
-        if (resourceList != null) {
-          res.append("try {\n")
-          resourceList.getResourceVariables.foreach { r =>
-            res.append(convertPsiToText(r)).append("\n")
-          }
-        }
-        res.append("try ").append(convertPsiToText(t.getTryBlock))
-        val catchs = t.getCatchSections
-        if (catchs.nonEmpty) {
-          res.append("\ncatch {\n")
-          for (section: PsiCatchSection <- catchs) {
-            val arrow = ScalaPsiUtil.functionArrow(t.getProject)
-            res.append("case ").append(convertPsiToText(section.getParameter)).append(s" $arrow ").
-              append(convertPsiToText(section.getCatchBlock))
-          }
-          res.append("}")
-        }
-        if (t.getFinallyBlock != null) {
-          if (resourceList == null) {
-            res.append(" finally ").append(convertPsiToText(t.getFinallyBlock))
-          } else {
-            res.append(" finally {\n")
-            for (st <- t.getFinallyBlock.getStatements) res.append(convertPsiToText(st)).append("\n")
-            resourceList.getResourceVariables.foreach { r =>
-              val name = escapeKeyword(r.getName)
-              res.append(s"if ($name != null) $name.close()").append("\n")
-            }
-            res.append("}")
-          }
-        } else if (resourceList != null) {
-          res.append(" finally {\n")
-          resourceList.getResourceVariables.foreach { r =>
-            val name = escapeKeyword(r.getName)
-            res.append(s"if ($name != null) $name.close()").append("\n")
-          }
-          res.append("}")
-        }
-        if (resourceList != null) {
-          res.append("\n}")
-        }
-      //expressions
-      case a: PsiArrayAccessExpression =>
-        res.append(convertPsiToText(a.getArrayExpression)).append("(").
-          append(convertPsiToText(a.getIndexExpression)).append(")")
-      case a: PsiArrayInitializerExpression =>
-        res.append("Array(")
-        for (init <- a.getInitializers) {
-          res.append(convertPsiToText(init)).append(", ")
-        }
-        res.delete(res.length - 2, res.length)
-        res.append(")")
+        val m = MainConstruction()
+        m.addChildren(f.getChildren.map(convertPsiToIntermdeiate(_, externalProperties)))
+        m
+      case e: PsiExpressionStatement => convertPsiToIntermdeiate(e.getExpression, externalProperties)
+      case l: PsiLiteralExpression => LiteralExpression(l.getText)
+      case t: PsiTypeElement => TypeConstruction.createStringTypePresentation(t.getType, t.getProject)
+      case w: PsiWhiteSpace => LiteralExpression(w.getText)
+      case r: PsiReturnStatement => ReturnStatement(convertPsiToIntermdeiate(r.getReturnValue, externalProperties))
+      case t: PsiThrowStatement => ThrowStatement(convertPsiToIntermdeiate(t.getException, externalProperties))
+      case i: PsiImportStatement =>
+        ImportStatement(convertPsiToIntermdeiate(i.getImportReference, externalProperties), i.isOnDemand)
+      case i: PsiImportStaticStatement => ImportStatement(convertPsiToIntermdeiate(i.getImportReference, externalProperties), i.isOnDemand)
+      case i: PsiImportList => ImportStatementList(i.getAllImportStatements.map(convertPsiToIntermdeiate(_, externalProperties)))
       case a: PsiAssignmentExpression =>
-        if (!a.getParent.isInstanceOf[PsiExpression]) {
-          res.append(convertPsiToText(a.getLExpression)).append(" ").
-            append(a.getOperationSign.getText).append(" ").append(convertPsiToText(a.getRExpression))
+        BinaryExpressionConstruction(convertPsiToIntermdeiate(a.getLExpression, externalProperties),
+          convertPsiToIntermdeiate(a.getRExpression, externalProperties), a.getOperationSign.getText)
+      case e: PsiExpressionListStatement =>
+        ExpressionListStatement(e.getExpressionList.getExpressions.map(convertPsiToIntermdeiate(_, externalProperties)))
+      case d: PsiDeclarationStatement => ExpressionListStatement(d.getDeclaredElements.map(convertPsiToIntermdeiate(_, externalProperties)))
+      case b: PsiBlockStatement => convertPsiToIntermdeiate(b.getCodeBlock, externalProperties)
+      case s: PsiSynchronizedStatement =>
+        val lock = Option(s.getLockExpression).map(convertPsiToIntermdeiate(_, externalProperties))
+        val body = Option(s.getBody).map(convertPsiToIntermdeiate(_, externalProperties))
+        SynchronizedStatement(lock, body)
+      case b: PsiCodeBlock =>
+        BlockConstruction(b.getStatements.map(convertPsiToIntermdeiate(_, externalProperties)))
+      case t: PsiTypeParameter =>
+        TypeParameterConstruction(t.getName, t.getExtendsList.getReferenceElements.map(convertPsiToIntermdeiate(_, externalProperties)))
+      case i: PsiIfStatement =>
+        val condition = Option(i.getCondition).map(convertPsiToIntermdeiate(_, externalProperties))
+        val thenBranch = Option(i.getThenBranch).map(convertPsiToIntermdeiate(_, externalProperties))
+        val elseBranch = Option(i.getElseBranch).map(convertPsiToIntermdeiate(_, externalProperties))
+        IfStatement(condition, thenBranch, elseBranch)
+      case c: PsiConditionalExpression =>
+        val condition = Option(c.getCondition).map(convertPsiToIntermdeiate(_, externalProperties))
+        val thenBranch = Option(c.getThenExpression).map(convertPsiToIntermdeiate(_, externalProperties))
+        val elseBranch = Option(c.getElseExpression).map(convertPsiToIntermdeiate(_, externalProperties))
+        IfStatement(condition, thenBranch, elseBranch)
+      case w: PsiWhileStatement =>
+        val condition = Option(w.getCondition).map(convertPsiToIntermdeiate(_, externalProperties))
+        val body = Option(w.getBody).map(convertPsiToIntermdeiate(_, externalProperties))
+        WhileStatement(None, condition, body, None, WhileStatement.PRE_TEST_LOOP)
+      case w: PsiDoWhileStatement =>
+        val condition = Option(w.getCondition).map(convertPsiToIntermdeiate(_, externalProperties))
+        val body = Option(w.getBody).map(convertPsiToIntermdeiate(_, externalProperties))
+        WhileStatement(None, condition, body, None, WhileStatement.POST_TEST_LOOP)
+      case f: PsiForStatement =>
+        val initialization = Option(f.getInitialization).map(convertPsiToIntermdeiate(_, externalProperties))
+        val condition = Some(f.getCondition match {
+          case empty: PsiEmptyStatement => LiteralExpression("true")
+          case null => LiteralExpression("true")
+          case _ => convertPsiToIntermdeiate(f.getCondition, externalProperties)
+        })
+        val body = Option(f.getBody).map(convertPsiToIntermdeiate(_, externalProperties))
+        val update = Option(f.getUpdate).map(convertPsiToIntermdeiate(_, externalProperties))
+        WhileStatement(initialization, condition, body, update, WhileStatement.PRE_TEST_LOOP)
+      case a: PsiAssertStatement =>
+        val condition = Option(a.getAssertCondition).map(convertPsiToIntermdeiate(_, externalProperties))
+        val description = Option(a.getAssertDescription).map(convertPsiToIntermdeiate(_, externalProperties))
+        AssertStatement(condition, description)
+      case s: PsiSwitchLabelStatement =>
+        val caseValue = if (s.isDefaultCase)
+          Some(LiteralExpression("_"))
+        else
+          Option(s.getCaseValue).map(convertPsiToIntermdeiate(_, externalProperties))
+        SwitchLabelStatement(caseValue, ScalaPsiUtil.functionArrow(s.getProject))
+      case s: PsiSwitchStatement =>
+        val expr = Option(s.getExpression).map(convertPsiToIntermdeiate(_, externalProperties))
+        val body = Option(s.getBody).map(convertPsiToIntermdeiate(_, externalProperties))
+        SwitchStatemtnt(expr, body)
+      case p: PsiPackageStatement => PackageStatement(convertPsiToIntermdeiate(p.getPackageReference, externalProperties))
+      case f: PsiForeachStatement =>
+        val tp = Option(f.getIteratedValue).flatMap((e: PsiExpression) => Option(e.getType))
+        val isJavaCollection = if (tp.isEmpty) true else !tp.get.isInstanceOf[PsiArrayType]
+
+        val iteratedValue = Option(f.getIteratedValue).map(convertPsiToIntermdeiate(_, externalProperties))
+        val body = Option(f.getBody).map(convertPsiToIntermdeiate(_, externalProperties))
+        ForeachStatement(f.getIterationParameter.getName, iteratedValue, body, isJavaCollection)
+      case r: PsiReferenceExpression =>
+        val args = Option(r.getParameterList).map(convertPsiToIntermdeiate(_, externalProperties))
+        val refName = if (externalProperties.isInstanceOf[WithReferenceExpression]) {
+          fieldParamaterMap.getOrElse(r.getReferenceName, r.getReferenceName)
+        } else r.getReferenceName
+
+        if (r.getQualifierExpression != null) {
+          val t = Option(r.getQualifierExpression).map(convertPsiToIntermdeiate(_, externalProperties))
+          return JavaCodeReferenceStatement(t, args, refName)
         } else {
-          res.append("({").append(convertPsiToText(a.getLExpression)).append(" ").
-            append(a.getOperationSign.getText).append(" ").append(convertPsiToText(a.getRExpression)).
-            append("; ").append(convertPsiToText(a.getLExpression)).append("})")
+          r.resolve() match {
+            case f: PsiMember
+              if f.hasModifierProperty("static") =>
+              val clazz = f.containingClass
+              if (clazz != null && context.get().contains((false, clazz.qualifiedName))) {
+                return JavaCodeReferenceStatement(Some(LiteralExpression(clazz.getName)), args, refName)
+              }
+
+            case _ =>
+          }
         }
-      case b: PsiBinaryExpression =>
+
+        JavaCodeReferenceStatement(None, args, refName)
+      case p: PsiJavaCodeReferenceElement =>
+        val qualifier = Option(p.getQualifier).map(convertPsiToIntermdeiate(_, externalProperties))
+        val args = Option(p.getParameterList).map(convertPsiToIntermdeiate(_, externalProperties))
+        JavaCodeReferenceStatement(qualifier, args, p.getReferenceName)
+      case be: PsiBinaryExpression =>
         def isOk: Boolean = {
-          if (b.getLOperand.getType.isInstanceOf[PsiPrimitiveType]) return false
-          b.getROperand match {
+          if (be.getLOperand.getType.isInstanceOf[PsiPrimitiveType]) return false
+          be.getROperand match {
             case l: PsiLiteralExpression if l.getText == "null" => return false
             case _ =>
           }
           true
         }
-        val operation = b.getOperationSign.getText match {
+
+        val operation = be.getOperationSign.getText match {
           case "==" if isOk => "eq"
           case "!=" if isOk => "ne"
           case x => x
         }
-        res.append(convertPsiToText(b.getLOperand)).append(" ").
-          append(operation).append(" ").append(convertPsiToText(b.getROperand))
-      case c: PsiClassObjectAccessExpression =>
-        res.append("classOf[").append(convertPsiToText(c.getOperand)).append("]")
-      case c: PsiConditionalExpression =>
-        res.append("if (").append(convertPsiToText(c.getCondition)).append(") ").
-          append(convertPsiToText(c.getThenExpression)).append(" else ").append(convertPsiToText(c.getElseExpression))
+
+        BinaryExpressionConstruction(
+          convertPsiToIntermdeiate(be.getLOperand, externalProperties),
+          convertPsiToIntermdeiate(be.getROperand, externalProperties),
+          operation)
+      case c: PsiTypeCastExpression =>
+        ClassCast(
+          convertPsiToIntermdeiate(c.getOperand, externalProperties), convertPsiToIntermdeiate(c.getCastType, externalProperties),
+          c.getCastType.getType.isInstanceOf[PsiPrimitiveType] && c.getOperand.getType.isInstanceOf[PsiPrimitiveType])
+      case a: PsiArrayAccessExpression =>
+        ArrayAccess(
+          convertPsiToIntermdeiate(a.getArrayExpression, externalProperties),
+          convertPsiToIntermdeiate(a.getIndexExpression, externalProperties))
+      case a: PsiArrayInitializerExpression =>
+        ArrayInitializer(a.getInitializers.map(convertPsiToIntermdeiate(_, externalProperties)))
+      case c: PsiClassObjectAccessExpression => ClassObjectAccess(convertPsiToIntermdeiate(c.getOperand, externalProperties))
       case i: PsiInstanceOfExpression =>
-        res.append(convertPsiToText(i.getOperand)).append(".isInstanceOf[").
-          append(convertPsiToText(i.getCheckType)).append("]")
-      case m: PsiMethodCallExpression if m.getMethodExpression.getReferenceName == "equals" &&
-        m.getTypeArguments.isEmpty && m.getArgumentList.getExpressions.length == 1 =>
-        val parentIsExpr = m.getParent.isInstanceOf[PsiExpression]
-        if (parentIsExpr) res.append("(")
-        res.append(Option(m.getMethodExpression.getQualifierExpression).
-          map(convertPsiToText(_)).getOrElse("this")).append(" == ").
-          append(convertPsiToText(m.getArgumentList.getExpressions.apply(0)))
-        if (parentIsExpr) res.append(")")
+        InstanceOfConstruction(
+          convertPsiToIntermdeiate(i.getOperand, externalProperties),
+          convertPsiToIntermdeiate(i.getCheckType, externalProperties))
       case m: PsiMethodCallExpression =>
         m.getMethodExpression.resolve() match {
           case method: PsiMethod if method.getName == "parseInt" && m.getArgumentList.getExpressions.length == 1 &&
-            method.getContainingClass != null && method.getContainingClass.getQualifiedName == "java.lang.Integer" =>
-            res.append(convertPsiToText(m.getArgumentList.getExpressions.apply(0))).append(".toInt")
+            method.getContainingClass != null && method.getContainingClass.qualifiedName == "java.lang.Integer" =>
+            ClassCast(convertPsiToIntermdeiate(m.getArgumentList.getExpressions.apply(0), externalProperties),
+              TypeConstruction("Int"), isPrimitive = true)
           case method: PsiMethod if method.getName == "parseDouble" && m.getArgumentList.getExpressions.length == 1 &&
-            method.getContainingClass != null && method.getContainingClass.getQualifiedName == "java.lang.Double" =>
-            res.append(convertPsiToText(m.getArgumentList.getExpressions.apply(0))).append(".toDouble")
+            method.getContainingClass != null && method.getContainingClass.qualifiedName == "java.lang.Double" =>
+            ClassCast(convertPsiToIntermdeiate(m.getArgumentList.getExpressions.apply(0), externalProperties),
+              TypeConstruction("Double"), isPrimitive = true)
           case method: PsiMethod if method.getName == "round" && m.getArgumentList.getExpressions.length == 1 &&
-            method.getContainingClass != null && method.getContainingClass.getQualifiedName == "java.lang.Math" =>
-            res.append(convertPsiToText(m.getArgumentList.getExpressions.apply(0))).append(".round")
+            method.getContainingClass != null && method.getContainingClass.qualifiedName == "java.lang.Math" =>
+            MethodCallExpression.build(
+              convertPsiToIntermdeiate(m.getArgumentList.getExpressions.apply(0), externalProperties), ".round", null)
+          case method: PsiMethod if method.getName == "equals" && m.getTypeArguments.isEmpty
+            && m.getArgumentList.getExpressions.length == 1 =>
+            MethodCallExpression.build(
+              Option(m.getMethodExpression.getQualifierExpression).map(convertPsiToIntermdeiate(_, externalProperties))
+                .getOrElse(LiteralExpression("this")),
+              " == ", convertPsiToIntermdeiate(m.getArgumentList.getExpressions.apply(0), externalProperties))
           case _ =>
-            res.append(convertPsiToText(m.getMethodExpression)).append(convertPsiToText(m.getArgumentList))
-        }
-      case e: PsiExpressionList =>
-        if (e.getExpressions.nonEmpty) {
-          res.append("(")
-          for (expr <- e.getExpressions) {
-            res.append(convertPsiToText(expr)).append(", ")
-          }
-          res.delete(res.length - 2, res.length)
-          res.append(")")
-        }
-      case p: PsiPrefixExpression =>
-        p.getOperationTokenType match {
-          case JavaTokenType.PLUSPLUS =>
-            if (!canBeSimpified(p)) {
-              res.append("({i += 1; i})".replace("i", convertPsiToText(p.getOperand)))
-            } else {
-              res.append(convertPsiToText(p.getOperand)).append(" += 1")
-            }
-          case JavaTokenType.MINUSMINUS =>
-            if (!canBeSimpified(p)) {
-              res.append("({i -= 1; i})".replace("i", convertPsiToText(p.getOperand)))
-            } else {
-              res.append(convertPsiToText(p.getOperand)).append(" -= 1")
-            }
-          case _ =>
-            res.append(p.getOperationSign.getText).append(convertPsiToText(p.getOperand))
-        }
-      case p: PsiPostfixExpression =>
-        p.getOperationTokenType match {
-          case JavaTokenType.PLUSPLUS =>
-            if (!canBeSimpified(p)) {
-              res.append("({i += 1; i - 1})".replace("i", convertPsiToText(p.getOperand)))
-            } else {
-              res.append(convertPsiToText(p.getOperand)).append(" += 1")
-            }
-          case JavaTokenType.MINUSMINUS =>
-            if (!canBeSimpified(p)) {
-              res.append("({i -= 1; i + 1})".replace("i", convertPsiToText(p.getOperand)))
-            } else {
-              res.append(convertPsiToText(p.getOperand)).append(" -= 1")
-            }
-        }
-      case p: PsiParenthesizedExpression =>
-        res.append("(").append(convertPsiToText(p.getExpression)).append(")")
-      case p: PsiReferenceExpression =>
-        if (p.getQualifierExpression != null) {
-          res.append(convertPsiToText(p.getQualifierExpression)).append(".")
-        } else {
-          p.resolve() match {
-            case f: PsiMember if f.hasModifierProperty("static") =>
-              val clazz = f.containingClass
-              if (clazz != null && context.get().contains((false, clazz.getQualifiedName))) {
-                res.append(escapeKeyword(clazz.getName)).append(".")
-              }
-            case _ =>
-          }
-        }
-        res.append(escapeKeyword(p.getReferenceName))
-        res.append(convertPsiToText(p.getParameterList))
-      case t: PsiTypeCastExpression =>
-        if (t.getCastType.getType.isInstanceOf[PsiPrimitiveType] && t.getOperand.getType.isInstanceOf[PsiPrimitiveType] &&
-          List("Int", "Long", "Double", "Float", "Byte", "Char", "Short").contains(convertPsiToText(t.getCastType))) {
-          res.append(convertPsiToText(t.getOperand)).append(".to").append(convertPsiToText(t.getCastType))
-        } else {
-          res.append(convertPsiToText(t.getOperand)).append(".asInstanceOf[").
-            append(convertPsiToText(t.getCastType)).append("]")
+            MethodCallExpression(m.getMethodExpression.getQualifiedName,
+              convertPsiToIntermdeiate(m.getMethodExpression, externalProperties),
+              convertPsiToIntermdeiate(m.getArgumentList, externalProperties))
         }
       case t: PsiThisExpression =>
-        if (t.getQualifier != null) {
-          res.append(convertPsiToText(t.getQualifier)).append(".")
-        }
-        res.append("this")
+        ThisExpression(Option(t.getQualifier).map(convertPsiToIntermdeiate(_, externalProperties)))
       case s: PsiSuperExpression =>
-        if (s.getQualifier != null) {
-          res.append(convertPsiToText(s.getQualifier)).append(".")
-        }
-        res.append("super")
-      case n: PsiNewExpression if n.getAnonymousClass == null =>
-        if (n.getArrayInitializer != null) {
-          for (ref <- Option(n.getClassReference)) associations ++= associationFor(ref).toSeq
-          res.append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
-          append(n.getArrayInitializer.getInitializers)
-        } else if (n.getArrayDimensions.nonEmpty) {
-          res.append("new ")
-          for (ref <- Option(n.getClassReference)) associations ++= associationFor(ref).toSeq
-          res.append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
-          append(n.getArrayDimensions)
-        } else {
-          res.append("new ")
-          for (ref <- Option(n.getClassReference)) associations ++= associationFor(ref).toSeq
-          res.append(ScType.presentableText(ScType.create(n.getType, n.getProject)))
-          if (n.getArgumentList != null) {
-            if (n.getArgumentList.getExpressions.isEmpty) {
-              // if the new expression is used as a qualifier, force parentheses for empty argument list
-              n.getParent match {
-                case r: PsiJavaCodeReferenceElement if n == r.getQualifier => res.append("()")
-                case _ =>
-              }
-            }
-            else {
-              res.append(convertPsiToText(n.getArgumentList))
-            }
-          }
-        }
-      case n: PsiNewExpression =>
-        res.append("new ").append(convertPsiToText(n.getAnonymousClass))
-      //declarations
-      case m: PsiMethod =>
-        res.append(convertPsiToText(m.getModifierList)).append(" ")
-        res.append(" def ")
-        if (!m.isConstructor) res.append(escapeKeyword(m.getName))
-        else res.append("this")
-        val typeParameters = m.getTypeParameters
-        if (typeParameters.nonEmpty) {
-          res.append(typeParameters.map(convertPsiToText).mkString("[", ", ", "]"))
-        }
-        var params = convertPsiToText(m.getParameterList)
-        if (params == "" && m.isConstructor) params = "()"
-        res.append(params)
-        if (!m.isConstructor && m.getReturnType != PsiType.VOID) res.append(" : ").append(convertPsiToText(m.getReturnTypeElement))
-        if (m.getBody != null) {
-          if (!m.isConstructor && m.getReturnType != PsiType.VOID) res.append(" = ")
-          if (m.isConstructor) {
-            res.append("{\nthis()\n")
-            for (st <- m.getBody.getStatements) res.append(convertPsiToText(st)).append("\n")
-            res.append("}")
-          } else {
-            res.append(convertPsiToText(m.getBody))
-          }
-        }
-      case f: PsiField =>
-        res.append(convertPsiToText(f.getModifierList)).append(" ")
-        if (f.hasModifierProperty("final")) {
-          res.append(" val ")
-        } else res.append(" var ")
-        res.append(escapeKeyword(f.getName)).append(" : ")
-        res.append(convertPsiToText(f.getTypeElement))
-        if (f.getInitializer != null) {
-          res.append(" = ").append(convertPsiToText(f.getInitializer))
-        } else {
-          res.append(" = ")
-          import org.jetbrains.plugins.scala.lang.psi.types._
-          res.append(ScType.create(f.getType, f.getProject) match {
-            case Int => "0"
-            case Boolean => "false"
-            case Long => "0L"
-            case Byte => "0"
-            case Double => ".0"
-            case Float => ".0"
-            case Short => "0"
-            case Unit => "{}"
-            case Char => "0"
-            case _ => "null"
-          })
-        }
+        SuperExpression(Option(s.getQualifier).map(convertPsiToIntermdeiate(_, externalProperties)))
+      case e: PsiExpressionList =>
+        ExpressionList(e.getExpressions.map(convertPsiToIntermdeiate(_, externalProperties)))
       case l: PsiLocalVariable =>
-        res.append(convertPsiToText(l.getModifierList)).append(" ")
-        if (l.hasModifierProperty("final")) {
-          res.append(" val ")
-        } else {
-          val parent = PsiTreeUtil.getParentOfType(l, classOf[PsiCodeBlock], classOf[PsiBlockStatement])
-          var haveUsage = false
-          if (parent != null) {
-            parent.accept(new JavaRecursiveElementVisitor {
-              override def visitPostfixExpression(expression: PsiPostfixExpression) {
-                if (expression.getOperationTokenType == JavaTokenType.PLUSPLUS || expression.getOperationTokenType == JavaTokenType.MINUSMINUS) {
-                  expression.getOperand match {
-                    case ref: PsiReferenceExpression => if (ref.resolve() == l) haveUsage = true
-                    case _ =>
-                  }
-                }
-              }
-
-              override def visitPrefixExpression(expression: PsiPrefixExpression) {
-                if (expression.getOperationTokenType == JavaTokenType.PLUSPLUS || expression.getOperationTokenType == JavaTokenType.MINUSMINUS) {
-                  expression.getOperand match {
-                    case ref: PsiReferenceExpression if ref.resolve() == l => haveUsage = true
-                    case _ =>
-                  }
-                }
-              }
-
-              override def visitAssignmentExpression(expression: PsiAssignmentExpression) {
-                expression.getLExpression match {
-                  case ref: PsiReferenceExpression if ref.resolve() == l => haveUsage = true
-                  case _ =>
-                }
-              }
-            })
+        val parent = PsiTreeUtil.getParentOfType(l, classOf[PsiCodeBlock], classOf[PsiBlockStatement])
+        val needVar = if (parent == null) false else isVar(l, parent)
+        val initalizer = Option(l.getInitializer).map(convertPsiToIntermdeiate(_, externalProperties))
+        LocalVariable(handleModifierList(l), l.getName, convertPsiToIntermdeiate(l.getTypeElement, externalProperties),
+          needVar, initalizer)
+      case f: PsiField =>
+        val modifiers = handleModifierList(f)
+        val needVar = isVar(f, f.getContainingClass)
+        val initalizer = Option(f.getInitializer).map(convertPsiToIntermdeiate(_, externalProperties))
+        FieldConstruction(modifiers, f.getName, convertPsiToIntermdeiate(f.getTypeElement, externalProperties),
+          needVar, initalizer)
+      case p: PsiParameterList =>
+        ParameterListConstruction(p.getParameters.map(convertPsiToIntermdeiate(_, externalProperties)))
+      case m: PsiMethod =>
+        def body: Option[IntermediateNode] = {
+          if (m.isConstructor) {
+            getFirstStatement(m).map(_.getExpression).flatMap {
+              case mc: PsiMethodCallExpression if mc.getMethodExpression.getQualifiedName == "this" =>
+                Some(convertPsiToIntermdeiate(m.getBody, externalProperties))
+              case _ =>
+                getStatements(m).map(statements => BlockConstruction(LiteralExpression("this()")
+                  +: statements.map(convertPsiToIntermdeiate(_, externalProperties))))
+            }
+          } else {
+            Option(m.getBody).map(convertPsiToIntermdeiate(_, externalProperties))
           }
-          if (haveUsage) res.append(" var ")
-          else res.append(" val ")
         }
-        res.append(escapeKeyword(l.getName)).append(" : ")
-        res.append(convertPsiToText(l.getTypeElement))
-        if (l.getInitializer != null) {
-          res.append(" = ").append(convertPsiToText(l.getInitializer))
+
+        if (m.isConstructor) {
+          ConstructorSimply(handleModifierList(m), m.getTypeParameters.map(convertPsiToIntermdeiate(_, externalProperties)),
+            convertPsiToIntermdeiate(m.getParameterList, externalProperties), body)
         } else {
-          res.append(" = ")
-          import org.jetbrains.plugins.scala.lang.psi.types._
-          res.append(ScType.create(l.getType, l.getProject) match {
-            case Int => "0"
-            case Boolean => "false"
-            case Long => "0L"
-            case Byte => "0"
-            case Double => ".0"
-            case Float => ".0"
-            case Short => "0"
-            case Unit => "{}"
-            case Char => "0"
-            case _ => "null"
-          })
+          MethodConstruction(handleModifierList(m), m.getName, m.getTypeParameters.map(convertPsiToIntermdeiate(_, externalProperties)),
+            convertPsiToIntermdeiate(m.getParameterList, externalProperties), body,
+            if (m.getReturnType != PsiType.VOID) convertPsiToIntermdeiate(m.getReturnTypeElement, externalProperties) else null)
         }
+      case c: PsiClass => createClass(c, externalProperties)
+      case p: PsiParenthesizedExpression =>
+        val expr = Option(p.getExpression).map(convertPsiToIntermdeiate(_, externalProperties))
+        ParenthesizedExpression(expr)
+      case v: PsiArrayInitializerMemberValue =>
+        ArrayInitializer(v.getInitializers.map(convertPsiToIntermdeiate(_, externalProperties)).toSeq)
+      case annot: PsiAnnotation =>
+        def isArrayAnnotationParameter(pair: PsiNameValuePair): Boolean = {
+          AnnotationUtil.getAnnotationMethod(pair) match {
+            case method: PsiMethod =>
+              val returnType = method.getReturnType
+              returnType != null && returnType.isInstanceOf[PsiArrayType]
+            case _ => false
+          }
+        }
+
+        val attributes = annot.getParameterList.getAttributes
+        val attrResult = new ArrayBuffer[(Option[String], Option[IntermediateNode])]()
+        for (attribute <- attributes) {
+          val value = Option(attribute.getValue) match {
+            case Some(v: PsiAnnotationMemberValue) if isArrayAnnotationParameter(attribute) =>
+              ArrayInitializer(Seq(convertPsiToIntermdeiate(v, externalProperties)))
+            case Some(_) => convertPsiToIntermdeiate(attribute.getValue, externalProperties)
+            case _ => null
+          }
+          attrResult += ((Option(attribute.getName), Option(value)))
+        }
+
+        val inAnnotation = PsiTreeUtil.getParentOfType(annot, classOf[PsiAnnotation]) != null
+
+        val name = Option(annot.getNameReferenceElement).map(convertPsiToIntermdeiate(_, externalProperties))
+        AnnotaionConstruction(inAnnotation, attrResult.toSeq, name)
       case p: PsiParameter =>
-        val typeText = if (p.isVarArgs) {
+        val modifiers = handleModifierList(p)
+        val name = p.getName
+
+        if (p.isVarArgs) {
           p.getTypeElement.getType match {
             case at: PsiArrayType =>
-              val compType = at.getComponentType
-              val scCompType = ScType.create(compType, p.getProject)
-              ScType.presentableText(scCompType) + "*"
-            case _ => convertPsiToText(p.getTypeElement) // should not happen
+              val scCompType = TypeConstruction.createStringTypePresentation(at.getComponentType, p.getProject)
+              ParameterConstruction(modifiers, name, scCompType, isArray = true)
+            case _ => ParameterConstruction(modifiers, name, convertPsiToIntermdeiate(p.getTypeElement, externalProperties), isArray = false) // should not happen
           }
-        } else convertPsiToText(p.getTypeElement)
-        res.append(convertPsiToText(p.getModifierList)).append(escapeKeyword(p.getName)).append(" : ").append(typeText)
-      /*case a: PsiAnonymousClass => {
-        a.get
-      }*/
-      case c: PsiClass =>
-        var forClass = new ArrayBuffer[PsiMember]()
-        var forObject = new ArrayBuffer[PsiMember]()
-        for (method <- c.getMethods) {
-          if (method.hasModifierProperty("static")) {
-            forObject += method
-          } else forClass += method
+        } else ParameterConstruction(modifiers, name, convertPsiToIntermdeiate(p.getTypeElement, externalProperties), isArray = false)
+
+      case n: PsiNewExpression =>
+        if (n.getAnonymousClass != null) {
+          return AnonymousClassExpression(convertPsiToIntermdeiate(n.getAnonymousClass, externalProperties))
         }
-        val serialVersionUID = serialVersion(c)
-        for (field <- c.getFields if !serialVersionUID.contains(field)) {
-          if (field.hasModifierProperty("static")) {
-            forObject += field
-          } else forClass += field
+        val mtype = TypeConstruction.createStringTypePresentation(n.getType, n.getProject)
+        if (n.getArrayInitializer != null) {
+          NewExpression(mtype, n.getArrayInitializer.getInitializers.map(convertPsiToIntermdeiate(_, externalProperties)),
+            withArrayInitalizer = true)
+        } else if (n.getArrayDimensions.nonEmpty) {
+          NewExpression(mtype, n.getArrayDimensions.map(convertPsiToIntermdeiate(_, externalProperties)),
+            withArrayInitalizer = false)
+        } else {
+          val argList: Seq[IntermediateNode] = if (n.getArgumentList != null) {
+            if (n.getArgumentList.getExpressions.isEmpty) {
+              n.getParent match {
+                case r: PsiJavaCodeReferenceElement if n == r.getQualifier => Seq(LiteralExpression("()"))
+                case _ => null
+              }
+            } else {
+              Seq(convertPsiToIntermdeiate(n.getArgumentList, externalProperties))
+            }
+          } else null
+          NewExpression(mtype, argList, withArrayInitalizer = false)
         }
-        for (clazz <- c.getInnerClasses) {
-          if (clazz.hasModifierProperty("static")) {
-            forObject += clazz
-          } else forClass += clazz
+      case t: PsiTryStatement =>
+        val resourceList = Option(t.getResourceList)
+        val resourcesVariables = new ArrayBuffer[(String, IntermediateNode)]()
+        if (resourceList.isDefined) {
+          val it = resourceList.get.iterator
+          while (it.hasNext) {
+            val next = it.next()
+            next match {
+              case varible: PsiResourceVariable =>
+                resourcesVariables += ((varible.getName, convertPsiToIntermdeiate(varible, externalProperties)))
+              case _ =>
+            }
+          }
         }
-        forClass = forClass.sortBy(_.getTextOffset)
-        forObject = forObject.sortBy(_.getTextOffset)
-        if (forObject.nonEmpty && !c.isInstanceOf[PsiAnonymousClass]) {
-          context.get().push((true, c.getQualifiedName))
-          try {
-            val modifiers: String = convertPsiToText(c.getModifierList).replace("abstract", "")
-            res.append(modifiers).append(" ")
-            res.append("object ")
-            res.append(escapeKeyword(c.getName))
-            if (c.isEnum) res.append(" extends Enumeration")
-            res.append(" {\n")
-            if (c.isEnum) {
-              res.append("type ").append(escapeKeyword(c.getName)).append(" = Value\n")
-              val enumConstants = forObject.filter(_.isInstanceOf[PsiEnumConstant])
-              if (enumConstants.nonEmpty) {
-                res.append("val ")
-                for (memb <- enumConstants) {
-                  res.append(escapeKeyword(memb.getName)).append(", ")
-                }
-                res.delete(res.length - 2, res.length)
-                res.append(" = Value\n")
+        val tryBlock = Option(t.getTryBlock).map((c: PsiCodeBlock) => convertPsiToIntermdeiate(c, externalProperties))
+        val catches = t.getCatchSections.map((cb: PsiCatchSection) =>
+          (convertPsiToIntermdeiate(cb.getParameter, externalProperties), convertPsiToIntermdeiate(cb.getCatchBlock, externalProperties)))
+        val finallys = Option(t.getFinallyBlock).map((f: PsiCodeBlock) => f.getStatements.map(convertPsiToIntermdeiate(_, externalProperties)).toSeq)
+        TryCatchStatement(resourcesVariables.toSeq, tryBlock, catches, finallys, ScalaPsiUtil.functionArrow(t.getProject))
+      case p: PsiPrefixExpression =>
+        PrefixExpression(convertPsiToIntermdeiate(p.getOperand, externalProperties), p.getOperationSign.getText, canBeSimpified(p))
+      case p: PsiPostfixExpression =>
+        PostfixExpression(convertPsiToIntermdeiate(p.getOperand, externalProperties), p.getOperationSign.getText, canBeSimpified(p))
+      case p: PsiPolyadicExpression =>
+        val tokenValue = if (p.getOperands.nonEmpty) {
+          p.getTokenBeforeOperand(p.getOperands.apply(1)).getText
+        } else ""
+        PolyadicExpression(p.getOperands.map(convertPsiToIntermdeiate(_, externalProperties)), tokenValue)
+      case r: PsiReferenceParameterList => TypeParameters(r.getTypeParameterElements.map(convertPsiToIntermdeiate(_, externalProperties)))
+      case b: PsiBreakStatement =>
+        if (b.getLabelIdentifier != null)
+          NotSupported(None, "break " + b.getLabelIdentifier.getText + "// todo: label break is not supported")
+        else NotSupported(None, "break //todo: break is not supported")
+      case c: PsiContinueStatement =>
+        if (c.getLabelIdentifier != null)
+          NotSupported(None, "continue " +  c.getLabelIdentifier.getText + " //todo: continue is not supported")
+        else NotSupported(None, "continue //todo: continue is not supported")
+      case s: PsiLabeledStatement =>
+        val statements = Option(s.getStatement).map(convertPsiToIntermdeiate(_, externalProperties))
+        NotSupported(statements, s.getLabelIdentifier.getText +  " //todo: labels is not supported")
+      case e: PsiEmptyStatement => EmptyConstruction()
+      case e: PsiErrorElement => EmptyConstruction()
+      case e => LiteralExpression(e.getText)
+    }
+
+    hanldleAssociations(element, result)
+    result
+  }
+
+
+  def hanldleAssociations(element: PsiElement, result: IntermediateNode)
+                         (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
+                          refs: Seq[ReferenceData] = Seq.empty,
+                          withComments: Boolean = false) = {
+    element match {
+      case expression: PsiNewExpression if expression.getClassReference != null =>
+        associations ++= associationFor(expression.getClassReference)
+      case e: PsiElement => associations ++= associationFor(e)
+      case _ =>
+    }
+
+    result match {
+      case parametrizedConstruction: ParametrizedConstruction =>
+        associations ++= parametrizedConstruction.getAssociations.map {
+          case (node, path) => AssociationHelper(DependencyKind.Reference, node, Path(path))
+        }
+      case arrayConstruction: ArrayConstruction =>
+        associations ++= arrayConstruction.getAssociations.map {
+          case (node, path) => AssociationHelper(DependencyKind.Reference, node, Path(path))
+        }
+      case _ =>
+    }
+
+    def associationFor(range: PsiElement): Option[AssociationHelper] = {
+      refs.find(ref => new TextRange(ref.startOffset, ref.endOffset) == range.getTextRange).map {
+        ref =>
+          if (ref.staticMemberName == null) {
+            AssociationHelper(DependencyKind.Reference, result, Path(ref.qClassName))
+          } else {
+            AssociationHelper(DependencyKind.Reference, result, Path(ref.qClassName, ref.staticMemberName))
+          }
+      }
+    }
+  }
+
+  val fieldParamaterMap = new mutable.HashMap[String, String]()
+
+  def createClass(inClass: PsiClass, externalProperties: ExternalProperties)
+                 (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
+                  refs: Seq[ReferenceData] = Seq.empty,
+                  withComments: Boolean = false): IntermediateNode = {
+
+    def extendList: Seq[PsiJavaCodeReferenceElement] = {
+      val typez = new ArrayBuffer[PsiJavaCodeReferenceElement]
+      if (inClass.getExtendsList != null) typez ++= inClass.getExtendsList.getReferenceElements
+      if (inClass.getImplementsList != null) typez ++= inClass.getImplementsList.getReferenceElements
+      typez.toSeq
+    }
+    def collectClassObjectMembers(): (Seq[PsiMember], Seq[PsiMember]) = {
+      var forClass = new ArrayBuffer[PsiMember]()
+      var forObject = new ArrayBuffer[PsiMember]()
+      for (method <- inClass.getMethods) {
+        if (method.hasModifierProperty("static")) {
+          forObject += method
+        } else forClass += method
+      }
+      val serialVersionUID = serialVersion(inClass)
+      for (field <- inClass.getFields if !serialVersionUID.contains(field)) {
+        if (field.hasModifierProperty("static")) {
+          forObject += field
+        } else forClass += field
+      }
+      for (clazz <- inClass.getInnerClasses) {
+        if (clazz.hasModifierProperty("static")) {
+          forObject += clazz
+        } else forClass += clazz
+      }
+
+      forClass = forClass.sortBy(_.getTextOffset)
+      forObject = forObject.sortBy(_.getTextOffset)
+      (forClass.toSeq, forObject.toSeq)
+    }
+
+    def handleObject(objectMembers: Seq[PsiMember]): IntermediateNode = {
+      def handleAsEnum(modifiers: IntermediateNode): IntermediateNode = {
+        Enum(inClass.getName, modifiers,
+          objectMembers.filter(_.isInstanceOf[PsiEnumConstant]).map((el: PsiMember) => el.getName))
+      }
+      def handleAsObject(modifiers: IntermediateNode): IntermediateNode = {
+        val membersOut = objectMembers.filter(!_.isInstanceOf[PsiEnumConstant]).map(convertPsiToIntermdeiate(_, externalProperties))
+        val initializers = inClass.getInitializers.map((x: PsiClassInitializer) => convertPsiToIntermdeiate(x.getBody, externalProperties))
+        val primaryConstructor = None
+        val typeParams = None
+        val companionObject = EmptyConstruction()
+        ClassConstruction(inClass.getName, primaryConstructor, membersOut, modifiers,
+          typeParams, Some(initializers), ClassType.OBJECT, companionObject, None)
+      }
+
+      if (objectMembers.nonEmpty && !inClass.isInstanceOf[PsiAnonymousClass]) {
+        context.get().push((true, inClass.qualifiedName))
+        try {
+          val modifiers = handleModifierList(inClass)
+          val updatedModifiers = modifiers.asInstanceOf[ModifiersConstruction].without(ModifierType.ABSTRACT)
+          if (inClass.isEnum)
+            handleAsEnum(updatedModifiers)
+          else
+            handleAsObject(updatedModifiers)
+        } finally {
+          context.get().pop()
+        }
+      } else {
+        EmptyConstruction()
+      }
+    }
+
+    def handleAsClass(classMembers: Seq[PsiMember], objectMembers: Seq[PsiMember],
+                      companionObject: IntermediateNode, extendList: Seq[PsiJavaCodeReferenceElement]): IntermediateNode = {
+
+      def handleAnonymousClass(clazz: PsiAnonymousClass): IntermediateNode = {
+        val tp = TypeConstruction.createStringTypePresentation(clazz.getBaseClassType, clazz.getProject)
+        val argList = convertPsiToIntermdeiate(clazz.getArgumentList, externalProperties)
+        AnonymousClass(tp, argList, classMembers.map(convertPsiToIntermdeiate(_, externalProperties)),
+          extendList.map(convertPsiToIntermdeiate(_, externalProperties)))
+      }
+
+
+      def sortMembers(): Seq[PsiMember] = {
+        def isConstructor(member: PsiMember): Boolean =
+          member.isInstanceOf[PsiMethod] && member.asInstanceOf[PsiMethod].isConstructor
+
+        def sort(targetMap: mutable.HashMap[PsiMethod, PsiMethod]): Seq[PsiMember] = {
+          def compareAsConstructors(left: PsiMethod, right: PsiMethod) = {
+            val rightFromMap = targetMap.get(left)
+            if (rightFromMap.isDefined && rightFromMap.get == right) {
+              false // right constructor must be upper then left
+            } else {
+              val leftFromMap = targetMap.get(right)
+              if (leftFromMap.isDefined && leftFromMap.get == left) {
+                true
+              } else {
+                compareByOrder(right, left)
               }
             }
-            for (memb <- forObject.filter(!_.isInstanceOf[PsiEnumConstant])) {
-              res.append(convertPsiToText(memb)).append("\n")
-            }
-            for (init <- c.getInitializers) {
-              res.append("try ").append(convertPsiToText(init.getBody)).append("\n")
-            }
-            res.append("}")
           }
-          finally {
-            context.get().pop()
+
+          def compareByOrder(left: PsiMember, right: PsiMember): Boolean = {
+            classMembers.indexOf(left) > classMembers.indexOf(right)
           }
-        }
-        if (!c.isInstanceOf[PsiAnonymousClass]) res.append("\n")
-        if (forClass.nonEmpty || forObject.isEmpty) {
-          context.get().push((false, c.getQualifiedName))
-          try {
-            c match {
-              case clazz: PsiAnonymousClass =>
-                val tp = ScType.create(c.asInstanceOf[PsiAnonymousClass].getBaseClassType, c.getProject)
-                res.append(ScType.presentableText(tp))
-                if (clazz.getArgumentList.getExpressions.nonEmpty)
-                  res.append("(").append(convertPsiToText(clazz.getArgumentList)).append(")")
-                else res.append("()")
-              case _ =>
-                res.append(convertPsiToText(c.getModifierList)).append(" ")
-                if (c.isInterface) res.append("trait ") else res.append("class ")
-                res.append(escapeKeyword(c.getName))
-                val typeParameters = c.getTypeParameters
-                if (typeParameters.nonEmpty) {
-                  res.append(typeParameters.map(convertPsiToText).mkString("[", ", ", "]"))
-                }
-            }
-            val typez = new ArrayBuffer[PsiJavaCodeReferenceElement]
-            if (c.getExtendsList != null) typez ++= c.getExtendsList.getReferenceElements
-            if (c.getImplementsList != null) typez ++= c.getImplementsList.getReferenceElements
-            if (typez.nonEmpty) res.append(if (c.isInstanceOf[PsiAnonymousClass]) " with " else " extends ")
-            for (tp <- typez) {
-              res.append(convertPsiToText(tp)).append(" with ")
-            }
-            if (typez.nonEmpty) res.delete(res.length - 5, res.length)
-            res.append(" {\n")
-            for (memb <- forClass) {
-              res.append(convertPsiToText(memb)).append("\n")
-            }
-            res.append("}")
-          } finally {
-            context.get().pop()
+
+
+          if (targetMap.isEmpty)
+            classMembers
+          else classMembers.sortWith {
+            (left, right) =>
+              if (isConstructor(left) && isConstructor(right)) {
+                compareAsConstructors(left.asInstanceOf[PsiMethod], right.asInstanceOf[PsiMethod])
+              } else {
+                compareByOrder(right, left)
+              }
           }
         }
-      case p: PsiJavaCodeReferenceElement =>
-        if (p.getQualifier != null) {
-          res.append(convertPsiToText(p.getQualifier)).append(".")
+
+        val constructorsCallMap = buildConstructorTargetMap(inClass.getConstructors.sortBy(_.getTextOffset))
+        sort(constructorsCallMap)
+      }
+
+      def updateMembersAndConvert(dropMembes: Option[Seq[PsiMember]]): Seq[IntermediateNode] = {
+        val sortedMembers = sortMembers()
+        val updatedMembers = if (dropMembes.isDefined) {
+          sortedMembers.filter(!dropMembes.get.contains(_))
+        } else {
+          sortedMembers
         }
-        res.append(escapeKeyword(p.getReferenceName))
-        res.append(convertPsiToText(p.getParameterList))
-      case p: PsiPackageStatement =>
-        res.append("package ")
-        res.append(convertPsiToText(p.getPackageReference))
-      case i: PsiImportStatement =>
-        res.append("import ")
-        res.append(convertPsiToText(i.getImportReference))
-        if (i.isOnDemand) {
-          res.append("._")
+        updatedMembers.map(convertPsiToIntermdeiate(_, externalProperties))
+      }
+
+      if (classMembers.nonEmpty || objectMembers.isEmpty) {
+        context.get().push((false, inClass.qualifiedName))
+        try {
+          inClass match {
+            case clazz: PsiAnonymousClass => handleAnonymousClass(clazz)
+            case _ =>
+              val typeParams = inClass.getTypeParameters.map(convertPsiToIntermdeiate(_, externalProperties))
+              val modifiers = handleModifierList(inClass)
+              val (dropMembers, primaryConstructor) = handlePrimaryConstructor(inClass.getConstructors)
+              val classType = if (inClass.isInterface) ClassType.INTERFACE else ClassType.CLASS
+              val members = updateMembersAndConvert(dropMembers)
+
+              ClassConstruction(inClass.getName, primaryConstructor, members, modifiers, Some(typeParams),
+                None, classType, companionObject, Some(extendList.map(convertPsiToIntermdeiate(_, externalProperties))))
+          }
+        } finally {
+          context.get().pop()
         }
-      case i: PsiImportStaticStatement =>
-        res.append("import ")
-        res.append(convertPsiToText(i.getImportReference))
-        if (i.isOnDemand) {
-          res.append("._")
-        }
-      case i: PsiImportList =>
-        for (imp <- i.getAllImportStatements) {
-          res.append(convertPsiToText(imp)).append("\n")
-        }
-      case t: PsiTypeElement =>
-        res.append(ScType.presentableText(ScType.create(t.getType, t.getProject)))
-      /*if (t.getText.endsWith("[]")) {
-        res.append("Array[").append(convertPsiToText(t.getFirstChild)).append("]")
       } else {
-        t.getFirstChild match {
-          case k: PsiKeyword => {
-            k.getText match {
-              case "int" => res.append("Int")
-              case "long" => res.append("Long")
-              case "boolean" => res.append("Boolean")
-              case "short" => res.append("Short")
-              case "double" => res.append("Double")
-              case "void" => res.append("Unit")
-              case "float" => res.append("Float")
-              case "byte" => res.append("Byte")
-              case "char" => res.append("Char")
-            }
-          }
-          case x => res.append(convertPsiToText(x))
-        }
-      }*/
-      case m: PsiModifierList =>
-        for {
-          a <- m.getAnnotations
-          if !Option(a.getQualifiedName).contains("java.lang.Override")
-        } {
-          res.append(convertPsiToText(a)).append(" ")
+        companionObject
+      }
+    }
+
+    val (classMembers, objectMembers) = collectClassObjectMembers()
+    val companionObject = handleObject(objectMembers)
+    handleAsClass(classMembers, objectMembers, companionObject, extendList)
+  }
+
+  def getFirstStatement(constructor: PsiMethod): Option[PsiExpressionStatement] = {
+    Option(constructor.getBody).map(_.getStatements)
+      .flatMap(_.headOption).collect { case exp: PsiExpressionStatement => exp }
+  }
+
+  // build map of constructor and constructor that it call
+  def buildConstructorTargetMap(constructors: Seq[PsiMethod]): mutable.HashMap[PsiMethod, PsiMethod] = {
+    val toTargetConstructorMap = new mutable.HashMap[PsiMethod, PsiMethod]()
+
+    for (constructor <- constructors) {
+
+      val refExpr = getFirstStatement(constructor).map(_.getExpression).flatMap {
+        case mc: PsiMethodCallExpression if mc.getMethodExpression.getQualifiedName == "this" =>
+          Some(mc.getMethodExpression)
+        case _ => None
+      }
+
+      if (refExpr.isDefined) {
+        val resolved = Option(refExpr.get.resolve())
+
+        val target = resolved.flatMap {
+          case m: PsiMethod => Some(m)
+          case _ => None
         }
 
-        if (m.hasModifierProperty("volatile")) {
-          res.append("@volatile\n")
+        if (target.isDefined && target.get.isConstructor) {
+          val finalTarget: PsiMethod = toTargetConstructorMap.getOrElse(target.get, target.get)
+
+          toTargetConstructorMap.put(constructor, finalTarget)
         }
-        if (m.hasModifierProperty("transient")) {
-          res.append("@transient\n")
+      }
+    }
+    toTargetConstructorMap
+  }
+
+  //primary constructor may apply only when there is one constructor with params
+  def handlePrimaryConstructor(constructors: Seq[PsiMethod])
+                              (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
+                               refs: Seq[ReferenceData] = Seq.empty,
+                               withComments: Boolean = false): (Option[Seq[PsiMember]], Option[PrimaryConstruction]) = {
+
+    val dropFields = new ArrayBuffer[PsiField]()
+    def createPrimaryConstructor(constructor: PsiMethod): PrimaryConstruction = {
+      def notContains(statement: PsiStatement, where: Seq[PsiExpressionStatement]): Boolean = {
+        !statement.isInstanceOf[PsiExpressionStatement] ||
+          (statement.isInstanceOf[PsiExpressionStatement] && !where.contains(statement))
+      }
+
+      def getSuperCall(dropStatements: ArrayBuffer[PsiExpressionStatement]): IntermediateNode = {
+        val firstStatement = getFirstStatement(constructor)
+        val isSuper = firstStatement.map(_.getExpression).flatMap {
+          case mc: PsiMethodCallExpression if mc.getMethodExpression.getQualifiedName == "super" =>
+            Some(mc)
+          case _ => None
         }
-        if (m.hasModifierProperty("native")) {
-          res.append("@native\n")
+        if (isSuper.isDefined) {
+          dropStatements += firstStatement.get
+          convertPsiToIntermdeiate(isSuper.get.getArgumentList, null)
+        } else {
+          null
         }
-        m.getParent match {
-          case method: PsiMethod =>
-            val references = method.getThrowsList.getReferenceElements
-            for (ref <- references) {
-              res.append("@throws(classOf[").append(convertPsiToText(ref)).append("])\n")
-            }
-          case c: PsiClass =>
-            serialVersion(c) match {
-              case Some(f) =>
-                res.append("@SerialVersionUID(").append(convertPsiToText(f.getInitializer)).append(")\n")
-              case _ =>
-            }
-          case _ =>
-        }
-        if (m.hasModifierProperty("protected")) {
-          res.append("protected ")
-        } else if (m.hasModifierProperty("private")) {
-          res.append("private ")
-        } else if (!m.hasModifierProperty("public") && m.getParent != null && m.getParent.getParent != null &&
-          m.getParent.getParent.isInstanceOf[PsiClass]) {
-          val packageName: String = m.getContainingFile.asInstanceOf[PsiClassOwner].getPackageName
-          if (packageName != "") res.append("private").append("[").append(packageName.substring(packageName.lastIndexOf(".") + 1)).append("] ")
-        }
-        if (m.hasModifierProperty("abstract")) {
-          m.getParent match {
-            case c: PsiClass =>
-              if (!c.isInterface) res.append("abstract ") //abstract is redundant in other places
-            case _ =>
+      }
+
+      def getCorrespondedFieldInfo(param: PsiParameter): Seq[(PsiField, PsiExpressionStatement)] = {
+        val dropInfo = new ArrayBuffer[(PsiField, PsiExpressionStatement)]()
+        val usages = findVariableUsage(param, constructor.getBody)
+
+        for (usage <- usages) {
+          val parent = Option(usage.getParent)
+
+          val leftPart = parent.flatMap {
+            case ae: PsiAssignmentExpression if (ae.getOperationSign.getTokenType == JavaTokenType.EQ)
+              && ae.getLExpression.isInstanceOf[PsiReferenceExpression] =>
+              Some(ae.getLExpression.asInstanceOf[PsiReferenceExpression])
+            case _ => None
+          }
+
+          val field = if (leftPart.isDefined) leftPart.get.resolve() match {
+            case f: PsiField if f.getContainingClass == constructor.getContainingClass && f.getInitializer == null =>
+              Some(f)
+            case _ => None
+          } else None
+
+          var statement: Option[PsiExpressionStatement] =
+            if (field.isDefined && parent.isDefined && parent.get.getParent.isInstanceOf[PsiExpressionStatement]) {
+              Some(parent.get.getParent.asInstanceOf[PsiExpressionStatement])
+            } else None
+
+          if (statement.isDefined && statement.get.getParent != constructor.getBody) {
+            statement = None
+          }
+
+          if (field.isDefined && statement.isDefined) {
+            dropInfo += ((field.get, statement.get))
+            if (field.get.getName != param.getName)
+              fieldParamaterMap += ((param.getName, field.get.getName))
           }
         }
-        if (m.hasModifierProperty("final")) {
-          m.getParent match {
-            case _: PsiLocalVariable =>
-            case _: PsiParameter =>
-            case _ =>
-              val stack = context.get()
-              if (stack.nonEmpty && !stack.top._1) res.append("final ") //only to classes, not objects
-          }
-        }
-        m.getParent match {
-          case method: PsiMethod =>
-            if (method.findSuperMethods.exists(!_.hasModifierProperty("abstract"))) res.append("override ")
-          case _ =>
-        }
-      case w: PsiWhiteSpace =>
-        res.append(w.getText)
-      case annot: PsiAnnotation =>
-        PsiTreeUtil.getParentOfType(annot, classOf[PsiAnnotation]) match {
-          case parent: PsiAnnotation => res.append("new ")
-          case _ => res.append("@")
-        }
-        val nameReferenceElement: PsiJavaCodeReferenceElement = annot.getNameReferenceElement
-        if (nameReferenceElement != null) {
-          val name = escapeKeyword(nameReferenceElement.getText)
-          name match {
-            case "Deprecated" => res.append("deprecated")
-            case _ => res.append(name)
-          }
-        }
-        val attributes = annot.getParameterList.getAttributes
-        if (attributes.nonEmpty) {
-          res.append("(")
-          for (attribute <- attributes) {
-            if (attribute.getName != null) {
-              res.append(escapeKeyword(attribute.getName))
-              res.append(" = ")
-            }
-            val value = attribute.getValue
-            value match {
-              case a: PsiArrayInitializerMemberValue => res.append(convertPsiToText(value))
-              case v: PsiAnnotationMemberValue if isArrayAnnotationParameter(attribute) =>
-                res.append("Array(").append(convertPsiToText(value)).append(")")
-              case _ => res.append(convertPsiToText(value))
-            }
-            res.append(", ")
-          }
-          res.delete(res.length - 2, res.length)
-          res.append(")")
-        }
-        res.append(" ")
-      case v: PsiArrayInitializerMemberValue =>
-        res.append("Array")
-        append(v.getInitializers)
-      case r: PsiReferenceParameterList =>
-        append(r.getTypeParameterElements, "[", ", ", "]")
-      case p: PsiParameterList =>
-        if (p.getParametersCount > 0) {
-          append(p.getParameters)
-        }
-      case comment: PsiComment => res.append(comment.getText)
-      case p: PsiPolyadicExpression =>
-        var flag = false
-        p.getOperands.foreach(operand => {
-          if (flag) {
-            res.append(" ").append(p.getTokenBeforeOperand(operand).getText).append(" ")
-            res.append(convertPsiToText(operand))
+        dropInfo.toSeq
+      }
+
+      def createContructor: PrimaryConstruction = {
+        val params = constructor.getParameterList.getParameters
+        val updatedParams = new ArrayBuffer[(String, IntermediateNode, Boolean)]()
+        val dropStatements = new ArrayBuffer[PsiExpressionStatement]()
+        for (param <- params) {
+          val fieldInfo = getCorrespondedFieldInfo(param)
+          val updatedField = if (fieldInfo.isEmpty) {
+            val p = convertPsiToIntermdeiate(param, null).asInstanceOf[ParameterConstruction]
+            (p.name, p.scCompType, false)
           } else {
-            res.append(convertPsiToText(operand))
-            flag = true
+            fieldInfo.foreach {
+              case (field, statement) =>
+                dropFields += field
+                dropStatements += statement
+            }
+            val p = convertPsiToIntermdeiate(fieldInfo.head._1, WithReferenceExpression(true)).asInstanceOf[FieldConstruction]
+            (p.name, p.ftype, p.isVar)
           }
-        })
-      case e: PsiEmptyStatement =>
-      case e: PsiErrorElement =>
-      case e => res.append(e.getText)
+          updatedParams += updatedField
+        }
+
+        val superCall = getSuperCall(dropStatements)
+
+        getStatements(constructor).map {
+          statements =>
+            PrimaryConstruction(updatedParams, superCall,
+              statements.filter(notContains(_, dropStatements))
+                .map(convertPsiToIntermdeiate(_, WithReferenceExpression(true))), handleModifierList(constructor))
+        }.orNull
+      }
+
+      createContructor
     }
-    res.toString()
+    //If can't choose one - return emptyConstructor
+    def GetComplexPrimaryConstructor(): PsiMethod = {
+      val possibleConstructors = buildConstructorTargetMap(constructors)
+      val candidates = constructors.filter(!possibleConstructors.contains(_))
+      def tryFindWithoutParamConstructor(): PsiMethod = {
+        val emptyParamsConstructors = constructors.filter(_.getParameterList.getParametersCount == 0)
+        emptyParamsConstructors.length match {
+          case 1 => emptyParamsConstructors.head
+          case _ => null
+        }
+      }
+
+      // we expected to have one primary constructor
+      // or try to use constructor with empty parameters if it is defined
+      // and there are other constructors
+      candidates.length match {
+        case 1 => candidates.head
+        case _ => tryFindWithoutParamConstructor()
+      }
+    }
+
+    constructors.length match {
+      case 0 => (None, None)
+      case 1 =>
+        val updatedConstructor = createPrimaryConstructor(constructors.head)
+        (Some(constructors.head +: dropFields.toSeq), Some(updatedConstructor))
+      case _ =>
+        val pc = GetComplexPrimaryConstructor()
+        if (pc != null) {
+          val updatedConstructor = createPrimaryConstructor(pc)
+          (Some(pc +: dropFields.toSeq), Some(updatedConstructor))
+        }
+        else (None, None)
+    }
   }
 
-  def convertPsisToText(elements: Array[PsiElement],
-                       associations: ListBuffer[Association] = new ListBuffer(),
-                       refs: Seq[ReferenceData] = Seq.empty): String = {
-    val res = new StringBuilder("")
-    for (element <- elements) {
-      res.append(convertPsiToText(element)(associations, refs, new Offset(res.length)))
+  val SIMPLE_MODIFIERS_MAP = Map(
+    (PsiModifier.VOLATILE, ModifierType.VOLATILE),
+    (PsiModifier.PRIVATE, ModifierType.PRIVATE),
+    (PsiModifier.PROTECTED, ModifierType.PROTECTED),
+    (PsiModifier.TRANSIENT, ModifierType.TRANSIENT),
+    (PsiModifier.NATIVE, ModifierType.NATIVE)
+  )
+
+  def handleModifierList(owner: PsiModifierListOwner)
+                        (implicit associations: ListBuffer[AssociationHelper] = new ListBuffer(),
+                         refs: Seq[ReferenceData] = Seq.empty,
+                         withComments: Boolean = false): IntermediateNode = {
+
+    val annotationDropList = Seq("java.lang.Override", "org.jetbrains.annotations.Nullable",
+      "org.jetbrains.annotations.NotNull", "org.jetbrains.annotations.NonNls")
+
+    def handleAnnotations: Seq[IntermediateNode] = {
+      val annotations = new ArrayBuffer[IntermediateNode]()
+      for {
+        a <- owner.getModifierList.getAnnotations
+        optValue = Option(a.getQualifiedName).map(annotationDropList.contains(_))
+        if optValue.isDefined && !optValue.get
+      } {
+        annotations.append(convertPsiToIntermdeiate(a, null))
+      }
+      annotations
     }
-    res.toString()
+
+    def handleModifiers: Seq[IntermediateNode] = {
+      val modifiers = new ArrayBuffer[IntermediateNode]()
+      val simpleList = SIMPLE_MODIFIERS_MAP.filter {
+        case (psiType, el) => owner.hasModifierProperty(psiType)
+      }.values
+
+      modifiers ++= simpleList.map(SimpleModifier)
+
+      owner match {
+        case method: PsiMethod =>
+          val references = method.getThrowsList.getReferenceElements
+          for (ref <- references) {
+            modifiers.append(ModifierWithExpression(ModifierType.THROW, convertPsiToIntermdeiate(ref, null)))
+          }
+
+          if (method.findSuperMethods.exists(!_.hasModifierProperty("abstract")))
+            modifiers.append(SimpleModifier(ModifierType.OVERRIDE))
+
+        case c: PsiClass =>
+          serialVersion(c) match {
+            case Some(f) =>
+              modifiers.append(ModifierWithExpression(ModifierType.SerialVersionUID, convertPsiToIntermdeiate(f.getInitializer, null)))
+            case _ =>
+          }
+
+          if ((!c.isInterface) && c.hasModifierProperty(PsiModifier.ABSTRACT))
+            modifiers.append(SimpleModifier(ModifierType.ABSTRACT))
+
+        case _ =>
+      }
+
+      if (!owner.hasModifierProperty(PsiModifier.PUBLIC) &&
+        !owner.hasModifierProperty(PsiModifier.PRIVATE) &&
+        !owner.hasModifierProperty(PsiModifier.PROTECTED) &&
+        owner.getParent != null && owner.getParent.isInstanceOf[PsiClass]) {
+        val packageName: String = owner.getContainingFile.asInstanceOf[PsiClassOwner].getPackageName
+        if (packageName != "")
+          modifiers.append(ModifierWithExpression(ModifierType.PRIVATE,
+            LiteralExpression(packageName.substring(packageName.lastIndexOf(".") + 1))))
+      }
+
+      if (owner.hasModifierProperty(PsiModifier.FINAL) && context.get.nonEmpty && !context.get.top._1) {
+        owner match {
+          case _: PsiLocalVariable =>
+          case _: PsiParameter =>
+          case _ =>
+            modifiers.append(SimpleModifier(ModifierType.FINAL)) //only to classes, not objects
+        }
+      }
+
+      modifiers
+    }
+
+    ModifiersConstruction(handleAnnotations, handleModifiers)
   }
 
-  def isArrayAnnotationParameter(pair: PsiNameValuePair): Boolean = {
-    AnnotationUtil.getAnnotationMethod(pair) match {
-      case method: PsiMethod =>
-        val returnType = method.getReturnType
-        returnType != null && returnType.isInstanceOf[PsiArrayType]
-      case _ => false
+
+  def convertPsisToText(elements: Array[PsiElement]): String = {
+    val resultNode = new MainConstruction
+    for (part <- elements) {
+      resultNode.addChild(convertPsiToIntermdeiate(part, null))
     }
+    val visitor = new SimplePrintVisitor
+    visitor.visit(resultNode)
+    visitor.stringResult
   }
+
+  def convertPsiToText(element: PsiElement): String = {
+    val visitor = new SimplePrintVisitor
+    visitor.visit(convertPsiToIntermdeiate(element, null))
+    visitor.stringResult
+  }
+
+  private def getStatements(m: PsiMethod): Option[Array[PsiStatement]] = Option(m.getBody).map(_.getStatements)
 
   private def serialVersion(c: PsiClass): Option[PsiField] = {
     val serialField = c.findFieldByName("serialVersionUID", false)
@@ -804,9 +869,9 @@ object JavaToScala {
   }
 
   /**
-   * @param expr prefix or postfix expression
-   * @return true if this expression is under block
-   */
+    * @param expr prefix or postfix expression
+    * @return true if this expression is under block
+    */
   private def canBeSimpified(expr: PsiExpression): Boolean = {
     expr.getParent match {
       case b: PsiExpressionStatement =>

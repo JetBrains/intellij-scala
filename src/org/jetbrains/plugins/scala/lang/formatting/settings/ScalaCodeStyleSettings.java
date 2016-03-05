@@ -106,6 +106,9 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SD_BLANK_LINE_BEFORE_TAGS = true;
   public boolean SD_BLANK_LINE_AFTER_PARAMETERS_COMMENTS = false;
   public boolean SD_BLANK_LINE_AFTER_RETURN_COMMENTS = false;
+  public boolean SD_BLANK_LINE_BETWEEN_PARAMETERS = false;
+  public boolean SD_BLANK_LINE_BEFORE_PARAMETERS = false;
+  public boolean SD_KEEP_BLANK_LINES_BETWEEN_TAGS = false;
 
   public boolean SD_PRESERVE_SPACES_IN_TAGS = false;
 

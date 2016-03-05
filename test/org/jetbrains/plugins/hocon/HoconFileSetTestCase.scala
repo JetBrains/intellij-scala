@@ -75,4 +75,7 @@ abstract class HoconFileSetTestCase(subpath: String)
 
   protected def inWriteCommandAction[T](code: => T): T =
     extensions.inWriteCommandAction(getProject)(code)
+
+  protected def inReadAction[T](code: => T): T =
+    extensions.inReadAction(code)
 }

@@ -5,6 +5,7 @@ import com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection._
 import com.intellij.lang.annotation._
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.{Key, TextRange}
@@ -507,10 +508,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                           case Some(te) if te.containingFile == t.containingFile =>
                             val fix = new ChangeTypeFix(te, returnType.getOrNothing)
                             annotation.registerFix(fix)
-                            val teAnnotation = holder.createErrorAnnotation(te, null)
-                            teAnnotation.setHighlightType(ProblemHighlightType.INFORMATION)
+                            val teAnnotation = annotationWithoutHighlighting(holder, te)
                             teAnnotation.registerFix(fix)
-                          case None =>
+                          case _ =>
                         }
                       }
                     }
@@ -524,6 +524,14 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         checkMember("apply", checkReturnTypeIsBoolean = false)
       case _ =>
     }
+  }
+
+  private def annotationWithoutHighlighting(holder: AnnotationHolder, te: PsiElement): Annotation = {
+    val teAnnotation = holder.createErrorAnnotation(te, null)
+    teAnnotation.setHighlightType(ProblemHighlightType.INFORMATION)
+    val emptyAttr = new TextAttributes()
+    teAnnotation.setEnforcedTextAttributes(emptyAttr)
+    teAnnotation
   }
 
   private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) {
@@ -697,7 +705,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       val parent = refElement.getParent
       def addCreateApplyOrUnapplyFix(messageKey: String, fix: ScTypeDefinition => IntentionAction): Boolean = {
         val refWithoutArgs = ScalaPsiElementFactory.createReferenceFromText(refElement.getText, parent.getContext, parent)
-        if (refWithoutArgs.multiResolve(false).exists(!_.getElement.isInstanceOf[PsiPackage])) {
+        if (refWithoutArgs != null && refWithoutArgs.multiResolve(false).exists(!_.getElement.isInstanceOf[PsiPackage])) {
           // We can't resolve the method call A(arg1, arg2), but we can resolve A. Highlight this differently.
           val error = ScalaBundle.message(messageKey, refElement.refName)
           val annotation = holder.createErrorAnnotation(refElement.nameId, error)
@@ -709,8 +717,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             case _ =>
           }
           true
-        }
-        else false
+        } else false
       }
 
       refElement.getParent match {
@@ -959,8 +966,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                     case Some(te) if te.getContainingFile == expr.getContainingFile =>
                       val fix = new ChangeTypeFix(te, exprType.getOrNothing)
                       annotation.registerFix(fix)
-                      val teAnnotation = holder.createErrorAnnotation(te, null)
-                      teAnnotation.setHighlightType(ProblemHighlightType.INFORMATION)
+                      val teAnnotation = annotationWithoutHighlighting(holder, te)
                       teAnnotation.registerFix(fix)
                     case _ =>
                   }
@@ -1127,7 +1133,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
   def modifierIsThis(toCheck: PsiElement): Boolean = {
     toCheck match {
-      case modifierOwner: ScModifierListOwner => modifierOwner.getModifierList.accessModifier.exists(_.isThis)
+      case modifierOwner: ScModifierListOwner =>
+        Option(modifierOwner.getModifierList).flatMap(_.accessModifier).exists(_.isThis)
       case _ => false
     }
   }

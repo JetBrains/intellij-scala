@@ -7,6 +7,7 @@ import com.intellij.codeInspection.ui.SingleCheckboxOptionsPanel
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInsight.intention.IntentionUtil
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -47,6 +48,10 @@ class UnnecessaryParenthesesQuickFix(parenthesized: ScParenthesisedExpr, textOfS
 
     val newExpr = ScalaPsiElementFactory.createExpressionFromText(textOfStripped, parenthExpr.getManager)
     val replaced = parenthExpr.replaceExpression(newExpr, removeParenthesis = true)
+
+    val comments = Option(parenthExpr.expr.get).map(expr => IntentionUtil.collectComments(expr))
+    comments.foreach(value => IntentionUtil.addComments(value, replaced.getParent, replaced))
+
     ScalaPsiUtil.padWithWhitespaces(replaced)
   }
 }

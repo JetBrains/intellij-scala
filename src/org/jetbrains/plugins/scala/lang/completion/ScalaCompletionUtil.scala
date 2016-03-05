@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
-import com.intellij.codeInsight.completion.{CompletionParameters, PrefixMatcher}
+import com.intellij.codeInsight.completion.{CompletionUtil, CompletionParameters, PrefixMatcher}
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.lexer._
@@ -17,7 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
+import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -268,4 +270,68 @@ object ScalaCompletionUtil {
       case _ => (null, false)
     }
   } getOrElse (null, false)
+
+
+  def getDummyIdentifier(offset: Int, file: PsiFile): String = {
+    def isOpChar(c: Char): Boolean = {
+      ScalaNamesUtil.isIdentifier("+" + c)
+    }
+
+    val element = file.findElementAt(offset)
+    val ref = file.findReferenceAt(offset)
+    if (element != null && ref != null) {
+      val text = ref match {
+        case ref: PsiElement => ref.getText
+        case ref: PsiReference => ref.getElement.getText //this case for anonymous method in ScAccessModifierImpl
+      }
+      val id = if (isOpChar(text(text.length - 1))) {
+        "+++++++++++++++++++++++"
+      } else {
+        val rest = ref match {
+          case ref: PsiElement => text.substring(offset - ref.getTextRange.getStartOffset + 1)
+          case ref: PsiReference =>
+            val from = offset - ref.getElement.getTextRange.getStartOffset + 1
+            if (from < text.length && from >= 0) text.substring(from) else ""
+        }
+        if (ScalaNamesUtil.isKeyword(rest)) {
+          CompletionUtil.DUMMY_IDENTIFIER
+        } else {
+          CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
+        }
+      }
+
+      if (ref.getElement != null &&
+        ref.getElement.getPrevSibling != null &&
+        ref.getElement.getPrevSibling.getNode.getElementType == ScalaTokenTypes.tSTUB) id + "`" else id
+    } else {
+      if (element != null && element.getNode.getElementType == ScalaTokenTypes.tSTUB) {
+        CompletionUtil.DUMMY_IDENTIFIER_TRIMMED + "`"
+      } else {
+        val actualElement = file.findElementAt(offset + 1)
+        if (actualElement != null && ScalaNamesUtil.isKeyword(actualElement.getText)) {
+          CompletionUtil.DUMMY_IDENTIFIER
+        } else {
+          CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
+        }
+      }
+    }
+  }
+
+
+  def positionFromParameters(parameters: CompletionParameters): PsiElement = {
+
+    @tailrec
+    def inner(element: PsiElement): PsiElement = element match {
+      case null => parameters.getPosition //we got to the top of the tree and didn't find a modificationTrackerOwner
+      case owner: ScModificationTrackerOwner if owner.isValidModificationTrackerOwner() =>
+        if (owner.containingFile.contains(parameters.getOriginalFile)) {
+          owner.getMirrorPositionForCompletion(getDummyIdentifier(parameters.getOffset, parameters.getOriginalFile),
+            parameters.getOffset - owner.getTextRange.getStartOffset).getOrElse(parameters.getPosition)
+        } else parameters.getPosition
+      case _ => inner(element.getContext)
+    }
+    inner(parameters.getOriginalPosition)
+  }
+
+
 }

@@ -21,7 +21,7 @@ abstract class ScalaLightInspectionFixtureTestAdapter extends ScalaLightCodeInsi
   }
 
   protected def testFix(text: String, result: String, hint: String): Unit = {
-    testQuickFix(normalize(text), normalize(result), hint, classOf[DoubleNegationInspection])
+    testQuickFix(normalize(text), normalize(result), hint, classOfInspection)
   }
 
   override protected def checkTextHasNoErrors(text: String): Unit = {

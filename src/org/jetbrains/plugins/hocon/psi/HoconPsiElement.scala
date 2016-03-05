@@ -13,7 +13,7 @@ import org.jetbrains.plugins.hocon.HoconConstants
 import org.jetbrains.plugins.hocon.HoconConstants._
 import org.jetbrains.plugins.hocon.lexer.{HoconTokenSets, HoconTokenType}
 import org.jetbrains.plugins.hocon.parser.HoconElementType
-import org.jetbrains.plugins.hocon.ref.IncludedFileReferenceSet
+import org.jetbrains.plugins.hocon.ref.{HKeySelfReference, IncludedFileReferenceSet}
 import org.jetbrains.plugins.scala.extensions._
 
 import scala.reflect.{ClassTag, classTag}
@@ -24,12 +24,14 @@ sealed abstract class HoconPsiElement(ast: ASTNode) extends ASTWrapperPsiElement
   override def getContainingFile: HoconPsiFile =
     super.getContainingFile.asInstanceOf[HoconPsiFile]
 
-  def parent: Parent =
-    getParent.asInstanceOf[Parent]
+  def parent: Option[Parent] = getParent match {
+    case p: PsiElement => Option(p.asInstanceOf[Parent])
+    case _ => None
+  }
 
   def parents: Iterator[HoconPsiElement] =
     Iterator.iterate(this)(_.parent match {
-      case he: HoconPsiElement => he
+      case Some(he: HoconPsiElement) => he
       case _ => null
     }).takeWhile(_ != null)
 
@@ -82,8 +84,8 @@ sealed trait HInnerElement extends HoconPsiElement {
 
 final class HObjectEntries(ast: ASTNode) extends HoconPsiElement(ast) with HScope {
   def forParent[T](forFile: HoconPsiFile => T, forObject: HObject => T) = parent match {
-    case file: HoconPsiFile => forFile(file)
-    case obj: HObject => forObject(obj)
+    case Some(file: HoconPsiFile) => forFile(file)
+    case Some(obj: HObject) => forObject(obj)
   }
 
   def isToplevel = forParent(file => true, obj => false)
@@ -124,8 +126,8 @@ final class HObjectField(ast: ASTNode) extends HoconPsiElement(ast) with HObject
 
 sealed trait HKeyedField extends HoconPsiElement with HInnerElement with HScope {
   def forParent[T](forKeyedParent: HKeyedField => T, forObjectField: HObjectField => T): T = parent match {
-    case kf: HKeyedField => forKeyedParent(kf)
-    case of: HObjectField => forObjectField(of)
+    case Some(kf: HKeyedField) => forKeyedParent(kf)
+    case Some(of: HObjectField) => forObjectField(of)
   }
 
   def key = findChild[HKey]
@@ -133,24 +135,24 @@ sealed trait HKeyedField extends HoconPsiElement with HInnerElement with HScope 
   def validKey = key.filter(_.isValidKey)
 
   /**
-   * Goes up the tree in order to determine full path under which this keyed field is defined.
-   * Stops when encounters file-toplevel entries or an array (including array-append field).
-   *
-   * @return stream of all encountered keyed fields (in bottom-up order, i.e. starting with itself)
-   */
+    * Goes up the tree in order to determine full path under which this keyed field is defined.
+    * Stops when encounters file-toplevel entries or an array (including array-append field).
+    *
+    * @return stream of all encountered keyed fields (in bottom-up order, i.e. starting with itself)
+    */
   def fieldsInAllPathsBackward: Stream[HKeyedField] =
     this #:: forParent(
       keyedField => keyedField.fieldsInAllPathsBackward,
-      objectField => objectField.parent.forParent(
+      objectField => objectField.parent.map(_.forParent(
         file => Stream.empty,
         obj => obj.prefixingField.map(_.fieldsInAllPathsBackward).getOrElse(Stream.empty)
-      )
+      )).get
     )
 
   /**
-   * Like [[fieldsInAllPathsBackward]] but returns [[HKey]]s instead of [[HKeyedField]]s, in reverse order (i.e. key
-   * from this field is at the end) and ensures that all keys are valid. If not, [[None]] is returned.
-   */
+    * Like [[fieldsInAllPathsBackward]] but returns [[HKey]]s instead of [[HKeyedField]]s, in reverse order (i.e. key
+    * from this field is at the end) and ensures that all keys are valid. If not, [[None]] is returned.
+    */
   def keysInAllPaths: Option[List[HKey]] = {
     def iterate(str: Stream[HKeyedField], acc: List[HKey]): Option[List[HKey]] =
       str match {
@@ -164,10 +166,10 @@ sealed trait HKeyedField extends HoconPsiElement with HInnerElement with HScope 
     forParent(keyedParent => keyedParent.enclosingObjectField, objectField => objectField)
 
   def enclosingEntries: HObjectEntries =
-    enclosingObjectField.parent
+    enclosingObjectField.parent.get
 
   def fieldsInPathForward: Stream[HKeyedField]
-  
+
   def fieldsInPathBackward: Stream[HKeyedField] =
     forParent(keyedField => this #:: keyedField.fieldsInPathBackward, of => Stream(this))
 
@@ -179,8 +181,8 @@ sealed trait HKeyedField extends HoconPsiElement with HInnerElement with HScope 
   def endingValue = endingField.value
 
   /**
-   * Scopes present in whatever is on the right side of key in that keyed field.
-   */
+    * Scopes present in whatever is on the right side of key in that keyed field.
+    */
   def subScopes: Iterator[HScope]
 
   def directKeyedFields = Iterator(this)
@@ -269,8 +271,8 @@ final class HIncluded(ast: ASTNode) extends HoconPsiElement(ast) with HInnerElem
 
 final class HKey(ast: ASTNode) extends HoconPsiElement(ast) with HInnerElement {
   def forParent[T](forPath: HPath => T, forKeyedField: HKeyedField => T): T = parent match {
-    case path: HPath => forPath(path)
-    case keyedField: HKeyedField => forKeyedField(keyedField)
+    case Some(path: HPath) => forPath(path)
+    case Some(keyedField: HKeyedField) => forKeyedField(keyedField)
   }
 
   def allKeysFromToplevel: Option[List[HKey]] =
@@ -290,13 +292,17 @@ final class HKey(ast: ASTNode) extends HoconPsiElement(ast) with HInnerElement {
     case other => other.getText
   }.mkString
 
+  def keyParts = findChildren[HKeyPart]
+
   def isValidKey = findChild[PsiErrorElement].isEmpty
+
+  override def getReference = new HKeySelfReference(this)
 }
 
 final class HPath(ast: ASTNode) extends HoconPsiElement(ast) with HInnerElement {
   def forParent[T](forPath: HPath => T, forSubstitution: HSubstitution => T): T = parent match {
-    case path: HPath => forPath(path)
-    case subst: HSubstitution => forSubstitution(subst)
+    case Some(path: HPath) => forPath(path)
+    case Some(subst: HSubstitution) => forSubstitution(subst)
   }
 
   def allPaths: List[HPath] = {
@@ -306,8 +312,8 @@ final class HPath(ast: ASTNode) extends HoconPsiElement(ast) with HInnerElement 
   }
 
   /**
-   * Some(all keys in this path) or None if there's an invalid key in path.
-   */
+    * Some(all keys in this path) or None if there's an invalid key in path.
+    */
   def allKeys: Option[List[HKey]] = {
     def allKeysIn(path: HPath, acc: List[HKey]): Option[List[HKey]] =
       path.validKey.flatMap(key => path.prefix
@@ -317,10 +323,10 @@ final class HPath(ast: ASTNode) extends HoconPsiElement(ast) with HInnerElement 
   }
 
   /**
-   * If all keys are valid - all keys of this path.
-   * If some keys are invalid - all valid keys from left to right until some invalid key is encountered
-   * (i.e. longest valid prefix path)
-   */
+    * If all keys are valid - all keys of this path.
+    * If some keys are invalid - all valid keys from left to right until some invalid key is encountered
+    * (i.e. longest valid prefix path)
+    */
   def startingValidKeys: List[HKey] =
     allPaths.iterator.takeWhile(_.validKey.nonEmpty).flatMap(_.validKey).toList
 
@@ -332,15 +338,16 @@ final class HPath(ast: ASTNode) extends HoconPsiElement(ast) with HInnerElement 
 }
 
 sealed trait HValue extends HoconPsiElement with HInnerElement {
-  def forParent[T](forValuedField: HValuedField => T, forArray: HArray => T, forConcatenation: HConcatenation => T): T =
+  def forParent[T](forValuedField: HValuedField => Option[T], forArray: HArray => Option[T], forConcatenation: HConcatenation => Option[T]): Option[T] =
     parent match {
-      case vf: HValuedField => forValuedField(vf)
-      case arr: HArray => forArray(arr)
-      case conc: HConcatenation => forConcatenation(conc)
+      case Some(vf: HValuedField) => forValuedField(vf)
+      case Some(arr: HArray) => forArray(arr)
+      case Some(conc: HConcatenation) => forConcatenation(conc)
+      case _ => None
     }
 
   def prefixingField: Option[HValuedField] = forParent(
-    vf => if(vf.isArrayAppend) None else Some(vf),
+    vf => if (vf.isArrayAppend) None else Some(vf),
     arr => None,
     concat => concat.prefixingField
   )
@@ -432,5 +439,5 @@ final class HIncludeTarget(ast: ASTNode) extends HoconPsiElement(ast) with HStri
   type Parent = HIncluded
 
   def getFileReferences =
-    parent.fileReferenceSet.map(_.getAllReferences).getOrElse(FileReference.EMPTY)
+    parent.flatMap(_.fileReferenceSet.map(_.getAllReferences)).getOrElse(FileReference.EMPTY)
 }

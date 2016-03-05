@@ -3,21 +3,25 @@ package caches
 
 
 import java.util.concurrent.ConcurrentMap
+import java.util.concurrent.locks.ReentrantLock
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
 import com.intellij.util.containers.{ContainerUtil, Stack}
+import org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScModificationTrackerOwner
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScModifiableTypedDeclaration, ScModificationTrackerOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.util.control.ControlThrowable
 
 /**
@@ -37,7 +41,8 @@ object CachesUtil {
 
   /**
    * Do not delete this type alias, it is used by [[org.jetbrains.plugins.scala.macroAnnotations.CachedMappedWithRecursionGuard]]
-   * @see [[CachesUtil.getOrCreateKey]] for more info
+    *
+    * @see [[CachesUtil.getOrCreateKey]] for more info
    */
   type MappedKey[Data, Result] = Key[CachedValue[ConcurrentMap[Data, Result]]]
   private val keys = ContainerUtil.newConcurrentMap[String, Any]()
@@ -78,7 +83,7 @@ object CachesUtil {
    * Do not use this method directly. You should use CachedWithRecursionGuard annotation instead
    */
   def getWithRecursionPreventingWithRollback[Dom <: PsiElement, Result](e: Dom, key: Key[CachedValue[Result]],
-                                                        provider: => MyProviderTrait[Dom, Result],
+                                                        provider: => MyProvider[Dom, Result],
                                                         defaultValue: => Result): Result = {
     var computed: CachedValue[Result] = e.getUserData(key)
     if (computed == null) {
@@ -92,12 +97,7 @@ object CachesUtil {
             }
             val fun = PsiTreeUtil.getContextOfType(e, true, classOf[ScFunction])
             if (fun == null || fun.isProbablyRecursive) {
-              provider.getDependencyItem match {
-                case Some(item) =>
-                  return new CachedValueProvider.Result(defaultValue, item)
-                case _ =>
-                  return new CachedValueProvider.Result(defaultValue)
-              }
+              return new CachedValueProvider.Result(defaultValue, provider.getDependencyItem)
             } else {
               fun.setProbablyRecursive(true)
               throw new ProbablyRecursionException(e, (), key, Set(fun))
@@ -124,11 +124,7 @@ object CachesUtil {
               }
             }
           }) match {
-            case null =>
-              provider.getDependencyItem match {
-                case Some(item) => new CachedValueProvider.Result(defaultValue, item)
-                case _ => new CachedValueProvider.Result(defaultValue)
-              }
+            case null => new CachedValueProvider.Result(defaultValue, provider.getDependencyItem)
             case notNull => notNull
           }
         }
@@ -156,26 +152,9 @@ object CachesUtil {
     computed.getValue
   }
 
-  trait MyProviderTrait[Dom, T] extends CachedValueProvider[T] {
-    private[CachesUtil] def getDependencyItem: Option[Object]
-  }
-
-  class MyProvider[Dom, T](e: Dom, builder: Dom => T)(dependencyItem: Object) extends MyProviderTrait[Dom, T] {
-    private[CachesUtil] def getDependencyItem: Option[Object] = Some(dependencyItem)
-
+  class MyProvider[Dom, T](e: Dom, builder: Dom => T)(dependencyItem: Object) extends CachedValueProvider[T] {
+    def getDependencyItem: Object = dependencyItem
     def compute() = new CachedValueProvider.Result(builder(e), dependencyItem)
-  }
-
-  class MyOptionalProvider[Dom, T](e: Dom, builder: Dom => T)(dependencyItem: Option[Object]) extends MyProviderTrait[Dom, T] {
-    private[CachesUtil] def getDependencyItem: Option[Object] = dependencyItem
-
-    def compute() = {
-      dependencyItem match {
-        case Some(depItem) =>
-          new CachedValueProvider.Result(builder(e), depItem)
-        case _ => new CachedValueProvider.Result(builder(e))
-      }
-    }
   }
 
   private val guards: ConcurrentMap[String, RecursionGuard] = ContainerUtil.newConcurrentMap[String, RecursionGuard]()
@@ -262,21 +241,20 @@ object CachesUtil {
     result
   }
 
-  //def getDependentItem(element: PsiElement)(dep_item: Object = PsiModificationTracker.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT): Option[Object] = {
-  def getDependentItem(element: PsiElement)(dep_item: Object = enclosingModificationOwner(element)): Option[Object] = {
+  def getDependentItem(element: PsiElement)(dep_item: Object = enclosingModificationOwner(element)): Object = {
     element.getContainingFile match {
       case file: ScalaFile if file.isCompiled =>
         if (!ProjectRootManager.getInstance(element.getProject).getFileIndex.isInContent(file.getVirtualFile)) {
-          return Some(dep_item)
+          return dep_item
         }
         var dir = file.getParent
         while (dir != null) {
-          if (dir.getName == "scala-library.jar") return None
+          if (dir.getName == "scala-library.jar") return ModificationTracker.NEVER_CHANGED
           dir = dir.getParent
         }
-        Some(ProjectRootManager.getInstance(element.getProject))
-      case cls: ClsFileImpl => Some(ProjectRootManager.getInstance(element.getProject))
-      case _ => Some(dep_item)
+        ProjectRootManager.getInstance(element.getProject)
+      case cls: ClsFileImpl => ProjectRootManager.getInstance(element.getProject)
+      case _ => dep_item
     }
   }
 
@@ -284,18 +262,92 @@ object CachesUtil {
     @tailrec
     def calc(element: PsiElement): ModificationTracker = {
       Option(PsiTreeUtil.getContextOfType(element, false, classOf[ScModificationTrackerOwner])) match {
-        case Some(owner) if owner.isValidModificationTrackerOwner => owner.getModificationTracker
+        case Some(owner) if owner.isValidModificationTrackerOwner() => owner.getModificationTracker
         case Some(owner) => calc(owner.getContext)
-        case _ if elem != null => elem.getManager.getModificationTracker.getOutOfCodeBlockModificationTracker
-        case _ => element.getManager.getModificationTracker.getOutOfCodeBlockModificationTracker
+        case _ if elem != null => ScalaPsiManager.instance(elem.getProject).modificationTracker
+        case _ => ScalaPsiManager.instance(element.getProject).modificationTracker
       }
     }
 
     calc(elem)
   }
 
+  @tailrec
+  def updateModificationCount(elem: PsiElement, incModCountOnTopLevel: Boolean = false): Unit = {
+    Option(PsiTreeUtil.getContextOfType(elem, false, classOf[ScModificationTrackerOwner], classOf[ScalaCodeFragment])) match {
+      case Some(_: ScalaCodeFragment) => //do not update on changes in dummy file
+      case Some(owner: ScModificationTrackerOwner) if owner.isValidModificationTrackerOwner(checkForChangedReturn = true) =>
+        owner.incModificationCount()
+      case Some(owner) => updateModificationCount(owner.getContext)
+      case _ if incModCountOnTopLevel => ScalaPsiManager.instance(elem.getProject).incModificationCount()
+      case _ =>
+    }
+  }
+
   private case class ProbablyRecursionException[Dom <: PsiElement, Data, T](elem: Dom,
                                                                             data: Data,
                                                                             key: Key[T],
                                                                             set: Set[ScFunction]) extends ControlThrowable
+
+  private[this] val funsRetTpToCheck = new mutable.Queue[(ScModifiableTypedDeclaration, Project)]()
+  private[this] val associatedQueueLock = new ReentrantLock(true)
+  private def doQueueWithLock[T](ac: mutable.Queue[(ScModifiableTypedDeclaration, Project)] => T): T = {
+    try {
+      associatedQueueLock.lock()
+      ac(funsRetTpToCheck)
+    } finally {
+      if (associatedQueueLock.isHeldByCurrentThread) associatedQueueLock.unlock()
+    }
+  } 
+  
+  @volatile
+  private[this] var needToCheckFuns: Boolean = false
+  private[this] val currentThreadIsCheckingFuns = new ThreadLocal[Boolean] {
+    override def initialValue(): Boolean = false
+  }
+
+  def incrementModCountForFunsWithModifiedReturn(): Unit = {
+    def checkFuns(): Unit = {
+      @inline def nextElement = doQueueWithLock(queue => if (queue.nonEmpty) queue.dequeue() else null)
+      @inline def checkSize = doQueueWithLock(queue => queue.size > 1)
+      @inline def clearQueue() = doQueueWithLock(queue => queue.clear())
+      
+      var cur = nextElement
+      
+      while (cur != null) {
+        val (fun, proj) = cur
+        val isValid: Boolean = fun.isValid
+        if ((!isValid || fun.returnTypeHasChangedSinceLastCheck) && !proj.isDisposed) {
+          //if there's more than one, just increment the general modCount If there's one, go up th
+          if (!isValid || checkSize) {
+            ScalaPsiManager.instance(proj).incModificationCount()
+            clearQueue()
+          } else {
+            updateModificationCount(fun.getContext, incModCountOnTopLevel = true)
+          }
+        }
+        
+        cur = nextElement
+      }
+
+      doQueueWithLock(_ => {needToCheckFuns = false})
+    }
+
+    if (needToCheckFuns && !currentThreadIsCheckingFuns.get()) {
+      try {
+        currentThreadIsCheckingFuns.set(true)
+        checkFuns()
+      } finally {
+        currentThreadIsCheckingFuns.set(false)
+      }
+    }
+  }
+
+  def addModificationFunctionsReturnType(fun: ScModifiableTypedDeclaration): Unit = {
+    val project = fun.getProject
+    
+    doQueueWithLock(
+      queue => {if (!queue.exists(_._1 == fun)) {queue.enqueue((fun, project)); needToCheckFuns = true}}
+    )
+  }
 }

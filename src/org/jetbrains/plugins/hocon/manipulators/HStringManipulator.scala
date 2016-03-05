@@ -26,15 +26,16 @@ class HStringManipulator extends AbstractElementManipulator[HString] {
 
     val needsQuoting = strType == UnquotedString &&
       (newContent.isEmpty || newContent.startsWith(" ") || newContent.endsWith(" ")
+        || (str.elementType == KeyPart && newContent.contains('.'))
         || newContent.exists(HoconLexer.ForbiddenChars.contains) || escapedContent != newContent)
 
     val unquotedText = oldText.substring(0, range.getStartOffset) + escapedContent + oldText.substring(range.getEndOffset)
     val quotedText = if (needsQuoting) "\"" + unquotedText + "\"" else unquotedText
 
-    val newString = str match {
-      case _: HStringValue => HoconPsiElementFactory.createStringValue(quotedText, str.getManager)
-      case _: HKeyPart => HoconPsiElementFactory.createKeyPart(quotedText, str.getManager)
-      case _: HIncludeTarget => HoconPsiElementFactory.createIncludeTarget(quotedText, str.getManager)
+    val newString = str.elementType match {
+      case StringValue => HoconPsiElementFactory.createStringValue(quotedText, str.getManager)
+      case KeyPart => HoconPsiElementFactory.createKeyPart(quotedText, str.getManager)
+      case IncludeTarget => HoconPsiElementFactory.createIncludeTarget(quotedText, str.getManager)
     }
     str.getFirstChild.replace(newString.getFirstChild)
 

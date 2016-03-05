@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScModifiableTypedDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -71,8 +71,10 @@ trait ScFun extends ScTypeParametersOwner {
  * Represents Scala's internal function definitions and declarations
  */
 trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwner
-        with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition with ScCommentOwner
-        with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement {
+  with ScParameterOwner with ScDocCommentOwner with ScTypedDefinition with ScCommentOwner
+  with ScDeclaredElementsHolder with ScAnnotationsHolder with ScMethodLike with ScBlockStatement
+  with ScModifiableTypedDeclaration {
+
   private var synthNavElement: Option[PsiElement] = None
   var syntheticCaseClass: Option[ScClass] = None
   var syntheticContainingClass: Option[ScTypeDefinition] = None
@@ -423,11 +425,10 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       } {
         buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass, isJavaVarargs = true)
       }
-      if (!isConstructor) {
-        val params = parameters
-        for (i <- params.indices if params(i).baseDefaultParam) {
-          buffer += new ScFunctionWrapper(this, isStatic, isInterface, cClass, forDefault = Some(i + 1))
-        }
+
+      val params = parameters
+      for (i <- params.indices if params(i).baseDefaultParam) {
+        buffer += new ScFunctionWrapper(this, isStatic = isStatic || isConstructor, isInterface, cClass, forDefault = Some(i + 1))
       }
     }
     buffer.toSeq
@@ -676,6 +677,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     }
     Some(res.toSeq)
   }
+
+  override def modifiableReturnType: Option[ScType] = returnType.toOption
 }
 
 object ScFunction {

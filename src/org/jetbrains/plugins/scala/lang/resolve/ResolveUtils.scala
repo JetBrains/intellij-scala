@@ -274,6 +274,7 @@ object ResolveUtils {
                   val packageName = enclosing match {
                     case file: ScalaFile => ""
                     case packaging: ScPackaging => packaging.getPackageName
+                    case _ => ""
                   }
                   val placeEnclosing: PsiElement = ScalaPsiUtil.
                           getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])

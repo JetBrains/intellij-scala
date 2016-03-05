@@ -33,7 +33,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     val project = codeFragment.getProject
 
     val cache = ScalaEvaluatorCache.getInstance(project)
-    val cached: Option[ExpressionEvaluator] = {
+    val cached: Option[Evaluator] = {
       try cache.get(position, codeFragment)
       catch {
         case e: Exception =>
@@ -45,19 +45,21 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     def buildSimpleEvaluator = {
       cached.getOrElse {
         val newEvaluator = new ScalaEvaluatorBuilder(scalaFragment, position).getEvaluator
-        cache.add(position, scalaFragment, new ExpressionEvaluatorImpl(newEvaluator))
+        cache.add(position, scalaFragment, newEvaluator)
       }
     }
 
-    def buildCompilingEvaluator: ExpressionEvaluator = {
+    def buildCompilingEvaluator: ScalaCompilingEvaluator = {
       val compilingEvaluator = new ScalaCompilingEvaluator(position.getElementAt, scalaFragment)
-      cache.add(position, scalaFragment, compilingEvaluator)
+      cache.add(position, scalaFragment, compilingEvaluator).asInstanceOf[ScalaCompilingEvaluator]
     }
 
-    try buildSimpleEvaluator
+    try {
+      new ExpressionEvaluatorImpl(buildSimpleEvaluator)
+    }
     catch {
       case e: NeedCompilationException =>
-        buildCompilingEvaluator
+        new ScalaCompilingExpressionEvaluator(buildCompilingEvaluator)
       case e: EvaluateException => throw e
     }
   }

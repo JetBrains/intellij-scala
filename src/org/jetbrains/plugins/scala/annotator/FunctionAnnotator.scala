@@ -105,6 +105,15 @@ trait FunctionAnnotator {
           val returnExpression = if (explicitReturn) usage.asInstanceOf[ScReturnStmt].expr else None
           val expr = returnExpression.getOrElse(usage) match {
             case b: ScBlockExpr => b.getRBrace.map(_.getPsi).getOrElse(b)
+            case b: ScBlock =>
+              b.getParent match {
+                case t: ScTryBlock =>
+                  t.getRBrace match {
+                    case Some(brace) => brace.getPsi
+                    case _ => b
+                  }
+                case _ => b
+              }
             case e => e
           }
           val annotation = holder.createErrorAnnotation(expr, message)

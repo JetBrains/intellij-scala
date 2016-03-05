@@ -8,11 +8,11 @@ import com.intellij.codeInsight.daemon.impl.CollectHighlightsUtil
 import com.intellij.diagnostic.LogMessageEx
 import com.intellij.openapi.diagnostic.{Attachment, Logger}
 import com.intellij.openapi.editor.{Editor, RangeMarker}
-import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.progress.util.AbstractProgressIndicatorBase
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.ui.DialogWrapper
-import com.intellij.openapi.util.Ref
+import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.psi._
 import com.intellij.util.ExceptionUtil
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
@@ -49,7 +49,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
         override def run(): Unit = {
           breakable {
             for ((startOffset, endOffset) <- startOffsets.zip(endOffsets);
-                 element <- CollectHighlightsUtil.getElementsInRange(file, startOffset, endOffset);
+                 element <- getElementsStrictlyInRange(file, startOffset, endOffset);
                  reference <- element.asOptionOf[ScReferenceElement];
                  dependency <- Dependency.dependencyFor(reference) if dependency.isExternal;
                  range = dependency.source.getTextRange.shiftRight(-startOffset)) {
@@ -150,6 +150,12 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
     for(ref <- Option(file.findElementAt(range.getStartOffset));
         parent <- ref.parent if parent.getTextRange == range) yield parent
+  }
+
+  private def getElementsStrictlyInRange(file: PsiFile, startOffset: Int, endOffset: Int): Seq[PsiElement] = {
+    val range = TextRange.create(startOffset, endOffset)
+    CollectHighlightsUtil.getElementsInRange(file, startOffset, endOffset)
+      .filter(e => range.contains(e.getTextRange))
   }
 
   private case class Binding(element: PsiElement, path: String)

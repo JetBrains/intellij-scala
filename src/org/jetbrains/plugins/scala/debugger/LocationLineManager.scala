@@ -19,8 +19,8 @@ import scala.collection.JavaConverters._
 import scala.util.Try
 
 /**
- * @author Nikolay.Tropin
- */
+  * @author Nikolay.Tropin
+  */
 trait LocationLineManager {
   self: ScalaPositionManager =>
 
@@ -40,6 +40,8 @@ trait LocationLineManager {
   }
 
   def shouldSkip(location: Location): Boolean = {
+    if (!DebuggerUtil.isScala(location.declaringType(), default = false)) return false
+
     val synth = DebuggerSettings.getInstance().SKIP_SYNTHETIC_METHODS && syntheticProvider.isSynthetic(location.method())
     synth || exactLineNumber(location) < 0
   }
@@ -190,18 +192,27 @@ trait LocationLineManager {
         loadLocations.foreach(cacheCustomLine(_, -1))
       }
 
-      def skipLoadExpressionValue(method: Method, baseLine: Int): Unit = {
+      def skipBaseLineExtraLocations(method: Method, baseLine: Int): Unit = {
         val locations = locationsOfLine(method, baseLine).filter(!customizedLocationsCache.contains(_))
         if (locations.size <= 1) return
 
         val bytecodes =
           try method.bytecodes()
-          catch {case t: Throwable => return }
+          catch {
+            case t: Throwable => return
+          }
 
-        val toSkip = locations.tail.filter {l =>
+        val tail: Seq[Location] = locations.tail
+
+        val loadExpressionValueLocations = tail.filter { l =>
           BytecodeUtil.readLoadCode(l.codeIndex().toInt, bytecodes).nonEmpty
         }
-        toSkip.foreach(cacheCustomLine(_, -1))
+
+        val returnLocations = tail.filter { l =>
+          BytecodeUtil.returnCodes.contains(bytecodes(l.codeIndex().toInt))
+        }
+
+        (loadExpressionValueLocations ++ returnLocations).foreach(cacheCustomLine(_, -1))
       }
 
       def customizeFor(caseClauses: ScCaseClauses): Unit = {
@@ -235,7 +246,7 @@ trait LocationLineManager {
           line <- baseLine
           if locationsOfLine(m, line).size > 1
         } {
-          skipLoadExpressionValue(m, line)
+          skipBaseLineExtraLocations(m, line)
         }
       }
 

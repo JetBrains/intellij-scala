@@ -4,6 +4,7 @@ package typeInference
 
 import java.io.File
 
+import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
@@ -12,6 +13,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAda
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Unit}
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -27,6 +29,16 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
   private val fewVariantsMarker = "Few variants:"
 
   protected def folderPath: String = TestUtils.getTestDataPath + "/typeInference/"
+
+  protected def doInjectorTest(injector: SyntheticMembersInjector): Unit = {
+    val extensionPoint = Extensions.getRootArea.getExtensionPoint(SyntheticMembersInjector.EP_NAME)
+    extensionPoint.registerExtension(injector)
+    try {
+      doTest()
+    } finally {
+      extensionPoint.unregisterExtension(injector)
+    }
+  }
 
   protected def doTest() {
     import org.junit.Assert._

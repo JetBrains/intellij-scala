@@ -416,7 +416,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case _ =>
     }
 
-    if (candidates.size == 0 || (!shape && candidates.forall(!_.isApplicable())) ||
+    if (candidates.isEmpty || (!shape && candidates.forall(!_.isApplicable())) ||
             (processor.isInstanceOf[CompletionProcessor] &&
             processor.asInstanceOf[CompletionProcessor].collectImplicits)) {
       processor match {
@@ -424,7 +424,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
           rp.resetPrecedence() //do not clear candidate set, we want wrong resolve, if don't found anything
         case _ =>
       }
-      val noImplicitsForArgs = candidates.size > 0
+      val noImplicitsForArgs = candidates.nonEmpty
       collectImplicits(e, processor, noImplicitsForArgs)
 
       if (processor.candidates.length == 0)
@@ -509,6 +509,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
       case _ =>
     }
     state = state.put(BaseProcessor.FROM_TYPE_KEY, res.tp)
+    state = state.put(BaseProcessor.UNRESOLVED_TYPE_PARAMETERS_KEY, res.unresolvedTypeParameters)
     processor.processType(res.getTypeWithDependentSubstitutor, e, state)
   }
 }

@@ -48,7 +48,7 @@ abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
         managed {
           val location = suspendContext.getFrameProxy.getStackFrame.location
           inReadAction {
-            val sourcePosition = new ScalaPositionManager(getDebugProcess).getSourcePosition(location)
+            val sourcePosition = ScalaPositionManager.instance(getDebugProcess).get.getSourcePosition(location)
             val text: String = highlightedText(sourcePosition)
             Assert.assertTrue(message(expected, text), text.startsWith(expected.stripSuffix("...")))
           }
@@ -230,4 +230,61 @@ abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
     checkVariants(2, "All", "line in function main", "new ZZZ(_)", "_ => false", "new ZZZ(\"1\")")
     checkStopResumeSeveralTimes(Breakpoint(2, null))("Seq(\"a\")...", "new ZZZ(_)", "_ => false", "new ZZZ(\"1\")")
   }
+
+  addSourceFile("LineStartsWithDot.scala",
+    """object LineStartsWithDot {
+      |  def main(args: Array[String]) {
+      |    Some(1)
+      |      .map(_ + 1)
+      |      .filter(i => i % 2 == 0)
+      |      .foreach(println)
+      |  }
+      |}""".stripMargin
+  )
+  def testLineStartsWithDot(): Unit = {
+    checkVariants(2) //no variants
+    checkVariants(3, "All", "line in function main", "_ + 1")
+    checkVariants(4, "All", "line in function main", "i => i % 2 == 0")
+    checkVariants(5, "All", "line in function main", "println")
+
+    checkStopResumeSeveralTimes(Breakpoint(2, null), Breakpoint(3, -1), Breakpoint(4, 0), Breakpoint(5, null))(
+      "Some(1)", ".map...", "i => i % 2 == 0", ".foreach...", "println"
+    )
+  }
+
+  addSourceFile("PartialFunctionArg.scala",
+     """object PartialFunctionArg {
+       |  def main(args: Array[String]) {
+       |    Seq(Option(1)).exists {
+       |      case None =>
+       |        true
+       |      case Some(i) =>
+       |        false
+       |    }
+       |  }
+       |}
+    """.stripMargin.trim)
+  def testPartialFunctionArg(): Unit = {
+    checkStopResumeSeveralTimes(Breakpoint(5, null), Breakpoint(6, null))(
+      "case Some(i) =>", "false"
+    )
+  }
+
+  addSourceFile("LikeDefaultArgName.scala",
+  """object LikeDefaultArgName {
+    |  def main(args: Array[String]) {
+    |    def default() = {
+    |      "stop here"
+    |    }
+    |
+    |    None.getOrElse(default())
+    |  }
+    |}""".stripMargin)
+
+  def testLikeDefaultArgName(): Unit = {
+    checkStopResumeSeveralTimes(Breakpoint(3, null))(
+      "\"stop here\""
+    )
+  }
+
 }

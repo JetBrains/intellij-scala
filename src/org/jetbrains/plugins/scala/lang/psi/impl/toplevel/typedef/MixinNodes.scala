@@ -455,7 +455,7 @@ abstract class MixinNodes {
 
 object MixinNodes {
   def linearization(clazz: PsiClass): Seq[ScType] = {
-    @CachedWithRecursionGuard[PsiClass](clazz, Seq.empty, CachesUtil.getDependentItem(clazz)(), useOptionalProvider = true)
+    @CachedWithRecursionGuard[PsiClass](clazz, Seq.empty, CachesUtil.getDependentItem(clazz)())
     def inner(): Seq[ScType] = {
       clazz match {
         case obj: ScObject if obj.isPackageObject && obj.qualifiedName == "scala" =>
@@ -548,6 +548,7 @@ object MixinNodes {
           case _ =>
             tp match {
               case ex: ScExistentialType => ex.skolem
+              case tpt: ScTypeParameterType => tpt.upper.v
               case _ => tp
             }
         }

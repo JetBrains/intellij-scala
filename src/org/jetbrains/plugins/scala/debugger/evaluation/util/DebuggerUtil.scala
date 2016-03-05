@@ -237,7 +237,7 @@ object DebuggerUtil {
     import org.jetbrains.plugins.scala.lang.psi.types._
     tp match {
       case Boolean => vm.mirrorOf(b)
-      case Unit => vm.mirrorOf()
+      case Unit => vm.mirrorOfVoid()
       case _ => null
     }
   }
@@ -252,7 +252,7 @@ object DebuggerUtil {
       case Char => vm.mirrorOf(b.toChar)
       case Float => vm.mirrorOf(b.toFloat)
       case Double => vm.mirrorOf(b.toDouble)
-      case Unit => vm.mirrorOf()
+      case Unit => vm.mirrorOfVoid()
       case _ => null
     }
   }
@@ -267,7 +267,7 @@ object DebuggerUtil {
       case Char => vm.mirrorOf(b.toChar)
       case Float => vm.mirrorOf(b.toFloat)
       case Double => vm.mirrorOf(b.toDouble)
-      case Unit => vm.mirrorOf()
+      case Unit => vm.mirrorOfVoid()
       case _ => null
     }
   }
@@ -282,7 +282,7 @@ object DebuggerUtil {
       case Char => vm.mirrorOf(b.toChar)
       case Float => vm.mirrorOf(b.toFloat)
       case Double => vm.mirrorOf(b.toDouble)
-      case Unit => vm.mirrorOf()
+      case Unit => vm.mirrorOfVoid()
       case _ => null
     }
   }
@@ -297,7 +297,7 @@ object DebuggerUtil {
       case Char => vm.mirrorOf(b.toChar)
       case Float => vm.mirrorOf(b.toFloat)
       case Double => vm.mirrorOf(b.toDouble)
-      case Unit => vm.mirrorOf()
+      case Unit => vm.mirrorOfVoid()
       case _ => null
     }
   }
@@ -335,7 +335,7 @@ object DebuggerUtil {
   }
 
   def isScala(refType: ReferenceType, default: Boolean = true): Boolean = {
-    Try(refType.sourceName().endsWith(".scala")).getOrElse(default)
+    ScalaPositionManager.cachedSourceName(refType).map(_.endsWith(".scala")).getOrElse(default)
   }
 
   def jvmClassAtPosition(sourcePosition: SourcePosition, debugProcess: DebugProcess): Option[ReferenceType] = {

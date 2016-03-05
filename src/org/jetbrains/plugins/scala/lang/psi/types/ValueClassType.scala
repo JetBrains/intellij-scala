@@ -25,6 +25,8 @@ object ValueClassType {
     }
   }
 
+  def isValueType(tp: ScType): Boolean = unapply(tp).isDefined
+
   def isValueClass(cl: PsiClass) = cl match {
     case scClass: ScClass => scClass.supers.map(_.qualifiedName).contains("scala.AnyVal")
     case _ => false

@@ -59,10 +59,16 @@ object CachedMacroUtil {
     tq"_root_.com.intellij.psi.PsiElement"
   }
 
+  def scalaPsiManagerFQN(implicit c: whitebox.Context): c.universe.Tree = {
+    import c.universe.Quasiquote
+    q"_root_.org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager"
+  }
+
   def thisFunctionFQN(name: String)(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
     q"""getClass.getName ++ "." ++ $name"""
   }
+
   def generateTermName(name: String = "")(implicit c: whitebox.Context): c.universe.TermName = {
     c.universe.TermName(c.freshName(name))
   }
@@ -113,7 +119,7 @@ object CachedMacroUtil {
           case Some(ModCount.getBlockModificationCount) =>
             q"$cachesUtilFQN.enclosingModificationOwner($psiElement)"
           case Some(ModCount.getOutOfCodeBlockModificationCount) =>
-            q"$psiModificationTrackerFQN.OUT_OF_CODE_BLOCK_MODIFICATION_COUNT"
+            q"$scalaPsiManagerFQN.instance($psiElement.getProject).getModificationTracker"
           case Some(ModCount.getModificationCount) => q"$psiModificationTrackerFQN.MODIFICATION_COUNT"
           case Some(ModCount.getJavaStructureModificationCount) =>
             q"$psiModificationTrackerFQN.JAVA_STRUCTURE_MODIFICATION_COUNT"

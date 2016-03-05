@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, PhysicalSignature}
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -70,6 +70,11 @@ class ScTraitImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     getAllMethods.filter(_.containingClass == this)
   }
 
+  override def hasModifierProperty(name: String): Boolean = name match {
+    case PsiModifier.ABSTRACT if isInterface => true
+    case _ => super.hasModifierProperty(name)
+  }
+
   override def getAllMethods: Array[PsiMethod] = {
     val res = new ArrayBuffer[PsiMethod]()
     res ++= getConstructors
@@ -92,6 +97,6 @@ class ScTraitImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
   }
 
   override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = {
-    SyntheticMembersInjector.inject(this)
+    SyntheticMembersInjector.inject(this, withOverride = false)
   }
 }

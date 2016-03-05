@@ -39,20 +39,19 @@ object Enumerator {
       }
       builder.getTokenType match {
         case ScalaTokenTypes.tASSIGN =>
-          builder.advanceLexer //Ate =
+          builder.advanceLexer() //Ate =
         case ScalaTokenTypes.tCHOOSE =>
-          enumMarker.rollbackTo
+          enumMarker.rollbackTo()
           return Generator parse builder
         case _ =>
           if (!f) {
             builder error ErrMsg("choose.expected")
             enumMarker.done(ScalaElementTypes.ENUMERATOR)
+            return true
+          } else {
+            enumMarker.rollbackTo()
+            return Guard.parse(builder, noIf = true)
           }
-          else {
-            enumMarker.rollbackTo
-            Guard.parse(builder, noIf = true)
-          }
-          return true
       }
       if (!Expr.parse(builder)) {
         builder error ErrMsg("wrong.expression")
@@ -64,13 +63,13 @@ object Enumerator {
     builder.getTokenType match {
       case ScalaTokenTypes.kIF =>
         Guard parse builder
-        enumMarker.drop
-        return true
+        enumMarker.drop()
+        true
       case ScalaTokenTypes.kVAL =>
-        builder.advanceLexer //Ate val
-        return parseNonGuard(false)
+        builder.advanceLexer() //Ate val
+        parseNonGuard(false)
       case _ =>
-        return parseNonGuard(true)
+        parseNonGuard(true)
     }
   }
 }

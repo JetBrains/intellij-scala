@@ -37,7 +37,7 @@ object PatternAnnotator {
 
   def checkPattern(pattern: ScPattern, holder: AnnotationHolder) = {
     for {
-      pType <- patternType(pattern)
+      pType <- PatternAnnotatorUtil.patternType(pattern)
       eType <- pattern.expectedType
     } {
       checkPatternType(pType, eType, pattern, holder)
@@ -53,9 +53,9 @@ object PatternAnnotator {
     val exTp = widen(ScType.expandAliases(exprType).getOrElse(exprType))
     def freeTypeParams = freeTypeParamsOfTerms(exTp)
 
-    def exTpMatchesPattp = matchesPattern(exTp, widen(patType))
+    def exTpMatchesPattp = PatternAnnotatorUtil.matchesPattern(exTp, widen(patType))
 
-    val neverMatches = !matchesPattern(exTp, patType) && isNeverSubType(exTp, patType)
+    val neverMatches = !PatternAnnotatorUtil.matchesPattern(exTp, patType) && isNeverSubType(exTp, patType)
 
     def isEliminatedByErasure = (ScType.extractClass(exprType), ScType.extractClass(patType)) match {
       case (Some(cl1), Some(cl2)) if pattern.isInstanceOf[ScTypedPattern] => !isNeverSubClass(cl1, cl2)
@@ -86,14 +86,17 @@ object PatternAnnotator {
       case ScTypedPattern(typeElem @ ScCompoundTypeElement(_, Some(refinement))) =>
         val message = ScalaBundle.message("pattern.on.refinement.unchecked")
         holder.createWarningAnnotation(typeElem, message)
-      case (_: ScConstructorPattern| _: ScTuplePattern| _: ScInfixPattern) if neverMatches =>
+      case c: ScConstructorPattern if neverMatches && patType.isFinalType =>
+        val message = ScalaBundle.message("constructor.cannot.be.instantiated.to.expected.type", patType, exprType)
+        holder.createErrorAnnotation(pattern, message)
+      case (_: ScTuplePattern | _: ScInfixPattern) if neverMatches =>
         val message = ScalaBundle.message("pattern.type.incompatible.with.expected", patType, exprType)
         holder.createErrorAnnotation(pattern, message)
       case _  if patType.isFinalType && neverMatches =>
         val (exprTypeText, patTypeText) = ScTypePresentation.different(exprType, patType)
         val message = ScalaBundle.message("pattern.type.incompatible.with.expected", patTypeText, exprTypeText)
         holder.createErrorAnnotation(pattern, message)
-      case _: ScTypedPattern if neverMatches =>
+      case (_: ScTypedPattern | _: ScConstructorPattern) if neverMatches =>
         val erasureWarn =
           if (isEliminatedByErasure) ScalaBundle.message("erasure.warning")
           else ""
@@ -149,7 +152,60 @@ object PatternAnnotator {
     }
   }
 
-  private def patternType(pattern: ScPattern): Option[ScType] = {
+  private def widen(scType: ScType): ScType = scType match {
+    case _ if ScType.isSingletonType(scType) => ScType.extractDesignatorSingletonType(scType).getOrElse(scType)
+    case _ =>
+      scType.recursiveUpdate {
+        case ScAbstractType(_, _, upper) => (true, upper)
+        case ScTypeParameterType(_, _, _, upper, _) => (true, upper.v)
+        case tp => (false, tp)
+      }
+  }
+
+  private def freeTypeParamsOfTerms(tp: ScType): Seq[ScType] = {
+    val buffer = ArrayBuffer[ScType]()
+    tp.recursiveUpdate {
+      case tp: ScTypeParameterType =>
+        buffer += tp
+        (false, tp)
+      case _ => (false, tp)
+    }
+    buffer.toSeq
+  }
+}
+
+object PatternAnnotatorUtil {
+  @tailrec
+  def matchesPattern(matching: ScType, matched: ScType): Boolean = {
+    def abstraction(scType: ScType, visited: HashSet[ScType] = HashSet.empty): ScType = {
+      if (visited.contains(scType)) {
+        return scType
+      }
+      val newVisited = visited + scType
+      scType.recursiveUpdate {
+        case tp: ScTypeParameterType => (true, ScAbstractType(tp, abstraction(tp.lower.v, newVisited), abstraction(tp.upper.v, newVisited)))
+        case tpe => (false, tpe)
+      }
+    }
+
+    object arrayType {
+      def unapply(scType: ScType): Option[ScType] = scType match {
+        case ScParameterizedType(ScDesignatorType(elem: ScClass), Seq(arg))
+          if elem.qualifiedName == "scala.Array" => Some(arg)
+        case _ => None
+      }
+    }
+
+    matching.weakConforms(matched) || ((matching, matched) match {
+      case (arrayType(arg1), arrayType(arg2)) => matchesPattern(arg1, arg2)
+      case (_, parameterized: ScParameterizedType) =>
+        val newtp = abstraction(parameterized)
+        !matched.equiv(newtp) && matching.weakConforms(newtp)
+      case _ => false
+    })
+  }
+
+  def patternType(pattern: ScPattern): Option[ScType] = {
     def constrPatternType(patternRef: ScStableCodeReferenceElement): Option[ScType] = {
       patternRef.advancedResolve match {
         case Some(srr) =>
@@ -182,56 +238,5 @@ object PatternAnnotator {
       case null => None
       case _ => pattern.getType(TypingContext.empty).toOption
     }
-  }
-
-  private def abstraction(scType: ScType, visited: HashSet[ScType] = HashSet.empty): ScType = {
-    if (visited.contains(scType)) {
-      return scType
-    }
-    val newVisited = visited + scType
-    scType.recursiveUpdate {
-      case tp: ScTypeParameterType => (true, ScAbstractType(tp, abstraction(tp.lower.v, newVisited), abstraction(tp.upper.v, newVisited)))
-      case tpe => (false, tpe)
-    }
-  }
-
-  private def widen(scType: ScType): ScType = scType match {
-    case _ if ScType.isSingletonType(scType) => ScType.extractDesignatorSingletonType(scType).getOrElse(scType)
-    case _ =>
-      scType.recursiveUpdate {
-        case ScAbstractType(_, _, upper) => (true, upper)
-        case ScTypeParameterType(_, _, _, upper, _) => (true, upper.v)
-        case tp => (false, tp)
-      }
-  }
-
-  private def freeTypeParamsOfTerms(tp: ScType): Seq[ScType] = {
-    val buffer = ArrayBuffer[ScType]()
-    tp.recursiveUpdate {
-      case tp: ScTypeParameterType =>
-        buffer += tp
-        (false, tp)
-      case _ => (false, tp)
-    }
-    buffer.toSeq
-  }
-
-  @tailrec
-  private def matchesPattern(matching: ScType, matched: ScType): Boolean = {
-    object arrayType {
-      def unapply(scType: ScType): Option[ScType] = scType match {
-        case ScParameterizedType(ScDesignatorType(elem: ScClass), Seq(arg))
-          if elem.qualifiedName == "scala.Array" => Some(arg)
-        case _ => None
-      }
-    }
-
-    matching.weakConforms(matched) || ((matching, matched) match {
-      case (arrayType(arg1), arrayType(arg2)) => matchesPattern(arg1, arg2)
-      case (_, parameterized: ScParameterizedType) =>
-        val newtp = abstraction(parameterized)
-        !matched.equiv(newtp) && matching.weakConforms(newtp)
-      case _ => false
-    })
   }
 }

@@ -1,15 +1,13 @@
 package org.jetbrains.plugins.scala
 package testingSupport
 
-import com.intellij.execution.process.{ProcessHandler, ProcessEvent, ProcessListener}
+import com.intellij.execution.process.{ProcessEvent, ProcessListener}
 import com.intellij.openapi.util.Key
-import com.intellij.debugger.engine.SuspendContextImpl
-import com.intellij.execution.testframework.AbstractTestProxy
 
 /**
-* @author Roman.Shein
-*         Date: 03.03.14
-*/
+  * @author Roman.Shein
+  *         Date: 03.03.14
+  */
 class TestResultListener(private val testConfigurationName: String) extends ProcessListener {
 
   def waitForTestEnd(duration: Int): String = {
@@ -19,7 +17,7 @@ class TestResultListener(private val testConfigurationName: String) extends Proc
       i += 1
     }
 
-    assert(terminated, "test " + testConfigurationName + " did not terminate correctly")
+    assert(terminated, "test " + testConfigurationName + " did not terminate correctly; captured outputs:\n" + builder.toString())
     builder.toString()
   }
 
@@ -40,7 +38,7 @@ class TestResultListener(private val testConfigurationName: String) extends Proc
   }
 
   override def processWillTerminate(event: ProcessEvent, willBeDestroyed: Boolean): Unit = {
-      //TODO: implement me
+    //TODO: implement me
   }
 
   override def processTerminated(event: ProcessEvent): Unit = {

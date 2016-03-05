@@ -8,12 +8,10 @@ import com.intellij.icons.AllIcons
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.extensions._
@@ -86,43 +84,15 @@ object CleanWorksheetAction {
   }
   
   def cleanWorksheet(node: ASTNode, leftEditor: Editor, rightEditor: Editor, project: Project) {
-    val leftDocument = leftEditor.getDocument
     val rightDocument = rightEditor.getDocument
     
     WorksheetEditorPrinter.deleteWorksheetEvaluation(node.getPsi.asInstanceOf[ScalaFile])
-    
-//    WorksheetViewerInfo.disposeViewer(rightEditor, leftEditor)
-    
-    try {
-      if (rightDocument != null && rightDocument.getLineCount > 0) {
-        for (i <- rightDocument.getLineCount - 1 to 0 by -1) {
-          val wStartOffset = rightDocument.getLineStartOffset(i)
-          val wEndOffset = rightDocument.getLineEndOffset(i)
 
-          val wCurrentLine = rightDocument.getText(new TextRange(wStartOffset, wEndOffset))
-          if (wCurrentLine.trim != "" && wCurrentLine.trim != "\n" && i < leftDocument.getLineCount) {
-            val eStartOffset = leftDocument.getLineStartOffset(i)
-            val eEndOffset = leftDocument.getLineEndOffset(i)
-            val eCurrentLine = leftDocument.getText(new TextRange(eStartOffset, eEndOffset))
-
-            if ((eCurrentLine.trim == "" || eCurrentLine.trim == "\n") && eEndOffset + 1 < leftDocument.getTextLength) {
-              CommandProcessor.getInstance() runUndoTransparentAction new Runnable {
-                override def run() {
-                  leftDocument.deleteString(eStartOffset, eEndOffset + 1)
-                  PsiDocumentManager.getInstance(project).commitDocument(leftDocument)
-                }
-              }
-            }
-          }
-        }
-      }
-    } finally {
-      if (rightDocument != null && !project.isDisposed) {
-        ApplicationManager.getApplication runWriteAction new Runnable {
-          override def run() {
-            rightDocument.setText("")
-            PsiDocumentManager.getInstance(project).commitDocument(rightDocument)
-          }
+    if (rightDocument != null && !project.isDisposed) {
+      ApplicationManager.getApplication runWriteAction new Runnable {
+        override def run() {
+          rightDocument.setText("")
+          PsiDocumentManager.getInstance(project).commitDocument(rightDocument)
         }
       }
     }

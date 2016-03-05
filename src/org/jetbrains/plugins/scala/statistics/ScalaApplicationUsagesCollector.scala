@@ -57,6 +57,22 @@ class ScalaApplicationUsagesCollector extends AbstractApplicationUsagesCollector
       val isPlayInstalled = PlatformUtils.isIdeaUltimate
 
       if (scala_version.isDefined) {
+        checkLibrary("org.apache.spark", "Spark")
+        checkLibrary("io.predition", "PredictionIO")
+        checkLibrary("com.stratio.sparkta", "Sparkta")
+        checkLibrary("cats", "cats")
+        checkLibrary("com.twitter.finagle", "Finagle")
+        checkLibrary("io.getquill", "Quill")
+        checkLibrary("com.stratio.crossdata", "Crossdata")
+        checkLibrary("io.finch", "Finch")
+        checkLibrary("gitbucket", "GitBucket")
+        checkLibrary("skinny", "Skinny-framework")
+        checkLibrary("com.sksamuel.elastic4s", "Elastic4s")
+        checkLibrary("securesocial", "SecureSocial")
+        checkLibrary("com.github.dwhjames.awswrap", "AWSWrap")
+        checkLibrary("com.github.mauricio.async.db.postgresql", "postgresql-async")
+        checkLibrary("com.netflix.edda", "Edda")
+        checkLibrary("redis", "Rediscala")
         checkLibrary("scalaz", "Scalaz")
         checkLibrary("org.scalatra", "Scalatra")
         checkLibrary("org.fusesource.scalate", "Scalate")

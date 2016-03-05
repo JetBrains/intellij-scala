@@ -7,6 +7,7 @@ import java.io.File
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
+import com.intellij.psi.SmartPointerManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
@@ -48,6 +49,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
       case null =>
       case _ => assert(assertion = false, message = "Reference must be unresolved.")
     }
+    val refPointer = SmartPointerManager.getInstance(getProjectAdapter).createSmartPsiElementPointer(ref)
 
     val classes = ScalaImportTypeFix.getTypesToImport(ref, getProjectAdapter)
     assert(classes.length > 0, "Haven't classes to import")
@@ -68,7 +70,7 @@ abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseA
         }
       }, getProjectAdapter, "Test")
       res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
-      assert(ref.resolve != null, "reference is unresolved after import action")
+      assert(refPointer.getElement.resolve != null, "reference is unresolved after import action")
     }
     catch {
       case e: Exception =>

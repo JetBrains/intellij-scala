@@ -16,8 +16,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 
 import scala.annotation.tailrec
-import scala.collection.immutable.HashSet
 import scala.collection.JavaConverters._
+import scala.language.implicitConversions
 import scala.util.matching.Regex
 
 /**
@@ -197,7 +197,7 @@ package object project {
 
     def isInScalaModule: Boolean = module.exists(_.hasScala)
 
-    @deprecated("legacy code")
+    @deprecated("legacy code, use scalaLanguageLevelOrDefault", "14.10.14")
     def languageLevel: ScalaLanguageLevel = {
       @tailrec
       def getContainingFileByContext(element: PsiElement): PsiFile = {
@@ -215,6 +215,8 @@ package object project {
     }
 
     def scalaLanguageLevel: Option[ScalaLanguageLevel] = module.flatMap(_.scalaSdk.map(_.languageLevel))
+
+    def scalaLanguageLevelOrDefault: ScalaLanguageLevel = scalaLanguageLevel.getOrElse(ScalaLanguageLevel.Default)
   }
 
   val LibraryVersion: Regex = """(?<=:|-)\d+\.\d+\.\d+[^:\s]*""".r

@@ -57,6 +57,15 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
           case isWrapper(m) => m
           case other => other
         }.distinct
+
+        if (info.isParameterSetOrOrderChanged || info.isParameterNamesChanged) {
+          methods.foreach {
+            case m: PsiMethod =>
+              findParameterUsages(jInfo, m, results)
+            case _ =>
+          }
+        }
+
         (overriders ++ synthetics).foreach {
           case named: PsiNamedElement =>
             val usageInfo = ScalaNamedElementUsageInfo(named)
@@ -64,13 +73,6 @@ class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor w
 
             findMethodRefUsages(named, results, searchInJava = synthetics.contains(named))
           case _ =>
-        }
-        if (info.isParameterSetOrOrderChanged || info.isParameterNamesChanged) {
-          methods.foreach {
-            case m: PsiMethod =>
-              findParameterUsages(jInfo, m, results)
-            case _ =>
-          }
         }
       case _ =>
     }

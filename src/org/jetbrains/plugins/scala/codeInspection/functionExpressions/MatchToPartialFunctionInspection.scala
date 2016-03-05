@@ -9,7 +9,7 @@ import com.intellij.psi.impl.source.tree.TreeElement
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import com.intellij.psi.{ResolveResult, PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions.childOf
@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.JavaConverters._
 
@@ -29,12 +30,12 @@ import scala.collection.JavaConverters._
 class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId){
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case fun @ ScFunctionExpr(Seq(param), Some(ms @ ScMatchStmt(ref: ScReferenceExpression, _)))
-      if ref.resolve() == param && !(param.typeElement.isDefined && notExpectedType(fun)) && checkNoOverloading(fun) =>
+      if ref.resolve() == param && !(param.typeElement.isDefined && notExpectedType(fun)) && checkSameResolve(fun) =>
       registerProblem(holder, ms, fun)
     case fun @ ScFunctionExpr(Seq(param), Some(ScBlock(ms @ ScMatchStmt(ref: ScReferenceExpression, _))))
-      if ref.resolve() == param && !(param.typeElement.isDefined && notExpectedType(fun)) && checkNoOverloading(fun) =>
+      if ref.resolve() == param && !(param.typeElement.isDefined && notExpectedType(fun)) && checkSameResolve(fun) =>
       registerProblem(holder, ms, fun) //if fun is last statement in block, result can be block without braces
-    case ms @ ScMatchStmt(und: ScUnderscoreSection, _) if checkNoOverloading(ms) =>
+    case ms @ ScMatchStmt(und: ScUnderscoreSection, _) if checkSameResolve(ms) =>
       registerProblem(holder, ms, ms)
   }
 
@@ -61,7 +62,9 @@ class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId){
     }
   }
 
-  private def checkNoOverloading(argExpr: ScExpression): Boolean = {
+  private def checkSameResolve(argExpr: ScExpression): Boolean = {
+    def dummyCaseClauses = "{case _ => }"
+
     val call = PsiTreeUtil.getParentOfType(argExpr, classOf[MethodInvocation])
     val arg = argExpr match {
       case _ childOf (x childOf (_: ScArgumentExprList)) => x
@@ -69,16 +72,15 @@ class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId){
       case _ => argExpr
     }
     if (call == null || !call.argumentExpressions.contains(arg)) return true
-
-    val ref = call match {
-      case ScInfixExpr(qual, r, _) =>
-        ScalaPsiElementFactory.createExpressionWithContextFromText(s"${qual.getText}.${r.refName}", call.getContext, call)
-      case ScMethodCall(r: ScReferenceExpression, _) =>
-        ScalaPsiElementFactory.createExpressionWithContextFromText(r.getText, call.getContext, call)
+    val (refText, oldResolve) = call match {
+      case ScInfixExpr(qual, r, _) => (s"${qual.getText}.${r.refName}", r.resolve())
+      case ScMethodCall(r: ScReferenceExpression, _) => (r.getText, r.resolve())
       case _ => return true
     }
-    ref match {
-      case r: ScReferenceExpression => r.multiResolve(false).length <= 1
+
+    val newCall = ScalaPsiElementFactory.createExpressionWithContextFromText(refText + dummyCaseClauses, call.getContext, call)
+    newCall match {
+      case ScMethodCall(ref: ScReferenceExpression, _) => ref.resolve() == oldResolve
       case _ => true
     }
   }

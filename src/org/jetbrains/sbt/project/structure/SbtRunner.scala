@@ -74,7 +74,7 @@ class SbtRunner(vmExecutable: File, vmOptions: Seq[String], environment: Map[Str
         "-Djline.terminal=jline.UnsupportedTerminal" +:
         "-Dsbt.log.noformat=true" +:
         "-Dfile.encoding=UTF-8" +:
-        (vmOptions ++ SbtOpts.loadFrom(directory) ++ environment.get("SBT_OPTS").toSeq) :+
+        (vmOptions ++ SbtOpts.loadFrom(directory)) :+
         "-jar" :+
         path(SbtLauncher)
       val processCommands = processCommandsRaw.filterNot(_.isEmpty)

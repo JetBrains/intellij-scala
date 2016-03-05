@@ -10,6 +10,7 @@ import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -63,24 +64,18 @@ class ScImportExprImpl private (stub: StubElement[ScImportExpr], nodeType: IElem
     }
   }
 
-  def qualifier: ScStableCodeReferenceElement = if (!singleWildcard &&
-      (selectorSet match {
-        case None => true
-        case _ => false
-      })) reference match {
-    case Some(x) => x.qualifier match {
-      case None => null
-      case Some(x) => x
-    }
-    case _ => throw new IncorrectOperationException
-  } else reference match {
-    case Some(x) => x
-    case _ => throw new IncorrectOperationException
+  def qualifier: ScStableCodeReferenceElement = {
+    if (reference.isEmpty)
+      throw new IncorrectOperationException()
+    else if (!singleWildcard && selectorSet.isEmpty)
+      reference.flatMap(_.qualifier).orNull
+    else
+      reference.get
   }
 
   def deleteExpr() {
     val parent = getParent.asInstanceOf[ScImportStmt]
-    if (parent.importExprs.size == 1) {
+    if (parent.importExprs.length == 1) {
       parent.getParent match {
         case x: ScImportsHolder => x.deleteImportStmt(parent)
         case _ =>
@@ -140,14 +135,12 @@ class ScImportExprImpl private (stub: StubElement[ScImportExpr], nodeType: IElem
 
   def selectorSet: Option[ScImportSelectors] = {
     val psi: ScImportSelectors = getStubOrPsiChild(ScalaElementTypes.IMPORT_SELECTORS)
-    if (psi == null) None
-    else Some(psi)
+    Option(psi)
   }
 
   def reference: Option[ScStableCodeReferenceElement] = {
     val stub = getStub
-    if (stub != null) {
-      stub.asInstanceOf[ScImportExprStub].reference
-    } else (getFirstChild match {case s: ScStableCodeReferenceElement => Some(s) case _ => None})/*findChild(classOf[ScStableCodeReferenceElement])*/
+    if (stub != null) stub.asInstanceOf[ScImportExprStub].reference
+    else getFirstChild.asOptionOf[ScStableCodeReferenceElement]  /*findChild(classOf[ScStableCodeReferenceElement])*/
   }
 }

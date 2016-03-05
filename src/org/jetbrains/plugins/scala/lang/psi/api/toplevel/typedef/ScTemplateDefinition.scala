@@ -17,12 +17,10 @@ import com.intellij.psi.impl.{PsiClassImplUtil, PsiSuperMethodImplUtil}
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.util.PsiModificationTracker._
-import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil, PsiUtil}
+import com.intellij.psi.util.{PsiTreeUtil, PsiUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -31,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedInsidePsiElement}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 
 /**
  * @author ven
@@ -68,7 +66,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     if (eb != null) {
       val tp = eb.templateParents
       tp match {
-        case Some(tp1) => (for (te <- tp1.typeElements;
+        case Some(tp1) => (for (te <- tp1.allTypeElements;
                                 t = te.getType(TypingContext.empty).getOrAny;
                                 asPsi = ScType.toPsi(t, getProject, GlobalSearchScope.allScope(getProject))
                                 if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
@@ -270,7 +268,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     }
   }
 
-  def isScriptFileClass = getContainingFile match {case file: ScalaFile => file.isScriptFile() case _ => false}
+  def isScriptFileClass = getContainingFile match {case file: ScalaFile => file.isScriptFile(false) case _ => false}
 
   def processDeclarations(processor: PsiScopeProcessor,
                           oldState: ResolveState,
@@ -288,7 +286,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
         }
       return PsiClassImplUtil.processDeclarationsInClass(this, processor, oldState, null, lastChild, place, languageLevel, false)
     }
-    if (extendsBlock.templateBody != None &&
+    if (extendsBlock.templateBody.isDefined &&
       PsiTreeUtil.isContextAncestor(extendsBlock.templateBody.get, place, false) && lastParent != null) return true
     processDeclarationsForTemplateBody(processor, oldState, lastParent, place)
   }
@@ -318,7 +316,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       else ScType.designator(this))
     val eb = extendsBlock
     eb.templateParents match {
-        case Some(p) if PsiTreeUtil.isContextAncestor(p, place, true) =>
+        case Some(p) if PsiTreeUtil.isContextAncestor(p, place, false) =>
           eb.earlyDefinitions match {
             case Some(ed) => for (m <- ed.members) {
               ProgressManager.checkCanceled()

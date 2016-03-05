@@ -28,4 +28,6 @@ class AdjustTypesTests extends AdjustTypesTestBase {
   def testTypeProjection() = doTest()
 
   def testThisType() = doTest()
+
+  def testPrefixed() = doTest()
 }

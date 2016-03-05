@@ -5,7 +5,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.{CodeStyleSettingsManager, ReferenceAdjuster}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiElement, ScalaPsiUtil}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -45,7 +45,7 @@ class ScalaReferenceAdjuster extends ReferenceAdjuster {
         }
       }
     psi.accept(visitor)
-    buffer.foreach(ScalaPsiUtil.adjustTypes(_, addImports))
+    TypeAdjuster.adjustFor(buffer, addImports)
   }
 
   override def processRange(element: ASTNode, startOffset: Int, endOffset: Int, project: Project): Unit = {

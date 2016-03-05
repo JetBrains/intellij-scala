@@ -166,4 +166,28 @@ abstract class StepOverCaseClausesTestBase extends StepOverTestBase {
   def testNestedMatch(): Unit = {
     testStepThrough(Seq(2, 3, 4, 5, 8, 9, 10, 14))
   }
+
+  addFileWithBreakpoints("CaseClausesReturn.scala",
+    s"""
+      |object CaseClausesReturn {
+      |  def main(args: Array[String]) {
+      |    foo()
+      |  }
+      |
+      |  def foo() = {
+      |    "aaa" match {$bp
+      |      case "qwe" =>
+      |        println(1)
+      |      case "wer" =>
+      |        println(2)
+      |      case "aaa" =>
+      |        println(3)
+      |    }
+      |  }
+      |}
+      | """.stripMargin.trim)
+
+  def testCaseClausesReturn(): Unit = {
+    testStepThrough(Seq(6, 7, 9, 11, 12, 2))
+  }
 }

@@ -87,8 +87,8 @@ abstract class CompletionTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     }
   }
 
-  protected def chechResult(got: Array[String], expected: String) {
-    import _root_.junit.framework.Assert._
+  protected def checkResult(got: Array[String], expected: String) {
+    import junit.framework.Assert._
     val res = got.sortWith(_ < _).mkString("\n")
     assertEquals(expected, res.trim)
   }
@@ -99,6 +99,6 @@ abstract class CompletionTestBase extends ScalaLightPlatformCodeInsightTestCaseA
     val offset = extractCaretOffset(fileText)
     val items = getCompletionItems(file, offset)
     val expected = getExpectedResult
-    chechResult(items, expected)
+    checkResult(items, expected)
   }
 }

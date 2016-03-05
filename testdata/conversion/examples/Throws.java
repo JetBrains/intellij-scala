@@ -5,7 +5,7 @@ public class Day {
 }
 /*
 class Day {
-  @throws(classOf[Exception])
+  @throws[Exception]
   def s: String = {
     return "text"
   }

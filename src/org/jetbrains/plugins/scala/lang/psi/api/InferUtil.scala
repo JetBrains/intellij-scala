@@ -2,35 +2,36 @@ package org.jetbrains.plugins.scala
 package lang.psi.api
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiNamedElement, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.caches.ScalaRecursionManager
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.macros.{MacroContext, ScalaMacroEvaluator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 
+import scala.collection.Seq
 import scala.collection.mutable.ArrayBuffer
+import scala.util.control.ControlThrowable
 
 /**
- * @author Alexander Podkhalyuzin
- */
+  * @author Alexander Podkhalyuzin
+  */
 
 object InferUtil {
   val notFoundParameterName = "NotFoundParameter239239239"
@@ -38,22 +39,25 @@ object InferUtil {
     "scala.reflect.ClassTag", "scala.reflect.api.TypeTags.TypeTag",
     "scala.reflect.api.TypeTags.WeakTypeTag")
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.api.InferUtil$")
+
   private def isDebugImplicitParameters = LOG.isDebugEnabled
+
   def logInfo(searchLevel: Int, message: => String) {
     val indent = Seq.fill(searchLevel)("  ").mkString
-//    println(indent + message)
+    //    println(indent + message)
     if (isDebugImplicitParameters) {
       LOG.debug(indent + message)
     }
   }
 
   /**
-   * This method can find implicit parameters for given MethodType
-   * @param res MethodType or PolymorphicType(MethodType)
-   * @param element place to find implicit parameters
-   * @param check if true can throw SafeCheckException if it not found not ambiguous implicit parameters
-   * @return updated type and sequence of implicit parameters
-   */
+    * This method can find implicit parameters for given MethodType
+    *
+    * @param res     MethodType or PolymorphicType(MethodType)
+    * @param element place to find implicit parameters
+    * @param check   if true can throw SafeCheckException if it not found not ambiguous implicit parameters
+    * @return updated type and sequence of implicit parameters
+    */
   def updateTypeWithImplicitParameters(res: ScType, element: PsiElement, coreElement: Option[ScNamedElement], check: Boolean,
                                        searchImplicitsRecursively: Int = 0, fullInfo: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
     var resInner = res
@@ -61,7 +65,7 @@ object InferUtil {
     res match {
       case t@ScTypePolymorphicType(mt@ScMethodType(retType, params, impl), typeParams) if !impl =>
         // See SCL-3516
-        val (updatedType, ps) = 
+        val (updatedType, ps) =
           updateTypeWithImplicitParameters(t.copy(internalType = retType), element, coreElement, check, fullInfo = fullInfo)
         implicitParameters = ps
         updatedType match {
@@ -72,7 +76,7 @@ object InferUtil {
             resInner = t.copy(internalType = mt.copy(returnType = updatedType)(mt.project, mt.scope))
         }
       case t@ScTypePolymorphicType(mt@ScMethodType(retType, params, impl), typeParams) if impl =>
-        val fullAbstractSubstitutor = t.abstractTypeSubstitutor
+        val fullAbstractSubstitutor = t.abstractOrLowerTypeSubstitutor
         val coreTypes = params.map(p => fullAbstractSubstitutor.subst(p.paramType))
         val splitMethodType = params.reverse.foldLeft(retType) {
           case (tp: ScType, param: Parameter) => ScMethodType(tp, Seq(param), isImplicit = true)(mt.project, mt.scope)
@@ -86,10 +90,10 @@ object InferUtil {
             resInner match {
               case t@ScTypePolymorphicType(mt@ScMethodType(retTypeSingle, paramsSingle, _), typeParamsSingle) =>
                 val polymorphicSubst = t.polymorphicTypeSubstitutor
-                val abstractSubstitutor: ScSubstitutor = t.abstractTypeSubstitutor
+                val abstractSubstitutor: ScSubstitutor = t.abstractOrLowerTypeSubstitutor
                 val (paramsForInfer, exprs, resolveResults) =
                   findImplicits(paramsSingle, coreElement, element, check, searchImplicitsRecursively, abstractSubstitutor, polymorphicSubst)
-                resInner = ScalaPsiUtil.localTypeInference(retTypeSingle, paramsForInfer, exprs, typeParamsSingle,
+                resInner = localTypeInference(retTypeSingle, paramsForInfer, exprs, typeParamsSingle,
                   safeCheck = check || fullInfo)
                 paramsForInferBuffer ++= paramsForInfer
                 exprsBuffer ++= exprs
@@ -98,7 +102,7 @@ object InferUtil {
         }
         implicitParameters = Some(resolveResultsBuffer.toSeq)
         val dependentSubst = new ScSubstitutor(() => {
-          val level = element.languageLevel
+          val level = element.scalaLanguageLevelOrDefault
           if (level >= Scala_2_10) {
             paramsForInferBuffer.zip(exprsBuffer).map {
               case (param: Parameter, expr: Expression) =>
@@ -121,7 +125,7 @@ object InferUtil {
         implicitParameters = Some(resolveResults.toSeq)
         resInner = retType
         val dependentSubst = new ScSubstitutor(() => {
-          val level = element.languageLevel
+          val level = element.scalaLanguageLevelOrDefault
           if (level >= Scala_2_10) {
             paramsForInfer.zip(exprs).map {
               case (param: Parameter, expr: Expression) =>
@@ -201,15 +205,16 @@ object InferUtil {
   }
 
   /**
-   * Util method to update type according to expected type
-   * @param _nonValueType type, to update it should be PolymorphicType(MethodType)
-   * @param fromImplicitParameters we shouldn't update if it's anonymous function
-   *                               also we can update just for simple type without function
-   * @param expectedType appropriate expected type
-   * @param expr place
-   * @param check we fail to get right type then if check throw SafeCheckException
-   * @return updated type
-   */
+    * Util method to update type according to expected type
+    *
+    * @param _nonValueType          type, to update it should be PolymorphicType(MethodType)
+    * @param fromImplicitParameters we shouldn't update if it's anonymous function
+    *                               also we can update just for simple type without function
+    * @param expectedType           appropriate expected type
+    * @param expr                   place
+    * @param check                  we fail to get right type then if check throw SafeCheckException
+    * @return updated type
+    */
   def updateAccordingToExpectedType(_nonValueType: TypeResult[ScType],
                                     fromImplicitParameters: Boolean,
                                     filterTypeParams: Boolean,
@@ -222,12 +227,12 @@ object InferUtil {
         def updateRes(expected: ScType) {
           if (expected.equiv(types.Unit)) return //do not update according to Unit type
           val innerInternal = internal match {
-            case ScMethodType(inter, _, innerImpl) if innerImpl && !fromImplicitParameters => inter
-            case _ => internal
-          }
-          val update: ScTypePolymorphicType = ScalaPsiUtil.localTypeInference(m,
+              case ScMethodType(inter, _, innerImpl) if innerImpl && !fromImplicitParameters => inter
+              case _ => internal
+            }
+          val update: ScTypePolymorphicType = localTypeInference(m,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
-            Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(innerInternal.inferValueType))),
+            Seq(new Expression(undefineSubstitutor(typeParams).subst(innerInternal.inferValueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check, filterTypeParams = filterTypeParams)
           nonValueType = Success(update, Some(expr)) //here should work in different way:
         }
@@ -235,9 +240,9 @@ object InferUtil {
       //todo: Something should be unified, that's bad to have fromImplicitParameters parameter.
       case Success(ScTypePolymorphicType(internal, typeParams), _) if expectedType.isDefined && fromImplicitParameters =>
         def updateRes(expected: ScType) {
-          nonValueType = Success(ScalaPsiUtil.localTypeInference(internal,
+          nonValueType = Success(localTypeInference(internal,
             Seq(Parameter("", None, expected, expected, isDefault = false, isRepeated = false, isByName = false)),
-              Seq(new Expression(ScalaPsiUtil.undefineSubstitutor(typeParams).subst(internal.inferValueType))),
+            Seq(new Expression(undefineSubstitutor(typeParams).subst(internal.inferValueType))),
             typeParams, shouldUndefineParameters = false, safeCheck = check,
             filterTypeParams = filterTypeParams), Some(expr)) //here should work in different way:
         }
@@ -273,7 +278,7 @@ object InferUtil {
     }
 
     nonValueType.map {
-      case tpt @ ScTypePolymorphicType(mt: ScMethodType, typeParams) => tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType))
+      case tpt@ScTypePolymorphicType(mt: ScMethodType, typeParams) => tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType))
       case mt: ScMethodType => applyImplicitViewToResult(mt, expectedType)
       case tp => tp
     }
@@ -288,5 +293,205 @@ object InferUtil {
       case ScalaResolveResult(f: ScFieldId, subst) => subst.subst(f.getType(TypingContext.empty).get)
       case ScalaResolveResult(fun: ScFunction, subst) => subst.subst(fun.getTypeNoImplicits(TypingContext.empty).get)
     }
+  }
+
+  def undefineSubstitutor(typeParams: Seq[TypeParameter]): ScSubstitutor = {
+    typeParams.foldLeft(ScSubstitutor.empty) {
+      (subst: ScSubstitutor, tp: TypeParameter) =>
+        subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+          new ScUndefinedType(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty)))
+    }
+  }
+
+  def localTypeInference(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
+                         typeParams: Seq[TypeParameter],
+                         shouldUndefineParameters: Boolean = true,
+                         safeCheck: Boolean = false,
+                         filterTypeParams: Boolean = true): ScTypePolymorphicType = {
+    localTypeInferenceWithApplicability(retType, params, exprs, typeParams, shouldUndefineParameters, safeCheck,
+      filterTypeParams)._1
+  }
+
+
+  class SafeCheckException extends ControlThrowable
+
+  def localTypeInferenceWithApplicability(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
+                                          typeParams: Seq[TypeParameter],
+                                          shouldUndefineParameters: Boolean = true,
+                                          safeCheck: Boolean = false,
+                                          filterTypeParams: Boolean = true): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
+    val (tp, problems, _, _) = localTypeInferenceWithApplicabilityExt(retType, params, exprs, typeParams,
+      shouldUndefineParameters, safeCheck, filterTypeParams)
+    (tp, problems)
+  }
+
+  def localTypeInferenceWithApplicabilityExt(retType: ScType, params: Seq[Parameter], exprs: Seq[Expression],
+                                             typeParams: Seq[TypeParameter],
+                                             shouldUndefineParameters: Boolean = true,
+                                             safeCheck: Boolean = false,
+                                             filterTypeParams: Boolean = true
+                                            ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)]) = {
+    // See SCL-3052, SCL-3058
+    // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`
+    val s: ScSubstitutor = if (shouldUndefineParameters) undefineSubstitutor(typeParams) else ScSubstitutor.empty
+    val abstractSubst = ScTypePolymorphicType(retType, typeParams).abstractTypeSubstitutor
+    val paramsWithUndefTypes = params.map(p => p.copy(paramType = s.subst(p.paramType),
+      expectedType = abstractSubst.subst(p.paramType)))
+    val c = Compatibility.checkConformanceExt(checkNames = true, paramsWithUndefTypes, exprs, checkWithImplicits = true,
+      isShapesResolve = false)
+    val tpe = if (c.problems.isEmpty) {
+      var un: ScUndefinedSubstitutor = c.undefSubst
+      val subst = c.undefSubst
+      subst.getSubstitutor(!safeCheck) match {
+        case Some(unSubst) =>
+          if (!filterTypeParams) {
+            val undefiningSubstitutor = new ScSubstitutor(typeParams.map(typeParam => {
+              ((typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)), new ScUndefinedType(new ScTypeParameterType(typeParam.ptp, ScSubstitutor.empty)))
+            }).toMap, Map.empty, None)
+            ScTypePolymorphicType(retType, typeParams.map(tp => {
+              var lower = tp.lowerType()
+              var upper = tp.upperType()
+              def hasRecursiveTypeParameters(typez: ScType): Boolean = {
+                var hasRecursiveTypeParameters = false
+                typez.recursiveUpdate {
+                  case tpt: ScTypeParameterType =>
+                    typeParams.find(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)) ==(tpt.name, tpt.getId)) match {
+                      case None => (true, tpt)
+                      case _ =>
+                        hasRecursiveTypeParameters = true
+                        (true, tpt)
+                    }
+                  case tp: ScType => (hasRecursiveTypeParameters, tp)
+                }
+                hasRecursiveTypeParameters
+              }
+              subst.lMap.get((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))) match {
+                case Some(_addLower) =>
+                  val substedLowerType = unSubst.subst(lower)
+                  val addLower =
+                    if (tp.typeParams.nonEmpty && !_addLower.isInstanceOf[ScParameterizedType] &&
+                      !tp.typeParams.exists(_.name == "_"))
+                      ScParameterizedType(_addLower, tp.typeParams.map(ScTypeParameterType.toTypeParameterType))
+                    else _addLower
+                  if (hasRecursiveTypeParameters(substedLowerType)) lower = addLower
+                  else lower = Bounds.lub(substedLowerType, addLower)
+                case None =>
+                  lower = unSubst.subst(lower)
+              }
+              subst.rMap.get((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))) match {
+                case Some(_addUpper) =>
+                  val substedUpperType = unSubst.subst(upper)
+                  val addUpper =
+                    if (tp.typeParams.nonEmpty && !_addUpper.isInstanceOf[ScParameterizedType] &&
+                      !tp.typeParams.exists(_.name == "_"))
+                      ScParameterizedType(_addUpper, tp.typeParams.map(ScTypeParameterType.toTypeParameterType))
+                    else _addUpper
+                  if (hasRecursiveTypeParameters(substedUpperType)) upper = addUpper
+                  else upper = Bounds.glb(substedUpperType, addUpper)
+                case None =>
+                  upper = unSubst.subst(upper)
+              }
+
+              if (safeCheck && !undefiningSubstitutor.subst(lower).conforms(undefiningSubstitutor.subst(upper), checkWeak = true))
+                throw new SafeCheckException
+              TypeParameter(tp.name, tp.typeParams /* doesn't important here */ , () => lower, () => upper, tp.ptp)
+            }))
+          } else {
+            typeParams.foreach { case tp =>
+              val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
+              if (un.names.contains(name)) {
+                def hasRecursiveTypeParameters(typez: ScType): Boolean = {
+                  var hasRecursiveTypeParameters = false
+                  typez.recursiveUpdate {
+                    case tpt: ScTypeParameterType =>
+                      typeParams.find(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)) ==(tpt.name, tpt.getId)) match {
+                        case None => (true, tpt)
+                        case _ =>
+                          hasRecursiveTypeParameters = true
+                          (true, tpt)
+                      }
+                    case tp: ScType => (hasRecursiveTypeParameters, tp)
+                  }
+                  hasRecursiveTypeParameters
+                }
+                //todo: add only one of them according to variance
+                if (tp.lowerType() != Nothing) {
+                  val substedLowerType = unSubst.subst(tp.lowerType())
+                  if (!hasRecursiveTypeParameters(substedLowerType)) {
+                    un = un.addLower(name, substedLowerType, additional = true)
+                  }
+                }
+                if (tp.upperType() != Any) {
+                  val substedUpperType = unSubst.subst(tp.upperType())
+                  if (!hasRecursiveTypeParameters(substedUpperType)) {
+                    un = un.addUpper(name, substedUpperType, additional = true)
+                  }
+                }
+              }
+            }
+
+            def updateWithSubst(sub: ScSubstitutor): ScTypePolymorphicType = {
+              ScTypePolymorphicType(sub.subst(retType), typeParams.filter {
+                case tp =>
+                  val name = (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp))
+                  val removeMe: Boolean = un.names.contains(name)
+                  if (removeMe && safeCheck) {
+                    //let's check type parameter kinds
+                    def checkTypeParam(typeParam: ScTypeParam, tp: => ScType): Boolean = {
+                      val typeParams: Seq[ScTypeParam] = typeParam.typeParameters
+                      if (typeParams.isEmpty) return true
+                      tp match {
+                        case ScParameterizedType(_, typeArgs) =>
+                          if (typeArgs.length != typeParams.length) return false
+                          typeArgs.zip(typeParams).forall {
+                            case (tp: ScType, typeParam: ScTypeParam) => checkTypeParam(typeParam, tp)
+                          }
+                        case _ =>
+                          def checkNamed(named: PsiNamedElement, typeParams: Seq[ScTypeParam]): Boolean = {
+                            named match {
+                              case t: ScTypeParametersOwner =>
+                                if (typeParams.length != t.typeParameters.length) return false
+                                typeParams.zip(t.typeParameters).forall {
+                                  case (p1: ScTypeParam, p2: ScTypeParam) =>
+                                    if (p1.typeParameters.nonEmpty) checkNamed(p2, p1.typeParameters)
+                                    else true
+                                }
+                              case p: PsiTypeParameterListOwner =>
+                                if (typeParams.length != p.getTypeParameters.length) return false
+                                typeParams.forall(_.typeParameters.isEmpty)
+                              case _ => false
+                            }
+                          }
+                          ScType.extractDesignated(tp, withoutAliases = false) match {
+                            case Some((named, _)) => checkNamed(named, typeParams)
+                            case _ => tp match {
+                              case tpt: ScTypeParameterType => checkNamed(tpt.param, typeParams)
+                              case _ => false
+                            }
+                          }
+                      }
+                    }
+                    tp.ptp match {
+                      case typeParam: ScTypeParam =>
+                        if (!checkTypeParam(typeParam, sub.subst(new ScTypeParameterType(tp.ptp, ScSubstitutor.empty))))
+                          throw new SafeCheckException
+                      case _ =>
+                    }
+                  }
+                  !removeMe
+              }.map(tp => TypeParameter(tp.name, tp.typeParams /* doesn't important here */ ,
+                () => sub.subst(tp.lowerType()), () => sub.subst(tp.upperType()), tp.ptp)))
+            }
+
+            un.getSubstitutor match {
+              case Some(unSubstitutor) => updateWithSubst(unSubstitutor)
+              case _ if safeCheck => throw new SafeCheckException
+              case _ => updateWithSubst(unSubst)
+            }
+          }
+        case None => throw new SafeCheckException
+      }
+    } else ScTypePolymorphicType(retType, typeParams)
+    (tpe, c.problems, c.matchedArgs, c.matchedTypes)
   }
 }

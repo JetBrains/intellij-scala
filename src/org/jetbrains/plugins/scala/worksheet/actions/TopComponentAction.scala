@@ -11,6 +11,7 @@ import com.intellij.openapi.keymap.{KeymapManager, KeymapUtil}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.worksheet.ui.WorksheetUiConstructor
 
 /**
  * User: Dmitry Naydanov
@@ -51,6 +52,7 @@ trait TopComponentAction extends TopComponentDisplayable {
     presentation setText text
 
     val actionButton = getActionButton
+    WorksheetUiConstructor.fixUnboundMaxSize(actionButton)
 
     ApplicationManager.getApplication.invokeAndWait(new Runnable {
       override def run() {

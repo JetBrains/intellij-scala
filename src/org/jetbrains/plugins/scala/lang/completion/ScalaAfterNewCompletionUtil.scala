@@ -5,8 +5,9 @@ import com.intellij.codeInsight.lookup.{AutoCompletionPolicy, LookupElement, Loo
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiDocCommentOwner, PsiElement, PsiNamedElement}
-import com.intellij.util.Processor
+import com.intellij.util.{ProcessingContext, Processor}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaConstructorInsertHandler
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
@@ -28,6 +29,23 @@ import scala.collection.mutable
 object ScalaAfterNewCompletionUtil {
   lazy val afterNewPattern = ScalaSmartCompletionContributor.superParentsPattern(classOf[ScStableCodeReferenceElement],
     classOf[ScSimpleTypeElement], classOf[ScConstructor], classOf[ScClassParents], classOf[ScExtendsBlock], classOf[ScNewTemplateDefinition])
+
+  def expectedTypesAfterNew(position: PsiElement, context: ProcessingContext): (Array[ScType], Boolean) = {
+    val isAfter = isAfterNew(position, context)
+    val data = if (isAfter) {
+      val element = position
+      val newExpr: ScNewTemplateDefinition = PsiTreeUtil.getContextOfType(element, classOf[ScNewTemplateDefinition])
+      newExpr.expectedTypes().map {
+        case ScAbstractType(_, lower, upper) => upper
+        case tp => tp
+      }
+    } else Array[ScType]()
+
+    (data, isAfter)
+  }
+
+  def isAfterNew(position: PsiElement, context: ProcessingContext): Boolean =
+    afterNewPattern.accepts(position, context)
 
   def getLookupElementFromClass(expectedTypes: Array[ScType], clazz: PsiClass,
                                 renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]): LookupElement = {
@@ -186,17 +204,14 @@ object ScalaAfterNewCompletionUtil {
               if (clazz.getTypeParameters.nonEmpty) {
                 ScParameterizedType(ScDesignatorType(clazz), undefines)
               }
-              else
-                ScDesignatorType(clazz)
+              else ScDesignatorType(clazz)
             val noUndefType =
               if (clazz.getTypeParameters.nonEmpty) {
                 ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(ptp =>
                   new ScTypeParameterType(ptp, ScSubstitutor.empty)
                 ))
               }
-              else
-                ScDesignatorType(clazz)
-
+              else ScDesignatorType(clazz)
             if (!predefinedType.conforms(typez)) return true
             val undef = Conformance.undefinedSubst(typez, predefinedType)
             undef.getSubstitutor match {
