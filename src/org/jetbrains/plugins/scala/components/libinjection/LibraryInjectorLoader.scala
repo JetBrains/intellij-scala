@@ -16,7 +16,8 @@ import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
-import com.intellij.openapi.roots.libraries.Library
+import com.intellij.openapi.roots.libraries.LibraryTable.Listener
+import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile, VirtualFileManager}
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
@@ -55,12 +56,32 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   private var jarCache: InjectorPersistentCache = null
   private val loadedInjectors: mutable.HashMap[Class[_], mutable.ListBuffer[String]] = mutable.HashMap()
 
+  private val myLibraryTableListener = new Listener {
+    override def afterLibraryRenamed(library: Library): Unit = ()
+
+    override def beforeLibraryRemoved(library: Library): Unit = ()
+
+    override def afterLibraryRemoved(library: Library): Unit = {
+      if (library.getName != HELPER_LIBRARY_NAME)
+        init()
+    }
+
+    override def afterLibraryAdded(newLibrary: Library): Unit = {
+      if (newLibrary.getName != HELPER_LIBRARY_NAME)
+        init()
+    }
+  }
+
   override def projectClosed(): Unit = {
     saveJarCache(jarCache, myInjectorCacheIndex)
   }
 
   override def projectOpened(): Unit = {
     jarCache = verifyLibraryCache(loadJarCache(myInjectorCacheIndex))
+    init()
+  }
+
+  def init() = {
     DumbService.getInstance(project).smartInvokeLater {
       toRunnable {
         loadCachedInjectors()
@@ -71,10 +92,11 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   override def initComponent(): Unit = {
     myInjectorCacheDir.mkdirs()
+    LibraryTablesRegistrar.getInstance().getLibraryTable(project).addListener(myLibraryTableListener)
   }
 
   override def disposeComponent(): Unit = {
-
+    LibraryTablesRegistrar.getInstance().getLibraryTable(project).removeListener(myLibraryTableListener)
   }
 
   override def getComponentName: String = "ScalaLibraryInjectorLoader"
@@ -262,7 +284,11 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     myClassLoader.addUrl(getLibraryCacheDir(new File(jarManifest.jarPath)).toURI.toURL)
     val injectors = findMatchingInjectors(jarManifest)
     for (injector <- injectors) {
-      loadedInjectors(getClass.getClassLoader.loadClass(injector.iface)) += injector.impl
+      loadedInjectors
+        .getOrElseUpdate(
+          getClass.getClassLoader.loadClass(injector.iface),
+          mutable.ListBuffer(injector.impl)
+        ) += injector.impl
     }
   }
 
