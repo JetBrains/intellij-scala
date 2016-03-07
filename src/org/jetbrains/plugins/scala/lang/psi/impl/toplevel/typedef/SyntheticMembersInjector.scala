@@ -3,7 +3,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.ExtensionPointName
 import com.intellij.openapi.progress.ProcessCanceledException
-import com.intellij.openapi.project.DumbService
+import com.intellij.openapi.project.{DumbService, Project}
+import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -71,13 +72,15 @@ object SyntheticMembersInjector {
 
   val LOG = Logger.getInstance(getClass)
 
+  private val CLASS_NAME = "org.intellij.scala.syntheticMemberInjector"
   val EP_NAME: ExtensionPointName[SyntheticMembersInjector] =
-    ExtensionPointName.create("org.intellij.scala.syntheticMemberInjector")
+    ExtensionPointName.create(CLASS_NAME)
+  val injectedExtensions = LibraryInjectorLoader.getInstance(_:Project).getInjectorInstances(classOf[SyntheticMembersInjector])
 
   def inject(source: ScTypeDefinition, withOverride: Boolean): Seq[ScFunction] = {
     val buffer = new ArrayBuffer[ScFunction]()
     for {
-      injector <- EP_NAME.getExtensions
+      injector <- EP_NAME.getExtensions.toSet ++ injectedExtensions(source.getProject).toSet
       template <- injector.injectFunctions(source)
     } try {
       val context = source match {
@@ -98,7 +101,7 @@ object SyntheticMembersInjector {
   def injectInners(source: ScTypeDefinition): Seq[ScTypeDefinition] = {
     val buffer = new ArrayBuffer[ScTypeDefinition]()
     for {
-      injector <- EP_NAME.getExtensions
+      injector <- EP_NAME.getExtensions.toSet ++ injectedExtensions(source.getProject).toSet
       template <- injector.injectInners(source)
     } try {
       val context = (source match {
