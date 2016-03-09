@@ -213,7 +213,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
         None
     }
     checkedDescriptor match {
-      case Some(descriptor) => Some(manifest.copy(pluginDescriptors = Seq(descriptor)))
+      case Some(descriptor) => Some(manifest.copy(pluginDescriptors = Seq(descriptor))(manifest.isBlackListed))
       case None => None
     }
   }
@@ -223,13 +223,16 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     import scala.collection.JavaConversions._
     val allProjectJars = getAllJarsWithManifest.map(_.getPath).toSet
     val cachedProjectJars = jarCache.cache.filter(cacheItem => allProjectJars.contains(s"${cacheItem._1}!/")).values
-    for (manifest <- cachedProjectJars) {
-      if (isJarCacheUpToDate(manifest))
+    var numLoaded = 0
+    for (manifest <- cachedProjectJars if !manifest.isBlackListed) {
+      if (isJarCacheUpToDate(manifest)) {
         loadInjectors(manifest)
-      else
+        numLoaded += 1
+      } else {
         jarCache.cache.remove(manifest.jarPath)
+      }
     }
-    LOG.trace(s"Loaded injectors from ${cachedProjectJars.size} jars")
+    LOG.trace(s"Loaded injectors from $numLoaded jars (${cachedProjectJars.size - numLoaded} filtered)")
   }
 
   private def rescanAllJars() = {
@@ -352,10 +355,14 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   private def showReviewDialogAndFilter(candidates: ManifestToDescriptors): ManifestToDescriptors  = {
-    candidates.filter { a=>
-      val dialog = new InjectorReviewDialog(project, a, LOG)
+    val (accepted, rejected) = candidates.partition { candidate =>
+      val dialog = new InjectorReviewDialog(project, candidate, LOG)
       dialog.showAndGet()
     }
+    for ((manifest, _) <- rejected) {
+      jarCache.cache.put(manifest.jarPath, manifest.copy()(isBlackListed = true))
+    }
+    accepted
   }
 
   private def compile(data: ManifestToDescriptors): Unit = {

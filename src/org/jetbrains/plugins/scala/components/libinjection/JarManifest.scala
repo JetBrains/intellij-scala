@@ -16,22 +16,23 @@ class InvalidManifest(where: Node, expected: String)
 
 // TODO: allow user to provide compiler settings for sources set
 case class InjectorDescriptor(version: Int, iface: String, impl: String, sources: Seq[String])
+
 case class PluginDescriptor(since: Version, until: Version, injectors: Seq[InjectorDescriptor])
-case class JarManifest(pluginDescriptors: Seq[PluginDescriptor], jarPath: String, modTimeStamp: Long) {
+
+case class JarManifest(pluginDescriptors: Seq[PluginDescriptor], jarPath: String, modTimeStamp: Long)(val isBlackListed: Boolean) {
   def serialize() = {
-    <intellij-compat> {
-        for (PluginDescriptor(since, until, injtors) <- pluginDescriptors) {
-          <scala-plugin since-version={since.toString} until-version={until.toString}> {
-            for (InjectorDescriptor(version, iface, impl, srcs) <- injtors) {
-              <psi-injector version={version.toString} ifnterface={iface} implementation={impl}> {
-                  for (src <- srcs) <source>{src}</source>
-                }
-              </psi-injector>
-            }
-          }
-          </scala-plugin>
-        }
-      }
+    <intellij-compat>
+      {for (PluginDescriptor(since, until, injtors) <- pluginDescriptors) {
+      <scala-plugin since-version={since.toString} until-version={until.toString}>
+        {for (InjectorDescriptor(version, iface, impl, srcs) <- injtors) {
+        <psi-injector version={version.toString} ifnterface={iface} implementation={impl}>
+          {for (src <- srcs) <source>
+          {src}
+        </source>}
+        </psi-injector>
+      }}
+      </scala-plugin>
+    }}
     </intellij-compat>
   }
 }
@@ -47,8 +48,8 @@ object JarManifest {
   def deserialize(elem: Elem, containingJar: VirtualFile): JarManifest = {
     def buildInjectorDescriptor(n: Node): InjectorDescriptor = {
       val version = (n \ "@version").headOption.map(_.text.toInt).getOrElse(0)
-      val iface   = (n \ "@interface").headOption.map(_.text).getOrElse(throw new InvalidManifest(n, "interface"))
-      val impl    = (n \ "@implementation").headOption.map(_.text).getOrElse(throw new InvalidManifest(n, "implementation"))
+      val iface = (n \ "@interface").headOption.map(_.text).getOrElse(throw new InvalidManifest(n, "interface"))
+      val impl = (n \ "@implementation").headOption.map(_.text).getOrElse(throw new InvalidManifest(n, "implementation"))
       val sources = (n \\ "source").map(_.text)
       InjectorDescriptor(version, iface, impl, sources)
     }
@@ -63,7 +64,7 @@ object JarManifest {
       case xss: NodeSeq =>
         JarManifest((xss \\ "scala-plugin").map(buildPluginDescriptor),
           containingJar.getPath.replaceAll("!/", ""),
-          new File(containingJar.getPath.replaceAll("!/", "")).lastModified())
+          new File(containingJar.getPath.replaceAll("!/", "")).lastModified())(isBlackListed = false)
     }
   }
 }
