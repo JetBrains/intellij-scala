@@ -14,7 +14,6 @@ import com.intellij.openapi.module._
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.openapi.roots.OrderRootType
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.LibraryTable.Listener
 import com.intellij.openapi.roots.libraries.{Library, LibraryTablesRegistrar}
@@ -41,7 +40,6 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   type AttributedManifest = (JarManifest, Seq[InjectorDescriptor])
   type ManifestToDescriptors = Seq[AttributedManifest]
 
-  val MAX_JARS               = 16 // dirty hack to avoid slowdowns on enormous libs such as scala-plugin's unmanaged-jars
   val HELPER_LIBRARY_NAME    = "scala-plugin-dev"
   val INJECTOR_MANIFEST_NAME = "intellij-compat.xml"
   val INJECTOR_MODULE_NAME   = "ijscala-plugin-injector-compile.iml" // TODO: use UUID
@@ -251,15 +249,6 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     val jarFS = JarFileSystem.getInstance
     val psiFiles = FilenameIndex.getFilesByName(project, INJECTOR_MANIFEST_NAME, GlobalSearchScope.allScope(project))
     psiFiles.map(f => jarFS.getJarRootForLocalFile(jarFS.getVirtualFileForJar(f.getVirtualFile)))
-  }
-
-  @deprecated
-  private def getJarsFromLibrary(library: Library): Seq[VirtualFile] = {
-    val files = library.getFiles(OrderRootType.CLASSES)
-    if (files.length < MAX_JARS)
-      files.toSeq
-    else
-      Seq.empty
   }
 
   private def isJarCacheUpToDate(manifest: JarManifest): Boolean = {
