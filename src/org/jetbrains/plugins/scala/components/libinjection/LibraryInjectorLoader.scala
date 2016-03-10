@@ -54,7 +54,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   // reset cache if plugin has been updated
   // cache: jarFilePath -> jarManifest
   private var jarCache: InjectorPersistentCache = null
-  private val loadedInjectors: mutable.HashMap[Class[_], mutable.ListBuffer[String]] = mutable.HashMap()
+  private val loadedInjectors: mutable.HashMap[Class[_], mutable.HashSet[String]] = mutable.HashMap()
 
   private val myLibraryTableListener = new Listener {
     override def afterLibraryRenamed(library: Library): Unit = ()
@@ -110,7 +110,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   @inline def inWriteAction[T](f: => T) = ApplicationManager.getApplication.runWriteAction(toRunnable(f))
 
   def getInjectorClasses[T](interface: Class[T]): Seq[Class[T]] = {
-    loadedInjectors.getOrElse(interface, Seq.empty).map(myClassLoader.loadClass(_).asInstanceOf[Class[T]])
+    loadedInjectors.getOrElse(interface, Seq.empty).map(myClassLoader.loadClass(_).asInstanceOf[Class[T]]).toSeq
   }
 
   def getInjectorInstances[T](interface: Class[T]): Seq[T] = {
@@ -226,8 +226,10 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     var numLoaded = 0
     for (manifest <- cachedProjectJars if !manifest.isBlackListed) {
       if (isJarCacheUpToDate(manifest)) {
-        loadInjectors(manifest)
-        numLoaded += 1
+        for (injector <- findMatchingInjectors(manifest)) {
+          loadInjector(manifest, injector)
+          numLoaded += 1
+        }
       } else {
         jarCache.cache.remove(manifest.jarPath)
       }
@@ -283,14 +285,14 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     res
   }
 
-  private def loadInjectors(jarManifest: JarManifest) = {
-    myClassLoader.addUrl(getLibraryCacheDir(new File(jarManifest.jarPath)).toURI.toURL)
+  private def loadInjector(jarManifest: JarManifest, injectorDescriptor: InjectorDescriptor) = {
+    myClassLoader.addUrl(getInjectorCacheDir(jarManifest)(injectorDescriptor).toURI.toURL)
     val injectors = findMatchingInjectors(jarManifest)
     for (injector <- injectors) {
       loadedInjectors
         .getOrElseUpdate(
           getClass.getClassLoader.loadClass(injector.iface),
-          mutable.ListBuffer(injector.impl)
+          mutable.HashSet(injector.impl)
         ) += injector.impl
     }
   }
@@ -378,10 +380,10 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
             try {
               compileInjectorFromLibrary(
                 extractInjectorSources(new File(manifest.jarPath), injectorDescriptor),
-                getLibraryCacheDir(new File(manifest.jarPath)),
+                getInjectorCacheDir(manifest)(injectorDescriptor),
                 module
               )
-              loadInjectors(manifest)
+              loadInjector(manifest, injectorDescriptor)
               jarCache.cache.put(manifest.jarPath, manifest)
             } catch {
               case e: Throwable =>
@@ -400,6 +402,15 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     )
     file.mkdir()
     file
+  }
+
+  private def getInjectorCacheDir(jarManifest: JarManifest)(injectorDescriptor: InjectorDescriptor): File = {
+    val jarName = new File(jarManifest.jarPath).getName
+    val pluginVersion = ScalaPluginVersionVerifier.getPluginVersion.get.toString
+    val libraryDir = new File(myInjectorCacheDir, (jarName + pluginVersion).replaceAll("\\.", "_"))
+    val injectorDir = new File(libraryDir, injectorDescriptor.impl.hashCode.toString)
+    injectorDir.mkdirs()
+    injectorDir
   }
 
   private def createIdeaModule(): Module = {
@@ -449,8 +460,11 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   private def runWithHelperModule[T](f: Module => T) = {
     inWriteAction {
       val module = createIdeaModule()
-      f(module)
-      removeIdeaModule()
+      try {
+        f(module)
+      } finally {
+        removeIdeaModule()
+      }
     }
   }
 
