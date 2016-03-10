@@ -73,9 +73,16 @@ object SyntheticMembersInjector {
   val LOG = Logger.getInstance(getClass)
 
   private val CLASS_NAME = "org.intellij.scala.syntheticMemberInjector"
-  val EP_NAME: ExtensionPointName[SyntheticMembersInjector] =
-    ExtensionPointName.create(CLASS_NAME)
-  val injectedExtensions = LibraryInjectorLoader.getInstance(_:Project).getInjectorInstances(classOf[SyntheticMembersInjector])
+  val EP_NAME: ExtensionPointName[SyntheticMembersInjector] = ExtensionPointName.create(CLASS_NAME)
+  val injectedExtensions = { proj: Project =>
+    try {
+      LibraryInjectorLoader.getInstance(proj).getInjectorInstances(classOf[SyntheticMembersInjector])
+    } catch {
+      case e: Throwable =>
+        LOG.error("Failed to get dynamic injector",e)
+        Seq.empty
+    }
+  }
 
   def inject(source: ScTypeDefinition, withOverride: Boolean): Seq[ScFunction] = {
     val buffer = new ArrayBuffer[ScFunction]()
