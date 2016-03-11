@@ -13,10 +13,7 @@ import org.jetbrains.jps.model.serialization.JpsModelSerializerExtension;
 import org.jetbrains.jps.model.serialization.JpsProjectExtensionSerializer;
 import org.jetbrains.jps.model.serialization.library.JpsLibraryPropertiesSerializer;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Pavel Fatin
@@ -37,7 +34,9 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
   @NotNull
   @Override
   public List<? extends JpsLibraryPropertiesSerializer<?>> getLibraryPropertiesSerializers() {
-    return Collections.singletonList(new LibraryPropertiesSerializer());
+    return Collections.unmodifiableList(
+            Arrays.asList(new ScalaLibraryPropertiesSerializer("Scala"), new ScalaLibraryPropertiesSerializer("Dotty"))
+    );
   }
 
   private static class GlobalSettingsSerializer extends JpsGlobalExtensionSerializer {
@@ -108,9 +107,9 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
     }
   }
 
-  private static class LibraryPropertiesSerializer extends JpsLibraryPropertiesSerializer<LibrarySettings> {
-    private LibraryPropertiesSerializer() {
-      super(ScalaLibraryType.getInstance(), "Scala");
+  private static class ScalaLibraryPropertiesSerializer extends JpsLibraryPropertiesSerializer<LibrarySettings> {
+    private ScalaLibraryPropertiesSerializer(String typeId) {
+      super(ScalaLibraryType.getInstance(), typeId);
     }
 
     @Override
