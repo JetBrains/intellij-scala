@@ -20,9 +20,9 @@ import scala.collection.JavaConverters._
  * @author Pavel Fatin
  */
 object ScalaLibraryDescription extends ScalaLibraryDescription {
-  override protected val LibraryKind = ScalaLibraryKind
+  override protected val libraryKind = ScalaLibraryKind
 
-  override protected val SdkDescriptor = ScalaSdkDescriptor
+  override protected val sdkDescriptor = ScalaSdkDescriptor
 
   override def dialog(parentComponent: JComponent, provider: () => util.List[SdkChoice]) = {
     new SdkSelectionDialog(parentComponent, provider)
@@ -72,19 +72,19 @@ object ScalaLibraryDescription extends ScalaLibraryDescription {
 }
 
 trait ScalaLibraryDescription extends CustomLibraryDescription {
-  protected val LibraryKind: PersistentLibraryKind[ScalaLibraryProperties]
+  protected val libraryKind: PersistentLibraryKind[ScalaLibraryProperties]
 
-  protected val SdkDescriptor: SdkDescriptorCompanion
+  protected val sdkDescriptor: SdkDescriptorCompanion
 
-  private val UserHome = new File(System.getProperty("user.home"))
+  private val userHome = new File(System.getProperty("user.home"))
 
-  protected val IvyRepository = UserHome / ".ivy2" / "cache"
+  protected val ivyRepository = userHome / ".ivy2" / "cache"
 
-  protected val IvyScalaRoot = IvyRepository / "org.scala-lang"
+  protected val ivyScalaRoot = ivyRepository / "org.scala-lang"
 
-  protected val MavenRepository = UserHome / ".m2" / "repository"
+  protected val mavenRepository = userHome / ".m2" / "repository"
 
-  protected val MavenScalaRoot = MavenRepository / "org" / "scala-lang"
+  protected val mavenScalaRoot = mavenRepository / "org" / "scala-lang"
 
   def dialog(parentComponent: JComponent, provide: () => java.util.List[SdkChoice]): SdkSelectionDialog
 
@@ -95,7 +95,7 @@ trait ScalaLibraryDescription extends CustomLibraryDescription {
       mavenSdks.sortBy(_.version).map(SdkChoice(_, "Maven"))
   }
 
-  def getSuitableLibraryKinds = Collections.singleton(LibraryKind)
+  def getSuitableLibraryKinds = Collections.singleton(libraryKind)
 
   def createNewLibrary(parentComponent: JComponent, contextDirectory: VirtualFile) = {
     implicit val ordering = implicitly[Ordering[Version]].reverse
@@ -106,14 +106,14 @@ trait ScalaLibraryDescription extends CustomLibraryDescription {
 
   protected def discoverComponents(root: File) = Component.discoverIn(root.allFiles)
 
-  protected def sdkIn(root: File) = SdkDescriptor.from(discoverComponents(root)).right.toOption
+  protected def sdkIn(root: File) = sdkDescriptor.from(discoverComponents(root)).right.toOption
 
-  protected def ivySdks = sdksIn(IvyScalaRoot)
+  protected def ivySdks = sdksIn(ivyScalaRoot)
 
-  protected def mavenSdks = sdksIn(MavenScalaRoot)
+  protected def mavenSdks = sdksIn(mavenScalaRoot)
 
   private def sdksIn(root: File): Seq[SdkDescriptor] = {
-    discoverComponents(root).groupBy(_.version).mapValues(SdkDescriptor.from).toSeq.collect {
+    discoverComponents(root).groupBy(_.version).mapValues(sdkDescriptor.from).toSeq.collect {
       case (Some(version), Right(sdk)) => sdk
     }
   }

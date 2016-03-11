@@ -5,7 +5,7 @@ package org.jetbrains.plugins.scala.project;
  */
 
 // Proxy enumeration for library property serialization
-enum ScalaLanguageLevelProxy {
+public enum ScalaLanguageLevelProxy {
   Scala_2_7,
   Scala_2_8,
   Scala_2_9,

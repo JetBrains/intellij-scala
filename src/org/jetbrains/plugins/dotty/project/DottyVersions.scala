@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.project.{Version, Versions}
 object DottyVersions extends Versions {
   val DottyVersion = Dotty.defaultVersion
 
-  override protected val ReleaseVersionLine = ".+>(\\d+.\\d+.+)/<.*".r
+  override protected val releaseVersionLine = """.+>(\d+.\d+.+)/<.*""".r
 
   def loadDottyVersions = loadVersionsOf(Dotty)
 

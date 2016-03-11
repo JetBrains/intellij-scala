@@ -30,7 +30,7 @@ sealed class Artifact(val prefix: String, resource: Option[String] = None) {
 }
 
 object Artifact {
-  def values: Set[Artifact] = Set(ScalaLibrary, ScalaCompiler, DottyCompiler, ScalaReflect,
+  def values: Set[Artifact] = Set(ScalaLibrary, ScalaCompiler, ScalaReflect,
     ScalaXml, ScalaSwing, ScalaCombinators, ScalaActors)
 
   private def readProperty(file: File, resource: String, name: String): Option[String] = {
@@ -52,10 +52,6 @@ object Artifact {
 
   case object ScalaCompiler extends Artifact("scala-compiler", Some("compiler.properties"))
 
-  case object DottyCompiler extends Artifact("(?:dotty_2\\.11|jline)") {
-    override def title = "(dotty_2.11|jline)*.jar"
-  }
-
   case object ScalaReflect extends Artifact("scala-reflect", Some("reflect.properties"))
 
   case object ScalaXml extends Artifact("scala-xml")
@@ -65,6 +61,16 @@ object Artifact {
   case object ScalaCombinators extends Artifact("scala-parser-combinators")
 
   case object ScalaActors extends Artifact("scala-actors")
+}
+
+object DottyArtifact {
+  val values: Set[Artifact] = Set(Main, Interfaces, JLine)
+
+  case object Main extends Artifact("dotty_2.11")
+
+  case object Interfaces extends Artifact("dotty-interfaces")
+
+  case object JLine extends Artifact("jline")
 }
 
 sealed class Kind(regex: String) {
@@ -85,7 +91,7 @@ case class Component(artifact: Artifact, kind: Kind, version: Option[Version], f
 
 object Component {
   def discoverIn(files: Seq[File]): Seq[Component] = {
-    val patterns = Artifact.values.flatMap { artifact =>
+    val patterns = (Artifact.values ++ DottyArtifact.values).flatMap { artifact =>
       Kind.values.map(kind => (kind.patternFor(artifact.prefix), artifact, kind))
     }
 

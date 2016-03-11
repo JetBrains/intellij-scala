@@ -4,7 +4,7 @@ package compiler
 import java.io.{File, IOException}
 import javax.swing.event.HyperlinkEvent
 
-import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
+import com.intellij.notification.{NotificationType, Notifications, Notification, NotificationListener}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.project.Project
@@ -18,6 +18,7 @@ import org.jetbrains.jps.incremental.BuilderService
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.util.NotificationUtil
 
 import scala.collection.JavaConverters._
 import scala.util.control.Exception._
@@ -198,7 +199,7 @@ object CompileServerLauncher {
   }
 
   def bootClasspath(project: Project): Seq[File] = {
-    val dottySdk = project.scalaModules.map(_.sdk).find(_.languageLevel.isDotty)
+    val dottySdk = project.scalaModules.map(_.sdk).find(_.isDottySdk)
     dottySdk.toSeq.flatMap(_.compilerClasspath)
   }
 

@@ -6,6 +6,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import com.intellij.util.ui.ListTableModel;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.extensions.package$;
 import org.jetbrains.plugins.scala.project.Versions$;
 import scala.Function0;
@@ -35,7 +36,12 @@ public class SdkSelectionDialog extends JDialog {
 
     private final JComponent myParent;
     private final Function0<List<SdkChoice>> myProvider;
-    private final ListTableModel<SdkChoice> myTableModel = new SdkTableModel();
+    private final ListTableModel<SdkChoice> myTableModel = getSdkTableModel();
+
+    protected ListTableModel<SdkChoice> getSdkTableModel() {
+        return new SdkTableModel();
+    }
+
     private SdkDescriptor mySelectedSdk;
 
     public SdkSelectionDialog(JComponent parent,
@@ -117,6 +123,10 @@ public class SdkSelectionDialog extends JDialog {
         return -1;
     }
 
+    protected void setDownloadButtonText(String text) {
+        buttonDownload.setText(text);
+    }
+
     protected String getLanguageName() {
         return "Scala";
     }
@@ -126,30 +136,42 @@ public class SdkSelectionDialog extends JDialog {
         String[] scalaVersions = package$.MODULE$.withProgressSynchronously(
                 format("Fetching available %s versions", languageName), fetchVersions());
 
-        final SelectionDialog<String> dialog = new SelectionDialog<String>(contentPane,
-                "Download (via SBT)", format("%s version:", languageName), scalaVersions);
+        if (scalaVersions.length == 0) {
+            Messages.showErrorDialog(contentPane, "No versions available for download",
+                    format("Error Downloading %s %s", getLanguageName(), "libraries"));
+        }
+        else if (scalaVersions.length == 1) {
+            downloadVersionWithProgress(scalaVersions[0]);
+        }
+        else {
+            final SelectionDialog<String> dialog = new SelectionDialog<String>(contentPane,
+                    "Download (via SBT)", format("%s version:", languageName), scalaVersions);
 
-        if (dialog.showAndGet()) {
-            String version = dialog.getSelectedValue();
-            Try<BoxedUnit> result = package$.MODULE$.withProgressSynchronouslyTry(
-                    format("Downloading %s %s (via SBT)", languageName, version),
-                    downloadVersion(version));
-
-            if (result.isFailure()) {
-                Throwable exception = ((Failure) result).exception();
-                Messages.showErrorDialog(contentPane, exception.getMessage(),
-                        format("Error Downloading %s %s", languageName, version));
-                return;
+            if (dialog.showAndGet()) {
+                downloadVersionWithProgress(dialog.getSelectedValue());
             }
+        }
+    }
 
-            updateTable();
+    private void downloadVersionWithProgress(String version) {
+        Try<BoxedUnit> result = package$.MODULE$.withProgressSynchronouslyTry(
+                format("Downloading %s %s (via SBT)", getLanguageName(), version),
+                downloadVersion(version));
 
-            int rowIndex = rowIndexOf("Ivy", version);
+        if (result.isFailure()) {
+            Throwable exception = ((Failure) result).exception();
+            Messages.showErrorDialog(contentPane, exception.getMessage(),
+                    format("Error Downloading %s %s", getLanguageName(), version));
+            return;
+        }
 
-            if (rowIndex >= 0) {
-                myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
-                onOK();
-            }
+        updateTable();
+
+        int rowIndex = rowIndexOf("Ivy", version);
+
+        if (rowIndex >= 0) {
+            myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
+            onOK();
         }
     }
 

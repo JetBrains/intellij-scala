@@ -14,7 +14,7 @@ object Versions extends Versions {
 
   val DefaultSbtVersion = Sbt.defaultVersion
 
-  override protected val ReleaseVersionLine = ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r
+  override protected val releaseVersionLine = ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r
 
   def loadScalaVersions = loadVersionsOf(Scala)
 
@@ -28,11 +28,11 @@ object Versions extends Versions {
 }
 
 trait Versions {
-  protected val ReleaseVersionLine: Regex
+  protected val releaseVersionLine: Regex
 
   protected def loadVersionsOf(entity: Entity): Array[String] = {
     loadVersionsFrom(entity.url, {
-      case ReleaseVersionLine(number) => number
+      case releaseVersionLine(number) => number
     })
       .getOrElse(entity.hardcodedVersions)
       .map(Version(_))
