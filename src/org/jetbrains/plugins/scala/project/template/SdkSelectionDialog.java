@@ -5,7 +5,10 @@ import com.intellij.ui.table.TableView;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import org.jetbrains.plugins.scala.project.Versions;
+import com.intellij.util.ui.ListTableModel;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.extensions.package$;
+import org.jetbrains.plugins.scala.project.Versions$;
 import scala.Function0;
 import scala.Function1;
 import scala.Option;
@@ -21,7 +24,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
-import static org.jetbrains.plugins.scala.extensions.package$.MODULE$;
+import static java.lang.String.format;
 
 public class SdkSelectionDialog extends JDialog {
     private JPanel contentPane;
@@ -32,17 +35,29 @@ public class SdkSelectionDialog extends JDialog {
     private TableView<SdkChoice> myTable;
 
     private final JComponent myParent;
-    private Function0<List<SdkChoice>> myProvider;
-    private final SdkTableModel myTableModel = new SdkTableModel();
-    private ScalaSdkDescriptor mySelectedSdk;
+    private final Function0<List<SdkChoice>> myProvider;
+    private final ListTableModel<SdkChoice> myTableModel = getSdkTableModel();
 
-    public SdkSelectionDialog(JComponent parent, Function0<List<SdkChoice>> provider) {
+    protected ListTableModel<SdkChoice> getSdkTableModel() {
+        return new SdkTableModel();
+    }
+
+    private SdkDescriptor mySelectedSdk;
+
+    public SdkSelectionDialog(JComponent parent,
+                              Function0<List<SdkChoice>> provider) {
+        this(parent, provider, true);
+    }
+
+    public SdkSelectionDialog(JComponent parent,
+                              Function0<List<SdkChoice>> provider,
+                              boolean canBrowse) {
         super((Window) parent.getTopLevelAncestor());
 
         myParent = parent;
         myProvider = provider;
 
-        setTitle("Select JAR's for the new Scala SDK");
+        setTitle(format("Select JAR's for the new %s SDK", getLanguageName()));
 
         setContentPane(contentPane);
         setModal(true);
@@ -58,6 +73,7 @@ public class SdkSelectionDialog extends JDialog {
                 onBrowse();
             }
         });
+        buttonBrowse.setVisible(canBrowse);
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onOK();
@@ -107,54 +123,84 @@ public class SdkSelectionDialog extends JDialog {
         return -1;
     }
 
+    protected void setDownloadButtonText(String text) {
+        buttonDownload.setText(text);
+    }
+
+    protected String getLanguageName() {
+        return "Scala";
+    }
+
     private void onDownload() {
-        String[] scalaVersions = MODULE$.withProgressSynchronously("Fetching available Scala versions",
-            new AbstractFunction1<Function1<String, BoxedUnit>, String[]>() {
-                @Override
-                public String[] apply(Function1<String, BoxedUnit> listener) {
-                    return Versions.loadScalaVersions();
-                }
-            });
+        String languageName = getLanguageName();
+        String[] scalaVersions = package$.MODULE$.withProgressSynchronously(
+                format("Fetching available %s versions", languageName), fetchVersions());
 
-        final SelectionDialog<String> dialog = new SelectionDialog<String>(contentPane,
-            "Download (via SBT)", "Scala version:", scalaVersions);
+        if (scalaVersions.length == 0) {
+            Messages.showErrorDialog(contentPane, "No versions available for download",
+                    format("Error Downloading %s %s", getLanguageName(), "libraries"));
+        }
+        else if (scalaVersions.length == 1) {
+            downloadVersionWithProgress(scalaVersions[0]);
+        }
+        else {
+            final SelectionDialog<String> dialog = new SelectionDialog<String>(contentPane,
+                    "Download (via SBT)", format("%s version:", languageName), scalaVersions);
 
-        if (dialog.showAndGet()) {
-            final String version = dialog.getSelectedValue();
-
-            Try<BoxedUnit> result = MODULE$.withProgressSynchronouslyTry("Downloading Scala " + version + " (via SBT)",
-                new AbstractFunction1<Function1<String, BoxedUnit>, BoxedUnit>() {
-                    @Override
-                    public BoxedUnit apply(Function1<String, BoxedUnit> listener) {
-                        Downloader.downloadScala(version, listener);
-                        return BoxedUnit.UNIT;
-                    }
-                });
-
-            if (result.isFailure()) {
-                Throwable exception = ((Failure) result).exception();
-                Messages.showErrorDialog(contentPane, exception.getMessage(), "Error Downloading Scala " + version);
-                return;
-            }
-
-            updateTable();
-
-            int rowIndex = rowIndexOf("Ivy", version);
-
-            if (rowIndex >= 0) {
-                myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
-                onOK();
+            if (dialog.showAndGet()) {
+                downloadVersionWithProgress(dialog.getSelectedValue());
             }
         }
     }
 
+    private void downloadVersionWithProgress(String version) {
+        Try<BoxedUnit> result = package$.MODULE$.withProgressSynchronouslyTry(
+                format("Downloading %s %s (via SBT)", getLanguageName(), version),
+                downloadVersion(version));
+
+        if (result.isFailure()) {
+            Throwable exception = ((Failure) result).exception();
+            Messages.showErrorDialog(contentPane, exception.getMessage(),
+                    format("Error Downloading %s %s", getLanguageName(), version));
+            return;
+        }
+
+        updateTable();
+
+        int rowIndex = rowIndexOf("Ivy", version);
+
+        if (rowIndex >= 0) {
+            myTable.getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
+            onOK();
+        }
+    }
+
+    protected Function1<Function1<String, BoxedUnit>, BoxedUnit> downloadVersion(final String version) {
+        return new AbstractFunction1<Function1<String, BoxedUnit>, BoxedUnit>() {
+            @Override
+            public BoxedUnit apply(Function1<String, BoxedUnit> listener) {
+                Downloader$.MODULE$.downloadScala(version, listener);
+                return BoxedUnit.UNIT;
+            }
+        };
+    }
+
     private void onBrowse() {
-        Option<ScalaSdkDescriptor> result = SdkSelection.chooseScalaSdkFiles(myTable);
+        Option<SdkDescriptor> result = SdkSelection$.MODULE$.chooseScalaSdkFiles(myTable);
 
         if (result.isDefined()) {
             mySelectedSdk = result.get();
             dispose();
         }
+    }
+
+    protected Function1<Function1<String, BoxedUnit>, String[]> fetchVersions() {
+        return new AbstractFunction1<Function1<String, BoxedUnit>, String[]>() {
+            @Override
+            public String[] apply(Function1<String, BoxedUnit> listener) {
+                return Versions$.MODULE$.loadScalaVersions();
+            }
+        };
     }
 
     private void onOK() {
@@ -169,7 +215,7 @@ public class SdkSelectionDialog extends JDialog {
         dispose();
     }
 
-    public ScalaSdkDescriptor open() {
+    public SdkDescriptor open() {
         pack();
         setLocationRelativeTo(myParent.getTopLevelAncestor());
         setVisible(true);

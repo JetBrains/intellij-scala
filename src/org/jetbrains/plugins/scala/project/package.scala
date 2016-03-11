@@ -25,7 +25,7 @@ import scala.util.matching.Regex
  */
 package object project {
   implicit class LibraryExt(library: Library) {
-    def isScalaSdk: Boolean = libraryEx.getKind == ScalaLibraryKind
+    def isScalaSdk: Boolean = libraryEx.getKind.isInstanceOf[ScalaLibraryKind]
 
     def scalaVersion: Option[Version] = LibraryVersion.findFirstIn(library.getName).map(Version(_))
 
@@ -55,6 +55,8 @@ package object project {
 
   implicit class ModuleExt(module: Module) {
     def hasScala: Boolean = scalaSdk.isDefined
+
+    def hasDotty: Boolean = scalaSdk.exists(_.isDottySdk)
 
     def scalaSdk: Option[ScalaSdk] =
       ScalaProjectCache.instanceIn(module.getProject)
@@ -116,6 +118,8 @@ package object project {
     private def modules: Seq[Module] = ModuleManager.getInstance(project).getModules.toSeq
 
     def hasScala: Boolean = modules.exists(_.hasScala)
+
+    def hasDotty: Boolean = modulesWithScala.exists(_.hasDotty)
 
     def modulesWithScala: Seq[Module] = modules.filter(_.hasScala)
 
@@ -183,6 +187,8 @@ package object project {
     def compilerClasspath: Seq[File] = properties.compilerClasspath
 
     def languageLevel: ScalaLanguageLevel = properties.languageLevel
+
+    def isDottySdk: Boolean = languageLevel.isDotty
   }
 
   object ScalaSdk {

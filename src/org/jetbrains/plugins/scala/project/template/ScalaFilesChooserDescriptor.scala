@@ -7,9 +7,12 @@ import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 /**
  * @author Pavel Fatin
  */
-class ScalaFilesChooserDescriptor extends FileChooserDescriptor(true, true, true, true, false, true) {
-  setTitle("Scala SDK files")
-  setDescription("Choose either a Scala SDK directory or Scala jar files (allowed: binaries, sources, docs)")
+class ScalaFilesChooserDescriptor extends AbstractFilesChooserDescriptor("Scala", ScalaSdkDescriptor)
+
+abstract class AbstractFilesChooserDescriptor(languageName: String, sdkDescriptor: SdkDescriptorCompanion)
+  extends FileChooserDescriptor(true, true, true, true, false, true) {
+  setTitle(s"$languageName SDK files")
+  setDescription(s"Choose either a $languageName SDK directory or $languageName jar files (allowed: binaries, sources, docs)")
 
   override def isFileSelectable(file: VirtualFile) = {
     super.isFileSelectable(file) && file.isDirectory || file.getExtension == "jar"
@@ -22,7 +25,7 @@ class ScalaFilesChooserDescriptor extends FileChooserDescriptor(true, true, true
 
     val components = Component.discoverIn(allFiles)
 
-    ScalaSdkDescriptor.from(components) match {
+    sdkDescriptor.from(components) match {
       case Left(message) => throw new ValidationException(message)
       case Right(sdk) => // OK
     }
