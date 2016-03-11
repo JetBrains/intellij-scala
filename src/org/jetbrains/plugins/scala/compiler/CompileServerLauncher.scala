@@ -4,7 +4,7 @@ package compiler
 import java.io.{File, IOException}
 import javax.swing.event.HyperlinkEvent
 
-import com.intellij.notification.{NotificationType, Notifications, Notification, NotificationListener}
+import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.project.Project
@@ -18,7 +18,6 @@ import org.jetbrains.jps.incremental.BuilderService
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.util.NotificationUtil
 
 import scala.collection.JavaConverters._
 import scala.util.control.Exception._
@@ -163,16 +162,14 @@ class CompileServerLauncher extends ApplicationComponent {
 }
 
 object CompileServerLauncher {
-  def instance = ApplicationManager.getApplication.getComponent(classOf[CompileServerLauncher])
+  def instance: CompileServerLauncher = ApplicationManager.getApplication.getComponent(classOf[CompileServerLauncher])
 
-  def compilerJars = {
+  def compilerJars: Seq[File] = {
     val jpsBuildersJar = new File(PathUtil.getJarPathForClass(classOf[BuilderService]))
     val utilJar = new File(PathUtil.getJarPathForClass(classOf[FileUtil]))
     val trove4jJar = new File(PathUtil.getJarPathForClass(classOf[TByteArrayList]))
 
-    val pluginRoot =
-      if (ApplicationManager.getApplication.isUnitTestMode) new File(System.getProperty("plugin.path"), "lib").getCanonicalPath
-      else new File(PathUtil.getJarPathForClass(getClass)).getParent
+    val pluginRoot = pluginPath
     val jpsRoot = new File(pluginRoot, "jps")
 
     Seq(
@@ -186,11 +183,21 @@ object CompileServerLauncher {
       new File(jpsRoot, "sbt-interface.jar"),
       new File(jpsRoot, "incremental-compiler.jar"),
       new File(jpsRoot, "scala-jps-plugin.jar"),
-      new File(jpsRoot, "dotty-callback.jar")
+      dottyInterfacesJar
     )
   }
 
-  def bootClasspath(project: Project) = {
+  def pluginPath: String = {
+    if (ApplicationManager.getApplication.isUnitTestMode) new File(System.getProperty("plugin.path"), "lib").getCanonicalPath
+    else new File(PathUtil.getJarPathForClass(getClass)).getParent
+  }
+
+  def dottyInterfacesJar: File = {
+    val jpsDir = new File(pluginPath, "jps")
+    new File(jpsDir, "dotty-interfaces.jar")
+  }
+
+  def bootClasspath(project: Project): Seq[File] = {
     val dottySdk = project.scalaModules.map(_.sdk).find(_.languageLevel.isDotty)
     dottySdk.toSeq.flatMap(_.compilerClasspath)
   }

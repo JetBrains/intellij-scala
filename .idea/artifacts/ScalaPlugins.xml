@@ -25,7 +25,7 @@
           <element id="library" level="project" name="SBT: org.jetbrains:jline:1.0.0:jar" />
           <element id="library" level="project" name="SBT: org.jetbrains:sbt-interface:1.0.0:jar" />
           <element id="library" level="project" name="SBT: org.jetbrains:incremental-compiler:1.0.0:jar" />
-          <element id="file-copy" path="$PROJECT_DIR$/SDK/dotty/dotty-callback.jar"/>
+          <element id="file-copy" path="$PROJECT_DIR$/SDK/dotty/dotty-interfaces.jar"/>
         </element>
         <element id="archive" name="compiler-settings.jar">
           <element id="module-output" name="compilerSettings" />
