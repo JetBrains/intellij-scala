@@ -4,7 +4,7 @@ package compiler
 import java.io.{File, IOException}
 import javax.swing.event.HyperlinkEvent
 
-import com.intellij.notification.{NotificationType, Notifications, Notification, NotificationListener}
+import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.ApplicationComponent
 import com.intellij.openapi.project.Project
@@ -18,7 +18,6 @@ import org.jetbrains.jps.incremental.BuilderService
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.util.NotificationUtil
 
 import scala.collection.JavaConverters._
 import scala.util.control.Exception._
@@ -91,7 +90,8 @@ class CompileServerLauncher extends ApplicationComponent {
 
     compilerJars.partition(_.exists) match {
       case (presentFiles, Seq()) =>
-        val bootClassPathLibs = bootClasspath(project).map(_.getAbsolutePath)
+        val bootCp = bootClasspath(project)
+        val bootClassPathLibs = bootCp.map(_.getAbsolutePath)
         val bootclasspathArg =
           if (bootClassPathLibs.isEmpty) Nil
           else Seq("-Xbootclasspath/a:" + bootClassPathLibs.mkString(File.pathSeparator))
@@ -126,7 +126,7 @@ class CompileServerLauncher extends ApplicationComponent {
                 .left.map(_.getMessage)
                 .right.map { process =>
           val watcher = new ProcessWatcher(process, "scalaCompileServer")
-          serverInstance = Some(ServerInstance(watcher, freePort, builder.directory()))
+          serverInstance = Some(ServerInstance(watcher, freePort, builder.directory(), withTimestamps(bootCp)))
           watcher.startNotify()
           process
         }
@@ -203,6 +203,10 @@ object CompileServerLauncher {
     dottySdk.toSeq.flatMap(_.compilerClasspath)
   }
 
+  private def withTimestamps(files: Seq[File]): Set[(File, Long)] = {
+    files.map(f => (f, f.lastModified())).toSet
+  }
+
   def jvmParameters: Seq[String] = {
     val settings = ScalaCompileServerSettings.getInstance
     val xmx = settings.COMPILE_SERVER_MAXIMUM_HEAP_SIZE |> { size =>
@@ -227,9 +231,14 @@ object CompileServerLauncher {
   }
 
   def needRestart(project: Project): Boolean = {
-    val launcher = CompileServerLauncher.instance
-    ScalaCompileServerSettings.getInstance().USE_PROJECT_HOME_AS_WORKING_DIR &&
-      projectHome(project) != launcher.serverInstance.map(_.workingDir)
+    val serverInstance = CompileServerLauncher.instance.serverInstance
+    serverInstance match {
+      case None => true
+      case Some(instance) =>
+        val useProjectHome = ScalaCompileServerSettings.getInstance().USE_PROJECT_HOME_AS_WORKING_DIR
+        val workingDirChanged = useProjectHome && projectHome(project) != serverInstance.map(_.workingDir)
+        workingDirChanged || instance.bootClasspath != withTimestamps(bootClasspath(project))
+    }
   }
 
   def ensureNotRunning(project: Project) {
@@ -255,7 +264,7 @@ object CompileServerLauncher {
 
 }
 
-private case class ServerInstance(watcher: ProcessWatcher, port: Int, workingDir: File) {
+private case class ServerInstance(watcher: ProcessWatcher, port: Int, workingDir: File, bootClasspath: Set[(File, Long)]) {
   private var stopped = false
 
   def running: Boolean = !stopped && watcher.running
