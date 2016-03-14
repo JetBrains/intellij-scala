@@ -723,6 +723,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL9000(): Unit = doTest()
 
+  def testSCL9306B(): Unit = doTest()
+
   def testSCL9426(): Unit = doTest()
 
   def testSCL9445(): Unit = doInjectorTest(new SCL9445Injector)
