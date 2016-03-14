@@ -4,15 +4,18 @@ package psi
 package types
 
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScRefinement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.light.scala.ScLightTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 
@@ -308,6 +311,21 @@ object ScTypePresentation {
     val (p1, p2) = (t1.presentableText, t2.presentableText)
     if (p1 != p2) (p1, p2)
     else (t1.canonicalText.replace("_root_.", ""), t2.canonicalText.replace("_root_.", ""))
+  }
+
+  def shouldExpand(ta: ScTypeAliasDefinition): Boolean = ta match {
+    case _: ScLightTypeAliasDefinition | childOf(_: ScRefinement) => true
+    case _ =>
+      ScalaPsiUtil.superTypeMembers(ta).exists(_.isInstanceOf[ScTypeAliasDeclaration])
+  }
+  
+  type A = ScTypePresentation {
+    type B 
+  }
+  
+  def withoutAliases(tpe: ScType): String = {
+    val withoutAliasesType = ScType.removeAliasDefinitions(tpe, expandableOnly = true)
+    withoutAliasesType.presentableText
   }
 }
 

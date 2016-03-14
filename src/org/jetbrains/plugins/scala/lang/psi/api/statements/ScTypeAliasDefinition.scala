@@ -4,6 +4,7 @@ package psi
 package api
 package statements
 
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -83,9 +84,5 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
       val clsType = ScType.designator(cls)
       typeParameters.isEmpty && Equivalence.equiv(aliasedType.getOrElse(return false), clsType)
     }
-  }
-
-  def isImplementation: Boolean = {
-    ScalaPsiUtil.superTypeMembers(this).exists(_.isInstanceOf[ScTypeAliasDeclaration])
   }
 }

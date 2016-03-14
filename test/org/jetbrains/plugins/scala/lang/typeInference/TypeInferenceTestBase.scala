@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypePresentation, Unit}
 import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
@@ -27,6 +27,8 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
   private val startExprMarker = "/*start*/"
   private val endExprMarker = "/*end*/"
   private val fewVariantsMarker = "Few variants:"
+  private val ExpectedPattern = """expected: (.*)""".r
+  private val SimplifiedPattern = """simplified: (.*)""".r
 
   protected def folderPath: String = TestUtils.getTestDataPath + "/typeInference/"
 
@@ -80,17 +82,18 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
           case _ =>
             throw new AssertionError("Test result must be in last comment statement.")
         }
-        val Pattern = """expected: (.*)""".r
         output match {
-          case "expected: <none>" =>
+          case ExpectedPattern("<none>") =>
             expr.expectedType() match {
               case Some(et) => fail("found unexpected expected type: %s".format(ScType.presentableText(et)))
               case None => // all good
             }
-          case Pattern(expectedExpectedTypeText) =>
+          case ExpectedPattern(expectedExpectedTypeText) =>
             val actualExpectedType = expr.expectedType().getOrElse(sys.error("no expected type"))
             val actualExpectedTypeText = ScType.presentableText(actualExpectedType)
             assertEquals(expectedExpectedTypeText, actualExpectedTypeText)
+          case SimplifiedPattern(expectedText) =>
+            assertEquals(expectedText, ScTypePresentation.withoutAliases(ttypez))
           case _ => assertEquals(output, res)
         }
       case Failure(msg, elem) => assert(assertion = false, msg + " :: " + (elem match {case Some(x) => x.getText case None => "empty element"}))

@@ -152,6 +152,10 @@ public class TestUtils {
     return getIvyCachePath() + "/com.typesafe.slick/slick_2.11/bundles/slick_2.11-3.1.0.jar" ;
   }
 
+  public static String getCatsLib(ScalaSdkVersion version) {
+    return getIvyCachePath() + "/org.typelevel/cats-core_2.11/jars/cats-core_2.11-0.4.0.jar" ;
+  }
+
   public static String getScalaLibrarySrc(ScalaSdkVersion version) {
     String fileName = "scala-library-" + version.getMinor() + "-sources.jar";
     return getIvyCachePath() + "/org.scala-lang/scala-library/srcs/" + fileName;

@@ -6,12 +6,11 @@ import _root_.com.intellij.psi._
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.util.{PsiTreeUtil, PsiUtilBase}
-import org.jetbrains.plugins.scala.actions.ShowTypeInfoAction._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypePresentation}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
 
@@ -49,7 +48,7 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
         exprWithTypes.map {
           case (expr @ ExpressionType(tpe), _) =>
             val tpeText = tpe.presentableText
-            val withoutAliases = Some(withoutAliasesText(tpe))
+            val withoutAliases = Some(ScTypePresentation.withoutAliases(tpe))
             val tpeWithoutImplicits = expr.getTypeWithoutImplicits().toOption
             val tpeWithoutImplicitsText = tpeWithoutImplicits.map(_.presentableText)
             val expectedTypeText = expr.expectedType().map(_.presentableText)
@@ -111,12 +110,7 @@ object ShowTypeInfoAction {
   }
 
   private[this] def typeText(optType: Option[ScType], s: ScSubstitutor = ScSubstitutor.empty): Option[String] = {
-    optType.map(withoutAliasesText)
-  }
-
-  private def withoutAliasesText(tpe: ScType): String = {
-    val withoutAliases = ScType.removeAliasDefinitions(tpe, implementationsOnly = true)
-    withoutAliases.presentableText
+    optType.map(ScTypePresentation.withoutAliases)
   }
 }
 

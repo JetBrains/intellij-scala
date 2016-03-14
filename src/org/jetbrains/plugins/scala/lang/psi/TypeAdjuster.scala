@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi
 
-import com.intellij.openapi.application.{ApplicationManager, ApplicationAdapter}
+import com.intellij.openapi.application.{ApplicationAdapter, ApplicationManager}
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement,
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypePresentation}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
@@ -108,7 +108,7 @@ object TypeAdjuster extends ApplicationAdapter {
         val typeAliasRef = dummyTypeElem.depthFirst.findByType(classOf[ScReferenceElement]).find(isExpandableTypeAlias)
         val typeAliasTypeElem = typeAliasRef.flatMap(findTypeElem)
         val tpe = typeAliasTypeElem.flatMap(_.getType().toOption)
-        val newTpe = tpe.map(ScType.removeAliasDefinitions(_, implementationsOnly = true))
+        val newTpe = tpe.map(ScType.removeAliasDefinitions(_, expandableOnly = true))
         if (newTpe != tpe) {
           for {
             typeEl <- typeAliasTypeElem
@@ -133,7 +133,7 @@ object TypeAdjuster extends ApplicationAdapter {
 
       def isExpandableTypeAlias(ref: ScReferenceElement) = {
         ref.resolve() match {
-          case ta: ScTypeAliasDefinition => ta.isImplementation
+          case ta: ScTypeAliasDefinition => ScTypePresentation.shouldExpand(ta)
           case _ => false
         }
       }
@@ -264,7 +264,7 @@ object TypeAdjuster extends ApplicationAdapter {
 
         override def execute(element: PsiElement, state: ResolveState): Boolean = {
           element match {
-            case ta: ScTypeAliasDefinition if ta.isAliasFor(clazz) && !ta.isImplementation =>
+            case ta: ScTypeAliasDefinition if ta.isAliasFor(clazz) && !ScTypePresentation.shouldExpand(ta) =>
               collected = Some(ta)
               false
             case _ => true

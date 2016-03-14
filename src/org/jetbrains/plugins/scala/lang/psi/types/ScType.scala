@@ -381,19 +381,19 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
   }
 
   @tailrec
-  def removeAliasDefinitions(tp: ScType, visited: HashSet[ScType] = HashSet.empty, implementationsOnly: Boolean = false): ScType = {
+  def removeAliasDefinitions(tp: ScType, visited: HashSet[ScType] = HashSet.empty, expandableOnly: Boolean = false): ScType = {
     if (visited.contains(tp)) return tp
     var updated = false
     val res = tp.recursiveUpdate { t =>
       t.isAliasType match {
-        case Some(AliasType(ta: ScTypeAliasDefinition, _, upper)) if !implementationsOnly || ta.isImplementation =>
+        case Some(AliasType(ta: ScTypeAliasDefinition, _, upper)) if !expandableOnly || ScTypePresentation.shouldExpand(ta) =>
           updated = true
           (true, upper.getOrAny)
         case _ => (false, t)
       }
     }
     if (!updated) tp
-    else removeAliasDefinitions(res, visited + tp, implementationsOnly)
+    else removeAliasDefinitions(res, visited + tp, expandableOnly)
   }
   
   /**
