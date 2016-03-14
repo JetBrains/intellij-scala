@@ -24,48 +24,26 @@ abstract class ScalaPluginVersionVerifier {
 
 object ScalaPluginVersionVerifier {
 
-  case class Version(major: Int, minor: Int, build: Int) {
-    def <(v: Version): Boolean = {
-      if (major < v.major) true
-      else if (major > v.major) false
-      else if (minor < v.minor) true
-      else if (minor > v.minor) false
-      else if (build < v.build) true
-      else false
-    }
+  class Version(private val major: Int, private val minor: Int, private val build: Int) extends Ordered[Version] {
+    def compare(that: Version) = implicitly[Ordering[(Int, Int, Int)]]
+      .compare((major, minor, build), (that.major, that.minor, that.build))
 
-    def ==(v: Version): Boolean = {
-      build == v.build &&
-      minor == v.minor &&
-      major == v.major
-    }
+    val presentation: String = if (major == Int.MaxValue) "SNAPSHOT" else s"$major.$minor.$build"
 
-    def >(other: Version) = !(this < other) && !(this == other)
+    def isSnapshot = presentation == "SNAPSHOT"
 
-    def isDebug = false
+    override def equals(that: Any) = compare(that.asInstanceOf[Version]) == 0
 
-    override def toString = s"$major.$minor.$build"
-
-  }
-
-  class DebugVersion extends Version(-1, -1, -1) with Serializable {
-    override def <(v: Version): Boolean = true
-
-    override def ==(v: Version): Boolean = true
-
-    override def >(other: Version): Boolean = true
-
-    override def isDebug = true
-
-    override def toString: String = "VERSION"
+    override def toString = presentation
   }
 
   object Version {
+    object Snapshot extends Version(Int.MaxValue, Int.MaxValue, Int.MaxValue)
     def parse(version: String): Option[Version] = {
-      val VersionRegex = "([0-9]*)[.]([0-9]*)[.]([0-9]*)".r
+      val VersionRegex = "(\\d+)[.](\\d+)[.](\\d+)".r
       version match {
-        case "VERSION" => Some(new DebugVersion)
-        case VersionRegex(major: String, minor: String, build: String) => Some(Version(major.toInt, minor.toInt, build.toInt))
+        case "VERSION" => Some(Snapshot)
+        case VersionRegex(major: String, minor: String, build: String) => Some(new Version(major.toInt, minor.toInt, build.toInt))
         case _ => None
       }
     }
