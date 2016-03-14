@@ -31,3 +31,9 @@ class AdjustTypesTests extends AdjustTypesTestBase {
 
   def testPrefixed() = doTest()
 }
+
+class AdjustCatsTypeTest extends AdjustTypesTestBase {
+  override protected def additionalLibraries(): Array[String] = Array("cats")
+
+  def testSCL10006() = doTest()
+}
