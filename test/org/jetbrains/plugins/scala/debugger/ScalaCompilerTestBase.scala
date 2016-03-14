@@ -7,7 +7,6 @@ import javax.swing.SwingUtilities
 import com.intellij.ProjectTopics
 import com.intellij.compiler.CompilerTestUtil
 import com.intellij.compiler.server.BuildManager
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager, CompilerMessageCategory}
 import com.intellij.openapi.projectRoots._
@@ -64,7 +63,7 @@ abstract class ScalaCompilerTestBase extends ModuleTestCase with ScalaVersion {
 
   protected def addScalaSdk(loadReflect: Boolean = true) {
     scalaLibraryLoader = new ScalaLibraryLoader(getProject, getModule, getSourceRootDir.getCanonicalPath,
-      isIncludeReflectLibrary = loadReflect, javaSdk = Some(getTestProjectJdk))
+      loadReflect, Some(getTestProjectJdk))
 
     scalaLibraryLoader.loadScala(scalaSdkVersion)
   }

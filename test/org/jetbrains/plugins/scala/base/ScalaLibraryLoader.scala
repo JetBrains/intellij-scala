@@ -28,9 +28,8 @@ import scala.collection.mutable.ArrayBuffer
  * Nikolay.Tropin
  * 5/29/13
  */
-class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
-                         isIncludeScalazLibrary: Boolean = false, isIncludeReflectLibrary: Boolean = false,
-                         isIncludeSprayLibrary: Boolean = false, isIncludeSlickLibrary: Boolean = false, javaSdk: Option[Sdk] = None) {
+class ScalaLibraryLoader(project: Project, module: Module, rootPath: String, isIncludeReflectLibrary: Boolean = false,
+                         javaSdk: Option[Sdk] = None, additionalLibraries: Array[String] = Array.empty) {
 
   private val addedLibraries = ArrayBuffer[Library]()
 
@@ -50,11 +49,7 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
 
     addScalaSdk(module, libVersion, isIncludeReflectLibrary)
 
-    if (isIncludeScalazLibrary) addLibrary(module, "scalaz", TestUtils.getMockScalazLib(libVersion))
-
-    if (isIncludeSprayLibrary) addLibrary(module, "spray", TestUtils.getMockSprayLib(libVersion))
-
-    if (isIncludeSlickLibrary) addLibrary(module, "slick", TestUtils.getMockSlickLib(libVersion))
+    additionalLibraries.foreach(name => addLibrary(module, CommonLibrary(name, libVersion)))
 
     javaSdk.foreach { sdk =>
       val rootModel = ModuleRootManager.getInstance(module).getModifiableModel
@@ -107,6 +102,8 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
     VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
   }
 
+  private def addLibrary(module: Module, lib: CommonLibrary): Unit = addLibrary(module, lib.name, lib.path)
+
   private def addLibrary(module: Module, libraryName: String, mockLib: String): Unit = {
     if (module.libraries.exists(_.getName == libraryName)) return
 
@@ -133,14 +130,26 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String,
 object ScalaLibraryLoader {
   def getSdkNone: Option[Sdk] = None
 
-  def withMockJdk(project: Project, module: Module, rootPath: String,
-                  isIncludeScalazLibrary: Boolean = false, isIncludeReflectLibrary: Boolean = false,
-                  isIncludeSprayLibrary: Boolean = false, isIncludeSlickLibrary: Boolean = false): ScalaLibraryLoader = {
+  def withMockJdk(project: Project, module: Module, rootPath: String, isIncludeReflectLibrary: Boolean = false,
+                  additionalLibraries: Array[String] = Array.empty): ScalaLibraryLoader = {
 
     val mockJdk = TestUtils.getDefaultJdk
     VfsRootAccess.allowRootAccess(mockJdk)
     val javaSdk = Some(JavaSdk.getInstance.createJdk("java sdk", mockJdk, false))
-    new ScalaLibraryLoader(project, module, rootPath, isIncludeScalazLibrary, isIncludeReflectLibrary,
-      isIncludeSprayLibrary, isIncludeSlickLibrary, javaSdk)
+    new ScalaLibraryLoader(project, module, rootPath, isIncludeReflectLibrary, javaSdk, additionalLibraries)
   }
 }
+
+private object CommonLibrary {
+  def apply(name: String, version: TestUtils.ScalaSdkVersion): CommonLibrary = {
+    name match {
+      case "scalaz" => CommonLibrary("scalaz", TestUtils.getMockScalazLib(version))
+      case "slick" => CommonLibrary("slick", TestUtils.getMockSlickLib(version))
+      case "spray" => CommonLibrary("spray", TestUtils.getMockSprayLib(version))
+      case "cats" => CommonLibrary("cats", TestUtils.getCatsLib(version))
+      case _ => throw new IllegalArgumentException(s"Unknown library: $name")
+    }
+  }
+}
+
+private case class CommonLibrary(name: String, path: String)

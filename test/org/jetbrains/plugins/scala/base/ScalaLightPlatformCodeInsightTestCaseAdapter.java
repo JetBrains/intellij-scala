@@ -51,8 +51,8 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
 
   protected void setUp(TestUtils.ScalaSdkVersion libVersion) throws Exception {
     super.setUp();
-    myLibraryLoader = new ScalaLibraryLoader(getProject(), getModule(), rootPath(),
-        isIncludeScalazLibrary(), isIncludeReflectLibrary(), isIncludeSprayLibrary(), isIncludeSlickLibrary(), ScalaLibraryLoader.getSdkNone());
+    myLibraryLoader = new ScalaLibraryLoader(getProject(), getModule(), rootPath(), isIncludeReflectLibrary(),
+            ScalaLibraryLoader.getSdkNone(), additionalLibraries());
     myLibraryLoader.loadScala(libVersion);
     //libLoader.clean();
   }
@@ -65,16 +65,8 @@ public abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends Light
       return false;
   }
 
-  protected boolean isIncludeScalazLibrary() {
-    return false;
-  }
-
-  protected boolean isIncludeSprayLibrary() {
-    return false;
-  }
-
-  protected boolean isIncludeSlickLibrary() {
-    return false;
+  protected String[] additionalLibraries() {
+    return new String[0];
   }
 
   protected VirtualFile getVFileAdapter() {
