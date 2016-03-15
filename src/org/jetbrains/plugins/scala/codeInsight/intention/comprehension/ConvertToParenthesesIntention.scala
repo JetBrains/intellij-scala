@@ -6,16 +6,23 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, TokenType}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScForStatement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
+import ConvertToParenthesesIntention._
+import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
  * Pavel Fatin
  */
 
+object ConvertToParenthesesIntention {
+  val FamilyName: String = ScalaBundle.message("intention.for.comprehension.convert.to.parentheses")
+}
+
 class ConvertToParenthesesIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "Convert to parentheses"
+  def getFamilyName = FamilyName
 
   override def getText = getFamilyName
 
@@ -30,17 +37,9 @@ class ConvertToParenthesesIntention extends PsiElementBaseIntentionAction {
 
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
     val statement = element.getParent.asInstanceOf[ScForStatement]
+    ScalaPsiUtil.replaceBracesWithParentheses(statement)
+
     val manager = statement.getManager
-    val block = ScalaPsiElementFactory.parseElement("(_)", manager)
-
-    for (lBrace <- Option(statement.findFirstChildByType(ScalaTokenTypes.tLBRACE))) {
-      lBrace.replace(block.getFirstChild)
-    }
-
-    for (rBrace <- Option(statement.findFirstChildByType(ScalaTokenTypes.tRBRACE))) {
-      rBrace.replace(block.getLastChild)
-    }
-
     for (enumerators <- statement.enumerators;
          cr <- enumerators.findChildrenByType(TokenType.WHITE_SPACE) if cr.getText.contains('\n')) {
       cr.replace(ScalaPsiElementFactory.createSemicolon(manager))
