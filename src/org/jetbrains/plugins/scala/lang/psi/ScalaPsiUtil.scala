@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScPatternArgumentList}
@@ -2053,6 +2054,19 @@ object ScalaPsiUtil {
           case _ => false
         }
       case _ => false
+    }
+  }
+
+  def replaceBracesWithParentheses(element: ScalaPsiElement): Unit = {
+    val manager = element.getManager
+    val block = ScalaPsiElementFactory.parseElement("(_)", manager)
+
+    for (lBrace <- Option(element.findFirstChildByType(ScalaTokenTypes.tLBRACE))) {
+      lBrace.replace(block.getFirstChild)
+    }
+
+    for (rBrace <- Option(element.findFirstChildByType(ScalaTokenTypes.tRBRACE))) {
+      rBrace.replace(block.getLastChild)
     }
   }
 }

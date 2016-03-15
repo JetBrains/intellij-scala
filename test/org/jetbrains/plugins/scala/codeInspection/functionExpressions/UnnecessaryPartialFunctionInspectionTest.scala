@@ -10,7 +10,7 @@ class UnnecessaryPartialFunctionInspectionTest extends ScalaLightInspectionFixtu
 
   def testInspectionCapturesSimpleExpression(): Unit = {
     val text = s"val f: Int => String = {${START}case$END x => x.toString}"
-    val fixed = "val f: Int => String = { x => x.toString }"
+    val fixed = "val f: Int => String = (x => x.toString)"
 
     checkTextHasError(text)
     testFix(text, fixed, hint)
@@ -29,6 +29,24 @@ class UnnecessaryPartialFunctionInspectionTest extends ScalaLightInspectionFixtu
           |    val value = x.toString
           |    s"value of x is $$value"
           |}""".stripMargin
+
+    checkTextHasError(text)
+    testFix(text, fixed, hint)
+  }
+
+  def testInspectionCapturesSingleCaseWithMultiLineBlock(): Unit = {
+    val text =
+      s"""val f: Int => String = {
+          |  ${START}case$END x => {
+          |    val value = x.toString
+          |    s"value of x is $$value"
+          |}}""".stripMargin
+    val fixed =
+      s"""val f: Int => String = (
+          |  x => {
+          |    val value = x.toString
+          |    s"value of x is $$value"
+          |  })""".stripMargin
 
     checkTextHasError(text)
     testFix(text, fixed, hint)
@@ -78,7 +96,7 @@ class UnnecessaryPartialFunctionInspectionTest extends ScalaLightInspectionFixtu
 
   def testInspectionCapturesSimpleExpressionWithWildcardCase(): Unit = {
     val text = s"""var f: Int => String = {${START}case$END _ => "foo"}"""
-    val fixed = """var f: Int => String = { _ => "foo" }"""
+    val fixed = """var f: Int => String = (_ => "foo")"""
     checkTextHasError(text)
     testFix(text, fixed, hint)
   }
@@ -120,7 +138,37 @@ class UnnecessaryPartialFunctionInspectionTest extends ScalaLightInspectionFixtu
       s"""def foo(bar: Int => String) = bar(42)
          |foo{${START}case$END x => x.toString}""".stripMargin
     val fixed = """def foo(bar: Int => String) = bar(42)
-                  |foo { x => x.toString }""".stripMargin
+                  |foo(x => x.toString)""".stripMargin
+    checkTextHasError(text)
+    testFix(text, fixed, hint)
+  }
+
+  def testInspectionCapturesMethodArgumentWithTypeConstraint(): Unit = {
+    val text =
+      s"""def foo(bar: Int => String) = bar(42)
+          |foo{${START}case$END x: Any => x.toString}""".stripMargin
+    val fixed = """def foo(bar: Int => String) = bar(42)
+                  |foo { x: Any => x.toString }""".stripMargin
+    checkTextHasError(text)
+    testFix(text, fixed, hint)
+  }
+
+  def testInspectionCapturesArgumentInMethodWithMultipleAruments(): Unit = {
+    val text =
+      s"""def foo(input: Int, bar: Int => String, prefix: String) = prefix + bar(input)
+          |foo(42, {${START}case$END x => x.toString}, "value: ")""".stripMargin
+    val fixed = """def foo(input: Int, bar: Int => String, prefix: String) = prefix + bar(input)
+                  |foo(42, (x => x.toString), "value: ")""".stripMargin
+    checkTextHasError(text)
+    testFix(text, fixed, hint)
+  }
+
+  def testInspectionCapturesArgumentWithTypeConstraintInMethodWithMultipleAruments(): Unit = {
+    val text =
+      s"""def foo(input: Int, bar: Int => String, prefix: String) = prefix + bar(input)
+          |foo(42, {${START}case$END x: Any => x.toString}, "value: ")""".stripMargin
+    val fixed = """def foo(input: Int, bar: Int => String, prefix: String) = prefix + bar(input)
+                  |foo(42, { x: Any => x.toString }, "value: ")""".stripMargin
     checkTextHasError(text)
     testFix(text, fixed, hint)
   }
