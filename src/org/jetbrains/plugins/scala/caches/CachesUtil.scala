@@ -158,7 +158,7 @@ object CachesUtil {
   }
 
   private val guards: ConcurrentMap[String, RecursionGuard] = ContainerUtil.newConcurrentMap[String, RecursionGuard]()
-  private def getRecursionGuard(id: String): RecursionGuard = {
+  def getRecursionGuard(id: String): RecursionGuard = {
     val guard = guards.get(id)
     if (guard == null) {
       val result = RecursionManager.createGuard(id)
@@ -284,7 +284,7 @@ object CachesUtil {
     }
   }
 
-  private case class ProbablyRecursionException[Dom <: PsiElement, Data, T](elem: Dom,
+  case class ProbablyRecursionException[Dom <: PsiElement, Data, T](elem: Dom,
                                                                             data: Data,
                                                                             key: Key[T],
                                                                             set: Set[ScFunction]) extends ControlThrowable

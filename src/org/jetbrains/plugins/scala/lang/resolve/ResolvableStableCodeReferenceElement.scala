@@ -5,7 +5,7 @@ package resolve
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
-import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
@@ -25,9 +25,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolvableStableCodeReferenceEle
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ExtractorResolveProcessor}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, CachedWithRecursionGuard, ModCount}
-
-import scala.collection.Set
-import scala.concurrent.Future
 
 trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement {
   private object Resolver extends StableCodeReferenceElementResolver(this, false, false, false)
@@ -54,7 +51,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   def resolveTypesOnly(incomplete: Boolean) = {
 
     @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
-    def doResolve(incomplete: Boolean):Array[ResolveResult] = ImportResolverNoMethods.resolve(this, incomplete)
+    def doResolve(incomplete: Boolean):Array[ResolveResult] = ImportResolverNoMethods.resolve(ResolvableStableCodeReferenceElement.this, incomplete)
 
     resolveWithCompiled(incomplete, ImportResolverNoMethods, doResolve)
   }
@@ -62,7 +59,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   def resolveMethodsOnly(incomplete: Boolean) = {
 
     @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
-    def doResolve(incomplete: Boolean):Array[ResolveResult] = ImportResolverNoTypes.resolve(this, incomplete)
+    def doResolve(incomplete: Boolean):Array[ResolveResult] = ImportResolverNoTypes.resolve(ResolvableStableCodeReferenceElement.this, incomplete)
 
     resolveWithCompiled(incomplete, ImportResolverNoTypes, doResolve)
   }
@@ -90,7 +87,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
   }
 
   @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
-  private def multiResolveCached(incomplete: Boolean): Array[ResolveResult] = Resolver.resolve(this, incomplete)
+  private def multiResolveCached(incomplete: Boolean): Array[ResolveResult] = Resolver.resolve(ResolvableStableCodeReferenceElement.this, incomplete)
 
   protected def processQualifierResolveResult(res: ResolveResult, processor: BaseProcessor, ref: ScStableCodeReferenceElement) {
     res match {

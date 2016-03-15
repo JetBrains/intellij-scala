@@ -79,8 +79,82 @@ object CachedMappedWithRecursionGuard {
           $cachesUtilFQN.incrementModCountForFunsWithModifiedReturn()
           $builder
 
-          $getMappedWithRecursionFQN[$psiElementType, $dataTypeName, $retTp]($element, $dataName, $key,
-            $cachedFunName, $defaultValue, $dependencyItem)
+          type Dom = $psiElementType
+          type Data = $dataTypeName
+          type Result = $retTp
+          val e: Dom = $element
+          val data: Data = $dataName
+          val key: _root_.com.intellij.openapi.util.Key[_root_.com.intellij.psi.util.CachedValue[_root_.java.util.concurrent.ConcurrentMap[Data, Result]]] = $key
+          lazy val defaultValue: Result = $defaultValue
+          lazy val dependencyItem: Object = $dependencyItem
+
+          var computed: _root_.com.intellij.psi.util.CachedValue[_root_.java.util.concurrent.ConcurrentMap[Data, Result]] = e.getUserData(key)
+          if (computed == null) {
+            val manager = _root_.com.intellij.psi.util.CachedValuesManager.getManager(e.getProject)
+            computed = manager.createCachedValue(new _root_.com.intellij.psi.util.CachedValueProvider[_root_.java.util.concurrent.ConcurrentMap[Data, Result]] {
+              def compute(): _root_.com.intellij.psi.util.CachedValueProvider.Result[_root_.java.util.concurrent.ConcurrentMap[Data, Result]] = {
+                new _root_.com.intellij.psi.util.CachedValueProvider.Result(_root_.com.intellij.util.containers.ContainerUtil.newConcurrentMap[Data, Result](), dependencyItem)
+              }
+            }, false)
+            e.putUserData(key, computed)
+          }
+          val map = computed.getValue
+          var result = map.get(data)
+          if (result == null) {
+            var isCache = true
+            result = {
+              val guard = $getRecursionGuardFQN(key.toString)
+              if (guard.currentStack().contains((e, data))) {
+                if (_root_.org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl.isPackageObjectProcessing) {
+                  throw new _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl.DoNotProcessPackageObjectException
+                }
+                val fun = _root_.com.intellij.psi.util.PsiTreeUtil.getContextOfType(e, true, classOf[_root_.org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction])
+                if (fun == null || fun.isProbablyRecursive) {
+                  isCache = false
+                  defaultValue
+                } else {
+                  fun.setProbablyRecursive(true)
+                  throw new _root_.org.jetbrains.plugins.scala.caches.CachesUtil.ProbablyRecursionException(e, data, key, _root_.scala.collection.immutable.Set(fun))
+                }
+              } else {
+                guard.doPreventingRecursion((e, data), false, new _root_.com.intellij.openapi.util.Computable[_root_.java.lang.Object] {
+                  def compute(): _root_.java.lang.Object = {
+                    try {
+                      val ${generateTermName()}: _root_.scala.Any = e
+                      val $dataName: $dataTypeName = data
+                      ..$parameterDefinitions
+
+                      $actualCalculation
+                    }
+                    catch {
+                      case _root_.org.jetbrains.plugins.scala.caches.CachesUtil.ProbablyRecursionException(`e`, `data`, k, set) if k == key =>
+                        try {
+                          val ${generateTermName()}: _root_.scala.Any = e
+                          val $dataName: $dataTypeName = data
+                          ..$parameterDefinitions
+
+                          $actualCalculation
+                        } finally set.foreach(_.setProbablyRecursive(false))
+                      case t@_root_.org.jetbrains.plugins.scala.caches.CachesUtil.ProbablyRecursionException(ee, innerData, k, set) if k == key =>
+                        val fun = _root_.com.intellij.psi.util.PsiTreeUtil.getContextOfType(e, true, classOf[_root_.org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction])
+                        if (fun == null || fun.isProbablyRecursive) throw t
+                        else {
+                          fun.setProbablyRecursive(true)
+                          throw _root_.org.jetbrains.plugins.scala.caches.CachesUtil.ProbablyRecursionException(ee, innerData, k, set + fun)
+                        }
+                    }
+                  }
+                }) match {
+                  case null => defaultValue
+                  case notNull => notNull.asInstanceOf[Result]
+                }
+              }
+            }
+            if (isCache) {
+              map.put(data, result)
+            }
+          }
+          result
         """
 
         val cacheStatsField =
