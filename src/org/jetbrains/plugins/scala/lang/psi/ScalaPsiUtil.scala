@@ -464,6 +464,7 @@ object ScalaPsiUtil {
     }
 
     if (!isDynamic && candidates.forall(!_.isApplicable())) {
+      processor.resetPrecedence()
       //should think about implicit conversions
       findImplicitConversion(expr, methodName, call, processor, noImplicitsForArgs = candidates.nonEmpty) match {
         case Some(res) =>
