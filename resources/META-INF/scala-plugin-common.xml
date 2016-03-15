@@ -115,6 +115,9 @@
         <completion.contributor language="Scala" id="scalaClassParamContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCaseClassParametersNameContributer"
                                 order="before keywordCompletionContributor, before memberNameCompletionContributor"/>
+        <completion.contributor language="Scala" id="scalaOverrideDefContributer"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaOverrideContributor"
+                                order="before scalaIdentifierCompletionContributor, after keywordCompletionContributor"/>
         <completion.contributor language="Scala" id="scalaCompletionContrubutor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaBasicCompletionContributor"/>
         <completion.contributor language="Scala" id="sameSignatureCallParametersProvider"
