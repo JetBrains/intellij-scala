@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.project.settings
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.project.AbstractConfigurable
 
@@ -30,5 +31,6 @@ class ScalaCompilerConfigurable(project: Project, configuration: ScalaCompilerCo
     configuration.defaultProfile = profiles.getDefaultProfile
     configuration.customProfiles = profiles.getModuleProfiles.asScala
     DaemonCodeAnalyzer.getInstance(project).restart()
+    BuildManager.getInstance().clearState(project)
   }
 }
