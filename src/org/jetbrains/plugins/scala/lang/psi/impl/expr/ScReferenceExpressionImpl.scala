@@ -164,7 +164,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   }
 
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
-    convertBindToType(bind())
+    convertBindToType(this.bind())
   }
 
   def shapeType = {

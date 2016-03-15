@@ -29,7 +29,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
   override def toString: String = "TypeProjection: " + getText
 
   protected def innerType(ctx: TypingContext) = {
-    bind() match {
+    this.bind() match {
       case Some(ScalaResolveResult(elem, subst)) =>
         val te: TypeResult[ScType] = typeElement.getType(ctx)
         te match {
