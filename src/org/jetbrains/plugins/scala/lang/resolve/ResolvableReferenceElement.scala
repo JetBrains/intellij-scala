@@ -9,7 +9,7 @@ import org.jetbrains.annotations.TestOnly
 
 trait ResolvableReferenceElement extends PsiPolyVariantReference {
   def resolve(): PsiElement = {
-    bind() match {
+    this.bind() match {
       case Some(result) if !result.isCyclicReference => result.element
       case _ => null
     }
@@ -17,15 +17,20 @@ trait ResolvableReferenceElement extends PsiPolyVariantReference {
 
   @TestOnly
   def advancedResolve: Option[ScalaResolveResult] = {
-    bind() match {
+    this.bind() match {
       case Some(result) if !result.isCyclicReference =>  Some(result)
       case _ => None
     }
   }
+}
 
-  def bind(): Option[ScalaResolveResult] = {
-    ProgressManager.checkCanceled()
-    val results = multiResolve(false)
-    if (results.length == 1) Some(results(0).asInstanceOf[ScalaResolveResult]) else None
+object ResolvableReferenceElement {
+  implicit class ResolvableReferenceElementExt(val elem: ResolvableReferenceElement) extends AnyVal {
+    @inline
+    def bind(): Option[ScalaResolveResult] = {
+      ProgressManager.checkCanceled()
+      val results = elem.multiResolve(false)
+      if (results.length == 1) Some(results(0).asInstanceOf[ScalaResolveResult]) else None
+    }
   }
 }
