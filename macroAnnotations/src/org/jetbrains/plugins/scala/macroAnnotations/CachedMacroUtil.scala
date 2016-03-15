@@ -39,9 +39,9 @@ object CachedMacroUtil {
     q"_root_.org.jetbrains.plugins.scala.statistics.CacheStatistics"
   }
 
-  def getMappedWithRecursionFQN(implicit c: whitebox.Context): c.universe.Tree = {
+  def getRecursionGuardFQN(implicit c: whitebox.Context): c.universe.Tree = {
     import c.universe.Quasiquote
-    q"$cachesUtilFQN.getMappedWithRecursionPreventingWithRollback"
+    q"$cachesUtilFQN.getRecursionGuard"
   }
 
   def psiModificationTrackerFQN(implicit c: whitebox.Context): c.universe.Tree = {

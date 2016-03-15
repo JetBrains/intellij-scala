@@ -4,7 +4,7 @@ package resolve
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import com.intellij.psi.util.{PsiModificationTracker, PsiTreeUtil}
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor._
-import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedMappedWithRecursionGuard, CachedWithRecursionGuard}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, CachedWithRecursionGuard, ModCount}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
@@ -35,7 +35,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
   private object ShapesResolver extends ReferenceExpressionResolver(true)
 
   @CachedMappedWithRecursionGuard(this, Array.empty, ModCount.getBlockModificationCount)
-  def multiResolveImpl(incomplete: Boolean): Array[ResolveResult] = Resolver.resolve(this, incomplete)
+  def multiResolveImpl(incomplete: Boolean): Array[ResolveResult] = Resolver.resolve(ResolvableReferenceExpression.this, incomplete)
 
   def multiResolve(incomplete: Boolean): Array[ResolveResult] = {
     if (resolveFunction != null) resolveFunction()

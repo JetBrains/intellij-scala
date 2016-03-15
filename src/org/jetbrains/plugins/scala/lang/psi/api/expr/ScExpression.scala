@@ -51,7 +51,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                                      fromUnderscore: Boolean = false): ExpressionTypeResult = {
     if (isShape) {
       val tp: ScType = getShape()._1
-      def default = ExpressionTypeResult(Success(tp, Some(this)), Set.empty, None)
+      def default = ExpressionTypeResult(Success(tp, Some(ScExpression.this)), Set.empty, None)
       val expectedOpt = expectedOption.orElse(expectedType(fromUnderscore))
       expectedOpt match {
         case Some(expected) if !tp.conforms(expected) =>
@@ -78,14 +78,14 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
               }
 
               val functionType = ScFunctionType(expected, Seq(tp))(getProject, getResolveScope)
-              val results = new ImplicitCollector(this, functionType, functionType, None,
+              val results = new ImplicitCollector(ScExpression.this, functionType, functionType, None,
                 isImplicitConversion = true, isExtensionConversion = false).collect()
               if (results.length == 1) {
                 val res = results.head
                 val paramType = InferUtil.extractImplicitParameterType(res)
                 paramType match {
                   case ScFunctionType(rt, Seq(param)) =>
-                    ExpressionTypeResult(Success(rt, Some(this)), res.importsUsed, Some(res.getElement))
+                    ExpressionTypeResult(Success(rt, Some(ScExpression.this)), res.importsUsed, Some(res.getElement))
                   case _ =>
                     ScalaPsiManager.instance(getProject).getCachedClass(
                       "scala.Function1", getResolveScope, ScalaPsiManager.ClassCategory.TYPE
@@ -100,7 +100,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                                 val rt = subst.subst(secondArg)
                                 if (rt.isInstanceOf[ScUndefinedType]) defaultResult
                                 else {
-                                  ExpressionTypeResult(Success(rt, Some(this)), res.importsUsed, Some(res.getElement))
+                                  ExpressionTypeResult(Success(rt, Some(ScExpression.this)), res.importsUsed, Some(res.getElement))
                                 }
                               case None => defaultResult
                             }
@@ -145,24 +145,24 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   @CachedMappedWithRecursionGuard(this, Failure("Recursive getTypeWithoutImplicits", Some(this)),
     ModCount.getBlockModificationCount)
   private def getTypeWithoutImplicitsImpl(ignoreBaseTypes: Boolean, fromUnderscore: Boolean): TypeResult[ScType] = {
-    val inner = getNonValueType(TypingContext.empty, ignoreBaseTypes, fromUnderscore)
+    val inner = ScExpression.this.getNonValueType(TypingContext.empty, ignoreBaseTypes, fromUnderscore)
     inner match {
       case Success(rtp, _) =>
         var res = rtp
 
         def tryUpdateRes(checkExpectedType: Boolean) {
           if (checkExpectedType) {
-            InferUtil.updateAccordingToExpectedType(Success(res, Some(this)), fromImplicitParameters = true,
-              filterTypeParams = false, expectedType = expectedType(fromUnderscore), expr = this,
+            InferUtil.updateAccordingToExpectedType(Success(res, Some(ScExpression.this)), fromImplicitParameters = true,
+              filterTypeParams = false, expectedType = expectedType(fromUnderscore), expr = ScExpression.this,
               check = checkExpectedType) match {
               case Success(newRes, _) => res = newRes
               case _ =>
             }
           }
 
-          val checkImplicitParameters = ScalaPsiUtil.withEtaExpansion(this)
+          val checkImplicitParameters = ScalaPsiUtil.withEtaExpansion(ScExpression.this)
           if (checkImplicitParameters) {
-            val tuple = InferUtil.updateTypeWithImplicitParameters(res, this, None, checkExpectedType, fullInfo = false)
+            val tuple = InferUtil.updateTypeWithImplicitParameters(res, ScExpression.this, None, checkExpectedType, fullInfo = false)
             res = tuple._1
             if (fromUnderscore) implicitParametersFromUnder = tuple._2
             else implicitParameters = tuple._2
@@ -170,7 +170,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
         }
 
         @tailrec
-        def isMethodInvocation(expr: ScExpression = this): Boolean = {
+        def isMethodInvocation(expr: ScExpression = ScExpression.this): Boolean = {
           expr match {
             case p: ScPrefixExpr => false
             case p: ScPostfixExpr => false
@@ -201,7 +201,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
               case Some(expected) =>
                 expected.removeAbstracts match {
                   case ScFunctionType(_, params) =>
-                  case expect if ScalaPsiUtil.isSAMEnabled(this) =>
+                  case expect if ScalaPsiUtil.isSAMEnabled(ScExpression.this) =>
                     ScalaPsiUtil.toSAMType(expect, getResolveScope) match {
                       case Some(_) =>
                       case _ => res = updateType(retType)
@@ -217,24 +217,24 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
         res match {
           case ScTypePolymorphicType(ScMethodType(retType, params, _), tp) if params.isEmpty  &&
-            !ScUnderScoreSectionUtil.isUnderscore(this) =>
+            !ScUnderScoreSectionUtil.isUnderscore(ScExpression.this) =>
             removeMethodType(retType, t => ScTypePolymorphicType(t, tp))
           case ScMethodType(retType, params, _) if params.isEmpty &&
-            !ScUnderScoreSectionUtil.isUnderscore(this) =>
+            !ScUnderScoreSectionUtil.isUnderscore(ScExpression.this) =>
             removeMethodType(retType)
           case _ =>
         }
 
         val valType = res.inferValueType.unpackedType
 
-        if (ignoreBaseTypes) Success(valType, Some(this))
+        if (ignoreBaseTypes) Success(valType, Some(ScExpression.this))
         else {
           expectedType(fromUnderscore) match {
             case Some(expected) =>
               //value discarding
-              if (expected.removeAbstracts equiv Unit) return Success(Unit, Some(this))
+              if (expected.removeAbstracts equiv Unit) return Success(Unit, Some(ScExpression.this))
               //numeric literal narrowing
-              val needsNarrowing = this match {
+              val needsNarrowing = ScExpression.this match {
                 case _: ScLiteral => getNode.getFirstChildNode.getElementType == ScalaTokenTypes.tINTEGER
                 case p: ScPrefixExpr => p.operand match {
                   case l: ScLiteral =>
@@ -247,7 +247,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
               def checkNarrowing: Option[TypeResult[ScType]] = {
                 try {
-                  lazy val i = this match {
+                  lazy val i = ScExpression.this match {
                     case l: ScLiteral    => l.getValue match {
                       case i: Integer => i.intValue
                       case _          => scala.Int.MaxValue
@@ -264,15 +264,15 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                   expected.removeAbstracts match {
                     case types.Char  =>
                       if (i >= scala.Char.MinValue.toInt && i <= scala.Char.MaxValue.toInt) {
-                        return Some(Success(Char, Some(this)))
+                        return Some(Success(Char, Some(ScExpression.this)))
                       }
                     case types.Byte  =>
                       if (i >= scala.Byte.MinValue.toInt && i <= scala.Byte.MaxValue.toInt) {
-                        return Some(Success(Byte, Some(this)))
+                        return Some(Success(Byte, Some(ScExpression.this)))
                       }
                     case types.Short =>
                       if (i >= scala.Short.MinValue.toInt && i <= scala.Short.MaxValue.toInt) {
-                        return Some(Success(Short, Some(this)))
+                        return Some(Success(Short, Some(ScExpression.this)))
                       }
                     case _           =>
                   }
@@ -289,24 +289,24 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 //numeric widening
                 def checkWidening(l: ScType, r: ScType): Option[TypeResult[ScType]] = {
                   (l, r) match {
-                    case (Byte, Short | Int | Long | Float | Double) => Some(Success(expected, Some(this)))
-                    case (Short, Int | Long | Float | Double) => Some(Success(expected, Some(this)))
-                    case (Char, Byte | Short | Int | Long | Float | Double) => Some(Success(expected, Some(this)))
-                    case (Int, Long | Float | Double) => Some(Success(expected, Some(this)))
-                    case (Long, Float | Double) => Some(Success(expected, Some(this)))
-                    case (Float, Double) => Some(Success(expected, Some(this)))
+                    case (Byte, Short | Int | Long | Float | Double) => Some(Success(expected, Some(ScExpression.this)))
+                    case (Short, Int | Long | Float | Double) => Some(Success(expected, Some(ScExpression.this)))
+                    case (Char, Byte | Short | Int | Long | Float | Double) => Some(Success(expected, Some(ScExpression.this)))
+                    case (Int, Long | Float | Double) => Some(Success(expected, Some(ScExpression.this)))
+                    case (Long, Float | Double) => Some(Success(expected, Some(ScExpression.this)))
+                    case (Float, Double) => Some(Success(expected, Some(ScExpression.this)))
                     case _ => None
                   }
                 }
                 (valType.getValType, expected.getValType) match {
                   case (Some(l), Some(r)) => checkWidening(l, r) match {
                     case Some(x) => x
-                    case _ => Success(valType, Some(this))
+                    case _ => Success(valType, Some(ScExpression.this))
                   }
-                  case _ => Success(valType, Some(this))
+                  case _ => Success(valType, Some(ScExpression.this))
                 }
               }
-            case _ => Success(valType, Some(this))
+            case _ => Success(valType, Some(ScExpression.this))
           }
         }
       case _ => inner
@@ -377,7 +377,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   private def getNonValueTypeImpl(ignoreBaseType: Boolean, fromUnderscore: Boolean): TypeResult[ScType] = {
     if (fromUnderscore) innerType(TypingContext.empty)
     else {
-      val unders = ScUnderScoreSectionUtil.underscores(this)
+      val unders = ScUnderScoreSectionUtil.underscores(ScExpression.this)
       if (unders.isEmpty) innerType(TypingContext.empty)
       else {
         val params = unders.zipWithIndex.map {
@@ -389,16 +389,9 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
           new ScMethodType(getTypeAfterImplicitConversion(ignoreBaseTypes = ignoreBaseType,
             fromUnderscore = true).tr.getOrAny,
             params, false)(getProject, getResolveScope)
-        new Success(methType, Some(this))
+        new Success(methType, Some(ScExpression.this))
       }
     }
-  }
-
-  def getNonValueType(ctx: TypingContext = TypingContext.empty, //todo: remove?
-                      ignoreBaseType: Boolean = false,
-                      fromUnderscore: Boolean = false): TypeResult[ScType] = {
-    ProgressManager.checkCanceled()
-    getNonValueTypeImpl(ignoreBaseType, fromUnderscore)
   }
 
   protected def innerType(ctx: TypingContext): TypeResult[ScType] =
@@ -440,11 +433,11 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
 
   @CachedMappedWithRecursionGuard(this, Array.empty[(ScType, Option[ScTypeElement])], ModCount.getBlockModificationCount)
   def expectedTypesEx(fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
-    ExpectedTypes.expectedExprTypes(this, fromUnderscore = fromUnderscore)
+    ExpectedTypes.expectedExprTypes(ScExpression.this, fromUnderscore = fromUnderscore)
   }
 
   @CachedMappedWithRecursionGuard(this, None, ModCount.getBlockModificationCount)
-  def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = ExpectedTypes.smartExpectedType(this, fromUnderscore)
+  def smartExpectedType(fromUnderscore: Boolean = true): Option[ScType] = ExpectedTypes.smartExpectedType(ScExpression.this, fromUnderscore)
 
   @volatile
   private var additionalExpression: Option[(ScExpression, ScType)] = None
@@ -539,9 +532,9 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   @CachedMappedWithRecursionGuard(this, Array.empty[ScalaResolveResult], ModCount.getBlockModificationCount)
   def applyShapeResolveForExpectedType(tp: ScType, exprs: Seq[ScExpression], call: Option[MethodInvocation]): Array[ScalaResolveResult] = {
     val applyProc =
-      new MethodResolveProcessor(this, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */,
+      new MethodResolveProcessor(ScExpression.this, "apply", List(exprs), Seq.empty, Seq.empty /* todo: ? */,
         StdKinds.methodsOnly, isShapeResolve = true)
-    applyProc.processType(tp, this)
+    applyProc.processType(tp, ScExpression.this)
     var cand = applyProc.candidates
     if (cand.length == 0 && call.isDefined) {
       val expr = call.get.getEffectiveInvokedExpr
@@ -571,5 +564,14 @@ object ScExpression {
 
   object Type {
     def unapply(exp: ScExpression): Option[ScType] = exp.getType(TypingContext.empty).toOption
+  }
+
+  implicit class ScExpressionExt(val expr: ScExpression) extends AnyVal {
+    def getNonValueType(ctx: TypingContext = TypingContext.empty, //todo: remove?
+                        ignoreBaseType: Boolean = false,
+                        fromUnderscore: Boolean = false): TypeResult[ScType] = {
+      ProgressManager.checkCanceled()
+      expr.getNonValueTypeImpl(ignoreBaseType, fromUnderscore)
+    }
   }
 }
