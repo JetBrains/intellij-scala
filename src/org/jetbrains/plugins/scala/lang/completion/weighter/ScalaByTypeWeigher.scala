@@ -6,7 +6,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.{ScalaAfterNewCompletionUtil, ScalaCompletionUtil}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -28,7 +27,7 @@ class ScalaByTypeWeigher extends CompletionWeigher {
     def inFunction(psiElement: PsiElement): Boolean =
       PsiTreeUtil.getParentOfType(psiElement, classOf[ScBlockExpr]) != null
 
-    def isTypeDefiniton = Option(PsiTreeUtil.getParentOfType(position, classOf[ScTypeElement])).isDefined
+    def isTypeDefiniton = ScalaCompletionUtil.isTypeDefiniton(position)
 
     def typedWeight =
       ScalaLookupItem.original(element) match {

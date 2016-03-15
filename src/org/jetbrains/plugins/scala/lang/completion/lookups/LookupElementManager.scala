@@ -5,8 +5,8 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext, TypingContextOwner}
-import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, ScProjectionType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, TypingContextOwner}
+import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
@@ -30,33 +30,30 @@ object LookupElementManager {
                        isInInterpolatedString: Boolean = false): Seq[ScalaLookupItem] = {
     val element = resolveResult.element
     val substitutor = resolveResult.substitutor
-    val isRenamed: Option[String] = resolveResult.isRenamed match {
-      case Some(x) if element.name != x => Some(x)
-      case _ => None
-    }
+
+    def isRenamed = resolveResult.isRenamed.filter(element.name != _)
 
     def isCurrentClassMember: Boolean = {
-      def checkIsExpectedClassMember(expectedClass: Option[PsiClass]): Boolean = {
-        if (expectedClass.isDefined) {
+      def checkIsExpectedClassMember(expectedClassOption: Option[PsiClass]): Boolean = {
+        expectedClassOption.exists { expectedClass =>
           ScalaPsiUtil.nameContext(element) match {
-            case m: PsiMember if m.containingClass == expectedClass.get =>
-              return true
-            case _ =>
+            case m: PsiMember if m.containingClass == expectedClass => true
+            case _ => false
           }
         }
-        false
       }
 
+      def usedImportForElement = resolveResult.importsUsed.nonEmpty
+      def isPredef = resolveResult.fromType.exists(_.presentableText == "Predef.type")
+
       qualifierType match {
-        case proj: ScProjectionType =>
+        case _ if !isPredef && !usedImportForElement =>
           ScType.extractDesignated(qualifierType, withoutAliases = false) match {
             case Some((named, _)) =>
               val clazz: Option[PsiClass] = named match {
                 case cl: PsiClass => Some(cl)
-                case tp: TypingContextOwner => tp.getType(TypingContext.empty).map(ScType.extractClass(_)) match {
-                  case Success(cl, _) => cl
-                  case _ => None
-                }
+                case tp: TypingContextOwner =>
+                  tp.getType(TypingContext.empty).map(ScType.extractClass(_)).getOrElse(None)
                 case _ => None
               }
               checkIsExpectedClassMember(clazz)

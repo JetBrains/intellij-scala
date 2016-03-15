@@ -5,6 +5,7 @@ import com.intellij.codeInsight.lookup.{LookupElement, LookupItem}
 import com.intellij.psi.statistics.StatisticsInfo
 import com.intellij.psi.{PsiClass, PsiMember, PsiNamedElement}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
@@ -19,13 +20,16 @@ class ScalaCompletionStatistician extends CompletionStatistician {
     val currentElement = Option(element.as(LookupItem.CLASS_CONDITION_KEY)).getOrElse(return null)
 
     ScalaLookupItem.original(currentElement) match {
-      case s: ScalaLookupItem if s.isLocalVariable || s.isNamedParameter || s.isUnderlined => StatisticsInfo.EMPTY
+      case s: ScalaLookupItem if s.isLocalVariable || s.isNamedParameter || s.isDeprecated => StatisticsInfo.EMPTY
       case s: ScalaLookupItem =>
         s.element match {
           case withImplicit: ScModifierListOwner if withImplicit.hasModifierPropertyScala("implicit") =>
             StatisticsInfo.EMPTY
           case _ => helper(s.element, location)
         }
+      // return empty statistic when using  scala completion but ScalaLookupItem didn't use.
+      // otherwise will be computed java statistic that may lead to ClassCastError
+      case e if location.getCompletionParameters.getOriginalFile.isInstanceOf[ScalaFile] => StatisticsInfo.EMPTY
       case _ => null //don't impact on java Lookups, no statistics for scala keyword elements
     }
   }
