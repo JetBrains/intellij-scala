@@ -167,7 +167,7 @@ Map(1 -> "aa", 2 -> "bb", 3 -> "cc").filter {
   }
 
   def testSCL2839sTrue() {
-    getScalaSettings.INSERT_WHITESPACES_IN_SIMPLE_ONE_LINE_METHOD = true
+    getScalaSettings.SPACES_IN_ONE_LINE_BLOCKS = true
     getCommonSettings.KEEP_SIMPLE_METHODS_IN_ONE_LINE = true
 
     val before =
@@ -1554,6 +1554,14 @@ bars foreach {case (x, y) => list.add(x + y)}
         |  */
       """.stripMargin.replace("\r", "")
 
+    doTextTest(before, after)
+  }
+
+  def testSpaceInsideClosureBracesDisabled(): Unit = {
+    getScalaSettings.SPACE_INSIDE_CLOSURE_BRACES = false
+
+    val before = "def f: Int => String = { x => x.toString }"
+    val after = "def f: Int => String = {x => x.toString}"
     doTextTest(before, after)
   }
 

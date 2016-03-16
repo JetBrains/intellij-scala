@@ -553,7 +553,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
                 _: ScTryBlock | _: ScCatchBlock) =>
 
           val oneLineNonEmpty = leftString != "{" && !getText(block.getNode, fileText).contains('\n')
-          val spaceInsideOneLineMethod = scalaSettings.INSERT_WHITESPACES_IN_SIMPLE_ONE_LINE_METHOD &&
+          val spaceInsideOneLineMethod = scalaSettings.SPACES_IN_ONE_LINE_BLOCKS &&
             rightNode.getTreeParent.getTreeParent != null && rightNode.getTreeParent.getTreeParent.getPsi.isInstanceOf[ScFunction]
           val spaceInsideClosure = scalaSettings.SPACE_INSIDE_CLOSURE_BRACES && (leftNode.getElementType match {
             case ScalaElementTypes.FUNCTION_EXPR => true
@@ -606,7 +606,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
           return Spacing.createSpacing(0, 0, setting + 1, keepLineBreaks, keepBlankLinesInDeclarations)
         case b: ScBlockExpr if b.getParent.isInstanceOf[ScFunction] =>
           if (settings.KEEP_SIMPLE_METHODS_IN_ONE_LINE && !getText(b.getNode, fileText).contains('\n')) {
-            val spaces = if (scalaSettings.INSERT_WHITESPACES_IN_SIMPLE_ONE_LINE_METHOD) 1 else 0
+            val spaces = if (scalaSettings.SPACES_IN_ONE_LINE_BLOCKS) 1 else 0
             return Spacing.createDependentLFSpacing(spaces, spaces, b.getTextRange, keepLineBreaks,
               keepBlankLinesBeforeRBrace)
           }

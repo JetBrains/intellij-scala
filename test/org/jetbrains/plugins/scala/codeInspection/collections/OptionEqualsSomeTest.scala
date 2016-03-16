@@ -50,6 +50,8 @@ class OptionNotEqualsSomeTest extends OperationsOnCollectionInspectionTest {
 
   override def hint: String = OptionNotEqualsSomeToNotContains.hint
 
+  override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_11
+
   def test1(): Unit = {
     doTest(
       s"${START}Option(1) != Some(2)$END",
@@ -65,5 +67,28 @@ class OptionNotEqualsSomeTest extends OperationsOnCollectionInspectionTest {
       "!Option(1).contains(2)"
     )
   }
+}
 
+class OptionEqualsSome_2_10_Test extends OperationsOnCollectionInspectionTest {
+  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[OptionEqualsSomeToContainsInspection]
+
+  override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_10
+
+  override def hint: String = OptionEqualsSomeToContains.hint
+
+  def testNoErrors(): Unit = {
+    checkTextHasNoErrors("Option(1) == Some(2)")
+  }
+}
+
+class OptionNotEqualsSome_2_10_Test extends OperationsOnCollectionInspectionTest {
+  override val inspectionClass: Class[_ <: OperationOnCollectionInspection] = classOf[OptionEqualsSomeToContainsInspection]
+
+  override def hint: String = OptionNotEqualsSomeToNotContains.hint
+
+  override protected def libVersion: ScalaSdkVersion = ScalaSdkVersion._2_10
+
+  def testNoErrors(): Unit = {
+    checkTextHasNoErrors("Option(1) == Some(2)")
+  }
 }

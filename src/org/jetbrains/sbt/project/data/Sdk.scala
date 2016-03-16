@@ -43,7 +43,7 @@ object SdkUtils {
       "1.7" -> LanguageLevel.JDK_1_7,
       "1.8" -> LanguageLevel.JDK_1_8,
       "1.9" -> LanguageLevel.JDK_1_9)
-    val jdkVersion = jdk.getVersionString
+    val jdkVersion = Option(jdk.getVersionString).getOrElse(jdk.getName)
 
     JavaLanguageLevels.collectFirst {
       case (name, level) if jdkVersion.contains(name) => level
