@@ -14,9 +14,7 @@ import scala.collection.JavaConverters._
 /**
   * @author Pavel Fatin
   */
-@State(name = "ScalaCompilerConfiguration", storages = Array(
-  new Storage(file = PROJECT_FILE),
-  new Storage(file = PROJECT_CONFIG_DIR + "/scala_compiler.xml", scheme = StorageScheme.DIRECTORY_BASED)))
+@State(name = "ScalaCompilerConfiguration", storages = Array(new Storage("scala_compiler.xml")))
 class ScalaCompilerConfiguration(project: Project) extends PersistentStateComponent[Element] {
   var incrementalityType: IncrementalityType = IncrementalityType.IDEA
 

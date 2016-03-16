@@ -22,13 +22,7 @@ import scala.collection.JavaConverters._
  * @author Pavel Fatin
  */
 
-@State (
-  name = "ScalaSbtSettings",
-  storages = Array(
-    new Storage(file = StoragePathMacros.PROJECT_FILE),
-    new Storage(file = StoragePathMacros.PROJECT_CONFIG_DIR + "/sbt.xml", scheme = StorageScheme.DIRECTORY_BASED)
-  )
-)
+@State(name = "ScalaSbtSettings", storages = Array(new Storage("sbt.xml")))
 class SbtSystemSettings(project: Project)
   extends AbstractExternalSystemSettings[SbtSystemSettings, SbtProjectSettings, SbtProjectSettingsListener](SbtTopic, project)
   with PersistentStateComponent[SbtSystemSettingsState]{
