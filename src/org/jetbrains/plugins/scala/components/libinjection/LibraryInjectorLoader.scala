@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.components.libinjection
 import java.io._
 import java.net.URL
 import java.util
-import javax.swing.event.HyperlinkEvent
 
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.notification._
@@ -44,8 +43,14 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   val myInjectorCacheDir     = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/")
   val myInjectorCacheIndex   = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/libs.index")
   private val myClassLoader  = new DynamicClassLoader(Array(myInjectorCacheDir.toURI.toURL), this.getClass.getClassLoader)
-  private val LOG = Logger.getInstance(getClass)
+  implicit private val LOG = Logger.getInstance(getClass)
   private val GROUP = new NotificationGroup("Injector", NotificationDisplayType.STICKY_BALLOON, false)
+  private val ackProvider = {
+    if (ApplicationManager.getApplication.isUnitTestMode)
+      new TestAcknowledgementProvider
+    else
+      new UIAcknowledgementProvider(GROUP, project)
+  }
 
   // reset cache if plugin has been updated
   // cache: jarFilePath -> jarManifest
@@ -327,24 +332,11 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   private def askUser(candidates: ManifestToDescriptors) = {
-    val message = s"Some of your project's libraries have IDEA support features.</p>Would you like to load them?" +
-      s"""<p/><a href="Yes">Yes</a> """ +
-      s"""<a href="No">No</a>"""
-    val listener = new NotificationListener {
-      override def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent): Unit = {
-        notification.expire()
-        if (event.getDescription == "Yes")
-          compile(showReviewDialogAndFilter(candidates))
-      }
-    }
-    GROUP.createNotification("IDEA Extensions", message, NotificationType.INFORMATION, listener).notify(project)
+    ackProvider.askGlobalInjectorEnable(acceptCallback = compile(showReviewDialogAndFilter(candidates)))
   }
 
   private def showReviewDialogAndFilter(candidates: ManifestToDescriptors): ManifestToDescriptors  = {
-    val (accepted, rejected) = candidates.partition { candidate =>
-      val dialog = new InjectorReviewDialog(project, candidate, LOG)
-      dialog.showAndGet()
-    }
+    val (accepted, rejected) = ackProvider.showReviewDialogAndFilter(candidates)
     for ((manifest, _) <- rejected) {
       jarCache.cache.put(manifest.jarPath, manifest.copy()(isBlackListed = true))
     }
