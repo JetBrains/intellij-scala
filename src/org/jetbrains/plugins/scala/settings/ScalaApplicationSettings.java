@@ -13,12 +13,8 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase;
 
 @State(
-    name = "ScalaApplicationSettings",
-    storages = {
-    @Storage(
-        id = "scala_config",
-        file = "$APP_CONFIG$/scala_config.xml"
-    )}
+        name = "ScalaApplicationSettings",
+        storages = {@Storage("scala_config.xml")}
 )
 public class ScalaApplicationSettings implements PersistentStateComponent<ScalaApplicationSettings> {
 

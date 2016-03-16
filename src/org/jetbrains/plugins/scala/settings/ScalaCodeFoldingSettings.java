@@ -15,14 +15,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 
 @State(
-    name = "ScalaCodeFoldingSettings",
-    storages = {
-        @Storage(
-            id = "scala_folding_settings",
-            file = "$APP_CONFIG$/scala_folding_settings.xml"
-        )}
+        name = "ScalaCodeFoldingSettings",
+        storages = {@Storage("scala_folding_settings.xml")}
 )
-
 public class ScalaCodeFoldingSettings implements PersistentStateComponent<ScalaCodeFoldingSettings>, ExportableComponent {
   private boolean FOLD_ARGUMENT_BLOCK = false;
   private boolean FOLD_TEMPLATE_BODIES = false;

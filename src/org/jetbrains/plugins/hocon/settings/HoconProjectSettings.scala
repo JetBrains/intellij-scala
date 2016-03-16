@@ -10,8 +10,8 @@ import scala.beans.BeanProperty
 @State(
   name = "HoconProjectSettings",
   storages = Array(
-    new Storage(file = "$WORKSPACE_FILE$"),
-    new Storage(file = "$PROJECT_CONFIG_DIR$/hocon_settings.xml", scheme = StorageScheme.DIRECTORY_BASED)
+    new Storage(StoragePathMacros.WORKSPACE_FILE),
+    new Storage("hocon_settings.xml")
   )
 )
 class HoconProjectSettings extends PersistentStateComponent[HoconProjectSettings] with ExportableComponent {

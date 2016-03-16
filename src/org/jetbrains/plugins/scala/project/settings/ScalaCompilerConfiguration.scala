@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.project.settings
 
-import com.intellij.openapi.components.StoragePathMacros._
 import com.intellij.openapi.components._
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -14,7 +13,10 @@ import scala.collection.JavaConverters._
 /**
   * @author Pavel Fatin
   */
-@State(name = "ScalaCompilerConfiguration", storages = Array(new Storage("scala_compiler.xml")))
+@State(
+  name = "ScalaCompilerConfiguration",
+  storages = Array(new Storage("scala_compiler.xml"))
+)
 class ScalaCompilerConfiguration(project: Project) extends PersistentStateComponent[Element] {
   var incrementalityType: IncrementalityType = IncrementalityType.IDEA
 

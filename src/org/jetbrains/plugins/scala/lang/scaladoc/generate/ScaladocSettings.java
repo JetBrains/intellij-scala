@@ -12,12 +12,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
  * Date: 22.10.11
  */
 
-@State(
-    name = "ScaladocSettings",
-    storages = {
-        @Storage(file = "$PROJECT_FILE$")
-    }
-)
+@State(name = "ScaladocSettings")
 public class ScaladocSettings implements PersistentStateComponent<ScaladocSettings> {
 
   public String outputDir = null;

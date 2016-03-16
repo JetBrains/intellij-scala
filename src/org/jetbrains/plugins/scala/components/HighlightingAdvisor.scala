@@ -19,9 +19,10 @@ import org.jetbrains.plugins.scala.project._
 
 import scala.collection.JavaConversions._
 
-@State(name = "HighlightingAdvisor", storages = Array(
-  new Storage(id = "default", file = "$PROJECT_FILE$"),
-    new Storage(id = "dir", file = "$PROJECT_CONFIG_DIR$/highlighting.xml", scheme = StorageScheme.DIRECTORY_BASED)))
+@State(
+  name = "HighlightingAdvisor", storages = Array(
+  new Storage("highlighting.xml"))
+)
 class HighlightingAdvisor(project: Project) extends ProjectComponent with PersistentStateComponent[HighlightingSettings] {
   @Language("HTML")
   private val AdviceMessage = """

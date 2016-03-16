@@ -14,14 +14,6 @@ import java.util.Collections;
 /**
  * @author ilyas
  */
-@State(
-    name = "ScalaDebuggerSettings",
-    storages = {
-    @Storage(
-        id = "sacla_debugger",
-        file = "$APP_CONFIG$/scala_debug.xml"
-    )}
-)
 public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettings> {
 
   public Boolean DEBUG_DISABLE_SPECIFIC_SCALA_METHODS = true;

@@ -17,8 +17,8 @@ import java.util.*;
 @State(
     name = "ScalaProjectSettings",
     storages = {
-        @Storage(file = "$WORKSPACE_FILE$"),
-        @Storage(file = "$PROJECT_CONFIG_DIR$/scala_settings.xml", scheme = StorageScheme.DIRECTORY_BASED)
+        @Storage(StoragePathMacros.WORKSPACE_FILE),
+        @Storage("scala_settings.xml")
     }
 )
 public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProjectSettings>, ExportableComponent {

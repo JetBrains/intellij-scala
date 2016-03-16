@@ -13,9 +13,7 @@ import scala.beans.BeanProperty
  */
 @State(
   name = "SbtLocalSettings",
-  storages = Array(
-    new Storage(file = StoragePathMacros.WORKSPACE_FILE)
-  )
+  storages = Array(new Storage(StoragePathMacros.WORKSPACE_FILE))
 )
 class SbtLocalSettings(project: Project)
   extends AbstractExternalSystemLocalSettings(SbtProjectSystem.Id, project)
