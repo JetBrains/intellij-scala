@@ -354,11 +354,12 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   private def compile(data: ManifestToDescriptors): Unit = {
     if (data.isEmpty) return
     val indicator = new ProgressIndicatorBase()
+    indicator.setIndeterminate(true)
     val startTime = System.currentTimeMillis()
+    var num = 0
     LOG.trace(s"Compiling ${data.size} injectors")
     runWithHelperModule { module =>
       ProgressManager.getInstance().runProcess(toRunnable {
-        indicator.setIndeterminate(true)
         for ((manifest, injectors) <- data) {
           for (injectorDescriptor <- injectors) {
             try {
@@ -367,6 +368,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
                 getInjectorCacheDir(manifest)(injectorDescriptor),
                 module
               )
+              num += 1
               loadInjector(manifest, injectorDescriptor)
               jarCache.cache.put(manifest.jarPath, manifest)
             } catch {
@@ -374,7 +376,9 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
             }
           }
         }
-        LOG.trace(s"Compiled in ${(System.currentTimeMillis() - startTime) / 1000} seconds")
+        val msg = s"Compiled $num injector(s) in ${(System.currentTimeMillis() - startTime) / 1000} seconds"
+        LOG.trace(msg)
+        GROUP.createNotification("IDEA Extensions", msg, NotificationType.INFORMATION, null).notify(project)
       }, indicator)
     }
   }
