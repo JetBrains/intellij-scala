@@ -34,6 +34,14 @@ package object types {
       typeSystem.conformance.conformsInner(`type`, scType, substitutor = undefinedSubstitutor, checkWeak = checkWeak)
     }
 
+    def glb(`type`: ScType, checkWeak: Boolean = false)(implicit typeSystem: TypeSystem) = {
+      typeSystem.bounds.glb(scType, `type`, checkWeak)
+    }
+
+    def lub(`type`: ScType, checkWeak: Boolean = false)(implicit typeSystem: TypeSystem) = {
+      typeSystem.bounds.lub(scType, `type`, checkWeak)
+    }
+
     def presentableText = ScType.presentableText(scType)
 
     def canonicalText = ScType.canonicalText(scType)
@@ -44,4 +52,13 @@ package object types {
     }
   }
 
+  implicit class ScTypesExt(val types: Seq[ScType]) extends AnyVal {
+    def glb(checkWeak: Boolean = false)(implicit typeSystem: TypeSystem) = {
+      typeSystem.bounds.glb(types, checkWeak)
+    }
+
+    def lub(checkWeak: Boolean = false)(implicit typeSystem: TypeSystem) = {
+      typeSystem.bounds.glb(types, checkWeak)
+    }
+  }
 }

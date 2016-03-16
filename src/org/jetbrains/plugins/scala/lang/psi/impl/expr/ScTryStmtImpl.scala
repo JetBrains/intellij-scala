@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{Bounds, Compatibility, ScDesignatorType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScDesignatorType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 
@@ -28,12 +28,11 @@ class ScTryStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryS
 
   override def toString: String = "TryStatement"
 
-
   protected override def innerType(ctx: TypingContext): TypeResult[ScType] = {
     val lifted = tryBlock.getType(ctx)
     lifted flatMap { result => catchBlock match {
         case None => lifted
-        case Some(cb) => {
+        case Some(cb) =>
           cb.expression match {
             case Some(expr) if !lifted.isEmpty =>
               expr.getType(TypingContext.empty) match {
@@ -50,7 +49,7 @@ class ScTryStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryS
                     else {
                       candidates(0) match {
                         case ScalaResolveResult(fun: ScFunction, subst) =>
-                          fun.returnType.map(tp => Bounds.weakLub(lifted.get, subst.subst(tp)))
+                          fun.returnType.map(tp => lifted.get.lub(subst.subst(tp), checkWeak = true))
                         case _ => lifted
                       }
                     }
@@ -59,8 +58,7 @@ class ScTryStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTryS
               }
             case _ => lifted
           }
-        }
-      }
+    }
     }
   }
 }

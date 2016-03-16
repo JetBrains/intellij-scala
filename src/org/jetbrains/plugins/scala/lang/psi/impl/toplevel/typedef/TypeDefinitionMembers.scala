@@ -593,13 +593,14 @@ object TypeDefinitionMembers {
     ScalaPsiManager.instance(place.getProject).getSignatures(tp, compoundTypeThisType)
   }
 
-  def getSelfTypeSignatures(clazz: PsiClass): SMap = {
+  def getSelfTypeSignatures(clazz: PsiClass)
+                           (implicit typeSystem: TypeSystem = clazz.getProject.typeSystem): SMap = {
     clazz match {
       case td: ScTypeDefinition =>
         td.selfType match {
           case Some(selfType) =>
             val clazzType = td.getTypeWithProjections(TypingContext.empty).getOrAny
-            Bounds.glb(selfType, clazzType) match {
+            selfType.glb(clazzType) match {
               case c: ScCompoundType =>
                 getSignatures(c, Some(clazzType), clazz)
               case tp =>
@@ -616,13 +617,14 @@ object TypeDefinitionMembers {
     }
   }
 
-  def getSelfTypeTypes(clazz: PsiClass): TMap = {
+  def getSelfTypeTypes(clazz: PsiClass)
+                      (implicit typeSystem: TypeSystem = clazz.getProject.typeSystem): TMap = {
     clazz match {
       case td: ScTypeDefinition =>
         td.selfType match {
           case Some(selfType) =>
             val clazzType = td.getTypeWithProjections(TypingContext.empty).getOrAny
-            Bounds.glb(selfType, clazzType) match {
+            selfType.glb(clazzType) match {
               case c: ScCompoundType =>
                 getTypes(c, Some(clazzType), clazz)
               case tp =>

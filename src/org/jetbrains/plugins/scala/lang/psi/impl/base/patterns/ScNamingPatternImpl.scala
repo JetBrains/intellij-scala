@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{Bounds, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -42,7 +42,7 @@ class ScNamingPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
     if (named == null) Failure("Cannot infer type", Some(this))
     else {
       expectedType match {
-        case Some(expectedType) => named.getType(TypingContext.empty).map(Bounds.glb(expectedType, _))
+        case Some(expectedType) => named.getType(TypingContext.empty).map(expectedType.glb(_))
         case  _ => named.getType(ctx)
       }
     }

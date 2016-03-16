@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 
 /**
@@ -28,14 +29,13 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
   }
 
   def refTemplate: Option[ScTemplateDefinition] = reference match {
-    case Some(ref) => ref.resolve match {
+    case Some(ref) => ref.resolve() match {
       case td: ScTypeDefinition if PsiTreeUtil.isContextAncestor(td, ref, false) => Some(td)
       case _ => None
     }
-    case None => {
+    case None =>
       val encl = PsiTreeUtil.getContextOfType(this, false, classOf[ScTemplateBody])
       if (encl != null) Some(PsiTreeUtil.getContextOfType(encl, false, classOf[ScTemplateDefinition])) else None
-    }
   }
 
   override def accept(visitor: ScalaElementVisitor) {
@@ -51,10 +51,11 @@ class ScThisReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
 }
 
 object ScThisReferenceImpl {
-  def getThisTypeForTypeDefinition(td: ScTemplateDefinition, expr: ScExpression): TypeResult[ScType] = {
+  def getThisTypeForTypeDefinition(td: ScTemplateDefinition, expr: ScExpression)
+                                  (implicit typeSystem: TypeSystem): TypeResult[ScType] = {
     lazy val selfTypeOfClass = td.getTypeWithProjections(TypingContext.empty, thisProjections = true).map(tp =>
       td.selfType match {
-        case Some(selfType) => Bounds.glb(tp, selfType)
+        case Some(selfType) => tp.glb(selfType)
         case _ => tp
       }
     )
@@ -63,7 +64,7 @@ object ScThisReferenceImpl {
     // or C .this occurs as the prefix of a selection, its type is C.this.type,
     // otherwise it is the self type of class C .
     expr.getContext match {
-      case r: ScReferenceExpression if r.qualifier.exists(_ == expr) =>
+      case r: ScReferenceExpression if r.qualifier.contains(expr) =>
         Success(ScThisType(td), Some(expr))
       case _ => expr.expectedType() match {
         case Some(t) if t.isStable =>

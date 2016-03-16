@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{Bounds, Nothing, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, ScType, ScTypeExt}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -28,6 +28,6 @@ class ScMatchStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScMa
 
   protected override def innerType(ctx: TypingContext) = {
     val branchTypes = getBranches.map(_.getType(ctx))
-    collectFailures(branchTypes, Nothing)(_.foldLeft(Nothing : ScType)((t, b) => Bounds.weakLub(t, b)))
+    collectFailures(branchTypes, Nothing)(_.foldLeft(Nothing: ScType)(_.lub(_, checkWeak = true)))
   }
 }

@@ -7,8 +7,8 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
@@ -86,6 +86,18 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
     res.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
     res.myDependentMethodTypes = myDependentMethodTypes
     res
+  }
+
+  def putAliases(template: ScTemplateDefinition): ScSubstitutor = {
+    var result = this
+    for (alias <- template.aliases) {
+      alias match {
+        case aliasDef: ScTypeAliasDefinition if aliasesMap.get(aliasDef.name).isEmpty =>
+          result = result bindA(aliasDef.name, () => aliasDef.aliasedType(TypingContext.empty).getOrAny)
+        case _ =>
+      }
+    }
+    result
   }
 
   def followUpdateThisType(tp: ScType): ScSubstitutor = {
@@ -639,7 +651,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, PsiElement), HashSet[ScT
                 var lower: ScType = Nothing
                 val setIterator = set.iterator
                 while (setIterator.hasNext) {
-                  lower = Bounds.lub(lower, subst.subst(setIterator.next()))
+                  lower = lower.lub(subst.subst(setIterator.next()))
                 }
                 lMap += ((name, lower))
                 tvMap += ((name, lower))
@@ -700,7 +712,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, PsiElement), HashSet[ScT
                   var upper: ScType = Any
                   val setIterator = set.iterator
                   while (setIterator.hasNext) {
-                    upper = Bounds.glb(upper, subst.subst(setIterator.next()), checkWeak = false)
+                    upper = upper.glb(subst.subst(setIterator.next()), checkWeak = false)
                   }
                   rType = upper
                   rMap += ((name, rType))

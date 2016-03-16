@@ -355,7 +355,7 @@ abstract class MixinNodes {
                 }
                 placer = placer.getContext
               }
-              (if (!lin.isEmpty) lin.tail else lin, Bounds.putAliases(template, ScSubstitutor.empty), zSubst)
+              (if (lin.nonEmpty) lin.tail else lin, ScSubstitutor.empty.putAliases(template), zSubst)
             case template: ScTemplateDefinition =>
               place = Option(template.asInstanceOf[ScalaStubBasedElementImpl[_]].getLastChildStub)
               processScala(template, ScSubstitutor.empty, map, place, base = true)
@@ -371,7 +371,7 @@ abstract class MixinNodes {
                 placer = placer.getContext
               }
               (MixinNodes.linearization(template),
-                Bounds.putAliases(template, ScSubstitutor.empty), zSubst)
+                ScSubstitutor.empty.putAliases(template), zSubst)
             case syn: ScSyntheticClass =>
               (syn.getSuperTypes.map{psiType => ScType.create(psiType, syn.getProject)} : Seq[ScType],
                 ScSubstitutor.empty, ScSubstitutor.empty)
@@ -379,7 +379,7 @@ abstract class MixinNodes {
               place = Option(clazz.getLastChild)
               processJava(clazz, ScSubstitutor.empty, map, place)
               val lin = MixinNodes.linearization(clazz)
-              (if (!lin.isEmpty) lin.tail else lin,
+              (if (lin.nonEmpty) lin.tail else lin,
                 ScSubstitutor.empty, ScSubstitutor.empty)
             case _ =>
               (Seq.empty, ScSubstitutor.empty, ScSubstitutor.empty)

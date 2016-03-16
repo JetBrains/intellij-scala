@@ -84,7 +84,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                             if (arg.upper.equiv(psi.types.Any)) {
                               val listTypes: Array[PsiClassType] = param.getExtendsListTypes
                               if (listTypes.isEmpty) types.Any
-                              else subst.subst(Bounds.glb(listTypes.toSeq.map(ScType.create(_, getProject, param.getResolveScope)), checkWeak = true))
+                              else subst.subst(listTypes.toSeq.map(ScType.create(_, getProject, param.getResolveScope)).glb(checkWeak = true))
                             } else arg.upper //todo: glb?
                           ScSkolemizedType(arg.name, arg.args, lowerBound, upperBound)
                         case (tp: ScType, _) => tp
@@ -98,7 +98,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
         expectedType match {
           case Some(expectedType) =>
             typeElementType.map {
-              case resType => Bounds.glb(expectedType, resType, checkWeak = false)
+              case resType => expectedType.glb(resType, checkWeak = false)
             }
           case _ => typeElementType
         }

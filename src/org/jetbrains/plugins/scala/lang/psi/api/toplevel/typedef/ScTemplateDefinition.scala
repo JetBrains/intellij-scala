@@ -76,7 +76,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   }
 
   def showAsInheritor: Boolean = {
-    isInstanceOf[ScTypeDefinition] || extendsBlock.templateBody != None
+    isInstanceOf[ScTypeDefinition] || extendsBlock.templateBody.isDefined
   }
 
   override def findMethodBySignature(patternMethod: PsiMethod, checkBases: Boolean): PsiMethod = {
@@ -179,7 +179,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
-        Bounds.glb(selfType, clazzType) match {
+        selfType.glb(clazzType) match {
           case c: ScCompoundType =>
             TypeDefinitionMembers.getTypes(c, Some(clazzType), this).allFirstSeq().
               flatMap(_.map { case (_, n) => (n.info, n.substitutor) })
@@ -206,7 +206,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
-        Bounds.glb(selfType, clazzType) match {
+        selfType.glb(clazzType) match {
           case c: ScCompoundType =>
             TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().flatMap(n => n.filter{
               case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
@@ -236,7 +236,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
-        Bounds.glb(selfType, clazzType) match {
+        selfType.glb(clazzType) match {
           case c: ScCompoundType =>
             TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().flatMap(_.filter {
               case (_, n) => n.info.isInstanceOf[PhysicalSignature]}).
@@ -256,7 +256,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
-        Bounds.glb(selfType, clazzType) match {
+        selfType.glb(clazzType) match {
           case c: ScCompoundType =>
             TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().
               flatMap(_.map { case (_, n) => n.info })
