@@ -24,7 +24,7 @@ abstract class ScalaPluginVersionVerifier {
 
 object ScalaPluginVersionVerifier {
 
-  class Version(private val major: Int, private val minor: Int, private val build: Int) extends Ordered[Version] {
+  class Version(private val major: Int, private val minor: Int, private val build: Int) extends Ordered[Version] with Serializable {
     def compare(that: Version) = implicitly[Ordering[(Int, Int, Int)]]
       .compare((major, minor, build), (that.major, that.minor, that.build))
 
