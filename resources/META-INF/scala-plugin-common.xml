@@ -356,9 +356,6 @@
         <projectService serviceInterface="org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker"
                         serviceImplementation="org.jetbrains.plugins.scala.annotator.importsTracker.ImportTracker"/>
 
-        <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalacSettings"
-                        serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalacSettings"/>
-
         <applicationService serviceInterface="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings"/>
 
