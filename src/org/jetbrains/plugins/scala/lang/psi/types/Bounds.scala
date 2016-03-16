@@ -6,8 +6,8 @@ package types
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
@@ -18,11 +18,40 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-object Bounds extends api.TypeSystemOwner {
-  override implicit val typeSystem = ScalaTypeSystem
+object Bounds extends api.Bounds {
+  override implicit lazy val typeSystem = ScalaTypeSystem
 
-  def lub(seq: Seq[ScType]): ScType = {
-    seq.reduce((l: ScType, r: ScType) => lub(l,r))
+  def glb(t1: ScType, t2: ScType, checkWeak: Boolean = false): ScType = {
+    if (conforms(t1, t2, checkWeak)) t1
+    else if (conforms(t2, t1, checkWeak)) t2
+    else {
+      (t1, t2) match {
+        case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(name2, args2, lower2, upper2)) =>
+          ScExistentialArgument(name, args, lub(lower, lower2, checkWeak), glb(upper, upper2, checkWeak))
+        case (ScExistentialArgument(name, args, lower, upper), _) => ScExistentialArgument(name, args, lub(lower, t2, checkWeak), glb(upper, t2))
+        case (_, ScExistentialArgument(name, args, lower, upper)) => ScExistentialArgument(name, args, lub(lower, t1, checkWeak), glb(upper, t1))
+        case (ex: ScExistentialType, _) => glb(ex.quantified, t2, checkWeak).unpackedType
+        case (_, ex: ScExistentialType) => glb(t1, ex.quantified, checkWeak).unpackedType
+        case _ => ScCompoundType(Seq(t1, t2), Map.empty, Map.empty)
+      }
+    }
+  }
+
+  def glb(typez: Seq[ScType], checkWeak: Boolean): ScType = {
+    if (typez.length == 1) typez.head
+    var res = typez.head
+    for (i <- 1 until typez.length) {
+      res = glb(res, typez(i), checkWeak)
+    }
+    res
+  }
+
+  def lub(t1: ScType, t2: ScType, checkWeak: Boolean): ScType = {
+    lub(t1, t2, lubDepth(Seq(t1, t2)), checkWeak)(stopAddingUpperBound = false)
+  }
+
+  def lub(seq: Seq[ScType], checkWeak: Boolean): ScType = {
+    seq.reduce((l: ScType, r: ScType) => lub(l, r, checkWeak))
   }
 
   //similar to Scala code, this code is duplicated and optimized to avoid closures.
@@ -49,6 +78,8 @@ object Bounds extends api.TypeSystemOwner {
     lubDepthAdjust(td, td max bd)
   }
 
+  private def conforms(t1: ScType, t2: ScType, checkWeak: Boolean) = t1.conforms(t2, new ScUndefinedSubstitutor(), checkWeak)._1
+
   //This weird method is copy from Scala compiler. See scala.reflect.internal.Types#lubDepthAdjust
   private def lubDepthAdjust(td: Int, bd: Int): Int = {
     if (bd <= 3) bd
@@ -73,7 +104,8 @@ object Bounds extends api.TypeSystemOwner {
         case some => some
       }
     }
-    def isEmpty = typeNamedElement == None
+
+    def isEmpty = typeNamedElement.isEmpty
     val projectionOption: Option[ScType] = ScType.projectionOption(tp)
     def getSubst: ScSubstitutor = typeNamedElement.get._2
 
@@ -177,40 +209,8 @@ object Bounds extends api.TypeSystemOwner {
     }
   }
 
-  private def conforms(t1: ScType, t2: ScType, checkWeak: Boolean) = t1.conforms(t2, new ScUndefinedSubstitutor(), checkWeak)._1
-
-  def glb(t1: ScType, t2: ScType, checkWeak: Boolean = false): ScType = {
-    if (conforms(t1, t2, checkWeak)) t1
-    else if (conforms(t2, t1, checkWeak)) t2
-    else {
-      (t1, t2) match {
-        case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(name2, args2, lower2, upper2)) =>
-          ScExistentialArgument(name, args, lub(lower, lower2, checkWeak), glb(upper, upper2, checkWeak))
-        case (ScExistentialArgument(name, args, lower, upper), _) => ScExistentialArgument(name, args, lub(lower, t2, checkWeak), glb(upper, t2))
-        case (_, ScExistentialArgument(name, args, lower, upper)) => ScExistentialArgument(name, args, lub(lower, t1, checkWeak), glb(upper, t1))
-        case (ex: ScExistentialType, _) => glb(ex.quantified, t2, checkWeak).unpackedType
-        case (_, ex: ScExistentialType) => glb(t1, ex.quantified, checkWeak).unpackedType
-        case _ => ScCompoundType(Seq(t1, t2), Map.empty, Map.empty)
-      }
-    }
-  }
-
-
-  def glb(typez: Seq[ScType], checkWeak: Boolean): ScType = {
-    if (typez.length == 1) typez(0)
-    var res = typez(0)
-    for (i <- 1 until typez.length) {
-      res = glb(res, typez(i), checkWeak)
-    }
-    res
-  }
-
-  def lub(t1: ScType, t2: ScType, checkWeak: Boolean = false): ScType = lub(t1, t2, lubDepth(Seq(t1, t2)), checkWeak)(stopAddingUpperBound = false)
-
-  def weakLub(t1: ScType, t2: ScType): ScType = lub(t1, t2, checkWeak = true)
-
-  private def lub(seq: Seq[ScType], checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean): ScType = {
-    seq.reduce((l: ScType, r: ScType) => lub(l,r, lubDepth(Seq(l, r)), checkWeak))
+  private def lub(seq: Seq[ScType], checkWeak: Boolean, stopAddingUpperBound: Boolean): ScType = {
+    seq.reduce((l: ScType, r: ScType) => lub(l, r, lubDepth(Seq(l, r)), checkWeak)(stopAddingUpperBound))
   }
 
   private def lub(t1: ScType, t2: ScType, depth : Int, checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean): ScType = {
@@ -248,7 +248,7 @@ object Bounds extends api.TypeSystemOwner {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           }) =>
-            val (v, ex) = calcForTypeParamWithoutVariance(arg, args(0), depth, checkWeak)
+            val (v, ex) = calcForTypeParamWithoutVariance(arg, args.head, depth, checkWeak)
             ex match {
               case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)), List(w))
               case None => ScParameterizedType(des, Seq(v))
@@ -257,7 +257,7 @@ object Bounds extends api.TypeSystemOwner {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           }) =>
-            val (v, ex) = calcForTypeParamWithoutVariance(arg, args(0), depth, checkWeak)
+            val (v, ex) = calcForTypeParamWithoutVariance(arg, args.head, depth, checkWeak)
             ex match {
               case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)), List(w))
               case None => ScParameterizedType(des, Seq(v))
@@ -316,22 +316,22 @@ object Bounds extends api.TypeSystemOwner {
       } else {
         (substed1, substed2) match {
           case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(name2, args2, lower2, upper2)) =>
-            val newLub = if (stopAddingUpperBound) types.Any else lub(Seq(upper, upper2), checkWeak)(stopAddingUpperBound = true)
+            val newLub = if (stopAddingUpperBound) types.Any else lub(Seq(upper, upper2), checkWeak, stopAddingUpperBound = true)
             (ScExistentialArgument(name, args, glb(lower, lower2, checkWeak), newLub), None)
           case (ScExistentialArgument(name, args, lower, upper), _) =>
-            val newLub = if (stopAddingUpperBound) types.Any else lub(Seq(upper, substed2), checkWeak)(stopAddingUpperBound = true)
+            val newLub = if (stopAddingUpperBound) types.Any else lub(Seq(upper, substed2), checkWeak, stopAddingUpperBound = true)
             (ScExistentialArgument(name, args, glb(lower, substed2), newLub), None)
           case (_, ScExistentialArgument(name, args, lower, upper)) =>
-            val newLub = if (stopAddingUpperBound) types.Any else lub(Seq(upper, substed1), checkWeak)(stopAddingUpperBound = true)
+            val newLub = if (stopAddingUpperBound) types.Any else lub(Seq(upper, substed1), checkWeak, stopAddingUpperBound = true)
             (ScExistentialArgument(name, args, glb(lower, substed1), newLub), None)
           case _ =>
-            val newGlb = Bounds.glb(substed1, substed2)
+            val newGlb = glb(substed1, substed2)
             if (!stopAddingUpperBound) {
               //don't calculate the lub of the types themselves, but of the components of their compound types (if existing)
               // example: the lub of "_ >: Int with Double <: AnyVal" & Long we need here should be AnyVal, not Any
               def getTypesForLubEvaluation(t: ScType) = Seq(t)
               val typesToCover = getTypesForLubEvaluation(substed1) ++ getTypesForLubEvaluation(substed2)
-              val newLub = Bounds.lub(typesToCover, checkWeak = false)(stopAddingUpperBound = true)
+              val newLub = lub(typesToCover, checkWeak = false, stopAddingUpperBound = true)
               val ex = ScExistentialArgument("_$" + count, List.empty, newGlb, newLub)
               (ex, Some(ex))
             } else {
@@ -356,7 +356,7 @@ object Bounds extends api.TypeSystemOwner {
         val tp2 = superSubst2.subst(tp).asInstanceOf[ScParameterizedType]
         val resTypeArgs = new ArrayBuffer[ScType]
         val wildcards = new ArrayBuffer[ScExistentialArgument]()
-        for (i <- 0 until baseClass.getTypeParameters.length) {
+        for (i <- baseClass.getTypeParameters.indices) {
           val substed1 = tp1.typeArgs.apply(i)
           val substed2 = tp2.typeArgs.apply(i)
           resTypeArgs += (baseClass.getTypeParameters.apply(i) match {
@@ -368,22 +368,10 @@ object Bounds extends api.TypeSystemOwner {
               v
           })
         }
-        if (wildcards.isEmpty) ScParameterizedType(baseClassDesignator, resTypeArgs.toSeq)
-        else ScExistentialType(ScParameterizedType(baseClassDesignator, resTypeArgs.toSeq), wildcards.toList)
+        if (wildcards.isEmpty) ScParameterizedType(baseClassDesignator, resTypeArgs)
+        else ScExistentialType(ScParameterizedType(baseClassDesignator, resTypeArgs), wildcards.toList)
       case _ => types.Any
     }
-  }
-
-  def putAliases(template: ScTemplateDefinition, s: ScSubstitutor): ScSubstitutor = {
-    var run = s
-    for (alias <- template.aliases) {
-      alias match {
-        case aliasDef: ScTypeAliasDefinition if s.aliasesMap.get(aliasDef.name) == None =>
-          run = run bindA (aliasDef.name, {() => aliasDef.aliasedType(TypingContext.empty).getOrAny})
-        case _ =>
-      }
-    }
-    run
   }
 
   private def getLeastUpperClasses(aClasses: Seq[Options], bClasses: Seq[Options]): Array[(Options, Int, Int)] = {
@@ -406,7 +394,7 @@ object Bounds extends api.TypeSystemOwner {
       }
     }
     def checkClasses(aClasses: Seq[Options], baseIndex: Int = -1, visited: mutable.HashSet[PsiElement] = mutable.HashSet.empty) {
-      if (aClasses.length == 0) return
+      if (aClasses.isEmpty) return
       val aIter = aClasses.iterator
       var i = 0
       while (aIter.hasNext) {

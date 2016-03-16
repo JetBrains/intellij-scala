@@ -35,7 +35,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
     if (hasCaseClauses) {
       val caseClauses = findChildByClassScala(classOf[ScCaseClauses])
       val clauses: Seq[ScCaseClause] = caseClauses.caseClauses
-      val clausesType = clauses.foldLeft(types.Nothing: ScType)((tp, clause) => Bounds.lub(tp, clause.expr match {
+      val clausesType = clauses.foldLeft(types.Nothing: ScType)((tp, clause) => tp.lub(clause.expr match {
         case Some(expr) => expr.getType(TypingContext.empty).getOrNothing
         case _ => types.Nothing
       }))

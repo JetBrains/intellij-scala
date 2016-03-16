@@ -382,7 +382,7 @@ object InferUtil {
                       ScParameterizedType(_addLower, tp.typeParams.map(ScTypeParameterType.toTypeParameterType))
                     else _addLower
                   if (hasRecursiveTypeParameters(substedLowerType)) lower = addLower
-                  else lower = Bounds.lub(substedLowerType, addLower)
+                  else lower = substedLowerType.lub(addLower)
                 case None =>
                   lower = unSubst.subst(lower)
               }
@@ -395,7 +395,7 @@ object InferUtil {
                       ScParameterizedType(_addUpper, tp.typeParams.map(ScTypeParameterType.toTypeParameterType))
                     else _addUpper
                   if (hasRecursiveTypeParameters(substedUpperType)) upper = addUpper
-                  else upper = Bounds.glb(substedUpperType, addUpper)
+                  else upper = substedUpperType.glb(addUpper)
                 case None =>
                   upper = unSubst.subst(upper)
               }

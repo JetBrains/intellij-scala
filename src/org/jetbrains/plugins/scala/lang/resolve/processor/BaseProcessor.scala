@@ -184,7 +184,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           } else if (clazzType.conforms(selfType)) {
             processElement(clazz, thisSubst, place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
           } else {
-            processType(clazz.selfType.map(Bounds.glb(_, clazzType)).get, place,
+            processType(clazz.selfType.map(_.glb(clazzType)).get, place,
               state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t)), visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
           }
         }
