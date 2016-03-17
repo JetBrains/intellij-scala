@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.Set
 
@@ -95,7 +94,7 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
 
     val prevInfoTypeParams = reference.getPrevTypeInfoParams
 
-    implicit val typeSystem = reference.getProject.typeSystem
+    import reference.typeSystem
     def nonAssignResolve: Array[ResolveResult] = {
       def processor(smartProcessor: Boolean): MethodResolveProcessor =
         new MethodResolveProcessor(reference, name, info.arguments.toList,

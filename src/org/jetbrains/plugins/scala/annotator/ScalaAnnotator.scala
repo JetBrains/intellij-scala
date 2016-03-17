@@ -48,7 +48,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocTag}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
-import org.jetbrains.plugins.scala.project.{ProjectExt, ProjectPsiElementExt, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
 import scala.collection.mutable.ArrayBuffer
@@ -79,7 +79,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       case _ => (false, false)
     }
 
-    implicit val typeSystem = element.getProject.typeSystem
+    implicit val typeSystem = element.typeSystem
     val visitor = new ScalaElementVisitor {
       private def expressionPart(expr: ScExpression) {
         if (!compiled) {

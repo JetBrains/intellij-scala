@@ -3,11 +3,10 @@ package codeInspection.format
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
+import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ProblemsHolderExt}
 import org.jetbrains.plugins.scala.format.{Injection, Span, _}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
   * // Acceptance test
@@ -57,7 +56,7 @@ class ScalaMalformedFormatStringInspection extends AbstractInspection {
   }
 
   private def inspect(part: StringPart, holder: ProblemsHolder)
-                     (implicit typeSystem: TypeSystem = holder.getProject.typeSystem) {
+                     (implicit typeSystem: TypeSystem = holder.typeSystem) {
     part match {
       case injection @ Injection(exp, Some(Specifier(Span(element, start, end), format))) =>
         injection.problem match {

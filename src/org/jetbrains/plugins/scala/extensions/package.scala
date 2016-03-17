@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefi
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.generic.CanBuildFrom
 import scala.io.Source
@@ -179,6 +180,8 @@ package object extensions {
         case _ => repr.getStartOffsetInParent
       }
     }
+
+    def typeSystem = repr.getProject.typeSystem
   }
 
   implicit class PsiMemberExt(val member: PsiMember) extends AnyVal {

@@ -5,7 +5,6 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions.{ChildOf, ExpressionType}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * @author Nikolay.Tropin
@@ -15,7 +14,7 @@ object RedundantCollectionConversion extends SimplificationType {
   override def hint: String = InspectionBundle.message("redundant.collection.conversion")
 
   override def getSimplification(expr: ScExpression) = {
-    implicit val typeSystem = expr.getProject.typeSystem
+    implicit val typeSystem = expr.typeSystem
     val withGeneric = expr match {
       case ChildOf(gc: ScGenericCall) => gc
       case ref => ref

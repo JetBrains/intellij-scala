@@ -592,7 +592,7 @@ object ScalaPsiUtil {
     ContainerUtil.newConcurrentMap[(ScType, Project, GlobalSearchScope), Seq[ScType]]()
 
   def collectImplicitObjects(_tp: ScType, project: Project, scope: GlobalSearchScope)
-                            (implicit typeSystem: TypeSystem = scope.getProject.typeSystem): Seq[ScType] = {
+                            (implicit typeSystem: TypeSystem = project.typeSystem): Seq[ScType] = {
     val tp = ScType.removeAliasDefinitions(_tp)
     val cacheKey = (tp, project, scope)
     var cachedResult = collectImplicitObjectsCache.get(cacheKey)
@@ -998,7 +998,7 @@ object ScalaPsiUtil {
     new Signature(x.name, Seq.empty, 0, ScSubstitutor.empty, x)
 
   def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false)
-                         (implicit typeSystem: TypeSystem = x.getProject.typeSystem): Seq[Signature] = {
+                         (implicit typeSystem: TypeSystem = x.typeSystem): Seq[Signature] = {
     val empty = Seq.empty
     val typed = x match {case x: ScTypedDefinition => x case _ => return empty}
     val clazz: ScTemplateDefinition = nameContext(typed) match {
@@ -1044,7 +1044,7 @@ object ScalaPsiUtil {
   }
 
   def superTypeMembers(element: PsiNamedElement, withSelfType: Boolean = false)
-                      (implicit typeSystem: TypeSystem = element.getProject.typeSystem): Seq[PsiNamedElement] = {
+                      (implicit typeSystem: TypeSystem = element.typeSystem): Seq[PsiNamedElement] = {
     superTypeMembersAndSubstitutors(element, withSelfType).map(_.info)
   }
 
@@ -1091,7 +1091,7 @@ object ScalaPsiUtil {
     new LightModifierList(manager, ScalaFileType.SCALA_LANGUAGE)
 
   def adjustTypes(element: PsiElement, addImports: Boolean = true, useTypeAliases: Boolean = true)
-                 (implicit typeSystem: TypeSystem = element.getProject.typeSystem) {
+                 (implicit typeSystem: TypeSystem = element.typeSystem) {
     TypeAdjuster.adjustFor(Seq(element), addImports, useTypeAliases)
   }
 

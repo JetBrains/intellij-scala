@@ -13,11 +13,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScType, ScTypePresentation}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScTypePresentation}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.collection.mutable
@@ -246,7 +245,7 @@ object TypeAdjuster extends ApplicationAdapter {
   }
 
   private def availableTypeAliasFor(clazz: PsiClass, position: PsiElement, useTypeAliases: Boolean)
-                                   (implicit typeSystem: TypeSystem = clazz.getProject.typeSystem): Option[ScTypeAliasDefinition] = {
+                                   (implicit typeSystem: TypeSystem = clazz.typeSystem): Option[ScTypeAliasDefinition] = {
     if (!useTypeAliases) None
     else {
       class FindTypeAliasProcessor extends BaseProcessor(ValueSet(CLASS)) {

@@ -38,7 +38,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.util.Random
@@ -114,7 +113,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
         addedElements += el.getLookupString
       }
 
-      implicit val typeSystem = position.getProject.typeSystem
+      implicit val typeSystem = position.typeSystem
       position.getContext match {
         case ref: ScReferenceElement =>
           val isInImport = ScalaPsiUtil.getContextOfType(ref, true, classOf[ScImportStmt]) != null

@@ -6,6 +6,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.intention.IntentionUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -124,7 +125,8 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
     else param.replace(newParam)
   }
 
-  def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement) {
+  def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement)
+                       (implicit typeSystem: TypeSystem = context.typeSystem) {
     def addActualType(annotation: ScTypeElement) = {
       val parent = anchor.getParent
       val added = parent.addAfter(annotation, anchor)

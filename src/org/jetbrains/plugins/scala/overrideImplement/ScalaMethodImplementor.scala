@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTe
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor}
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import scala.collection.mutable
@@ -60,7 +59,7 @@ private class ScalaPsiMethodGenerationInfo(method: PsiMethod, baseMethod: PsiMet
   override def insert(aClass: PsiClass, anchor: PsiElement, before: Boolean) {
     aClass match {
       case td: ScTemplateDefinition =>
-        val sign = new PhysicalSignature(method, ScSubstitutor.empty)(aClass.getProject.typeSystem)
+        val sign = new PhysicalSignature(method, ScSubstitutor.empty)(aClass.typeSystem)
         val methodMember = new ScMethodMember(sign, isOverride = false)
 
         member = ScalaGenerationInfo.insertMethod(methodMember, td, findAnchor(td, baseMethod))

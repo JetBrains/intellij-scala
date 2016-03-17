@@ -3,6 +3,7 @@ package codeInspection.methodSignature
 
 import com.intellij.codeInspection._
 import com.intellij.psi.PsiMethod
+import org.jetbrains.plugins.scala.codeInspection.ProblemsHolderExt
 import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.RemoveCallParentheses
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
@@ -10,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceE
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, api}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CollectMethodsProcessor
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * Pavel Fatin
@@ -25,7 +25,7 @@ class JavaAccessorMethodCalledAsEmptyParenInspection extends AbstractMethodSigna
         call.getParent match {
           case callParent: ScMethodCall => // do nothing
           case _ => if (call.argumentExpressions.isEmpty) {
-            implicit val typeSystem = holder.getProject.typeSystem
+            implicit val typeSystem = holder.typeSystem
             e.resolve() match {
               case _: ScalaPsiElement => // do nothing
               case (m: PsiMethod) if m.isAccessor && !isOverloadedMethod(e) && hasSameType(call, e) =>

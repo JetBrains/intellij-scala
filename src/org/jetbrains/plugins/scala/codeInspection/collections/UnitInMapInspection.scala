@@ -2,14 +2,13 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{ChangeReferenceNameQuickFix, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{ChangeReferenceNameQuickFix, InspectionBundle, ProblemsHolderExt}
 import org.jetbrains.plugins.scala.extensions.ExpressionType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScTypeExt, Unit}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * @author Nikolay.Tropin
@@ -28,7 +27,7 @@ class UnitInMapInspection extends OperationOnCollectionInspection {
       val fixes =
         if (isInBlock) Seq(new ChangeReferenceNameQuickFix(InspectionBundle.message("use.foreach.instead.of.map"), ref, "foreach"))
         else Seq.empty
-      implicit val typeSystem = holder.getProject.typeSystem
+      implicit val typeSystem = holder.typeSystem
       val unitTypeReturns = body.calculateReturns().collect {
         case expr @ ExpressionType(ft @ ScFunctionType(Unit, _)) if arg.getType().getOrAny.equiv(ft) => expr
         case expr @ ExpressionType(Unit) => expr
