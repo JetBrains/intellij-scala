@@ -30,6 +30,8 @@ object TypeAdjuster extends ApplicationAdapter {
 
   override def writeActionFinished(action: scala.Any): Unit = {
     if (markedElements.nonEmpty) {
+      val project = markedElements.head.getProject
+      PsiDocumentManager.getInstance(project).commitAllDocuments()
       adjustMarkedElements()
     }
   }
