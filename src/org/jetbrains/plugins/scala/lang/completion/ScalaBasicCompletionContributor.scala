@@ -116,7 +116,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
           val isInImport = ScalaPsiUtil.getContextOfType(ref, true, classOf[ScImportStmt]) != null
           def applyVariant(variant: Object, addElement: LookupElement => Unit = addElement) {
             variant match {
-              case el: ScalaLookupItem =>
+              case el: ScalaLookupItem if el.isValid =>
                 if (inString) el.isInSimpleString = true
                 if (inInterpolatedString) el.isInInterpolatedString = true
                 val elem = el.element
