@@ -23,13 +23,39 @@ abstract class ScalaPluginVersionVerifier {
 }
 
 object ScalaPluginVersionVerifier {
+
+  class Version(private val major: Int, private val minor: Int, private val build: Int) extends Ordered[Version] with Serializable {
+    def compare(that: Version) = implicitly[Ordering[(Int, Int, Int)]]
+      .compare((major, minor, build), (that.major, that.minor, that.build))
+
+    val presentation: String = if (major == Int.MaxValue) "SNAPSHOT" else s"$major.$minor.$build"
+
+    def isSnapshot = presentation == "SNAPSHOT"
+
+    override def equals(that: Any) = compare(that.asInstanceOf[Version]) == 0
+
+    override def toString = presentation
+  }
+
+  object Version {
+    object Snapshot extends Version(Int.MaxValue, Int.MaxValue, Int.MaxValue)
+    def parse(version: String): Option[Version] = {
+      val VersionRegex = "(\\d+)[.](\\d+)[.](\\d+)".r
+      version match {
+        case "VERSION" => Some(Snapshot)
+        case VersionRegex(major: String, minor: String, build: String) => Some(new Version(major.toInt, minor.toInt, build.toInt))
+        case _ => None
+      }
+    }
+  }
+
   val EP_NAME: ExtensionPointName[ScalaPluginVersionVerifier] = ExtensionPointName.create("org.intellij.scala.scalaPluginVersionVerifier")
 
-  def getPluginVersion: String = {
+  lazy val getPluginVersion: Option[Version] = {
     getClass.getClassLoader match {
       case pluginLoader: PluginClassLoader =>
-        PluginManager.getPlugin(pluginLoader.getPluginId).getVersion
-      case _ => "Unknown"
+        Version.parse(PluginManager.getPlugin(pluginLoader.getPluginId).getVersion)
+      case _ => None
     }
   }
 
@@ -48,31 +74,14 @@ object ScalaPluginVersionVerifierApplicationComponent {
 }
 
 class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponent {
+  import ScalaPluginVersionVerifier._
+
   def getComponentName: String = "ScalaPluginVersionVerifierApplicationComponent"
 
   def initComponent() {
-    case class Version(major: Int, minor: Int, build: Int) {
-      def <(v: Version): Boolean = {
-        if (major < v.major) true
-        else if (major > v.major) false
-        else if (minor < v.minor) true
-        else if (minor > v.minor) false
-        else if (build < v.build) true
-        else false
-      }
-    }
-
-    def parseVersion(version: String): Option[Version] = {
-      val VersionRegex = "([0-9]*)[.]([0-9]*)[.]([0-9]*)".r
-      version match {
-        case VersionRegex(major: String, minor: String, build: String) => Some(Version(major.toInt, minor.toInt, build.toInt))
-        case _ => None
-      }
-    }
 
     def checkVersion() {
-      val versionString = ScalaPluginVersionVerifier.getPluginVersion
-      parseVersion(versionString) match {
+      ScalaPluginVersionVerifier.getPluginVersion match {
         case Some(version) =>
           val extensions = ScalaPluginVersionVerifier.EP_NAME.getExtensions
 
@@ -85,7 +94,7 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
                   val plugin = PluginManager.getPlugin(pluginLoader.getPluginId)
                   val message =
                     s"Plugin ${plugin.getName} of version ${plugin.getVersion} is " +
-                      s"icompatible with Scala plugin of version $versionString. Do you want to disable ${plugin.getName} plugin?\n" +
+                      s"icompatible with Scala plugin of version $version. Do you want to disable ${plugin.getName} plugin?\n" +
                       s"""<p/><a href="Yes">Yes, disable it</a>\n""" +
                       s"""<p/><a href="No">No, leave it enabled</a>"""
                   if (ApplicationManager.getApplication.isUnitTestMode) {
@@ -115,7 +124,7 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
                   }
               }
             }
-            parseVersion(extension.getSinceVersion) match {
+            Version.parse(extension.getSinceVersion) match {
               case Some(sinceVersion) =>
                 if (sinceVersion != version && version < sinceVersion) {
                   wrongVersion()
@@ -123,7 +132,7 @@ class ScalaPluginVersionVerifierApplicationComponent extends ApplicationComponen
               case _                  =>
             }
 
-            parseVersion(extension.getUntilVersion) match {
+            Version.parse(extension.getUntilVersion) match {
               case Some(untilVersion) =>
                 if (untilVersion != version && untilVersion < version) {
                   wrongVersion()

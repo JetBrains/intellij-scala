@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import java.io.File
+import java.net.URL
 
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.project.Project
@@ -98,11 +99,25 @@ package object project {
       model.commit()
     }
 
+    def attach(libraries: Seq[Library]) = {
+      val model = ModuleRootManager.getInstance(module).getModifiableModel
+      libraries.foreach(model.addLibraryEntry)
+      model.commit()
+    }
+
     def detach(library: Library) {
       val model = ModuleRootManager.getInstance(module).getModifiableModel
       val entry = model.findLibraryOrderEntry(library)
       model.removeOrderEntry(entry)
       model.commit()
+    }
+
+    def createLibraryFromJar(urls: Seq[String], name: String): Library = {
+      val lib = ProjectLibraryTable.getInstance(module.getProject).createLibrary(name)
+      val model = lib.getModifiableModel
+      urls.foreach(url => model.addRoot(url, OrderRootType.CLASSES))
+      model.commit()
+      lib
     }
 
     def scalaCompilerSettings: ScalaCompilerSettings = compilerConfiguration.getSettingsForModule(module)

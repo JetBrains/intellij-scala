@@ -1246,6 +1246,9 @@
         <component>
             <implementation-class>org.jetbrains.plugins.scala.util.macroDebug.MacrosheetFileHook</implementation-class>
         </component>
+        <component>
+            <implementation-class>org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader</implementation-class>
+        </component>
     </project-components>
 
     <actions>

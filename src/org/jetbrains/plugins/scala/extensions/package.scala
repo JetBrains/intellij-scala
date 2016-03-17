@@ -526,7 +526,7 @@ package object extensions {
     try {
       block(resource)
     } finally {
-      resource.close()
+      if (resource != null) resource.close()
     }
   }
 

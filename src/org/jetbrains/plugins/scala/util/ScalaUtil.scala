@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.util
 
-import com.intellij.openapi.application.ApplicationManager
+import java.io.File
+
+import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Computable
 import com.intellij.util.PathUtil
@@ -30,5 +32,16 @@ object ScalaUtil {
 
   def testingSupportTestPath(): String = {
     PathUtil.getJarPathForClass(classOf[Client]).replace("compiler-settings", "Runners")
+  }
+
+  def getScalaPluginSystemPath: String = {
+    PathManager.getSystemPath + "/scala"
+  }
+
+  def createTmpDir(prefix: String, suffix: String): File = {
+    val tmpDir = File.createTempFile(prefix, suffix)
+    tmpDir.delete()
+    tmpDir.mkdir()
+    tmpDir
   }
 }
