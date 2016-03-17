@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 
@@ -19,6 +20,7 @@ import scala.collection.Set
 class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: List[Seq[Expression]],
                                   typeArgs: Seq[ScTypeElement], kinds: Set[ResolveTargets.Value],
                                   shapeResolve: Boolean, allConstructors: Boolean)
+                                 (implicit override val typeSystem: TypeSystem)
         extends MethodResolveProcessor(constr, refName, args, typeArgs, Seq.empty, kinds,
           isShapeResolve = shapeResolve, enableTupling = true) {
   override def execute(element: PsiElement, state: ResolveState): Boolean = {

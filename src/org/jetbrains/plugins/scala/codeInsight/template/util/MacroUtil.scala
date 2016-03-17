@@ -3,14 +3,15 @@ package codeInsight.template.util
 
 import com.intellij.codeInsight.template.{ExpressionContext, Result}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, JavaArrayType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.{JavaArrayType, ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
 /**
@@ -24,7 +25,8 @@ object MacroUtil {
    * @param element from which position we look at locals
    * @return visible variables and values from element position
    */
-  def getVariablesForScope(element: PsiElement): Array[ScalaResolveResult] = {
+  def getVariablesForScope(element: PsiElement)
+                          (implicit typeSystem: TypeSystem): Array[ScalaResolveResult] = {
     val completionProcessor = new VariablesCompletionProcessor(StdKinds.valuesRef)
     PsiTreeUtil.treeWalkUp(completionProcessor, element, null, ResolveState.initial)
     completionProcessor.candidates

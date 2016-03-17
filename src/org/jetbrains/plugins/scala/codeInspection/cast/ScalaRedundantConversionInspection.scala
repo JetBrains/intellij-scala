@@ -10,7 +10,10 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, 
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPostfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * Pavel Fatin
@@ -24,7 +27,8 @@ class ScalaRedundantConversionInspection extends AbstractInspection("Redundant c
       process(element, operand, target, operator.getStartOffsetInParent, holder)
   }
 
-  private def process(element: PsiElement, left: ScExpression, target: PsiElement, offset: Int, holder: ProblemsHolder) {
+  private def process(element: PsiElement, left: ScExpression, target: PsiElement, offset: Int, holder: ProblemsHolder)
+                     (implicit typeSystem: TypeSystem = holder.getProject.typeSystem) {
     target match {
       case f: ScSyntheticFunction if f.name.startsWith("to") =>
         for (leftType <- left.getType(TypingContext.empty);

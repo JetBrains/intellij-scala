@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes
@@ -49,7 +50,8 @@ object BaseProcessor {
   }
 }
 
-abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiScopeProcessor {
+abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
+                            (implicit val typeSystem: TypeSystem) extends PsiScopeProcessor {
   protected val candidatesSet: mutable.HashSet[ScalaResolveResult] = new mutable.HashSet[ScalaResolveResult]
 
   def isImplicitProcessor: Boolean = false
@@ -68,7 +70,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
     }
   }
 
-  def isPredefPriority = knownPriority == Some(PrecedenceTypes.SCALA_PREDEF)
+  def isPredefPriority = knownPriority.contains(PrecedenceTypes.SCALA_PREDEF)
 
   def specialPriority: Option[Int] = knownPriority
 

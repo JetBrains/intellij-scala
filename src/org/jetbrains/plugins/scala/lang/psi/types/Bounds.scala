@@ -18,7 +18,9 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-object Bounds {
+object Bounds extends api.TypeSystemOwner {
+  override implicit val typeSystem = ScalaTypeSystem
+
   def lub(seq: Seq[ScType]): ScType = {
     seq.reduce((l: ScType, r: ScType) => lub(l,r))
   }

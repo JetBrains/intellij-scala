@@ -22,9 +22,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
 import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.overrideImplement._
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import scala.collection.JavaConversions._
@@ -121,7 +124,8 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   }
 
   @Nullable
-  private def chooseMethods(delegate: ClassMember, file: PsiFile, editor: Editor, project: Project): Array[ScMethodMember] = {
+  private def chooseMethods(delegate: ClassMember, file: PsiFile, editor: Editor, project: Project)
+                           (implicit typeSystem: TypeSystem = project.typeSystem): Array[ScMethodMember] = {
     val delegateType = delegate.asInstanceOf[ScalaTypedMember].scType
     val aClass = classAtOffset(editor.getCaretModel.getOffset, file)
     val tBody = aClass.extendsBlock.templateBody.get
@@ -142,7 +146,8 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     else if (members.nonEmpty) Array(members.head) else Array()
   }
 
-  private def toMethodMembers(candidates: Iterable[ScalaResolveResult], place: PsiElement): Seq[ScMethodMember] = {
+  private def toMethodMembers(candidates: Iterable[ScalaResolveResult], place: PsiElement)
+                             (implicit typeSystem: TypeSystem): Seq[ScMethodMember] = {
     object isSuitable {
       def unapply(srr: ScalaResolveResult): Option[PhysicalSignature] = {
         if (srr.implicitConversionClass.nonEmpty || srr.implicitFunction.nonEmpty) return None

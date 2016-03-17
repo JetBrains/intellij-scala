@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 import scala.collection.Set
@@ -33,14 +34,14 @@ object ResolveProcessor {
       case c: ScTypeParam => null
       case c: ScObject => "Object:" + c.qualifiedName
       case c: PsiClass => "Class:" + c.qualifiedName
-      case t: ScTypeAliasDefinition if t.typeParameters.length == 0 =>
+      case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
         t.aliasedType(TypingContext.empty) match {
           case Success(tp, elem) =>
             ScType.extractClass(tp, Option(place).map(_.getProject)) match {
               case Some(c: ScObject) => defaultForTypeAlias(t)
-              case Some(td: ScTypeDefinition) if td.typeParameters.length == 0 && ScalaPsiUtil.hasStablePath(td) =>
+              case Some(td: ScTypeDefinition) if td.typeParameters.isEmpty && ScalaPsiUtil.hasStablePath(td) =>
                 "Class:" + td.qualifiedName
-              case Some(c: PsiClass) if c.getTypeParameters.length == 0 => "Class:" + c.qualifiedName
+              case Some(c: PsiClass) if c.getTypeParameters.isEmpty => "Class:" + c.qualifiedName
               case _ => defaultForTypeAlias(t)
             }
           case _ => defaultForTypeAlias(t)
@@ -54,7 +55,8 @@ object ResolveProcessor {
 
 class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
                        val ref: PsiElement,
-                       val name: String) extends BaseProcessor(kinds) with PrecedenceHelper[String] {
+                       val name: String)
+                      (implicit override val typeSystem: TypeSystem) extends BaseProcessor(kinds) with PrecedenceHelper[String] {
   @volatile
   private var resolveScope: GlobalSearchScope = null
   def getResolveScope: GlobalSearchScope = {
@@ -214,7 +216,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
           case (false, _) => false
           case (true, rr@ScalaResolveResult(_: ScTypeAlias | _: ScClass | _: ScTrait, _)) =>
             rr.element.name != r.element.name ||
-            ScalaPsiUtil.superTypeMembers(rr.element).find(_ == r.element) == None
+              !ScalaPsiUtil.superTypeMembers(rr.element).contains(r.element)
           case (true, _) => true
         }
       case _ => true

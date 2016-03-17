@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 /**
@@ -52,7 +53,7 @@ case class Injection(expression: ScExpression, specifier: Option[Specifier]) ext
     case _ => false
   }
 
-  def problem: Option[InjectionProblem] = specifier.flatMap {
+  def problem(implicit typeSystem: TypeSystem): Option[InjectionProblem] = specifier.flatMap {
     it =>
       val _type = expressionType.map(ScType.expandAliases(_)).getOrElse(new Object())
       _type match {

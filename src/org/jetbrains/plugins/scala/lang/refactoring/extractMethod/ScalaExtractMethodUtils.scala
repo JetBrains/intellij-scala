@@ -19,7 +19,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScSubstitutor, ScType, Unit}
 import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicateMatch
@@ -333,14 +336,16 @@ object ScalaExtractMethodUtils {
     s"$classText$prefix$typeParamsText$paramsText: $returnTypeText"
   }
 
-  def replaceWithMethodCall(settings: ScalaExtractMethodSettings, d: DuplicateMatch) {
+  def replaceWithMethodCall(settings: ScalaExtractMethodSettings, d: DuplicateMatch)
+                           (implicit typeSystem: TypeSystem = d.typeSystem) {
     replaceWithMethodCall(settings, d.candidates, d.parameterText, d.outputName)
   }
 
   def replaceWithMethodCall(settings: ScalaExtractMethodSettings,
-                                    elements: Seq[PsiElement],
-                                    parameterText: ExtractMethodParameter => String,
-                                    outputName: ExtractMethodOutput => String) {
+                            elements: Seq[PsiElement],
+                            parameterText: ExtractMethodParameter => String,
+                            outputName: ExtractMethodOutput => String)
+                           (implicit typeSystem: TypeSystem) {
     val element = elements.find(elem => elem.isInstanceOf[ScalaPsiElement]).getOrElse(return)
     val manager = element.getManager
     val processor = new CompletionProcessor(StdKinds.refExprLastRef, element, includePrefixImports = false)

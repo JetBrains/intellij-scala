@@ -34,6 +34,8 @@ object Compatibility {
   @TestOnly
   var seqClass: Option[PsiClass] = None
 
+  private implicit val typeSystem = ScalaTypeSystem
+
   def compatibleWithViewApplicability(l : ScType, r : ScType): Boolean = r conforms l
 
   case class Expression(expr: ScExpression) {

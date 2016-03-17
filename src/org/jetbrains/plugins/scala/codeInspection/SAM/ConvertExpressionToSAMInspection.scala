@@ -11,7 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * Author: Svyatoslav Ilinskiy
@@ -25,7 +27,8 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
       }
   }
 
-  private def inspectAccordingToExpectedType(expected: ScType, definition: ScNewTemplateDefinition, holder: ProblemsHolder) {
+  private def inspectAccordingToExpectedType(expected: ScType, definition: ScNewTemplateDefinition, holder: ProblemsHolder)
+                                            (implicit typeSystem: TypeSystem = holder.getProject.typeSystem) {
     ScalaPsiUtil.toSAMType(expected, definition.getResolveScope) match {
       case Some(expectedMethodType) =>
         definition.members match {

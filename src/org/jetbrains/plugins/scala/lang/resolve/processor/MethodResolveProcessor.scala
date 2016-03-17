@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -41,7 +42,9 @@ class MethodResolveProcessor(override val ref: PsiElement,
                              val enableTupling: Boolean = false,
                              var noImplicitsForArgs: Boolean = false,
                              val selfConstructorResolve: Boolean = false,
-                             val isDynamic: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
+                             val isDynamic: Boolean = false)
+                            (implicit override val typeSystem: TypeSystem)
+  extends ResolveProcessor(kinds, ref, refName) {
 
   private def isUpdate: Boolean = {
     if (ref == null) return false

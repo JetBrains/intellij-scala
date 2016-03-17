@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
@@ -59,7 +60,8 @@ object InferUtil {
     * @return updated type and sequence of implicit parameters
     */
   def updateTypeWithImplicitParameters(res: ScType, element: PsiElement, coreElement: Option[ScNamedElement], check: Boolean,
-                                       searchImplicitsRecursively: Int = 0, fullInfo: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
+                                       searchImplicitsRecursively: Int = 0, fullInfo: Boolean)
+                                      (implicit typeSystem: TypeSystem): (ScType, Option[Seq[ScalaResolveResult]]) = {
     var resInner = res
     var implicitParameters: Option[Seq[ScalaResolveResult]] = None
     res match {
@@ -145,7 +147,8 @@ object InferUtil {
   def findImplicits(params: Seq[Parameter], coreElement: Option[ScNamedElement], place: PsiElement,
                     check: Boolean, searchImplicitsRecursively: Int = 0,
                     abstractSubstitutor: ScSubstitutor = ScSubstitutor.empty,
-                    polymorphicSubst: ScSubstitutor = ScSubstitutor.empty): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
+                    polymorphicSubst: ScSubstitutor = ScSubstitutor.empty)
+                   (implicit typeSystem: TypeSystem): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
     val exprs = new ArrayBuffer[Expression]
     val paramsForInfer = new ArrayBuffer[Parameter]()
     val resolveResults = new ArrayBuffer[ScalaResolveResult]
@@ -219,7 +222,8 @@ object InferUtil {
                                     fromImplicitParameters: Boolean,
                                     filterTypeParams: Boolean,
                                     expectedType: Option[ScType], expr: PsiElement,
-                                    check: Boolean): TypeResult[ScType] = {
+                                    check: Boolean)
+                                   (implicit typeSystem: TypeSystem): TypeResult[ScType] = {
     var nonValueType = _nonValueType
     nonValueType match {
       case Success(ScTypePolymorphicType(m@ScMethodType(internal, params, impl), typeParams), _)
@@ -307,7 +311,8 @@ object InferUtil {
                          typeParams: Seq[TypeParameter],
                          shouldUndefineParameters: Boolean = true,
                          safeCheck: Boolean = false,
-                         filterTypeParams: Boolean = true): ScTypePolymorphicType = {
+                         filterTypeParams: Boolean = true)
+                        (implicit typeSystem: TypeSystem): ScTypePolymorphicType = {
     localTypeInferenceWithApplicability(retType, params, exprs, typeParams, shouldUndefineParameters, safeCheck,
       filterTypeParams)._1
   }
@@ -319,7 +324,8 @@ object InferUtil {
                                           typeParams: Seq[TypeParameter],
                                           shouldUndefineParameters: Boolean = true,
                                           safeCheck: Boolean = false,
-                                          filterTypeParams: Boolean = true): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
+                                          filterTypeParams: Boolean = true)
+                                         (implicit typeSystem: TypeSystem): (ScTypePolymorphicType, Seq[ApplicabilityProblem]) = {
     val (tp, problems, _, _) = localTypeInferenceWithApplicabilityExt(retType, params, exprs, typeParams,
       shouldUndefineParameters, safeCheck, filterTypeParams)
     (tp, problems)
@@ -330,6 +336,8 @@ object InferUtil {
                                              shouldUndefineParameters: Boolean = true,
                                              safeCheck: Boolean = false,
                                              filterTypeParams: Boolean = true
+                                            )
+                                            (implicit typeSystem: TypeSystem
                                             ): (ScTypePolymorphicType, Seq[ApplicabilityProblem], Seq[(Parameter, ScExpression)], Seq[(Parameter, ScType)]) = {
     // See SCL-3052, SCL-3058
     // This corresponds to use of `isCompatible` in `Infer#methTypeArgs` in scalac, where `isCompatible` uses `weak_<:<`

@@ -49,6 +49,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -58,6 +59,7 @@ import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
@@ -269,7 +271,8 @@ object ScalaPsiUtil {
   }
 
   def findImplicitConversion(e: ScExpression, refName: String, ref: PsiElement, processor: BaseProcessor,
-                             noImplicitsForArgs: Boolean): Option[ImplicitResolveResult] = {
+                             noImplicitsForArgs: Boolean)
+                            (implicit typeSystem: TypeSystem): Option[ImplicitResolveResult] = {
     lazy val funType = Option(
       ScalaPsiManager.instance(e.getProject).getCachedClass(
         "scala.Function1", e.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
@@ -412,7 +415,8 @@ object ScalaPsiUtil {
   }
 
   def processTypeForUpdateOrApplyCandidates(call: MethodInvocation, tp: ScType, isShape: Boolean,
-                                            isDynamic: Boolean): Array[ScalaResolveResult] = {
+                                            isDynamic: Boolean)
+                                           (implicit typeSystem: TypeSystem): Array[ScalaResolveResult] = {
     val isUpdate = call.isUpdateCall
     val methodName =
       if (isDynamic) ResolvableReferenceExpression.getDynamicNameForMethodInvocation(call)
@@ -487,7 +491,8 @@ object ScalaPsiUtil {
     candidates.toArray
   }
 
-  def processTypeForUpdateOrApply(tp: ScType, call: MethodInvocation, isShape: Boolean):
+  def processTypeForUpdateOrApply(tp: ScType, call: MethodInvocation, isShape: Boolean)
+                                 (implicit typeSystem: TypeSystem):
       Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[ScalaResolveResult])] = {
 
     def checkCandidates(withDynamic: Boolean = false): Option[(ScType, collection.Set[ImportUsed], Option[PsiNamedElement], Option[ScalaResolveResult])] = {
@@ -586,7 +591,8 @@ object ScalaPsiUtil {
   val collectImplicitObjectsCache: ConcurrentMap[(ScType, Project, GlobalSearchScope), Seq[ScType]] =
     ContainerUtil.createConcurrentWeakMap[(ScType, Project, GlobalSearchScope), Seq[ScType]]()
 
-  def collectImplicitObjects(_tp: ScType, project: Project, scope: GlobalSearchScope): Seq[ScType] = {
+  def collectImplicitObjects(_tp: ScType, project: Project, scope: GlobalSearchScope)
+                            (implicit typeSystem: TypeSystem = scope.getProject.typeSystem): Seq[ScType] = {
     val tp = ScType.removeAliasDefinitions(_tp)
     val cacheKey = (tp, project, scope)
     var cachedResult = collectImplicitObjectsCache.get(cacheKey)
@@ -968,7 +974,7 @@ object ScalaPsiUtil {
 
   def typesCallSubstitutor(tp: Seq[(String, PsiElement)], typeArgs: Seq[ScType]): ScSubstitutor = {
     val map = new collection.mutable.HashMap[(String, PsiElement), ScType]
-    for (i <- 0 to math.min(tp.length, typeArgs.length) - 1) {
+    for (i <- 0 until math.min(tp.length, typeArgs.length)) {
       map += ((tp(i), typeArgs(i)))
     }
     new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
@@ -976,7 +982,7 @@ object ScalaPsiUtil {
 
   def genericCallSubstitutor(tp: Seq[(String, PsiElement)], typeArgs: Seq[ScTypeElement]): ScSubstitutor = {
     val map = new collection.mutable.HashMap[(String, PsiElement), ScType]
-    for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
+    for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
       map += ((tp(tp.length - 1 - i), typeArgs(typeArgs.length - 1 - i).getType(TypingContext.empty).getOrAny))
     }
     new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
@@ -987,10 +993,12 @@ object ScalaPsiUtil {
     genericCallSubstitutor(tp, typeArgs)
   }
 
-  def namedElementSig(x: PsiNamedElement): Signature =
+  def namedElementSig(x: PsiNamedElement)
+                     (implicit typeSystem: TypeSystem): Signature =
     new Signature(x.name, Seq.empty, 0, ScSubstitutor.empty, x)
 
-  def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false): Seq[Signature] = {
+  def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false)
+                         (implicit typeSystem: TypeSystem = x.getProject.typeSystem): Seq[Signature] = {
     val empty = Seq.empty
     val typed = x match {case x: ScTypedDefinition => x case _ => return empty}
     val clazz: ScTemplateDefinition = nameContext(typed) match {
@@ -1035,11 +1043,13 @@ object ScalaPsiUtil {
 
   }
 
-  def superTypeMembers(element: PsiNamedElement, withSelfType: Boolean = false): Seq[PsiNamedElement] = {
+  def superTypeMembers(element: PsiNamedElement, withSelfType: Boolean = false)
+                      (implicit typeSystem: TypeSystem = element.getProject.typeSystem): Seq[PsiNamedElement] = {
     superTypeMembersAndSubstitutors(element, withSelfType).map(_.info)
   }
 
-  def superTypeMembersAndSubstitutors(element: PsiNamedElement, withSelfType: Boolean = false): Seq[TypeDefinitionMembers.TypeNodes.Node] = {
+  def superTypeMembersAndSubstitutors(element: PsiNamedElement, withSelfType: Boolean = false)
+                                     (implicit typeSystem: TypeSystem): Seq[TypeDefinitionMembers.TypeNodes.Node] = {
     val clazz: ScTemplateDefinition = nameContext(element) match {
       case e @ (_: ScTypeAlias | _: ScTrait | _: ScClass) if e.getParent.isInstanceOf[ScTemplateBody] => e.asInstanceOf[ScMember].containingClass
       case _ => return Seq.empty
@@ -1080,7 +1090,8 @@ object ScalaPsiUtil {
   def getEmptyModifierList(manager: PsiManager): PsiModifierList =
     new LightModifierList(manager, ScalaFileType.SCALA_LANGUAGE)
 
-  def adjustTypes(element: PsiElement, addImports: Boolean = true, useTypeAliases: Boolean = true) {
+  def adjustTypes(element: PsiElement, addImports: Boolean = true, useTypeAliases: Boolean = true)
+                 (implicit typeSystem: TypeSystem = element.getProject.typeSystem) {
     TypeAdjuster.adjustFor(Seq(element), addImports, useTypeAliases)
   }
 
@@ -1128,7 +1139,8 @@ object ScalaPsiUtil {
     getMethodsForName(clazz, "apply")
   }
 
-  def getUnapplyMethods(clazz: PsiClass): Seq[PhysicalSignature] = {
+  def getUnapplyMethods(clazz: PsiClass)
+                       (implicit typeSystem: TypeSystem): Seq[PhysicalSignature] = {
     getMethodsForName(clazz, "unapply") ++ getMethodsForName(clazz, "unapplySeq") ++
     (clazz match {
       case c: ScObject => c.allSynthetics.filter(s => s.name == "unapply" || s.name == "unapplySeq").

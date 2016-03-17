@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNames
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
-trait ScTypePresentation {
+trait ScTypePresentation extends api.TypeSystemOwner {
   def presentableText(t: ScType) = typeText(t, {
     case c: PsiClass => ScalaPsiUtil.nameWithPrefixIfNeeded(c)
     case e => e.name

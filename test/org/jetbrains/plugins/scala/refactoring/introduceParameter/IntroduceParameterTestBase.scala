@@ -91,7 +91,7 @@ abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightT
                 val fun = PsiTreeUtil.getContextOfType(elems.head, true, classOf[ScFunctionDefinition])
                 (fun, fun.returnType.getOrAny)
               }
-            val collectedData = handler.collectData(exprWithTypes, elems, methodLike, editor)
+            val collectedData = handler.collectData(exprWithTypes, elems, methodLike, editor)(ScalaTypeSystem)
             assert(collectedData.isDefined, "Could not collect data for introduce parameter")
             val data = collectedData.get.copy(paramName = paramName, replaceAll = replaceAllOccurrences)
 

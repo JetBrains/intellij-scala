@@ -8,6 +8,8 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 
@@ -25,7 +27,7 @@ class SimplifyBooleanExprWithLiteralIntention extends PsiElementBaseIntentionAct
   override def getText = "Simplify boolean expression"
 
   def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    findSimplifiableParent(element).exists {
+    findSimplifiableParent(element)(project.typeSystem).exists {
       case expr =>
         val offset = editor.getCaretModel.getOffset
         offset >= expr.getTextRange.getStartOffset && offset <= expr.getTextRange.getEndOffset
@@ -33,6 +35,7 @@ class SimplifyBooleanExprWithLiteralIntention extends PsiElementBaseIntentionAct
   }
 
   def invoke(project: Project, editor: Editor, element: PsiElement) {
+    implicit val typeSystem = project.typeSystem
      findSimplifiableParent(element) match {
        case Some(expr) =>
          inWriteAction {
@@ -43,7 +46,8 @@ class SimplifyBooleanExprWithLiteralIntention extends PsiElementBaseIntentionAct
   }
 
   @tailrec
-  private def findSimplifiableParent(element: PsiElement): Option[ScExpression] = element.getParent match {
+  private def findSimplifiableParent(element: PsiElement)
+                                    (implicit typeSystem: TypeSystem): Option[ScExpression] = element.getParent match {
     case expr: ScExpression =>
       if (SimplifyBooleanUtil.canBeSimplified(expr)) Some(expr)
       else findSimplifiableParent(expr)

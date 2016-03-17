@@ -3,6 +3,7 @@ package lang.resolve.processor
 
 import java.util
 
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -15,7 +16,8 @@ import scala.collection.Set
 /**
  * This class mark processor that only implicit object important among all PsiClasses
  */
-abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean) extends BaseProcessor(kinds) with PrecedenceHelper[String] {
+abstract class ImplicitProcessor(kinds: Set[Value], withoutPrecedence: Boolean)
+                                (implicit override val typeSystem: TypeSystem) extends BaseProcessor(kinds) with PrecedenceHelper[String] {
   protected val precedence: util.HashMap[String, Int] = new util.HashMap[String, Int]()
   protected val levelMap: util.HashMap[String, util.HashSet[ScalaResolveResult]] = new util.HashMap[String, util.HashSet[ScalaResolveResult]]()
 

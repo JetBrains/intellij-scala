@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -73,7 +74,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
         val buffer: StringBuilder = new StringBuilder("")
         p match {
           //todo: join this match statement with same in FunctionParameterHandler to fix code duplicate.
-          case (sign: PhysicalSignature, i: Int) => {
+          case (sign: PhysicalSignature, i: Int) =>
             //i  can be -1 (it's update method)
             val methodName = sign.method.name
 
@@ -87,9 +88,10 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
               case function: ScFunction => ScPattern.isOneArgCaseClassMethod(function)
               case _ => false
             }
+            import sign.typeSystem
             val params = ScPattern.extractorParameters(returnType, args, oneArgCaseClassMethod).zipWithIndex
 
-            if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+            if (params.isEmpty) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
               buffer.append(params.map {
                 case (param, o) =>
@@ -115,7 +117,6 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                   if (isBold) "<b>" + paramText + "</b>" else paramText
               }.mkString(", "))
             }
-          }
           case _ =>
         }
         val isGrey = buffer.indexOf("<g>")
@@ -205,25 +206,24 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
       context match {
         case context: CreateParameterInfoContext =>
           args.getParent match {
-            case constr: ScConstructorPattern => {
+            case constr: ScConstructorPattern =>
               val ref: ScStableCodeReferenceElement = constr.ref
               val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
               if (ref != null) {
-                val name = ref.refName
                 val variants: Array[ResolveResult] = ref.multiResolve(false)
                 for (variant <- variants if variant.isInstanceOf[ScalaResolveResult]) {
                   val r = variant.asInstanceOf[ScalaResolveResult]
                   r.element match {
                     case fun: ScFunction if fun.parameters.nonEmpty =>
                       val substitutor = r.substitutor
-                      val subst = if (fun.typeParameters.length == 0) substitutor
+                      val subst = if (fun.typeParameters.isEmpty) substitutor
                       else {
                         val undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
                           s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
                             substitutor))))
                         val emptySubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
                           s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), p.upperBound.getOrAny))
-                        val result = fun.parameters(0).getType(TypingContext.empty)
+                        val result = fun.parameters.head.getType(TypingContext.empty)
                         if (result.isEmpty) substitutor
                         else {
                           val funType = undefSubst.subst(result.get)
@@ -241,13 +241,13 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                           }
                         }
                       }
+                      implicit val typeSystem = file.getProject.typeSystem
                       res += ((new PhysicalSignature(fun, subst), 0))
                     case _ =>
                   }
                 }
               }
               context.setItemsToShow(res.toArray)
-            }
             case _ =>
           }
         case context: UpdateParameterInfoContext =>

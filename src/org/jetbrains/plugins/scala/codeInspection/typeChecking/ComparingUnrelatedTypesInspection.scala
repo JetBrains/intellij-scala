@@ -14,8 +14,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 
@@ -30,7 +32,8 @@ object ComparingUnrelatedTypesInspection {
 
   private val seqFunctions = Seq("contains", "indexOf", "lastIndexOf")
 
-  def cannotBeCompared(type1: ScType, type2: ScType): Boolean = {
+  def cannotBeCompared(type1: ScType, type2: ScType)
+                      (implicit typeSystem: TypeSystem): Boolean = {
     if (undefinedTypeAlias(type1) || undefinedTypeAlias(type2)) return false
 
     val types = Seq(type1, type2).map(extractActualType)
@@ -50,7 +53,8 @@ object ComparingUnrelatedTypesInspection {
     }
   }
 
-  def undefinedTypeAlias(tp: ScType) = tp.isAliasType match {
+  def undefinedTypeAlias(tp: ScType)
+                        (implicit typeSystem: TypeSystem) = tp.isAliasType match {
     case Some(ScTypeUtil.AliasType(_, lower, upper)) =>
       lower.isEmpty || upper.isEmpty || !lower.get.equiv(upper.get)
     case _ => false
@@ -75,6 +79,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         case m: PsiMethod if MethodUtils.isEquals(m) => true
         case _ => false
       }
+      implicit val typeSystem = holderTypeSystem(holder)
       if (needHighlighting) {
         //getType() for the reference on the left side returns singleton type, little hack here
         val leftOnTheRight = ScalaPsiElementFactory.createExpressionWithContextFromText(left.getText, right.getParent, right)
@@ -85,6 +90,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         }
       }
     case MethodRepr(_, Some(baseExpr), Some(ResolvesTo(fun: ScFunction)), Seq(arg, _*)) if mayNeedHighlighting(fun) =>
+      implicit val typeSystem = holderTypeSystem(holder)
       for {
         ScParameterizedType(_, Seq(elemType)) <- baseExpr.getType().map(tryExtractSingletonType)
         argType <- arg.getType()
@@ -95,6 +101,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         holder.registerProblem(arg, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
     case IsInstanceOfCall(call)  =>
+      implicit val typeSystem = holderTypeSystem(holder)
       val qualType = call.referencedExpr match {
         case ScReferenceExpression.withQualifier(q) => q.getType().toOption
         case _ => None
@@ -108,6 +115,8 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         holder.registerProblem(call, inspectionName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
   }
+
+  private def holderTypeSystem(holder: ProblemsHolder) = holder.getProject.typeSystem
 
   private def mayNeedHighlighting(fun: ScFunction): Boolean = {
     if (!seqFunctions.contains(fun.name)) return false

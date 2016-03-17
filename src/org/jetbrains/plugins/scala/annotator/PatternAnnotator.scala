@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScDesignatorType, ScTypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -49,7 +50,8 @@ object PatternAnnotator {
    * [[scala.tools.nsc.typechecker.Infer.Inferencer]] and [[scala.tools.nsc.typechecker.Checkable]]
    *
    */
-  private def checkPatternType(patType: ScType, exprType: ScType, pattern: ScPattern, holder: AnnotationHolder): Unit = {
+  private def checkPatternType(patType: ScType, exprType: ScType, pattern: ScPattern, holder: AnnotationHolder)
+                              (implicit typeSystem: TypeSystem = pattern.typeSystem): Unit = {
     val exTp = widen(ScType.expandAliases(exprType).getOrElse(exprType))
     def freeTypeParams = freeTypeParamsOfTerms(exTp)
 
@@ -176,7 +178,8 @@ object PatternAnnotator {
 
 object PatternAnnotatorUtil {
   @tailrec
-  def matchesPattern(matching: ScType, matched: ScType): Boolean = {
+  def matchesPattern(matching: ScType, matched: ScType)
+                    (implicit typeSystem: TypeSystem): Boolean = {
     def abstraction(scType: ScType, visited: HashSet[ScType] = HashSet.empty): ScType = {
       if (visited.contains(scType)) {
         return scType

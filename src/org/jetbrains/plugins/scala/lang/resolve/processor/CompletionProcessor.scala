@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor, ScType, Signature}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor.QualifiedName
 
@@ -36,8 +37,9 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
                           val collectImplicits: Boolean = false,
                           forName: Option[String] = None,
                           postProcess: ScalaResolveResult => Unit = r => {},
-                          val includePrefixImports: Boolean = true) extends BaseProcessor(kinds)
-                                                                             with PrecedenceHelper[QualifiedName] {
+                          val includePrefixImports: Boolean = true)
+                         (implicit override val typeSystem: TypeSystem)
+  extends BaseProcessor(kinds) with PrecedenceHelper[QualifiedName] {
   protected val precedence: mutable.HashMap[QualifiedName, Int] = new mutable.HashMap[QualifiedName, Int]()
 
   protected val signatures: mutable.HashMap[Signature, Boolean] = new mutable.HashMap[Signature, Boolean]()

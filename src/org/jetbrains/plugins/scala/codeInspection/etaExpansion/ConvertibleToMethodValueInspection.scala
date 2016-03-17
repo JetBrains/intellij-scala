@@ -17,7 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -89,7 +90,8 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
     case _ => Seq.empty
   }
 
-  private def isSuitableForReplace(oldExpr: ScExpression, newExprText: String): Boolean = {
+  private def isSuitableForReplace(oldExpr: ScExpression, newExprText: String)
+                                  (implicit typeSystem: TypeSystem = oldExpr.typeSystem): Boolean = {
     val newExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(newExprText, oldExpr.getContext, oldExpr)
     oldExpr.expectedType(fromUnderscore = false) match {
       case Some(expectedType) if ScFunctionType.isFunctionType(expectedType) =>

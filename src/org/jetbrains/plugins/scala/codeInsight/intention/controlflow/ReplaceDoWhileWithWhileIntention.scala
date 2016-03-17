@@ -15,8 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.Set
 
@@ -56,7 +58,7 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
       body <- doStmt.getExprBody
       doStmtParent <- doStmt.parent
     } {
-
+      implicit val typeSystem = project.typeSystem
       val nameConflict = (declaredNames(body) intersect declaredNames(doStmtParent)).nonEmpty
       if (nameConflict) {
         val message = "This action will cause name conflict."
@@ -138,7 +140,8 @@ class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  def declaredNames(element: PsiElement): Set[String] = {
+  def declaredNames(element: PsiElement)
+                   (implicit typeSystem: TypeSystem): Set[String] = {
     val firstChild: PsiElement = element.firstChild.get
     val processor: CompletionProcessor = new CompletionProcessor(StdKinds.refExprLastRef, firstChild, collectImplicits = true)
     element.processDeclarations(processor, ResolveState.initial(), firstChild, firstChild)

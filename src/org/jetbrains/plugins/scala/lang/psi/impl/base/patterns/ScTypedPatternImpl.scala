@@ -14,8 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types
-import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, _}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, _}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -47,6 +47,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
   override def toString: String = "TypedPattern: " + name
 
   override def getType(ctx: TypingContext): TypeResult[ScType] = {
+    implicit val typeSystem = this.typeSystem
     typePattern match {
       case Some(tp) =>
         if (tp.typeElement == null) return Failure("No type element for type pattern", Some(this))

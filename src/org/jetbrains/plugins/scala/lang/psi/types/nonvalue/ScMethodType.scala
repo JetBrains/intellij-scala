@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 import scala.collection.immutable.{HashMap, HashSet}
@@ -59,7 +60,8 @@ case class Parameter(name: String, deprecatedName: Option[String], paramType: Sc
 /**
  * Class representing type parameters in our type system. Can be constructed from psi.
  * todo: lower and upper types will be reevaluated many times, is it good or bad? Seems bad. What other ways to fix SCL-7216?
- * @param lowerType important to be lazy, see SCL-7216
+  *
+  * @param lowerType important to be lazy, see SCL-7216
  * @param upperType important to be lazy, see SCL-7216
  */
 class TypeParameter(val name: String, val typeParams: Seq[TypeParameter], val lowerType: () => ScType,
@@ -179,19 +181,20 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
+                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {
       case m: ScMethodType =>
         if (m.params.length != params.length) return (false, undefinedSubst)
-        var t = Equivalence.equivInner(m.returnType, returnType,undefinedSubst, falseUndef)
+        var t = m.returnType.equiv(returnType, undefinedSubst, falseUndef)
         if (!t._1) return (false, undefinedSubst)
         undefinedSubst = t._2
         var i = 0
         while (i < params.length) {
           //todo: Seq[Type] instead of Type*
           if (params(i).isRepeated != m.params(i).isRepeated) return (false, undefinedSubst)
-          t = Equivalence.equivInner(params(i).paramType, m.params(i).paramType, undefinedSubst, falseUndef)
+          t = params(i).paramType.equiv(m.params(i).paramType, undefinedSubst, falseUndef)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
           i = i + 1
@@ -260,7 +263,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     }), Map.empty, None)
   }
 
-  def abstractOrLowerTypeSubstitutor: ScSubstitutor = {
+  def abstractOrLowerTypeSubstitutor(implicit typeSystem: TypeSystem): ScSubstitutor = {
     def hasRecursiveTypeParameters(typez: ScType): Boolean = {
       var hasRecursiveTypeParameters = false
       typez.recursiveUpdate {
@@ -334,20 +337,18 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
-                          falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
+                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {
       case p: ScTypePolymorphicType =>
         if (typeParameters.length != p.typeParameters.length) return (false, undefinedSubst)
         var i = 0
         while (i < typeParameters.length) {
-          var t = Equivalence.equivInner(typeParameters(i).lowerType(),
-            p.typeParameters(i).lowerType(), undefinedSubst, falseUndef)
+          var t = typeParameters(i).lowerType().equiv(p.typeParameters(i).lowerType(), undefinedSubst, falseUndef)
           if (!t._1) return (false,undefinedSubst)
           undefinedSubst = t._2
-          t = Equivalence.equivInner(typeParameters(i).upperType(),
-            p.typeParameters(i).upperType(), undefinedSubst, falseUndef)
+          t = typeParameters(i).upperType().equiv(p.typeParameters(i).upperType(), undefinedSubst, falseUndef)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
           i = i + 1
@@ -360,7 +361,7 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
               case _ => Nil
             }, new Suspension(tuple._2.lowerType), new Suspension(tuple._2.upperType), tuple._2.ptp))
         }), Map.empty, None)
-        Equivalence.equivInner(subst.subst(internalType), p.internalType, undefinedSubst, falseUndef)
+        subst.subst(internalType).equiv(p.internalType, undefinedSubst, falseUndef)
       case _ => (false, undefinedSubst)
     }
   }

@@ -11,7 +11,10 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypePresentation}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 
 /**
@@ -41,9 +44,12 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
         ShowTypeInfoAction.typeInfoFromPattern(pattern).map("Type: " + _)
       }
 
-      def hintForExpression: Option[String] = {
+      val project = file.getProject
+      implicit val typeSystem = project.typeSystem
+
+      def hintForExpression(implicit typeSystem: TypeSystem): Option[String] = {
         val exprWithTypes: Option[(ScExpression, Array[ScType])] =
-          ScalaRefactoringUtil.getExpression(file.getProject, editor, file, getSelectionStart, getSelectionEnd)
+          ScalaRefactoringUtil.getExpression(project, editor, file, getSelectionStart, getSelectionEnd)
 
         exprWithTypes.map {
           case (expr @ ExpressionType(tpe), _) =>

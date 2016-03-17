@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -43,6 +44,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
   private def acceptTypes(typez: Seq[ScType], variants: Array[Object], result: CompletionResultSet,
                           scope: GlobalSearchScope, secondCompletion: Boolean, completeThis: Boolean,
                           place: PsiElement, originalPlace: PsiElement) {
+    implicit val typeSystem = scope.getProject.typeSystem
     def isAccessible(el: ScalaLookupItem): Boolean = {
       ScalaPsiUtil.nameContext(el.element) match {
         case memb: ScMember =>

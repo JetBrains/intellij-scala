@@ -21,9 +21,11 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -116,6 +118,7 @@ class IntroduceExplicitParameterIntention extends PsiElementBaseIntentionAction 
       u.getParent match {
         case typedStmt: ScTypedStmt =>
           needBraces = true
+          implicit val typeSystem = project.typeSystem
           buf.append(": ").append(typedStmt.getType(TypingContext.empty).get.canonicalText)
         case _ =>
       }

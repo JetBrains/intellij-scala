@@ -36,6 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.{Seq, mutable}
@@ -48,33 +49,33 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val clearCacheOnOutOfBlockChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
 
   def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
-    if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) ParameterlessNodes.build(tp, compoundTypeThisType)
+    if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) ParameterlessNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
     else getParameterlessSignaturesCached(tp, compoundTypeThisType)
   }
 
   @CachedWithoutModificationCount(synchronized = false, valueWrapper = ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
   private def getParameterlessSignaturesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
-    ParameterlessNodes.build(tp, compoundTypeThisType)
+    ParameterlessNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
   }
 
   def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
-    if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) TypeNodes.build(tp, compoundTypeThisType)
+    if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) TypeNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
     else getTypesCached(tp, compoundTypeThisType)
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
   private def getTypesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
-    TypeNodes.build(tp, compoundTypeThisType)
+    TypeNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
   }
 
   def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
-    if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) return SignatureNodes.build(tp, compoundTypeThisType)
+    if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) return SignatureNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
     getSignaturesCached(tp, compoundTypeThisType)
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange, clearCacheOnLowMemory)
   private def getSignaturesCached(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
-    SignatureNodes.build(tp, compoundTypeThisType)
+    SignatureNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
@@ -225,10 +226,11 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   def getComponentName = "ScalaPsiManager"
   def disposeComponent() {}
   def initComponent() {
+    val equivalence = project.typeSystem.equivalence
     def clearOnChange(): Unit = {
       clearCacheOnChange.foreach(_.clear())
       Conformance.cache.clear()
-      Equivalence.cache.clear()
+      equivalence.clearCache()
       ScParameterizedType.substitutorCache.clear()
       ScalaPsiUtil.collectImplicitObjectsCache.clear()
       ImplicitCollector.cache.clear()
@@ -265,7 +267,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         def run(): Unit = {
           clearCacheOnLowMemory.foreach(_.clear())
           Conformance.cache.clear()
-          Equivalence.cache.clear()
+          equivalence.clearCache()
           ScParameterizedType.substitutorCache.clear()
           ScalaPsiUtil.collectImplicitObjectsCache.clear()
           ImplicitCollector.cache.clear()

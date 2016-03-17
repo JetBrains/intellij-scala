@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
 
 class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
                                  undefSubst: ScUndefinedSubstitutor, substitutor: ScSubstitutor)
-        extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS) {
+  extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(ScalaTypeSystem) {
 
   private val name = s.name
 
@@ -71,7 +71,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
           //todo: view?
           true
         case _ =>
-          if (tp2.typeParams.length > 0) return false
+          if (tp2.typeParams.nonEmpty) return false
           //todo: check bounds?
           true
       }
@@ -150,7 +150,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
 }
 
 class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: ScUndefinedSubstitutor, substitutor: ScSubstitutor)
-  extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS) {
+  extends BaseProcessor(StdKinds.methodRef + ResolveTargets.CLASS)(ScalaTypeSystem) {
   private val name = sign.name
 
   private var trueResult = false
@@ -251,8 +251,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
       case tp: ScTypeAliasDefinition =>
         sign.ta match {
           case _: ScTypeAliasDefinition =>
-            val t = Equivalence.equivInner(subst.subst(tp.aliasedType.getOrNothing),
-              substitutor.subst(sign.lowerBound), undef, falseUndef = false)
+            val t = subst.subst(tp.aliasedType.getOrNothing).equiv(substitutor.subst(sign.lowerBound), undef, falseUndef = false)
             if (t._1) {
               undef = t._2
               trueResult = true

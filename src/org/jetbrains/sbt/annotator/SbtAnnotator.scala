@@ -9,8 +9,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, api}
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.settings.SbtSystemSettings
 
@@ -20,17 +22,19 @@ import org.jetbrains.sbt.settings.SbtSystemSettings
 class SbtAnnotator extends Annotator {
   def annotate(element: PsiElement, holder: AnnotationHolder): Unit = element match {
     case file: SbtFileImpl =>
+      val project = file.getProject
+      implicit val typeSystem = project.typeSystem
       val sbtVersion =
-        SbtSystemSettings.getInstance(file.getProject)
+        SbtSystemSettings.getInstance(project)
           .getLinkedProjectSettings(file)
           .safeMap(_.sbtVersion)
           .getOrElse(Sbt.LatestVersion)
-      new Worker(file.children.toVector, sbtVersion, holder).annotate()
+      new Worker(file.children.toVector, sbtVersion, holder).annotate
     case _ =>
   }
 
   private class Worker(sbtFileElements: Seq[PsiElement], sbtVersion: String, holder: AnnotationHolder) {
-    def annotate(): Unit = {
+    def annotate(implicit typeSystem: TypeSystem) {
       sbtFileElements.collect {
         case exp: ScExpression => annotateTypeMismatch(exp)
         case element => annotateNonExpression(element)
@@ -45,7 +49,8 @@ class SbtAnnotator extends Annotator {
       case other => holder.createErrorAnnotation(other, SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions"))
     }
 
-    private def annotateTypeMismatch(expression: ScExpression): Unit =
+    private def annotateTypeMismatch(expression: ScExpression)
+                                    (implicit typeSystem: api.TypeSystem): Unit =
       expression.getType(TypingContext.empty).foreach { expressionType =>
         if (expressionType.equiv(types.Nothing) || expressionType.equiv(types.Null)) {
           holder.createErrorAnnotation(expression, SbtBundle("sbt.annotation.expectedExpressionType"))
