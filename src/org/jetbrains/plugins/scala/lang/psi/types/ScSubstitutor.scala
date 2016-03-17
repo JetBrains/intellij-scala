@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
@@ -421,7 +422,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                 case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
                 case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
                 case named => named
-              }, s.hasRepeatedParam), rt)
+              }, s.hasRepeatedParam)(ScalaTypeSystem), rt)
         }, typeMap.map {
           case (s, sign) => (s, sign.updateTypes(substInternal))
         })
@@ -443,7 +444,8 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
 class ScUndefinedSubstitutor(val upperMap: Map[(String, PsiElement), HashSet[ScType]] = HashMap.empty,
                              val lowerMap: Map[(String, PsiElement), HashSet[ScType]] = HashMap.empty,
                              val upperAdditionalMap: Map[(String, PsiElement), HashSet[ScType]] = HashMap.empty,
-                             val lowerAdditionalMap: Map[(String, PsiElement), HashSet[ScType]] = HashMap.empty) {
+                             val lowerAdditionalMap: Map[(String, PsiElement), HashSet[ScType]] = HashMap.empty)
+                            (implicit val typeSystem: TypeSystem) {
 
   def copy(upperMap: Map[(String, PsiElement), HashSet[ScType]] = upperMap,
            lowerMap: Map[(String, PsiElement), HashSet[ScType]] = lowerMap,

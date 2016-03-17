@@ -15,12 +15,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, MacroInferUtil}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
@@ -90,7 +91,8 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
 
   private var placeCalculated = false
 
-  def collect(fullInfo: Boolean = false): Seq[ScalaResolveResult] = {
+  def collect(fullInfo: Boolean = false)
+             (implicit typeSystem: TypeSystem): Seq[ScalaResolveResult] = {
     def calc(): Seq[ScalaResolveResult] = {
       ScType.extractClass(tp, Some(place.getProject)) match {
         case Some(clazz) if InferUtil.skipQualSet.contains(clazz.qualifiedName) => return Seq.empty
@@ -154,7 +156,8 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
     }
   }
 
-  class ImplicitParametersProcessor(withoutPrecedence: Boolean) extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
+  class ImplicitParametersProcessor(withoutPrecedence: Boolean)(implicit override val typeSystem: TypeSystem)
+    extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
     protected def getPlace: PsiElement = place
 
     def execute(element: PsiElement, state: ResolveState): Boolean = {
@@ -397,7 +400,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                       doComputations(coreElement.getOrElse(place), (tp: Object, searches: Seq[Object]) => {
                         !searches.exists {
                           case t: ScType if tp.isInstanceOf[ScType] =>
-                            if (Equivalence.equivInner(t, tp.asInstanceOf[ScType], new ScUndefinedSubstitutor(), falseUndef = false)._1) true
+                            if (t.equiv(tp.asInstanceOf[ScType], new ScUndefinedSubstitutor(), falseUndef = false)._1) true
                             else dominates(tp.asInstanceOf[ScType], t)
                           case _ => false
                         }

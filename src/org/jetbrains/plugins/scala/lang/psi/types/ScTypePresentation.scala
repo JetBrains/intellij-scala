@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNames
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
-trait ScTypePresentation {
+trait ScTypePresentation extends api.TypeSystemOwner {
   def presentableText(t: ScType) = typeText(t, {
     case c: PsiClass => ScalaPsiUtil.nameWithPrefixIfNeeded(c)
     case e => e.name
@@ -167,7 +167,7 @@ trait ScTypePresentation {
           val paramClauses = funCopy.paramClauses.clauses.map(_.parameters.map(param =>
             ScalaDocumentationProvider.parseParameter(param, typeText0)).mkString("(", ", ", ")")).mkString("")
           val retType = if (!compType.equiv(rt)) typeText0(rt) else "this.type"
-          val typeParams = if (funCopy.typeParameters.length > 0)
+          val typeParams = if (funCopy.typeParameters.nonEmpty)
             funCopy.typeParameters.map(typeParamText(_, ScSubstitutor.empty)).mkString("[", ", ", "]")
           else ""
           Seq(s"def ${s.name}$typeParams$paramClauses: $retType")
@@ -186,7 +186,7 @@ trait ScTypePresentation {
           }
         case (s: String, sign: TypeAliasSignature) =>
           val ta = ScTypeAlias.getCompoundCopy(sign, sign.ta)
-          val paramsText = if (ta.typeParameters.length > 0)
+          val paramsText = if (ta.typeParameters.nonEmpty)
             ta.typeParameters.map(typeParamText(_, ScSubstitutor.empty)).mkString("[", ", ", "]")
           else ""
           val decl = s"type ${ta.name}$paramsText"
@@ -216,10 +216,10 @@ trait ScTypePresentation {
       existType match {
         case ScExistentialType(q, wilds) if checkWildcard && wilds.length == 1 =>
           q match {
-            case ScTypeVariable(name) if name == wilds(0).name =>
-              existentialArgWithBounds(wilds(0), "_")
-            case ScDesignatorType(a: ScTypeAlias) if a.isExistentialTypeAlias && a.name == wilds(0).name =>
-              existentialArgWithBounds(wilds(0), "_")
+            case ScTypeVariable(name) if name == wilds.head.name =>
+              existentialArgWithBounds(wilds.head, "_")
+            case ScDesignatorType(a: ScTypeAlias) if a.isExistentialTypeAlias && a.name == wilds.head.name =>
+              existentialArgWithBounds(wilds.head, "_")
             case _ =>
               existentialTypeText(existType, checkWildcard = false, stable)
           }
@@ -229,8 +229,8 @@ trait ScTypePresentation {
           val left = wilds.filter {
             case arg: ScExistentialArgument =>
               val seq = wildcardsMap.getOrElse(arg, Seq.empty)
-              if (seq.length == 1 && typeArgs.exists(_ eq seq(0))) {
-                replacingArgs += ((seq(0), arg))
+              if (seq.length == 1 && typeArgs.exists(_ eq seq.head)) {
+                replacingArgs += ((seq.head, arg))
                 false
               } else true
           }
@@ -276,7 +276,7 @@ trait ScTypePresentation {
           abstractTypeText(abstractType)
         case StdType(name, _) =>
           name
-        case f@ScFunctionType(ret, params) if !t.isAliasType.isDefined =>
+        case f@ScFunctionType(ret, params) if t.isAliasType.isEmpty =>
           val projectOption = ScType.extractClass(f).map(_.getProject)
           val arrow = projectOption.map(ScalaPsiUtil.functionArrow).getOrElse("=>")
           typeSeqText(params, "(", ", ", s") $arrow ") + innerTypeText(ret)

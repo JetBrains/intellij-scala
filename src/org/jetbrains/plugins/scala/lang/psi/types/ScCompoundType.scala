@@ -26,7 +26,6 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
     hash
   }
 
-
   def visitType(visitor: ScalaTypeVisitor) {
     visitor.visitCompoundType(this)
   }
@@ -46,7 +45,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
         } else boundsDepth
     }
     val ints = components.map(_.typeDepth)
-    val componentsDepth = if (ints.length == 0) 0 else ints.max
+    val componentsDepth = if (ints.isEmpty) 0 else ints.max
     if (depths.nonEmpty) componentsDepth.max(depths.max + 1)
     else componentsDepth
   }
@@ -144,7 +143,8 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
+                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {
       case r: ScCompoundType =>
@@ -154,7 +154,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
         val iterator = list.iterator
         while (iterator.hasNext) {
           val (w1, w2) = iterator.next()
-          val t = Equivalence.equivInner(w1, w2, undefinedSubst, falseUndef)
+          val t = w1.equiv(w2, undefinedSubst, falseUndef)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
         }
@@ -167,7 +167,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
           r.signatureMap.get(sig) match {
             case None => return (false, undefinedSubst)
             case Some(t1) =>
-              val f = Equivalence.equivInner(t, t1, undefinedSubst, falseUndef)
+              val f = t.equiv(t1, undefinedSubst, falseUndef)
               if (!f._1) return (false, undefinedSubst)
               undefinedSubst = f._2
           }
@@ -183,10 +183,10 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
             types2.get(name) match {
               case None => return (false, undefinedSubst)
               case Some (bounds2) =>
-                var t = Equivalence.equivInner(bounds1.lowerBound, bounds2.lowerBound, undefinedSubst, falseUndef)
+                var t = bounds1.lowerBound.equiv(bounds2.lowerBound, undefinedSubst, falseUndef)
                 if (!t._1) return (false, undefinedSubst)
                 undefinedSubst = t._2
-                t = Equivalence.equivInner(bounds1.upperBound, bounds2.upperBound, undefinedSubst, falseUndef)
+                t = bounds1.upperBound.equiv(bounds2.upperBound, undefinedSubst, falseUndef)
                 if (!t._1) return (false, undefinedSubst)
                 undefinedSubst = t._2
             }
@@ -194,7 +194,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
           (true, undefinedSubst)
         }
       case _ =>
-        if (signatureMap.size == 0 && typesMap.size == 0) {
+        if (signatureMap.isEmpty && typesMap.isEmpty) {
           val filtered = components.filter {
             case psi.types.Any => false
             case psi.types.AnyRef =>
@@ -205,7 +205,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
               false
             case _ => true
           }
-          if (filtered.length == 1) Equivalence.equivInner(filtered(0), r, undefinedSubst, falseUndef)
+          if (filtered.length == 1) filtered.head.equiv(r, undefinedSubst, falseUndef)
           else (false, undefinedSubst)
         } else (false, undefinedSubst)
 
@@ -223,6 +223,7 @@ object ScCompoundType {
       }
     }
 
+    implicit val typeSystem = ScalaTypeSystem
     for (decl <- decls) {
       decl match {
         case fun: ScFunction => signatureMapVal += ((Signature(fun), fun.returnType.getOrAny))

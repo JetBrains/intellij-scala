@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -30,13 +31,16 @@ import _root_.scala.collection.mutable.ArrayBuffer
  * This class provides macros for live templates. Return elements
  * of given class type (or class types).
  */
-class ScalaVariableOfTypeMacro extends Macro {
+class ScalaVariableOfTypeMacro extends ScalaMacro {
   def getPresentableName: String = "Scala variable of type macro"
 
-  override def calculateLookupItems(exprs: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
+  override def innerCalculateLookupItems(exprs: Array[Expression], context: ExpressionContext)
+                                        (implicit typeSystem: TypeSystem): Array[LookupElement] = {
     calculateLookupItems(exprs.map(_.calculateResult(context).toString), context, showOne = false)
   }
-  def calculateLookupItems(exprs: Array[String], context: ExpressionContext, showOne: Boolean): Array[LookupElement] = {
+
+  def calculateLookupItems(exprs: Array[String], context: ExpressionContext, showOne: Boolean)
+                          (implicit typeSystem: TypeSystem): Array[LookupElement] = {
     if (!validExprs(exprs)) return null
     val offset = context.getStartOffset
     val editor = context.getEditor
@@ -71,7 +75,8 @@ class ScalaVariableOfTypeMacro extends Macro {
     array.toArray
   }
 
-  def calculateResult(exprs: Array[Expression], context: ExpressionContext): Result = {
+  def innerCalculateResult(exprs: Array[Expression], context: ExpressionContext)
+                          (implicit typeSystem: TypeSystem): Result = {
     if (!validExprs(exprs)) return null
     val offset = context.getStartOffset
     val editor = context.getEditor

@@ -67,12 +67,13 @@ case class JavaArrayType(arg: ScType) extends ValueType {
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
+                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     r match {
-      case JavaArrayType(arg2) => Equivalence.equivInner (arg, arg2, uSubst, falseUndef)
+      case JavaArrayType(arg2) => arg.equiv(arg2, uSubst, falseUndef)
       case ScParameterizedType(des, args) if args.length == 1 =>
         ScType.extractClass(des) match {
-          case Some(td) if td.qualifiedName == "scala.Array" => Equivalence.equivInner(arg, args.head, uSubst, falseUndef)
+          case Some(td) if td.qualifiedName == "scala.Array" => arg.equiv(args.head, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
       case _ => (false, uSubst)
@@ -188,7 +189,8 @@ class ScParameterizedType private(val designator: ScType, val typeArgs: Seq[ScTy
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
+                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     (this, r) match {
       case (ScParameterizedType(ScAbstractType(tpt, lower, upper), args), _) =>
@@ -205,30 +207,30 @@ class ScParameterizedType private(val designator: ScType, val typeArgs: Seq[ScTy
       case (ScParameterizedType(proj@ScProjectionType(projected, _, _), args), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         isAliasType match {
           case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
-            Equivalence.equivInner(lower match {
+            (lower match {
               case Success(tp, _) => tp
               case _ => return (false, uSubst)
-            }, r, uSubst, falseUndef)
+            }).equiv(r, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
       case (ScParameterizedType(ScDesignatorType(a: ScTypeAliasDefinition), args), _) =>
         isAliasType match {
           case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
-            Equivalence.equivInner(lower match {
+            (lower match {
               case Success(tp, _) => tp
               case _ => return (false, uSubst)
-            }, r, uSubst, falseUndef)
+            }).equiv(r, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
       case (ScParameterizedType(_, _), ScParameterizedType(designator1, typeArgs1)) =>
-        var t = Equivalence.equivInner(designator, designator1, undefinedSubst, falseUndef)
+        var t = designator.equiv(designator1, undefinedSubst, falseUndef)
         if (!t._1) return (false, undefinedSubst)
         undefinedSubst = t._2
         if (typeArgs.length != typeArgs1.length) return (false, undefinedSubst)
         val iterator1 = typeArgs.iterator
         val iterator2 = typeArgs1.iterator
         while (iterator1.hasNext && iterator2.hasNext) {
-          t = Equivalence.equivInner(iterator1.next(), iterator2.next(), undefinedSubst, falseUndef)
+          t = iterator1.next().equiv(iterator2.next(), undefinedSubst, falseUndef)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
         }
@@ -364,7 +366,8 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
+                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     val undefinedSubst = uSubst
     r match {
       case stp: ScTypeParameterType =>
@@ -402,7 +405,8 @@ case class ScTypeVariable(name: String) extends ScalaType with ValueType {
     visitor.visitTypeVariable(this)
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
+                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     r match {
       case ScTypeVariable(`name`) => (true, uSubst)
       case _ => (false, uSubst)

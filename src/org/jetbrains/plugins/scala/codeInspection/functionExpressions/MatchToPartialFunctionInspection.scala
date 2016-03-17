@@ -9,7 +9,7 @@ import com.intellij.psi.impl.source.tree.TreeElement
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{ResolveResult, PsiDocumentManager, PsiElement}
+import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
 import org.jetbrains.plugins.scala.extensions.childOf
@@ -17,9 +17,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 import scala.collection.JavaConverters._
 
@@ -40,6 +39,7 @@ class MatchToPartialFunctionInspection extends AbstractInspection(inspectionId){
   }
 
   private def notExpectedType(expr: ScExpression) = {
+    import expr.typeSystem
     (expr.getType(), expr.expectedType()) match {
       case (Success(tpe: ScType, _), Some(expType: ScType)) => !expType.equiv(tpe)
       case _ => true

@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.immutable.HashSet
 
@@ -138,6 +139,8 @@ trait ScTypePsiTypeBridge {
 
   def toPsi(_t: ScType, project: Project, scope: GlobalSearchScope, noPrimitives: Boolean = false,
             skolemToWildcard: Boolean = false): PsiType = {
+    implicit val typeSystem = project.typeSystem
+
     def isValueType(cl: ScClass): Boolean = cl.superTypes.contains(AnyVal) && cl.parameters.length == 1
 
     def outerClassHasTypeParameters(proj: ScProjectionType): Boolean = {

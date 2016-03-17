@@ -5,37 +5,40 @@ import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
 import org.jetbrains.plugins.scala.format.{Injection, Span, _}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
-  // Acceptance test
+  * // Acceptance test
 
-  // Expression kind
-  "value: %d".format("123") // call format
-  "value: %d" format "123"  //  infix format
-  "123".formatted("%d") // call formatted
-  "123" formatted "%d" // infix formatted
-  String.format("%d", "123") // java call format
-  String format ("%d", "123") // java infix format
-  printf("%d", "123") // printf
-  System.out.printf("%d", "123") // System.out.printf
+  * // Expression kind
+  * "value: %d".format("123") // call format
+  * "value: %d" format "123"  //  infix format
+  * "123".formatted("%d") // call formatted
+  * "123" formatted "%d" // infix formatted
+  * String.format("%d", "123") // java call format
+  * String format ("%d", "123") // java infix format
+  * printf("%d", "123") // printf
+  * System.out.printf("%d", "123") // System.out.printf
 
-  // Warning kind
-  "value: %d".format() // no argument
-  "value: %1$d".format() // no positional argument
-  "value: %d".format("123") // inconvertible type
-  "value: ".format(123) // unused argument
+  * // Warning kind
+  * "value: %d".format() // no argument
+  * "value: %1$d".format() // no positional argument
+  * "value: %d".format("123") // inconvertible type
+  * "value: ".format(123) // unused argument
 
-  // Multi-line string
-  """value: %d""".format("123") // call format
+  * // Multi-line string
+  * """value: %d""".format("123") // call format
 
-  // Specifier type
-  "value: %d".format(123) // call format
-  "value: %b".format(true) // call format
-  "value: %f".format(0.5F) // call format
-  "value: %c".format('c') // call format
-  "value: %s".format(123) // call format
+  * // Specifier type
+  * "value: %d".format(123) // call format
+  * "value: %b".format(true) // call format
+  * "value: %f".format(0.5F) // call format
+  * "value: %c".format('c') // call format
+  * "value: %s".format(123) // call format
 
-  // Interpolated strings ...
+  * // Interpolated strings ...
  */
 
 /**
@@ -53,7 +56,8 @@ class ScalaMalformedFormatStringInspection extends AbstractInspection {
         inspect(part, holder)
   }
 
-  private def inspect(part: StringPart, holder: ProblemsHolder) {
+  private def inspect(part: StringPart, holder: ProblemsHolder)
+                     (implicit typeSystem: TypeSystem = holder.getProject.typeSystem) {
     part match {
       case injection @ Injection(exp, Some(Specifier(Span(element, start, end), format))) =>
         injection.problem match {

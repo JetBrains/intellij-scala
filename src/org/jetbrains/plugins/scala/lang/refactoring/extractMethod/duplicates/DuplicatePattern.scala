@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ExtractMethodParameter
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil._
 
@@ -55,7 +56,8 @@ class DuplicatePattern(val elements: Seq[PsiElement], parameters: Seq[ExtractMet
     buffer.toMap
   }
 
-  def isDuplicateStart(candidate: PsiElement): Option[DuplicateMatch] = {
+  def isDuplicateStart(candidate: PsiElement)
+                      (implicit typeSystem: TypeSystem): Option[DuplicateMatch] = {
     withFilteredForwardSiblings(candidate, elements.size) match {
       case Some(cands) =>
         if (cands.exists(isUnder(_, elements))) None
@@ -67,8 +69,9 @@ class DuplicatePattern(val elements: Seq[PsiElement], parameters: Seq[ExtractMet
       case _ => None
     }
   }
-  
-  def findDuplicates(scope: PsiElement): Seq[DuplicateMatch] = {
+
+  def findDuplicates(scope: PsiElement)
+                    (implicit typeSystem: TypeSystem): Seq[DuplicateMatch] = {
     val result = ListBuffer[DuplicateMatch]()
     val seen = mutable.Set[PsiElement]()
     val visitor = new ScalaRecursiveElementVisitor {

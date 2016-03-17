@@ -29,11 +29,13 @@ import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.{Reaching
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType, StdType, Any => scTypeAny, Unit => scTypeUnit}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaMethodDescriptor, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{IntroduceException, showErrorHint}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil, ScalaVariableValidator}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -59,7 +61,8 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
     }
   }
 
-  def functionalArg(elems: Seq[PsiElement], input: Iterable[VariableInfo], method: ScMethodLike): (ScExpression, ScType) = {
+  def functionalArg(elems: Seq[PsiElement], input: Iterable[VariableInfo], method: ScMethodLike)
+                   (implicit typeSystem: TypeSystem): (ScExpression, ScType) = {
     val namesAndTypes = input.map { v =>
       val elem = v.element
       val typeText = elem match {
@@ -98,7 +101,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
     }
 
     afterMethodChoosing(elems.head, editor) { methodLike =>
-      val data = collectData(exprWithTypes, elems, methodLike, editor)
+      val data = collectData(exprWithTypes, elems, methodLike, editor)(project.typeSystem)
 
       data.foreach { d =>
         val dialog = createDialog(project, d)
@@ -145,7 +148,8 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
   }
 
 
-  def collectData(exprWithTypes: ExprWithTypes, elems: Seq[PsiElement], methodLike: ScMethodLike, editor: Editor): Option[ScalaIntroduceParameterData] = {
+  def collectData(exprWithTypes: ExprWithTypes, elems: Seq[PsiElement], methodLike: ScMethodLike, editor: Editor)
+                 (implicit typeSystem: TypeSystem): Option[ScalaIntroduceParameterData] = {
     val project = methodLike.getProject
 
     val info = ReachingDefintionsCollector.collectVariableInfo(elems, methodLike)

@@ -64,7 +64,8 @@ trait ScType {
    */
   def removeAbstracts: ScType = this
 
-  def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
+                (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     (false, uSubst)
   }
 
@@ -107,6 +108,8 @@ trait ScType {
 }
 
 object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
+  override implicit val typeSystem = ScalaTypeSystem
+
   def typeParamsDepth(typeParams: Array[TypeParameter]): Int = {
     typeParams.map {
       case typeParam =>

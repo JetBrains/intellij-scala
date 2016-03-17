@@ -21,7 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, Parameter}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
@@ -34,11 +35,13 @@ import scala.collection.{Set, mutable}
 
 /**
  * Utility class for implicit conversions.
- * @author alefas, ilyas
+  *
+  * @author alefas, ilyas
  */
 //todo: refactor this terrible code
-class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[ScType]) {
-  def this(expr: ScExpression) {
+class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[ScType])
+                             (implicit val typeSystem: TypeSystem) {
+  def this(expr: ScExpression)(implicit typeSystem: TypeSystem) {
     this(expr, fromUnder => {
       //this code is required, because compiler works in the same way
       //otherwise we will see strange error messages like:
@@ -354,7 +357,8 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
   }
 
 
-  class CollectImplicitsProcessor(withoutPrecedence: Boolean) extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
+  class CollectImplicitsProcessor(withoutPrecedence: Boolean)(implicit override val typeSystem: TypeSystem)
+    extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
     //can be null (in Unit tests or without library)
     private val funType: ScType = {
       val funClass: PsiClass = ScalaPsiManager.instance(place.getProject).getCachedClass(place.getResolveScope, "scala.Function1").orNull

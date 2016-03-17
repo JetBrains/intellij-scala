@@ -16,6 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable
 
@@ -30,7 +32,7 @@ class ScalaGoToSuperActionHandler extends LanguageCodeInsightActionHandler {
 
   def invoke(project: Project, editor: Editor, file: PsiFile) {
     val offset = editor.getCaretModel.getOffset
-    val (superClasses, superSignatureElements) = ScalaGoToSuperActionHandler.findSuperElements(file, offset)
+    val (superClasses, superSignatureElements) = ScalaGoToSuperActionHandler.findSuperElements(file, offset)(project.typeSystem)
 
     def popupChooser(superElements: Seq[PsiElement], title: String) {
       NavigationUtil.getPsiElementPopup[PsiElement](superElements.toArray, new ScCellRenderer, title, new PsiElementProcessor[PsiElement] {
@@ -61,7 +63,8 @@ class ScalaGoToSuperActionHandler extends LanguageCodeInsightActionHandler {
 private object ScalaGoToSuperActionHandler {
   val empty = Array[PsiElement]()
 
-  def findSuperElements(file: PsiFile, offset: Int): (Seq[PsiElement], Seq[PsiElement]) = {
+  def findSuperElements(file: PsiFile, offset: Int)
+                       (implicit typeSystem: TypeSystem): (Seq[PsiElement], Seq[PsiElement]) = {
     var element = file.findElementAt(offset)
     def test(e: PsiElement): Boolean = e match {
       case _: ScTemplateDefinition | _: ScFunction | _: ScValue

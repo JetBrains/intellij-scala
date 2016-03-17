@@ -9,7 +9,9 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScReturnStmt}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * @author Ksenia.Sautina
@@ -33,6 +35,7 @@ class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
     val offset = editor.getCaretModel.getOffset
     if (!(range.getStartOffset <= offset && offset <= range.getEndOffset)) return false
 
+    implicit val typeSystem = project.typeSystem
     val value = returnStmt.expr.orNull
     if (value == null) return false
     val valType = value.getType(TypingContext.empty).getOrElse(null)

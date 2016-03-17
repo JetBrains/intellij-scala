@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceEleme
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
@@ -381,7 +382,8 @@ object ScPattern {
     }
   }
 
-  private def findMember(name: String, tp: ScType, place: PsiElement): Option[ScType] = {
+  private def findMember(name: String, tp: ScType, place: PsiElement)
+                        (implicit typeSystem: TypeSystem): Option[ScType] = {
     val cp = new CompletionProcessor(StdKinds.methodRef, place, forName = Some(name))
     cp.processType(tp, place)
     cp.candidatesS.flatMap {
@@ -395,7 +397,8 @@ object ScPattern {
     }.headOption
   }
 
-  private def extractPossibleProductParts(receiverType: ScType, place: PsiElement, isOneArgCaseClass: Boolean): Seq[ScType] = {
+  private def extractPossibleProductParts(receiverType: ScType, place: PsiElement, isOneArgCaseClass: Boolean)
+                                         (implicit typeSystem: TypeSystem): Seq[ScType] = {
     val res: ArrayBuffer[ScType] = new ArrayBuffer[ScType]()
     @tailrec
     def collect(i: Int) {
@@ -411,14 +414,17 @@ object ScPattern {
     res.toSeq
   }
 
-  def extractProductParts(tp: ScType, place: PsiElement): Seq[ScType] = {
+  def extractProductParts(tp: ScType, place: PsiElement)
+                         (implicit typeSystem: TypeSystem): Seq[ScType] = {
     extractPossibleProductParts(tp, place, isOneArgCaseClass = false)
   }
 
-  def expectedNumberOfExtractorArguments(returnType: ScType, place: PsiElement, isOneArgCaseClass: Boolean): Int =
+  def expectedNumberOfExtractorArguments(returnType: ScType, place: PsiElement, isOneArgCaseClass: Boolean)
+                                        (implicit typeSystem: TypeSystem): Int =
     extractorParameters(returnType, place, isOneArgCaseClass).size
 
-  def extractorParameters(returnType: ScType, place: PsiElement, isOneArgCaseClass: Boolean): Seq[ScType] = {
+  def extractorParameters(returnType: ScType, place: PsiElement, isOneArgCaseClass: Boolean)
+                         (implicit typeSystem: TypeSystem): Seq[ScType] = {
     def collectFor2_11: Seq[ScType] = {
       findMember("isEmpty", returnType, place) match {
         case Some(tp) if types.Boolean.equiv(tp) =>

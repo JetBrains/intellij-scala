@@ -19,7 +19,7 @@ import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.macros.{MacroContext, ScalaMacroTypeable}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
@@ -33,14 +33,15 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 object ShapelessForProduct extends ScalaMacroTypeable {
 
   override def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType] = {
-    if (!context.expectedType.isDefined) return None
+    import macros.typeSystem
+    if (context.expectedType.isEmpty) return None
     val manager = ScalaPsiManager.instance(context.place.getProject)
     val clazz = manager.getCachedClass("shapeless.Generic", context.place.getResolveScope, ClassCategory.TYPE)
     clazz match {
       case c: ScTypeDefinition =>
         val tpt = c.typeParameters
-        if (tpt.length == 0) return None
-        val undef = new ScUndefinedType(new ScTypeParameterType(tpt(0), ScSubstitutor.empty))
+        if (tpt.isEmpty) return None
+        val undef = new ScUndefinedType(new ScTypeParameterType(tpt.head, ScSubstitutor.empty))
         val genericType = ScParameterizedType(ScDesignatorType(c), Seq(undef))
         val (res, undefSubst) = Conformance.conformsInner(genericType, context.expectedType.get, Set.empty, new ScUndefinedSubstitutor())
         if (!res) return None
@@ -48,7 +49,7 @@ object ShapelessForProduct extends ScalaMacroTypeable {
           case Some(subst) =>
             val productLikeType = subst.subst(undef)
             val parts = ScPattern.extractProductParts(productLikeType, context.place)
-            if (parts.length == 0) return None
+            if (parts.isEmpty) return None
             val coloncolon = manager.getCachedClass("shapeless.::", context.place.getResolveScope, ClassCategory.TYPE)
             if (coloncolon == null) return None
             val hnil = manager.getCachedClass("shapeless.HNil", context.place.getResolveScope, ClassCategory.TYPE)
@@ -62,7 +63,7 @@ object ShapelessForProduct extends ScalaMacroTypeable {
                   case a: ScTypeAlias if a.name == "Aux" => true
                   case _ => false
                 }
-                if (!elem.isDefined) return None
+                if (elem.isEmpty) return None
                 Some(ScParameterizedType(ScProjectionType(ScDesignatorType(obj), elem.get.asInstanceOf[PsiNamedElement],
                   superReference = false), Seq(productLikeType, repr)))
               case _ => None

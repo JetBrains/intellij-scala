@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
@@ -28,7 +29,8 @@ import scala.collection.{Set, immutable}
  * User: Alexander Podkhalyuzin
  * Date: 26.04.2010
  */
-case class MostSpecificUtil(elem: PsiElement, length: Int) {
+case class MostSpecificUtil(elem: PsiElement, length: Int)
+                           (implicit typeSystem: TypeSystem) {
   def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult],
                                    hasTypeParametersCall: Boolean = false,
                                    expandInnerResult: Boolean = true): Option[ScalaResolveResult] = {
@@ -63,7 +65,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     mostSpecificGeneric(applicable.map(r => {
       var callByName = false
       def checkCallByName(clauses: Seq[ScParameterClause]): Unit = {
-        if (clauses.length > 0 && clauses(0).parameters.length == 1 && clauses(0).parameters(0).isCallByNameParameter) {
+        if (clauses.nonEmpty && clauses(0).parameters.length == 1 && clauses(0).parameters(0).isCallByNameParameter) {
           callByName = true
         }
       }
@@ -85,7 +87,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                                 checkImplicits: Boolean): Boolean = {
     def lastRepeated(params: Seq[Parameter]): Boolean = {
       val lastOption: Option[Parameter] = params.lastOption
-      if (lastOption == None) return false
+      if (lastOption.isEmpty) return false
       lastOption.get.isRepeated
     }
     (r1.element, r2.element) match {
@@ -157,9 +159,9 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                   else p
                 case p => p
               }
-              val i: Int = if (params1.length > 0) 0.max(length - params1.length) else 0
+              val i: Int = if (params1.nonEmpty) 0.max(length - params1.length) else 0
               val default: Expression =
-                new Expression(if (params1.length > 0) params1.last.paramType else types.Nothing, elem)
+                new Expression(if (params1.nonEmpty) params1.last.paramType else types.Nothing, elem)
               val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType, elem)) ++
                       Seq.fill(i)(default)
               Compatibility.checkConformance(checkNames = false, params2, exprs, checkImplicits)
@@ -221,7 +223,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     element match {
       case memb: PsiMember =>
         val clazz = memb.containingClass
-        if (clazz == null) None else Some(clazz)
+        Option(clazz)
       case _ => None
     }
   }
@@ -230,7 +232,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
    * c1 is a subclass of c2, or
    * c1 is a companion object of a class derived from c2, or
    * c2 is a companion object of a class from which c1 is derived.
-   * @return true is c1 is derived from c2, false if c1 or c2 is None
+    *
+    * @return true is c1 is derived from c2, false if c1 or c2 is None
    */
   def isDerived(c1: Option[PsiClass], c2: Option[PsiClass]): Boolean = {
     (c1, c2) match {

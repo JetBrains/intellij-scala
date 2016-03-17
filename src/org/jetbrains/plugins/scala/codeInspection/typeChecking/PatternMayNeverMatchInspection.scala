@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, Inspectio
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
 import org.jetbrains.plugins.scala.lang.psi.types.{Conformance, ScType, ScTypePresentation}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
   * Author: Svyatoslav Ilinskiy
@@ -15,9 +16,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.{Conformance, ScType, ScTypePr
   */
 class PatternMayNeverMatchInspection extends AbstractInspection(inspectionId, inspectionName) {
   override def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
-    case pat@ScPatternExpectedAndPatternType(exTp, patType)
-      if !PatternAnnotatorUtil.matchesPattern(exTp, patType) && !Conformance.conforms(exTp, patType) =>
-      if (!isNeverSubType(exTp, patType)) {
+    case pat@ScPatternExpectedAndPatternType(exTp, patType) =>
+      implicit val typeSystem = holder.getProject.typeSystem
+      if (!PatternAnnotatorUtil.matchesPattern(exTp, patType) && !Conformance.conforms(exTp, patType) &&
+        !isNeverSubType(exTp, patType)) {
         //need to check so inspection highlighting doesn't interfere with PatterAnnotator's
         val message = PatternMayNeverMatchInspection.message(exTp, patType)
         holder.registerProblem(pat, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)

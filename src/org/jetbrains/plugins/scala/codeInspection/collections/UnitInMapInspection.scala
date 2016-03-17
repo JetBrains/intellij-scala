@@ -8,7 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScTypeExt, Unit}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * @author Nikolay.Tropin
@@ -27,6 +28,7 @@ class UnitInMapInspection extends OperationOnCollectionInspection {
       val fixes =
         if (isInBlock) Seq(new ChangeReferenceNameQuickFix(InspectionBundle.message("use.foreach.instead.of.map"), ref, "foreach"))
         else Seq.empty
+      implicit val typeSystem = holder.getProject.typeSystem
       val unitTypeReturns = body.calculateReturns().collect {
         case expr @ ExpressionType(ft @ ScFunctionType(Unit, _)) if arg.getType().getOrAny.equiv(ft) => expr
         case expr @ ExpressionType(Unit) => expr

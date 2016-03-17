@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
@@ -20,6 +21,7 @@ class ExtractorResolveProcessor(ref: ScReferenceElement,
                                 refName: String,
                                 kinds: Set[ResolveTargets.Value],
                                 expected: Option[ScType])
+                               (implicit override val typeSystem: TypeSystem)
         extends ResolveProcessor(kinds, ref, refName) {
 
   override def execute(element: PsiElement, state: ResolveState): Boolean = {

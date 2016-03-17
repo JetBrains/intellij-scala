@@ -12,7 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, ScTypeText}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, BaseTypes, ScType, ScTypeText}
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
@@ -21,7 +23,8 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
   */
 class MakeTypeMoreSpecificIntention extends PsiElementBaseIntentionAction {
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    ToggleTypeAnnotation.complete(new MakeTypeMoreSpecificStrategy(Option(editor)), element)
+    ToggleTypeAnnotation.complete(new MakeTypeMoreSpecificStrategy(Option(editor))(project.typeSystem),
+      element)
   }
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
@@ -32,6 +35,7 @@ class MakeTypeMoreSpecificIntention extends PsiElementBaseIntentionAction {
         setText(s)
         isAvailable = true
       }
+      implicit val typeSystem = project.typeSystem
       val desc = new StrategyAdapter {
         override def removeFromVariable(variable: ScVariableDefinition): Unit = {
           for {
@@ -69,7 +73,8 @@ class MakeTypeMoreSpecificIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("make.type.more.specific")
 }
 
-class MakeTypeMoreSpecificStrategy(editor: Option[Editor]) extends Strategy {
+class MakeTypeMoreSpecificStrategy(editor: Option[Editor])
+                                  (implicit typeSystem: TypeSystem) extends Strategy {
   import MakeTypeMoreSpecificStrategy._
 
   def doTemplate(te: ScTypeElement, declaredType: ScType, dynamicType: ScType, context: PsiElement, editor: Editor): Unit = {
@@ -133,7 +138,8 @@ class MakeTypeMoreSpecificStrategy(editor: Option[Editor]) extends Strategy {
 }
 
 object MakeTypeMoreSpecificStrategy {
-  def computeBaseTypes(declaredType: ScType, dynamicType: ScType): Seq[ScType] = {
+  def computeBaseTypes(declaredType: ScType, dynamicType: ScType)
+                      (implicit typeSystem: TypeSystem) : Seq[ScType] = {
     val baseTypes = dynamicType +: BaseTypes.get(dynamicType)
     baseTypes.filter(t => t.conforms(declaredType) && !t.equiv(declaredType))
   }

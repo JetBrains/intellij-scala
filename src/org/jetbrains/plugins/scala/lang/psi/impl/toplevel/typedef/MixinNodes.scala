@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
@@ -312,9 +313,10 @@ abstract class MixinNodes {
     }
   }
 
-  def build(clazz: PsiClass): Map = build(ScType.designator(clazz))
+  def build(clazz: PsiClass)(implicit typeSystem: TypeSystem): Map = build(ScType.designator(clazz))
 
-  def build(tp: ScType, compoundThisType: Option[ScType] = None): Map = {
+  def build(tp: ScType, compoundThisType: Option[ScType] = None)
+           (implicit typeSystem: TypeSystem): Map = {
     var isPredef = false
     var place: Option[PsiElement] = None
     val map = new Map
@@ -447,10 +449,11 @@ abstract class MixinNodes {
     res
   }
 
-  def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement])
+  def processJava(clazz: PsiClass, subst: ScSubstitutor, map: Map, place: Option[PsiElement])(implicit typeSystem: TypeSystem)
   def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, map: Map,
-                   place: Option[PsiElement], base: Boolean)
-  def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement])
+                   place: Option[PsiElement], base: Boolean)(implicit typeSystem: TypeSystem)
+
+  def processRefinement(cp: ScCompoundType, map: Map, place: Option[PsiElement])(implicit typeSystem: TypeSystem)
 }
 
 object MixinNodes {

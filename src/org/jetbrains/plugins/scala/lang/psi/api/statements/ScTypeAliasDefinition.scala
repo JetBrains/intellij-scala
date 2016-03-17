@@ -11,8 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{Equivalence, ScParameterizedType, ScType, ScTypeParameterType}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 
 /**
@@ -44,7 +45,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
   def lowerBound: TypeResult[ScType] = aliasedType(TypingContext.empty)
   def upperBound: TypeResult[ScType] = aliasedType(TypingContext.empty)
 
-  def isExactAliasFor(cls: PsiClass): Boolean = {
+  def isExactAliasFor(cls: PsiClass)(implicit typeSystem: TypeSystem): Boolean = {
     val isDefinedInObject = containingClass match {
       case obj: ScObject if obj.isStatic => true
       case _ => false
@@ -52,12 +53,12 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
     isDefinedInObject && isAliasFor(cls)
   }
 
-  def isAliasFor(cls: PsiClass): Boolean = {
+  def isAliasFor(cls: PsiClass)(implicit typeSystem: TypeSystem): Boolean = {
     if (cls.getTypeParameters.length != typeParameters.length) false
     else if (cls.hasTypeParameters) {
       val typeParamsAreAppliedInOrderToCorrectClass = aliasedType.getOrAny match {
         case pte: ScParameterizedType =>
-          val refersToClass = Equivalence.equiv(pte.designator, ScType.designator(cls))
+          val refersToClass = pte.designator.equiv(ScType.designator(cls))
           val typeParamsAppliedInOrder = (pte.typeArgs corresponds typeParameters) {
             case (tpt: ScTypeParameterType, tp) if tpt.param == tp => true
             case _ => false
@@ -82,7 +83,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
     }
     else {
       val clsType = ScType.designator(cls)
-      typeParameters.isEmpty && Equivalence.equiv(aliasedType.getOrElse(return false), clsType)
+      typeParameters.isEmpty && aliasedType.getOrElse(return false).equiv(clsType)
     }
   }
 }

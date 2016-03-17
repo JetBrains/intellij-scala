@@ -24,8 +24,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable
 
@@ -92,7 +94,8 @@ class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor
   }
 
   private def completeImplicits(ref: ScReferenceExpression, result: CompletionResultSet, originalFile: PsiFile,
-                                originalType: ScType) {
+                                originalType: ScType)
+                               (implicit typeSystem: TypeSystem = originalFile.getProject.typeSystem) {
     FeatureUsageTracker.getInstance.triggerFeatureUsed(JavaCompletionFeatures.GLOBAL_MEMBER_NAME)
     val scope: GlobalSearchScope = ref.getResolveScope
     val file = ref.getContainingFile

@@ -9,8 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScBooleanLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.types.StdType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, Boolean}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.IntentionUtils
 
 import scala.collection.Seq
@@ -23,6 +24,7 @@ import scala.collection.Seq
 abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
+    implicit val typeSystem = holder.getProject.typeSystem
     new ScalaElementVisitor {
       override def visitMethodCallExpression(mc: ScMethodCall) {
         if (mc == null || mc.args == null || mc.args.exprs.isEmpty) return
@@ -48,7 +50,7 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
         if (p.isRepeated) false
         else {
           val typeElem = p.paramInCode.flatMap(_.typeElement)
-          typeElem.exists(_.calcType.equiv(StdType.BOOLEAN))
+          typeElem.exists(_.calcType.equiv(Boolean))
         }
       }
 

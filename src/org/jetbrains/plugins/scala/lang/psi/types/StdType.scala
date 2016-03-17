@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 
 
 abstract class StdType(val name: String, val tSuper: Option[StdType]) extends ValueType {
@@ -30,7 +31,8 @@ abstract class StdType(val name: String, val tSuper: Option[StdType]) extends Va
     else None
   }
 
-  override def equivInner(r: ScType, subst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, subst: ScUndefinedSubstitutor, falseUndef: Boolean)
+                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     (this, r) match {
       case (l: StdType, _: StdType) => (l == r, subst)
       case (AnyRef, _) =>

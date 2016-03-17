@@ -26,7 +26,8 @@ case class ScUndefinedType(tpt: ScTypeParameterType) extends NonValueType {
 
   def inferValueType: ValueType = tpt
 
-  override def equivInner(r: ScType, subst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, subst: ScUndefinedSubstitutor, falseUndef: Boolean)
+                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = subst
     r match {
       case _ if falseUndef => (false, undefinedSubst)
@@ -49,7 +50,7 @@ case class ScUndefinedType(tpt: ScTypeParameterType) extends NonValueType {
  * to resolve generics. It's important if two local type
  * inferences work together.
  */
-case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType) extends NonValueType {
+case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType) extends ScalaType with NonValueType {
   private var hash: Int = -1
 
   override def hashCode: Int = {
@@ -67,8 +68,8 @@ case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
-                          falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
+                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     r match {
       case _ if falseUndef => (false, uSubst)
       case rt =>

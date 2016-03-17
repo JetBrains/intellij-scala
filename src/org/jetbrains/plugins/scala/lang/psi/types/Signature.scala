@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 
 import scala.collection.mutable.ArrayBuffer
@@ -70,10 +71,12 @@ case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], low
 
 class Signature(val name: String, private val typesEval: List[Seq[() => ScType]], val paramLength: List[Int],
                 private val tParams: Array[TypeParameter], val substitutor: ScSubstitutor,
-                val namedElement: PsiNamedElement, val hasRepeatedParam: Seq[Int] = Seq.empty) {
+                val namedElement: PsiNamedElement, val hasRepeatedParam: Seq[Int] = Seq.empty)
+               (implicit val typeSystem: TypeSystem) {
 
   def this(name: String, stream: Seq[() => ScType], paramLength: Int, substitutor: ScSubstitutor,
-           namedElement: PsiNamedElement) =
+           namedElement: PsiNamedElement)
+          (implicit typeSystem: TypeSystem) =
     this(name, List(stream), List(paramLength), Array.empty, substitutor, namedElement)
 
   private def types: List[Seq[() => ScType]] = typesEval
@@ -132,12 +135,12 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
         val t2 = otherTypesIterator.next()
         val tp2 = unified2.subst(t2())
         val tp1 = unified1.subst(t1())
-        var t = Equivalence.equivInner(tp2, tp1, undefSubst, falseUndef)
+        var t = tp2.equiv(tp1, undefSubst, falseUndef)
         if (!t._1 && tp1.equiv(AnyRef) && this.isJava) {
-          t = Equivalence.equivInner(tp2, Any, undefSubst, falseUndef)
+          t = tp2.equiv(Any, undefSubst, falseUndef)
         }
         if (!t._1 && tp2.equiv(AnyRef) && other.isJava) {
-          t = Equivalence.equivInner(Any, tp1, undefSubst, falseUndef)
+          t = Any.equiv(tp1, undefSubst, falseUndef)
         }
         if (!t._1) {
           return (false, undefSubst)
@@ -191,7 +194,7 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
 }
 
 object Signature {
-  def apply(function: ScFunction) = new Signature(
+  def apply(function: ScFunction)(implicit typeSystem: TypeSystem) = new Signature(
     function.name,
     PhysicalSignature.typesEval(function),
     PhysicalSignature.paramLength(function),
@@ -201,7 +204,7 @@ object Signature {
     PhysicalSignature.hasRepeatedParam(function)
   )
 
-  def getter(definition: ScTypedDefinition) = new Signature(
+  def getter(definition: ScTypedDefinition)(implicit typeSystem: TypeSystem) = new Signature(
     definition.name,
     Seq.empty,
     0,
@@ -209,7 +212,7 @@ object Signature {
     definition
   )
 
-  def setter(definition: ScTypedDefinition) = new Signature(
+  def setter(definition: ScTypedDefinition)(implicit typeSystem: TypeSystem) = new Signature(
     s"$definition.name_=",
     Seq(() => definition.getType().getOrAny),
     1,
@@ -261,7 +264,7 @@ object PhysicalSignature {
         res.toSeq
       case p =>
         val parameters = p.getParameters
-        if (parameters.length == 0) return Seq.empty
+        if (parameters.isEmpty) return Seq.empty
         if (parameters(parameters.length - 1).isVarArgs) return Seq(parameters.length - 1)
         Seq.empty
     }
@@ -273,6 +276,7 @@ object PhysicalSignature {
 }
 
 class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
+                       (implicit override val typeSystem: TypeSystem)
         extends Signature(method.name, PhysicalSignature.typesEval(method), PhysicalSignature.paramLength(method),
           TypeParameter.fromArray(method.getTypeParameters), substitutor, method, PhysicalSignature.hasRepeatedParam(method)) {
   override def isJava = method.getLanguage == JavaFileType.INSTANCE.getLanguage

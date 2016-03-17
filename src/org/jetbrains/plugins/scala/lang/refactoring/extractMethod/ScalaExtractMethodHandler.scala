@@ -24,11 +24,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElemen
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.showErrorHint
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -52,7 +54,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     }
   }
 
-  private def invokeOnEditor(project: Project, editor: Editor, file: ScalaFile, dataContext: DataContext) {
+  private def invokeOnEditor(project: Project, editor: Editor, file: ScalaFile, dataContext: DataContext)
+                            (implicit typeSystem: TypeSystem = project.typeSystem) {
     if (!ScalaRefactoringUtil.ensureFileWritable(project, file)) {
       showErrorHint(ScalaBundle.message("file.is.not.writable"), project, editor, REFACTORING_NAME)
       return
@@ -203,7 +206,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
   private def invokeDialog(project: Project, editor: Editor, elements: Array[PsiElement], hasReturn: Option[ScType],
                            lastReturn: Boolean, sibling: PsiElement, smallestScope: Boolean,
-                           lastExprType: Option[ScType]) {
+                           lastExprType: Option[ScType])
+                          (implicit typeSystem: TypeSystem) {
 
     val info = ReachingDefintionsCollector.collectVariableInfo(elements, sibling)
 
@@ -273,7 +277,8 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
     }
   }
 
-  private def performRefactoring(settings: ScalaExtractMethodSettings, editor: Editor) {
+  private def performRefactoring(settings: ScalaExtractMethodSettings, editor: Editor)
+                                (implicit typeSystem: TypeSystem) {
     val method = ScalaExtractMethodUtils.createMethodFromSettings(settings)
     if (method == null) return
     val ics = settings.innerClassSettings
@@ -311,7 +316,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
       insertedMethod
     }
 
-    def insertMethodCall() =
+    def insertMethodCall(implicit typeSystem: TypeSystem) =
       ScalaExtractMethodUtils.replaceWithMethodCall(settings, settings.elements, param => param.oldName, output => output.paramName)
 
 
@@ -321,7 +326,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
 
       val method = insertMethod()
       insertInnerClassBefore(method)
-      insertMethodCall()
+      insertMethodCall
 
       val manager = CodeStyleManager.getInstance(method.getProject)
       manager.reformat(method)

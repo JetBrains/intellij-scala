@@ -21,7 +21,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeEl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * Nikolay.Tropin
@@ -34,6 +36,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
 
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile) = {
+    implicit val typeSystem = project.typeSystem
     def goodQualifier = ref.qualifier match {
       case Some(InstanceOfClass(typeDef: ScTypeDefinition)) => true
       case Some(ResolvesTo(pack: PsiPackage)) => true
@@ -45,6 +48,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
 
   override protected def invokeInner(project: Project, editor: Editor, file: PsiFile) = {
     inWriteAction {
+      implicit val typeSystem = project.typeSystem
       ref.qualifier match {
         case Some(InstanceOfClass(typeDef: ScTypeDefinition)) => createInnerClassIn(typeDef)
         case Some(ResolvesTo(pack: PsiPackage)) => createClassInPackage(pack)
@@ -97,7 +101,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
     }
   }
 
-  private def createClassWithLevelChoosing(editor: Editor, siblings: Seq[PsiElement]): Unit = {
+  private def createClassWithLevelChoosing(editor: Editor, siblings: Seq[PsiElement])(implicit typeSystem: TypeSystem) {
     val renderer = new PsiElementListCellRenderer[PsiElement] {
       override def getElementText(element: PsiElement) = element match {
         case f: PsiFile => "New file"

@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaRecursiveElemen
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -135,7 +136,7 @@ package object collections {
   }
 
   class FunctionExpressionWithReturnTypeTemplate(tp: ScType) {
-    def unapply(expr: ScExpression): Boolean = {
+    def unapply(expr: ScExpression)(implicit typeSystem: TypeSystem = expr.typeSystem): Boolean = {
       expr.getType(TypingContext.empty) match {
         case Success(result, _) =>
           result match {

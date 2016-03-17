@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 
 /**
  * @author Alefas
@@ -16,7 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.types._
  */
 object MacroInferUtil {
   //todo fix decompiler and replace parameter by ScMacroDefinition
-  def checkMacro(f: ScFunction, expectedType: Option[ScType], place: PsiElement): Option[ScType] = {
+  def checkMacro(f: ScFunction, expectedType: Option[ScType], place: PsiElement)
+                (implicit typeSystem: TypeSystem): Option[ScType] = {
     if (!f.isInstanceOf[ScMacroDefinition] && !f.hasAnnotation("scala.reflect.macros.internal.macroImpl").isDefined) {
       return None
     }
