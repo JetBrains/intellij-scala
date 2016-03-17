@@ -49,12 +49,11 @@ class DottyCompiler(scalaInstance: ScalaInstance, compilerJars: CompilerJars) ex
     override def write(b: Int): Unit = {}
   })
 
-  //options for these settings should be in the same entry in the array of compiler arguments
-  private val multistringSettings = Set("-language:", "-Xplugin:", "-Xplugin-disable:", "-Xplugin-require:")
-  private val phasesSettings = Set("-Xprint:", "-Xprint-icode:")
+  //options for these settings should be in the separate entry in the array of compiler arguments
+  val argsToSplit = Set("-target:", "-g:", "-Yresolve-term-conflict:", "-Ylinearizer:", "-Ystruct-dispatch:", "-Ybuilder-debug:")
 
   private def splitArg(arg: String): Seq[String] = {
-    if ((multistringSettings ++ phasesSettings).exists(arg.startsWith)) return Seq(arg)
+    if (!argsToSplit.exists(arg.startsWith)) return Seq(arg)
 
     val colonIdx = arg.indexOf(':')
     if (colonIdx > 0 && colonIdx < arg.length - 1 && !arg.charAt(colonIdx + 1).isWhitespace)
