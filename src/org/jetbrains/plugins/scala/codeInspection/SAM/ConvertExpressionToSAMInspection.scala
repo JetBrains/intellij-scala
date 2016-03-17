@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle, ProblemsHolderExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * Author: Svyatoslav Ilinskiy
@@ -28,7 +27,7 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionId, 
   }
 
   private def inspectAccordingToExpectedType(expected: ScType, definition: ScNewTemplateDefinition, holder: ProblemsHolder)
-                                            (implicit typeSystem: TypeSystem = holder.getProject.typeSystem) {
+                                            (implicit typeSystem: TypeSystem = holder.typeSystem) {
     ScalaPsiUtil.toSAMType(expected, definition.getResolveScope) match {
       case Some(expectedMethodType) =>
         definition.members match {

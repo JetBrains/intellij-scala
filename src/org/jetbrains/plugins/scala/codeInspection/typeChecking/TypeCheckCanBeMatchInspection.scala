@@ -12,7 +12,7 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckCanBeMatchInspection.{inspectionId, inspectionName}
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.TypeCheckToMatchUtil._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection, ProblemsHolderExt}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
@@ -52,7 +52,7 @@ class TypeCheckCanBeMatchInspection extends AbstractInspection(inspectionId, ins
         condition <- ifStmt.condition
         iioCall <- findIsInstanceOfCalls(condition, onlyFirst = true)
         if iioCall == call
-        if typeCheckIsUsedEnough(ifStmt, call)(holder.getProject.typeSystem)
+        if typeCheckIsUsedEnough(ifStmt, call)(holder.typeSystem)
       } {
         val fix = new TypeCheckCanBeMatchQuickFix(call, ifStmt)
         holder.registerProblem(call, inspectionName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, fix)

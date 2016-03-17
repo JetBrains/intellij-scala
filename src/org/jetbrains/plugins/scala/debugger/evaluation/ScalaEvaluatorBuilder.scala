@@ -8,14 +8,13 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.extensions.LazyVal
+import org.jetbrains.plugins.scala.extensions.{LazyVal, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * Nikolay.Tropin
@@ -81,7 +80,7 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
   def getEvaluator: Evaluator = new UnwrapRefEvaluator(fragmentEvaluator(codeFragment))
 
   protected def evaluatorFor(element: PsiElement): Evaluator = {
-    implicit val typeSystem = element.getProject.typeSystem
+    implicit val typeSystem = element.typeSystem
     element match {
       case implicitlyConvertedTo(expr) => evaluatorFor(expr)
       case needsCompilation(message) => throw new NeedCompilationException(message)

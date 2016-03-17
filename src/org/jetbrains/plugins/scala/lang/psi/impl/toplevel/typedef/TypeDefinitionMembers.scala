@@ -25,7 +25,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.reflect.NameTransformer
 
@@ -497,8 +496,8 @@ object TypeDefinitionMembers {
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
   import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
 
-  def getParameterlessSignatures(clazz: PsiClass): PMap = {
-    implicit val typeSystem = clazz.getProject.typeSystem
+  def getParameterlessSignatures(clazz: PsiClass)
+                                (implicit typeSystem: TypeSystem = clazz.typeSystem): PMap = {
     @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def inner(): PMap = ParameterlessNodes.build(clazz)
 
@@ -514,8 +513,8 @@ object TypeDefinitionMembers {
     inner()
   }
 
-  def getTypes(clazz: PsiClass): TMap = {
-    implicit val typeSystem = clazz.getProject.typeSystem
+  def getTypes(clazz: PsiClass)
+              (implicit typeSystem: TypeSystem = clazz.typeSystem): TMap = {
     @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def inner(): TMap =TypeNodes.build(clazz)
 
@@ -531,8 +530,8 @@ object TypeDefinitionMembers {
     inner()
   }
 
-  def getSignatures(clazz: PsiClass, place: Option[PsiElement] = None): SMap = {
-    implicit val typeSystem = clazz.getProject.typeSystem
+  def getSignatures(clazz: PsiClass, place: Option[PsiElement] = None)
+                   (implicit typeSystem: TypeSystem = clazz.typeSystem): SMap = {
     @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
     def buildNodesClass(): SMap = SignatureNodes.build(clazz)
 
@@ -594,7 +593,7 @@ object TypeDefinitionMembers {
   }
 
   def getSelfTypeSignatures(clazz: PsiClass)
-                           (implicit typeSystem: TypeSystem = clazz.getProject.typeSystem): SMap = {
+                           (implicit typeSystem: TypeSystem = clazz.typeSystem): SMap = {
     clazz match {
       case td: ScTypeDefinition =>
         td.selfType match {
@@ -618,7 +617,7 @@ object TypeDefinitionMembers {
   }
 
   def getSelfTypeTypes(clazz: PsiClass)
-                      (implicit typeSystem: TypeSystem = clazz.getProject.typeSystem): TMap = {
+                      (implicit typeSystem: TypeSystem = clazz.typeSystem): TMap = {
     clazz match {
       case td: ScTypeDefinition =>
         td.selfType match {

@@ -5,12 +5,11 @@ import com.intellij.codeInspection.ex.ProblemDescriptorImpl
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnTwoPsiElements, AbstractInspection, ProblemsHolderExt}
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * Pavel Fatin
@@ -19,7 +18,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 class ScalaRedundantCastInspection extends AbstractInspection("Redundant cast") {
   def actionFor(holder: ProblemsHolder) = {
     case call: ScGenericCall =>
-      implicit val typeSystem = holder.getProject.typeSystem
+      implicit val typeSystem = holder.typeSystem
       call.referencedExpr.children.toList match {
         case List(left: ScExpression, ElementText("."), ElementText("asInstanceOf")) =>
           for (actualType <- left.getType(TypingContext.empty).toOption;

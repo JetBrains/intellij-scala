@@ -21,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -201,6 +200,8 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
     val (file, offset) = (context.getFile, context.getOffset)
     val element = file.findElementAt(offset)
     if (element == null) return null
+
+    implicit val typeSystem = element.typeSystem
     val args: ScPatternArgumentList = PsiTreeUtil.getParentOfType(element, getArgumentListClass)
     if (args != null) {
       context match {
@@ -216,7 +217,6 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                   r.element match {
                     case fun: ScFunction if fun.parameters.nonEmpty =>
                       val substitutor = r.substitutor
-                      implicit val typeSystem = file.getProject.typeSystem
                       val subst = if (fun.typeParameters.isEmpty) substitutor
                       else {
                         val undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>

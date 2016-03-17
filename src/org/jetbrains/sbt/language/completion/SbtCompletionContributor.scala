@@ -19,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
-import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * @author Nikolay Obedin
@@ -116,10 +115,9 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
         }
 
         val element = variant.element
-        val project = element.getProject
-        implicit val typeSystem = project.typeSystem
+        implicit val typeSystem = element.typeSystem
         element match {
-          case f: PsiField if ScType.create(f.getType, project, parentRef.getResolveScope).conforms(expectedType) =>
+          case f: PsiField if ScType.create(f.getType, f.getProject, parentRef.getResolveScope).conforms(expectedType) =>
             apply(variant)
           case typed: ScTypedDefinition if typed.getType().getOrAny.conforms(expectedType) =>
             variant.isLocalVariable =
