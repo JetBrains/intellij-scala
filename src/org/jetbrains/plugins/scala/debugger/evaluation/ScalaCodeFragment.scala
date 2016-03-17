@@ -107,6 +107,10 @@ class ScalaCodeFragment(project: Project, text: String) extends {
     }
   }
 
+  override def addImportsForPaths(paths: Seq[String], refsContainer: PsiElement): Unit = {
+    paths.foreach(addImportForPath(_, refsContainer))
+  }
+
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
     for (qName <- imports) {
