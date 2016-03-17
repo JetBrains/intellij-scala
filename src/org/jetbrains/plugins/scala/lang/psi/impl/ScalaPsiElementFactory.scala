@@ -91,7 +91,7 @@ class ScalaPsiElementFactoryImpl(manager: PsiManager) extends JVMElementFactory 
   def createClassInitializer(): PsiClassInitializer = throw new IncorrectOperationException
 
   def createParameter(name: String, `type`: PsiType): PsiParameter = {
-    val scType = ScType.create(`type`, manager.getProject)
+    val scType = `type`.toScType(manager.getProject)
     ScalaPsiElementFactory.createParameterFromText(s"$name : ${ScType.canonicalText(scType)}", manager)
   }
 
@@ -805,9 +805,9 @@ object ScalaPsiElementFactory {
           val params = method.getTypeParameters
           val strings = for (param <- params) yield {
             val extendsTypes = param.getExtendsListTypes
-            val extendsTypesText = if (extendsTypes.length > 0) {
+            val extendsTypesText = if (extendsTypes.nonEmpty) {
               val typeTexts = extendsTypes.map((t: PsiClassType) =>
-                ScType.canonicalText(substitutor.subst(ScType.create(t, method.getProject))))
+                ScType.canonicalText(substitutor.subst(t.toScType(method.getProject))))
               typeTexts.mkString(" <: "," with ", "")
             } else ""
             param.name + extendsTypesText
@@ -828,7 +828,7 @@ object ScalaPsiElementFactory {
             }
             val pName: String = ScalaNamesUtil.changeKeyword(paramName)
             val colon = if (pName.endsWith("_")) " : " else ": "
-            val scType: ScType = substitutor.subst(ScType.create(param.getTypeElement.getType, method.getProject))
+            val scType: ScType = substitutor.subst(param.getTypeElement.getType.toScType(method.getProject))
             val typeText = scType match {
               case types.AnyRef => "scala.Any"
               case JavaArrayType(arg: ScType) if param.isVarArgs => ScType.canonicalText(arg) + "*"
@@ -839,7 +839,7 @@ object ScalaPsiElementFactory {
           builder ++= params.mkString("(", ", ", ")")
         }
 
-        val retType = substitutor.subst(ScType.create(method.getReturnType, method.getProject))
+        val retType = substitutor.subst(method.getReturnType.toScType(method.getProject))
         val retAndBody =
           if (needsInferType) {
             val typeText = if (retType == types.Any) "AnyRef" else ScType.canonicalText(retType)

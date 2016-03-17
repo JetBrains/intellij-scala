@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 /**
  * User: Alefas
@@ -26,8 +26,7 @@ object JavaConversionUtil {
     "scala.transient" -> "transient")
 
   def typeText(tp: ScType, project: Project, scope: GlobalSearchScope): String = {
-    val psiType = ScType.toPsi(tp, project, scope)
-    psiType.getCanonicalText
+    tp.toPsiType(project, scope).getCanonicalText
   }
 
   def annotationsAndModifiers(s: ScModifierListOwner, isStatic: Boolean): String = {
@@ -96,7 +95,7 @@ object JavaConversionUtil {
         if (call.referencedExpr.getText.endsWith("classOf")) {
           val arguments = call.arguments
           if (arguments.length == 1) {
-            val typeResult = arguments.apply(0).getType(TypingContext.empty)
+            val typeResult = arguments.head.getType(TypingContext.empty)
             typeResult match {
               case Success(tp, _) =>
                 ScType.extractClass(tp, Some(e.getProject)) match {

@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala.conversion.ast
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiType
-import org.jetbrains.plugins.scala.lang.psi.types.{JavaArrayType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.extensions.PsiTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.{JavaArrayType, ScParameterizedType, ScType, ScTypeExt}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -28,7 +29,7 @@ case class TypeConstruction(inType: String) extends IntermediateNode with TypedE
 object TypeConstruction {
   def createStringTypePresentation(inType: PsiType, inProject: Project): IntermediateNode = {
     val buffer = new ArrayBuffer[(IntermediateNode, Option[String])]()
-    val result = getParts(ScType.create(inType, inProject, paramTopLevel = true), buffer)
+    val result = getParts(inType.toScType(inProject, paramTopLevel = true), buffer)
 
     result match {
       case parametrized: ParametrizedConstruction =>

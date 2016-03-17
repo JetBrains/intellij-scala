@@ -5,6 +5,7 @@ import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.ProjectScope
 import com.intellij.psi.{PsiClass, PsiModifier}
+import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -58,7 +59,7 @@ object ScalaTestRunConfiguration extends SuiteValidityChecker {
               val psiManager = ScalaPsiManager.instance(project)
               val mapPsiClass = psiManager.getCachedClass(ProjectScope.getAllScope(project), "scala.collection.immutable.Map").orNull
               val mapClass = ScType.designator(mapPsiClass)
-              val paramClass = ScType.create(firstParam.getType, project)
+              val paramClass = firstParam.getType.toScType(project)
               val conformanceType = paramClass match {
                 case parameterizedType: ScParameterizedType => parameterizedType.designator
                 case _ => paramClass

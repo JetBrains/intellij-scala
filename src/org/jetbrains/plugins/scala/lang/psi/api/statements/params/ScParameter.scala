@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScParameterizedType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.annotation.tailrec
@@ -114,7 +114,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     specificScope.intersectWith(super.getUseScope)
   }
 
-  def getType: PsiType = ScType.toPsi(getRealParameterType(TypingContext.empty).getOrNothing, getProject, getResolveScope)
+  def getType: PsiType = getRealParameterType(TypingContext.empty).getOrNothing.toPsiType(getProject, getResolveScope)
 
   def isAnonymousParameter: Boolean = getContext match {
     case clause: ScParameterClause => clause.getContext.getContext match {

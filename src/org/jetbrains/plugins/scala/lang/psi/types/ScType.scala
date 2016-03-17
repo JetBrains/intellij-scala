@@ -6,7 +6,7 @@ package types
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -107,7 +107,7 @@ trait ScType {
   def typeDepth: Int = 1
 }
 
-object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
+object ScType extends ScTypePresentation {
   override implicit val typeSystem = ScalaTypeSystem
 
   def typeParamsDepth(typeParams: Array[TypeParameter]): Int = {
@@ -383,8 +383,8 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
       case e: ScFieldId => e.getType(TypingContext.empty).toOption
       case e: ScParameter => e.getRealParameterType(TypingContext.empty).toOption
       case e: PsiMethod if e.isConstructor => None
-      case e: PsiMethod =>  create(e.getReturnType, named.getProject, named.getResolveScope).toOption
-      case e: PsiVariable => create(e.getType, named.getProject, named.getResolveScope).toOption
+      case e: PsiMethod => e.getReturnType.toScType(named.getProject, named.getResolveScope).toOption
+      case e: PsiVariable => e.getType.toScType(named.getProject, named.getResolveScope).toOption
       case _ => None
     }
     baseType.map(s.subst)

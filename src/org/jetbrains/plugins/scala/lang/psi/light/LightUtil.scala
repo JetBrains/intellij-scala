@@ -5,7 +5,7 @@ import com.intellij.psi.{PsiClass, PsiClassType}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt}
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -16,17 +16,18 @@ import _root_.scala.collection.mutable.ArrayBuffer
 object LightUtil {
   /**
    * for Java only
-   * @param holder annotation holder
+    *
+    * @param holder annotation holder
    * @return Java throws section string or empty string
    */
   def getThrowsSection(holder: ScAnnotationsHolder): String = {
     val throwAnnotations = holder.allMatchingAnnotations("scala.throws").foldLeft[ArrayBuffer[String]](ArrayBuffer()) {
       case (accumulator, annotation) =>
-        val classes = annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap { expr =>
-          expr.getType(TypingContext.empty) match {
+        val classes = annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
+          _.getType(TypingContext.empty) match {
             case Success(ScParameterizedType(des, Seq(arg)), _) => ScType.extractClass(des) match {
               case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
-                ScType.toPsi(arg, holder.getProject, holder.getResolveScope) match {
+                arg.toPsiType(holder.getProject, holder.getResolveScope) match {
                   case c: PsiClassType =>
                     c.resolve() match {
                       case clazz: PsiClass => Seq(clazz.getQualifiedName)
@@ -42,8 +43,8 @@ object LightUtil {
         if (classes.isEmpty) {
           annotation.constructor.typeArgList match {
             case Some(args) =>
-              val classes = args.typeArgs.map(_.getType(TypingContext.empty)).filter(_.isDefined).map(_.get).flatMap { arg =>
-                ScType.toPsi(arg, holder.getProject, holder.getResolveScope) match {
+              val classes = args.typeArgs.map(_.getType(TypingContext.empty)).filter(_.isDefined).map(_.get).flatMap {
+                _.toPsiType(holder.getProject, holder.getResolveScope) match {
                   case c: PsiClassType =>
                     c.resolve() match {
                       case clazz: PsiClass => Seq(clazz.getQualifiedName)

@@ -203,7 +203,7 @@ object MethodResolveProcessor {
           case f: ScFun => substitutor.subst(f.retType)
           case m: PsiMethod =>
             Option(m.getReturnType).map { rt =>
-              substitutor.subst(ScType.create(rt, ref.getProject, getResolveScope))
+              substitutor.subst(rt.toScType(ref.getProject, getResolveScope))
             }.getOrElse(Nothing)
           case _ => Nothing
         }
@@ -542,7 +542,7 @@ object MethodResolveProcessor {
           val tp = r.substitutor.subst(b.getType(TypingContext.empty).getOrElse(return HashSet.empty))
           applyMethodsFor(tp)
         case b: PsiField => // See SCL-3055
-          val tp = r.substitutor.subst(ScType.create(b.getType, b.getProject))
+          val tp = r.substitutor.subst(b.getType.toScType(b.getProject))
           applyMethodsFor(tp)
         case _ => HashSet(r)
       }

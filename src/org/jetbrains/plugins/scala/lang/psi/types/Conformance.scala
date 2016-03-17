@@ -1777,7 +1777,7 @@ object Conformance extends api.Conformance {
       val tp: ScType = iterator.next() match {
         case tp: ScType => substitutor.subst(tp)
         case pct: PsiClassType =>
-          substitutor.subst(ScType.create(pct, leftClass.getProject)) match {
+          substitutor.subst(pct.toScType(leftClass.getProject)) match {
             case ex: ScExistentialType => ex.skolem //it's required for the raw types
             case r => r
           }

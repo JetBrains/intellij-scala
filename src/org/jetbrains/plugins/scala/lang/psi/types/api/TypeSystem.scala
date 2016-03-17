@@ -8,6 +8,7 @@ trait TypeSystem {
   val equivalence: Equivalence
   val conformance: Conformance
   val bounds: Bounds
+  val bridge: ScTypePsiTypeBridge
 }
 
 trait TypeSystemOwner {

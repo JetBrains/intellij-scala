@@ -83,7 +83,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
                   if (index != 0) Seq.empty
                   else method.getParameterList.getParameters.toSeq.map {
                     case p: PsiParameter =>
-                      (p.name, subst.subst(ScType.create(p.getType, position.getProject, position.getResolveScope)))
+                      (p.name, subst.subst(p.getType.toScType(position.getProject, position.getResolveScope)))
                   }
                 case _ => Seq.empty
               }.filter(_.length > 1)
@@ -127,7 +127,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
                     if (index != 0) Seq.empty
                     else c.getParameterList.getParameters.toSeq.map {
                       case p: PsiParameter =>
-                        (p.name, subst.subst(ScType.create(p.getType, typeElement.getProject, typeElement.getResolveScope)))
+                        (p.name, subst.subst(p.getType.toScType(typeElement.getProject, typeElement.getResolveScope)))
                     }
                 }.filter(_.length > 1)
               case _ => Seq.empty

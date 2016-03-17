@@ -130,21 +130,20 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
 
       def getVariants: Array[Object] = superTypes match {
         case None => Array[Object]()
-        case Some(supers) => {
+        case Some(supers) =>
           val buff = new ArrayBuffer[Object]
           supers.foreach{ t => ScType.extractClass(t) match {
             case Some(c) => buff += c
             case None =>
           }}
           buff.toArray
-        }
       }
     }
   }
 
   def findSuper(id : PsiElement) : Option[ScType] = superTypes match {
     case None => None
-    case Some(types) => {
+    case Some(types) =>
       val name = id.getText
       for (t <- types) {
         ScType.extractClass(t) match {
@@ -153,20 +152,18 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
         }
       }
       None
-    }
   }
 
   private def superTypes: Option[Seq[ScType]] = reference match {
     case Some(q) => q.resolve() match {
-      case clazz : PsiClass => Some(clazz.getSuperTypes.map {t => ScType.create(t, getProject, getResolveScope)})
+      case clazz: PsiClass => Some(clazz.getSuperTypes.map(_.toScType(getProject, getResolveScope)))
       case _ => None
     }
-    case None => {
+    case None =>
       PsiTreeUtil.getContextOfType(this, false, classOf[ScExtendsBlock]) match {
         case null => None
         case eb: ScExtendsBlock => Some(eb.superTypes)
       }
-    }
   }
 
   protected override def innerType(ctx: TypingContext) = Failure("Cannot infer type of `super' expression", Some(this))

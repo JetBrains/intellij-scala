@@ -127,7 +127,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
           case _ => //do nothing
         }
       case ScalaResolveResult(field: PsiField, s) =>
-        processor.processType(s.subst(ScType.create(field.getType, getProject, getResolveScope)), this)
+        processor.processType(s.subst(field.getType.toScType(getProject, getResolveScope)), this)
       case ScalaResolveResult(clazz: PsiClass, s) =>
         processor.processType(new ScDesignatorType(clazz, true), this) //static Java import
       case ScalaResolveResult(pack: ScPackage, s) =>
@@ -190,7 +190,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
     val candidates = processor.candidatesS
     val filtered = candidates.filter(candidatesFilter)
-    if (accessibilityCheck && filtered.size == 0) return doResolve(ref, processor, accessibilityCheck = false)
+    if (accessibilityCheck && filtered.isEmpty) return doResolve(ref, processor, accessibilityCheck = false)
     filtered.toArray
   }
 

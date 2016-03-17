@@ -571,7 +571,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   case clazz: PsiClass if clazz.isAnnotationType =>
                     val resulting: (AnnotationParameters, Int) =
                       (AnnotationParameters(clazz.getMethods.toSeq.filter(_.isInstanceOf[PsiAnnotationMethod]).map(meth => (meth.name,
-                        ScType.create(meth.getReturnType, meth.getProject, meth.getResolveScope),
+                        meth.getReturnType.toScType(meth.getProject, meth.getResolveScope),
                         meth.asInstanceOf[PsiAnnotationMethod].getDefaultValue))), i)
                     res += resulting
                   case clazz: PsiClass if !clazz.isInstanceOf[ScTypeDefinition] =>

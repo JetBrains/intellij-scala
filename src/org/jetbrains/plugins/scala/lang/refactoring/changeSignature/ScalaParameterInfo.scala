@@ -52,13 +52,13 @@ class ScalaParameterInfo(@BeanProperty var name: String,
     val allScope = GlobalSearchScope.allScope(project)
     if (isByName) {
       val functionType = ScFunctionType(scType, Seq())(project, allScope)
-      ScType.toPsi(functionType, project, allScope)
+      functionType.toPsiType(project, allScope)
     }
     else if (isRepeatedParameter) {
       val seqType = ScDesignatorType.fromClassFqn("scala.collection.Seq", project, allScope)
-      ScType.toPsi(ScParameterizedType(seqType, Seq(scType)), project, allScope)
+      ScParameterizedType(seqType, Seq(scType)).toPsiType(project, allScope)
     }
-    else ScType.toPsi(scType, project, allScope)
+    else scType.toPsiType(project, allScope)
   }
 
   override def createType(context: PsiElement, manager: PsiManager): PsiType = psiType

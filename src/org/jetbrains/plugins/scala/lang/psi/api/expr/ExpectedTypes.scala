@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTupleTypeElement, ScTypeElement}
@@ -152,7 +153,7 @@ private[expr] object ExpectedTypes {
                     //for named parameters
                     Array((subst.subst(p.getType(TypingContext.empty).getOrAny), p.typeElement))
                   case f: PsiField =>
-                    Array((subst.subst(ScType.create(f.getType, f.getProject, expr.getResolveScope)), None))
+                    Array((subst.subst(f.getType.toScType(f.getProject, expr.getResolveScope)), None))
                   case _ => Array.empty
                 }
               case _ => Array.empty

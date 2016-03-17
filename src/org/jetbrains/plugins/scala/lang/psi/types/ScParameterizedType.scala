@@ -341,8 +341,8 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
          ptp match {case tp: ScTypeParam =>
              new Suspension[ScType]({() => s.subst(tp.lowerBound.getOrNothing)})
            case _ => new Suspension[ScType]({() => s.subst(
-             ScCompoundType(ptp.getExtendsListTypes.map(ScType.create(_, ptp.getProject)).toSeq ++
-                   ptp.getImplementsListTypes.map(ScType.create(_, ptp.getProject)).toSeq, Map.empty, Map.empty))
+             ScCompoundType(ptp.getExtendsListTypes.map(_.toScType(ptp.getProject)).toSeq ++
+               ptp.getImplementsListTypes.map(_.toScType(ptp.getProject)).toSeq, Map.empty, Map.empty))
          })},
          ptp match {case tp: ScTypeParam =>
              new Suspension[ScType]({() => s.subst(tp.upperBound.getOrAny)})

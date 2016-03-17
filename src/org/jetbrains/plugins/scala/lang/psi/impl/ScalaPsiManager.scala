@@ -301,9 +301,10 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange)
   def psiTypeParameterUpperType(tp: PsiTypeParameter): ScType = {
+    def lift: PsiClassType => ScType = _.toScType(project)
     tp.getSuperTypes match {
-      case array: Array[PsiClassType] if array.length == 1 => ScType.create(array(0), project)
-      case many => new ScCompoundType(many.map { ScType.create(_, project) }, Map.empty, Map.empty)
+      case array: Array[PsiClassType] if array.length == 1 => lift(array(0))
+      case many => new ScCompoundType(many.map(lift), Map.empty, Map.empty)
     }
   }
 

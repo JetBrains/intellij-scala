@@ -8,6 +8,7 @@ package patterns
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
+import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
@@ -84,7 +85,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                             if (arg.upper.equiv(psi.types.Any)) {
                               val listTypes: Array[PsiClassType] = param.getExtendsListTypes
                               if (listTypes.isEmpty) types.Any
-                              else subst.subst(listTypes.toSeq.map(ScType.create(_, getProject, param.getResolveScope)).glb(checkWeak = true))
+                              else subst.subst(listTypes.toSeq.map(_.toScType(getProject, param.getResolveScope)).glb(checkWeak = true))
                             } else arg.upper //todo: glb?
                           ScSkolemizedType(arg.name, arg.args, lowerBound, upperBound)
                         case (tp: ScType, _) => tp

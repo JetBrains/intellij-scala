@@ -5,6 +5,7 @@ package types
 
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiClass
+import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
@@ -21,8 +22,12 @@ object BaseTypes {
       case ScDesignatorType(td : ScTemplateDefinition) =>
         reduce(td.superTypes.flatMap(tp => if (!notAll) BaseTypes.get(tp, notAll, visitedAliases = visitedAliases) ++ Seq(tp) else Seq(tp)))
       case ScDesignatorType(c : PsiClass) =>
-        reduce(c.getSuperTypes.flatMap{p => if (!notAll) BaseTypes.get(ScType.create(p, c.getProject), notAll, visitedAliases = visitedAliases) ++
-                Seq(ScType.create(p, c.getProject)) else Seq(ScType.create(p, c.getProject))})
+        reduce(c.getSuperTypes.flatMap { p => {
+          val tp = p.toScType(c.getProject)
+          (if (!notAll) BaseTypes.get(tp, notAll, visitedAliases = visitedAliases)
+          else Seq()) ++ Seq(tp)
+        }
+        })
       case ScDesignatorType(ta: ScTypeAliasDefinition) =>
         if (visitedAliases.contains(ta)) return Seq.empty
         BaseTypes.get(ta.aliasedType.getOrElse(return Seq.empty), visitedAliases = visitedAliases + ta)
@@ -55,8 +60,12 @@ object BaseTypes {
             })
           case Some(clazz) =>
             val s = p.substitutor
-            reduce(clazz.getSuperTypes.flatMap {t => if (!notAll) BaseTypes.get(s.subst(ScType.create(t, clazz.getProject)), notAll, visitedAliases = visitedAliases) ++
-                    Seq(s.subst(ScType.create(t, clazz.getProject))) else Seq(s.subst(ScType.create(t, clazz.getProject)))})
+            reduce(clazz.getSuperTypes.flatMap { t => {
+              val substituted = s.subst(t.toScType(clazz.getProject))
+              (if (!notAll) BaseTypes.get(substituted, notAll, visitedAliases = visitedAliases)
+              else Seq()) ++ Seq(substituted)
+            }
+            })
           case _ => Seq.empty
         }
       case ScExistentialType(q, wilds) => get(q, notAll, visitedAliases = visitedAliases).map{bt => ScExistentialType(bt, wilds).simplify()}
@@ -71,9 +80,9 @@ object BaseTypes {
           case c : PsiClass =>
             reduce(c.getSuperTypes.flatMap {st =>
             {
-              val proj = c.getProject
-              if (!notAll) BaseTypes.get(s.subst(ScType.create(st, proj)), visitedAliases = visitedAliases) ++ Seq(s.subst(ScType.create(st, proj)))
-              else Seq(s.subst(ScType.create(st, proj)))
+              val substituted = s.subst(st.toScType(c.getProject))
+              (if (!notAll) BaseTypes.get(substituted, visitedAliases = visitedAliases)
+              else Seq()) ++ Seq(substituted)
             }
             })
           case _ => Seq.empty

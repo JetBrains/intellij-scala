@@ -166,7 +166,9 @@ object Bounds extends api.Bounds {
             visited += drv
             val superTypes: Seq[ScType] = drv match {
               case td: ScTemplateDefinition => td.superTypes
-              case _ => drv.getSuperTypes.map{t => ScType.create(t, drv.getProject)}
+              case _ => drv.getSuperTypes.map {
+                _.toScType(drv.getProject)
+              }
             }
             val iterator = superTypes.iterator
             while(iterator.hasNext) {

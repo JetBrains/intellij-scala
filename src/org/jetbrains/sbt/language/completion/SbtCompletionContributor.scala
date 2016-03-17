@@ -117,7 +117,7 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
         val element = variant.element
         implicit val typeSystem = element.typeSystem
         element match {
-          case f: PsiField if ScType.create(f.getType, f.getProject, parentRef.getResolveScope).conforms(expectedType) =>
+          case f: PsiField if f.getType.toScType(f.getProject, parentRef.getResolveScope).conforms(expectedType) =>
             apply(variant)
           case typed: ScTypedDefinition if typed.getType().getOrAny.conforms(expectedType) =>
             variant.isLocalVariable =
