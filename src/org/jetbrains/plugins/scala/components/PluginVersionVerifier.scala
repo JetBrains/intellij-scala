@@ -55,7 +55,7 @@ object ScalaPluginVersionVerifier {
     getClass.getClassLoader match {
       case pluginLoader: PluginClassLoader =>
         Version.parse(PluginManager.getPlugin(pluginLoader.getPluginId).getVersion)
-      case _ => None
+      case _ => Some(Version.Snapshot)
     }
   }
 

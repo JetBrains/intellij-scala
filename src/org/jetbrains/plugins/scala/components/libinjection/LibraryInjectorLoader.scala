@@ -289,9 +289,9 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   private def findMatchingPluginDescriptor(libraryManifest: JarManifest): Option[PluginDescriptor] = {
-    val curVer = ScalaPluginVersionVerifier.getPluginVersion
+    val curVer = ScalaPluginVersionVerifier.getPluginVersion.getOrElse(Version.Snapshot)
     libraryManifest.pluginDescriptors
-      .find(d => (curVer.get > d.since && curVer.get < d.until) || curVer.get.isSnapshot)
+      .find(d => (curVer > d.since && curVer < d.until) || curVer.isSnapshot)
   }
 
   private def findMatchingInjectors(libraryManifest: JarManifest): Seq[InjectorDescriptor] = {
@@ -387,7 +387,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     val jarName = new File(jarManifest.jarPath).getName
     val pluginVersion = ScalaPluginVersionVerifier.getPluginVersion.get.toString
     val libraryDir = new File(myInjectorCacheDir, (jarName + pluginVersion).replaceAll("\\.", "_"))
-    val injectorDir = new File(libraryDir, injectorDescriptor.impl.hashCode.toString)
+    val injectorDir = new File(libraryDir, injectorDescriptor.impl.hashCode.abs.toString)
     injectorDir.mkdirs()
     injectorDir
   }
@@ -399,9 +399,13 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
     val scalaSDK = project.modulesWithScala.head.scalaSdk.get
     val model  = ModuleManager.getInstance(project).getModifiableModel
-    val module = model.newModule(project.getProjectFile.getParent.getPath + "/modules/"+ INJECTOR_MODULE_NAME, JavaModuleType.getModuleType.getId)
+    val module = model.newModule(ScalaUtil.createTmpDir("injectorModule","").getAbsolutePath + "/" + INJECTOR_MODULE_NAME, JavaModuleType.getModuleType.getId)
     model.commit()
-    val urls   = this.getClass.getClassLoader.asInstanceOf[PluginClassLoader].getUrls.map(u=>s"jar://${u.getFile}!/")
+//    val urls   = this.getClass.getClassLoader.asInstanceOf[PluginClassLoader].getUrls.map(u=>s"jar://${u.getFile}!/")
+    val urls = this.getClass.getClassLoader match {
+      case cl: PluginClassLoader => cl.getUrls.map(u=>s"jar://${u.getFile}!/").toSeq
+      case cl: java.net.URLClassLoader => cl.getURLs.map(u=>s"jar://${u.getFile}!/").toSeq
+    }
     // get application classloader urls using reflection :(
     val parentUrls = ApplicationManager.getApplication.getClass.getClassLoader.getClass.getDeclaredMethods
       .find(_.getName == "getUrls")
