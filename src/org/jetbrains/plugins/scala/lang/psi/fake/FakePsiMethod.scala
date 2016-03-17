@@ -43,7 +43,7 @@ class FakePsiMethod(
 
   def getContainingClass: PsiClass = PsiTreeUtil.getParentOfType(navElement, classOf[ScTypeDefinition])
 
-  def getReturnTypeNoResolve: PsiType = ScType.toPsi(retType, project, scope)
+  def getReturnTypeNoResolve: PsiType = retType.toPsiType(project, scope)
 
   override def getTextOffset: Int = navElement.getTextOffset
 
@@ -104,7 +104,7 @@ class FakePsiMethod(
 
   def findSuperMethods: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
-  def getReturnType: PsiType = ScType.toPsi(retType, project, scope)
+  def getReturnType: PsiType = retType.toPsiType(project, scope)
 
   def findDeepestSuperMethods: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
@@ -140,7 +140,7 @@ class FakePsiTypeElement(manager: PsiManager, language: Language, tp: ScType)
 
   def getInnermostComponentReferenceElement: PsiJavaCodeReferenceElement = null
 
-  def getType: PsiType = ScType.toPsi(tp, manager.getProject, GlobalSearchScope.allScope(manager.getProject))
+  def getType: PsiType = tp.toPsiType(manager.getProject, GlobalSearchScope.allScope(manager.getProject))
 
   def addAnnotation(qualifiedName: String): PsiAnnotation = null
 
@@ -175,7 +175,7 @@ class FakePsiParameter(manager: PsiManager, language: Language, val parameter: P
 
   def getInitializer: PsiExpression = null
 
-  def getType: PsiType = ScType.toPsi(parameter.paramType, manager.getProject, GlobalSearchScope.allScope(manager.getProject))
+  def getType: PsiType = parameter.paramType.toPsiType(manager.getProject, GlobalSearchScope.allScope(manager.getProject))
 
   def isVarArgs: Boolean = false
 

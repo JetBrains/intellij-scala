@@ -50,7 +50,7 @@ class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVararg
       case Some(i) if returnType == null =>
         val param = constr.parameters(i - 1)
         val scalaType = param.getType(TypingContext.empty).getOrAny
-        returnType = ScType.toPsi(scalaType, constr.getProject, constr.getResolveScope)
+        returnType = scalaType.toPsiType(constr.getProject, constr.getResolveScope)
       case _ =>
     }
     returnType
@@ -71,7 +71,8 @@ object ScPrimaryConstructorWrapper {
  * Represnts Scala functions for Java. It can do it in many ways including
  * default parameters. For example (forDefault = Some(1)):
  * def foo(x: Int = 1) generates method foo$default$1.
- * @author Alefas
+  *
+  * @author Alefas
  * @since 27.02.12
  */
 class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface: Boolean,
@@ -148,16 +149,17 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
             new ScSubstitutor(tvs.toMap, Map.empty, None)
           } else ScSubstitutor.empty
         } else ScSubstitutor.empty
+      def lift: ScType => PsiType = _.toPsiType(function.getProject, function.getResolveScope)
       forDefault match {
         case Some(i) =>
           val param = function.parameters(i - 1)
           val scalaType = generifySubst subst ScFunctionWrapper.getSubstitutor(cClass, function).
             subst(param.getType(TypingContext.empty).getOrAny)
-          returnType = ScType.toPsi(scalaType, function.getProject, function.getResolveScope)
+          returnType = lift(scalaType)
         case None =>
           val scalaType = generifySubst subst ScFunctionWrapper.getSubstitutor(cClass, function).
             subst(function.returnType.getOrAny)
-          returnType = ScType.toPsi(scalaType, function.getProject, function.getResolveScope)
+          returnType = lift(scalaType)
       }
     }
     returnType
@@ -273,7 +275,7 @@ object ScFunctionWrapper {
       tt match {
         case Success(tp, _) if param.isCallByNameParameter =>
           builder.append("scala.Function0<")
-          val psiType = ScType.toPsi(subst.subst(tp), function.getProject, function.getResolveScope, noPrimitives = true)
+          val psiType = subst.subst(tp).toPsiType(function.getProject, function.getResolveScope, noPrimitives = true)
           builder.append(psiType.getCanonicalText)
           builder.append(">")
         case Success(tp, _) =>

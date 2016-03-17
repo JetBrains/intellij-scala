@@ -138,13 +138,13 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
               case method: PsiMethod =>
                 val second = checkForSecondCompletion && method.getParameterList.getParametersCount == 0
                 val infer = if (chainVariant) ScSubstitutor.empty else ScalaPsiUtil.inferMethodTypesArgs(method, subst)
-                checkType(ScType.create(method.getReturnType, method.getProject, scope), infer, second)
+                checkType(method.getReturnType.toScType(method.getProject, scope), infer, second)
               case typed: ScTypedDefinition =>
                 if (!PsiTreeUtil.isContextAncestor(typed.nameContext, place, false) &&
                   (originalPlace == null || !PsiTreeUtil.isContextAncestor(typed.nameContext, originalPlace, false)))
                   for (tt <- typed.getType(TypingContext.empty)) checkType(tt, ScSubstitutor.empty, checkForSecondCompletion)
               case f: PsiField =>
-                checkType(ScType.create(f.getType, f.getProject, scope), ScSubstitutor.empty, checkForSecondCompletion)
+                checkType(f.getType.toScType(f.getProject, scope), ScSubstitutor.empty, checkForSecondCompletion)
               case _ =>
             }
         case _ =>

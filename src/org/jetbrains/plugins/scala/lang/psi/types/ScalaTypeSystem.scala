@@ -8,4 +8,5 @@ object ScalaTypeSystem extends api.TypeSystem {
   override lazy val equivalence = Equivalence
   override lazy val conformance = Conformance
   override lazy val bounds = Bounds
+  override lazy val bridge = ScTypePsiTypeBridge
 }

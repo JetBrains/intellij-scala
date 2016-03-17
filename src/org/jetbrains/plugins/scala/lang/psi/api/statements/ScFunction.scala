@@ -169,7 +169,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
                 typeParamSubst = typeParamSubst.bindT((oldParam.name, ScalaPsiUtil.getPsiElementId(oldParam)),
                   new ScTypeParameterType(newParam, subst))
             }
-            Some(typeParamSubst.followed(subst).subst(ScType.create(fun.getReturnType, getProject, getResolveScope)))
+            Some(typeParamSubst.followed(subst).subst(fun.getReturnType.toScType(getProject, getResolveScope)))
           case _ => None
         }
         superReturnType
@@ -210,7 +210,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         superMethod match {
           case Some(f: ScFunction) => f.definedReturnType
           case Some(m: PsiMethod) =>
-            Success(ScType.create(m.getReturnType, getProject, getResolveScope), Some(this))
+            Success(m.getReturnType.toScType(getProject, getResolveScope), Some(this))
           case _ => Failure("No defined return type", Some(this))
         }
     }
@@ -330,7 +330,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   /**
    * Seek parameter with appropriate name in appropriate parameter clause.
-   * @param name parameter name
+    *
+    * @param name          parameter name
    * @param clausePosition = -1, effective clause number, if -1 then parameter in any explicit? clause
    */
   def getParamByName(name: String, clausePosition: Int = -1): Option[ScParameter] = {
@@ -448,9 +449,10 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   private def getReturnTypeImpl: PsiType = {
     val tp = getType(TypingContext.empty).getOrAny
+    def lift: ScType => PsiType = _.toPsiType(getProject, getResolveScope)
     tp match {
-      case ScFunctionType(rt, _) => ScType.toPsi(rt, getProject, getResolveScope)
-      case _ => ScType.toPsi(tp, getProject, getResolveScope)
+      case ScFunctionType(rt, _) => lift(rt)
+      case _ => lift(tp)
     }
   }
 
@@ -563,7 +565,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
             expr.getType(TypingContext.empty) match {
               case Success(ScParameterizedType(des, Seq(arg)), _) => ScType.extractClass(des) match {
                 case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
-                  ScType.toPsi(arg, getProject, getResolveScope) match {
+                  arg.toPsiType(getProject, getResolveScope) match {
                     case c: PsiClassType => Seq(c)
                     case _ => Seq.empty
                   }

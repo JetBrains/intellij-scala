@@ -80,7 +80,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
             val subst = sign.substitutor
             val returnType = sign.method match {
               case function: ScFunction => subst.subst(function.returnType.getOrAny)
-              case method: PsiMethod => subst.subst(ScType.create(method.getReturnType, method.getProject))
+              case method: PsiMethod => subst.subst(method.getReturnType.toScType(method.getProject))
             }
 
             val oneArgCaseClassMethod: Boolean = sign.method match {

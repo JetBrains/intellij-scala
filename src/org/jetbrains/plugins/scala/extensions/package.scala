@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Computable, ThrowableComputable}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.Processor
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation._
@@ -31,6 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.generic.CanBuildFrom
+import scala.collection.immutable.HashSet
 import scala.io.Source
 import scala.language.higherKinds
 import scala.reflect.{ClassTag, classTag}
@@ -182,6 +184,16 @@ package object extensions {
     }
 
     def typeSystem = repr.getProject.typeSystem
+  }
+
+  implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {
+    def toScType(project: Project,
+                 scope: GlobalSearchScope = null,
+                 visitedRawTypes: HashSet[PsiClass] = HashSet.empty,
+                 paramTopLevel: Boolean = false,
+                 treatJavaObjectAsAny: Boolean = true) = {
+      project.typeSystem.bridge.toScType(`type`, project, scope, visitedRawTypes, paramTopLevel, treatJavaObjectAsAny)
+    }
   }
 
   implicit class PsiMemberExt(val member: PsiMember) extends AnyVal {
@@ -494,7 +506,7 @@ package object extensions {
       param match {
         case f: FakePsiParameter => f.parameter.paramType
         case param: ScParameter => param.getType(TypingContext.empty).getOrAny
-        case _ => ScType.create(param.getType, param.getProject, param.getResolveScope, paramTopLevel = true)
+        case _ => param.getType.toScType(param.getProject, param.getResolveScope, paramTopLevel = true)
       }
     }
 
@@ -507,7 +519,7 @@ package object extensions {
             case p: PsiArrayType if param.isVarArgs => p.getComponentType
             case tp => tp
           }
-          ScType.create(paramType, param.getProject, param.getResolveScope, paramTopLevel = true,
+          paramType.toScType(param.getProject, param.getResolveScope, paramTopLevel = true,
             treatJavaObjectAsAny = treatJavaObjectAsAny)
       }
     }

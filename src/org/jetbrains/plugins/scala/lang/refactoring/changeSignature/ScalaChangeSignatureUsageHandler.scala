@@ -5,8 +5,7 @@ import com.intellij.psi._
 import com.intellij.refactoring.changeSignature._
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
-import org.jetbrains.plugins.scala.extensions.{ChildOf, ElementText}
-import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.extensions.{ChildOf, ElementText, PsiTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -15,7 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.{JavaArrayType, ScFunctionType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{JavaArrayType, ScFunctionType, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
@@ -405,7 +405,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
           `=> ` + text + `*`
         case jInfo: JavaParameterInfo =>
           val javaType = jInfo.createType(method, method.getManager)
-          val scType = UsageUtil.substitutor(usage).subst(ScType.create(javaType, method.getProject))
+          val scType = UsageUtil.substitutor(usage).subst(javaType.toScType(method.getProject))
           (scType, javaType) match {
             case (JavaArrayType(tpe), _: PsiEllipsisType) => tpe.canonicalText + "*"
             case _ => scType.canonicalText

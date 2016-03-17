@@ -6,7 +6,7 @@ import com.intellij.psi._
 import com.intellij.refactoring.introduceParameter.{IntroduceParameterData, JavaExpressionWrapper}
 import gnu.trove.TIntArrayList
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 
 /**
@@ -27,7 +27,7 @@ case class ScalaIntroduceParameterData(methodLike: ScMethodLike,
 
   def getParametersToRemove: TIntArrayList = new TIntArrayList()
 
-  def getForcedType: PsiType = ScType.toPsi(tp, getProject, methodLike.getResolveScope)
+  def getForcedType: PsiType = tp.toPsiType(getProject, methodLike.getResolveScope)
 
   def getScalaForcedType: ScType = tp
 

@@ -8,7 +8,7 @@ import com.intellij.refactoring.util.CanonicalTypes
 import com.intellij.refactoring.util.CanonicalTypes.Type
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaParameterInfo
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterData
 
@@ -30,7 +30,7 @@ case class ScalaChangeInfo(newVisibility: String,
   val project = function.getProject
   private var myMethod: PsiMethod = function
   private def psiType = {
-    if (newType != null) ScType.toPsi(newType, project, GlobalSearchScope.allScope(project))
+    if (newType != null) newType.toPsiType(project, GlobalSearchScope.allScope(project))
     else null
   }
 

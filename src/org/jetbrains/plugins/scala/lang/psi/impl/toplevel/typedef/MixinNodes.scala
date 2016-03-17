@@ -373,7 +373,7 @@ abstract class MixinNodes {
               (MixinNodes.linearization(template),
                 ScSubstitutor.empty.putAliases(template), zSubst)
             case syn: ScSyntheticClass =>
-              (syn.getSuperTypes.map{psiType => ScType.create(psiType, syn.getProject)} : Seq[ScType],
+              (syn.getSuperTypes.map { psiType => psiType.toScType(syn.getProject) }: Seq[ScType],
                 ScSubstitutor.empty, ScSubstitutor.empty)
             case clazz: PsiClass =>
               place = Option(clazz.getLastChild)
@@ -486,8 +486,8 @@ object MixinNodes {
             case ctp: PsiClassType =>
               val cl = ctp.resolve()
               if (cl != null && cl.qualifiedName == "java.lang.Object") ScDesignatorType(cl)
-              else ScType.create(ctp, clazz.getProject)
-            case ctp => ScType.create(ctp, clazz.getProject)
+              else ctp.toScType(clazz.getProject)
+            case ctp => ctp.toScType(clazz.getProject)
           }.toSeq
         }
       }

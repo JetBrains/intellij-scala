@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiClass
+import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
   * @author adkozlov
@@ -49,6 +53,13 @@ package object types {
     def removeUndefines() = scType.recursiveUpdate {
       case u: ScUndefinedType => (true, Any)
       case tp: ScType => (false, tp)
+    }
+
+    def toPsiType(project: Project,
+                  scope: GlobalSearchScope,
+                  noPrimitives: Boolean = false,
+                  skolemToWildcard: Boolean = false) = {
+      project.typeSystem.bridge.toPsiType(scType, project, scope, noPrimitives, skolemToWildcard)
     }
   }
 
