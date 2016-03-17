@@ -123,7 +123,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     } catch {
       case e: Throwable =>
         LOG.warn(s"Failed to load injector cache, continuing with empty(${e.getMessage})")
-        InjectorPersistentCache(ScalaPluginVersionVerifier.getPluginVersion.get, new util.HashMap())
+        InjectorPersistentCache(ScalaPluginVersionVerifier.getPluginVersion.getOrElse(Version.Snapshot), new util.HashMap())
     } finally {
       if (stream != null) stream.close()
     }
