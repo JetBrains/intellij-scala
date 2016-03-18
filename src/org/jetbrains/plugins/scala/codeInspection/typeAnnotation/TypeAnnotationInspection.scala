@@ -43,7 +43,7 @@ class TypeAnnotationInspection extends AbstractInspection {
         settings.SIMPLE_PROPERTY_TYPE_ANNOTATION,
         holder)
 
-    case method: ScFunctionDefinition if method.hasAssign && !method.hasExplicitType =>
+    case method: ScFunctionDefinition if method.hasAssign && !method.hasExplicitType && !method.isSecondaryConstructor =>
       val settings = ScalaCodeStyleSettings.getInstance(holder.getProject)
 
       inspect(method.nameId,
