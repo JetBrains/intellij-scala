@@ -1,15 +1,18 @@
 package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion._
-import com.intellij.codeInsight.lookup.{LookupElementWeigher, LookupElement}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementWeigher}
 import com.intellij.patterns.PlatformPatterns
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.ProcessingContext
+import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScPatternArgumentList, ScConstructorPattern, ScCaseClause}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
 /**
@@ -111,5 +114,51 @@ class ScalaCaseClassParametersNameContributer extends ScalaCompletionContributor
 
     case class ParameterWithPosition(parameter: Option[ScParameter], position: Int)
 
+  })
+
+  /**
+    * Enable completion for object with unapply/unapplySeq methods on case Lable position.
+    * Case label with low letter treat as ScReferencePattern and don't handle with ScalaBasicCompletionContributor,
+    * this handler add open and closed brackets to treat element as ScCodeReferenceElement
+    * and run ScalaBasicCompletionContributor.
+    */
+  extend(CompletionType.BASIC, PlatformPatterns.psiElement().withParent(classOf[ScReferencePattern]).withSuperParent(2, classOf[ScCaseClause]), new CompletionProvider[CompletionParameters] {
+    override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet): Unit = {
+      def typeIdentifierIn(element: Option[ScPattern]): Option[PsiElement] =
+        element.flatMap(_.depthFirst.find(_.getNode.getElementType == ScalaTokenTypes.tIDENTIFIER))
+
+      def createCaseClassPatern(text: String, pattern: PsiElement): Option[ScPattern] = {
+        Option(ScalaPsiElementFactory.createCaseClauseFromTextWithContext(text + "()",
+          pattern.getContext.getContext, pattern.getContext, pattern.getManager)).flatMap(_.pattern)
+      }
+
+      class MyConsumer(resultSet: CompletionResultSet) extends Consumer[CompletionResult] {
+        override def consume(completionResult: CompletionResult): Unit = {
+          completionResult.getLookupElement.getPsiElement match {
+            case obj: ScObject =>
+              obj.members.foreach {
+                case fundef: ScFunctionDefinition if fundef.getName == "unapply" || fundef.getName == "unapplySeq" =>
+                  resultSet.consume(completionResult.getLookupElement)
+                case _ =>
+              }
+            case _ =>
+          }
+        }
+      }
+
+      def handleCompletionForLowerLetterObject(pattern: PsiElement, result: CompletionResultSet, completionParameters: CompletionParameters): Unit = {
+        val currentPrefix = result.getPrefixMatcher.getPrefix
+        val element = createCaseClassPatern(currentPrefix, pattern)
+        val typeIdentifierInElement = typeIdentifierIn(element)
+
+        typeIdentifierInElement.foreach { psiElement =>
+          val identifier = completionParameters.withPosition(psiElement, psiElement.getTextRange.getEndOffset)
+          result.runRemainingContributors(identifier, new MyConsumer(result), true)
+        }
+      }
+
+      val position = positionFromParameters(parameters)
+      handleCompletionForLowerLetterObject(position, result, parameters)
+    }
   })
 }

@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Constructor, Import
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, Expr}
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ImplicitParamClause, ParamClauses, TypeParamClause}
+import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{ConstrExpr, Dcl, Def}
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.{ClassParamClause, ClassParamClauses, ImplicitClassParamClause}
@@ -269,6 +270,14 @@ object ScalaPsiElementFactory {
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     val matchStmt = dummyFile.getFirstChild.asInstanceOf[ScMatchStmt]
     matchStmt.caseClauses.head
+  }
+
+  def createCaseClauseFromTextWithContext(clauseText: String, context: PsiElement,
+                                          child: PsiElement, manager: PsiManager): ScCaseClause = {
+    createElementWithContext("case " + clauseText, context, child, CaseClause.parse(_)) match {
+      case caseClause: ScCaseClause => caseClause
+      case _ => null
+    }
   }
 
   def createPatternFromText(patternText: String, manager: PsiManager): ScPattern= {
