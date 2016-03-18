@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.components.libinjection
 import java.io._
 import java.net.URL
 import java.util
-import javax.swing.event.HyperlinkEvent
 
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.notification._
@@ -44,8 +43,14 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   val myInjectorCacheDir     = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/")
   val myInjectorCacheIndex   = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/libs.index")
   private val myClassLoader  = new DynamicClassLoader(Array(myInjectorCacheDir.toURI.toURL), this.getClass.getClassLoader)
-  private val LOG = Logger.getInstance(getClass)
+  implicit private val LOG = Logger.getInstance(getClass)
   private val GROUP = new NotificationGroup("Injector", NotificationDisplayType.STICKY_BALLOON, false)
+  private val ackProvider = {
+    if (ApplicationManager.getApplication.isUnitTestMode)
+      new TestAcknowledgementProvider
+    else
+      new UIAcknowledgementProvider(GROUP, project)
+  }
 
   // reset cache if plugin has been updated
   // cache: jarFilePath -> jarManifest
@@ -284,9 +289,9 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   private def findMatchingPluginDescriptor(libraryManifest: JarManifest): Option[PluginDescriptor] = {
-    val curVer = ScalaPluginVersionVerifier.getPluginVersion
+    val curVer = ScalaPluginVersionVerifier.getPluginVersion.getOrElse(Version.Snapshot)
     libraryManifest.pluginDescriptors
-      .find(d => (curVer.get > d.since && curVer.get < d.until) || curVer.get.isSnapshot)
+      .find(d => (curVer > d.since && curVer < d.until) || curVer.isSnapshot)
   }
 
   private def findMatchingInjectors(libraryManifest: JarManifest): Seq[InjectorDescriptor] = {
@@ -327,24 +332,11 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   private def askUser(candidates: ManifestToDescriptors) = {
-    val message = s"Some of your project's libraries have IDEA support features.</p>Would you like to load them?" +
-      s"""<p/><a href="Yes">Yes</a> """ +
-      s"""<a href="No">No</a>"""
-    val listener = new NotificationListener {
-      override def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent): Unit = {
-        notification.expire()
-        if (event.getDescription == "Yes")
-          compile(showReviewDialogAndFilter(candidates))
-      }
-    }
-    GROUP.createNotification("IDEA Extensions", message, NotificationType.INFORMATION, listener).notify(project)
+    ackProvider.askGlobalInjectorEnable(acceptCallback = compile(showReviewDialogAndFilter(candidates)))
   }
 
   private def showReviewDialogAndFilter(candidates: ManifestToDescriptors): ManifestToDescriptors  = {
-    val (accepted, rejected) = candidates.partition { candidate =>
-      val dialog = new InjectorReviewDialog(project, candidate, LOG)
-      dialog.showAndGet()
-    }
+    val (accepted, rejected) = ackProvider.showReviewDialogAndFilter(candidates)
     for ((manifest, _) <- rejected) {
       jarCache.cache.put(manifest.jarPath, manifest.copy()(isBlackListed = true))
     }
@@ -395,7 +387,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     val jarName = new File(jarManifest.jarPath).getName
     val pluginVersion = ScalaPluginVersionVerifier.getPluginVersion.get.toString
     val libraryDir = new File(myInjectorCacheDir, (jarName + pluginVersion).replaceAll("\\.", "_"))
-    val injectorDir = new File(libraryDir, injectorDescriptor.impl.hashCode.toString)
+    val injectorDir = new File(libraryDir, injectorDescriptor.impl.hashCode.abs.toString)
     injectorDir.mkdirs()
     injectorDir
   }
@@ -407,9 +399,13 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
     val scalaSDK = project.modulesWithScala.head.scalaSdk.get
     val model  = ModuleManager.getInstance(project).getModifiableModel
-    val module = model.newModule(project.getProjectFile.getParent.getPath + "/modules/"+ INJECTOR_MODULE_NAME, JavaModuleType.getModuleType.getId)
+    val module = model.newModule(ScalaUtil.createTmpDir("injectorModule","").getAbsolutePath + "/" + INJECTOR_MODULE_NAME, JavaModuleType.getModuleType.getId)
     model.commit()
-    val urls   = this.getClass.getClassLoader.asInstanceOf[PluginClassLoader].getUrls.map(u=>s"jar://${u.getFile}!/")
+//    val urls   = this.getClass.getClassLoader.asInstanceOf[PluginClassLoader].getUrls.map(u=>s"jar://${u.getFile}!/")
+    val urls = this.getClass.getClassLoader match {
+      case cl: PluginClassLoader => cl.getUrls.map(u=>s"jar://${u.getFile}!/").toSeq
+      case cl: java.net.URLClassLoader => cl.getURLs.map(u=>s"jar://${u.getFile}!/").toSeq
+    }
     // get application classloader urls using reflection :(
     val parentUrls = ApplicationManager.getApplication.getClass.getClassLoader.getClass.getDeclaredMethods
       .find(_.getName == "getUrls")
