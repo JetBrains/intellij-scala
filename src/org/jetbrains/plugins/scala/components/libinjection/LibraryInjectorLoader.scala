@@ -419,13 +419,20 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     // get application classloader urls using reflection :(
     ApplicationManager.getApplication.getClass.getClassLoader match {
       case cl: java.net.URLClassLoader =>
-        cl.getClass.getMethods.find(_.getName == "getURLs")
+        val v = cl.getClass.getMethods.find(_.getName == "getURLs")
           .map(_.invoke(ApplicationManager.getApplication.getClass.getClassLoader)
-            .asInstanceOf[Array[URL]].map(u => new File(u.getFile)))
+            .asInstanceOf[Array[URL]].map(u => new File(u.getFile))).getOrElse(Array())
+        buffer ++= v
       case cl: com.intellij.util.lang.UrlClassLoader =>
-        cl.getClass.getMethods.find(_.getName == "getUrls")
+        val v = cl.getClass.getMethods.find(_.getName == "getUrls")
           .map(_.invoke(ApplicationManager.getApplication.getClass.getClassLoader)
-            .asInstanceOf[java.util.List[URL]].map(u => new File(u.getFile)))
+            .asInstanceOf[java.util.List[URL]].map(u => new File(u.getFile))).getOrElse(Seq.empty)
+        buffer ++= v
+      case other =>
+          val v = other.getClass.getMethods.find(_.getName == "getUrls")
+            .map(_.invoke(ApplicationManager.getApplication.getClass.getClassLoader)
+              .asInstanceOf[java.util.List[URL]].map(u => new File(u.getFile))).getOrElse(Seq.empty)
+        buffer ++= v
     }
     buffer
   }
