@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 
@@ -380,8 +381,9 @@ case class ScExistentialType(quantified : ScType,
     } else this
   }
 
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitExistentialType(this)
+  override def visitType(visitor: TypeVisitor) = visitor match {
+    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitExistentialType(this)
+    case _ =>
   }
 
   override def typeDepth: Int = {
@@ -497,7 +499,8 @@ case class ScExistentialArgument(name: String, args: List[ScTypeParameterType], 
     }
   }
 
-  override def visitType(visitor: ScalaTypeVisitor): Unit = {
-    visitor.visitExistentialArgument(this)
+  override def visitType(visitor: TypeVisitor) = visitor match {
+    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitExistentialArgument(this)
+    case _ =>
   }
 }

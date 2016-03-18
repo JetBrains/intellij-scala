@@ -10,13 +10,11 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, TypeVisitor}
 
 
 abstract class StdType(val name: String, val tSuper: Option[StdType]) extends ValueType {
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitStdType(this)
-  }
+  override def visitType(visitor: TypeVisitor) = visitor.visitStdType(this)
 
   /**
    * Return wrapped to option appropriate synthetic class.

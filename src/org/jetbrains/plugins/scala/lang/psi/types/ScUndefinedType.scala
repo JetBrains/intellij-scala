@@ -3,6 +3,7 @@ package lang
 package psi
 package types
 
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 
 import scala.collection.immutable.HashSet
@@ -15,9 +16,7 @@ import scala.collection.immutable.HashSet
 case class ScUndefinedType(tpt: ScTypeParameterType) extends NonValueType {
   var level = 0
 
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitUndefinedType(this)
-  }
+  override def visitType(visitor: TypeVisitor) = visitor.visitUndefinedType(this)
 
   def this(tpt: ScTypeParameterType, level: Int) {
     this(tpt)
@@ -126,7 +125,8 @@ case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType
     }
   }
 
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitAbstractType(this)
+  override def visitType(visitor: TypeVisitor) = visitor match {
+    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitAbstractType(this)
+    case _ =>
   }
 }

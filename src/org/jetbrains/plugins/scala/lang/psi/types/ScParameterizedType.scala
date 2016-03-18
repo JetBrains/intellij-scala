@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -80,9 +81,7 @@ case class JavaArrayType(arg: ScType) extends ValueType {
     }
   }
 
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitJavaArrayType(this)
-  }
+  override def visitType(visitor: TypeVisitor) = visitor.visitJavaArrayType(this)
 
   override def typeDepth: Int = arg.typeDepth
 }
@@ -290,8 +289,10 @@ class ScParameterizedType private(val designator: ScType, val typeArgs: Seq[ScTy
     }
   }
 
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitParameterizedType(this)
+
+  override def visitType(visitor: TypeVisitor) = visitor match {
+    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitParameterizedType(this)
+    case _ =>
   }
 
   override def typeDepth: Int = {
@@ -394,8 +395,9 @@ case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
     }
   }
 
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitTypeParameterType(this)
+  override def visitType(visitor: TypeVisitor) = visitor match {
+    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitTypeParameterType(this)
+    case _ =>
   }
 }
 
