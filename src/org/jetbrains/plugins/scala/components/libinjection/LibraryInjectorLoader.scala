@@ -13,17 +13,19 @@ import com.intellij.openapi.module._
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable
 import com.intellij.openapi.roots.libraries.{Library, LibraryTable, LibraryTablesRegistrar}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile, VirtualFileManager}
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
+import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier.Version
-import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper
+import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
+import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 case class InjectorPersistentCache(pluginVersion: Version, cache: java.util.HashMap[String, JarManifest])
 
@@ -269,11 +271,18 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   private def compileInjectorFromLibrary(sources: Seq[File], outDir: File, m: Module): Seq[File] = {
-    val res = ScalaEvaluatorCompileHelper.instance(project).compile(sources, m, outDir).map(_._1)
-    val parentDir = sources.headOption
-    sources.foreach(_.delete())
-    parentDir.foreach(_.delete())
-    res
+    val platformJars = collectPlatformJars()
+    CompileServerLauncher.ensureServerRunning(project)
+    val connector = new InjectorServerConnector(m, sources, outDir, platformJars)
+    try {
+      connector.compile() match {
+        case Left(output) => output.map(_._1)
+        case Right(errors) => throw EvaluationException(errors.mkString("\n"))
+      }
+    }
+    catch {
+      case e: Exception => Error.compilationError("Could not compile:\n" + e.getMessage)
+    }
   }
 
   private def loadInjector(jarManifest: JarManifest, injectorDescriptor: InjectorDescriptor) = {
@@ -392,44 +401,46 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
     injectorDir
   }
 
+  private def collectPlatformJars(): Seq[File] = {
+    import scala.collection.JavaConversions._
+
+    val buffer: ArrayBuffer[File] = mutable.ArrayBuffer()
+
+    // these are actually different classes calling different methods which are surprisingly called the same
+    this.getClass.getClassLoader match {
+      case cl: PluginClassLoader =>
+        buffer ++= cl.getUrls.map(u => new File(u.getFile))
+      case cl: java.net.URLClassLoader =>
+        buffer ++= cl.getURLs.map(u => new File(u.getFile))
+    }
+    // get application classloader urls using reflection :(
+    ApplicationManager.getApplication.getClass.getClassLoader match {
+      case cl: java.net.URLClassLoader =>
+        cl.getClass.getMethods.find(_.getName == "getURLs")
+          .map(_.invoke(ApplicationManager.getApplication.getClass.getClassLoader)
+            .asInstanceOf[Array[URL]].map(u => new File(u.getFile)))
+      case cl: com.intellij.util.lang.UrlClassLoader =>
+        cl.getClass.getMethods.find(_.getName == "getUrls")
+          .map(_.invoke(ApplicationManager.getApplication.getClass.getClassLoader)
+            .asInstanceOf[java.util.List[URL]].map(u => new File(u.getFile)))
+    }
+    buffer
+  }
+
   private def createIdeaModule(): Module = {
     import org.jetbrains.plugins.scala.project._
 
-    import scala.collection.JavaConversions._
-
     val scalaSDK = project.modulesWithScala.head.scalaSdk.get
     val model  = ModuleManager.getInstance(project).getModifiableModel
-    val module = model.newModule(ScalaUtil.createTmpDir("injectorModule","").getAbsolutePath + "/" + INJECTOR_MODULE_NAME, JavaModuleType.getModuleType.getId)
+    val module = model.newModule(ScalaUtil.createTmpDir("injectorModule","").getAbsolutePath +
+      "/" + INJECTOR_MODULE_NAME, JavaModuleType.getModuleType.getId)
     model.commit()
-//    val urls   = this.getClass.getClassLoader.asInstanceOf[PluginClassLoader].getUrls.map(u=>s"jar://${u.getFile}!/")
-    val urls = this.getClass.getClassLoader match {
-      case cl: PluginClassLoader => cl.getUrls.map(u=>s"jar://${u.getFile}!/").toSeq
-      case cl: java.net.URLClassLoader => cl.getURLs.map(u=>s"jar://${u.getFile}!/").toSeq
-    }
-    // get application classloader urls using reflection :(
-    val parentUrls = ApplicationManager.getApplication.getClass.getClassLoader.getClass.getDeclaredMethods
-      .find(_.getName == "getUrls")
-      .map(_.invoke(ApplicationManager.getApplication.getClass.getClassLoader)
-        .asInstanceOf[java.util.List[URL]])
-    parentUrls.map(_.map(u=>s"jar://${u.getFile}!/")).foreach(urls.addAll(_))
-    val lib    = module.createLibraryFromJar(urls, HELPER_LIBRARY_NAME)
     module.configureScalaCompilerSettingsFrom("Default", Seq())
-    module.attach(lib)
     module.attach(scalaSDK)
-    module.libraries
     module
   }
 
   private def removeIdeaModule() = {
-    val libsModel = ProjectLibraryTable.getInstance(project).getModifiableModel
-    val library   = libsModel.getLibraryByName(HELPER_LIBRARY_NAME)
-    if (library != null) {
-      libsModel.removeLibrary(library)
-      libsModel.commit()
-    } else {
-      LOG.warn(s"Failed to remove helper library - $HELPER_LIBRARY_NAME not found")
-    }
-
     val model  = ModuleManager.getInstance(project).getModifiableModel
     val module = model.findModuleByName(INJECTOR_MODULE_NAME.replaceAll("\\.iml$", ""))
     if (module != null) {
