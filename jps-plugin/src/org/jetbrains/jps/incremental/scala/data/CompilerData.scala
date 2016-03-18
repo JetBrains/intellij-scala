@@ -81,6 +81,8 @@ object CompilerData {
   private def compilerJarsIn(module: JpsModule): Either[String, CompilerJars] = {
     val sdk = SettingsManager.getScalaSdk(module)
 
+    if (sdk == null) return Left(s"Scala SDK not found in module ${module.getName}")
+
     val files = sdk.getProperties.asInstanceOf[LibrarySettings].getCompilerClasspath
 
     val library = find(files, "scala-library", ".jar") match {
