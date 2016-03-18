@@ -60,17 +60,20 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   private val loadedInjectors: mutable.HashMap[Class[_], mutable.HashSet[String]] = mutable.HashMap()
 
   private val myLibraryTableListener = new LibraryTable.Listener {
+
+    val skippedLibs = Array(HELPER_LIBRARY_NAME, "scala-sdk", ScalaLibraryName)
+
     override def afterLibraryRenamed(library: Library): Unit = ()
 
     override def beforeLibraryRemoved(library: Library): Unit = ()
 
-    override def afterLibraryRemoved(library: Library): Unit = {
-      if (library.getName != HELPER_LIBRARY_NAME)
+    override def afterLibraryRemoved(newLibrary: Library): Unit = {
+      if (!skippedLibs.contains(newLibrary.getName))
         init()
     }
 
     override def afterLibraryAdded(newLibrary: Library): Unit = {
-      if (newLibrary.getName != HELPER_LIBRARY_NAME)
+      if (!skippedLibs.contains(newLibrary.getName))
         init()
     }
   }
