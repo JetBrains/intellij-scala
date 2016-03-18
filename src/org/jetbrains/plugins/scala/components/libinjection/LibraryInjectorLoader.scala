@@ -269,7 +269,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   private def compileInjectorFromLibrary(sources: Seq[File], outDir: File, m: Module): Seq[File] = {
-    val res = sources.flatMap(ScalaEvaluatorCompileHelper.instance(project).compile(_, m, outDir)).map(_._1)
+    val res = ScalaEvaluatorCompileHelper.instance(project).compile(sources, m, outDir).map(_._1)
     val parentDir = sources.headOption
     sources.foreach(_.delete())
     parentDir.foreach(_.delete())

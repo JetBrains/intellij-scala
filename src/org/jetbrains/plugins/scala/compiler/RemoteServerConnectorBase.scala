@@ -4,12 +4,11 @@ package compiler
 import java.io.File
 import java.net.{URL, URLClassLoader}
 
-import com.btr.proxy.util.PlatformUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.OrderEnumerator
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.util.{PlatformUtils, PathUtil}
+import com.intellij.util.{PathUtil, PlatformUtils}
 import org.jetbrains.jps.incremental.scala.data.SbtData
 import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.project._
@@ -20,7 +19,14 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
  * 2014-10-07
  */
 
-abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, outputDir: File) {
+abstract class RemoteServerConnectorBase(module: Module, filesToCompile: Seq[File], outputDir: File) {
+
+  checkFilesToCompile(filesToCompile)
+
+  def this(module: Module, fileToCompile: File, outputDir: File) = {
+    this(module, Seq(fileToCompile), outputDir)
+  }
+
   private val libRoot = {
     if (ApplicationManager.getApplication.isUnitTestMode) {
       if (PlatformUtils.isIdeaCommunity) new File("./out/plugin/Scala/lib").getAbsoluteFile
@@ -39,6 +45,8 @@ abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, ou
     case Left(msg) => throw new IllegalArgumentException(msg)
     case Right(data) => data
   }
+
+  private val sourceRoot = filesToCompile.head.getParentFile
 
   private val scalaParameters = compilerSettings.toOptions.toArray
 
@@ -97,7 +105,7 @@ abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, ou
     sbtData.javaClassVersion,
     compilerClasspath,
     findJdk,
-    fileToCompile,
+    filesToCompile,
     classpath,
     outputDir,
     scalaParameters,
@@ -107,7 +115,7 @@ abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, ou
     "",
     "",
     IncrementalityType.IDEA.name(),
-    fileToCompile.getParentFile,
+    sourceRoot,
     outputDir,
     worksheetArgs,
     compilerSettings.sbtIncOptions.asString
@@ -128,5 +136,17 @@ abstract class RemoteServerConnectorBase(module: Module, fileToCompile: File, ou
     case Right(jdk) => jdk.executable
     case Left(msg) =>
       configurationError(s"Cannot find jdk ${settings.COMPILE_SERVER_SDK} for compile server, underlying message: $msg" )
+  }
+
+  private def checkFilesToCompile(files: Seq[File]) = {
+    if (files.isEmpty)
+      throw new IllegalArgumentException("Non-empty list of files expected")
+
+    files.find(!_.exists()).foreach(f =>
+      throw new IllegalArgumentException(s"File ${f.getCanonicalPath} does not exists" )
+    )
+
+    if (files.map(_.getParent).distinct.size != 1)
+      throw new IllegalArgumentException("All files should be in the same directory")
   }
 }

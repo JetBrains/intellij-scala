@@ -4,15 +4,17 @@ import java.io.{BufferedOutputStream, File, FileOutputStream}
 import java.util.zip.{ZipEntry, ZipOutputStream}
 
 import com.intellij.compiler.CompilerTestUtil
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
 import com.intellij.testFramework.{ModuleTestCase, PsiTestUtil}
 import org.jetbrains.plugins.scala.base.ScalaLibraryLoader
-import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
+import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
 import org.jetbrains.plugins.scala.debugger.{DebuggerTestUtil, ScalaVersion}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
@@ -68,7 +70,7 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
   override def setUpModule(): Unit = {
     super.setUpModule()
     scalaLibraryLoader = new ScalaLibraryLoader(getProject, getModule, myProject.getBasePath,
-      false, Some(getTestProjectJdk))
+      isIncludeReflectLibrary = true, javaSdk = Some(getTestProjectJdk))
 
     scalaLibraryLoader.loadScala(scalaSdkVersion)
     addLibrary(testData(getTestName(false)).zip(ScalaUtil.createTmpDir("injectorTestLib", "")))
@@ -130,10 +132,10 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
 
   val testData = Map("Simple" -> simpleInjector)
 
-//  def testSimple() {
-//    VirtualFilePointerManager.getInstance().asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
-//    assert(LibraryInjectorLoader.getInstance(myProject).getInjectorClasses(classOf[SyntheticMembersInjector]).nonEmpty)
-//  }
+  def testSimple() {
+    VirtualFilePointerManager.getInstance().asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
+    assert(LibraryInjectorLoader.getInstance(myProject).getInjectorClasses(classOf[SyntheticMembersInjector]).nonEmpty)
+  }
 
 
   override protected def scalaSdkVersion: ScalaSdkVersion = ScalaSdkVersion._2_11

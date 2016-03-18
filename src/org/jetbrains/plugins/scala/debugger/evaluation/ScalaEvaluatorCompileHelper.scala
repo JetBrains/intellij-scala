@@ -74,12 +74,12 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
     compile(fileText, module, tempDir())
   }
 
-  def compile(file: File, module: Module, outputDir: File): Array[(File, String)] = {
+  def compile(files: Seq[File], module: Module, outputDir: File): Array[(File, String)] = {
     CompileServerLauncher.ensureServerRunning(project)
-    val connector = new ServerConnector(module, file, outputDir)
+    val connector = new ServerConnector(module, files, outputDir)
     try {
       connector.compile() match {
-        case Left(files) => files
+        case Left(output) => output
         case Right(errors) => throw EvaluationException(errors.mkString("\n"))
       }
     }
@@ -89,7 +89,7 @@ class ScalaEvaluatorCompileHelper(project: Project) extends AbstractProjectCompo
   }
 
   def compile(fileText: String, module: Module, outputDir: File): Array[(File, String)] = {
-    compile(writeToTempFile(fileText), module, outputDir)
+    compile(Seq(writeToTempFile(fileText)), module, outputDir)
   }
 
   def writeToTempFile(text: String): File = {
@@ -104,7 +104,8 @@ object ScalaEvaluatorCompileHelper {
 }
 
 
-private class ServerConnector(module: Module, file: File, outputDir: File) extends RemoteServerConnectorBase(module, file, outputDir) {
+private class ServerConnector(module: Module, filesToCompile: Seq[File], outputDir: File)
+  extends RemoteServerConnectorBase(module, filesToCompile, outputDir) {
 
   val errors = ListBuffer[String]()
 
