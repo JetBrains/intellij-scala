@@ -70,7 +70,7 @@ package object collections {
   private[collections] val `.sort` = invocation(Set("sortWith", "sortBy", "sorted")).from(likeCollectionClasses)
   private[collections] val `.reverse` = invocation("reverse").from(likeCollectionClasses)
   private[collections] val `.iterator` = invocation("iterator").from(likeCollectionClasses)
-  private[collections] val `.apply` = invocation("apply").from(likeCollectionClasses)
+  private[collections] val `.apply` = invocation("apply")
   private[collections] val `.zip` = invocation("zip").from(likeCollectionClasses)
   private[collections] val `.indices` = invocation("indices").from(likeCollectionClasses)
   private[collections] val `.take` = invocation("take").from(likeCollectionClasses)

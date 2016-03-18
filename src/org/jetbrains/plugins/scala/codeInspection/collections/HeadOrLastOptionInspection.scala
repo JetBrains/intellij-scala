@@ -47,7 +47,7 @@ object LiftToHeadOption extends SimplificationType {
   override def description: String = InspectionBundle.message("lift.to.headOption")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
-    case coll`.lift`(literal("0")) =>
+    case (coll`.lift`())`.apply`(literal("0")) =>
       Some(replace(expr).withText(invocationText(coll, "headOption")).highlightFrom(coll))
     case _ => None
   }
@@ -58,7 +58,7 @@ object LiftToLastOption extends SimplificationType {
   override def description: String = InspectionBundle.message("lift.to.lastOption")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
-    case coll`.lift`(coll2`.sizeOrLength`() `-` literal("1"))
+    case (coll`.lift`())`.apply`(coll2`.sizeOrLength`() `-` literal("1"))
       if PsiEquivalenceUtil.areElementsEquivalent(coll, coll2) =>
       Some(replace(expr).withText(invocationText(coll, "lastOption")).highlightFrom(coll))
     case _ => None

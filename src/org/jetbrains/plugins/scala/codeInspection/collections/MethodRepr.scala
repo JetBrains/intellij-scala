@@ -44,7 +44,8 @@ object MethodRepr {
       case postfix: ScPostfixExpr => Some(expr, Some(stripped(postfix.getBaseExpr)), Some(postfix.operation), Seq())
       case refExpr: ScReferenceExpression =>
         refExpr.getParent match {
-          case _: ScMethodCall | _: ScGenericCall => None
+          case _: ScGenericCall => None
+          case mc: ScMethodCall if !mc.isApplyOrUpdateCall => None
           case ScInfixExpr(_, `refExpr`, _) => None
           case ScPostfixExpr(_, `refExpr`) => None
           case ScPrefixExpr(`refExpr`, _) => None
@@ -52,7 +53,7 @@ object MethodRepr {
         }
       case genCall: ScGenericCall =>
         genCall.getParent match {
-          case _: ScMethodCall => None
+          case mc: ScMethodCall if !mc.isApplyOrUpdateCall => None
           case _ => genCall.referencedExpr match {
             case ref: ScReferenceExpression => Some(genCall, ref.qualifier, Some(ref), Seq.empty)
             case other => Some(genCall, None, None, Seq.empty)
