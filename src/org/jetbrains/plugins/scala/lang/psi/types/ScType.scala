@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypeParametersOwner, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, ScMethodType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -102,7 +103,7 @@ trait ScType {
     else this
   }
 
-  def visitType(visitor: ScalaTypeVisitor)
+  def visitType(visitor: TypeVisitor)
 
   def typeDepth: Int = 1
 }

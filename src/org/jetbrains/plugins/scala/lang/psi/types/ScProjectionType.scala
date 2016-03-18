@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTemplateBodyImpl
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
@@ -311,8 +312,9 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
     case _ => false
   }
 
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitProjectionType(this)
+  override def visitType(visitor: TypeVisitor) = visitor match {
+    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitProjectionType(this)
+    case _ =>
   }
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[ScProjectionType]
@@ -374,8 +376,9 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ScalaType with ValueT
     }
   }
 
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitThisType(this)
+  override def visitType(visitor: TypeVisitor) = visitor match {
+    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitThisType(this)
+    case _ =>
   }
 }
 
@@ -474,8 +477,9 @@ case class ScDesignatorType(element: PsiNamedElement) extends ScalaType with Val
     }
   }
 
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitDesignatorType(this)
+  override def visitType(visitor: TypeVisitor) = visitor match {
+    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitDesignatorType(this)
+    case _ =>
   }
 
   override def isFinalType = element match {

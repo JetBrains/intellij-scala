@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 
 import scala.collection.immutable.HashSet
@@ -468,8 +469,9 @@ case class ScExistentialType(quantified : ScType,
     } else this
   }
 
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitExistentialType(this)
+  override def visitType(visitor: TypeVisitor) = visitor match {
+    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitExistentialType(this)
+    case _ =>
   }
 
   override def typeDepth: Int = {
@@ -536,8 +538,9 @@ case class ScExistentialArgument(name: String, args: List[ScTypeParameterType],
 
 case class ScSkolemizedType(name: String, args: List[ScTypeParameterType], lower: ScType, upper: ScType)
   extends ScalaType with ValueType {
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitSkolemizedType(this)
+  override def visitType(visitor: TypeVisitor) = visitor match {
+    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitSkolemizedType(this)
+    case _ =>
   }
 
   override def removeAbstracts = ScSkolemizedType(name, args, lower.removeAbstracts, upper.removeAbstracts)

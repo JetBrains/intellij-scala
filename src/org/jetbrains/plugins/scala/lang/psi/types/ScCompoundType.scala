@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 
 import scala.collection.mutable
@@ -26,8 +27,10 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
     hash
   }
 
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitCompoundType(this)
+
+  override def visitType(visitor: TypeVisitor) = visitor match {
+    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitCompoundType(this)
+    case _ =>
   }
 
   override def typeDepth: Int = {
