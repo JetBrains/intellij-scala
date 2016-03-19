@@ -1,24 +1,20 @@
 package org.jetbrains.plugins.scala
 package worksheet.actions
 
-import java.util.UUID
-
-import com.intellij.codeInsight.hint.HintManager
-import com.intellij.compiler.ProblemsView
 import com.intellij.execution._
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.icons.AllIcons
-import com.intellij.ide.scratch.{ScratchRootType, ScratchFileService}
+import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.ide.util.EditorHelper
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.{ApplicationManager, ModalityState}
-import com.intellij.openapi.compiler.{CompilerMessage, CompileContext, CompileStatusNotification, CompilerManager}
+import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.keymap.{KeymapManager, KeymapUtil}
-import com.intellij.openapi.module.{ModuleManager, Module}
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil}
 import com.intellij.openapi.roots.{ModuleRootManager, ProjectFileIndex}
@@ -26,9 +22,7 @@ import com.intellij.openapi.ui.MessageType
 import com.intellij.openapi.ui.popup.util.PopupUtil
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId}
-import com.intellij.openapi.wm.{ToolWindowId, ToolWindowManager}
-import com.intellij.psi.{PsiManager, PsiDocumentManager, PsiFile}
-import com.intellij.util.ui.MessageCategory
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project._
@@ -159,7 +153,6 @@ object RunWorksheetAction {
 
     params.getClassPath.addAllFiles(files.asJava)
     params.setUseDynamicClasspath(JdkUtil.useDynamicClasspath(project))
-    params.setUseDynamicVMOptions(JdkUtil.useDynamicVMOptions())
     params.getClassPath.add(ScalaUtil.runnersPath())
     params.setWorkingDirectory(workingDirectory)
     params.setMainClass(runnerClassName)
