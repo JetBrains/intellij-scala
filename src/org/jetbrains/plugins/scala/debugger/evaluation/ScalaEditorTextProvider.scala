@@ -4,10 +4,15 @@ import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, TextWithImport
 import com.intellij.debugger.impl.EditorTextProvider
 import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.util.SideEffectsUtil
+
+import scala.util.Try
 
 /**
  * @author Alefas
@@ -16,40 +21,31 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 class ScalaEditorTextProvider extends EditorTextProvider {
   def getEditorText(elementAtCaret: PsiElement): TextWithImports = {
-    var result: String = ""
-    val element: PsiElement = findExpressionInner(elementAtCaret, allowMethodCalls = true)
-    if (element != null) result = element.getText
+    val result: String = findExpressionInner(elementAtCaret, allowMethodCalls = true).map(_.getText).getOrElse("")
     new TextWithImportsImpl(CodeFragmentKind.EXPRESSION, result)
   }
 
   def findExpression(element: PsiElement, allowMethodCalls: Boolean): Pair[PsiElement, TextRange] = {
-    if (!allowMethodCalls) return null
-    val expression: PsiElement = findExpressionInner(element, allowMethodCalls)
-    if (expression == null) return null
-    try {
-      val expressionCopy = ScalaPsiElementFactory.createExpressionWithContextFromText(expression.getText,
-        expression.getContext, expression)
-      new Pair[PsiElement, TextRange](expressionCopy, expression.getTextRange)
-    }
-    catch {
-      case t: Throwable => null
+    findExpressionInner(element, allowMethodCalls) match {
+      case None => null
+      case Some(elem) =>
+        Try {
+          val expressionCopy = ScalaPsiElementFactory.createExpressionWithContextFromText(elem.getText, elem.getContext, elem)
+          new Pair[PsiElement, TextRange](expressionCopy, elem.getTextRange)
+        }.toOption.orNull
     }
   }
 
-  private def findExpressionInner(element: PsiElement, allowMethodCalls: Boolean): PsiElement = {
-    val parent: PsiElement = element.getParent
-    parent match {
-      case v: ScBindingPattern if element == v.nameId => element
-      case p: ScParameter if element == p.nameId => element
-      case ref: ScReferenceExpression =>
-        ref.getParent match {
-          case infix: MethodInvocation if infix.getInvokedExpr == ref =>
-            if (allowMethodCalls) infix
-            else null
-          case _ => ref
-        }
-      case t: ScThisReference => parent
-      case _ => null
+  private def findExpressionInner(element: PsiElement, allowMethodCalls: Boolean): Option[PsiElement] = {
+    def allowed(expr: ScExpression) = if (SideEffectsUtil.hasNoSideEffects(expr) || allowMethodCalls) Some(expr) else None
+
+    PsiTreeUtil.getParentOfType(element, classOf[ScExpression], classOf[ScParameter], classOf[ScBindingPattern]) match {
+      case (ref: ScReferenceExpression) childOf (mc: ScMethodCall) => allowed(mc)
+      case (ref: ScReferenceExpression) childOf (inf: ScInfixExpr) if inf.operation == ref => allowed(inf)
+      case expr: ScExpression => allowed(expr)
+      case b: ScBindingPattern => Some(b.nameId)
+      case p: ScParameter if !p.isCallByNameParameter || allowMethodCalls => Some(p.nameId)
+      case _ => None
     }
   }
 }

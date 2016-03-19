@@ -116,6 +116,32 @@ class UselessExpressionInspectionTest extends ScalaLightInspectionFixtureTestAda
     checkTextHasNoErrors(text)
   }
 
+  def testImmutableCollection4(): Unit = {
+    val text = s"""def foo(): Int = {
+                   |  0 match {
+                   |    case 0 => ${START}List(1).map(_ + 2)$END
+                   |    case 1 =>
+                   |  }
+                   |  1
+                   |}"""
+    checkTextHasError(text)
+  }
+
+  def testThisReference(): Unit = {
+    val text = s"""class A {
+                  |  val x = 1
+                  |
+                  |  def foo(): Int = {
+                  |    0 match {
+                  |      case 0 => ${START}this.x$END
+                  |      case 1 =>
+                  |    }
+                  |    1
+                  |  }
+                  |}"""
+    checkTextHasError(text)
+  }
+
   def testFunctionalParam(): Unit = {
     val text =
       s"""def foo(f: Int => Unit): Unit = {
