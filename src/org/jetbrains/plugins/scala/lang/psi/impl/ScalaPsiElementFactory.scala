@@ -595,11 +595,17 @@ object ScalaPsiElementFactory {
     dummyFile.getNode.getFirstChildNode
   }
 
-  def createBlockFromExpr(expr: ScExpression, manager: PsiManager): ScExpression = {
-    val text = "class a {\nval b = {\n" + expr.getText + "\n}\n}"
+  def createBlockFromExpr(expr: ScExpression, manager: PsiManager): ScExpression =
+    getExprFromFirstDef("class a {\nval b = {\n" + expr.getText + "\n}\n}", manager)
+
+  def createAnonFunBlockFromFunExpr(expr: ScFunctionExpr, manager: PsiManager): ScExpression =
+    getExprFromFirstDef("class a {\nval b = {" + expr.params.getText + "=> \n" +
+      expr.result.map(_.getText).getOrElse("") + "\n}}", manager)
+
+  private def getExprFromFirstDef(text: String, manager: PsiManager): ScExpression = {
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-            createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
-      ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
+      createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+        ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
     val classDef = dummyFile.typeDefinitions(0)
     val p = classDef.members(0).asInstanceOf[ScPatternDefinition]
     p.expr.getOrElse(throw new IllegalArgumentException("Expression not found"))

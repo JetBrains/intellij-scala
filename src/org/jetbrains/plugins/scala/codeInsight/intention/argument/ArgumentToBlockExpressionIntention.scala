@@ -4,8 +4,9 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScUnderscoreSection}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScFunctionExpr, ScUnderscoreSection}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
@@ -14,7 +15,7 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
  */
 
 class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAction {
-  def getFamilyName = "Convert to block expression"
+  def getFamilyName = ArgumentToBlockExpressionIntention.familyName
 
   override def getText: String = getFamilyName
 
@@ -28,9 +29,18 @@ class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAction {
   override def invoke(project: Project, editor: Editor, element: PsiElement) {
     val list = element.getParent.asInstanceOf[ScArgumentExprList]
     val exp = list.exprs.head
-    val block = ScalaPsiElementFactory.createBlockFromExpr(exp, list.getManager)
+    val block = exp match {
+      case funExpr: ScFunctionExpr => ScalaPsiElementFactory.createAnonFunBlockFromFunExpr(funExpr, list.getManager)
+      case _ => ScalaPsiElementFactory.createBlockFromExpr(exp, list.getManager)
+    }
     exp.replace(block)
     list.getFirstChild.delete()
     list.getLastChild.delete()
+    val manager: CodeStyleManager = CodeStyleManager.getInstance(project)
+    manager.reformat(block)
   }
+}
+
+object ArgumentToBlockExpressionIntention {
+  val familyName = "Convert to block expression"
 }

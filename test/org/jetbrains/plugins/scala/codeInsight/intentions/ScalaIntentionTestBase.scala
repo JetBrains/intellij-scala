@@ -4,9 +4,10 @@ package codeInsight.intentions
 import java.util
 
 import com.intellij.codeInsight.intention.IntentionAction
-import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.junit.Assert
 
 import scala.collection.JavaConversions._
@@ -49,4 +50,7 @@ abstract class ScalaIntentionTestBase extends ScalaLightCodeInsightFixtureTestAd
   }
 
   protected def groom(text: String) = text.stripMargin.replace("\r", "").trim
+
+  protected def getScalaCodeStyleSettings =
+    CodeStyleSettingsManager.getSettings(getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
 }
