@@ -133,4 +133,81 @@ class ScalaFormatSelectionTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
+  def testSCL10000(): Unit = {
+    val before =
+      """
+        |class Test {
+        |//someComment
+        |  def foo() = /*start*/{
+        |}/*end*/
+        |}
+      """.stripMargin.replace("\r", "")
+
+    val after =
+      """
+        |class Test {
+        |//someComment
+        |  def foo() = {
+        |  }
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+  def testSCL10000Vals(): Unit = {
+    val before =
+      """
+        |class Test {
+        |  def foo() = ???
+        |//someComment
+        |  val bar = /*start*/{
+        |  42
+        |}/*end*/
+        |}
+      """.stripMargin.replace("\r","")
+
+    val after =
+      """
+        |class Test {
+        |  def foo() = ???
+        |//someComment
+        |  val bar = {
+        |    42
+        |  }
+        |}
+      """.stripMargin.replace("\r", "")
+
+    doTextTest(before, after)
+  }
+
+//  TODO: the odds of such behavior are extremely low, and fixing the issue involves extensive change of getDummyBlocks
+//  def testSCL10000WithGroupedVals(): Unit = {
+//    getCommonSettings.ALIGN_GROUP_FIELD_DECLARATIONS = true
+//
+//    val before =
+//      """
+//        |class Test {
+//        |  val longValName = 42
+//        |//someComment
+//        |  val short       = /*start*/{
+//        |11
+//        |}/*end*/
+//        |}
+//      """.stripMargin.replace("\r", "")
+//
+//    val after =
+//      """
+//        |class Test {
+//        |  val longValName = 42
+//        |//someComment
+//        |  val short       = {
+//        |    11
+//        |  }
+//        |}
+//      """.stripMargin.replace("\r", "")
+//
+//    doTextTest(before, after)
+//  }
+
 }

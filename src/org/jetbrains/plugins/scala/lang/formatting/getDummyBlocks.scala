@@ -176,6 +176,14 @@ object getDummyBlocks {
         //create and store alignment; required for support of multi-line interploated strings (SCL-8665)
         alignmentsMap.put(SmartPointerManager.getInstance(interpolated.getProject).
             createSmartPsiElementPointer(interpolated), Alignment.createAlignment())
+      case _: ScValue | _: ScVariable | _: ScFunction if node.getFirstChildNode.getPsi.isInstanceOf[PsiComment] =>
+        val childrenFiltered = children.filter(isCorrectBlock(_))
+        subBlocks.add(getSubBlock(block, scalaSettings, childrenFiltered.head))
+        val tail = childrenFiltered.tail
+        subBlocks.add(new ScalaBlock(block, tail.head, tail.last, null,
+          Indent.getNoneIndent, arrangeSuggestedWrapForChild(block, node, scalaSettings, block.suggestedWrap),
+          block.getSettings))
+        return subBlocks
       case _ =>
     }
     val alignment: Alignment = if (mustAlignment(node, block.getSettings))
@@ -497,6 +505,7 @@ object getDummyBlocks {
       val indent = ScalaIndentProcessor.getChildIndent(block, child)
       val childWrap = arrangeSuggestedWrapForChild(block, child, scalaSettings, block.suggestedWrap)
       val childAlignment = getChildAlignment(node, child)
+      //TODO process rare case of first-line comment before one of the fields  for SCL-10000 here
       subBlocks.add(new ScalaBlock(block, child, null, childAlignment, indent, childWrap, block.getSettings))
       prevChild = child
     }
