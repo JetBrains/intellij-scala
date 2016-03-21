@@ -276,7 +276,7 @@ object ScalaPsiUtil {
         "scala.Function1", e.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
       )
     ) collect {
-      case cl: ScTrait => ScParameterizedType(ScType.designator(cl), cl.typeParameters.map(tp =>
+      case cl: ScTrait => ScParameterizedType(ScalaType.designator(cl), cl.typeParameters.map(tp =>
         new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
     } flatMap {
       case p: ScParameterizedType => Some(p)
@@ -593,7 +593,7 @@ object ScalaPsiUtil {
 
   def collectImplicitObjects(_tp: ScType, project: Project, scope: GlobalSearchScope)
                             (implicit typeSystem: TypeSystem = project.typeSystem): Seq[ScType] = {
-    val tp = ScType.removeAliasDefinitions(_tp)
+    val tp = _tp.removeAliasDefinitions()
     val cacheKey = (tp, project, scope)
     var cachedResult = collectImplicitObjectsCache.get(cacheKey)
     if (cachedResult != null) return cachedResult
@@ -634,7 +634,7 @@ object ScalaPsiUtil {
           collectParts(a)
           args.foreach(collectParts)
         case p@ScParameterizedType(des, args) =>
-          ScType.extractClassType(p, Some(project)) match {
+          p.extractClassType(project) match {
             case Some((clazz, subst)) =>
               parts += des
               collectParts(des)
@@ -655,7 +655,7 @@ object ScalaPsiUtil {
             case v: ScParameter      => v.getType(TypingContext.empty).map(proj.actualSubst.subst).foreach(collectParts)
             case _                   =>
           }
-          ScType.extractClassType(tp, Some(project)) match {
+          tp.extractClassType(project) match {
             case Some((clazz, subst)) =>
               parts += tp
               collectSupers(clazz, subst)
@@ -666,7 +666,7 @@ object ScalaPsiUtil {
         case ScExistentialType(quant, _) => collectParts(quant)
         case ScTypeParameterType(_, _, _, upper, _) => collectParts(upper.v)
         case _                           =>
-          ScType.extractClassType(tp, Some(project)) match {
+          tp.extractClassType(project) match {
             case Some((clazz, subst)) =>
               val packObjects = clazz.contexts.flatMap {
                 case x: ScPackageLike => x.findPackageObject(scope).toIterator
@@ -725,7 +725,7 @@ object ScalaPsiUtil {
               aliasedType.getOrAny))
           case _ =>
             for {
-              (clazz: PsiClass, subst: ScSubstitutor) <- ScType.extractClassType(tp, Some(project))
+              (clazz: PsiClass, subst: ScSubstitutor) <- tp.extractClassType(project)
               if !visited.contains(clazz)
             } {
               clazz match {
@@ -1609,11 +1609,13 @@ object ScalaPsiUtil {
   }
 
   def isArgumentOfFunctionType(expr: ScExpression) = {
+    import expr.typeSystem
     isCanonicalArg(expr) && parameterOf(expr).exists(p => ScFunctionType.isFunctionType(p.paramType))
   }
 
   object MethodValue {
     def unapply(expr: ScExpression): Option[PsiMethod] = {
+      import expr.typeSystem
       if (!expr.expectedType(fromUnderscore = false).exists {
         case ScFunctionType(_, _) => true
         case expected if isSAMEnabled(expr) => toSAMType(expected, expr.getResolveScope).isDefined
@@ -1932,8 +1934,8 @@ object ScalaPsiUtil {
     * @see SCL-6140
     * @see https://github.com/scala/scala/pull/3018/
     */
-  def toSAMType(expected: ScType, scalaScope: GlobalSearchScope): Option[ScType] = {
-
+  def toSAMType(expected: ScType, scalaScope: GlobalSearchScope)
+               (implicit typeSystem: TypeSystem): Option[ScType] = {
     def constructorValidForSAM(constructors: Array[PsiMethod]): Boolean = {
       //primary constructor (if any) must be public, no-args, not overloaded
       constructors.length match {
@@ -1944,7 +1946,7 @@ object ScalaPsiUtil {
       }
     }
 
-    ScType.extractClassType(expected) match {
+    expected.extractClassType() match {
       case Some((cl, sub)) =>
         cl match {
           case templDef: ScTemplateDefinition => //it's a Scala class or trait
@@ -2027,7 +2029,8 @@ object ScalaPsiUtil {
    * @see https://github.com/scala/scala/pull/4101
    * @see SCL-8956
    */
-  private def extrapolateWildcardBounds(tp: ScType, expected: ScType, proj: Project, scope: GlobalSearchScope): Option[ScType] = {
+  private def extrapolateWildcardBounds(tp: ScType, expected: ScType, proj: Project, scope: GlobalSearchScope)
+                                       (implicit typeSystem: TypeSystem = proj.typeSystem): Option[ScType] = {
     expected match {
       case ScExistentialType(ScParameterizedType(expectedDesignator, _), wildcards) =>
         tp match {

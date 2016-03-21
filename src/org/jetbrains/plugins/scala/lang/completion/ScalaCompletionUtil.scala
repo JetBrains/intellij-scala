@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -84,9 +84,7 @@ object ScalaCompletionUtil {
       paramNamesWithTypes.+=(name -> param)
     }
     val iter = paramNamesWithTypes.map {
-      case (s, tp) => s + ": " + (if (canonical) {
-        ScType.canonicalText(tp)
-      } else ScType.presentableText(tp))
+      case (s, tp) => s + ": " + (if (canonical) tp.canonicalText else tp.presentableText)
     }
     val paramsString =
       if (paramNamesWithTypes.size != 1 || !braceArgs) iter.mkString("(", ", ", ")")

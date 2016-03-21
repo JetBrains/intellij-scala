@@ -48,10 +48,10 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
       case ScalaTokenTypes.tSYMBOL =>
         val sym = ScalaPsiManager.instance(getProject).getCachedClass("scala.Symbol", getResolveScope,
           ScalaPsiManager.ClassCategory.TYPE)
-        if (sym != null) ScType.designator(sym) else Nothing
+        if (sym != null) ScalaType.designator(sym) else Nothing
       case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tWRONG_STRING | ScalaTokenTypes.tMULTILINE_STRING =>
         val str = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.String")
-        str.map(ScType.designator(_)).getOrElse(Nothing)
+        str.map(ScalaType.designator(_)).getOrElse(Nothing)
       case ScalaTokenTypes.kTRUE | ScalaTokenTypes.kFALSE => Boolean
       case _ => return Failure("Wrong Psi to get Literal type", Some(this))
     }
@@ -204,7 +204,8 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
 
   /**
    * This method works only for null literal (to avoid possibly dangerous usage)
-   * @param tp type, which should be returned by method getTypeWithouImplicits
+    *
+    * @param tp type, which should be returned by method getTypeWithouImplicits
    */
   def setTypeWithoutImplicits(tp: Option[ScType]) {
     if (getFirstChild.getNode.getElementType != ScalaTokenTypes.kNULL) assert(assertion = false,
@@ -214,7 +215,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
 
   override def getTypeWithoutImplicits(ignoreBaseTypes: Boolean, fromUnderscore: Boolean): TypeResult[ScType] = {
     val tp = typeWithoutImplicits
-    if (tp != None) return Success(tp.get, None)
+    if (tp.isDefined) return Success(tp.get, None)
     super.getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
   }
   

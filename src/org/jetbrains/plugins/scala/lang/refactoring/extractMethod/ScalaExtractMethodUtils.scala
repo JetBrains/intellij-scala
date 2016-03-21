@@ -19,12 +19,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScSubstitutor, ScType, Unit}
-import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScSubstitutor, ScType, Unit, _}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicateMatch
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
@@ -40,7 +38,8 @@ import scala.util.Sorting
  */
 
 object ScalaExtractMethodUtils {
-  def createMethodFromSettings(settings: ScalaExtractMethodSettings): ScFunction = {
+  def createMethodFromSettings(settings: ScalaExtractMethodSettings)
+                              (implicit typeSystem: TypeSystem): ScFunction = {
     val accessMod = settings.visibility
     val methodName = settings.methodName
 
@@ -232,7 +231,7 @@ object ScalaExtractMethodUtils {
   def calcReturnTypeExt(settings: ScalaExtractMethodSettings): (Boolean, String) = {
     def prepareResult(t: ScType) = {
       val isUnit = t == Unit
-      (isUnit, ScType.presentableText(t))
+      (isUnit, t.presentableText)
     }
     val returnStmtType = settings.returnType
     val outputs = settings.outputs

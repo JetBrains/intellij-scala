@@ -109,7 +109,7 @@ object ScalaAfterNewCompletionUtil {
       var tailText: String = ""
       val itemText: String = psiClass.name + (tp match {
         case ScParameterizedType(_, tps) =>
-          tps.map(tp => ScType.presentableText(subst.subst(tp))).mkString("[", ", ", "]")
+          tps.map(subst.subst(_).presentableText).mkString("[", ", ", "]")
         case _ => ""
       })
       psiClass match {
@@ -166,8 +166,9 @@ object ScalaAfterNewCompletionUtil {
   def convertTypeToLookupElement(tp: ScType, place: PsiElement, addedClasses: mutable.HashSet[String],
                                  renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
                                  insertHandler: InsertHandler[LookupElement],
-                                 renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]): ScalaLookupItem = {
-    ScType.extractClassType(tp, Some(place.getProject)) match {
+                                 renamesMap: mutable.HashMap[String, (String, PsiNamedElement)])
+                                (implicit typeSystem: TypeSystem): ScalaLookupItem = {
+    tp.extractClassType(place.getProject) match {
       case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
         //filter base types (it's important for scala 2.9)
         clazz.qualifiedName match {
@@ -192,7 +193,7 @@ object ScalaAfterNewCompletionUtil {
                                insertHandler: InsertHandler[LookupElement],
                                renamesMap: mutable.HashMap[String, (String, PsiNamedElement)])
                               (implicit typeSystem: TypeSystem) {
-    ScType.extractClassType(typez, Some(place.getProject)) match {
+    typez.extractClassType(place.getProject) match {
       case Some((clazz, subst)) =>
         //this change is important for Scala Worksheet/Script classes. Will not find inheritors, due to file copy.
         val searchScope =

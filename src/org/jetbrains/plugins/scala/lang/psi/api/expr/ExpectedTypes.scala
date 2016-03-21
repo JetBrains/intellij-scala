@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
@@ -58,6 +59,7 @@ private[expr] object ExpectedTypes {
    */
   def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false,
                         fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
+    import expr.typeSystem
     @tailrec
     def fromFunction(tp: (ScType, Option[ScTypeElement])): Array[(ScType, Option[ScTypeElement])] = {
       tp._1 match {
@@ -338,7 +340,8 @@ private[expr] object ExpectedTypes {
 
   private def processArgsExpected(res: ArrayBuffer[(ScType, Option[ScTypeElement])], expr: ScExpression, i: Int,
                                   tp: TypeResult[ScType], exprs: Seq[ScExpression], call: Option[MethodInvocation] = None,
-                                  forApply: Boolean = false, isDynamicNamed: Boolean = false) {
+                                  forApply: Boolean = false, isDynamicNamed: Boolean = false)
+                                 (implicit typeSystem: TypeSystem) {
     def applyForParams(params: Seq[Parameter]) {
       val p: (ScType, Option[ScTypeElement]) =
         if (i >= params.length && params.nonEmpty && params.last.isRepeated)
@@ -372,7 +375,7 @@ private[expr] object ExpectedTypes {
           val seqClass: Array[PsiClass] = ScalaPsiManager.instance(expr.getProject).
                   getCachedClasses(expr.getResolveScope, "scala.collection.Seq").filter(!_.isInstanceOf[ScObject])
           if (seqClass.length != 0) {
-            val tp = ScParameterizedType(ScType.designator(seqClass(0)), Seq(params.last.paramType))
+            val tp = ScParameterizedType(ScalaType.designator(seqClass(0)), Seq(params.last.paramType))
             res += ((tp, None))
           }
         case _ => res += p

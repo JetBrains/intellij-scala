@@ -17,9 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScType.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -347,12 +346,12 @@ package object collections {
     }
   }
 
-  def isOfClassFrom(expr: ScExpression, patterns: Array[String]): Boolean = {
+  def isOfClassFrom(expr: ScExpression, patterns: Array[String])
+                   (implicit typeSystem: TypeSystem = expr.typeSystem): Boolean = {
     if (expr == null) return false
-
     expr.getType() match {
       case Success(tp, _) =>
-        ScType.extractDesignatorSingletonType(tp).getOrElse(tp) match {
+        ScalaType.extractDesignatorSingletonType(tp).getOrElse(tp) match {
           case ExtractClass(cl) if nameFitToPatterns(cl.qualifiedName, patterns) => true
           case _ => false
         }
@@ -402,7 +401,8 @@ package object collections {
         ref.refName.startsWith("set") || ref.refName.endsWith("_=")
       }
 
-      def hasUnitReturnType(ref: ScReferenceExpression): Boolean = {
+      def hasUnitReturnType(ref: ScReferenceExpression)
+                           (implicit typeSystem: TypeSystem = ref.typeSystem): Boolean = {
         ref match {
           case MethodRepr(ExpressionType(ScFunctionType(_, _)), _, _, _) => false
           case ResolvesTo(fun: ScFunction) => fun.hasUnitResultType

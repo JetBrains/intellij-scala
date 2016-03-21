@@ -102,8 +102,8 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
       if (obj != null && !obj.element.asInstanceOf[PsiClass].isDeprecated) buffer += obj
     }
 
-    def extract(scType:ScType): Boolean = {
-      ScType.extractClass(scType, Some(getProject)) match {
+    def extract(scType: ScType): Boolean = {
+      scType.extractClass(getProject) match {
         case Some(o: ScObject) => true
         case Some(t: ScTrait) => false
         case Some(c: ScClass) => true
@@ -152,12 +152,12 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
 
   private def scalaProduct: ScType = {
     val sp = scalaProductClass
-    if (sp != null) ScType.designator(sp) else null
+    if (sp != null) ScalaType.designator(sp) else null
   }
 
   private def scalaSerializable: ScType = {
     val sp = scalaSerializableClass
-    if (sp != null) ScType.designator(sp) else null
+    if (sp != null) ScalaType.designator(sp) else null
   }
 
   private def scalaObject: ScDesignatorType = {

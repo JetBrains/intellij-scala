@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContextOwner
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScTypeExt}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -60,7 +60,7 @@ object ScalaElementPresentation {
       presentableText.append(": ")
       try {
         val typez = subst.subst(function.returnType.getOrAny)
-        presentableText.append(ScType.presentableText(typez))
+        presentableText.append(typez.presentableText)
       }
       catch {
         case e: IndexNotReadyException => presentableText.append("NoTypeInfo")

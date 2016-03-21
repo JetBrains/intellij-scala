@@ -38,7 +38,7 @@ case class JavaArrayType(arg: ScType) extends ValueType {
     if (arrayClass != null) {
       val tps = arrayClass.getTypeParameters
       if (tps.length == 1) {
-        Some(ScParameterizedType(ScType.designator(arrayClass), Seq(arg)))
+        Some(ScParameterizedType(ScalaType.designator(arrayClass), Seq(arg)))
       } else None
     } else None
   }
@@ -73,7 +73,7 @@ case class JavaArrayType(arg: ScType) extends ValueType {
     r match {
       case JavaArrayType(arg2) => arg.equiv(arg2, uSubst, falseUndef)
       case ScParameterizedType(des, args) if args.length == 1 =>
-        ScType.extractClass(des) match {
+        des.extractClass() match {
           case Some(td) if td.qualifiedName == "scala.Array" => arg.equiv(args.head, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
@@ -138,7 +138,7 @@ class ScParameterizedType private(val designator: ScType, val typeArgs: Seq[ScTy
     designator match {
       case ScTypeParameterType(_, args, _, _, _) =>
         forParams(args.iterator, ScSubstitutor.empty, (p: ScTypeParameterType) => p)
-      case _ => ScType.extractDesignated(designator, withoutAliases = false) match {
+      case _ => ScalaType.extractDesignated(designator, withoutAliases = false) match {
         case Some((owner: ScTypeParametersOwner, s)) =>
           forParams(owner.typeParameters.iterator, s, (tp: ScTypeParam) => ScalaPsiManager.typeVariable(tp))
         case Some((owner: PsiTypeParameterListOwner, s)) =>
@@ -170,7 +170,7 @@ class ScParameterizedType private(val designator: ScType, val typeArgs: Seq[ScTy
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
-        val des = ScType.extractDesignated(designator, withoutAliases = false) match {
+        val des = ScalaType.extractDesignated(designator, withoutAliases = false) match {
           case Some((n: ScTypeParametersOwner, _)) =>
             n.typeParameters.map {
               case tp if tp.isContravariant => -1
@@ -255,7 +255,7 @@ class ScParameterizedType private(val designator: ScType, val typeArgs: Seq[ScTy
   private def getStandardType(prefix: String): Option[(ScTypeDefinition, Seq[ScType])] = {
     def startsWith(clazz: PsiClass, qualNamePrefix: String) = clazz.qualifiedName != null && clazz.qualifiedName.startsWith(qualNamePrefix)
 
-    ScType.extractClassType(designator) match {
+    designator.extractClassType() match {
       case Some((clazz: ScTypeDefinition, sub)) if startsWith(clazz, prefix) =>
         val result = clazz.getType(TypingContext.empty)
         result match {

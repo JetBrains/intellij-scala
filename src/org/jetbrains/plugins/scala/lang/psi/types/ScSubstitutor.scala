@@ -239,14 +239,14 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
           case Some(oldTp) if !hasRecursiveThisType(oldTp) => //todo: hack to avoid infinite recursion during type substitution
             var tp = oldTp
             def update(typez: ScType): ScType = {
-              ScType.extractDesignated(typez, withoutAliases = true) match {
+              ScalaType.extractDesignated(typez, withoutAliases = true) match {
                 case Some((t: ScTypeDefinition, subst)) =>
                   if (t == clazz) tp
                   else if (ScalaPsiUtil.cachedDeepIsInheritor(t, clazz)) tp
                   else {
                     t.selfType match {
                       case Some(selfType) =>
-                        ScType.extractDesignated(selfType, withoutAliases = true) match {
+                        ScalaType.extractDesignated(selfType, withoutAliases = true) match {
                           case Some((cl: PsiClass, _)) =>
                             if (cl == clazz) tp
                             else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) tp
@@ -257,7 +257,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                                 val iter = types.iterator
                                 while (iter.hasNext) {
                                   val tps = iter.next()
-                                  ScType.extractClass(tps) match {
+                                  tps.extractClass()(ScalaTypeSystem) match {
                                     case Some(cl) =>
                                       if (cl == clazz) return tp
                                     case _ =>
@@ -291,7 +291,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                       val iter = types.iterator
                       while (iter.hasNext) {
                         val tps = iter.next()
-                        ScType.extractClass(tps) match {
+                        tps.extractClass()(ScalaTypeSystem) match {
                           case Some(cl) =>
                             if (cl == clazz) return tp
                             else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) return tp

@@ -70,7 +70,7 @@ object Compatibility {
                   "scala.Function1", place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
                 ) match {
                   case function1: ScTrait =>
-                    ScParameterizedType(ScType.designator(function1), function1.typeParameters.map(tp =>
+                    ScParameterizedType(ScalaType.designator(function1), function1.typeParameters.map(tp =>
                       new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1))) match {
                       case funTp: ScParameterizedType =>
                         val secondArg = funTp.typeArgs(1)
@@ -239,9 +239,9 @@ object Compatibility {
             if (!param.isRepeated)
               problems ::= new ExpansionForNonRepeatedParameter(expr)
 
-            val tp = ScParameterizedType(ScType.designator(seqClass), Seq(paramType))
+            val tp = ScParameterizedType(ScalaType.designator(seqClass), Seq(paramType))
 
-            val expectedType = ScParameterizedType(ScType.designator(seqClass), Seq(param.expectedType))
+            val expectedType = ScParameterizedType(ScalaType.designator(seqClass), Seq(param.expectedType))
 
             for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) yield {
               val conforms = exprType.weakConforms(tp)

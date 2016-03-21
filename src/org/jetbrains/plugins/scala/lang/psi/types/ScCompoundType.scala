@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, TypeParametersExt}
 
 import scala.collection.mutable
 
@@ -36,16 +36,13 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
   override def typeDepth: Int = {
     val depths = signatureMap.map {
       case (sign: Signature, tp: ScType) =>
-        val rtDepth = tp.typeDepth
-        if (sign.typeParams.nonEmpty) {
-          (ScType.typeParamsDepth(sign.typeParams) + 1).max(rtDepth)
-        } else rtDepth
+        tp.typeDepth
+          .max(sign.typeParams.toSeq.depth())
     } ++ typesMap.map {
-      case (s: String, sign: TypeAliasSignature) =>
-        val boundsDepth = sign.lowerBound.typeDepth.max(sign.upperBound.typeDepth)
-        if (sign.typeParams.nonEmpty) {
-          (ScType.typeParamsDepth(sign.typeParams.toArray) + 1).max(boundsDepth)
-        } else boundsDepth
+      case (s: String, TypeAliasSignature(_, params, lowerBound, upperBound, _, _)) =>
+        lowerBound.typeDepth
+          .max(upperBound.typeDepth)
+          .max(params.depth())
     }
     val ints = components.map(_.typeDepth)
     val componentsDepth = if (ints.isEmpty) 0 else ints.max

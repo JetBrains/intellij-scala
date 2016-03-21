@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.{ExtractMethodOutput, ExtractMethodParameter}
 
@@ -90,9 +90,10 @@ class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement])
   private def typesEquiv(expr1: ScExpression, expr2: ScExpression) = {
     (expr1.getType(), expr2.getType()) match {
       case (Success(t1, _), Success(t2, _)) =>
-        def extractFromSingletonType(t: ScType) =
-          if (ScType.isSingletonType(t)) ScType.extractDesignatorSingletonType(t)
-          else Some(t)
+        def extractFromSingletonType(t: ScType) = t match {
+          case scalaType: ScalaType if scalaType.isSingleton => ScalaType.extractDesignatorSingletonType(t)
+          case _ => Some(t)
+        }
         val Seq(newTp1, newTp2) = Seq(t1, t2).map(extractFromSingletonType)
         newTp1.zip(newTp2).forall {
           case (tp1, tp2) => tp1.equiv(tp2)

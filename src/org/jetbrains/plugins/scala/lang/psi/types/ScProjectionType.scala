@@ -55,6 +55,8 @@ object ScProjectionType {
  */
 class ScProjectionType private (val projected: ScType, val element: PsiNamedElement,
                                 val superReference: Boolean /* todo: find a way to remove it*/) extends ScalaType with ValueType {
+  override val isSingleton = element.toTypedDefinition.exists(_.isStable)
+
   def copy(superReference: Boolean): ScProjectionType = new ScProjectionType(projected, element, superReference)
 
   override protected def isAliasTypeInner: Option[AliasType] = {
@@ -96,6 +98,12 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
       }
     } else None
   }
+
+  override def isStable: Boolean = projected.isStable && (element match {
+    case _: ScObject => true
+    case typedDefinition: ScTypedDefinition => typedDefinition.isStable
+    case _ => super.isStable
+  })
 
   private var hash: Int = -1
 
@@ -139,7 +147,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
         clazz.extendsBlock.templateBody.flatMap(_.asInstanceOf[ScTemplateBodyImpl].getLastChildStub.toOption).
           getOrElse(clazz.extendsBlock)
       }
-      ScType.extractClass(projected, Some(element.getProject)) match {
+      projected.extractClass(element.getProject) match {
         case Some(clazz: ScTypeDefinition) => fromClazz(clazz)
         case _ => projected match {
           case ScThisType(clazz: ScTypeDefinition) => fromClazz(clazz)
@@ -215,9 +223,11 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
       case a: ScTypedDefinition if isSingletonOk(a) =>
         val subst = actualSubst
         val tp = subst.subst(a.getType(TypingContext.empty).getOrAny)
-        if (ScType.isSingletonType(tp)) {
-          val resInner = tp.equiv(r, uSubst, falseUndef)
-          if (resInner._1) return resInner
+        tp match {
+          case scalaType: ScalaType if scalaType.isSingleton =>
+            val resInner = tp.equiv(r, uSubst, falseUndef)
+            if (resInner._1) return resInner
+          case _ =>
         }
       case _ =>
     }
@@ -249,9 +259,11 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
           case a: ScTypedDefinition if isSingletonOk(a) =>
             val subst = actualSubst
             val tp = subst.subst(a.getType(TypingContext.empty).getOrAny)
-            if (ScType.isSingletonType(tp)) {
-              val resInner = tp.equiv(this, uSubst, falseUndef)
-              if (resInner._1) return resInner
+            tp match {
+              case scalaType: ScalaType if scalaType.isSingleton =>
+                val resInner = tp.equiv(this, uSubst, falseUndef)
+                if (resInner._1) return resInner
+              case _ =>
             }
           case _ =>
         }
@@ -269,7 +281,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
             case t: ScTypedDefinition if t.isStable =>
               val s: ScSubstitutor = new ScSubstitutor(Map.empty, Map.empty, Some(projected)) followed actualSubst
               t.getType(TypingContext.empty) match {
-                case Success(tp, _) if ScType.isSingletonType(tp) =>
+                case Success(tp: ScalaType, _) if tp.isSingleton =>
                   return s.subst(tp).equiv(r, uSubst, falseUndef)
                 case _ =>
               }
@@ -281,7 +293,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
               val s: ScSubstitutor =
                 new ScSubstitutor(Map.empty, Map.empty, Some(p1)) followed proj2.actualSubst
               t.getType(TypingContext.empty) match {
-                case Success(tp, _) if ScType.isSingletonType(tp) =>
+                case Success(tp: ScalaType, _) if tp.isSingleton =>
                   return s.subst(tp).equiv(this, uSubst, falseUndef)
                 case _ =>
               }
@@ -295,9 +307,9 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
           case o: ScObject => (false, uSubst)
           case t: ScTypedDefinition if t.isStable =>
             t.getType(TypingContext.empty) match {
-              case Success(singl, _) if ScType.isSingletonType(singl) =>
+              case Success(singleton: ScalaType, _) if singleton.isSingleton =>
                 val newSubst = actualSubst.followed(new ScSubstitutor(Map.empty, Map.empty, Some(projected)))
-                r.equiv(newSubst.subst(singl), uSubst, falseUndef)
+                r.equiv(newSubst.subst(singleton), uSubst, falseUndef)
               case _ => (false, uSubst)
             }
           case _ => (false, uSubst)
@@ -348,6 +360,8 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
 case class ScThisType(clazz: ScTemplateDefinition) extends ScalaType with ValueType {
   clazz.getClass //throw NPE if clazz is null...
 
+  override val isSingleton = true
+
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
                          (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     (this, r) match {
@@ -359,7 +373,7 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ScalaType with ValueT
         (false, uSubst)
       case (_, ScDesignatorType(typed: ScTypedDefinition)) if typed.isStable =>
         typed.getType(TypingContext.empty) match {
-          case Success(tp, _) if ScType.isSingletonType(tp) =>
+          case Success(tp: ScalaType, _) if tp.isSingleton =>
             this.equiv(tp, uSubst, falseUndef)
           case _ =>
             (false, uSubst)
@@ -367,9 +381,9 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ScalaType with ValueT
       case (_, ScProjectionType(_, o: ScObject, _)) => (false, uSubst)
       case (_, p@ScProjectionType(tp, elem: ScTypedDefinition, _)) if elem.isStable =>
         elem.getType(TypingContext.empty) match {
-          case Success(singl, _) if ScType.isSingletonType(singl) =>
+          case Success(singleton: ScalaType, _) if singleton.isSingleton =>
             val newSubst = p.actualSubst.followed(new ScSubstitutor(Map.empty, Map.empty, Some(tp)))
-            this.equiv(newSubst.subst(singl), uSubst, falseUndef)
+            this.equiv(newSubst.subst(singleton), uSubst, falseUndef)
           case _ => (false, uSubst)
         }
       case _ => (false, uSubst)
@@ -380,6 +394,8 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ScalaType with ValueT
     case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitThisType(this)
     case _ =>
   }
+
+  override def isStable = true
 }
 
 /**
@@ -388,6 +404,8 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ScalaType with ValueT
  * element can be any stable element, class, value or type alias
  */
 case class ScDesignatorType(element: PsiNamedElement) extends ScalaType with ValueType {
+  override val isSingleton = element.toTypedDefinition.exists(_.isStable)
+
   override protected def isAliasTypeInner: Option[AliasType] = {
     element match {
       case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
@@ -424,6 +442,12 @@ case class ScDesignatorType(element: PsiNamedElement) extends ScalaType with Val
     }
   }
 
+  override def isStable = element match {
+    case _: ScObject => true
+    case typedDefinition: ScTypedDefinition => typedDefinition.isStable
+    case _ => super.isStable
+  }
+
   def getValType: Option[StdType] = element match {
     case o: ScObject => None
     case clazz: PsiClass => StdType.QualNameToType.get(clazz.qualifiedName)
@@ -451,12 +475,12 @@ case class ScDesignatorType(element: PsiNamedElement) extends ScalaType with Val
         }).equiv(r, uSubst, falseUndef)
       case (_, ScDesignatorType(element1)) =>
         if (ScEquivalenceUtil.smartEquivalence(element, element1)) return (true, uSubst)
-        if (ScType.isSingletonType(this) && ScType.isSingletonType(r)) {
+        if (isSingleton && r.asInstanceOf[ScalaType].isSingleton) {
           element match {
             case o: ScObject =>
             case bind: ScTypedDefinition if bind.isStable =>
               bind.getType(TypingContext.empty) match {
-                case Success(tp, _) if ScType.isSingletonType(tp) =>
+                case Success(tp: ScalaType, _) if tp.isSingleton =>
                   return tp.equiv(r, uSubst, falseUndef)
                 case _ =>
               }
@@ -466,7 +490,7 @@ case class ScDesignatorType(element: PsiNamedElement) extends ScalaType with Val
             case o: ScObject =>
             case bind: ScTypedDefinition if bind.isStable =>
               bind.getType(TypingContext.empty) match {
-                case Success(tp, _) if ScType.isSingletonType(tp) =>
+                case Success(tp: ScalaType, _) if tp.isSingleton =>
                   return tp.equiv(this, uSubst, falseUndef)
                 case _ =>
               }
@@ -491,7 +515,7 @@ case class ScDesignatorType(element: PsiNamedElement) extends ScalaType with Val
 object ScDesignatorType {
   def fromClassFqn(fqn: String, project: Project, scope: GlobalSearchScope): ScType = {
     ScalaPsiManager.instance(project).getCachedClass(scope, fqn) match {
-      case Some(c) => ScType.designator(c)
+      case Some(c) => ScalaType.designator(c)
       case _ => types.Nothing
     }
   }

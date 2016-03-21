@@ -12,10 +12,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, Cached}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -40,12 +42,13 @@ trait ScTemplateParents extends ScalaPsiElement {
 }
 
 object ScTemplateParents {
-  def extractSupers(typeElements: Seq[ScTypeElement], project: Project): Seq[PsiClass] = {
+  def extractSupers(typeElements: Seq[ScTypeElement], project: Project)
+                   (implicit typeSystem: TypeSystem = project.typeSystem): Seq[PsiClass] = {
     typeElements.map {
       case element: ScTypeElement =>
         def tail(): PsiClass = {
           element.getType(TypingContext.empty).map {
-            case tp: ScType => ScType.extractClass(tp) match {
+            case tp: ScType => tp.extractClass() match {
               case Some(clazz) => clazz
               case _ => null
             }
@@ -59,7 +62,7 @@ object ScTemplateParents {
               case ScalaResolveResult(c: PsiClass, _) => c
               case ScalaResolveResult(ta: ScTypeAliasDefinition, _) =>
                 ta.aliasedType match {
-                  case Success(te, _) => ScType.extractClass(te, Some(project)) match {
+                  case Success(te, _) => te.extractClass(project) match {
                     case Some(c) => c
                     case _ => null
                   }

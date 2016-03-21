@@ -4,7 +4,6 @@ package psi
 package api
 package statements
 
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -58,7 +57,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
     else if (cls.hasTypeParameters) {
       val typeParamsAreAppliedInOrderToCorrectClass = aliasedType.getOrAny match {
         case pte: ScParameterizedType =>
-          val refersToClass = pte.designator.equiv(ScType.designator(cls))
+          val refersToClass = pte.designator.equiv(ScalaType.designator(cls))
           val typeParamsAppliedInOrder = (pte.typeArgs corresponds typeParameters) {
             case (tpt: ScTypeParameterType, tp) if tpt.param == tp => true
             case _ => false
@@ -82,7 +81,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
       typeParamsAreAppliedInOrderToCorrectClass && varianceAndBoundsMatch
     }
     else {
-      val clsType = ScType.designator(cls)
+      val clsType = ScalaType.designator(cls)
       typeParameters.isEmpty && aliasedType.getOrElse(return false).equiv(clsType)
     }
   }

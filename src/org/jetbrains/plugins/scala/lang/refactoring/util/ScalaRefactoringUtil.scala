@@ -115,7 +115,7 @@ object ScalaRefactoringUtil {
 
   def replaceSingletonTypes(scType: ScType): ScType = {
     def replaceSingleton(scType: ScType): (Boolean, ScType) = {
-      ScType.extractDesignatorSingletonType(scType) match {
+      ScalaType.extractDesignatorSingletonType(scType) match {
         case None => (false, scType)
         case Some(tp) => (true, tp)
       }
@@ -451,7 +451,7 @@ object ScalaRefactoringUtil {
 
   def getCompatibleTypeNames(myTypes: Array[ScType]): util.LinkedHashMap[String, ScType] = {
     val map = new util.LinkedHashMap[String, ScType]
-    myTypes.foreach(myType => map.put(ScType.presentableText(myType), myType))
+    myTypes.foreach(myType => map.put(myType.presentableText, myType))
     map
   }
 
@@ -591,7 +591,7 @@ object ScalaRefactoringUtil {
           case _ => true
         }
         for (tp <- types) {
-          builder.append(ScType.presentableText(tp))
+          builder.append(tp.presentableText)
           if (tp != types.last) builder.append(" with ")
         }
         n.extendsBlock.templateBody match {

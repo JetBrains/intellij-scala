@@ -384,7 +384,7 @@ object ScSimpleTypeElementImpl {
                   Success(ScProjectionType(ScDesignatorType(obj), resolvedElement,
                     superReference = false), Some(ref))
                 case _ =>
-                  Success(ScType.designator(resolvedElement), Some(ref))
+                  Success(ScalaType.designator(resolvedElement), Some(ref))
               }
             }
           case _ =>
@@ -414,7 +414,7 @@ object ScSimpleTypeElementImpl {
                 val td = PsiTreeUtil.getContextOfType(self, true, classOf[ScTemplateDefinition])
                 Success(ScThisType(td), Some(ref))
               case _ =>
-                if (fromType.isEmpty) return Success(ScType.designator(resolvedElement), Some(ref))
+                if (fromType.isEmpty) return Success(ScalaType.designator(resolvedElement), Some(ref))
                 Success(ScProjectionType(fromType.get, resolvedElement, superReference = false), Some(ref))
             }
         }

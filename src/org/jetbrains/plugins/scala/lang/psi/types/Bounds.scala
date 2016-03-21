@@ -6,8 +6,8 @@ package types
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
@@ -95,7 +95,7 @@ object Bounds extends api.Bounds {
     }
   } with AnyRef {
     private val typeNamedElement: Option[(PsiNamedElement, ScSubstitutor)] = {
-      ScType.extractClassType(tp) match {
+      tp.extractClassType() match {
         case None =>
           tp.isAliasType match {
             case Some(AliasType(ta, _, _)) => Some(ta, ScSubstitutor.empty)
@@ -106,7 +106,23 @@ object Bounds extends api.Bounds {
     }
 
     def isEmpty = typeNamedElement.isEmpty
-    val projectionOption: Option[ScType] = ScType.projectionOption(tp)
+
+    val projectionOption = {
+      def projectionOption(tp: ScType): Option[ScType] = tp match {
+        case ScParameterizedType(des, _) => projectionOption(des)
+        case proj@ScProjectionType(p, elem, _) => proj.actualElement match {
+          case c: PsiClass => Some(p)
+          case t: ScTypeAliasDefinition =>
+            projectionOption(proj.actualSubst.subst(t.aliasedType(TypingContext.empty).getOrElse(return None)))
+          case t: ScTypeAliasDeclaration => Some(p)
+          case _ => None
+        }
+        case ScDesignatorType(t: ScTypeAliasDefinition) =>
+          projectionOption(t.aliasedType(TypingContext.empty).getOrElse(return None))
+        case _ => None
+      }
+      projectionOption(tp)
+    }
     def getSubst: ScSubstitutor = typeNamedElement.get._2
 
     def getSuperOptions: Seq[Options] = {
@@ -116,7 +132,7 @@ object Bounds extends api.Bounds {
       }
       getNamedElement match {
         case t: ScTemplateDefinition => t.superTypes.map(tp => new Options(subst.subst(tp))).filter(!_.isEmpty)
-        case p: PsiClass => p.getSupers.toSeq.map(cl => new Options(ScType.designator(cl))).filter(!_.isEmpty)
+        case p: PsiClass => p.getSupers.toSeq.map(cl => new Options(ScalaType.designator(cl))).filter(!_.isEmpty)
         case a: ScTypeAlias =>
           val upperType: ScType = tp.isAliasType.get.upper.getOrAny
           val options: Seq[Options] = {
@@ -154,7 +170,7 @@ object Bounds extends api.Bounds {
     def baseDesignator: ScType = {
       projectionOption match {
         case Some(proj) => ScProjectionType(proj, getNamedElement, superReference = false)
-        case None => ScType.designator(getNamedElement)
+        case None => ScalaType.designator(getNamedElement)
       }
     }
 
@@ -173,7 +189,7 @@ object Bounds extends api.Bounds {
             val iterator = superTypes.iterator
             while(iterator.hasNext) {
               val st = iterator.next()
-              ScType.extractClassType(st) match {
+              st.extractClassType() match {
                 case None =>
                 case Some((c, s)) => superSubstitutor(base, c, s, visited) match {
                   case None =>
@@ -246,7 +262,7 @@ object Bounds extends api.Bounds {
               case Some(w) => ScExistentialType(JavaArrayType(v), List(w))
               case None => JavaArrayType(v)
             }
-          case (JavaArrayType(arg), ScParameterizedType(des, args)) if args.length == 1 && (ScType.extractClass(des) match {
+          case (JavaArrayType(arg), ScParameterizedType(des, args)) if args.length == 1 && (des.extractClass() match {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           }) =>
@@ -255,7 +271,7 @@ object Bounds extends api.Bounds {
               case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)), List(w))
               case None => ScParameterizedType(des, Seq(v))
             }
-          case (ScParameterizedType(des, args), JavaArrayType(arg)) if args.length == 1 && (ScType.extractClass(des) match {
+          case (ScParameterizedType(des, args), JavaArrayType(arg)) if args.length == 1 && (des.extractClass() match {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           }) =>

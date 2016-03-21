@@ -14,10 +14,11 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScType.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{NameValidator, ScalaNamesUtil}
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
@@ -82,6 +83,7 @@ object NameSuggester {
   private def generateNamesByType(typez: ScType, shortVersion: Boolean = true)(implicit names: ArrayBuffer[String], validator: NameValidator,
                                                  withPlurals: Boolean = true) {
     val project = validator.getProject()
+    implicit val typeSystem = project.typeSystem
     def addPlurals(arg: ScType) {
       def addPlural(s: String) {
         if (!withPlurals) add(s)

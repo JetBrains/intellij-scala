@@ -22,7 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionE
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFileStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ScDirectInheritorsIndex, ScSelfTypeInheritorsIndex}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -62,8 +63,9 @@ object ScalaStubsUtil {
     val inheritors = new ArrayBuffer[ScTemplateDefinition]
     def processClass(inheritedClazz: PsiClass) {
       inReadAction {
+        val project = inheritedClazz.getProject
         val iterator: java.util.Iterator[ScSelfTypeElement] =
-          StubIndex.getElements(ScSelfTypeInheritorsIndex.KEY, name, inheritedClazz.getProject, scope, classOf[ScSelfTypeElement]).iterator
+          StubIndex.getElements(ScSelfTypeInheritorsIndex.KEY, name, project, scope, classOf[ScSelfTypeElement]).iterator
         while (iterator.hasNext) {
           val selfTypeElement = iterator.next
           selfTypeElement.typeElement match {
@@ -75,7 +77,7 @@ object ScalaStubsUtil {
                       case c: ScCompoundType =>
                         c.components.exists(checkTp)
                       case _ =>
-                        ScType.extractClass(tp, Some(inheritedClazz.getProject)) match {
+                        tp.extractClass(project)(project.typeSystem) match {
                           case Some(otherClazz) =>
                             if (otherClazz == inheritedClazz) return true
                           case _ =>

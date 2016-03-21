@@ -4,13 +4,12 @@ package psi
 package types
 
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
 import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScRefinement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -277,7 +276,7 @@ trait ScTypePresentation extends api.TypeSystemOwner {
         case StdType(name, _) =>
           name
         case f@ScFunctionType(ret, params) if t.isAliasType.isEmpty =>
-          val projectOption = ScType.extractClass(f).map(_.getProject)
+          val projectOption = f.extractClass().map(_.getProject)
           val arrow = projectOption.map(ScalaPsiUtil.functionArrow).getOrElse("=>")
           typeSeqText(params, "(", ", ", s") $arrow ") + innerTypeText(ret)
         case ScThisType(clazz: ScTypeDefinition) =>
@@ -337,14 +336,9 @@ object ScTypePresentation {
     case _ =>
       ScalaPsiUtil.superTypeMembers(ta).exists(_.isInstanceOf[ScTypeAliasDeclaration])
   }
-  
-  type A = ScTypePresentation {
-    type B 
-  }
-  
-  def withoutAliases(tpe: ScType): String = {
-    val withoutAliasesType = ScType.removeAliasDefinitions(tpe, expandableOnly = true)
-    withoutAliasesType.presentableText
+
+  def withoutAliases(`type`: ScType): String = {
+    `type`.removeAliasDefinitions(expandableOnly = true).presentableText
   }
 }
 

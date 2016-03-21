@@ -1,10 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectExt
+
+import scala.annotation.tailrec
+import scala.collection.immutable.HashSet
 
 /**
   * @author adkozlov
@@ -46,9 +50,9 @@ package object types {
       typeSystem.bounds.lub(scType, `type`, checkWeak)
     }
 
-    def presentableText = ScType.presentableText(scType)
+    def presentableText = ScalaType.presentableText(scType)
 
-    def canonicalText = ScType.canonicalText(scType)
+    def canonicalText = ScalaType.canonicalText(scType)
 
     def removeUndefines() = scType.recursiveUpdate {
       case u: ScUndefinedType => (true, Any)
@@ -61,6 +65,35 @@ package object types {
                   skolemToWildcard: Boolean = false) = {
       project.typeSystem.bridge.toPsiType(scType, project, scope, noPrimitives, skolemToWildcard)
     }
+
+    def extractClass(project: Project = null)
+                    (implicit typeSystem: TypeSystem) = {
+      typeSystem.bridge.extractClass(scType, project)
+    }
+
+    def extractClassType(project: Project = null,
+                         visitedAlias: HashSet[ScTypeAlias] = HashSet.empty)
+                        (implicit typeSystem: TypeSystem) = {
+      typeSystem.bridge.extractClassType(scType, project, visitedAlias)
+    }
+
+    @tailrec
+    final def removeAliasDefinitions(visited: HashSet[ScType] = HashSet.empty, expandableOnly: Boolean = false): ScType = {
+      if (visited.contains(scType)) {
+        return scType
+      }
+
+      var updated = false
+      val result = scType.recursiveUpdate {
+        `type` => `type`.isAliasType match {
+          case Some(AliasType(ta: ScTypeAliasDefinition, _, upper)) if !expandableOnly || ScTypePresentation.shouldExpand(ta) =>
+            updated = true
+            (true, upper.getOrAny)
+          case _ => (false, `type`)
+        }
+      }
+      if (updated) result.removeAliasDefinitions(visited + scType, expandableOnly) else scType
+    }
   }
 
   implicit class ScTypesExt(val types: Seq[ScType]) extends AnyVal {
@@ -72,4 +105,5 @@ package object types {
       typeSystem.bounds.glb(types, checkWeak)
     }
   }
+
 }

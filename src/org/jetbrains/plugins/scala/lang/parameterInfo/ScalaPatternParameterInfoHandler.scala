@@ -95,8 +95,8 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
               buffer.append(params.map {
                 case (param, o) =>
                   val buffer: StringBuilder = new StringBuilder("")
-                  buffer.append(ScType.presentableText(param))
-                  val isSeq = methodName == "unapplySeq" && (ScType.extractClass(param) match {
+                  buffer.append(param.presentableText)
+                  val isSeq = methodName == "unapplySeq" && (param.extractClass() match {
                     case Some(clazz) => clazz.qualifiedName == "scala.Seq"
                     case _ => false
                   })

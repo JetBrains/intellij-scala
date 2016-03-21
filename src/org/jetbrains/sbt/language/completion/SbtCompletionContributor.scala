@@ -45,7 +45,9 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
       // Check if we're on the right side of expression
       if (parentRef != place.getContext) return
 
-      def qualifiedName(t: ScType) = ScType.extractClass(t).map(_.qualifiedName).getOrElse("")
+      implicit val typeSystem = place.typeSystem
+
+      def qualifiedName(t: ScType) = t.extractClass().map(_.qualifiedName).getOrElse("")
 
       // In expression `setting += ???` extracts type T of `setting: Setting[Seq[T]]`
       def extractSeqType: Option[ScType] = {
@@ -114,9 +116,7 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
           case _ => return
         }
 
-        val element = variant.element
-        implicit val typeSystem = element.typeSystem
-        element match {
+        variant.element match {
           case f: PsiField if f.getType.toScType(f.getProject, parentRef.getResolveScope).conforms(expectedType) =>
             apply(variant)
           case typed: ScTypedDefinition if typed.getType().getOrAny.conforms(expectedType) =>
@@ -129,11 +129,11 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
       }
 
       // Get results from companion objects and static fields from java classes/enums
-      ScType.extractClass(expectedType) match {
+      expectedType.extractClass() match {
         case Some(clazz: ScTypeDefinition) =>
           expectedType match {
             case ScProjectionType(proj, _: ScTypeAlias | _: ScClass | _: ScTrait, _) =>
-              ScType.extractClass(proj) foreach collectAndApplyVariants
+              proj.extractClass() foreach collectAndApplyVariants
             case _ => // do nothing
           }
           ScalaPsiUtil.getCompanionModule(clazz) foreach collectAndApplyVariants

@@ -39,10 +39,10 @@ object Conformance extends api.Conformance {
         if (leftVisitor.getResult != null) return leftVisitor.getResult
 
         //tail, based on class inheritance
-        ScType.extractClassType(right) match {
+        right.extractClassType() match {
           case Some((clazz: PsiClass, _)) if visited.contains(clazz) => return (false, substitutor)
           case Some((rClass: PsiClass, subst: ScSubstitutor)) =>
-            ScType.extractClass(left) match {
+            left.extractClass() match {
               case Some(lClass) =>
                 if (rClass.qualifiedName == "java.lang.Object") {
                   return conformsInner(left, types.AnyRef, visited, substitutor, checkWeak)
@@ -280,7 +280,7 @@ object Conformance extends api.Conformance {
             result = (false, undefinedSubst)
             return
           }
-          ScType.extractDesignated(l, withoutAliases = false) match {
+          ScalaType.extractDesignated(l, withoutAliases = false) match {
             case Some((el, _)) =>
               val notNullClass = ScalaPsiManager.instance(el.getProject).getCachedClass("scala.NotNull", el.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
               if (notNullClass != null) {
@@ -794,7 +794,7 @@ object Conformance extends api.Conformance {
         case p2: ScParameterizedType =>
           val args = p2.typeArgs
           val des = p2.designator
-          if (args.length == 1 && (ScType.extractClass(des) match {
+          if (args.length == 1 && (des.extractClass() match {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           })) {
@@ -949,7 +949,7 @@ object Conformance extends api.Conformance {
           result = (false, undefinedSubst)
           return
         }
-        ScType.extractDesignated(des1, withoutAliases = false) match {
+        ScalaType.extractDesignated(des1, withoutAliases = false) match {
           case Some((ownerDesignator, _)) =>
             val parametersIterator = ownerDesignator match {
               case td: ScTypeParametersOwner => td.typeParameters.iterator
@@ -1024,7 +1024,7 @@ object Conformance extends api.Conformance {
         case _: JavaArrayType =>
           val args = p.typeArgs
           val des = p.designator
-          if (args.length == 1 && (ScType.extractClass(des) match {
+          if (args.length == 1 && (des.extractClass() match {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           })) {
@@ -1125,7 +1125,7 @@ object Conformance extends api.Conformance {
               var anotherType: ScType = ScParameterizedType(des1, parameterType.args)
               var args1replace = args1
               if (args1.length != args2.length) {
-                ScType.extractClassType(l) match {
+                l.extractClassType() match {
                   case Some((clazz, classSubst)) =>
                     val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, args2.length)
                     if (!t._1) {
@@ -1154,7 +1154,7 @@ object Conformance extends api.Conformance {
               var anotherType: ScType = ScParameterizedType(des2, parameterType.args)
               var args2replace = args2
               if (args1.length != args2.length) {
-                ScType.extractClassType(r) match {
+                r.extractClassType() match {
                   case Some((clazz, classSubst)) =>
                     val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, args1.length)
                     if (!t._1) {
@@ -1183,7 +1183,7 @@ object Conformance extends api.Conformance {
               var anotherType: ScType = ScParameterizedType(des1, parameterType.args)
               var args1replace = args1
               if (args1.length != args2.length) {
-                ScType.extractClassType(l) match {
+                l.extractClassType() match {
                   case Some((clazz, classSubst)) =>
                     val t: (Boolean, ScType) = parentWithArgNumber(clazz, classSubst, args2.length)
                     if (!t._1) {
@@ -1212,7 +1212,7 @@ object Conformance extends api.Conformance {
                 result = (false, undefinedSubst)
                 return
               }
-              ScType.extractClass(des1) match {
+              des1.extractClass() match {
                 case Some(ownerClazz) =>
                   val parametersIterator = ownerClazz match {
                     case td: ScTypeDefinition => td.typeParameters.iterator
@@ -1782,7 +1782,7 @@ object Conformance extends api.Conformance {
             case r => r
           }
       }
-      ScType.extractClassType(tp) match {
+      tp.extractClassType() match {
         case Some((clazz: PsiClass, _)) if visited.contains(clazz) =>
         case Some((clazz: PsiClass, subst)) if condition(clazz) =>
           if (res == null) res = tp

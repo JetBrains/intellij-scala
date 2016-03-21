@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
@@ -61,7 +61,7 @@ class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: Lis
             addResult(r)
             return true
           })
-          ScType.extractClassType(tp) match {
+          tp.extractClassType() match {
             case Some((clazz, s)) =>
               val constructors: Array[PsiMethod] =
                 if (accessibility) clazz.constructors.filter(isAccessible(_, ref))

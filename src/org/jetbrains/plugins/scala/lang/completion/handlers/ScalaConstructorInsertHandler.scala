@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 
 /**
@@ -70,7 +70,7 @@ class ScalaConstructorInsertHandler extends InsertHandler[LookupElement] {
           endOffset += 2
           editor.getCaretModel.moveToOffset(endOffset - 1)
         } else if (item.typeParameters.nonEmpty) {
-          val str = item.typeParameters.map(ScType.canonicalText).mkString("[", ", ", "]")
+          val str = item.typeParameters.map(_.canonicalText).mkString("[", ", ", "]")
           document.insertString(endOffset, str)
           endOffset += str.length()
           editor.getCaretModel.moveToOffset(endOffset)

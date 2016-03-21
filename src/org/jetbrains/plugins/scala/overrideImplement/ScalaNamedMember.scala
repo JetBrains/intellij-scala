@@ -44,19 +44,19 @@ class ScValueMember(member: ScValue, val element: ScTypedDefinition, val substit
         extends {
           val name = element.getName
           val scType = substitutor.subst(element.getType(TypingContext.empty).getOrAny)
-          val text = element.name + ": " + ScType.presentableText(scType)
+          val text = element.name + ": " + scType.presentableText
         } with PsiElementClassMember[ScValue](member, text) with ScalaNamedMember with ScalaTypedMember
 
 class ScVariableMember(member: ScVariable, val element: ScTypedDefinition, val substitutor: ScSubstitutor, val isOverride: Boolean)
         extends {
           val name = element.getName
           val scType = substitutor.subst(element.getType(TypingContext.empty).getOrAny)
-          val text = name + ": " + ScType.presentableText(scType)
+          val text = name + ": " + scType.presentableText
         } with PsiElementClassMember[ScVariable](member, text) with ScalaNamedMember with ScalaTypedMember
 
 class JavaFieldMember(field: PsiField, val substitutor: ScSubstitutor)
         extends {
           val scType = substitutor.subst(field.getType.toScType(field.getProject, field.getResolveScope))
           val name = field.getName
-          val text = name + ": " + ScType.presentableText(scType)
+          val text = name + ": " + scType.presentableText
         } with PsiElementClassMember[PsiField](field, text) with ScalaNamedMember with ScalaTypedMember

@@ -3,7 +3,12 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.immutable.HashSet
 
@@ -74,6 +79,22 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
     }
   }
 
+  def extractClass(`type`: ScType,
+                   project: Project = null): Option[PsiClass] =
+    extractClassType(`type`, project).map(_._1)
+
+  def extractClassType(`type`: ScType,
+                       project: Project = null,
+                       visitedAlias: HashSet[ScTypeAlias] = HashSet.empty): Option[(PsiClass, ScSubstitutor)] =
+    `type` match {
+      case nonValue: NonValueType =>
+        extractClassType(nonValue.inferValueType, project, visitedAlias)
+      case std: StdType =>
+        std.asClass(project.toOption.getOrElse(DecompilerUtil.obtainProject))
+          .map((_, ScSubstitutor.empty))
+      case _ => None
+    }
+
   protected def createType(psiClass: PsiClass,
                            project: Project,
                            substitutor: PsiSubstitutor = PsiSubstitutor.EMPTY,
@@ -93,4 +114,14 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
 
   private def factory(project: Project) =
     JavaPsiFacade.getInstance(project).getElementFactory
+}
+
+object ExtractClass {
+  def unapply(`type`: ScType)(implicit typeSystem: TypeSystem): Option[PsiClass] = {
+    `type`.extractClass()
+  }
+
+  def unapply(`type`: ScType, project: Project): Option[PsiClass] = {
+    unapply(`type`)(project.typeSystem)
+  }
 }

@@ -20,9 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, TypeSystem}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
 
@@ -41,6 +40,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
     if (!super.isAvailable(project, editor, file)) return false
 
+    implicit val typeSystem = project.typeSystem
     def checkBlock(expr: ScExpression) = blockFor(expr) match {
       case Success(bl) => !bl.isInCompiledFile
       case _ => false
@@ -60,6 +60,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, entity: String, 
   }
 
   def invokeInner(project: Project, editor: Editor, file: PsiFile) {
+    implicit val typeSystem = project.typeSystem
     def tryToFindBlock(expr: ScExpression): Option[ScExtendsBlock] = {
       blockFor(expr) match {
         case Success(bl) => Some(bl)
@@ -132,7 +133,8 @@ object CreateEntityQuickFix {
     clazz.getParent.addAfter(fromText, clazz).asInstanceOf[ScObject]
   }
 
-  private def blockFor(exp: ScExpression): Try[ScExtendsBlock]  = {
+  private def blockFor(exp: ScExpression)
+                      (implicit typeSystem: TypeSystem): Try[ScExtendsBlock] = {
     object ParentExtendsBlock {
       def unapply(e: PsiElement): Option[ScExtendsBlock] = Option(PsiTreeUtil.getParentOfType(exp, classOf[ScExtendsBlock]))
     }
@@ -219,9 +221,10 @@ object CreateEntityQuickFix {
     place.map(_._2)
   }
 
-  private def unambiguousSuper(supRef: ScSuperReference): Option[ScTypeDefinition] = {
+  private def unambiguousSuper(supRef: ScSuperReference)
+                              (implicit typeSystem: TypeSystem): Option[ScTypeDefinition] = {
     supRef.staticSuper match {
-      case Some(ScType.ExtractClass(clazz: ScTypeDefinition)) => Some(clazz)
+      case Some(ExtractClass(clazz: ScTypeDefinition)) => Some(clazz)
       case None =>
         supRef.parents.toSeq.collect { case td: ScTemplateDefinition => td } match {
           case Seq(td) =>

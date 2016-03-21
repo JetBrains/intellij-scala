@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType, ScTypePresentation}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType, ScTypeExt, ScTypePresentation}
 
 import scala.collection.mutable
 
@@ -83,7 +83,7 @@ class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs
                       case Any | Nothing =>
                         new ConstantNode(refName.substring(prefixLength))
                       case tp =>
-                        new ConstantNode(ScType.presentableText(tp))
+                        new ConstantNode(tp.presentableText)
                     }
                   case None =>
                     new ConstantNode(refName.substring(prefixLength))

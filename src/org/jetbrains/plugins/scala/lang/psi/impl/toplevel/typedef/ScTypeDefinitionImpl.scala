@@ -89,14 +89,14 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
       if (parentClass != null) {
         Success(ScProjectionType(ScThisType(parentClass), this, superReference = false), Some(this))
       } else {
-        Success(ScType.designator(this), Some(this))
+        Success(ScalaType.designator(this), Some(this))
       }
     } else {
       if (parentClass != null) {
         Success(ScParameterizedType(ScProjectionType(ScThisType(parentClass), this, superReference = false),
           typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))), Some(this))
       } else {
-        Success(ScParameterizedType(ScType.designator(this),
+        Success(ScParameterizedType(ScalaType.designator(this),
           typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))), Some(this))
       }
     }
@@ -104,8 +104,8 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
 
   def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false): TypeResult[ScType] = {
     def args: Seq[ScTypeParameterType] = typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))
-    def innerType = if (typeParameters.isEmpty) ScType.designator(this)
-                    else ScParameterizedType(ScType.designator(this), args)
+    def innerType = if (typeParameters.isEmpty) ScalaType.designator(this)
+    else ScParameterizedType(ScalaType.designator(this), args)
     val parentClazz = containingClass
     if (parentClazz != null) {
       val tpe: ScType = if (!thisProjections) parentClazz.getTypeWithProjections(TypingContext.empty, thisProjections = false).

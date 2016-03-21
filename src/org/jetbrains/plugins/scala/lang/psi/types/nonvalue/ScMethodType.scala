@@ -367,8 +367,6 @@ case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeP
     case _ =>
   }
 
-  override def typeDepth: Int = {
-    if (typeParameters.nonEmpty) internalType.typeDepth.max(ScType.typeParamsDepth(typeParameters.toArray) + 1)
-    else internalType.typeDepth
-  }
+  override def typeDepth: Int = internalType.typeDepth
+    .max(typeParameters.depth())
 }

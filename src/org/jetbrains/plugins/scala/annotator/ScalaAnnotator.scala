@@ -101,7 +101,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         val tp = parameterized.typeElement.getTypeNoConstructor(TypingContext.empty)
         tp match {
           case Success(res, _) =>
-            ScType.extractDesignated(res, withoutAliases = false) match {
+            ScalaType.extractDesignated(res, withoutAliases = false) match {
               case Some((t: ScTypeParametersOwner, subst)) =>
                 val typeParametersLength = t.typeParameters.length
                 val argsLength = parameterized.typeArgList.typeArgs.length
@@ -471,7 +471,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           processor.processType(tp, expr)
           val candidates = processor.candidates
           if (candidates.length != 1) {
-            val error = ScalaBundle.message("method.is.not.member", memberName, ScType.presentableText(tp))
+            val error = ScalaBundle.message("method.is.not.member", memberName, tp.presentableText)
             val annotation = holder.createErrorAnnotation(expr, error)
             annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
           } else if (checkReturnTypeIsBoolean) {
@@ -925,7 +925,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             case param: ScParameter =>
               if (!param.isDefaultParam) return //performance optimization
               param.getRealParameterType() match {
-                case Success(paramType, _) if ScType.extractClass(paramType, Option(expr.getProject)).isDefined =>
+                case Success(paramType, _) if paramType.extractClass(expr.getProject).isDefined =>
                 //do not check generic types. See SCL-3508
                 case _ => return
               }
@@ -1151,7 +1151,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       if (!childHasAnnotation(fun.returnTypeElement, "uncheckedVariance")) {
         fun.returnType match {
           case Success(returnType, _) =>
-            checkVariance(ScType.expandAliases(returnType).getOrType(returnType), ScTypeParam.Covariant, fun.nameId,
+            checkVariance(ScalaType.expandAliases(returnType).getOrType(returnType), ScTypeParam.Covariant, fun.nameId,
               fun.getParent, holder)
           case _ =>
         }
@@ -1159,7 +1159,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       for (parameter <- fun.parameters) {
         parameter.typeElement match {
           case Some(te) if !childHasAnnotation(Some(te), "uncheckedVariance") =>
-            checkVariance(ScType.expandAliases(te.calcType).getOrType(te.calcType), ScTypeParam.Contravariant,
+            checkVariance(ScalaType.expandAliases(te.calcType).getOrType(te.calcType), ScTypeParam.Contravariant,
               parameter.nameId, fun.getParent, holder)
           case _ =>
         }
@@ -1174,7 +1174,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
       for (element <- declaredElements) {
         element.getType() match {
           case Success(tp, _) =>
-            ScType.expandAliases(tp) match { //so type alias is highlighted
+            ScalaType.expandAliases(tp) match {
+              //so type alias is highlighted
               case Success(newTp, _) => checkVariance(newTp, variance, element.nameId, toCheck, holder)
               case _ => checkVariance(tp, variance, element.nameId, toCheck, holder)
             }
@@ -1279,7 +1280,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     val scalaVersion = literal.scalaLanguageLevel
     val isNegative = parent match {
       // only "-1234" is negative, "- 1234" should be considered as positive 1234
-      case prefixExpr: ScPrefixExpr if prefixExpr.getChildren.size == 2 && prefixExpr.getFirstChild.getText == "-" => true
+      case prefixExpr: ScPrefixExpr if prefixExpr.getChildren.length == 2 && prefixExpr.getFirstChild.getText == "-" => true
       case _ => false
     }
     val (number, base) = textWithoutL match {
@@ -1354,8 +1355,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         val bigIntType = ScalaPsiElementFactory.createTypeFromText("_root_.scala.math.BigInt", literal.getContext, literal)
         val conformsToTypeList = List(Long, bigIntType)
         val shouldRegisterFix = if (isNegative)
-            parent.asInstanceOf[ScPrefixExpr].expectedType().map(x => conformsToTypeList.exists(_.weakConforms(x))).getOrElse(true)
-            else literal.expectedType().map(x => conformsToTypeList.exists(_.weakConforms(x))).getOrElse(true)
+          parent.asInstanceOf[ScPrefixExpr].expectedType().forall(x => conformsToTypeList.exists(_.weakConforms(x)))
+        else literal.expectedType().forall(x => conformsToTypeList.exists(_.weakConforms(x)))
 
         if (shouldRegisterFix) {
           val addLtoLongFix: AddLToLongLiteralFix = new AddLToLongLiteralFix(literal)

@@ -11,8 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
-import org.jetbrains.plugins.scala.lang.psi.types.{JavaArrayType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{JavaArrayType, ScParameterizedType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -48,8 +49,9 @@ object MacroUtil {
     case _ => None
   }
 
-  def getTypeLookupItem(scType: ScType, project: Project): Option[ScalaLookupItem] = {
-    ScType.extractClass(scType, Some(project)).filter(_.isInstanceOf[ScTypeDefinition]).map{
+  def getTypeLookupItem(scType: ScType, project: Project)
+                       (implicit typeSystem: TypeSystem = project.typeSystem): Option[ScalaLookupItem] = {
+    scType.extractClass(project).filter(_.isInstanceOf[ScTypeDefinition]).map {
       case typeDef: ScTypeDefinition =>
         val lookupItem = new ScalaLookupItem(typeDef, typeDef.getTruncedQualifiedName, Option(typeDef.getContainingClass))
         lookupItem.shouldImport = true

@@ -17,6 +17,7 @@ import com.intellij.util.Processor
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -26,8 +27,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticC
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiMethodWrapper}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -184,6 +185,23 @@ package object extensions {
     }
 
     def typeSystem = repr.getProject.typeSystem
+
+    def ofNamedElement(substitutor: ScSubstitutor = ScSubstitutor.empty): Option[ScType] = {
+      def lift: PsiType => Option[ScType] = _.toScType(repr.getProject, repr.getResolveScope).toOption
+
+      (repr match {
+        case e: ScPrimaryConstructor => None
+        case e: ScFunction if e.isConstructor => None
+        case e: ScFunction => e.returnType.toOption
+        case e: ScBindingPattern => e.getType(TypingContext.empty).toOption
+        case e: ScFieldId => e.getType(TypingContext.empty).toOption
+        case e: ScParameter => e.getRealParameterType(TypingContext.empty).toOption
+        case e: PsiMethod if e.isConstructor => None
+        case e: PsiMethod => lift(e.getReturnType)
+        case e: PsiVariable => lift(e.getType)
+        case _ => None
+      }).map(substitutor.subst)
+    }
   }
 
   implicit class PsiTypeExt(val `type`: PsiType) extends AnyVal {
@@ -250,7 +268,8 @@ package object extensions {
           case m: ScMember =>
             m.containingClass match {
               case t: ScTrait =>
-                val linearization = MixinNodes.linearization(clazz).flatMap(tp => ScType.extractClass(tp, Some(clazz.getProject)))
+                val linearization = MixinNodes.linearization(clazz)
+                  .flatMap(_.extractClass(clazz.getProject)(clazz.typeSystem))
                 var index = linearization.indexWhere(_ == t)
                 while (index >= 0) {
                   val cl = linearization(index)
@@ -310,6 +329,11 @@ package object extensions {
         case nd: ScNamedElement => nd.name
         case nd => nd.getName
       }
+    }
+
+    def toTypedDefinition: Option[ScTypedDefinition] = named match {
+      case typedDefinition: ScTypedDefinition => Some(typedDefinition)
+      case _ => None
     }
   }
 

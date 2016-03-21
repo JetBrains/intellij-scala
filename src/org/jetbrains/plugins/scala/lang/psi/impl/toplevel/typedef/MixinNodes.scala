@@ -314,7 +314,7 @@ abstract class MixinNodes {
     }
   }
 
-  def build(clazz: PsiClass)(implicit typeSystem: TypeSystem): Map = build(ScType.designator(clazz))
+  def build(clazz: PsiClass)(implicit typeSystem: TypeSystem): Map = build(ScalaType.designator(clazz))
 
   def build(tp: ScType, compoundThisType: Option[ScType] = None)
            (implicit typeSystem: TypeSystem): Map = {
@@ -388,7 +388,7 @@ abstract class MixinNodes {
     val iter = superTypes.iterator
     while (iter.hasNext) {
       val superType = iter.next()
-      ScType.extractClassType(superType, place.map(_.getProject)) match {
+      superType.extractClassType(place.map(_.getProject).orNull) match {
         case Some((superClass, s)) =>
           // Do not include scala.ScalaObject to Predef's base types to prevent SOE
           if (!(superClass.qualifiedName == "scala.ScalaObject" && isPredef)) {
@@ -463,7 +463,7 @@ object MixinNodes {
     def inner(): Seq[ScType] = {
       clazz match {
         case obj: ScObject if obj.isPackageObject && obj.qualifiedName == "scala" =>
-          return Seq(ScType.designator(obj))
+          return Seq(ScalaType.designator(obj))
         case _ =>
       }
 
@@ -471,8 +471,8 @@ object MixinNodes {
       val project = clazz.getProject
       val tp = {
         def default =
-          if (clazz.getTypeParameters.isEmpty) ScType.designator(clazz)
-          else ScParameterizedType(ScType.designator(clazz), clazz.
+          if (clazz.getTypeParameters.isEmpty) ScalaType.designator(clazz)
+          else ScParameterizedType(ScalaType.designator(clazz), clazz.
             getTypeParameters.map(tp => ScalaPsiManager.instance(project).typeVariable(tp)))
         clazz match {
           case td: ScTypeDefinition => td.getType(TypingContext.empty).getOrElse(default)
@@ -518,17 +518,16 @@ object MixinNodes {
       }
     }
     def add(tp: ScType) {
-      ScType.extractClass(tp, project) match {
+      tp.extractClass(project.orNull) match {
         case Some(clazz) if clazz.qualifiedName != null && !set.contains(classString(clazz)) =>
           tp +=: buffer
           set += classString(clazz)
         case Some(clazz) if clazz.getTypeParameters.nonEmpty =>
-          val i = buffer.indexWhere(newTp => {
-            ScType.extractClass(newTp, Some(clazz.getProject)) match {
+          val i = buffer.indexWhere(_.extractClass(clazz.getProject) match {
               case Some(newClazz) if ScEquivalenceUtil.areClassesEquivalent(newClazz, clazz) => true
               case _ => false
             }
-          })
+          )
           if (i != -1) {
             val newTp = buffer.apply(i)
             if (tp.conforms(newTp)) buffer.update(i, tp)
@@ -560,7 +559,7 @@ object MixinNodes {
         }
       }
       tp = updateTp(tp)
-      ScType.extractClassType(tp) match {
+      tp.extractClassType() match {
         case Some((clazz, subst)) =>
           val lin = linearization(clazz)
           val newIterator = lin.reverseIterator

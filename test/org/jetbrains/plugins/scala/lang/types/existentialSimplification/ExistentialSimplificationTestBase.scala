@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, ScTypeExt}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -46,7 +46,7 @@ abstract class ExistentialSimplificationTestBase extends ScalaLightPlatformCodeI
     typez match {
       case Success(ttypez: ScExistentialType, _) =>
 
-        val res = ScType.presentableText(ttypez.simplify())
+        val res = ttypez.simplify().presentableText
         val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
         val text = lastPsi.getText
         val output = lastPsi.getNode.getElementType match {

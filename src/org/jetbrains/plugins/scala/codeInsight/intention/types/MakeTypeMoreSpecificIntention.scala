@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, BaseTypes, ScType, ScTypeText}
+import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, ScTypeExt, ScTypeText}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
@@ -23,8 +23,8 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
   */
 class MakeTypeMoreSpecificIntention extends PsiElementBaseIntentionAction {
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    ToggleTypeAnnotation.complete(new MakeTypeMoreSpecificStrategy(Option(editor))(project.typeSystem),
-      element)
+    implicit val typeSystem = project.typeSystem
+    ToggleTypeAnnotation.complete(new MakeTypeMoreSpecificStrategy(Option(editor)), element)
   }
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {

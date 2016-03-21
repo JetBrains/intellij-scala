@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * Pavel Fatin
@@ -106,7 +107,7 @@ class TypeAnnotationInspection extends AbstractInspection {
   private class AddTypeAnnotationQuickFix(element: PsiElement) extends AbstractFixOnPsiElement("Add type annotation", element) {
     def doApplyFix(project: Project): Unit = {
       val elem = getElement
-      ToggleTypeAnnotation.complete(AddOnlyStrategy.withoutEditor, elem)
+      ToggleTypeAnnotation.complete(AddOnlyStrategy.withoutEditor, elem)(project.typeSystem)
     }
   }
 }

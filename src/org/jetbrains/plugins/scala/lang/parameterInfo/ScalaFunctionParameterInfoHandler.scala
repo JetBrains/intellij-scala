@@ -137,7 +137,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         def paramText(param: ScParameter, subst: ScSubstitutor) = {
           ScalaDocumentationProvider.parseParameter(param,
             (t: ScType) =>
-              ScType.presentableText(subst.subst(t)), escape = false)
+              subst.subst(t).presentableText, escape = false)
         }
         def applyToParameters(parameters: Seq[(Parameter, String)], subst: ScSubstitutor, canBeNaming: Boolean,
                               isImplicit: Boolean = false) {
@@ -261,7 +261,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               val paramsSeq: Seq[(Parameter, String)] = seq.zipWithIndex.map {
                 case (t, paramIndex) =>
                   (new Parameter(t._1, None, t._2, t._3 != null, false, false, paramIndex),
-                    t._1 + ": " + ScType.presentableText(t._2) + (
+                    t._1 + ": " + t._2.presentableText + (
                           if (t._3 != null) " = " + t._3.getText else ""))
               }
               applyToParameters(paramsSeq, ScSubstitutor.empty, canBeNaming = true, isImplicit = false)
@@ -291,7 +291,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       buffer.append(name)
                       buffer.append(": ")
                     }
-                    buffer.append(ScType.presentableText(paramType))
+                            buffer.append(paramType.presentableText)
                     if (param.isRepeated) buffer.append("*")
 
                     if (param.isDefault) buffer.append(" = _")
@@ -327,7 +327,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       buffer.append(name)
                     }
                     buffer.append(": ")
-                    buffer.append(ScType.presentableText(subst.subst(param.exactParamType())))
+                            buffer.append(subst.subst(param.exactParamType()).presentableText)
                     if (param.isVarArgs) buffer.append("*")
 
                     val isBold = if (p.getParameters.indexOf(param) == index || (param.isVarArgs && p.getParameters.indexOf(param) <= index)) true
@@ -540,7 +540,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
             val typeElement = constr.typeElement
             val i = constr.arguments.indexOf(args.element)
-            ScType.extractClassType(typeElement.calcType, Some(file.getProject)) match {
+            typeElement.calcType.extractClassType(file.getProject) match {
               case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
                 clazz match {
                   case clazz: ScClass =>

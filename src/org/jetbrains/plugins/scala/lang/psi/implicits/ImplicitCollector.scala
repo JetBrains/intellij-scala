@@ -40,7 +40,7 @@ object ImplicitCollector {
   def exprType(expr: ScExpression, fromUnder: Boolean): Option[ScType] = {
     expr.getTypeWithoutImplicits(fromUnderscore = fromUnder).toOption.map {
       case tp =>
-        ScType.extractDesignatorSingletonType(tp) match {
+        ScalaType.extractDesignatorSingletonType(tp) match {
           case Some(res) => res
           case _ => tp
         }
@@ -94,7 +94,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
   def collect(fullInfo: Boolean = false)
              (implicit typeSystem: TypeSystem): Seq[ScalaResolveResult] = {
     def calc(): Seq[ScalaResolveResult] = {
-      ScType.extractClass(tp, Some(place.getProject)) match {
+      tp.extractClass(place.getProject) match {
         case Some(clazz) if InferUtil.skipQualSet.contains(clazz.qualifiedName) => return Seq.empty
         case _ =>
       }
@@ -213,7 +213,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
     override def candidatesS: collection.Set[ScalaResolveResult] = candidatesS(fullInfo = false)
 
     def candidatesS(fullInfo: Boolean): collection.Set[ScalaResolveResult] = {
-      val clazz = ScType.extractClass(tp)
+      val clazz = tp.extractClass()
       def forMap(c: ScalaResolveResult, withLocalTypeInference: Boolean, checkFast: Boolean): Option[(ScalaResolveResult, ScSubstitutor)] = {
         ProgressManager.checkCanceled()
         val subst = c.substitutor

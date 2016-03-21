@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScRefe
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTupleType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScTupleType, ScType, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
@@ -62,7 +62,8 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
   }
 
 
-  def nestedPatternText(expectedType: Option[ScType]): Option[String] = {
+  def nestedPatternText(expectedType: Option[ScType])
+                       (implicit typeSystem: TypeSystem): Option[String] = {
     expectedType match {
       case Some(ScTupleType(comps)) =>
         import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester.suggestNamesByType
@@ -70,7 +71,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
         val tuplePattern = names.mkParenString
         Some(tuplePattern)
       case _ =>
-        expectedType.flatMap(ScType.extractDesignated(_, withoutAliases = true)).map(_._1) match {
+        expectedType.flatMap(ScalaType.extractDesignated(_, withoutAliases = true)).map(_._1) match {
           case Some(cls: ScClass) if cls.isCase =>
             val companionObj = ScalaPsiUtil.getCompanionModule(cls).get
             cls.constructor match {

@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 /**
@@ -73,7 +73,7 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
                               res.bindT((typeVar.name, typeVar.getId), arg.calcType)
                           }
                           val substituted = subst.subst(aliased)
-                          ScType.presentableText(substituted)
+                          substituted.presentableText
                         }
                         addInfo(paramType, simplified())
                       }

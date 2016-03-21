@@ -432,7 +432,7 @@ object ResolveUtils {
       case Some(te: ScSelfTypeElement) => te.typeElement match {
         case Some(te: ScTypeElement) =>
           def isInheritorOrSame(tp: ScType): Boolean = {
-            ScType.extractClass(tp) match {
+            tp.extractClass()(te.typeSystem) match {
               case Some(clazz) =>
                 if (clazz == td) return true
                 if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, td)) return true

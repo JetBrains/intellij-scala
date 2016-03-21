@@ -16,14 +16,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 import scala.collection.Set
 
 object ResolveProcessor {
-  def getQualifiedName(result: ScalaResolveResult, place: PsiElement): String = {
+  def getQualifiedName(result: ScalaResolveResult, place: PsiElement)
+                      (implicit typeSystem: TypeSystem): String = {
     def defaultForTypeAlias(t: ScTypeAlias): String = {
       if (t.getParent.isInstanceOf[ScTemplateBody] && t.containingClass != null) {
         "TypeAlias:" + t.containingClass.qualifiedName + "#" + t.name
@@ -37,7 +38,7 @@ object ResolveProcessor {
       case t: ScTypeAliasDefinition if t.typeParameters.isEmpty =>
         t.aliasedType(TypingContext.empty) match {
           case Success(tp, elem) =>
-            ScType.extractClass(tp, Option(place).map(_.getProject)) match {
+            tp.extractClass(Option(place).map(_.getProject).orNull) match {
               case Some(c: ScObject) => defaultForTypeAlias(t)
               case Some(td: ScTypeDefinition) if td.typeParameters.isEmpty && ScalaPsiUtil.hasStablePath(td) =>
                 "Class:" + td.qualifiedName

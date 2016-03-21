@@ -143,7 +143,7 @@ class ScSyntheticFunction(manager: PsiManager, val name: String,
 extends SyntheticNamedElement(manager, name) with ScFun {
   def isStringPlusMethod: Boolean = {
     if (name != "+") return false
-    ScType.extractClass(retType, Some(manager.getProject)) match {
+    retType.extractClass(manager.getProject) match {
       case Some(clazz) => clazz.qualifiedName == "java.lang.String"
       case _ => false
     }

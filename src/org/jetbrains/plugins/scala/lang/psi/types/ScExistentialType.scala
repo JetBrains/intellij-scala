@@ -314,7 +314,7 @@ case class ScExistentialType(quantified : ScType,
           case undef: ScUndefinedType =>
             undef.tpt.args.map(_.param).iterator
           case tp: ScType =>
-            ScType.extractClass(tp) match {
+            tp.extractClass() match {
               case Some(owner) =>
                 owner match {
                   case td: ScTypeDefinition => td.typeParameters.iterator

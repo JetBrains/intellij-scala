@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
+import scala.annotation.tailrec
 import scala.collection.immutable.HashSet
 
 object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
@@ -126,13 +127,13 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
     def isValueType(cl: ScClass): Boolean = cl.superTypes.contains(AnyVal) && cl.parameters.length == 1
 
     def outerClassHasTypeParameters(proj: ScProjectionType): Boolean = {
-      ScType.extractClass(proj.projected) match {
+      extractClass(proj.projected) match {
         case Some(outer) => outer.hasTypeParameters
         case _ => false
       }
     }
 
-    val t = ScType.removeAliasDefinitions(`type`)
+    val t = `type`.removeAliasDefinitions()
     if (t.isInstanceOf[NonValueType]) return toPsiType(t.inferValueType, project, scope)
     def javaObject = createJavaObject(project, scope)
     t match {
@@ -207,5 +208,40 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
       case _ => super.toPsiType(`type`, project, scope, noPrimitives, skolemToWildcard)
     }
   }
+
+  @tailrec
+  override def extractClass(`type`: ScType, project: Project) = `type` match {
+    case p@ScParameterizedType(designator, _) => extractClass(designator, project) //performance improvement
+    case _ => super.extractClass(`type`, project)
+  }
+
+  override def extractClassType(`type`: ScType,
+                                project: Project,
+                                visitedAlias: HashSet[ScTypeAlias]): Option[(PsiClass, ScSubstitutor)] =
+    `type` match {
+      case ScThisType(clazz) => Some(clazz, new ScSubstitutor(`type`))
+      case ScDesignatorType(clazz: PsiClass) => Some(clazz, ScSubstitutor.empty)
+      case ScDesignatorType(ta: ScTypeAliasDefinition) =>
+        if (visitedAlias.contains(ta)) return None
+        val result = ta.aliasedType(TypingContext.empty)
+        if (result.isEmpty) return None
+        extractClassType(result.get, project, visitedAlias + ta)
+      case proj@ScProjectionType(p, elem, _) => proj.actualElement match {
+        case c: PsiClass => Some((c, proj.actualSubst))
+        case t: ScTypeAliasDefinition =>
+          if (visitedAlias.contains(t)) return None
+          val result = t.aliasedType(TypingContext.empty)
+          if (result.isEmpty) return None
+          extractClassType(proj.actualSubst.subst(result.get), project, visitedAlias + t)
+        case _ => None
+      }
+      case ScExistentialType(quantified, _) => extractClassType(quantified, project, visitedAlias)
+      case p@ScParameterizedType(t1, _) =>
+        extractClassType(t1, project, visitedAlias) match {
+          case Some((c, s)) => Some((c, s.followed(p.substitutor)))
+          case None => None
+        }
+      case _ => super.extractClassType(`type`, project, visitedAlias)
+    }
 }
 
