@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -165,7 +166,8 @@ trait ApplicationAnnotator {
     }
   }
 
-  def annotateMethodInvocation(call: MethodInvocation, holder: AnnotationHolder) {
+  def annotateMethodInvocation(call: MethodInvocation, holder: AnnotationHolder)
+                              (implicit typeSystem: TypeSystem = call.typeSystem) {
     //do we need to check it:
     call.getEffectiveInvokedExpr match {
       case ref: ScReferenceElement =>

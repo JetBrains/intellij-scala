@@ -254,7 +254,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
                 }
                 val (res, imports) = super.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
                 val str = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.String")
-                val stringType = str.map(ScType.designator(_)).getOrElse(types.Any)
+                val stringType = str.map(ScalaType.designator(_)).getOrElse(types.Any)
                 (res.map(tp => ScTupleType(Seq(stringType, tp))(getProject, getResolveScope)), imports)
               }
             }

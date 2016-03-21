@@ -10,7 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 /**
  * Pavel Fatin
@@ -55,7 +56,8 @@ object Dependency {
     case it => it.qualifier.isEmpty
   }
 
-  private def dependencyFor(reference: ScReferenceElement, target: PsiElement, fromType: Option[ScType]): Option[Dependency] = {
+  private def dependencyFor(reference: ScReferenceElement, target: PsiElement, fromType: Option[ScType])
+                           (implicit typeSystem: TypeSystem = reference.typeSystem): Option[Dependency] = {
     def withEntity(entity: String) =
       Some(new Dependency(DependencyKind.Reference, reference, target, Path(entity)))
 
@@ -101,7 +103,7 @@ object Dependency {
             if method.getModifierList.hasModifierProperty("static") =>
             withMember(e.qualifiedName, method.getName)
           case (member: PsiMember) && ContainingClass(e: PsiClass) =>
-            fromType.flatMap(it => ScType.extractClass(it, Some(e.getProject))) match {
+            fromType.flatMap(_.extractClass(e.getProject)) match {
               case Some(entity: ScObject) =>
                 val memberName = member match {
                   case named: ScNamedElement => named.name

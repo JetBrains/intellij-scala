@@ -274,7 +274,7 @@ trait ScTypePresentation extends api.TypeSystemOwner {
         case StdType(name, _) =>
           name
         case f@ScFunctionType(ret, params) if t.isAliasType.isEmpty =>
-          val projectOption = ScType.extractClass(f).map(_.getProject)
+          val projectOption = f.extractClass().map(_.getProject)
           val arrow = projectOption.map(ScalaPsiUtil.functionArrow).getOrElse("=>")
           typeSeqText(params, "(", ", ", s") $arrow ") + innerTypeText(ret)
         case ScThisType(clazz: ScTypeDefinition) =>
@@ -333,14 +333,9 @@ object ScTypePresentation {
     case _ =>
       ScalaPsiUtil.superTypeMembers(ta).exists(_.isInstanceOf[ScTypeAliasDeclaration])
   }
-  
-  type A = ScTypePresentation {
-    type B 
-  }
-  
-  def withoutAliases(tpe: ScType): String = {
-    val withoutAliasesType = ScType.removeAliasDefinitions(tpe, expandableOnly = true)
-    withoutAliasesType.presentableText
+
+  def withoutAliases(`type`: ScType): String = {
+    `type`.removeAliasDefinitions(expandableOnly = true).presentableText
   }
 }
 

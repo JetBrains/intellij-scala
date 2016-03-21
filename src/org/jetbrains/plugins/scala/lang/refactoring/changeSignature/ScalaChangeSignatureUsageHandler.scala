@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.{JavaArrayType, ScFunctionType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMethodUtils
@@ -111,11 +111,15 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       case j: JavaChangeInfo => j
       case _ => return
     }
-    val paramTypes = usage.expr.getType() match {
+
+    val expr = usage.expr
+    implicit val typeSystem = expr.typeSystem
+
+    val paramTypes = expr.getType() match {
       case Success(ScFunctionType(_, pTypes), _) => pTypes
       case _ => Seq.empty
     }
-    val (names, exprText) = usage.expr match {
+    val (names, exprText) = expr match {
       case inv: MethodInvocation =>
         var paramsBuf = Seq[String]()
         for {
@@ -144,13 +148,13 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       if (paramTypes.size == names.size)
         names.zip(paramTypes).map {
           case (name, tpe) =>
-            ScalaExtractMethodUtils.typedName(name, tpe.canonicalText, usage.expr.getProject)
+            ScalaExtractMethodUtils.typedName(name, tpe.canonicalText, expr.getProject)
         }
       else names
     val clause = params.mkString("(", ", ", ")")
     val newFunExprText = s"$clause => $exprText"
-    val funExpr = ScalaPsiElementFactory.createExpressionFromText(newFunExprText, usage.expr.getManager)
-    val replaced = usage.expr.replaceExpression(funExpr, removeParenthesis = true).asInstanceOf[ScFunctionExpr]
+    val funExpr = ScalaPsiElementFactory.createExpressionFromText(newFunExprText, expr.getManager)
+    val replaced = expr.replaceExpression(funExpr, removeParenthesis = true).asInstanceOf[ScFunctionExpr]
     TypeAdjuster.markToAdjust(replaced)
     replaced.result match {
       case Some(infix: ScInfixExpr) =>

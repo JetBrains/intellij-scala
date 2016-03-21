@@ -190,6 +190,7 @@ class ScalaInlineHandler extends InlineHandler {
 
     UsageTrigger.trigger(ScalaBundle.message("inline.id"))
 
+    implicit val typeSystem = element.typeSystem
     element match {
       case typedDef: ScTypedDefinition if ScFunctionType.unapply(typedDef.getType().getOrAny).exists(_._2.nonEmpty) =>
         val message = typedDef match {

@@ -89,6 +89,7 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
   }
 
   def addToParameter(param: ScParameter) {
+    import param.typeSystem
     param.parentsInFile.findByType(classOf[ScFunctionExpr]) match {
       case Some(func) =>
         val index = func.parameters.indexOf(param)
@@ -158,9 +159,10 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
         val replacement = BaseTypes.get(someOrNone).find(_.canonicalText.startsWith("_root_.scala.Option")).getOrElse(someOrNone)
         Seq(typeElemFromType(replacement))
       case tp =>
-        ScType.extractClass(tp, Option(context.getProject)) match {
+        val project = context.getProject
+        tp.extractClass(project) match {
           case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
-            val sealedType = BaseTypes.get(tp).find(ScType.extractClass(_, Option(context.getProject)).exists(isSealed))
+            val sealedType = BaseTypes.get(tp).find(_.extractClass(project).exists(isSealed))
             (sealedType.toSeq :+ tp).map(typeElemFromType)
           case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName.startsWith("scala.collection") =>
             val goodTypes = Set(

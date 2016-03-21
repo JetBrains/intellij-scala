@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection.typeChecking
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
-import com.intellij.psi.{PsiMethod, PsiElement}
+import com.intellij.psi.{PsiElement, PsiMethod}
 import com.siyeh.ig.psiutils.MethodUtils
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.ComparingUnrelatedTypesInspection._
@@ -68,7 +68,7 @@ object ComparingUnrelatedTypesInspection {
     }
   }
 
-  private def tryExtractSingletonType(tp: ScType): ScType = ScType.extractDesignatorSingletonType(tp).getOrElse(tp)
+  private def tryExtractSingletonType(tp: ScType): ScType = ScalaType.extractDesignatorSingletonType(tp).getOrElse(tp)
 }
 
 class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId, inspectionName){

@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
@@ -79,7 +80,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
             } else {
               typez.foreach {
                 case ScParameterizedType(tpe, Seq(arg)) if !elementAdded =>
-                  ScType.extractClass(tpe, Some(elem.getProject)) match {
+                  tpe.extractClass(elem.getProject) match {
                     case Some(clazz) if clazz.qualifiedName == "scala.Option" || clazz.qualifiedName == "scala.Some" =>
                       if (!scType.equiv(Nothing) && scType.conforms(arg)) {
                         el.someSmartCompletion = true
@@ -189,7 +190,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           def checkTypeProjection(tp: ScType) {
             tp match {
               case ScProjectionType(proj, _: ScTypeAlias | _: ScClass | _: ScTrait, _) =>
-                ScType.extractClass(proj) match {
+                proj.extractClass() match {
                   case Some(o: ScObject) if ResolveUtils.isAccessible(o, place, forCompletion = true) && ScalaPsiUtil.hasStablePath(o) => checkObject(o)
                   case _ =>
                 }
@@ -198,7 +199,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           }
           @tailrec
           def checkType(tp: ScType) {
-            ScType.extractClass(tp) match {
+            tp.extractClass() match {
               case Some(c: ScClass) if c.qualifiedName == "scala.Option" || c.qualifiedName == "scala.Some" =>
                 tp match {
                   case ScParameterizedType(_, Seq(scType)) => checkType(scType)
@@ -258,7 +259,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                       var elementAdded = false
                       typez.foreach {
                         case ScParameterizedType(tp, Seq(arg)) if !elementAdded =>
-                          ScType.extractClass(tp, Some(place.getProject)) match {
+                          tp.extractClass(place.getProject) match {
                             case Some(clazz) if clazz.qualifiedName == "scala.Option" || clazz.qualifiedName == "scala.Some" =>
                               if (!scType.equiv(Nothing) && scType.conforms(arg)) {
                                 el.someSmartCompletion = true
@@ -336,7 +337,8 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
   })
 
   private def argumentsForFunction(args: ScArgumentExprList, referenceExpression: ScReferenceExpression,
-                           result: CompletionResultSet) {
+                                   result: CompletionResultSet)
+                                  (implicit typeSystem: TypeSystem = referenceExpression.typeSystem) {
     val braceArgs = args.isBraceArgs
     val expects = referenceExpression.expectedTypes()
     for (expected <- expects) {

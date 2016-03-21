@@ -39,7 +39,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
     if (t.isEmpty) return false
     ref.bind() match {
       case Some(ScalaResolveResult(clazz: ScClass, _)) if clazz.isCase =>
-        ScType.extractClassType(t.get, Some(clazz.getProject)) match {
+        t.get.extractClassType(clazz.getProject) match {
           case Some((clazz2: ScClass, substitutor: ScSubstitutor)) if clazz2 == clazz =>
             clazz.constructor match {
               case Some(constr: ScPrimaryConstructor) =>
@@ -77,7 +77,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
           //todo: remove all classes?
           case td: ScClass if td.typeParameters.nonEmpty =>
             val refType: ScType = ScSimpleTypeElementImpl.
-                    calculateReferenceType(ref, shapesOnly = false).getOrElse(ScType.designator(td))
+              calculateReferenceType(ref, shapesOnly = false).getOrElse(ScalaType.designator(td))
             val newSubst = {
               val clazzType = ScParameterizedType(refType, td.getTypeParameters.map(tp =>
                 ScUndefinedType(tp match {case tp: ScTypeParam => new ScTypeParameterType(tp, r.substitutor)
@@ -99,8 +99,8 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
             Success(ScParameterizedType(refType, td.getTypeParameters.map({
               tp => newSubst.subst(ScalaPsiManager.typeVariable(tp))
             }).toSeq), Some(this))
-          case td: ScClass => Success(ScType.designator(td), Some(this))
-          case obj: ScObject => Success(ScType.designator(obj), Some(this))
+          case td: ScClass => Success(ScalaType.designator(td), Some(this))
+          case obj: ScObject => Success(ScalaType.designator(obj), Some(this))
           case fun: ScFunction /*It's unapply method*/ if (fun.name == "unapply" || fun.name == "unapplySeq") &&
                   fun.parameters.length == 1 =>
             val substitutor = r.substitutor

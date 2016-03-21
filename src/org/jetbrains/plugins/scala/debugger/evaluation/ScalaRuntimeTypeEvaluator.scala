@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.ScType.ExtractClass
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, TypeSystem}
 
 /**
  * Nikolay.Tropin
@@ -90,7 +90,8 @@ object ScalaRuntimeTypeEvaluator {
     }
   }
 
-  def isSubtypeable(scType: ScType): Boolean = {
+  def isSubtypeable(scType: ScType)
+                   (implicit typeSystem: TypeSystem): Boolean = {
     scType match {
       case ExtractClass(psiClass) =>
         psiClass match {

@@ -48,7 +48,7 @@ object WrapInOptionQuickFix {
     } {
       expectedType match {
         case ScParameterizedType(des, Seq(typeArg)) =>
-          ScType.extractClass(des) match {
+          des.extractClass() match {
             case Some(scClass: ScClass)
               if scClass.qualifiedName == "scala.Option" && scType.conforms(typeArg) => result = true
             case _ =>

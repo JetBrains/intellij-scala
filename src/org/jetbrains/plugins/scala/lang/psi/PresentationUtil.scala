@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
@@ -38,7 +38,7 @@ object PresentationUtil {
         if (param.isRepeated) builder.append("*")
         if (param.isDefault) builder.append(" = _")
         builder.toString()
-      case tp: ScType => ScType.presentableText(substitutor.subst(tp))
+      case tp: ScType => substitutor.subst(tp).presentableText
       case tp: PsiEllipsisType =>
         presentationString(tp.getComponentType, substitutor) + "*"
       case tp: PsiType => presentationString(tp.toScType(DecompilerUtil.obtainProject), substitutor)

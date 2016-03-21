@@ -4,8 +4,9 @@ package lang.psi.light
 import com.intellij.psi.{PsiClass, PsiClassType}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScTypeExt}
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -20,12 +21,13 @@ object LightUtil {
     * @param holder annotation holder
    * @return Java throws section string or empty string
    */
-  def getThrowsSection(holder: ScAnnotationsHolder): String = {
+  def getThrowsSection(holder: ScAnnotationsHolder)
+                      (implicit typeSystem: TypeSystem = holder.typeSystem): String = {
     val throwAnnotations = holder.allMatchingAnnotations("scala.throws").foldLeft[ArrayBuffer[String]](ArrayBuffer()) {
       case (accumulator, annotation) =>
         val classes = annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
           _.getType(TypingContext.empty) match {
-            case Success(ScParameterizedType(des, Seq(arg)), _) => ScType.extractClass(des) match {
+            case Success(ScParameterizedType(des, Seq(arg)), _) => des.extractClass() match {
               case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
                 arg.toPsiType(holder.getProject, holder.getResolveScope) match {
                   case c: PsiClassType =>

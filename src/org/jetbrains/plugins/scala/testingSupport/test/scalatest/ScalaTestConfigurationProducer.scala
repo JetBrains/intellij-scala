@@ -16,11 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpres
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.TestKind
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, TestConfigurationProducer, TestConfigurationUtil}
-import TestConfigurationUtil.isInheritor
+import org.jetbrains.plugins.scala.testingSupport.test.{TestConfigurationProducer, TestConfigurationUtil}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -140,16 +140,16 @@ class ScalaTestConfigurationProducer extends {
               resolve match {
                 case fun: ScFunction =>
                   val clauses = fun.paramClauses.clauses
-                  if (clauses.length > 0) {
-                    val params = clauses(0).parameters
-                    if (params.length > 0) {
+                  if (clauses.nonEmpty) {
+                    val params = clauses.head.parameters
+                    if (params.nonEmpty) {
                       import org.jetbrains.plugins.scala.lang.psi.types.Unit
-                      params(0).getType(TypingContext.empty) match {
+                      params.head.getType(TypingContext.empty) match {
                         case Success(Unit, _) => failedToCheck = false
                         case Success(tp, _) =>
-                          ScType.extractClass(tp) match {
+                          tp.extractClass()(fun.typeSystem) match {
                             case Some(psiClass) if psiClass.qualifiedName == "java.lang.String" =>
-                              call.argumentExpressions.apply(0) match {
+                              call.argumentExpressions.head match {
                                 case l: ScLiteral if l.isString =>
                                   failedToCheck = false
                                   middleName += " " + l.getValue.toString
@@ -196,7 +196,7 @@ class ScalaTestConfigurationProducer extends {
 
     def checkCall(call: MethodInvocation, namesSet: Map[String, Set[String]]) = {
       val inv = (call: MethodInvocation) => {
-        val literal = call.argumentExpressions.apply(0)
+        val literal = call.argumentExpressions.head
         endupWithLitral(literal)
       }
       checkCallGeneral(call, namesSet, inv, recursive = true, checkFirstArgIsUnitOrString = false)
@@ -436,7 +436,7 @@ class ScalaTestConfigurationProducer extends {
       }
 
       val call = (call: MethodInvocation) => {
-        val literal = call.argumentExpressions.apply(0)
+        val literal = call.argumentExpressions.head
         endupWithLitral(literal)
       }
 
@@ -600,7 +600,7 @@ class ScalaTestConfigurationProducer extends {
       var fun = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionDefinition], false)
       while (fun != null) {
         if (fun.getParent.isInstanceOf[ScTemplateBody] && fun.containingClass == clazz) {
-          if (fun.hasAnnotation(annot) != None) {
+          if (fun.hasAnnotation(annot).isDefined) {
             return Some(fun.name)
           }
         }
@@ -634,11 +634,11 @@ class ScalaTestConfigurationProducer extends {
               getJUnitSuiteBases.toStream.map(checkJUnitSuite).find(_.isDefined).getOrElse(None) ++
               getPropSpecBases.toStream.map(checkPropSpec).find(_.isDefined).getOrElse(None) ++
               /**
-              //TODO: actually implement checkSpec for scalatest 2.0 Spec
-        checkSpec("org.scalatest.Spec") ++
-        checkSpec("org.scalatest.SpecLike") ++
-        checkSpec("org.scalatest.fixture.Spec") ++
-        checkSpec("org.scalatest.fixture.SpecLike") ++
+                * //TODO: actually implement checkSpec for scalatest 2.0 Spec
+                * checkSpec("org.scalatest.Spec") ++
+                * checkSpec("org.scalatest.SpecLike") ++
+                * checkSpec("org.scalatest.fixture.Spec") ++
+                * checkSpec("org.scalatest.fixture.SpecLike") ++
                 */
               //this is intended for scalatest versions < 2.0
               getFunSpecBasesPre2_0.toStream.map(checkFunSpec).find(_.isDefined).getOrElse(None) ++

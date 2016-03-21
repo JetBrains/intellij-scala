@@ -55,8 +55,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def refs = {
     extendsBlock.templateParents.toSeq.flatMap(_.typeElements).map { refElement =>
-      val tuple: Option[(PsiClass, ScSubstitutor)] = refElement.getType(TypingContext.empty).toOption.flatMap(
-        ScType.extractClassType(_, Some(getProject)))
+      val tuple: Option[(PsiClass, ScSubstitutor)] = refElement.getType(TypingContext.empty).toOption.flatMap {
+        _.extractClassType(getProject)
+      }
       (refElement, tuple)
     }
   }
@@ -313,7 +314,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     }
     state = state.put(BaseProcessor.FROM_TYPE_KEY,
       if (ScalaPsiUtil.isPlaceTdAncestor(this, place)) ScThisType(this)
-      else ScType.designator(this))
+      else ScalaType.designator(this))
     val eb = extendsBlock
     eb.templateParents match {
         case Some(p) if PsiTreeUtil.isContextAncestor(p, place, false) =>

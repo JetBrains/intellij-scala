@@ -5,7 +5,7 @@ import com.intellij.codeInsight.template._
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType
 import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 
 /**
@@ -21,7 +21,7 @@ class ScalaIterableComponentTypeMacro extends ScalaMacro {
               MacroUtil.getComponentFromArrayType(exprType) match {
                 case Some(arrComponentType) => Some(arrComponentType)
                 case None =>
-                  ScType.extractClass(exprType, Some(context.getProject)) match {
+                  exprType.extractClass(context.getProject) match {
                     case Some(x: ScTypeDefinition) if x.functionsByName("foreach").nonEmpty => Some(exprType)
                     case _ => None
                   }

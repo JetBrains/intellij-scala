@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -98,7 +99,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
     }
   }
 
-  private def addConstructorCompletions(parameters: CompletionParameters, result: CompletionResultSet): Unit = {
+  private def addConstructorCompletions(parameters: CompletionParameters, result: CompletionResultSet) {
     val position = positionFromParameters(parameters)
     val elementType = position.getNode.getElementType
     if (elementType != ScalaTokenTypes.tIDENTIFIER) return
@@ -110,7 +111,9 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
         val typeElement = constructor.typeElement
         typeElement.getType(TypingContext.empty) match {
           case Success(tp, _) =>
-            val signatures = ScType.extractClassType(tp, Some(position.getProject)) match {
+            val project = position.getProject
+            implicit val typeSystem = project.typeSystem
+            val signatures = tp.extractClassType(project) match {
               case Some((clazz: ScClass, subst)) if !clazz.hasTypeParameters || (clazz.hasTypeParameters &&
                       typeElement.isInstanceOf[ScParameterizedTypeElement]) =>
                 clazz.constructors.toSeq.map {

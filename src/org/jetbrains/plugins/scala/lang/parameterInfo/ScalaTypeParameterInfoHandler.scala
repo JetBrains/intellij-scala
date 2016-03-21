@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
 
 import scala.collection.mutable.ArrayBuffer
@@ -118,7 +118,7 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
         val refTypes = param.getExtendsList.getReferencedTypes
         if (refTypes.nonEmpty) {
           paramText = paramText + refTypes.map((typez: PsiType) => {
-            ScType.presentableText(substitutor.subst(typez.toScType(param.getProject)))
+            substitutor.subst(typez.toScType(param.getProject)).presentableText
           }).mkString(" <: ", " with ", "")
         }
         if (isBold) "<b>" + paramText + "</b>" else paramText
@@ -140,17 +140,17 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
         else if (param.isCovariant) paramText = "+" + paramText
         param.lowerBound foreach {
           case psi.types.Nothing =>
-          case tp: ScType => paramText = paramText + " >: " + ScType.presentableText(substitutor.subst(tp))
+          case tp: ScType => paramText = paramText + " >: " + substitutor.subst(tp).presentableText
         }
         param.upperBound foreach {
           case psi.types.Any =>
-          case tp: ScType => paramText = paramText + " <: " + ScType.presentableText(substitutor.subst(tp))
+          case tp: ScType => paramText = paramText + " <: " + substitutor.subst(tp).presentableText
         }
         param.viewBound foreach {
-          (tp: ScType) => paramText = paramText + " <% " + ScType.presentableText(substitutor.subst(tp))
+          (tp: ScType) => paramText = paramText + " <% " + substitutor.subst(tp).presentableText
         }
         param.contextBound foreach {
-          (tp: ScType) => paramText = paramText + " : " + ScType.presentableText(substitutor.subst(tp))
+          (tp: ScType) => paramText = paramText + " : " + substitutor.subst(tp).presentableText
         }
         if (isBold) "<b>" + paramText + "</b>" else paramText
       }).mkString(", "))

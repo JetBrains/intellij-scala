@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypePresentation, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScTypePresentation, Unit}
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
@@ -63,7 +63,7 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
     }
     typez match {
       case Success(ttypez, _) =>
-        val res = ScType.presentableText(ttypez)
+        val res = ttypez.presentableText
         val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
         val text = lastPsi.getText
         val output = lastPsi.getNode.getElementType match {
@@ -81,12 +81,12 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
         output match {
           case ExpectedPattern("<none>") =>
             expr.expectedType() match {
-              case Some(et) => fail("found unexpected expected type: %s".format(ScType.presentableText(et)))
+              case Some(et) => fail("found unexpected expected type: %s".format(et.presentableText))
               case None => // all good
             }
           case ExpectedPattern(expectedExpectedTypeText) =>
             val actualExpectedType = expr.expectedType().getOrElse(sys.error("no expected type"))
-            val actualExpectedTypeText = ScType.presentableText(actualExpectedType)
+            val actualExpectedTypeText = actualExpectedType.presentableText
             assertEquals(expectedExpectedTypeText, actualExpectedTypeText)
           case SimplifiedPattern(expectedText) =>
             assertEquals(expectedText, ScTypePresentation.withoutAliases(ttypez))

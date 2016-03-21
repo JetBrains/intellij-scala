@@ -210,7 +210,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
                                           assign: PsiElement, baseProcessor: BaseProcessor) {
     def processConstructor(elem: PsiElement, tp: ScType, typeArgs: Seq[ScTypeElement], arguments: Seq[ScArgumentExprList],
                            secondaryConstructors: (ScClass) => Seq[ScFunction]) {
-      ScType.extractClassType(tp) match {
+      tp.extractClassType() match {
         case Some((clazz, subst)) if !clazz.isInstanceOf[ScTemplateDefinition] && clazz.isAnnotationType =>
           if (!baseProcessor.isInstanceOf[CompletionProcessor]) {
             for (method <- clazz.getMethods) {
@@ -396,7 +396,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
         case Some(r@ScalaResolveResult(b: ScTypedDefinition, subst)) if b.isStable =>
           r.fromType match {
             case Some(fT) => ScProjectionType(fT, b, superReference = false)
-            case None => ScType.designator(b)
+            case None => ScalaType.designator(b)
           }
         case _ => aType
       }

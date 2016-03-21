@@ -265,7 +265,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             if (stableTypeRequired && refPatt.isStable) {
               r.fromType match {
                 case Some(fT) => ScProjectionType(fT, refPatt, superReference = false)
-                case None => ScType.designator(refPatt)
+                case None => ScalaType.designator(refPatt)
               }
             } else {
               val result = refPatt.getType(TypingContext.empty)
@@ -284,9 +284,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         r.fromType match {
           case Some(fT) if param.isVal && stableTypeRequired => ScProjectionType(fT, param, superReference = false)
           case Some(ScThisType(clazz)) if owner != null && PsiTreeUtil.isContextAncestor(owner, this, true) &&
-            stableTypeRequired && owner.isInstanceOf[ScTypeDefinition] && owner == clazz => ScType.designator(param) //todo: think about projection from this type?
+            stableTypeRequired && owner.isInstanceOf[ScTypeDefinition] && owner == clazz => ScalaType.designator(param) //todo: think about projection from this type?
           case _ if owner != null && PsiTreeUtil.isContextAncestor(owner, this, true) &&
-                  stableTypeRequired && !owner.isInstanceOf[ScTypeDefinition] => ScType.designator(param)
+            stableTypeRequired && !owner.isInstanceOf[ScTypeDefinition] => ScalaType.designator(param)
           case _ =>
             val result = param.getRealParameterType(TypingContext.empty)
             s.subst(result match {
@@ -315,13 +315,13 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           case _ => return result
         })
         if (seqClass != null) {
-          ScParameterizedType(ScType.designator(seqClass), Seq(computeType))
+          ScParameterizedType(ScalaType.designator(seqClass), Seq(computeType))
         } else computeType
       case Some(ScalaResolveResult(obj: ScObject, s)) =>
         def tail = {
           fromType match {
             case Some(tp) => ScProjectionType(tp, obj, superReference = false)
-            case _ => ScType.designator(obj)
+            case _ => ScalaType.designator(obj)
           }
         }
         //hack to add Eta expansion for case classes
@@ -348,7 +348,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         if (stableTypeRequired && f.isStable) {
           r.fromType match {
             case Some(fT) => ScProjectionType(fT, f, superReference = false)
-            case None => ScType.designator(f)
+            case None => ScalaType.designator(f)
           }
         } else {
           val result = f.getType(TypingContext.empty)
@@ -363,12 +363,12 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           case Success(tp, _) => s.subst(tp)
           case _ => return result
         }
-      case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScType.designator(pack)
+      case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScalaType.designator(pack)
       case Some(ScalaResolveResult(clazz: ScClass, s)) if clazz.isCase =>
         s.subst(clazz.constructor.
                 getOrElse(return Failure("Case Class hasn't primary constructor", Some(this))).polymorphicType)
       case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.nonEmpty =>
-        s.subst(ScParameterizedType(ScType.designator(clazz),
+        s.subst(ScParameterizedType(ScalaType.designator(clazz),
           clazz.typeParameters.map(new ScTypeParameterType(_, s))))
       case Some(ScalaResolveResult(clazz: PsiClass, _)) => new ScDesignatorType(clazz, true) //static Java class
       case Some(ScalaResolveResult(field: PsiField, s)) =>

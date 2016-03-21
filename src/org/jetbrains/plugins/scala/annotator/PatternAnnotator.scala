@@ -53,14 +53,14 @@ object PatternAnnotator {
    */
   private def checkPatternType(patType: ScType, exprType: ScType, pattern: ScPattern, holder: AnnotationHolder)
                               (implicit typeSystem: TypeSystem) = {
-    val exTp = widen(ScType.expandAliases(exprType).getOrElse(exprType))
+    val exTp = widen(ScalaType.expandAliases(exprType).getOrElse(exprType))
     def freeTypeParams = freeTypeParamsOfTerms(exTp)
 
     def exTpMatchesPattp = PatternAnnotatorUtil.matchesPattern(exTp, widen(patType))
 
     val neverMatches = !PatternAnnotatorUtil.matchesPattern(exTp, patType) && isNeverSubType(exTp, patType)
 
-    def isEliminatedByErasure = (ScType.extractClass(exprType), ScType.extractClass(patType)) match {
+    def isEliminatedByErasure = (exprType.extractClass(), patType.extractClass()) match {
       case (Some(cl1), Some(cl2)) if pattern.isInstanceOf[ScTypedPattern] => !isNeverSubClass(cl1, cl2)
       case _ => false
     }
@@ -156,7 +156,7 @@ object PatternAnnotator {
   }
 
   private def widen(scType: ScType): ScType = scType match {
-    case _ if ScType.isSingletonType(scType) => ScType.extractDesignatorSingletonType(scType).getOrElse(scType)
+    case scalaType: ScalaType if scalaType.isSingleton => ScalaType.extractDesignatorSingletonType(scType).getOrElse(scType)
     case _ =>
       scType.recursiveUpdate {
         case ScAbstractType(_, _, upper) => (true, upper)
@@ -173,7 +173,7 @@ object PatternAnnotator {
         (false, tp)
       case _ => (false, tp)
     }
-    buffer.toSeq
+    buffer
   }
 }
 

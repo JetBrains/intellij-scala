@@ -98,7 +98,7 @@ object JavaConversionUtil {
             val typeResult = arguments.head.getType(TypingContext.empty)
             typeResult match {
               case Success(tp, _) =>
-                ScType.extractClass(tp, Some(e.getProject)) match {
+                tp.extractClass(e.getProject)(e.typeSystem) match {
                   case Some(clazz) => clazz.getQualifiedName + ".class"
                   case _ => problem
                 }

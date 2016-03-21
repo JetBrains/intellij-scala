@@ -27,7 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.{ReachingDefintionsCollector, VariableInfo}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType, StdType, Any => scTypeAny, Unit => scTypeUnit}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaMethodDescriptor, ScalaParameterInfo}
@@ -67,7 +66,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
       val elem = v.element
       val typeText = elem match {
         case fun: ScFunction => fun.getType().getOrAny.canonicalText
-        case named => ScType.ofNamedElement(v.element).getOrElse(Any).canonicalText
+        case named => v.element.ofNamedElement().getOrElse(Any).canonicalText
       }
       s"${elem.name}: $typeText"
     }

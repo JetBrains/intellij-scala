@@ -7,7 +7,7 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType
 import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
@@ -36,7 +36,7 @@ class ScalaSubtypesMacro extends ScalaMacro {
     val project = context.getProject
     params(0).calculateResult(context) match {
       case scTypeRes: ScalaTypeResult =>
-        ScType.extractClass(scTypeRes.myType, Some(context.getProject)) match {
+        scTypeRes.myType.extractClass(project) match {
           case Some(x: ScTypeDefinition) =>
             import scala.collection.JavaConversions._
             ClassInheritorsSearch.search(x, GlobalSearchScope.projectScope(context.getProject), true).findAll().

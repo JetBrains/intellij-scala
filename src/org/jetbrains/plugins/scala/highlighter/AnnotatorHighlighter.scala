@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType, ScTypeExt, StdType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType, ScTypeExt, ScalaType, StdType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -82,7 +82,7 @@ object AnnotatorHighlighter {
         qn.exists(textName => {
           val cachedClass = ScalaPsiManager.instance(refElement.getProject).getCachedClass(textName, refElement.getResolveScope, ClassCategory.TYPE)
           if (cachedClass == null) false
-          else tp.conforms(ScType.designator(cachedClass))
+          else tp.conforms(ScalaType.designator(cachedClass))
         })
       }
 
@@ -117,7 +117,7 @@ object AnnotatorHighlighter {
     }
 
     def annotateCollection(resolvedClazz: PsiClass) {
-      annotateCollectionByType(ScType.designator(resolvedClazz))
+      annotateCollectionByType(ScalaType.designator(resolvedClazz))
     }
 
     def isHighlightableScalaTestKeyword(fun: ScMember): Boolean = {

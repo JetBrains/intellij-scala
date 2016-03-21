@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -61,7 +61,7 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
         }
         val psiClass: PsiClass = nameRef.get
         if (psiClass != null) {
-          return ScType.designator(psiClass)
+          return ScalaType.designator(psiClass)
         }
       }
       null

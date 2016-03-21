@@ -222,8 +222,8 @@ trait ScPattern extends ScalaPsiElement {
             if (argIndex < args.length - 1) return Some(subst.subst(args(argIndex)))
             val lastArg = args.last
             (lastArg +: BaseTypes.get(lastArg)).find {
-              case ScParameterizedType(des, seqArgs) => seqArgs.length == 1 && ScType.extractClass(des).exists { clazz =>
-                clazz.qualifiedName == "scala.collection.Seq"
+              case ScParameterizedType(des, seqArgs) => seqArgs.length == 1 && des.extractClass().exists {
+                _.qualifiedName == "scala.collection.Seq"
               }
               case _ => false
             } match {
@@ -323,7 +323,7 @@ trait ScPattern extends ScalaPsiElement {
       }
       case b: ScBlockExpr if b.getContext.isInstanceOf[ScCatchBlock] =>
         val thr = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.Throwable")
-        thr.map(ScType.designator(_))
+        thr.map(ScalaType.designator(_))
       case b : ScBlockExpr =>
         b.expectedType(fromUnderscore = false) match {
           case Some(et) =>
@@ -439,7 +439,7 @@ object ScPattern {
     else {
       returnType match {
         case ScParameterizedType(des, args) =>
-          ScType.extractClass(des) match {
+          des.extractClass() match {
             case Some(clazz) if clazz.qualifiedName == "scala.Option" ||
                     clazz.qualifiedName == "scala.Some" =>
               if (args.length == 1) {
@@ -448,9 +448,10 @@ object ScPattern {
                   if (productChance.length <= 1) Seq(tp)
                   else {
                     val productFqn = "scala.Product" + productChance.length
+                    val project = place.getProject
                     (for {
-                      productClass <- ScalaPsiManager.instance(place.getProject).getCachedClass(place.getResolveScope, productFqn)
-                      clazz <- ScType.extractClass(tp, Some(place.getProject))
+                      productClass <- ScalaPsiManager.instance(project).getCachedClass(place.getResolveScope, productFqn)
+                      clazz <- tp.extractClass(project)
                     } yield clazz == productClass || clazz.isInheritor(productClass, true)).
                       filter(identity).fold(Seq(tp))(_ => productChance)
                   }

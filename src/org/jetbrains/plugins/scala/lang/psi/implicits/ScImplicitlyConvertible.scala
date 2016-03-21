@@ -50,7 +50,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
       // foo(Map(y -> 1)) //Error is here
       expr.getTypeWithoutImplicits(fromUnderscore = fromUnder).toOption.map {
         case tp =>
-          ScType.extractDesignatorSingletonType(tp) match {
+          ScalaType.extractDesignatorSingletonType(tp) match {
             case Some(res) => res
             case _ => tp
           }
@@ -205,7 +205,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
           "scala.Function1", place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
         )
       ) collect {
-        case cl: ScTrait => ScParameterizedType(ScType.designator(cl), cl.typeParameters.map(tp =>
+        case cl: ScTrait => ScParameterizedType(ScalaType.designator(cl), cl.typeParameters.map(tp =>
           new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
       } flatMap {
         case p: ScParameterizedType => Some(p)
@@ -365,7 +365,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
     private val funType: ScType = {
       val funClass: PsiClass = ScalaPsiManager.instance(place.getProject).getCachedClass(place.getResolveScope, "scala.Function1").orNull
       funClass match {
-        case cl: ScTrait => ScParameterizedType(ScType.designator(funClass), cl.typeParameters.map(tp =>
+        case cl: ScTrait => ScParameterizedType(ScalaType.designator(funClass), cl.typeParameters.map(tp =>
           new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty))))
         case _ => null
       }

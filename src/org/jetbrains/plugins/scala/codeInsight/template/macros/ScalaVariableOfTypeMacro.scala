@@ -15,10 +15,11 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -129,20 +130,21 @@ class ScalaVariableOfTypeMacro extends ScalaMacro {
                 context: ExpressionContext,
                 variant: ScalaResolveResult,
                 scType: ScType,
-                project: Project): Option[Result] = {
+                project: Project)
+               (implicit typeSystem: TypeSystem = project.typeSystem): Option[Result] = {
     exprs.apply(0).calculateResult(context).toString match {
       case "" =>
         Some(new TextResult(variant.getElement.name))
       case ScalaVariableOfTypeMacro.iterableId =>
         if (scType.canonicalText.startsWith("_root_.scala.Array")) Some(new TextResult(variant.getElement.name))
-        else ScType.extractClassType(scType, Some(project)) match {
+        else scType.extractClassType(project) match {
           case Some((x: ScTypeDefinition, _)) if x.functionsByName("foreach").nonEmpty =>
              Some(new TextResult(variant.getElement.name))
           case _ =>
             None
         }
       case _ =>
-        exprs.find(expr =>(ScType.extractClassType(scType, Some(project)) match {
+        exprs.find(expr => (scType.extractClassType(project) match {
           case Some((x, _)) => x.qualifiedName
           case None => ""
         }) == expr.calculateResult(context).toString).map(_ => new TextResult(variant.getElement.name))
@@ -154,23 +156,24 @@ class ScalaVariableOfTypeMacro extends ScalaMacro {
                      variant: ScalaResolveResult,
                      scType: ScType,
                      project: Project,
-                     array: ArrayBuffer[LookupElement]) {
+                     array: ArrayBuffer[LookupElement])
+                    (implicit typeSystem: TypeSystem = project.typeSystem) {
     exprs.apply(0) match {
       case "" =>
         val item = LookupElementBuilder.create(variant.getElement, variant.getElement.name).
-                withTypeText(ScType.presentableText(scType))
+          withTypeText(scType.presentableText)
         array += item
       case ScalaVariableOfTypeMacro.iterableId if scType.canonicalText.startsWith("_root_.scala.Array") =>
         array += LookupElementBuilder.create(variant.getElement, variant.getElement.name)
       case ScalaVariableOfTypeMacro.iterableId =>
-        ScType.extractClass(scType) match {
+        scType.extractClass() match {
           case Some(x: ScTypeDefinition) if x.functionsByName("foreach").nonEmpty =>
               array += LookupElementBuilder.create(variant.getElement, variant.getElement.name)
           case _ =>
         }
       case  _ =>
         for (expr <- exprs) {
-          if ((ScType.extractClass(scType) match {
+          if ((scType.extractClass() match {
             case Some(x) => x.qualifiedName
             case None => ""
           }) == expr) array += LookupElementBuilder.create(variant.getElement, variant.getElement.name)
