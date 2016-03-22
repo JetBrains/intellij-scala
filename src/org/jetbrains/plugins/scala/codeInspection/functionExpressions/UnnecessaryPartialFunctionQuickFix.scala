@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 
 import com.intellij.openapi.project.Project
+import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.codeInspection.functionExpressions.UnnecessaryPartialFunctionQuickFix._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, InspectionBundle}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr}
@@ -12,21 +14,38 @@ object UnnecessaryPartialFunctionQuickFix {
   val hint = InspectionBundle.message("convert.to.anonymous.function")
 }
 
-class UnnecessaryPartialFunctionQuickFix(caseClause: ScCaseClause, expression: ScBlockExpr)
-  extends AbstractFixOnPsiElement(hint, caseClause) {
+class UnnecessaryPartialFunctionQuickFix(expression: ScBlockExpr)
+  extends AbstractFixOnPsiElement(hint, expression) {
 
   override def doApplyFix(project: Project): Unit = {
-    val expressionCopy = expression.copy().asInstanceOf[ScBlockExpr]
+    val expressionCopy = getElement.copy().asInstanceOf[ScBlockExpr]
     expressionCopy.caseClauses.map(_.caseClauses).foreach {
-      case Seq(clause) =>
-        removeCaseKeyword(clause)
-        if(canConvertBraces(clause)) ScalaPsiUtil.replaceBracesWithParentheses(expressionCopy)
+      case Seq(singleCaseClause) =>
+        removeCaseKeyword(singleCaseClause)
+        if(canConvertBraces(singleCaseClause)){
+          ScalaPsiUtil.replaceBracesWithParentheses(expressionCopy)
+          deleteLeadingWhitespace(expressionCopy)
+          deleteTrailingWhitespace(expressionCopy)
+        }
         expression.replace(
           ScalaPsiElementFactory.createExpressionFromText(
             expressionCopy.getText,
             expression.getManager))
     }
   }
+
+  def deleteLeadingWhitespace(expressionCopy: ScBlockExpr): Unit =
+    Option(expressionCopy.findFirstChildByType(ScalaTokenTypes.tLPARENTHESIS))
+      .map(_.getNextSibling)
+      .foreach(deleteIfWhitespace)
+
+  def deleteTrailingWhitespace(expressionCopy: ScBlockExpr): Unit =
+    Option(expressionCopy.findFirstChildByType(ScalaTokenTypes.tRPARENTHESIS))
+      .map(_.getPrevSibling)
+      .foreach(deleteIfWhitespace)
+
+  def deleteIfWhitespace(element: PsiElement) =
+    if(element.isInstanceOf[PsiWhiteSpace]) element.delete()
 
   private def removeCaseKeyword(clause: ScCaseClause) =
     for {
@@ -35,7 +54,7 @@ class UnnecessaryPartialFunctionQuickFix(caseClause: ScCaseClause, expression: S
     } clause.deleteChildRange(caseKeyword, whitespaceBeforePattern)
 
   private def canConvertBraces(clause: ScCaseClause): Boolean =
-    patternIsReferenceOrWildcard(clause) && bodyIsExpressionOrOneStatementBlock(clause)
+    patternIsReferenceOrWildcard(clause) && bodyIsOneLineExpression(clause)
 
   private def patternIsReferenceOrWildcard(clause: ScCaseClause): Boolean =
     clause.pattern.exists {
@@ -44,10 +63,9 @@ class UnnecessaryPartialFunctionQuickFix(caseClause: ScCaseClause, expression: S
       case _ => false
     }
 
-  private def bodyIsExpressionOrOneStatementBlock(clause: ScCaseClause): Boolean = {
+  private def bodyIsOneLineExpression(clause: ScCaseClause): Boolean = {
     clause.expr.exists {
-      case expression: ScBlockExpr => true
-      case block: ScBlock if block.statements.size == 1 => true
+      case block: ScBlock => block.statements.size == 1 && block.getText.lines.size == 1
       case _ => false
     }
   }
