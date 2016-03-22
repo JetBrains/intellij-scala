@@ -31,6 +31,9 @@ object Common {
   val slowTestsCategory: String =
     "org.jetbrains.plugins.scala.SlowTests"
 
+  val perfOptCategory: String =
+    "org.jetbrains.plugins.scala.PerfCycleTests"
+
   val testConfigDir: File =
     Path.userHome / ".IdeaData" / "IDEA-15" / "scala" / "test-config"
 

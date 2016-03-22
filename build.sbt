@@ -165,9 +165,12 @@ lazy val sbtLaunchTestDownloader =
 
 // Testing keys and settings
 
+addCommandAlias("runPerfOptTests", s"testOnly -- --include-categories=$perfOptCategory")
+
 addCommandAlias("runSlowTests", s"testOnly -- --include-categories=$slowTestsCategory")
 
-addCommandAlias("runFastTests", s"testOnly -- --exclude-categories=$slowTestsCategory")
+addCommandAlias("runFastTests", s"testOnly -- --exclude-categories=$slowTestsCategory " +
+                                            s"--exclude-categories=$perfOptCategory")
 
 lazy val setUpTestEnvironment = taskKey[Unit]("Set up proper environment for running tests")
 
