@@ -14,4 +14,6 @@ class ImplicitsTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "bugs5/"
 
   def testSCL9076(): Unit = doTest()
+
+  def testSCL9525(): Unit = doTest()
 }
