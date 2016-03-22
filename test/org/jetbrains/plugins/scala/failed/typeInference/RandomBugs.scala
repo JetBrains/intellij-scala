@@ -10,4 +10,5 @@ class RandomBugs extends TypeInferenceTestBase {
 
   def testSCL7521() = doTest()
 
+  def testSCL7333() = doTest()
 }
