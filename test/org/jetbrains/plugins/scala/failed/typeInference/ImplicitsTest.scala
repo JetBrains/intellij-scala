@@ -18,4 +18,6 @@ class ImplicitsTest extends TypeInferenceTestBase {
   def testSCL9525(): Unit = doTest()
 
   def testSCL9961(): Unit = doTest()
+  
+  def testSCL3987(): Unit = doTest()
 }
