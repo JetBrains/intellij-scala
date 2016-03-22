@@ -65,7 +65,8 @@ object ScalaSyntheticProvider {
   }
 
   def isMacroDefined(typeComponent: TypeComponent) = {
-    typeComponent.declaringType().name().contains("$macro")
+    val typeName = typeComponent.declaringType().name()
+    typeName.contains("$macro") || typeName.contains("$stateMachine$")
   }
 
   private def onlyInvokesStatic(m: Method): Boolean = {
