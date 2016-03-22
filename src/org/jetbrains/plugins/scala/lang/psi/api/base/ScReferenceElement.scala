@@ -81,6 +81,7 @@ trait ScReferenceElement extends ScalaPsiElement with ResolvableReferenceElement
     val id = nameId.getNode
     val parent = id.getTreeParent
     parent.replaceChild(id, ScalaPsiElementFactory.createIdentifier(newName, getManager))
+    resolve()
     this
   }
 
