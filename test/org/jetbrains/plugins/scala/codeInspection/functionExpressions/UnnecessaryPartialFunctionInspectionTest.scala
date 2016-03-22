@@ -16,6 +16,16 @@ class UnnecessaryPartialFunctionInspectionTest extends ScalaLightInspectionFixtu
     testFix(text, fixed, hint)
   }
 
+  def testInspectionCapturesSimpleExpressionWithBlankLines(): Unit = {
+    val text = s"""val f: Int => String = {
+         |  ${START}case$END x => x.toString
+         |}""".stripMargin
+    val fixed = "val f: Int => String = (x => x.toString)"
+
+    checkTextHasError(text)
+    testFix(text, fixed, hint)
+  }
+
   def testInspectionCapturesMultiLineExpression(): Unit = {
     val text =
       s"""val f: Int => String = {
@@ -40,13 +50,15 @@ class UnnecessaryPartialFunctionInspectionTest extends ScalaLightInspectionFixtu
           |  ${START}case$END x => {
           |    val value = x.toString
           |    s"value of x is $$value"
-          |}}""".stripMargin
+          |  }
+          |}""".stripMargin
     val fixed =
-      s"""val f: Int => String = (
+      s"""val f: Int => String = {
           |  x => {
           |    val value = x.toString
           |    s"value of x is $$value"
-          |  })""".stripMargin
+          |  }
+          |}""".stripMargin
 
     checkTextHasError(text)
     testFix(text, fixed, hint)
