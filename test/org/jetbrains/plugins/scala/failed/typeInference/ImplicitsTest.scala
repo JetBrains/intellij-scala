@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.failed.typeInference.implicits
+package org.jetbrains.plugins.scala.failed.typeInference
 
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
