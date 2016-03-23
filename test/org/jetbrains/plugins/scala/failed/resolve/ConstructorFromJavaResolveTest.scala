@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.failed.resolve
 
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
@@ -10,10 +9,7 @@ import org.junit.experimental.categories.Category
   * @author Nikolay.Tropin
   */
 @Category(Array(classOf[PerfCycleTests]))
-class ConstructorFromJavaResolveTest extends ScalaResolveTestCase {
-  override def folderPath(): String = s"${super.folderPath()}resolve/failed/constructorFromJava/"
-
-  override def rootPath(): String = folderPath()
+class ConstructorFromJavaResolveTest extends FailedResolveTest("constructorFromJava") {
 
   def testScl8083(): Unit = {
     findReferenceAtCaret match {
@@ -22,5 +18,4 @@ class ConstructorFromJavaResolveTest extends ScalaResolveTestCase {
         assertTrue("Single resolve expected", variants.length == 1)
     }
   }
-
 }
