@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembe
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypePresentation, Unit}
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.Assert._
 
 /**
  * User: Alexander Podkhalyuzin
@@ -42,14 +43,8 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
     }
   }
 
-  protected def doTest() {
-    import org.junit.Assert._
-
-    val filePath = folderPath + getTestName(false) + ".scala"
-    val ioFile: File = new File(filePath)
-    var fileText: String = FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
-    fileText = StringUtil.convertLineSeparators(fileText)
-    configureFromFileTextAdapter(ioFile.getName, fileText)
+  protected def doTest(fileText: String, fileName: String = "dummy.scala") {
+    configureFromFileTextAdapter(fileName, fileText)
     val scalaFile: ScalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     val offset = fileText.indexOf(startExprMarker)
     val startOffset = offset + startExprMarker.length
@@ -98,5 +93,13 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
         }
       case Failure(msg, elem) => assert(assertion = false, msg + " :: " + (elem match {case Some(x) => x.getText case None => "empty element"}))
     }
+  }
+
+  protected def doTest() {
+    val filePath = folderPath + getTestName(false) + ".scala"
+    val ioFile: File = new File(filePath)
+    var fileText: String = FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
+    fileText = StringUtil.convertLineSeparators(fileText)
+    doTest(fileText, ioFile.getName)
   }
 }
