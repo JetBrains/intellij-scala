@@ -11,20 +11,26 @@ import scala.tools.nsc.io.File
  * @author Alefas
  * @since  11/09/15
  */
-class DecompilerTest extends TestCase {
+abstract class DecompilerTestBase extends TestCase {
+  def basePath(separator: Char) = s"testdata${separator}decompiler$separator"
+
   def doTest(fileName: String): Unit = {
     val testName = getName
     assert(testName.startsWith("test") && testName.length > 4)
     val name = testName(4).toLower + testName.substring(5)
 
     val separator = jFile.separatorChar
-    val classFilePath: String = s"scala-plugin${separator}testdata${separator}decompiler$separator$name$separator$fileName"
-    val file = new File(new jFile(classFilePath))
-    //facilitate working directory equal to 'scala-plugin' root directory as well
-    val (bytes, expectedFilePath) = if (file.exists) (file.toByteArray(), classFilePath + ".test") else {
-      val insidePath = s"testdata${separator}decompiler$separator$name$separator$fileName"
-      (new File(new jFile(insidePath)).toByteArray(), insidePath + ".test")
+    val dirPath: String = {
+      val path = s"${basePath(separator)}$name$separator"
+      val communityDir = new jFile(path)
+      if (communityDir.exists()) path
+      else s"scala-plugin$separator$path"
     }
+    val classFilePath = s"$dirPath$separator$fileName"
+    val expectedFilePath: String = classFilePath + ".test"
+
+    val file = new File(new jFile(classFilePath))
+    val bytes = file.toByteArray()
 
     val expectedResult = new File(new jFile(expectedFilePath)).slurp().replace("\r","")
 
@@ -33,6 +39,9 @@ class DecompilerTest extends TestCase {
         Assert.assertEquals(expectedResult, text)
     }
   }
+}
+
+class DecompilerTest extends DecompilerTestBase {
 
   def testPackageObject(): Unit = {
     doTest("package.class")
