@@ -13,4 +13,6 @@ class ExistentialsTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "bugs5/"
 
   def testSCL10037(): Unit = doTest()
+  
+  def testSCL9474() = doTest()
 }
