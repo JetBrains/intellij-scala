@@ -10,12 +10,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 30.01.12
- */
+  * User: Alexander Podkhalyuzin
+  * Date: 30.01.12
+  */
 
-class OverridingAnnotatorTest extends SimpleTestCase {
-  final val Header = "\n"
+class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
 
   def testSyntheticUnapply(): Unit = {
     assertMatches(messages(
@@ -40,7 +39,7 @@ class OverridingAnnotatorTest extends SimpleTestCase {
       case Nil =>
     }
   }
-  
+
   def testPrivateVal(): Unit = {
     assertMatches(messages(
       """
@@ -196,81 +195,28 @@ class OverridingAnnotatorTest extends SimpleTestCase {
   //SCL-4036
   def testDefOverrideValVar(): Unit = {
     val code =
-    """
-      |object ppp {
-      |class A(val oof = 42, var rab = 24) {
-      |  val foo = 42
-      |  var bar = 24
-      |}
-      |
-      |class B extends A {
-      |  override def foo = 999
-      |  override def bar = 1000
-      |  override def oof = 999
-      |  override def rab = 999
-      |}
-      |}
-    """.stripMargin
+      """
+        |object ppp {
+        |class A(val oof = 42, var rab = 24) {
+        |  val foo = 42
+        |  var bar = 24
+        |}
+        |
+        |class B extends A {
+        |  override def foo = 999
+        |  override def bar = 1000
+        |  override def oof = 999
+        |  override def rab = 999
+        |}
+        |}
+      """.stripMargin
     assertMatches(messages(code)) {
       case List(Error("foo", "method foo needs to be a stable, immutable value"),
-                Error("bar", "method bar cannot override a mutable variable"),
-                Error("oof", "method oof needs to be a stable, immutable value"),
-                Error("rab", "method rab cannot override a mutable variable")) =>
+      Error("bar", "method bar cannot override a mutable variable"),
+      Error("oof", "method oof needs to be a stable, immutable value"),
+      Error("rab", "method rab cannot override a mutable variable")) =>
     }
   }
 
-  def messages(code: String): List[Message] = {
-    val annotator = new OverridingAnnotator() {}
-    val mock = new AnnotatorHolderMock
 
-    val element: PsiElement = (Header + code).parse
-
-    val visitor = new ScalaRecursiveElementVisitor {
-      override def visitFunction(fun: ScFunction): Unit = {
-        if (fun.getParent.isInstanceOf[ScTemplateBody]) {
-          annotator.checkOverrideMethods(fun, mock, isInSources = false)
-        }
-        super.visitFunction(fun)
-      }
-
-      override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = {
-        if (typedef.getParent.isInstanceOf[ScTemplateBody]) {
-          annotator.checkOverrideTypes(typedef, mock)
-        }
-        super.visitTypeDefinition(typedef)
-      }
-
-      override def visitTypeAlias(alias: ScTypeAlias): Unit = {
-        if (alias.getParent.isInstanceOf[ScTemplateBody]) {
-          annotator.checkOverrideTypes(alias, mock)
-        }
-        super.visitTypeAlias(alias)
-      }
-
-      override def visitVariable(varr: ScVariable): Unit = {
-        if (varr.getParent.isInstanceOf[ScTemplateBody] ||
-          varr.getParent.isInstanceOf[ScEarlyDefinitions]) {
-          annotator.checkOverrideVars(varr, mock, isInSources = false)
-        }
-        super.visitVariable(varr)
-      }
-
-      override def visitValue(v: ScValue): Unit = {
-        if (v.getParent.isInstanceOf[ScTemplateBody] ||
-          v.getParent.isInstanceOf[ScEarlyDefinitions]) {
-          annotator.checkOverrideVals(v, mock, isInSources = false)
-        }
-        super.visitValue(v)
-      }
-
-      override def visitClassParameter(parameter: ScClassParameter): Unit = {
-        annotator.checkOverrideClassParameters(parameter, mock)
-        super.visitClassParameter(parameter)
-      }
-    }
-
-    element.accept(visitor)
-
-    mock.annotations
-  }
 }
