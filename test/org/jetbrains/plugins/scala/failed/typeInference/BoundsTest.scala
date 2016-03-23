@@ -13,4 +13,6 @@ class BoundsTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "bugs5/"
 
   def testSCL4373(): Unit = doTest() //blinking test
+
+  def testSCL7085(): Unit = doTest()
 }
