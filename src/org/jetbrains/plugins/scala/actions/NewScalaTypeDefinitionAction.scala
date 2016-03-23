@@ -21,6 +21,7 @@ import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project._
 
 /**
@@ -46,7 +47,7 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
     builder.setTitle("Create New Scala Class")
     builder.setValidator(new InputValidatorEx {
       def getErrorText(inputString: String): String = {
-        if (inputString.length > 0 && !PsiNameHelper.getInstance(project).isQualifiedName(inputString)) {
+        if (inputString.length > 0 && !ScalaNamesUtil.isQualifiedName(inputString)) {
           return "This is not a valid Scala qualified name"
         }
         null

@@ -3,7 +3,7 @@ package lang
 package refactoring
 package util
 
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
@@ -45,6 +45,11 @@ object ScalaNamesUtil {
 
   def isIdentifier(text: String): Boolean = {
     checkGeneric(text, lexer => lexer.getTokenType == ScalaTokenTypes.tIDENTIFIER)
+  }
+
+  def isQualifiedName(text: String): Boolean = {
+    if (StringUtil.isEmpty(text)) return false
+    text.split('.').forall(isIdentifier)
   }
 
   def isKeyword(text: String): Boolean = keywordNames.contains(text)
