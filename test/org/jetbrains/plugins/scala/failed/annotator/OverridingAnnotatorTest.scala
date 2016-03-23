@@ -27,4 +27,26 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
       ).nonEmpty)
   }
 
+  def testScl8228(): Unit = {
+    assert(
+      messages(
+        """
+          |  trait TraitWithGeneric [T]{
+          |    // If you click on the left on green down arrow, it does not list implementation from SelfTypeWildcard
+          |    def method: String
+          |  }
+          |
+          |  trait SelfType { self: TraitWithGeneric[Unit] =>
+          |    override def method = "no problem here"
+          |  }
+          |
+          |  trait SelfTypeWildcard { self: TraitWithGeneric[_] =>
+          |    // BUG: Triggers "Overrides nothing" inspection
+          |    override def method = "inspection problem here for selftype"
+          |  }
+          |  object ItActuallyCompilesAndWorks extends TraitWithGeneric[Unit] with SelfTypeWildcard
+          |  ItActuallyCompilesAndWorks.method // returns "inspection problem here for selftype"
+        """.stripMargin).isEmpty
+    )
+  }
 }
