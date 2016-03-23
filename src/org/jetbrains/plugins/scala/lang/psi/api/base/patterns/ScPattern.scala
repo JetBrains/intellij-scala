@@ -28,7 +28,6 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project._
 
 import scala.annotation.tailrec
-import scala.collection.immutable.Set
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -121,9 +120,9 @@ trait ScPattern extends ScalaPsiElement {
       }
 
       def rightWay: ScSubstitutor = {
-        val t = Conformance.conformsInner(tp, substitutor.subst(funType), Set.empty, new ScUndefinedSubstitutor)
-        if (t._1) {
-          val undefSubst = t._2
+        val conformance = substitutor.subst(funType).conforms(tp, new ScUndefinedSubstitutor())
+        if (conformance._1) {
+          val undefSubst = conformance._2
           undefSubst.getSubstitutor match {
             case Some(newSubst) => newSubst.followed(substitutor)
             case _              => substitutor
@@ -132,9 +131,9 @@ trait ScPattern extends ScalaPsiElement {
       }
 
       //todo: looks quite hacky to try another direction first, do you know better? see SCL-6543
-      val t = Conformance.conformsInner(substitutor.subst(funType), tp, Set.empty, new ScUndefinedSubstitutor)
-      if (t._1) {
-        val undefSubst = t._2
+      val conformance = tp.conforms(substitutor.subst(funType), new ScUndefinedSubstitutor())
+      if (conformance._1) {
+        val undefSubst = conformance._2
         undefSubst.getSubstitutor match {
           case Some(newSubst) => newSubst.followed(substitutor)
           case _              => rightWay

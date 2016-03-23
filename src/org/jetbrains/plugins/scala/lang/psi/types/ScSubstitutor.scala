@@ -430,7 +430,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
         result = updateThisType match {
           case Some(thisType@ScDesignatorType(param: ScParameter)) =>
             val paramType = param.getRealParameterType(TypingContext.empty).getOrAny
-            if (paramType.conforms(middleRes)) thisType
+            if (paramType.conforms(middleRes)(ScalaTypeSystem)) thisType
             else middleRes
           case _ => middleRes
         }

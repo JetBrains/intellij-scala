@@ -16,8 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLik
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMethodCall, ScReferenceExpression, ScSuperReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.mutable.ArrayBuffer
@@ -144,7 +145,8 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
     }
   }
 
-  private def checkSignatures(signatures: Seq[Seq[(String, ScType)]], methodLike: ScMethodLike, result: CompletionResultSet): Unit = {
+  private def checkSignatures(signatures: Seq[Seq[(String, ScType)]], methodLike: ScMethodLike, result: CompletionResultSet)
+                             (implicit typeSystem: TypeSystem = methodLike.typeSystem) {
     for (signature <- signatures if signature.forall(_._1 != null)) {
       val names = new ArrayBuffer[String]()
       val res = signature.map {

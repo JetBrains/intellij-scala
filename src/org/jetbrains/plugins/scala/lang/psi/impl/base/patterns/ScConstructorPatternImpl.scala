@@ -86,10 +86,9 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                 ((tp.name, ScalaPsiUtil.getPsiElementId(tp)), Any)): _*), Map.empty, None)
               expectedType match {
                 case Some(tp) =>
-                  val t = Conformance.conforms(tp, clazzType)
-                  if (t) {
-                    val undefSubst = Conformance.undefinedSubst(tp, clazzType)
-                    undefSubst.getSubstitutor match {
+                  val conformance = clazzType.conforms(tp, new ScUndefinedSubstitutor())
+                  if (conformance._1) {
+                    conformance._2.getSubstitutor match {
                       case Some(subst) => subst followed emptySubst
                       case _ => emptySubst
                     }
@@ -112,16 +111,15 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
               val emptySubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
                 s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), p.upperBound.getOrAny))
               val emptyRes = substitutor followed emptySubst
-              val result = fun.parameters(0).getType(TypingContext.empty)
+              val result = fun.parameters.head.getType(TypingContext.empty)
               if (result.isEmpty) emptyRes
               else {
                 val funType = undefSubst.subst(result.get)
                 expectedType match {
                   case Some(tp) =>
-                    val t = Conformance.conforms(tp, funType)
-                    if (t) {
-                      val undefSubst = Conformance.undefinedSubst(tp, funType)
-                      undefSubst.getSubstitutor match {
+                    val conformance = funType.conforms(tp, new ScUndefinedSubstitutor())
+                    if (conformance._1) {
+                      conformance._2.getSubstitutor match {
                         case Some(newSubst) => newSubst followed substitutor followed emptySubst
                         case _ => emptyRes
                       }
@@ -130,7 +128,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                 }
               }
             }
-            fun.paramClauses.clauses.apply(0).parameters.apply(0).getType(TypingContext.empty).map(subst.subst)
+            fun.paramClauses.clauses.head.parameters.head.getType(TypingContext.empty).map(subst.subst)
           case _ => Success(Nothing, Some(this))
         }
       case _ => Failure("Cannot resolve symbol", Some(this))

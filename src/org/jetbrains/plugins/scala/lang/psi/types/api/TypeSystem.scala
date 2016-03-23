@@ -6,6 +6,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 trait TypeSystem {
   val name: String
   val equivalence: Equivalence
+  val conformance: Conformance
 }
 
 trait TypeSystemOwner {

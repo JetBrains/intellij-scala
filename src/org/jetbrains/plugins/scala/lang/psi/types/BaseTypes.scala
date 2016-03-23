@@ -7,13 +7,15 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 import scala.collection.immutable.HashSet
 import scala.collection.mutable
 
 object BaseTypes {
-  def get(t : ScType, notAll: Boolean = false, visitedAliases: HashSet[ScTypeAlias] = HashSet.empty) : Seq[ScType] = {
+  def get(t: ScType, notAll: Boolean = false, visitedAliases: HashSet[ScTypeAlias] = HashSet.empty)
+         (implicit typeSystem: TypeSystem = ScalaTypeSystem): Seq[ScType] = {
     ProgressManager.checkCanceled()
     t match {
       case ScDesignatorType(td : ScTemplateDefinition) =>
@@ -80,7 +82,8 @@ object BaseTypes {
     }
   }
 
-  def reduce(types : Seq[ScType]) : Seq[ScType] = {
+  def reduce(types: Seq[ScType])
+            (implicit typeSystem: TypeSystem): Seq[ScType] = {
     val res = new mutable.HashMap[PsiClass, ScType]
     object all extends mutable.HashMap[PsiClass, mutable.Set[ScType]] with mutable.MultiMap[PsiClass, ScType]
     val iterator = types.iterator
@@ -90,7 +93,7 @@ object BaseTypes {
         case Some(c) =>
           val isBest = all.get(c) match {
             case None => true
-            case Some(ts) => ts.find(t1 => !Conformance.conforms(t1, t)) == None
+            case Some(ts) => !ts.exists(t.conforms(_))
           }
           if (isBest) res += ((c, t))
           all.addBinding(c, t)

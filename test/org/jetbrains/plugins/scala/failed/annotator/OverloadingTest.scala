@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypePresentation
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.{PerfCycleTests, ScalaBundle}
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
@@ -50,7 +50,7 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   private def checkConformance(expression: ScExpression, typeElement: ScTypeElement, holder: AnnotationHolder) {
     expression.getTypeAfterImplicitConversion().tr.foreach {actual =>
       val expected = typeElement.calcType
-      if (!actual.conforms(expected)) {
+      if (!actual.conforms(expected)(typeElement.typeSystem)) {
         val expr = expression match {
           case b: ScBlockExpr => b.getRBrace.map(_.getPsi).getOrElse(b)
           case _ => expression

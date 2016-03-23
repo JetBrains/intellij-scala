@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
@@ -37,7 +38,7 @@ abstract class MixinNodes {
   def isAbstract(t: T): Boolean
   def isImplicit(t: T): Boolean
   def isPrivate(t: T): Boolean
-  
+
   class Node(val info: T, val substitutor: ScSubstitutor) {
     var supers: Seq[Node] = Seq.empty
     var primarySuper: Option[Node] = None
@@ -103,7 +104,7 @@ abstract class MixinNodes {
       forImplicitsCache = res.toList
       forImplicitsCache
     }
-    
+
     def allNames(): mutable.Set[String] = {
       val names = new mutable.HashSet[String]
       names ++= keySet
@@ -114,7 +115,7 @@ abstract class MixinNodes {
       }
       names
     }
-    
+
     private def forAll(): (mutable.HashMap[String, AllNodes], mutable.HashMap[String, AllNodes]) = {
       for (name <- allNames()) forName(name)
       synchronized {
@@ -129,7 +130,7 @@ abstract class MixinNodes {
     def allSecondSeq(): Seq[AllNodes] = {
       forAll()._1.toSeq.map(_._2)
     }
-    
+
     private def toNodesSeq(seq: List[(T, Node)]): NodesSeq = {
       val map = new mutable.HashMap[Int, List[(T, Node)]]
       for (elem <- seq) {
@@ -139,7 +140,7 @@ abstract class MixinNodes {
       }
       new NodesSeq(map)
     }
-    
+
     private def toNodesMap(buf: ArrayBuffer[(T, Node)]): NodesMap = {
       val res = new NodesMap
       res ++= buf
@@ -189,7 +190,7 @@ abstract class MixinNodes {
       primarySupers
     }
   }
-  
+
   class AllNodes(publics: NodesMap, privates: NodesSeq) {
     def get(s: T): Option[Node] = {
       publics.get(s) match {
@@ -197,12 +198,12 @@ abstract class MixinNodes {
         case _ => privates.get(s)
       }
     }
-    
+
     def foreach(p: ((T, Node)) => Unit) {
       publics.foreach(p)
       privates.map.values.flatten.foreach(p)
     }
-    
+
     def map[R](p: ((T, Node)) => R): Seq[R] = {
       publics.map(p).toSeq ++ privates.map.values.flatten.map(p)
     }
@@ -218,7 +219,7 @@ abstract class MixinNodes {
     def flatMap[R](p: ((T, Node)) => Traversable[R]): Seq[R] = {
       publics.flatMap(p).toSeq ++ privates.map.values.flatten.flatMap(p)
     }
-    
+
     def iterator: Iterator[(T, Node)] = {
       new Iterator[(T, Node)] {
         private val iter1 = publics.iterator
@@ -235,10 +236,10 @@ abstract class MixinNodes {
         case _ => privates.get(key)
       }
     }
-    
+
     def isEmpty: Boolean = publics.isEmpty && privates.map.values.forall(_.isEmpty)
   }
-  
+
   class NodesSeq(private[MixinNodes] val map: mutable.HashMap[Int, List[(T, Node)]]) {
     def get(s: T): Option[Node] = {
       val list = map.getOrElse(computeHashCode(s), Nil)
@@ -467,11 +468,12 @@ object MixinNodes {
       }
 
       ProgressManager.checkCanceled()
+      val project = clazz.getProject
       val tp = {
         def default =
           if (clazz.getTypeParameters.isEmpty) ScType.designator(clazz)
           else ScParameterizedType(ScType.designator(clazz), clazz.
-            getTypeParameters.map(tp => ScalaPsiManager.instance(clazz.getProject).typeVariable(tp)))
+            getTypeParameters.map(tp => ScalaPsiManager.instance(project).typeVariable(tp)))
         clazz match {
           case td: ScTypeDefinition => td.getType(TypingContext.empty).getOrElse(default)
           case _ => default
@@ -490,7 +492,7 @@ object MixinNodes {
         }
       }
 
-      generalLinearization(Some(clazz.getProject), tp, addTp = true, supers = supers)
+      generalLinearization(Some(project), tp, addTp = true, supers = supers)(project.typeSystem)
     }
 
     inner()
@@ -500,11 +502,12 @@ object MixinNodes {
   def linearization(compound: ScCompoundType, addTp: Boolean = false): Seq[ScType] = {
     val comps = compound.components
 
-    generalLinearization(None, compound, addTp = addTp, supers = comps)
+    generalLinearization(None, compound, addTp = addTp, supers = comps)(ScalaTypeSystem)
   }
 
-  
-  private def generalLinearization(project: Option[Project], tp: ScType, addTp: Boolean, supers: Seq[ScType]): Seq[ScType] = {
+
+  private def generalLinearization(project: Option[Project], tp: ScType, addTp: Boolean, supers: Seq[ScType])
+                                  (implicit typeSystem: TypeSystem): Seq[ScType] = {
     val buffer = new ListBuffer[ScType]
     val set: mutable.HashSet[String] = new mutable.HashSet //to add here qualified names of classes
     def classString(clazz: PsiClass): String = {

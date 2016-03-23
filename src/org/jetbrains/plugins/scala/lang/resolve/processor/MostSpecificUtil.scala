@@ -22,8 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodT
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
 
+import scala.collection.Set
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Set, immutable}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -65,7 +65,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
     mostSpecificGeneric(applicable.map(r => {
       var callByName = false
       def checkCallByName(clauses: Seq[ScParameterClause]): Unit = {
-        if (clauses.nonEmpty && clauses(0).parameters.length == 1 && clauses(0).parameters(0).isCallByNameParameter) {
+        if (clauses.nonEmpty && clauses.head.parameters.length == 1 && clauses.head.parameters.head.isCallByNameParameter) {
           callByName = true
         }
       }
@@ -166,7 +166,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
                       Seq.fill(i)(default)
               Compatibility.checkConformance(checkNames = false, params2, exprs, checkImplicits)
             case (Right(type1), Right(type2)) =>
-              Conformance.conformsInner(type2, type1, immutable.Set.empty, new ScUndefinedSubstitutor()) //todo: with implcits?
+              type1.conforms(type2, new ScUndefinedSubstitutor()) //todo: with implcits?
             //todo this is possible, when one variant is empty with implicit parameters, and second without parameters.
             //in this case it's logical that method without parameters must win...
             case (Left(_), Right(_)) if !r1.implicitCase => return false

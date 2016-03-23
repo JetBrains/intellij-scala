@@ -226,10 +226,12 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   def getComponentName = "ScalaPsiManager"
   def disposeComponent() {}
   def initComponent() {
-    val equivalence = project.typeSystem.equivalence
+    val typeSystem = project.typeSystem
+    val equivalence = typeSystem.equivalence
+    val conformance = typeSystem.conformance
     def clearOnChange(): Unit = {
       clearCacheOnChange.foreach(_.clear())
-      Conformance.cache.clear()
+      conformance.clearCache()
       equivalence.clearCache()
       ScParameterizedType.substitutorCache.clear()
       ScalaPsiUtil.collectImplicitObjectsCache.clear()
@@ -266,7 +268,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       LowMemoryWatcher.register(new Runnable {
         def run(): Unit = {
           clearCacheOnLowMemory.foreach(_.clear())
-          Conformance.cache.clear()
+          conformance.clearCache()
           equivalence.clearCache()
           ScParameterizedType.substitutorCache.clear()
           ScalaPsiUtil.collectImplicitObjectsCache.clear()

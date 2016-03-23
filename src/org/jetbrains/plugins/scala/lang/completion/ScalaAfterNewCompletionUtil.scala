@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
 import scala.collection.mutable
@@ -48,7 +49,8 @@ object ScalaAfterNewCompletionUtil {
     afterNewPattern.accepts(position, context)
 
   def getLookupElementFromClass(expectedTypes: Array[ScType], clazz: PsiClass,
-                                renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]): LookupElement = {
+                                renamesMap: mutable.HashMap[String, (String, PsiNamedElement)])
+                               (implicit typeSystem: TypeSystem): LookupElement = {
     val undefines: Seq[ScUndefinedType] = clazz.getTypeParameters.map(ptp =>
       new ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
     )
@@ -70,9 +72,9 @@ object ScalaAfterNewCompletionUtil {
     val iterator = expectedTypes.iterator
     while (iterator.hasNext) {
       val typez = iterator.next()
-      if (predefinedType.conforms(typez)) {
-        val undef = Conformance.undefinedSubst(typez, predefinedType)
-        undef.getSubstitutor match {
+      val conformance = predefinedType.conforms(typez, new ScUndefinedSubstitutor())
+      if (conformance._1) {
+        conformance._2.getSubstitutor match {
           case Some(subst) =>
             val lookupElement = getLookupElementFromTypeAndClass(subst.subst(noUndefType), clazz,
               ScSubstitutor.empty, new AfterNewLookupElementRenderer(_, _, _), new ScalaConstructorInsertHandler, renamesMap)
@@ -187,7 +189,9 @@ object ScalaAfterNewCompletionUtil {
   def collectInheritorsForType(typez: ScType, place: PsiElement, addedClasses: mutable.HashSet[String],
                                result: CompletionResultSet,
                                renderer: (ScType, PsiClass, ScSubstitutor) => LookupElementRenderer[LookupElement],
-                               insertHandler: InsertHandler[LookupElement], renamesMap: mutable.HashMap[String, (String, PsiNamedElement)]) {
+                               insertHandler: InsertHandler[LookupElement],
+                               renamesMap: mutable.HashMap[String, (String, PsiNamedElement)])
+                              (implicit typeSystem: TypeSystem) {
     ScType.extractClassType(typez, Some(place.getProject)) match {
       case Some((clazz, subst)) =>
         //this change is important for Scala Worksheet/Script classes. Will not find inheritors, due to file copy.
@@ -212,9 +216,9 @@ object ScalaAfterNewCompletionUtil {
                 ))
               }
               else ScDesignatorType(clazz)
-            if (!predefinedType.conforms(typez)) return true
-            val undef = Conformance.undefinedSubst(typez, predefinedType)
-            undef.getSubstitutor match {
+            val conformance = predefinedType.conforms(typez, new ScUndefinedSubstitutor())
+            if (!conformance._1) return true
+            conformance._2.getSubstitutor match {
               case Some(undefSubst) =>
                 val lookupElement = convertTypeToLookupElement(undefSubst.subst(noUndefType), place, addedClasses,
                   renderer, insertHandler, renamesMap)

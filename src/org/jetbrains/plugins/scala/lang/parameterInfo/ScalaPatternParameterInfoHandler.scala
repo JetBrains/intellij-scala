@@ -216,6 +216,7 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                   r.element match {
                     case fun: ScFunction if fun.parameters.nonEmpty =>
                       val substitutor = r.substitutor
+                      implicit val typeSystem = file.getProject.typeSystem
                       val subst = if (fun.typeParameters.isEmpty) substitutor
                       else {
                         val undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
@@ -229,10 +230,9 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                           val funType = undefSubst.subst(result.get)
                           constr.expectedType match {
                             case Some(tp) =>
-                              val t = Conformance.conforms(tp, funType)
-                              if (t) {
-                                val undefSubst = Conformance.undefinedSubst(tp, funType)
-                                undefSubst.getSubstitutor match {
+                              val conformance = funType.conforms(tp, new ScUndefinedSubstitutor())
+                              if (conformance._1) {
+                                conformance._2.getSubstitutor match {
                                   case Some(newSubst) => newSubst.followed(substitutor)
                                   case _ => substitutor
                                 }
@@ -241,7 +241,6 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                           }
                         }
                       }
-                      implicit val typeSystem = file.getProject.typeSystem
                       res += ((new PhysicalSignature(fun, subst), 0))
                     case _ =>
                   }

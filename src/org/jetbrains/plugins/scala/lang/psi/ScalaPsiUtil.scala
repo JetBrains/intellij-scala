@@ -57,7 +57,6 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, 
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -291,8 +290,9 @@ object ScalaPsiUtil {
           case _ =>
             funType match {
               case Some(ft) =>
-                if (tp.conforms(ft)) {
-                  Conformance.undefinedSubst(ft, tp).getSubstitutor match {
+                val conformance = tp.conforms(ft, new ScUndefinedSubstitutor())
+                if (conformance._1) {
+                  conformance._2.getSubstitutor match {
                     case Some(subst) => Some(subst.subst(ft).removeUndefines())
                     case _ => None
                   }
@@ -406,7 +406,8 @@ object ScalaPsiUtil {
     }
   }
 
-  def approveDynamic(tp: ScType, project: Project, scope: GlobalSearchScope): Boolean = {
+  def approveDynamic(tp: ScType, project: Project, scope: GlobalSearchScope)
+                    (implicit typeSystem: TypeSystem): Boolean = {
     val cachedClass = ScalaPsiManager.instance(project).getCachedClass(scope, "scala.Dynamic").orNull
     if (cachedClass == null) return false
     val dynamicType = ScDesignatorType(cachedClass)

@@ -199,11 +199,11 @@ class ScParameterizedType private(val designator: ScType, val typeArgs: Seq[ScTy
           case (tpt: ScTypeParameterType, tp: ScType) =>
             ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
         }: _*), Map.empty, None)
-        var t: (Boolean, ScUndefinedSubstitutor) = Conformance.conformsInner(subst.subst(upper), r, Set.empty, uSubst)
-        if (!t._1) return (false, uSubst)
-        t = Conformance.conformsInner(r, subst.subst(lower), Set.empty, t._2)
-        if (!t._1) return (false, uSubst)
-        (true, t._2)
+        var conformance = r.conforms(subst.subst(upper), uSubst)
+        if (!conformance._1) return (false, uSubst)
+        conformance = subst.subst(lower).conforms(r, conformance._2)
+        if (!conformance._1) return (false, uSubst)
+        (true, conformance._2)
       case (ScParameterizedType(proj@ScProjectionType(projected, _, _), args), _) if proj.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         isAliasType match {
           case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>

@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceExpression
 
@@ -19,7 +20,8 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceExpression
  */
 
 trait AssignmentAnnotator {
-  def annotateAssignment(assignment: ScAssignStmt, holder: AnnotationHolder, advancedHighlighting: Boolean) {
+  def annotateAssignment(assignment: ScAssignStmt, holder: AnnotationHolder, advancedHighlighting: Boolean)
+                        (implicit typeSystem: TypeSystem = assignment.typeSystem) {
     val left = assignment.getLExpression
     val right = assignment.getRExpression
 

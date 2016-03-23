@@ -13,8 +13,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.Conformance
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -35,7 +36,7 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
 
     valueDecl.expr.getOrElse(throw new RuntimeException("Expression not found")).getType(TypingContext.empty) match {
       case Success(rhsType, _) =>
-        val res: Boolean = Conformance.conforms(declaredType, rhsType)
+        val res: Boolean = rhsType.conforms(declaredType)(expr.getProject.typeSystem)
         val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
         val text = lastPsi.getText
         val output = lastPsi.getNode.getElementType match {

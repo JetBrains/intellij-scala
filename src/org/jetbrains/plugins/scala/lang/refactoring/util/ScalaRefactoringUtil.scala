@@ -40,9 +40,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, 
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
 import scala.annotation.tailrec
@@ -97,7 +99,8 @@ object ScalaRefactoringUtil {
     }
   }
 
-  def addPossibleTypes(scType: ScType, expr: ScExpression): Array[ScType] = {
+  def addPossibleTypes(scType: ScType, expr: ScExpression)
+                      (implicit typeSystem: TypeSystem): Array[ScType] = {
     val types = new ArrayBuffer[ScType]
     if (scType != null) types += scType
     expr.getTypeWithoutImplicits().foreach(types += _)
@@ -188,7 +191,8 @@ object ScalaRefactoringUtil {
     PsiTreeUtil.findCommonParent(filtered: _*)
   }
 
-  def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, Array[ScType])] = {
+  def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int)
+                   (implicit typeSystem: TypeSystem = project.typeSystem): Option[(ScExpression, Array[ScType])] = {
     val rangeText = file.getText.substring(startOffset, endOffset)
 
     def selectedInfixExpr(): Option[(ScExpression, Array[ScType])] = {

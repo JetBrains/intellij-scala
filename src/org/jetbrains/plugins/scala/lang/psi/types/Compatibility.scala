@@ -74,7 +74,7 @@ object Compatibility {
                       new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1))) match {
                       case funTp: ScParameterizedType =>
                         val secondArg = funTp.typeArgs(1)
-                        Conformance.undefinedSubst(funTp, paramType).getSubstitutor match {
+                        paramType.conforms(funTp, new ScUndefinedSubstitutor())._2.getSubstitutor match {
                           case Some(subst) =>
                             val rt = subst.subst(secondArg)
                             if (rt.isInstanceOf[ScUndefinedType]) defaultResult
@@ -213,13 +213,13 @@ object Compatibility {
         val typeResult =
           expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType))._1
         typeResult.toOption.toList.flatMap { exprType =>
-          val conforms = Conformance.conforms(paramType, exprType, checkWeak = true)
+          val conforms = exprType.weakConforms(paramType)
           matched ::=(param, expr.expr)
           matchedTypes ::=(param, exprType)
           if (!conforms) {
             List(new TypeMismatch(expr.expr, paramType))
           } else {
-            undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeak = true)
+            undefSubst += exprType.conforms(paramType, new ScUndefinedSubstitutor(), checkWeak = true)._2
             List.empty
           }
         }
@@ -244,13 +244,13 @@ object Compatibility {
             val expectedType = ScParameterizedType(ScType.designator(seqClass), Seq(param.expectedType))
 
             for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) yield {
-              val conforms = Conformance.conforms(tp, exprType, checkWeak = true)
+              val conforms = exprType.weakConforms(tp)
               if (!conforms) {
                 return ConformanceExtResult(Seq(new TypeMismatch(expr, tp)), undefSubst, defaultParameterUsed, matched, matchedTypes)
               } else {
                 matched ::= (param, expr)
                 matchedTypes ::= (param, exprType)
-                undefSubst += Conformance.undefinedSubst(tp, exprType, checkWeak = true)
+                undefSubst += exprType.conforms(tp, new ScUndefinedSubstitutor(), checkWeak = true)._2
               }
             }
           } else {
@@ -280,13 +280,13 @@ object Compatibility {
                 val paramType = param.paramType
                 val expectedType = param.expectedType
                 for (exprType <- expr.getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType)).tr) {
-                  val conforms = Conformance.conforms(paramType, exprType, checkWeak = true)
+                  val conforms = exprType.weakConforms(paramType)
                   if (!conforms) {
                     problems ::= TypeMismatch(expr, paramType)
                   } else {
                     matched ::= (param, expr)
                     matchedTypes ::= (param, exprType)
-                    undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeak = true)
+                    undefSubst += exprType.conforms(paramType, new ScUndefinedSubstitutor(), checkWeak = true)._2
                   }
                 }
               case _ =>
@@ -311,14 +311,14 @@ object Compatibility {
       val expectedType: ScType = parameters.last.expectedType
       while (k < exprs.length) {
         for (exprType <- exprs(k).getTypeAfterImplicitConversion(checkWithImplicits, isShapesResolve, Some(expectedType))._1) {
-          val conforms = Conformance.conforms(paramType, exprType, checkWeak = true)
+          val conforms = exprType.weakConforms(paramType)
           if (!conforms) {
             return ConformanceExtResult(Seq(new ElementApplicabilityProblem(exprs(k).expr, exprType, paramType)),
               undefSubst, defaultParameterUsed, matched, matchedTypes)
           } else {
             matched ::= (parameters.last, exprs(k).expr)
             matchedTypes ::= (parameters.last, exprType)
-            undefSubst += Conformance.undefinedSubst(paramType, exprType, checkWeak = true)
+            undefSubst += exprType.conforms(paramType, new ScUndefinedSubstitutor(), checkWeak = true)._2
           }
         }
         k = k + 1
@@ -342,7 +342,7 @@ object Compatibility {
             case Some(defaultTp) if defaultTp.conforms(paramType) =>
               defaultExpr.foreach(expr => matched ::= (param, expr))
               matchedTypes ::=(param, defaultTp)
-              undefSubst += Conformance.undefinedSubst(paramType, defaultTp)
+              undefSubst += defaultTp.conforms(paramType, new ScUndefinedSubstitutor())._2
             case Some(defaultTp) =>
                 return ConformanceExtResult(Seq(new DefaultTypeParameterMismatch(defaultTp, paramType)), undefSubst,
                   defaultParameterUsed = true, matched, matchedTypes)

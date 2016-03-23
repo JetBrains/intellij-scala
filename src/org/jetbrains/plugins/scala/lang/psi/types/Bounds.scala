@@ -177,9 +177,11 @@ object Bounds extends api.TypeSystemOwner {
     }
   }
 
+  private def conforms(t1: ScType, t2: ScType, checkWeak: Boolean) = t1.conforms(t2, new ScUndefinedSubstitutor(), checkWeak)._1
+
   def glb(t1: ScType, t2: ScType, checkWeak: Boolean = false): ScType = {
-    if (t1.conforms(t2, checkWeak)) t1
-    else if (t2.conforms(t1, checkWeak)) t2
+    if (conforms(t1, t2, checkWeak)) t1
+    else if (conforms(t2, t1, checkWeak)) t2
     else {
       (t1, t2) match {
         case (ScSkolemizedType(name, args, lower, upper), ScSkolemizedType(name2, args2, lower2, upper2)) =>
@@ -212,8 +214,8 @@ object Bounds extends api.TypeSystemOwner {
   }
 
   private def lub(t1: ScType, t2: ScType, depth : Int, checkWeak: Boolean)(implicit stopAddingUpperBound: Boolean): ScType = {
-    if (t1.conforms(t2, checkWeak)) t2
-    else if (t2.conforms(t1, checkWeak)) t1
+    if (conforms(t1, t2, checkWeak)) t2
+    else if (conforms(t2, t1, checkWeak)) t1
     else {
       def lubWithExpandedAliases(t1: ScType, t2: ScType): ScType = {
         (t1, t2) match {

@@ -4,9 +4,8 @@ package psi
 package types
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.{Computable, RecursionManager}
+import com.intellij.openapi.util.Computable
 import com.intellij.psi._
-import com.intellij.util.containers.ConcurrentWeakHashMap
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
@@ -28,18 +27,56 @@ import _root_.scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, immutable, mutable}
 
-object Conformance extends api.TypeSystemOwner {
-  implicit val typeSystem = ScalaTypeSystem
+object Conformance extends api.Conformance {
+  override implicit lazy val typeSystem = ScalaTypeSystem
 
-  /**
-   * Checks, whether the following assignment is correct:
-   * val x: l = (y: r)
-   */
-  def conforms(l: ScType, r: ScType, checkWeak: Boolean = false): Boolean =
-    conformsInner(l, r, HashSet.empty, new ScUndefinedSubstitutor, checkWeak)._1
+  override protected def computable(left: ScType, right: ScType, visited: Set[PsiClass], checkWeak: Boolean) =
+    new Computable[(Boolean, ScUndefinedSubstitutor)] {
+      override def compute(): (Boolean, ScUndefinedSubstitutor) = {
+        val substitutor = new ScUndefinedSubstitutor()
+        val leftVisitor = new LeftConformanceVisitor(left, right, visited, substitutor, checkWeak)
+        left.visitType(leftVisitor)
+        if (leftVisitor.getResult != null) return leftVisitor.getResult
 
-  def undefinedSubst(l: ScType, r: ScType, checkWeak: Boolean = false): ScUndefinedSubstitutor =
-    conformsInner(l, r, HashSet.empty, new ScUndefinedSubstitutor, checkWeak)._2
+        //tail, based on class inheritance
+        ScType.extractClassType(right) match {
+          case Some((clazz: PsiClass, _)) if visited.contains(clazz) => return (false, substitutor)
+          case Some((rClass: PsiClass, subst: ScSubstitutor)) =>
+            ScType.extractClass(left) match {
+              case Some(lClass) =>
+                if (rClass.qualifiedName == "java.lang.Object") {
+                  return conformsInner(left, types.AnyRef, visited, substitutor, checkWeak)
+                } else if (lClass.qualifiedName == "java.lang.Object") {
+                  return conformsInner(types.AnyRef, right, visited, substitutor, checkWeak)
+                }
+                val inh = smartIsInheritor(rClass, subst, lClass)
+                if (!inh._1) return (false, substitutor)
+                val tp = inh._2
+                //Special case for higher kind types passed to generics.
+                if (lClass.hasTypeParameters) {
+                  left match {
+                    case p: ScParameterizedType =>
+                    case _ => return (true, substitutor)
+                  }
+                }
+                val t = conformsInner(left, tp, visited + rClass, substitutor, checkWeak = false)
+                if (t._1) return (true, t._2)
+                else return (false, substitutor)
+              case _ =>
+            }
+          case _ =>
+        }
+        val bases: Seq[ScType] = BaseTypes.get(right)
+        val iterator = bases.iterator
+        while (iterator.hasNext) {
+          ProgressManager.checkCanceled()
+          val tp = iterator.next()
+          val t = conformsInner(left, tp, visited, substitutor, checkWeak = true)
+          if (t._1) return (true, t._2)
+        }
+        (false, substitutor)
+      }
+    }
 
   private def checkParameterizedType(parametersIterator: Iterator[PsiTypeParameter], args1: scala.Seq[ScType],
                              args2: scala.Seq[ScType], _undefinedSubst: ScUndefinedSubstitutor,
@@ -73,11 +110,11 @@ object Conformance extends api.TypeSystemOwner {
       val argsPair = (args1Iterator.next(), args2Iterator.next())
       tp match {
         case scp: ScTypeParam if scp.isContravariant =>
-          val y = Conformance.conformsInner(argsPair._2, argsPair._1, HashSet.empty, undefinedSubst)
+          val y = conformsInner(argsPair._2, argsPair._1, HashSet.empty, undefinedSubst)
           if (!y._1) return (false, undefinedSubst)
           else undefinedSubst = y._2
         case scp: ScTypeParam if scp.isCovariant =>
-          val y = Conformance.conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
+          val y = conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
           if (!y._1) return (false, undefinedSubst)
           else undefinedSubst = y._2
         //this case filter out such cases like undefined type
@@ -102,7 +139,7 @@ object Conformance extends api.TypeSystemOwner {
                 else (l, l)
               if (!addAbstract(upper, lower, left, alternateLeft)) return (false, undefinedSubst)
             case (aliasType, _) if aliasType.isAliasType.isDefined && aliasType.isAliasType.get.ta.isExistentialTypeAlias =>
-              val y = Conformance.conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
+              val y = conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
               if (!y._1) return (false, undefinedSubst)
               else undefinedSubst = y._2
             case _ =>
@@ -239,7 +276,7 @@ object Conformance extends api.TypeSystemOwner {
             this case for checking: val x: T = null
             This is good if T class type: T <: AnyRef and !(T <: NotNull)
            */
-          if (!conforms(types.AnyRef, l)) {
+          if (!l.conforms(types.AnyRef)) {
             result = (false, undefinedSubst)
             return
           }
@@ -248,7 +285,7 @@ object Conformance extends api.TypeSystemOwner {
               val notNullClass = ScalaPsiManager.instance(el.getProject).getCachedClass("scala.NotNull", el.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
               if (notNullClass != null) {
                 val notNullType = ScDesignatorType(notNullClass)
-                result = (!conforms(notNullType, l), undefinedSubst) //todo: think about undefinedSubst
+                result = (!l.conforms(notNullType), undefinedSubst) //todo: think about undefinedSubst
               } else {
                 result = (true, undefinedSubst)
               }
@@ -738,7 +775,7 @@ object Conformance extends api.TypeSystemOwner {
               undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), lt, variance = 0)
               undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt, variance = 0)
             case (tp, _) if tp.isAliasType.isDefined && tp.isAliasType.get.ta.isExistentialTypeAlias =>
-              val y = Conformance.conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
+              val y = conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
               if (!y._1) {
                 result = (false, undefinedSubst)
                 return
@@ -813,7 +850,7 @@ object Conformance extends api.TypeSystemOwner {
                 undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), lt, variance = 0)
                 undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt, variance = 0)
               case (tp, _) if tp.isAliasType.isDefined && tp.isAliasType.get.ta.isExistentialTypeAlias =>
-                val y = Conformance.conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
+                val y = conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
                 if (!y._1) {
                   result = (false, undefinedSubst)
                   return
@@ -1043,7 +1080,7 @@ object Conformance extends api.TypeSystemOwner {
                 undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), lt, variance = 0)
                 undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt, variance = 0)
               case (tp, _) if tp.isAliasType.isDefined && tp.isAliasType.get.ta.isExistentialTypeAlias =>
-                val y = Conformance.conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
+                val y = conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
                 if (!y._1) {
                   result = (false, undefinedSubst)
                   return
@@ -1714,80 +1751,6 @@ object Conformance extends api.TypeSystemOwner {
           result = (false, undefinedSubst)
       }
     }
-  }
-
-  val guard = RecursionManager.createGuard("conformance.guard")
-
-  val cache: ConcurrentWeakHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)] =
-    new ConcurrentWeakHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
-
-  def conformsInner(l: ScType, r: ScType, visited: Set[PsiClass], unSubst: ScUndefinedSubstitutor,
-                            checkWeak: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
-    ProgressManager.checkCanceled()
-
-    val key = (l, r, checkWeak)
-
-    val tuple = cache.get(key)
-    if (tuple != null) {
-      if (unSubst.isEmpty) return tuple
-      return tuple.copy(_2 = unSubst + tuple._2)
-    }
-    if (guard.currentStack().contains(key)) {
-      return (false, new ScUndefinedSubstitutor())
-    }
-
-    val uSubst = new ScUndefinedSubstitutor()
-
-    def comp(): (Boolean, ScUndefinedSubstitutor) = {
-      val leftVisitor = new LeftConformanceVisitor(l, r, visited, uSubst, checkWeak)
-      l.visitType(leftVisitor)
-      if (leftVisitor.getResult != null) return leftVisitor.getResult
-
-      //tail, based on class inheritance
-      ScType.extractClassType(r) match {
-        case Some((clazz: PsiClass, _)) if visited.contains(clazz) => return (false, uSubst)
-        case Some((rClass: PsiClass, subst: ScSubstitutor)) =>
-          ScType.extractClass(l) match {
-            case Some(lClass) =>
-              if (rClass.qualifiedName == "java.lang.Object") {
-                return conformsInner(l, types.AnyRef, visited, uSubst, checkWeak)
-              } else if (lClass.qualifiedName == "java.lang.Object") {
-                return conformsInner(types.AnyRef, r, visited, uSubst, checkWeak)
-              }
-              val inh = smartIsInheritor(rClass, subst, lClass)
-              if (!inh._1) return (false, uSubst)
-              val tp = inh._2
-              //Special case for higher kind types passed to generics.
-              if (lClass.hasTypeParameters) {
-                l match {
-                  case p: ScParameterizedType =>
-                  case _ => return (true, uSubst)
-                }
-              }
-              val t = conformsInner(l, tp, visited + rClass, uSubst, checkWeak = false)
-              if (t._1) return (true, t._2)
-              else return (false, uSubst)
-            case _ =>
-          }
-        case _ =>
-      }
-      val bases: Seq[ScType] = BaseTypes.get(r)
-      val iterator = bases.iterator
-      while (iterator.hasNext) {
-        ProgressManager.checkCanceled()
-        val tp = iterator.next()
-        val t = conformsInner(l, tp, visited, uSubst, checkWeak = true)
-        if (t._1) return (true, t._2)
-      }
-      (false, uSubst)
-    }
-    val res = guard.doPreventingRecursion(key, false, new Computable[(Boolean, ScUndefinedSubstitutor)] {
-      def compute(): (Boolean, ScUndefinedSubstitutor) = comp()
-    })
-    if (res == null) return (false, new ScUndefinedSubstitutor())
-    cache.put(key, res)
-    if (unSubst.isEmpty) return res
-    res.copy(_2 = unSubst + res._2)
   }
 
   private def smartIsInheritor(leftClass: PsiClass, substitutor: ScSubstitutor, rightClass: PsiClass) : (Boolean, ScType) = {

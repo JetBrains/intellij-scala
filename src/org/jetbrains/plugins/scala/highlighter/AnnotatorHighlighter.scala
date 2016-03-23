@@ -17,9 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType, ScTypeExt, StdType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaStubBasedElementImpl}
@@ -56,7 +57,8 @@ object AnnotatorHighlighter {
     }
   }
 
-  def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
+  def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder)
+                               (implicit typeSystem: TypeSystem = refElement.typeSystem) {
 
     def annotateCollectionByType(resolvedType: ScType) {
       if (ScalaNamesUtil.isOperatorName(

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.settings.SbtSystemSettings
@@ -33,7 +33,8 @@ class SbtAnnotator extends Annotator {
     case _ =>
   }
 
-  private class Worker(sbtFileElements: Seq[PsiElement], sbtVersion: String, holder: AnnotationHolder) {
+  private class Worker(sbtFileElements: Seq[PsiElement], sbtVersion: String, holder: AnnotationHolder)
+                      (implicit typeSystem: TypeSystem) {
     def annotate(implicit typeSystem: TypeSystem) {
       sbtFileElements.collect {
         case exp: ScExpression => annotateTypeMismatch(exp)
@@ -49,8 +50,7 @@ class SbtAnnotator extends Annotator {
       case other => holder.createErrorAnnotation(other, SbtBundle("sbt.annotation.sbtFileMustContainOnlyExpressions"))
     }
 
-    private def annotateTypeMismatch(expression: ScExpression)
-                                    (implicit typeSystem: api.TypeSystem): Unit =
+    private def annotateTypeMismatch(expression: ScExpression) =
       expression.getType(TypingContext.empty).foreach { expressionType =>
         if (expressionType.equiv(types.Nothing) || expressionType.equiv(types.Null)) {
           holder.createErrorAnnotation(expression, SbtBundle("sbt.annotation.expectedExpressionType"))
