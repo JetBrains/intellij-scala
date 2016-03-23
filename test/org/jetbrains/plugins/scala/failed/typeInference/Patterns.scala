@@ -14,4 +14,6 @@ class Patterns extends TypeInferenceTestBase {
 
   def testSCL9137(): Unit = doTest()
 
+  def testSCL4500(): Unit = doTest()
+
 }
