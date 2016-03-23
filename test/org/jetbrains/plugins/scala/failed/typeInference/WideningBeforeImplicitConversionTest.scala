@@ -1,0 +1,39 @@
+package org.jetbrains.plugins.scala.failed.typeInference
+
+import org.jetbrains.plugins.scala.PerfCycleTests
+import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
+import org.junit.experimental.categories.Category
+
+/**
+  * @author Nikolay.Tropin
+  */
+@Category(Array(classOf[PerfCycleTests]))
+class WideningBeforeImplicitConversionTest extends TypeInferenceTestBase {
+  def testScl9523(): Unit = {
+    val text =
+      s"""import scala.language.{existentials, implicitConversions}
+        |
+        |object Main extends App {
+        |  Tag("key", Set[Value[Value.T]](${START}123$END))
+        |}
+        |
+        |case class Tag(key: String, values: Set[Value[Value.T]])
+        |
+        |object Value {
+        |  type T = X forSome { type X <: AnyVal }
+        |
+        |  implicit def number2Value(v: Long): Value[T] = LongValue(v)
+        |
+        |  def apply(v: Long): Value[T] = LongValue(v)
+        |}
+        |
+        |sealed trait Value[+T <: AnyVal] {
+        |  def v: T
+        |}
+        |
+        |case class LongValue(v: Long) extends Value[Long]
+        |
+        |//Value.Value.T""".stripMargin
+    doTest(text)
+  }
+}

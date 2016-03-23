@@ -25,8 +25,8 @@ import org.junit.Assert._
  */
 
 abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-  private val startExprMarker = "/*start*/"
-  private val endExprMarker = "/*end*/"
+  protected val START = "/*start*/"
+  protected val END = "/*end*/"
   private val fewVariantsMarker = "Few variants:"
   private val ExpectedPattern = """expected: (.*)""".r
   private val SimplifiedPattern = """simplified: (.*)""".r
@@ -44,13 +44,14 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
   }
 
   protected def doTest(fileText: String, fileName: String = "dummy.scala") {
-    configureFromFileTextAdapter(fileName, fileText)
+    val cleanedText = fileText.replace("\r", "")
+    configureFromFileTextAdapter(fileName, cleanedText)
     val scalaFile: ScalaFile = getFileAdapter.asInstanceOf[ScalaFile]
-    val offset = fileText.indexOf(startExprMarker)
-    val startOffset = offset + startExprMarker.length
+    val offset = cleanedText.indexOf(START)
+    val startOffset = offset + START.length
 
     assert(offset != -1, "Not specified start marker in test case. Use /*start*/ in scala file for this.")
-    val endOffset = fileText.indexOf(endExprMarker)
+    val endOffset = cleanedText.indexOf(END)
     assert(endOffset != -1, "Not specified end marker in test case. Use /*end*/ in scala file for this.")
 
     val addOne = if(PsiTreeUtil.getParentOfType(scalaFile.findElementAt(startOffset),classOf[ScExpression]) != null) 0 else 1 //for xml tests
