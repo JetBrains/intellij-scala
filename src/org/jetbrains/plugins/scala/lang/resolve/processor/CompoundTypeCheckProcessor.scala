@@ -50,23 +50,21 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
           //lower type
           val lower1 = tp1.lowerBound.getOrNothing
           val lower2 = substitutor.subst(tp2.lowerType())
-          var t = Conformance.conformsInner(
+          var conformance = (if (variance == 1) lower1
+          else lower2).conforms(
             if (variance == 1) lower2
-            else lower1,
-            if (variance == 1) lower1
-            else lower2, Set.empty, undef)
-          if (!t._1) return false
-          undef = t._2
+            else lower1, undef)
+          if (!conformance._1) return false
+          undef = conformance._2
 
           val upper1 = tp1.upperBound.getOrAny
           val upper2 = substitutor.subst(tp2.upperType())
-          t = Conformance.conformsInner(
+          conformance = (if (variance == 1) upper2
+          else upper1).conforms(
             if (variance == 1) upper1
-            else upper2,
-            if (variance == 1) upper2
-            else upper1, Set.empty, undef)
-          if (!t._1) return false
-          undef = t._2
+            else upper2, undef)
+          if (!conformance._1) return false
+          undef = conformance._2
 
           //todo: view?
           true
@@ -115,7 +113,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
 
       val bType = unified1.subst(subst.subst(returnType))
       val gType = unified2.subst(substitutor.subst(retType))
-      t = Conformance.conformsInner(gType, bType, Set.empty, undef)
+      t = bType.conforms(gType, undef)
       if (t._1) {
         trueResult = true
         undef = t._2
@@ -181,28 +179,26 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
           //lower type
           val lower1 = tp1.lowerBound.getOrNothing
           val lower2 = substitutor.subst(tp2.lowerType())
-          var t = Conformance.conformsInner(
+          var conformance = (if (variance == 1) lower1
+          else lower2).conforms(
             if (variance == 1) lower2
-            else lower1,
-            if (variance == 1) lower1
-            else lower2, Set.empty, undef)
-          if (!t._1) return false
-          undef = t._2
+            else lower1, undef)
+          if (!conformance._1) return false
+          undef = conformance._2
 
           val upper1 = tp1.upperBound.getOrAny
           val upper2 = substitutor.subst(tp2.upperType())
-          t = Conformance.conformsInner(
+          conformance = (if (variance == 1) upper2
+          else upper1).conforms(
             if (variance == 1) upper1
-            else upper2,
-            if (variance == 1) upper2
-            else upper1, Set.empty, undef)
-          if (!t._1) return false
-          undef = t._2
+            else upper2, undef)
+          if (!conformance._1) return false
+          undef = conformance._2
 
           //todo: view?
           true
         case _ =>
-          if (tp2.typeParams.length > 0) return false
+          if (tp2.typeParams.nonEmpty) return false
           //todo: check bounds?
           true
       }
@@ -224,20 +220,18 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
           val (tp1, tp2) = iter.next()
           if (!checkTypeParameters(tp1, tp2)) return true
         }
-      case _ => if (sign.typeParams.length > 0) return true
+      case _ => if (sign.typeParams.nonEmpty) return true
     }
 
     def checkDeclarationForTypeAlias(tp: ScTypeAlias): Boolean = {
       sign.ta match {
         case _: ScTypeAliasDeclaration =>
-          var t = Conformance.conformsInner(subst.subst(tp.lowerBound.getOrNothing),
-            substitutor.subst(sign.lowerBound), Set.empty, undef)
-          if (t._1) {
-            t = Conformance.conformsInner(substitutor.subst(sign.upperBound),
-              subst.subst(tp.upperBound.getOrAny), Set.empty, t._2)
-            if (t._1) {
+          var conformance = substitutor.subst(sign.lowerBound).conforms(subst.subst(tp.lowerBound.getOrNothing), undef)
+          if (conformance._1) {
+            conformance = subst.subst(tp.upperBound.getOrAny).conforms(substitutor.subst(sign.upperBound), conformance._2)
+            if (conformance._1) {
               trueResult = true
-              undef = t._2
+              undef = conformance._2
               innerUndefinedSubstitutor = undef
               return true
             }

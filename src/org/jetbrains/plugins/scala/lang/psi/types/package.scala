@@ -17,13 +17,22 @@ package object types {
       typeSystem.equivalence.equivInner(scType, `type`, undefinedSubstitutor, falseUndef)
     }
 
-    /**
-      * Checks, whether the following assignment is correct:
-      * val x: type = (y: this)
-      */
-    def conforms(`type`: ScType, checkWeak: Boolean = false) = Conformance.conforms(`type`, scType, checkWeak)
+    def conforms(`type`: ScType)
+                (implicit typeSystem: TypeSystem): Boolean = {
+      conforms(`type`, new ScUndefinedSubstitutor(), checkWeak = false)._1
+    }
 
-    def weakConforms(`type`: ScType) = conforms(`type`, checkWeak = true)
+    def weakConforms(`type`: ScType)
+                    (implicit typeSystem: TypeSystem) = {
+      conforms(`type`, new ScUndefinedSubstitutor(), checkWeak = true)._1
+    }
+
+    def conforms(`type`: ScType,
+                 undefinedSubstitutor: ScUndefinedSubstitutor,
+                 checkWeak: Boolean = false)
+                (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+      typeSystem.conformance.conformsInner(`type`, scType, substitutor = undefinedSubstitutor, checkWeak = checkWeak)
+    }
 
     def presentableText = ScType.presentableText(scType)
 

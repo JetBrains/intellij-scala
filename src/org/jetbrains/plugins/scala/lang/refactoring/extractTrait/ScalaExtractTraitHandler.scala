@@ -20,9 +20,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.memberPullUp.ScalaPullUpProcessor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -69,7 +71,7 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
     val memberInfos = if (onlyFirstMember) Seq(allMembers.head) else allMembers
     if (onlyDeclarations) memberInfos.foreach(_.setToAbstract(true))
     val extractInfo = new ExtractInfo(clazz, memberInfos)
-    extractInfo.collect()
+    extractInfo.collect(project.typeSystem)
     val messages = extractInfo.conflicts.values().asScala
     if (messages.nonEmpty) throw new RuntimeException(messages.mkString("\n"))
     inWriteCommandAction(project, "Extract trait") {
@@ -97,7 +99,7 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
 
     val memberInfos = dialog.getSelectedMembers.asScala
     val extractInfo = new ExtractInfo(clazz, memberInfos)
-    extractInfo.collect()
+    extractInfo.collect(project.typeSystem)
 
     val isOk = ExtractSuperClassUtil.showConflicts(dialog, extractInfo.conflicts, clazz.getProject)
     if (!isOk) return
@@ -189,7 +191,8 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
     }
 
     private object inSelfType {
-      def unapply(elem: PsiElement): Option[PsiClass] = {
+      def unapply(elem: PsiElement)
+                 (implicit typeSystem: TypeSystem): Option[PsiClass] = {
         val selfTypeOfClazz = clazz.extendsBlock.selfType
         if (selfTypeOfClazz.isEmpty) return None
 
@@ -210,7 +213,8 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
       }
     }
 
-    private def collectForSelfType(resolve: PsiElement) {
+    private def collectForSelfType(resolve: PsiElement)
+                                  (implicit typeSystem: TypeSystem) {
       resolve match {
         case inSameClassOrAncestor(m, cl: PsiClass) if !selected.contains(m) => addToClassesForSelfType(cl)
         case inSelfType(cl) => addToClassesForSelfType(cl)
@@ -256,7 +260,7 @@ class ScalaExtractTraitHandler extends RefactoringActionHandler {
       }
     }
 
-    def collect() {
+    def collect(implicit typeSystem: TypeSystem) {
       val visitor = new ScalaRecursiveElementVisitor {
         override def visitReference(ref: ScReferenceElement) {
           val resolve = ref.resolve()

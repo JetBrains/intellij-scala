@@ -36,7 +36,8 @@ trait PatternAnnotator {
 
 object PatternAnnotator {
 
-  def checkPattern(pattern: ScPattern, holder: AnnotationHolder) = {
+  def checkPattern(pattern: ScPattern, holder: AnnotationHolder)
+                  (implicit typeSystem: TypeSystem = pattern.typeSystem) = {
     for {
       pType <- PatternAnnotatorUtil.patternType(pattern)
       eType <- pattern.expectedType
@@ -51,7 +52,7 @@ object PatternAnnotator {
    *
    */
   private def checkPatternType(patType: ScType, exprType: ScType, pattern: ScPattern, holder: AnnotationHolder)
-                              (implicit typeSystem: TypeSystem = pattern.typeSystem): Unit = {
+                              (implicit typeSystem: TypeSystem) = {
     val exTp = widen(ScType.expandAliases(exprType).getOrElse(exprType))
     def freeTypeParams = freeTypeParamsOfTerms(exTp)
 

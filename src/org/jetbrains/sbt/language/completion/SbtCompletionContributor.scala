@@ -15,10 +15,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScParameterizedType, ScProjectionType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * @author Nikolay Obedin
@@ -113,8 +114,12 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
           case ch: ScalaChainLookupElement => ch.element
           case _ => return
         }
-        variant.element match {
-          case f: PsiField if ScType.create(f.getType, f.getProject, parentRef.getResolveScope).conforms(expectedType) =>
+
+        val element = variant.element
+        val project = element.getProject
+        implicit val typeSystem = project.typeSystem
+        element match {
+          case f: PsiField if ScType.create(f.getType, project, parentRef.getResolveScope).conforms(expectedType) =>
             apply(variant)
           case typed: ScTypedDefinition if typed.getType().getOrAny.conforms(expectedType) =>
             variant.isLocalVariable =

@@ -400,7 +400,7 @@ object InferUtil {
                   upper = unSubst.subst(upper)
               }
 
-              if (safeCheck && !undefiningSubstitutor.subst(lower).conforms(undefiningSubstitutor.subst(upper), checkWeak = true))
+              if (safeCheck && !undefiningSubstitutor.subst(lower).weakConforms(undefiningSubstitutor.subst(upper)))
                 throw new SafeCheckException
               TypeParameter(tp.name, tp.typeParams /* doesn't important here */ , () => lower, () => upper, tp.ptp)
             }))

@@ -15,8 +15,9 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.{Conformance, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -42,9 +43,10 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
     val valueDecl = patternDef.asInstanceOf[ScPatternDefinition]
     val declaredType = valueDecl.declaredType.getOrElse(sys.error("Must provide type annotation for LHS"))
 
-    valueDecl.expr.getOrElse(throw new RuntimeException("Expression not found")).getType(TypingContext.empty) match {
+    val expr = valueDecl.expr.getOrElse(throw new RuntimeException("Expression not found"))
+    expr.getType(TypingContext.empty) match {
       case Success(rhsType, _) =>
-        val res: Boolean = Conformance.conforms(declaredType, rhsType)
+        val res: Boolean = rhsType.conforms(declaredType)(expr.typeSystem)
         val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
         val text = lastPsi.getText
         val output = lastPsi.getNode.getElementType match {
@@ -82,7 +84,7 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
     }
     for ((expr, param) <- application.matchedParameters) {
       val exprTp = expr.getType().getOrElse(throw new RuntimeException(s"Failed to get type of expression(${expr.getText})"))
-      val res = Conformance.conforms(param.paramType, exprTp)
+      val res = exprTp.conforms(param.paramType)(expr.typeSystem)
       if (res != expectedResult.toBoolean)
         errors +=
           s"""

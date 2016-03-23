@@ -19,7 +19,7 @@ object MacroInferUtil {
   //todo fix decompiler and replace parameter by ScMacroDefinition
   def checkMacro(f: ScFunction, expectedType: Option[ScType], place: PsiElement)
                 (implicit typeSystem: TypeSystem): Option[ScType] = {
-    if (!f.isInstanceOf[ScMacroDefinition] && !f.hasAnnotation("scala.reflect.macros.internal.macroImpl").isDefined) {
+    if (!f.isInstanceOf[ScMacroDefinition] && f.hasAnnotation("scala.reflect.macros.internal.macroImpl").isEmpty) {
       return None
     }
 
@@ -56,16 +56,16 @@ object MacroInferUtil {
           clazz match {
             case c: ScTypeDefinition =>
               val tpt = c.typeParameters
-              if (tpt.length == 0) return None
-              val undef = new ScUndefinedType(new ScTypeParameterType(tpt(0), ScSubstitutor.empty))
+              if (tpt.isEmpty) return None
+              val undef = new ScUndefinedType(new ScTypeParameterType(tpt.head, ScSubstitutor.empty))
               val genericType = ScParameterizedType(ScDesignatorType(c), Seq(undef))
-              val (res, undefSubst) = Conformance.conformsInner(genericType, tp, Set.empty, new ScUndefinedSubstitutor())
+              val (res, undefSubst) = tp.conforms(genericType, new ScUndefinedSubstitutor())
               if (!res) return None
               undefSubst.getSubstitutor match {
                 case Some(subst) =>
                   val productLikeType = subst.subst(undef)
                   val parts = ScPattern.extractProductParts(productLikeType, place)
-                  if (parts.length == 0) return None
+                  if (parts.isEmpty) return None
                   val coloncolon = manager.getCachedClass("shapeless.::", place.getResolveScope, ClassCategory.TYPE)
                   if (coloncolon == null) return None
                   val hnil = manager.getCachedClass("shapeless.HNil", place.getResolveScope, ClassCategory.TYPE)
@@ -79,7 +79,7 @@ object MacroInferUtil {
                         case a: ScTypeAlias if a.name == "Aux" => true
                         case _ => false
                       }
-                      if (!elem.isDefined) return None
+                      if (elem.isEmpty) return None
                       Some(ScParameterizedType(ScProjectionType(ScDesignatorType(obj), elem.get.asInstanceOf[PsiNamedElement],
                         superReference = false), Seq(productLikeType, repr)))
                     case _ => None

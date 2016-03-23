@@ -73,9 +73,9 @@ case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType
     r match {
       case _ if falseUndef => (false, uSubst)
       case rt =>
-        var t: (Boolean, ScUndefinedSubstitutor) = Conformance.conformsInner(upper, r, Set.empty, uSubst)
+        var t: (Boolean, ScUndefinedSubstitutor) = r.conforms(upper, uSubst)
         if (!t._1) return (false, uSubst)
-        t = Conformance.conformsInner(r, lower, Set.empty, t._2)
+        t = lower.conforms(r, t._2)
         if (!t._1) return (false, uSubst)
         (true, t._2)
     }

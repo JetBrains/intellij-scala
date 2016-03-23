@@ -107,6 +107,9 @@ object ScalaClassNameCompletionContributor {
       case _ =>
     }
 
+    val project = position.getProject
+    implicit val typeSystem = project.typeSystem
+
     def addTypeForCompletion(typeToImport: TypeToImport) {
       val isExcluded: Boolean = ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
         def compute: Boolean = {
@@ -153,8 +156,6 @@ object ScalaClassNameCompletionContributor {
         }
       }
     }
-
-    val project = position.getProject
 
     val checkSynthetic = parameters.getOriginalFile.scalaLanguageLevel.map(_ < Scala_2_9).getOrElse(true)
 

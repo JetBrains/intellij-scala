@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 /**
@@ -46,7 +47,8 @@ object ComparingUtil {
     areUnrelatedClasses && (oneFinal || twoNonTraitsOrInterfaces || sealedAndAllChildrenAreIrreconcilable)
   }
 
-  def isNeverSubType(tp1: ScType, tp2: ScType, sameType: Boolean = false): Boolean = {
+  def isNeverSubType(tp1: ScType, tp2: ScType, sameType: Boolean = false)
+                    (implicit typeSystem: TypeSystem): Boolean = {
     if (tp2.weakConforms(tp1) || tp1.weakConforms(tp2)) return false
 
     val Seq(clazzOpt1, clazzOpt2) =

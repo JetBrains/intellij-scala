@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 
 import scala.annotation.tailrec
-import scala.collection.immutable.{HashSet, Set}
+import scala.collection.immutable.HashSet
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -91,15 +91,15 @@ case class ScExistentialType(quantified : ScType,
             case ScParameterizedType(u, _) => ScExistentialType(ScParameterizedType(u, args), wildcards)
             case u => ScExistentialType(ScParameterizedType(u, args), wildcards)
           }
-        val t = Conformance.conformsInner(upper, r, Set.empty, undefinedSubst)
-        if (!t._1) return t
+        val conformance = r.conforms(upper, undefinedSubst)
+        if (!conformance._1) return conformance
 
         val lower: ScType =
           subst.subst(a.lower) match {
             case ScParameterizedType(l, _) => ScExistentialType(ScParameterizedType(l, args), wildcards)
             case l => ScExistentialType(ScParameterizedType(l, args), wildcards)
           }
-        return Conformance.conformsInner(r, lower, Set.empty, t._2)
+        return lower.conforms(r, conformance._2)
       case ScParameterizedType(a: ScUndefinedType, args) if !falseUndef =>
         r match {
           case ScParameterizedType(des, _) =>

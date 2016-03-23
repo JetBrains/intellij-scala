@@ -624,6 +624,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           case ScAbstractType(_, lower, upper) => upper
           case tp => tp
         }
+        implicit val typeSystem = newExpr.typeSystem
         for (typez <- types) {
           val element: LookupElement = convertTypeToLookupElement(typez, newExpr, addedClasses,
             new AfterNewLookupElementRenderer(_, _, _), new ScalaConstructorInsertHandler, renamesMap)

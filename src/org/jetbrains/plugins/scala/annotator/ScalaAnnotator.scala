@@ -537,11 +537,12 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     teAnnotation
   }
 
-  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder) {
+  private def checkTypeParamBounds(sTypeParam: ScTypeBoundsOwner, holder: AnnotationHolder)
+                                  (implicit typeSystem: TypeSystem) {
     for {
       lower <- sTypeParam.lowerBound
       upper <- sTypeParam.upperBound
-      if !Conformance.conforms(upper, lower)
+      if !lower.conforms(upper)
       annotation = holder.createErrorAnnotation(sTypeParam,
         ScalaBundle.message("lower.bound.conform.to.upper", upper, lower))
     } annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
@@ -1268,7 +1269,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
   }
 
-  private def checkIntegerLiteral(literal: ScLiteral, holder: AnnotationHolder) {
+  private def checkIntegerLiteral(literal: ScLiteral, holder: AnnotationHolder)
+                                 (implicit typeSystem: TypeSystem) {
     val child = literal.getFirstChild.getNode
     val text = literal.getText
     val endsWithL = child.getText.endsWith('l') || child.getText.endsWith('L')
@@ -1374,7 +1376,8 @@ object ScalaAnnotator {
    * In other way it will return true to avoid red code.
    * Check conformance in case l = r.
    */
-  def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType]): Boolean = {
+  def smartCheckConformance(l: TypeResult[ScType], r: TypeResult[ScType])
+                           (implicit typeSystem: TypeSystem): Boolean = {
     val leftType = l match {
       case Success(res, _) => res
       case _ => return true
@@ -1383,6 +1386,6 @@ object ScalaAnnotator {
       case Success(res, _) => res
       case _ => return true
     }
-    Conformance.conforms(leftType, rightType)
+    rightType.conforms(leftType)
   }
 }

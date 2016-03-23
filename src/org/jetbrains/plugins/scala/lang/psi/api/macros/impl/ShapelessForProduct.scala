@@ -33,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 object ShapelessForProduct extends ScalaMacroTypeable {
 
   override def checkMacro(macros: ScFunction, context: MacroContext): Option[ScType] = {
-    import macros.typeSystem
+    implicit val typeSystem = macros.typeSystem
     if (context.expectedType.isEmpty) return None
     val manager = ScalaPsiManager.instance(context.place.getProject)
     val clazz = manager.getCachedClass("shapeless.Generic", context.place.getResolveScope, ClassCategory.TYPE)
@@ -43,7 +43,7 @@ object ShapelessForProduct extends ScalaMacroTypeable {
         if (tpt.isEmpty) return None
         val undef = new ScUndefinedType(new ScTypeParameterType(tpt.head, ScSubstitutor.empty))
         val genericType = ScParameterizedType(ScDesignatorType(c), Seq(undef))
-        val (res, undefSubst) = Conformance.conformsInner(genericType, context.expectedType.get, Set.empty, new ScUndefinedSubstitutor())
+        val (res, undefSubst) = context.expectedType.get.conforms(genericType, new ScUndefinedSubstitutor())
         if (!res) return None
         undefSubst.getSubstitutor match {
           case Some(subst) =>

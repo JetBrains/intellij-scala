@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getShortText
 
@@ -72,8 +73,9 @@ object SimplifyBooleanUtil {
     else expr
   }
 
-  private def isOfBooleanType(expr: ScExpression): Boolean = {
-    expr.getType(TypingContext.empty).getOrAny.conforms(lang.psi.types.Boolean, checkWeak = true)
+  private def isOfBooleanType(expr: ScExpression)
+                             (implicit typeSystem: TypeSystem = expr.typeSystem): Boolean = {
+    expr.getType(TypingContext.empty).getOrAny.weakConforms(lang.psi.types.Boolean)
   }
 
   private def getScExprChildren(expr: ScExpression) =  expr.children.collect { case expr: ScExpression => expr }.toList
