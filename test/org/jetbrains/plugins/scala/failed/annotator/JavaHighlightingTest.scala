@@ -10,6 +10,28 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class JavaHighlightingTest extends JavaHighltightingTestBase {
+
+  def testSCL8982() = {
+    val scala =
+      """
+        |object Foo {
+        |  class Bar {
+        |
+        |  }
+        |}
+      """.stripMargin
+    val java =
+      """
+        |public class Main {
+        |    public static void main(String[] args) {
+        |        new Foo$Bar();
+        |    }
+        |}
+        |
+      """.stripMargin
+    assertNoErrors(messagesFromJavaCode(scala, java, "Main"))
+  }
+
   def testSCL9663B() = {
     val scala =
       """
