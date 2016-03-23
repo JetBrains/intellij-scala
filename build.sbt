@@ -27,7 +27,7 @@ addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package"
 // Main projects
 lazy val scalaCommunity: Project =
   newProject("scalaCommunity", file("."))
-  .dependsOn(compilerSettings, scalap, runners % "test->test;compile->compile", macroAnnotations)
+  .dependsOn(compilerSettings, scalap % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
   .enablePlugins(SbtIdeaPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
   .settings(
