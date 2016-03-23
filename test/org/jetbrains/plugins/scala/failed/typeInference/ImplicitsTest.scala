@@ -13,6 +13,8 @@ import org.junit.experimental.categories.Category
 class ImplicitsTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "bugs5/"
 
+  def testSCL7955(): Unit = doTest()
+
   def testSCL8242(): Unit = doTest()
 
   def testSCL9076(): Unit = doTest()
@@ -20,6 +22,6 @@ class ImplicitsTest extends TypeInferenceTestBase {
   def testSCL9525(): Unit = doTest()
 
   def testSCL9961(): Unit = doTest()
-  
+
   def testSCL3987(): Unit = doTest()
 }
