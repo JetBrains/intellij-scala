@@ -1060,20 +1060,9 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   private def checkTypeElementForm(typeElement: ScTypeElement, holder: AnnotationHolder) {
     //todo: check bounds conformance for parameterized type
     typeElement match {
-      case simple: ScSimpleTypeElement if !simple.getParent.isInstanceOf[ScParameterizedTypeElement] =>
-        def addMissingTypeParamsAnnotation() = {
-          val annotation = holder.createErrorAnnotation(typeElement.getTextRange,
-            ScalaBundle.message("type.takes.type.parameters", typeElement.getText))
-          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-        }
-        simple.reference match {
-          case Some(ResolvesTo(c: PsiClass)) if c.hasTypeParameters =>
-            addMissingTypeParamsAnnotation()
-          case Some(ResolvesTo(owner: ScTypeParametersOwner)) if owner.typeParameters.nonEmpty =>
-            addMissingTypeParamsAnnotation()
-          case _ =>
-        }
       case simpleTypeElement: ScSimpleTypeElement =>
+        checkAbsentTypeParams(simpleTypeElement, holder)
+
         simpleTypeElement.findImplicitParameters match {
           case Some(parameters) =>
             parameters.foreach {
@@ -1084,6 +1073,42 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           case _ =>
         }
       case _ =>
+    }
+  }
+
+  private def checkAbsentTypeParams(simpleTypeElement: ScSimpleTypeElement, holder: AnnotationHolder): Unit = {
+    def needTypeParams: Boolean = {
+      def noHigherKinds(owner: ScTypeParametersOwner) = !owner.typeParameters.exists(_.typeParameters.nonEmpty)
+
+      val canBeParameterized = simpleTypeElement.reference.map(_.resolve()).exists {
+        case c: PsiClass => c.hasTypeParameters
+        case owner: ScTypeParametersOwner => owner.typeParameters.nonEmpty
+        case _ => false
+      }
+
+      if (!canBeParameterized) return false
+
+      simpleTypeElement.getParent match {
+        case ScParameterizedTypeElement(`simpleTypeElement`, _) => false
+        case tp: ScTypeParam if tp.contextBoundTypeElement.contains(simpleTypeElement) => false
+        case (_: ScTypeArgs) childOf (gc: ScGenericCall) =>
+          gc.referencedExpr match {
+            case ResolvesTo(f: ScFunction) => noHigherKinds(f)
+            case _ => false
+          }
+        case (_: ScTypeArgs) childOf (parameterized: ScParameterizedTypeElement) =>
+          parameterized.typeElement match {
+            case ScSimpleTypeElement(Some(ResolvesTo(owner: ScTypeParametersOwner))) => noHigherKinds(owner)
+            case _ => false
+          }
+        case _ => true
+      }
+    }
+
+    if (needTypeParams) {
+      val annotation = holder.createErrorAnnotation(simpleTypeElement.getTextRange,
+        ScalaBundle.message("type.takes.type.parameters", simpleTypeElement.getText))
+      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
     }
   }
 
