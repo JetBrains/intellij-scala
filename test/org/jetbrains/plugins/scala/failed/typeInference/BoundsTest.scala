@@ -14,6 +14,8 @@ class BoundsTest extends TypeInferenceTestBase {
 
   def testSCL4373(): Unit = doTest() //blinking test
 
+  def testSCL5215(): Unit = doTest()
+
   def testSCL7085(): Unit = doTest()
 
   def testSCL9755(): Unit = {
