@@ -1060,6 +1060,19 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
   private def checkTypeElementForm(typeElement: ScTypeElement, holder: AnnotationHolder) {
     //todo: check bounds conformance for parameterized type
     typeElement match {
+      case simple: ScSimpleTypeElement if !simple.getParent.isInstanceOf[ScParameterizedTypeElement] =>
+        def addMissingTypeParamsAnnotation() = {
+          val annotation = holder.createErrorAnnotation(typeElement.getTextRange,
+            ScalaBundle.message("type.takes.type.parameters", typeElement.getText))
+          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+        }
+        simple.reference match {
+          case Some(ResolvesTo(c: PsiClass)) if c.hasTypeParameters =>
+            addMissingTypeParamsAnnotation()
+          case Some(ResolvesTo(owner: ScTypeParametersOwner)) if owner.typeParameters.nonEmpty =>
+            addMissingTypeParamsAnnotation()
+          case _ =>
+        }
       case simpleTypeElement: ScSimpleTypeElement =>
         simpleTypeElement.findImplicitParameters match {
           case Some(parameters) =>
