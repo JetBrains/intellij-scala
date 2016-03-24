@@ -33,4 +33,15 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |class X3[A, B, ${START}C >: A <: B${END}]
       """.stripMargin, "Lower bound doesn't conform to upper bound")
   }
+
+  def testScl1731(): Unit = {
+    checkTextHasError(
+      s"""
+         |object Test {
+         |  class A
+         |  class B
+         |  val a: (=> A) => B = $START(x: A) => new B$END
+         |}
+       """.stripMargin, "Type mismatch: expected (=> TicketTester.A) => TicketTester.B, found: TicketTester.A => TicketTester.B")
+  }
 }
