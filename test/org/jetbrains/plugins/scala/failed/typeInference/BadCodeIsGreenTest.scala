@@ -44,4 +44,17 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |}
        """.stripMargin, "Type mismatch: expected (=> TicketTester.A) => TicketTester.B, found: TicketTester.A => TicketTester.B")
   }
+
+  def testScl8684(): Unit = {
+    checkTextHasError(
+      """object Test {
+        |  def foo() = {
+        |    for {
+        |      x <- Future(1)
+        |      y <- Option(1)
+        |    } yield x + y
+        |  }
+        |}
+      """.stripMargin, "Type mismatch: expected Future[?], found Option[Int]")
+  }
 }
