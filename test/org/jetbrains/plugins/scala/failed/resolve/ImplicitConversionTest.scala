@@ -17,4 +17,13 @@ class ImplicitConversionTest extends FailedResolveTest("implicitConversion") {
         assertTrue(s"Single resolve expected, was: ${variants.length}", variants.length == 1)
     }
   }
+
+  def testScl9527(): Unit = {
+    findReferenceAtCaret match {
+      case ref: ScReferenceExpression =>
+        val variants = ref.multiResolve(false)
+        assertTrue(s"Single resolve expected, was: ${variants.length}", variants.length == 1)
+    }
+  }
+
 }
