@@ -28,4 +28,6 @@ class Patterns extends TypeInferenceTestBase {
     doTest(text)
   }
 
+  def testSCL9888():Unit = doTest()
+
 }
