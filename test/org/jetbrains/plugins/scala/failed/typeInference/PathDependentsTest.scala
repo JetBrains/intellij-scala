@@ -12,5 +12,7 @@ import org.junit.experimental.categories.Category
 class PathDependentsTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "bugs5/"
 
+  def testSCL7954(): Unit = doTest()
+
   def testSCL9681(): Unit = doTest()
 }
