@@ -19,4 +19,8 @@ class FailedDecompilerTest extends DecompilerTestBase {
   def testScl7997() = {
     doTest("CommentDecompilation.class")
   }
+
+  def testScl8251() = {
+    doTest("LinkedEntry.class")
+  }
 }
