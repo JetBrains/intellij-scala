@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
-import junit.framework.Assert
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 import org.junit.experimental.categories.Category
@@ -15,5 +14,18 @@ class Patterns extends TypeInferenceTestBase {
   def testSCL9137(): Unit = doTest()
 
   def testSCL4500(): Unit = doTest()
+
+  def testSCL8171(): Unit = {
+    val text =
+      s"""import scala.collection.immutable.NumericRange
+          |
+          |val seq = Seq("")
+          |val x = seq match {
+          |  case nr: NumericRange[_] => ${START}nr$END
+          |  case _ => null
+          |}
+          |//NumericRange[_]""".stripMargin
+    doTest(text)
+  }
 
 }
