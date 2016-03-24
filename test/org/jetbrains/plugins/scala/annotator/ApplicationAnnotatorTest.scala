@@ -1,26 +1,13 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
-import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 
 /**
  * Pavel.Fatin, 18.05.2010
  */
 
-class ApplicationAnnotatorTest extends SimpleTestCase {
-  final val Header = """
-  class Seq[+A] 
-  object Seq { def apply[A](a: A) = new Seq[A] } 
-  class A; class B; 
-  object A extends A; object B extends B
-  """ 
-  
+class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
+
   def testEmpty() {
     assertMatches(messages("")) {
       case Nil =>
@@ -119,30 +106,6 @@ class ApplicationAnnotatorTest extends SimpleTestCase {
   def testExcessTypeParameter() {
     assertMatches(messages("def f[A] = 0; f[Any, Any]")) {
       case Error("Any", "Too many type arguments for f") :: Nil =>
-    }
-  }
-
-  def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val annotator = new ApplicationAnnotator() {}
-    val mock = new AnnotatorHolderMock
-
-    val file = (Header + code).parse
-    
-    val seq = file.depthFirst.findByType(classOf[ScClass])
-    Compatibility.seqClass = seq
-    try {
-      file.depthFirst.filterByType(classOf[ScReferenceElement]).foreach {
-        annotator.annotateReference(_, mock)
-      }
-
-      file.depthFirst.filterByType(classOf[ScMethodCall]).foreach {
-        annotator.annotateMethodInvocation(_, mock)
-      }
-
-      mock.annotations
-    }
-    finally {
-      Compatibility.seqClass = None
     }
   }
 }
