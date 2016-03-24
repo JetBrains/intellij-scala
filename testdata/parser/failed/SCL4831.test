@@ -1,0 +1,27 @@
+1 match {
+  case 1 =>//comment
+}
+-----
+ScalaFile
+  MatchStatement
+    Literal
+      PsiElement(integer)('1')
+    PsiWhiteSpace(' ')
+    PsiElement(match)('match')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n  ')
+    CaseClauses
+      CaseClause
+        PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        LiteralPattern
+          Literal
+            PsiElement(integer)('1')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        BlockOfExpressions
+          <empty list>
+    PsiComment(comment)('//comment')
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')
