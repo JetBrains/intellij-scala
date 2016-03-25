@@ -33,4 +33,8 @@ class TypeArgInferenceTest extends BadCodeGreenTestBase {
       """.stripMargin
     doTest(text)
   }
+
+  def testScl6883(): Unit = {
+    doTest("List(1, 2).reduce(_.toString + _.toString)")
+  }
 }
