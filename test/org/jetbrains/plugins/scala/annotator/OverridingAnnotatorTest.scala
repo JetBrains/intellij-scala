@@ -1,14 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-
 /**
   * User: Alexander Podkhalyuzin
   * Date: 30.01.12
@@ -197,9 +188,11 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
     val code =
       """
         |object ppp {
-        |class A(val oof = 42, var rab = 24) {
+        |abstract class A(val oof: Int = 42, var rab: Int = 24) {
         |  val foo = 42
         |  var bar = 24
+        |  val afoo: Int
+        |  var abar: Int
         |}
         |
         |class B extends A {
@@ -207,6 +200,8 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
         |  override def bar = 1000
         |  override def oof = 999
         |  override def rab = 999
+        |  override def afoo = 999
+        |  override def abar = 999
         |}
         |}
       """.stripMargin
@@ -214,9 +209,36 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
       case List(Error("foo", "method foo needs to be a stable, immutable value"),
       Error("bar", "method bar cannot override a mutable variable"),
       Error("oof", "method oof needs to be a stable, immutable value"),
-      Error("rab", "method rab cannot override a mutable variable")) =>
+      Error("rab", "method rab cannot override a mutable variable"),
+      Error("afoo", "method afoo needs to be a stable, immutable value"),
+      Error("abar", "method abar cannot override a mutable variable")
+      ) =>
     }
   }
 
+  //SCL-9578
+  def testVarOverridesVal(): Unit = {
+    val code =
+      """object ppp {
+        |  trait A {
+        |    val foo = 42
+        |    val bar = 24
+        |    val abar: Int
+        |  }
+        |
+        |  class B(override var bar: Int) extends A {
+        |    override var foo = 999
+        |    var abar = 999
+        |  }
+        |
+        |}
+      """.stripMargin
+    assertMatches(messages(code)) {
+      case List(
+      Error("bar", "variable bar cannot override immutable value"),
+      Error("foo", "variable foo cannot override immutable value"),
+      Error("abar", "variable abar cannot override immutable value")) =>
+    }
+  }
 
 }
