@@ -26,7 +26,7 @@ class ApplicationAnnotator extends ApplicationAnnotatorTestBase {
   }
 
   //path dependent types?
-  def testSCL9468(): Unit = {
+  def testSCL9468A(): Unit = {
     assertMatches(messages(
       """
         |trait Foo {
@@ -38,6 +38,26 @@ class ApplicationAnnotator extends ApplicationAnnotatorTestBase {
         |
         |  def apply[S](map: Map[Int, Factory], tid: Int, obj: Any): Any =
         |    map.get(tid).fold(???)(f => f(obj.asInstanceOf[f.Repr[S]]))
+        |}
+      """.stripMargin)) {
+      case Nil =>
+    }
+  }
+
+  def testSCL9468B(): Unit = {
+    assertMatches(messages(
+      """
+        |class Test {
+        |  def c = 1
+        |  def c(i: Option[Int]): Int = i.get + 1
+        |  def main(args: Array[String]): Unit = {
+        |    val a = new A()
+        |    a.f(c)
+        |  }
+        |}
+        |
+        |class A {
+        |  def f[A](m: Option[A] => A) = m(None)
         |}
       """.stripMargin)) {
       case Nil =>
