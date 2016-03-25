@@ -24,14 +24,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, Typi
 abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   def folderPath: String = baseRootPath() + "typeConformance/"
 
-  protected def doTest() {
-    import _root_.junit.framework.Assert._
-
-    val filePath = folderPath + getTestName(false) + ".scala"
-    val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
-    assert(file != null, "file " + filePath + " not found")
-    val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
+  protected def doTest(fileText: String, fileName: String = "dummy.scala") = {
+    import org.junit.Assert._
+    configureFromFileTextAdapter(fileName, fileText.trim)
     val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     val expr: PsiElement = scalaFile.findLastChildByType[PsiElement](ScalaElementTypes.PATTERN_DEFINITION)
     assert(expr != null, "Not specified expression in range to check conformance.")
@@ -49,8 +44,15 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
             text.substring(2, text.length - 2).trim
           case _ => fail("Test result must be in last comment statement")
         }
-        if (java.lang.Boolean.parseBoolean(output.asInstanceOf[String]) != res) fail("conformance wrong")
+        if (java.lang.Boolean.parseBoolean(output.asInstanceOf[String]) != res) fail(s"Conformance failure")
       case Failure(msg, elem) => assert(assertion = false, message = msg + " :: " + elem.get.getText)
     }
+  }
+  protected def doTest() {
+    val filePath = folderPath + getTestName(false) + ".scala"
+    val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
+    assert(file != null, "file " + filePath + " not found")
+    val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
+    doTest(fileText, getTestName(false) + ".scala")
   }
 }
