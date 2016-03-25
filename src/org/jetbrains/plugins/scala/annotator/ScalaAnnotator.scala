@@ -1061,7 +1061,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     //todo: check bounds conformance for parameterized type
     typeElement match {
       case simpleTypeElement: ScSimpleTypeElement =>
-        checkAbsentTypeParams(simpleTypeElement, holder)
+        checkAbsentTypeArgs(simpleTypeElement, holder)
 
         simpleTypeElement.findImplicitParameters match {
           case Some(parameters) =>
@@ -1076,17 +1076,17 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     }
   }
 
-  private def checkAbsentTypeParams(simpleTypeElement: ScSimpleTypeElement, holder: AnnotationHolder): Unit = {
-    def needTypeParams: Boolean = {
+  private def checkAbsentTypeArgs(simpleTypeElement: ScSimpleTypeElement, holder: AnnotationHolder): Unit = {
+    def needTypeArgs: Boolean = {
       def noHigherKinds(owner: ScTypeParametersOwner) = !owner.typeParameters.exists(_.typeParameters.nonEmpty)
 
-      val canBeParameterized = simpleTypeElement.reference.map(_.resolve()).exists {
+      val canHaveTypeArgs = simpleTypeElement.reference.map(_.resolve()).exists {
         case c: PsiClass => c.hasTypeParameters
         case owner: ScTypeParametersOwner => owner.typeParameters.nonEmpty
         case _ => false
       }
 
-      if (!canBeParameterized) return false
+      if (!canHaveTypeArgs) return false
 
       simpleTypeElement.getParent match {
         case ScParameterizedTypeElement(`simpleTypeElement`, _) => false
@@ -1099,13 +1099,19 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         case (_: ScTypeArgs) childOf (parameterized: ScParameterizedTypeElement) =>
           parameterized.typeElement match {
             case ScSimpleTypeElement(Some(ResolvesTo(owner: ScTypeParametersOwner))) => noHigherKinds(owner)
+            case ScSimpleTypeElement(Some(ResolvesTo(ScPrimaryConstructor.ofClass(c)))) => noHigherKinds(c)
+            case _ => false
+          }
+        case infix: ScInfixTypeElement if infix.lOp == simpleTypeElement || infix.rOp.contains(simpleTypeElement) =>
+          infix.ref.resolve() match {
+            case owner: ScTypeParametersOwner => noHigherKinds(owner)
             case _ => false
           }
         case _ => true
       }
     }
 
-    if (needTypeParams) {
+    if (needTypeArgs) {
       val annotation = holder.createErrorAnnotation(simpleTypeElement.getTextRange,
         ScalaBundle.message("type.takes.type.parameters", simpleTypeElement.getText))
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
