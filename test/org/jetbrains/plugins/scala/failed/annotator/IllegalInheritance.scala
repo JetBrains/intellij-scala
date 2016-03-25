@@ -28,4 +28,22 @@ class IllegalInheritance extends AnnotatorTestBase(IllegalInheritance){
         """.stripMargin
       ))
   }
+
+  def testSCL6979(): Unit = {
+    assertNothing(
+      messages(
+        """
+          |class Test{
+          |  trait A {}
+          |
+          |  trait B {
+          |    this: A =>
+          |  }
+          |
+          |  def test(f : => Unit): Unit = {}
+          |  this test new A with B { }
+          |}
+        """.stripMargin
+      ))
+  }
 }
