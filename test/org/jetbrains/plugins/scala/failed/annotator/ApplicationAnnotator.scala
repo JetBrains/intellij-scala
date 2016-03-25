@@ -24,4 +24,23 @@ class ApplicationAnnotator extends ApplicationAnnotatorTestBase {
       case Nil =>
     }
   }
+
+  //path dependent types?
+  def testSCL9468(): Unit = {
+    assertMatches(messages(
+      """
+        |trait Foo {
+        |  trait Factory {
+        |    type Repr[~]
+        |
+        |    def apply[S](obj: Repr[S]): Any
+        |  }
+        |
+        |  def apply[S](map: Map[Int, Factory], tid: Int, obj: Any): Any =
+        |    map.get(tid).fold(???)(f => f(obj.asInstanceOf[f.Repr[S]]))
+        |}
+      """.stripMargin)) {
+      case Nil =>
+    }
+  }
 }
