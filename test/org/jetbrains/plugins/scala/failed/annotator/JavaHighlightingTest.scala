@@ -101,6 +101,22 @@ class JavaHighlightingTest extends JavaHighltightingTestBase {
 
     assertNoErrors(messagesFromScalaCode(scala, java))
   }
+  
+  def testSCL6409() = {
+    val java =
+      """
+        |public class JavaDummy<T> {
+        |    public void method(JavaDummy<? super JavaDummy<?>> arg) {}
+        |}""".stripMargin
+    
+    val scala =
+      """
+        |class Inheritor extends JavaDummy[Int] {
+        |  override def method(arg: JavaDummy[_ <: JavaDummy[_]]): Unit = super.method(arg)
+        |}""".stripMargin
+    
+    assertNoErrors(messagesFromScalaCode(scala, java))
+  }
 
   def testSCL7069() = {
     val scala =
