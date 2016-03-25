@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
 /**
@@ -10,20 +8,8 @@ import org.junit.experimental.categories.Category
   */
 @Category(Array(classOf[PerfCycleTests]))
 class ImplicitConversionTest extends FailedResolveTest("implicitConversion") {
-  def testScl8709(): Unit = {
-    findReferenceAtCaret match {
-      case ref: ScReferenceExpression =>
-        val variants = ref.multiResolve(false)
-        assertTrue(s"Single resolve expected, was: ${variants.length}", variants.length == 1)
-    }
-  }
+  def testScl8709(): Unit = doTest()
 
-  def testScl9527(): Unit = {
-    findReferenceAtCaret match {
-      case ref: ScReferenceExpression =>
-        val variants = ref.multiResolve(false)
-        assertTrue(s"Single resolve expected, was: ${variants.length}", variants.length == 1)
-    }
-  }
+  def testScl9527(): Unit = doTest()
 
 }
