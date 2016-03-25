@@ -32,4 +32,6 @@ class PathDependentsTest extends TypeInferenceTestBase {
   def testSCL7954(): Unit = doTest()
 
   def testSCL9681(): Unit = doTest()
+
+  def testSCL6143(): Unit = doTest()
 }
