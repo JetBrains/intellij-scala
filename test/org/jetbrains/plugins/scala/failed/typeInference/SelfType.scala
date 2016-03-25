@@ -15,4 +15,6 @@ class SelfType extends TypeInferenceTestBase {
 
   def testSCL5947(): Unit = doTest()
 
+  def testSCL8661(): Unit = doTest()
+
 }
