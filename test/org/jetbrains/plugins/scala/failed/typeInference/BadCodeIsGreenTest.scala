@@ -57,4 +57,15 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin, "Type mismatch: expected Future[?], found Option[Int]")
   }
+
+  def testSCL4434(): Unit = {
+    checkTextHasError(
+      """
+        |object Foo {
+        |  def foo(a: Any) = a;
+        |  var a = 1;
+        |  foo(a = 2)
+        |}
+      """.stripMargin, "Reference to a is ambiguous; it is both a method parameter and a variable in scope.")
+  }
 }
