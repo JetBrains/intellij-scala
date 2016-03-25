@@ -15,4 +15,20 @@ class ExistentialsTest extends TypeInferenceTestBase {
   def testSCL10037(): Unit = doTest()
   
   def testSCL9474() = doTest()
+
+  def testSCL7895() = doTest(
+    """
+      |object SCL7895 {
+      |  import scala.language.existentials
+      |
+      |  trait F[A] {def f}
+      |  def t: Iterable[(F[A],F[A]) forSome {type A}] = ???
+      |
+      |  def fail = t.foreach{case (f1,f2) =>
+      |   def f3 = f1
+      |  /*start*/f3/*end*/.f} // doesn't recognize f1 type here
+      |}
+      |//SCL7895.F[_]
+    """.stripMargin.trim
+  )
 }
