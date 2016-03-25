@@ -1,8 +1,6 @@
-package org.jetbrains.plugins.scala.failed.typeInference
+package org.jetbrains.plugins.scala.failed.annotator
 
-import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message, ScalaAnnotator}
 import org.jetbrains.plugins.scala.javaHighlighting.JavaHighltightingTestBase
 import org.junit.experimental.categories.Category
 
@@ -48,6 +46,34 @@ class JavaHighlightingTest extends JavaHighltightingTestBase {
         |    public Foo(Args a) { }
         |    public static class Args<T extends Args<T>> { }
         |    public static class ArgsBar extends Args<ArgsBar> { }
+        |}
+      """.stripMargin
+
+    assertNoErrors(messagesFromScalaCode(scala, java))
+  }
+
+  def testSCL9029() = {
+    val scala =
+      """
+        |package scl9029
+        |import java.lang.invoke.{MethodHandles, MethodType}
+        |
+        |class SCL9029 {
+        |  def a: Int = 5
+        |
+        |  def b = {
+        |    val mh = MethodHandles.publicLookup().findVirtual(
+        |      classOf[A], "a", MethodType.methodType(classOf[Int])
+        |    )
+        |    val z: Int = mh.invokeExact(this)
+        |  }
+        |}
+      """.stripMargin
+
+    val java =
+      """
+        |package scl9029;
+        |public class Foo {
         |}
       """.stripMargin
 
