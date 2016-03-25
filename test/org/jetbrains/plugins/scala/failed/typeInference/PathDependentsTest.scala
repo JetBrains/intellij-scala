@@ -34,4 +34,26 @@ class PathDependentsTest extends TypeInferenceTestBase {
   def testSCL9681(): Unit = doTest()
 
   def testSCL6143(): Unit = doTest()
+
+  def testSCL8394(): Unit = {
+    val text =
+      s"""class Data{
+        |  override def clone(): this.type = new Data().asInstanceOf[this.type]
+        |}
+        |class Handshake[T <: Data](dataType: T){
+        |  val data = dataType.clone()
+        |}
+        |
+        |object Test{
+        |  def doit[T <: Data](handshake : Handshake[T]): Handshake[T] ={
+        |    val ret = new Handshake(handshake.data)
+        |    return ${START}ret$END
+        |    // <- ret is marked red "Expression of type Handshake[that.dataType.type] doesn't conform to expected type Handshake[T]
+        |    //If i write    return  new Handshake(handshake.data)  all is ok
+        |  }
+        |}
+        |
+        |//Handshake[T]""".stripMargin
+    doTest(text)
+  }
 }
