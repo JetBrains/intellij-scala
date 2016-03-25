@@ -11,6 +11,8 @@ import org.junit.experimental.categories.Category
 class SelfType extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "bugs5/"
 
+  def testSCL5571(): Unit = doTest()
+
   def testSCL5947(): Unit = doTest()
 
 }
