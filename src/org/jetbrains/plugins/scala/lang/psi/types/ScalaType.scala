@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclarati
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeInTypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -17,15 +18,13 @@ import scala.collection.immutable.HashSet
 /**
   * @author adkozlov
   */
-trait ScalaType extends ScType {
+trait ScalaType extends TypeInTypeSystem {
   implicit val typeSystem = ScalaTypeSystem
 
   val isSingleton: Boolean = false
 }
 
-object ScalaType extends ScTypePresentation {
-  override implicit val typeSystem = ScalaTypeSystem
-
+object ScalaType {
   /**
     * Returns named element associated with type `t`.
     * If withoutAliases is `true` expands alias definitions first

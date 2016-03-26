@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -50,10 +51,6 @@ package object types {
       typeSystem.bounds.lub(scType, `type`, checkWeak)
     }
 
-    def presentableText = ScalaType.presentableText(scType)
-
-    def canonicalText = ScalaType.canonicalText(scType)
-
     def removeUndefines() = scType.recursiveUpdate {
       case u: ScUndefinedType => (true, Any)
       case tp: ScType => (false, tp)
@@ -86,7 +83,7 @@ package object types {
       var updated = false
       val result = scType.recursiveUpdate {
         `type` => `type`.isAliasType match {
-          case Some(AliasType(ta: ScTypeAliasDefinition, _, upper)) if !expandableOnly || ScTypePresentation.shouldExpand(ta) =>
+          case Some(AliasType(ta: ScTypeAliasDefinition, _, upper)) if !expandableOnly || shouldExpand(ta) =>
             updated = true
             (true, upper.getOrAny)
           case _ => (false, `type`)

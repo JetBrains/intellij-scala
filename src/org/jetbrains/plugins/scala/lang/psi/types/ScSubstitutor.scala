@@ -163,7 +163,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
         result = ScTypePolymorphicType(substInternal(internalType), typeParameters.map(tp => {
           TypeParameter(tp.name, tp.typeParams /* todo: is it important here to update? */,
             () => substInternal(tp.lowerType()), () => substInternal(tp.upperType()), tp.ptp)
-        }))
+        }))(t.typeSystem)
       }
 
       override def visitAbstractType(a: ScAbstractType): Unit = {
@@ -396,7 +396,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
       }
 
       override def visitJavaArrayType(j: JavaArrayType): Unit = {
-        result = JavaArrayType(substInternal(j.arg))
+        result = JavaArrayType(substInternal(j.arg))(j.typeSystem)
       }
 
       override def visitProjectionType(p: ScProjectionType): Unit = {

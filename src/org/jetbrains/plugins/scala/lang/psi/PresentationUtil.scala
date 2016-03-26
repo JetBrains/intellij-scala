@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
@@ -30,7 +30,7 @@ object PresentationUtil {
         buffer.append(clause.parameters.map(presentationString(_, substitutor)).mkString(", "))
         buffer.append(")")
         buffer.toString()
-      case param: ScParameter => ScalaDocumentationProvider.parseParameter(param, presentationString(_, substitutor))
+      case param: ScParameter => ScalaDocumentationProvider.parseParameter(param)(presentationString(_, substitutor))
       case param: Parameter =>
         val builder = new StringBuilder
         builder.append(param.name)

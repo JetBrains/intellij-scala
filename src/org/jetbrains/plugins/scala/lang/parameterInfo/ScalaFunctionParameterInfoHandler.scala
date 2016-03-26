@@ -135,9 +135,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         //todo: var isGreen = true
         var namedMode = false
         def paramText(param: ScParameter, subst: ScSubstitutor) = {
-          ScalaDocumentationProvider.parseParameter(param,
-            (t: ScType) =>
-              subst.subst(t).presentableText, escape = false)
+          ScalaDocumentationProvider.parseParameter(param, escape = false)(subst.subst(_).presentableText)
         }
         def applyToParameters(parameters: Seq[(Parameter, String)], subst: ScSubstitutor, canBeNaming: Boolean,
                               isImplicit: Boolean = false) {

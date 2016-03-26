@@ -4,75 +4,24 @@ package psi
 package types
 
 import com.intellij.psi._
-import org.apache.commons.lang.StringEscapeUtils
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.light.scala.ScLightTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
-trait ScTypePresentation extends api.TypeSystemOwner {
-  def presentableText(t: ScType) = typeText(t, {
-    case c: PsiClass => ScalaPsiUtil.nameWithPrefixIfNeeded(c)
-    case e => e.name
-  }, {
-      case obj: ScObject if Set("scala.Predef", "scala").contains(obj.qualifiedName) => ""
-      case pack: PsiPackage => ""
-      case c: PsiClass => ScalaPsiUtil.nameWithPrefixIfNeeded(c) + "."
-      case e => e.name + "."
-    }
-  )
+object ScTypePresentation extends api.ScTypePresentation {
+  override implicit lazy val typeSystem = ScalaTypeSystem
 
-  def urlText(t: ScType) = {
-    def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
-      e match {
-        case obj: ScObject if withPoint && obj.qualifiedName == "scala.Predef" => ""
-        case e: PsiClass => "<a href=\"psi_element://" + e.qualifiedName + "\"><code>" +
-                StringEscapeUtils.escapeHtml(e.name) +
-                "</code></a>" + (if (withPoint) "." else "")
-        case pack: PsiPackage if withPoint => ""
-        case _ => StringEscapeUtils.escapeHtml(e.name) + "."
-      }
-    }
-    typeText(t, nameFun(_, withPoint = false), nameFun(_, withPoint = true))
-  }
-
-  def canonicalText(t: ScType) = {
-    def removeKeywords(s: String): String = {
-      s.split('.').map(s => if (ScalaNamesUtil.isKeyword(s)) "`" + s + "`" else s).mkString(".")
-    }
-    def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
-      removeKeywords(e match {
-        case c: PsiClass =>
-          val qname = c.qualifiedName
-          if (qname != null && qname != c.name /* exlude default package*/ ) "_root_." + qname else c.name
-        case p: PsiPackage => "_root_." + p.getQualifiedName
-        case _ =>
-          ScalaPsiUtil.nameContext(e) match {
-            case m: ScMember =>
-              m.containingClass match {
-                case o: ScObject => nameFun(o, withPoint = true) + e.name
-                case _ => e.name
-              }
-            case _ => e.name
-          }
-      }) + (if (withPoint) "." else "")
-    }
-    typeText(t, nameFun(_, withPoint = false), nameFun(_, withPoint = true))
-  }
-
-  private def typeText(t: ScType, nameFun: PsiNamedElement => String, nameWithPointFun: PsiNamedElement => String): String = {
-
+  protected override def typeText(t: ScType, nameFun: PsiNamedElement => String, nameWithPointFun: PsiNamedElement => String): String = {
     def typeSeqText(ts: Seq[ScType], start: String, sep: String, end: String, checkWildcard: Boolean = false): String = {
       ts.map(innerTypeText(_, needDotType = true, checkWildcard = checkWildcard)).mkString(start, sep, end)
     }
@@ -164,7 +113,7 @@ trait ScTypePresentation extends api.TypeSystemOwner {
           val funCopy =
             ScFunction.getCompoundCopy(s.substitutedTypes.map(_.map(_()).toList), s.typeParams.toList, rt, fun)
           val paramClauses = funCopy.paramClauses.clauses.map(_.parameters.map(param =>
-            ScalaDocumentationProvider.parseParameter(param, typeText0)).mkString("(", ", ", ")")).mkString("")
+            ScalaDocumentationProvider.parseParameter(param)(typeText0)).mkString("(", ", ", ")")).mkString("")
           val retType = if (!compType.equiv(rt)) typeText0(rt) else "this.type"
           val typeParams = if (funCopy.typeParameters.nonEmpty)
             funCopy.typeParameters.map(typeParamText(_, ScSubstitutor.empty)).mkString("[", ", ", "]")
@@ -255,7 +204,7 @@ trait ScTypePresentation extends api.TypeSystemOwner {
 
       val buffer = new StringBuilder
       buffer.append("?")
-      buffer.append(ScTypePresentation.ABSTRACT_TYPE_PREFIX + tpt.name.capitalize)
+      buffer.append(api.ScTypePresentation.ABSTRACT_TYPE_PREFIX + tpt.name.capitalize)
       buffer.append("/*")
       if (!lower.equiv(Nothing)) {
         val lowerText: String = " >: " + lower.toString
@@ -319,30 +268,4 @@ trait ScTypePresentation extends api.TypeSystemOwner {
 
     innerTypeText(t)
   }
-
-}
-
-object ScTypePresentation {
-  val ABSTRACT_TYPE_PREFIX = "_"
-
-  def different(t1: ScType, t2: ScType): (String, String) = {
-    val (p1, p2) = (t1.presentableText, t2.presentableText)
-    if (p1 != p2) (p1, p2)
-    else (t1.canonicalText.replace("_root_.", ""), t2.canonicalText.replace("_root_.", ""))
-  }
-
-  def shouldExpand(ta: ScTypeAliasDefinition): Boolean = ta match {
-    case _: ScLightTypeAliasDefinition | childOf(_: ScRefinement) => true
-    case _ =>
-      ScalaPsiUtil.superTypeMembers(ta).exists(_.isInstanceOf[ScTypeAliasDeclaration])
-  }
-
-  def withoutAliases(`type`: ScType): String = {
-    `type`.removeAliasDefinitions(expandableOnly = true).presentableText
-  }
-}
-
-case class ScTypeText(tp: ScType) {
-  val canonicalText = tp.canonicalText
-  val presentableText = tp.presentableText
 }

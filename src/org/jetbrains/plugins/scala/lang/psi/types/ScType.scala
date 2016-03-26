@@ -20,7 +20,7 @@ trait ScType {
 
   protected def isAliasTypeInner: Option[AliasType] = None
 
-  override final def toString = this.presentableText
+  override final def toString = presentableText
 
   def isValue: Boolean
 
@@ -92,4 +92,8 @@ trait ScType {
   def visitType(visitor: TypeVisitor)
 
   def typeDepth: Int = 1
+
+  def presentableText: String
+
+  def canonicalText: String
 }

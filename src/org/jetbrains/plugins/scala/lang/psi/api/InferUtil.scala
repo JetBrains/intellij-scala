@@ -299,7 +299,8 @@ object InferUtil {
     }
   }
 
-  def undefineSubstitutor(typeParams: Seq[TypeParameter]): ScSubstitutor = {
+  def undefineSubstitutor(typeParams: Seq[TypeParameter])
+                         (implicit typeSystem: TypeSystem): ScSubstitutor = {
     typeParams.foldLeft(ScSubstitutor.empty) {
       (subst: ScSubstitutor, tp: TypeParameter) =>
         subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
