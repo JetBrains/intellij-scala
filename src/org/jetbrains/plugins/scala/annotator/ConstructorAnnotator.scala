@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryCo
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScConstrBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 

@@ -523,7 +523,7 @@ object ResolvableReferenceExpression {
 
   def getDynamicReturn(tp: ScType): ScType = {
     tp match {
-      case ScTypePolymorphicType(mt: ScMethodType, typeArgs) => ScTypePolymorphicType(mt.returnType, typeArgs)
+      case pt@ScTypePolymorphicType(mt: ScMethodType, typeArgs) => ScTypePolymorphicType(mt.returnType, typeArgs)(pt.typeSystem)
       case mt: ScMethodType => mt.returnType
       case _ => tp
     }

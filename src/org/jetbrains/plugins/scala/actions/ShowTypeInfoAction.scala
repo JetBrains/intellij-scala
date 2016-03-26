@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt, ScTypePresentation, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.project.ProjectExt
 

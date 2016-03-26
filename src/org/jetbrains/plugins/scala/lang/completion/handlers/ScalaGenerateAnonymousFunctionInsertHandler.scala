@@ -13,7 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType, ScTypeExt, ScTypePresentation}
+import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
 
 import scala.collection.mutable
 

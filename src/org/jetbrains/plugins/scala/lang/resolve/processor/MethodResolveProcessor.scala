@@ -423,7 +423,8 @@ object MethodResolveProcessor {
   }
 
   // TODO clean this up
-  def undefinedSubstitutor(element: PsiNamedElement, s: ScSubstitutor, proc: MethodResolveProcessor): ScSubstitutor = {
+  def undefinedSubstitutor(element: PsiNamedElement, s: ScSubstitutor, proc: MethodResolveProcessor)
+                          (implicit typeSystem: TypeSystem = element.typeSystem): ScSubstitutor = {
     import proc.typeArgElements
     if (proc.selfConstructorResolve) return ScSubstitutor.empty
 

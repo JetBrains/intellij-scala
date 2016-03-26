@@ -253,8 +253,8 @@ object ScalaPsiUtil {
   /**
   *Pick all type parameters by method maps them to the appropriate type arguments, if they are
    */
-  def inferMethodTypesArgs(fun: PsiMethod, classSubst: ScSubstitutor): ScSubstitutor = {
-
+  def inferMethodTypesArgs(fun: PsiMethod, classSubst: ScSubstitutor)
+                          (implicit typeSystem: TypeSystem = fun.typeSystem): ScSubstitutor = {
     fun match {
       case fun: ScFunction =>
         fun.typeParameters.foldLeft(ScSubstitutor.empty) {
@@ -562,7 +562,7 @@ object ScalaPsiUtil {
           }
         }
 
-        ScTypePolymorphicType(internal, clearBadLinks(typeParameters))
+        ScTypePolymorphicType(internal, clearBadLinks(typeParameters))(tp.typeSystem)
       case _ => tp
     }
   }

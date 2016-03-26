@@ -41,7 +41,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartRe
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext, TypingContextOwner}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
@@ -493,7 +493,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                 t.expectedTypeEx(fromUnderscore = false) match {
                   case Some((tp: ScType, _)) if tp equiv psi.types.Unit => //do nothing
                   case Some((tp: ScType, typeElement)) =>
-                    import org.jetbrains.plugins.scala.lang.psi.types._
                     val returnType = candidates(0) match {
                       case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst.subst)
                       case _ => return
@@ -936,7 +935,6 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           expr.expectedTypeEx(fromUnderscore) match {
             case Some((tp: ScType, _)) if tp equiv psi.types.Unit => //do nothing
             case Some((tp: ScType, typeElement)) =>
-              import org.jetbrains.plugins.scala.lang.psi.types._
               val expectedType = Success(tp, None)
               implicitFunction match {
                 case Some(fun) =>

@@ -16,6 +16,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, TypeVisitor}
 abstract class StdType(val name: String, val tSuper: Option[StdType]) extends ValueType {
   override def visitType(visitor: TypeVisitor) = visitor.visitStdType(this)
 
+  override final def presentableText = name
+
+  override final def canonicalText = name
+
   /**
    * Return wrapped to option appropriate synthetic class.
    * In dumb mode returns None (or before it ends to register classes).

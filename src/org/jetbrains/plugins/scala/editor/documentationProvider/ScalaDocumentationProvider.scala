@@ -105,7 +105,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
     val e = docedElement.getNavigationElement
 
-    def urlText = ScalaType.urlText _
+    implicit def urlText: ScType => String = e.typeSystem.urlText(_)
     e match {
       case clazz: ScTypeDefinition =>
         val buffer: StringBuilder = new StringBuilder("")
@@ -118,7 +118,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         if (pack != "") buffer.append("<font size=\"-1\"><b>" + escapeHtml(pack) + "</b></font>")
 
         buffer.append("<PRE>")
-        buffer.append(parseAnnotations(clazz, urlText))
+        buffer.append(parseAnnotations(clazz))
         val start = buffer.length
         buffer.append(parseModifiers(clazz))
         buffer.append(clazz match {
@@ -130,7 +130,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         buffer.append(parseTypeParameters(clazz))
         val end = buffer.length
         clazz match {
-          case par: ScParameterOwner => buffer.append(parseParameters(par, urlText, end - start - 7))
+          case par: ScParameterOwner => buffer.append(parseParameters(par, end - start - 7))
           case _ =>
         }
         buffer.append("\n")
@@ -143,15 +143,15 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         val buffer: StringBuilder = new StringBuilder("")
         buffer.append(parseClassUrl(fun))
         buffer.append("<PRE>")
-        buffer.append(parseAnnotations(fun, urlText))
+        buffer.append(parseAnnotations(fun))
         val start = buffer.length
         buffer.append(parseModifiers(fun))
         buffer.append("def ")
         buffer.append("<b>" + escapeHtml(fun.name) + "</b>")
         buffer.append(parseTypeParameters(fun))
         val end = buffer.length
-        buffer.append(parseParameters(fun, urlText, end - start - 7))
-        buffer.append(parseType(fun, urlText))
+        buffer.append(parseParameters(fun, end - start - 7))
+        buffer.append(parseType(fun))
         buffer.append("</PRE>")
         buffer.append(parseDocComment(fun))
 
@@ -161,7 +161,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         decl match {case decl: ScMember => buffer.append(parseClassUrl(decl)) case _ =>}
         buffer.append("<PRE>")
         decl match {
-          case an: ScAnnotationsHolder => buffer.append(parseAnnotations(an, urlText))
+          case an: ScAnnotationsHolder => buffer.append(parseAnnotations(an))
           case _ =>
         }
         decl match {case m: ScModifierListOwner => buffer.append(parseModifiers(m)) case _ =>}
@@ -170,7 +170,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
           case named: ScNamedElement => escapeHtml(named.name) case _ => "unknown"
         }) + "</b>")
         buffer.append(element match {
-          case typed: ScTypedDefinition => parseType(typed, urlText)
+          case typed: ScTypedDefinition => parseType(typed)
           case _ => ": Nothing"
         } )
         buffer.append("</PRE>")
@@ -180,7 +180,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
       case param: ScParameter =>
         val buffer: StringBuilder = new StringBuilder("")
         buffer.append("<PRE>")
-        buffer.append(parseAnnotations(param, urlText))
+        buffer.append(parseAnnotations(param))
         param match {case cl: ScClassParameter => buffer.append(parseModifiers(cl)) case _ => }
         buffer.append(param match {
           case c: ScClassParameter if c.isVal => "val "
@@ -188,7 +188,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
           case _ => ""
         })
         buffer.append("<b>" + escapeHtml(param.name) + "</b>")
-        buffer.append(parseType(param, urlText))
+        buffer.append(parseType(param))
 
         "<html><body>" + buffer.toString + "</body></html>"
       case typez: ScTypeAlias =>
@@ -196,7 +196,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         buffer.append(parseClassUrl(typez))
 
         buffer.append("<PRE>")
-        buffer.append(parseAnnotations(typez, urlText))
+        buffer.append(parseAnnotations(typez))
         buffer.append(parseModifiers(typez))
         buffer.append("type <b>" + escapeHtml(typez.name) + "</b>")
         typez match {
@@ -214,7 +214,7 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
         buffer.append("<PRE>")
         buffer.append("Pattern: ")
         buffer.append("<b>" + escapeHtml(pattern.name) + "</b>")
-        buffer.append(parseType(pattern, urlText))
+        buffer.append(parseType(pattern))
         if (pattern.getContext != null)
           pattern.getContext.getContext match {
             case co: PsiDocCommentOwner => buffer.append(parseDocComment(co, withDescription = false))
@@ -378,7 +378,8 @@ object ScalaDocumentationProvider {
     }
   }
 
-  def parseType(elem: ScTypedDefinition, typeToString: ScType => String): String = {
+  def parseType(elem: ScTypedDefinition)
+               (implicit typeToString: ScType => String): String = {
     val buffer: StringBuilder = new StringBuilder(": ")
     val typez = elem match {
       case fun: ScFunction => fun.returnType.getOrAny
@@ -395,15 +396,17 @@ object ScalaDocumentationProvider {
       escapeHtml(clazz.qualifiedName) + "</code></a>"
   }
 
-  private def parseParameters(elem: ScParameterOwner, typeToString: ScType => String, spaces: Int): String = {
-    elem.allClauses.map(parseParameterClause(_, typeToString, spaces)).mkString("\n")
+  private def parseParameters(elem: ScParameterOwner, spaces: Int)
+                             (implicit typeToString: ScType => String): String = {
+    elem.allClauses.map(parseParameterClause(_, spaces)).mkString("\n")
   }
 
-  private def parseParameterClause(elem: ScParameterClause, typeToString: ScType => String, spaces: Int): String = {
+  private def parseParameterClause(elem: ScParameterClause, spaces: Int)
+                                  (implicit typeToString: ScType => String): String = {
     val buffer: StringBuilder = new StringBuilder(" ")
     for (i <- 1 to spaces) buffer.append(" ")
     val separator = if (spaces < 0) ", " else ",\n" + buffer
-    elem.parameters.map(parseParameter(_, typeToString)).
+    elem.parameters.map(parseParameter(_)).
       mkString(if (elem.isImplicit) "(implicit " else "(", separator, ")")
   }
 
@@ -564,9 +567,10 @@ object ScalaDocumentationProvider {
     buffer.toString()
   }
 
-  def parseParameter(param: ScParameter, typeToString: ScType => String, escape: Boolean = true): String = {
+  def parseParameter(param: ScParameter, escape: Boolean = true)
+                    (implicit typeToString: ScType => String): String = {
     val buffer: StringBuilder = new StringBuilder("")
-    buffer.append(parseAnnotations(param, typeToString, ' ', escape))
+    buffer.append(parseAnnotations(param, ' ', escape))
     param match {case cl: ScClassParameter => buffer.append(parseModifiers(cl)) case _ =>}
     buffer.append(param match {
       case c: ScClassParameter if c.isVal => "val "
@@ -576,7 +580,7 @@ object ScalaDocumentationProvider {
     buffer.append(if (escape) escapeHtml(param.name) else param.name)
 
     val arrow = ScalaPsiUtil.functionArrow(param.getProject)
-    buffer.append(parseType(param, t => {
+    buffer.append(parseType(param)(t => {
       (if (param.isCallByNameParameter) s"$arrow " else "") + typeToString(t)
     }))
     if (param.isRepeatedParameter) buffer.append("*")
@@ -602,14 +606,15 @@ object ScalaDocumentationProvider {
     else ""
   }
 
-  private def parseExtendsBlock(elem: ScExtendsBlock): String = {
+  private def parseExtendsBlock(elem: ScExtendsBlock)
+                               (implicit typeToString: ScType => String): String = {
     val buffer: StringBuilder = new StringBuilder("extends ")
     elem.templateParents match {
       case Some(x: ScTemplateParents) =>
         val seq = x.allTypeElements
-        buffer.append(ScalaType.urlText(seq.head.getType(TypingContext.empty).getOrAny) + "\n")
+        buffer.append(typeToString(seq.head.getType(TypingContext.empty).getOrAny) + "\n")
         for (i <- 1 until seq.length)
-          buffer append " with " + ScalaType.urlText(seq(i).getType(TypingContext.empty).getOrAny)
+          buffer append " with " + typeToString(seq(i).getType(TypingContext.empty).getOrAny)
       case None =>
         buffer.append("<a href=\"psi_element://scala.ScalaObject\"><code>ScalaObject</code></a>")
         if (elem.isUnderCaseClass) {
@@ -646,8 +651,9 @@ object ScalaDocumentationProvider {
     buffer.toString()
   }
 
-  private def parseAnnotations(elem: ScAnnotationsHolder, typeToString: ScType => String,
-                               sep: Char = '\n', escape: Boolean = true): String = {
+  private def parseAnnotations(elem: ScAnnotationsHolder,
+                               sep: Char = '\n', escape: Boolean = true)
+                              (implicit typeToString: ScType => String): String = {
     val buffer: StringBuilder = new StringBuilder("")
     def parseAnnotation(elem: ScAnnotation): String = {
       val res = new StringBuilder("@")

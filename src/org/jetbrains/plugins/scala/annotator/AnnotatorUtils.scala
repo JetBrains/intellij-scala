@@ -9,8 +9,8 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScTypePresentation}
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypeSystem}
 
 /**
  * @author Aleksander Podkhalyuzin

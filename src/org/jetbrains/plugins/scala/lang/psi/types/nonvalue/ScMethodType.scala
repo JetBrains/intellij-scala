@@ -9,8 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, TypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeInTypeSystem, TypeSystem, TypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.immutable.{HashMap, HashSet}
 
@@ -130,7 +131,9 @@ object TypeParameter {
 }
 
 case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: Boolean)
-                       (val project: Project, val scope: GlobalSearchScope) extends NonValueType {
+                       (val project: Project, val scope: GlobalSearchScope) extends NonValueType with TypeInTypeSystem {
+  implicit val typeSystem = project.typeSystem
+
   override def visitType(visitor: TypeVisitor) = visitor.visitMethodType(this)
 
   override def typeDepth: Int = returnType.typeDepth
@@ -202,7 +205,8 @@ case class ScMethodType(returnType: ScType, params: Seq[Parameter], isImplicit: 
   }
 }
 
-case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeParameter]) extends NonValueType {
+case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeParameter])
+                                (implicit val typeSystem: TypeSystem) extends NonValueType with TypeInTypeSystem {
   if (internalType.isInstanceOf[ScTypePolymorphicType]) {
     throw new IllegalArgumentException("Polymorphic type can't have wrong internal type")
   }

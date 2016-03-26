@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeParameterType, _}
 
 object UnnecessaryPartialFunctionInspection {
@@ -49,10 +50,12 @@ class UnnecessaryPartialFunctionInspection
           ScParameterizedType(ScDesignatorType(clazz), parameterTypes(clazz)))
 
 
-  private def findPartialFunctionType(file: PsiFile): Option[ValueType] =
+  private def findPartialFunctionType(file: PsiFile)
+                                     (implicit typeSystem: TypeSystem): Option[ValueType] =
     findType(file, PartialFunctionClassName, undefinedTypeParameters)
 
-  private def undefinedTypeParameters(clazz: PsiClass): Seq[ScUndefinedType] =
+  private def undefinedTypeParameters(clazz: PsiClass)
+                                     (implicit typeSystem: TypeSystem): Seq[ScUndefinedType] =
     clazz
       .getTypeParameters
       .map(typeParameter =>

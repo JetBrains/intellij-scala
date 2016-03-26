@@ -3,7 +3,7 @@ package lang
 package psi
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeInTypeSystem, TypeSystem, TypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 
 import scala.collection.immutable.HashSet
@@ -13,12 +13,14 @@ import scala.collection.immutable.HashSet
  * In conformance using ScUndefinedSubstitutor you can accumulate information
  * about possible generic type.
  */
-case class ScUndefinedType(tpt: ScTypeParameterType) extends NonValueType {
+case class ScUndefinedType(tpt: ScTypeParameterType)(implicit val typeSystem: TypeSystem)
+  extends NonValueType with TypeInTypeSystem {
   var level = 0
 
   override def visitType(visitor: TypeVisitor) = visitor.visitUndefinedType(this)
 
-  def this(tpt: ScTypeParameterType, level: Int) {
+  def this(tpt: ScTypeParameterType, level: Int)
+          (implicit typeSystem: TypeSystem) {
     this(tpt)
     this.level = level
   }
@@ -26,7 +28,7 @@ case class ScUndefinedType(tpt: ScTypeParameterType) extends NonValueType {
   def inferValueType: ValueType = tpt
 
   override def equivInner(r: ScType, subst: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = subst
     r match {
       case _ if falseUndef => (false, undefinedSubst)
@@ -68,7 +70,7 @@ case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType
   }
 
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     r match {
       case _ if falseUndef => (false, uSubst)
       case rt =>

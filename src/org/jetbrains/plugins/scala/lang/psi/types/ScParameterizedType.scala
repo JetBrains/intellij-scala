@@ -17,14 +17,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeInTypeSystem, TypeSystem, TypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 import scala.collection.immutable.{HashSet, ListMap, Map}
 
-case class JavaArrayType(arg: ScType) extends ValueType {
+case class JavaArrayType(arg: ScType)(implicit val typeSystem: TypeSystem) extends ValueType with TypeInTypeSystem {
 
   def getParameterizedType(project: Project, scope: GlobalSearchScope): Option[ScType] = {
     val arrayClasses = ScalaPsiManager.instance(project).getCachedClasses(scope, "scala.Array")
