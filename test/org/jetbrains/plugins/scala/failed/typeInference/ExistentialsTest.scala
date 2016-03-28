@@ -31,4 +31,21 @@ class ExistentialsTest extends TypeInferenceTestBase {
       |//SCL7895.F[_]
     """.stripMargin.trim
   )
+
+  def testSCL8610(): Unit = doTest {
+    """
+      |object SCL8610 {
+      |trait A[T] {
+      |  def foo(x : T => T)
+      |}
+      |
+      |trait B {
+      |  def bar(x : A[_]) {
+      |    x.foo(/*start*/y => y/*end*/) // here
+      |  }
+      |}
+      |}
+      |//(_$1) => _$1
+    """.stripMargin.trim
+  }
 }
