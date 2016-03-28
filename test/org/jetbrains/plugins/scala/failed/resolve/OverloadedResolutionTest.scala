@@ -8,6 +8,6 @@ import org.junit.experimental.categories.Category
   */
 
 @Category(Array(classOf[PerfCycleTests]))
-class OverloadedResolution extends FailedResolveTest("overloadedResolution") {
+class OverloadedResolutionTest extends FailedResolveTest("overloadedResolution") {
   def testSCL2911(): Unit = doTest()
 }

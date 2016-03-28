@@ -23,4 +23,17 @@ class PrimitivesTest extends TypeInferenceTestBase {
       |    }
       |    
       |    //Double""".stripMargin)
+
+  def testSCL7101(): Unit = doTest {
+    """
+      |object SCL7101 {
+      |  def fun(x: Byte): Byte = x
+      |
+      |  def fun(x: Boolean): Boolean = x
+      |
+      |  /*start*/fun((10))/*end*/
+      |}
+      |//Byte
+    """.stripMargin.trim
+  }
 }
