@@ -26,4 +26,18 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def testSCL8161() = {
+    val text =
+      """
+        |trait TypeMismatch {
+        |  type M[X]
+        |
+        |  def ok[F[_],A](v: F[A]) = ???
+        |
+        |  ok(??? : M[Option[Int]])
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
 }
