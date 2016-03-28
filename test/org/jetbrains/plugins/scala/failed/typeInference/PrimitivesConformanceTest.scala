@@ -16,4 +16,11 @@ class PrimitivesConformanceTest extends TypeConformanceTestBase{
       |
       |/* True */
     """.stripMargin)
+
+  def testSCL5358() = doTest(
+      """
+        |final val x = 0
+        |val y: Byte = x
+        |/* True */
+      """.stripMargin)
 }
