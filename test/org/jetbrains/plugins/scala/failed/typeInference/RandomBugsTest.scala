@@ -8,7 +8,7 @@ import org.junit.experimental.categories.Category
   * Created by mucianm on 22.03.16.
   */
 @Category(Array(classOf[PerfCycleTests]))
-class RandomBugs extends TypeInferenceTestBase {
+class RandomBugsTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "bugs5/"
 
   def testSCL7521() = doTest()

@@ -9,8 +9,9 @@ import org.junit.experimental.categories.Category
   */
 
 @Category(Array(classOf[PerfCycleTests]))
-class PartialFunction extends TypeInferenceTestBase {
+class TurplesTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "bugs5/"
 
-  def testSCL6716() = doTest()  // require PartialFunction, not function
+  def testSCL6008(): Unit = doTest()
+
 }

@@ -5,17 +5,12 @@ import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 import org.junit.experimental.categories.Category
 
 /**
-  * Created by kate on 3/24/16.
+  * Created by kate on 3/25/16.
   */
 
 @Category(Array(classOf[PerfCycleTests]))
-class OperatorsPriority extends TypeInferenceTestBase {
-  def testSCL8595() = {
-    val text =
-      """
-        |def test(b: Boolean, i: Int): Boolean = b == /*start*/i < 4/*end*/
-        |
-        |//Boolean""".stripMargin
-    doTest(text)
-  }
+class PartialFunctionTest extends TypeInferenceTestBase {
+  override def folderPath: String = super.folderPath + "bugs5/"
+
+  def testSCL6716() = doTest()  // require PartialFunction, not function
 }

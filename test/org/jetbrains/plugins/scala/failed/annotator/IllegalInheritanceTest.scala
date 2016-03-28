@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category
   * Created by kate on 3/23/16.
   */
 @Category(Array(classOf[PerfCycleTests]))
-class IllegalInheritance extends AnnotatorTestBase(IllegalInheritance){
+class IllegalInheritanceTest extends AnnotatorTestBase(IllegalInheritance){
   def testSCL8628(): Unit = {
     assertNothing(
       messages(

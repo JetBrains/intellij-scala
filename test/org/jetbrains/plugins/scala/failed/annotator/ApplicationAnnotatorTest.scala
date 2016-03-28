@@ -1,12 +1,15 @@
 package org.jetbrains.plugins.scala.failed
 package annotator
 
+import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.annotator._
+import org.junit.experimental.categories.Category
 
 /**
   * Created by kate on 3/24/16.
   */
-class ApplicationAnnotator extends ApplicationAnnotatorTestBase {
+@Category(Array(classOf[PerfCycleTests]))
+class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
   def testSCL4655(): Unit = {
     assertMatches(messages(
       """
