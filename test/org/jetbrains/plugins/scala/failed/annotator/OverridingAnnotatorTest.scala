@@ -67,4 +67,21 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
       )
     )
   }
+
+  def testScl9767(): Unit = {
+    assertMatches(
+      messages(
+        """case class Q[B](b: B)
+          |
+          |trait Foo[A] {
+          |  def method(value: A): Unit
+          |
+          |  def concat[T](that: Foo[T]): Foo[Q[A]] = new Foo[Q[A]] {
+          |    override def method(value: Q[A]): Unit = ()
+          |  }
+          |}
+        """.stripMargin)) {
+      case Nil =>
+    }
+  }
 }
