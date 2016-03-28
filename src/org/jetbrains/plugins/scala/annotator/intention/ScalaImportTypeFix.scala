@@ -51,7 +51,10 @@ import scala.collection.mutable.ArrayBuffer
 class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScReferenceElement) extends {
   val project = ref.getProject
 } with HintAction {
-  val getText = ScalaBundle.message("import.with", classes(0).qualifiedName)
+
+  def getText =
+    if (classes.length == 1) ScalaBundle.message("import.with", classes(0).qualifiedName)
+    else ScalaBundle.message("import.class")
 
   def getFamilyName = ScalaBundle.message("import.class")
 
