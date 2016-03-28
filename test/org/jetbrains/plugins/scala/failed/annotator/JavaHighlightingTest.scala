@@ -101,4 +101,39 @@ class JavaHighlightingTest extends JavaHighltightingTestBase {
 
     assertNoErrors(messagesFromScalaCode(scala, java))
   }
+
+  def testSCL7069() = {
+    val scala =
+      """
+        |package z
+        |import z.Test.U
+        |
+        |class R {
+        |  val u: U[Any] = new U[Any]
+        |
+        |  Test.foo(u)
+        |}
+      """.stripMargin
+
+    val java =
+      """
+        |package z;
+        |public class Test {
+        |    public static class U<T> {
+        |
+        |    }
+        |
+        |    public static int foo(U<? extends Object> u) {
+        |        return 1;
+        |    }
+        |
+        |    public static boolean foo(String s) {
+        |        return false;
+        |    }
+        |}
+        |
+      """.stripMargin
+
+    assertNoErrors(messagesFromScalaCode(scala, java))
+  }
 }
