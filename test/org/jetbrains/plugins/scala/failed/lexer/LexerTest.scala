@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.failed.lexer
 import com.intellij.lexer.Lexer
 import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.junit.experimental.categories.Category
 
 
@@ -21,6 +21,12 @@ class LexerTest extends SimpleTestCase {
         Seq("val", " ", "x", " ", "=", " ", "???", "//", "TODO")
       )
     )
+  }
+
+  def testSCL6261(): Unit = {
+    lexer.start("⚕")
+    val tokenType = lexer.getTokenType
+    assert(tokenType == ScalaTokenTypes.tIDENTIFIER, s"Token has wrong type: $tokenType")
   }
 
   protected def compare(text: String, tokens: Seq[String]): Boolean = {
