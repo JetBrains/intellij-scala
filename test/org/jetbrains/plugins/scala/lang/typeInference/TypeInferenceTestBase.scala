@@ -44,7 +44,7 @@ abstract class TypeInferenceTestBase extends ScalaLightPlatformCodeInsightTestCa
   }
 
   protected def doTest(fileText: String, fileName: String = "dummy.scala") {
-    val cleanedText = fileText.replace("\r", "")
+    val cleanedText = fileText.trim().replace("\r", "")
     configureFromFileTextAdapter(fileName, cleanedText)
     val scalaFile: ScalaFile = getFileAdapter.asInstanceOf[ScalaFile]
     val offset = cleanedText.indexOf(START)
