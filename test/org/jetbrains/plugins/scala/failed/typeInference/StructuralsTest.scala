@@ -31,4 +31,16 @@ class StructuralsTest extends TypeInferenceTestBase {
       |//Int
     """.stripMargin
   }
+
+  def testSCL4724(): Unit = doTest {
+    """
+      |class SCL4724 {
+      |  def foo(x: Set[{ val bar: Int }]) = 1
+      |  def foo(s: String) = false
+      |
+      |  /*start*/foo(Set(new { val bar = 1 }) ++ Set(new { val bar = 2 }))/*end*/
+      |}
+      |//Int
+    """.stripMargin.trim
+  }
 }
