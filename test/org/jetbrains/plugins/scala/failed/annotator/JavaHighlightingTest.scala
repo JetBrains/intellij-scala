@@ -136,4 +136,26 @@ class JavaHighlightingTest extends JavaHighltightingTestBase {
 
     assertNoErrors(messagesFromScalaCode(scala, java))
   }
+
+  def testSCL6114() = {
+    val scala =
+      """
+        |package foo;
+        |
+        |package bar {
+        |  class Test
+        |}
+      """.stripMargin
+
+    val java =
+      """
+        |package foo;
+        |
+        |class A {
+        |    public bar.Test something;  // Test is red - cannot resolve symbol Test.
+        |}
+      """.stripMargin
+
+    assertNoErrors(messagesFromJavaCode(scala, java, "A"))
+  }
 }
