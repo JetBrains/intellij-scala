@@ -204,6 +204,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
 
   private def copyMethodText: String = {
     val x = constructor.getOrElse(return "")
+    val className = name
     val paramString = (if (x.parameterList.clauses.length == 1 &&
       x.parameterList.clauses.head.isImplicit) "()" else "") + x.parameterList.clauses.map{ c =>
       val start = if (c.isImplicit) "(implicit " else "("
@@ -212,7 +213,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
           case Some(te) => te.getText
           case None => "Any"
         }
-        p.name + " : " + paramType + " = this." + p.name
+        s"${p.name} : $paramType = $className.this.${p.name}"
       }.mkString(start, ", ", ")")
     }.mkString("")
 
