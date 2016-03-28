@@ -4,12 +4,14 @@ package parser
 
 import _root_.com.intellij.psi.util.PsiTreeUtil
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import com.intellij.lang.{ASTNode, ParserDefinition, PsiParser}
+import com.intellij.lang.{ASTNode, ParserDefinition}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IFileElementType, TokenSet}
 import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
+import org.jetbrains.plugins.dotty.lang.parser.DottyParser
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings._
 
 /**
@@ -22,9 +24,9 @@ class ScalaParserDefinition extends ScalaParserDefinitionWrapper{
     new ScalaLexer(treatDocCommentAsBlockComment)
   }
 
-  def createLexer = new ScalaLexer
-
-  def createParser(project: Project): PsiParser = new ScalaParser
+  def createParser(project: Project) = {
+    if (project.hasDotty) new DottyParser else new ScalaParser
+  }
 
   def getFileNodeType: IFileElementType = ScalaElementTypes.FILE
 
