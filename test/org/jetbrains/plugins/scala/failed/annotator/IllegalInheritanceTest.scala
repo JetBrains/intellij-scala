@@ -46,4 +46,15 @@ class IllegalInheritanceTest extends AnnotatorTestBase(IllegalInheritance){
         """.stripMargin
       ))
   }
+
+  def testSCL8122(): Unit = {
+    assertNothing(
+      messages(
+        """
+          |trait Trait { this: Singleton => }
+          |object Ob extends Trait
+        """.stripMargin
+      ))
+  }
+
 }
