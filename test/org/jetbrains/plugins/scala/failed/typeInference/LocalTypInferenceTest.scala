@@ -63,4 +63,16 @@ class LocalTypInferenceTest extends TypeInferenceTestBase {
       |//F[A => B]
     """.stripMargin.trim
   }
+
+  def testSCL6482(): Unit = doTest {
+    """
+      |object SCL6482 {
+      |  class Foo[T, U <: T](u: U)
+      |  def foo[T](t: T) = new Foo(t)
+      |
+      |  /*start*/foo(1)/*end*/
+      |}
+      |//SCL6482.Foo[Int, Int]
+    """.stripMargin.trim
+  }
 }
