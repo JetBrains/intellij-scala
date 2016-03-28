@@ -27,8 +27,8 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
       ).nonEmpty)
   }
 
-  def testScl8228(): Unit = {
-    assert(
+  def testSCL8228(): Unit = {
+    assertNothing(
       messages(
         """
           |  trait TraitWithGeneric [T]{
@@ -46,7 +46,25 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
           |  }
           |  object ItActuallyCompilesAndWorks extends TraitWithGeneric[Unit] with SelfTypeWildcard
           |  ItActuallyCompilesAndWorks.method // returns "inspection problem here for selftype"
-        """.stripMargin).isEmpty
+        """.stripMargin)
+    )
+  }
+
+  def testSCL7987(): Unit = {
+    assertNothing(
+      messages(
+        """
+          |trait Foo {
+          |  protected type T
+          |  def foo(t: T)
+          |}
+          |
+          |new Foo {
+          |  override protected type T = String // will pass if protected modifier is removed
+          |  override def foo(t: T) = ()
+          |}
+        """.stripMargin
+      )
     )
   }
 }
