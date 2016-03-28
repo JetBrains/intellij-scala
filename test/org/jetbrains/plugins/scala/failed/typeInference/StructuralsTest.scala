@@ -43,4 +43,42 @@ class StructuralsTest extends TypeInferenceTestBase {
       |//Int
     """.stripMargin.trim
   }
+
+  def testSCL3938(): Unit = doTest {
+    """
+      |object SCL3938 {
+      |  type Tagged[U] = {type Tag = U}
+      |  type @@[T, U] = T with Tagged[U]
+      |
+      |  def tag[U, T](t: T): T @@ U = t.asInstanceOf[T @@ U]
+      |
+      |  trait Day
+      |  type Daytime = java.lang.Long @@ Day
+      |  type DaytimeScalaLong = Long @@ Day
+      |
+      |  def foo1(d: Daytime): Int = 1
+      |  def foo1(s: String): String = "Text"
+      |  def foo2(d: Daytime): Int = 2
+      |  def foo2(s: String): String = s
+      |  def foo3(d: java.lang.Long @@ Day): Int = 1
+      |  def foo3(s: String): String = s
+      |  def foo4(d: DaytimeScalaLong): Int = 1
+      |  def foo4(s: String): String = s
+      |
+      |  val i: java.lang.Long = 1L
+      |  /*start*/(foo1(tag(i)), foo2(i.asInstanceOf[java.lang.Long @@ Nothing]), foo3(i.asInstanceOf[java.lang.Long @@ Nothing]), foo4(tag(1L)))/*end*/
+      |
+      |  def daytime1(i: java.lang.Long): Daytime = tag(i) //good code red
+      |  def daytime2(i: java.lang.Long): java.lang.Long @@ Day = tag(i) //green code green
+      |  def daytime3(i: java.lang.Long): Daytime = i.asInstanceOf[java.lang.Long @@ Nothing] //bad code red
+      |  def daytime4(i: java.lang.Long): java.lang.Long @@ Day = i.asInstanceOf[java.lang.Long @@ Nothing] //bad code red
+      |
+      |  //for some weird reason if you replace java.lang.Long with Long
+      |  //his stops compiling and highlighting is correct:
+      |
+      |  def daytime1(i: Long): DaytimeScalaLong = tag(i) //bad code red
+      |}
+      |//(Int, Int, Int, Int)
+    """.stripMargin.trim
+  }
 }
