@@ -1,0 +1,49 @@
+package org.jetbrains.plugins.scala.failed.resolve
+
+import com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.plugins.scala.PerfCycleTests
+import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.junit.experimental.categories.Category
+
+/**
+  * @author mucianm 
+  * @since 25.03.16.
+  */
+@Category(Array(classOf[PerfCycleTests]))
+class OverrideUnapplyTest extends SimpleTestCase {
+
+  private val CARET = "<caret>"
+
+  def testSCL2676(): Unit = {
+    val m =
+      """
+        |case class Test[T](a: T, b: Int)
+        |
+        |object Test {
+        |  def unapply(str: String): Option[(String, Int)] = Some((str, 0))
+        |
+        |  def test[T](obj: Test[T]) = {
+        |    val <caret>Test(a, b) = obj
+        |    (a, b)
+        |  }
+        |}
+      """
+    val trimmed = m.trim
+    val pos = trimmed.indexOf(CARET)
+    val psi = trimmed.replaceAll(CARET, "").parse
+    val expr = psi.elementAt(pos).get match {
+      case e: LeafPsiElement =>
+        Some(e.getParent.asInstanceOf[ScStableCodeReferenceElement].resolve())
+      case other =>
+        None
+    }
+    expr match {
+      case Some(f: ScFunctionDefinition) => assert(!f.isSynthetic, "Unapply doesn't resolve to overriding method")
+      case _ => assert(false)
+    }
+  }
+
+
+}
