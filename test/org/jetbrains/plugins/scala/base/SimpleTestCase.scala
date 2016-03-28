@@ -40,6 +40,12 @@ abstract class SimpleTestCase extends UsefulTestCase {
             .asInstanceOf[ScalaFile]
   }
 
+  def parseText(@Language("Scala") s: String, caretMarker: String): (ScalaFile, Int) = {
+    val trimmed = s.trim
+    val caretPos = trimmed.indexOf(caretMarker)
+    (parseText(trimmed.replaceAll(caretMarker, "")), caretPos)
+  }
+
   implicit class Findable(val element: ScalaFile) {
     def target: PsiElement = element.depthFirst
       .dropWhile(!_.isInstanceOf[PsiComment])
