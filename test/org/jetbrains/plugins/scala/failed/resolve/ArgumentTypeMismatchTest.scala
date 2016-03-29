@@ -66,9 +66,9 @@ class ArgumentTypeMismatchTest extends SimpleTestCase {
     val annotator = new ApplicationAnnotator {}
     val mock = new AnnotatorHolderMock
 
-    val refExpr = code.parse.depthFirst.find(elem => elem.isInstanceOf[ScReferenceExpression] &&
-      elem.getText == "goo(foo).m").get.asInstanceOf[ScReferenceExpression]
-    annotator.annotateReference(refExpr, mock)
+    code.parse.depthFirst.filter(elem => elem.isInstanceOf[ScReferenceExpression]).foreach {
+      case ref: ScReferenceExpression => annotator.annotateReference(ref, mock)
+    }
     mock.annotations
   }
 }
