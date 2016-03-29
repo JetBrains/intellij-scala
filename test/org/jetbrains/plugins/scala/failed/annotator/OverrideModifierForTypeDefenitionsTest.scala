@@ -10,7 +10,7 @@ import org.junit.experimental.categories.Category
 
 //check in ScalaAnnotator with ModifierChecker.checkModifiers
 @Category(Array(classOf[PerfCycleTests]))
-class OverrideModifierForTypeDefenitions extends ScalaLightCodeInsightFixtureTestAdapter{
+class OverrideModifierForTypeDefenitionsTest extends ScalaLightCodeInsightFixtureTestAdapter{
   def testSCL9700(): Unit = {
     checkTextHasNoErrors(
       """
