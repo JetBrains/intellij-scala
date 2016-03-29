@@ -30,6 +30,37 @@ class ArgumentTypeMismatchTest extends SimpleTestCase {
       """.stripMargin
     assert(messages(code).isEmpty)
   }
+  
+  def testSCL9686() = assert(
+    messages {
+      """
+        |class Scl9686 {
+        |  class A {
+        |    def foo(a: Int = 1): Unit = {}
+        |  }
+        |
+        |  class B extends A {
+        |    override def foo(a: Int): Unit = {}
+        |  }
+        |
+        |  class C extends B {
+        |    override def foo(a: Int): Unit = {}
+        |  }
+        |
+        |  class D extends C {
+        |    override def foo(a: Int): Unit = {}
+        |  }
+        |
+        |  object Some {
+        |    def main(args: Array[String]) {
+        |      (new B()).foo()
+        |      (new C()).foo() // Error: Cannot resolve reference foo() with such signature
+        |      (new D()).foo() // Error: Cannot resolve reference foo() with such signature
+        |    }
+        |  }
+        |}""".stripMargin
+    }.isEmpty
+  )
 
   def messages(@Language(value = "Scala") code: String) = {
     val annotator = new ApplicationAnnotator {}
