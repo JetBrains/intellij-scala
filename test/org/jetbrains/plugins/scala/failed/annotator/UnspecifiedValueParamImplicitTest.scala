@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category
   */
 
 @Category(Array(classOf[PerfCycleTests]))
-class UnspecifiedValueParamImplicit extends ScalaLightCodeInsightFixtureTestAdapter {
+class UnspecifiedValueParamImplicitTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testSCL10045(): Unit = {
     checkTextHasNoErrors(
       """
