@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category
   */
 
 @Category(Array(classOf[PerfCycleTests]))
-class OperatorsPriorityTest extends TypeInferenceTestBase {
+class OperatorsTest extends TypeInferenceTestBase {
   def testSCL8595() = {
     val text =
       """
@@ -17,5 +17,18 @@ class OperatorsPriorityTest extends TypeInferenceTestBase {
         |
         |//Boolean""".stripMargin
     doTest(text)
+  }
+
+  def testSCL5723(): Unit = doTest {
+    """
+      |trait Foo {
+      |  def `\\`(bar: Int): Int = 1
+      |
+      |  def test(f: Foo) {
+      |    /*start*/f \ 33/*end*/
+      |  }
+      |}
+      |//Int
+    """.stripMargin.trim
   }
 }
