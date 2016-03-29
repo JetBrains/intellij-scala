@@ -65,4 +65,16 @@ class ImplicitsTest extends TypeInferenceTestBase {
       |//Int
     """.stripMargin.trim
   }
+
+  def testSCL7809(): Unit = doTest {
+    """
+      |class SCL7809 {
+      |  implicit def longToString(s: Long): String = s.toString
+      |  def useString(s: String) = s
+      |  def useString(d: Boolean) = d
+      |  /*start*/useString(1)/*end*/
+      |}
+      |//String
+    """.stripMargin.trim
+  }
 }
