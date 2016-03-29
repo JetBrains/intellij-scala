@@ -75,6 +75,20 @@ class LocalTypInferenceTest extends TypeInferenceTestBase {
       |//SCL6482.Foo[Int, Int]
     """.stripMargin.trim
   }
+  
+  def testSCL6233(): Unit = doTest {
+    """
+      |  class EnumSetTest {
+      |
+      |    object Enum extends Enumeration {
+      |      val e1, e2, e3, e4 = Value
+      |    }
+      |
+      |    def mapOfSets: Map[Enum.Value, Set[Long]] = /*start*/(Enum.values map (e ⇒ e → Set(1, 2, 4))).toMap/*end*/
+      |
+      |  }
+      |//Map[EnumSetTest.this.Enum.Value, Set[Long]]""".stripMargin
+  }
 
   def testSCL7970(): Unit = doTest(
     """
