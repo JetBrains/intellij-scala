@@ -36,4 +36,20 @@ class WideningBeforeImplicitConversionTest extends TypeInferenceTestBase {
         |//Value.Value.T""".stripMargin
     doTest(text)
   }
+
+  def testSCL8234(): Unit = {
+    doTest(
+      s"""object Test {
+         |  implicit class Gram(number: Double) {
+         |    def g: Gram = this
+         |
+         |    def kg: Gram = Gram(number * 1000)
+         |  }
+         |
+         |  def main(args: Array[String]): Unit = {
+         |    ${START}1.kg$END
+         |  }
+         |}
+         |//Gram""".stripMargin)
+  }
 }
