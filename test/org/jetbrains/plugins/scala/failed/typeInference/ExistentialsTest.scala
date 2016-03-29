@@ -12,11 +12,60 @@ import org.junit.experimental.categories.Category
 class ExistentialsTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "bugs5/"
 
-  def testSCL10037(): Unit = doTest()
+  def testSCL10037() = doTest {
+    """
+      |import scala.language.existentials
+      |class SCL10037 {
+      |
+      |  trait A
+      |
+      |  trait B[a <: A]{
+      |    def c:CWithA[a]
+      |  }
+      |
+      |  trait C[a <: A, _ <: B[a]]
+      |
+      |  type BAny = B[_ <: A]
+      |  type CWithA[a <: A] = C[a, _ <: B[a]]
+      |  type CAny =  C[a, _ <: B[a]] forSome {type a <: A}
+      |
+      |  def f(c:CAny): Int = 1
+      |  def f(s: String): String = s
+      |  val b:BAny= null
+      |  /*start*/f(b.c)/*end*/
+      |}
+      |//Int
+    """.stripMargin.trim
+  }
   
-  def testSCL9474() = doTest()
+  def testSCL9474() = doTest {
+    """
+      |object Foo {
+      |  trait Sys[L <: Sys[L]]
+      |
+      |  trait SkipMap[E <: Sys[E], A, B] {
+      |    def add(entry: (A, B)): Option[B]
+      |  }
+      |
+      |  trait Output[C <: Sys[C]]
+      |
+      |  class OutputImpl[S <: Sys[S]](proc: Proc[S]) extends Output[S] {
+      |    import proc.{outputs => map}
+      |
+      |    def add(key: String, value: Output[S]): Unit =
+      |      map.add(key -> /*start*/value/*end*/)   // type mismatch here
+      |  }
+      |
+      |  trait Proc[J <: Sys[J]] {
+      |    def outputs: SkipMap[J, String, Output[J]]
+      |  }
+      |}
+      |
+      |//Foo.Output[J]
+    """.stripMargin.trim
+  }
 
-  def testSCL7895() = doTest(
+  def testSCL7895() = doTest {
     """
       |object SCL7895 {
       |  import scala.language.existentials
@@ -30,7 +79,7 @@ class ExistentialsTest extends TypeInferenceTestBase {
       |}
       |//SCL7895.F[_]
     """.stripMargin.trim
-  )
+  }
 
   def testSCL8610(): Unit = doTest {
     """
