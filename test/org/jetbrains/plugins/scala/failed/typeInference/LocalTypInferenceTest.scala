@@ -75,4 +75,18 @@ class LocalTypInferenceTest extends TypeInferenceTestBase {
       |//SCL6482.Foo[Int, Int]
     """.stripMargin.trim
   }
+
+  def testSCL7970(): Unit = doTest(
+    """
+      |trait Set[-A]{
+      |  private val self = this
+      |
+      |  def contains(e: A): Boolean
+      |
+      |  def x[B](other: Set[B]): Set[(A, B)] = new Set[(A, B)] {
+      |    override def contains(e: (A, B)): Boolean = (self /*start*/contains/*end*/ e._1) && (other contains e._2)
+      |  }
+      |}
+      |//(A) => Boolean
+    """.stripMargin)
 }
