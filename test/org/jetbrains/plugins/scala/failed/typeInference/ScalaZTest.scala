@@ -24,4 +24,22 @@ class ScalaZTest extends TypeInferenceTestBase {
         |//Either[String, Option[Int]]
       """.stripMargin)
   }
+
+  def testSCL5706(): Unit = {
+    doTest(
+      s"""
+         |import scalaz._, Scalaz._
+         |object Application {
+         |  type Va[+A] = ValidationNel[String, A]
+         |
+         |  def v[A](field: String, validations: Va[A]*): (String, Va[List[A]]) = {
+         |    (field, ${START}validations.toList.sequence$END)
+         |  }
+         |}
+         |
+         |
+         |//Va[List[A]]
+       """.stripMargin
+    )
+  }
 }
