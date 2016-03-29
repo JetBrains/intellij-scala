@@ -9,6 +9,15 @@ import com.intellij.psi.{PsiElement, PsiFile, SmartPointerManager}
 * Nikolay.Tropin
 * 2014-11-12
 */
+
+/**
+  * The purpose of this class is to avoid holding references to instances of PsiElement in a quickfix.
+  * Quickfix may be invoked after reparsing of the file so psiElements which existed when quickfix was created may
+  * be invalidated.
+  *
+  * Important: Use methods getElement, getStartElement, getEndElement to get psiElements passed via constructor
+  * arguments.
+  */
 abstract class AbstractFixOnPsiElement[T <: PsiElement](name: String, startElement: T, endElement: T)
         extends LocalQuickFixOnPsiElement(startElement, endElement) {
 
