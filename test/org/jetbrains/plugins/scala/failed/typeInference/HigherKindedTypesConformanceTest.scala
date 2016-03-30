@@ -51,4 +51,31 @@ class HigherKindedTypesConformanceTest extends TypeConformanceTestBase {
     """.stripMargin.trim
   }
 
+  def testSCL9088(): Unit = doTest {
+    s"""trait Bar {
+      |  type FooType[T] <: Foo[T]
+      |
+      |  trait Foo[T] {
+      |    val x: T
+      |  }
+      |
+      |  def getFoo[T](x: T): FooType[T]
+      |}
+      |
+      |class BarImpl extends Bar {
+      |  case class FooImpl[T](x: T) extends Foo[T]
+      |
+      |  override type FooType[R] = FooImpl[R]
+      |
+      |  override def getFoo[R](x: R): FooType[R] = FooImpl[R](x)
+      |}
+      |
+      |trait Container[B <: Bar] {
+      |  val profile: B
+      |
+      |  ${caretMarker}val test: B#FooType[Int] = profile.getFoo[Int](5)
+      |}
+      |//true""".stripMargin
+  }
+
 }

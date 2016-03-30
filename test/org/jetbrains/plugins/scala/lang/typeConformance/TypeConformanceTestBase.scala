@@ -52,7 +52,13 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
             text.substring(2, text.length - 2).trim
           case _ => fail("Test result must be in last comment statement")
         }
-        if (java.lang.Boolean.parseBoolean(output.asInstanceOf[String]) != res) fail(s"Conformance failure")
+        val expectedResult = java.lang.Boolean.parseBoolean(output.asInstanceOf[String])
+        if (expectedResult != res)
+          fail(
+            s"""Conformance failure
+               |Expected result: $expectedResult
+               |declared type: ${declaredType.presentableText}
+               |rhs type:      ${rhsType.presentableText}""".stripMargin)
       case Failure(msg, elem) => assert(assertion = false, message = msg + " :: " + elem.get.getText)
     }
   }
