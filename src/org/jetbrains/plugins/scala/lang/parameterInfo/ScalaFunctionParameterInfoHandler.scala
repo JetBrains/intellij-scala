@@ -504,7 +504,11 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                           {collectForType(typez)}
                     }
                   } else {
-                    val variants: Array[ResolveResult] = ref.getSameNameVariants
+                    val variants: Array[ResolveResult] = {
+                      val sameName = ref.getSameNameVariants
+                      if (sameName.isEmpty) ref.multiResolve(false)
+                      else sameName
+                    }
                     for {
                       variant <- variants
                       if !variant.getElement.isInstanceOf[PsiMember] ||

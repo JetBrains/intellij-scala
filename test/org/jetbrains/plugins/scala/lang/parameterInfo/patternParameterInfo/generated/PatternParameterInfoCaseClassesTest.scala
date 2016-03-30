@@ -8,4 +8,6 @@ class PatternParameterInfoCaseClassesTest extends PatternParameterInfoTestBase {
   def testCaseClass() = doTest()
 
   def testCaseClassB() = doTest()
+
+  def testAliasedPattern() = doTest()
 }
