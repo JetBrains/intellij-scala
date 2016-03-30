@@ -7,18 +7,33 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiFile
+import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 
 object CaseClassWithoutParamList extends AnnotatorPart[ScClass] {
   def kind: Class[ScClass] = classOf[ScClass]
 
   def annotate(element: ScClass, holder: AnnotationHolder, typeAware: Boolean) {
+    def createAnnotation(nameId: PsiElement) = {
+      if (element.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_11)) {
+        val message = "case classes without a parameter list are not allowed"
+        val errAnnot = holder.createErrorAnnotation(nameId, message)
+        errAnnot.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+        errAnnot
+      }
+      else {
+        val message = "case classes without a parameter list have been deprecated"
+        val deprAnnot = holder.createWarningAnnotation(nameId, message)
+        deprAnnot.setHighlightType(ProblemHighlightType.LIKE_DEPRECATED)
+        deprAnnot
+      }
+    }
+
     if (element.isCase && !element.clauses.exists(_.clauses.nonEmpty)) {
       val nameId = element.nameId
-      val annotation = holder.createWarningAnnotation(nameId, "case classes without a parameter list have been deprecated")
-      annotation.setHighlightType(ProblemHighlightType.LIKE_DEPRECATED)
+      val annotation = createAnnotation(nameId)
       val fixes = Seq(new ConvertToObjectFix(element), new AddEmptyParenthesesToPrimaryConstructorFix(element))
       fixes.foreach(fix => annotation.registerFix(fix, nameId.getTextRange))
     }
