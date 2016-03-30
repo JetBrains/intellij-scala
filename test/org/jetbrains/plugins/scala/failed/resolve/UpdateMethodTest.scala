@@ -1,11 +1,14 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
+import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
 /**
   * @author Nikolay.Tropin
   */
+@Category(Array(classOf[PerfCycleTests]))
 class UpdateMethodTest extends FailedResolveTest("updateMethod") {
   def testSCL5739() = {
     findReferenceAtCaret() match {
