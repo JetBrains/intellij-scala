@@ -7,20 +7,17 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.impl.DebugUtil;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
-import org.jetbrains.plugins.scala.PerfCycleTests;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
 @RunWith(AllTests.class)
-@Category(value = {PerfCycleTests.class})
-public class FailedParserTest extends BaseScalaFileSetTestCase {
+public abstract class FailedParserTest extends BaseScalaFileSetTestCase {
     @NonNls
     private static final String DATA_PATH = "/parser/failed";
 
-    public FailedParserTest() {
+    FailedParserTest() {
         super(System.getProperty("path") != null ?
                 System.getProperty("path") :
                 TestUtils.getTestDataPath() + DATA_PATH
@@ -36,8 +33,7 @@ public class FailedParserTest extends BaseScalaFileSetTestCase {
     }
 
     public static Test suite() {
-        return new FailedParserTest();
+        return new ScalaFailedParserTest();
     }
-
 }
 
