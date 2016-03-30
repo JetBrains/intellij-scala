@@ -6,7 +6,7 @@ import com.intellij.execution.configurations.JavaParameters
 import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.icons.AllIcons
-import com.intellij.ide.scratch.{ScratchRootType, ScratchFileService}
+import com.intellij.ide.scratch.{ScratchFileService, ScratchRootType}
 import com.intellij.ide.util.EditorHelper
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
@@ -14,7 +14,7 @@ import com.intellij.openapi.application.{ApplicationManager, ModalityState}
 import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification, CompilerManager}
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.keymap.{KeymapManager, KeymapUtil}
-import com.intellij.openapi.module.{ModuleManager, Module}
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkType, JdkUtil}
 import com.intellij.openapi.roots.{ModuleRootManager, ProjectFileIndex}
@@ -145,7 +145,6 @@ object RunWorksheetAction {
 
     params.getClassPath.addAllFiles(files.asJava)
     params.setUseDynamicClasspath(JdkUtil.useDynamicClasspath(project))
-    params.setUseDynamicVMOptions(JdkUtil.useDynamicVMOptions())
     params.getClassPath.add(ScalaUtil.runnersPath())
     params.setWorkingDirectory(workingDirectory)
     params.setMainClass(runnerClassName)
