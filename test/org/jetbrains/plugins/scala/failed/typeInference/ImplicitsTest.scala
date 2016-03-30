@@ -94,4 +94,26 @@ class ImplicitsTest extends TypeInferenceTestBase {
       |//Int
     """.stripMargin)
   }
+
+  def testSCL9903(): Unit = doTest {
+    s"""trait Prop extends  {
+      |  def foo(s: String): Prop = ???
+      |}
+      |
+      |object Prop {
+      |  implicit def propBoolean(b: Boolean): Prop = ???
+      |
+      |  implicit def BooleanOperators(b: => Boolean): ExtendedBoolean = ???
+      |
+      |  class ExtendedBoolean(b: => Boolean) {
+      |    def foo(s: String): Prop = ???
+      |  }
+      |}
+      |
+      |import Prop._
+      |
+      |val x = ${START}true.foo("aaa")$END
+      |//Prop
+    """.stripMargin
+  }
 }
