@@ -77,4 +77,21 @@ class ImplicitsTest extends TypeInferenceTestBase {
       |//String
     """.stripMargin.trim
   }
+
+  def testSCL7658(): Unit = {
+    doTest("""implicit def i2s(i: Int): String = i.toString
+      |
+      |def hoo(x: String): String = {
+      |  println(1)
+      |  x
+      |}
+      |def hoo(x: Int): Int = {
+      |  println(2)
+      |  x
+      |}
+      |
+      |val ss: String = hoo(/*start*/1/*end*/)
+      |//Int
+    """.stripMargin)
+  }
 }
