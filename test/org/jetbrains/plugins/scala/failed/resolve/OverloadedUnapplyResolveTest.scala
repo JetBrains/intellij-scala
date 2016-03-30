@@ -12,4 +12,6 @@ class OverloadedUnapplyResolveTest extends FailedResolveTest("overloadedUnapply"
   def testScl9437_Unqualified(): Unit = doTest()
 
   def testScl9437_Qualified(): Unit = doTest()
+
+  def testSCL7279(): Unit = doTest()
 }
