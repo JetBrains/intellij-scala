@@ -29,6 +29,17 @@ class ScopeAnnotatorTest extends AnnotatorTestBase(new MyAnnotatorPart) {
         |}
       """.stripMargin).isEmpty
   )
+
+  def testSCL8633(): Unit = assert(
+    messages(
+      """
+        |object SCL8633 {
+        |  def a(x: Int) = x
+        |
+        |  def <ref>a(x: => Int) = x
+        |}
+      """.stripMargin).isEmpty
+  )
 }
 
 object ScopeAnnotatorTest {
