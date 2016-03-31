@@ -262,6 +262,12 @@ object CompileServerLauncher {
     } yield file
   }
 
+  object ConfigureLinkListener extends NotificationListener.Adapter {
+    def hyperlinkActivated(notification: Notification, event: HyperlinkEvent) {
+      CompileServerManager.showCompileServerSettingsDialog()
+      notification.expire()
+    }
+  }
 }
 
 private case class ServerInstance(watcher: ProcessWatcher, port: Int, workingDir: File, bootClasspath: Set[(File, Long)]) {
@@ -274,12 +280,5 @@ private case class ServerInstance(watcher: ProcessWatcher, port: Int, workingDir
   def destroyProcess() {
     stopped = true
     watcher.destroyProcess()
-  }
-}
-
-private object ConfigureLinkListener extends NotificationListener.Adapter {
-  def hyperlinkActivated(notification: Notification, event: HyperlinkEvent) {
-    CompileServerManager.showCompileServerSettingsDialog()
-    notification.expire()
   }
 }
