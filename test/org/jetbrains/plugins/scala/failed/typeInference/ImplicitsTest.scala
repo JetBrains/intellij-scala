@@ -144,4 +144,30 @@ class ImplicitsTest extends TypeInferenceTestBase {
         |//WithTag[BigDecimal, NoConversion]""".stripMargin
   }
 
+  def testSCL10077(): Unit = {
+    doTest(
+      """
+        |object SCL10077{
+        |
+        |  trait C[A] {
+        |    def test(a: A): String
+        |  }
+        |  case class Ev[TC[_], A](a: A)(implicit val ev: TC[A]) {
+        |    def operate(fn: (A, TC[A]) => Int): Int = 23
+        |  }
+        |  class A
+        |  implicit object AisCISH extends C[A] {
+        |    def test(a: A) = "A"
+        |  }
+        |
+        |  val m: Map[String, Ev[C, _]] = Map.empty
+        |  val r = m + ("mutt" -> Ev(new A))
+        |  val x = r("mutt")
+        |
+        |  x.operate(/*start*/(arg, tc) => 66/*end*/)
+        |}
+        |
+        |//(_$1, _$1[_$1]) => Int
+      """.stripMargin)
+  }
 }
