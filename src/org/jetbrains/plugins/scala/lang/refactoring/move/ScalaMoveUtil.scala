@@ -44,6 +44,8 @@ object ScalaMoveUtil {
 
   def doMoveClass(@NotNull aClass: PsiClass, @NotNull moveDestination: PsiDirectory, withCompanion: Boolean): PsiClass = {
     var fileWasDeleted: Boolean = false
+    val maybeCompanion = if(withCompanion) ScalaPsiUtil.getBaseCompanionModule(aClass) else None
+
     def deleteClass(aClass: PsiClass) = {
       aClass.getContainingFile match {
         case file: ScalaFile =>
@@ -55,8 +57,10 @@ object ScalaMoveUtil {
           }
       }
     }
+
     def moveClassInner(aClass: PsiClass, moveDestination: PsiDirectory): PsiClass = {
       var newClass: PsiClass = null
+
       (aClass, aClass.getContainingFile) match {
         case (td: ScTypeDefinition, file: ScalaFile) =>
           val fileWithOldFileName = moveDestination.findFile(file.getName)
@@ -97,8 +101,15 @@ object ScalaMoveUtil {
       newClass
     }
 
-    if (withCompanion) ScalaPsiUtil.getBaseCompanionModule(aClass).foreach(c => moveClassInner(c, moveDestination))
-    moveClassInner(aClass, moveDestination)
+    def moveCompanion(aCompanion: PsiClass, movedClass:PsiClass): PsiClass = {
+      val movedCompanion = movedClass.getContainingFile.add(aCompanion).asInstanceOf[PsiClass]
+      deleteClass(aCompanion)
+      movedCompanion
+    }
+
+    val movedClass: PsiClass = moveClassInner(aClass, moveDestination)
+    maybeCompanion.foreach(c => moveCompanion(c, movedClass))
+    movedClass
   }
 
   def collectAssociations(@NotNull aClass: PsiClass, withCompanion: Boolean) {
