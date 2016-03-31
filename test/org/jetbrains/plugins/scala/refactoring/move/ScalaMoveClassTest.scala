@@ -6,17 +6,16 @@ import java.util
 
 import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.refactoring.PackageWrapper
-import com.intellij.refactoring.move.moveClassesOrPackages.SingleSourceRootMoveDestination
+import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackagesProcessor, SingleSourceRootMoveDestination}
 import com.intellij.testFramework.{PlatformTestUtil, PsiTestUtil}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesProcessor
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.TestUtils
 
@@ -27,7 +26,7 @@ import scala.collection.mutable.ArrayBuffer
  * @since 30.10.12
  */
 class ScalaMoveClassTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-def testPackageObject() {
+  def testPackageObject() {
     doTest("packageObject", Array("com.`package`"), "org")
   }
 
@@ -75,9 +74,14 @@ def testPackageObject() {
     doTest("scl4972", Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
   }
 
+  def testSCL5456 () {
+    doTest("scl5456", Array("com.A"), "org", Kinds.onlyClasses)
+  }
+
   def testWithCompanion() {
     doTest("withCompanion", Array("source.A"), "target", Kinds.onlyClasses)
   }
+
 
   def testBothJavaAndScala() {
     doTest("bothJavaAndScala", Array("org.A", "org.J"), "com")
@@ -92,8 +96,16 @@ def testPackageObject() {
 
 
   def doTest(testName: String, classNames: Array[String], newPackageName: String, mode: Kinds.Value = Kinds.all, moveCompanion: Boolean = true) {
+    def findAndRefreshVFile(path: String) = {
+      val vFile = LocalFileSystem.getInstance.findFileByPath(path.replace(File.separatorChar, '/'))
+      VfsUtil.markDirtyAndRefresh(/*async = */false, /*recursive =*/ true, /*reloadChildren =*/true, vFile)
+      vFile
+    }
+
     val root: String = TestUtils.getTestDataPath + "/move/" + testName
     val rootBefore: String = root + "/before"
+    findAndRefreshVFile(rootBefore)
+
     val rootDir: VirtualFile = PsiTestUtil.createTestProjectStructure(getProjectAdapter, getModuleAdapter, rootBefore, new util.HashSet[File]())
     VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
     val settings = ScalaApplicationSettings.getInstance()
@@ -106,7 +118,7 @@ def testPackageObject() {
     }
     settings.MOVE_COMPANION = moveCompanionOld
     val rootAfter: String = root + "/after"
-    val rootDir2: VirtualFile = LocalFileSystem.getInstance.findFileByPath(rootAfter.replace(File.separatorChar, '/'))
+    val rootDir2: VirtualFile = findAndRefreshVFile(rootAfter)
     VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
     getProjectAdapter.getComponent(classOf[PostprocessReformattingAspect]).doPostponedFormatting()
     PlatformTestUtil.assertDirectoriesEqual(rootDir2, rootDir)
@@ -126,7 +138,7 @@ def testPackageObject() {
     val dirs: Array[PsiDirectory] = aPackage.getDirectories(GlobalSearchScope.moduleScope(getModuleAdapter))
     assert(dirs.length == 1)
     ScalaFileImpl.performMoveRefactoring {
-      new ScalaMoveClassesOrPackagesProcessor(getProjectAdapter, classes.toArray,
+      new MoveClassesOrPackagesProcessor(getProjectAdapter, classes.toArray,
         new SingleSourceRootMoveDestination(PackageWrapper.create(JavaDirectoryService.getInstance.getPackage(dirs(0))), dirs(0)), true, true, null).run()
     }
     PsiDocumentManager.getInstance(getProjectAdapter).commitAllDocuments()
