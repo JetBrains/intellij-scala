@@ -33,7 +33,7 @@ In order to take part in Scala plugin development, you need to:
 3. Switch to the main developement branch
 
   ```
-  $ git checkout idea15.x
+  $ git checkout idea16.x
   ```
 
 4. Open IntelliJ IDEA, select `File -> New -> Project from existing sources`, point to
