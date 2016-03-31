@@ -19,10 +19,9 @@ import scala.language.implicitConversions
 class DottyCompiler(scalaInstance: ScalaInstance, compilerJars: CompilerJars) extends Compiler {
   override def compile(compilationData: CompilationData, client: Client): Unit = {
     val cArgs = new CompilerArguments(scalaInstance, ClasspathOptions.javac(compiler = false))
-    val scalaOptions = compilationData.scalaOptions.flatMap(splitArg)
     val args: Array[String] =
       cArgs(compilationData.sources, compilationData.classpath,
-        Some(compilationData.output), scalaOptions).toArray
+        Some(compilationData.output), compilationData.scalaOptions).toArray
 
     val oldOut = System.out
 
@@ -48,18 +47,6 @@ class DottyCompiler(scalaInstance: ScalaInstance, compilerJars: CompilerJars) ex
   private val emptyPrintStream = new PrintStream(new OutputStream {
     override def write(b: Int): Unit = {}
   })
-
-  //options for these settings should be in the separate entry in the array of compiler arguments
-  val argsToSplit = Set("-target:", "-g:", "-Yresolve-term-conflict:", "-Ylinearizer:", "-Ystruct-dispatch:", "-Ybuilder-debug:")
-
-  private def splitArg(arg: String): Seq[String] = {
-    if (!argsToSplit.exists(arg.startsWith)) return Seq(arg)
-
-    val colonIdx = arg.indexOf(':')
-    if (colonIdx > 0 && colonIdx < arg.length - 1 && !arg.charAt(colonIdx + 1).isWhitespace)
-      Seq(arg.substring(0, colonIdx + 1).trim, arg.substring(colonIdx + 1).trim)
-    else Seq(arg)
-  }
 }
 
 class ClientDottyCallback(client: Client) extends CompilerCallback {
