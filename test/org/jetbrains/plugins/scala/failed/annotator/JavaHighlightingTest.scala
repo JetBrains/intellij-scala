@@ -199,4 +199,27 @@ class JavaHighlightingTest extends JavaHighltightingTestBase {
 
     assertNoErrors(messagesFromScalaCode(scala, java))
   }
+
+  def testSCL8639(): Unit = {
+    val java =
+      """
+        |public abstract class Java<S> {
+        |    public abstract class JavaInner {
+        |        abstract void foo(S arg);
+        |    }
+        |}
+        |
+      """.stripMargin
+
+    val scala =
+      """
+        |class Scala extends Java[String]{
+        |  val s = new JavaInner {
+        |    override def foo(arg: String): Unit = {}
+        |  }
+        |}
+      """.stripMargin
+
+    assertNoErrors(messagesFromScalaCode(scala, java))
+  }
 }
