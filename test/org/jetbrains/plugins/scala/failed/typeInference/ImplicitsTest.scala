@@ -28,6 +28,32 @@ class ImplicitsTest extends TypeInferenceTestBase {
   def testSCL7605(): Unit = doTest()
 
   def testSCL8831(): Unit = doTest()
+
+  def testSCL5854(): Unit = doTest(
+    """
+      |object SCL5854 {
+      |
+      |  case class MayErr[+E, +A](e: Either[E, A])
+      |
+      |  object MayErr {
+      |    import scala.language.implicitConversions
+      |    implicit def eitherToError[E, EE >: E, A, AA >: A](e: Either[E, A]): MayErr[EE, AA] = MayErr[E, A](e)
+      |  }
+      |
+      |  abstract class SQLError
+      |
+      |  import scala.collection.JavaConverters._
+      |  def convert = {
+      |    val m = new java.util.HashMap[String, String]
+      |    m.asScala.toMap
+      |  }
+      |
+      |  /*start*/MayErr.eitherToError(Right(convert))/*end*/: MayErr[SQLError, Map[String, String]]
+      |}
+      |
+      |//SCL5854.MayErr[SCL5854.SQLError, Map[String, String]]
+    """.stripMargin
+  )
   
   def testSCL7474(): Unit = doTest(
     """
