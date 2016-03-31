@@ -6,7 +6,7 @@ import java.util
 
 import com.intellij.openapi.vfs.impl.VirtualFilePointerManagerImpl
 import com.intellij.openapi.vfs.pointers.VirtualFilePointerManager
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.psi.search.GlobalSearchScope
@@ -92,8 +92,16 @@ def testPackageObject() {
 
 
   def doTest(testName: String, classNames: Array[String], newPackageName: String, mode: Kinds.Value = Kinds.all, moveCompanion: Boolean = true) {
+    def findAndRefreshVFile(path: String) = {
+      val vFile = LocalFileSystem.getInstance.findFileByPath(path.replace(File.separatorChar, '/'))
+      VfsUtil.markDirtyAndRefresh(/*async = */false, /*recursive =*/ true, /*reloadChildren =*/true, vFile)
+      vFile
+    }
+
     val root: String = TestUtils.getTestDataPath + "/move/" + testName
     val rootBefore: String = root + "/before"
+    findAndRefreshVFile(rootBefore)
+
     val rootDir: VirtualFile = PsiTestUtil.createTestProjectStructure(getProjectAdapter, getModuleAdapter, rootBefore, new util.HashSet[File]())
     VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
     val settings = ScalaApplicationSettings.getInstance()
@@ -106,7 +114,7 @@ def testPackageObject() {
     }
     settings.MOVE_COMPANION = moveCompanionOld
     val rootAfter: String = root + "/after"
-    val rootDir2: VirtualFile = LocalFileSystem.getInstance.findFileByPath(rootAfter.replace(File.separatorChar, '/'))
+    val rootDir2: VirtualFile = findAndRefreshVFile(rootAfter)
     VirtualFilePointerManager.getInstance.asInstanceOf[VirtualFilePointerManagerImpl].storePointers()
     getProjectAdapter.getComponent(classOf[PostprocessReformattingAspect]).doPostponedFormatting()
     PlatformTestUtil.assertDirectoriesEqual(rootDir2, rootDir)
