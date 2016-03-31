@@ -196,4 +196,28 @@ class ImplicitsTest extends TypeInferenceTestBase {
         |//(_$1, _$1[_$1]) => Int
       """.stripMargin)
   }
+
+  def testSCL9925(): Unit = {
+    doTest(
+      """
+        |object SCL9925 {
+        |
+        |  abstract class Parser[+T] {
+        |    def |[U >: T](x: => Parser[U]): Parser[U] = ???
+        |  }
+        |
+        |  abstract class PerfectParser[+T] extends Parser[T]
+        |
+        |  implicit def parser2packrat[T](p: => Parser[T]): PerfectParser[T] = ???
+        |
+        |  def foo: PerfectParser[String] = ???
+        |
+        |  def foo1: PerfectParser[Nothing] = ???
+        |
+        |  def fooo4: PerfectParser[String] = /*start*/foo | foo1 | foo1/*end*/
+        |}
+        |
+        |//SCL9925.PerfectParser[String]
+      """.stripMargin)
+  }
 }
