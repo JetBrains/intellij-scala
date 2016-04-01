@@ -26,4 +26,29 @@ class ContravarianceTest extends TypeInferenceTestBase {
         |//Test.Z[B]""".stripMargin
     doTest(text)
   }
+
+  def testSCL10110(): Unit ={
+    doTest(
+      s"""
+         |object Error {
+         |
+         |  class Foo[T](x: T)
+         |
+         |  class LolArray[T](val arr: Array[Foo[T]])
+         |
+         |  class LolImmutableHashMap[T](val arr: immutable.HashMap[Int, Foo[T]])
+         |
+         |  //Full example with various collections in corresponded ticket
+         |  def main(args: Array[String]) {
+         |    val lolArray = new LolArray(${START}Array(new Foo(1))$END) // false error ( Array invariant )
+         |    val lolImmutableHashMap = new LolImmutableHashMap(immutable.HashMap(1 -> new Foo(1))) // works ( mutable.HashMap covariant )
+         |
+         |    //    val lolArrayExplicit1 = new LolArray[Int](Array(new Foo(1))) // works
+         |    //    val lolArrayExplicit2 = new LolArray(Array[Foo[Int]](new Foo(1))) // works
+         |  }
+         |}
+         |
+         |//Array[Error.Foo[NotInferedT]]
+       """.stripMargin)
+  }
 }
