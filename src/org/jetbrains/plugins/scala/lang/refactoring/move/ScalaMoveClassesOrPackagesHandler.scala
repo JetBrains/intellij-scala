@@ -76,7 +76,7 @@ class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesHandler
                                                   elementsToMove: Array[PsiElement],
                                                   callback: MoveCallback): MoveClassesOrPackagesProcessor = {
 
-          new ScalaMoveClassesOrPackagesProcessor(project, elementsToMove, destination, isSearchInComments, searchTextOccurences, callback)
+          new MoveClassesOrPackagesProcessor(project, elementsToMove, destination, isSearchInComments, searchTextOccurences, callback)
         }
       }
     val searchInComments: Boolean = JavaRefactoringSettings.getInstance.MOVE_SEARCH_IN_COMMENTS
@@ -101,7 +101,7 @@ class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesHandler
                                                                   searchInNonJavaFiles: Boolean,
                                                                   moveCallback: MoveCallback): MoveClassesOrPackagesProcessor = {
 
-        new ScalaMoveClassesOrPackagesProcessor(project, elements, moveDestination, searchInComments, searchInNonJavaFiles, moveCallback)
+        new MoveClassesOrPackagesProcessor(project, elements, moveDestination, searchInComments, searchInNonJavaFiles, moveCallback)
       }
     }
   }

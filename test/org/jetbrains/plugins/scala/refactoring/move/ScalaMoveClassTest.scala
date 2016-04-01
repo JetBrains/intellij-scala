@@ -11,12 +11,11 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.refactoring.PackageWrapper
-import com.intellij.refactoring.move.moveClassesOrPackages.SingleSourceRootMoveDestination
+import com.intellij.refactoring.move.moveClassesOrPackages.{MoveClassesOrPackagesProcessor, SingleSourceRootMoveDestination}
 import com.intellij.testFramework.{PlatformTestUtil, PsiTestUtil}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesProcessor
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.TestUtils
 
@@ -27,7 +26,7 @@ import scala.collection.mutable.ArrayBuffer
  * @since 30.10.12
  */
 class ScalaMoveClassTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
-def testPackageObject() {
+  def testPackageObject() {
     doTest("packageObject", Array("com.`package`"), "org")
   }
 
@@ -75,9 +74,14 @@ def testPackageObject() {
     doTest("scl4972", Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
   }
 
+  def testSCL5456 () {
+    doTest("scl5456", Array("com.A"), "org", Kinds.onlyClasses)
+  }
+
   def testWithCompanion() {
     doTest("withCompanion", Array("source.A"), "target", Kinds.onlyClasses)
   }
+
 
   def testBothJavaAndScala() {
     doTest("bothJavaAndScala", Array("org.A", "org.J"), "com")
@@ -134,7 +138,7 @@ def testPackageObject() {
     val dirs: Array[PsiDirectory] = aPackage.getDirectories(GlobalSearchScope.moduleScope(getModuleAdapter))
     assert(dirs.length == 1)
     ScalaFileImpl.performMoveRefactoring {
-      new ScalaMoveClassesOrPackagesProcessor(getProjectAdapter, classes.toArray,
+      new MoveClassesOrPackagesProcessor(getProjectAdapter, classes.toArray,
         new SingleSourceRootMoveDestination(PackageWrapper.create(JavaDirectoryService.getInstance.getPackage(dirs(0))), dirs(0)), true, true, null).run()
     }
     PsiDocumentManager.getInstance(getProjectAdapter).commitAllDocuments()
