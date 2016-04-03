@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement;
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement$;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
@@ -302,7 +303,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         myCbReplaceAllOccurences.setFocusable(false);
         myNameLabel.setLabelFor(myNameComboBox);
         myTypeLabel.setLabelFor(myTypeTextField);
-        myTypeTextField.setText(myTypeElement.calcType().presentableText());
+        myTypeTextField.setText(ScTypeElement$.MODULE$.calcType(myTypeElement).presentableText());
         setUpOccurrences(scopeItem);
     }
 

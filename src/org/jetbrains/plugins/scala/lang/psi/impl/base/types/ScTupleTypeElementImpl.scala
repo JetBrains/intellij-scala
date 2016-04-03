@@ -15,8 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
  */
 
 class ScTupleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTupleTypeElement {
-  override def desugarizedText = s"_root_.scala.Tuple${components.length}[${components.map(_.getText).mkString(", ")}]"
-
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitTupleTypeElement(this)
   }
