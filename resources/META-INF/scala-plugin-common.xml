@@ -1091,6 +1091,11 @@
                          displayName="Replace to with until" groupPath="Scala, Collections" groupName="Simplifications: other"
                          shortName="ReplaceToWithUntil" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.EmulateFlattenInspection"
+                         displayName="Replace with flatten" groupPath="Scala, Collections" groupName="Simplifications: other"
+                         shortName="ReplaceWithFlatten" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+
         <!--maps-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetGetOrElseInspection"
                          displayName="Get and getOrElse to getOrElse" groupPath="Scala, Collections" groupName="Maps"
