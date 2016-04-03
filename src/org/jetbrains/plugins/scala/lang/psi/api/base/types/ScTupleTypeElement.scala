@@ -15,4 +15,9 @@ trait ScTupleTypeElement extends ScDesugarizableToParametrizedTypeElement {
   def typeList = findChildByClassScala(classOf[ScTypes])
 
   def components = typeList.types
+
+  override def desugarizedText = {
+    val componentsTexts = components.map(_.getText)
+    s"_root_.scala.Tuple${componentsTexts.length}${componentsTexts.mkString("[", ",", "]")}"
+  }
 }

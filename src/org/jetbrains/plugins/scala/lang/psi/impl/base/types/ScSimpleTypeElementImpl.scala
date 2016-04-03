@@ -10,7 +10,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -37,20 +36,6 @@ import scala.collection.immutable.HashMap
  */
 
 class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleTypeElement {
-  def singleton = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
-
-  def findConstructor: Option[ScConstructor] = {
-    getContext match {
-      case constr: ScConstructor => Some(constr)
-      case param: ScParameterizedTypeElement =>
-        param.getContext match {
-          case constr: ScConstructor => Some(constr)
-          case _ => None
-        }
-      case _ => None
-    }
-  }
-
   protected def innerType(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true)
 
   override def getTypeNoConstructor(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true, noConstructor = true)

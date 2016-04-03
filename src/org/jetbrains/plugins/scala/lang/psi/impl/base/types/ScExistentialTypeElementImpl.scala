@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScValueDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
 
 import _root_.scala.collection.mutable.ListBuffer
 
@@ -54,7 +54,7 @@ class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(no
     }
     q flatMap { t =>
       val failures = for (f@Failure(_, _) <- problems) yield f
-      failures.foldLeft(Success(ScExistentialType(t, wildcards), Some(this)))(_.apply(_))
+      failures.foldLeft(this.success(ScExistentialType(t, wildcards)))(_.apply(_))
     }
   }
 

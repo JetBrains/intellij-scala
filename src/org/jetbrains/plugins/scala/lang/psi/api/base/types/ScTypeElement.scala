@@ -30,8 +30,6 @@ trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
 
   protected def innerType(ctx: TypingContext): TypeResult[ScType]
 
-  def calcType: ScType = getType(TypingContext.empty).getOrAny
-
   /** Link from a view or context bound to the type element of the corresponding synthetic parameter. */
   def analog: Option[ScTypeElement] = {
     refreshAnalog()
@@ -65,6 +63,11 @@ trait ScTypeElement extends ScalaPsiElement with TypingContextOwner {
 
   @volatile
   private[this] var _analog: Option[ScTypeElement] = None
+}
+
+object ScTypeElement {
+  // java compatibility
+  def calcType(typeElement: ScTypeElement) = typeElement.calcType
 }
 
 trait ScDesugarizableTypeElement extends ScTypeElement {

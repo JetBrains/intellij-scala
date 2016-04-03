@@ -6,6 +6,7 @@ package base
 package types
 
 import com.intellij.openapi.progress.ProgressManager
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -19,9 +20,19 @@ trait ScSimpleTypeElement extends ScTypeElement with ImplicitParametersOwner {
   def reference: Option[ScStableCodeReferenceElement] = findChild(classOf[ScStableCodeReferenceElement])
   def pathElement: ScPathElement = findChildByClassScala(classOf[ScPathElement])
 
-  def singleton: Boolean
+  def singleton = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
 
-  def findConstructor: Option[ScConstructor]
+  def findConstructor: Option[ScConstructor] = {
+    def findConstructor(element: ScalaPsiElement) = element.getContext match {
+      case constructor: ScConstructor => Some(constructor)
+      case _ => None
+    }
+
+    getContext match {
+      case typeElement: ScParameterizedTypeElement => findConstructor(typeElement)
+      case _ => findConstructor(this)
+    }
+  }
 
   @volatile
   protected var implicitParameters: Option[Seq[ScalaResolveResult]] = None
