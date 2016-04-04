@@ -35,6 +35,7 @@ object Dependencies {
   val plexusUtils = "org.codehaus.plexus" % "plexus-utils" % "3.0.8"
   val plexusComponentAnnotations = "org.codehaus.plexus" % "plexus-component-annotations" % "1.5.5"
   val xbeanReflect = "org.apache.xbean" % "xbean-reflect" % "3.4"
+  val log4j = "log4j" % "log4j" % "1.2.17"
 
   val luceneCore = "org.apache.lucene" % "lucene-core" % luceneVersion
   val luceneHighlighter = "org.apache.lucene" % "lucene-highlighter" % luceneVersion
@@ -93,7 +94,8 @@ object DependencyGroups {
     plexusClassworlds,
     plexusUtils,
     plexusComponentAnnotations,
-    xbeanReflect
+    xbeanReflect,
+    log4j
   )
 
   val lucene = Seq(
