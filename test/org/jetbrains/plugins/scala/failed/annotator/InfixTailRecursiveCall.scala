@@ -5,11 +5,11 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.junit.experimental.categories.Category
 
 /**
-  * Created by user on 3/29/16.
+  * Created by kate on 3/29/16.
   */
 
 @Category(Array(classOf[PerfCycleTests]))
-class InficTailRecursiveCall extends ScalaLightCodeInsightFixtureTestAdapter{
+class InfixTailRecursiveCall extends ScalaLightCodeInsightFixtureTestAdapter{
   def testSCL8792(): Unit = {
     checkTextHasNoErrors(
       """
