@@ -87,4 +87,18 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin).isEmpty
   )
+
+  def testSCL9908(): Unit = assert(
+    collectMessages(
+      """
+        |class Test { 
+        |  def foo(s: String, args: Any*) = println("foo(s, args)") 
+        |  def foo(x: Any) = println("foo(x)") 
+        | 
+        |  def func(args: Array[String]) = { 
+        |    foo("Hello") // red code; 'foo(s, args)' with scalac 
+        |  } 
+        |}
+      """.stripMargin).isEmpty
+  )
 }
