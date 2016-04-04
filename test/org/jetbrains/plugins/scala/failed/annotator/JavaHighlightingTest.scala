@@ -200,6 +200,25 @@ class JavaHighlightingTest extends JavaHighltightingTestBase {
     assertNoErrors(messagesFromScalaCode(scala, java))
   }
 
+  def testSCL9619(): Unit = {
+    val scala =
+      """
+        |@Annotaion(`lazy` = true) // no red code if we use non scala keyword (without quotes)
+        |class A {}
+      """.stripMargin
+
+    val java =
+      """
+        |public @interface Annotaion {
+        |    public String db() default "";
+        |
+        |    public boolean lazy() default false;
+        |}
+      """.stripMargin
+
+    assertNoErrors(messagesFromScalaCode(scala, java))
+  }
+
   def testSCL8639(): Unit = {
     val java =
       """
