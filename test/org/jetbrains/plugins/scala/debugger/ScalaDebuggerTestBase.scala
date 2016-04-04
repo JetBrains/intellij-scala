@@ -28,7 +28,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
 
   protected val testDataBasePrefix = "debugger"
 
-  private var checksums: mutable.HashMap[String, Array[Byte]] = null
+  private var checksums: Checksums = null
 
   protected var needMake = false
 
@@ -168,7 +168,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     }
   }
 
-  private def computeChecksums(): mutable.HashMap[String, Array[Byte]] = {
+  private def computeChecksums(): Checksums = {
     val result = new mutable.HashMap[String, Array[Byte]]
     def computeForDir(dir: File) {
       if (dir.exists) dir.listFiles().foreach { f =>
@@ -180,7 +180,7 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     }
     computeForDir(srcDir)
     computeForDir(outDir)
-    result
+    new Checksums(result, scalaSdkVersion.getMinor)
   }
 
 
@@ -207,19 +207,26 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
       return false
     }
     val ois = new ObjectInputStream(new FileInputStream(file))
-    val result = try {
-      val obj = ois.readObject()
-      obj match {
-        case map: mutable.HashMap[String, Array[Byte]]@unchecked => checksums = map; true
-        case _ => false
+    val result =
+      try {
+        val obj = ois.readObject()
+        obj match {
+          case cs: Checksums => checksums = cs; true
+          case _ => false
+        }
       }
-    }
-    finally ois.close()
+      catch {
+        case _: IOException => false
+      }
+      finally ois.close()
     result
   }
 
   private def testDataProjectIsValid(): Boolean = {
-    sameSourceFiles() && loadChecksums() && checksums.keys.forall(checkFile) && getImlFile != null
+    sameSourceFiles() && loadChecksums() &&
+      checksums.scalaVersion == scalaSdkVersion.getMinor &&
+      checksums.fileToMd5.keys.forall(checkFile) &&
+      getImlFile != null
   }
 
   private def sameSourceFiles(): Boolean = {
@@ -243,6 +250,9 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
 
   private def checkFile(relPath: String): Boolean = {
     val file = new File(testDataBasePath, relPath)
-    file.exists && util.Arrays.equals(checksums(relPath), md5(file))
+    file.exists && util.Arrays.equals(checksums.fileToMd5(relPath), md5(file))
   }
 }
+
+private class Checksums(val fileToMd5: mutable.HashMap[String, Array[Byte]], val scalaVersion: String)
+  extends scala.Serializable
