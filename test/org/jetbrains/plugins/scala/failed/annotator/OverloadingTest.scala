@@ -101,4 +101,20 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin).isEmpty
   )
+
+  def testSCL7442(): Unit = assert(
+    collectMessages(
+      """
+        |class Test { 
+        |  def set(value: Any) : Unit = {
+        |    val (a, b, c, d) = value.asInstanceOf[(Int, Int, Int, Int)]
+        |    set(a, b, c, d)
+        |  }
+        |  def set(aValue: Int, bValue: Int, cValue: Int, dValue: Int) = {
+        |    //...
+        |  }
+        |  (set _).tupled((1, 2, 3, 4))
+        |}
+      """.stripMargin).isEmpty
+  )
 }
