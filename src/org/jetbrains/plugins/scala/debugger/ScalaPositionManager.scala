@@ -109,15 +109,21 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           nonStrictParents.find(p => ScalaEvaluatorBuilderUtil.isGenerateNonAnonfunClass(p))
         } else None
 
+      def addExactClasses(name: String) = {
+        exactClasses ++= debugProcess.getVirtualMachineProxy.classesByName(name).asScala
+      }
+
       val sourceImages = onTheLine ++ nonLambdaParent
       sourceImages.foreach {
         case null =>
+        case tr: ScTrait if !DebuggerUtil.isLocalClass(tr) =>
+          val traitImplName = getSpecificNameForDebugger(tr)
+          val simpleName = traitImplName.stripSuffix("$class")
+          Seq(simpleName, traitImplName).foreach(addExactClasses)
         case td: ScTypeDefinition if !DebuggerUtil.isLocalClass(td) =>
           val qName = getSpecificNameForDebugger(td)
           val delayedBodyName = if (isDelayedInit(td)) Seq(s"$qName$delayedInitBody") else Nil
-          (qName +: delayedBodyName).foreach { name =>
-            exactClasses ++= debugProcess.getVirtualMachineProxy.classesByName(name).asScala
-          }
+          (qName +: delayedBodyName).foreach(addExactClasses)
         case elem =>
           val namePattern = NamePattern.forElement(elem)
           namePatterns ++= Option(namePattern)
@@ -179,6 +185,9 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           case cl: ScClass if ValueClassType.isValueClass(cl) =>
             //there are no instances of value classes, methods from companion object are used
             qName.set(getSpecificNameForDebugger(cl) + "$")
+          case tr: ScTrait if !DebuggerUtil.isLocalClass(tr) =>
+            //to handle both trait methods encoding
+            qName.set(tr.getQualifiedNameForDebugger + "*")
           case typeDef: ScTypeDefinition if !isLocalOrUnderDelayedInit(typeDef) =>
             val specificName = getSpecificNameForDebugger(typeDef)
             qName.set(if (insideMacro) specificName + "*" else specificName)
@@ -945,7 +954,7 @@ object ScalaPositionManager {
       val name = refType.name()
 
       exactName match {
-        case Some(qName) => qName == name
+        case Some(qName) => qName == name || qName.stripSuffix("$class") == name
         case None => checkParts(name)
       }
     }

@@ -287,4 +287,38 @@ abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
     )
   }
 
+  addSourceFile("BreakpointInTrait.scala",
+  """object BreakpointInTrait {
+    |  def main(args: Array[String]) {
+    |    val a = new AAA
+    |    a.foo()
+    |    a.foo("x")
+    |  }
+    |
+    |  class AAA extends TraitExample
+    |}
+    |
+    |trait TraitExample extends SecondTrait {
+    |  val x = 1
+    |
+    |  def foo(): Unit = {
+    |    2
+    |  }
+    |}
+    |
+    |trait SecondTrait {
+    |  def foo(s: String): Unit = {
+    |    3
+    |  }
+    |}
+  """.stripMargin)
+  def testBreakpointInTrait(): Unit = {
+    checkStopResumeSeveralTimes(Breakpoint(11, null), Breakpoint(14, null), Breakpoint(20, null))(
+      "val x = 1",
+      "2",
+      "3"
+    )
+  }
+
+
 }

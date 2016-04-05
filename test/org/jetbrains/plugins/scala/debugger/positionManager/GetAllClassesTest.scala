@@ -30,6 +30,9 @@ class GetAllClassesTest_212 extends GetAllClassesTestBase with ScalaVersion_2_12
     checkGetAllClasses("PartialFunctionArg$", "PartialFunctionArg$", "PartialFunctionArg$")
   }
 
+  override def testSimpleTrait(): Unit = {
+    checkGetAllClasses("Test")
+  }
 }
 
 abstract class GetAllClassesTestBase extends PositionManagerTestBase {
