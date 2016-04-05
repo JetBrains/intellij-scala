@@ -626,7 +626,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case Some(r @ privateTraitMethod(tr, fun)) =>
         val traitTypeEval = new TypeEvaluator(DebuggerUtil.getClassJVMName(tr, withPostfix = true))
         val qualEval = qualEvaluator(r)
-        new ScalaMethodEvaluator(traitTypeEval, name, null, qualEval +: argEvaluators)
+        val withTraitImpl = new ScalaMethodEvaluator(traitTypeEval, name, null, qualEval +: argEvaluators)
+        val withDefault = new ScalaMethodEvaluator(qualEval, name, null, argEvaluators, traitImplementation(fun))
+        new ScalaDuplexEvaluator(withTraitImpl, withDefault)
       case Some(r) =>
         val resolve = r.element
         val qualEval = qualEvaluator(r)

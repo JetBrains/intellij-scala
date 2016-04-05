@@ -3,15 +3,17 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{DisableGC, Evaluator, Modifier}
 import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, JVMName}
-import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.{DebuggerBundle, SourcePosition}
-import com.intellij.openapi.application.ApplicationManager
 import com.sun.jdi._
+import com.sun.tools.jdi.ConcreteMethodImpl
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.extensions.inReadAction
 
+import scala.collection.JavaConversions._
 import scala.collection.mutable
+import scala.util.{Success, Try}
 
 /**
  * User: Alefas
@@ -36,10 +38,6 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
     }
   }
 
-  private def getOrUpdateMethod(referenceType: ReferenceType, findMethod: ReferenceType => Method): Option[Method] = {
-    jdiMethodsCache.getOrElseUpdate(referenceType, Option(findMethod(referenceType)))
-  }
-
   def evaluate(context: EvaluationContextImpl): AnyRef = {
     val debugProcess: DebugProcessImpl = context.getDebugProcess
     if (!debugProcess.isAttached) return null
@@ -55,30 +53,16 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
     if (obj == null) {
       throw EvaluationException(new NullPointerException)
     }
-    if (!(obj.isInstanceOf[ObjectReference] || obj.isInstanceOf[ClassType])) {
-      throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName))
-    }
     val args = argumentEvaluators.flatMap { ev =>
       val result = ev.evaluate(context)
       if (result == FromLocalArgEvaluator.skipMarker) None
       else Some(result)
     }
     try {
-      val referenceType: ReferenceType =
-      obj match {
-        case o: ObjectReference =>
-          val qualifierType = o.referenceType()
-          debugProcess.findClass(context, qualifierType.name, qualifierType.classLoader)
-        case obj: ClassType =>
-          debugProcess.findClass(context, obj.name, context.getClassLoader)
-        case _ =>
-          null
-      }
-      val sign: String = if (signature != null && args.size == argumentEvaluators.size) signature.getName(debugProcess) else null
-      var mName: String = DebuggerUtilsEx.methodName(referenceType.name, methodName, sign)
-      def findMethod(referenceType: ReferenceType): Method = {
-        import scala.collection.JavaConversions._
-        def sortedMethodCandidates: List[Method] = {
+      def findClass(name: String) = debugProcess.findClass(context, name, context.getClassLoader)
+
+      def findMethod(referenceType: ReferenceType): Option[Method] = {
+        lazy val sortedMethodCandidates: List[Method] = {
           val allMethods = referenceType.allMethods()
           allMethods.toList.collect {
             case method if !localMethod && method.name() == methodName => (method, 1)
@@ -88,110 +72,125 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator, _methodName: String,
             case method if localMethod && method.name.contains(methodName + "$") => (method, 3)
           }.sortBy(_._2).map(_._1)
         }
-        var jdiMethod: Method = null
-        if (signature != null) {
-          if (!localMethod) {
-            jdiMethod = referenceType.asInstanceOf[ClassType].concreteMethodByName(methodName,
-              signature.getName(debugProcess))
-          }
-          if (jdiMethod == null && localMethod) {
-            for (method <- sortedMethodCandidates if jdiMethod == null) {
-              mName = DebuggerUtilsEx.methodName(referenceType.name, method.name(), sign)
-              jdiMethod = referenceType.asInstanceOf[ClassType].concreteMethodByName(mName, signature.getName(debugProcess))
-              if (jdiMethod != null) return jdiMethod
-            }
+        def concreteMethodByName(mName: String, signature: JVMName): Option[Method] = {
+          val sgn = signature.getName(debugProcess)
+          referenceType match {
+            case classType: ClassType =>
+              Option(classType.concreteMethodByName(mName, sgn))
+            case it: InterfaceType =>
+              it.methodsByName(mName, sgn).find(_.isInstanceOf[ConcreteMethodImpl])
           }
         }
-        if (jdiMethod == null) {
-          if (sortedMethodCandidates.length > 1) {
-            val filtered = sortedMethodCandidates.filter {
-              m =>
-                try {
-                  if (m.isVarArgs) args.length >= m.argumentTypeNames().size()
-                  else args.length == m.argumentTypeNames().size()
-                } catch {
-                  case a: AbsentInformationException => true
-                }
-            }
-            if (filtered.isEmpty) jdiMethod = sortedMethodCandidates.head
-            else if (filtered.length == 1) jdiMethod = filtered.head
+        def findWithSignature(): Option[Method] = {
+          if (signature == null) None
+          else {
+            if (!localMethod) concreteMethodByName(methodName, signature)
             else {
-              val newFiltered = filtered.filter(m => {
-                var result = true
-                ApplicationManager.getApplication.runReadAction(new Runnable {
-                  def run() {
-                    try {
-                      val lines = methodPosition.map(_.getLine)
-                      result = m.allLineLocations().exists(l => lines.contains(ScalaPositionManager.checkedLineNumber(l)))
-                    }
-                    catch {
-                      case e: Exception => //ignore
-                    }
-                  }
-                })
-                result
-              })
-              if (newFiltered.isEmpty)
-                jdiMethod = filtered.head
-              else jdiMethod = newFiltered.head
+              sortedMethodCandidates.toStream
+                .flatMap(m => concreteMethodByName(m.name(), signature))
+                .headOption
             }
-          } else if (sortedMethodCandidates.length == 1) jdiMethod = sortedMethodCandidates.head
+          }
         }
-        jdiMethod
+        def findWithoutSignature(): Option[Method] = {
+          def sameParamNumber(m: Method) = {
+            try {
+              if (m.isVarArgs) args.length >= m.argumentTypeNames().size()
+              else args.length == m.argumentTypeNames().size()
+            }
+            catch {
+              case a: AbsentInformationException => true
+            }
+          }
+          def linesIntersects(m: Method): Boolean = inReadAction {
+            Try {
+              val lines = methodPosition.map(_.getLine)
+              m.allLineLocations().exists(l => lines.contains(ScalaPositionManager.checkedLineNumber(l)))
+            }.getOrElse(true)
+          }
+
+          if (sortedMethodCandidates.length > 1) {
+            val withSameParamNumber = sortedMethodCandidates.filter(sameParamNumber)
+            if (withSameParamNumber.isEmpty) sortedMethodCandidates.headOption
+            else if (withSameParamNumber.length == 1) withSameParamNumber.headOption
+            else {
+              val withSameLines = withSameParamNumber.filter(linesIntersects)
+              withSameLines.headOption.orElse(withSameParamNumber.headOption)
+            }
+          }
+          else sortedMethodCandidates.headOption
+        }
+
+        def doFind() = findWithSignature() orElse findWithoutSignature()
+
+        jdiMethodsCache.getOrElseUpdate(referenceType, doFind())
       }
-      if (obj.isInstanceOf[ClassType]) {
+
+      def invokeStaticMethod(referenceType: ReferenceType): AnyRef = {
+        def noStaticMethodException = EvaluationException(DebuggerBundle.message("evaluation.error.no.static.method", methodName))
+
         referenceType match {
           case classType: ClassType =>
-            val jdiMethod = getOrUpdateMethod(referenceType, findMethod).orNull
+            val jdiMethod = findMethod(classType).orNull
             if (jdiMethod != null && methodName == "<init>") {
-              import scala.collection.JavaConversions._
-              return debugProcess.newInstance(context, classType, jdiMethod, unwrappedArgs(args, jdiMethod))
+              debugProcess.newInstance(context, classType, jdiMethod, unwrappedArgs(args, jdiMethod))
             }
-            if (jdiMethod != null && jdiMethod.isStatic) {
-              import scala.collection.JavaConversions._
-              return debugProcess.invokeMethod(context, classType, jdiMethod, unwrappedArgs(args, jdiMethod))
+            else if (jdiMethod != null && jdiMethod.isStatic) {
+              debugProcess.invokeMethod(context, classType, jdiMethod, unwrappedArgs(args, jdiMethod))
             }
+            else throw noStaticMethodException
           case _ =>
-        }
-        throw EvaluationException(DebuggerBundle.message("evaluation.error.no.static.method", mName))
-      }
-      val objRef: ObjectReference = obj.asInstanceOf[ObjectReference]
-      var _refType: ReferenceType = referenceType
-      if (requiresSuperObject && referenceType.isInstanceOf[ClassType]) {
-        traitImplementation match {
-          case Some(tr) =>
-            val className: String = tr.getName(context.getDebugProcess)
-            if (className != null) {
-              context.getDebugProcess.findClass(context, className, context.getClassLoader) match {
-                case c: ClassType => _refType = c
-                case _ => _refType = referenceType.asInstanceOf[ClassType].superclass
-              }
-            } else _refType = referenceType.asInstanceOf[ClassType].superclass
-          case _ =>
-            _refType = referenceType.asInstanceOf[ClassType].superclass
+            throw noStaticMethodException
         }
       }
-      val jdiMethod: Method = getOrUpdateMethod(_refType, findMethod).orNull
-      if (jdiMethod == null) {
-        throw EvaluationException(DebuggerBundle.message("evaluation.error.no.instance.method", mName))
-      }
-      import scala.collection.JavaConversions._
-      if (requiresSuperObject) {
-        traitImplementation match {
-          case Some(tr) =>
-            val className: String = tr.getName(context.getDebugProcess)
-            if (className != null) {
-              context.getDebugProcess.findClass(context, className, context.getClassLoader) match {
-                case c: ClassType =>
-                  return debugProcess.invokeMethod(context, c, jdiMethod, unwrappedArgs(obj +: args, jdiMethod))
-                case _ =>
+
+      def findAndInvokeInstanceMethod(objRef: ObjectReference): AnyRef = {
+        val objType = findClass(objRef.referenceType().name())
+        if (objType.isInstanceOf[ArrayType]) throw EvaluationException(s"Method $methodName cannot be invoked on array")
+
+        val classType = objType.asInstanceOf[ClassType]
+
+        def classWithMethod(c: ReferenceType) = findMethod(c).map(m => (c, m))
+
+        val classAndMethod = if (requiresSuperObject) {
+          val superClass = classType.superclass()
+          classWithMethod(superClass)
+            .orElse {
+              traitImplementation.flatMap(ti => Option(ti.getName(context.getDebugProcess))) match {
+                case Some(traitImplName) =>
+                  Try(findClass(traitImplName)) match {
+                    case Success(c: ClassType) => classWithMethod(c)
+                    case _ =>
+                      val traitName = traitImplName.stripSuffix("$class")
+                      Try(findClass(traitName)).toOption.flatMap(classWithMethod)
+                  }
+                case _ => None
               }
             }
+        }
+        else classWithMethod(classType)
+
+        classAndMethod match {
+          case Some((clazz: ClassType, method)) if clazz.name.endsWith("$class") =>
+            debugProcess.invokeMethod(context, clazz, method, unwrappedArgs(obj +: args, method))
+          case Some((_, method)) if requiresSuperObject =>
+            debugProcess.invokeInstanceMethod(context, objRef, method, args, ObjectReference.INVOKE_NONVIRTUAL)
+          case Some((clazz, method)) =>
+            debugProcess.invokeMethod(context, objRef, method, unwrappedArgs(args, method))
           case None =>
+            throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName))
         }
-        return debugProcess.invokeInstanceMethod(context, objRef, jdiMethod, args, ObjectReference.INVOKE_NONVIRTUAL)
       }
-      debugProcess.invokeMethod(context, objRef, jdiMethod, unwrappedArgs(args, jdiMethod))
+
+      obj match {
+        case objRef: ObjectReference =>
+          findAndInvokeInstanceMethod(objRef)
+        case obj: ClassType =>
+          val referenceType = findClass(obj.name)
+          invokeStaticMethod(referenceType)
+        case _ =>
+          throw EvaluationException(DebuggerBundle.message("evaluation.error.evaluating.method", methodName))
+      }
     }
     catch {
       case e: Exception => throw EvaluationException(e)
