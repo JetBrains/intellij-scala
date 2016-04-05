@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.Assert
 
 
 /**
@@ -30,11 +31,16 @@ class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
       val srcOffset = trimmed.replaceAll(REFTGT, "").indexOf(REFSRC)
       val tgtOffset = trimmed.replaceAll(REFSRC, "").indexOf(REFTGT)
       val file = myFixture.addFileToProject(fileName, trimmed.replaceAll(REFSRC, "").replaceAll(REFTGT,""))
-      src = PsiTreeUtil.getParentOfType(file.findElementAt(srcOffset), classOf[ScReferenceElement])
-      tgt = PsiTreeUtil.getParentOfType(file.findElementAt(tgtOffset), classOf[ScalaPsiElement])
+      if (src == null)
+        src = PsiTreeUtil.getParentOfType(file.findElementAt(srcOffset), classOf[ScReferenceElement])
+      if (tgt == null)
+        tgt = PsiTreeUtil.getParentOfType(file.findElementAt(tgtOffset), classOf[PsiElement])
     }
+    Assert.assertNotNull("Failed to locate source element", src)
+    Assert.assertNotNull("Failed to locate target element", tgt)
     val result = src.resolve()
-    assert(tgt == result, s"Src resolves tp wrong place: ${result.getText}")
+    Assert.assertNotNull(s"Failed to resolve element - '${src.getText}'", result)
+    Assert.assertTrue(s"Reference(${src.getText}) resolves to wrong place(${result.getText})", tgt == result)
   }
 
   protected def doResolveTest(source: String, fileName: String = "dummy.scala"): Unit = doResolveTest(Seq(source -> fileName))
