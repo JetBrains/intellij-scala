@@ -903,7 +903,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
               val getEval = new ScalaMethodEvaluator(extractEval, "get", null, Seq.empty)
               val indexExpr = ScalaPsiElementFactory.createExpressionFromText("" + nextPatternIndex, pattern.getManager)
               val indexEval = evaluatorFor(indexExpr)
-              new ScalaMethodEvaluator(getEval, "apply", null, Seq(indexEval))
+              new ScalaMethodEvaluator(getEval, "apply", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), Seq(indexEval))
             } else throw EvaluationException(ScalaBundle.message("pattern.doesnot.resolves.to.unapply", ref.refName))
           val nextPattern = pattern.subpatterns(nextPatternIndex)
           evaluateSubpatternFromPattern(newEval, nextPattern, subPattern)
