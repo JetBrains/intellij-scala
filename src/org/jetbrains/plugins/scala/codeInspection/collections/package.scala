@@ -242,7 +242,7 @@ package object collections {
       stripped(expr) match {
         case ScParenthesisedExpr(underscore()) => true
         case typed: ScTypedStmt if typed.expr.isInstanceOf[ScUnderscoreSection] => true
-        case und: ScUnderscoreSection => true
+        case und: ScUnderscoreSection if und.bindingExpr.isEmpty => true
         case _ => false
       }
     }
