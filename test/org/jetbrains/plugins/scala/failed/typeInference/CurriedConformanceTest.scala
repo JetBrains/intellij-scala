@@ -18,4 +18,21 @@ class CurriedConformanceTest extends TypeConformanceTestBase {
         |val x: (String) => GenTraversableOnce[String] = f("curry")
         |//True""".stripMargin)
   }
+
+  def testSCL7488(): Unit = {
+    doTest(
+      s"""
+        |import scala.language.higherKinds
+        |
+        |type F[_]
+        |def unit[A](a: => A): F[A]
+        |def apply[A,B](fab: F[A => B])(fa: F[A]): F[B]
+        |def mapInTermsOfApplyAndUnit[A,B](fa: F[A])(f: A => B) = {
+        |    val apply1 = apply(unit(f))(_)
+        |    ${caretMarker}val v: F[A] => F[B] = apply1
+        |}
+        |//True
+      """.stripMargin)
+  }
+
 }
