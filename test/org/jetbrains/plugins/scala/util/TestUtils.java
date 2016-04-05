@@ -109,7 +109,7 @@ public class TestUtils {
   }
 
   public enum ScalaSdkVersion {
-    _2_10("2.10", "2.10.6"), _2_11("2.11", "2.11.7"), _2_12("2.12", "2.12.0-M2");
+    _2_10("2.10", "2.10.6"), _2_11("2.11", "2.11.7"), _2_12("2.12", "2.12.0-M4");
     private String major;
     private String minor;
 
