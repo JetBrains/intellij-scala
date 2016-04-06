@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceEleme
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PartialFunctionType, TupleType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
@@ -193,7 +193,7 @@ trait ScPattern extends ScalaPsiElement {
             if (subbedRetTp.equiv(lang.psi.types.Boolean)) None
             else {
               val args = ScPattern.extractorParameters(subbedRetTp, this, ScPattern.isOneArgCaseClassMethod(fun))
-              if (totalNumberOfPatterns == 1 && args.length > 1) Some(ScTupleType(args)(getProject, getResolveScope))
+              if (totalNumberOfPatterns == 1 && args.length > 1) Some(TupleType(args)(getProject, getResolveScope))
               else if (argIndex < args.length) Some(updateRes(subst.subst(args(argIndex)).unpackedType))
               else None
             }
@@ -293,7 +293,7 @@ trait ScPattern extends ScalaPsiElement {
         }
 
         tuple.expectedType.flatMap {
-          case ScTupleType(comps) =>
+          case TupleType(comps) =>
             for ((t, p) <- comps.iterator.zip(patternList.patterns.iterator)) {
               if (p == this) return Some(t)
             }
@@ -328,12 +328,12 @@ trait ScPattern extends ScalaPsiElement {
         b.expectedType(fromUnderscore = false) match {
           case Some(et) =>
             et.removeAbstracts match {
-              case ScFunctionType(_, Seq()) => Some(types.Unit)
-              case ScFunctionType(_, Seq(p0)) => Some(p0)
-              case ScFunctionType(_, params) =>
-                val tt = ScTupleType(params)(getProject, getResolveScope)
+              case FunctionType(_, Seq()) => Some(types.Unit)
+              case FunctionType(_, Seq(p0)) => Some(p0)
+              case FunctionType(_, params) =>
+                val tt = TupleType(params)(getProject, getResolveScope)
                 Some(tt)
-              case ScPartialFunctionType(_, param) => Some(param)
+              case PartialFunctionType(_, param) => Some(param)
               case _ => None
             }
           case None => None
@@ -458,7 +458,7 @@ object ScPattern {
                 }
                 args.head match {
                   case tp if isOneArgCaseClass => Seq(tp)
-                  case ScTupleType(comps) => comps
+                  case TupleType(comps) => comps
                   case tp => checkProduct(tp)
                 }
               } else Seq.empty

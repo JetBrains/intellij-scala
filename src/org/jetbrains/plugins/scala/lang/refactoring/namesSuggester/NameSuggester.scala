@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElem
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, JavaArrayType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, FunctionType, JavaArrayType, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{NameValidator, ScalaNamesUtil}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -97,8 +97,8 @@ object NameSuggester {
       }
       arg match {
         case ValType(name) => addPlural(name.toLowerCase)
-        case ScTupleType(_) => addPlural("tuple")
-        case ScFunctionType(_, _) => addPlural("function")
+        case TupleType(_) => addPlural("tuple")
+        case FunctionType(_, _) => addPlural("function")
         case ScDesignatorType(e) =>
           val camelNames = getCamelNames(e.name)
           camelNames.foreach(addPlural)
@@ -212,8 +212,8 @@ object NameSuggester {
           case "Char" => add(if (shortVersion) "c" else "char")
           case _ =>
         }
-      case ScTupleType(comps) => add("tuple")
-      case ScFunctionType(ret, params) => addForFunctionType(ret, params)
+      case TupleType(comps) => add("tuple")
+      case FunctionType(ret, params) => addForFunctionType(ret, params)
       case ScDesignatorType(e) => addForNamedElement(e)
       case ScTypeParameterType(name, typeParams, lowerType, upperType, ptp) => addForNamedElementString(name)
       case ScProjectionType(p, e, _) => addForNamedElement(e)

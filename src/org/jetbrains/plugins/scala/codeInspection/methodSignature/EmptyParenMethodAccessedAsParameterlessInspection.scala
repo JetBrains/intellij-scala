@@ -6,9 +6,9 @@ import org.jetbrains.plugins.scala.codeInspection.methodSignature.quickfix.AddCa
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 /**
@@ -52,7 +52,7 @@ class EmptyParenMethodAccessedAsParameterlessInspection extends AbstractMethodSi
     e.resolve() match {
       case (f: ScFunction) if !f.isInCompiledFile && f.isEmptyParen =>
         callType.toOption match {
-          case Some(ScFunctionType(_, Seq())) =>
+          case Some(FunctionType(_, Seq())) =>
           // might have been eta-expanded to () => A, so don't worn.
           // this avoids false positives. To be more accurate, we would need an 'etaExpanded'
           // flag in ScalaResolveResult.

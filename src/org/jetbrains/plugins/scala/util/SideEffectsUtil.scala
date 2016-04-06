@@ -13,9 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType, ScTypeExt, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
 
 /**
   * @author Nikolay.Tropin
@@ -45,11 +45,11 @@ object SideEffectsUtil {
             if pd.hasModifierProperty("lazy") => false
           case bp: ScBindingPattern =>
             val tp = bp.getType(TypingContext.empty)
-            !ScFunctionType.isFunctionType(tp.getOrAny)
+            !FunctionType.isFunctionType(tp.getOrAny)
           case _: ScObject => true
           case p: ScParameter
             if !p.isCallByNameParameter &&
-              !ScFunctionType.isFunctionType(p.getRealParameterType(TypingContext.empty).getOrAny) => true
+              !FunctionType.isFunctionType(p.getRealParameterType(TypingContext.empty).getOrAny) => true
           case _: ScSyntheticFunction => true
           case m: PsiMethod => methodHasNoSideEffects(m, ref.qualifier.flatMap(_.getType().toOption))
           case _ => false

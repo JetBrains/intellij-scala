@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, JavaArrayType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, FunctionType, JavaArrayType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -139,7 +139,7 @@ package object collections {
       expr.getType(TypingContext.empty) match {
         case Success(result, _) =>
           result match {
-            case ScFunctionType(returnType, _) => returnType.conforms(tp)
+            case FunctionType(returnType, _) => returnType.conforms(tp)
             case _ => false
           }
         case _ => false
@@ -404,7 +404,7 @@ package object collections {
       def hasUnitReturnType(ref: ScReferenceExpression)
                            (implicit typeSystem: TypeSystem = ref.typeSystem): Boolean = {
         ref match {
-          case MethodRepr(ExpressionType(ScFunctionType(_, _)), _, _, _) => false
+          case MethodRepr(ExpressionType(FunctionType(_, _)), _, _, _) => false
           case ResolvesTo(fun: ScFunction) => fun.hasUnitResultType
           case ResolvesTo(m: PsiMethod) => m.getReturnType == PsiType.VOID
           case _ => false

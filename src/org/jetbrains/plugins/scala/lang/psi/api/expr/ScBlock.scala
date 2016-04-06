@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, PartialFunctionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 
@@ -68,11 +68,11 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           }
 
           return et match {
-            case f@ScFunctionType(_, params) =>
-              Success(ScFunctionType(clausesType, params.map(removeVarianceAbstracts))
+            case f@FunctionType(_, params) =>
+              Success(FunctionType(clausesType, params.map(removeVarianceAbstracts))
                 (getProject, getResolveScope), Some(this))
-            case f@ScPartialFunctionType(_, param) =>
-              Success(ScPartialFunctionType(clausesType, removeVarianceAbstracts(param))
+            case f@PartialFunctionType(_, param) =>
+              Success(PartialFunctionType(clausesType, removeVarianceAbstracts(param))
                 (getProject, getResolveScope), Some(this))
             case _ =>
               Failure("Cannot infer type without expected type of scala.FunctionN or scala.PartialFunction", Some(this))

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
@@ -117,7 +117,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
     implicit val typeSystem = expr.typeSystem
 
     val paramTypes = expr.getType() match {
-      case Success(ScFunctionType(_, pTypes), _) => pTypes
+      case Success(FunctionType(_, pTypes), _) => pTypes
       case _ => Seq.empty
     }
     val (names, exprText) = expr match {

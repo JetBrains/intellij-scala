@@ -25,9 +25,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScSubstitutor, ScType, ValueClassType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ValueClassType}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -219,7 +219,7 @@ object DebuggerUtil {
                         (implicit typeSystem: TypeSystem = lambda.typeSystem): Option[String] = {
     val (argumentTypes, returnType) = lambda match {
       case expr @ ExpressionType(tp) if ScalaPsiUtil.isByNameArgument(expr) => (Seq.empty, tp)
-      case ExpressionType(ScFunctionType(retT, argTypes)) => (argTypes, retT)
+      case ExpressionType(FunctionType(retT, argTypes)) => (argTypes, retT)
       case _ => return None
     }
     val trueReturnType = returnType match {

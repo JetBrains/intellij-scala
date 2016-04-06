@@ -5,9 +5,8 @@ import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions.ExpressionType
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScTypeExt}
 
 /**
  * Nikolay.Tropin
@@ -43,7 +42,7 @@ object MapGetOrElse extends SimplificationType() {
   def checkTypes(qual: ScExpression, mapArg: ScExpression, replacementText: String)
                 (implicit typeSystem: TypeSystem): Boolean = {
     val mapArgRetType = mapArg match {
-      case ExpressionType(ScFunctionType(retType, _)) => retType
+      case ExpressionType(FunctionType(retType, _)) => retType
       case _ => return false
     }
     ScalaPsiElementFactory.createExpressionFromText(replacementText, qual.getContext) match {
@@ -63,7 +62,7 @@ object MapGetOrElse extends SimplificationType() {
       case _ => return false
     }
     val mapArgRetType = mapArg.getType() match {
-      case Success(ScFunctionType(retType, _), _) => retType
+      case Success(FunctionType(retType, _), _) => retType
       case _ => return false
     }
     val firstArgText = stripped(getOrElseArg).getText

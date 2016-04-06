@@ -5,7 +5,8 @@ package api
 package base
 package patterns
 
-import org.jetbrains.plugins.scala.lang.psi.types.{Any, ScTupleType}
+import org.jetbrains.plugins.scala.lang.psi.types.Any
+import org.jetbrains.plugins.scala.lang.psi.types.api.TupleType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /** 
@@ -17,6 +18,6 @@ trait ScTuplePattern extends ScPattern {
   def patternList = findChild(classOf[ScPatterns])
 
   override def getType(ctx: TypingContext) = wrap(patternList) flatMap {l =>
-    collectFailures(l.patterns.map(_.getType(ctx)), Any)(ScTupleType(_)(getProject, getResolveScope))
+    collectFailures(l.patterns.map(_.getType(ctx)), Any)(TupleType(_)(getProject, getResolveScope))
   }
 }

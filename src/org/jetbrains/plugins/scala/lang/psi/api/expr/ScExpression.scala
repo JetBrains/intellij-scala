@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
@@ -77,14 +78,14 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 case _ =>
               }
 
-              val functionType = ScFunctionType(expected, Seq(tp))(getProject, getResolveScope)
+              val functionType = FunctionType(expected, Seq(tp))(getProject, getResolveScope)
               val results = new ImplicitCollector(ScExpression.this, functionType, functionType, None,
                 isImplicitConversion = true, isExtensionConversion = false).collect()
               if (results.length == 1) {
                 val res = results.head
                 val paramType = InferUtil.extractImplicitParameterType(res)
                 paramType match {
-                  case ScFunctionType(rt, Seq(param)) =>
+                  case FunctionType(rt, Seq(param)) =>
                     ExpressionTypeResult(Success(rt, Some(ScExpression.this)), res.importsUsed, Some(res.getElement))
                   case _ =>
                     ScalaPsiManager.instance(getProject).getCachedClass(
@@ -121,11 +122,11 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] = {
       def expectedResult = Some(ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None))
       tp match {
-        case ScFunctionType(_, params) if ScalaPsiUtil.isSAMEnabled(this) =>
+        case FunctionType(_, params) if ScalaPsiUtil.isSAMEnabled(this) =>
           ScalaPsiUtil.toSAMType(expected, getResolveScope) match {
             case Some(methodType) if tp.conforms(methodType) => expectedResult
-            case Some(methodType@ScFunctionType(retTp, _)) if etaExpansionHappened && retTp.equiv(Unit) =>
-              val newTp = ScFunctionType(Unit, params)(getProject, getResolveScope)
+            case Some(methodType@FunctionType(retTp, _)) if etaExpansionHappened && retTp.equiv(Unit) =>
+              val newTp = FunctionType(Unit, params)(getProject, getResolveScope)
               if (newTp.conforms(methodType)) expectedResult
               else None
             case _ => None
@@ -200,7 +201,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
             exp match {
               case Some(expected) =>
                 expected.removeAbstracts match {
-                  case ScFunctionType(_, params) =>
+                  case FunctionType(_, params) =>
                   case expect if ScalaPsiUtil.isSAMEnabled(ScExpression.this) =>
                     ScalaPsiUtil.toSAMType(expect, getResolveScope) match {
                       case Some(_) =>
@@ -349,8 +350,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
         ScalaPsiUtil.isAnonymousExpression(expr) match {
           case (-1, _) => (Nothing, "")
           case (i, expr: ScFunctionExpr) =>
-            (ScFunctionType(expr.result.map(_.getShape(ignoreAssign = true)._1).getOrElse(Nothing), Seq.fill(i)(Any))(getProject, getResolveScope), "")
-          case (i, _) => (ScFunctionType(Nothing, Seq.fill(i)(Any))(getProject, getResolveScope), "")
+            (FunctionType(expr.result.map(_.getShape(ignoreAssign = true)._1).getOrElse(Nothing), Seq.fill(i)(Any))(getProject, getResolveScope), "")
+          case (i, _) => (FunctionType(Nothing, Seq.fill(i)(Any))(getProject, getResolveScope), "")
         }
       case _ => (Nothing, "")
     }

@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypeText, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
@@ -94,7 +94,7 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
       case Some(func) =>
         val index = func.parameters.indexOf(param)
         func.expectedType() match {
-          case Some(ScFunctionType(_, params)) =>
+          case Some(FunctionType(_, params)) =>
             if (index >= 0 && index < params.length) {
               val paramExpectedType = params(index)
               val param1 = param.getParent match {

@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -253,10 +253,10 @@ object MethodResolveProcessor {
       }
 
       expectedOption().map(_.removeAbstracts) match {
-        case Some(ScFunctionType(retType, params)) => processFunctionType(retType, params)
+        case Some(FunctionType(retType, params)) => processFunctionType(retType, params)
         case Some(tp: ScType) if ScalaPsiUtil.isSAMEnabled(fun) =>
           ScalaPsiUtil.toSAMType(tp, fun.getResolveScope) match {
-            case Some(ScFunctionType(retType, params)) => processFunctionType(retType, params)
+            case Some(FunctionType(retType, params)) => processFunctionType(retType, params)
             case _ => default()
           }
         case _ => default()

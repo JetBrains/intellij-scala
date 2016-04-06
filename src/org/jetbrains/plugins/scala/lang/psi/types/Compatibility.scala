@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
@@ -57,14 +58,14 @@ object Compatibility {
         case Some(expected) if typez.conforms(expected) => (Success(typez, None), Set.empty)
         case Some(expected) =>
           val defaultResult: (TypeResult[ScType], Set[ImportUsed]) = (Success(typez, None), Set.empty)
-          val functionType = ScFunctionType(expected, Seq(typez))(place.getProject, place.getResolveScope)
+          val functionType = FunctionType(expected, Seq(typez))(place.getProject, place.getResolveScope)
           val results = new ImplicitCollector(place, functionType, functionType, None,
             isImplicitConversion = true, isExtensionConversion = false).collect()
           if (results.length == 1) {
             val res = results.head
             val paramType = InferUtil.extractImplicitParameterType(res)
             paramType match {
-              case ScFunctionType(rt, Seq(param)) => (Success(rt, Some(place)), res.importsUsed)
+              case FunctionType(rt, Seq(param)) => (Success(rt, Some(place)), res.importsUsed)
               case _ =>
                 ScalaPsiManager.instance(place.getProject).getCachedClass(
                   "scala.Function1", place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE

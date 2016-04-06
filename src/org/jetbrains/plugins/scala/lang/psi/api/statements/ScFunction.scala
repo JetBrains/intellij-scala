@@ -33,6 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightFunctionDeclaration, ScLightFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{Unit => UnitType, _}
@@ -451,7 +452,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     val tp = getType(TypingContext.empty).getOrAny
     def lift: ScType => PsiType = _.toPsiType(getProject, getResolveScope)
     tp match {
-      case ScFunctionType(rt, _) => lift(rt)
+      case FunctionType(rt, _) => lift(rt)
       case _ => lift(tp)
     }
   }
@@ -589,7 +590,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
           val paramTypes = cl.parameters.map(_.getType(ctx))
           res match {
             case Success(t: ScType, _) =>
-              res = collectFailures(paramTypes, Nothing)(ScFunctionType(t, _)(getProject, getResolveScope))
+              res = collectFailures(paramTypes, Nothing)(FunctionType(t, _)(getProject, getResolveScope))
             case _ =>
           }
           i = i - 1
@@ -659,7 +660,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       case Some(params) =>
         val project = getProject
         val resolveScope = getResolveScope
-        rt.map(params.foldLeft(_)((res, params) => ScFunctionType(res, params)(project, resolveScope)))
+        rt.map(params.foldLeft(_)((res, params) => FunctionType(res, params)(project, resolveScope)))
       case None => Failure("no params", Some(this))
     }
   }
