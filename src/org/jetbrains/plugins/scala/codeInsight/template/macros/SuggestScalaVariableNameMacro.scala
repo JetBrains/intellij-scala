@@ -6,9 +6,9 @@ import com.intellij.codeInsight.template._
 import com.intellij.psi.{PsiDocumentManager, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{JavaArrayType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
 /**
@@ -68,7 +68,7 @@ object SuggestNamesUtil {
           items(0) match {
             case typed: ScTypedDefinition => typed.getType(TypingContext.empty) match {
               case Success(ScParameterizedType(_, typeArgs), _) => typeArgs.head
-              case Success(JavaArrayType(arg), _) => arg
+              case Success(JavaArrayType(argument), _) => argument
               case _ => return Array[String]("x")
             }
             case _ => return Array[String]("x")

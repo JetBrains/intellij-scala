@@ -9,8 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeSystem, TypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 
 import scala.annotation.tailrec
@@ -139,7 +138,7 @@ case class ScExistentialType(quantified : ScType,
     //todo: use recursiveVarianceUpdateModifiable?
     def checkRecursive(tp: ScType, rejected: HashSet[String]) {
       tp match {
-        case JavaArrayType(arg) => checkRecursive(arg, rejected)
+        case JavaArrayType(argument) => checkRecursive(argument, rejected)
         case ScAbstractType(tpt, lower, upper) =>
           checkRecursive(tpt, rejected)
           checkRecursive(lower, rejected)

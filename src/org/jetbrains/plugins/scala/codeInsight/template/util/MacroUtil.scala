@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
-import org.jetbrains.plugins.scala.lang.psi.types.{JavaArrayType, ScParameterizedType, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -43,7 +43,7 @@ object MacroUtil {
     }
 
   def getComponentFromArrayType(scType: ScType): Option[ScType] = scType match {
-    case javaArrType: JavaArrayType => Some(javaArrType.arg)
+    case JavaArrayType(argument) => Some(argument)
     case paramType: ScParameterizedType if paramType.canonicalText.startsWith("_root_.scala.Array") &&
             paramType.typeArgs.length == 1 => Some(paramType.typeArgs.head)
     case _ => None

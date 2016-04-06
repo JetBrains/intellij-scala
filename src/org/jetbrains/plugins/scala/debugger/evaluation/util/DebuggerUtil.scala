@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScSubstitutor, ScType, ValueClassType}
 
@@ -102,9 +102,9 @@ object DebuggerUtil {
       case Double => JVMNameUtil.getJVMRawText("java.lang.Double")
       case Byte => JVMNameUtil.getJVMRawText("java.lang.Byte")
       case Short => JVMNameUtil.getJVMRawText("java.lang.Short")
-      case JavaArrayType(arg) =>
+      case JavaArrayType(argument) =>
         val buff = new JVMNameBuffer()
-        buff.append(getJVMQualifiedName(arg))
+        buff.append(getJVMQualifiedName(argument))
         buff.append("[]")
         buff.toName
       case ScParameterizedType(arr, Seq(arg)) if arr.extractClass().exists(_.qualifiedName == "scala.Array") =>

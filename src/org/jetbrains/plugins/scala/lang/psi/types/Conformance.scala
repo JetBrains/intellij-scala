@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -637,6 +638,7 @@ object Conformance extends api.Conformance {
     }
 
     override def visitJavaArrayType(a1: JavaArrayType) {
+      val JavaArrayType(arg1) = a1
       var rightVisitor: ScalaTypeVisitor =
         new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
           with ParameterizedAbstractVisitor {}
@@ -657,9 +659,7 @@ object Conformance extends api.Conformance {
       if (result != null) return
 
       r match {
-        case a2: JavaArrayType =>
-          val arg1 = a1.arg
-          val arg2 = a2.arg
+        case JavaArrayType(arg2) =>
           val argsPair = (arg1, arg2)
           argsPair match {
             case (ScAbstractType(tpt, lower, upper), r) =>
@@ -727,7 +727,7 @@ object Conformance extends api.Conformance {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           })) {
-            val arg = a1.arg
+            val arg = a1.argument
             val argsPair = (arg, args.head)
             argsPair match {
               case (ScAbstractType(tpt, lower, upper), r) =>
@@ -920,7 +920,7 @@ object Conformance extends api.Conformance {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           })) {
-            val arg = r.asInstanceOf[JavaArrayType].arg
+            val arg = r.asInstanceOf[JavaArrayType].argument
             val argsPair = (arg, args.head)
             argsPair match {
               case (ScAbstractType(tpt, lower, upper), r) =>

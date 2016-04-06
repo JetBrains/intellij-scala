@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 
@@ -242,8 +243,7 @@ object ScTypePresentation extends api.ScTypePresentation {
           projectionTypeText(proj, needDotType)
         case ScParameterizedType(des, typeArgs) =>
           innerTypeText(des) + typeSeqText(typeArgs, "[", ", ", "]", checkWildcard = true)
-        case j@JavaArrayType(arg) => 
-          s"Array[${innerTypeText(arg)}]"
+        case j@JavaArrayType(arg) => s"Array[${innerTypeText(arg)}]"
         case ScExistentialArgument(name, _, _, _) => name
         case ScTypeParameterType(name, _, _, _, _) => name
         case ScUndefinedType(tpt: ScTypeParameterType) => "NotInfered" + tpt.name
