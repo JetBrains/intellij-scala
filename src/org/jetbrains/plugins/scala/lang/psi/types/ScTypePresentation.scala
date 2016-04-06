@@ -243,7 +243,7 @@ object ScTypePresentation extends api.ScTypePresentation {
           projectionTypeText(proj, needDotType)
         case ScParameterizedType(des, typeArgs) =>
           innerTypeText(des) + typeSeqText(typeArgs, "[", ", ", "]", checkWildcard = true)
-        case j@JavaArrayType(arg) => s"Array[${innerTypeText(arg)}]"
+        case JavaArrayType(argument) => s"Array[${innerTypeText(argument)}]"
         case ScExistentialArgument(name, _, _, _) => name
         case ScTypeParameterType(name, _, _, _, _) => name
         case ScUndefinedType(tpt: ScTypeParameterType) => "NotInfered" + tpt.name

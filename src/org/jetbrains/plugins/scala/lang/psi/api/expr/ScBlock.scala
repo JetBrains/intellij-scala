@@ -52,7 +52,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
         case _ =>
           val et = expectedType(fromUnderscore = false).getOrElse(return Failure("Cannot infer type without expected type", Some(this)))
 
-          def removeVarianceAbstracts(scType: ScType): ScType = {
+          def removeVarianceAbstracts(scType: ScType) = {
             var index = 0
             scType.recursiveVarianceUpdate((tp: ScType, i: Int) => {
               tp match {
