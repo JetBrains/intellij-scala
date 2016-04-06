@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScF
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, api}
 
 /**
  * @author Nikolay.Tropin
@@ -30,8 +30,8 @@ class UnitInMapInspection extends OperationOnCollectionInspection {
         else Seq.empty
       implicit val typeSystem = holder.typeSystem
       val unitTypeReturns = body.calculateReturns().collect {
-        case expr@ExpressionType(ft@FunctionType(Unit, _)) if arg.getType().getOrAny.equiv(ft) => expr
-        case expr @ ExpressionType(Unit) => expr
+        case expr@ExpressionType(ft@FunctionType(api.Unit, _)) if arg.getType().getOrAny.equiv(ft) => expr
+        case expr@ExpressionType(api.Unit) => expr
       }.filter(_.getTextLength > 0)
 
       unitTypeReturns.foreach { e =>

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTemplateBodyImpl
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
@@ -88,7 +88,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
             typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
             ta.typeParameters.map(tp => {
               val name = tp.name + "$$"
-              val ex = new ScExistentialArgument(name, Nil, types.Nothing, types.Any)
+              val ex = new ScExistentialArgument(name, Nil, Nothing, Any)
               args += ex
               ex
             }))
@@ -434,7 +434,7 @@ case class ScDesignatorType(element: PsiNamedElement) extends ScalaType with Val
           typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
           ta.typeParameters.map(tp => {
             val name = tp.name + "$$"
-            val ex = new ScExistentialArgument(name, Nil, types.Nothing, types.Any)
+            val ex = new ScExistentialArgument(name, Nil, Nothing, Any)
             args += ex
             ex
           }))
@@ -515,10 +515,9 @@ case class ScDesignatorType(element: PsiNamedElement) extends ScalaType with Val
 }
 
 object ScDesignatorType {
-  def fromClassFqn(fqn: String, project: Project, scope: GlobalSearchScope): ScType = {
-    ScalaPsiManager.instance(project).getCachedClass(scope, fqn) match {
-      case Some(c) => ScalaType.designator(c)
-      case _ => types.Nothing
-    }
-  }
+  def fromClassFqn(fqn: String, project: Project, scope: GlobalSearchScope): ScType =
+    ScalaPsiManager.instance(project)
+      .getCachedClass(scope, fqn)
+      .map(ScalaType.designator(_))
+      .getOrElse(Nothing)
 }

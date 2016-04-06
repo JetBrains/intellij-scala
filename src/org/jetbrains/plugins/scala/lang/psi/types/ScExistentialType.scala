@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeSystem, TypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeSystem, TypeVisitor, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 
 import scala.annotation.tailrec

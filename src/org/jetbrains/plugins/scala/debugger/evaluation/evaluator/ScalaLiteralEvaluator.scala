@@ -32,9 +32,9 @@ class ScalaLiteralEvaluator(value: AnyRef, tp: ScType) extends Evaluator {
 
 object ScalaLiteralEvaluator {
   def apply(l: ScLiteral): ScalaLiteralEvaluator = {
+    import org.jetbrains.plugins.scala.lang.psi.types.api.Null
     val tp = l.getType().getOrAny
     val value = l.getValue
-    import org.jetbrains.plugins.scala.lang.psi.types.Null
     if (value == null && tp != Null) {
       throw EvaluationException(s"Literal ${l.getText} has null value")
     }

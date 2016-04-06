@@ -3,7 +3,7 @@ package lang
 package psi
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeVisitor, ValueType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 import scala.collection.immutable.HashSet

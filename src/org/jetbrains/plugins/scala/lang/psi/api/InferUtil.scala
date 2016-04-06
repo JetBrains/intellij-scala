@@ -5,6 +5,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiTypeParameterListOwner}
 import org.jetbrains.plugins.scala.caches.ScalaRecursionManager
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -17,11 +18,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, Nothing, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
@@ -229,7 +229,7 @@ object InferUtil {
       case Success(ScTypePolymorphicType(m@ScMethodType(internal, params, impl), typeParams), _)
         if expectedType.isDefined && (!fromImplicitParameters || impl) =>
         def updateRes(expected: ScType) {
-          if (expected.equiv(types.Unit)) return //do not update according to Unit type
+          if (expected.equiv(api.Unit)) return //do not update according to Unit type
           val innerInternal = internal match {
               case ScMethodType(inter, _, innerImpl) if innerImpl && !fromImplicitParameters => inter
               case _ => internal

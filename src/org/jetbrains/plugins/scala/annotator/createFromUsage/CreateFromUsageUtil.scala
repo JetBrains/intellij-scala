@@ -15,9 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ExtractClass, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType, Any => scTypeAny}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 /**
  * Nikolay.Tropin
@@ -42,7 +42,7 @@ object CreateFromUsageUtil {
     case p: ScPattern =>
       val tp: ScType = p.getType(TypingContext.empty).getOrAny
       (nameByType(tp), tp)
-    case _ => ("value", scTypeAny)
+    case _ => ("value", Any)
   }
   
   def paramsText(args: Seq[PsiElement]) = {
@@ -116,7 +116,7 @@ object CreateFromUsageUtil {
   }
 
   def unapplyMethodText(pattern: ScPattern) = {
-    val pType = pattern.expectedType.getOrElse(scTypeAny)
+    val pType = pattern.expectedType.getOrElse(Any)
     val pName = nameByType(pType)
     s"def unapply($pName: ${pType.canonicalText}): ${unapplyMethodTypeText(pattern)} = ???"
   }

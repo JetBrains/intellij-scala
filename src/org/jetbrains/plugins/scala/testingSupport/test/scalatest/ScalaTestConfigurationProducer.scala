@@ -143,7 +143,7 @@ class ScalaTestConfigurationProducer extends {
                   if (clauses.nonEmpty) {
                     val params = clauses.head.parameters
                     if (params.nonEmpty) {
-                      import org.jetbrains.plugins.scala.lang.psi.types.Unit
+                      import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
                       params.head.getType(TypingContext.empty) match {
                         case Success(Unit, _) => failedToCheck = false
                         case Success(tp, _) =>

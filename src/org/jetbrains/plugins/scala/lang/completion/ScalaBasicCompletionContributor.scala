@@ -32,9 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScTypeProjectionImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceExpressionImpl
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType, ScTypeExt}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -180,7 +178,7 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
             }
           }
           def postProcessMethod(resolveResult: ScalaResolveResult) {
-            import org.jetbrains.plugins.scala.lang.psi.types.Nothing
+            import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
             val probablyContinigClass = Option(PsiTreeUtil.getContextOfType(position, classOf[PsiClass]))
             val qualifierType = resolveResult.fromType.getOrElse(Nothing)
             val lookupItems: Seq[ScalaLookupItem] = LookupElementManager.getLookupElement(

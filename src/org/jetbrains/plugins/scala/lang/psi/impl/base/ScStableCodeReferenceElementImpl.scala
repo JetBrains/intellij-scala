@@ -42,7 +42,7 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
     val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
     doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
       case res: ScalaResolveResult =>
-        import org.jetbrains.plugins.scala.lang.psi.types.Nothing
+        import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
         val qualifier = res.fromType.getOrElse(Nothing)
         LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = true)
       case r => Seq(r.getElement)

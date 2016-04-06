@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScC
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types
+import org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.util.{IntentionAvailabilityChecker, SideEffectsUtil}
 
 /**
@@ -26,7 +26,7 @@ class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessE
         val removeElemFix = new RemoveElementQuickFix("Remove expression", expr)
         val addReturnKeywordFix = PsiTreeUtil.getParentOfType(expr, classOf[ScFunctionDefinition]) match {
           case null => Seq.empty
-          case fun if fun.returnType.getOrAny != types.Unit => Seq(new AddReturnQuickFix(expr))
+          case fun if fun.returnType.getOrAny != api.Unit => Seq(new AddReturnQuickFix(expr))
           case _ => Seq.empty
         }
 
@@ -63,7 +63,7 @@ class ScalaUselessExpressionInspection extends AbstractInspection("ScalaUselessE
     }
     def isInReturnPositionForUnitFunction: Boolean = {
       Option(PsiTreeUtil.getParentOfType(expr, classOf[ScFunctionDefinition])) match {
-        case Some(fun) if fun.returnType.getOrAny == types.Unit => fun.returnUsages().contains(expr)
+        case Some(fun) if fun.returnType.getOrAny == api.Unit => fun.returnUsages().contains(expr)
         case _ => false
       }
     }

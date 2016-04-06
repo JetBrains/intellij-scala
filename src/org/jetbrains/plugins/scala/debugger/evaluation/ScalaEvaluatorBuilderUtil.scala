@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitParametersOwner, ScPack
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, JavaArrayType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -272,7 +272,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
     def isInstanceOfEval: Evaluator = {
       unaryEval("isInstanceOf", eval => {
-        import org.jetbrains.plugins.scala.lang.psi.types.Nothing
+        import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
         val tp = ref.getParent match {
           case gen: ScGenericCall => gen.typeArgs match {
             case Some(args) => args.typeArgs match {
@@ -390,6 +390,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
 
   def classOfFunctionEvaluator(ref: ScReferenceExpression) = {
+    import org.jetbrains.plugins.scala.lang.psi.types.api.Null
     val clazzJVMName = ref.getContext match {
       case gen: ScGenericCall =>
         gen.arguments.head.getType(TypingContext.empty).map {
@@ -403,7 +404,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         }.getOrElse(null)
       case _ => null
     }
-    import org.jetbrains.plugins.scala.lang.psi.types.Null
     if (clazzJVMName != null) new ClassObjectEvaluator(new TypeEvaluator(clazzJVMName))
     else new ScalaLiteralEvaluator(null, Null)
   }
@@ -1303,8 +1303,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       }
     }
 
-    import org.jetbrains.plugins.scala.lang.psi.types._
-
     val unboxed = expr.smartExpectedType() match {
       case Some(Int) => unbox("toInteger")
       case Some(Byte) => unbox("toByte")
@@ -1369,7 +1367,6 @@ object ScalaEvaluatorBuilderUtil {
   }
 
   def classTagText(arg: ScType): String = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
     arg match {
       case Short => "_root_.scala.reflect.ClassTag.Short"
       case Byte => "_root_.scala.reflect.ClassTag.Byte"

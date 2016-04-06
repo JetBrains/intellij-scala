@@ -15,15 +15,14 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
-import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiUtil, types}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, Unit}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.overrideImplement._
@@ -211,7 +210,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
   private def canBeTargetInClass(member: ClassMember, clazz: ScTemplateDefinition): Boolean = member match {
     case ta: ScAliasMember => false
-    case typed: ScalaTypedMember if typed.scType == types.Unit => false
+    case typed: ScalaTypedMember if typed.scType == Unit => false
     case method: ScMethodMember =>
       method.getElement match {
         case m: PsiMethod if {val cl = m.getContainingClass; cl != null && cl.getQualifiedName == CommonClassNames.JAVA_LANG_OBJECT} => false

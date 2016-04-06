@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -45,9 +45,9 @@ object Conformance extends api.Conformance {
             left.extractClass() match {
               case Some(lClass) =>
                 if (rClass.qualifiedName == "java.lang.Object") {
-                  return conformsInner(left, types.AnyRef, visited, substitutor, checkWeak)
+                  return conformsInner(left, AnyRef, visited, substitutor, checkWeak)
                 } else if (lClass.qualifiedName == "java.lang.Object") {
-                  return conformsInner(types.AnyRef, right, visited, substitutor, checkWeak)
+                  return conformsInner(AnyRef, right, visited, substitutor, checkWeak)
                 }
                 val inh = smartIsInheritor(rClass, subst, lClass)
                 if (!inh._1) return (false, substitutor)
@@ -266,13 +266,13 @@ object Conformance extends api.Conformance {
 
     trait NothingNullVisitor extends ScalaTypeVisitor {
       override def visitStdType(x: StdType) {
-        if (x eq types.Nothing) result = (true, undefinedSubst)
-        else if (x eq types.Null) {
+        if (x eq Nothing) result = (true, undefinedSubst)
+        else if (x eq Null) {
           /*
             this case for checking: val x: T = null
             This is good if T class type: T <: AnyRef and !(T <: NotNull)
            */
-          if (!l.conforms(types.AnyRef)) {
+          if (!l.conforms(AnyRef)) {
             result = (false, undefinedSubst)
             return
           }
@@ -441,34 +441,34 @@ object Conformance extends api.Conformance {
 
       if (checkWeak && r.isInstanceOf[ValType]) {
         (r, x) match {
-          case (types.Byte, types.Short | types.Int | types.Long | types.Float | types.Double) =>
+          case (Byte, Short | Int | Long | Float | Double) =>
             result = (true, undefinedSubst)
             return
-          case (types.Short, types.Int | types.Long | types.Float | types.Double) =>
+          case (Short, Int | Long | Float | Double) =>
             result = (true, undefinedSubst)
             return
-          case (types.Char, types.Byte | types.Short | types.Int | types.Long | types.Float | types.Double) =>
+          case (Char, Byte | Short | Int | Long | Float | Double) =>
             result = (true, undefinedSubst)
             return
-          case (types.Int, types.Long | types.Float | types.Double) =>
+          case (Int, Long | Float | Double) =>
             result = (true, undefinedSubst)
             return
-          case (types.Long, types.Float | types.Double) =>
+          case (Long, Float | Double) =>
             result = (true, undefinedSubst)
             return
-          case (types.Float, types.Double) =>
+          case (Float, Double) =>
             result = (true, undefinedSubst)
             return
           case _ =>
         }
       }
 
-      if (x eq types.Any) {
+      if (x eq Any) {
         result = (true, undefinedSubst)
         return
       }
 
-      if (x == types.Nothing && r == types.Null) {
+      if (x == Nothing && r == Null) {
         result = (false, undefinedSubst)
         return
       }
@@ -487,17 +487,17 @@ object Conformance extends api.Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      if (x eq types.Null) {
-        result = (r == types.Nothing, undefinedSubst)
+      if (x eq Null) {
+        result = (r == Nothing, undefinedSubst)
         return
       }
 
-      if (x eq types.AnyRef) {
-        if (r eq  types.Any) {
+      if (x eq AnyRef) {
+        if (r eq Any) {
           result = (false, undefinedSubst)
           return
         }
-        else if (r eq  types.AnyVal) {
+        else if (r eq AnyVal) {
           result = (false, undefinedSubst)
           return
         }
@@ -522,7 +522,7 @@ object Conformance extends api.Conformance {
         result = (false, undefinedSubst)
       }
 
-      if (x eq types.AnyVal) {
+      if (x eq AnyVal) {
         result = (r.isInstanceOf[ValType] || ValueClassType.isValueType(r), undefinedSubst)
         return
       }
@@ -1338,8 +1338,8 @@ object Conformance extends api.Conformance {
 
       trait TypeParameterTypeNothingNullVisitor extends NothingNullVisitor {
         override def visitStdType(x: StdType) {
-          if (x eq types.Nothing) result = (true, undefinedSubst)
-          else if (x eq types.Null) {
+          if (x eq Nothing) result = (true, undefinedSubst)
+          else if (x eq Null) {
             result = conformsInner(tpt1.lower.v, r, HashSet.empty, undefinedSubst)
           }
         }

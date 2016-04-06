@@ -7,7 +7,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElementExt, ScTypeVariableTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{Any, Nothing, ScExistentialArgument}
+import org.jetbrains.plugins.scala.lang.psi.types.ScExistentialArgument
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
 
 /**
  * @author Alefas

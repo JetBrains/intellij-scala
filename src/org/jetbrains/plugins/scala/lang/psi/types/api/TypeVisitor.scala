@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
+import org.jetbrains.plugins.scala.lang.psi.types.ScUndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
-import org.jetbrains.plugins.scala.lang.psi.types.{ScUndefinedType, StdType}
 
 /**
   * @author adkozlov

@@ -11,9 +11,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiTypedDefinitionWrapper, StaticPsiTypedDefinitionWrapper}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, TypingContextOwner}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 /**
@@ -37,7 +38,7 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
       case _ => _ => false
     }
     val tType = getType(TypingContext.empty).getOrAny
-    new FakePsiMethod(this, name + "_=", typeArr2paramArr(Array[ScType](tType)), types.Unit, hasModifierProperty)
+    new FakePsiMethod(this, name + "_=", typeArr2paramArr(Array[ScType](tType)), Unit, hasModifierProperty)
   }
 
   @Cached(synchronized = false, modificationCount = ModCount.getBlockModificationCount, this)
@@ -57,7 +58,7 @@ trait ScTypedDefinition extends ScNamedElement with TypingContextOwner {
       case _ => _ => false
     }
     val tType = getType(TypingContext.empty).getOrAny
-    new FakePsiMethod(this, "set" + name.capitalize, typeArr2paramArr(Array[ScType](tType)), types.Unit, hasModifierProperty)
+    new FakePsiMethod(this, "set" + name.capitalize, typeArr2paramArr(Array[ScType](tType)), api.Unit, hasModifierProperty)
   }
 
   @Cached(synchronized = false, modificationCount = ModCount.getBlockModificationCount, this)

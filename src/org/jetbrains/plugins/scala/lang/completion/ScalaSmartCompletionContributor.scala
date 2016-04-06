@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.handlers.{ScalaConstructorInsertHandler, ScalaGenerateAnonymousFunctionInsertHandler}
 import org.jetbrains.plugins.scala.lang.completion.lookups.{LookupElementManager, ScalaChainLookupElement, ScalaLookupItem}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -24,8 +23,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Nothing, TupleType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.{types, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -54,7 +54,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
       }
     }
 
-    if (typez.isEmpty || typez.forall(_ == types.Nothing)) return
+    if (typez.isEmpty || typez.forall(_ == Nothing)) return
 
     def applyVariant(_variant: Object, checkForSecondCompletion: Boolean = false) {
       val chainVariant = _variant.isInstanceOf[ScalaChainLookupElement]
@@ -69,10 +69,10 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           val elem = el.element
           val subst = el.substitutor
           def checkType(_tp: ScType, _subst: ScSubstitutor, chainCompletion: Boolean, etaExpanded: Boolean = false): Boolean = {
+            import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
             val tp = _subst.subst(_tp)
             var elementAdded = false
             val scType = subst.subst(tp)
-            import org.jetbrains.plugins.scala.lang.psi.types.Nothing
             if (!scType.equiv(Nothing) && typez.exists(scType conforms _)) {
               elementAdded = true
               if (etaExpanded) el.etaExpanded = true
@@ -98,7 +98,6 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                 r => {
                   r match {
                     case r: ScalaResolveResult if !r.isNamedParameter =>
-                      import org.jetbrains.plugins.scala.lang.psi.types.Nothing
                       val qualifier = r.fromType.getOrElse(Nothing)
                       val newElem = LookupElementManager.getLookupElement(r, qualifierType = qualifier, isInStableCodeReference = false).head
                       applyVariant(new ScalaChainLookupElement(el, newElem))
@@ -235,7 +234,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           checkType(tp)
         }
         variants.foreach(applyVariant(_, checkForSecondCompletion = true))
-        if (typez.exists(_.equiv(types.Boolean))) {
+        if (typez.exists(_.equiv(types.api.Boolean))) {
           for (keyword <- Set("false", "true")) {
             result.addElement(LookupElementManager.getKeywrodLookupElement(keyword, place))
           }
@@ -249,7 +248,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
               case t: ScTemplateDefinition =>
                 t.getTypeWithProjections(TypingContext.empty, thisProjections = true) match {
                   case Success(scType, _) =>
-                    import org.jetbrains.plugins.scala.lang.psi.types.Nothing
+                    import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
                     val lookupString = (if (foundClazz) t.name + "." else "") + "this"
                     val el = new ScalaLookupItem(t, lookupString)
                     if (!scType.equiv(Nothing) && typez.exists(scType conforms _)) {

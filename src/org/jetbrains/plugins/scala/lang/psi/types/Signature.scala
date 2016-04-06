@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 
 import scala.collection.mutable.ArrayBuffer
@@ -136,10 +136,10 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
         val tp2 = unified2.subst(t2())
         val tp1 = unified1.subst(t1())
         var t = tp2.equiv(tp1, undefSubst, falseUndef)
-        if (!t._1 && tp1.equiv(AnyRef) && this.isJava) {
+        if (!t._1 && tp1.equiv(api.AnyRef) && this.isJava) {
           t = tp2.equiv(Any, undefSubst, falseUndef)
         }
-        if (!t._1 && tp2.equiv(AnyRef) && other.isJava) {
+        if (!t._1 && tp2.equiv(api.AnyRef) && other.isJava) {
           t = Any.equiv(tp1, undefSubst, falseUndef)
         }
         if (!t._1) {

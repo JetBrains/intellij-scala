@@ -15,10 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PartialFunctionType, TupleType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
 
 import scala.annotation.tailrec
@@ -92,18 +92,18 @@ private[expr] object ExpectedTypes {
         case _ => Array.empty
       }
       //see SLS[6.16]
-      case cond: ScIfStmt if cond.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((types.Boolean, None))
+      case cond: ScIfStmt if cond.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((api.Boolean, None))
       case cond: ScIfStmt if cond.elseBranch.isDefined => cond.expectedTypesEx(fromUnderscore = true)
       //see SLA[6.22]
       case tb: ScTryBlock => tb.lastExpr match {
         case Some(e) if e == expr => tb.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(fromUnderscore = true)
         case _ => Array.empty
       }
-      case wh: ScWhileStmt if wh.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((types.Boolean, None))
-      case wh: ScWhileStmt => Array((types.Unit, None))
-      case d: ScDoStmt if d.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((types.Boolean, None))
-      case d: ScDoStmt => Array((types.Unit, None))
-      case fb: ScFinallyBlock => Array((types.Unit, None))
+      case wh: ScWhileStmt if wh.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((api.Boolean, None))
+      case wh: ScWhileStmt => Array((Unit, None))
+      case d: ScDoStmt if d.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((api.Boolean, None))
+      case d: ScDoStmt => Array((api.Unit, None))
+      case fb: ScFinallyBlock => Array((api.Unit, None))
       case cb: ScCatchBlock => Array.empty
       case te: ScThrowStmt =>
         // Not in the SLS, but in the implementation.
@@ -238,7 +238,7 @@ private[expr] object ExpectedTypes {
       }) =>
         v.returnTypeElement match {
           case Some(te) => v.returnType.toOption.map(x => (x, Some(te))).toArray
-          case None if !v.hasAssign => Array((types.Unit, None))
+          case None if !v.hasAssign => Array((api.Unit, None))
           case _ => v.getInheritedReturnType.map((_, None)).toArray
         }
       //default parameters

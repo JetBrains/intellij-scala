@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
@@ -18,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 class ScParenthesisedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParenthesisedTypeElement {
   protected def innerType(ctx: TypingContext) = typeElement match {
     case Some(el) => el.getType(ctx)
-    case None => this.success(psi.types.Unit)
+    case None => this.success(Unit)
   }
 
   override def accept(visitor: ScalaElementVisitor) {

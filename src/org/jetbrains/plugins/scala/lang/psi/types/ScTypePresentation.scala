@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, TupleType}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 
@@ -30,8 +30,8 @@ object ScTypePresentation extends api.ScTypePresentation {
     def typeTail(need: Boolean) = if (need) ".type" else ""
 
     def existentialArgWithBounds(wildcard: ScExistentialArgument, argText: String): String = {
-      val lowerBoundText = if (wildcard.lower != types.Nothing) " >: " + innerTypeText(wildcard.lower) else ""
-      val upperBoundText = if (wildcard.upper != types.Any) " <: " + innerTypeText(wildcard.upper) else ""
+      val lowerBoundText = if (wildcard.lower != Nothing) " >: " + innerTypeText(wildcard.lower) else ""
+      val upperBoundText = if (wildcard.upper != Any) " <: " + innerTypeText(wildcard.upper) else ""
       s"$argText$lowerBoundText$upperBoundText"
     }
 
@@ -42,11 +42,11 @@ object ScTypePresentation extends api.ScTypePresentation {
       else if (param.isCovariant) buffer ++= "+"
       buffer ++= param.name
       param.lowerBound foreach {
-        case psi.types.Nothing =>
+        case Nothing =>
         case tp: ScType => buffer ++= s" >: ${typeText0(tp)}"
       }
       param.upperBound foreach {
-        case psi.types.Any =>
+        case Any =>
         case tp: ScType => buffer ++= s" <: ${typeText0(tp)}"
       }
       param.viewBound foreach {
@@ -142,13 +142,13 @@ object ScTypePresentation extends api.ScTypePresentation {
           val defnText = ta match {
             case tad: ScTypeAliasDefinition =>
               tad.aliasedType.map {
-                case psi.types.Nothing => ""
+                case Nothing => ""
                 case tpe => s" = ${typeText0(tpe)}"
               }.getOrElse("")
             case _ =>
               val (lowerBound, upperBound) = (ta.lowerBound.getOrNothing, ta.upperBound.getOrAny)
-              val lowerText = if (lowerBound == psi.types.Nothing) "" else s" >: ${typeText0(lowerBound)}"
-              val upperText = if (upperBound == psi.types.Any) "" else s" <: ${typeText0(upperBound)}"
+              val lowerText = if (lowerBound == Nothing) "" else s" >: ${typeText0(lowerBound)}"
+              val upperText = if (upperBound == Any) "" else s" <: ${typeText0(upperBound)}"
               lowerText + upperText
           }
           Seq(decl + defnText)
@@ -253,8 +253,8 @@ object ScTypePresentation extends api.ScTypePresentation {
           existentialTypeText(ex, checkWildcard, needDotType)
         case ScTypePolymorphicType(internalType, typeParameters) =>
           typeParameters.map(tp => {
-            val lowerBound = if (tp.lowerType().equiv(types.Nothing)) "" else " >: " + tp.lowerType().toString
-            val upperBound = if (tp.upperType().equiv(types.Any)) "" else " <: " + tp.upperType().toString
+            val lowerBound = if (tp.lowerType().equiv(Nothing)) "" else " >: " + tp.lowerType().toString
+            val upperBound = if (tp.upperType().equiv(Any)) "" else " <: " + tp.upperType().toString
             tp.name + lowerBound + upperBound
           }).mkString("[", ", ", "] ") + internalType.toString
         case mt@ScMethodType(retType, params, isImplicit) =>

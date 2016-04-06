@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeParameterType, _}
 
 object UnnecessaryPartialFunctionInspection {

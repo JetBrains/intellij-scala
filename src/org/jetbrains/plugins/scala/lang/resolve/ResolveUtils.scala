@@ -23,10 +23,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSynthetic
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
@@ -82,7 +82,7 @@ object ResolveUtils {
       m.getParameterList.getParameters.map({
         p => val pt = p.getType
         //scala hack: Objects in java are modelled as Any in scala
-        if (pt.equalsToText("java.lang.Object")) types.Any
+          if (pt.equalsToText("java.lang.Object")) Any
         else s.subst(pt.toScType(m.getProject, scope))
       }).toSeq)(m.getProject, scope)
 

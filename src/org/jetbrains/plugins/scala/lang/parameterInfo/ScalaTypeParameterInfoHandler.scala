@@ -20,7 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
 
 import scala.collection.mutable.ArrayBuffer
@@ -139,11 +140,11 @@ class ScalaTypeParameterInfoHandler extends ParameterInfoHandlerWithTabActionSup
         if (param.isContravariant) paramText = "-" + paramText
         else if (param.isCovariant) paramText = "+" + paramText
         param.lowerBound foreach {
-          case psi.types.Nothing =>
+          case Nothing =>
           case tp: ScType => paramText = paramText + " >: " + substitutor.subst(tp).presentableText
         }
         param.upperBound foreach {
-          case psi.types.Any =>
+          case Any =>
           case tp: ScType => paramText = paramText + " <: " + substitutor.subst(tp).presentableText
         }
         param.viewBound foreach {

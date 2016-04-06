@@ -14,9 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, _}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, api, _}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -64,10 +64,10 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                       ScParameterizedType(des, typeArgs.zip(typeParams).map {
                         case (arg: ScExistentialArgument, param: ScTypeParam) =>
                           val lowerBound =
-                            if (arg.lower.equiv(psi.types.Nothing)) subst subst param.lowerBound.getOrNothing
+                            if (arg.lower.equiv(Nothing)) subst subst param.lowerBound.getOrNothing
                             else arg.lower //todo: lub?
                           val upperBound =
-                            if (arg.upper.equiv(psi.types.Any)) subst subst param.upperBound.getOrAny
+                          if (arg.upper.equiv(Any)) subst subst param.upperBound.getOrAny
                             else arg.upper //todo: glb?
                           ScExistentialArgument(arg.name, arg.args, lowerBound, upperBound)
                         case (tp: ScType, param: ScTypeParam) => tp
@@ -82,9 +82,9 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                         case (arg: ScExistentialArgument, param: PsiTypeParameter) =>
                           val lowerBound = arg.lower
                           val upperBound =
-                            if (arg.upper.equiv(psi.types.Any)) {
+                            if (arg.upper.equiv(api.Any)) {
                               val listTypes: Array[PsiClassType] = param.getExtendsListTypes
-                              if (listTypes.isEmpty) types.Any
+                              if (listTypes.isEmpty) api.Any
                               else subst.subst(listTypes.toSeq.map(_.toScType(getProject, param.getResolveScope)).glb(checkWeak = true))
                             } else arg.upper //todo: glb?
                           ScExistentialArgument(arg.name, arg.args, lowerBound, upperBound)

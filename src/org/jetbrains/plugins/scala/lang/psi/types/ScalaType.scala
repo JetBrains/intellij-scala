@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclarati
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeInTypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, TypeInTypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType

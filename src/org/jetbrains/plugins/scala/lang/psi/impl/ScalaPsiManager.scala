@@ -34,6 +34,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Null}
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -285,7 +286,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     var p = syntheticPackages.get(fqn)
     if (p == null) {
       p = syntheticPackagesCreator.getPackage(fqn)
-      if (p == null) p = types.Null
+      if (p == null) p = Null
       synchronized {
         val pp = syntheticPackages.get(fqn)
         if (pp == null) {
@@ -319,7 +320,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
         val res = new ScTypeParameterType(stp.name, inner, lower, upper, stp)
         res
       case _ =>
-        val lower = () => types.Nothing
+        val lower = () => Nothing
         val upper = () => psiTypeParameterUpperType(tp)
         val res = new ScTypeParameterType(tp.name, Nil, lower, upper, tp)
         res

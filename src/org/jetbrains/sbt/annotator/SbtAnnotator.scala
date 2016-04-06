@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Null}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
@@ -52,7 +52,7 @@ class SbtAnnotator extends Annotator {
 
     private def annotateTypeMismatch(expression: ScExpression) =
       expression.getType(TypingContext.empty).foreach { expressionType =>
-        if (expressionType.equiv(types.Nothing) || expressionType.equiv(types.Null)) {
+        if (expressionType.equiv(Nothing) || expressionType.equiv(Null)) {
           holder.createErrorAnnotation(expression, SbtBundle("sbt.annotation.expectedExpressionType"))
         } else {
           if (!isTypeAllowed(expression, expressionType))

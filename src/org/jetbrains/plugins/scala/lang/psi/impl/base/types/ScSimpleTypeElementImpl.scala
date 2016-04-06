@@ -21,12 +21,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 
@@ -121,10 +120,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       val subst = _subst followed constrSubst
       val tp = parentElement match {
         case ta: ScTypeAliasDefinition =>
-          ta.aliasedType.getOrElse(return types.Nothing)
+          ta.aliasedType.getOrElse(return Nothing)
         case _ =>
           parametrise(calculateReferenceType(ref).
-            getOrElse(return types.Nothing), clazz, subst)
+            getOrElse(return Nothing), clazz, subst)
       }
       val res = subst.subst(tp)
 
@@ -237,10 +236,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                                     p: ScParameterizedTypeElement): (ScType, ScSubstitutor) = {
           val tp = elem match {
             case ta: ScTypeAliasDefinition =>
-              ta.aliasedType.getOrElse(return (types.Nothing, ScSubstitutor.empty))
+              ta.aliasedType.getOrElse(return (Nothing, ScSubstitutor.empty))
             case clazz: PsiClass =>
               parametrise(calculateReferenceType(ref).
-                getOrElse(return (types.Nothing, ScSubstitutor.empty)), clazz, subst)
+                getOrElse(return (Nothing, ScSubstitutor.empty)), clazz, subst)
           }
           val res = subst.subst(tp)
           val typeParameters: Seq[TypeParameter] = elem match {

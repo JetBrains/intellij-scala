@@ -49,7 +49,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -207,7 +207,7 @@ object ScalaPsiUtil {
     s match {
       case Seq() =>
         // object A { def foo(a: Any) = ()}; A foo () ==>> A.foo(()), or A.foo() ==>> A.foo( () )
-        Some(Seq(new Expression(types.Unit, place)))
+        Some(Seq(new Expression(Unit, place)))
       case _ =>
         val exprTypes: Seq[ScType] =
           s.map(_.getTypeAfterImplicitConversion(checkImplicits = true, isShape = false, None)).map {
@@ -323,9 +323,9 @@ object ScalaPsiUtil {
         case _ => Seq.empty
       }
       val exprType = ImplicitCollector.exprType(e, fromUnder = false).getOrElse(return)
-      if (exprType.equiv(types.Nothing)) return //do not proceed with nothing type, due to performance problems.
+      if (exprType.equiv(Nothing)) return //do not proceed with nothing type, due to performance problems.
       val convertible = new ImplicitCollector(e,
-        FunctionType(types.Any, Seq(exprType))(e.getProject, e.getResolveScope),
+        FunctionType(Any, Seq(exprType))(e.getProject, e.getResolveScope),
         FunctionType(exprType, args)(e.getProject, e.getResolveScope), None, true, true,
           predicate = Some((rr, subst) => {
             ProgressManager.checkCanceled()
@@ -701,7 +701,7 @@ object ScalaPsiUtil {
       @tailrec
       def collectObjects(tp: ScType) {
         tp match {
-          case types.Any =>
+          case Any =>
           case tp: StdType if Seq("Int", "Float", "Double", "Boolean", "Byte", "Short", "Long", "Char").contains(tp.name) =>
             val obj = ScalaPsiManager.instance(project).
               getCachedClass("scala." + tp.name, scope, ClassCategory.OBJECT)

@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElemen
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingDefintionsCollector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, Unit}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil
@@ -86,7 +86,7 @@ class ScalaExtractMethodHandler extends RefactoringActionHandler {
         override def visitReturnStatement(ret: ScReturnStmt) {
           val newFun = PsiTreeUtil.getParentOfType(ret, classOf[ScFunctionDefinition])
           if (newFun == fun) {
-            result = Some(fun.returnType.getOrElse(psi.types.Unit))
+            result = Some(fun.returnType.getOrElse(Unit))
           }
         }
       }

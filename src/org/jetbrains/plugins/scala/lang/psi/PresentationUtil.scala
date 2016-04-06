@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
@@ -49,11 +50,11 @@ object PresentationUtil {
         if (param.isContravariant) paramText = "-" + paramText
         else if (param.isCovariant) paramText = "+" + paramText
         param.lowerBound foreach {
-          case psi.types.Nothing =>
+          case Nothing =>
           case tp: ScType => paramText = paramText + " >: " + presentationString(tp, substitutor)
         }
         param.upperBound foreach {
-          case psi.types.Any =>
+          case Any =>
           case tp: ScType => paramText = paramText + " <: " + presentationString(tp, substitutor)
         }
         param.viewBound foreach {

@@ -5,8 +5,7 @@ package api
 package base
 package patterns
 
-import org.jetbrains.plugins.scala.lang.psi.types.Any
-import org.jetbrains.plugins.scala.lang.psi.types.api.TupleType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /** 

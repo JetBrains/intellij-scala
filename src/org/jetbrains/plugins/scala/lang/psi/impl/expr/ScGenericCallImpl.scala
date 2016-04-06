@@ -10,9 +10,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction}
-import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 
@@ -53,7 +54,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       Seq.empty /* todo: ? */, isShapeResolve = isShape, enableTupling = true)
     processor.processType(tp, referencedExpr, ResolveState.initial)
     val candidates = processor.candidates
-    if (candidates.length != 1) types.Nothing
+    if (candidates.length != 1) Nothing
     else {
       candidates(0) match {
         case ScalaResolveResult(fun: PsiMethod, s: ScSubstitutor) =>
@@ -62,7 +63,7 @@ class ScGenericCallImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
             case fun: ScFunction => s.subst(fun.polymorphicType())
             case meth: PsiMethod => ResolveUtils.javaPolymorphicType(meth, s, getResolveScope)
           }
-        case _ => types.Nothing
+        case _ => api.Nothing
       }
     }
   }

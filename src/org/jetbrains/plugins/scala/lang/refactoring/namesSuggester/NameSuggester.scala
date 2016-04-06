@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElem
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, FunctionType, JavaArrayType, TupleType}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{NameValidator, ScalaNamesUtil}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -51,7 +51,7 @@ object NameSuggester {
     val result = (for (name <- names if name != "" && ScalaNamesUtil.isIdentifier(name) || name == "class") yield {
       if (name != "class") name else "clazz"
     }).toList.reverse.toArray
-    if (result.size > 0) result
+    if (result.length > 0) result
     else Array(validator.validateName("value", increaseNumber = true))
   }
 
@@ -62,7 +62,7 @@ object NameSuggester {
       case "class" => "clazz"
       case s => s
     }.filter(name => name != "" && ScalaNamesUtil.isIdentifier(name))
-    if (result.length == 0) {
+    if (result.isEmpty) {
       Array("value")
     } else result.reverse.toArray
   }
@@ -80,8 +80,10 @@ object NameSuggester {
     names
   }
 
-  private def generateNamesByType(typez: ScType, shortVersion: Boolean = true)(implicit names: ArrayBuffer[String], validator: NameValidator,
-                                                 withPlurals: Boolean = true) {
+  private def generateNamesByType(typez: ScType, shortVersion: Boolean = true)
+                                 (implicit names: ArrayBuffer[String],
+                                  validator: NameValidator,
+                                  withPlurals: Boolean = true) {
     val project = validator.getProject()
     implicit val typeSystem = project.typeSystem
     def addPlurals(arg: ScType) {
@@ -96,7 +98,7 @@ object NameSuggester {
         }
       }
       arg match {
-        case ValType(name) => addPlural(name.toLowerCase)
+        case valType: ValType => addPlural(valType.name.toLowerCase)
         case TupleType(_) => addPlural("tuple")
         case FunctionType(_, _) => addPlural("function")
         case ScDesignatorType(e) =>
@@ -112,19 +114,19 @@ object NameSuggester {
         leftName <- namesByType(tp1, shortVersion = false)
         rightName <- namesByType(tp2, shortVersion = false)
       } {
-        add(s"${leftName}$separator${rightName.capitalize}")
+        add(s"$leftName$separator${rightName.capitalize}")
       }
     }
 
-    def addForFunctionType(ret: ScType, params: Seq[ScType]) = params match {
-      case Seq() =>
-        add("function")
-        generateNamesByType(ret)
-      case Seq(param) =>
-        add("function")
-        addFromTwoTypes(param, ret, "To")
-      case _ =>
-        add("function")
+    def addForFunctionType(ret: ScType, params: Seq[ScType]) = {
+      add("function")
+      params match {
+        case Seq() =>
+          generateNamesByType(ret)
+        case Seq(param) =>
+          addFromTwoTypes(param, ret, "To")
+        case _ =>
+      }
     }
 
     def addForParameterizedType(baseType: ScType, args: Seq[ScType]) {
@@ -162,66 +164,64 @@ object NameSuggester {
 
         classOfBaseType match {
           case c if c.qualifiedName == arrayClassName && args.nonEmpty =>
-            addPlurals(args(0))
+            addPlurals(args.head)
           case c if needPrefix.keySet.contains(c.qualifiedName) && args.nonEmpty =>
             for {
-              s <- namesByType(args(0), shortVersion = false)
+              s <- namesByType(args.head, shortVersion = false)
               prefix = needPrefix(c.qualifiedName)
             } {
               add(prefix + s.capitalize)
             }
           case c if c.qualifiedName == eitherClassName && args.size == 2 =>
-            addFromTwoTypes(args(0), args(1), "Or")
+            addFromTwoTypes(args.head, args(1), "Or")
           case c if (isInheritor(c, baseMapClassName) || isInheritor(c, baseJavaMapClassName))
             && args.size == 2 =>
-            addFromTwoTypes(args(0), args(1), "To")
+            addFromTwoTypes(args.head, args(1), "To")
           case c if (isInheritor(c, baseCollectionClassName) || isInheritor(c, baseJavaCollectionClassName))
             && args.size == 1 =>
-            addPlurals(args(0))
+            addPlurals(args.head)
           case _ =>
         }
       }
     }
 
-    def addForNamedElementString(name: String) = {
-      if (name != null && name.toUpperCase == name) {
-        add(deleteNonLetterFromString(name).toLowerCase)
-      } else if (name == "String") {
-        add(if (shortVersion) "s" else "string")
-      } else {
-        generateCamelNames(name)
-      }
+    def addLowerCase(name: String, length: Int = 1) = {
+      val lowerCaseName = name.toLowerCase
+      add(if (shortVersion) lowerCaseName.substring(0, length) else lowerCaseName)
     }
 
-    def addForNamedElement(named: PsiNamedElement) = {
-      val name = named.name
-      addForNamedElementString(name)
+    def addForNamedElementString(name: String) = if (name != null && name.toUpperCase == name) {
+      add(deleteNonLetterFromString(name).toLowerCase)
+    } else if (name == "String") {
+      addLowerCase(name)
+    } else {
+      generateCamelNames(name)
     }
+
+    def addForNamedElement(named: PsiNamedElement) = addForNamedElementString(named.name)
+
+    def addValTypeName(valType: ValType, length: Int = 1) = addLowerCase(valType.name, length)
 
     typez match {
-      case ValType(name) =>
-        name match {
-          case "Int" => add(if (shortVersion) "i" else "int")
-          case "Unit" => add("unit")
-          case "Byte" => add("byte")
-          case "Long" => add(if (shortVersion) "l" else "long")
-          case "Float" => add(if (shortVersion) "fl" else "float")
-          case "Double" => add(if (shortVersion) "d" else "double")
-          case "Short" => add(if (shortVersion) "sh" else "short")
-          case "Boolean" => add(if (shortVersion) "b" else "boolean")
-          case "Char" => add(if (shortVersion) "c" else "char")
-          case _ =>
-        }
+      case Int => addValTypeName(Int)
+      case Unit => add(Unit.name)
+      case Byte => add(Byte.name)
+      case Long => addValTypeName(Long)
+      case Float => addValTypeName(Float, 2)
+      case Double => addValTypeName(Double)
+      case Short => addValTypeName(Short, 2)
+      case Boolean => addValTypeName(Boolean)
+      case Char => addValTypeName(Char)
       case TupleType(comps) => add("tuple")
       case FunctionType(ret, params) => addForFunctionType(ret, params)
       case ScDesignatorType(e) => addForNamedElement(e)
       case ScTypeParameterType(name, typeParams, lowerType, upperType, ptp) => addForNamedElementString(name)
-      case ScProjectionType(p, e, _) => addForNamedElement(e)
+      case ScProjectionType(_, e, _) => addForNamedElement(e)
       case ScParameterizedType(tp, args) =>
         addForParameterizedType(tp, args)
       case JavaArrayType(argument) => addPlurals(argument)
       case ScCompoundType(comps, _, _) =>
-        if (comps.size > 0) generateNamesByType(comps(0))
+        if (comps.nonEmpty) generateNamesByType(comps.head)
       case _ =>
     }
   }
@@ -264,7 +264,7 @@ object NameSuggester {
         case _ => name.substring(2, name.length)
       }
     else name
-    for (i <- 0 to s.length - 1) {
+    for (i <- 0 until s.length) {
       if (i == 0) {
         val candidate = s.substring(0, 1).toLowerCase + s.substring(1)
         add(deleteNonLetterFromStringFromTheEnd(candidate))
@@ -285,7 +285,7 @@ object NameSuggester {
         case _ => name.substring(2, name.length)
       }
     else name
-    for (i <- 0 to s.length - 1) {
+    for (i <- 0 until s.length) {
       if (i == 0) {
         val candidate = s.substring(0, 1).toLowerCase + s.substring(1)
         names += deleteNonLetterFromStringFromTheEnd(candidate)
@@ -295,7 +295,7 @@ object NameSuggester {
         names += deleteNonLetterFromStringFromTheEnd(candidate)
       }
     }
-    names.toSeq
+    names
   }
 
   private def deleteNonLetterFromString(s: String): String = {
