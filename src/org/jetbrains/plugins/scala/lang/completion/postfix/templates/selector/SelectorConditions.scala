@@ -6,7 +6,8 @@ import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
-import org.jetbrains.plugins.scala.lang.psi.types.{Boolean => BooleanType, ScTypeExt, ValType}
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Boolean, ValType}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
@@ -18,7 +19,7 @@ import scala.language.implicitConversions
  */
 object SelectorConditions {
 
-  val BOOLEAN_EXPR = typedCondition(BooleanType)
+  val BOOLEAN_EXPR = typedCondition(Boolean)
 
   val ANY_EXPR = new Condition[PsiElement] {
     override def value(t: PsiElement): Boolean = t.isInstanceOf[ScExpression]

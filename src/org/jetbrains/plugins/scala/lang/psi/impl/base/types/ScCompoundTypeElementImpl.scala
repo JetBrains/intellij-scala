@@ -9,9 +9,9 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
-import org.jetbrains.plugins.scala.lang.psi.types
-import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
+import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, api}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -21,8 +21,8 @@ class ScCompoundTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   protected def innerType(ctx: TypingContext) = {
     val comps = components.map(_.getType(ctx))
     refinement match {
-      case None => collectFailures(comps, types.Any)(new ScCompoundType(_, Map.empty, Map.empty))
-      case Some(r) => collectFailures(comps, types.Any)(ScCompoundType.fromPsi(_, r.holders.toList, r.types.toList))
+      case None => collectFailures(comps, Any)(new ScCompoundType(_, Map.empty, Map.empty))
+      case Some(r) => collectFailures(comps, api.Any)(ScCompoundType.fromPsi(_, r.holders.toList, r.types.toList))
     }
   }
 

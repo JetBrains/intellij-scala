@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.components.HighlightingAdvisor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.{AnnotatorHighlighter, DefaultHighlighter}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
@@ -40,9 +39,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ScTypePresentation, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext, TypingContextOwner}
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
@@ -482,7 +481,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             }
             candidates(0) match {
               case ScalaResolveResult(fun: ScFunction, subst) =>
-                if (fun.returnType.isEmpty || !subst.subst(fun.returnType.get).equiv(psi.types.Boolean)) {
+                if (fun.returnType.isEmpty || !subst.subst(fun.returnType.get).equiv(api.Boolean)) {
                   error()
                 }
               case _ => error()
@@ -491,7 +490,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             block.getContext match {
               case t: ScTryStmt =>
                 t.expectedTypeEx(fromUnderscore = false) match {
-                  case Some((tp: ScType, _)) if tp equiv psi.types.Unit => //do nothing
+                  case Some((tp: ScType, _)) if tp equiv api.Unit => //do nothing
                   case Some((tp: ScType, typeElement)) =>
                     val returnType = candidates(0) match {
                       case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst.subst)
@@ -748,7 +747,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
                                       fun: PsiNamedElement, holder: AnnotationHolder) {
     val typeTo = resolveResult.implicitType match {
       case Some(tp) => tp
-      case _ => psi.types.Any
+      case _ => Any
     }
     highlightImplicitView(expr, fun, typeTo, refElement.nameId, holder)
   }
@@ -933,7 +932,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
           }
 
           expr.expectedTypeEx(fromUnderscore) match {
-            case Some((tp: ScType, _)) if tp equiv psi.types.Unit => //do nothing
+            case Some((tp: ScType, _)) if tp equiv api.Unit => //do nothing
             case Some((tp: ScType, typeElement)) =>
               val expectedType = Success(tp, None)
               implicitFunction match {
@@ -1031,18 +1030,18 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         val error = ScalaBundle.message("return.outside.method.definition")
         val annotation: Annotation = holder.createErrorAnnotation(ret.returnKeyword, error)
         annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-      case _ if !fun.hasAssign || fun.returnType.exists(_ == psi.types.Unit) =>
+      case _ if !fun.hasAssign || fun.returnType.exists(_ == api.Unit) =>
       case _ => fun.returnTypeElement match {
         case Some(x: ScTypeElement) =>
           import org.jetbrains.plugins.scala.lang.psi.types._
           val funType = fun.returnType
           funType match {
-            case Success(tp: ScType, _) if tp equiv psi.types.Unit => return //nothing to check
+            case Success(tp: ScType, _) if tp equiv api.Unit => return //nothing to check
             case _ =>
           }
           val ExpressionTypeResult(_, importUsed, _) = ret.expr match {
             case Some(e: ScExpression) => e.getTypeAfterImplicitConversion()
-            case None => ExpressionTypeResult(Success(psi.types.Unit, None), Set.empty, None)
+            case None => ExpressionTypeResult(Success(api.Unit, None), Set.empty, None)
           }
           ImportTracker.getInstance(ret.getProject).registerUsedImports(ret.getContainingFile.asInstanceOf[ScalaFile], importUsed)
         case _ =>
@@ -1351,7 +1350,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         val annotation = if (isNegative) holder.createErrorAnnotation(parent, error) else holder.createErrorAnnotation(literal, error)
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
         val bigIntType = ScalaPsiElementFactory.createTypeFromText("_root_.scala.math.BigInt", literal.getContext, literal)
-        val conformsToTypeList = List(Long, bigIntType)
+        val conformsToTypeList = List(api.Long, bigIntType)
         val shouldRegisterFix = if (isNegative)
           parent.asInstanceOf[ScPrefixExpr].expectedType().forall(x => conformsToTypeList.exists(_.weakConforms(x)))
         else literal.expectedType().forall(x => conformsToTypeList.exists(_.weakConforms(x)))

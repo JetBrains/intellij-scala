@@ -21,8 +21,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtendsBlockStub
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyVal}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScDesignatorType, _}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScDesignatorType, api, _}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
 import scala.annotation.tailrec
@@ -113,12 +114,12 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
     }
 
     val findResult = buffer.find {
-      case AnyVal | AnyRef | Any => true
+      case AnyVal | api.AnyRef | Any => true
       case t => extract(t)
     }
     findResult match {
       case Some(AnyVal) => //do nothing
-      case res@(Some(AnyRef) | Some(Any)) =>
+      case res@(Some(api.AnyRef) | Some(Any)) =>
         buffer -= res.get
         if (javaObject != null)
           buffer += javaObject
@@ -219,7 +220,7 @@ class ScExtendsBlockImpl private (stub: StubElement[ScExtendsBlock], nodeType: I
       case _ => false
     } match {
       case Some(s: ScSyntheticClass) if AnyVal.asClass(getProject).contains(s) => //do nothing
-      case Some(s: ScSyntheticClass) if AnyRef.asClass(getProject).contains(s) ||
+      case Some(s: ScSyntheticClass) if api.AnyRef.asClass(getProject).contains(s) ||
         Any.asClass(getProject).contains(s) =>
         buffer -= s
         if (javaObjectClass != null)

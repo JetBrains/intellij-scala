@@ -20,9 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, StdType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType, StdType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings

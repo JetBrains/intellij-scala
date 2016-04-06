@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeVariable}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
@@ -256,7 +256,7 @@ object Bounds extends api.Bounds {
             ScSkolemizedType(name, args, glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
           case (r, ScSkolemizedType(name, args, lower, upper)) =>
             ScSkolemizedType(name, args, glb(lower, r, checkWeak), lub(upper, t2, checkWeak))
-          case (_: ValType, _: ValType) => types.AnyVal
+          case (_: ValType, _: ValType) => AnyVal
           case (JavaArrayType(arg1), JavaArrayType(arg2)) =>
             val (v, ex) = calcForTypeParamWithoutVariance(arg1, arg2, depth, checkWeak)
             ex match {
@@ -282,10 +282,10 @@ object Bounds extends api.Bounds {
               case None => ScParameterizedType(des, Seq(v))
             }
           case (JavaArrayType(_), tp) =>
-            if (tp.conforms(AnyRef)) AnyRef
+            if (tp.conforms(api.AnyRef)) api.AnyRef
             else Any
           case (tp, JavaArrayType(_)) =>
-            if (tp.conforms(AnyRef)) AnyRef
+            if (tp.conforms(api.AnyRef)) api.AnyRef
             else Any
           case _ =>
             val aOptions: Seq[Options] = {
@@ -300,17 +300,17 @@ object Bounds extends api.Bounds {
                 case _ => Seq(new Options(t2))
               }
             }
-            if (aOptions.exists(_.isEmpty) || bOptions.exists(_.isEmpty)) types.Any
+            if (aOptions.exists(_.isEmpty) || bOptions.exists(_.isEmpty)) Any
             else {
               val buf = new ArrayBuffer[ScType]
               val supers: Array[(Options, Int, Int)] =
                 getLeastUpperClasses(aOptions, bOptions)
               for (sup <- supers) {
                 val tp = getTypeForAppending(aOptions(sup._2), bOptions(sup._3), sup._1, depth, checkWeak)
-                if (tp != types.Any) buf += tp
+                if (tp != api.Any) buf += tp
               }
               buf.toArray match {
-                case a: Array[ScType] if a.length == 0 => types.Any
+                case a: Array[ScType] if a.length == 0 => api.Any
                 case a: Array[ScType] if a.length == 1 => a(0)
                 case many =>
                   new ScCompoundType(many.toSeq, Map.empty, Map.empty)
@@ -333,13 +333,13 @@ object Bounds extends api.Bounds {
       } else {
         (substed1, substed2) match {
           case (ScSkolemizedType(name, args, lower, upper), ScSkolemizedType(name2, args2, lower2, upper2)) =>
-            val newLub = if (stopAddingUpperBound) types.Any else lub(Seq(upper, upper2), checkWeak, stopAddingUpperBound = true)
+            val newLub = if (stopAddingUpperBound) api.Any else lub(Seq(upper, upper2), checkWeak, stopAddingUpperBound = true)
             (ScSkolemizedType(name, args, glb(lower, lower2, checkWeak), newLub), None)
           case (ScSkolemizedType(name, args, lower, upper), _) =>
-            val newLub = if (stopAddingUpperBound) types.Any else lub(Seq(upper, substed2), checkWeak, stopAddingUpperBound = true)
+            val newLub = if (stopAddingUpperBound) api.Any else lub(Seq(upper, substed2), checkWeak, stopAddingUpperBound = true)
             (ScSkolemizedType(name, args, glb(lower, substed2), newLub), None)
           case (_, ScSkolemizedType(name, args, lower, upper)) =>
-            val newLub = if (stopAddingUpperBound) types.Any else lub(Seq(upper, substed1), checkWeak, stopAddingUpperBound = true)
+            val newLub = if (stopAddingUpperBound) api.Any else lub(Seq(upper, substed1), checkWeak, stopAddingUpperBound = true)
             (ScSkolemizedType(name, args, glb(lower, substed1), newLub), None)
           case _ =>
             val newGlb = glb(substed1, substed2)
@@ -352,7 +352,7 @@ object Bounds extends api.Bounds {
               (TypeVariable("_$" + count), Some(ScExistentialArgument("_$" + count, List.empty, newGlb, newLub)))
             } else {
               //todo: this is wrong, actually we should pick lub, just without merging parameters in this method
-              (TypeVariable("_$" + count), Some(ScExistentialArgument("_$" + count, List.empty, newGlb, types.Any)))
+              (TypeVariable("_$" + count), Some(ScExistentialArgument("_$" + count, List.empty, newGlb, api.Any)))
             }
         }
       }
@@ -375,7 +375,7 @@ object Bounds extends api.Bounds {
           val substed1 = tp1.typeArgs.apply(i)
           val substed2 = tp2.typeArgs.apply(i)
           resTypeArgs += (baseClass.getTypeParameters.apply(i) match {
-            case scp: ScTypeParam if scp.isCovariant => if (depth > 0) lub(substed1, substed2, depth - 1, checkWeak) else types.Any
+            case scp: ScTypeParam if scp.isCovariant => if (depth > 0) lub(substed1, substed2, depth - 1, checkWeak) else api.Any
             case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2, checkWeak)
             case _ =>
               val (v, ex) = calcForTypeParamWithoutVariance(substed1, substed2, depth, checkWeak, count = wildcards.length + 1)
@@ -385,7 +385,7 @@ object Bounds extends api.Bounds {
         }
         if (wildcards.isEmpty) ScParameterizedType(baseClassDesignator, resTypeArgs.toSeq)
         else ScExistentialType(ScParameterizedType(baseClassDesignator, resTypeArgs.toSeq), wildcards.toList)
-      case _ => types.Any
+      case _ => api.Any
     }
   }
 

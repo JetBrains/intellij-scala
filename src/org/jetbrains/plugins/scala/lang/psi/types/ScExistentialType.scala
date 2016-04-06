@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeVariable, TypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 
 import scala.collection.immutable.HashSet
@@ -79,7 +79,7 @@ case class ScExistentialType(quantified : ScType,
 
     def unpack(ex: ScExistentialArgument, deep: Int = 2): ScSkolemizedType = {
       if (deep == 0) {
-        ScSkolemizedType(ex.name, ex.args, types.Nothing, types.Any)
+        ScSkolemizedType(ex.name, ex.args, Nothing, Any)
       } else {
         val unpacked: Map[ScExistentialArgument, ScSkolemizedType] = wildcards.map(w => (w, unpack(w, deep - 1))).toMap
         ScSkolemizedType(ex.name, ex.args, update(ex.lowerBound, unpacked), update(ex.upperBound, unpacked))

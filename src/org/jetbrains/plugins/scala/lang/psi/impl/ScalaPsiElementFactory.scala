@@ -44,9 +44,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInnerCodeElement, ScDocResolvableCodeReference, ScDocSyntaxElement}
 
@@ -750,11 +750,11 @@ object ScalaPsiElementFactory {
               case Some(x) => x.typeParameters.map(buildText).mkString("[", ",", "]")
             }
             val lowerBoundText = typeParam.lowerBound.toOption collect {
-              case psi.types.Nothing => ""
+              case Nothing => ""
               case x => " >: " + substitutor.subst(x).canonicalText
             }
             val upperBoundText = typeParam.upperBound.toOption collect {
-              case psi.types.Any => ""
+              case Any => ""
               case x => " <: " + substitutor.subst(x).canonicalText
             }
             val viewBoundText = typeParam.viewBound map {
@@ -831,7 +831,7 @@ object ScalaPsiElementFactory {
             val colon = if (pName.endsWith("_")) " : " else ": "
             val scType: ScType = substitutor.subst(param.getTypeElement.getType.toScType(method.getProject))
             val typeText = scType match {
-              case types.AnyRef => "scala.Any"
+              case AnyRef => "scala.Any"
               case JavaArrayType(argument) if param.isVarArgs => argument.canonicalText + "*"
               case _ => scType.canonicalText
             }
@@ -843,7 +843,7 @@ object ScalaPsiElementFactory {
         val retType = substitutor.subst(method.getReturnType.toScType(method.getProject))
         val retAndBody =
           if (needsInferType) {
-            val typeText = if (retType == types.Any) "AnyRef" else retType.canonicalText
+            val typeText = if (retType == api.Any) "AnyRef" else retType.canonicalText
             s": $typeText = $body"
           } else " = " + body
         builder ++= retAndBody
@@ -899,16 +899,14 @@ object ScalaPsiElementFactory {
     res.substring(0, res.length - 1)
   }
 
-  def getStandardValue(typez: ScType): String = {
-    typez match {
-      case ValType("Unit") => "()"
-      case ValType("Boolean") => "false"
-      case ValType("Char" | "Int" | "Byte") => "0"
-      case ValType("Long") => "0L"
-      case ValType("Float" | "Double") => "0.0"
-      case ScDesignatorType(c: PsiClass) if c.qualifiedName == "java.lang.String" => "\"\""
-      case _ => "null"
-    }
+  def getStandardValue(`type`: ScType) = `type` match {
+    case Unit => "()"
+    case Boolean => "false"
+    case Char | Int | Byte => "0"
+    case Long => "0L"
+    case Float | Double => "0.0"
+    case ScDesignatorType(c: PsiClass) if c.qualifiedName == "java.lang.String" => "\"\""
+    case _ => "null"
   }
 
   def createTypeFromText(text: String, context: PsiElement, child: PsiElement): ScType = {

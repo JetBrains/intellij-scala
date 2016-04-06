@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
 import org.jetbrains.plugins.scala.codeInspection.monads.NestedStatefulMonadsInspection._
 import org.jetbrains.plugins.scala.codeInspection.monads.StatefulMonads._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
-import org.jetbrains.plugins.scala.lang.psi.types.{Any, ScParameterizedType}
+import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 
 /**
  * @author Sergey Tolmachev (tolsi.ru@gmail.com)

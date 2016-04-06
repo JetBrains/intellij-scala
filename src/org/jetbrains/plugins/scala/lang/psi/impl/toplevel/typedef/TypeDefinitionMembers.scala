@@ -20,9 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixReference
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyRef, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 
@@ -679,8 +679,8 @@ object TypeDefinitionMembers {
       isObject = clazz.isInstanceOf[ScObject], signaturesForJava = () => signaturesForJava,
       syntheticMethods = () => syntheticMethods)) return false
 
-    if (!(types.AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
-            types.Any.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place))) return false
+    if (!(AnyRef.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
+      Any.asClass(clazz.getProject).getOrElse(return true).processDeclarations(processor, state, lastParent, place))) return false
 
     if (shouldProcessMethods(processor) && !processEnum(clazz, processor.execute(_, state))) return false
     true
@@ -694,9 +694,9 @@ object TypeDefinitionMembers {
     if (!privateProcessDeclarations(processor, state, lastParent, place, () => getSignatures(td),
       () => getParameterlessSignatures(td), () => getTypes(td), isSupers = true, isObject = td.isInstanceOf[ScObject])) return false
 
-    if (!(types.AnyRef.asClass(td.getProject).getOrElse(return true).
+    if (!(api.AnyRef.asClass(td.getProject).getOrElse(return true).
       processDeclarations(processor, state, lastParent, place) &&
-            types.Any.asClass(td.getProject).getOrElse(return true).
+      api.Any.asClass(td.getProject).getOrElse(return true).
               processDeclarations(processor, state, lastParent, place))) return false
     true
   }
@@ -715,8 +715,8 @@ object TypeDefinitionMembers {
       if (lastParent != null) lastParent.getProject
       else if (place != null) place.getProject
       else return true
-    if (!(types.AnyRef.asClass(project).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
-            types.Any.asClass(project).getOrElse(return true).processDeclarations(processor, state, lastParent, place)))
+    if (!(api.AnyRef.asClass(project).getOrElse(return true).processDeclarations(processor, state, lastParent, place) &&
+      api.Any.asClass(project).getOrElse(return true).processDeclarations(processor, state, lastParent, place)))
       return false
 
     true

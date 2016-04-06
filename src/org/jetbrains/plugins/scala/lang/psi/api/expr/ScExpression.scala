@@ -17,10 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
@@ -263,15 +263,15 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                       }
                   }
                   expected.removeAbstracts match {
-                    case types.Char  =>
+                    case api.Char =>
                       if (i >= scala.Char.MinValue.toInt && i <= scala.Char.MaxValue.toInt) {
                         return Some(Success(Char, Some(ScExpression.this)))
                       }
-                    case types.Byte  =>
+                    case api.Byte =>
                       if (i >= scala.Byte.MinValue.toInt && i <= scala.Byte.MaxValue.toInt) {
                         return Some(Success(Byte, Some(ScExpression.this)))
                       }
-                    case types.Short =>
+                    case api.Short =>
                       if (i >= scala.Short.MinValue.toInt && i <= scala.Short.MaxValue.toInt) {
                         return Some(Success(Short, Some(ScExpression.this)))
                       }
@@ -528,7 +528,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
               }
             case _ => res += i
           }
-        case infix @ ScInfixExpr(ScExpression.Type(types.Boolean), ElementText(op), right @ ScExpression.Type(types.Boolean))
+        case infix@ScInfixExpr(ScExpression.Type(api.Boolean), ElementText(op), right@ScExpression.Type(api.Boolean))
           if withBooleanInfix && (op == "&&" || op == "||") => calculateReturns0(right)
         //TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
         case _ => if (!res.contains(el)) res += el

@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScValueDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Singleton}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
 
 import _root_.scala.collection.mutable.ListBuffer

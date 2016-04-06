@@ -33,10 +33,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightFunctionDeclaration, ScLightFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
-import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Nothing, Unit}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{Unit => UnitType, _}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
 import scala.annotation.tailrec
@@ -92,7 +92,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def hasUnitResultType = {
     @tailrec
     def hasUnitRT(t: ScType): Boolean = t match {
-      case UnitType => true
+      case Unit => true
       case ScMethodType(result, _, _) => hasUnitRT(result)
       case _ => false
     }
@@ -206,7 +206,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def definedReturnType: TypeResult[ScType] = {
     returnTypeElement match {
       case Some(ret) => ret.getType(TypingContext.empty)
-      case _ if !hasAssign => Success(types.Unit, Some(this))
+      case _ if !hasAssign => Success(Unit, Some(this))
       case _ =>
         superMethod match {
           case Some(f: ScFunction) => f.definedReturnType
@@ -433,7 +433,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         buffer += new ScFunctionWrapper(this, isStatic = isStatic || isConstructor, isInterface, cClass, forDefault = Some(i + 1))
       }
     }
-    buffer.toSeq
+    buffer
   }
 
   def parameters: Seq[ScParameter] = paramClauses.params
@@ -678,7 +678,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       }
       i = i - 1
     }
-    Some(res.toSeq)
+    Some(res)
   }
 
   override def modifiableReturnType: Option[ScType] = returnType.toOption

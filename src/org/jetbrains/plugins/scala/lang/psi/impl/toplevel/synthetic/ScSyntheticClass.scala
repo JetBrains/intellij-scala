@@ -20,10 +20,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor, ResolveProcessor, ResolverEnv}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScalaUtils
@@ -220,9 +220,9 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
       override val retType = ScalaPsiManager.typeVariable(typeParams.head)
     })
 
-    val anyRef = registerClass(AnyRef, "AnyRef")
-    anyRef.addMethod(new ScSyntheticFunction(manager, "eq", Boolean, Seq(Seq(AnyRef))))
-    anyRef.addMethod(new ScSyntheticFunction(manager, "ne", Boolean, Seq(Seq(AnyRef))))
+    val anyRef = registerClass(api.AnyRef, "AnyRef")
+    anyRef.addMethod(new ScSyntheticFunction(manager, "eq", Boolean, Seq(Seq(api.AnyRef))))
+    anyRef.addMethod(new ScSyntheticFunction(manager, "ne", Boolean, Seq(Seq(api.AnyRef))))
     anyRef.addMethod(new ScSyntheticFunction(manager, "synchronized", Any, Seq.empty, Seq(ScalaUtils.typeParameter)) {
       override val paramClauses: Seq[Seq[Parameter]] = Seq(Seq(new Parameter("", None,
         ScalaPsiManager.typeVariable(typeParams.head), false, false, false, 0)))

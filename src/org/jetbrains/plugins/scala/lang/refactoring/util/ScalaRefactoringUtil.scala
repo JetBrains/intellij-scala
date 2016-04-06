@@ -39,9 +39,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -106,8 +106,8 @@ object ScalaRefactoringUtil {
     expr.getTypeWithoutImplicits().foreach(types += _)
     expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types += _)
     expr.expectedType().foreach(types += _)
-    if (types.isEmpty) types += psi.types.Any
-    val unit = psi.types.Unit
+    if (types.isEmpty) types += Any
+    val unit = api.Unit
     val sorted = types.map(_.removeAbstracts).distinct.sortWith((t1, t2) => t1.conforms(t2))
     val result = if (sorted.contains(unit)) (sorted - unit) :+ unit else sorted
     result.toArray

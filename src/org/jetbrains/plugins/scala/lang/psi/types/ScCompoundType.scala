@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyRef, TypeVisitor, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, TypeParametersExt}
 
 import scala.collection.mutable
@@ -196,12 +196,12 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
       case _ =>
         if (signatureMap.isEmpty && typesMap.isEmpty) {
           val filtered = components.filter {
-            case psi.types.Any => false
-            case psi.types.AnyRef =>
-              if (!r.conforms(psi.types.AnyRef)) return (false, undefinedSubst)
+            case Any => false
+            case AnyRef =>
+              if (!r.conforms(api.AnyRef)) return (false, undefinedSubst)
               false
             case ScDesignatorType(obj: PsiClass) if obj.qualifiedName == "java.lang.Object" =>
-              if (!r.conforms(psi.types.AnyRef)) return (false, undefinedSubst)
+              if (!r.conforms(api.AnyRef)) return (false, undefinedSubst)
               false
             case _ => true
           }

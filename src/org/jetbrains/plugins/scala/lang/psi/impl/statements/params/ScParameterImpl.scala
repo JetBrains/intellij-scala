@@ -18,8 +18,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs._
-import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -112,11 +113,11 @@ class ScParameterImpl protected (stub: StubElement[ScParameter], nodeType: IElem
           case None if baseDefaultParam =>
             getActualDefaultExpression match {
               case Some(t) => t.getType(TypingContext.empty).getOrNothing
-              case None => lang.psi.types.Nothing
+              case None => Nothing
             }
           case None => expectedParamType.map(_.unpackedType) match {
             case Some(t) => t
-            case None => lang.psi.types.Nothing
+            case None => api.Nothing
           }
           case Some(e) => e.getType(TypingContext.empty).getOrAny
         }

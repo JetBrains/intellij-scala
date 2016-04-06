@@ -3,7 +3,7 @@ package lang
 package psi
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeInTypeSystem, TypeSystem, TypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 
 import scala.collection.immutable.HashSet

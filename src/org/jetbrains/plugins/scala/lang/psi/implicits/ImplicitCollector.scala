@@ -8,6 +8,7 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.ScalaRecursionManager
 import org.jetbrains.plugins.scala.caches.ScalaRecursionManager.RecursionMap
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -20,11 +21,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, MacroInferUtil}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem, TypeVariable}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor, MostSpecificUtil}
@@ -291,7 +291,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
 
             def checkForFunctionType(noReturnType: Boolean): Option[(ScalaResolveResult, ScSubstitutor)] = {
               val ft =
-                if (noReturnType) fun.getTypeNoImplicits(TypingContext.empty, Success(types.Nothing, Some(getPlace)))
+                if (noReturnType) fun.getTypeNoImplicits(TypingContext.empty, Success(Nothing, Some(getPlace)))
                 else fun.getTypeNoImplicits(TypingContext.empty)
               ft match {
                 case Success(_funType: ScType, _) =>
@@ -312,7 +312,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                             tp match {
                               case ScTypePolymorphicType(internalType, typeParams) =>
                                 val filteredTypeParams =
-                                  typeParams.filter(tp => !tp.lowerType().equiv(types.Nothing) || !tp.upperType().equiv(types.Any))
+                                  typeParams.filter(tp => !tp.lowerType().equiv(api.Nothing) || !tp.upperType().equiv(Any))
                                 val newPolymorphicType = ScTypePolymorphicType(internalType, filteredTypeParams)
                                 (newPolymorphicType.inferValueType.recursiveUpdate {
                                   case u: ScUndefinedType => (true, u.tpt)
@@ -561,7 +561,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
             val nonRecursiveUpper = upper.map { upper =>
               upper.recursiveUpdate { t =>
                 t.isAliasType match {
-                  case Some(AliasType(`ta`, _, _)) => (true, types.Any)
+                  case Some(AliasType(`ta`, _, _)) => (true, api.Any)
                   case _ => (false, t)
                 }
               }

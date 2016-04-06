@@ -17,10 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue,
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.types
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PartialFunctionType, TupleType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
@@ -190,7 +189,7 @@ trait ScPattern extends ScalaPsiElement {
               }
             }
             val subbedRetTp: ScType = subst.subst(rt)
-            if (subbedRetTp.equiv(lang.psi.types.Boolean)) None
+            if (subbedRetTp.equiv(api.Boolean)) None
             else {
               val args = ScPattern.extractorParameters(subbedRetTp, this, ScPattern.isOneArgCaseClassMethod(fun))
               if (totalNumberOfPatterns == 1 && args.length > 1) Some(TupleType(args)(getProject, getResolveScope))
@@ -298,7 +297,7 @@ trait ScPattern extends ScalaPsiElement {
               if (p == this) return Some(t)
             }
             None
-          case et0 if et0 == types.AnyRef || et0 == types.Any => Some(types.Any)
+          case et0 if et0 == api.AnyRef || et0 == Any => Some(api.Any)
           case _                                              => None
         }
       case _: ScXmlPattern =>
@@ -328,7 +327,7 @@ trait ScPattern extends ScalaPsiElement {
         b.expectedType(fromUnderscore = false) match {
           case Some(et) =>
             et.removeAbstracts match {
-              case FunctionType(_, Seq()) => Some(types.Unit)
+              case FunctionType(_, Seq()) => Some(api.Unit)
               case FunctionType(_, Seq(p0)) => Some(p0)
               case FunctionType(_, params) =>
                 val tt = TupleType(params)(getProject, getResolveScope)
@@ -426,7 +425,7 @@ object ScPattern {
                          (implicit typeSystem: TypeSystem): Seq[ScType] = {
     def collectFor2_11: Seq[ScType] = {
       findMember("isEmpty", returnType, place) match {
-        case Some(tp) if types.Boolean.equiv(tp) =>
+        case Some(tp) if api.Boolean.equiv(tp) =>
         case _ => return Seq.empty
       }
 

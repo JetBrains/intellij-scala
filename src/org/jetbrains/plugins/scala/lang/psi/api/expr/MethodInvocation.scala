@@ -12,10 +12,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, Nothing, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
@@ -255,7 +255,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
                 }
                 val (res, imports) = super.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
                 val str = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.String")
-                val stringType = str.map(ScalaType.designator(_)).getOrElse(types.Any)
+                val stringType = str.map(ScalaType.designator(_)).getOrElse(Any)
                 (res.map(tp => TupleType(Seq(stringType, tp))(getProject, getResolveScope)), imports)
               }
             }
@@ -274,7 +274,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     var res: ScType = checkApplication(invokedType, args(isNamedDynamic = isApplyDynamicNamed)).getOrElse {
       var (processedType, importsUsed, implicitFunction, applyOrUpdateResult) =
         ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, this, isShape = false).getOrElse {
-          (types.Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
+          (Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
         }
       if (useExpectedType) {
         updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)

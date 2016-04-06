@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
 
 /**
@@ -71,7 +72,7 @@ class ScIfStmtImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScIfStm
                                       et <- e.getType(TypingContext.empty)) yield {
         tt.lub(et, checkWeak = true)
       }
-      case (Some(t), None) => t.getType(TypingContext.empty).map(_.lub(types.Unit, checkWeak = true))
+      case (Some(t), None) => t.getType(TypingContext.empty).map(_.lub(Unit, checkWeak = true))
       case _ => Failure(ScalaBundle.message("nothing.to.type"), Some(this))
     }
   }

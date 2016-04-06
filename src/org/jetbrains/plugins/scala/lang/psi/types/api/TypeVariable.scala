@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScUndefinedSubstitutor, ValueType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScUndefinedSubstitutor, api}
 
 case class TypeVariable(name: String) extends ValueType {
   override def presentableText = name

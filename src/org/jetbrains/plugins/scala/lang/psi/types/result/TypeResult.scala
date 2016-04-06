@@ -5,6 +5,7 @@ package types
 package result
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
 
 /**
  * @author ilyas

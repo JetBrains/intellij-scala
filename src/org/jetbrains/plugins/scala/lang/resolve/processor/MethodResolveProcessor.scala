@@ -18,10 +18,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, Nothing, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 import scala.collection.Set
@@ -207,7 +207,7 @@ object MethodResolveProcessor {
             }.getOrElse(Nothing)
           case _ => Nothing
         }
-        if (!retType.conforms(expected) && !expected.equiv(Unit)) {
+        if (!retType.conforms(expected) && !expected.equiv(api.Unit)) {
           problems += ExpectedTypeMismatch
         }
       }

@@ -7,6 +7,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -16,11 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, TypeVariable}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, TypeSystem, TypeVariable}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 
 import scala.collection.Set
 import scala.collection.mutable.ArrayBuffer
@@ -161,7 +161,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
               }
               val i: Int = if (params1.nonEmpty) 0.max(length - params1.length) else 0
               val default: Expression =
-                new Expression(if (params1.nonEmpty) params1.last.paramType else types.Nothing, elem)
+                new Expression(if (params1.nonEmpty) params1.last.paramType else Nothing, elem)
               val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType, elem)) ++
                       Seq.fill(i)(default)
               Compatibility.checkConformance(checkNames = false, params2, exprs, checkImplicits)
@@ -195,13 +195,13 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
                   hasRecursiveTypeParameters
                 }
                 typeParams.foreach(tp => {
-                  if (tp.lowerType() != types.Nothing) {
+                  if (tp.lowerType() != api.Nothing) {
                     val substedLower = uSubst.subst(tp.lowerType())
                     if (!hasRecursiveTypeParameters(tp.lowerType())) {
                       u = u.addLower((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), substedLower, additional = true)
                     }
                   }
-                  if (tp.upperType() != types.Any) {
+                  if (tp.upperType() != Any) {
                     val substedUpper = uSubst.subst(tp.upperType())
                     if (!hasRecursiveTypeParameters(tp.upperType())) {
                       u = u.addUpper((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), substedUpper, additional = true)
@@ -329,17 +329,17 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
         case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, elem, true) =>
           pd.declaredType match {
             case Some(t) => t
-            case None => types.Nothing
+            case None => api.Nothing
           }
         case vd: ScVariableDefinition if PsiTreeUtil.isContextAncestor(vd, elem, true) =>
           vd.declaredType match {
             case Some(t) => t
-            case None => types.Nothing
+            case None => api.Nothing
           }
         case _ => refPatt.getType(TypingContext.empty).getOrAny
       }
       case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrAny
-      case _ => types.Nothing
+      case _ => api.Nothing
     }
 
     res match {

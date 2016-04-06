@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScBooleanLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, Boolean}
+import org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.IntentionUtils
@@ -50,7 +50,7 @@ abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
         if (p.isRepeated) false
         else {
           val typeElem = p.paramInCode.flatMap(_.typeElement)
-          typeElem.exists(_.calcType.equiv(Boolean))
+          typeElem.exists(_.calcType.equiv(api.Boolean))
         }
       }
 

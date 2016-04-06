@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ValueClassType}
 
@@ -240,7 +240,6 @@ object DebuggerUtil {
     }
   
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Boolean): Value = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
     tp match {
       case Boolean => vm.mirrorOf(b)
       case Unit => vm.mirrorOfVoid()
@@ -249,7 +248,6 @@ object DebuggerUtil {
   }
 
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Long): Value = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
     tp match {
       case Long => vm.mirrorOf(b)
       case Int => vm.mirrorOf(b.toInt)
@@ -264,7 +262,6 @@ object DebuggerUtil {
   }
 
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Char): Value = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
     tp match {
       case Long => vm.mirrorOf(b)
       case Int => vm.mirrorOf(b.toInt)
@@ -279,7 +276,6 @@ object DebuggerUtil {
   }
 
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Double): Value = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
     tp match {
       case Long => vm.mirrorOf(b)
       case Int => vm.mirrorOf(b.toInt)
@@ -294,7 +290,6 @@ object DebuggerUtil {
   }
 
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Float): Value = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
     tp match {
       case Long => vm.mirrorOf(b)
       case Int => vm.mirrorOf(b.toInt)

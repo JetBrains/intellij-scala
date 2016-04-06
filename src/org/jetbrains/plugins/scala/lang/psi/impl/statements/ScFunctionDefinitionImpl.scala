@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -71,10 +71,10 @@ class ScFunctionDefinitionImpl protected (stub: StubElement[ScFunction], nodeTyp
   override def toString: String = "ScFunctionDefinition: " + name
 
   def returnTypeInner: TypeResult[ScType] = returnTypeElement match {
-    case None if !hasAssign => Success(Unit, Some(this))
+    case None if !hasAssign => Success(api.Unit, Some(this))
     case None => body match {
       case Some(b) => b.getType(TypingContext.empty)
-      case _ => Success(Unit, Some(this))
+      case _ => Success(api.Unit, Some(this))
     }
     case Some(rte: ScTypeElement) => rte.getType(TypingContext.empty)
   }
