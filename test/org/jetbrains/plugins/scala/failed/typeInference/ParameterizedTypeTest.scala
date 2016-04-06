@@ -43,4 +43,47 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def testSCL6384() = {
+    val text =
+      """
+        |object Test {
+        |  class R[A](f: List[A] => A)(g: A => Any)
+        |  def f: List[String] => String = _.foldRight("")(_+_)
+        |  val r = new R(f)(_.substring(3))
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
+
+  def testSCL9555() = {
+    val text =
+      """
+        |object Test {
+        |  case class PrintedColumn[T](
+        |                               name: String,
+        |                               value: T => Any,
+        |                               color: T => String = { _: T => "blue" })
+        |  case class Foo(a: Int, b: String)
+        |  val col: PrintedColumn[Foo] = PrintedColumn("a", _.a)
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
+
+  def testSCL7891() = {
+    val text =
+      """
+        |trait TestTrait[A, B] { def foo(a: A): B }
+        |class TestClass[A, B] extends TestTrait[A, B] { override def foo(a: A): B = ??? }
+        |class Test {
+        |  type Trait[B] = TestTrait[Test, B]
+        |  type Cls[B] = TestClass[Test, B]
+        |  object tc extends Cls[Any] { //Shows error "Wrong number of type parameters. Expected: 2, actual: 1"
+        |      override def foo(a: Test): Any = ???
+        |    }
+        |  }
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
 }
