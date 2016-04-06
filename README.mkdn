@@ -14,7 +14,7 @@ IDEA.
   developer community](https://devnet.jetbrains.com/community/idea/scala).
 
 - If you found a bug, please report it on [our issue
-  tracker](https://youtrack.jetbrains.com/newissue).
+  tracker](https://youtrack.jetbrains.com/issues/SCL#newissue).
 
 ## Developing Scala plugin
 
