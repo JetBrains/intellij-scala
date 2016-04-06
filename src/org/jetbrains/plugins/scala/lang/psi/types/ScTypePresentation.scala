@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, TupleType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, TupleType, TypeVariable}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 
@@ -165,7 +165,7 @@ object ScTypePresentation extends api.ScTypePresentation {
       existType match {
         case ScExistentialType(q, wilds) if checkWildcard && wilds.length == 1 =>
           q match {
-            case ScTypeVariable(name) if name == wilds.head.name =>
+            case TypeVariable(name) if name == wilds.head.name =>
               existentialArgWithBounds(wilds.head, "_")
             case ScDesignatorType(a: ScTypeAlias) if a.isExistentialTypeAlias && a.name == wilds.head.name =>
               existentialArgWithBounds(wilds.head, "_")
@@ -249,7 +249,7 @@ object ScTypePresentation extends api.ScTypePresentation {
         case ScSkolemizedType(name, _, _, _) => name
         case ScTypeParameterType(name, _, _, _, _) => name
         case ScUndefinedType(tpt: ScTypeParameterType) => "NotInfered" + tpt.name
-        case ScTypeVariable(name) => name
+        case TypeVariable(name) => name
         case c: ScCompoundType if c != null =>
           compoundTypeText(c)
         case ex: ScExistentialType if ex != null =>

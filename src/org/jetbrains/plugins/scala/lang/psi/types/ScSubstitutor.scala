@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeSystem, TypeVariable}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
@@ -193,7 +193,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
         }
       }
 
-      override def visitTypeVariable(tv: ScTypeVariable): Unit = {
+      override def visitTypeVariable(tv: TypeVariable): Unit = {
         result = tvMap.get((tv.name, null)) match {
           case None => tv
           case Some(v) => v

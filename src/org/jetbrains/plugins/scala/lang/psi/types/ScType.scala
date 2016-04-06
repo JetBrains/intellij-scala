@@ -3,7 +3,7 @@ package lang
 package psi
 package types
 
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeVariable, TypeVisitor}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 import scala.collection.mutable.ArrayBuffer
@@ -36,7 +36,7 @@ trait ScType {
     val quantified = recursiveUpdate({
       case s: ScSkolemizedType =>
         wildcards += ScExistentialArgument(s.name, s.args, s.lower, s.upper)
-        (true, ScTypeVariable(s.name))
+        (true, TypeVariable(s.name))
       case t => (false, t)
     })
     if (wildcards.nonEmpty) {

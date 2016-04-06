@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeVariable}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
@@ -327,9 +327,9 @@ object Bounds extends api.Bounds {
                                              (implicit stopAddingUpperBound: Boolean): (ScType, Option[ScExistentialArgument]) = {
     if (substed1 equiv substed2) (substed1, None) else {
       if (substed1 conforms substed2) {
-        (ScTypeVariable("_$" + count), Some(ScExistentialArgument("_$" + count, List.empty, substed1, substed2)))
+        (TypeVariable("_$" + count), Some(ScExistentialArgument("_$" + count, List.empty, substed1, substed2)))
       } else if (substed2 conforms substed1) {
-        (ScTypeVariable("_$" + count), Some(ScExistentialArgument("_$" + count, List.empty, substed2, substed1)))
+        (TypeVariable("_$" + count), Some(ScExistentialArgument("_$" + count, List.empty, substed2, substed1)))
       } else {
         (substed1, substed2) match {
           case (ScSkolemizedType(name, args, lower, upper), ScSkolemizedType(name2, args2, lower2, upper2)) =>
@@ -349,10 +349,10 @@ object Bounds extends api.Bounds {
               def getTypesForLubEvaluation(t: ScType) = Seq(t)
               val typesToCover = getTypesForLubEvaluation(substed1) ++ getTypesForLubEvaluation(substed2)
               val newLub = lub(typesToCover, checkWeak = false, stopAddingUpperBound = true)
-              (ScTypeVariable("_$" + count), Some(ScExistentialArgument("_$" + count, List.empty, newGlb, newLub)))
+              (TypeVariable("_$" + count), Some(ScExistentialArgument("_$" + count, List.empty, newGlb, newLub)))
             } else {
               //todo: this is wrong, actually we should pick lub, just without merging parameters in this method
-              (ScTypeVariable("_$" + count), Some(ScExistentialArgument("_$" + count, List.empty, newGlb, types.Any)))
+              (TypeVariable("_$" + count), Some(ScExistentialArgument("_$" + count, List.empty, newGlb, types.Any)))
             }
         }
       }

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeVariable}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -1306,7 +1306,7 @@ object Conformance extends api.Conformance {
       val tptsMap = new mutable.HashMap[String, ScTypeParameterType]()
       def updateType(t: ScType): ScType = {
         t.recursiveUpdate {
-          case t: ScTypeVariable =>
+          case t: TypeVariable =>
             e.wildcards.find(_.name == t.name) match {
               case Some(wild) =>
                 val tpt = tptsMap.getOrElseUpdate(wild.name,
@@ -1585,7 +1585,7 @@ object Conformance extends api.Conformance {
       if (result != null) return
     }
 
-    override def visitTypeVariable(t: ScTypeVariable) {
+    override def visitTypeVariable(t: TypeVariable) {
       var rightVisitor: ScalaTypeVisitor =
         new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
           with ParameterizedAbstractVisitor {}

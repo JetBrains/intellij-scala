@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, PartialFunctionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, PartialFunctionType, TypeVariable}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 
@@ -94,26 +94,26 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
             case ScDesignatorType(p: ScParameter) if p.owner.isInstanceOf[ScFunctionExpr] && p.owner.asInstanceOf[ScFunctionExpr].result.contains(this) =>
               val t = existize(p.getType(TypingContext.empty).getOrAny, visitedWithT)
               m.put(p.name, new ScExistentialArgument(p.name, Nil, t, t))
-              new ScTypeVariable(p.name)
+              TypeVariable(p.name)
             case ScDesignatorType(typed: ScBindingPattern) if typed.nameContext.isInstanceOf[ScCaseClause] &&
               typed.nameContext.asInstanceOf[ScCaseClause].expr.contains(this) =>
               val t = existize(typed.getType(TypingContext.empty).getOrAny, visitedWithT)
               m.put(typed.name, new ScExistentialArgument(typed.name, Nil, t, t))
-              new ScTypeVariable(typed.name)
+              TypeVariable(typed.name)
             case ScDesignatorType(des) if PsiTreeUtil.isContextAncestor(this, des, true) => des match {
               case obj: ScObject =>
                 val t = existize(leastClassType(obj), visitedWithT)
                 m.put(obj.name, new ScExistentialArgument(obj.name, Nil, t, t))
-                new ScTypeVariable(obj.name)
+                TypeVariable(obj.name)
               case clazz: ScTypeDefinition =>
                 val t = existize(leastClassType(clazz), visitedWithT)
                 val vars = clazz.typeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}.toList
                 m.put(clazz.name, new ScExistentialArgument(clazz.name, vars, t, t))
-                new ScTypeVariable(clazz.name)
+                TypeVariable(clazz.name)
               case typed: ScTypedDefinition =>
                 val t = existize(typed.getType(TypingContext.empty).getOrAny, visitedWithT)
                 m.put(typed.name, new ScExistentialArgument(typed.name, Nil, t, t))
-                new ScTypeVariable(typed.name)
+                TypeVariable(typed.name)
               case _ => t
             }
             case proj@ScProjectionType(p, elem, s) => ScProjectionType(existize(p, visitedWithT), elem, s)

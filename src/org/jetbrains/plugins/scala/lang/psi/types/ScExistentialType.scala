@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeVariable, TypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 
 import scala.collection.immutable.HashSet
@@ -59,7 +59,7 @@ case class ScExistentialType(quantified : ScType,
               } else (true, tp, rejected)
             case _ => (true, tp, rejected)
           }
-          case ScTypeVariable(name) =>
+          case TypeVariable(name) =>
             if (!rejected.contains(name)) {
               wildcards.find(_.name == name) match {
                 case Some(arg) => (true, unpacked.getOrElse(arg, tp), rejected)
@@ -222,7 +222,7 @@ case class ScExistentialType(quantified : ScType,
                 })
             case _ =>
           }
-        case ScTypeVariable(name) =>
+        case TypeVariable(name) =>
           wildcards.foreach(arg => if (arg.name == name && !rejected.contains(arg.name)) {
             res.update(arg, res.getOrElse(arg, Seq.empty[ScType]) ++ Seq(tp))
           })
@@ -356,7 +356,7 @@ case class ScExistentialType(quantified : ScType,
           } else tp
         case _ => tp
       }
-      case ScTypeVariable(name) =>
+      case TypeVariable(name) =>
         if (!rejected.contains(name)) {
           wildcards.find(_.name == name) match {
             case Some(arg) => update(variance, arg, tp)
@@ -442,7 +442,7 @@ case class ScExistentialType(quantified : ScType,
             (res, tp)
           case _ => (res,  tp)
         }
-        case tp@ScTypeVariable(name) if wildcards.exists(_.name == name) =>
+        case tp@TypeVariable(name) if wildcards.exists(_.name == name) =>
           res = true
           (res, tp)
         case tp: ScType => (res, tp)
@@ -500,7 +500,7 @@ case class ScExistentialType(quantified : ScType,
 
 object ScExistentialType {
   def simpleExistential(lowerBound: ScType, upperBound: ScType, name: String = "_$1", args: List[ScTypeParameterType] = Nil): ScExistentialType = {
-    ScExistentialType(ScTypeVariable(name), List(ScExistentialArgument(name, args, lowerBound, upperBound)))
+    ScExistentialType(TypeVariable(name), List(ScExistentialArgument(name, args, lowerBound, upperBound)))
   }
 }
 

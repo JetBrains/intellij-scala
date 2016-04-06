@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTemplateBodyImpl
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeVariable, TypeVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
@@ -89,7 +89,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
             ta.typeParameters.map(tp => {
               val name = tp.name + "$$"
               args += new ScExistentialArgument(name, Nil, types.Nothing, types.Any)
-              ScTypeVariable(name)
+              TypeVariable(name)
             }))
           val s = actualSubst.followed(genericSubst)
           Some(AliasType(ta, ta.lowerBound.map(scType => ScExistentialType(s.subst(scType), args.toList)),
@@ -434,7 +434,7 @@ case class ScDesignatorType(element: PsiNamedElement) extends ScalaType with Val
           ta.typeParameters.map(tp => {
             val name = tp.name + "$$"
             args += new ScExistentialArgument(name, Nil, types.Nothing, types.Any)
-            ScTypeVariable(name)
+            TypeVariable(name)
           }))
         Some(AliasType(ta, ta.lowerBound.map(scType => ScExistentialType(genericSubst.subst(scType), args.toList)),
           ta.upperBound.map(scType => ScExistentialType(genericSubst.subst(scType), args.toList))))
