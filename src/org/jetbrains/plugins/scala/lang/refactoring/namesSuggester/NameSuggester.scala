@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScReferenceElem
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, JavaArrayType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{NameValidator, ScalaNamesUtil}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -219,7 +219,7 @@ object NameSuggester {
       case ScProjectionType(p, e, _) => addForNamedElement(e)
       case ScParameterizedType(tp, args) =>
         addForParameterizedType(tp, args)
-      case JavaArrayType(arg) => addPlurals(arg)
+      case JavaArrayType(argument) => addPlurals(argument)
       case ScCompoundType(comps, _, _) =>
         if (comps.size > 0) generateNamesByType(comps(0))
       case _ =>

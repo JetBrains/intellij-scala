@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 
@@ -139,7 +140,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
               }, typesMap.map {
                 case (s, sign) => (s, sign.updateTypes(existize(_, visitedWithT)))
               })
-            case JavaArrayType(arg) => JavaArrayType(existize(arg, visitedWithT))
+            case JavaArrayType(argument) => JavaArrayType(existize(argument, visitedWithT))
             case ScParameterizedType(des, typeArgs) =>
               ScParameterizedType(existize(des, visitedWithT), typeArgs.map(existize(_, visitedWithT)))
             case ex@ScExistentialType(q, wildcards) =>

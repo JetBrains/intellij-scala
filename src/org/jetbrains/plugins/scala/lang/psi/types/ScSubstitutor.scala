@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
@@ -396,7 +396,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
       }
 
       override def visitJavaArrayType(j: JavaArrayType): Unit = {
-        result = JavaArrayType(substInternal(j.arg))(j.typeSystem)
+        result = JavaArrayType(substInternal(j.argument))(j.typeSystem)
       }
 
       override def visitProjectionType(p: ScProjectionType): Unit = {

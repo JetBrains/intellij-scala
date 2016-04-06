@@ -45,6 +45,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInnerCodeElement, ScDocResolvableCodeReference, ScDocSyntaxElement}
@@ -831,7 +832,7 @@ object ScalaPsiElementFactory {
             val scType: ScType = substitutor.subst(param.getTypeElement.getType.toScType(method.getProject))
             val typeText = scType match {
               case types.AnyRef => "scala.Any"
-              case JavaArrayType(arg: ScType) if param.isVarArgs => arg.canonicalText + "*"
+              case JavaArrayType(argument) if param.isVarArgs => argument.canonicalText + "*"
               case _ => scType.canonicalText
             }
             s"$pName$colon$typeText"

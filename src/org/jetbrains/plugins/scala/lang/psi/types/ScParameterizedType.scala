@@ -7,84 +7,20 @@ package types
  * @author ilyas
  */
 
-import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.containers.ConcurrentWeakHashMap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeInTypeSystem, TypeSystem, TypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeVisitor
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 import scala.collection.immutable.{HashSet, ListMap, Map}
-
-case class JavaArrayType(arg: ScType)(implicit val typeSystem: TypeSystem) extends ValueType with TypeInTypeSystem {
-
-  def getParameterizedType(project: Project, scope: GlobalSearchScope): Option[ScType] = {
-    val arrayClasses = ScalaPsiManager.instance(project).getCachedClasses(scope, "scala.Array")
-    var arrayClass: PsiClass = null
-    for (clazz <- arrayClasses) {
-      clazz match {
-        case _: ScClass => arrayClass = clazz
-        case _ =>
-      }
-    }
-    if (arrayClass != null) {
-      val tps = arrayClass.getTypeParameters
-      if (tps.length == 1) {
-        Some(ScParameterizedType(ScalaType.designator(arrayClass), Seq(arg)))
-      } else None
-    } else None
-  }
-
-  override def removeAbstracts = JavaArrayType(arg.removeAbstracts)
-
-  override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
-    if (visited.contains(this)) {
-      return update(this) match {
-        case (true, res) => res
-        case _ => this
-      }
-    }
-    update(this) match {
-      case (true, res) => res
-      case _ =>
-        JavaArrayType(arg.recursiveUpdate(update, visited + this))
-    }
-  }
-
-  override def recursiveVarianceUpdateModifiable[T](data: T, update: (ScType, Int, T) => (Boolean, ScType, T),
-                                           variance: Int = 1): ScType = {
-    update(this, variance, data) match {
-      case (true, res, _) => res
-      case (_, _, newData) =>
-        JavaArrayType(arg.recursiveVarianceUpdateModifiable(newData, update, 0))
-    }
-  }
-
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
-    r match {
-      case JavaArrayType(arg2) => arg.equiv(arg2, uSubst, falseUndef)
-      case ScParameterizedType(des, args) if args.length == 1 =>
-        des.extractClass() match {
-          case Some(td) if td.qualifiedName == "scala.Array" => arg.equiv(args.head, uSubst, falseUndef)
-          case _ => (false, uSubst)
-        }
-      case _ => (false, uSubst)
-    }
-  }
-
-  override def visitType(visitor: TypeVisitor) = visitor.visitJavaArrayType(this)
-
-  override def typeDepth: Int = arg.typeDepth
-}
 
 class ScParameterizedType private(val designator: ScType, val typeArgs: Seq[ScType]) extends ScalaType with ValueType {
   override protected def isAliasTypeInner: Option[AliasType] = {

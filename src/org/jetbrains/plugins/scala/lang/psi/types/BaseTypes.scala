@@ -8,7 +8,7 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 import scala.collection.immutable.HashSet

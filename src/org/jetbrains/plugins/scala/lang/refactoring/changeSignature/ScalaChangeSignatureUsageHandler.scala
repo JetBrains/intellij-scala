@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
@@ -411,7 +412,7 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
           val javaType = jInfo.createType(method, method.getManager)
           val scType = UsageUtil.substitutor(usage).subst(javaType.toScType(method.getProject))
           (scType, javaType) match {
-            case (JavaArrayType(tpe), _: PsiEllipsisType) => tpe.canonicalText + "*"
+            case (JavaArrayType(argument), _: PsiEllipsisType) => argument.canonicalText + "*"
             case _ => scType.canonicalText
           }
         case info => info.getTypeText

@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitParametersOwner, ScPack
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, JavaArrayType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -1406,8 +1406,8 @@ object ScalaEvaluatorBuilderUtil {
       case Nothing => "_root_.scala.reflect.ClassManifest.Nothing"
       case Null => "_root_.scala.reflect.ClassManifest.Null"
       case Singleton => "_root_.scala.reflect.ClassManifest.Object"
-      case JavaArrayType(arg) =>
-        "_root_.scala.reflect.ClassManifest.arrayType(" + classManifestText(arg) + ")"
+      case JavaArrayType(argument) =>
+        "_root_.scala.reflect.ClassManifest.arrayType(" + classManifestText(argument) + ")"
       case ScParameterizedType(ScDesignatorType(clazz: ScClass), Seq(arg))
 
         if clazz.qualifiedName == "scala.Array" =>

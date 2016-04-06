@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.openapi.util.Computable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 /**
