@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, MacroInferUtil}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
@@ -348,7 +348,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                               predicate match {
                                 case Some(predicateFunction) if isExtensionConversion =>
                                   inferValueType(nonValueType.getOrElse(return reportWrong(BadTypeResult))) match {
-                                    case (ScFunctionType(rt, _), _) =>
+                                    case (FunctionType(rt, _), _) =>
                                       if (predicateFunction(c.copy(implicitParameterType = Some(rt)), subst).isEmpty)
                                         return reportWrong(CantFindExtensionMethodResult)
                                     //this is not a function, when we still need to pass implicit?..
@@ -448,7 +448,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                     else checkType(substedFunType)
                   } else if (noReturnType) Some(c, ScSubstitutor.empty) else {
                     substedFunType match {
-                      case ScFunctionType(ret, params) if params.isEmpty =>
+                      case FunctionType(ret, params) if params.isEmpty =>
                         if (!ret.conforms(tp)) None
                         else if (checkFast) Some(c, ScSubstitutor.empty)
                         else checkType(ret)

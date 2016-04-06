@@ -10,8 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.types.ScFunctionType
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
@@ -97,7 +96,7 @@ object ToggleTypeAnnotation {
           } else {
             val index = func.parameters.indexOf(param)
             func.expectedType() match {
-              case Some(ScFunctionType(_, params)) =>
+              case Some(FunctionType(_, params)) =>
                 if (index >= 0 && index < params.length) {
                   strategy.addToParameter(param)
                   return true

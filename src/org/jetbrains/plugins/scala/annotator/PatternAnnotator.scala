@@ -7,12 +7,12 @@ import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TupleType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScDesignatorType, ScTypeParameterType, _}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -231,7 +231,7 @@ object PatternAnnotatorUtil {
         val project = pattern.getProject
         val subPat = tuple.subpatterns
         val subTypes = subPat.flatMap(patternType)
-        if (subTypes.size == subPat.size) Some(ScTupleType(subTypes)(project, GlobalSearchScope.allScope(project)))
+        if (subTypes.size == subPat.size) Some(TupleType(subTypes)(project, GlobalSearchScope.allScope(project)))
         else None
       case typed: ScTypedPattern =>
         typed.typePattern.map(_.typeElement.calcType)

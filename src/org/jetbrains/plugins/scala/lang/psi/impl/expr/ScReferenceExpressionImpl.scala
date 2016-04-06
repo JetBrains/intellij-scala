@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
@@ -330,7 +331,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             case Some(clazz) if clazz.isCase && !clazz.hasTypeParameters =>
               expectedType() match {
                 case Some(tp) =>
-                  if (ScFunctionType.isFunctionType(tp)) {
+                  if (FunctionType.isFunctionType(tp)) {
                     val tp = tail
                     val processor =
                       new MethodResolveProcessor(this, "apply", Nil, Nil, Nil)

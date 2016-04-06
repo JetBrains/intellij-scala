@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, PartialFunctionType, TupleType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
@@ -63,8 +63,8 @@ private[expr] object ExpectedTypes {
     @tailrec
     def fromFunction(tp: (ScType, Option[ScTypeElement])): Array[(ScType, Option[ScTypeElement])] = {
       tp._1 match {
-        case ScFunctionType(retType, _) => Array[(ScType, Option[ScTypeElement])]((retType, None))
-        case ScPartialFunctionType(retType, _) => Array[(ScType, Option[ScTypeElement])]((retType, None))
+        case FunctionType(retType, _) => Array[(ScType, Option[ScTypeElement])]((retType, None))
+        case PartialFunctionType(retType, _) => Array[(ScType, Option[ScTypeElement])]((retType, None))
         case ScAbstractType(_, _, upper) => fromFunction(upper, tp._2)
         case samType if ScalaPsiUtil.isSAMEnabled(expr) =>
           ScalaPsiUtil.toSAMType(samType, expr.getResolveScope) match {
@@ -195,7 +195,7 @@ private[expr] object ExpectedTypes {
         if (index >= 0) {
           for (tp: ScType <- tuple.expectedTypes(fromUnderscore = true)) {
             tp match {
-              case ScTupleType(comps) if comps.length == exprs.length =>
+              case TupleType(comps) if comps.length == exprs.length =>
                 buffer += ((comps(index), None))
               case _ =>
             }
@@ -332,7 +332,7 @@ private[expr] object ExpectedTypes {
       val res = new ArrayBuffer[(ScType, Option[ScTypeElement])]
       for (tp <- result) {
         tp._1 match {
-          case ScFunctionType(rt: ScType, _) => res += ((rt, None))
+          case FunctionType(rt: ScType, _) => res += ((rt, None))
           case _ =>
         }
       }
@@ -355,7 +355,7 @@ private[expr] object ExpectedTypes {
         case assign: ScAssignStmt =>
           if (isDynamicNamed) {
             p match {
-              case (ScTupleType(comps), te) if comps.length == 2 =>
+              case (TupleType(comps), te) if comps.length == 2 =>
                 res += ((comps(1), te.map {
                   case t: ScTupleTypeElement if t.components.length == 2 => t.components(1)
                   case t => t
@@ -387,7 +387,7 @@ private[expr] object ExpectedTypes {
       case Success(ScMethodType(_, params, _), _) =>
         if (params.length == 1 && !params.head.isRepeated && exprs.length > 1) {
           params.head.paramType match {
-            case ScTupleType(args) => applyForParams(args.zipWithIndex.map {
+            case TupleType(args) => applyForParams(args.zipWithIndex.map {
               case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
             })
             case _ =>
@@ -398,7 +398,7 @@ private[expr] object ExpectedTypes {
         val newParams = params.map(p => p.copy(paramType = subst.subst(p.paramType)))
         if (newParams.length == 1 && !newParams.head.isRepeated && exprs.length > 1) {
           newParams.head.paramType match {
-            case ScTupleType(args) => applyForParams(args.zipWithIndex.map {
+            case TupleType(args) => applyForParams(args.zipWithIndex.map {
               case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
             })
             case _ =>

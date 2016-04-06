@@ -40,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, 
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -267,7 +267,7 @@ object ScalaRefactoringUtil {
     // Handle omitted parentheses in calls to functions with empty parameter list.
     // todo add a test for case with only implicit parameter list.
     val exprType = (element, cachedType) match {
-      case (ReferenceToFunction(func), ScFunctionType(returnType, _)) if (func: ScFunction).parameters.isEmpty => returnType
+      case (ReferenceToFunction(func), FunctionType(returnType, _)) if (func: ScFunction).parameters.isEmpty => returnType
       case _ => cachedType
     }
     val types = addPossibleTypes(exprType, element).map(replaceSingletonTypes)

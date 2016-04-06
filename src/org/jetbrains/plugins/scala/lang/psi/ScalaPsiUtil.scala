@@ -49,7 +49,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -287,7 +287,7 @@ object ScalaPsiUtil {
     def specialExtractParameterType(rr: ScalaResolveResult): (Option[ScType], Seq[TypeParameter]) = {
       def inner(tp: ScType) = {
         tp match {
-          case f@ScFunctionType(_, _) => Some(f)
+          case f@FunctionType(_, _) => Some(f)
           case _ =>
             funType match {
               case Some(ft) =>
@@ -325,12 +325,12 @@ object ScalaPsiUtil {
       val exprType = ImplicitCollector.exprType(e, fromUnder = false).getOrElse(return)
       if (exprType.equiv(types.Nothing)) return //do not proceed with nothing type, due to performance problems.
       val convertible = new ImplicitCollector(e,
-          ScFunctionType(types.Any, Seq(exprType))(e.getProject, e.getResolveScope),
-          ScFunctionType(exprType, args)(e.getProject, e.getResolveScope), None, true, true,
+        FunctionType(types.Any, Seq(exprType))(e.getProject, e.getResolveScope),
+        FunctionType(exprType, args)(e.getProject, e.getResolveScope), None, true, true,
           predicate = Some((rr, subst) => {
             ProgressManager.checkCanceled()
             specialExtractParameterType(rr) match {
-              case (Some(ScFunctionType(tp, _)), _) =>
+              case (Some(FunctionType(tp, _)), _) =>
                 if (!isHardCoded || !tp.isInstanceOf[ValType]) {
                   val newProc = new ResolveProcessor(kinds, ref, refName)
                   newProc.processType(tp, e, ResolveState.initial)
@@ -389,7 +389,7 @@ object ScalaPsiUtil {
     if (implicitMap.length == 1) {
       val rr = implicitMap.head
       specialExtractParameterType(rr) match {
-        case (Some(ScFunctionType(tp, _)), typeParams) =>
+        case (Some(FunctionType(tp, _)), typeParams) =>
           Some(ImplicitResolveResult(tp, rr.getElement, rr.importsUsed, rr.substitutor, ScSubstitutor.empty, isFromCompanion = false, //todo: from companion parameter
             unresolvedTypeParameters = typeParams))
         case _ => None
@@ -1611,14 +1611,14 @@ object ScalaPsiUtil {
 
   def isArgumentOfFunctionType(expr: ScExpression) = {
     import expr.typeSystem
-    isCanonicalArg(expr) && parameterOf(expr).exists(p => ScFunctionType.isFunctionType(p.paramType))
+    isCanonicalArg(expr) && parameterOf(expr).exists(p => FunctionType.isFunctionType(p.paramType))
   }
 
   object MethodValue {
     def unapply(expr: ScExpression): Option[PsiMethod] = {
       import expr.typeSystem
       if (!expr.expectedType(fromUnderscore = false).exists {
-        case ScFunctionType(_, _) => true
+        case FunctionType(_, _) => true
         case expected if isSAMEnabled(expr) => toSAMType(expected, expr.getResolveScope).isDefined
         case _ => false
       }) {
@@ -2000,7 +2000,7 @@ object ScalaPsiUtil {
               val params: Array[ScType] = method.getParameterList.getParameters.map {
                 param: PsiParameter => param.getTypeElement.getType.toScType(project, scalaScope)
               }
-              val fun = ScFunctionType(returnType, params)(project, scalaScope)
+              val fun = FunctionType(returnType, params)(project, scalaScope)
               val subbed = sub.subst(fun)
               extrapolateWildcardBounds(subbed, expected, project, scalaScope) match {
                 case s@Some(_) => s
@@ -2035,7 +2035,7 @@ object ScalaPsiUtil {
     expected match {
       case ScExistentialType(ScParameterizedType(expectedDesignator, _), wildcards) =>
         tp match {
-          case ScFunctionType(retTp, params) =>
+          case FunctionType(retTp, params) =>
             def convertParameter(tpArg: ScType, variance: Int): ScType = {
               tpArg match {
                 case p@ScParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, variance)))
@@ -2055,7 +2055,7 @@ object ScalaPsiUtil {
             //parameter clauses are contravariant positions, return types are covariant positions
             val newParams = params.map(convertParameter(_, ScTypeParam.Contravariant))
             val newRetTp = convertParameter(retTp, ScTypeParam.Covariant)
-            Some(ScFunctionType(newRetTp, newParams)(proj, scope))
+            Some(FunctionType(newRetTp, newParams)(proj, scope))
           case _ => None
         }
       case _ => None

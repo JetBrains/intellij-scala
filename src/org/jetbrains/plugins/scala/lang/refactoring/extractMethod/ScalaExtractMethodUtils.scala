@@ -19,9 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.VariableInfo
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScSubstitutor, ScType, Unit, _}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, Unit}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicateMatch
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -160,7 +160,7 @@ object ScalaExtractMethodUtils {
                         case call: ScMethodCall => tail()
                         case _ =>
                           ref.asInstanceOf[ScExpression].expectedType() match {
-                            case Some(ScFunctionType(_, params)) if params.isEmpty => tail()
+                            case Some(FunctionType(_, params)) if params.isEmpty => tail()
                             case _ =>
                               //we need to replace by method call
                               val newRef = ScalaPsiElementFactory.createExpressionFromText(param.newName + "()", method.getManager)
@@ -214,7 +214,7 @@ object ScalaExtractMethodUtils {
     val retType = definition.getType(TypingContext.empty).getOrNothing
     val tp = definition match {
       case fun: ScFunction if fun.paramClauses.clauses.isEmpty =>
-        ScFunctionType(retType, Seq.empty)(definition.getProject, definition.getResolveScope)
+        FunctionType(retType, Seq.empty)(definition.getProject, definition.getResolveScope)
       case _ => retType
     }
     new ScalaVariableData(definition, isInside, tp)

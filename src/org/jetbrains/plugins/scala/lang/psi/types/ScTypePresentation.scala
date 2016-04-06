@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.JavaArrayType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, JavaArrayType, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 
@@ -104,7 +104,7 @@ object ScTypePresentation extends api.ScTypePresentation {
       def typeText0(tp: ScType) = innerTypeText(tp)
 
       val componentsText = if (comps.isEmpty) Nil else Seq(comps.map {
-        case tp@ScFunctionType(_, _) => "(" + innerTypeText(tp) + ")"
+        case tp@FunctionType(_, _) => "(" + innerTypeText(tp) + ")"
         case tp => innerTypeText(tp)
       }.mkString(" with "))
 
@@ -223,7 +223,7 @@ object ScTypePresentation extends api.ScTypePresentation {
           abstractTypeText(abstractType)
         case StdType(name, _) =>
           name
-        case f@ScFunctionType(ret, params) if t.isAliasType.isEmpty =>
+        case f@FunctionType(ret, params) if t.isAliasType.isEmpty =>
           val projectOption = f.extractClass().map(_.getProject)
           val arrow = projectOption.map(ScalaPsiUtil.functionArrow).getOrElse("=>")
           typeSeqText(params, "(", ", ", s") $arrow ") + innerTypeText(ret)
@@ -231,9 +231,9 @@ object ScTypePresentation extends api.ScTypePresentation {
           clazz.name + ".this" + typeTail(needDotType)
         case ScThisType(clazz) =>
           "this" + typeTail(needDotType)
-        case ScTupleType(Seq(tpe)) =>
+        case TupleType(Seq(tpe)) =>
           s"Tuple1[${innerTypeText(tpe)}]"
-        case ScTupleType(comps) =>
+        case TupleType(comps) =>
           typeSeqText(comps, "(",", ",")")
         case ScDesignatorType(e@(_: ScObject | _: ScReferencePattern | _: ScParameter)) =>
           nameFun(e) + typeTail(needDotType)
@@ -258,7 +258,7 @@ object ScTypePresentation extends api.ScTypePresentation {
             tp.name + lowerBound + upperBound
           }).mkString("[", ", ", "] ") + internalType.toString
         case mt@ScMethodType(retType, params, isImplicit) =>
-          innerTypeText(ScFunctionType(retType, params.map(_.paramType))(mt.project, mt.scope), needDotType)
+          innerTypeText(FunctionType(retType, params.map(_.paramType))(mt.project, mt.scope), needDotType)
         case _ => ""//todo
       }
     }

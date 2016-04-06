@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TupleType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
@@ -343,13 +343,13 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
     val expects = referenceExpression.expectedTypes()
     for (expected <- expects) {
       def params(tp: ScType): Seq[ScType] = tp match {
-        case ScFunctionType(_, params) => params
+        case FunctionType(_, params) => params
         case _ => null
       }
       val actualParams = params(expected)
       if (actualParams != null) {
         val params = actualParams match {
-          case Seq(ScTupleType(types)) if braceArgs => types
+          case Seq(TupleType(types)) if braceArgs => types
           case _ => actualParams
         }
         val presentableParams = params.map(_.removeAbstracts)
