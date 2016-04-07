@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Null}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Null, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -89,7 +89,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
   private def getPackageImplicitObjectsCached(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {
-   ScalaShortNamesCacheManager.getInstance(project).getImplicitObjectsByPackage(fqn, scope)
+    ScalaShortNamesCacheManager.getInstance(project).getImplicitObjectsByPackage(fqn, scope)
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
@@ -127,10 +127,11 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       val clazz = classesIterator.next()
       buffer += clazz
     }
-    buffer.toSeq
+    buffer
   }
 
   import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory._
+
   def getCachedClass(fqn: String, scope: GlobalSearchScope, classCategory: ClassCategory): PsiClass = {
     val allClasses = getCachedClasses(scope, fqn)
     val classes =
@@ -177,6 +178,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   }
 
   import java.util.{Set => JSet}
+
   def getJavaPackageClassNames(psiPackage: PsiPackage, scope: GlobalSearchScope): JSet[String] = {
     if (DumbService.getInstance(project).isDumb) return Collections.emptySet()
     val qualifier: String = psiPackage.getQualifiedName
@@ -223,9 +225,13 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   }
 
   def projectOpened() {}
+
   def projectClosed() {}
+
   def getComponentName = "ScalaPsiManager"
+
   def disposeComponent() {}
+
   def initComponent() {
     val typeSystem = project.typeSystem
     val equivalence = typeSystem.equivalence
@@ -282,7 +288,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   private val syntheticPackagesCreator = new SyntheticPackageCreator(project)
   private val syntheticPackages = new WeakValueHashMap[String, Any]
 
-  def syntheticPackage(fqn : String) : ScSyntheticPackage = {
+  def syntheticPackage(fqn: String): ScSyntheticPackage = {
     var p = syntheticPackages.get(fqn)
     if (p == null) {
       p = syntheticPackagesCreator.getPackage(fqn)
@@ -297,34 +303,44 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       }
     }
 
-    p match {case synth : ScSyntheticPackage => synth case _ => null}
+    p match {
+      case synth: ScSyntheticPackage => synth
+      case _ => null
+    }
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnChange)
-  def psiTypeParameterUpperType(tp: PsiTypeParameter): ScType = {
-    def lift: PsiClassType => ScType = _.toScType(project)
-    tp.getSuperTypes match {
-      case array: Array[PsiClassType] if array.length == 1 => lift(array(0))
-      case many => new ScCompoundType(many.map(lift), Map.empty, Map.empty)
+  def psiTypeParameterUpperType(typeParameter: PsiTypeParameter): ScType = {
+    typeParameter.getSuperTypes match {
+      case Array(scType) => scType.toScType(project)
+      case types => andType(types)
     }
   }
 
-  def typeVariable(tp: PsiTypeParameter) : ScTypeParameterType = {
+  def psiTypeParameterLowerType(typeParameter: PsiTypeParameter): ScType = {
+    andType(typeParameter.getExtendsListTypes ++ typeParameter.getImplementsListTypes)
+  }
+
+  private def andType(psiTypes: Seq[PsiType]) = {
+    project.typeSystem.andType(psiTypes.map(_.toScType(project)))
+  }
+
+  def typeVariable(typeParameter: PsiTypeParameter): TypeParameterType = {
     import org.jetbrains.plugins.scala.Misc.fun2suspension
-    tp match {
-      case stp: ScTypeParam =>
-        val inner = stp.typeParameters.map{typeVariable(_)}.toList
-        val lower = () => stp.lowerBound.getOrNothing
-        val upper = () => stp.upperBound.getOrAny
+    val (name, arguments, lower, upper) = typeParameter match {
+      case typeParam: ScTypeParam =>
         // todo rework for error handling!
-        val res = new ScTypeParameterType(stp.name, inner, lower, upper, stp)
-        res
+        (typeParam.name,
+          typeParam.typeParameters.map(typeVariable),
+          () => typeParam.lowerBound.getOrNothing,
+          () => typeParam.upperBound.getOrAny)
       case _ =>
-        val lower = () => Nothing
-        val upper = () => psiTypeParameterUpperType(tp)
-        val res = new ScTypeParameterType(tp.name, Nil, lower, upper, tp)
-        res
+        (typeParameter.name,
+          Nil,
+          () => Nothing,
+          () => psiTypeParameterUpperType(typeParameter))
     }
+    TypeParameterType(name, arguments, lower, upper, typeParameter)
   }
 
   def getStableTypeAliasesNames: Seq[String] = {
@@ -334,8 +350,6 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
   }
 
   PsiManager.getInstance(project).addPsiTreeChangeListener(CacheInvalidator, project)
-
-
 
   object CacheInvalidator extends PsiTreeChangeAdapter {
     override def childRemoved(event: PsiTreeChangeEvent): Unit = {
@@ -377,14 +391,15 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
 }
 
 object ScalaPsiManager {
-  val TYPE_VARIABLE_KEY: Key[ScTypeParameterType] = Key.create("type.variable.key")
+  val TYPE_VARIABLE_KEY: Key[TypeParameterType] = Key.create("type.variable.key")
 
-  def instance(project : Project) = project.getComponent(classOf[ScalaPsiManager])
+  def instance(project: Project) = project.getComponent(classOf[ScalaPsiManager])
 
-  def typeVariable(tp : PsiTypeParameter): ScTypeParameterType = instance(tp.getProject).typeVariable(tp)
+  def typeVariable(typeParameter: PsiTypeParameter) = instance(typeParameter.getProject).typeVariable(typeParameter)
 
   object ClassCategory extends Enumeration {
     type ClassCategory = Value
     val ALL, OBJECT, TYPE = Value
   }
+
 }

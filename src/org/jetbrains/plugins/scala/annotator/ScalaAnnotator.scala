@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ScTypePresentation, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ScTypePresentation, TypeParameterType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext, TypingContextOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve._
@@ -1222,8 +1222,8 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
 
     def functionToSendIn(tp: ScType, i: Int) = {
       tp match {
-        case paramType: ScTypeParameterType =>
-          paramType.param match {
+        case paramType: TypeParameterType =>
+          paramType.typeParameter match {
             case scTypeParam: ScTypeParam =>
               val compareTo = scTypeParam.owner
               val parentIt = checkParentOf.parents

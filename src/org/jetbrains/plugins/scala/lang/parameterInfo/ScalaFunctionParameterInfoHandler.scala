@@ -18,11 +18,11 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfoHandler.AnnotationParameters
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
@@ -460,8 +460,8 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               def collectSubstitutor(element: PsiElement): ScSubstitutor = {
                 if (gen == null) return ScSubstitutor.empty
                 val tp: Array[(String, PsiElement)] = element match {
-                  case tpo: ScTypeParametersOwner => tpo.typeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p))).toArray
-                  case ptpo: PsiTypeParameterListOwner => ptpo.getTypeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p)))
+                  case tpo: ScTypeParametersOwner => tpo.typeParameters.map(_.nameAndId).toArray
+                  case ptpo: PsiTypeParameterListOwner => ptpo.getTypeParameters.map(_.nameAndId)
                   case _ => return ScSubstitutor.empty
                 }
                 val typeArgs: Seq[ScTypeElement] = gen.arguments
@@ -550,7 +550,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       case Some(constr: ScPrimaryConstructor) if i < constr.effectiveParameterClauses.length =>
                         typeElement match {
                           case gen: ScParameterizedTypeElement =>
-                            val tp = clazz.typeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p)))
+                            val tp = clazz.typeParameters.map(_.nameAndId)
                             val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
                             val map = new collection.mutable.HashMap[(String, PsiElement), ScType]
                             for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
@@ -580,7 +580,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                     for (constructor <- clazz.getConstructors) {
                       typeElement match {
                         case gen: ScParameterizedTypeElement =>
-                          val tp = clazz.getTypeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p)))
+                          val tp = clazz.getTypeParameters.map(_.nameAndId)
                           val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
                           val map = new collection.mutable.HashMap[(String, PsiElement), ScType]
                           for (i <- 0 until Math.min(tp.length, typeArgs.length)) {

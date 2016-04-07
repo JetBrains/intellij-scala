@@ -15,7 +15,6 @@ trait ScalaTypeVisitor extends api.TypeVisitor {
   def visitExistentialType(e: ScExistentialType) {}
   def visitThisType(t: ScThisType) {}
   def visitDesignatorType(d: ScDesignatorType) {}
-  def visitTypeParameterType(t: ScTypeParameterType) {}
   def visitExistentialArgument(s: ScExistentialArgument) {}
   def visitAbstractType(a: ScAbstractType) {}
   def visitTypePolymorphicType(t: ScTypePolymorphicType) {}

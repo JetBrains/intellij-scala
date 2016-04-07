@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScDesignatorType, ScTypeParameterType, _}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScDesignatorType, _}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
@@ -160,7 +160,7 @@ object PatternAnnotator {
     case _ =>
       scType.recursiveUpdate {
         case ScAbstractType(_, _, upper) => (true, upper)
-        case ScTypeParameterType(_, _, _, upper, _) => (true, upper.v)
+        case TypeParameterType(_, _, _, upper, _) => (true, upper.v)
         case tp => (false, tp)
       }
   }
@@ -168,7 +168,7 @@ object PatternAnnotator {
   private def freeTypeParamsOfTerms(tp: ScType): Seq[ScType] = {
     val buffer = ArrayBuffer[ScType]()
     tp.recursiveUpdate {
-      case tp: ScTypeParameterType =>
+      case tp: TypeParameterType =>
         buffer += tp
         (false, tp)
       case _ => (false, tp)
@@ -187,7 +187,7 @@ object PatternAnnotatorUtil {
       }
       val newVisited = visited + scType
       scType.recursiveUpdate {
-        case tp: ScTypeParameterType => (true, ScAbstractType(tp, abstraction(tp.lower.v, newVisited), abstraction(tp.upper.v, newVisited)))
+        case tp: TypeParameterType => (true, ScAbstractType(tp, abstraction(tp.lower.v, newVisited), abstraction(tp.upper.v, newVisited)))
         case tpe => (false, tpe)
       }
     }

@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeParameterType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -145,7 +145,7 @@ object ScalaRefactoringUtil {
   def getTypeParameterOwnerList(typeElement: ScTypeElement): Seq[ScTypeParametersOwner] = {
     val ownersArray: ArrayBuffer[ScTypeParametersOwner] = new ArrayBuffer[ScTypeParametersOwner]()
     typeElement.breadthFirst.foreach {
-      case x: ScTypeElement if x.calcType.isInstanceOf[ScTypeParameterType] =>
+      case x: ScTypeElement if x.calcType.isInstanceOf[TypeParameterType] =>
         val owner = getOwner(x)
         if (owner != null) {
           ownersArray += owner

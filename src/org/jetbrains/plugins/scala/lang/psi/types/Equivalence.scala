@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.openapi.util.Computable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyRef, JavaArrayType, StdType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyRef, JavaArrayType, StdType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 /**
@@ -43,8 +43,8 @@ object Equivalence extends api.Equivalence {
       }
 
       (left, right) match {
-        case (_, _: ScUndefinedType) => right.equivInner(left, substitutor, falseUndef)
-        case (_: ScUndefinedType, _) => left.equivInner(right, substitutor, falseUndef)
+        case (_, _: UndefinedType) => right.equivInner(left, substitutor, falseUndef)
+        case (_: UndefinedType, _) => left.equivInner(right, substitutor, falseUndef)
         case (_, _: ScAbstractType) => right.equivInner(left, substitutor, falseUndef)
         case (_: ScAbstractType, _) => left.equivInner(right, substitutor, falseUndef)
         case (_, ScParameterizedType(_: ScAbstractType, _)) => right.equivInner(left, substitutor, falseUndef)

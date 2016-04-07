@@ -245,8 +245,8 @@ object ScTypePresentation extends api.ScTypePresentation {
           innerTypeText(des) + typeSeqText(typeArgs, "[", ", ", "]", checkWildcard = true)
         case JavaArrayType(argument) => s"Array[${innerTypeText(argument)}]"
         case ScExistentialArgument(name, _, _, _) => name
-        case ScTypeParameterType(name, _, _, _, _) => name
-        case ScUndefinedType(tpt: ScTypeParameterType) => "NotInfered" + tpt.name
+        case TypeParameterType(name, _, _, _, _) => name
+        case UndefinedType(tpt, _) => "NotInfered" + tpt.name
         case c: ScCompoundType if c != null =>
           compoundTypeText(c)
         case ex: ScExistentialType if ex != null =>

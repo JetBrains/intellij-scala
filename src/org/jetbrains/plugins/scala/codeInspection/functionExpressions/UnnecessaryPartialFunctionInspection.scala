@@ -8,8 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, ValueType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeParameterType, _}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, TypeSystem, UndefinedType, ValueType}
 
 object UnnecessaryPartialFunctionInspection {
   private val inspectionId = "UnnecessaryPartialFunction"
@@ -55,11 +55,10 @@ class UnnecessaryPartialFunctionInspection
     findType(file, PartialFunctionClassName, undefinedTypeParameters)
 
   private def undefinedTypeParameters(clazz: PsiClass)
-                                     (implicit typeSystem: TypeSystem): Seq[ScUndefinedType] =
+                                     (implicit typeSystem: TypeSystem): Seq[UndefinedType] =
     clazz
       .getTypeParameters
-      .map(typeParameter =>
-        new ScUndefinedType(new ScTypeParameterType(typeParameter, ScSubstitutor.empty)))
+      .map(typeParameter => UndefinedType(TypeParameterType(typeParameter)))
       .toSeq
 
   private def canBeConvertedToFunction(caseClause: ScCaseClause, conformsToExpectedType: (ScType, ScType) => Boolean) =

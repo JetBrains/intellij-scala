@@ -215,7 +215,7 @@ object NameSuggester {
       case TupleType(comps) => add("tuple")
       case FunctionType(ret, params) => addForFunctionType(ret, params)
       case ScDesignatorType(e) => addForNamedElement(e)
-      case ScTypeParameterType(name, typeParams, lowerType, upperType, ptp) => addForNamedElementString(name)
+      case TypeParameterType(name, typeParams, lowerType, upperType, ptp) => addForNamedElementString(name)
       case ScProjectionType(_, e, _) => addForNamedElement(e)
       case ScParameterizedType(tp, args) =>
         addForParameterizedType(tp, args)

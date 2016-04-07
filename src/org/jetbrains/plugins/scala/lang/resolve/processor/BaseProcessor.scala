@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticFunction, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, StdType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, StdType, TypeParameterType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes
@@ -157,7 +157,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
                   updateWithProjectionSubst: Boolean = true,
                   //todo ugly recursion breakers, maybe we need general for type? What about performance?
                   visitedAliases: HashSet[ScTypeAlias] = HashSet.empty,
-                  visitedTypeParameter: HashSet[ScTypeParameterType] = HashSet.empty): Boolean = {
+                  visitedTypeParameter: HashSet[TypeParameterType] = HashSet.empty): Boolean = {
     ProgressManager.checkCanceled()
 
     t match {
@@ -216,14 +216,14 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         }
       case ScDesignatorType(e) =>
         processElement(e, ScSubstitutor.empty, place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
-      case ScTypeParameterType(_, Nil, _, upper, _) =>
+      case TypeParameterType(_, Nil, _, upper, _) =>
         processType(upper.v, place, state, updateWithProjectionSubst = false, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
       case j: JavaArrayType =>
         processType(j.getParameterizedType(place.getProject, place.getResolveScope).
                 getOrElse(return true), place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
       case p@ScParameterizedType(des, typeArgs) =>
         p.designator match {
-          case tpt@ScTypeParameterType(_, _, _, upper, _) =>
+          case tpt@TypeParameterType(_, _, _, upper, _) =>
             if (visitedTypeParameter.contains(tpt)) return true
             processType(p.substitutor.subst(upper.v), place,
               state.put(ScSubstitutor.key, new ScSubstitutor(p)), visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter + tpt)
@@ -280,7 +280,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
   }
 
   private def processElement(e: PsiNamedElement, s: ScSubstitutor, place: PsiElement, state: ResolveState,
-                             visitedAliases: HashSet[ScTypeAlias], visitedTypeParameter: HashSet[ScTypeParameterType]): Boolean = {
+                             visitedAliases: HashSet[ScTypeAlias], visitedTypeParameter: HashSet[TypeParameterType]): Boolean = {
     val subst = state.get(ScSubstitutor.key)
     val compound = state.get(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY) //todo: looks like ugly workaround
     val newSubst =

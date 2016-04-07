@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScClassParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -74,7 +74,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
                     case ScParameterizedType(des, typeArgs) =>
                       val taArgs = ta.typeParameters
                       if (taArgs.length == typeArgs.length && taArgs.zip(typeArgs).forall {
-                        case (tParam: ScTypeParam, ScTypeParameterType(_, _, _, _, param)) if tParam == param => true
+                        case (tParam: ScTypeParam, TypeParameterType(_, _, _, _, param)) if tParam == param => true
                         case _ => false
                       }) return Some(AliasType(ta, Success(des, Some(element)), Success(des, Some(element))))
                     case _ =>
@@ -85,7 +85,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
           }
           val args: ArrayBuffer[ScExistentialArgument] = new ArrayBuffer[ScExistentialArgument]()
           val genericSubst = ScalaPsiUtil.
-            typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
+            typesCallSubstitutor(ta.typeParameters.map(_.nameAndId),
             ta.typeParameters.map(tp => {
               val name = tp.name + "$$"
               val ex = new ScExistentialArgument(name, Nil, Nothing, Any)
@@ -420,7 +420,7 @@ case class ScDesignatorType(element: PsiNamedElement) extends ScalaType with Val
                   case ScParameterizedType(des, typeArgs) =>
                     val taArgs = ta.typeParameters
                     if (taArgs.length == typeArgs.length && taArgs.zip(typeArgs).forall {
-                      case (tParam: ScTypeParam, ScTypeParameterType(_, _, _, _, param)) if tParam == param => true
+                      case (tParam: ScTypeParam, TypeParameterType(_, _, _, _, param)) if tParam == param => true
                       case _ => false
                     }) return Some(AliasType(ta, Success(des, Some(element)), Success(des, Some(element))))
                   case _ =>
@@ -431,7 +431,7 @@ case class ScDesignatorType(element: PsiNamedElement) extends ScalaType with Val
         }
         val args: ArrayBuffer[ScExistentialArgument] = new ArrayBuffer[ScExistentialArgument]()
         val genericSubst = ScalaPsiUtil.
-          typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
+          typesCallSubstitutor(ta.typeParameters.map(_.nameAndId),
           ta.typeParameters.map(tp => {
             val name = tp.name + "$$"
             val ex = new ScExistentialArgument(name, Nil, Nothing, Any)

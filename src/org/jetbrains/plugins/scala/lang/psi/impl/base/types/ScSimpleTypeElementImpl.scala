@@ -15,14 +15,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference, ScUnderScoreSectionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Nothing}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Nothing, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
@@ -54,10 +54,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       if (clazz.getTypeParameters.isEmpty) {
         tp
       } else {
-        ScParameterizedType(tp, clazz.getTypeParameters.map {
-          case tp: ScTypeParam => new ScTypeParameterType(tp, subst)
-          case ptp             => new ScTypeParameterType(ptp, subst)
-        })
+        ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_, subst)))
       }
     }
 
@@ -109,8 +106,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               val params = method.getConstructorTypeParameters.map(_.typeParameters).getOrElse(Seq.empty)
               val subst = new ScSubstitutor(s.typeParameters.zip(params).map {
                 case (tpClass: ScTypeParam, tpConstr: ScTypeParam) =>
-                  ((tpClass.name, ScalaPsiUtil.getPsiElementId(tpClass)),
-                    new ScTypeParameterType(tpConstr, ScSubstitutor.empty))
+                  (tpClass.nameAndId, TypeParameterType(tpConstr))
               }.toMap, Map.empty, None)
               (params, subst)
             case _ => (Seq.empty, ScSubstitutor.empty)
@@ -146,7 +142,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
           val appSubst = new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ zipped.map{
             case (arg, typeParam) =>
-              ((typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)), arg.getType(TypingContext.empty).getOrAny)
+              (typeParam.nameAndId, arg.getType(TypingContext.empty).getOrAny)
           }, Map.empty, None)
           val newRes = appSubst.subst(res)
           updateImplicits(newRes, withExpected = false, params = params, lastImplicit = lastImplicit)
@@ -253,7 +249,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
           val appSubst = new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ zipped.map {
             case (arg, typeParam) =>
-              ((typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)), arg.getType(TypingContext.empty).getOrAny)
+              (typeParam.nameAndId, arg.getType(TypingContext.empty).getOrAny)
           }, Map.empty, None)
           (appSubst.subst(res), appSubst)
         }

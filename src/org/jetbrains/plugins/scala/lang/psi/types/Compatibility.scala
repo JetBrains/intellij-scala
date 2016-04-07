@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
-import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
@@ -72,13 +72,13 @@ object Compatibility {
                 ) match {
                   case function1: ScTrait =>
                     ScParameterizedType(ScalaType.designator(function1), function1.typeParameters.map(tp =>
-                      new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1))) match {
+                      UndefinedType(TypeParameterType(tp), 1))) match {
                       case funTp: ScParameterizedType =>
                         val secondArg = funTp.typeArgs(1)
                         paramType.conforms(funTp, new ScUndefinedSubstitutor())._2.getSubstitutor match {
                           case Some(subst) =>
                             val rt = subst.subst(secondArg)
-                            if (rt.isInstanceOf[ScUndefinedType]) defaultResult
+                            if (rt.isInstanceOf[UndefinedType]) defaultResult
                             else {
                               (Success(rt, Some(place)), res.importsUsed)
                             }

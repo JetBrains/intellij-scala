@@ -18,6 +18,8 @@ trait TypeSystem {
   def canonicalText = presentation.canonicalText _
 
   def urlText = presentation.urlText _
+
+  def andType(types: Seq[ScType]): ScType
 }
 
 trait TypeSystemOwner {

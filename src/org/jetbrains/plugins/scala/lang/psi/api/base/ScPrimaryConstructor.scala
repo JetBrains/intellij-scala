@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.light.ScPrimaryConstructorWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
@@ -80,7 +81,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
         else ScDesignatorType(clazz)
       if (typeParameters.isEmpty) designatorType
       else {
-        ScParameterizedType(designatorType, typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty)))
+        ScParameterizedType(designatorType, typeParameters.map(TypeParameterType(_)))
       }
     })
     if (clauses.isEmpty) return new ScMethodType(returnType, Seq.empty, false)(getProject, getResolveScope)
@@ -127,7 +128,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
       buffer += new ScPrimaryConstructorWrapper(this, forDefault = Some(i + 1))
     }
 
-    buffer.toSeq
+    buffer
   }
 }
 

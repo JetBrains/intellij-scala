@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, TypeSystem, UndefinedType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -52,7 +52,7 @@ package object types {
     }
 
     def removeUndefines() = scType.recursiveUpdate {
-      case u: ScUndefinedType => (true, Any)
+      case u: UndefinedType => (true, Any)
       case tp: ScType => (false, tp)
     }
 

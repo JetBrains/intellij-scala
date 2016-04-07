@@ -10,4 +10,6 @@ object ScalaTypeSystem extends api.TypeSystem {
   override lazy val bounds = Bounds
   override lazy val bridge = ScTypePsiTypeBridge
   protected override lazy val presentation = ScTypePresentation
+
+  override def andType(types: Seq[ScType]) = ScCompoundType(types)
 }

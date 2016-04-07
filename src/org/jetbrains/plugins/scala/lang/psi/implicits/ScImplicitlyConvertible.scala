@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -181,7 +181,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
 
     val result = new ArrayBuffer[ImplicitMapResult]
     if (typez == Nothing) return result
-    if (typez.isInstanceOf[ScUndefinedType]) return result
+    if (typez.isInstanceOf[UndefinedType]) return result
 
     val sigsFound = processor.candidatesS.map(forMap(_, typez))
 
@@ -206,7 +206,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
         )
       ) collect {
         case cl: ScTrait => ScParameterizedType(ScalaType.designator(cl), cl.typeParameters.map(tp =>
-          new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
+          UndefinedType(TypeParameterType(tp), 1)))
       } flatMap {
         case p: ScParameterizedType => Some(p)
         case _ => None
@@ -266,8 +266,8 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
 
                   var hasRecursiveTypeParameters = false
                   typez.recursiveUpdate {
-                    case tpt: ScTypeParameterType =>
-                      f.typeParameters.find(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp)) == (tpt.name, tpt.getId)) match {
+                    case tpt: TypeParameterType =>
+                      f.typeParameters.find(_.nameAndId == tpt.nameAndId) match {
                         case None => (true, tpt)
                         case _ =>
                           hasRecursiveTypeParameters = true
@@ -282,14 +282,14 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                   if (lowerType != api.Nothing) {
                     val substedLower = unSubst.subst(subst.subst(lowerType))
                     if (!hasRecursiveTypeParameters(substedLower)) {
-                      uSubst = uSubst.addLower((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedLower, additional = true)
+                      uSubst = uSubst.addLower(tParam.nameAndId, substedLower, additional = true)
                     }
                   }
                   val upperType: ScType = tParam.upperBound.getOrAny
                   if (upperType != Any) {
                     val substedUpper = unSubst.subst(subst.subst(upperType))
                     if (!hasRecursiveTypeParameters(substedUpper)) {
-                      uSubst = uSubst.addUpper((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedUpper, additional = true)
+                      uSubst = uSubst.addUpper(tParam.nameAndId, substedUpper, additional = true)
                     }
                   }
                 }
@@ -366,7 +366,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
       val funClass: PsiClass = ScalaPsiManager.instance(place.getProject).getCachedClass(place.getResolveScope, "scala.Function1").orNull
       funClass match {
         case cl: ScTrait => ScParameterizedType(ScalaType.designator(funClass), cl.typeParameters.map(tp =>
-          new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty))))
+          UndefinedType(TypeParameterType(tp))))
         case _ => null
       }
     }
@@ -401,7 +401,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                 } {
                   var hasTypeParametersInType = false
                   paramType.recursiveUpdate {
-                    case tp@ScTypeParameterType(name, _, _, _, _) if typeParameters.contains(name) =>
+                    case tp@TypeParameterType(name, _, _, _, _) if typeParameters.contains(name) =>
                       hasTypeParametersInType = true
                       (true, tp)
                     case tp: ScType if hasTypeParametersInType => (true, tp)

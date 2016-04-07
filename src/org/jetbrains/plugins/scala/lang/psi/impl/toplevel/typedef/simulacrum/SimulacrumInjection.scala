@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -48,11 +49,11 @@ class SimulacrumInjection extends SyntheticMembersInjector {
             val tpAdditional = if (clazzTypeParam.typeParameters.nonEmpty) Some(s"Lifted$tpName") else None
             val additionalWithComma = tpAdditional.map(", " + _).getOrElse("")
             val additionalWithBracket = tpAdditional.map("[" + _ + "]").getOrElse("")
-            def isProperTpt(tp: ScType): Option[Option[ScTypeParameterType]] = {
+            def isProperTpt(tp: ScType): Option[Option[TypeParameterType]] = {
               tp match {
-                case ScTypeParameterType(_, _, _, _, param) if param == clazzTypeParam => Some(None)
-                case ScParameterizedType(ScTypeParameterType(_, _, _, _, param),
-                  Seq(p: ScTypeParameterType)) if param == clazzTypeParam => Some(Some(p))
+                case TypeParameterType(_, _, _, _, param) if param == clazzTypeParam => Some(None)
+                case ScParameterizedType(TypeParameterType(_, _, _, _, param),
+                Seq(p: TypeParameterType)) if param == clazzTypeParam => Some(Some(p))
                 case _ => None
               }
             }
@@ -95,10 +96,8 @@ class SimulacrumInjection extends SyntheticMembersInjector {
                       case name =>
                         val substOpt = funTypeParamToLift match {
                           case Some(typeParam) if tpAdditional.nonEmpty =>
-                            val subst = ScSubstitutor.empty.bindT((typeParam.name, typeParam.getId),
-                              new ScTypeParameterType(
-                                ScalaPsiElementFactory.createTypeParameterFromText(tpAdditional.get, source.getManager), ScSubstitutor.empty
-                              ))
+                            val subst = ScSubstitutor.empty.bindT(typeParam.nameAndId,
+                              TypeParameterType(ScalaPsiElementFactory.createTypeParameterFromText(tpAdditional.get, source.getManager)))
                             Some(subst)
                           case _ => None
                         }

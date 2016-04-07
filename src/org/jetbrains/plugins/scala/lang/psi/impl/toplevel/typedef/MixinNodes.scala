@@ -15,10 +15,11 @@ import com.intellij.psi.{PsiClass, PsiClassType, PsiElement}
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.PsiTypeParameterExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
@@ -173,7 +174,7 @@ abstract class MixinNodes {
       val primarySupers = new NodesMap
       for ((key, nodes) <- supersMerged) {
         val primarySuper = nodes.find {n => !isAbstract(n.info)} match {
-          case None => nodes.toList(0)
+          case None => nodes.toList.head
           case Some(concrete) => concrete
         }
         primarySupers += ((key, primarySuper))
@@ -432,8 +433,7 @@ abstract class MixinNodes {
   def combine(superSubst : ScSubstitutor, derived : ScSubstitutor, superClass : PsiClass) = {
     var res : ScSubstitutor = ScSubstitutor.empty
     for (tp <- superClass.getTypeParameters) {
-      res = res bindT ((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
-        derived.subst(superSubst.subst(ScalaPsiManager.typeVariable(tp))))
+      res = res bindT(tp.nameAndId, derived.subst(superSubst.subst(ScalaPsiManager.typeVariable(tp))))
     }
     superClass match {
       case td : ScTypeDefinition =>
@@ -553,7 +553,7 @@ object MixinNodes {
           case _ =>
             tp match {
               case ex: ScExistentialType => ex.quantified
-              case tpt: ScTypeParameterType => tpt.upper.v
+              case tpt: TypeParameterType => tpt.upper.v
               case _ => tp
             }
         }

@@ -93,13 +93,13 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                     ) match {
                       case function1: ScTrait =>
                         ScParameterizedType(ScalaType.designator(function1), function1.typeParameters.map(tp =>
-                          new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1))) match {
+                          UndefinedType(TypeParameterType(tp), 1))) match {
                           case funTp: ScParameterizedType =>
                             val secondArg = funTp.typeArgs(1)
                             paramType.conforms(funTp, new ScUndefinedSubstitutor())._2.getSubstitutor match {
                               case Some(subst) =>
                                 val rt = subst.subst(secondArg)
-                                if (rt.isInstanceOf[ScUndefinedType]) defaultResult
+                                if (rt.isInstanceOf[UndefinedType]) defaultResult
                                 else {
                                   ExpressionTypeResult(Success(rt, Some(ScExpression.this)), res.importsUsed, Some(res.getElement))
                                 }

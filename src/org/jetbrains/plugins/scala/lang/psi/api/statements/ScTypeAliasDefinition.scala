@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 
@@ -61,7 +61,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
         case pte: ScParameterizedType =>
           val refersToClass = pte.designator.equiv(ScalaType.designator(cls))
           val typeParamsAppliedInOrder = (pte.typeArgs corresponds typeParameters) {
-            case (tpt: ScTypeParameterType, tp) if tpt.param == tp => true
+            case (tpt: TypeParameterType, tp) if tpt.typeParameter == tp => true
             case _ => false
           }
           refersToClass && typeParamsAppliedInOrder

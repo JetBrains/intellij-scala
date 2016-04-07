@@ -16,8 +16,9 @@ import scala.collection.mutable
 /**
  * Substitutor should be meaningful only for decls and typeDecls. Components shouldn't be applied by substitutor.
  */
-case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, ScType],
-                          typesMap: Map[String, TypeAliasSignature]) extends ScalaType with ValueType {
+case class ScCompoundType(components: Seq[ScType],
+                          signatureMap: Map[Signature, ScType] = Map.empty,
+                          typesMap: Map[String, TypeAliasSignature] = Map.empty) extends ScalaType with ValueType {
   private var hash: Int = -1
 
   override def hashCode: Int = {
@@ -37,12 +38,12 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
     val depths = signatureMap.map {
       case (sign: Signature, tp: ScType) =>
         tp.typeDepth
-          .max(sign.typeParams.toSeq.depth())
+          .max(sign.typeParams.toSeq.depth)
     } ++ typesMap.map {
       case (s: String, TypeAliasSignature(_, params, lowerBound, upperBound, _, _)) =>
         lowerBound.typeDepth
           .max(upperBound.typeDepth)
-          .max(params.depth())
+          .max(params.depth)
     }
     val ints = components.map(_.typeDepth)
     val componentsDepth = if (ints.isEmpty) 0 else ints.max

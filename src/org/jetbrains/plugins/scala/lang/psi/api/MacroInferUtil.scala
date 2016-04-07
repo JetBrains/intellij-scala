@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, TypeSystem, UndefinedType}
 
 /**
  * @author Alefas
@@ -57,7 +57,7 @@ object MacroInferUtil {
             case c: ScTypeDefinition =>
               val tpt = c.typeParameters
               if (tpt.isEmpty) return None
-              val undef = new ScUndefinedType(new ScTypeParameterType(tpt.head, ScSubstitutor.empty))
+              val undef = UndefinedType(TypeParameterType(tpt.head))
               val genericType = ScParameterizedType(ScDesignatorType(c), Seq(undef))
               val (res, undefSubst) = tp.conforms(genericType, new ScUndefinedSubstitutor())
               if (!res) return None

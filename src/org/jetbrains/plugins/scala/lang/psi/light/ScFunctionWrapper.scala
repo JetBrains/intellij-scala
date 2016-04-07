@@ -2,13 +2,12 @@ package org.jetbrains.plugins.scala.lang.psi.light
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -146,7 +145,7 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
             val tvs =
               typeParameters.zip(methodTypeParameters).map {
                 case (param: ScTypeParam, parameter: PsiTypeParameter) =>
-                  ((param.name, ScalaPsiUtil.getPsiElementId(param)), ScDesignatorType(parameter))
+                  (param.nameAndId, ScDesignatorType(parameter))
               }
             new ScSubstitutor(tvs.toMap, Map.empty, None)
           } else ScSubstitutor.empty
@@ -209,7 +208,7 @@ object ScFunctionWrapper {
                 case Success(_: StdType, _) =>
                   JavaPsiFacade.getInstance(project).getElementFactory.
                     createTypeByFQClassName("java.lang.Object", function.getResolveScope)
-                case Success(tpt: ScTypeParameterType, _) =>
+                case Success(tpt: TypeParameterType, _) =>
                   classes += tpt.canonicalText
                 case Success(scType, _) =>
                   scType.extractClass(project) match {
