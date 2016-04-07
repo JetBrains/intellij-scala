@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions.ExpressionType
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 /**
  * @author Nikolay.Tropin
@@ -31,7 +31,7 @@ object ToSetAndBackToDistinct extends SimplificationType {
   def sameCollectionType(tp1: ScType, tp2: ScType)
                         (implicit typeSystem: TypeSystem) = {
     (tp1, tp2) match {
-      case (ScParameterizedType(des1, _), ScParameterizedType(des2, _)) if des1.equiv(des2) => true
+      case (ParameterizedType(des1, _), ParameterizedType(des2, _)) if des1.equiv(des2) => true
       case _ => false
     }
   }

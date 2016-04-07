@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclarati
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, TypeInTypeSystem, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, StdType, TypeInTypeSystem, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -48,7 +48,7 @@ object ScalaType {
         extractDesignated(proj.actualSubst.subst(result.get), withoutAliases)
       case _ => Some((proj.actualElement, proj.actualSubst))
     }
-    case p@ScParameterizedType(t1, _) =>
+    case p@ParameterizedType(t1, _) =>
       extractDesignated(t1, withoutAliases) match {
         case Some((e, s)) => Some((e, s.followed(p.substitutor)))
         case None => None

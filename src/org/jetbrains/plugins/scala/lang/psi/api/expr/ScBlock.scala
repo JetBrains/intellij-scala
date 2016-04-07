@@ -141,7 +141,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
                 case (s, sign) => (s, sign.updateTypes(existize(_, visitedWithT)))
               })
             case JavaArrayType(argument) => JavaArrayType(existize(argument, visitedWithT))
-            case ScParameterizedType(des, typeArgs) =>
+            case ParameterizedType(des, typeArgs) =>
               ScParameterizedType(existize(des, visitedWithT), typeArgs.map(existize(_, visitedWithT)))
             case ex@ScExistentialType(q, wildcards) =>
               new ScExistentialType(existize(q, visitedWithT), wildcards.map {

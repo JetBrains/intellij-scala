@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 trait ScalaTypeVisitor extends api.TypeVisitor {
   def visitCompoundType(c: ScCompoundType) {}
   def visitProjectionType(p: ScProjectionType) {}
-  def visitParameterizedType(p: ScParameterizedType) {}
   def visitExistentialType(e: ScExistentialType) {}
   def visitThisType(t: ScThisType) {}
   def visitDesignatorType(d: ScDesignatorType) {}

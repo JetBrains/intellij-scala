@@ -95,7 +95,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                         ScParameterizedType(ScalaType.designator(function1), function1.typeParameters.map(tp =>
                           UndefinedType(TypeParameterType(tp), 1))) match {
                           case funTp: ScParameterizedType =>
-                            val secondArg = funTp.typeArgs(1)
+                            val secondArg = funTp.typeArguments(1)
                             paramType.conforms(funTp, new ScUndefinedSubstitutor())._2.getSubstitutor match {
                               case Some(subst) =>
                                 val rt = subst.subst(secondArg)

@@ -212,9 +212,9 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
         case _ => None
       }
 
-      def firstArgType = funType.map(_.typeArgs.head)
+      def firstArgType = funType.map(_.typeArguments.head)
 
-      def secondArgType = funType.map(_.typeArgs.apply(1))
+      def secondArgType = funType.map(_.typeArguments.apply(1))
 
       val subst = r.substitutor
       val (tp: ScType, retTp: ScType) = r.element match {

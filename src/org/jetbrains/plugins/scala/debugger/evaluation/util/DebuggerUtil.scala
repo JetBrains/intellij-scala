@@ -107,7 +107,7 @@ object DebuggerUtil {
         buff.append(getJVMQualifiedName(argument))
         buff.append("[]")
         buff.toName
-      case ScParameterizedType(arr, Seq(arg)) if arr.extractClass().exists(_.qualifiedName == "scala.Array") =>
+      case ParameterizedType(arr, Seq(arg)) if arr.extractClass().exists(_.qualifiedName == "scala.Array") =>
         val buff = new JVMNameBuffer()
         buff.append(getJVMQualifiedName(arg))
         buff.append("[]")
@@ -140,7 +140,7 @@ object DebuggerUtil {
       case Unit if isParam => "Lscala/runtime/BoxedUnit;"
       case Unit => "V"
       case JavaArrayType(arg) => "[" + getJVMStringForType(arg)
-      case ScParameterizedType(ScDesignatorType(clazz: PsiClass), Seq(arg)) 
+      case ParameterizedType(ScDesignatorType(clazz: PsiClass), Seq(arg))
         if clazz.qualifiedName == "scala.Array" => "[" + getJVMStringForType(arg)
       case _ =>
         tp.extractClass() match {

@@ -8,9 +8,9 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
@@ -47,7 +47,7 @@ object WrapInOptionQuickFix {
       expectedType <- expectedType
     } {
       expectedType match {
-        case ScParameterizedType(des, Seq(typeArg)) =>
+        case ParameterizedType(des, Seq(typeArg)) =>
           des.extractClass() match {
             case Some(scClass: ScClass)
               if scClass.qualifiedName == "scala.Option" && scType.conforms(typeArg) => result = true

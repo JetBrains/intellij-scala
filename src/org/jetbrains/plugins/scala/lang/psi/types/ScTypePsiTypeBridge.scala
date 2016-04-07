@@ -148,7 +148,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
           case _ => createType(valType, project)
         }
       case ScDesignatorType(c: PsiClass) => createType(c, project)
-      case ScParameterizedType(ScDesignatorType(c: PsiClass), args) =>
+      case ParameterizedType(ScDesignatorType(c: PsiClass), args) =>
         if (c.qualifiedName == "scala.Array" && args.length == 1)
           new PsiArrayType(toPsiType(args.head, project, scope))
         else {
@@ -157,7 +157,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
           }
           JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
         }
-      case ScParameterizedType(proj@ScProjectionType(pr, element, _), args) => proj.actualElement match {
+      case ParameterizedType(proj@ScProjectionType(pr, element, _), args) => proj.actualElement match {
         case c: PsiClass =>
           if (c.qualifiedName == "scala.Array" && args.length == 1) new PsiArrayType(toPsiType(args.head, project, scope))
           else {
@@ -174,7 +174,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
           }
         case _ => javaObject
       }
-      case ScParameterizedType(tpt: TypeParameterType, _) => EmptySubstitutor.getInstance().substitute(tpt.typeParameter)
+      case ParameterizedType(tpt: TypeParameterType, _) => EmptySubstitutor.getInstance().substitute(tpt.typeParameter)
       case proj@ScProjectionType(_, _, _) => proj.actualElement match {
         case clazz: PsiClass =>
           clazz match {
@@ -212,7 +212,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
 
   @tailrec
   override def extractClass(`type`: ScType, project: Project) = `type` match {
-    case p@ScParameterizedType(designator, _) => extractClass(designator, project) //performance improvement
+    case p@ParameterizedType(designator, _) => extractClass(designator, project) //performance improvement
     case _ => super.extractClass(`type`, project)
   }
 
@@ -237,7 +237,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
         case _ => None
       }
       case ScExistentialType(quantified, _) => extractClassType(quantified, project, visitedAlias)
-      case p@ScParameterizedType(t1, _) =>
+      case p@ParameterizedType(t1, _) =>
         extractClassType(t1, project, visitedAlias) match {
           case Some((c, s)) => Some((c, s.followed(p.substitutor)))
           case None => None

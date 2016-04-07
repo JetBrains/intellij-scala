@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, TypeSystem, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType, TypeSystem, UndefinedType}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
 import scala.collection.mutable
@@ -104,7 +104,7 @@ object ScalaAfterNewCompletionUtil {
       }
       var tailText: String = ""
       val itemText: String = psiClass.name + (tp match {
-        case ScParameterizedType(_, tps) =>
+        case ParameterizedType(_, tps) =>
           tps.map(subst.subst(_).presentableText).mkString("[", ", ", "]")
         case _ => ""
       })
@@ -153,7 +153,7 @@ object ScalaAfterNewCompletionUtil {
     }
     lookupElement.setInsertHandler(new ScalaConstructorInsertHandler)
     tp match {
-      case ScParameterizedType(_, tps) => lookupElement.typeParameters = tps
+      case ParameterizedType(_, tps) => lookupElement.typeParameters = tps
       case _ =>
     }
     lookupElement

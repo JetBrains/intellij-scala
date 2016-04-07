@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
 import org.jetbrains.plugins.scala.codeInspection.monads.NestedStatefulMonadsInspection._
 import org.jetbrains.plugins.scala.codeInspection.monads.StatefulMonads._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
-import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 
 /**
  * @author Sergey Tolmachev (tolsi.ru@gmail.com)
@@ -20,7 +20,7 @@ final class NestedStatefulMonadsInspection extends AbstractInspection(Annotation
     case call: ScMethodCall =>
       val project = call.getProject
       call.getType().getOrAny match {
-        case outer @ ScParameterizedType(_, typeArgs)
+        case outer@ParameterizedType(_, typeArgs)
           if isStatefulMonadType(outer, project) && typeArgs.exists(isStatefulMonadType(_, project)) =>
           holder.registerProblem(call, Annotation)
         case _ =>

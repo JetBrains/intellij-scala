@@ -17,4 +17,6 @@ trait TypeVisitor {
   def visitTypeParameterType(`type`: TypeParameterType) {}
 
   def visitTypeVariable(`type`: TypeVariable) {}
+
+  def visitParameterizedType(`type`: ParameterizedType) {}
 }

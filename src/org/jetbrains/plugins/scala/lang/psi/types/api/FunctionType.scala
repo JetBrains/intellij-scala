@@ -60,7 +60,7 @@ sealed trait FunctionType {
         definition.getType(TypingContext.empty) match {
           case Success(scType, _) =>
             (substitutor followed parameterizedType.substitutor).subst(scType) match {
-              case ScParameterizedType(_, typeArgs) => Some(typeArgs)
+              case ParameterizedType(_, typeArgs) => Some(typeArgs)
               case _ => None
             }
           case _ => None

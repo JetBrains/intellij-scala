@@ -150,7 +150,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
   private def extractTpt(tpt: TypeParameterType, t: ScType): ScType = {
     if (tpt.arguments.isEmpty) t
     else t match {
-      case ScParameterizedType(designator, _) => designator
+      case ParameterizedType(designator, _) => designator
       case _ => t
     }
   }
@@ -275,7 +275,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                 case Some((cl: PsiClass, subst)) =>
                   typez match {
                     case t: TypeParameterType => return update(t.upper.v)
-                    case p@ScParameterizedType(des, typeArgs) =>
+                    case p@ParameterizedType(des, typeArgs) =>
                       p.designator match {
                         case TypeParameterType(_, _, _, upper, _) => return update(p.substitutor.subst(upper.v))
                         case _ =>
@@ -301,7 +301,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                         }
                       }
                     case t: TypeParameterType => return update(t.upper.v)
-                    case p@ScParameterizedType(des, typeArgs) =>
+                    case p@ParameterizedType(des, typeArgs) =>
                       p.designator match {
                         case TypeParameterType(_, _, _, upper, _) => return update(p.substitutor.subst(upper.v))
                         case _ =>
@@ -323,7 +323,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                   if (parentTemplate != null) tp = ScThisType(parentTemplate.asInstanceOf[ScTemplateDefinition])
                   else tp = null
                 case ScProjectionType(newType, _, _) => tp = newType
-                case ScParameterizedType(ScProjectionType(newType, _, _), _) => tp = newType
+                case ParameterizedType(ScProjectionType(newType, _, _), _) => tp = newType
                 case _ => tp = null
               }
             }
@@ -344,8 +344,8 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
           wildcards.map(_.subst(ScSubstitutor.this)))
       }
 
-      override def visitParameterizedType(pt: ScParameterizedType): Unit = {
-        val typeArgs = pt.typeArgs
+      override def visitParameterizedType(pt: ParameterizedType): Unit = {
+        val typeArgs = pt.typeArguments
         result = pt.designator match {
           case tpt: TypeParameterType =>
             tvMap.get(tpt.nameAndId) match {
@@ -357,7 +357,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                 }
               case _ =>
                 substInternal(tpt) match {
-                  case ScParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
+                  case ParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
                   case des => ScParameterizedType(des, typeArgs map substInternal)
                 }
             }
@@ -371,7 +371,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                 }
               case _ =>
                 substInternal(u) match {
-                  case ScParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
+                  case ParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
                   case des => ScParameterizedType(des, typeArgs map substInternal)
                 }
             }
@@ -385,13 +385,13 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                 }
               case _ =>
                 substInternal(a) match {
-                  case ScParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
+                  case ParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
                   case des => ScParameterizedType(des, typeArgs map substInternal)
                 }
             }
           case designator =>
             substInternal(designator) match {
-              case ScParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
+              case ParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
               case des => ScParameterizedType(des, typeArgs map substInternal)
             }
         }

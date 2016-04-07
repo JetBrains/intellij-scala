@@ -7,8 +7,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScParameterizedType, ScProjectionType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScProjectionType, ScType}
 
 
 /**
@@ -19,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScParameter
 object ScTypeUtil {
 
   def stripTypeArgs(tp: ScType): ScType = tp match {
-    case ScParameterizedType(designator, _) => designator
+    case ParameterizedType(designator, _) => designator
     case t => t
   }
 

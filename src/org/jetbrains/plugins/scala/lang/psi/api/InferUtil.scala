@@ -179,7 +179,7 @@ object InferUtil {
       } else {
         def checkManifest(fun: ScalaResolveResult => Unit) {
           val result = paramType match {
-            case p@ScParameterizedType(des, Seq(arg)) =>
+            case p@ParameterizedType(des, Seq(arg)) =>
               des.extractClass() match {
                 case Some(clazz) if skipQualSet.contains(clazz.qualifiedName) =>
                   //do not throw, it's safe
@@ -449,7 +449,7 @@ object InferUtil {
                       val typeParams: Seq[ScTypeParam] = typeParam.typeParameters
                       if (typeParams.isEmpty) return true
                       tp match {
-                        case ScParameterizedType(_, typeArgs) =>
+                        case ParameterizedType(_, typeArgs) =>
                           if (typeArgs.length != typeParams.length) return false
                           typeArgs.zip(typeParams).forall {
                             case (tp: ScType, typeParam: ScTypeParam) => checkTypeParam(typeParam, tp)

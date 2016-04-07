@@ -453,14 +453,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           case ScalaResolveResult(clazz: ScTrait, substitutor) if clazz.qualifiedName == "scala.reflect.ClassManifest" =>
             val argType = substitutor.subst(clazz.getType(TypingContext.empty).get)
             argType match {
-              case ScParameterizedType(tp, Seq(paramType)) => classManifestText(paramType)
+              case ParameterizedType(tp, Seq(paramType)) => classManifestText(paramType)
               case _ =>
                 throw EvaluationException(cannotFindMessage)
             }
           case ScalaResolveResult(clazz: ScTrait, substitutor) if clazz.qualifiedName == "scala.reflect.ClassTag" =>
             val argType = substitutor.subst(clazz.getType(TypingContext.empty).get)
             argType match {
-              case ScParameterizedType(tp, Seq(arg)) => classTagText(arg)
+              case ParameterizedType(tp, Seq(arg)) => classTagText(arg)
               case _ =>
                 throw EvaluationException(cannotFindMessage)
             }
@@ -1405,7 +1405,7 @@ object ScalaEvaluatorBuilderUtil {
       case Singleton => "_root_.scala.reflect.ClassManifest.Object"
       case JavaArrayType(argument) =>
         "_root_.scala.reflect.ClassManifest.arrayType(" + classManifestText(argument) + ")"
-      case ScParameterizedType(ScDesignatorType(clazz: ScClass), Seq(arg))
+      case ParameterizedType(ScDesignatorType(clazz: ScClass), Seq(arg))
 
         if clazz.qualifiedName == "scala.Array" =>
         "_root_.scala.reflect.ClassManifest.arrayType(" + classManifestText(arg) + ")"

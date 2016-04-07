@@ -133,13 +133,13 @@ case class ScExistentialType(quantified : ScType,
     val simplified = simplify()
     if (this != simplified) return simplified.equiv(r, undefinedSubst, falseUndef)
     quantified match {
-      case ScParameterizedType(a: ScAbstractType, args) if !falseUndef =>
+      case ParameterizedType(a: ScAbstractType, args) if !falseUndef =>
         val subst = new ScSubstitutor(Map(a.parameterType.arguments.zip(args).map {
           case (tpt: TypeParameterType, tp: ScType) => (tpt.nameAndId, tp)
         }: _*), Map.empty, None)
         val upper: ScType =
           subst.subst(a.upper) match {
-            case ScParameterizedType(u, _) => ScExistentialType(ScParameterizedType(u, args), wildcards)
+            case ParameterizedType(u, _) => ScExistentialType(ScParameterizedType(u, args), wildcards)
             case u => ScExistentialType(ScParameterizedType(u, args), wildcards)
           }
         val conformance = r.conforms(upper, undefinedSubst)
@@ -147,18 +147,18 @@ case class ScExistentialType(quantified : ScType,
 
         val lower: ScType =
           subst.subst(a.lower) match {
-            case ScParameterizedType(l, _) => ScExistentialType(ScParameterizedType(l, args), wildcards)
+            case ParameterizedType(l, _) => ScExistentialType(ScParameterizedType(l, args), wildcards)
             case l => ScExistentialType(ScParameterizedType(l, args), wildcards)
           }
         return lower.conforms(r, conformance._2)
-      case ScParameterizedType(a: UndefinedType, args) if !falseUndef =>
+      case ParameterizedType(a: UndefinedType, args) if !falseUndef =>
         r match {
-          case ScParameterizedType(degignator, _) =>
+          case ParameterizedType(degignator, _) =>
             val name = a.parameterType.nameAndId
             undefinedSubst = undefinedSubst.addLower(name, degignator)
             undefinedSubst = undefinedSubst.addUpper(name, degignator)
             return ScExistentialType(ScParameterizedType(degignator, args), wildcards).equiv(r, undefinedSubst, falseUndef)
-          case ScExistentialType(ScParameterizedType(designator, _), _) =>
+          case ScExistentialType(ParameterizedType(designator, _), _) =>
             val name = a.parameterType.nameAndId
             undefinedSubst = undefinedSubst.addLower(name, designator)
             undefinedSubst = undefinedSubst.addUpper(name, designator)
@@ -234,7 +234,7 @@ case class ScExistentialType(quantified : ScType,
           })
         case ScProjectionType(projected, element, _) =>
           checkRecursive(projected, rejected)
-        case ScParameterizedType(designator, typeArgs) =>
+        case ParameterizedType(designator, typeArgs) =>
           checkRecursive(designator, rejected)
           typeArgs.foreach(checkRecursive(_, rejected))
         case TypeParameterType(name, args, lower, upper, param) =>
@@ -305,7 +305,7 @@ case class ScExistentialType(quantified : ScType,
         })
       case ScProjectionType(_, _, _) => tp
       case JavaArrayType(_) => tp
-      case ScParameterizedType(designator, typeArgs) =>
+      case ParameterizedType(designator, typeArgs) =>
         val parameteresIterator = designator match {
           case tpt: TypeParameterType =>
             tpt.arguments.map(_.typeParameter).iterator
