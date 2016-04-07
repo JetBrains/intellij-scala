@@ -6,7 +6,7 @@ package types
 import _root_.org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
@@ -211,7 +211,7 @@ object Bounds extends api.Bounds {
               case ScParameterizedType(_, typeArgs) =>
                 return Some(bClass.getTypeParameters.zip(typeArgs).foldLeft(ScSubstitutor.empty) {
                   case (subst: ScSubstitutor, (ptp, typez)) =>
-                    subst.bindT((ptp.name, ScalaPsiUtil.getPsiElementId(ptp)), typez)
+                    subst.bindT(ptp.nameAndId, typez)
                 })
               case _ => return None
             }
@@ -248,8 +248,8 @@ object Bounds extends api.Bounds {
             lub(t1, t.getType(TypingContext.empty).getOrAny, checkWeak)
           case (ex: ScExistentialType, _) => lub(ex.skolem, t2, checkWeak).unpackedType
           case (_, ex: ScExistentialType) => lub(t1, ex.skolem, checkWeak).unpackedType
-          case (ScTypeParameterType(_, Nil, _, upper, _), _) => lub(upper.v, t2, checkWeak)
-          case (_, ScTypeParameterType(_, Nil, _, upper, _)) => lub(t1, upper.v, checkWeak)
+          case (TypeParameterType(_, Nil, _, upper, _), _) => lub(upper.v, t2, checkWeak)
+          case (_, TypeParameterType(_, Nil, _, upper, _)) => lub(t1, upper.v, checkWeak)
           case (ScSkolemizedType(name, args, lower, upper), ScSkolemizedType(name2, args2, lower2, upper2)) =>
             ScSkolemizedType(name, args, glb(lower, lower2, checkWeak), lub(upper, upper2, checkWeak))
           case (ScSkolemizedType(name, args, lower, upper), r) =>

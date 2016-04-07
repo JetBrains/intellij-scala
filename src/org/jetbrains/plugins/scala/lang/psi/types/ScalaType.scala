@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclarati
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, TypeInTypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, TypeInTypeSystem, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -57,7 +57,7 @@ object ScalaType {
       val asClass = std.asClass(DecompilerUtil.obtainProject)
       if (asClass.isEmpty) return None
       Some((asClass.get, ScSubstitutor.empty))
-    case ScTypeParameterType(_, _, _, _, param) => Some(param, ScSubstitutor.empty)
+    case TypeParameterType(_, _, _, _, param) => Some(param, ScSubstitutor.empty)
     case _ => None
   }
 

@@ -60,7 +60,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
               if (withTypeParameters) {
                 val typeParameters: Array[PsiTypeParameter] = clazz.getTypeParameters
                 if (typeParameters.length > 0) {
-                  ScParameterizedType(res, typeParameters.map(ptp => new ScTypeParameterType(ptp, ScSubstitutor.empty)))
+                  ScParameterizedType(res, typeParameters.map(TypeParameterType(_)))
                 } else res
               } else res
             }
@@ -174,7 +174,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
           }
         case _ => javaObject
       }
-      case ScParameterizedType(tpt: ScTypeParameterType, _) => EmptySubstitutor.getInstance().substitute(tpt.param)
+      case ScParameterizedType(tpt: TypeParameterType, _) => EmptySubstitutor.getInstance().substitute(tpt.typeParameter)
       case proj@ScProjectionType(_, _, _) => proj.actualElement match {
         case clazz: PsiClass =>
           clazz match {
@@ -189,7 +189,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
         case _ => javaObject
       }
       case ScThisType(clazz) => createType(clazz, project)
-      case tpt: ScTypeParameterType => EmptySubstitutor.getInstance().substitute(tpt.param)
+      case tpt: TypeParameterType => EmptySubstitutor.getInstance().substitute(tpt.typeParameter)
       case ex: ScExistentialType => toPsiType(ex.skolem, project, scope, noPrimitives)
       case argument: ScSkolemizedType =>
         val upper = argument.upper

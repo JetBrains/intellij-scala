@@ -315,7 +315,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                                   typeParams.filter(tp => !tp.lowerType().equiv(api.Nothing) || !tp.upperType().equiv(Any))
                                 val newPolymorphicType = ScTypePolymorphicType(internalType, filteredTypeParams)
                                 (newPolymorphicType.inferValueType.recursiveUpdate {
-                                  case u: ScUndefinedType => (true, u.tpt)
+                                  case u: UndefinedType => (true, u.parameterType)
                                   case tp: ScType => (false, tp)
                                 }, typeParams)
                               case _ => (tp.inferValueType, Seq.empty)
@@ -428,7 +428,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                     val typeParameters = fun.typeParameters.map(_.name)
                     var hasTypeParametersInType = false
                     funType.recursiveUpdate {
-                      case tp@ScTypeParameterType(name, _, _, _, _) if typeParameters.contains(name) =>
+                      case tp@TypeParameterType(name, _, _, _, _) if typeParameters.contains(name) =>
                         hasTypeParametersInType = true
                         (true, tp)
                       case tp: ScType if hasTypeParametersInType => (true, tp)

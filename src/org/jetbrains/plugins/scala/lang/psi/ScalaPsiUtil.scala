@@ -23,7 +23,7 @@ import com.intellij.psi.util._
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -254,17 +254,12 @@ object ScalaPsiUtil {
    */
   def inferMethodTypesArgs(fun: PsiMethod, classSubst: ScSubstitutor)
                           (implicit typeSystem: TypeSystem = fun.typeSystem): ScSubstitutor = {
-    fun match {
-      case fun: ScFunction =>
-        fun.typeParameters.foldLeft(ScSubstitutor.empty) {
-          (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
-            new ScUndefinedType(new ScTypeParameterType(tp: ScTypeParam, classSubst), 1))
-        }
-      case fun: PsiMethod =>
-        fun.getTypeParameters.foldLeft(ScSubstitutor.empty) {
-          (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
-            new ScUndefinedType(new ScTypeParameterType(tp: PsiTypeParameter, classSubst), 1))
-        }
+    (fun match {
+      case fun: ScFunction => fun.typeParameters
+      case fun: PsiMethod => fun.getTypeParameters.toSeq
+    }).foldLeft(ScSubstitutor.empty) {
+      (subst, tp) => subst.bindT(tp.nameAndId,
+        UndefinedType(TypeParameterType(tp, classSubst), 1))
     }
   }
 
@@ -276,8 +271,8 @@ object ScalaPsiUtil {
         "scala.Function1", e.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
       )
     ) collect {
-      case cl: ScTrait => ScParameterizedType(ScalaType.designator(cl), cl.typeParameters.map(tp =>
-        new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
+      case cl: ScTrait => ScParameterizedType(ScalaType.designator(cl),
+        cl.typeParameters.map(p => UndefinedType(TypeParameterType(p), 1)))
     } flatMap {
       case p: ScParameterizedType => Some(p)
       case _ => None
@@ -454,7 +449,7 @@ object ScalaPsiUtil {
     var candidates: Set[ScalaResolveResult] = Set.empty
     exprTp match {
       case ScTypePolymorphicType(internal, typeParam) if typeParam.nonEmpty &&
-        !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[ScUndefinedType] =>
+        !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[UndefinedType] =>
         if (!isDynamic || approveDynamic(internal, call.getProject, call.getResolveScope)) {
           val state: ResolveState = ResolveState.initial().put(BaseProcessor.FROM_TYPE_KEY, internal)
           processor.processType(internal, call.getEffectiveInvokedExpr, state)
@@ -541,9 +536,9 @@ object ScalaPsiUtil {
           var res: Option[ScType] = Some(tp)
           tp.recursiveUpdate {tp =>
             tp match {
-              case t: ScTypeParameterType =>
+              case t: TypeParameterType =>
                 if (typeParameters.exists {
-                  case TypeParameter(_, _, _, _, ptp) if ptp == t.param && ptp.getOwner != ownerPtp.getOwner => true
+                  case TypeParameter(_, _, _, _, ptp) if ptp == t.typeParameter && ptp.getOwner != ownerPtp.getOwner => true
                   case _ => false
                 }) res = None
               case _ =>
@@ -664,7 +659,7 @@ object ScalaPsiUtil {
         case ScAbstractType(_, lower, upper) =>
           collectParts(upper)
         case ScExistentialType(quant, _) => collectParts(quant)
-        case ScTypeParameterType(_, _, _, upper, _) => collectParts(upper.v)
+        case TypeParameterType(_, _, _, upper, _) => collectParts(upper.v)
         case _                           =>
           tp.extractClassType(project) match {
             case Some((clazz, subst)) =>
@@ -714,12 +709,11 @@ object ScalaPsiUtil {
               aliasedType.getOrAny))
           case ScParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
             val genericSubst = ScalaPsiUtil.
-              typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
+              typesCallSubstitutor(ta.typeParameters.map(_.nameAndId), args)
             collectObjects(genericSubst.subst(ta.aliasedType.getOrAny))
           case ScParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
             val genericSubst = ScalaPsiUtil.
-              typesCallSubstitutor(p.actualElement.asInstanceOf[ScTypeAliasDefinition].typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp)
-              )), args)
+              typesCallSubstitutor(p.actualElement.asInstanceOf[ScTypeAliasDefinition].typeParameters.map(_.nameAndId), args)
             val s = p.actualSubst.followed(genericSubst)
             collectObjects(s.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
               aliasedType.getOrAny))
@@ -813,9 +807,9 @@ object ScalaPsiUtil {
     res
   }
 
-  def getPsiElementId(elem: PsiElement): PsiElement = {
+  def getPsiElementId(elem: PsiNamedElement): (String, PsiElement) = {
     try {
-      elem match {
+      (elem.name, elem match {
         case typeParam: ScTypeParam => typeParam.getPsiElementId
         case p: PsiTypeParameter =>
           val cc = for {
@@ -824,7 +818,7 @@ object ScalaPsiUtil {
           } yield clazz
           cc.orNull
         case _ => elem
-      }
+      })
     } catch {
       case _ : PsiInvalidElementAccessException => null
     }
@@ -867,7 +861,7 @@ object ScalaPsiUtil {
       }
       child = child.getTreeNext
     }
-    buffer.toSeq
+    buffer
   }
 
   def getParents(elem: PsiElement, topLevel: PsiElement): List[PsiElement] = {
@@ -1305,8 +1299,7 @@ object ScalaPsiUtil {
       }
 
       def substitute(typeParameter: PsiTypeParameter): PsiType = {
-        substitutor.subst(new ScTypeParameterType(typeParameter, substitutor))
-          .toPsiType(project, scope)
+        substitutor.subst(TypeParameterType(typeParameter, substitutor)).toPsiType(project, scope)
       }
 
       def putAll(another: PsiSubstitutor): PsiSubstitutor = PsiSubstitutor.EMPTY

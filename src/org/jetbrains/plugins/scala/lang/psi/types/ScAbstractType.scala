@@ -9,54 +9,16 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import scala.collection.immutable.HashSet
 
 /**
- * Use this type if you want to resolve generics.
- * In conformance using ScUndefinedSubstitutor you can accumulate information
- * about possible generic type.
- */
-case class ScUndefinedType(tpt: ScTypeParameterType)(implicit val typeSystem: TypeSystem)
-  extends NonValueType with TypeInTypeSystem {
-  var level = 0
-
-  override def visitType(visitor: TypeVisitor) = visitor.visitUndefinedType(this)
-
-  def this(tpt: ScTypeParameterType, level: Int)
-          (implicit typeSystem: TypeSystem) {
-    this(tpt)
-    this.level = level
-  }
-
-  def inferValueType: ValueType = tpt
-
-  override def equivInner(r: ScType, subst: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
-    var undefinedSubst = subst
-    r match {
-      case _ if falseUndef => (false, undefinedSubst)
-      case u2: ScUndefinedType if u2.level > level =>
-        (true, undefinedSubst.addUpper((u2.tpt.name, u2.tpt.getId), this))
-      case u2: ScUndefinedType if u2.level < level =>
-        (true, undefinedSubst.addUpper((tpt.name, tpt.getId), u2))
-      case u2: ScUndefinedType if u2.level == level =>
-        (true, undefinedSubst)
-      case rt =>
-        undefinedSubst = undefinedSubst.addLower((tpt.name, tpt.getId), rt)
-        undefinedSubst = undefinedSubst.addUpper((tpt.name, tpt.getId), rt)
-        (true, undefinedSubst)
-    }
-  }
-}
-
-/**
  * This type works like undefined type, but you cannot use this type
  * to resolve generics. It's important if two local type
  * inferences work together.
  */
-case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType) extends ScalaType with NonValueType {
+case class ScAbstractType(parameterType: TypeParameterType, lower: ScType, upper: ScType) extends ScalaType with NonValueType {
   private var hash: Int = -1
 
   override def hashCode: Int = {
     if (hash == -1) {
-      hash = (upper.hashCode() * 31 + lower.hashCode()) * 31 + tpt.args.hashCode()
+      hash = (upper.hashCode() * 31 + lower.hashCode()) * 31 + parameterType.arguments.hashCode()
     }
     hash
   }
@@ -64,7 +26,7 @@ case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType
   override def equals(obj: scala.Any): Boolean = {
     obj match {
       case ScAbstractType(oTpt, oLower, oUpper) =>
-        lower.equals(oLower) && upper.equals(oUpper) && tpt.args.equals(oTpt.args)
+        lower.equals(oLower) && upper.equals(oUpper) && parameterType.arguments.equals(oTpt.arguments)
       case _ => false
     }
   }
@@ -82,7 +44,7 @@ case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType
     }
   }
 
-  def inferValueType = tpt
+  def inferValueType = parameterType
 
   def simplifyType: ScType = {
     if (upper.equiv(Any)) lower else if (lower.equiv(Nothing)) upper else lower
@@ -102,7 +64,7 @@ case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType
       case (true, res) => res
       case _ =>
         try {
-          ScAbstractType(tpt.recursiveUpdate(update, newVisited).asInstanceOf[ScTypeParameterType], lower.recursiveUpdate(update, newVisited),
+          ScAbstractType(parameterType.recursiveUpdate(update, newVisited).asInstanceOf[TypeParameterType], lower.recursiveUpdate(update, newVisited),
             upper.recursiveUpdate(update, newVisited))
         }
         catch {
@@ -117,7 +79,7 @@ case class ScAbstractType(tpt: ScTypeParameterType, lower: ScType, upper: ScType
       case (true, res, _) => res
       case (_, _, newData) =>
         try {
-          ScAbstractType(tpt.recursiveVarianceUpdateModifiable(newData, update, variance).asInstanceOf[ScTypeParameterType],
+          ScAbstractType(parameterType.recursiveVarianceUpdateModifiable(newData, update, variance).asInstanceOf[TypeParameterType],
             lower.recursiveVarianceUpdateModifiable(newData, update, -variance),
             upper.recursiveVarianceUpdateModifiable(newData, update, variance))
         }

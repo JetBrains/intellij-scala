@@ -10,13 +10,12 @@ package types
 import com.intellij.psi._
 import com.intellij.util.containers.ConcurrentWeakHashMap
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeVisitor, ValueType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, TypeVisitor, ValueType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
@@ -27,13 +26,13 @@ class ScParameterizedType private(val designator: ScType, val typeArgs: Seq[ScTy
     this match {
       case ScParameterizedType(ScDesignatorType(ta: ScTypeAlias), args) =>
         val genericSubst = ScalaPsiUtil.
-          typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
+          typesCallSubstitutor(ta.typeParameters.map(_.nameAndId), args)
         Some(AliasType(ta, ta.lowerBound.map(genericSubst.subst), ta.upperBound.map(genericSubst.subst)))
       case ScParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAlias] =>
         val ta: ScTypeAlias = p.actualElement.asInstanceOf[ScTypeAlias]
         val subst: ScSubstitutor = p.actualSubst
         val genericSubst = ScalaPsiUtil.
-          typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
+          typesCallSubstitutor(ta.typeParameters.map(_.nameAndId), args)
         val s = subst.followed(genericSubst)
         Some(AliasType(ta, ta.lowerBound.map(s.subst), ta.upperBound.map(s.subst)))
       case _ => None
@@ -59,21 +58,21 @@ class ScParameterizedType private(val designator: ScType, val typeArgs: Seq[ScTy
   }
 
   private def substitutorInner : ScSubstitutor = {
-    def forParams[T](paramsIterator: Iterator[T], initial: ScSubstitutor, map: T => ScTypeParameterType): ScSubstitutor = {
+    def forParams[T](paramsIterator: Iterator[T], initial: ScSubstitutor, map: T => TypeParameterType): ScSubstitutor = {
       val argsIterator = typeArgs.iterator
       val builder = ListMap.newBuilder[(String, PsiElement), ScType]
       while (paramsIterator.hasNext && argsIterator.hasNext) {
         val p1 = map(paramsIterator.next())
         val p2 = argsIterator.next()
-        builder += (((p1.name, p1.getId), p2))
+        builder += ((p1.nameAndId, p2))
         //res = res bindT ((p1.name, p1.getId), p2)
       }
       val subst = new ScSubstitutor(builder.result(), Map.empty, None)
       initial followed subst
     }
     designator match {
-      case ScTypeParameterType(_, args, _, _, _) =>
-        forParams(args.iterator, ScSubstitutor.empty, (p: ScTypeParameterType) => p)
+      case TypeParameterType(_, args, _, _, _) =>
+        forParams(args.iterator, ScSubstitutor.empty, (p: TypeParameterType) => p)
       case _ => ScalaType.extractDesignated(designator, withoutAliases = false) match {
         case Some((owner: ScTypeParametersOwner, s)) =>
           forParams(owner.typeParameters.iterator, s, (tp: ScTypeParam) => ScalaPsiManager.typeVariable(tp))
@@ -130,9 +129,8 @@ class ScParameterizedType private(val designator: ScType, val typeArgs: Seq[ScTy
     (this, r) match {
       case (ScParameterizedType(ScAbstractType(tpt, lower, upper), args), _) =>
         if (falseUndef) return (false, uSubst)
-        val subst = new ScSubstitutor(Map(tpt.args.zip(args).map {
-          case (tpt: ScTypeParameterType, tp: ScType) =>
-            ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
+        val subst = new ScSubstitutor(Map(tpt.arguments.zip(args).map {
+          case (tpt: TypeParameterType, tp: ScType) => (tpt.nameAndId, tp)
         }: _*), Map.empty, None)
         var conformance = r.conforms(subst.subst(upper), uSubst)
         if (!conformance._1) return (false, uSubst)
@@ -220,10 +218,8 @@ class ScParameterizedType private(val designator: ScType, val typeArgs: Seq[ScTy
     else designator.typeDepth.max(depths.max + 1)
   }
 
-  override def isFinalType: Boolean = designator.isFinalType && !typeArgs.exists {
-    case tp: ScTypeParameterType => tp.isContravariant || tp.isCovariant
-    case _ => false
-  }
+  override def isFinalType: Boolean = designator.isFinalType && typeArgs.filterBy(classOf[TypeParameterType])
+    .forall(_.isInvariant)
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[ScParameterizedType]
 
@@ -258,76 +254,6 @@ object ScParameterizedType {
     Some(p.designator, p.typeArgs)
   }
 }
-
-case class ScTypeParameterType(name: String, args: List[ScTypeParameterType],
-                               lower: Suspension[ScType], upper: Suspension[ScType],
-                               param: PsiTypeParameter) extends ScalaType with ValueType {
-  private var hash: Int = -1
-
-  override def hashCode: Int = {
-    if (hash == -1) {
-      hash = (((param.hashCode() * 31 + upper.hashCode) * 31 + lower.hashCode()) * 31 + args.hashCode()) * 31 + name.hashCode
-    }
-    hash
-  }
-
-  def this(ptp: PsiTypeParameter, s: ScSubstitutor) = {
-    this(ptp match {case tp: ScTypeParam => tp.name case _ => ptp.name},
-         ptp match {case tp: ScTypeParam => tp.typeParameters.toList.map{new ScTypeParameterType(_, s)}
-           case _ => ptp.getTypeParameters.toList.map(new ScTypeParameterType(_, s))},
-         ptp match {case tp: ScTypeParam =>
-             new Suspension[ScType]({() => s.subst(tp.lowerBound.getOrNothing)})
-           case _ => new Suspension[ScType]({() => s.subst(
-             ScCompoundType(ptp.getExtendsListTypes.map(_.toScType(ptp.getProject)).toSeq ++
-               ptp.getImplementsListTypes.map(_.toScType(ptp.getProject)).toSeq, Map.empty, Map.empty))
-         })},
-         ptp match {case tp: ScTypeParam =>
-             new Suspension[ScType]({() => s.subst(tp.upperBound.getOrAny)})
-           case _ => new Suspension[ScType]({() => s.subst(
-             ScalaPsiManager.instance(ptp.getProject).psiTypeParameterUpperType(ptp))})}, ptp)
-  }
-
-  def getId: PsiElement = ScalaPsiUtil.getPsiElementId(param)
-
-  def isCovariant = {
-    param match {
-      case tp: ScTypeParam => tp.isCovariant
-      case _ => false
-    }
-  }
-
-  def isContravariant = {
-    param match {
-      case tp: ScTypeParam => tp.isContravariant
-      case _ => false
-    }
-  }
-
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
-    val undefinedSubst = uSubst
-    r match {
-      case stp: ScTypeParameterType =>
-        if (stp.param eq param) (true, undefinedSubst)
-        else (false, undefinedSubst)
-      case _ => (false, undefinedSubst)
-    }
-  }
-
-  override def visitType(visitor: TypeVisitor) = visitor match {
-    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitTypeParameterType(this)
-    case _ =>
-  }
-}
-
-object ScTypeParameterType {
-  def toTypeParameterType(tp: TypeParameter): ScTypeParameterType = {
-    new ScTypeParameterType(tp.name, tp.typeParams.map(toTypeParameterType).toList, new Suspension[ScType](tp.lowerType()),
-      new Suspension[ScType](tp.upperType()), tp.ptp)
-  }
-}
-
-
 
 private[types] object CyclicHelper {
   def compute[R](pn1: PsiNamedElement, pn2: PsiNamedElement)(fun: () => R): Option[R] = {

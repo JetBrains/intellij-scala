@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaP
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor._
@@ -369,7 +370,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     val nonValueType = e.getNonValueType(TypingContext.empty)
     nonValueType match {
       case Success(ScTypePolymorphicType(internal, tp), _) if tp.nonEmpty &&
-        !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[ScUndefinedType] /* optimization */ =>
+        !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[UndefinedType] /* optimization */ =>
         processType(internal, reference, e, processor)
         if (processor.candidates.nonEmpty) return processor
       case _ =>

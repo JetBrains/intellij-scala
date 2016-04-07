@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, TypeSystem}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, TypeParameterExt}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -227,7 +227,7 @@ object Signature {
     while (iterator1.hasNext && iterator2.hasNext) {
       val (tp1, tp2) = (iterator1.next(), iterator2.next())
 
-      res = res bindT ((tp2.name, ScalaPsiUtil.getPsiElementId(tp2.ptp)), ScTypeParameterType.toTypeParameterType(tp1))
+      res = res bindT(tp2.nameAndId, tp1.toType)
     }
     res
   }
@@ -261,7 +261,7 @@ object PhysicalSignature {
           if (params(i).isRepeatedParameter) res += i
           i += 1
         }
-        res.toSeq
+        res
       case p =>
         val parameters = p.getParameters
         if (parameters.isEmpty) return Seq.empty

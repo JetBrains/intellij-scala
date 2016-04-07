@@ -6,9 +6,10 @@ package types
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.PsiTypeParameterExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, JavaArrayType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, JavaArrayType, TypeParameterType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 import scala.collection.immutable.HashSet
@@ -32,7 +33,7 @@ object BaseTypes {
         if (visitedAliases.contains(ta)) return Seq.empty
         BaseTypes.get(ta.aliasedType.getOrElse(return Seq.empty), visitedAliases = visitedAliases + ta)
       case ScThisType(clazz) => BaseTypes.get(clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return Seq.empty), visitedAliases = visitedAliases)
-      case ScTypeParameterType(_, Nil, _, upper, _) => get(upper.v, notAll, visitedAliases = visitedAliases)
+      case TypeParameterType(_, Nil, _, upper, _) => get(upper.v, notAll, visitedAliases = visitedAliases)
       case ScSkolemizedType(_, Nil, _, upper) => get(upper, notAll, visitedAliases = visitedAliases)
       case a: JavaArrayType => Seq(Any)
       case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
@@ -41,14 +42,13 @@ object BaseTypes {
         BaseTypes.get(p.actualSubst.subst(ta.aliasedType.getOrElse(return Seq.empty)), visitedAliases = visitedAliases + ta)
       case ScParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
         if (visitedAliases.contains(ta)) return Seq.empty
-        val genericSubst = ScalaPsiUtil.typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
+        val genericSubst = ScalaPsiUtil.typesCallSubstitutor(ta.typeParameters.map(_.nameAndId), args)
         BaseTypes.get(genericSubst.subst(ta.aliasedType.getOrElse(return Seq.empty)), visitedAliases = visitedAliases + ta)
       case ScParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         val ta = p.actualElement.asInstanceOf[ScTypeAliasDefinition]
         if (visitedAliases.contains(ta)) return Seq.empty
         val genericSubst = ScalaPsiUtil.
-                typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp)
-                )), args)
+          typesCallSubstitutor(ta.typeParameters.map(_.nameAndId), args)
         val s = p.actualSubst.followed(genericSubst)
         BaseTypes.get(s.subst(ta.aliasedType.getOrElse(return Seq.empty)), visitedAliases = visitedAliases + ta)
       case p : ScParameterizedType =>

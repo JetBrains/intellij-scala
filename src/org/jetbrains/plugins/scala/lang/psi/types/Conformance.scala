@@ -121,22 +121,24 @@ object Conformance extends api.Conformance {
         //this case filter out such cases like undefined type
         case _ =>
           argsPair match {
-            case (u: ScUndefinedType, rt) =>
-              undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt, variance = 0)
-              undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), rt, variance = 0)
-            case (lt, u: ScUndefinedType) =>
-              undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), lt, variance = 0)
-              undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt, variance = 0)
+            case (UndefinedType(parameterType, _), rt) =>
+              val name = parameterType.nameAndId
+              undefinedSubst = undefinedSubst.addLower(name, rt, variance = 0)
+              undefinedSubst = undefinedSubst.addUpper(name, rt, variance = 0)
+            case (lt, UndefinedType(parameterType, _)) =>
+              val name = parameterType.nameAndId
+              undefinedSubst = undefinedSubst.addLower(name, lt, variance = 0)
+              undefinedSubst = undefinedSubst.addUpper(name, lt, variance = 0)
             case (ScAbstractType(tpt, lower, upper), r) =>
               val (right, alternateRight) =
-                if (tpt.args.nonEmpty && !r.isInstanceOf[ScParameterizedType])
-                  (ScParameterizedType(r, tpt.args), r)
+                if (tpt.arguments.nonEmpty && !r.isInstanceOf[ScParameterizedType])
+                  (ScParameterizedType(r, tpt.arguments), r)
                 else (r, r)
                 if (!addAbstract(upper, lower, right, alternateRight)) return (false, undefinedSubst)
             case (l, ScAbstractType(tpt, lower, upper)) =>
               val (left, alternateLeft) =
-                if (tpt.args.nonEmpty && !l.isInstanceOf[ScParameterizedType])
-                  (ScParameterizedType(l, tpt.args), l)
+                if (tpt.arguments.nonEmpty && !l.isInstanceOf[ScParameterizedType])
+                  (ScParameterizedType(l, tpt.arguments), l)
                 else (l, l)
               if (!addAbstract(upper, lower, left, alternateLeft)) return (false, undefinedSubst)
             case (aliasType, _) if aliasType.isAliasType.isDefined && aliasType.isAliasType.get.ta.isExistentialTypeAlias =>
@@ -153,37 +155,38 @@ object Conformance extends api.Conformance {
     (true, undefinedSubst)
   }
 
-
-
   private class LeftConformanceVisitor(l: ScType, r: ScType, visited: Set[PsiClass],
                                subst: ScUndefinedSubstitutor,
                                checkWeak: Boolean = false) extends ScalaTypeVisitor {
+    private def addBounds(parameterType: TypeParameterType, `type`: ScType) = {
+      val name = parameterType.nameAndId
+      undefinedSubst = undefinedSubst.addLower(name, `type`, variance = 0)
+        .addUpper(name, `type`, variance = 0)
+    }
+
     /*
       Different checks from right type in order of appearence.
       todo: It's seems it's possible to check order and simplify code in many places.
      */
     trait ValDesignatorSimplification extends ScalaTypeVisitor {
       override def visitDesignatorType(d: ScDesignatorType) {
-        d.getValType match {
-          case Some(v) =>
-            result = conformsInner(l, v, visited, subst, checkWeak)
-            return
-          case _ =>
+        d.getValType.map {
+          conformsInner(l, _, visited, subst, checkWeak)
         }
       }
     }
 
     trait UndefinedSubstVisitor extends ScalaTypeVisitor {
-      override def visitUndefinedType(u: ScUndefinedType) {
-        result = (true, undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), l))
+      override def visitUndefinedType(u: UndefinedType) {
+        result = (true, undefinedSubst.addUpper(u.parameterType.nameAndId, l))
       }
     }
 
     trait AbstractVisitor extends ScalaTypeVisitor {
       override def visitAbstractType(a: ScAbstractType) {
         val left =
-          if (a.tpt.args.nonEmpty && !l.isInstanceOf[ScParameterizedType])
-            ScParameterizedType(l, a.tpt.args)
+          if (a.parameterType.arguments.nonEmpty && !l.isInstanceOf[ScParameterizedType])
+            ScParameterizedType(l, a.parameterType.arguments)
           else l
         if (!a.lower.equiv(Nothing)) {
           result = conformsInner(left, a.lower, visited, undefinedSubst, checkWeak)
@@ -200,13 +203,12 @@ object Conformance extends api.Conformance {
     trait ParameterizedAbstractVisitor extends ScalaTypeVisitor {
       override def visitParameterizedType(p: ScParameterizedType) {
         p.designator match {
-          case a: ScAbstractType =>
-            val subst = new ScSubstitutor(Map(a.tpt.args.zip(p.typeArgs).map {
-              case (tpt: ScTypeParameterType, tp: ScType) =>
-                ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
+          case ScAbstractType(parameterType, lowerBound, _) =>
+            val subst = new ScSubstitutor(Map(parameterType.arguments.zip(p.typeArgs).map {
+              case (tpt: TypeParameterType, tp: ScType) => (tpt.nameAndId, tp)
             }: _*), Map.empty, None)
             val lower: ScType =
-              subst.subst(a.lower) match {
+              subst.subst(lowerBound) match {
                 case ScParameterizedType(lower, _) => ScParameterizedType(lower, p.typeArgs)
                 case lower => ScParameterizedType(lower, p.typeArgs)
               }
@@ -232,7 +234,7 @@ object Conformance extends api.Conformance {
 
     trait SkolemizeVisitor extends ScalaTypeVisitor {
       override def visitSkolemizedType(s: ScSkolemizedType) {
-        result = conformsInner(l, s.upper, HashSet.empty, undefinedSubst)
+        result = conformsInner(l, s.upper, substitutor = undefinedSubst)
       }
     }
 
@@ -252,7 +254,7 @@ object Conformance extends api.Conformance {
     }
 
     trait OtherNonvalueTypesVisitor extends ScalaTypeVisitor {
-      override def visitUndefinedType(u: ScUndefinedType) {
+      override def visitUndefinedType(u: UndefinedType) {
         result = (false, undefinedSubst)
       }
 
@@ -297,8 +299,8 @@ object Conformance extends api.Conformance {
     }
 
     trait TypeParameterTypeVisitor extends ScalaTypeVisitor {
-      override def visitTypeParameterType(tpt: ScTypeParameterType) {
-        result = conformsInner(l, tpt.upper.v, HashSet.empty, undefinedSubst)
+      override def visitTypeParameterType(tpt: TypeParameterType) {
+        result = conformsInner(l, tpt.upper.v, substitutor = undefinedSubst)
       }
     }
 
@@ -346,7 +348,7 @@ object Conformance extends api.Conformance {
             }
             val uBound = subst.subst(upper)
             val genericSubst = ScalaPsiUtil.
-              typesCallSubstitutor(a.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
+              typesCallSubstitutor(a.typeParameters.map(_.nameAndId), args)
             val s = subst.followed(genericSubst)
             result = conformsInner(l, s.subst(uBound), visited, undefinedSubst)
           case des: ScDesignatorType =>
@@ -361,7 +363,7 @@ object Conformance extends api.Conformance {
                     return
                 }
                 val genericSubst = ScalaPsiUtil.
-                        typesCallSubstitutor(a.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
+                  typesCallSubstitutor(a.typeParameters.map(_.nameAndId), args)
                 result = conformsInner(l, genericSubst.subst(uBound), visited, undefinedSubst)
               case _ =>
             }
@@ -728,8 +730,8 @@ object Conformance extends api.Conformance {
           argsPair match {
             case (ScAbstractType(tpt, lower, upper), r) =>
               val right =
-                if (tpt.args.nonEmpty && !r.isInstanceOf[ScParameterizedType])
-                  ScParameterizedType(r, tpt.args)
+                if (tpt.arguments.nonEmpty && !r.isInstanceOf[ScParameterizedType])
+                  ScParameterizedType(r, tpt.arguments)
                 else r
               if (!upper.equiv(Any)) {
                 val t = conformsInner(upper, right, visited, undefinedSubst, checkWeak)
@@ -749,8 +751,8 @@ object Conformance extends api.Conformance {
               }
             case (l, ScAbstractType(tpt, lower, upper)) =>
               val left =
-                if (tpt.args.nonEmpty && !l.isInstanceOf[ScParameterizedType])
-                  ScParameterizedType(l, tpt.args)
+                if (tpt.arguments.nonEmpty && !l.isInstanceOf[ScParameterizedType])
+                  ScParameterizedType(l, tpt.arguments)
                 else l
               if (!upper.equiv(Any)) {
                 val t = conformsInner(upper, left, visited, undefinedSubst, checkWeak)
@@ -768,12 +770,8 @@ object Conformance extends api.Conformance {
                 }
                 undefinedSubst = t._2
               }
-            case (u: ScUndefinedType, rt) =>
-              undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt, variance = 0)
-              undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), rt, variance = 0)
-            case (lt, u: ScUndefinedType) =>
-              undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), lt, variance = 0)
-              undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt, variance = 0)
+            case (UndefinedType(parameterType, _), rt) => addBounds(parameterType, rt)
+            case (lt, UndefinedType(parameterType, _)) => addBounds(parameterType, lt)
             case (tp, _) if tp.isAliasType.isDefined && tp.isAliasType.get.ta.isExistentialTypeAlias =>
               val y = conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
               if (!y._1) {
@@ -803,8 +801,8 @@ object Conformance extends api.Conformance {
             argsPair match {
               case (ScAbstractType(tpt, lower, upper), r) =>
                 val right =
-                  if (tpt.args.nonEmpty && !r.isInstanceOf[ScParameterizedType])
-                    ScParameterizedType(r, tpt.args)
+                  if (tpt.arguments.nonEmpty && !r.isInstanceOf[ScParameterizedType])
+                    ScParameterizedType(r, tpt.arguments)
                   else r
                 if (!upper.equiv(Any)) {
                   val t = conformsInner(upper, right, visited, undefinedSubst, checkWeak)
@@ -824,8 +822,8 @@ object Conformance extends api.Conformance {
                 }
               case (l, ScAbstractType(tpt, lower, upper)) =>
                 val left =
-                  if (tpt.args.nonEmpty && !l.isInstanceOf[ScParameterizedType])
-                    ScParameterizedType(l, tpt.args)
+                  if (tpt.arguments.nonEmpty && !l.isInstanceOf[ScParameterizedType])
+                    ScParameterizedType(l, tpt.arguments)
                   else l
                 if (!upper.equiv(Any)) {
                   val t = conformsInner(upper, left, visited, undefinedSubst, checkWeak)
@@ -843,12 +841,8 @@ object Conformance extends api.Conformance {
                   }
                   undefinedSubst = t._2
                 }
-              case (u: ScUndefinedType, rt) =>
-                undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt, variance = 0)
-                undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), rt, variance = 0)
-              case (lt, u: ScUndefinedType) =>
-                undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), lt, variance = 0)
-                undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt, variance = 0)
+              case (UndefinedType(parameterType, _), rt) => addBounds(parameterType, rt)
+              case (lt, UndefinedType(parameterType, _)) => addBounds(parameterType, lt)
               case (tp, _) if tp.isAliasType.isDefined && tp.isAliasType.get.ta.isExistentialTypeAlias =>
                 val y = conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
                 if (!y._1) {
@@ -884,9 +878,9 @@ object Conformance extends api.Conformance {
 
       p.designator match {
         case a: ScAbstractType =>
-          val subst = new ScSubstitutor(Map(a.tpt.args.zip(p.typeArgs).map {
-            case (tpt: ScTypeParameterType, tp: ScType) =>
-              ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
+          val subst = new ScSubstitutor(Map(a.parameterType.arguments.zip(p.typeArgs).map {
+            case (tpt: TypeParameterType, tp: ScType) =>
+              (tpt.nameAndId, tp)
           }: _*), Map.empty, None)
           val upper: ScType =
             subst.subst(a.upper) match {
@@ -989,7 +983,7 @@ object Conformance extends api.Conformance {
           }
           val lBound = subst.subst(lower)
           val genericSubst = ScalaPsiUtil.
-            typesCallSubstitutor(a.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
+            typesCallSubstitutor(a.typeParameters.map(_.nameAndId), args)
           val s = subst.followed(genericSubst)
           result = conformsInner(s.subst(lBound), r, visited, undefinedSubst)
           return
@@ -1010,7 +1004,7 @@ object Conformance extends api.Conformance {
           }
           val lBound = lower
           val genericSubst = ScalaPsiUtil.
-            typesCallSubstitutor(a.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
+            typesCallSubstitutor(a.typeParameters.map(_.nameAndId), args)
           result = conformsInner(genericSubst.subst(lBound), r, visited, undefinedSubst)
           return
         case _ =>
@@ -1033,8 +1027,8 @@ object Conformance extends api.Conformance {
             argsPair match {
               case (ScAbstractType(tpt, lower, upper), r) =>
                 val right =
-                  if (tpt.args.nonEmpty && !r.isInstanceOf[ScParameterizedType])
-                    ScParameterizedType(r, tpt.args)
+                  if (tpt.arguments.nonEmpty && !r.isInstanceOf[ScParameterizedType])
+                    ScParameterizedType(r, tpt.arguments)
                   else r
                 if (!upper.equiv(Any)) {
                   val t = conformsInner(upper, right, visited, undefinedSubst, checkWeak)
@@ -1054,8 +1048,8 @@ object Conformance extends api.Conformance {
                 }
               case (l, ScAbstractType(tpt, lower, upper)) =>
                 val left =
-                  if (tpt.args.nonEmpty && !l.isInstanceOf[ScParameterizedType])
-                    ScParameterizedType(l, tpt.args)
+                  if (tpt.arguments.nonEmpty && !l.isInstanceOf[ScParameterizedType])
+                    ScParameterizedType(l, tpt.arguments)
                   else l
                 if (!upper.equiv(Any)) {
                   val t = conformsInner(upper, left, visited, undefinedSubst, checkWeak)
@@ -1073,12 +1067,8 @@ object Conformance extends api.Conformance {
                   }
                   undefinedSubst = t._2
                 }
-              case (u: ScUndefinedType, rt) =>
-                undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), rt, variance = 0)
-                undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), rt, variance = 0)
-              case (lt, u: ScUndefinedType) =>
-                undefinedSubst = undefinedSubst.addLower((u.tpt.name, u.tpt.getId), lt, variance = 0)
-                undefinedSubst = undefinedSubst.addUpper((u.tpt.name, u.tpt.getId), lt, variance = 0)
+              case (UndefinedType(parameterType, _), rt) => addBounds(parameterType, rt)
+              case (lt, UndefinedType(parameterType, _)) => addBounds(parameterType, lt)
               case (tp, _) if tp.isAliasType.isDefined && tp.isAliasType.get.ta.isExistentialTypeAlias =>
                 val y = conformsInner(argsPair._1, argsPair._2, HashSet.empty, undefinedSubst)
                 if (!y._1) {
@@ -1107,22 +1097,22 @@ object Conformance extends api.Conformance {
           val args1 = p.typeArgs
           val args2 = p2.typeArgs
           (des1, des2) match {
-            case (owner1: ScTypeParameterType, _: ScTypeParameterType) =>
+            case (owner1: TypeParameterType, _: TypeParameterType) =>
               if (des1 equiv des2) {
                 if (args1.length != args2.length) {
                   result = (false, undefinedSubst)
                   return
                 }
-                result = checkParameterizedType(owner1.args.map(_.param).iterator, args1, args2,
+                result = checkParameterizedType(owner1.arguments.map(_.typeParameter).iterator, args1, args2,
                   undefinedSubst, visited, checkWeak)
                 return
               } else {
                 result = (false, undefinedSubst)
                 return
               }
-            case (_: ScUndefinedType, owner2: ScUndefinedType) =>
-              val parameterType = owner2.tpt
-              var anotherType: ScType = ScParameterizedType(des1, parameterType.args)
+            case (_: UndefinedType, UndefinedType(parameterType, _)) =>
+              val TypeParameterType(_, arguments, _, _, _) = parameterType
+              var anotherType = ScParameterizedType(des1, arguments)
               var args1replace = args1
               if (args1.length != args2.length) {
                 l.extractClassType() match {
@@ -1135,7 +1125,7 @@ object Conformance extends api.Conformance {
                     t._2 match {
                       case ScParameterizedType(newDes, newArgs) =>
                         args1replace = newArgs
-                        anotherType = ScParameterizedType(newDes, parameterType.args)
+                        anotherType = ScParameterizedType(newDes, arguments)
                       case _ =>
                         result = (false, undefinedSubst)
                         return
@@ -1145,13 +1135,13 @@ object Conformance extends api.Conformance {
                     return
                 }
               }
-              undefinedSubst = undefinedSubst.addUpper((owner2.tpt.name, owner2.tpt.getId), anotherType)
-              result = checkParameterizedType(owner2.tpt.args.map(_.param).iterator, args1replace, args2,
+              undefinedSubst = undefinedSubst.addUpper(parameterType.nameAndId, anotherType)
+              result = checkParameterizedType(arguments.map(_.typeParameter).iterator, args1replace, args2,
                 undefinedSubst, visited, checkWeak)
               return
-            case (owner1: ScUndefinedType, _) =>
-              val parameterType = owner1.tpt
-              var anotherType: ScType = ScParameterizedType(des2, parameterType.args)
+            case (UndefinedType(parameterType, _), _) =>
+              val TypeParameterType(_, arguments, _, _, _) = parameterType
+              var anotherType: ScType = ScParameterizedType(des2, arguments)
               var args2replace = args2
               if (args1.length != args2.length) {
                 r.extractClassType() match {
@@ -1164,7 +1154,7 @@ object Conformance extends api.Conformance {
                     t._2 match {
                       case ScParameterizedType(newDes, newArgs) =>
                         args2replace = newArgs
-                        anotherType = ScParameterizedType(newDes, parameterType.args)
+                        anotherType = ScParameterizedType(newDes, parameterType.arguments)
                       case _ =>
                         result = (false, undefinedSubst)
                         return
@@ -1174,13 +1164,13 @@ object Conformance extends api.Conformance {
                     return
                 }
               }
-              undefinedSubst = undefinedSubst.addLower((owner1.tpt.name, owner1.tpt.getId), anotherType)
-              result = checkParameterizedType(owner1.tpt.args.map(_.param).iterator, args1, args2replace,
+              undefinedSubst = undefinedSubst.addLower(parameterType.nameAndId, anotherType)
+              result = checkParameterizedType(arguments.map(_.typeParameter).iterator, args1, args2replace,
                 undefinedSubst, visited, checkWeak)
               return
-            case (_, owner2: ScUndefinedType) =>
-              val parameterType = owner2.tpt
-              var anotherType: ScType = ScParameterizedType(des1, parameterType.args)
+            case (_, UndefinedType(parameterType, _)) =>
+              val TypeParameterType(_, arguments, _, _, _) = parameterType
+              var anotherType = ScParameterizedType(des1, arguments)
               var args1replace = args1
               if (args1.length != args2.length) {
                 l.extractClassType() match {
@@ -1193,7 +1183,7 @@ object Conformance extends api.Conformance {
                     t._2 match {
                       case ScParameterizedType(newDes, newArgs) =>
                         args1replace = newArgs
-                        anotherType = ScParameterizedType(newDes, parameterType.args)
+                        anotherType = ScParameterizedType(newDes, parameterType.arguments)
                       case _ =>
                         result = (false, undefinedSubst)
                         return
@@ -1203,8 +1193,8 @@ object Conformance extends api.Conformance {
                     return
                 }
               }
-              undefinedSubst = undefinedSubst.addUpper((owner2.tpt.name, owner2.tpt.getId), anotherType)
-              result = checkParameterizedType(owner2.tpt.args.map(_.param).iterator, args1, args1replace,
+              undefinedSubst = undefinedSubst.addUpper(parameterType.nameAndId, anotherType)
+              result = checkParameterizedType(arguments.map(_.typeParameter).iterator, args1, args1replace,
                 undefinedSubst, visited, checkWeak)
               return
             case _ if des1 equiv des2 =>
@@ -1225,10 +1215,9 @@ object Conformance extends api.Conformance {
                   result = (false, undefinedSubst)
                   return
               }
-            case (_, t: ScTypeParameterType) if t.args.length == p2.typeArgs.length =>
-              val subst = new ScSubstitutor(Map(t.args.zip(p.typeArgs).map {
-                case (tpt: ScTypeParameterType, tp: ScType) =>
-                  ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
+            case (_, t: TypeParameterType) if t.arguments.length == p2.typeArgs.length =>
+              val subst = new ScSubstitutor(Map(t.arguments.zip(p.typeArgs).map {
+                case (tpt: TypeParameterType, tp: ScType) => (tpt.nameAndId, tp)
               }: _*), Map.empty, None)
               result = conformsInner(l, subst.subst(t.upper.v), visited, undefinedSubst, checkWeak)
               return
@@ -1260,10 +1249,10 @@ object Conformance extends api.Conformance {
       }
 
       p.designator match {
-        case t: ScTypeParameterType if t.args.length == p.typeArgs.length =>
-          val subst = new ScSubstitutor(Map(t.args.zip(p.typeArgs).map {
-            case (tpt: ScTypeParameterType, tp: ScType) =>
-              ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
+        case t: TypeParameterType if t.arguments.length == p.typeArgs.length =>
+          val subst = new ScSubstitutor(Map(t.arguments.zip(p.typeArgs).map {
+            case (tpt: TypeParameterType, tp: ScType) =>
+              (tpt.nameAndId, tp)
           }: _*), Map.empty, None)
           result = conformsInner(subst.subst(t.lower.v), r, visited, undefinedSubst, checkWeak)
           return
@@ -1303,14 +1292,14 @@ object Conformance extends api.Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      val tptsMap = new mutable.HashMap[String, ScTypeParameterType]()
+      val tptsMap = new mutable.HashMap[String, TypeParameterType]()
       def updateType(t: ScType): ScType = {
         t.recursiveUpdate {
           case t: TypeVariable =>
             e.wildcards.find(_.name == t.name) match {
               case Some(wild) =>
                 val tpt = tptsMap.getOrElseUpdate(wild.name,
-                  ScTypeParameterType(wild.name,
+                  TypeParameterType(wild.name,
                     wild.args,
                     wild.lowerBound,
                     wild.upperBound,
@@ -1325,7 +1314,7 @@ object Conformance extends api.Conformance {
             e.wildcards.find(_.name == ta.name) match {
               case Some(wild) =>
                 val tpt = tptsMap.getOrElseUpdate(ta.name,
-                  ScTypeParameterType(wild.name,
+                  TypeParameterType(wild.name,
                     wild.args,
                     wild.lowerBound,
                     wild.upperBound,
@@ -1342,8 +1331,7 @@ object Conformance extends api.Conformance {
       }
       val q = updateType(e.quantified)
       val subst = tptsMap.foldLeft(ScSubstitutor.empty) {
-        case (subst: ScSubstitutor, (_, tpt)) => subst.bindT((tpt.name, ScalaPsiUtil.getPsiElementId(tpt.param)),
-          ScUndefinedType(tpt))
+        case (subst: ScSubstitutor, (_, tpt)) => subst.bindT(tpt.nameAndId, UndefinedType(tpt))
       }
       val res = conformsInner(subst.subst(q), r, HashSet.empty, undefinedSubst)
       if (!res._1) {
@@ -1370,9 +1358,7 @@ object Conformance extends api.Conformance {
             if (result == null) {
               val filterFunction: (((String, PsiElement), HashSet[ScType])) => Boolean = {
                 case (id: (String, PsiElement), types: HashSet[ScType]) =>
-                  !tptsMap.values.exists {
-                    case tpt: ScTypeParameterType => id ==(tpt.name, ScalaPsiUtil.getPsiElementId(tpt.param))
-                  }
+                  !tptsMap.values.exists(_.nameAndId == id)
               }
               val newUndefSubst = new ScUndefinedSubstitutor(
                 unSubst.upperMap.filter(filterFunction), unSubst.lowerMap.filter(filterFunction),
@@ -1505,7 +1491,7 @@ object Conformance extends api.Conformance {
       if (result != null) return
     }
 
-    override def visitTypeParameterType(tpt1: ScTypeParameterType) {
+    override def visitTypeParameterType(tpt1: TypeParameterType) {
       var rightVisitor: ScalaTypeVisitor =
         new ValDesignatorSimplification with UndefinedSubstVisitor with AbstractVisitor
           with ParameterizedAbstractVisitor {}
@@ -1531,7 +1517,7 @@ object Conformance extends api.Conformance {
       if (result != null) return
 
       r match {
-        case tpt2: ScTypeParameterType =>
+        case tpt2: TypeParameterType =>
           val res = conformsInner(tpt1.lower.v, r, HashSet.empty, undefinedSubst)
           if (res._1) {
             result = res
@@ -1607,21 +1593,22 @@ object Conformance extends api.Conformance {
       if (result != null) return
     }
 
-    override def visitUndefinedType(u: ScUndefinedType) {
+    override def visitUndefinedType(u: UndefinedType) {
       val rightVisitor = new ValDesignatorSimplification {
-        override def visitUndefinedType(u2: ScUndefinedType) {
-          if (u2.level > u.level) {
-            result = (true, undefinedSubst.addUpper((u2.tpt.name, u2.tpt.getId), u))
+        override def visitUndefinedType(u2: UndefinedType) {
+          val name = u2.parameterType.nameAndId
+          result = (true, if (u2.level > u.level) {
+            undefinedSubst.addUpper(name, u)
           } else if (u.level > u2.level) {
-            result = (true, undefinedSubst.addUpper((u2.tpt.name, u2.tpt.getId), u))
+            undefinedSubst.addUpper(name, u)
           } else {
-            result = (true, undefinedSubst)
-          }
+            undefinedSubst
+          })
         }
       }
       r.visitType(rightVisitor)
       if (result == null)
-        result = (true, undefinedSubst.addLower((u.tpt.name, u.tpt.getId), r))
+        result = (true, undefinedSubst.addLower(u.parameterType.nameAndId, r))
     }
 
     override def visitMethodType(m1: ScMethodType) {
@@ -1680,8 +1667,8 @@ object Conformance extends api.Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
       val right =
-        if (a.tpt.args.nonEmpty && !r.isInstanceOf[ScParameterizedType])
-          ScParameterizedType(r, a.tpt.args)
+        if (a.parameterType.arguments.nonEmpty && !r.isInstanceOf[ScParameterizedType])
+          ScParameterizedType(r, a.parameterType.arguments)
         else r
 
         result = conformsInner(a.upper, right, visited, undefinedSubst, checkWeak)
@@ -1733,10 +1720,10 @@ object Conformance extends api.Conformance {
             i = i + 1
           }
           val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, PsiElement), ScType] ++ typeParameters1.zip(typeParameters2).map({
-            tuple => ((tuple._1.name, ScalaPsiUtil.getPsiElementId(tuple._1.ptp)),
-              new ScTypeParameterType(tuple._2.name,
+            tuple => (tuple._1.nameAndId,
+              TypeParameterType(tuple._2.name,
                 tuple._2.ptp match {
-                  case p: ScTypeParam => p.typeParameters.toList.map{new ScTypeParameterType(_, ScSubstitutor.empty)}
+                  case p: ScTypeParam => p.typeParameters.toList.map(TypeParameterType(_))
                   case _ => Nil
                 }, new Suspension(tuple._2.lowerType), new Suspension(tuple._2.upperType), tuple._2.ptp))
           }), Map.empty, None)

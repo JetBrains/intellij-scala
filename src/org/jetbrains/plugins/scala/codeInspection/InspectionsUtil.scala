@@ -6,7 +6,7 @@ import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Null, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
@@ -38,8 +38,9 @@ object InspectionsUtil {
         c.getTypeParameters.toSeq match {
           case Seq() => designatorType
           case params =>
-            val undefines = params.map(p => ScUndefinedType(new ScTypeParameterType(p, ScSubstitutor.empty)))
-            ScParameterizedType(designatorType, undefines)
+            ScParameterizedType(designatorType, params.map {
+              p => UndefinedType(TypeParameterType(p))
+            })
         }
       }
     }

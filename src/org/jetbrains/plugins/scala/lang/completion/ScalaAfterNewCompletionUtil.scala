@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScClassParents, ScExtendsBlock}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, TypeSystem, UndefinedType}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
 import scala.collection.mutable
@@ -51,9 +51,7 @@ object ScalaAfterNewCompletionUtil {
   def getLookupElementFromClass(expectedTypes: Array[ScType], clazz: PsiClass,
                                 renamesMap: mutable.HashMap[String, (String, PsiNamedElement)])
                                (implicit typeSystem: TypeSystem): LookupElement = {
-    val undefines: Seq[ScUndefinedType] = clazz.getTypeParameters.map(ptp =>
-      new ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
-    )
+    val undefines = clazz.getTypeParameters.map(p => UndefinedType(TypeParameterType(p)))
     val predefinedType =
       if (clazz.getTypeParameters.length == 1) {
         ScParameterizedType(ScDesignatorType(clazz), undefines)
@@ -62,9 +60,7 @@ object ScalaAfterNewCompletionUtil {
         ScDesignatorType(clazz)
     val noUndefType =
       if (clazz.getTypeParameters.length == 1) {
-        ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(ptp =>
-          new ScTypeParameterType(ptp, ScSubstitutor.empty)
-        ))
+        ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(TypeParameterType(_)))
       }
       else
         ScDesignatorType(clazz)
@@ -80,7 +76,7 @@ object ScalaAfterNewCompletionUtil {
               ScSubstitutor.empty, new AfterNewLookupElementRenderer(_, _, _), new ScalaConstructorInsertHandler, renamesMap)
             for (undefine <- undefines) {
               subst.subst(undefine) match {
-                case ScUndefinedType(_) =>
+                case UndefinedType(_, _) =>
                   lookupElement.typeParametersProblem = true
                 case _ =>
               }
@@ -202,9 +198,7 @@ object ScalaAfterNewCompletionUtil {
         ClassInheritorsSearch.search(clazz, searchScope, true).forEach(new Processor[PsiClass] {
           def process(clazz: PsiClass): Boolean = {
             if (clazz.name == null || clazz.name == "") return true
-            val undefines: Seq[ScUndefinedType] = clazz.getTypeParameters.map(ptp =>
-              new ScUndefinedType(new ScTypeParameterType(ptp, ScSubstitutor.empty))
-            )
+            val undefines = clazz.getTypeParameters.map(p => UndefinedType(TypeParameterType(p)))
             val predefinedType =
               if (clazz.getTypeParameters.nonEmpty) {
                 ScParameterizedType(ScDesignatorType(clazz), undefines)
@@ -212,9 +206,7 @@ object ScalaAfterNewCompletionUtil {
               else ScDesignatorType(clazz)
             val noUndefType =
               if (clazz.getTypeParameters.nonEmpty) {
-                ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(ptp =>
-                  new ScTypeParameterType(ptp, ScSubstitutor.empty)
-                ))
+                ScParameterizedType(ScDesignatorType(clazz), clazz.getTypeParameters.map(TypeParameterType(_)))
               }
               else ScDesignatorType(clazz)
             val conformance = predefinedType.conforms(typez, new ScUndefinedSubstitutor())
@@ -226,7 +218,7 @@ object ScalaAfterNewCompletionUtil {
                 if (lookupElement != null) {
                   for (undefine <- undefines) {
                     undefSubst.subst(undefine) match {
-                      case ScUndefinedType(_) =>
+                      case UndefinedType(_, _) =>
                         lookupElement.typeParametersProblem = true
                       case _ =>
                     }

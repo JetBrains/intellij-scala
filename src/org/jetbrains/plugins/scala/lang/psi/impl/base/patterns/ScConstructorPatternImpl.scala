@@ -12,10 +12,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.PsiTypeParameterExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -81,10 +81,9 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
               calculateReferenceType(ref, shapesOnly = false).getOrElse(ScalaType.designator(td))
             val newSubst = {
               val clazzType = ScParameterizedType(refType, td.getTypeParameters.map(tp =>
-                ScUndefinedType(tp match {case tp: ScTypeParam => new ScTypeParameterType(tp, r.substitutor)
-                case _ => new ScTypeParameterType(tp, r.substitutor)})))
+                UndefinedType(TypeParameterType(tp, r.substitutor))))
               val emptySubst: ScSubstitutor = new ScSubstitutor(Map(td.typeParameters.map(tp =>
-                ((tp.name, ScalaPsiUtil.getPsiElementId(tp)), Any)): _*), Map.empty, None)
+                (tp.nameAndId, Any)): _*), Map.empty, None)
               expectedType match {
                 case Some(tp) =>
                   val conformance = clazzType.conforms(tp, new ScUndefinedSubstitutor())
@@ -107,10 +106,9 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
             val substitutor = r.substitutor
             val subst = if (fun.typeParameters.isEmpty) substitutor else {
               val undefSubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
-                s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
-                  substitutor))))
+                s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, substitutor))))
               val emptySubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
-                s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), p.upperBound.getOrAny))
+                s.bindT(p.nameAndId, p.upperBound.getOrAny))
               val emptyRes = substitutor followed emptySubst
               val result = fun.parameters.head.getType(TypingContext.empty)
               if (result.isEmpty) emptyRes

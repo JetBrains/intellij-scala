@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, TypeSystem, TypeVariable}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
@@ -100,14 +100,14 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
               if (!existential) {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-                      new ScUndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
+                    subst.bindT(tp.nameAndId,
+                      UndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
                 }
                 Left(params.map(p => p.copy(paramType = s.subst(p.paramType))))
               } else {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+                    subst.bindT(tp.nameAndId,
                       TypeVariable(tp.name))
                 }
                 val arguments = typeParams.toList.map(tp =>
@@ -118,14 +118,14 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
               if (!existential) {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-                      new ScUndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
+                    subst.bindT(tp.nameAndId,
+                      UndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
                 }
                 Right(s.subst(internal))
               } else {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+                    subst.bindT(tp.nameAndId,
                       TypeVariable(tp.name))
                 }
                 val arguments = typeParams.toList.map(tp =>
@@ -183,8 +183,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
                 def hasRecursiveTypeParameters(typez: ScType): Boolean = {
                   var hasRecursiveTypeParameters = false
                   typez.recursiveUpdate {
-                    case tpt: ScTypeParameterType =>
-                      typeParams.find(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)) ==(tpt.name, tpt.getId)) match {
+                    case tpt: TypeParameterType =>
+                      typeParams.find(_.nameAndId == tpt.nameAndId) match {
                         case None => (true, tpt)
                         case _ =>
                           hasRecursiveTypeParameters = true
@@ -198,13 +198,13 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
                   if (tp.lowerType() != api.Nothing) {
                     val substedLower = uSubst.subst(tp.lowerType())
                     if (!hasRecursiveTypeParameters(tp.lowerType())) {
-                      u = u.addLower((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), substedLower, additional = true)
+                      u = u.addLower(tp.nameAndId, substedLower, additional = true)
                     }
                   }
                   if (tp.upperType() != Any) {
                     val substedUpper = uSubst.subst(tp.upperType())
                     if (!hasRecursiveTypeParameters(tp.upperType())) {
-                      u = u.addUpper((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), substedUpper, additional = true)
+                      u = u.addUpper(tp.nameAndId, substedUpper, additional = true)
                     }
                   }
                 })
@@ -309,7 +309,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
         found = res
       } else out += res
     }
-    (Some(found), out.toSeq)
+    (Some(found), out)
   }
 
   //todo: implement existential dual

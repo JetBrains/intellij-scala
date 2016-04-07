@@ -36,6 +36,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScMemberOrLocal, ScTemplateDefinitionStub}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
@@ -94,16 +95,16 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
     } else {
       if (parentClass != null) {
         Success(ScParameterizedType(ScProjectionType(ScThisType(parentClass), this, superReference = false),
-          typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))), Some(this))
+          typeParameters.map(TypeParameterType(_))), Some(this))
       } else {
         Success(ScParameterizedType(ScalaType.designator(this),
-          typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))), Some(this))
+          typeParameters.map(TypeParameterType(_))), Some(this))
       }
     }
   }
 
   def getTypeWithProjections(ctx: TypingContext, thisProjections: Boolean = false): TypeResult[ScType] = {
-    def args: Seq[ScTypeParameterType] = typeParameters.map(new ScTypeParameterType(_, ScSubstitutor.empty))
+    def args = typeParameters.map(TypeParameterType(_))
     def innerType = if (typeParameters.isEmpty) ScalaType.designator(this)
     else ScParameterizedType(ScalaType.designator(this), args)
     val parentClazz = containingClass
