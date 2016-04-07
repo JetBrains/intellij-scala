@@ -35,4 +35,31 @@ class CurriedConformanceTest extends TypeConformanceTestBase {
       """.stripMargin)
   }
 
+  def testSCL8977(): Unit = {
+    doTest(
+      s"""
+        |object Foo {
+        |  import scala.reflect.ClassTag
+        |
+        |  class Bar[A] { def action(f: A => A): Unit = () }
+        |  def updater[A: ClassTag](update: A => A)(a: A): A = { update(a) }
+        |  def updater2[A: ClassTag](update: A => A): A => A = { update }
+        |  def updater3[A](update: A => A)(a: A): A = { update(a) }
+        |
+        |  val bar = new Bar[Int]()
+        |  // Compiles and runs fine but intellij underlines in red:
+        |  bar.action(updater(a => a))
+        |  // Non-curried function is okay:
+        |  bar.action(updater2(a => a))
+        |  // Method without ClassTag bounds works okay
+        |  bar.action(updater3(a => a))
+        |  // Type hint fixes things
+        |  bar.action(updater((a: Int) => a))
+        |
+        |  ${caretMarker}val foo: (Int) => Int = updater(a => a)
+        |}
+        |//True
+      """.stripMargin)
+  }
+
 }
