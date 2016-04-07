@@ -45,10 +45,11 @@ trait SimpleResolveTestBase {
       case None => Assert.fail("No testdata provided")
     }
     Assert.assertNotNull("Failed to locate source element", src)
-    Assert.assertNotNull("Failed to locate target element", tgt)
     val result = src.resolve()
     Assert.assertNotNull(s"Failed to resolve element - '${src.getText}'", result)
-    Assert.assertTrue(s"Reference(${src.getText}) resolves to wrong place(${result.getText})", tgt == result)
+    // we might want to check if reference simply resolves to something
+    if (tgt != null)
+      Assert.assertTrue(s"Reference(${src.getText}) resolves to wrong place(${result.getText})", tgt == result)
   }
 
   protected def doResolveTest(source: String, fileName: String = "dummy.scala"): Unit = doResolveTest(Seq(source -> fileName))
