@@ -11,9 +11,11 @@ import org.junit.experimental.categories.Category
 class PatternsTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "bugs5/"
 
+  def testSCL4500(): Unit = doTest()
+
   def testSCL9137(): Unit = doTest()
 
-  def testSCL4500(): Unit = doTest()
+  def testSCL9888():Unit = doTest()
 
   def testSCL8171(): Unit = {
     val text =
@@ -28,6 +30,15 @@ class PatternsTest extends TypeInferenceTestBase {
     doTest(text)
   }
 
-  def testSCL9888():Unit = doTest()
+  // something seriously wrong, y isn't even a valid psi
+  def testSCL4989(): Unit = {
+    doTest(
+      s"""
+        |val x: Product2[Int, Int] = (10, 11)
+        |val (y, _) = x
+        |${START}y$END
+        |//Int
+      """.stripMargin)
+  }
 
 }
