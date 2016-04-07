@@ -21,4 +21,6 @@ class ImplicitConversionTest extends FailedResolveTest("implicitConversion") {
   def testSCL8609(): Unit = doTest()
 
   def testSCL8643(): Unit = doTest()
+
+  def testSCL7887(): Unit = doTest()
 }
