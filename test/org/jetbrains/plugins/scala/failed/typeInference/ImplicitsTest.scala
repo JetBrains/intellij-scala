@@ -243,4 +243,22 @@ class ImplicitsTest extends TypeInferenceTestBase {
         |//String
       """.stripMargin)
   }
+
+  def testSCL8214(): Unit = {
+    doTest(
+      s"""
+        |class A
+        |
+        |class Z[T]
+        |class F[+T]
+        |
+        |class B
+        |class C extends B
+        |
+        |implicit val z: Z[C] = new Z
+        |implicit def r[S, T](p: S)(implicit x: Z[T]): F[T] = new F[T]
+        |val r: F[B] = ${START}new A$END
+        |//F[B]
+      """.stripMargin)
+  }
 }
