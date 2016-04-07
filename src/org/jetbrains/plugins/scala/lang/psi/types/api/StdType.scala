@@ -7,14 +7,10 @@ import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScType, ScTypeExt, ScUndefinedSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{NamedType, ScDesignatorType, ScType, ScTypeExt, ScUndefinedSubstitutor}
 
-abstract class StdType(val name: String, val tSuper: Option[StdType]) extends ValueType {
+abstract class StdType(val name: String, val tSuper: Option[StdType]) extends ValueType with NamedType {
   override def visitType(visitor: TypeVisitor) = visitor.visitStdType(this)
-
-  override final def presentableText = name
-
-  override final def canonicalText = name
 
   /**
    * Return wrapped to option appropriate synthetic class.

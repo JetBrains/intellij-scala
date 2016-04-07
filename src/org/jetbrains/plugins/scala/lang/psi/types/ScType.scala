@@ -97,3 +97,11 @@ trait ScType {
 
   def canonicalText: String
 }
+
+trait NamedType extends ScType {
+  val name: String
+
+  override def presentableText = name
+
+  override def canonicalText = name
+}

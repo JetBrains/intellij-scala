@@ -534,14 +534,16 @@ case class ScExistentialArgument(name: String, args: List[TypeParameterType],
   }
 }
 
-case class ScSkolemizedType(name: String, args: List[TypeParameterType], lower: ScType, upper: ScType)
-  extends ScalaType with ValueType {
+case class ScSkolemizedType(name: String, args: List[TypeParameterType],
+                            lower: ScType, upper: ScType) extends ValueType with NamedType {
   override def visitType(visitor: TypeVisitor) = visitor match {
     case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitSkolemizedType(this)
     case _ =>
   }
 
-  override def removeAbstracts = ScSkolemizedType(name, args, lower.removeAbstracts, upper.removeAbstracts)
+  override def removeAbstracts = ScSkolemizedType(name, args,
+    lower.removeAbstracts,
+    upper.removeAbstracts)
 
   override def recursiveUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScType = {
     if (visited.contains(this)) {
@@ -554,7 +556,9 @@ case class ScSkolemizedType(name: String, args: List[TypeParameterType], lower: 
     update(this) match {
       case (true, res) => res
       case _ =>
-        ScSkolemizedType(name, args, lower.recursiveUpdate(update, newVisited), upper.recursiveUpdate(update, newVisited))
+        ScSkolemizedType(name, args,
+          lower.recursiveUpdate(update, newVisited),
+          upper.recursiveUpdate(update, newVisited))
     }
   }
 
@@ -563,17 +567,18 @@ case class ScSkolemizedType(name: String, args: List[TypeParameterType], lower: 
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
-        ScSkolemizedType(name, args, lower.recursiveVarianceUpdateModifiable(newData, update, -variance),
+        ScSkolemizedType(name, args,
+          lower.recursiveVarianceUpdateModifiable(newData, update, -variance),
           upper.recursiveVarianceUpdateModifiable(newData, update, variance))
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
+  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
                          (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
-    var u = uSubst
-    r match {
-      case ScSkolemizedType(rname, rargs, rlower, rupper) =>
-        if (args.length != rargs.length) return (false, uSubst)
+    var u = substitutor
+    `type` match {
+      case ScSkolemizedType(_, rargs, rlower, rupper) =>
+        if (args.length != rargs.length) return (false, substitutor)
         args.zip(rargs) foreach {
           case (tpt1, tpt2) =>
             val t = tpt1.equiv(tpt2, u, falseUndef)
@@ -587,7 +592,7 @@ case class ScSkolemizedType(name: String, args: List[TypeParameterType], lower: 
         if (!t._1) return (false, u)
         u = t._2
         (true, u)
-      case _ => (false, uSubst)
+      case _ => (false, substitutor)
     }
   }
 }

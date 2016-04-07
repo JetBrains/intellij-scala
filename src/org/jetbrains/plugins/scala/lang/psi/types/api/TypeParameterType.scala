@@ -6,15 +6,11 @@ import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getPsiElementId
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScUndefinedSubstitutor}
+import org.jetbrains.plugins.scala.lang.psi.types.{NamedType, ScSubstitutor, ScType, ScUndefinedSubstitutor}
 
 case class TypeParameterType(name: String, arguments: Seq[TypeParameterType],
                              lower: Suspension[ScType], upper: Suspension[ScType],
-                             typeParameter: PsiTypeParameter) extends ValueType {
-  override def presentableText = name
-
-  override def canonicalText = name
-
+                             typeParameter: PsiTypeParameter) extends ValueType with NamedType {
   private var hash: Int = -1
 
   override def hashCode: Int = {
