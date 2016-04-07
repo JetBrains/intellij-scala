@@ -241,4 +241,55 @@ class JavaHighlightingTest extends JavaHighltightingTestBase {
 
     assertNoErrors(messagesFromScalaCode(scala, java))
   }
+
+  def testSCL8666(): Unit = {
+    val java =
+      """
+        |import scala.Function0;
+        |import scala.Function1;
+        |
+        |import java.util.concurrent.Callable;
+        |import java.util.function.Function;
+        |
+        |public class Lambdas {
+        |
+        |    public static <A> A doIt(Callable<A> f) {
+        |        System.out.println("callable");
+        |        try {
+        |            return f.call();
+        |        } catch (final Exception ex) {
+        |            throw new RuntimeException(ex);
+        |        }
+        |    }
+        |
+        |    public static <A> A doIt(final Function0<A> f) {
+        |        System.out.println("java_func");
+        |        try {
+        |            return f.apply();
+        |        } catch (final Exception ex) {
+        |            throw new RuntimeException(ex);
+        |        }
+        |    }
+        |
+        |    public static void doIt(Runnable f) {
+        |        System.out.println("runnable");
+        |        try {
+        |            f.run();
+        |        } catch (final Exception ex) {
+        |            throw new RuntimeException(ex);
+        |        }
+        |    }
+        |
+        |    public static void main(final String... args) {
+        |        final Lambdas l = new Lambdas();
+        |        Lambdas.doIt(() -> {
+        |            int x = 3;
+        |        });
+        |        Lambdas.doIt(() -> 24);
+        |    }
+        |}
+      """.stripMargin
+
+    assertNoErrors(messagesFromJavaCode("", java, "Lambdas"))
+  }
 }
