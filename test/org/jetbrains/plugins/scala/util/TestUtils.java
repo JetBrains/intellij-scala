@@ -160,6 +160,10 @@ public class TestUtils {
     return getIvyCachePath() + "/org.scalacheck/scalacheck_2.11/jars/scalacheck_2.11-1.12.5.jar" ;
   }
 
+  public static String getPostgresLib(ScalaSdkVersion version) {
+    return getIvyCachePath() +  "/com.wda.sdbc/postgresql_2.11/jars/postgresql_2.11-0.5.jar" ;
+  }
+
   public static String getCatsLib(ScalaSdkVersion version) {
     return getIvyCachePath() + "/org.typelevel/cats-core_2.11/jars/cats-core_2.11-0.4.0.jar" ;
   }
