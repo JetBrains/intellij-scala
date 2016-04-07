@@ -7,14 +7,15 @@ import java.io.File
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiComment, PsiElement}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.Conformance
+import org.jetbrains.plugins.scala.lang.psi.types.{Conformance, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
 
 /**
@@ -62,6 +63,37 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
       case Failure(msg, elem) => assert(assertion = false, message = msg + " :: " + elem.get.getText)
     }
   }
+
+  def doApplicatonConformanceTest(fileText: String, fileName: String = "dummy.scala") = {
+    import org.junit.Assert._
+    configureFromFileTextAdapter(fileName, fileText.trim)
+    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+    val caretIndex = scalaFile.getText.indexOf(caretMarker)
+    val element = if (caretIndex > 0) {
+      PsiTreeUtil.findElementOfClassAtOffset(scalaFile, caretIndex, classOf[ScMethodCall], false)
+    }
+      else scalaFile.findLastChildByType[PsiElement](ScalaElementTypes.METHOD_CALL)
+    assertNotNull("Failed to locate application",element)
+    val application = element.asInstanceOf[ScMethodCall]
+    val errors = scala.collection.mutable.ArrayBuffer[String]()
+    val expectedResult = scalaFile.findElementAt(scalaFile.getText.length - 1) match {
+      case c: PsiComment => c.getText
+      case _ => "True"
+    }
+    for ((expr, param) <- application.matchedParameters) {
+      val exprTp = expr.getType().getOrElse(throw new RuntimeException(s"Failed to get type of expression(${expr.getText})"))
+      val res = Conformance.conforms(param.paramType, exprTp)
+      if (res != expectedResult.toBoolean)
+        errors +=
+          s"""
+            |Expected: $expectedResult
+            |Param tp: ${param.paramType.presentableText}
+            |Arg   tp: ${exprTp.presentableText}
+          """.stripMargin
+    }
+    assertTrue("Conformance failure:\n"+ errors.mkString("\n\n").trim, errors.isEmpty)
+  }
+
   protected def doTest() {
     val filePath = folderPath + getTestName(false) + ".scala"
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
