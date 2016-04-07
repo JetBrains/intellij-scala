@@ -219,10 +219,9 @@ object ScTypePresentation extends api.ScTypePresentation {
 
     def innerTypeText(t: ScType, needDotType: Boolean = true, checkWildcard: Boolean = false): String = {
       t match {
+        case namedType: NamedType => namedType.name
         case abstractType: ScAbstractType =>
           abstractTypeText(abstractType)
-        case StdType(name, _) =>
-          name
         case f@FunctionType(ret, params) if t.isAliasType.isEmpty =>
           val projectOption = f.extractClass().map(_.getProject)
           val arrow = projectOption.map(ScalaPsiUtil.functionArrow).getOrElse("=>")
@@ -244,8 +243,6 @@ object ScTypePresentation extends api.ScTypePresentation {
         case ScParameterizedType(des, typeArgs) =>
           innerTypeText(des) + typeSeqText(typeArgs, "[", ", ", "]", checkWildcard = true)
         case JavaArrayType(argument) => s"Array[${innerTypeText(argument)}]"
-        case ScExistentialArgument(name, _, _, _) => name
-        case TypeParameterType(name, _, _, _, _) => name
         case UndefinedType(tpt, _) => "NotInfered" + tpt.name
         case c: ScCompoundType if c != null =>
           compoundTypeText(c)
