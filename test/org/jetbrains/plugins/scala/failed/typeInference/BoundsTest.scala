@@ -46,4 +46,13 @@ class BoundsTest extends TypeInferenceTestBase {
         |//List[D]
       """.stripMargin)
   }
+
+  def testSCL5186(): Unit ={
+    doTest(
+      s"""
+        |def foo[V <: U, U](v: V, u: U) = u
+        |${START}foo(1, "asa")$END
+        |//Any
+      """.stripMargin)
+  }
 }
