@@ -220,4 +220,27 @@ class ImplicitsTest extends TypeInferenceTestBase {
         |//SCL9925.PerfectParser[String]
       """.stripMargin)
   }
+
+  def testSCL7468(): Unit = {
+    doTest(
+      s"""
+        |class Container[A](x: A) { def value: A = x }
+        |trait Unboxer[A, B] { def unbox(x: A): B }
+        |trait LowPriorityUnboxer {
+        |  implicit def defaultCase[A, B](implicit fun: A => B) = new Unboxer[A, B] { def unbox(x: A) = fun(x) }
+        |}
+        |object Unboxer extends LowPriorityUnboxer {
+        |  def unbox[A, B](x: A)(implicit f: Unboxer[A, B]) = f.unbox(x)
+        |  implicit def containerCase[A] = new Unboxer[Container[A], A] { def unbox(x: Container[A]) = x.value }
+        |}
+        |implicit def getContained[A](cont: Container[A]): A = cont.value
+        |def container[A] = new Impl[A]
+        |
+        |class Impl[A] { def apply[B](x: => B)(implicit unboxer: Unboxer[B, A]): Container[A] = new Container(Unboxer.unbox(x)) }
+        |
+        |val stringCont = container("SomeString")
+        |val a1 = ${START}stringCont$END
+        |//String
+      """.stripMargin)
+  }
 }
