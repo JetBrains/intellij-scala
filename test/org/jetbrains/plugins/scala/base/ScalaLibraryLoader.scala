@@ -149,6 +149,7 @@ private object CommonLibrary {
       case "cats" => CommonLibrary("cats", TestUtils.getCatsLib(version))
       case "specs2" => CommonLibrary("specs2", TestUtils.getSpecs2Lib(version))
       case "scalacheck" => CommonLibrary("scalacheck", TestUtils.getScalacheckLib(version))
+      case "postgresql" => CommonLibrary("postgresql", TestUtils.getPostgresLib(version))
       case _ => throw new IllegalArgumentException(s"Unknown library: $name")
     }
   }
