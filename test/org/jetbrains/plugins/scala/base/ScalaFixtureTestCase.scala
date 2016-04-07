@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package base
 
 
-import com.intellij.testFramework.fixtures.CodeInsightFixtureTestCase
+import com.intellij.testFramework.fixtures.{CodeInsightFixtureTestCase, CodeInsightTestFixture}
 import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
  * Date: 03.08.2009
  */
 
-abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase {
+abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase with TestFixtureProvider {
 
   protected def rootPath = TestUtils.getTestDataPath + "/"
 
@@ -27,4 +27,6 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase {
     libLoader.clean()
     super.tearDown()
   }
+
+  override def getFixture: CodeInsightTestFixture = myFixture
 }

@@ -22,7 +22,7 @@ import scala.collection.mutable.ListBuffer
  * Date: 3/5/12
  */
 
-abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightFixtureTestCase {
+abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightFixtureTestCase with TestFixtureProvider {
   protected val CARET_MARKER = ScalaLightCodeInsightFixtureTestAdapter.CARET_MARKER
 
   private var libLoader: ScalaLibraryLoader = null
@@ -195,6 +195,8 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter extends LightCodeInsightF
     libLoader.clean()
     super.tearDown()
   }
+
+  override def getFixture: CodeInsightTestFixture = myFixture
 }
 
 object ScalaLightCodeInsightFixtureTestAdapter {

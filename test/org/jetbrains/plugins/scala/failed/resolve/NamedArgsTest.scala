@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
 import org.jetbrains.plugins.scala.PerfCycleTests
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase
 import org.junit.experimental.categories.Category
 
@@ -10,7 +11,7 @@ import org.junit.experimental.categories.Category
   */
 
 @Category(Array(classOf[PerfCycleTests]))
-class NamedArgsTest extends SimpleResolveTestBase {
+class NamedArgsTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
   import SimpleResolveTestBase._
 
   def testSCL9144(): Unit = {
