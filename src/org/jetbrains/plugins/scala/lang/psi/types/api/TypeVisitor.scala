@@ -15,4 +15,6 @@ trait TypeVisitor {
   def visitUndefinedType(`type`: UndefinedType) {}
 
   def visitTypeParameterType(`type`: TypeParameterType) {}
+
+  def visitParameterizedType(`type`: ParameterizedType) {}
 }

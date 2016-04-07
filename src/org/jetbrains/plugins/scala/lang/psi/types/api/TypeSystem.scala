@@ -20,6 +20,8 @@ trait TypeSystem {
   def urlText = presentation.urlText _
 
   def andType(types: Seq[ScType]): ScType
+
+  def parameterizedType(designator: ScType, typeArguments: Seq[ScType]): ValueType
 }
 
 trait TypeSystemOwner {

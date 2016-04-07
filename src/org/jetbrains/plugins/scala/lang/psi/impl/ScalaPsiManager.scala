@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Null, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Null, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -240,7 +240,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
       clearCacheOnChange.foreach(_.clear())
       conformance.clearCache()
       equivalence.clearCache()
-      ScParameterizedType.substitutorCache.clear()
+      ParameterizedType.substitutorCache.clear()
       ScalaPsiUtil.collectImplicitObjectsCache.clear()
       ImplicitCollector.cache.clear()
     }
@@ -277,7 +277,7 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
           clearCacheOnLowMemory.foreach(_.clear())
           conformance.clearCache()
           equivalence.clearCache()
-          ScParameterizedType.substitutorCache.clear()
+          ParameterizedType.substitutorCache.clear()
           ScalaPsiUtil.collectImplicitObjectsCache.clear()
           ImplicitCollector.cache.clear()
         }

@@ -4,9 +4,9 @@ package lang.psi.light
 import com.intellij.psi.{PsiClass, PsiClassType}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScTypeExt}
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -27,7 +27,7 @@ object LightUtil {
       case (accumulator, annotation) =>
         val classes = annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
           _.getType(TypingContext.empty) match {
-            case Success(ScParameterizedType(des, Seq(arg)), _) => des.extractClass() match {
+            case Success(ParameterizedType(des, Seq(arg)), _) => des.extractClass() match {
               case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
                 arg.toPsiType(holder.getProject, holder.getResolveScope) match {
                   case c: PsiClassType =>

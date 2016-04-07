@@ -22,8 +22,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScTypeBoundsOwnerImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamStub
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 /**
 * @author Alexander Podkhalyuzin
@@ -142,7 +143,7 @@ class ScTypeParamImpl private (stub: StubElement[ScTypeParam], nodeType: IElemen
         def lift: ScType => PsiType = _.toPsiType(getProject, getResolveScope)
         val psiType = if (hasTypeParameters) {
           t match {
-            case ScParameterizedType(des, _) => lift(des)
+            case ParameterizedType(des, _) => lift(des)
             case _ => lift(t)
           }
         } else {

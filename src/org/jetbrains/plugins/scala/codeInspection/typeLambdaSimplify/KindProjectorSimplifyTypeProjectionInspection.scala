@@ -53,7 +53,7 @@ class KindProjectorSimplifyTypeProjectionInspection extends LocalInspectionTool 
       }
 
       def occursInsideParameterized(tp: ScTypeParam, param: ScParameterizedType, isInsideParam: Boolean): Boolean = {
-        param.typeArgs.exists {
+        param.typeArguments.exists {
           case p: ScParameterizedType if isInsideParam && p.designator.presentableText == tp.name => true
           case p: ScParameterizedType if occursInsideParameterized(tp, p, isInsideParam = true) => true
           case ta if isInsideParam && ta.presentableText == tp.name => true
@@ -70,13 +70,13 @@ class KindProjectorSimplifyTypeProjectionInspection extends LocalInspectionTool 
             !typeParam.exists(occursInsideParameterized(_, paramType, isInsideParam = false)) &&
             typeParam.forall {
               tpt =>
-                paramType.typeArgs.count(tpt.name == _.presentableText) == 1
+                paramType.typeArguments.count(tpt.name == _.presentableText) == 1
             }
 
           if (valid) {
             val typeParamIt = typeParam.iterator
             var currentTypeParam: Option[ScTypeParam] = Some(typeParamIt.next())
-            val newTypeArgs = paramType.typeArgs.map { ta =>
+            val newTypeArgs = paramType.typeArguments.map { ta =>
               currentTypeParam match {
                 case Some(tpt) if ta.presentableText == tpt.name =>
                   currentTypeParam =

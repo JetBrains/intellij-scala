@@ -626,10 +626,10 @@ object ScalaPsiUtil {
         case ScDesignatorType(v: ScFieldId)                 => v.getType(TypingContext.empty).foreach(collectParts)
         case ScDesignatorType(p: ScParameter)               => p.getType(TypingContext.empty).foreach(collectParts)
         case ScCompoundType(comps, _, _)                 => comps.foreach(collectParts)
-        case p@ScParameterizedType(a: ScAbstractType, args) =>
+        case p@ParameterizedType(a: ScAbstractType, args) =>
           collectParts(a)
           args.foreach(collectParts)
-        case p@ScParameterizedType(des, args) =>
+        case p@ParameterizedType(des, args) =>
           p.extractClassType(project) match {
             case Some((clazz, subst)) =>
               parts += des
@@ -708,11 +708,11 @@ object ScalaPsiUtil {
           case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
             collectObjects(p.actualSubst.subst(p.actualElement.asInstanceOf[ScTypeAliasDefinition].
               aliasedType.getOrAny))
-          case ScParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
+          case ParameterizedType(ScDesignatorType(ta: ScTypeAliasDefinition), args) =>
             val genericSubst = ScalaPsiUtil.
               typesCallSubstitutor(ta.typeParameters.map(_.nameAndId), args)
             collectObjects(genericSubst.subst(ta.aliasedType.getOrAny))
-          case ScParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
+          case ParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
             val genericSubst = ScalaPsiUtil.
               typesCallSubstitutor(p.actualElement.asInstanceOf[ScTypeAliasDefinition].typeParameters.map(_.nameAndId), args)
             val s = p.actualSubst.followed(genericSubst)
@@ -731,7 +731,7 @@ object ScalaPsiUtil {
                       tp match {
                         case ScProjectionType(proj, _, s) =>
                           addResult(obj.qualifiedName, ScProjectionType(proj, obj, s))
-                        case ScParameterizedType(ScProjectionType(proj, _, s), _) =>
+                        case ParameterizedType(ScProjectionType(proj, _, s), _) =>
                           addResult(obj.qualifiedName, ScProjectionType(proj, obj, s))
                         case _ => addResult(obj.qualifiedName, ScDesignatorType(obj))
                       }
@@ -2026,12 +2026,12 @@ object ScalaPsiUtil {
   private def extrapolateWildcardBounds(tp: ScType, expected: ScType, proj: Project, scope: GlobalSearchScope)
                                        (implicit typeSystem: TypeSystem = proj.typeSystem): Option[ScType] = {
     expected match {
-      case ScExistentialType(ScParameterizedType(expectedDesignator, _), wildcards) =>
+      case ScExistentialType(ParameterizedType(expectedDesignator, _), wildcards) =>
         tp match {
           case FunctionType(retTp, params) =>
             def convertParameter(tpArg: ScType, variance: Int): ScType = {
               tpArg match {
-                case p@ScParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, variance)))
+                case p@ParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, variance)))
                 case ScExistentialType(param: ScParameterizedType, _) => convertParameter(param, variance)
                 case _ =>
                   wildcards.find(_.name == tpArg.canonicalText) match {

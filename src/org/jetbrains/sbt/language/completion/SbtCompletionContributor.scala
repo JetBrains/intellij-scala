@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
@@ -53,12 +54,12 @@ class SbtCompletionContributor extends ScalaCompletionContributor {
       def extractSeqType: Option[ScType] = {
         if (operator.getText != "+=") return None
         operator.getType() match {
-          case Success(ScParameterizedType(_, typeArgs), _) =>
+          case Success(ParameterizedType(_, typeArgs), _) =>
             typeArgs.last match {
-              case ScParameterizedType(settingType, Seq(seqFullType)) if qualifiedName(settingType) == "sbt.Init.Setting" =>
+              case ParameterizedType(settingType, Seq(seqFullType)) if qualifiedName(settingType) == "sbt.Init.Setting" =>
                 val collectionTypeNames = Seq("scala.collection.Seq", "scala.collection.immutable.Set")
                 seqFullType match {
-                  case ScParameterizedType(seqType, Seq(valType)) if collectionTypeNames contains qualifiedName(seqType) =>
+                  case ParameterizedType(seqType, Seq(valType)) if collectionTypeNames contains qualifiedName(seqType) =>
                     Some(valType)
                   case _ => None
                 }

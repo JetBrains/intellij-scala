@@ -92,7 +92,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
     case MethodRepr(_, Some(baseExpr), Some(ResolvesTo(fun: ScFunction)), Seq(arg, _*)) if mayNeedHighlighting(fun) =>
       implicit val typeSystem = holderTypeSystem(holder)
       for {
-        ScParameterizedType(_, Seq(elemType)) <- baseExpr.getType().map(tryExtractSingletonType)
+        ParameterizedType(_, Seq(elemType)) <- baseExpr.getType().map(tryExtractSingletonType)
         argType <- arg.getType()
         if cannotBeCompared(elemType, argType)
       } {

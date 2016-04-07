@@ -217,7 +217,7 @@ object NameSuggester {
       case ScDesignatorType(e) => addForNamedElement(e)
       case TypeParameterType(name, typeParams, lowerType, upperType, ptp) => addForNamedElementString(name)
       case ScProjectionType(_, e, _) => addForNamedElement(e)
-      case ScParameterizedType(tp, args) =>
+      case ParameterizedType(tp, args) =>
         addForParameterizedType(tp, args)
       case JavaArrayType(argument) => addPlurals(argument)
       case ScCompoundType(comps, _, _) =>

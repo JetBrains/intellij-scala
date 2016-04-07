@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Nothing, TupleType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{types, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
@@ -79,7 +79,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
               result.addElement(elemToAdd)
             } else {
               typez.foreach {
-                case ScParameterizedType(tpe, Seq(arg)) if !elementAdded =>
+                case ParameterizedType(tpe, Seq(arg)) if !elementAdded =>
                   tpe.extractClass(elem.getProject) match {
                     case Some(clazz) if clazz.qualifiedName == "scala.Option" || clazz.qualifiedName == "scala.Some" =>
                       if (!scType.equiv(Nothing) && scType.conforms(arg)) {
@@ -201,7 +201,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
             tp.extractClass() match {
               case Some(c: ScClass) if c.qualifiedName == "scala.Option" || c.qualifiedName == "scala.Some" =>
                 tp match {
-                  case ScParameterizedType(_, Seq(scType)) => checkType(scType)
+                  case ParameterizedType(_, Seq(scType)) => checkType(scType)
                   case _ =>
                 }
               case Some(o: ScObject) => //do nothing
@@ -257,7 +257,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
                     } else {
                       var elementAdded = false
                       typez.foreach {
-                        case ScParameterizedType(tp, Seq(arg)) if !elementAdded =>
+                        case ParameterizedType(tp, Seq(arg)) if !elementAdded =>
                           tp.extractClass(place.getProject) match {
                             case Some(clazz) if clazz.qualifiedName == "scala.Option" || clazz.qualifiedName == "scala.Some" =>
                               if (!scType.equiv(Nothing) && scType.conforms(arg)) {

@@ -71,7 +71,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
               ta.aliasedType match {
                 case Success(tp, _) =>
                   actualSubst.subst(tp) match {
-                    case ScParameterizedType(des, typeArgs) =>
+                    case ParameterizedType(des, typeArgs) =>
                       val taArgs = ta.typeParameters
                       if (taArgs.length == typeArgs.length && taArgs.zip(typeArgs).forall {
                         case (tParam: ScTypeParam, TypeParameterType(_, _, _, _, param)) if tParam == param => true
@@ -246,7 +246,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
           case synth: ScSyntheticClass => synth.t.equiv(t, uSubst, falseUndef)
           case _ => (false, uSubst)
         }
-      case param@ScParameterizedType(proj2@ScProjectionType(p1, element1, _), typeArgs) =>
+      case param@ParameterizedType(proj2@ScProjectionType(p1, element1, _), typeArgs) =>
         r.isAliasType match {
           case Some(AliasType(ta: ScTypeAliasDefinition, lower, _)) =>
             this.equiv(lower match {
@@ -417,7 +417,7 @@ case class ScDesignatorType(element: PsiNamedElement) extends ScalaType with Val
             ta.aliasedType match {
               case Success(tp, _) =>
                 tp match {
-                  case ScParameterizedType(des, typeArgs) =>
+                  case ParameterizedType(des, typeArgs) =>
                     val taArgs = ta.typeParameters
                     if (taArgs.length == typeArgs.length && taArgs.zip(typeArgs).forall {
                       case (tParam: ScTypeParam, TypeParameterType(_, _, _, _, param)) if tParam == param => true

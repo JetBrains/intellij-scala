@@ -49,7 +49,7 @@ case class JavaArrayType(argument: ScType)(implicit val typeSystem: TypeSystem) 
                          (implicit typeSystem: api.TypeSystem) =
     `type` match {
       case JavaArrayType(thatArgument) => thatArgument.equiv(thatArgument, substitutor, falseUndef)
-      case ScParameterizedType(designator, arguments) if arguments.length == 1 =>
+      case ParameterizedType(designator, arguments) if arguments.length == 1 =>
         designator.extractClass() match {
           case Some(td) if td.qualifiedName == "scala.Array" => argument.equiv(arguments.head, substitutor, falseUndef)
           case _ => (false, substitutor)

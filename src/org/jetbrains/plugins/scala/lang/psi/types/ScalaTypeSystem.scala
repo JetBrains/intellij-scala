@@ -12,4 +12,7 @@ object ScalaTypeSystem extends api.TypeSystem {
   protected override lazy val presentation = ScTypePresentation
 
   override def andType(types: Seq[ScType]) = ScCompoundType(types)
+
+  override def parameterizedType(designator: ScType, typeArguments: Seq[ScType]) =
+    ScParameterizedType(designator, typeArguments)
 }

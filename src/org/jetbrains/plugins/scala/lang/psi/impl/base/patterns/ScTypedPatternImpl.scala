@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, ParameterizedType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, api, _}
 
@@ -60,7 +60,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                 case Some((clazz: ScTypeDefinition, subst)) =>
                   val typeParams = clazz.typeParameters
                   skolem match {
-                    case ScParameterizedType(des, typeArgs) if typeArgs.length == typeParams.length =>
+                    case ParameterizedType(des, typeArgs) if typeArgs.length == typeParams.length =>
                       ScParameterizedType(des, typeArgs.zip(typeParams).map {
                         case (arg: ScExistentialArgument, param: ScTypeParam) =>
                           val lowerBound =
@@ -77,7 +77,7 @@ class ScTypedPatternImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
                 case Some((clazz: PsiClass, subst)) =>
                   val typeParams: Array[PsiTypeParameter] = clazz.getTypeParameters
                   skolem match {
-                    case ScParameterizedType(des, typeArgs) if typeArgs.length == typeParams.length =>
+                    case ParameterizedType(des, typeArgs) if typeArgs.length == typeParams.length =>
                       ScParameterizedType(des, typeArgs.zip(typeParams).map {
                         case (arg: ScExistentialArgument, param: PsiTypeParameter) =>
                           val lowerBound = arg.lower

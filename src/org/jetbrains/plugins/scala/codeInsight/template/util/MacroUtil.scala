@@ -45,7 +45,7 @@ object MacroUtil {
   def getComponentFromArrayType(scType: ScType): Option[ScType] = scType match {
     case JavaArrayType(argument) => Some(argument)
     case paramType: ScParameterizedType if paramType.canonicalText.startsWith("_root_.scala.Array") &&
-            paramType.typeArgs.length == 1 => Some(paramType.typeArgs.head)
+      paramType.typeArguments.length == 1 => Some(paramType.typeArguments.head)
     case _ => None
   }
 

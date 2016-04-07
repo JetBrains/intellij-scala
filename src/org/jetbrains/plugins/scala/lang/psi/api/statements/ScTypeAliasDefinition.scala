@@ -60,7 +60,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
       val typeParamsAreAppliedInOrderToCorrectClass = aliasedType.getOrAny match {
         case pte: ScParameterizedType =>
           val refersToClass = pte.designator.equiv(ScalaType.designator(cls))
-          val typeParamsAppliedInOrder = (pte.typeArgs corresponds typeParameters) {
+          val typeParamsAppliedInOrder = (pte.typeArguments corresponds typeParameters) {
             case (tpt: TypeParameterType, tp) if tpt.typeParameter == tp => true
             case _ => false
           }

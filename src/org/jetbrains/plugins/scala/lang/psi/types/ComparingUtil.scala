@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeSystem}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 /**
@@ -80,12 +80,11 @@ object ComparingUtil {
 
     def neverSubArgs() = {
       (tp1, tp2) match {
-        case (ScParameterizedType(_, args1), ScParameterizedType(_, args2)) =>
+        case (ParameterizedType(_, args1), ParameterizedType(_, args2)) =>
           isNeverSubArgs(args1, args2, clazz2.getTypeParameters)
         case _ => false
       }
     }
-
 
     isNeverSubClass(clazz1, clazz2) ||
             ((areClassesEquivalent(clazz1, clazz2) || (!sameType) && clazz1.isInheritor(clazz2, true)) && neverSubArgs())

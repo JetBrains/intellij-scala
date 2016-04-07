@@ -110,7 +110,7 @@ object Bounds extends api.Bounds {
 
     val projectionOption = {
       def projectionOption(tp: ScType): Option[ScType] = tp match {
-        case ScParameterizedType(des, _) => projectionOption(des)
+        case ParameterizedType(des, _) => projectionOption(des)
         case proj@ScProjectionType(p, elem, _) => proj.actualElement match {
           case c: PsiClass => Some(p)
           case t: ScTypeAliasDefinition =>
@@ -208,7 +208,7 @@ object Bounds extends api.Bounds {
         case (base, inheritor: ScTypeAlias) =>
           if (ScEquivalenceUtil.smartEquivalence(base, inheritor)) {
             bClass.tp match {
-              case ScParameterizedType(_, typeArgs) =>
+              case ParameterizedType(_, typeArgs) =>
                 return Some(bClass.getTypeParameters.zip(typeArgs).foldLeft(ScSubstitutor.empty) {
                   case (subst: ScSubstitutor, (ptp, typez)) =>
                     subst.bindT(ptp.nameAndId, typez)
@@ -263,7 +263,7 @@ object Bounds extends api.Bounds {
               case Some(w) => ScExistentialType(JavaArrayType(v), List(w))
               case None => JavaArrayType(v)
             }
-          case (JavaArrayType(arg), ScParameterizedType(des, args)) if args.length == 1 && (des.extractClass() match {
+          case (JavaArrayType(arg), ParameterizedType(des, args)) if args.length == 1 && (des.extractClass() match {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           }) =>
@@ -272,7 +272,7 @@ object Bounds extends api.Bounds {
               case Some(w) => ScExistentialType(ScParameterizedType(des, Seq(v)), List(w))
               case None => ScParameterizedType(des, Seq(v))
             }
-          case (ScParameterizedType(des, args), JavaArrayType(arg)) if args.length == 1 && (des.extractClass() match {
+          case (ParameterizedType(des, args), JavaArrayType(arg)) if args.length == 1 && (des.extractClass() match {
             case Some(q) => q.qualifiedName == "scala.Array"
             case _ => false
           }) =>
@@ -376,8 +376,8 @@ object Bounds extends api.Bounds {
         val resTypeArgs = new ArrayBuffer[ScType]
         val wildcards = new ArrayBuffer[ScExistentialArgument]()
         for (i <- baseClass.getTypeParameters.indices) {
-          val substed1 = tp1.typeArgs.apply(i)
-          val substed2 = tp2.typeArgs.apply(i)
+          val substed1 = tp1.typeArguments.apply(i)
+          val substed2 = tp2.typeArguments.apply(i)
           resTypeArgs += (baseClass.getTypeParameters.apply(i) match {
             case scp: ScTypeParam if scp.isCovariant => if (depth > 0) lub(substed1, substed2, depth - 1, checkWeak) else Any
             case scp: ScTypeParam if scp.isContravariant => glb(substed1, substed2, checkWeak)

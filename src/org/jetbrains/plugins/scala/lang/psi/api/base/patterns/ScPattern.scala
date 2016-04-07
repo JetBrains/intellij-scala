@@ -221,12 +221,12 @@ trait ScPattern extends ScalaPsiElement {
             if (argIndex < args.length - 1) return Some(subst.subst(args(argIndex)))
             val lastArg = args.last
             (lastArg +: BaseTypes.get(lastArg)).find {
-              case ScParameterizedType(des, seqArgs) => seqArgs.length == 1 && des.extractClass().exists {
+              case ParameterizedType(des, seqArgs) => seqArgs.length == 1 && des.extractClass().exists {
                 _.qualifiedName == "scala.collection.Seq"
               }
               case _ => false
             } match {
-              case Some(seq@ScParameterizedType(des, seqArgs)) =>
+              case Some(seq@ParameterizedType(des, seqArgs)) =>
                 this match {
                   case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] => Some(subst.subst(seq))
                   case _ => Some(subst.subst(seqArgs.head))
@@ -437,7 +437,7 @@ object ScPattern {
     if (level >= Scala_2_11) collectFor2_11
     else {
       returnType match {
-        case ScParameterizedType(des, args) =>
+        case ParameterizedType(des, args) =>
           des.extractClass() match {
             case Some(clazz) if clazz.qualifiedName == "scala.Option" ||
                     clazz.qualifiedName == "scala.Some" =>

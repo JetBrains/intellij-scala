@@ -88,7 +88,7 @@ object ScTypePresentation extends api.ScTypePresentation {
           s"${projectionTypeText(p, needDotType = false)}.$refName$typeTailForProjection"
         case ScDesignatorType(clazz: PsiClass) if isInnerStaticJavaClassForParent(clazz) =>
           nameWithPointFun(clazz) + refName
-        case ScParameterizedType(ScDesignatorType(clazz: PsiClass), _) if isInnerStaticJavaClassForParent(clazz) =>
+        case ParameterizedType(ScDesignatorType(clazz: PsiClass), _) if isInnerStaticJavaClassForParent(clazz) =>
           nameWithPointFun(clazz) + refName
         case _: ScCompoundType | _: ScExistentialType =>
           s"(${innerTypeText(p)})#$refName"
@@ -170,7 +170,7 @@ object ScTypePresentation extends api.ScTypePresentation {
             case _ =>
               existentialTypeText(existType, checkWildcard = false, stable)
           }
-        case ex@ScExistentialType(ScParameterizedType(des, typeArgs), wilds) =>
+        case ex@ScExistentialType(ParameterizedType(des, typeArgs), wilds) =>
           val wildcardsMap = ex.wildcardsMap()
           val replacingArgs = new ArrayBuffer[(ScType, ScExistentialArgument)]()
           val left = wilds.filter {
@@ -240,7 +240,7 @@ object ScTypePresentation extends api.ScTypePresentation {
           nameFun(e)
         case proj: ScProjectionType if proj != null =>
           projectionTypeText(proj, needDotType)
-        case ScParameterizedType(des, typeArgs) =>
+        case ParameterizedType(des, typeArgs) =>
           innerTypeText(des) + typeSeqText(typeArgs, "[", ", ", "]", checkWildcard = true)
         case JavaArrayType(argument) => s"Array[${innerTypeText(argument)}]"
         case UndefinedType(tpt, _) => "NotInfered" + tpt.name

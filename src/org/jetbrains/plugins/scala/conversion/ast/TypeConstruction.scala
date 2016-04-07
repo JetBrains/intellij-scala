@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.conversion.ast
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiType
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
-import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeSystem}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, ParameterizedType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable.ArrayBuffer
@@ -49,7 +49,7 @@ object TypeConstruction {
   def getParts(scType: ScType, buffer: ArrayBuffer[(IntermediateNode, Option[String])])
               (implicit typeSystem: TypeSystem): IntermediateNode = {
     scType match {
-      case p@ScParameterizedType(des, args) =>
+      case p@ParameterizedType(des, args) =>
         val typeConstruction: IntermediateNode = TypeConstruction(des.presentableText)
         buffer += ((typeConstruction, p.extractClass().flatMap(el => Option(el.getQualifiedName))))
         val argsOnLevel = args.map(getParts(_, buffer))

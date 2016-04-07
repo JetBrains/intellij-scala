@@ -9,8 +9,9 @@ import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScTypeExt}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -44,7 +45,7 @@ trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
                 constr.args match {
                   case Some(args) if args.exprs.length == 1 =>
                     args.exprs(0).getType(TypingContext.empty) match {
-                      case Success(ScParameterizedType(tp, arg), _) if arg.length == 1 =>
+                      case Success(ParameterizedType(tp, arg), _) if arg.length == 1 =>
                         tp.extractClass(getProject) match {
                           case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
                             arg.head.extractClass(getProject) match {
