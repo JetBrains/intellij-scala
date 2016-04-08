@@ -68,4 +68,32 @@ class HigherKindedTypesConformanceTest extends TypeConformanceTestBase {
       |//true""".stripMargin
   }
 
+  def testSCL4652(): Unit = doTest {
+    s"""import scala.language.higherKinds
+      |
+      |  trait Binding[A]
+      |
+      |  trait ValueKey[BindingRoot] {
+      |    def update(value: Any): Binding[BindingRoot]
+      |  }
+      |
+      |  class Foo[A] {
+      |    type ObjectType[B[_]] = B[A]
+      |    val bar: ObjectType[Bar] = ???
+      |  }
+      |
+      |  class Bar[A] {
+      |    type ValueType = ValueKey[A]
+      |    val qux: ValueType = ???
+      |  }
+      |
+      |  object Test {
+      |    def foo123(): Unit = {
+      |      ${caretMarker}val g: Foo[String] => Binding[String] = _.bar.qux.update(1)
+      |    }
+      |  }
+      |}
+      |//true""".stripMargin
+  }
+
 }
