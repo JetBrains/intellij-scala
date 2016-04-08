@@ -86,4 +86,20 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def testSCL9014() = {
+    val text =
+      """
+        |import scala.util.{Success, Try}
+        |class Foo[A, In <: Try[A]] {
+        |    def takeA(a: A) = a
+        |    def takeIn(in: In) = {
+        |      in match {
+        |        case Success(a) ⇒ takeA(a) // cannot infer type
+        |      }
+        |    }
+        |  }
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
 }
