@@ -58,4 +58,23 @@ class ScalaZTest extends TypeInferenceTestBase {
        """.stripMargin
     )
   }
+
+  def testSCL6096(): Unit = {
+    doTest(
+      s"""
+         |import scalaz.Lens.lensg
+         |import scalaz.State
+         |import scalaz.syntax.traverse.ToTraverseOps
+         |import scalaz.std.indexedSeq.indexedSeqInstance
+         |// this "unused import" is required! ^^^
+         |
+         |case class X(y: Int)
+         |
+         |def foo(x: X):String = x.toString
+         |def foo(x: Int): String = "ok"
+         |def sequenced(x: X, s: State[X,Any]*) =
+         |  foo(${START}s.toIndexedSeq.sequenceU.exec(x))$END
+         |//Int
+      """.stripMargin)
+  }
 }
