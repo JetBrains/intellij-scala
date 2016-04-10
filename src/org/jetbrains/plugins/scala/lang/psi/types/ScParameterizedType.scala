@@ -79,7 +79,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
     designator match {
       case TypeParameterType(args, _, _, _) =>
         forParams(args.iterator, ScSubstitutor.empty, (p: TypeParameterType) => p)
-      case _ => ScalaType.extractDesignated(designator, withoutAliases = false) match {
+      case _ => designator.extractDesignated(withoutAliases = false) match {
         case Some((owner: ScTypeParametersOwner, s)) =>
           forParams(owner.typeParameters.iterator, s, (typeParam: ScTypeParam) => TypeParameterType(typeParam, None))
         case Some((owner: PsiTypeParameterListOwner, s)) =>
@@ -94,7 +94,7 @@ class ScParameterizedType private(val designator: ScType, val typeArguments: Seq
     update(this, variance, data) match {
       case (true, res, _) => res
       case (_, _, newData) =>
-        val des = ScalaType.extractDesignated(designator, withoutAliases = false) match {
+        val des = designator.extractDesignated(withoutAliases = false) match {
           case Some((n: ScTypeParametersOwner, _)) =>
             n.typeParameters.map {
               case tp if tp.isContravariant => -1

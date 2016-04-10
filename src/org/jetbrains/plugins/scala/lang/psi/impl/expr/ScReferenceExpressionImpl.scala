@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
@@ -195,9 +196,14 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
             case ScAbstractType(_, lower, _) => lower
             case _ => tp
           }).isAliasType match {
-            case Some(AliasType(_, lower, _)) if lower.isDefined && lower.get.isStable => return true
+            case Some(AliasType(_, Success(lower: DesignatorOwner, _), _)) if lower.isStable =>
+              return true
             case _ =>
-              if (tp.isStable) return true
+              tp match {
+                case designatorOwner: DesignatorOwner if designatorOwner.isStable =>
+                  return true
+                case _ =>
+              }
               typeElementOpt match {
                 case Some(te) =>
                   te.getContext match {

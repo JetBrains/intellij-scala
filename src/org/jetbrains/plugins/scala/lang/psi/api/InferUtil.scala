@@ -474,7 +474,7 @@ object InferUtil {
                               case _ => false
                             }
                           }
-                          ScalaType.extractDesignated(tp, withoutAliases = false) match {
+                          tp.extractDesignated(withoutAliases = false) match {
                             case Some((named, _)) => checkNamed(named, typeParams)
                             case _ => tp match {
                               case tpt: TypeParameterType => checkNamed(tpt.psiTypeParameter, typeParams)

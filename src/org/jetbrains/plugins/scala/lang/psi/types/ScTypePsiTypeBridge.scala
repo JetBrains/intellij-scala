@@ -220,28 +220,8 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
                                 project: Project,
                                 visitedAlias: HashSet[ScTypeAlias]): Option[(PsiClass, ScSubstitutor)] =
     `type` match {
-      case ScThisType(clazz) => Some(clazz, new ScSubstitutor(`type`))
-      case ScDesignatorType(clazz: PsiClass) => Some(clazz, ScSubstitutor.empty)
-      case ScDesignatorType(ta: ScTypeAliasDefinition) =>
-        if (visitedAlias.contains(ta)) return None
-        val result = ta.aliasedType(TypingContext.empty)
-        if (result.isEmpty) return None
-        extractClassType(result.get, project, visitedAlias + ta)
-      case proj@ScProjectionType(p, elem, _) => proj.actualElement match {
-        case c: PsiClass => Some((c, proj.actualSubst))
-        case t: ScTypeAliasDefinition =>
-          if (visitedAlias.contains(t)) return None
-          val result = t.aliasedType(TypingContext.empty)
-          if (result.isEmpty) return None
-          extractClassType(proj.actualSubst.subst(result.get), project, visitedAlias + t)
-        case _ => None
-      }
-      case ScExistentialType(quantified, _) => extractClassType(quantified, project, visitedAlias)
-      case p@ParameterizedType(t1, _) =>
-        extractClassType(t1, project, visitedAlias) match {
-          case Some((c, s)) => Some((c, s.followed(p.substitutor)))
-          case None => None
-        }
+      case ScExistentialType(quantified, _) =>
+        quantified.extractClassType(project, visitedAlias)
       case _ => super.extractClassType(`type`, project, visitedAlias)
     }
 }

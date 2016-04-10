@@ -280,7 +280,7 @@ object Conformance extends api.Conformance {
             result = (false, undefinedSubst)
             return
           }
-          ScalaType.extractDesignated(l, withoutAliases = false) match {
+          l.extractDesignated(withoutAliases = false) match {
             case Some((el, _)) =>
               val notNullClass = ScalaPsiManager.instance(el.getProject).getCachedClass("scala.NotNull", el.getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
               if (notNullClass != null) {
@@ -303,7 +303,7 @@ object Conformance extends api.Conformance {
 
     trait ThisVisitor extends ScalaTypeVisitor {
       override def visitThisType(t: ScThisType) {
-        val clazz = t.clazz
+        val clazz = t.element
         val res = clazz.getTypeWithProjections(TypingContext.empty)
         if (res.isEmpty) result = (false, undefinedSubst)
         else result = conformsInner(l, res.get, visited, subst, checkWeak)
@@ -867,7 +867,7 @@ object Conformance extends api.Conformance {
           result = (false, undefinedSubst)
           return
         }
-        ScalaType.extractDesignated(des1, withoutAliases = false) match {
+        des1.extractDesignated(withoutAliases = false) match {
           case Some((ownerDesignator, _)) =>
             val parametersIterator = ownerDesignator match {
               case td: ScTypeParametersOwner => td.typeParameters.iterator
@@ -1253,7 +1253,7 @@ object Conformance extends api.Conformance {
       r.visitType(rightVisitor)
       if (result != null) return
 
-      val clazz = t.clazz
+      val clazz = t.element
       val res = clazz.getTypeWithProjections(TypingContext.empty)
       if (res.isEmpty) result = (false, undefinedSubst)
       else result = conformsInner(res.get, r, visited, subst, checkWeak)

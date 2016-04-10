@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScDesignatorType, _}
@@ -156,7 +157,8 @@ object PatternAnnotator {
   }
 
   private def widen(scType: ScType): ScType = scType match {
-    case scalaType: ScalaType if scalaType.isSingleton => ScalaType.extractDesignatorSingletonType(scType).getOrElse(scType)
+    case designatorOwner: DesignatorOwner if designatorOwner.isSingleton =>
+      scType.tryExtractDesignatorSingleton
     case _ =>
       scType.recursiveUpdate {
         case ScAbstractType(_, _, upper) => (true, upper)

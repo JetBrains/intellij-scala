@@ -4,9 +4,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
-import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -87,11 +87,19 @@ trait ScTypePsiTypeBridge extends TypeSystemOwner {
                        project: Project = null,
                        visitedAlias: HashSet[ScTypeAlias] = HashSet.empty): Option[(PsiClass, ScSubstitutor)] =
     `type` match {
-      case nonValue: NonValueType =>
-        extractClassType(nonValue.inferValueType, project, visitedAlias)
-      case std: StdType =>
-        std.asClass(project.toOption.getOrElse(DecompilerUtil.obtainProject))
-          .map((_, ScSubstitutor.empty))
+      case nonValueType: NonValueType =>
+        nonValueType.inferValueType.extractClassType(project, visitedAlias)
+      case designatorOwner: DesignatorOwner =>
+        designatorOwner.classType(project, visitedAlias)
+      case parameterizedType: ParameterizedType =>
+        parameterizedType.designator.extractClassType(project, visitedAlias).map {
+          case (clazz, substitutor) => (clazz, substitutor.followed(parameterizedType.substitutor))
+        }
+      case stdType: StdType =>
+        stdType.asClass(Option(project).getOrElse(DecompilerUtil.obtainProject))
+          .map {
+            (_, ScSubstitutor.empty)
+          }
       case _ => None
     }
 

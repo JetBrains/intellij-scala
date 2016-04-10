@@ -25,9 +25,6 @@ trait ScType {
 
   def isValue: Boolean
 
-  // TODO: Review this against SLS 3.2.1
-  def isStable: Boolean = false
-
   def isFinalType: Boolean = false
 
   def inferValueType: ValueType
