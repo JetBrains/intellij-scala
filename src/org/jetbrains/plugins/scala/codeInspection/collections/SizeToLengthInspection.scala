@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 import org.jetbrains.plugins.scala.codeInspection.InspectionBundle
 import org.jetbrains.plugins.scala.extensions.ExpressionType
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 /**
  * @author Nikolay.Tropin
@@ -25,7 +25,7 @@ object SizeToLength extends SimplificationType {
   }
   
   def isString(tp: ScType) = {
-    val extracted = ScalaType.extractDesignatorSingletonType(tp).getOrElse(tp)
+    val extracted = tp.tryExtractDesignatorSingleton
     val canonicalText = extracted.canonicalText
     canonicalText == "_root_.java.lang.String" || canonicalText == "_root_.scala.Predef.String"
   }

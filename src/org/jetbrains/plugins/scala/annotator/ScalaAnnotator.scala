@@ -100,7 +100,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         val tp = parameterized.typeElement.getTypeNoConstructor(TypingContext.empty)
         tp match {
           case Success(res, _) =>
-            ScalaType.extractDesignated(res, withoutAliases = false) match {
+            res.extractDesignated(withoutAliases = false) match {
               case Some((t: ScTypeParametersOwner, subst)) =>
                 val typeParametersLength = t.typeParameters.length
                 val argsLength = parameterized.typeArgList.typeArgs.length

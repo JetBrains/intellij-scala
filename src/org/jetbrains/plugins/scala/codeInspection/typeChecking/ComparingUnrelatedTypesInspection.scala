@@ -64,11 +64,9 @@ object ComparingUnrelatedTypesInspection {
   def extractActualType(tp: ScType): ScType = {
     tp.isAliasType match {
       case Some(ScTypeUtil.AliasType(_, Success(rhs, _), _)) => extractActualType(rhs)
-      case _ => tryExtractSingletonType(tp)
+      case _ => tp.tryExtractDesignatorSingleton
     }
   }
-
-  private def tryExtractSingletonType(tp: ScType): ScType = ScalaType.extractDesignatorSingletonType(tp).getOrElse(tp)
 }
 
 class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId, inspectionName){
@@ -92,7 +90,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
     case MethodRepr(_, Some(baseExpr), Some(ResolvesTo(fun: ScFunction)), Seq(arg, _*)) if mayNeedHighlighting(fun) =>
       implicit val typeSystem = holderTypeSystem(holder)
       for {
-        ParameterizedType(_, Seq(elemType)) <- baseExpr.getType().map(tryExtractSingletonType)
+        ParameterizedType(_, Seq(elemType)) <- baseExpr.getType().map(_.tryExtractDesignatorSingleton)
         argType <- arg.getType()
         if cannotBeCompared(elemType, argType)
       } {

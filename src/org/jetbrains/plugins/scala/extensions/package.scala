@@ -330,11 +330,6 @@ package object extensions {
         case nd => nd.getName
       }
     }
-
-    def toTypedDefinition: Option[ScTypedDefinition] = named match {
-      case typedDefinition: ScTypedDefinition => Some(typedDefinition)
-      case _ => None
-    }
   }
 
   implicit class PsiModifierListOwnerExt(val member: PsiModifierListOwner) extends AnyVal{

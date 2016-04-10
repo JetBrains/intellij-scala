@@ -225,7 +225,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
       }
 
       override def visitThisType(th: ScThisType): Unit = {
-        val clazz = th.clazz
+        val clazz = th.element
         def hasRecursiveThisType(tp: ScType): Boolean = {
           var res = false
           tp.recursiveUpdate {
@@ -241,14 +241,14 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
           case Some(oldTp) if !hasRecursiveThisType(oldTp) => //todo: hack to avoid infinite recursion during type substitution
             var tp = oldTp
             def update(typez: ScType): ScType = {
-              ScalaType.extractDesignated(typez, withoutAliases = true) match {
+              typez.extractDesignated(withoutAliases = true) match {
                 case Some((t: ScTypeDefinition, subst)) =>
                   if (t == clazz) tp
                   else if (ScalaPsiUtil.cachedDeepIsInheritor(t, clazz)) tp
                   else {
                     t.selfType match {
                       case Some(selfType) =>
-                        ScalaType.extractDesignated(selfType, withoutAliases = true) match {
+                        selfType.extractDesignated(withoutAliases = true) match {
                           case Some((cl: PsiClass, _)) =>
                             if (cl == clazz) tp
                             else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) tp
@@ -408,7 +408,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
           case res: ScProjectionType if !s =>
             val actualElement = p.actualElement
             if (actualElement.isInstanceOf[ScTypeDefinition] &&
-              actualElement != res.actualElement) res.copy(superReference = true)
+              actualElement != res.actualElement) ScProjectionType(res.projected, res.element, superReference = true)
             else res
           case _ => res
         }

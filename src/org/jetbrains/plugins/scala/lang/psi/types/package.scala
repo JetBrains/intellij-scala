@@ -1,10 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypePresentation.shouldExpand
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, TypeSystem, UndefinedType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -90,6 +94,38 @@ package object types {
         }
       }
       if (updated) result.removeAliasDefinitions(visited + scType, expandableOnly) else scType
+    }
+
+    def extractDesignatorSingleton = scType match {
+      case desinatorOwner: DesignatorOwner => desinatorOwner.designatorSingletonType
+      case _ => None
+    }
+
+    def tryExtractDesignatorSingleton = extractDesignatorSingleton.getOrElse(scType)
+
+    /**
+      * Returns named element associated with type.
+      * If withoutAliases is true expands alias definitions first
+      *
+      * @param withoutAliases need to expand alias or not
+      * @return element and substitutor
+      */
+    def extractDesignated(implicit withoutAliases: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = scType match {
+      case nonValueType: NonValueType =>
+        nonValueType.inferValueType.extractDesignated
+      case designatorOwner: DesignatorOwner =>
+        designatorOwner.designated
+      case parameterizedType: ParameterizedType =>
+        parameterizedType.designator.extractDesignated.map {
+          case (element, substitutor) => (element, substitutor.followed(parameterizedType.substitutor))
+        }
+      case stdType: StdType =>
+        stdType.asClass(DecompilerUtil.obtainProject).map {
+          (_, ScSubstitutor.empty)
+        }
+      case TypeParameterType(_, _, _, _, typeParameter) =>
+        Some(typeParameter, ScSubstitutor.empty)
+      case _ => None
     }
   }
 

@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 
 /**
@@ -63,15 +64,18 @@ object ScThisReferenceImpl {
     // SLS 6.5:  If the expression’s expected type is a stable type,
     // or C .this occurs as the prefix of a selection, its type is C.this.type,
     // otherwise it is the self type of class C .
-    expr.getContext match {
-      case r: ScReferenceExpression if r.qualifier.contains(expr) =>
-        Success(ScThisType(td), Some(expr))
+    val element = Some(expr)
+    val result = expr.getContext match {
+      case r: ScReferenceExpression if r.qualifier.contains(expr) => ScThisType(td)
       case _ => expr.expectedType() match {
-        case Some(t) if t.isStable =>
-          Success(ScThisType(td), Some(expr))
-        case _ =>
-          Success(selfTypeOfClass.getOrElse (return Failure("No clazz type found", Some(expr))), Some(expr))
+        case Some(designatorOwner: DesignatorOwner) if designatorOwner.isStable =>
+          ScThisType(td)
+        case _ => selfTypeOfClass match {
+          case Success(tp, _) => tp
+          case _ => return Failure("No clazz type found", element)
+        }
       }
     }
+    Success(result, element)
   }
 }

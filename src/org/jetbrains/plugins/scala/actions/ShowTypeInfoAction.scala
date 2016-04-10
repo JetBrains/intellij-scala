@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypeSystem}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.project.ProjectExt
 
@@ -57,7 +57,7 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
             val tpeWithoutImplicits = expr.getTypeWithoutImplicits().toOption
             val tpeWithoutImplicitsText = tpeWithoutImplicits.map(_.presentableText)
             val expectedTypeText = expr.expectedType().map(_.presentableText)
-            val nonSingletonTypeText = ScalaType.extractDesignatorSingletonType(tpe).map(_.presentableText)
+            val nonSingletonTypeText = tpe.extractDesignatorSingleton.map(_.presentableText)
 
             val mainText = Seq("Type: " + tpeText)
             def additionalTypeText(typeText: Option[String], label: String) = typeText.filter(_ != tpeText).map(s"$label: " + _)
