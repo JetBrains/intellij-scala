@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion.{ScalaAfterNewCompletionUtil, ScalaCompletionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScTypeAlias, ScTypedDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
@@ -23,10 +24,11 @@ import scala.collection.mutable
   */
 class ScalaByNameWeigher extends CompletionWeigher {
   val MAX_DISTANCE = 4
+  val textForPosition = new mutable.HashMap[PsiElement, String]
 
   override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = {
-    val textForPosition = new mutable.HashMap[PsiElement, String]
     val position = ScalaCompletionUtil.positionFromParameters(location.getCompletionParameters)
+    val originalPostion = location.getCompletionParameters.getOriginalPosition
     val context = location.getProcessingContext
 
     def extractVariableNameFromPosition: Option[String] = {
@@ -63,14 +65,12 @@ class ScalaByNameWeigher extends CompletionWeigher {
           case _ => None
         }
 
-        if (result.isDefined) textForPosition.put(position, result.get)
+        if (result.isDefined) textForPosition.put(originalPostion, result.get)
         result
       }
 
-      Option(textForPosition.getOrElse(position,
-        afterColonType.getOrElse(
-          asBindingPattern.getOrElse(
-            afterNew.orNull))))
+      Option(textForPosition.getOrElse(originalPostion,
+        asBindingPattern.getOrElse(afterColonType.getOrElse(afterNew.orNull))))
     }
 
 
@@ -88,8 +88,7 @@ class ScalaByNameWeigher extends CompletionWeigher {
         else if (Math.abs(text.length - element.getName.length) > maxDist) None
         else {
           val distance = EditDistance.optimalAlignment(element.getName, text, false)
-          if (distance > maxDist) None
-          else Some(-distance)
+          if (distance > maxDist) None else Some(-distance)
         }
       }
 
@@ -113,7 +112,7 @@ class ScalaByNameWeigher extends CompletionWeigher {
         case s: ScalaLookupItem =>
           lazy val byTextResult = handleByText(s.element)
           s.element match {
-            case _: ScTypeAlias | _: ScTypeDefinition | _: PsiClass if byTextResult.isDefined => byTextResult.get
+            case _: ScTypeAlias | _: ScTypeDefinition | _: PsiClass | _: ScParameter if byTextResult.isDefined => byTextResult.get
             case _ => null
           }
         case _ => null
