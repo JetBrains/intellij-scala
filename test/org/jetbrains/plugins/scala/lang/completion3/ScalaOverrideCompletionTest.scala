@@ -11,11 +11,13 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
 
   private val baseText =
     """
-      |class Base {
+      |trait Base {
       |  protected def foo(int: Int): Int = 45
       |  type StringType = String
       |  val intValue = 45
       |  var intVariable = 43
+      |  type A
+      |  def abstractFoo
       |}
     """
 
@@ -89,7 +91,7 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
       val inText =
         """
           |class Inheritor extends Base {
-          |   override def e<caret>
+          |   override def h<caret>
           |}
         """
       configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
@@ -98,13 +100,13 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
       val outText =
         """
           |class Inheritor extends Base {
-          |  override def equals(obj: scala.Any): Boolean = super.equals(obj)
+          |  override def hashCode(): Int = super.hashCode()
           |}
         """
 
-      completeLookupItem(activeLookup.find(le => le.getLookupString.contains("equals")).get, '\t')
-      checkResultByText(handleText(baseText + outText))
-    }
+    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("hashCode")).get, '\t')
+    checkResultByText(handleText(baseText + outText))
+  }
 
   def testOverrideKeword() {
     val inText =
@@ -124,6 +126,90 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
       """
 
     completeLookupItem(activeLookup.find(le => le.getLookupString.contains("foo")).get, '\t')
+    checkResultByText(handleText(baseText + outText))
+  }
+
+  def testAbstractType(): Unit ={
+    val inText =
+      """
+        |class Inheritor extends Base {
+        |   override type <caret>
+        |}
+      """
+    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val outText =
+      """
+        |class Inheritor extends Base {
+        |  override type A = this.type
+        |}
+      """
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("A")).get, '\t')
+    checkResultByText(handleText(baseText + outText))
+  }
+
+  def testAbstractFucntion(): Unit ={
+    val inText =
+      """
+        |class Inheritor extends Base {
+        |   override protected def <caret>
+        |}
+      """
+    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val outText =
+      """
+        |class Inheritor extends Base {
+        |  override protected def abstractFoo: Unit = ???
+        |}
+      """
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("abstractFoo")).get, '\t')
+    checkResultByText(handleText(baseText + outText))
+  }
+
+  def testAllowOverrideFunctionWithoutOverrideKeyword(): Unit ={
+    val inText =
+      """
+        |class Inheritor extends Base {
+        |   protected def a<caret>
+        |}
+      """
+    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val outText =
+      """
+        |class Inheritor extends Base {
+        |  override protected def abstractFoo: Unit = ???
+        |}
+      """
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("abstractFoo")).get, '\t')
+    checkResultByText(handleText(baseText + outText))
+  }
+
+  def testAllowOverrideVariableWithoutOverrideKeyword(): Unit = {
+    val inText =
+      """
+        |class Inheritor extends Base {
+        |   var i<caret>
+        |}
+      """
+    configureFromFileTextAdapter("dummy.scala", handleText(baseText + inText))
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val outText =
+      """
+        |class Inheritor extends Base {
+        |  override var intVariable: Int = _
+        |}
+      """
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString.contains("intVariable")).get, '\t')
     checkResultByText(handleText(baseText + outText))
   }
 }
