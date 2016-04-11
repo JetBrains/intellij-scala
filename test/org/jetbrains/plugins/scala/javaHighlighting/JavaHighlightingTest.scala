@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.annotator._
  * Author: Svyatoslav Ilinskiy
  * Date: 7/8/15
  */
-class JavaHighlightingTest extends JavaHighltightingTestBase {
+class JavaHighlightingTest extends JavaHighlitghtingTestBase {
 
   def testProtected() = {
     val scala =
@@ -510,6 +510,25 @@ class JavaHighlightingTest extends JavaHighltightingTestBase {
         |}
       """.stripMargin
     assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "SCL9661A"))
+  }
+
+  def testSCL9619(): Unit = {
+    val scala =
+      """
+        |@Annotaion(`lazy` = true)
+        |class A {}
+      """.stripMargin
+
+    val java =
+      """
+        |public @interface Annotaion {
+        |    public String db() default "";
+        |
+        |    public boolean lazy() default false;
+        |}
+      """.stripMargin
+
+    assertNoErrors(messagesFromScalaCode(scala, java))
   }
 
   def testSCL9661(): Unit = {
