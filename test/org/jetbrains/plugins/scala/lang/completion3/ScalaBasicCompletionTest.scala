@@ -1098,4 +1098,74 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
 
     checkResultByText(resultText)
   }
+
+  def testObjectWithUnapplyStartWithLowCaseLetterAfterCaseLable(): Unit ={
+    val fileText =
+      """
+        |trait A {
+        |  object extractor {
+        |    def unapply(x: Int) = Some(x)
+        |  }
+        |}
+        |
+        |class B extends A {
+        |  1 match {
+        |    case extr<caret> =>
+        |  }
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |trait A {
+        |  object extractor {
+        |    def unapply(x: Int) = Some(x)
+        |  }
+        |}
+        |
+        |class B extends A {
+        |  1 match {
+        |    case extractor =>
+        |  }
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "extractor").get)
+
+    checkResultByText(resultText)
+  }
+
+  def testCaseClassAfterCaseLable(): Unit ={
+    val fileText =
+      """
+        |case class Extractor()
+        |
+        |class B extends A {
+        |  1 match {
+        |    case Extr<caret> =>
+        |  }
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    configureFromFileTextAdapter("dummy.scala", fileText)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    val resultText =
+      """
+        |case class Extractor()
+        |
+        |class B extends A {
+        |  1 match {
+        |    case Extractor =>
+        |  }
+        |}
+      """.stripMargin.replaceAll("\r", "").trim()
+
+    completeLookupItem(activeLookup.find(le => le.getLookupString == "Extractor").get)
+
+    checkResultByText(resultText)
+  }
 }
