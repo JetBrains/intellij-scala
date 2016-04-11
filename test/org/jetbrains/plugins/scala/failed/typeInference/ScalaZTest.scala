@@ -73,7 +73,7 @@ class ScalaZTest extends TypeInferenceTestBase {
          |def foo(x: X):String = x.toString
          |def foo(x: Int): String = "ok"
          |def sequenced(x: X, s: State[X,Any]*) =
-         |  foo(${START}s.toIndexedSeq.sequenceU.exec(x))$END
+         |  foo(${START}s.toIndexedSeq.sequenceU.exec(x)$END)
          |//Int
       """.stripMargin)
   }
