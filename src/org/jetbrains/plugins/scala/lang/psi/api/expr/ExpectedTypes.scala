@@ -43,7 +43,7 @@ private[expr] object ExpectedTypes {
       case _ => None
     }
   }
-  
+
   def expectedExprType(expr: ScExpression, fromUnderscore: Boolean = true): Option[(ScType, Option[ScTypeElement])] = {
     val types = expr.expectedTypesEx(fromUnderscore)
     types.length match {
@@ -303,7 +303,7 @@ private[expr] object ExpectedTypes {
         res.toArray
       case b: ScBlock if b.getContext.isInstanceOf[ScTryBlock]
               || b.getContext.getContext.getContext.isInstanceOf[ScCatchBlock]
-              || b.getContext.isInstanceOf[ScCaseClause] 
+              || b.getContext.isInstanceOf[ScCaseClause]
               || b.getContext.isInstanceOf[ScFunctionExpr] => b.lastExpr match {
         case Some(e) if expr.getSameElementInContext == e => b.expectedTypesEx(fromUnderscore = true)
         case _ => Array.empty
@@ -335,6 +335,7 @@ private[expr] object ExpectedTypes {
     } else result
   }
 
+  @tailrec
   private def processArgsExpected(res: ArrayBuffer[(ScType, Option[ScTypeElement])], expr: ScExpression, i: Int,
                                   tp: TypeResult[ScType], exprs: Seq[ScExpression], call: Option[MethodInvocation] = None,
                                   forApply: Boolean = false, isDynamicNamed: Boolean = false) {
@@ -359,8 +360,7 @@ private[expr] object ExpectedTypes {
             val lE = assign.getLExpression
             lE match {
               case ref: ScReferenceExpression if ref.qualifier.isEmpty =>
-                val name = ref.refName
-                params.find(_.name == name) match {
+                params.find(parameter => ScalaPsiUtil.memberNamesEquals(parameter.name, ref.refName)) match {
                   case Some(param) => res += ((param.paramType, param.paramInCode.flatMap(_.typeElement)))
                   case _ => res += p
                 }

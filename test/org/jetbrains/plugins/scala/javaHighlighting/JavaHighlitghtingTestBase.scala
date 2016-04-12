@@ -14,7 +14,7 @@ import org.junit.Assert
   * @author Alefas
   * @since 23/03/16
   */
-class JavaHighltightingTestBase extends ScalaFixtureTestCase {
+abstract class JavaHighlitghtingTestBase extends ScalaFixtureTestCase {
   def messagesFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     myFixture.addFileToProject("dummy.scala", scalaFileText)
     val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)

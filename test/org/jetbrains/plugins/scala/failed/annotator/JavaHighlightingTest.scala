@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.javaHighlighting.JavaHighltightingTestBase
+import org.jetbrains.plugins.scala.javaHighlighting.JavaHighlitghtingTestBase
 import org.junit.experimental.categories.Category
 
 /**
@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category
   * @since 23/03/16
   */
 @Category(Array(classOf[PerfCycleTests]))
-class JavaHighlightingTest extends JavaHighltightingTestBase {
+class JavaHighlightingTest extends JavaHighlitghtingTestBase {
 
   def testSCL8982() = {
     val scala =
@@ -194,25 +194,6 @@ class JavaHighlightingTest extends JavaHighltightingTestBase {
         |
         |object Escaping extends App {
         |  println(Related.foo) // foo is marked as red, with message "Symbol foo is inaccessible from this place"
-        |}
-      """.stripMargin
-
-    assertNoErrors(messagesFromScalaCode(scala, java))
-  }
-
-  def testSCL9619(): Unit = {
-    val scala =
-      """
-        |@Annotaion(`lazy` = true) // no red code if we use non scala keyword (without quotes)
-        |class A {}
-      """.stripMargin
-
-    val java =
-      """
-        |public @interface Annotaion {
-        |    public String db() default "";
-        |
-        |    public boolean lazy() default false;
         |}
       """.stripMargin
 
