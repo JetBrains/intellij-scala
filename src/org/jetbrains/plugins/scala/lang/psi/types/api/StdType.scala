@@ -1,69 +1,58 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, SyntheticClasses}
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.psi.types.{NamedType, ScType, ScTypeExt, ScUndefinedSubstitutor}
 
 abstract class StdType(val name: String, val tSuper: Option[StdType]) extends ValueType with NamedType {
+  protected val fullName = s"scala.$name"
+
   override def visitType(visitor: TypeVisitor) = visitor.visitStdType(this)
 
   /**
-   * Return wrapped to option appropriate synthetic class.
-   * In dumb mode returns None (or before it ends to register classes).
+    * Return wrapped to option appropriate synthetic class.
+    * In dumb mode returns None (or before it ends to register classes).
     *
     * @param project in which project to find this class
-   * @return If possible class to represent this type.
-   */
-  def asClass(project: Project): Option[ScSyntheticClass] = {
+    * @return If possible class to represent this type.
+    */
+  def asClass(project: Project) = {
     val classes = SyntheticClasses.get(project)
     if (classes.isClassesRegistered) classes.byName(name) else None
   }
 
   override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
-    (this, `type`) match {
-      case (l: StdType, _: StdType) => (l == `type`, substitutor)
-      case (AnyRef, _) =>
-        `type`.extractClass() match {
-          case Some(clazz) if clazz.qualifiedName == "java.lang.Object" => (true, substitutor)
-          case _ => (false, substitutor)
+                         (implicit typeSystem: TypeSystem) = (`type` match {
+    case stdType: StdType => this == stdType
+    case _ =>
+      `type`.extractClass() match {
+        case Some(_: ScObject) => false
+        case Some(clazz) => clazz.qualifiedName match {
+          case this.fullName => true
+          case "java.lang.Object" if this == AnyRef => true
+          case _ => false
         }
-      case (_, _) =>
-        `type`.extractClass() match {
-          case Some(o: ScObject) => (false, substitutor)
-          case Some(clazz) if clazz.qualifiedName == "scala." + name => (true, substitutor)
-          case _ => (false, substitutor)
-        }
-    }
-  }
+        case _ => false
+      }
+  }, substitutor)
 }
 
 object StdType {
-  val QualNameToType = Map(
-    "scala.Any" -> Any,
-    "scala.AnyRef" -> AnyRef,
-    "scala.AnyVal" -> AnyVal,
-    "scala.Unit" -> Unit,
-    "scala.Boolean" -> Boolean,
-    "scala.Byte" -> Byte,
-    "scala.Short" -> Short,
-    "scala.Char" -> Char,
-    "scala.Int" -> Int,
-    "scala.Long" -> Long,
-    "scala.Double" -> Double,
-    "scala.Float" -> Float,
-    "scala.Null" -> Null,
-    "scala.Nothing" -> Nothing,
-    "scala.Singleton" -> Singleton
-  )
+  val QualNameToType = Seq(Any, AnyRef, AnyVal,
+    Unit,
+    Boolean,
+    Byte, Short, Int, Long,
+    Char,
+    Float, Double,
+    Null, Nothing,
+    Singleton).map {
+    case stdType => (stdType.fullName, stdType)
+  }.toMap
 
   import com.intellij.psi.CommonClassNames._
+
   val fqnBoxedToScType = Map(
     JAVA_LANG_BOOLEAN -> Boolean,
     JAVA_LANG_BYTE -> Byte,
@@ -75,13 +64,7 @@ object StdType {
     JAVA_LANG_DOUBLE -> Double
   )
 
-  def unboxedType(tp: ScType): ScType = {
-    val name = tp.canonicalText.stripPrefix("_root_.")
-    if (fqnBoxedToScType.contains(name)) fqnBoxedToScType(name)
-    else tp
-  }
-
-  def unapply(tp: StdType): Option[(String, Option[StdType])] = Some(tp.name, tp.tSuper)
+  def unapply(`type`: StdType): Option[(String, Option[StdType])] = Some(`type`.name, `type`.tSuper)
 }
 
 trait ValueType extends ScType {
@@ -109,13 +92,6 @@ case object Singleton extends StdType("Singleton", Some(AnyRef)) {
 case object AnyVal extends StdType("AnyVal", Some(Any))
 
 abstract class ValType(override val name: String) extends StdType(name, Some(AnyVal)) {
-  def apply(element: PsiElement): ScType = apply(element.getManager, element.getResolveScope)
-
-  def apply(manager: PsiManager, scope: GlobalSearchScope): ScType =
-    ScalaPsiManager.instance(manager.getProject).getCachedClass(scope, "scala." + name)
-      .map(ScDesignatorType(_))
-      .getOrElse(this)
-
   override def isFinalType = true
 }
 
@@ -125,6 +101,10 @@ case object Boolean extends ValType("Boolean")
 
 case object Char extends ValType("Char")
 
+case object Byte extends ValType("Byte")
+
+case object Short extends ValType("Short")
+
 case object Int extends ValType("Int")
 
 case object Long extends ValType("Long")
@@ -132,7 +112,3 @@ case object Long extends ValType("Long")
 case object Float extends ValType("Float")
 
 case object Double extends ValType("Double")
-
-case object Byte extends ValType("Byte")
-
-case object Short extends ValType("Short")

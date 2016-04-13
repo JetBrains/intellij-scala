@@ -23,9 +23,9 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import scala.annotation.tailrec
 
 /**
- * Nikolay.Tropin
- * 5/30/13
- */
+  * Nikolay.Tropin
+  * 5/30/13
+  */
 
 object ComparingUnrelatedTypesInspection {
   val inspectionName = InspectionBundle.message("comparing.unrelated.types.name")
@@ -33,44 +33,45 @@ object ComparingUnrelatedTypesInspection {
 
   private val seqFunctions = Seq("contains", "indexOf", "lastIndexOf")
 
-  def cannotBeCompared(type1: ScType, type2: ScType)
-                      (implicit typeSystem: TypeSystem): Boolean = {
-    if (undefinedTypeAlias(type1) || undefinedTypeAlias(type2)) return false
+  private def cannotBeCompared(type1: ScType, type2: ScType)
+                              (implicit typeSystem: TypeSystem): Boolean = {
+    var types = Seq(type1, type2)
+    if (types.exists(undefinedTypeAlias(_))) return false
 
-    val types = Seq(type1, type2).map(extractActualType)
-    val Seq(unboxed1, unboxed2) =
-      if (types.contains(Null)) types else types.map(StdType.unboxedType)
+    types = types.map(extractActualType)
+    if (!types.contains(Null)) {
+      types = types.map {
+        case tp => StdType.fqnBoxedToScType.getOrElse(tp.canonicalText.stripPrefix("_root_."), tp)
+      }
+    }
 
-    if (isNumericType(unboxed1) && isNumericType(unboxed2)) return false
+    if (types.forall(isNumericType(_))) return false
 
+    val Seq(unboxed1, unboxed2) = types
     ComparingUtil.isNeverSubType(unboxed1, unboxed2) && ComparingUtil.isNeverSubType(unboxed2, unboxed1)
   }
 
-  def isNumericType(tp: ScType) = {
-    tp match {
-      case Byte | Char | Short | Int | Long | Float | Double => true
-      case ScDesignatorType(c: ScClass) => c.supers.headOption.map(_.qualifiedName).contains("scala.math.ScalaNumber")
-      case _ => false
-    }
+  private def isNumericType(`type`: ScType): Boolean = `type` match {
+    case Byte | Char | Short | Int | Long | Float | Double => true
+    case ScDesignatorType(c: ScClass) => c.supers.headOption.exists(_.qualifiedName == "scala.math.ScalaNumber")
+    case _ => false
   }
 
-  def undefinedTypeAlias(tp: ScType)
-                        (implicit typeSystem: TypeSystem) = tp.isAliasType match {
+  private def undefinedTypeAlias(`type`: ScType)
+                                (implicit typeSystem: TypeSystem) = `type`.isAliasType match {
     case Some(ScTypeUtil.AliasType(_, lower, upper)) =>
       lower.isEmpty || upper.isEmpty || !lower.get.equiv(upper.get)
     case _ => false
   }
 
   @tailrec
-  def extractActualType(tp: ScType): ScType = {
-    tp.isAliasType match {
-      case Some(ScTypeUtil.AliasType(_, Success(rhs, _), _)) => extractActualType(rhs)
-      case _ => tp.tryExtractDesignatorSingleton
-    }
+  private def extractActualType(`type`: ScType): ScType = `type`.isAliasType match {
+    case Some(ScTypeUtil.AliasType(_, Success(rhs, _), _)) => extractActualType(rhs)
+    case _ => `type`.tryExtractDesignatorSingleton
   }
 }
 
-class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId, inspectionName){
+class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId, inspectionName) {
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case MethodRepr(expr, Some(left), Some(oper), Seq(right)) if Seq("==", "!=", "ne", "eq", "equals") contains oper.refName =>
       val needHighlighting = oper.resolve() match {
@@ -99,7 +100,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
         val message = InspectionBundle.message("comparing.unrelated.types.hint", elemTypeText, argTypeText)
         holder.registerProblem(arg, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
-    case IsInstanceOfCall(call)  =>
+    case IsInstanceOfCall(call) =>
       implicit val typeSystem = holderTypeSystem(holder)
       val qualType = call.referencedExpr match {
         case ScReferenceExpression.withQualifier(q) => q.getType().toOption
@@ -121,6 +122,6 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionId,
     if (!seqFunctions.contains(fun.name)) return false
     val className = fun.containingClass.qualifiedName
     className.startsWith("scala.collection") && className.contains("Seq") && seqFunctions.contains(fun.name) ||
-        Seq("scala.Option", "scala.Some").contains(className) && fun.name == "contains"
+      Seq("scala.Option", "scala.Some").contains(className) && fun.name == "contains"
   }
 }
