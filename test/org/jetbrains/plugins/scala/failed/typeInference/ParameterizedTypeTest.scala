@@ -102,4 +102,24 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def testSCL10118() = {
+    val text =
+      """
+        |object SCL10118{
+        |
+        |  trait Test[A]
+        |
+        |  case class First(i: Int) extends Test[String]
+        |
+        |  case class Second(s: String) extends Test[Int]
+        |
+        |  def run[A](t: Test[A]): A = t match {
+        |    case First(i) => i.toString
+        |    case Second(s) => s.length
+        |  }
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
 }
