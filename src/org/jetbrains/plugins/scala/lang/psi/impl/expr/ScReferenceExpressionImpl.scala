@@ -28,15 +28,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, MethodResolveProcessor}
 
 /**
- * @author AlexanderPodkhalyuzin
- * Date: 06.03.2008
- */
+  * @author AlexanderPodkhalyuzin
+  *         Date: 06.03.2008
+  */
 class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ResolvableReferenceExpression {
   override def accept(visitor: PsiElementVisitor) {
     visitor match {
@@ -122,8 +121,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
   def getVariants: Array[Object] = getVariants(implicits = true, filterNotNamedVariants = false)
 
   /**
-   * Important! Do not change types of Object values, this can cause errors due to bad architecture.
-   */
+    * Important! Do not change types of Object values, this can cause errors due to bad architecture.
+    */
   override def getVariants(implicits: Boolean, filterNotNamedVariants: Boolean): Array[Object] = {
     val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
 
@@ -372,7 +371,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(pack: PsiPackage, _)) => ScalaType.designator(pack)
       case Some(ScalaResolveResult(clazz: ScClass, s)) if clazz.isCase =>
         s.subst(clazz.constructor.
-                getOrElse(return Failure("Case Class hasn't primary constructor", Some(this))).polymorphicType)
+          getOrElse(return Failure("Case Class hasn't primary constructor", Some(this))).polymorphicType)
       case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.nonEmpty =>
         s.subst(ScParameterizedType(ScalaType.designator(clazz),
           clazz.typeParameters.map(TypeParameterType(_, Some(s)))))
@@ -382,27 +381,28 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
       case Some(ScalaResolveResult(method: PsiMethod, s)) =>
         if (method.getName == "getClass" && method.containingClass != null &&
           method.containingClass.getQualifiedName == "java.lang.Object") {
-          val jlClass = ScalaPsiManager.instance(getProject).getCachedClass("java.lang.Class", getResolveScope,
-            ScalaPsiManager.ClassCategory.TYPE)
-          def convertQualifier(typeResult: TypeResult[ScType]): Option[ScType] = {
-            if (jlClass != null) {
-              typeResult match {
-                case Success(tp, _) =>
-                  val actualType = tp match {
-                    case ScThisType(clazz) => ScDesignatorType(clazz)
-                    case ScDesignatorType(o: ScObject) => Any
-                    case ScCompoundType(comps, _, _) =>
-                      if (comps.isEmpty) Any
-                      else ScTypeUtil.removeTypeDesignator(comps.head).getOrElse(Any)
-                    case _ => ScTypeUtil.removeTypeDesignator(tp).getOrElse(Any)
-                  }
-                  val ex = ScExistentialArgument("_$1", Nil, Nothing, actualType)
-                  Some(ScExistentialType(ScParameterizedType(ScDesignatorType(jlClass),
-                    Seq(ex)), List(ex)))
-                case _ => None
-              }
-            } else None
+
+          def removeTypeDesignator(`type`: ScType): Option[ScType] = `type` match {
+            case designatorOwner: DesignatorOwner => designatorOwner.getType.flatMap(removeTypeDesignator)
+            case _ => Some(`type`)
           }
+
+          val maybeJLClass = Option(ScalaPsiManager.instance(getProject)
+            .getCachedClass("java.lang.Class", getResolveScope, ScalaPsiManager.ClassCategory.TYPE))
+
+          def convertQualifier(typeResult: TypeResult[ScType]): Option[ScType] = maybeJLClass.map {
+            case jlClass =>
+              val upperBound = typeResult.toOption.flatMap {
+                case ScThisType(clazz) => Some(ScDesignatorType(clazz))
+                case ScDesignatorType(o: ScObject) => None
+                case ScCompoundType(comps, _, _) => comps.headOption.flatMap(removeTypeDesignator)
+                case tp => removeTypeDesignator(tp)
+              }.getOrElse(Any)
+
+              val ex = ScExistentialArgument("_$1", Nil, Nothing, upperBound)
+              ScExistentialType(ScParameterizedType(ScDesignatorType(jlClass), Seq(ex)), List(ex))
+          }
+
           val returnType: Option[ScType] = qualifier match {
             case Some(qual) =>
               convertQualifier(qual.getType(TypingContext.empty))
