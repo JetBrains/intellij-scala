@@ -20,4 +20,15 @@ class NamedVarargsTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def testSCL10093(): Unit = {
+    val text =
+      """object Test {
+        |  def fun(args: Int*): Int = args.sum
+        |
+        |  val sum = fun(args = List(1, 2, 3, 4, 5): _*)
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
 }
