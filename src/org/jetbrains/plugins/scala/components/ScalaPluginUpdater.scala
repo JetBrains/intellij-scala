@@ -190,7 +190,15 @@ object ScalaPluginUpdater {
 
     url.foreach(u => invokeLater {
       try {
-        val resp = XML.load(u)
+        val factory = javax.xml.parsers.SAXParserFactory.newInstance()
+        // disable DTD validation
+        factory.setValidating(false)
+        factory.setFeature("http://xml.org/sax/features/validation", false)
+        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false)
+        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+        factory.setFeature("http://xml.org/sax/features/external-general-entities", false)
+        factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
+        val resp = XML.withSAXParser(factory.newSAXParser).load(u)
         val text = ((resp \\ "idea-plugin").head \ "idea-version" \ "@since-build").text
         val remoteBuildNumber = BuildNumber.fromString(text)
         if (localBuildNumber.compareTo(remoteBuildNumber) < 0)
@@ -303,7 +311,17 @@ object ScalaPluginUpdater {
       }
     }
     val stream = getClass.getClassLoader.getResource("META-INF/plugin.xml").openStream()
-    val document = new RuleTransformer(versionPatcher).transform(XML.load(stream))
+
+    val factory = javax.xml.parsers.SAXParserFactory.newInstance()
+    // disable DTD validation
+    factory.setValidating(false)
+    factory.setFeature("http://xml.org/sax/features/validation", false)
+    factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false)
+    factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+    factory.setFeature("http://xml.org/sax/features/external-general-entities", false)
+    factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
+
+    val document = new RuleTransformer(versionPatcher).transform(XML.withSAXParser(factory.newSAXParser).load(stream))
     val tempFile = File.createTempFile("plugin", "xml")
     XML.save(tempFile.getAbsolutePath, document.head)
     pluginDescriptor.readExternal(tempFile.toURI.toURL)
