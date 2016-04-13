@@ -200,6 +200,25 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
     assertNoErrors(messagesFromScalaCode(scala, java))
   }
 
+  def testSCL10150(): Unit = {
+    val java =
+      """
+        |package jPack1.object;
+        |public class JClassFromObjPack { }
+      """.stripMargin
+
+    val scala =
+      """
+        |package sPack1
+        |
+        |class SClass {
+        |  def x: JClassFromObjPack = new JClassFromObjPack
+        |}
+      """.stripMargin
+
+    assertNoErrors(messagesFromScalaCode(scala, java))
+  }
+
   def testSCL8639(): Unit = {
     val java =
       """
