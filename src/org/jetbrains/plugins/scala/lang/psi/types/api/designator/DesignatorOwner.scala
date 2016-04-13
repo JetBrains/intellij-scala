@@ -3,12 +3,14 @@ package org.jetbrains.plugins.scala.lang.psi.types.api.designator
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeInTypeSystem, TypeSystem, ValueType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScTypeExt}
 
 import scala.collection.immutable.HashSet
@@ -32,10 +34,17 @@ trait DesignatorOwner extends ValueType with TypeInTypeSystem {
     case _ => false
   }
 
+  def getType = (element match {
+    case pattern: ScBindingPattern => pattern.getType(TypingContext.empty)
+    case fieldId: ScFieldId => fieldId.getType()
+    case parameter: ScParameter => parameter.getType(TypingContext.empty)
+    case _ => Success(this, Some(element))
+  }).toOption
+
   private[types] def designatorSingletonType = element match {
-    case o: ScObject => None
-    case p: ScParameter if p.isStable => p.getRealParameterType(TypingContext.empty).toOption
-    case t: ScTypedDefinition if t.isStable => t.getType(TypingContext.empty).toOption
+    case scObject: ScObject => None
+    case parameter: ScParameter if parameter.isStable => parameter.getRealParameterType().toOption
+    case definition: ScTypedDefinition if definition.isStable => definition.getType().toOption
     case _ => None
   }
 
