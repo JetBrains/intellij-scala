@@ -117,4 +117,17 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin).isEmpty
   )
+
+  def testSCL10158(): Unit = assert(
+    collectMessages(
+      """
+        |class Test { 
+        |  val lock = new AnyRef
+        |  class Test {
+        |    def run: Unit = this.synchronized(println("sync"))
+        |    def synchronized[T](exec: => T): Unit = lock.synchronized(exec)
+        |  }
+        |}
+      """.stripMargin).isEmpty
+  )
 }
