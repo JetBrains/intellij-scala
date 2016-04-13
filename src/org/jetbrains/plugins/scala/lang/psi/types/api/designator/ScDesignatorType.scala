@@ -5,13 +5,11 @@ import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExistentialType, ScType, ScTypeExt, ScUndefinedSubstitutor}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -63,39 +61,33 @@ case class ScDesignatorType(element: PsiNamedElement, isStatic: Boolean = false)
     case _ => None
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
-    (this, r) match {
-      case (ScDesignatorType(a: ScTypeAliasDefinition), _) =>
-        (a.aliasedType match {
-          case Success(tp, _) => tp
-          case _ => return (false, uSubst)
-        }).equiv(r, uSubst, falseUndef)
-      case (_, ScDesignatorType(element1)) =>
-        if (ScEquivalenceUtil.smartEquivalence(element, element1)) return (true, uSubst)
-        if (isSingleton && r.asInstanceOf[DesignatorOwner].isSingleton) {
-          element match {
-            case o: ScObject =>
-            case bind: ScTypedDefinition if bind.isStable =>
-              bind.getType(TypingContext.empty) match {
-                case Success(tp: DesignatorOwner, _) if tp.isSingleton =>
-                  return tp.equiv(r, uSubst, falseUndef)
-                case _ =>
-              }
-            case _ =>
-          }
-          element1 match {
-            case o: ScObject =>
-            case bind: ScTypedDefinition if bind.isStable =>
-              bind.getType(TypingContext.empty) match {
-                case Success(tp: DesignatorOwner, _) if tp.isSingleton =>
-                  return tp.equiv(this, uSubst, falseUndef)
-                case _ =>
-              }
-          }
+  override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
+                         (implicit typeSystem: TypeSystem) = {
+    def equivSingletons(left: DesignatorOwner, right: DesignatorOwner) = left.designatorSingletonType.filter {
+      case designatorOwner: DesignatorOwner if designatorOwner.isSingleton => true
+      case _ => false
+    }.map {
+      _.equiv(right, substitutor, falseUndef)
+    }
+
+    (element match {
+      case definition: ScTypeAliasDefinition =>
+        definition.aliasedType.toOption.map {
+          _.equiv(`type`, substitutor, falseUndef)
         }
-        (false, uSubst)
-      case _ => (false, uSubst)
+      case _ =>
+        `type` match {
+          case ScDesignatorType(thatElement) if smartEquivalence(element, thatElement) =>
+            Some((true, substitutor))
+          case that: DesignatorOwner if isSingleton && that.isSingleton =>
+            equivSingletons(this, that) match {
+              case None => equivSingletons(that, this)
+              case result => result
+            }
+          case _ => None
+        }
+    }).getOrElse {
+      (false, substitutor)
     }
   }
 
