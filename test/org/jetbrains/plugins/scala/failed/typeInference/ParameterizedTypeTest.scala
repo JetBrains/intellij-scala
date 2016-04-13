@@ -122,4 +122,27 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def testSCL10149() = {
+    val text =
+      """
+        |object SCL10149{
+        |
+        |  trait Functor[F[_]] {
+        |    def map[A, B](fa: F[A])(f: A => B): F[B]
+        |  }
+        |
+        |  trait Applicative[F[_]] extends Functor[F] {
+        |    def apply[A, B](fab: F[A => B])(fa: F[A]): F[B] =
+        |      map2(fab, fa)((ab, a) => ab(a))
+        |
+        |    def unit[A](a: => A): F[A]
+        |
+        |    def map2[A, B, C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C] =
+        |      apply(apply(unit(f.curried))(fa))(fb)
+        |  }
+        |}
+      """.stripMargin
+    checkTextHasNoErrors(text)
+  }
 }
