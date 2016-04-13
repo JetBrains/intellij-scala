@@ -4,7 +4,8 @@ package format
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 /**
  * Pavel Fatin

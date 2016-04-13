@@ -23,8 +23,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportStmtStub
+import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableStableCodeReferenceElement, ResolveTargets, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
