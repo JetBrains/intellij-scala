@@ -190,7 +190,7 @@ trait ResolvableStableCodeReferenceElement extends ScStableCodeReferenceElement 
 
     val candidates = processor.candidatesS
     val filtered = candidates.filter(candidatesFilter)
-    if (accessibilityCheck && filtered.size == 0) return doResolve(ref, processor, accessibilityCheck = false)
+    if (accessibilityCheck && filtered.isEmpty) return doResolve(ref, processor, accessibilityCheck = false)
     filtered.toArray
   }
 

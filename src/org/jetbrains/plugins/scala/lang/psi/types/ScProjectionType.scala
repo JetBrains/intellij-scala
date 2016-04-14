@@ -6,7 +6,6 @@ package types
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition, ScValue}
@@ -19,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
-import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedMappedWithRecursionGuard}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.collection.immutable.HashSet
@@ -86,8 +85,9 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
             typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
             ta.typeParameters.map(tp => {
               val name = tp.name + "$$"
-              args += new ScExistentialArgument(name, Nil, types.Nothing, types.Any)
-              ScTypeVariable(name)
+              val ex = new ScExistentialArgument(name, Nil, types.Nothing, types.Any)
+              args += ex
+              ex
             }))
           val s = actualSubst.followed(genericSubst)
           Some(AliasType(ta, ta.lowerBound.map(scType => ScExistentialType(s.subst(scType), args.toList)),
@@ -388,7 +388,7 @@ case class ScThisType(clazz: ScTemplateDefinition) extends ValueType {
 case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
   override protected def isAliasTypeInner: Option[AliasType] = {
     element match {
-      case ta: ScTypeAlias if ta.typeParameters.length == 0 =>
+      case ta: ScTypeAlias if ta.typeParameters.isEmpty =>
         Some(AliasType(ta, ta.lowerBound, ta.upperBound))
       case ta: ScTypeAlias => //higher kind case
         ta match {
@@ -413,8 +413,9 @@ case class ScDesignatorType(element: PsiNamedElement) extends ValueType {
           typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
           ta.typeParameters.map(tp => {
             val name = tp.name + "$$"
-            args += new ScExistentialArgument(name, Nil, types.Nothing, types.Any)
-            ScTypeVariable(name)
+            val ex = new ScExistentialArgument(name, Nil, types.Nothing, types.Any)
+            args += ex
+            ex
           }))
         Some(AliasType(ta, ta.lowerBound.map(scType => ScExistentialType(genericSubst.subst(scType), args.toList)),
           ta.upperBound.map(scType => ScExistentialType(genericSubst.subst(scType), args.toList))))

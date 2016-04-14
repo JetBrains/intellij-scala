@@ -396,16 +396,3 @@ private[types] object CyclicHelper {
     }, pn2, pn1, fun(), CYCLIC_HELPER_KEY)
   }
 }
-
-case class ScTypeVariable(name: String) extends ValueType {
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitTypeVariable(this)
-  }
-
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
-    r match {
-      case ScTypeVariable(`name`) => (true, uSubst)
-      case _ => (false, uSubst)
-    }
-  }
-}

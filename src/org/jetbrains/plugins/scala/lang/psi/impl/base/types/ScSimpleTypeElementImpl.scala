@@ -325,6 +325,9 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             ref.bind() match {
               case Some(r@ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) if !noConstructor =>
                 Success(typeForConstructor(ref, method, subst, r.getActualElement), Some(this))
+              case Some(r@ScalaResolveResult(ta: ScTypeAlias, subst: ScSubstitutor)) if ta.isExistentialTypeAlias =>
+                Success(ScExistentialArgument(ta.name, ta.typeParameters.map { tp => ScalaPsiManager.typeVariable(tp) }.toList,
+                  ta.lowerBound.getOrNothing, ta.upperBound.getOrAny), Some(this))
               case _ => ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = false)
             }
         }

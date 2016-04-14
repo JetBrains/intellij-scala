@@ -115,7 +115,7 @@ trait ScPattern extends ScalaPsiElement {
 
     def calculateSubstitutor(_tp: ScType, funType: ScType, substitutor: ScSubstitutor): ScSubstitutor = {
       val tp = _tp match {
-        case ex: ScExistentialType => ex.skolem
+        case ex: ScExistentialType => ex.quantified
         case _                     => _tp
       }
 

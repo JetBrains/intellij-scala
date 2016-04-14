@@ -76,27 +76,32 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           t match {
             case ScDesignatorType(p: ScParameter) if p.owner.isInstanceOf[ScFunctionExpr] && p.owner.asInstanceOf[ScFunctionExpr].result == Some(this) =>
               val t = existize(p.getType(TypingContext.empty).getOrAny, visitedWithT)
-              m.put(p.name, new ScExistentialArgument(p.name, Nil, t, t))
-              new ScTypeVariable(p.name)
+              val ex = new ScExistentialArgument(p.name, Nil, t, t)
+              m.put(p.name, ex)
+              ex
             case ScDesignatorType(typed: ScBindingPattern) if typed.nameContext.isInstanceOf[ScCaseClause] &&
               typed.nameContext.asInstanceOf[ScCaseClause].expr == Some(this) =>
               val t = existize(typed.getType(TypingContext.empty).getOrAny, visitedWithT)
-              m.put(typed.name, new ScExistentialArgument(typed.name, Nil, t, t))
-              new ScTypeVariable(typed.name)
+              val ex = new ScExistentialArgument(typed.name, Nil, t, t)
+              m.put(typed.name, ex)
+              ex
             case ScDesignatorType(des) if PsiTreeUtil.isContextAncestor(this, des, true) => des match {
               case obj: ScObject =>
                 val t = existize(leastClassType(obj), visitedWithT)
-                m.put(obj.name, new ScExistentialArgument(obj.name, Nil, t, t))
-                new ScTypeVariable(obj.name)
+                val ex = new ScExistentialArgument(obj.name, Nil, t, t)
+                m.put(obj.name, ex)
+                ex
               case clazz: ScTypeDefinition =>
                 val t = existize(leastClassType(clazz), visitedWithT)
                 val vars = clazz.typeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}.toList
-                m.put(clazz.name, new ScExistentialArgument(clazz.name, vars, t, t))
-                new ScTypeVariable(clazz.name)
+                val ex = new ScExistentialArgument(clazz.name, vars, t, t)
+                m.put(clazz.name, ex)
+                ex
               case typed: ScTypedDefinition =>
                 val t = existize(typed.getType(TypingContext.empty).getOrAny, visitedWithT)
-                m.put(typed.name, new ScExistentialArgument(typed.name, Nil, t, t))
-                new ScTypeVariable(typed.name)
+                val ex = new ScExistentialArgument(typed.name, Nil, t, t)
+                m.put(typed.name, ex)
+                ex
               case _ => t
             }
             case proj@ScProjectionType(p, elem, s) => ScProjectionType(existize(p, visitedWithT), elem, s)
@@ -128,7 +133,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
               ScParameterizedType(existize(des, visitedWithT), typeArgs.map(existize(_, visitedWithT)))
             case ex@ScExistentialType(q, wildcards) =>
               new ScExistentialType(existize(q, visitedWithT), wildcards.map {
-                ex => new ScExistentialArgument(ex.name, ex.args, existize(ex.lowerBound, visitedWithT), existize(ex.upperBound, visitedWithT))
+                ex => new ScExistentialArgument(ex.name, ex.args, existize(ex.lower, visitedWithT), existize(ex.upper, visitedWithT))
               })
             case _ => t
           }

@@ -18,8 +18,7 @@ trait ScalaTypeVisitor {
   def visitThisType(t: ScThisType) {}
   def visitDesignatorType(d: ScDesignatorType) {}
   def visitTypeParameterType(t: ScTypeParameterType) {}
-  def visitSkolemizedType(s: ScSkolemizedType) {}
-  def visitTypeVariable(t: ScTypeVariable) {}
+  def visitExistentialArgument(s: ScExistentialArgument) {}
   def visitUndefinedType(u: ScUndefinedType) {}
   def visitMethodType(m: ScMethodType) {}
   def visitAbstractType(a: ScAbstractType) {}

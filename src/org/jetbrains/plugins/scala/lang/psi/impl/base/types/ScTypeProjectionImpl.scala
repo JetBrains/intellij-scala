@@ -72,7 +72,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
     if (!accessibilityCheck) processor.doNotCheckAccessibility()
     val projected = typeElement.getType(TypingContext.empty).getOrAny
     processor.processType(projected, this)
-    val res = processor.candidates.map {r : ScalaResolveResult =>
+    val res = processor.candidates.map { r : ScalaResolveResult =>
       r.element match {
         case mem: PsiMember if mem.containingClass != null =>
           new ScalaResolveResult(mem, r.substitutor/*.bindO(mem.getContainingClass, projected, this)*/, r.importsUsed)

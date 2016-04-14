@@ -11,11 +11,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateParents, ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, MacroInferUtil}
@@ -577,12 +576,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
     tp match {
       case ScCompoundType(comps, _, _) => abstractsToUpper(ScCompoundType(comps, Map.empty, Map.empty)).removeUndefines()
       case ScExistentialType(quant, wilds) => abstractsToUpper(ScExistentialType(quant.recursiveUpdate {
-        case tp@ScTypeVariable(name) => wilds.find(_.name == name).map(w => (true, w.upperBound)).getOrElse((false, tp))
-        case tp@ScDesignatorType(element) => element match {
-          case a: ScTypeAlias if a.getContext.isInstanceOf[ScExistentialClause] =>
-            wilds.find(_.name == a.name).map(w => (true, w.upperBound)).getOrElse((false, tp))
-          case _ => (false, tp)
-        }
+        case ScExistentialArgument(name, _, _, _) => wilds.find(_.name == name).map(w => (true, w.upper)).getOrElse((false, tp))
         case other => (false, other)
       }, wilds)).removeUndefines()
       case _ => abstractsToUpper(tp).removeUndefines()

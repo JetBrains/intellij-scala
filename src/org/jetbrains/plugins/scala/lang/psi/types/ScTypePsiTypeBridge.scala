@@ -70,7 +70,7 @@ trait ScTypePsiTypeBridge {
                 var index = 0
                 ScParameterizedType(des, tps.map({tp => {
                   val arrayOfTypes: Array[PsiClassType] = tp.getExtendsListTypes ++ tp.getImplementsListTypes
-                  ScSkolemizedType(s"_$$${index += 1; index}", Nil, types.Nothing,
+                  ScExistentialArgument(s"_$$${index += 1; index}", Nil, types.Nothing,
                     arrayOfTypes.length match {
                       case 0 => types.Any
                       case 1 => create(arrayOfTypes.apply(0), project, scope, visitedRawTypes + clazz)
@@ -84,12 +84,12 @@ trait ScTypePsiTypeBridge {
                   (tp => {
                     val psiType = substitutor.substitute(tp)
                     psiType match {
-                      case wild: PsiWildcardType => ScSkolemizedType(s"_$$${index += 1; index}", Nil,
+                      case wild: PsiWildcardType => ScExistentialArgument(s"_$$${index += 1; index}", Nil,
                         if (wild.isSuper) create(wild.getSuperBound, project, scope, visitedRawTypes) else types.Nothing,
                         if (wild.isExtends) create(wild.getExtendsBound, project, scope, visitedRawTypes) else types.Any)
                       case capture: PsiCapturedWildcardType =>
                         val wild = capture.getWildcard
-                        ScSkolemizedType(s"_$$${index += 1; index}", Nil,
+                        ScExistentialArgument(s"_$$${index += 1; index}", Nil,
                           if (wild.isSuper) create(capture.getLowerBound, project, scope, visitedRawTypes) else types.Nothing,
                           if (wild.isExtends) create(capture.getUpperBound, project, scope, visitedRawTypes) else types.Any)
                       case _ if psiType != null => ScType.create(psiType, project, scope, visitedRawTypes)
@@ -231,8 +231,8 @@ trait ScTypePsiTypeBridge {
       }
       case ScThisType(clazz) => createType(clazz)
       case tpt: ScTypeParameterType => EmptySubstitutor.getInstance().substitute(tpt.param)
-      case ex: ScExistentialType => toPsi(ex.skolem, project, scope, noPrimitives)
-      case argument: ScSkolemizedType =>
+      case ex: ScExistentialType => toPsi(ex.quantified, project, scope, noPrimitives)
+      case argument: ScExistentialArgument =>
         val upper = argument.upper
         if (upper.equiv(types.Any)) {
           val lower = argument.lower

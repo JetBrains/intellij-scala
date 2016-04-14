@@ -26,7 +26,7 @@ object BaseTypes {
         BaseTypes.get(ta.aliasedType.getOrElse(return Seq.empty), visitedAliases = visitedAliases + ta)
       case ScThisType(clazz) => BaseTypes.get(clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return Seq.empty), visitedAliases = visitedAliases)
       case ScTypeParameterType(_, Nil, _, upper, _) => get(upper.v, notAll, visitedAliases = visitedAliases)
-      case ScSkolemizedType(_, Nil, _, upper) => get(upper, notAll, visitedAliases = visitedAliases)
+      case ScExistentialArgument(_, Nil, _, upper) => get(upper, notAll, visitedAliases = visitedAliases)
       case a: JavaArrayType => Seq(types.Any)
       case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>
         val ta = p.actualElement.asInstanceOf[ScTypeAliasDefinition]
@@ -57,7 +57,7 @@ object BaseTypes {
                     Seq(s.subst(ScType.create(t, clazz.getProject))) else Seq(s.subst(ScType.create(t, clazz.getProject)))})
           case _ => Seq.empty
         }
-      case ScExistentialType(q, wilds) => get(q, notAll, visitedAliases = visitedAliases).map{bt => ScExistentialType(bt, wilds).simplify()}
+      case ex: ScExistentialType => get(ex.quantified, notAll, visitedAliases = visitedAliases).map { _.unpackedType }
       case ScCompoundType(comps, _, _) => reduce(if (notAll) comps else comps.flatMap(comp => BaseTypes.get(comp, visitedAliases = visitedAliases) ++ Seq(comp)))
       case proj@ScProjectionType(p, elem, _) =>
         val s = proj.actualSubst

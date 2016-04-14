@@ -60,12 +60,28 @@ trait ScType {
   def inferValueType: ValueType
 
   def unpackedType: ScType = {
-    val wildcards = new ArrayBuffer[ScExistentialArgument]
-    val quantified = recursiveUpdate({
-      case s: ScSkolemizedType =>
-        wildcards += ScExistentialArgument(s.name, s.args, s.lower, s.upper)
-        (true, ScTypeVariable(s.name))
+    val existingWildcards = new mutable.HashSet[String]
+    recursiveUpdate({
+      case ex: ScExistentialType =>
+        existingWildcards ++= ex.wildcards.map(_.name)
+        (false, ex)
       case t => (false, t)
+    })
+    val wildcards = new ArrayBuffer[ScExistentialArgument]
+    val quantified = recursiveVarianceUpdateModifiable[HashSet[String]](HashSet.empty, {
+      case (s: ScExistentialArgument, _, data) if !data.contains(s.name) =>
+        @tailrec
+        def improveName(name: String): String = {
+          if (existingWildcards.contains(name)) {
+            improveName(name + "$u") //todo: fix it for name == "++"
+          } else name
+        }
+        val name = improveName(s.name)
+        if (!wildcards.exists(_.name == name)) wildcards += ScExistentialArgument(name, s.args, s.lower, s.upper)
+        (true, ScExistentialArgument(name, s.args, s.lower, s.upper), data)
+      case (ex: ScExistentialType, _, data) =>
+        (false, ex, data ++ ex.wildcards.map(_.name))
+      case (t, _, data) => (false, t, data)
     })
     if (wildcards.nonEmpty) {
       ScExistentialType(quantified, wildcards.toList).simplify()
@@ -87,7 +103,7 @@ trait ScType {
           i match {
             case -1 => (true, lower)
             case 1 => (true, upper)
-            case 0 => (true, ScSkolemizedType(s"_$$${index += 1; index}", Nil, lower, upper))
+            case 0 => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, upper))
           }
         case _ => (false, tp)
       }

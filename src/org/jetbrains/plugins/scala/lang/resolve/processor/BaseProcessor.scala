@@ -269,9 +269,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value]) extends PsiSc
       case comp@ScCompoundType(components, signaturesMap, typesMap) =>
         TypeDefinitionMembers.processDeclarations(comp, this, state, null, place)
       case ex: ScExistentialType =>
-        processType(ex.skolem, place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
+        processType(ex.quantified, place, state.put(ScSubstitutor.key, ScSubstitutor.empty),
           visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
-      case ScSkolemizedType(_, _, lower, upper) =>
+      case ScExistentialArgument(_, _, lower, upper) =>
         processType(upper, place, state, updateWithProjectionSubst, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
       case _ => true
     }

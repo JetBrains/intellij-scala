@@ -547,7 +547,7 @@ object MixinNodes {
           case Some(AliasType(_, _, Success(upper, _))) => updateTp(upper)
           case _ =>
             tp match {
-              case ex: ScExistentialType => ex.skolem
+              case ex: ScExistentialType => ex.quantified
               case tpt: ScTypeParameterType => tpt.upper.v
               case _ => tp
             }

@@ -390,8 +390,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
                       else ScTypeUtil.removeTypeDesignator(comps.head).getOrElse(Any)
                     case _ => ScTypeUtil.removeTypeDesignator(tp).getOrElse(Any)
                   }
+                  val ex = ScExistentialArgument("_$1", Nil, Nothing, actualType)
                   Some(ScExistentialType(ScParameterizedType(ScDesignatorType(jlClass),
-                    Seq(ScTypeVariable("_$1"))), List(ScExistentialArgument("_$1", Nil, Nothing, actualType))))
+                    Seq(ex)), List(ex)))
                 case _ => None
               }
             } else None

@@ -180,13 +180,6 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
         }
       }
 
-      override def visitTypeVariable(tv: ScTypeVariable): Unit = {
-        result = tvMap.get((tv.name, null)) match {
-          case None => tv
-          case Some(v) => v
-        }
-      }
-
       override def visitTypeParameterType(tpt: ScTypeParameterType): Unit = {
         result = tvMap.get((tpt.name, tpt.getId)) match {
           case None => tpt
@@ -493,22 +486,21 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, PsiElement), HashSet[ScT
         if (absLower.equiv(Nothing)) return this
         absLower //upper will be added separately
       case _ =>
-        _lower.recursiveVarianceUpdate((tp: ScType, i: Int) => {
-          tp match {
-            case ScAbstractType(_, absLower, upper) =>
-              i match {
-                case -1 => (true, absLower)
-                case 1 => (true, upper)
-                case 0 => (true, absLower/*ScSkolemizedType(s"_$$${index += 1; index}", Nil, absLower, upper)*/) //todo: why this is right?
-              }
-            case ScSkolemizedType(_, _, skoLower, upper) =>
-              i match {
-                case -1 => (true, skoLower)
-                case 1 => (true, upper)
-                case 0 => (true, ScSkolemizedType(s"_$$${index += 1; index}", Nil, skoLower, upper))
-              }
-            case _ => (false, tp)
-          }
+        _lower.recursiveVarianceUpdateModifiable[HashSet[String]](HashSet.empty, {
+          case (ScAbstractType(_, absLower, upper), i, data) =>
+            i match {
+              case -1 => (true, absLower, data)
+              case 1 => (true, upper, data)
+              case 0 => (true, absLower/*ScExistentialArgument(s"_$$${index += 1; index}", Nil, absLower, upper)*/, data) //todo: why this is right?
+            }
+          case (ScExistentialArgument(nm, _, skoLower, upper), i, data) if !data.contains(nm) =>
+            i match {
+              case -1 => (true, skoLower, data)
+              case 1 => (true, upper, data)
+              case 0 => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, skoLower, upper), data)
+            }
+          case (ex: ScExistentialType, _, data) => (false, ex, data ++ ex.wildcards.map(_.name))
+          case (tp, _, data) => (false, tp, data)
         }, variance)
     }).unpackedType
     val lMap = if (additional) lowerAdditionalMap else lowerMap
@@ -531,23 +523,22 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, PsiElement), HashSet[ScT
           absUpper // lower will be added separately
         case ScAbstractType(_, lower, absUpper) if variance == 1 && absUpper.equiv(Any) => return this
         case _ =>
-          _upper.recursiveVarianceUpdate((tp: ScType, i: Int) => {
-            tp match {
-              case ScAbstractType(_, lower, absUpper) =>
+          _upper.recursiveVarianceUpdateModifiable[HashSet[String]](HashSet.empty, {
+              case (ScAbstractType(_, lower, absUpper), i, data) =>
                 i match {
-                  case -1 => (true, lower)
-                  case 1 => (true, absUpper)
-                  case 0 => (true, ScSkolemizedType(s"_$$${index += 1; index}", Nil, lower, absUpper)) //todo: why this is right?
+                  case -1 => (true, lower, data)
+                  case 1 => (true, absUpper, data)
+                  case 0 => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, absUpper), data) //todo: why this is right?
                 }
-              case ScSkolemizedType(_, _, lower, skoUpper) =>
+              case (ScExistentialArgument(nm, _, lower, skoUpper), i, data) if !data.contains(nm) =>
                 i match {
-                  case -1 => (true, lower)
-                  case 1 => (true, skoUpper)
-                  case 0 => (true, ScSkolemizedType(s"_$$${index += 1; index}", Nil, lower, skoUpper))
+                  case -1 => (true, lower, data)
+                  case 1 => (true, skoUpper, data)
+                  case 0 => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, skoUpper), data)
                 }
-              case _ => (false, tp)
-            }
-          }, variance)
+              case (ex: ScExistentialType, _, data) => (false, ex, data ++ ex.wildcards.map(_.name))
+              case (tp, _, data) => (false, tp, data)
+            }, variance)
       }).unpackedType
     val uMap = if (additional) upperAdditionalMap else upperMap
     uMap.get(name) match {

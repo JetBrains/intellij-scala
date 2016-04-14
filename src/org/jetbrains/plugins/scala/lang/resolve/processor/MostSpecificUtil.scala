@@ -106,7 +106,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-                      new ScTypeVariable(tp.name))
+                      new ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType(), tp.upperType()))
                 }
                 val arguments = typeParams.toList.map(tp =>
                   new ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType()), s.subst(tp.upperType())))
@@ -124,7 +124,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-                      new ScTypeVariable(tp.name))
+                      new ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType(), tp.upperType()))
                 }
                 val arguments = typeParams.toList.map(tp =>
                   new ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType()), s.subst(tp.upperType())))
@@ -219,9 +219,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
   private def getClazz[T](r: InnerScalaResolveResult[T]): Option[PsiClass] = {
     val element = ScalaPsiUtil.nameContext(r.element)
     element match {
-      case memb: PsiMember =>
-        val clazz = memb.containingClass
-        if (clazz == null) None else Some(clazz)
+      case memb: PsiMember => Option(memb.containingClass)
       case _ => None
     }
   }
@@ -230,6 +228,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
    * c1 is a subclass of c2, or
    * c1 is a companion object of a class derived from c2, or
    * c2 is a companion object of a class from which c1 is derived.
+ *
    * @return true is c1 is derived from c2, false if c1 or c2 is None
    */
   def isDerived(c1: Option[PsiClass], c2: Option[PsiClass]): Boolean = {

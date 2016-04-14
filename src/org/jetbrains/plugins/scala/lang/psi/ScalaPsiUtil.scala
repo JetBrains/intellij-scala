@@ -20,7 +20,7 @@ import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
-import com.intellij.util.containers.ContainerUtil
+import com.intellij.util.containers.{ConcurrentWeakHashMap, ContainerUtil}
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
@@ -2027,7 +2027,7 @@ object ScalaPsiUtil {
                 case _ =>
                   wildcards.find(_.name == tpArg.canonicalText) match {
                     case Some(wildcard) =>
-                      (wildcard.lowerBound, wildcard.upperBound) match {
+                      (wildcard.lower, wildcard.upper) match {
                         case (lo, Any) if variance == ScTypeParam.Contravariant => lo
                         case (Nothing, hi) if variance == ScTypeParam.Covariant => hi
                         case _ => tpArg
