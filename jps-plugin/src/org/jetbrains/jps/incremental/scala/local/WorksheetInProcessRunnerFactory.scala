@@ -2,13 +2,13 @@ package org.jetbrains.jps.incremental.scala.local
 
 import java.io.{File, OutputStream, PrintStream}
 import java.lang.reflect.InvocationTargetException
-import java.net.{URLClassLoader, URL}
+import java.net.{URL, URLClassLoader}
 import java.nio.ByteBuffer
 
 import com.intellij.util.Base64Converter
-import com.martiansoftware.nailgun.ThreadLocalPrintStream
+import com.martiansoftware.nailgun.{NGSecurityManager, ThreadLocalPrintStream}
 import org.jetbrains.jps.incremental.scala.data.CompilerJars
-import org.jetbrains.jps.incremental.scala.remote.{EventGeneratingClient, Arguments, WorksheetOutputEvent}
+import org.jetbrains.jps.incremental.scala.remote.{Arguments, EventGeneratingClient, WorksheetOutputEvent}
 
 /**
  * User: Dmitry.Naydanov
@@ -76,8 +76,8 @@ class WorksheetInProcessRunnerFactory {
     }
 
     def loadAndRun(arguments: Arguments, client: EventGeneratingClient) {
-      arguments.worksheetFiles.headOption.map {
-        case className =>
+      arguments.worksheetFiles.headOption foreach {
+        className =>
           def toUrlSpec(p: String) = new File(p).toURI.toURL
 
           val compilerUrls = arguments.compilerData.compilerJars map {
@@ -88,20 +88,18 @@ class WorksheetInProcessRunnerFactory {
           val compilerUrlSeq = compilerUrls.map(toUrlSpec)
           val classpathUrls = arguments.compilationData.classpath.map(_.toURI.toURL)
 
-          val classLoader = new URLClassLoader(worksheetUrls.toArray, getClassLoader(compilerUrlSeq, classpathUrls diff worksheetUrls.map(_.toURI.toURL) ))
+          val classLoader = new URLClassLoader(worksheetUrls.toArray, getClassLoader(compilerUrlSeq, classpathUrls diff worksheetUrls.map(_.toURI.toURL)))
 
           try {
             val cl = Class.forName(className, true, classLoader)
 
-            cl.getDeclaredMethods.find {
-              case m => m.getName == "main"
-            } map {
-              case method =>
+            cl.getDeclaredMethods.find(m => m.getName == "main") map {
+              method =>
                 System.out match {
                   case threadLocal: ThreadLocalPrintStream => threadLocal.init(new PrintStream(myOut))
                   case _ => System.setOut(new PrintStream(myOut))
                 }
-                method.invoke(null, null)
+                method.invoke(null, new PrintStream(myOut))
             }
           } catch {
             case userEx: InvocationTargetException =>

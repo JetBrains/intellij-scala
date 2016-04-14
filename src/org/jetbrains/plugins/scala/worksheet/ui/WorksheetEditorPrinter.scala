@@ -194,8 +194,9 @@ class WorksheetEditorPrinter(originalEditor: Editor, worksheetViewer: Editor, fi
     scala.extensions.inReadAction {
       PsiDocumentManager.getInstance(project).getPsiFile(originalEditor.getDocument) match {
         case scalaFile: ScalaFile =>
-          WorksheetEditorPrinter.saveWorksheetEvaluation(scalaFile, str,
-            worksheetViewer.getUserData(WorksheetEditorPrinter.DIFF_SPLITTER_KEY).getProportion)
+          val worksheetSplitter = worksheetViewer.getUserData(WorksheetEditorPrinter.DIFF_SPLITTER_KEY)
+          WorksheetEditorPrinter.saveWorksheetEvaluation(scalaFile, str, worksheetSplitter.getProportion)
+          worksheetSplitter.redrawDiffs()  
         case _ =>
       }
     }
@@ -417,9 +418,9 @@ object WorksheetEditorPrinter {
     FileAttributeUtilCache.writeAttribute(LAST_WORKSHEET_RUN_RATIO, file, 0.5f.toString)
   }
 
-  def newWorksheetUiFor(editor: Editor, virtualFile: VirtualFile) = newUiFor(editor, virtualFile, true)
+  def newWorksheetUiFor(editor: Editor, virtualFile: VirtualFile) = newUiFor(editor, virtualFile, isPlain = true)
 
-  def newMacrosheetUiFor(editor: Editor, virtualFile: VirtualFile) = newUiFor(editor,  virtualFile, false)
+  def newMacrosheetUiFor(editor: Editor, virtualFile: VirtualFile) = newUiFor(editor,  virtualFile, isPlain = false)
 
   def newUiFor(editor: Editor, virtualFile: VirtualFile, isPlain: Boolean) =
     new WorksheetEditorPrinter(editor, createRightSideViewer(editor, virtualFile, getOrCreateViewerEditorFor(editor, isPlain)),
@@ -429,9 +430,9 @@ object WorksheetEditorPrinter {
       }
     )
 
-  def createWorksheetEditor(editor: Editor) = getOrCreateViewerEditorFor(editor, true)
+  def createWorksheetEditor(editor: Editor) = getOrCreateViewerEditorFor(editor, isPlain = true)
 
-  def createMacroEditor(editor: Editor) = getOrCreateViewerEditorFor(editor, false)
+  def createMacroEditor(editor: Editor) = getOrCreateViewerEditorFor(editor, isPlain = false)
 
   def createRightSideViewer(editor: Editor, virtualFile: VirtualFile, rightSideEditor: Editor, modelSync: Boolean = false): Editor = {
     val editorComponent = editor.getComponent

@@ -3,6 +3,7 @@ package org.jetbrains.jps.incremental.scala.local
 import java.io.{File, OutputStream, PrintStream}
 import java.util.Optional
 
+import com.martiansoftware.nailgun.ThreadLocalPrintStream
 import dotty.tools.dotc.interfaces._
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.{CompilationData, CompilerJars}
@@ -24,9 +25,18 @@ class DottyCompiler(scalaInstance: ScalaInstance, compilerJars: CompilerJars) ex
         Some(compilationData.output), compilationData.scalaOptions).toArray
 
     val oldOut = System.out
+    var oldDefault: Option[PrintStream] = None
 
     try {
-      System.setOut(emptyPrintStream)
+      oldOut match {
+        case threadLocal: ThreadLocalPrintStream =>
+          oldDefault = Option(threadLocal.getDefaultPrintStream)
+          threadLocal.setDefaultPrintStream(emptyPrintStream)
+        case _ => 
+          val threadLocalPrintStream = new ThreadLocalPrintStream(emptyPrintStream)
+          System.setOut(threadLocalPrintStream)
+      }
+      
 
       val mainObj = Class.forName("dotty.tools.dotc.Main$", true, scalaInstance.loader)
       mainObj.getClassLoader
@@ -39,7 +49,13 @@ class DottyCompiler(scalaInstance: ScalaInstance, compilerJars: CompilerJars) ex
       process.invoke(mainInstance, args, new ClientDottyReporter(client), new ClientDottyCallback(client))
     }
     finally {
-      System.setOut(oldOut)
+      oldDefault match {
+        case Some(d) => System.out match {
+          case threadLocal: ThreadLocalPrintStream => threadLocal.setDefaultPrintStream(d)
+          case _ => System.setOut(oldOut) //there is no guarantee that someone didn't swap system.out in other thread 
+        }
+        case _ => System.setOut(oldOut)
+      }
     }
   }
 

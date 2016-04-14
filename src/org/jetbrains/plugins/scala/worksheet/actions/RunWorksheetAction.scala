@@ -75,12 +75,6 @@ object RunWorksheetAction {
 
     if (editor == null) return
 
-    if (project.hasDotty) {
-      PopupUtil.showBalloonForComponent(editor.getComponent, "Worksheet is not supported for Dotty yet",
-        MessageType.ERROR, true, null)
-      return
-    }
-
     val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
     WorksheetProcessManager.stop(psiFile.getVirtualFile)
 
@@ -194,7 +188,7 @@ object RunWorksheetAction {
   }
   
   def isScratchWorksheet(vFileOpt: Option[VirtualFile], project: Project): Boolean = vFileOpt.exists {
-    case vFile =>  ScratchFileService.getInstance().getRootType(vFile).isInstanceOf[ScratchRootType] &&
+    vFile => ScratchFileService.getInstance().getRootType(vFile).isInstanceOf[ScratchRootType] &&
       ScalaProjectSettings.getInstance(project).isTreatScratchFilesAsWorksheet
   }  
   
@@ -210,7 +204,7 @@ object RunWorksheetAction {
   }
   
   def getModuleFor(file: PsiFile): Module = WorksheetCompiler.getModuleForCpName(file) flatMap {
-    case name => 
+    name =>
       scala.extensions.inReadAction {
         Option(ModuleManager getInstance file.getProject findModuleByName name)
       }
