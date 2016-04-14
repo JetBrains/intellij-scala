@@ -158,4 +158,37 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def testSCL10156() = {
+    checkTextHasNoErrors(
+      """  import scala.language.higherKinds
+        |  import scala.language.reflectiveCalls
+        |
+        |  object Test {
+        |
+        |    trait Functor[F[_]] {
+        |      def map[A, B](fa: F[A])(f: A => B): F[B]
+        |    }
+        |
+        |    trait Applicative[F[_]] extends Functor[F] {
+        |      self =>
+        |      def apply[A, B](fab: F[A => B])(fa: F[A]): F[B] =
+        |        map2(fab, fa)((ab, a) => ab(a))
+        |
+        |      def unit[A](a: => A): F[A]
+        |
+        |      def map[A, B](fa: F[A])(f: A => B): F[B] =
+        |        apply[A, B](unit(f))(fa)
+        |
+        |      def map2[A, B, C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C] =
+        |        apply(apply[A, B => C](unit((a: A) => (b: B) => f(a, b)))(fa))(fb)
+        |
+        |      def compose[G[_]](G: Applicative[G]) =
+        |        new Applicative[({type f[x] = F[G[x]]})#f] {
+        |          override def unit[A](a: => A): F[G[A]] = self.unit(G.unit(a))
+        |        }
+        |    }
+        |  }""".stripMargin
+    )
+  }
 }
