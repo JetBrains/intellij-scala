@@ -54,7 +54,9 @@ class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
       val dummyPosition = positionFromParameters(parameters)
 
-      val (position, inString, inInterpolatedString) = dummyPosition.getNode.getElementType match {
+      val node = Option(dummyPosition.getNode).getOrElse(return)
+
+      val (position, inString, inInterpolatedString) = node.getElementType match {
         case ScalaTokenTypes.tIDENTIFIER | ScalaDocTokenType.DOC_TAG_VALUE_TOKEN => (dummyPosition, false, false)
         case ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING =>
           //it's ok to use parameters here as we want just to calculate offset
