@@ -41,4 +41,14 @@ class PatternsTest extends TypeInferenceTestBase {
       """.stripMargin)
   }
 
+  def testSCL4487(): Unit = {
+    doTest(
+      s"""
+         |def x(a: Int): String => Int = _ match {
+         |  case value if value == "0" => ${START}a$END
+         |}
+         |//(String) => Int
+      """.stripMargin)
+  }
+
 }
