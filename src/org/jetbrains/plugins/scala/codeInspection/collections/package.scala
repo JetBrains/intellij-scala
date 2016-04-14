@@ -249,13 +249,20 @@ package object collections {
   }
 
   def invocationText(qual: ScExpression, methName: String, args: ScExpression*): String = {
-    val qualText = qual.getText
-    val argsText = argListText(args)
-    qual match {
-      case _ childOf ScInfixExpr(`qual`, _, _) if args.size == 1 =>
-        s"${qual.getText} $methName ${args.head.getText}"
-      case infix: ScInfixExpr => s"($qualText).$methName$argsText"
-      case _ => s"$qualText.$methName$argsText"
+    def argsText = argListText(args)
+
+    if (qual == null) {
+      val argsText = argListText(args)
+      s"$methName$argsText"
+    } else {
+      val qualText = qual.getText
+      qual match {
+        case _ childOf ScInfixExpr(`qual`, _, _) if args.size == 1 =>
+          s"${qual.getText} $methName ${args.head.getText}"
+        case infix: ScInfixExpr => s"($qualText).$methName$argsText"
+        case _ => s"$qualText.$methName$argsText"
+      }
+
     }
   }
 
@@ -288,7 +295,7 @@ package object collections {
   }
 
   private def checkScalaVersion(elem: PsiElement): Boolean = { //there is no Option.fold in Scala 2.9
-    elem.scalaLanguageLevel.map(_ > Scala_2_9).getOrElse(true)
+    elem.scalaLanguageLevel.forall(_ > Scala_2_9)
   }
 
   def implicitParameterExistsFor(methodName: String, baseExpr: ScExpression): Boolean = {
