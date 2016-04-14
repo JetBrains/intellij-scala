@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi
 
+import com.intellij.diagnostic.LogMessageEx
 import com.intellij.openapi.application.{ApplicationAdapter, ApplicationManager}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
+import com.intellij.psi.impl.DebugUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.extensions._
@@ -23,6 +26,7 @@ import scala.collection.mutable.ArrayBuffer
 
 
 object TypeAdjuster extends ApplicationAdapter {
+  private val LOG = Logger.getInstance(getClass)
 
   ApplicationManager.getApplication.addApplicationListener(this)
 
@@ -67,7 +71,14 @@ object TypeAdjuster extends ApplicationAdapter {
     findRef(newTypeElem(sInfo.replacement, sInfo.origTypeElem))
   }
 
-  private def newTypeElem(name: String, position: PsiElement) = ScalaPsiElementFactory.createTypeElementFromText(name, position.getContext, position)
+  private def newTypeElem(name: String, position: PsiElement) = {
+    val newTypeElem = ScalaPsiElementFactory.createTypeElementFromText(name, position.getContext, position)
+    if (newTypeElem == null) {
+      val messageEvent = LogMessageEx.createEvent(s"Cannot create type from text:\n$name", DebugUtil.currentStackTrace())
+      LOG.error(messageEvent)
+    }
+    newTypeElem
+  }
 
   private def toReplacementInfos(typeElements: Seq[ScTypeElement], useTypeAliases: Boolean): Seq[ReplacementInfo] = {
     val infos = typeElements.map(ReplacementInfo.initial)
