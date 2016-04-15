@@ -109,15 +109,22 @@ object TypeAdjuster extends ApplicationAdapter {
         if (index >= 0) {
           val endIndex = index + thisWithDot.length
           val withoutThisType = text.substring(endIndex)
-          val newResolve = newRef(withoutThisType, info.origTypeElem).flatMap(_.resolve().toOption)
-          for {
-            oldRes <- info.resolve
-            newRes <- newResolve
-            if ScEquivalenceUtil.smartEquivalence(oldRes, newRes)
-          } yield {
-            info.withNewText(withoutThisType)
+          if (cannotCreateTypeElement(withoutThisType)) None
+          else {
+            val newResolve = newRef(withoutThisType, info.origTypeElem).flatMap(_.resolve().toOption)
+            for {
+              oldRes <- info.resolve
+              newRes <- newResolve
+              if ScEquivalenceUtil.smartEquivalence(oldRes, newRes)
+            } yield {
+              info.withNewText(withoutThisType)
+            }
           }
         } else None
+      }
+
+      private def cannotCreateTypeElement(withoutThisText: String) = {
+        withoutThisText.startsWith("type") && !ScalaNamesUtil.isIdentifier(withoutThisText.take(5))
       }
     }
 

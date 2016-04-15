@@ -8,6 +8,8 @@ class ThisType {
   class Inner /*start*/{
     type Ambig = scala.ArrayIndexOutOfBoundsException
 
+    type typeA = scala.ArrayIndexOutOfBoundsException
+
     val ambig1: this.type#Ambig = ???
     val ambig2: this.Ambig = ???
     val ambig3: ThisType.this.Ambig = ???
@@ -24,6 +26,12 @@ class ThisType {
     val other = new ThisType
     val inner4: other.type#Inner = new other.Inner
     val inner5: other.Inner = new other.Inner
+
+    val thisType: this.type = this
+
+    val typeA1: this.typeA = ???
+    val typeA2: this.type#typeA = ???
+    val typeA3: Inner#typeA = ???
 
     val innerObj: ThisType.this.InnerObj.type = InnerObj
 
@@ -42,6 +50,8 @@ class ThisType {
   class Inner {
     type Ambig = ArrayIndexOutOfBoundsException
 
+    type typeA = ArrayIndexOutOfBoundsException
+
     val ambig1: Ambig = ???
     val ambig2: Ambig = ???
     val ambig3: ThisType.this.Ambig = ???
@@ -58,6 +68,12 @@ class ThisType {
     val other = new ThisType
     val inner4: other.Inner = new other.Inner
     val inner5: other.Inner = new other.Inner
+
+    val thisType: this.type = this
+
+    val typeA1: typeA = ???
+    val typeA2: typeA = ???
+    val typeA3: Inner#typeA = ???
 
     val innerObj: InnerObj.type = InnerObj
 
