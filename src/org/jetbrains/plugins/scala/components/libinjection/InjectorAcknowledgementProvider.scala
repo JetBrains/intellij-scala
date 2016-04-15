@@ -5,6 +5,7 @@ import javax.swing.event.HyperlinkEvent
 import com.intellij.notification.{Notification, NotificationGroup, NotificationListener, NotificationType}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project._
+import org.jetbrains.plugins.scala.components.libinjection.ui.InjectorReviewDialog
 
 /**
   * Created by mucianm on 16.03.16.

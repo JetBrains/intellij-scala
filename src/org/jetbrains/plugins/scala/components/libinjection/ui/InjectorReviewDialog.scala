@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.components.libinjection
+package org.jetbrains.plugins.scala.components.libinjection.ui
 
 import java.awt.event.ActionEvent
 import java.awt.{BorderLayout, CardLayout}
@@ -14,6 +14,7 @@ import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader
 
 /**
   * Created by mucianm on 01.03.16.

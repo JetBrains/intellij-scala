@@ -19,7 +19,7 @@ case class InjectorDescriptor(version: Int, iface: String, impl: String, sources
 
 case class PluginDescriptor(since: Version, until: Version, injectors: Seq[InjectorDescriptor])
 
-case class JarManifest(pluginDescriptors: Seq[PluginDescriptor], jarPath: String, modTimeStamp: Long)(val isBlackListed: Boolean) {
+case class JarManifest(pluginDescriptors: Seq[PluginDescriptor], jarPath: String, modTimeStamp: Long)(val isBlackListed: Boolean, val isLoaded: Boolean) {
   def serialize() = {
     <intellij-compat>
       {for (PluginDescriptor(since, until, injtors) <- pluginDescriptors) {
@@ -62,7 +62,7 @@ object JarManifest {
       case xss: NodeSeq =>
         JarManifest((xss \\ "scala-plugin").map(buildPluginDescriptor),
           containingJar.getPath.replaceAll("!/", ""),
-          new File(containingJar.getPath.replaceAll("!/", "")).lastModified())(isBlackListed = false)
+          new File(containingJar.getPath.replaceAll("!/", "")).lastModified())(isBlackListed = false, isLoaded = false)
     }
   }
 }

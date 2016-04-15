@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.settings;
 
+import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.ui.EnumComboBoxModel;
-import com.intellij.ui.TitledSeparator;
+import com.intellij.ui.*;
+import com.intellij.ui.components.JBList;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -16,15 +18,19 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.components.InvalidRepoException;
 import org.jetbrains.plugins.scala.components.ScalaPluginUpdater;
+import org.jetbrains.plugins.scala.components.libinjection.ui.JarCacheModel;
+import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader$;
+import org.jetbrains.plugins.scala.components.libinjection.ui.JarCacheRenderer;
 import org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings;
 import org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency;
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner$;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.*;
 import java.util.List;
-import java.util.ResourceBundle;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -62,14 +68,41 @@ public class ScalaProjectSettingsPanel {
   private JCheckBox treatScalaScratchFilesCheckBox;
   private JSlider autoRunDelaySlider;
   private JCheckBox customScalatestSyntaxHighlightingCheckbox;
+  private JPanel librariesPanel;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private Project myProject;
+  private JBList librariesList;
 
   public ScalaProjectSettingsPanel(Project project) {
     myProject = project;
     $$$setupUI$$$();
     outputSpinner.setModel(new SpinnerNumberModel(35, 1, null, 1));
     updateChannel.setModel(new EnumComboBoxModel(ScalaApplicationSettings.pluginBranch.class));
+
+
+    librariesList = new JBList(new JarCacheModel(LibraryInjectorLoader$.MODULE$.getInstance(myProject).getJarCache()));
+    librariesList.setCellRenderer(new JarCacheRenderer());
+
+    librariesPanel.setLayout(new BorderLayout());
+    librariesPanel.setBorder(IdeBorderFactory.createTitledBorder("List of known libraries with Idea extensions", false));
+    // This help looks ugly, disabled for now(extended info is in tooltip anyway)
+//    librariesPanel.add(new JLabel("<html>Compiled Injectors<br/>*Loaded Injectors<br/><strike>Disabled Injectors</strike><html>"), BorderLayout.PAGE_START);
+    librariesPanel.add(librariesList);
+    ToolbarDecorator decorator = ToolbarDecorator.createDecorator(librariesList).setRemoveAction(new AnActionButtonRunnable() {
+      @Override
+      public void run(AnActionButton anActionButton) {
+        ((JarCacheModel) librariesList.getModel()).remove(librariesList.getSelectedValue(), librariesList.getSelectedIndex());
+      }
+    });
+    decorator.disableDownAction();
+    decorator.disableUpAction();
+    decorator.addExtraAction(new AnActionButton("Toggle Ignore", AllIcons.Actions.Pause) {
+      @Override
+      public void actionPerformed(AnActionEvent e) {
+        ((JarCacheModel) librariesList.getModel()).setIgnored(librariesList.getSelectedValue(), librariesList.getSelectedIndex());
+      }
+    });
+    librariesPanel.add(decorator.createPanel());
 
     ScalaUiWithDependency[] deps = DependencyAwareInjectionSettings.EP_NAME.getExtensions();
     for (ScalaUiWithDependency uiWithDependency : deps) {
@@ -484,6 +517,12 @@ public class ScalaProjectSettingsPanel {
     defaultComboBoxModel2.addElement("Nightly");
     updateChannel.setModel(defaultComboBoxModel2);
     panel7.add(updateChannel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    final JPanel panel8 = new JPanel();
+    panel8.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+    tabbedPane1.addTab("Extensions", panel8);
+    librariesPanel = new JPanel();
+    librariesPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+    panel8.add(librariesPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
   }
 
   /**

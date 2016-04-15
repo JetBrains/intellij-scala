@@ -57,6 +57,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   // reset cache if plugin has been updated
   // cache: jarFilePath -> jarManifest
   private var jarCache: InjectorPersistentCache = null
+  def getJarCache = jarCache
   private val loadedInjectors: mutable.HashMap[Class[_], mutable.HashSet[String]] = mutable.HashMap()
 
   private val myLibraryTableListener = new LibraryTable.Listener {
@@ -219,7 +220,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
         LOG.info(s"No extensions found for current IDEA version")
         None
     }
-    checkedDescriptor.map(descriptor => manifest.copy(pluginDescriptors = Seq(descriptor))(manifest.isBlackListed))
+    checkedDescriptor.map(descriptor => manifest.copy(pluginDescriptors = Seq(descriptor))(manifest.isBlackListed, manifest.isLoaded))
   }
 
 
@@ -232,6 +233,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
       if (isJarCacheUpToDate(manifest)) {
         for (injector <- findMatchingInjectors(manifest)) {
           loadInjector(manifest, injector)
+          jarCache.cache.put(manifest.jarPath, manifest.copy()(isBlackListed = false, isLoaded = true))
           numLoaded += 1
         }
       } else {
@@ -349,7 +351,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   private def showReviewDialogAndFilter(candidates: ManifestToDescriptors): ManifestToDescriptors  = {
     val (accepted, rejected) = ackProvider.showReviewDialogAndFilter(candidates)
     for ((manifest, _) <- rejected) {
-      jarCache.cache.put(manifest.jarPath, manifest.copy()(isBlackListed = true))
+      jarCache.cache.put(manifest.jarPath, manifest.copy()(isBlackListed = true, isLoaded = false))
     }
     accepted
   }
@@ -373,7 +375,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
               )
               numSuccessful += 1
               loadInjector(manifest, injectorDescriptor)
-              jarCache.cache.put(manifest.jarPath, manifest)
+              jarCache.cache.put(manifest.jarPath, manifest.copy()(isBlackListed = false, isLoaded = true))
             } catch {
               case e: InjectorCompileException =>
                 LOG.error("Failed to compile injector", e)
