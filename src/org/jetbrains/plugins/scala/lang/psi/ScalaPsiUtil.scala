@@ -20,7 +20,7 @@ import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
-import com.intellij.util.containers.{ConcurrentWeakHashMap, ContainerUtil}
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
@@ -583,8 +583,8 @@ object ScalaPsiUtil {
     index.getModuleForFile(element.getContainingFile.getVirtualFile)
   }
 
-  val collectImplicitObjectsCache: ConcurrentWeakHashMap[(ScType, Project, GlobalSearchScope), Seq[ScType]] =
-    new ConcurrentWeakHashMap[(ScType, Project, GlobalSearchScope), Seq[ScType]]()
+  val collectImplicitObjectsCache: ConcurrentMap[(ScType, Project, GlobalSearchScope), Seq[ScType]] =
+    ContainerUtil.createConcurrentWeakMap[(ScType, Project, GlobalSearchScope), Seq[ScType]]()
 
   def collectImplicitObjects(_tp: ScType, project: Project, scope: GlobalSearchScope): Seq[ScType] = {
     val tp = ScType.removeAliasDefinitions(_tp)
