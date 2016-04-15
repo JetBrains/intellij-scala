@@ -24,6 +24,21 @@ class OverridingAnnotatorTest2 extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin)
   }
 
+  def testScl6729(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |trait Foo
+        |
+        |trait Bar {
+        |  def foo: Foo = _
+        |}
+        |
+        |trait Baz extends Bar {
+        |  override object foo extends Foo
+        |}
+      """.stripMargin)
+  }
+
   val START = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
   val END = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
 
@@ -34,4 +49,6 @@ class OverridingAnnotatorTest2 extends ScalaLightCodeInsightFixtureTestAdapter {
          |class AbsImpl(${START}override${END} var name: String) extends Abs(name){ }
       """.stripMargin, "overriding variable name in class Abs of type String")
   }
+
+
 }
