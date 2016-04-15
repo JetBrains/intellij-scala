@@ -176,6 +176,11 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
       }
     }
 
+    symbol.parent match {
+      case Some(cSymbol: ClassSymbol) if refinementClass(cSymbol) => return //no modifiers allowed inside refinements
+      case _ =>
+    }
+
     // print private access modifier
     if (symbol.isPrivate) {
       print("private")
