@@ -28,7 +28,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |    }
         |}
       """.stripMargin
-    assertNothing(erorrsFromScalaCode(scala, java))
+    assertNothing(errorsFromScalaCode(scala, java))
   }
 
   def testTraitIsAbstract(): Unit = {
@@ -267,7 +267,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
     assertNothing(errorsFromJavaCode(scala, java, "SCL8861"))
   }
 
-  def testClassParameter(): Unit = {
+  def testClassParameterScala(): Unit = {
     val scala =
       """
         |class ScalaClass (var name: String, var surname: String)
@@ -306,11 +306,52 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNothing(errorsFromJavaCode(scala, java, "JavaClass"))
-    assertNothing(erorrsFromScalaCode(scala, java))
+    assertNothing(errorsFromScalaCode(scala, java))
   }
 
-  def testSCL3390ParamAccessor(): Unit = {
+  def testClassParameterJava(): Unit = {
+    val scala =
+      """
+        |class ScalaClass (var name: String, var surname: String)
+        |
+        |object Start {
+        |  def main(args: Array[String]) {
+        |    val scalaClassObj = new ScalaClass("Dom", "Sien")
+        |    println(scalaClassObj.name)
+        |    println(scalaClassObj.surname)
+        |
+        |    val javaClassObj = new JavaInheritor("Dom2", "Sien2", 31)
+        |    println(javaClassObj.name)
+        |    println(javaClassObj.surname)
+        |    println(javaClassObj.getAge)
+        |  }
+        |}
+      """.stripMargin
+
+    val java =
+      """
+        |public class JavaInheritor extends ScalaClass {
+        |  private int age;
+        |
+        |  public JavaInheritor(String name, String surname, int age) {
+        |    super(name, surname);
+        |    this.age = age;
+        |  }
+        |
+        |  public int getAge() {
+        |    return age;
+        |  }
+        |
+        |  public void setAge(int age) {
+        |    this.age = age;
+        |  }
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromJavaCode(scala, java, "JavaInheritor"))
+  }
+
+  def testSCL3390ParamAccessorJava(): Unit = {
     val scalaCode =
       """
         |object ScalaClient {
@@ -332,8 +373,32 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
     assertNothing(errorsFromJavaCode(scalaCode, javaCode, "JavaClientSCL3390"))
-    assertNothing(erorrsFromScalaCode(scalaCode, javaCode))
   }
+
+  def testSCL3390ParamAccessorScala(): Unit = {
+    val scalaCode =
+      """
+        |object ScalaClient {
+        |  def main(args: Array[String]) {
+        |    new Sub(1).x
+        |  }
+        |}
+        |
+        |class Super(val x: Int)
+        |
+        |class Sub(x: Int) extends Super(x)
+      """.stripMargin
+    val javaCode =
+      """
+        |public class JavaClientSCL3390 {
+        |    public static void main(String[] args) {
+        |        new Sub(1).x();
+        |    }
+        |}
+      """.stripMargin
+    assertNothing(errorsFromScalaCode(scalaCode, javaCode))
+  }
+
 
   def testSCL3498ExistentialTypesFromJava(): Unit = {
     val javaCode =
@@ -348,7 +413,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |class A
       """.stripMargin
 
-    assertNothing(erorrsFromScalaCode(scalaCode, javaCode))
+    assertNothing(errorsFromScalaCode(scalaCode, javaCode))
   }
 
   def testResolvePublicJavaFieldSameNameAsMethod(): Unit = {
@@ -378,7 +443,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNothing(erorrsFromScalaCode(scalaCode, javaCode))
+    assertNothing(errorsFromScalaCode(scalaCode, javaCode))
   }
 
   def testGenericsPlainInnerClass(): Unit = {
@@ -528,7 +593,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNothing(erorrsFromScalaCode(scala, java))
+    assertNothing(errorsFromScalaCode(scala, java))
   }
 
   def testSCL9661(): Unit = {

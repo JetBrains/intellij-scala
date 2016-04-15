@@ -14,11 +14,17 @@ import org.jetbrains.plugins.scala.util.TestUtils
   * @since 23/03/16
   */
 abstract class JavaHighlitghtingTestBase extends ScalaFixtureTestCase with AssertMatches {
+  private var filesCreated: Boolean = false
+
   def errorsFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
+    if (filesCreated) throw new AssertionError("Don't add files 2 times in a single test")
+
     myFixture.addFileToProject("dummy.scala", scalaFileText)
     val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
     myFixture.openFileInEditor(myFile.getVirtualFile)
     val allInfo = myFixture.doHighlighting()
+
+    filesCreated = true
 
     import scala.collection.JavaConverters._
     allInfo.asScala.toList.collect {
@@ -27,9 +33,14 @@ abstract class JavaHighlitghtingTestBase extends ScalaFixtureTestCase with Asser
     }
   }
 
-  def erorrsFromScalaCode(scalaFileText: String, javaFileText: String): List[Message] = {
+  def errorsFromScalaCode(scalaFileText: String, javaFileText: String): List[Message] = {
+    if (filesCreated) throw new AssertionError("Don't add files 2 times in a single test")
+
     myFixture.addFileToProject("dummy.java", javaFileText)
     myFixture.configureByText("dummy.scala", scalaFileText)
+
+    filesCreated = true
+
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
 
     val mock = new AnnotatorHolderMock
