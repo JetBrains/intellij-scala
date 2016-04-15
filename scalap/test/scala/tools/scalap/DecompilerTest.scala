@@ -65,4 +65,8 @@ class DecompilerTest extends TestCase {
   def testScl9877(): Unit = {
     doTest("MyJoin.class")
   }
+
+  def testScl9877_1(): Unit = {
+    doTest("MyJoin.class")
+  }
 }
