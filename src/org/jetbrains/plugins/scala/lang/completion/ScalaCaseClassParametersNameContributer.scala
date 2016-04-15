@@ -24,8 +24,6 @@ class ScalaCaseClassParametersNameContributer extends ScalaCompletionContributor
 
     def addCompletions(parameters: CompletionParameters, context: ProcessingContext, _result: CompletionResultSet) {
       val position = positionFromParameters(parameters)
-      val scope = PsiTreeUtil.getContextOfType(position, classOf[ScCaseClause])
-      if (scope == null) return
 
       val constructorPattern = PsiTreeUtil.getContextOfType(position, classOf[ScConstructorPattern])
       if (constructorPattern == null) return

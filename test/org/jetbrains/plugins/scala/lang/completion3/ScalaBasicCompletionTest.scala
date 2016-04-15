@@ -10,6 +10,14 @@ import org.junit.Assert
  * @since 06.10.11
  */
 class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
+  private def doTest(fileText: String, lookup: String, resultText: String): Unit = {
+    configureFromFileTextAdapter("dummy.scala", fileText.stripMargin.replaceAll("\r", "").trim)
+    val (activeLookup, _) = complete(1, CompletionType.BASIC)
+
+    completeLookupItem(activeLookup.find(_.getLookupString == lookup).get)
+    checkResultByText(resultText.stripMargin.replaceAll("\r", "").trim)
+  }
+
   def testInImportSelector() {
     val fileText =
       """
@@ -1167,5 +1175,44 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
     completeLookupItem(activeLookup.find(le => le.getLookupString == "Extractor").get)
 
     checkResultByText(resultText)
+  }
+
+  def testCaseClassParamInValuePattern(): Unit = {
+    val fileText =
+      """case class Person(name: String)
+        |val Person(na<caret>) = null"""
+    val result =
+      """case class Person(name: String)
+        |val Person(name) = null"""
+
+    doTest(fileText, "name", result)
+  }
+
+  def testCaseClassParamInCaseClause(): Unit = {
+    val fileText =
+      """case class Person(name: String)
+        |Person("Johnny") match {
+        |  case Person(na<caret>) =>
+        |}"""
+    val result =
+      """case class Person(name: String)
+        |Person("Johnny") match {
+        |  case Person(name) =>
+        |}"""
+
+    doTest(fileText, "name", result)
+  }
+
+  def testCaseClassParamInGenerator(): Unit = {
+    val fileText =
+      """case class Person(name: String)
+        |val guys: List[Person] = ???
+        |for (Person(na<caret>) <- guys) {}"""
+    val result =
+      """case class Person(name: String)
+        |val guys: List[Person] = ???
+        |for (Person(name) <- guys) {}"""
+
+    doTest(fileText, "name", result)
   }
 }
