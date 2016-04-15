@@ -90,16 +90,33 @@ class ScParameterizedType private (val designator : ScType, val typeArgs : Seq[S
   override protected def isAliasTypeInner: Option[AliasType] = {
     this match {
       case ScParameterizedType(ScDesignatorType(ta: ScTypeAlias), args) =>
+        val existingWildcards = ta.lowerBound.map(ScExistentialType.existingWildcards).getOrElse(HashSet.empty) ++
+          (if (ta.isDefinition) HashSet.empty else ta.upperBound.map(ScExistentialType.existingWildcards).getOrElse(HashSet.empty))
+
         val genericSubst = ScalaPsiUtil.
-          typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
-        Some(AliasType(ta, ta.lowerBound.map(genericSubst.subst), ta.upperBound.map(genericSubst.subst)))
+          typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
+            args.map(ScExistentialType.fixExistentialArgumentNames(_, existingWildcards)))
+        val lowerBound = ta.lowerBound.map(genericSubst.subst)
+        val upperBound =
+          if (ta.isDefinition) lowerBound
+          else ta.upperBound.map(genericSubst.subst)
+        Some(AliasType(ta, lowerBound, upperBound))
       case ScParameterizedType(p: ScProjectionType, args) if p.actualElement.isInstanceOf[ScTypeAlias] =>
         val ta: ScTypeAlias = p.actualElement.asInstanceOf[ScTypeAlias]
         val subst: ScSubstitutor = p.actualSubst
+
+        val existingWildcards = ta.lowerBound.map(subst.subst).map(ScExistentialType.existingWildcards).getOrElse(HashSet.empty) ++
+          (if (ta.isDefinition) HashSet.empty else ta.upperBound.map(subst.subst).map(ScExistentialType.existingWildcards).getOrElse(HashSet.empty))
+
         val genericSubst = ScalaPsiUtil.
-          typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))), args)
+          typesCallSubstitutor(ta.typeParameters.map(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp))),
+            args.map(ScExistentialType.fixExistentialArgumentNames(_, existingWildcards)))
         val s = subst.followed(genericSubst)
-        Some(AliasType(ta, ta.lowerBound.map(s.subst), ta.upperBound.map(s.subst)))
+        val lowerBound = ta.lowerBound.map(s.subst)
+        val upperBound =
+          if (ta.isDefinition) lowerBound
+          else ta.upperBound.map(s.subst)
+        Some(AliasType(ta, lowerBound, upperBound))
       case _ => None
     }
   }

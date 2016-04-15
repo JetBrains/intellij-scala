@@ -57,6 +57,8 @@ trait ScTypeAlias extends ScPolymorphicElement with ScMember with ScAnnotationsH
     }
     this
   }
+
+  def isDefinition: Boolean
 }
 
 object ScTypeAlias {

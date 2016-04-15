@@ -60,27 +60,15 @@ trait ScType {
   def inferValueType: ValueType
 
   def unpackedType: ScType = {
-    val existingWildcards = new mutable.HashSet[String]
-    recursiveUpdate({
-      case ex: ScExistentialType =>
-        existingWildcards ++= ex.wildcards.map(_.name)
-        (false, ex)
-      case t => (false, t)
-    })
+    val existingWildcards = ScExistentialType.existingWildcards(this)
     val wildcards = new ArrayBuffer[ScExistentialArgument]
     val quantified = recursiveVarianceUpdateModifiable[HashSet[String]](HashSet.empty, {
       case (s: ScExistentialArgument, _, data) if !data.contains(s.name) =>
-        @tailrec
-        def improveName(name: String): String = {
-          if (existingWildcards.contains(name)) {
-            improveName(name + "$u") //todo: fix it for name == "++"
-          } else name
-        }
-        val name = improveName(s.name)
+        val name = ScExistentialType.fixExistentialArgumentName(s.name, existingWildcards)
         if (!wildcards.exists(_.name == name)) wildcards += ScExistentialArgument(name, s.args, s.lower, s.upper)
         (true, ScExistentialArgument(name, s.args, s.lower, s.upper), data)
       case (ex: ScExistentialType, _, data) =>
-        (false, ex, data ++ ex.wildcards.map(_.name))
+        (false, ex, data ++ ex.boundNames)
       case (t, _, data) => (false, t, data)
     })
     if (wildcards.nonEmpty) {
@@ -273,6 +261,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
   /**
    * Returns named element associated with type `t`.
    * If withoutAliases is `true` expands alias definitions first
+ *
    * @param t type
    * @param withoutAliases need to expand alias or not
    * @return element and substitutor
@@ -411,7 +400,7 @@ object ScType extends ScTypePresentation with ScTypePsiTypeBridge {
     if (!updated) tp
     else removeAliasDefinitions(res, visited + tp, expandableOnly)
   }
-  
+
   /**
    * Unwraps the method type corresponding to the parameter secion at index `n`.
    *

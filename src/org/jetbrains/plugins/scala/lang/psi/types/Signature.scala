@@ -8,7 +8,7 @@ import com.intellij.psi._
 import com.intellij.psi.util.MethodSignatureUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 
 import scala.collection.mutable.ArrayBuffer
@@ -17,7 +17,7 @@ case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], low
                               upperBound: ScType, isDefinition: Boolean, ta: ScTypeAlias) {
   def this(ta: ScTypeAlias) {
     this(ta.name, ta.typeParameters.map(new TypeParameter(_)).toList, ta.lowerBound.getOrNothing,
-      ta.upperBound.getOrAny, ta.isInstanceOf[ScTypeAliasDefinition], ta)
+      ta.upperBound.getOrAny, ta.isDefinition, ta)
   }
 
   def updateTypes(fun: ScType => ScType, withCopy: Boolean = true): TypeAliasSignature = {
