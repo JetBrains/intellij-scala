@@ -27,7 +27,7 @@ class OverridingAnnotatorTest2 extends ScalaLightCodeInsightFixtureTestAdapter {
   val START = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_START
   val END = ScalaLightCodeInsightFixtureTestAdapter.SELECTION_END
 
-  def testScl9658() {
+  def testScl7536() {
     checkTextHasError(
       s"""
          |class Abs(var name: String){ }         |
