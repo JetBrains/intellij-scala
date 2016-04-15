@@ -53,7 +53,7 @@ class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
     if (parameter.isByName && parameter.isRepeatedParameter) {
       problems += "Parameter could not be repeated and by-name in the same time"
     }
-    val typeElem = ScalaPsiElementFactory.createTypeElementFromText(trimmed, typeCodeFragment, typeCodeFragment.getLastChild)
+    val typeElem = ScalaPsiElementFactory.createTypeElementFromText(trimmed, typeCodeFragment.getContext, typeCodeFragment)
     if (typeElem == null || typeElem.getType().isEmpty) {
       problems += s"Could not understand type $trimmed"
       parameter.scType = null
