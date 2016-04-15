@@ -74,4 +74,8 @@ class DecompilerTest extends DecompilerTestBase {
   def testScl9457(): Unit = {
     doTest("AnyVaal212.class")
   }
+
+  def testScl9877(): Unit = {
+    doTest("MyJoin.class")
+  }
 }
