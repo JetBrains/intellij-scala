@@ -4,7 +4,6 @@ package psi
 package api
 package statements
 
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -21,6 +20,8 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, Mod
 */
 
 trait ScTypeAliasDefinition extends ScTypeAlias {
+  override def isDefinition: Boolean = true
+
   def aliasedTypeElement: ScTypeElement = {
     val stub = this.asInstanceOf[ScalaStubBasedElementImpl[_ <: PsiElement]].getStub
     if (stub != null) {

@@ -310,6 +310,12 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
         }
       }
 
+      override def visitExistentialArgument(s: ScExistentialArgument): Unit = {
+        val ScExistentialArgument(name, args, lower, upper) = s
+        result = ScExistentialArgument(name, args.map(t => substInternal(t).asInstanceOf[ScTypeParameterType]),
+          substInternal(lower), substInternal(upper))
+      }
+
       override def visitExistentialType(ex: ScExistentialType): Unit = {
         val ScExistentialType(q, wildcards) = ex
         //remove bound names
@@ -319,7 +325,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
         substCopy.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
         substCopy.myDependentMethodTypes = myDependentMethodTypes
         result = new ScExistentialType(substCopy.substInternal(q),
-          wildcards.map(_.subst(ScSubstitutor.this)))
+          wildcards.map(ex => substInternal(ex).asInstanceOf[ScExistentialArgument]))
       }
 
       override def visitParameterizedType(pt: ScParameterizedType): Unit = {
@@ -499,7 +505,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, PsiElement), HashSet[ScT
               case 1 => (true, upper, data)
               case 0 => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, skoLower, upper), data)
             }
-          case (ex: ScExistentialType, _, data) => (false, ex, data ++ ex.wildcards.map(_.name))
+          case (ex: ScExistentialType, _, data) => (false, ex, data ++ ex.boundNames)
           case (tp, _, data) => (false, tp, data)
         }, variance)
     }).unpackedType
@@ -536,7 +542,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, PsiElement), HashSet[ScT
                   case 1 => (true, skoUpper, data)
                   case 0 => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, skoUpper), data)
                 }
-              case (ex: ScExistentialType, _, data) => (false, ex, data ++ ex.wildcards.map(_.name))
+              case (ex: ScExistentialType, _, data) => (false, ex, data ++ ex.boundNames)
               case (tp, _, data) => (false, tp, data)
             }, variance)
       }).unpackedType

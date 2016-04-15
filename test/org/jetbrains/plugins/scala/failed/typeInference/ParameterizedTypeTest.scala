@@ -191,4 +191,20 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |  }""".stripMargin
     )
   }
+
+  def testSCL10168() = {
+    checkTextHasNoErrors(
+      """  trait Members {
+        |  type F[_]
+        |  type A
+        |  val value: F[A]
+        |}
+        |object Scratch {
+        |  def meth[F[_], A](fa: F[A]) = {}
+        |
+        |  def callMethWithValue[F[_], A](members: Members) =
+        |    meth(members.value)
+        |}""".stripMargin
+    )
+  }
 }

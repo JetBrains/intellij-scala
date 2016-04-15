@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 
+import scala.annotation.tailrec
 import scala.collection.immutable.{HashSet, Set}
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -73,7 +74,10 @@ case class ScExistentialType(quantified : ScType,
   override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
                           falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
-    val simplified = simplify()
+    val simplified = unpackedType match {
+      case ex: ScExistentialType => ex.simplify()
+      case u => u
+    }
     if (this != simplified) return Equivalence.equivInner(simplified, r, undefinedSubst, falseUndef)
     quantified match {
       case ScParameterizedType(a: ScAbstractType, args) if !falseUndef =>
@@ -111,7 +115,7 @@ case class ScExistentialType(quantified : ScType,
         }
       case _ =>
     }
-    r match {
+    r.unpackedType match {
       case ex: ScExistentialType =>
         val simplified = ex.simplify()
         if (ex != simplified) return Equivalence.equivInner(this, simplified, undefinedSubst, falseUndef)
@@ -156,9 +160,9 @@ case class ScExistentialType(quantified : ScType,
             case tp: ScType => checkRecursive(tp, newSet); tp
           })
         case ex: ScExistentialType =>
-          var newSet = if (ex ne this) rejected ++ ex.wildcards.map(_.name) else rejected
+          var newSet = if (ex ne this) rejected ++ ex.boundNames else rejected
           checkRecursive(ex.quantified, newSet)
-          if (ex eq this) newSet = rejected ++ ex.wildcards.map(_.name)
+          if (ex eq this) newSet = rejected ++ ex.boundNames
           ex.wildcards.foreach(ex => {
             checkRecursive(ex.lower, newSet)
             checkRecursive(ex.upper, newSet)
@@ -266,9 +270,9 @@ case class ScExistentialType(quantified : ScType,
         }
         ScParameterizedType(updateRecursive(designator, rejected, variance), newTypeArgs)
       case ex@ScExistentialType(_quantified, _wildcards) =>
-        var newSet = if (ex ne this) rejected ++ ex.wildcards.map(_.name) else rejected
+        var newSet = if (ex ne this) rejected ++ ex.boundNames else rejected
         val q = updateRecursive(_quantified, newSet, variance)
-        if (ex eq this) newSet = rejected ++ ex.wildcards.map(_.name)
+        if (ex eq this) newSet = rejected ++ ex.boundNames
         ScExistentialType(q, _wildcards.map(arg => ScExistentialArgument(arg.name, arg.args.map(arg =>
           updateRecursive(arg, newSet, -variance).asInstanceOf[ScTypeParameterType]),
           updateRecursive(arg.lower, newSet, -variance), updateRecursive(arg.upper, newSet, variance))))
@@ -408,6 +412,38 @@ object ScExistentialType {
     val ex = ScExistentialArgument(name, args, lowerBound, upperBound)
     ScExistentialType(ex, List(ex))
   }
+
+  def existingWildcards(tp: ScType): HashSet[String] = {
+    val existingWildcards = new mutable.HashSet[String]
+    tp.recursiveUpdate({
+      case ex: ScExistentialType =>
+        existingWildcards ++= ex.boundNames
+        (false, ex)
+      case t => (false, t)
+    })
+    HashSet[String](existingWildcards.toSeq: _*)
+  }
+
+  @tailrec
+  def fixExistentialArgumentName(name: String, existingWildcards: HashSet[String]): String = {
+    if (existingWildcards.contains(name)) {
+      fixExistentialArgumentName(name + "$u", existingWildcards) //todo: fix it for name == "++"
+    } else name
+  }
+
+  def fixExistentialArgumentNames(tp: ScType, existingWildcards: HashSet[String]): ScType = {
+    if (existingWildcards.isEmpty) tp
+    else {
+      tp.recursiveVarianceUpdateModifiable[HashSet[String]](HashSet.empty, {
+        case (s: ScExistentialArgument, _, data) if !data.contains(s.name) =>
+          val name = fixExistentialArgumentName(s.name, existingWildcards)
+          (true, ScExistentialArgument(name, s.args, s.lower, s.upper), data)
+        case (ex: ScExistentialType, _, data) =>
+          (false, ex, data ++ ex.boundNames)
+        case (t, _, data) => (false, t, data)
+      })
+    }
+  }
 }
 
 case class ScExistentialArgument(name: String, args: List[ScTypeParameterType], lower: ScType, upper: ScType) extends ValueType {
@@ -457,11 +493,6 @@ case class ScExistentialArgument(name: String, args: List[ScTypeParameterType], 
         Equivalence.equivInner(upper, s.subst(exist.upper), undefinedSubst, falseUndef)
       case _ => (false, uSubst)
     }
-  }
-
-  def subst(substitutor: ScSubstitutor): ScExistentialArgument = {
-    ScExistentialArgument(name, args.map(t => substitutor.subst(t).asInstanceOf[ScTypeParameterType]),
-      substitutor subst lower, substitutor subst upper)
   }
 
   override def visitType(visitor: ScalaTypeVisitor): Unit = {

@@ -17,4 +17,40 @@ class SelfTypeTest extends TypeInferenceTestBase {
 
   def testSCL8661(): Unit = doTest()
 
+  def testSCL10173a(): Unit = doTest(
+    s"""
+       |trait T
+       |class Root
+       |class A extends Root with T
+       |class B extends A {
+       |  def foo(node: Root with T): Unit = {}
+       |}
+       |
+       |object Example extends App {
+       |
+       |  def bug1(b: B): Unit = {
+       |    val a: A = new A()
+       |    b.foo(${START}a$END)
+       |  }
+       |}
+       |//b.type
+      """.stripMargin)
+
+  def testSCL10173b(): Unit = doTest(
+    s"""
+       |trait T
+       |class Root
+       |class A extends Root with T
+       |class B extends A {
+       |  def foo(node: Root with T): Unit = {}
+       |}
+       |
+       |object Example extends App {
+       |  def bug2(b: B): Unit = {
+       |    val b2: B = new B()
+       |    b.foo(${START}b2$END)
+       |  }
+       |}
+       |//b.type
+      """.stripMargin)
 }
