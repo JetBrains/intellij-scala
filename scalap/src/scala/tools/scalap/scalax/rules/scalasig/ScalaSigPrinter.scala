@@ -493,6 +493,7 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
               case ex: ExternalSymbol => processName(ex.name)
               case _ => "this"
             }
+            case name if thisSymbol.isModule => processName(name)
             case name => processName(name) + ".this"
           }
         sep + thisSymbolName + "." + processName(symbol.name) + ".type"
