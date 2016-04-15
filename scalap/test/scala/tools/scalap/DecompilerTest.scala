@@ -78,4 +78,8 @@ class DecompilerTest extends DecompilerTestBase {
   def testScl9877(): Unit = {
     doTest("MyJoin.class")
   }
+
+  def testScl9877_1(): Unit = {
+    doTest("MyJoin.class")
+  }
 }
