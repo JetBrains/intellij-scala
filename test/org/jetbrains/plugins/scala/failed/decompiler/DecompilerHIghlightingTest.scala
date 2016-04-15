@@ -57,7 +57,7 @@ class DecompilerHighlightingTest extends ScalaFixtureTestCase(ScalaSdkVersion._2
 
   def testScaladocModelTest() = doTest("ScaladocModelTest.class")
 
-  def testClassloadVerify() = doTest("ClassloadVerity.class")
+  def testClassloadVerify() = doTest("ClassloadVerify.class")
 
   def testScalac() = doTest("Scalac.class")
 
