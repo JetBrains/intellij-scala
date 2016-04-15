@@ -5,17 +5,16 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message, ScalaAnnotator}
-import org.jetbrains.plugins.scala.base.{ScalaFixtureTestCase, ScalaLibraryLoader}
+import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase, ScalaLibraryLoader}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.junit.Assert
 
 /**
   * @author Alefas
   * @since 23/03/16
   */
-abstract class JavaHighlitghtingTestBase extends ScalaFixtureTestCase {
-  def messagesFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
+abstract class JavaHighlitghtingTestBase extends ScalaFixtureTestCase with AssertMatches {
+  def errorsFromJavaCode(scalaFileText: String, javaFileText: String, javaClassName: String): List[Message] = {
     myFixture.addFileToProject("dummy.scala", scalaFileText)
     val myFile: PsiFile = myFixture.addFileToProject(javaClassName + JavaFileType.DOT_DEFAULT_EXTENSION, javaFileText)
     myFixture.openFileInEditor(myFile.getVirtualFile)
@@ -28,7 +27,7 @@ abstract class JavaHighlitghtingTestBase extends ScalaFixtureTestCase {
     }
   }
 
-  def messagesFromScalaCode(scalaFileText: String, javaFileText: String): List[Message] = {
+  def erorrsFromScalaCode(scalaFileText: String, javaFileText: String): List[Message] = {
     myFixture.addFileToProject("dummy.java", javaFileText)
     myFixture.configureByText("dummy.scala", scalaFileText)
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
@@ -41,16 +40,6 @@ abstract class JavaHighlitghtingTestBase extends ScalaFixtureTestCase {
       case Error(_, null) | Error(null, _) => false
       case Error(_, _) => true
       case _ => false
-    }
-  }
-
-  def assertMatches[T](actual: T)(pattern: PartialFunction[T, Unit]) {
-    Assert.assertTrue("actual: " + actual.toString, pattern.isDefinedAt(actual))
-  }
-
-  def assertNoErrors(messages: List[Message]): Unit = {
-    assertMatches(messages) {
-      case Nil =>
     }
   }
 

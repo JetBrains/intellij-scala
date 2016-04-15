@@ -16,7 +16,7 @@ import scala.reflect.{ClassTag, classTag}
  * Pavel.Fatin, 18.05.2010
  */
 
-abstract class SimpleTestCase extends UsefulTestCase {
+abstract class SimpleTestCase extends UsefulTestCase with AssertMatches {
   var fixture: CodeInsightTestFixture = null
 
   override def setUp() {
@@ -52,16 +52,6 @@ abstract class SimpleTestCase extends UsefulTestCase {
       .drop(1)
       .dropWhile(_.isInstanceOf[PsiWhiteSpace])
       .next()
-  }
-
-  def assertNothing[T](actual: T) {
-    assertMatches(actual) {
-      case Nil =>
-    }
-  }
-
-  def assertMatches[T](actual: T)(pattern: PartialFunction[T, Unit]) {
-    Assert.assertTrue("actual: " + actual.toString, pattern.isDefinedAt(actual))
   }
 
   def describe(tree: PsiElement): String = toString(tree, 0)

@@ -28,7 +28,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |    }
         |}
       """.stripMargin
-    assertNoErrors(messagesFromScalaCode(scala, java))
+    assertNothing(erorrsFromScalaCode(scala, java))
   }
 
   def testTraitIsAbstract(): Unit = {
@@ -41,7 +41,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |    }
         |}
       """.stripMargin
-    assertMatches(messagesFromJavaCode(scalaCode, javaCode, "TestSCL4289")) {
+    assertMatches(errorsFromJavaCode(scalaCode, javaCode, "TestSCL4289")) {
       case Error("new MooSCL4289()", CannotBeInstantianted()) :: Nil =>
     }
   }
@@ -69,7 +69,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |    }
         |}
       """.stripMargin
-    assertNoErrors(messagesFromJavaCode(scala, java, "SCL8823"))
+    assertNothing(errorsFromJavaCode(scala, java, "SCL8823"))
   }
 
   def testValueTypes(): Unit = {
@@ -110,7 +110,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertMatches(messagesFromJavaCode(scala, java, javaClassName = "JavaHighlightingValueTypes")) {
+    assertMatches(errorsFromJavaCode(scala, java, javaClassName = "JavaHighlightingValueTypes")) {
       case Error("(42.0)", CannotBeApplied()) :: Nil =>
     }
   }
@@ -131,7 +131,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
       """.stripMargin
 
 
-    assertNoErrors(messagesFromJavaCode(scalaFileText = "", java, javaClassName = "OptionApply"))
+    assertNothing(errorsFromJavaCode(scalaFileText = "", java, javaClassName = "OptionApply"))
   }
 
   def testAccessBacktick(): Unit = {
@@ -154,7 +154,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertMatches(messagesFromJavaCode(scala, java, javaClassName = "TestJavaAAA")) {
+    assertMatches(errorsFromJavaCode(scala, java, javaClassName = "TestJavaAAA")) {
       case Error("get$u0060type$u0060", CannotResolveMethod()) :: Nil =>
     }
   }
@@ -182,7 +182,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromJavaCode(scala, java, javaClassName = "ThrowsJava"))
+    assertNothing(errorsFromJavaCode(scala, java, javaClassName = "ThrowsJava"))
   }
 
   def testOverrideFinal(): Unit = {
@@ -201,7 +201,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromJavaCode(scala, java, "Future"))
+    assertNothing(errorsFromJavaCode(scala, java, "Future"))
   }
 
   def testSCL5617Option(): Unit = {
@@ -229,7 +229,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |
       """.stripMargin
 
-    assertNoErrors(messagesFromJavaCode(scala, java, "SCL5617"))
+    assertNothing(errorsFromJavaCode(scala, java, "SCL5617"))
   }
 
   def testCaseClassImplement() = {
@@ -241,7 +241,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromJavaCode(scala, java, javaClassName = "CaseClassExtended"))
+    assertNothing(errorsFromJavaCode(scala, java, javaClassName = "CaseClassExtended"))
   }
 
   def testOverrideDefaultWithStaticSCL8861(): Unit = {
@@ -264,7 +264,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |
         |}
       """.stripMargin
-    assertNoErrors(messagesFromJavaCode(scala, java, "SCL8861"))
+    assertNothing(errorsFromJavaCode(scala, java, "SCL8861"))
   }
 
   def testClassParameter(): Unit = {
@@ -306,8 +306,8 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromJavaCode(scala, java, "JavaClass"))
-    assertNoErrors(messagesFromScalaCode(scala, java))
+    assertNothing(errorsFromJavaCode(scala, java, "JavaClass"))
+    assertNothing(erorrsFromScalaCode(scala, java))
   }
 
   def testSCL3390ParamAccessor(): Unit = {
@@ -331,8 +331,8 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |    }
         |}
       """.stripMargin
-    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "JavaClientSCL3390"))
-    assertNoErrors(messagesFromScalaCode(scalaCode, javaCode))
+    assertNothing(errorsFromJavaCode(scalaCode, javaCode, "JavaClientSCL3390"))
+    assertNothing(erorrsFromScalaCode(scalaCode, javaCode))
   }
 
   def testSCL3498ExistentialTypesFromJava(): Unit = {
@@ -348,7 +348,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |class A
       """.stripMargin
 
-    assertNoErrors(messagesFromScalaCode(scalaCode, javaCode))
+    assertNothing(erorrsFromScalaCode(scalaCode, javaCode))
   }
 
   def testResolvePublicJavaFieldSameNameAsMethod(): Unit = {
@@ -378,7 +378,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromScalaCode(scalaCode, javaCode))
+    assertNothing(erorrsFromScalaCode(scalaCode, javaCode))
   }
 
   def testGenericsPlainInnerClass(): Unit = {
@@ -396,7 +396,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
       """
         |public class SCL8866A extends Base<String, String> {}
       """.stripMargin
-    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, javaClassName = "SCL8866A"))
+    assertNothing(errorsFromJavaCode(scalaCode, javaCode, javaClassName = "SCL8866A"))
   }
 
   def testOverrideScalaFromJavaUpperBound(): Unit = {
@@ -416,7 +416,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, javaClassName = "SCL5852WrapsFoo"))
+    assertNothing(errorsFromJavaCode(scalaCode, javaCode, javaClassName = "SCL5852WrapsFoo"))
   }
 
   def testGenericsParameterizedInnerClass(): Unit = {
@@ -437,7 +437,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |
         |}
       """.stripMargin
-    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "SCL8866B"))
+    assertNothing(errorsFromJavaCode(scalaCode, javaCode, "SCL8866B"))
   }
 
   def testDefaultConstructorArguments(): Unit = {
@@ -454,7 +454,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "TestSCL7582"))
+    assertNothing(errorsFromJavaCode(scalaCode, javaCode, "TestSCL7582"))
   }
 
   def testSpecializedFields(): Unit = {
@@ -467,7 +467,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |    }
         |}
       """.stripMargin
-    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "Pair"))
+    assertNothing(errorsFromJavaCode(scalaCode, javaCode, "Pair"))
   }
 
   def testConstructorReturnTypeNull(): Unit = {
@@ -488,7 +488,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "SCL9412"))
+    assertNothing(errorsFromJavaCode(scalaCode, javaCode, "SCL9412"))
   }
 
   def testHigherKinded(): Unit = {
@@ -509,7 +509,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |    }
         |}
       """.stripMargin
-    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "SCL9661A"))
+    assertNothing(errorsFromJavaCode(scalaCode, javaCode, "SCL9661A"))
   }
 
   def testSCL9619(): Unit = {
@@ -528,7 +528,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromScalaCode(scala, java))
+    assertNothing(erorrsFromScalaCode(scala, java))
   }
 
   def testSCL9661(): Unit = {
@@ -555,7 +555,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromJavaCode(scalaCode, javaCode, "SCL9661"))
+    assertNothing(errorsFromJavaCode(scalaCode, javaCode, "SCL9661"))
   }
 }
 

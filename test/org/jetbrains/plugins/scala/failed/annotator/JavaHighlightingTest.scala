@@ -29,7 +29,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
         |
       """.stripMargin
-    assertNoErrors(messagesFromJavaCode(scala, java, "Main"))
+    assertNothing(errorsFromJavaCode(scala, java, "Main"))
   }
 
   def testSCL9663B() = {
@@ -49,7 +49,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |    }
         |}
       """.stripMargin
-    assertNoErrors(messagesFromJavaCode(scala, java, "Test"))
+    assertNothing(errorsFromJavaCode(scala, java, "Test"))
   }
 
   def testSCL7525() = {
@@ -71,7 +71,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromScalaCode(scala, java))
+    assertNothing(erorrsFromScalaCode(scala, java))
   }
 
   def testSCL9029() = {
@@ -99,7 +99,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromScalaCode(scala, java))
+    assertNothing(erorrsFromScalaCode(scala, java))
   }
   
   def testSCL6409() = {
@@ -115,7 +115,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |  override def method(arg: JavaDummy[_ <: JavaDummy[_]]): Unit = super.method(arg)
         |}""".stripMargin
     
-    assertNoErrors(messagesFromScalaCode(scala, java))
+    assertNothing(erorrsFromScalaCode(scala, java))
   }
 
   def testSCL7069() = {
@@ -150,7 +150,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |
       """.stripMargin
 
-    assertNoErrors(messagesFromScalaCode(scala, java))
+    assertNothing(erorrsFromScalaCode(scala, java))
   }
 
   def testSCL6114() = {
@@ -172,7 +172,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromJavaCode(scala, java, "A"))
+    assertNothing(errorsFromJavaCode(scala, java, "A"))
   }
 
   def testSCL9871(): Unit = {
@@ -197,7 +197,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromScalaCode(scala, java))
+    assertNothing(erorrsFromScalaCode(scala, java))
   }
 
   def testSCL10150(): Unit = {
@@ -216,7 +216,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromScalaCode(scala, java))
+    assertNothing(erorrsFromScalaCode(scala, java))
   }
 
   def testSCL8639(): Unit = {
@@ -239,7 +239,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromScalaCode(scala, java))
+    assertNothing(erorrsFromScalaCode(scala, java))
   }
 
   def testSCL8759(): Unit = {
@@ -263,7 +263,7 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromScalaCode(scala, java))
+    assertNothing(erorrsFromScalaCode(scala, java))
   }
 
   def testSCL8666(): Unit = {
@@ -314,6 +314,6 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
         |}
       """.stripMargin
 
-    assertNoErrors(messagesFromJavaCode("", java, "Lambdas"))
+    assertNothing(errorsFromJavaCode("", java, "Lambdas"))
   }
 }

@@ -11,33 +11,37 @@ import scala.tools.nsc.io.File
  * @author Alefas
  * @since  11/09/15
  */
-abstract class DecompilerTestBase extends TestCase {
+trait DecompilerTestBase extends TestCase {
   def basePath(separator: Char) = s"testdata${separator}decompiler$separator"
 
   def doTest(fileName: String): Unit = {
-    val testName = getName
-    assert(testName.startsWith("test") && testName.length > 4)
-    val name = testName(4).toLower + testName.substring(5)
+    val classFilePath = getClassFilePath(fileName, getName)
+    val expectedFilePath: String = classFilePath + ".test"
 
+    val expectedResult = new File(new jFile(expectedFilePath)).slurp().replace("\r","")
+
+    Assert.assertEquals(expectedResult, decompile(classFilePath))
+  }
+
+  protected def getClassFilePath(fileName: String, testName: String = "") = {
+    val name = if (testName.isEmpty) "" else {
+      assert(testName.startsWith("test") && testName.length > 4)
+      testName(4).toLower + testName.substring(5)
+    }
     val separator = jFile.separatorChar
     val dirPath: String = {
-      val path = s"${basePath(separator)}$name$separator"
+      val path = basePath(separator) + {if (name.isEmpty) "" else name + separator}
       val communityDir = new jFile(path)
       if (communityDir.exists()) path
       else s"scala-plugin$separator$path"
     }
-    val classFilePath = s"$dirPath$separator$fileName"
-    val expectedFilePath: String = classFilePath + ".test"
+    s"$dirPath$separator$fileName"
+  }
 
+  protected def decompile(classFilePath: String): String = {
     val file = new File(new jFile(classFilePath))
     val bytes = file.toByteArray()
-
-    val expectedResult = new File(new jFile(expectedFilePath)).slurp().replace("\r","")
-
-    (Decompiler.decompile(fileName, bytes): @unchecked)match {
-      case Some((_, text)) =>
-        Assert.assertEquals(expectedResult, text)
-    }
+    Decompiler.decompile(file.name, bytes).map(_._2).get
   }
 }
 
