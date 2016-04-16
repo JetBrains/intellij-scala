@@ -38,8 +38,6 @@ class ScalaLibraryLoader(project: Project, module: Module, rootPath: String, isI
 
     addSyntheticClasses()
 
-    VfsRootAccess.allowRootAccess(TestUtils.getTestDataPath)
-
     if (rootPath != null) {
       FileUtil.createIfDoesntExist(new File(rootPath))
       val testDataRoot: VirtualFile = LocalFileSystem.getInstance.refreshAndFindFileByPath(rootPath)

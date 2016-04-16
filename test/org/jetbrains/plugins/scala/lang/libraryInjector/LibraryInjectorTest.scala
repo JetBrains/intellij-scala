@@ -59,7 +59,6 @@ class LibraryInjectorTest extends ModuleTestCase with ScalaVersion {
   override def setUp(): Unit = {
     super.setUp()
 
-    VfsRootAccess.allowRootAccess()
     CompilerTestUtil.enableExternalCompiler()
     DebuggerTestUtil.setCompileServerSettings()
     DebuggerTestUtil.forceJdk8ForBuildProcess()
