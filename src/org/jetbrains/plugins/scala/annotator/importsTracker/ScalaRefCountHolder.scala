@@ -71,9 +71,7 @@ class ScalaRefCountHolder private () {
       val valuesIterator: java.util.Iterator[ValueUsed] = myValueUsed.iterator()
       while (valuesIterator.hasNext) {
         val ref: ValueUsed = valuesIterator.next
-        if (!ref.e.isValid) {
-          valuesIterator.remove()
-        }
+        if (!ref.isValid) valuesIterator.remove()
       }
     }
   }
