@@ -43,7 +43,6 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import scala.collection.{Seq, mutable}
 
 class ScalaPsiManager(project: Project) extends ProjectComponent {
-  self =>
 
   private val clearCacheOnChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
   private val clearCacheOnLowMemory = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
@@ -377,17 +376,11 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     }
   }
 
-  private[this] val myRawModificationCount = new AtomicLong(0)
+  val modificationTracker: ScalaPsiModificationTracker = new ScalaPsiModificationTracker(project)
 
-  def getModificationCount: Long = {
-    myRawModificationCount.get() + PsiManager.getInstance(project).getModificationTracker.getOutOfCodeBlockModificationCount
-  }
+  def getModificationCount: Long = modificationTracker.getModificationCount
 
-  def incModificationCount(): Long = myRawModificationCount.incrementAndGet()
-
-  val modificationTracker = new ModificationTracker {
-    override def getModificationCount: Long = self.getModificationCount
-  }
+  def incModificationCount(): Long = modificationTracker.incModificationCount()
 }
 
 object ScalaPsiManager {
@@ -402,4 +395,17 @@ object ScalaPsiManager {
     val ALL, OBJECT, TYPE = Value
   }
 
+}
+
+class ScalaPsiModificationTracker(project: Project) extends ModificationTracker {
+
+  private val myRawModificationCount = new AtomicLong(0)
+
+  private val mainModificationTracker = PsiManager.getInstance(project).getModificationTracker
+
+  def getModificationCount: Long = {
+    myRawModificationCount.get() + mainModificationTracker.getOutOfCodeBlockModificationCount
+  }
+
+  def incModificationCount(): Long = myRawModificationCount.incrementAndGet()
 }
