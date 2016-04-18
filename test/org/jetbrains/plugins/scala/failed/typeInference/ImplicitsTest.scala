@@ -261,4 +261,35 @@ class ImplicitsTest extends TypeInferenceTestBase {
         |//F[B]
       """.stripMargin)
   }
+
+  def testSCL6372(): Unit = {
+    doTest(
+      s"""
+         |class TagA[A]
+         |  class TagB[B]
+         |
+         |  abstract class Converter[A: TagA, B: TagB] {
+         |    def work(orig: A): B
+         |  }
+         |  object Converter {
+         |    class Detected[A: TagA, B: TagB] {
+         |      def using(fun: A => B) = new Converter[A, B] {
+         |        def work(orig: A) = fun(orig)
+         |      }
+         |    }
+         |    def apply[A: TagA, B: TagB]() = new Detected
+         |  }
+         |
+         |  class Config[A, B] {
+         |    implicit val tagA = new TagA[A]
+         |    implicit val tagB = new TagB[B]
+         |  }
+         |
+         |  class Test extends Config[Long, Int] {
+         |    val conv = Converter().using(java.lang.Long.bitCount)
+         |    def run() = conv.work(${START}366111312291L$END)
+         |  }
+         |//Nothing
+      """.stripMargin)
+  }
 }
