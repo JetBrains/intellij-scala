@@ -26,4 +26,17 @@ class ApplyConfomanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin
     checkTextHasNoErrors(text)
   }
+
+  def testSCL5660(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |class Test {
+         |  var test: Option[String] = None
+         |  def test_=(test: String) { this.test = Some(test) }
+         |}
+         |
+         |(new Test).test = "test"
+         |/* True */
+      """.stripMargin)
+  }
 }
