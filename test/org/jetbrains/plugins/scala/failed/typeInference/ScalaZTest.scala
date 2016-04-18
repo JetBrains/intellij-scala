@@ -77,4 +77,18 @@ class ScalaZTest extends TypeInferenceTestBase {
          |//Int
       """.stripMargin)
   }
+
+  def testSCL9762(): Unit = {
+    doTest(
+      s"""
+         |import scalaz._
+         |import Scalaz._
+         |import Kleisli._
+         |
+         |object BadKleisli {
+         |  val k : Kleisli[Option, Int, String] = ${START}kleisliU ((i: Int) => i.toString.some )$END
+         |}
+         |//Kleisli[Option, Int, String]
+      """.stripMargin)
+  }
 }
