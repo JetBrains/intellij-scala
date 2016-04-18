@@ -51,4 +51,18 @@ class PatternsTest extends TypeInferenceTestBase {
       """.stripMargin)
   }
 
+  def testSCL9241(): Unit = {
+    doTest(
+      s"""
+         |trait Inv[A] { def head: A }
+         |trait Cov[+A] { def head: A }
+         |
+         |def inv(i: Inv[Inv[String]]) = i match {
+         |    case l: Inv[a] =>
+         |      val x: a = ${START}l.head$END
+         |  }
+         |//a
+      """.stripMargin)
+  }
+
 }
