@@ -42,7 +42,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.{Seq, mutable}
 
-class ScalaPsiManager(project: Project) extends AbstractProjectComponent(project) {
+class ScalaPsiManager(val project: Project) {
 
   private val clearCacheOnChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
   private val clearCacheOnLowMemory = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
@@ -250,7 +250,7 @@ class ScalaPsiManager(project: Project) extends AbstractProjectComponent(project
     syntheticPackages.clear()
   }
 
-  override def projectOpened(): Unit = {
+  private[impl] def projectOpened(): Unit = {
     import ScalaPsiManager._
 
     subscribeToPsiModification(project)
@@ -363,7 +363,7 @@ class ScalaPsiManager(project: Project) extends AbstractProjectComponent(project
 object ScalaPsiManager {
   val TYPE_VARIABLE_KEY: Key[TypeParameterType] = Key.create("type.variable.key")
 
-  def instance(project: Project) = project.getComponent(classOf[ScalaPsiManager])
+  def instance(project: Project): ScalaPsiManager = project.getComponent(classOf[ScalaPsiManagerComponent]).instance
 
   def typeVariable(typeParameter: PsiTypeParameter) = instance(typeParameter.getProject).typeVariable(typeParameter)
 
@@ -408,6 +408,22 @@ object ScalaPsiManager {
         manager.clearOnLowMemory()
       }
     }, project)
+  }
+}
+
+class ScalaPsiManagerComponent(project: Project) extends AbstractProjectComponent(project) {
+  private var manager = new ScalaPsiManager(project)
+
+  def instance: ScalaPsiManager =
+    if (manager != null) manager
+    else throw new IllegalStateException("ScalaPsiManager cannot be used after disposing.")
+
+  override def projectOpened(): Unit = {
+    manager.projectOpened()
+  }
+
+  override def disposeComponent(): Unit = {
+    manager = null
   }
 }
 
