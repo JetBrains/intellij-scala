@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import com.intellij.openapi.util.Computable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 /**
@@ -33,12 +34,12 @@ object Equivalence extends api.Equivalence {
       }
 
       right.isAliasType match {
-        case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => return right.equivInner(left, substitutor, falseUndef)
+        case Some(AliasType(ta: ScTypeAliasDefinition, Success(right, _), _)) => return right.equivInner(left, substitutor, falseUndef)
         case _ =>
       }
 
       left.isAliasType match {
-        case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => return left.equivInner(right, substitutor, falseUndef)
+        case Some(AliasType(ta: ScTypeAliasDefinition, Success(left, _), _)) => return left.equivInner(right, substitutor, falseUndef)
         case _ =>
       }
 
