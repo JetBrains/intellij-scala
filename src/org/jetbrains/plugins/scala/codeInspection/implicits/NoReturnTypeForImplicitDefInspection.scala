@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.codeInspection.implicits.NoReturnTypeForImpli
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * Nikolay.Tropin
@@ -34,6 +35,6 @@ object NoReturnTypeForImplicitDefInspection {
 
 class AddReturnTypeQuickFix(td: ScTypedDefinition) extends AbstractFixOnPsiElement("Add explicit return type", td) {
   override def doApplyFix(project: Project): Unit = {
-    ToggleTypeAnnotation.complete(AddOnlyStrategy.withoutEditor, getElement)
+    ToggleTypeAnnotation.complete(AddOnlyStrategy.withoutEditor, getElement)(project.typeSystem)
   }
 }

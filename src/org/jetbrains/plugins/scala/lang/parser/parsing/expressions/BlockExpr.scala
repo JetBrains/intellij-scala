@@ -18,7 +18,15 @@ import org.jetbrains.plugins.scala.lang.parser.util.{ParserPatcher, ParserUtils}
  * BlockExpr ::= '{' CaseClauses '}'
  *             | '{' Block '}'
  */
-object BlockExpr {
+object BlockExpr extends BlockExpr {
+  override protected val block = Block
+  override protected val caseClauses = CaseClauses
+}
+
+trait BlockExpr {
+  protected val block: Block
+  protected val caseClauses: CaseClauses
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     if (ParserPatcher.getSuitablePatcher(builder).parse(builder)) return true
     val blockExprMarker = builder.mark
@@ -39,13 +47,13 @@ object BlockExpr {
             case ScalaTokenTypes.kCLASS |
                  ScalaTokenTypes.kOBJECT =>
               backMarker.rollbackTo()
-              Block.parse(builder)
+              block.parse(builder)
             case _ =>
               backMarker.rollbackTo()
-              CaseClauses parse builder
+              caseClauses parse builder
           }
         case _ =>
-          Block.parse(builder)
+          block.parse(builder)
       }
     }
     ParserUtils.parseLoopUntilRBrace(builder, loopFunction)

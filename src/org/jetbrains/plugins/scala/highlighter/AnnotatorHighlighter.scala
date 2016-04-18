@@ -17,11 +17,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, StdType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -56,7 +57,8 @@ object AnnotatorHighlighter {
     }
   }
 
-  def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder) {
+  def highlightReferenceElement(refElement: ScReferenceElement, holder: AnnotationHolder)
+                               (implicit typeSystem: TypeSystem = refElement.typeSystem) {
 
     def annotateCollectionByType(resolvedType: ScType) {
       if (ScalaNamesUtil.isOperatorName(
@@ -80,7 +82,7 @@ object AnnotatorHighlighter {
         qn.exists(textName => {
           val cachedClass = ScalaPsiManager.instance(refElement.getProject).getCachedClass(textName, refElement.getResolveScope, ClassCategory.TYPE)
           if (cachedClass == null) false
-          else tp.conforms(ScType.designator(cachedClass))
+          else tp.conforms(ScalaType.designator(cachedClass))
         })
       }
 
@@ -103,7 +105,7 @@ object AnnotatorHighlighter {
         simpleAnnotate(ScalaBundle.message("java.collection"), DefaultHighlighter.JAVA_COLLECTION)
       } else if (resolvedType.canonicalText.startsWith(SCALA_COLLECTION_GENERIC_BASE) && refElement.isInstanceOf[ScReferenceExpression]) {
         refElement.asInstanceOf[ScReferenceExpression].getType(TypingContext.empty).foreach {
-          case f@ScFunctionType(returnType, params) => Option(returnType).foreach(a =>
+          case f@FunctionType(returnType, params) => Option(returnType).foreach(a =>
             if (a.canonicalText.startsWith(SCALA_COLLECTION_MUTABLE_BASE)) {
               simpleAnnotate(ScalaBundle.message("scala.mutable.collection"), DefaultHighlighter.MUTABLE_COLLECTION)
             } else if (a.canonicalText.startsWith(SCALA_COLLECTION_IMMUTABLE_BASE)) {
@@ -115,7 +117,7 @@ object AnnotatorHighlighter {
     }
 
     def annotateCollection(resolvedClazz: PsiClass) {
-      annotateCollectionByType(ScType.designator(resolvedClazz))
+      annotateCollectionByType(ScalaType.designator(resolvedClazz))
     }
 
     def isHighlightableScalaTestKeyword(fun: ScMember): Boolean = {
@@ -137,7 +139,7 @@ object AnnotatorHighlighter {
 
     val annotation = holder.createInfoAnnotation(refElement.nameId, null)
      resolvedElement match {
-      case c: PsiClass if ScType.baseTypesQualMap.contains(c.qualifiedName) => //this is td, it's important!
+       case c: PsiClass if StdType.QualNameToType.contains(c.qualifiedName) => //this is td, it's important!
         annotation.setTextAttributes(DefaultHighlighter.PREDEF)
       case x: ScClass if x.getModifierList.has(ScalaTokenTypes.kABSTRACT) =>
         annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)

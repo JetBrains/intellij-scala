@@ -1,13 +1,16 @@
 package org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector
 
 import com.intellij.openapi.util.Condition
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.PsiElement
+import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager.ClassCategory
-import org.jetbrains.plugins.scala.lang.psi.types.{Boolean => BooleanType, ScType, ValType}
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Boolean, ValType}
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+
 import scala.language.implicitConversions
 
 /**
@@ -16,7 +19,7 @@ import scala.language.implicitConversions
  */
 object SelectorConditions {
 
-  val BOOLEAN_EXPR = typedCondition(BooleanType)
+  val BOOLEAN_EXPR = typedCondition(Boolean)
 
   val ANY_EXPR = new Condition[PsiElement] {
     override def value(t: PsiElement): Boolean = t.isInstanceOf[ScExpression]
@@ -28,11 +31,16 @@ object SelectorConditions {
     override def value(t: PsiElement): Boolean = t match {
       case expr: ScExpression =>
         val project = t.getProject
+        implicit val typeSystem = project.typeSystem
         val manager = ScalaPsiManager.instance(project)
-        expr.getTypeIgnoreBaseType().toOption.flatMap{exprType => ScType.extractClass(exprType, Option(project)).map{ psiClass =>
-          val base = manager.getCachedClass(ancestorFqn, GlobalSearchScope.allScope(project), ClassCategory.ALL)
-          (psiClass != null && base != null && ScEquivalenceUtil.areClassesEquivalent(psiClass, base)) ||
-                  manager.cachedDeepIsInheritor(psiClass, base)}}.getOrElse(false)
+        expr.getTypeIgnoreBaseType().toOption.flatMap {
+          _.extractClass(project).map {
+            psiClass =>
+              val base = manager.getCachedClass(ancestorFqn, GlobalSearchScope.allScope(project), ClassCategory.ALL)
+              (psiClass != null && base != null && ScEquivalenceUtil.areClassesEquivalent(psiClass, base)) ||
+                manager.cachedDeepIsInheritor(psiClass, base)
+          }
+        }.getOrElse(false)
       case _ => false
     }
   }

@@ -39,10 +39,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
-import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeParameterType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
 import scala.annotation.tailrec
@@ -97,14 +99,15 @@ object ScalaRefactoringUtil {
     }
   }
 
-  def addPossibleTypes(scType: ScType, expr: ScExpression): Array[ScType] = {
+  def addPossibleTypes(scType: ScType, expr: ScExpression)
+                      (implicit typeSystem: TypeSystem): Array[ScType] = {
     val types = new ArrayBuffer[ScType]
     if (scType != null) types += scType
     expr.getTypeWithoutImplicits().foreach(types += _)
     expr.getTypeIgnoreBaseType(TypingContext.empty).foreach(types += _)
     expr.expectedType().foreach(types += _)
-    if (types.isEmpty) types += psi.types.Any
-    val unit = psi.types.Unit
+    if (types.isEmpty) types += Any
+    val unit = api.Unit
     val sorted = types.map(_.removeAbstracts).distinct.sortWith((t1, t2) => t1.conforms(t2))
     val result = if (sorted.contains(unit)) (sorted - unit) :+ unit else sorted
     result.toArray
@@ -112,7 +115,7 @@ object ScalaRefactoringUtil {
 
   def replaceSingletonTypes(scType: ScType): ScType = {
     def replaceSingleton(scType: ScType): (Boolean, ScType) = {
-      ScType.extractDesignatorSingletonType(scType) match {
+      ScalaType.extractDesignatorSingletonType(scType) match {
         case None => (false, scType)
         case Some(tp) => (true, tp)
       }
@@ -142,7 +145,7 @@ object ScalaRefactoringUtil {
   def getTypeParameterOwnerList(typeElement: ScTypeElement): Seq[ScTypeParametersOwner] = {
     val ownersArray: ArrayBuffer[ScTypeParametersOwner] = new ArrayBuffer[ScTypeParametersOwner]()
     typeElement.breadthFirst.foreach {
-      case x: ScTypeElement if x.calcType.isInstanceOf[ScTypeParameterType] =>
+      case x: ScTypeElement if x.calcType.isInstanceOf[TypeParameterType] =>
         val owner = getOwner(x)
         if (owner != null) {
           ownersArray += owner
@@ -188,7 +191,8 @@ object ScalaRefactoringUtil {
     PsiTreeUtil.findCommonParent(filtered: _*)
   }
 
-  def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int): Option[(ScExpression, Array[ScType])] = {
+  def getExpression(project: Project, editor: Editor, file: PsiFile, startOffset: Int, endOffset: Int)
+                   (implicit typeSystem: TypeSystem = project.typeSystem): Option[(ScExpression, Array[ScType])] = {
     val rangeText = file.getText.substring(startOffset, endOffset)
 
     def selectedInfixExpr(): Option[(ScExpression, Array[ScType])] = {
@@ -263,7 +267,7 @@ object ScalaRefactoringUtil {
     // Handle omitted parentheses in calls to functions with empty parameter list.
     // todo add a test for case with only implicit parameter list.
     val exprType = (element, cachedType) match {
-      case (ReferenceToFunction(func), ScFunctionType(returnType, _)) if (func: ScFunction).parameters.isEmpty => returnType
+      case (ReferenceToFunction(func), FunctionType(returnType, _)) if (func: ScFunction).parameters.isEmpty => returnType
       case _ => cachedType
     }
     val types = addPossibleTypes(exprType, element).map(replaceSingletonTypes)
@@ -447,7 +451,7 @@ object ScalaRefactoringUtil {
 
   def getCompatibleTypeNames(myTypes: Array[ScType]): util.LinkedHashMap[String, ScType] = {
     val map = new util.LinkedHashMap[String, ScType]
-    myTypes.foreach(myType => map.put(ScType.presentableText(myType), myType))
+    myTypes.foreach(myType => map.put(myType.presentableText, myType))
     map
   }
 
@@ -587,7 +591,7 @@ object ScalaRefactoringUtil {
           case _ => true
         }
         for (tp <- types) {
-          builder.append(ScType.presentableText(tp))
+          builder.append(tp.presentableText)
           if (tp != types.last) builder.append(" with ")
         }
         n.extendsBlock.templateBody match {

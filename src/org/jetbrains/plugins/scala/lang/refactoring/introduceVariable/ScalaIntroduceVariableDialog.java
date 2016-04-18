@@ -20,7 +20,10 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
-import org.jetbrains.plugins.scala.lang.refactoring.util.*;
+import org.jetbrains.plugins.scala.lang.refactoring.util.NamedDialog;
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator;
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings;
 
 import javax.swing.*;
@@ -127,7 +130,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
 
     boolean nullText = false;
     for (ScType myType : myTypes) {
-      if (ScTypeUtil.presentableText(myType) == null) nullText = true;
+      if (myType.toString() == null) nullText = true;
     }
     // Type specification
     if (myTypes.length == 0 || nullText) {

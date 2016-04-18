@@ -7,10 +7,11 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
@@ -87,6 +88,18 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
     res
   }
 
+  def putAliases(template: ScTemplateDefinition): ScSubstitutor = {
+    var result = this
+    for (alias <- template.aliases) {
+      alias match {
+        case aliasDef: ScTypeAliasDefinition if aliasesMap.get(aliasDef.name).isEmpty =>
+          result = result bindA(aliasDef.name, () => aliasDef.aliasedType(TypingContext.empty).getOrAny)
+        case _ =>
+      }
+    }
+    result
+  }
+
   def followUpdateThisType(tp: ScType): ScSubstitutor = {
     tp match {
       case ScThisType(template) =>
@@ -134,10 +147,10 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
       throw new RuntimeException("StackOverFlow during ScSubstitutor.subst(" + t + ") this = " + this, s)
   }
 
-  private def extractTpt(tpt: ScTypeParameterType, t: ScType): ScType = {
-    if (tpt.args.isEmpty) t
+  private def extractTpt(tpt: TypeParameterType, t: ScType): ScType = {
+    if (tpt.arguments.isEmpty) t
     else t match {
-      case ScParameterizedType(designator, _) => designator
+      case ParameterizedType(designator, _) => designator
       case _ => t
     }
   }
@@ -150,38 +163,40 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
         result = ScTypePolymorphicType(substInternal(internalType), typeParameters.map(tp => {
           TypeParameter(tp.name, tp.typeParams /* todo: is it important here to update? */,
             () => substInternal(tp.lowerType()), () => substInternal(tp.upperType()), tp.ptp)
-        }))
+        }))(t.typeSystem)
       }
 
       override def visitAbstractType(a: ScAbstractType): Unit = {
-        result = tvMap.get((a.tpt.name, a.tpt.getId)) match {
+        val parameterType = a.parameterType
+        result = tvMap.get(parameterType.nameAndId) match {
           case None => a
           case Some(v) => v match {
-            case tpt: ScTypeParameterType if tpt.param == a.tpt.param => a
-            case _ => extractTpt(a.tpt, v)
+            case tpt: TypeParameterType if tpt.typeParameter == parameterType.typeParameter => a
+            case _ => extractTpt(parameterType, v)
           }
         }
       }
 
       override def visitMethodType(m: ScMethodType): Unit = {
         val ScMethodType(retType, params, isImplicit) = m
-        result = new ScMethodType(substInternal(retType),
+        result = ScMethodType(substInternal(retType),
           params.map(p => p.copy(paramType = substInternal(p.paramType),
             expectedType = substInternal(p.expectedType), defaultType = p.defaultType.map(substInternal))), isImplicit)(m.project, m.scope)
       }
 
-      override def visitUndefinedType(u: ScUndefinedType): Unit = {
-        result = tvMap.get((u.tpt.name, u.tpt.getId)) match {
+      override def visitUndefinedType(u: UndefinedType): Unit = {
+        val parameterType = u.parameterType
+        result = tvMap.get(parameterType.nameAndId) match {
           case None => u
           case Some(v) => v match {
-            case tpt: ScTypeParameterType if tpt.param == u.tpt.param => u
-            case _ => extractTpt(u.tpt, v)
+            case tpt: TypeParameterType if tpt.typeParameter == parameterType.typeParameter => u
+            case _ => extractTpt(parameterType, v)
           }
         }
       }
 
-      override def visitTypeParameterType(tpt: ScTypeParameterType): Unit = {
-        result = tvMap.get((tpt.name, tpt.getId)) match {
+      override def visitTypeParameterType(tpt: TypeParameterType): Unit = {
+        result = tvMap.get(tpt.nameAndId) match {
           case None => tpt
           case Some(v) => extractTpt(tpt, v)
         }
@@ -219,14 +234,14 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
           case Some(oldTp) if !hasRecursiveThisType(oldTp) => //todo: hack to avoid infinite recursion during type substitution
             var tp = oldTp
             def update(typez: ScType): ScType = {
-              ScType.extractDesignated(typez, withoutAliases = true) match {
+              ScalaType.extractDesignated(typez, withoutAliases = true) match {
                 case Some((t: ScTypeDefinition, subst)) =>
                   if (t == clazz) tp
                   else if (ScalaPsiUtil.cachedDeepIsInheritor(t, clazz)) tp
                   else {
                     t.selfType match {
                       case Some(selfType) =>
-                        ScType.extractDesignated(selfType, withoutAliases = true) match {
+                        ScalaType.extractDesignated(selfType, withoutAliases = true) match {
                           case Some((cl: PsiClass, _)) =>
                             if (cl == clazz) tp
                             else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) tp
@@ -237,7 +252,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                                 val iter = types.iterator
                                 while (iter.hasNext) {
                                   val tps = iter.next()
-                                  ScType.extractClass(tps) match {
+                                  tps.extractClass()(ScalaTypeSystem) match {
                                     case Some(cl) =>
                                       if (cl == clazz) return tp
                                     case _ =>
@@ -252,10 +267,10 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                   }
                 case Some((cl: PsiClass, subst)) =>
                   typez match {
-                    case t: ScTypeParameterType => return update(t.upper.v)
-                    case p@ScParameterizedType(des, typeArgs) =>
+                    case t: TypeParameterType => return update(t.upper.v)
+                    case p@ParameterizedType(des, typeArgs) =>
                       p.designator match {
-                        case ScTypeParameterType(_, _, _, upper, _) => return update(p.substitutor.subst(upper.v))
+                        case TypeParameterType(_, _, _, upper, _) => return update(p.substitutor.subst(upper.v))
                         case _ =>
                       }
                     case _ =>
@@ -271,17 +286,17 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                       val iter = types.iterator
                       while (iter.hasNext) {
                         val tps = iter.next()
-                        ScType.extractClass(tps) match {
+                        tps.extractClass()(ScalaTypeSystem) match {
                           case Some(cl) =>
                             if (cl == clazz) return tp
                             else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) return tp
                           case _ =>
                         }
                       }
-                    case t: ScTypeParameterType => return update(t.upper.v)
-                    case p@ScParameterizedType(des, typeArgs) =>
+                    case t: TypeParameterType => return update(t.upper.v)
+                    case p@ParameterizedType(des, typeArgs) =>
                       p.designator match {
-                        case ScTypeParameterType(_, _, _, upper, _) => return update(p.substitutor.subst(upper.v))
+                        case TypeParameterType(_, _, _, upper, _) => return update(p.substitutor.subst(upper.v))
                         case _ =>
                       }
                     case _ =>
@@ -301,7 +316,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                   if (parentTemplate != null) tp = ScThisType(parentTemplate.asInstanceOf[ScTemplateDefinition])
                   else tp = null
                 case ScProjectionType(newType, _, _) => tp = newType
-                case ScParameterizedType(ScProjectionType(newType, _, _), _) => tp = newType
+                case ParameterizedType(ScProjectionType(newType, _, _), _) => tp = newType
                 case _ => tp = null
               }
             }
@@ -312,7 +327,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
 
       override def visitExistentialArgument(s: ScExistentialArgument): Unit = {
         val ScExistentialArgument(name, args, lower, upper) = s
-        result = ScExistentialArgument(name, args.map(t => substInternal(t).asInstanceOf[ScTypeParameterType]),
+        result = ScExistentialArgument(name, args.map(t => substInternal(t).asInstanceOf[TypeParameterType]),
           substInternal(lower), substInternal(upper))
       }
 
@@ -328,61 +343,61 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
           wildcards.map(ex => substInternal(ex).asInstanceOf[ScExistentialArgument]))
       }
 
-      override def visitParameterizedType(pt: ScParameterizedType): Unit = {
-        val typeArgs = pt.typeArgs
+      override def visitParameterizedType(pt: ParameterizedType): Unit = {
+        val typeArgs = pt.typeArguments
         result = pt.designator match {
-          case tpt: ScTypeParameterType =>
-            tvMap.get((tpt.name, tpt.getId)) match {
+          case tpt: TypeParameterType =>
+            tvMap.get(tpt.nameAndId) match {
               case Some(param: ScParameterizedType) if pt != param =>
-                if (tpt.args.isEmpty) {
+                if (tpt.arguments.isEmpty) {
                   substInternal(param) //to prevent types like T[A][A]
                 } else {
                   ScParameterizedType(param.designator, typeArgs.map(substInternal))
                 }
               case _ =>
                 substInternal(tpt) match {
-                  case ScParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
+                  case ParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
                   case des => ScParameterizedType(des, typeArgs map substInternal)
                 }
             }
-          case u: ScUndefinedType =>
-            tvMap.get((u.tpt.name, u.tpt.getId)) match {
+          case u@UndefinedType(parameterType, _) =>
+            tvMap.get(parameterType.nameAndId) match {
               case Some(param: ScParameterizedType) if pt != param =>
-                if (u.tpt.args.isEmpty) {
+                if (parameterType.arguments.isEmpty) {
                   substInternal(param) //to prevent types like T[A][A]
                 } else {
                   ScParameterizedType(param.designator, typeArgs map substInternal)
                 }
               case _ =>
                 substInternal(u) match {
-                  case ScParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
+                  case ParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
                   case des => ScParameterizedType(des, typeArgs map substInternal)
                 }
             }
-          case u: ScAbstractType =>
-            tvMap.get((u.tpt.name, u.tpt.getId)) match {
+          case a@ScAbstractType(parameterType, _, _) =>
+            tvMap.get(parameterType.nameAndId) match {
               case Some(param: ScParameterizedType) if pt != param =>
-                if (u.tpt.args.isEmpty) {
+                if (parameterType.arguments.isEmpty) {
                   substInternal(param) //to prevent types like T[A][A]
                 } else {
                   ScParameterizedType(param.designator, typeArgs map substInternal)
                 }
               case _ =>
-                substInternal(u) match {
-                  case ScParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
+                substInternal(a) match {
+                  case ParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
                   case des => ScParameterizedType(des, typeArgs map substInternal)
                 }
             }
           case designator =>
             substInternal(designator) match {
-              case ScParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
+              case ParameterizedType(des, _) => ScParameterizedType(des, typeArgs map substInternal)
               case des => ScParameterizedType(des, typeArgs map substInternal)
             }
         }
       }
 
       override def visitJavaArrayType(j: JavaArrayType): Unit = {
-        result = JavaArrayType(substInternal(j.arg))
+        result = JavaArrayType(substInternal(j.argument))(j.typeSystem)
       }
 
       override def visitProjectionType(p: ScProjectionType): Unit = {
@@ -420,7 +435,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                 case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
                 case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
                 case named => named
-              }, s.hasRepeatedParam), rt)
+              }, s.hasRepeatedParam)(ScalaTypeSystem), rt)
         }, typeMap.map {
           case (s, sign) => (s, sign.updateTypes(substInternal))
         })
@@ -428,7 +443,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
         result = updateThisType match {
           case Some(thisType@ScDesignatorType(param: ScParameter)) =>
             val paramType = param.getRealParameterType(TypingContext.empty).getOrAny
-            if (paramType.conforms(middleRes)) thisType
+            if (paramType.conforms(middleRes)(ScalaTypeSystem)) thisType
             else middleRes
           case _ => middleRes
         }
@@ -442,7 +457,8 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
 class ScUndefinedSubstitutor(val upperMap: Map[(String, PsiElement), HashSet[ScType]] = HashMap.empty,
                              val lowerMap: Map[(String, PsiElement), HashSet[ScType]] = HashMap.empty,
                              val upperAdditionalMap: Map[(String, PsiElement), HashSet[ScType]] = HashMap.empty,
-                             val lowerAdditionalMap: Map[(String, PsiElement), HashSet[ScType]] = HashMap.empty) {
+                             val lowerAdditionalMap: Map[(String, PsiElement), HashSet[ScType]] = HashMap.empty)
+                            (implicit val typeSystem: TypeSystem) {
 
   def copy(upperMap: Map[(String, PsiElement), HashSet[ScType]] = upperMap,
            lowerMap: Map[(String, PsiElement), HashSet[ScType]] = lowerMap,
@@ -597,8 +613,8 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, PsiElement), HashSet[ScT
               var res = false
               def checkRecursive(tp: ScType): Boolean = {
                 tp.recursiveUpdate {
-                  case tpt: ScTypeParameterType =>
-                    val otherName = (tpt.name, tpt.getId)
+                  case tpt: TypeParameterType =>
+                    val otherName = tpt.nameAndId
                     if (additionalNames.contains(otherName)) {
                         res = true
                         solve(otherName, visited + name) match {
@@ -607,8 +623,8 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, PsiElement), HashSet[ScT
                         }
                     }
                     (false, tpt)
-                  case ScUndefinedType(tpt) =>
-                    val otherName = (tpt.name, tpt.getId)
+                  case UndefinedType(tpt, _) =>
+                    val otherName = tpt.nameAndId
                     if (names.contains(otherName)) {
                       res = true
                       solve(otherName, visited + name) match {
@@ -634,7 +650,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, PsiElement), HashSet[ScT
                 var lower: ScType = Nothing
                 val setIterator = set.iterator
                 while (setIterator.hasNext) {
-                  lower = Bounds.lub(lower, subst.subst(setIterator.next()))
+                  lower = lower.lub(subst.subst(setIterator.next()))
                 }
                 lMap += ((name, lower))
                 tvMap += ((name, lower))
@@ -652,8 +668,8 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, PsiElement), HashSet[ScT
               var res = false
               def checkRecursive(tp: ScType): Boolean = {
                 tp.recursiveUpdate {
-                  case tpt: ScTypeParameterType =>
-                    val otherName = (tpt.name, tpt.getId)
+                  case tpt: TypeParameterType =>
+                    val otherName = tpt.nameAndId
                     if (additionalNames.contains(otherName)) {
                       res = true
                       solve(otherName, visited + name) match {
@@ -662,8 +678,8 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, PsiElement), HashSet[ScT
                       }
                     }
                     (false, tpt)
-                  case ScUndefinedType(tpt) =>
-                    val otherName = (tpt.name, tpt.getId)
+                  case UndefinedType(tpt, _) =>
+                    val otherName = tpt.nameAndId
                     if (names.contains(otherName)) {
                       res = true
                       solve(otherName, visited + name) match {
@@ -695,7 +711,7 @@ class ScUndefinedSubstitutor(val upperMap: Map[(String, PsiElement), HashSet[ScT
                   var upper: ScType = Any
                   val setIterator = set.iterator
                   while (setIterator.hasNext) {
-                    upper = Bounds.glb(upper, subst.subst(setIterator.next()), checkWeak = false)
+                    upper = upper.glb(subst.subst(setIterator.next()), checkWeak = false)
                   }
                   rType = upper
                   rMap += ((name, rType))

@@ -20,10 +20,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor, ResolveProcessor, ResolverEnv}
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
 import scala.collection.mutable.ArrayBuffer
@@ -143,7 +145,7 @@ class ScSyntheticFunction(manager: PsiManager, val name: String,
 extends SyntheticNamedElement(manager, name) with ScFun {
   def isStringPlusMethod: Boolean = {
     if (name != "+") return false
-    ScType.extractClass(retType, Some(manager.getProject)) match {
+    retType.extractClass(manager.getProject) match {
       case Some(clazz) => clazz.qualifiedName == "java.lang.String"
       case _ => false
     }
@@ -199,6 +201,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     })
   }
 
+  private implicit val typeSystem = project.typeSystem
   private var classesInitialized: Boolean = false
   def isClassesRegistered: Boolean = classesInitialized
 
@@ -214,16 +217,16 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     any.addMethod(new ScSyntheticFunction(manager, "##", Int, Seq.empty))
     any.addMethod(new ScSyntheticFunction(manager, "isInstanceOf", Boolean, Seq.empty, Seq(ScalaUtils.typeParameter)))
     any.addMethod(new ScSyntheticFunction(manager, "asInstanceOf", Any, Seq.empty, Seq(ScalaUtils.typeParameter)) {
-      override val retType = ScalaPsiManager.typeVariable(typeParams(0))
+      override val retType = ScalaPsiManager.typeVariable(typeParams.head)
     })
 
-    val anyRef = registerClass(AnyRef, "AnyRef")
-    anyRef.addMethod(new ScSyntheticFunction(manager, "eq", Boolean, Seq(Seq(AnyRef))))
-    anyRef.addMethod(new ScSyntheticFunction(manager, "ne", Boolean, Seq(Seq(AnyRef))))
+    val anyRef = registerClass(api.AnyRef, "AnyRef")
+    anyRef.addMethod(new ScSyntheticFunction(manager, "eq", Boolean, Seq(Seq(api.AnyRef))))
+    anyRef.addMethod(new ScSyntheticFunction(manager, "ne", Boolean, Seq(Seq(api.AnyRef))))
     anyRef.addMethod(new ScSyntheticFunction(manager, "synchronized", Any, Seq.empty, Seq(ScalaUtils.typeParameter)) {
       override val paramClauses: Seq[Seq[Parameter]] = Seq(Seq(new Parameter("", None,
-        ScalaPsiManager.typeVariable(typeParams(0)), false, false, false, 0)))
-      override val retType: ScType = ScalaPsiManager.typeVariable(typeParams(0))
+        ScalaPsiManager.typeVariable(typeParams.head), false, false, false, 0)))
+      override val retType: ScType = ScalaPsiManager.typeVariable(typeParams.head)
     })
 
     registerClass(AnyVal, "AnyVal")
@@ -293,7 +296,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
       val dummyFile = PsiFileFactory.getInstance(manager.getProject).
               createFileFromText("dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
         ScalaFileType.SCALA_FILE_TYPE, fileText).asInstanceOf[ScalaFile]
-      val obj = dummyFile.typeDefinitions(0).asInstanceOf[ScObject]
+      val obj = dummyFile.typeDefinitions.head.asInstanceOf[ScObject]
       syntheticObjects += obj
     }
 

@@ -10,8 +10,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScTypePresentation}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 
 /**
@@ -41,9 +43,12 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
         ShowTypeInfoAction.typeInfoFromPattern(pattern).map("Type: " + _)
       }
 
-      def hintForExpression: Option[String] = {
+      val project = file.getProject
+      implicit val typeSystem = project.typeSystem
+
+      def hintForExpression(implicit typeSystem: TypeSystem): Option[String] = {
         val exprWithTypes: Option[(ScExpression, Array[ScType])] =
-          ScalaRefactoringUtil.getExpression(file.getProject, editor, file, getSelectionStart, getSelectionEnd)
+          ScalaRefactoringUtil.getExpression(project, editor, file, getSelectionStart, getSelectionEnd)
 
         exprWithTypes.map {
           case (expr @ ExpressionType(tpe), _) =>
@@ -52,7 +57,7 @@ class ShowTypeInfoAction extends AnAction(ScalaBundle.message("type.info")) {
             val tpeWithoutImplicits = expr.getTypeWithoutImplicits().toOption
             val tpeWithoutImplicitsText = tpeWithoutImplicits.map(_.presentableText)
             val expectedTypeText = expr.expectedType().map(_.presentableText)
-            val nonSingletonTypeText = ScType.extractDesignatorSingletonType(tpe).map(_.presentableText)
+            val nonSingletonTypeText = ScalaType.extractDesignatorSingletonType(tpe).map(_.presentableText)
 
             val mainText = Seq("Type: " + tpeText)
             def additionalTypeText(typeText: Option[String], label: String) = typeText.filter(_ != tpeText).map(s"$label: " + _)
@@ -106,7 +111,7 @@ object ShowTypeInfoAction {
   val NO_TYPE: String = "No type was inferred"
 
   private[this] def typeTextOf(elem: PsiElement, subst: ScSubstitutor): Option[String] = {
-    typeText(ScType.ofNamedElement(elem, subst))
+    typeText(elem.ofNamedElement(subst))
   }
 
   private[this] def typeText(optType: Option[ScType], s: ScSubstitutor = ScSubstitutor.empty): Option[String] = {

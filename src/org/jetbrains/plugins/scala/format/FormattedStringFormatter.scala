@@ -3,8 +3,8 @@ package format
 
 import com.intellij.openapi.util.text.StringUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.types
-import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScType, api}
 
 /**
  * Pavel Fatin
@@ -38,10 +38,10 @@ object FormattedStringFormatter extends StringFormatter {
   }
 
   private def letterFor(aType: ScType): Char = aType match {
-    case types.Boolean => 'b'
-    case types.Char => 'c'
-    case types.Byte | types.Short | types.Int | types.Long => 'd'
-    case types.Float | types.Double => 'f'
+    case Boolean => 'b'
+    case api.Char => 'c'
+    case api.Byte | api.Short | Int | Long => 'd'
+    case Float | Double => 'f'
     case ScDesignatorType(element) => element.name match {
       case "String" => 's'
       case "BigInt" => 'd'

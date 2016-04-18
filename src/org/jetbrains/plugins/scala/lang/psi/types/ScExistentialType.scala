@@ -3,24 +3,24 @@ package lang
 package psi
 package types
 
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api.{JavaArrayType, TypeSystem, TypeVisitor, _}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 
 import scala.annotation.tailrec
-import scala.collection.immutable.{HashSet, Set}
+import scala.collection.immutable.HashSet
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /**
 * @author ilyas
 */
-case class ScExistentialType(quantified : ScType,
-                             wildcards : List[ScExistentialArgument]) extends ValueType {
+case class ScExistentialType(quantified: ScType,
+                             wildcards: List[ScExistentialArgument]) extends ScalaType with ValueType {
 
   @volatile
   private var _boundNames: List[String] = null
@@ -71,46 +71,44 @@ case class ScExistentialType(quantified : ScType,
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor,
-                          falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
+                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     val simplified = unpackedType match {
       case ex: ScExistentialType => ex.simplify()
       case u => u
     }
-    if (this != simplified) return Equivalence.equivInner(simplified, r, undefinedSubst, falseUndef)
+    if (this != simplified) return simplified.equiv(r, undefinedSubst, falseUndef)
     quantified match {
-      case ScParameterizedType(a: ScAbstractType, args) if !falseUndef =>
-        val subst = new ScSubstitutor(Map(a.tpt.args.zip(args).map {
-          case (tpt: ScTypeParameterType, tp: ScType) =>
-            ((tpt.param.name, ScalaPsiUtil.getPsiElementId(tpt.param)), tp)
+      case ParameterizedType(ScAbstractType(parameterType, lowerBound, upperBound), args) if !falseUndef =>
+        val subst = new ScSubstitutor(Map(parameterType.arguments.zip(args).map {
+          case (tpt: TypeParameterType, tp: ScType) => (tpt.nameAndId, tp)
         }: _*), Map.empty, None)
         val upper: ScType =
-          subst.subst(a.upper) match {
-            case ScParameterizedType(u, _) => ScExistentialType(ScParameterizedType(u, args), wildcards)
+          subst.subst(upperBound) match {
+            case ParameterizedType(u, _) => ScExistentialType(ScParameterizedType(u, args), wildcards)
             case u => ScExistentialType(ScParameterizedType(u, args), wildcards)
           }
-        val t = Conformance.conformsInner(upper, r, Set.empty, undefinedSubst)
-        if (!t._1) return t
+        val conformance = r.conforms(upper, undefinedSubst)
+        if (!conformance._1) return conformance
 
         val lower: ScType =
-          subst.subst(a.lower) match {
-            case ScParameterizedType(l, _) => ScExistentialType(ScParameterizedType(l, args), wildcards)
+          subst.subst(lowerBound) match {
+            case ParameterizedType(l, _) => ScExistentialType(ScParameterizedType(l, args), wildcards)
             case l => ScExistentialType(ScParameterizedType(l, args), wildcards)
           }
-        return Conformance.conformsInner(r, lower, Set.empty, t._2)
-      case ScParameterizedType(a: ScUndefinedType, args) if !falseUndef =>
+        return lower.conforms(r, conformance._2)
+      case ParameterizedType(UndefinedType(parameterType, _), args) if !falseUndef =>
+        val nameAndId = parameterType.nameAndId
         r match {
-          case ScParameterizedType(des, _) =>
-            val tpt = a.tpt
-            undefinedSubst = undefinedSubst.addLower((tpt.name, tpt.getId), des)
-            undefinedSubst = undefinedSubst.addUpper((tpt.name, tpt.getId), des)
-            return Equivalence.equivInner(ScExistentialType(ScParameterizedType(des, args), wildcards), r, undefinedSubst, falseUndef)
-          case ScExistentialType(ScParameterizedType(des, _), _) =>
-            val tpt = a.tpt
-            undefinedSubst = undefinedSubst.addLower((tpt.name, tpt.getId), des)
-            undefinedSubst = undefinedSubst.addUpper((tpt.name, tpt.getId), des)
-            return Equivalence.equivInner(ScExistentialType(ScParameterizedType(des, args), wildcards), r, undefinedSubst, falseUndef)
+          case ParameterizedType(des, _) =>
+            undefinedSubst = undefinedSubst.addLower(nameAndId, des)
+              .addUpper(nameAndId, des)
+            return ScExistentialType(ScParameterizedType(des, args), wildcards).equiv(r, undefinedSubst, falseUndef)
+          case ScExistentialType(ParameterizedType(des, _), _) =>
+            undefinedSubst = undefinedSubst.addLower(nameAndId, des)
+              .addUpper(nameAndId, des)
+            return ScExistentialType(ScParameterizedType(des, args), wildcards).equiv(r, undefinedSubst, falseUndef)
           case _ => return (false, undefinedSubst) //looks like something is wrong
         }
       case _ =>
@@ -118,7 +116,7 @@ case class ScExistentialType(quantified : ScType,
     r.unpackedType match {
       case ex: ScExistentialType =>
         val simplified = ex.simplify()
-        if (ex != simplified) return Equivalence.equivInner(this, simplified, undefinedSubst, falseUndef)
+        if (ex != simplified) return this.equiv(simplified, undefinedSubst, falseUndef)
         val list = wildcards.zip(ex.wildcards)
         val iterator = list.iterator
         while (iterator.hasNext) {
@@ -127,7 +125,7 @@ case class ScExistentialType(quantified : ScType,
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
         }
-        Equivalence.equivInner(quantified, ex.quantified, undefinedSubst, falseUndef) //todo: probable problems with different positions of skolemized types.
+        quantified.equiv(ex.quantified, undefinedSubst, falseUndef) //todo: probable problems with different positions of skolemized types.
       case _ => (false, undefinedSubst)
     }
   }
@@ -137,7 +135,7 @@ case class ScExistentialType(quantified : ScType,
     //todo: use recursiveVarianceUpdateModifiable?
     def checkRecursive(tp: ScType, rejected: HashSet[String]) {
       tp match {
-        case JavaArrayType(arg) => checkRecursive(arg, rejected)
+        case JavaArrayType(argument) => checkRecursive(argument, rejected)
         case ScAbstractType(tpt, lower, upper) =>
           checkRecursive(tpt, rejected)
           checkRecursive(lower, rejected)
@@ -169,16 +167,16 @@ case class ScExistentialType(quantified : ScType,
           })
         case ScProjectionType(projected, element, _) =>
           checkRecursive(projected, rejected)
-        case ScParameterizedType(designator, typeArgs) =>
+        case ParameterizedType(designator, typeArgs) =>
           checkRecursive(designator, rejected)
           typeArgs.foreach(checkRecursive(_, rejected))
-        case ScTypeParameterType(name, args, lower, upper, param) =>
+        case TypeParameterType(name, args, lower, upper, param) =>
         case ScExistentialArgument(name, args, lower, upper) =>
           //todo: update args, lower, upper?
           wildcards.foreach(arg => if (arg.name == name && !rejected.contains(arg.name)) {
             res.update(arg, res.getOrElse(arg, Seq.empty[ScType]) ++ Seq(tp))
           })
-        case ScUndefinedType(tpt) => checkRecursive(tpt, rejected)
+        case UndefinedType(tpt, _) => checkRecursive(tpt, rejected)
         case ScMethodType(returnType, params, isImplicit) =>
           checkRecursive(returnType, rejected)
           params.foreach(p => checkRecursive(p.paramType, rejected))
@@ -232,20 +230,20 @@ case class ScExistentialType(quantified : ScType,
                 case b: ScBindingPattern => ScBindingPattern.getCompoundCopy(rt, b)
                 case f: ScFieldId => ScFieldId.getCompoundCopy(rt, f)
                 case named => named
-              }, s.hasRepeatedParam), rt)
+              }, s.hasRepeatedParam)(ScalaTypeSystem), rt)
         }, typeMap.map {
           case (s, sign) => (s, sign.updateTypesWithVariance(updateRecursive(_, newSet, _), variance))
         })
       case ScProjectionType(_, _, _) => tp
       case JavaArrayType(_) => tp
-      case ScParameterizedType(designator, typeArgs) =>
+      case ParameterizedType(designator, typeArgs) =>
         val parameteresIterator = designator match {
-          case tpt: ScTypeParameterType =>
-            tpt.args.map(_.param).iterator
-          case undef: ScUndefinedType =>
-            undef.tpt.args.map(_.param).iterator
+          case tpt: TypeParameterType =>
+            tpt.arguments.map(_.typeParameter).iterator
+          case undef: UndefinedType =>
+            undef.parameterType.arguments.map(_.typeParameter).iterator
           case tp: ScType =>
-            ScType.extractClass(tp) match {
+            tp.extractClass() match {
               case Some(owner) =>
                 owner match {
                   case td: ScTypeDefinition => td.typeParameters.iterator
@@ -274,16 +272,16 @@ case class ScExistentialType(quantified : ScType,
         val q = updateRecursive(_quantified, newSet, variance)
         if (ex eq this) newSet = rejected ++ ex.boundNames
         ScExistentialType(q, _wildcards.map(arg => ScExistentialArgument(arg.name, arg.args.map(arg =>
-          updateRecursive(arg, newSet, -variance).asInstanceOf[ScTypeParameterType]),
+          updateRecursive(arg, newSet, -variance).asInstanceOf[TypeParameterType]),
           updateRecursive(arg.lower, newSet, -variance), updateRecursive(arg.upper, newSet, variance))))
       case ScThisType(clazz) => tp
       case ScDesignatorType(element) => tp
-      case ScTypeParameterType(name, args, lower, upper, param) =>
+      case TypeParameterType(name, args, lower, upper, param) =>
         //should return TypeParameterType (for undefined type)
         tp
       case ScExistentialArgument(name, args, lower, upper) =>
         def res = ScExistentialArgument(name, args.map(arg =>
-          updateRecursive(arg, rejected, -variance).asInstanceOf[ScTypeParameterType]),
+          updateRecursive(arg, rejected, -variance).asInstanceOf[TypeParameterType]),
           updateRecursive(lower, rejected, -variance),
           updateRecursive(upper, rejected, variance))
         if (!rejected.contains(name)) {
@@ -292,15 +290,15 @@ case class ScExistentialType(quantified : ScType,
             case _ => res
           }
         } else res
-      case ScUndefinedType(tpt) => ScUndefinedType(
-        updateRecursive(tpt, rejected, variance).asInstanceOf[ScTypeParameterType]
+      case UndefinedType(tpt,_ ) => UndefinedType(
+        updateRecursive(tpt, rejected, variance).asInstanceOf[TypeParameterType]
       )
       case m@ScMethodType(returnType, params, isImplicit) =>
         ScMethodType(updateRecursive(returnType, rejected, variance),
           params.map(param => param.copy(paramType = updateRecursive(param.paramType, rejected, -variance))),
           isImplicit)(m.project, m.scope)
       case ScAbstractType(tpt, lower, upper) =>
-        ScAbstractType(updateRecursive(tpt, rejected, variance).asInstanceOf[ScTypeParameterType],
+        ScAbstractType(updateRecursive(tpt, rejected, variance).asInstanceOf[TypeParameterType],
           updateRecursive(lower, rejected, -variance),
           updateRecursive(upper, rejected, variance))
       case ScTypePolymorphicType(internalType, typeParameters) =>
@@ -379,17 +377,18 @@ case class ScExistentialType(quantified : ScType,
     } else this
   }
 
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitExistentialType(this)
+  override def visitType(visitor: TypeVisitor) = visitor match {
+    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitExistentialType(this)
+    case _ =>
   }
 
   override def typeDepth: Int = {
-    def typeParamsDepth(typeParams: List[ScTypeParameterType]): Int = {
+    def typeParamsDepth(typeParams: Seq[TypeParameterType]): Int = {
       typeParams.map {
         case typeParam =>
           val boundsDepth = typeParam.lower.v.typeDepth.max(typeParam.upper.v.typeDepth)
-          if (typeParam.args.nonEmpty) {
-            (typeParamsDepth(typeParam.args) + 1).max(boundsDepth)
+          if (typeParam.arguments.nonEmpty) {
+            (typeParamsDepth(typeParam.arguments) + 1).max(boundsDepth)
           } else boundsDepth
       }.max
     }
@@ -408,7 +407,7 @@ case class ScExistentialType(quantified : ScType,
 }
 
 object ScExistentialType {
-  def simpleExistential(name: String, args: List[ScTypeParameterType], lowerBound: ScType, upperBound: ScType): ScExistentialType = {
+  def simpleExistential(name: String, args: List[TypeParameterType], lowerBound: ScType, upperBound: ScType): ScExistentialType = {
     val ex = ScExistentialArgument(name, args, lowerBound, upperBound)
     ScExistentialType(ex, List(ex))
   }
@@ -446,7 +445,8 @@ object ScExistentialType {
   }
 }
 
-case class ScExistentialArgument(name: String, args: List[ScTypeParameterType], lower: ScType, upper: ScType) extends ValueType {
+case class ScExistentialArgument(name: String, args: List[TypeParameterType], lower: ScType, upper: ScType)
+  extends NamedType with ValueType {
   def withoutAbstracts: ScExistentialArgument = ScExistentialArgument(name, args, lower.removeAbstracts, upper.removeAbstracts)
 
   def recursiveUpdateNoUpdate(update: ScType => (Boolean, ScType), visited: HashSet[ScType]): ScExistentialArgument = {
@@ -482,20 +482,22 @@ case class ScExistentialArgument(name: String, args: List[ScTypeParameterType], 
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
+                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     r match {
       case exist: ScExistentialArgument =>
         var undefinedSubst = uSubst
         val s = (exist.args zip args).foldLeft(ScSubstitutor.empty) {(s, p) => s bindT ((p._1.name, null), p._2)}
-        val t = Equivalence.equivInner(lower, s.subst(exist.lower), undefinedSubst, falseUndef)
+        val t = lower.equiv(s.subst(exist.lower), undefinedSubst, falseUndef)
         if (!t._1) return (false, undefinedSubst)
         undefinedSubst = t._2
-        Equivalence.equivInner(upper, s.subst(exist.upper), undefinedSubst, falseUndef)
+        upper.equiv(s.subst(exist.upper), undefinedSubst, falseUndef)
       case _ => (false, uSubst)
     }
   }
 
-  override def visitType(visitor: ScalaTypeVisitor): Unit = {
-    visitor.visitExistentialArgument(this)
+  override def visitType(visitor: TypeVisitor) = visitor match {
+    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitExistentialArgument(this)
+    case _ =>
   }
 }

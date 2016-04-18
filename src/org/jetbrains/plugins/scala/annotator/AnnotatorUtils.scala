@@ -9,7 +9,8 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypePresentation
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, TypeSystem}
 
 /**
  * @author Aleksander Podkhalyuzin
@@ -37,7 +38,8 @@ private[annotator] object AnnotatorUtils {
     for (fix <- fixes) annotation.registerFix(fix)
   }
 
-  def checkConformance(expression: ScExpression, typeElement: ScTypeElement, holder: AnnotationHolder) {
+  def checkConformance(expression: ScExpression, typeElement: ScTypeElement, holder: AnnotationHolder)
+                      (implicit typeSystem: TypeSystem) {
     expression.getTypeAfterImplicitConversion().tr.foreach {actual =>
       val expected = typeElement.calcType
       if (!actual.conforms(expected)) {

@@ -9,13 +9,14 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.api.Any
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
@@ -26,28 +27,10 @@ import scala.annotation.tailrec
  */
 
 class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParameterizedTypeElement {
-  override def toString: String = "ParametrizedTypeElement: " + getText
-
-  def typeArgList = findChildByClass(classOf[ScTypeArgs])
-
-  def typeElement = findChildByClass(classOf[ScTypeElement])
-
-  def findConstructor = {
-    getContext match {
-      case constr: ScConstructor => Some(constr)
-      case _ => None
-    }
-  }
-
-  private var desugarizedTypeModCount: Long = 0L
-  private var desugarizedType: Option[ScTypeElement] = null
-
-  //computes desugarized type either for existential type or one of kind projector types
-  @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
-  def computeDesugarizedType: Option[ScTypeElement] = {
+  override def desugarizedText: String = {
     val inlineSyntaxIds = Set("?", "+?", "-?")
 
-    def kindProjectorFunctionSyntax(elem: ScTypeElement): Option[ScTypeElement] = {
+    def kindProjectorFunctionSyntax(elem: ScTypeElement): String = {
       def convertParameterized(param: ScParameterizedTypeElement): String = {
         param.typeElement.getText match {
           case v@("+" | "-") => //λ[(-[A], +[B]) => Function2[A, Int, B]]
@@ -71,24 +54,23 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
                   val paramList = tuple.components.map {
                     case parameterized: ScParameterizedTypeElement => convertParameterized(parameterized)
                     case simple: ScSimpleTypeElement => convertSimpleType(simple)
-                    case _ => return None //something went terribly wrong
+                    case _ => return null //something went terribly wrong
                   }
                   paramList.mkString(sep = ", ")
                 case simple: ScSimpleTypeElement => simple.getText.replaceAll("`", "")
                 case parameterized: ScParameterizedTypeElement => convertParameterized(parameterized)
-                case _ => return None
+                case _ => return null
               }
-              val lambdaText = s"({type $typeName[$paramText] = ${ret.getText}})#$typeName"
-              val newTE = ScalaPsiElementFactory.createTypeElementFromText(lambdaText, getContext, this)
-              Option(newTE)
-            case _ => None
+              s"({type $typeName[$paramText] = ${ret.getText}})#$typeName"
+            case _ => null
           }
-        case _ => None
+        case _ => null
       }
     }
 
-    def kindProjectorInlineSyntax(e: PsiElement): Option[ScTypeElement] = {
-      def generateName(i: Int): String = { //kind projector generates names the same way
+    def kindProjectorInlineSyntax(e: PsiElement) = {
+      def generateName(i: Int): String = {
+        //kind projector generates names the same way
         val res = ('α' + (i % 25)).toChar.toString
         if (i < 25) res
         else res + (i / 25)
@@ -106,13 +88,10 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       val paramText = paramOpt.flatten.mkString(start = "[", sep = ", ", end = "]")
       val bodyText = body.mkString(start = "[", sep = ", ", end = "]")
 
-      val typeName = "Λ$"
-      val inlineText = s"({type $typeName$paramText = ${typeElement.getText}$bodyText})#$typeName"
-      val newTE = ScalaPsiElementFactory.createTypeElementFromText(inlineText, getContext, this)
-      Option(newTE)
+      s"({type ${"Λ$"}$paramText = ${typeElement.getText}$bodyText})#${"Λ$"}"
     }
 
-    def existentialType: Option[ScTypeElement] = {
+    def existentialType = {
       val forSomeBuilder = new StringBuilder
       var count = 1
       forSomeBuilder.append(" forSome {")
@@ -129,9 +108,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       }
       forSomeBuilder.delete(forSomeBuilder.length - 2, forSomeBuilder.length)
       forSomeBuilder.append("}")
-      val newTypeText = s"(${typeElement.getText}${typeElements.mkString("[", ", ", "]")} ${forSomeBuilder.toString()})"
-      val newTypeElement = ScalaPsiElementFactory.createTypeElementFromText(newTypeText, getContext, this)
-      Option(newTypeElement)
+      s"(${typeElement.getText}${typeElements.mkString("[", ", ", "]")} ${forSomeBuilder.toString()})"
     }
 
     val kindProjectorEnabled = ScalaPsiUtil.kindProjectorPluginEnabled(this)
@@ -161,11 +138,18 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       case Some(fun) if isKindProjectorFunctionSyntax(fun) => kindProjectorFunctionSyntax(fun)
       case Some(e) if isKindProjectorInlineSyntax(e) => kindProjectorInlineSyntax(e)
       case Some(_) => existentialType
-      case _ => None
+      case _ => null
     }
   }
 
-  protected def innerType(ctx: TypingContext): TypeResult[ScType] = {
+  //computes desugarized type either for existential type or one of kind projector types
+  @Cached(synchronized = true, ModCount.getBlockModificationCount, this)
+  override def computeDesugarizedType: Option[ScTypeElement] = Option(desugarizedText) match {
+    case Some(text) => Option(createTypeElementFromText(text, getContext, this))
+    case _ => None
+  }
+
+  override protected def innerType(ctx: TypingContext): TypeResult[ScType] = {
     computeDesugarizedType match {
       case Some(typeElement) =>
         return typeElement.getType(TypingContext.empty)
@@ -204,7 +188,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     if (args.isEmpty) return tr
     val argTypesWrapped = args.map {_.getType(ctx)}
     val argTypesgetOrElseped = argTypesWrapped.map {_.getOrAny}
-    def fails(t: ScType) = (for (f@Failure(_, _) <- argTypesWrapped) yield f).foldLeft(Success(t, Some(this)))(_.apply(_))
+    def fails(t: ScType) = (for (f@Failure(_, _) <- argTypesWrapped) yield f).foldLeft(this.success(t))(_.apply(_))
 
     //Find cyclic type references
     argTypesWrapped.find(_.isCyclic) match {
@@ -212,7 +196,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       case None =>
         val typeArgs = args.map(_.getType(ctx))
         val result = ScParameterizedType(res, typeArgs.map(_.getOrAny))
-        (for (f@Failure(_, _) <- typeArgs) yield f).foldLeft(Success(result, Some(this)))(_.apply(_))
+        (for (f@Failure(_, _) <- typeArgs) yield f).foldLeft(this.success(result))(_.apply(_))
     }
   }
 

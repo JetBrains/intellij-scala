@@ -22,6 +22,6 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          SimpleTypeElement: b
+          SimpleType: b
             CodeReferenceElement: b
               PsiElement(identifier)('b')

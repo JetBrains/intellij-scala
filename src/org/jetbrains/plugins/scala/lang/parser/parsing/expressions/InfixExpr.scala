@@ -19,9 +19,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.TypeArgs
  * InfixExpr ::= PrefixExpr
  *             | InfixExpr id [TypeArgs] [nl] InfixExpr
  */
+object InfixExpr extends InfixExpr {
+  override protected val prefixExpr = PrefixExpr
+}
 
-object InfixExpr {
+trait InfixExpr {
+  protected val prefixExpr: PrefixExpr
+
   import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
 
     type MStack[X] = _root_.scala.collection.mutable.Stack[X]
@@ -31,7 +37,7 @@ object InfixExpr {
     val infixMarker = builder.mark
     var backupMarker = builder.mark
     var count = 0
-    if (!PrefixExpr.parse(builder)) {
+    if (!prefixExpr.parse(builder)) {
       backupMarker.drop()
       infixMarker.drop()
       return false
@@ -75,7 +81,7 @@ object InfixExpr {
       } else {
         backupMarker.drop()
         backupMarker = builder.mark
-        if (!PrefixExpr.parse(builder)) {
+        if (!prefixExpr.parse(builder)) {
           setMarker.rollbackTo()
           count = 0
           exitOf = false

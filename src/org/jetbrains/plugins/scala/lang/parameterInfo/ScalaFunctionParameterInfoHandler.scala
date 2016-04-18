@@ -18,11 +18,11 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parameterInfo.ScalaFunctionParameterInfoHandler.AnnotationParameters
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import _root_.scala.collection.mutable.ArrayBuffer
 import scala.annotation.tailrec
@@ -126,6 +127,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {
       case args: PsiElement =>
+        implicit val typeSystem = args.typeSystem
         val color: Color = context.getDefaultParameterColor
         val index = context.getCurrentParameterIndex
         val buffer: StringBuilder = new StringBuilder("")
@@ -133,9 +135,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
         //todo: var isGreen = true
         var namedMode = false
         def paramText(param: ScParameter, subst: ScSubstitutor) = {
-          ScalaDocumentationProvider.parseParameter(param,
-            (t: ScType) =>
-              ScType.presentableText(subst.subst(t)), escape = false)
+          ScalaDocumentationProvider.parseParameter(param, escape = false)(subst.subst(_).presentableText)
         }
         def applyToParameters(parameters: Seq[(Parameter, String)], subst: ScSubstitutor, canBeNaming: Boolean,
                               isImplicit: Boolean = false) {
@@ -259,7 +259,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               val paramsSeq: Seq[(Parameter, String)] = seq.zipWithIndex.map {
                 case (t, paramIndex) =>
                   (new Parameter(t._1, None, t._2, t._3 != null, false, false, paramIndex),
-                    t._1 + ": " + ScType.presentableText(t._2) + (
+                    t._1 + ": " + t._2.presentableText + (
                           if (t._3 != null) " = " + t._3.getText else ""))
               }
               applyToParameters(paramsSeq, ScSubstitutor.empty, canBeNaming = true, isImplicit = false)
@@ -289,7 +289,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       buffer.append(name)
                       buffer.append(": ")
                     }
-                    buffer.append(ScType.presentableText(paramType))
+                            buffer.append(paramType.presentableText)
                     if (param.isRepeated) buffer.append("*")
 
                     if (param.isDefault) buffer.append(" = _")
@@ -325,7 +325,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       buffer.append(name)
                     }
                     buffer.append(": ")
-                    buffer.append(ScType.presentableText(subst.subst(param.exactParamType())))
+                            buffer.append(subst.subst(param.exactParamType()).presentableText)
                     if (param.isVarArgs) buffer.append("*")
 
                     val isBold = if (p.getParameters.indexOf(param) == index || (param.isVarArgs && p.getParameters.indexOf(param) <= index)) true
@@ -387,7 +387,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
 
       override def callReference: Option[ScReferenceExpression] = {
         element.getParent match {
-          case i: ScInfixExpr => Some(i.operation) 
+          case i: ScInfixExpr => Some(i.operation)
         }
       }
     }
@@ -405,10 +405,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
       def create[T <: PsiElement](elem: T)(f: T => Invocation): Option[Invocation] = {
         elem.getParent match {
           case i: ScInfixExpr if i.getArgExpr == elem => Some(f(elem))
-          case _ => None 
+          case _ => None
         }
       }
-      
+
       elem match {
         case args: ScArgumentExprList => Some(new CallInvocation(args))
         case t: ScTuple => create(t)(new InfixTupleInvocation(_))
@@ -423,6 +423,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
   /**
    * Returns context's argument psi and fill context items
    * by appropriate PsiElements (in which we can resolve)
+    *
    * @param context current context
    * @return context's argument expression
    */
@@ -442,6 +443,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
     val argsOption: Option[Invocation] = findArgs(element)
     if (argsOption.isEmpty) return null
     val args = argsOption.get
+    implicit val typeSystem = file.getProject.typeSystem
     context match {
       case context: CreateParameterInfoContext =>
         args.parent match {
@@ -458,13 +460,13 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
               def collectSubstitutor(element: PsiElement): ScSubstitutor = {
                 if (gen == null) return ScSubstitutor.empty
                 val tp: Array[(String, PsiElement)] = element match {
-                  case tpo: ScTypeParametersOwner => tpo.typeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p))).toArray
-                  case ptpo: PsiTypeParameterListOwner => ptpo.getTypeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p)))
+                  case tpo: ScTypeParametersOwner => tpo.typeParameters.map(_.nameAndId).toArray
+                  case ptpo: PsiTypeParameterListOwner => ptpo.getTypeParameters.map(_.nameAndId)
                   case _ => return ScSubstitutor.empty
                 }
                 val typeArgs: Seq[ScTypeElement] = gen.arguments
                 val map = new collection.mutable.HashMap[(String, PsiElement), ScType]
-                for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
+                for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
                   map += ((tp(i), typeArgs(i).calcType))
                 }
                 new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
@@ -540,7 +542,7 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
             val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
             val typeElement = constr.typeElement
             val i = constr.arguments.indexOf(args.element)
-            ScType.extractClassType(typeElement.calcType, Some(file.getProject)) match {
+            typeElement.calcType.extractClassType(file.getProject) match {
               case Some((clazz: PsiClass, subst: ScSubstitutor)) =>
                 clazz match {
                   case clazz: ScClass =>
@@ -548,10 +550,10 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                       case Some(constr: ScPrimaryConstructor) if i < constr.effectiveParameterClauses.length =>
                         typeElement match {
                           case gen: ScParameterizedTypeElement =>
-                            val tp = clazz.typeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p)))
+                            val tp = clazz.typeParameters.map(_.nameAndId)
                             val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
                             val map = new collection.mutable.HashMap[(String, PsiElement), ScType]
-                            for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
+                            for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
                               map += ((tp(i), typeArgs(i).calcType))
                             }
                             val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)
@@ -571,17 +573,17 @@ class ScalaFunctionParameterInfoHandler extends ParameterInfoHandlerWithTabActio
                   case clazz: PsiClass if clazz.isAnnotationType =>
                     val resulting: (AnnotationParameters, Int) =
                       (AnnotationParameters(clazz.getMethods.toSeq.filter(_.isInstanceOf[PsiAnnotationMethod]).map(meth => (meth.name,
-                        ScType.create(meth.getReturnType, meth.getProject, meth.getResolveScope),
+                        meth.getReturnType.toScType(meth.getProject, meth.getResolveScope),
                         meth.asInstanceOf[PsiAnnotationMethod].getDefaultValue))), i)
                     res += resulting
                   case clazz: PsiClass if !clazz.isInstanceOf[ScTypeDefinition] =>
                     for (constructor <- clazz.getConstructors) {
                       typeElement match {
                         case gen: ScParameterizedTypeElement =>
-                          val tp = clazz.getTypeParameters.map(p => (p.name, ScalaPsiUtil.getPsiElementId(p)))
+                          val tp = clazz.getTypeParameters.map(_.nameAndId)
                           val typeArgs: Seq[ScTypeElement] = gen.typeArgList.typeArgs
                           val map = new collection.mutable.HashMap[(String, PsiElement), ScType]
-                          for (i <- 0 to Math.min(tp.length, typeArgs.length) - 1) {
+                          for (i <- 0 until Math.min(tp.length, typeArgs.length)) {
                             map += ((tp(i), typeArgs(i).calcType))
                           }
                           val substitutor = new ScSubstitutor(Map(map.toSeq: _*), Map.empty, None)

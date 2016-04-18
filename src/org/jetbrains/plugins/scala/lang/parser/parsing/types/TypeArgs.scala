@@ -16,8 +16,13 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
 /*
  *  typeArgs ::= '[' Types ']'
  */
+object TypeArgs extends TypeArgs {
+  override protected val `type` = Type
+}
 
-object TypeArgs {
+trait TypeArgs {
+  protected val `type`: Type
+
   def parse(builder: ScalaPsiBuilder, isPattern: Boolean): Boolean = build(ScalaElementTypes.TYPE_ARGS, builder) {
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET =>
@@ -49,11 +54,11 @@ object TypeArgs {
           } else false
         }
 
-        if (checkTypeVariable || Type.parse(builder)) {
+        if (checkTypeVariable || `type`.parse(builder)) {
           var parsedType = true
           while (builder.getTokenType == ScalaTokenTypes.tCOMMA && parsedType) {
             builder.advanceLexer()
-            parsedType = checkTypeVariable || Type.parse(builder)
+            parsedType = checkTypeVariable || `type`.parse(builder)
             if (!parsedType) builder error ScalaBundle.message("wrong.type")
           }
         } else builder error ScalaBundle.message("wrong.type")

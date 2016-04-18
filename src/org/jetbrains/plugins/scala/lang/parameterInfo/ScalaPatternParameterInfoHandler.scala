@@ -17,8 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScPattern, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.PsiTypeParameterExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -73,29 +75,30 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
         val buffer: StringBuilder = new StringBuilder("")
         p match {
           //todo: join this match statement with same in FunctionParameterHandler to fix code duplicate.
-          case (sign: PhysicalSignature, i: Int) => {
+          case (sign: PhysicalSignature, i: Int) =>
             //i  can be -1 (it's update method)
             val methodName = sign.method.name
 
             val subst = sign.substitutor
             val returnType = sign.method match {
               case function: ScFunction => subst.subst(function.returnType.getOrAny)
-              case method: PsiMethod => subst.subst(ScType.create(method.getReturnType, method.getProject))
+              case method: PsiMethod => subst.subst(method.getReturnType.toScType(method.getProject))
             }
 
             val oneArgCaseClassMethod: Boolean = sign.method match {
               case function: ScFunction => ScPattern.isOneArgCaseClassMethod(function)
               case _ => false
             }
+            import sign.typeSystem
             val params = ScPattern.extractorParameters(returnType, args, oneArgCaseClassMethod).zipWithIndex
 
-            if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+            if (params.isEmpty) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
             else {
               buffer.append(params.map {
                 case (param, o) =>
                   val buffer: StringBuilder = new StringBuilder("")
-                  buffer.append(ScType.presentableText(param))
-                  val isSeq = methodName == "unapplySeq" && (ScType.extractClass(param) match {
+                  buffer.append(param.presentableText)
+                  val isSeq = methodName == "unapplySeq" && (param.extractClass() match {
                     case Some(clazz) => clazz.qualifiedName == "scala.Seq"
                     case _ => false
                   })
@@ -115,7 +118,6 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                   if (isBold) "<b>" + paramText + "</b>" else paramText
               }.mkString(", "))
             }
-          }
           case _ =>
         }
         val isGrey = buffer.indexOf("<g>")
@@ -200,39 +202,38 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
     val (file, offset) = (context.getFile, context.getOffset)
     val element = file.findElementAt(offset)
     if (element == null) return null
+
+    implicit val typeSystem = element.typeSystem
     val args: ScPatternArgumentList = PsiTreeUtil.getParentOfType(element, getArgumentListClass)
     if (args != null) {
       context match {
         case context: CreateParameterInfoContext =>
           args.getParent match {
-            case constr: ScConstructorPattern => {
+            case constr: ScConstructorPattern =>
               val ref: ScStableCodeReferenceElement = constr.ref
               val res: ArrayBuffer[Object] = new ArrayBuffer[Object]
               if (ref != null) {
-                val name = ref.refName
                 val variants: Array[ResolveResult] = ref.multiResolve(false)
                 for (variant <- variants if variant.isInstanceOf[ScalaResolveResult]) {
                   val r = variant.asInstanceOf[ScalaResolveResult]
                   r.element match {
                     case fun: ScFunction if fun.parameters.nonEmpty =>
                       val substitutor = r.substitutor
-                      val subst = if (fun.typeParameters.length == 0) substitutor
+                      val subst = if (fun.typeParameters.isEmpty) substitutor
                       else {
                         val undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
-                          s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), ScUndefinedType(new ScTypeParameterType(p,
-                            substitutor))))
+                          s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, substitutor))))
                         val emptySubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
-                          s.bindT((p.name, ScalaPsiUtil.getPsiElementId(p)), p.upperBound.getOrAny))
-                        val result = fun.parameters(0).getType(TypingContext.empty)
+                          s.bindT(p.nameAndId, p.upperBound.getOrAny))
+                        val result = fun.parameters.head.getType(TypingContext.empty)
                         if (result.isEmpty) substitutor
                         else {
                           val funType = undefSubst.subst(result.get)
                           constr.expectedType match {
                             case Some(tp) =>
-                              val t = Conformance.conforms(tp, funType)
-                              if (t) {
-                                val undefSubst = Conformance.undefinedSubst(tp, funType)
-                                undefSubst.getSubstitutor match {
+                              val conformance = funType.conforms(tp, new ScUndefinedSubstitutor())
+                              if (conformance._1) {
+                                conformance._2.getSubstitutor match {
                                   case Some(newSubst) => newSubst.followed(substitutor)
                                   case _ => substitutor
                                 }
@@ -247,7 +248,6 @@ class ScalaPatternParameterInfoHandler extends ParameterInfoHandlerWithTabAction
                 }
               }
               context.setItemsToShow(res.toArray)
-            }
             case _ =>
           }
         case context: UpdateParameterInfoContext =>

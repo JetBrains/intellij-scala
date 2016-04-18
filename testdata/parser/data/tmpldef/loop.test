@@ -16,7 +16,7 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       TraitParents
-        SimpleTypeElement: TypeFunction1
+        SimpleType: TypeFunction1
           CodeReferenceElement: TypeFunction1
             PsiElement(identifier)('TypeFunction1')
       PsiWhiteSpace(' ')
@@ -49,13 +49,13 @@ ScalaFile
                 PsiWhiteSpace(' ')
                 ParameterType
                   FunctionalType: A => B
-                    SimpleTypeElement: A
+                    SimpleType: A
                       CodeReferenceElement: A
                         PsiElement(identifier)('A')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')
                     PsiWhiteSpace(' ')
-                    SimpleTypeElement: B
+                    SimpleType: B
                       CodeReferenceElement: B
                         PsiElement(identifier)('B')
               PsiElement())(')')
@@ -63,7 +63,7 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           CompoundType: Container {type }
-            SimpleTypeElement: Container
+            SimpleType: Container
               CodeReferenceElement: Container
                 PsiElement(identifier)('Container')
             PsiWhiteSpace(' ')

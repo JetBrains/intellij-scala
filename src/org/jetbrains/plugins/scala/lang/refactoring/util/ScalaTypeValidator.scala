@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -36,6 +37,7 @@ class ScalaTypeValidator(val conflictsReporter: ConflictsReporter,
                          val enclosingContainerAll: PsiElement,
                          val enclosingOne: PsiElement)
   extends ScalaValidator(conflictsReporter, myProject, selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
+  private implicit val typeSystem = myProject.typeSystem
 
   override def findConflicts(name: String, allOcc: Boolean): Array[(PsiNamedElement, String)] = {
     //returns declaration and message

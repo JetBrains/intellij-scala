@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala.lang.psi.light
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -50,7 +51,7 @@ class ScPrimaryConstructorWrapper(val constr: ScPrimaryConstructor, isJavaVararg
       case Some(i) if returnType == null =>
         val param = constr.parameters(i - 1)
         val scalaType = param.getType(TypingContext.empty).getOrAny
-        returnType = ScType.toPsi(scalaType, constr.getProject, constr.getResolveScope)
+        returnType = scalaType.toPsiType(constr.getProject, constr.getResolveScope)
       case _ =>
     }
     returnType
@@ -71,7 +72,8 @@ object ScPrimaryConstructorWrapper {
  * Represnts Scala functions for Java. It can do it in many ways including
  * default parameters. For example (forDefault = Some(1)):
  * def foo(x: Int = 1) generates method foo$default$1.
- * @author Alefas
+  *
+  * @author Alefas
  * @since 27.02.12
  */
 class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface: Boolean,
@@ -143,21 +145,22 @@ class ScFunctionWrapper(val function: ScFunction, isStatic: Boolean, isInterface
             val tvs =
               typeParameters.zip(methodTypeParameters).map {
                 case (param: ScTypeParam, parameter: PsiTypeParameter) =>
-                  ((param.name, ScalaPsiUtil.getPsiElementId(param)), ScDesignatorType(parameter))
+                  (param.nameAndId, ScDesignatorType(parameter))
               }
             new ScSubstitutor(tvs.toMap, Map.empty, None)
           } else ScSubstitutor.empty
         } else ScSubstitutor.empty
+      def lift: ScType => PsiType = _.toPsiType(function.getProject, function.getResolveScope)
       forDefault match {
         case Some(i) =>
           val param = function.parameters(i - 1)
           val scalaType = generifySubst subst ScFunctionWrapper.getSubstitutor(cClass, function).
             subst(param.getType(TypingContext.empty).getOrAny)
-          returnType = ScType.toPsi(scalaType, function.getProject, function.getResolveScope)
+          returnType = lift(scalaType)
         case None =>
           val scalaType = generifySubst subst ScFunctionWrapper.getSubstitutor(cClass, function).
             subst(function.returnType.getOrAny)
-          returnType = ScType.toPsi(scalaType, function.getProject, function.getResolveScope)
+          returnType = lift(scalaType)
       }
     }
     returnType
@@ -177,7 +180,7 @@ object ScFunctionWrapper {
   /**
    * This is for Java only.
    */
-  def methodText(function: ScMethodLike, isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass], 
+  def methodText(function: ScMethodLike, isStatic: Boolean, isInterface: Boolean, cClass: Option[PsiClass],
                  isJavaVarargs: Boolean, forDefault: Option[Int] = None): String = {
     val builder = new StringBuilder
 
@@ -192,21 +195,23 @@ object ScFunctionWrapper {
           tp.upperTypeElement match {
             case Some(tParam) =>
               val classes = new ArrayBuffer[String]()
+              val project = function.getProject
+              implicit val typeSystem = project.typeSystem
               tp.upperBound.map(subst.subst) match {
                 case Success(tp: ScCompoundType, _) =>
                   tp.components.foreach {
-                    case tp: ScType => ScType.extractClass(tp, Some(function.getProject)) match {
+                    case tp: ScType => tp.extractClass(project) match {
                       case Some(clazz) => classes += clazz.getQualifiedName
                       case _ =>
                     }
                   }
                 case Success(_: StdType, _) =>
-                  JavaPsiFacade.getInstance(function.getProject).getElementFactory.
+                  JavaPsiFacade.getInstance(project).getElementFactory.
                     createTypeByFQClassName("java.lang.Object", function.getResolveScope)
-                case Success(tpt: ScTypeParameterType, _) =>
+                case Success(tpt: TypeParameterType, _) =>
                   classes += tpt.canonicalText
                 case Success(scType, _) =>
-                  ScType.extractClass(scType, Some(function.getProject)) match {
+                  scType.extractClass(project) match {
                     case Some(clazz) => classes += clazz.getQualifiedName
                     case _ =>
                   }
@@ -273,7 +278,7 @@ object ScFunctionWrapper {
       tt match {
         case Success(tp, _) if param.isCallByNameParameter =>
           builder.append("scala.Function0<")
-          val psiType = ScType.toPsi(subst.subst(tp), function.getProject, function.getResolveScope, noPrimitives = true)
+          val psiType = subst.subst(tp).toPsiType(function.getProject, function.getResolveScope, noPrimitives = true)
           builder.append(psiType.getCanonicalText)
           builder.append(">")
         case Success(tp, _) =>

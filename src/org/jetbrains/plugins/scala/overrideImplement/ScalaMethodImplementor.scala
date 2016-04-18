@@ -59,7 +59,7 @@ private class ScalaPsiMethodGenerationInfo(method: PsiMethod, baseMethod: PsiMet
   override def insert(aClass: PsiClass, anchor: PsiElement, before: Boolean) {
     aClass match {
       case td: ScTemplateDefinition =>
-        val sign = new PhysicalSignature(method, ScSubstitutor.empty)
+        val sign = new PhysicalSignature(method, ScSubstitutor.empty)(aClass.typeSystem)
         val methodMember = new ScMethodMember(sign, isOverride = false)
 
         member = ScalaGenerationInfo.insertMethod(methodMember, td, findAnchor(td, baseMethod))

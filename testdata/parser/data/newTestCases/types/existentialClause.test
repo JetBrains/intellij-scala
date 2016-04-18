@@ -36,7 +36,7 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           ExistentialType: Type forSome {type X; val y: Int}
-            SimpleTypeElement: Type
+            SimpleType: Type
               CodeReferenceElement: Type
                 PsiElement(identifier)('Type')
             PsiWhiteSpace(' ')
@@ -66,7 +66,7 @@ ScalaFile
                     PsiElement(identifier)('y')
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
-                SimpleTypeElement: Int
+                SimpleType: Int
                   CodeReferenceElement: Int
                     PsiElement(identifier)('Int')
               PsiElement(})('}')

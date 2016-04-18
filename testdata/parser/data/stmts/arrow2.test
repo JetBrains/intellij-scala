@@ -34,7 +34,7 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              SimpleTypeElement: A
+              SimpleType: A
                 CodeReferenceElement: A
                   PsiElement(identifier)('A')
           PsiElement())(')')
@@ -69,24 +69,24 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  SimpleTypeElement: B
+                  SimpleType: B
                     CodeReferenceElement: B
                       PsiElement(identifier)('B')
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          ParametrizedTypeElement: Tuple2[A, B]
-            SimpleTypeElement: Tuple2
+          ParametrizedType: Tuple2[A, B]
+            SimpleType: Tuple2
               CodeReferenceElement: Tuple2
                 PsiElement(identifier)('Tuple2')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleTypeElement: A
+              SimpleType: A
                 CodeReferenceElement: A
                   PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleTypeElement: B
+              SimpleType: B
                 CodeReferenceElement: B
                   PsiElement(identifier)('B')
               PsiElement(])(']')
@@ -131,24 +131,24 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  SimpleTypeElement: B
+                  SimpleType: B
                     CodeReferenceElement: B
                       PsiElement(identifier)('B')
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          ParametrizedTypeElement: Tuple2[A, B]
-            SimpleTypeElement: Tuple2
+          ParametrizedType: Tuple2[A, B]
+            SimpleType: Tuple2
               CodeReferenceElement: Tuple2
                 PsiElement(identifier)('Tuple2')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleTypeElement: A
+              SimpleType: A
                 CodeReferenceElement: A
                   PsiElement(identifier)('A')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              SimpleTypeElement: B
+              SimpleType: B
                 CodeReferenceElement: B
                   PsiElement(identifier)('B')
               PsiElement(])(']')

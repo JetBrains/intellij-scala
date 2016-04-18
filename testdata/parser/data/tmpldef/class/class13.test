@@ -27,7 +27,7 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              SimpleTypeElement: Socket
+              SimpleType: Socket
                 CodeReferenceElement: Socket
                   PsiElement(identifier)('Socket')
           PsiElement())(')')
@@ -37,7 +37,7 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          SimpleTypeElement: Thread
+          SimpleType: Thread
             CodeReferenceElement: Thread
               PsiElement(identifier)('Thread')
           ArgumentList

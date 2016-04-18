@@ -5,10 +5,12 @@ import com.intellij.execution.configurations._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.ProjectScope
 import com.intellij.psi.{PsiClass, PsiModifier}
+import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types.{Conformance, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScTypeExt, ScalaType}
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test._
 
@@ -42,6 +44,7 @@ object ScalaTestRunConfiguration extends SuiteValidityChecker {
 
   protected[test] def lackConfigMapConstructor(clazz: PsiClass): Boolean = {
     val project = clazz.getProject
+    implicit val typeSystem = project.typeSystem
     val constructors = clazz match {
       case c: ScClass => c.secondaryConstructors.filter(_.isConstructor).toList ::: c.constructor.toList
       case _ => clazz.getConstructors.toList
@@ -55,13 +58,13 @@ object ScalaTestRunConfiguration extends SuiteValidityChecker {
               val firstParam = params(0)
               val psiManager = ScalaPsiManager.instance(project)
               val mapPsiClass = psiManager.getCachedClass(ProjectScope.getAllScope(project), "scala.collection.immutable.Map").orNull
-              val mapClass = ScType.designator(mapPsiClass)
-              val paramClass = ScType.create(firstParam.getType, project)
+              val mapClass = ScalaType.designator(mapPsiClass)
+              val paramClass = firstParam.getType.toScType(project)
               val conformanceType = paramClass match {
                 case parameterizedType: ScParameterizedType => parameterizedType.designator
                 case _ => paramClass
               }
-              if (Conformance.conforms(mapClass, conformanceType))
+              if (conformanceType.conforms(mapClass))
                 return false
             }
           case _ =>

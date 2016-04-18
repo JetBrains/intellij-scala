@@ -6,7 +6,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.codeInsight.intention.IntentionUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScTypedPattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ScTypeText, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
@@ -88,11 +89,12 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
   }
 
   def addToParameter(param: ScParameter) {
+    import param.typeSystem
     param.parentsInFile.findByType(classOf[ScFunctionExpr]) match {
       case Some(func) =>
         val index = func.parameters.indexOf(param)
         func.expectedType() match {
-          case Some(ScFunctionType(_, params)) =>
+          case Some(FunctionType(_, params)) =>
             if (index >= 0 && index < params.length) {
               val paramExpectedType = params(index)
               val param1 = param.getParent match {
@@ -124,7 +126,8 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
     else param.replace(newParam)
   }
 
-  def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement) {
+  def addTypeAnnotation(t: ScType, context: PsiElement, anchor: PsiElement)
+                       (implicit typeSystem: TypeSystem = context.typeSystem) {
     def addActualType(annotation: ScTypeElement) = {
       val parent = anchor.getParent
       val added = parent.addAfter(annotation, anchor)
@@ -156,9 +159,10 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
         val replacement = BaseTypes.get(someOrNone).find(_.canonicalText.startsWith("_root_.scala.Option")).getOrElse(someOrNone)
         Seq(typeElemFromType(replacement))
       case tp =>
-        ScType.extractClass(tp, Option(context.getProject)) match {
+        val project = context.getProject
+        tp.extractClass(project) match {
           case Some(sc: ScTypeDefinition) if (sc +: sc.supers).exists(isSealed) =>
-            val sealedType = BaseTypes.get(tp).find(ScType.extractClass(_, Option(context.getProject)).exists(isSealed))
+            val sealedType = BaseTypes.get(tp).find(_.extractClass(project).exists(isSealed))
             (sealedType.toSeq :+ tp).map(typeElemFromType)
           case Some(sc: ScTypeDefinition) if sc.getTruncedQualifiedName.startsWith("scala.collection") =>
             val goodTypes = Set(

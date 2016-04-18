@@ -8,7 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScMethodLikeExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -64,12 +64,12 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
   private def workWithBindInternal(bindInternal: Option[PsiElement], i: Int): TypeResult[ScType] = {
     val (res: ScType, clazz: ScTemplateDefinition) = bindInternal match {
       case Some(c: ScMethodLike) =>
-        val methodType = ScType.nested(c.methodType, i).getOrElse(return Failure("Not enough parameter sections", Some(this)))
+        val methodType = c.nestedMethodType(i).getOrElse(return Failure("Not enough parameter sections", Some(this)))
         (methodType, c.containingClass)
       case _ => return Failure("Cannot shape resolve self invocation", Some(this))
     }
     clazz match {
-      case tp: ScTypeParametersOwner if tp.typeParameters.length > 0 =>
+      case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
         val params: Seq[TypeParameter] = tp.typeParameters.map(new TypeParameter(_))
         Success(ScTypePolymorphicType(res, params), Some(this))
       case _ => Success(res, Some(this))

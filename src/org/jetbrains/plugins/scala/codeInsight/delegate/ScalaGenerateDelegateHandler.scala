@@ -15,16 +15,18 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalSignature
-import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeSystem, Unit}
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.overrideImplement._
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import scala.collection.JavaConversions._
@@ -121,7 +123,8 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   }
 
   @Nullable
-  private def chooseMethods(delegate: ClassMember, file: PsiFile, editor: Editor, project: Project): Array[ScMethodMember] = {
+  private def chooseMethods(delegate: ClassMember, file: PsiFile, editor: Editor, project: Project)
+                           (implicit typeSystem: TypeSystem = project.typeSystem): Array[ScMethodMember] = {
     val delegateType = delegate.asInstanceOf[ScalaTypedMember].scType
     val aClass = classAtOffset(editor.getCaretModel.getOffset, file)
     val tBody = aClass.extendsBlock.templateBody.get
@@ -142,7 +145,8 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     else if (members.nonEmpty) Array(members.head) else Array()
   }
 
-  private def toMethodMembers(candidates: Iterable[ScalaResolveResult], place: PsiElement): Seq[ScMethodMember] = {
+  private def toMethodMembers(candidates: Iterable[ScalaResolveResult], place: PsiElement)
+                             (implicit typeSystem: TypeSystem): Seq[ScMethodMember] = {
     object isSuitable {
       def unapply(srr: ScalaResolveResult): Option[PhysicalSignature] = {
         if (srr.implicitConversionClass.nonEmpty || srr.implicitFunction.nonEmpty) return None
@@ -206,7 +210,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
   private def canBeTargetInClass(member: ClassMember, clazz: ScTemplateDefinition): Boolean = member match {
     case ta: ScAliasMember => false
-    case typed: ScalaTypedMember if typed.scType == types.Unit => false
+    case typed: ScalaTypedMember if typed.scType == Unit => false
     case method: ScMethodMember =>
       method.getElement match {
         case m: PsiMethod if {val cl = m.getContainingClass; cl != null && cl.getQualifiedName == CommonClassNames.JAVA_LANG_OBJECT} => false

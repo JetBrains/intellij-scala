@@ -16,9 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLik
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMethodCall, ScReferenceExpression, ScSuperReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -82,7 +84,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
                   if (index != 0) Seq.empty
                   else method.getParameterList.getParameters.toSeq.map {
                     case p: PsiParameter =>
-                      (p.name, subst.subst(ScType.create(p.getType, position.getProject, position.getResolveScope)))
+                      (p.name, subst.subst(p.getType.toScType(position.getProject, position.getResolveScope)))
                   }
                 case _ => Seq.empty
               }.filter(_.length > 1)
@@ -97,7 +99,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
     }
   }
 
-  private def addConstructorCompletions(parameters: CompletionParameters, result: CompletionResultSet): Unit = {
+  private def addConstructorCompletions(parameters: CompletionParameters, result: CompletionResultSet) {
     val position = positionFromParameters(parameters)
     val elementType = position.getNode.getElementType
     if (elementType != ScalaTokenTypes.tIDENTIFIER) return
@@ -109,7 +111,9 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
         val typeElement = constructor.typeElement
         typeElement.getType(TypingContext.empty) match {
           case Success(tp, _) =>
-            val signatures = ScType.extractClassType(tp, Some(position.getProject)) match {
+            val project = position.getProject
+            implicit val typeSystem = project.typeSystem
+            val signatures = tp.extractClassType(project) match {
               case Some((clazz: ScClass, subst)) if !clazz.hasTypeParameters || (clazz.hasTypeParameters &&
                       typeElement.isInstanceOf[ScParameterizedTypeElement]) =>
                 clazz.constructors.toSeq.map {
@@ -126,7 +130,7 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
                     if (index != 0) Seq.empty
                     else c.getParameterList.getParameters.toSeq.map {
                       case p: PsiParameter =>
-                        (p.name, subst.subst(ScType.create(p.getType, typeElement.getProject, typeElement.getResolveScope)))
+                        (p.name, subst.subst(p.getType.toScType(typeElement.getProject, typeElement.getResolveScope)))
                     }
                 }.filter(_.length > 1)
               case _ => Seq.empty
@@ -144,7 +148,8 @@ class SameSignatureCallParametersProvider extends ScalaCompletionContributor {
     }
   }
 
-  private def checkSignatures(signatures: Seq[Seq[(String, ScType)]], methodLike: ScMethodLike, result: CompletionResultSet): Unit = {
+  private def checkSignatures(signatures: Seq[Seq[(String, ScType)]], methodLike: ScMethodLike, result: CompletionResultSet)
+                             (implicit typeSystem: TypeSystem = methodLike.typeSystem) {
     for (signature <- signatures if signature.forall(_._1 != null)) {
       val names = new ArrayBuffer[String]()
       val res = signature.map {

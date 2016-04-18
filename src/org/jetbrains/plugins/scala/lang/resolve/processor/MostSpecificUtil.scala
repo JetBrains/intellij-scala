@@ -7,6 +7,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -16,19 +17,21 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, types}
 
+import scala.collection.Set
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.{Set, immutable}
 
 /**
  * User: Alexander Podkhalyuzin
  * Date: 26.04.2010
  */
-case class MostSpecificUtil(elem: PsiElement, length: Int) {
+case class MostSpecificUtil(elem: PsiElement, length: Int)
+                           (implicit typeSystem: TypeSystem) {
   def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult],
                                    hasTypeParametersCall: Boolean = false,
                                    expandInnerResult: Boolean = true): Option[ScalaResolveResult] = {
@@ -63,7 +66,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     mostSpecificGeneric(applicable.map(r => {
       var callByName = false
       def checkCallByName(clauses: Seq[ScParameterClause]): Unit = {
-        if (clauses.length > 0 && clauses(0).parameters.length == 1 && clauses(0).parameters(0).isCallByNameParameter) {
+        if (clauses.nonEmpty && clauses.head.parameters.length == 1 && clauses.head.parameters.head.isCallByNameParameter) {
           callByName = true
         }
       }
@@ -85,7 +88,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                                 checkImplicits: Boolean): Boolean = {
     def lastRepeated(params: Seq[Parameter]): Boolean = {
       val lastOption: Option[Parameter] = params.lastOption
-      if (lastOption == None) return false
+      if (lastOption.isEmpty) return false
       lastOption.get.isRepeated
     }
     (r1.element, r2.element) match {
@@ -98,14 +101,14 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
               if (!existential) {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-                      new ScUndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
+                    subst.bindT(tp.nameAndId,
+                      UndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
                 }
                 Left(params.map(p => p.copy(paramType = s.subst(p.paramType))))
               } else {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+                    subst.bindT(tp.nameAndId,
                       new ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType(), tp.upperType()))
                 }
                 val arguments = typeParams.toList.map(tp =>
@@ -116,14 +119,14 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
               if (!existential) {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
-                      new ScUndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
+                    subst.bindT(tp.nameAndId,
+                      UndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
                 }
                 Right(s.subst(internal))
               } else {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
-                    subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)),
+                    subst.bindT(tp.nameAndId,
                       new ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType(), tp.upperType()))
                 }
                 val arguments = typeParams.toList.map(tp =>
@@ -157,14 +160,14 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                   else p
                 case p => p
               }
-              val i: Int = if (params1.length > 0) 0.max(length - params1.length) else 0
+              val i: Int = if (params1.nonEmpty) 0.max(length - params1.length) else 0
               val default: Expression =
-                new Expression(if (params1.length > 0) params1.last.paramType else types.Nothing, elem)
+                new Expression(if (params1.nonEmpty) params1.last.paramType else Nothing, elem)
               val exprs: Seq[Expression] = params1.map(p => new Expression(p.paramType, elem)) ++
                       Seq.fill(i)(default)
               Compatibility.checkConformance(checkNames = false, params2, exprs, checkImplicits)
             case (Right(type1), Right(type2)) =>
-              Conformance.conformsInner(type2, type1, immutable.Set.empty, new ScUndefinedSubstitutor()) //todo: with implcits?
+              type1.conforms(type2, new ScUndefinedSubstitutor()) //todo: with implcits?
             //todo this is possible, when one variant is empty with implicit parameters, and second without parameters.
             //in this case it's logical that method without parameters must win...
             case (Left(_), Right(_)) if !r1.implicitCase => return false
@@ -181,8 +184,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 def hasRecursiveTypeParameters(typez: ScType): Boolean = {
                   var hasRecursiveTypeParameters = false
                   typez.recursiveUpdate {
-                    case tpt: ScTypeParameterType =>
-                      typeParams.find(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)) ==(tpt.name, tpt.getId)) match {
+                    case tpt: TypeParameterType =>
+                      typeParams.find(_.nameAndId == tpt.nameAndId) match {
                         case None => (true, tpt)
                         case _ =>
                           hasRecursiveTypeParameters = true
@@ -193,16 +196,16 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                   hasRecursiveTypeParameters
                 }
                 typeParams.foreach(tp => {
-                  if (tp.lowerType() != types.Nothing) {
+                  if (tp.lowerType() != Nothing) {
                     val substedLower = uSubst.subst(tp.lowerType())
                     if (!hasRecursiveTypeParameters(tp.lowerType())) {
-                      u = u.addLower((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), substedLower, additional = true)
+                      u = u.addLower(tp.nameAndId, substedLower, additional = true)
                     }
                   }
-                  if (tp.upperType() != types.Any) {
+                  if (tp.upperType() != Any) {
                     val substedUpper = uSubst.subst(tp.upperType())
                     if (!hasRecursiveTypeParameters(tp.upperType())) {
-                      u = u.addUpper((tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)), substedUpper, additional = true)
+                      u = u.addUpper(tp.nameAndId, substedUpper, additional = true)
                     }
                   }
                 })
@@ -228,8 +231,8 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
    * c1 is a subclass of c2, or
    * c1 is a companion object of a class derived from c2, or
    * c2 is a companion object of a class from which c1 is derived.
- *
-   * @return true is c1 is derived from c2, false if c1 or c2 is None
+    *
+    * @return true is c1 is derived from c2, false if c1 or c2 is None
    */
   def isDerived(c1: Option[PsiClass], c2: Option[PsiClass]): Boolean = {
     (c1, c2) match {
@@ -305,7 +308,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
         found = res
       } else out += res
     }
-    (Some(found), out.toSeq)
+    (Some(found), out)
   }
 
   //todo: implement existential dual
@@ -323,19 +326,13 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
       case m: PsiMethod => ResolveUtils.javaPolymorphicType(m, ScSubstitutor.empty, elem.getResolveScope)
       case refPatt: ScReferencePattern => refPatt.getParent /*id list*/ .getParent match {
         case pd: ScPatternDefinition if PsiTreeUtil.isContextAncestor(pd, elem, true) =>
-          pd.declaredType match {
-            case Some(t) => t
-            case None => types.Nothing
-          }
+          pd.declaredType.getOrElse(Nothing)
         case vd: ScVariableDefinition if PsiTreeUtil.isContextAncestor(vd, elem, true) =>
-          vd.declaredType match {
-            case Some(t) => t
-            case None => types.Nothing
-          }
+          vd.declaredType.getOrElse(Nothing)
         case _ => refPatt.getType(TypingContext.empty).getOrAny
       }
       case typed: ScTypedDefinition => typed.getType(TypingContext.empty).getOrAny
-      case _ => types.Nothing
+      case _ => Nothing
     }
 
     res match {

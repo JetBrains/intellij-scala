@@ -36,7 +36,23 @@ import org.jetbrains.plugins.scala.lang.parser.util.{ParserPatcher, ParserUtils}
  *                | '(' Path ')'
  *                | Path
  */
-object Expr1 {
+object Expr1 extends Expr1 {
+  override protected val block = Block
+  override protected val caseClauses = CaseClauses
+  override protected val expr = Expr
+  override protected val postfixExpr = PostfixExpr
+  override protected val enumerators = Enumerators
+  override protected val ascription = Ascription
+}
+
+trait Expr1 {
+  protected val block: Block
+  protected val expr: Expr
+  protected val postfixExpr: PostfixExpr
+  protected val enumerators: Enumerators
+  protected val caseClauses: CaseClauses
+  protected val ascription: Ascription
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val exprMarker = builder.mark
     builder.getTokenType match {
@@ -47,7 +63,7 @@ object Expr1 {
           case ScalaTokenTypes.tLPARENTHESIS =>
             builder.advanceLexer() //Ate (
             builder.disableNewlines
-            if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
+            if (!expr.parse(builder)) builder error ErrMsg("wrong.expression")
             builder.getTokenType match {
               case ScalaTokenTypes.tRPARENTHESIS =>
                 builder.advanceLexer() //Ate )
@@ -61,7 +77,7 @@ object Expr1 {
 
         ParserPatcher getSuitablePatcher builder parse builder
 
-        if (!Expr.parse(builder)) {
+        if (!expr.parse(builder)) {
           builder error ErrMsg("wrong.expression")
         }
         val rollbackMarker = builder.mark
@@ -73,7 +89,7 @@ object Expr1 {
         builder.getTokenType match {
           case ScalaTokenTypes.kELSE =>
             builder.advanceLexer()
-            if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
+            if (!expr.parse(builder)) builder error ErrMsg("wrong.expression")
             rollbackMarker.drop()
           case _ =>
             rollbackMarker.rollbackTo()
@@ -87,7 +103,7 @@ object Expr1 {
           case ScalaTokenTypes.tLPARENTHESIS =>
             builder.advanceLexer() //Ate (
             builder.disableNewlines
-            if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
+            if (!expr.parse(builder)) builder error ErrMsg("wrong.expression")
             builder.getTokenType match {
               case ScalaTokenTypes.tRPARENTHESIS =>
                 builder.advanceLexer() //Ate )
@@ -98,7 +114,7 @@ object Expr1 {
           case _ =>
             builder error ErrMsg("condition.expected")
         }
-        if (!Expr.parse(builder)) {
+        if (!expr.parse(builder)) {
           builder error ErrMsg("wrong.expression")
         }
         exprMarker.done(ScalaElementTypes.WHILE_STMT)
@@ -112,14 +128,14 @@ object Expr1 {
             builder.advanceLexer() //Ate {
             builder.enableNewlines
             def foo() {
-              if (!Block.parse(builder, hasBrace = false)) {
+              if (!block.parse(builder, hasBrace = false)) {
                 builder error ErrMsg("block.expected")
               }
             }
             ParserUtils.parseLoopUntilRBrace(builder, foo)
             builder.restoreNewlinesState
           case _ =>
-            if (!Block.parse(builder, hasBrace = false)) {
+            if (!block.parse(builder, hasBrace = false)) {
               builder error ErrMsg("block.expected")
             }
         }
@@ -128,7 +144,7 @@ object Expr1 {
         builder.getTokenType match {
           case ScalaTokenTypes.kCATCH =>
             builder.advanceLexer() //Ate catch
-            if (!Expr.parse(builder)) {
+            if (!expr.parse(builder)) {
               builder.error(ErrMsg("wrong.expression"))
             }
             catchMarker.done(ScalaElementTypes.CATCH_BLOCK)
@@ -139,7 +155,7 @@ object Expr1 {
         builder.getTokenType match {
           case ScalaTokenTypes.kFINALLY =>
             builder.advanceLexer() //Ate finally
-            if (!Expr.parse(builder)) {
+            if (!expr.parse(builder)) {
               builder error ErrMsg("wrong.expression")
             }
             finallyMarker.done(ScalaElementTypes.FINALLY_BLOCK)
@@ -151,7 +167,7 @@ object Expr1 {
       //----------------do statement----------------//
       case ScalaTokenTypes.kDO =>
         builder.advanceLexer() //Ate do
-        if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
+        if (!expr.parse(builder)) builder error ErrMsg("wrong.expression")
         builder.getTokenType match {
           case ScalaTokenTypes.tSEMICOLON =>
             builder.advanceLexer() //Ate semi
@@ -164,7 +180,7 @@ object Expr1 {
               case ScalaTokenTypes.tLPARENTHESIS =>
                 builder.advanceLexer() //Ate (
                 builder.disableNewlines
-                if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
+                if (!expr.parse(builder)) builder error ErrMsg("wrong.expression")
                 builder.getTokenType match {
                   case ScalaTokenTypes.tRPARENTHESIS =>
                     builder.advanceLexer() //Ate )
@@ -188,7 +204,7 @@ object Expr1 {
             builder.advanceLexer() //Ate {
             builder.enableNewlines
             def foo() {
-              if (!Enumerators.parse(builder)) {
+              if (!enumerators.parse(builder)) {
                 builder error ErrMsg("enumerators.expected")
               }
             }
@@ -197,7 +213,7 @@ object Expr1 {
           case ScalaTokenTypes.tLPARENTHESIS =>
             builder.advanceLexer() //Ate (
             builder.disableNewlines
-            if (!Enumerators.parse(builder)) {
+            if (!enumerators.parse(builder)) {
               builder error ErrMsg("enumerators.expected")
             }
             builder.getTokenType match {
@@ -218,13 +234,13 @@ object Expr1 {
             builder.advanceLexer() //Ate yield
           case _ =>
         }
-        if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
+        if (!expr.parse(builder)) builder error ErrMsg("wrong.expression")
         exprMarker.done(ScalaElementTypes.FOR_STMT)
         return true
       //----------------throw statment--------------//
       case ScalaTokenTypes.kTHROW =>
         builder.advanceLexer() //Ate throw
-        if (!Expr.parse(builder)) {
+        if (!expr.parse(builder)) {
           builder error ErrMsg("wrong.expression")
         }
         exprMarker.done(ScalaElementTypes.THROW_STMT)
@@ -244,7 +260,7 @@ object Expr1 {
                 ipmarker.precede.done(ScalaElementTypes.PARAM_CLAUSES)
 
                 builder.advanceLexer() //Ate =>
-                if (!Expr.parse(builder)) builder error ErrMsg("wrong.expression")
+                if (!expr.parse(builder)) builder error ErrMsg("wrong.expression")
                 exprMarker.done(ScalaElementTypes.FUNCTION_EXPR)
                 return true
               case _ =>
@@ -259,26 +275,26 @@ object Expr1 {
       case ScalaTokenTypes.kRETURN =>
         builder.advanceLexer() //Ate return
         if (!builder.newlineBeforeCurrentToken)
-          Expr parse builder
+          expr parse builder
         exprMarker.done(ScalaElementTypes.RETURN_STMT)
         return true
 
       //---------other cases--------------//
       case _ =>
-        if (!PostfixExpr.parse(builder)) {
+        if (!postfixExpr.parse(builder)) {
           exprMarker.rollbackTo()
           return false
         }
         builder.getTokenType match {
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer() //Ate =
-            if (!Expr.parse(builder)) {
+            if (!expr.parse(builder)) {
               builder error ErrMsg("wrong.expression")
             }
             exprMarker.done(ScalaElementTypes.ASSIGN_STMT)
             return true
           case ScalaTokenTypes.tCOLON =>
-            Ascription parse builder
+            ascription parse builder
             exprMarker.done(ScalaElementTypes.TYPED_EXPR_STMT)
             return true
           case ScalaTokenTypes.kMATCH =>
@@ -288,7 +304,7 @@ object Expr1 {
                 builder.advanceLexer() //Ate {
                 builder.enableNewlines
                 def foo() {
-                  if (!CaseClauses.parse(builder)) {
+                  if (!caseClauses.parse(builder)) {
                     builder error ErrMsg("case.clauses.expected")
                   }
                 }

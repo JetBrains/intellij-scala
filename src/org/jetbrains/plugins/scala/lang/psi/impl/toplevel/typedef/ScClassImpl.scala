@@ -24,8 +24,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor, ScType, ScTypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
@@ -199,7 +200,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
         case None =>
       }
     }
-    SyntheticMembersInjector.inject(this, withOverride = false) ++: buf.toSeq
+    SyntheticMembersInjector.inject(this, withOverride = false) ++: buf
   }
 
   private def copyMethodText: String = {
@@ -273,9 +274,9 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     val fields = constructor match {
       case Some(constr) => constr.parameters.map { param =>
         param.getType(TypingContext.empty) match {
-          case Success(tp: ScTypeParameterType, _) if tp.param.findAnnotation("scala.specialized") != null =>
+          case Success(tp: TypeParameterType, _) if tp.typeParameter.findAnnotation("scala.specialized") != null =>
             val factory: PsiElementFactory = PsiElementFactory.SERVICE.getInstance(getProject)
-            val psiTypeText: String = ScType.toPsi(tp, getProject, getResolveScope).getCanonicalText
+            val psiTypeText: String = tp.toPsiType(getProject, getResolveScope).getCanonicalText
             val text = s"public final $psiTypeText ${param.name};"
             val elem = new LightField(getManager, factory.createFieldFromText(text, this), this)
             elem.setNavigationElement(param)

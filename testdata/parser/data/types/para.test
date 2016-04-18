@@ -48,7 +48,7 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  SimpleTypeElement: B
+                  SimpleType: B
                     CodeReferenceElement: B
                       PsiElement(identifier)('B')
               PsiElement(,)(',')
@@ -68,33 +68,33 @@ ScalaFile
                       TypesList
                         PsiElement(=>)('=>')
                         PsiWhiteSpace(' ')
-                        SimpleTypeElement: A
+                        SimpleType: A
                           CodeReferenceElement: A
                             PsiElement(identifier)('A')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
                         PsiElement(=>)('=>')
                         PsiWhiteSpace(' ')
-                        ParametrizedTypeElement: P[A]
-                          SimpleTypeElement: P
+                        ParametrizedType: P[A]
+                          SimpleType: P
                             CodeReferenceElement: P
                               PsiElement(identifier)('P')
                           TypeArgumentsList
                             PsiElement([)('[')
-                            SimpleTypeElement: A
+                            SimpleType: A
                               CodeReferenceElement: A
                                 PsiElement(identifier)('A')
                             PsiElement(])(']')
                         PsiElement(,)(',')
                         PsiWhiteSpace(' ')
-                        SimpleTypeElement: B
+                        SimpleType: B
                           CodeReferenceElement: B
                             PsiElement(identifier)('B')
                       PsiElement())(')')
                     PsiWhiteSpace(' ')
                     PsiElement(=>)('=>')
                     PsiWhiteSpace(' ')
-                    SimpleTypeElement: B
+                    SimpleType: B
                       CodeReferenceElement: B
                         PsiElement(identifier)('B')
               PsiElement())(')')

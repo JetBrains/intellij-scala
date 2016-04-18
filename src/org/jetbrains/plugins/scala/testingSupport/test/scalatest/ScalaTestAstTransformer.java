@@ -25,13 +25,12 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScArgumentExprListImpl;
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockExprImpl;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes;
 import org.jetbrains.plugins.scala.lang.psi.types.ScType;
-import org.jetbrains.plugins.scala.lang.psi.types.ScType$;
+import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass$;
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil;
 import org.scalatest.finders.AstNode;
 import org.scalatest.finders.Finder;
 import org.scalatest.finders.Selection;
 import scala.Option;
-import scala.Option$;
 import scala.collection.JavaConversions;
 import scala.collection.Seq;
 
@@ -199,7 +198,7 @@ public class ScalaTestAstTransformer {
         List<ScType> list = JavaConversions.seqAsJavaList(classes);
         List<PsiClass> newList = new ArrayList<PsiClass>();
         for (ScType type : list) {
-            PsiClass c = ScType$.MODULE$.extractClass(type, Option$.MODULE$.apply(clazz.getProject())).get();
+            PsiClass c = ExtractClass$.MODULE$.unapply(type, clazz.getProject()).get();
             if (c != null) {
                 newList.add(c);
             }

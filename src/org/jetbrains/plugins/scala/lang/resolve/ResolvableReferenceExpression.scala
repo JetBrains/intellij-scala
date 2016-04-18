@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaP
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor._
@@ -210,7 +211,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
                                           assign: PsiElement, baseProcessor: BaseProcessor) {
     def processConstructor(elem: PsiElement, tp: ScType, typeArgs: Seq[ScTypeElement], arguments: Seq[ScArgumentExprList],
                            secondaryConstructors: (ScClass) => Seq[ScFunction]) {
-      ScType.extractClassType(tp) match {
+      tp.extractClassType() match {
         case Some((clazz, subst)) if !clazz.isInstanceOf[ScTemplateDefinition] && clazz.isAnnotationType =>
           if (!baseProcessor.isInstanceOf[CompletionProcessor]) {
             for (method <- clazz.getMethods) {
@@ -369,7 +370,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
     val nonValueType = e.getNonValueType(TypingContext.empty)
     nonValueType match {
       case Success(ScTypePolymorphicType(internal, tp), _) if tp.nonEmpty &&
-        !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[ScUndefinedType] /* optimization */ =>
+        !internal.isInstanceOf[ScMethodType] && !internal.isInstanceOf[UndefinedType] /* optimization */ =>
         processType(internal, reference, e, processor)
         if (processor.candidates.nonEmpty) return processor
       case _ =>
@@ -396,7 +397,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
         case Some(r@ScalaResolveResult(b: ScTypedDefinition, subst)) if b.isStable =>
           r.fromType match {
             case Some(fT) => ScProjectionType(fT, b, superReference = false)
-            case None => ScType.designator(b)
+            case None => ScalaType.designator(b)
           }
         case _ => aType
       }
@@ -523,7 +524,7 @@ object ResolvableReferenceExpression {
 
   def getDynamicReturn(tp: ScType): ScType = {
     tp match {
-      case ScTypePolymorphicType(mt: ScMethodType, typeArgs) => ScTypePolymorphicType(mt.returnType, typeArgs)
+      case pt@ScTypePolymorphicType(mt: ScMethodType, typeArgs) => ScTypePolymorphicType(mt.returnType, typeArgs)(pt.typeSystem)
       case mt: ScMethodType => mt.returnType
       case _ => tp
     }

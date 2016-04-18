@@ -33,9 +33,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.light.scala.{ScLightFunctionDeclaration, ScLightFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{Unit => UnitType, _}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
 import scala.annotation.tailrec
@@ -91,7 +92,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def hasUnitResultType = {
     @tailrec
     def hasUnitRT(t: ScType): Boolean = t match {
-      case UnitType => true
+      case Unit => true
       case ScMethodType(result, _, _) => hasUnitRT(result)
       case _ => false
     }
@@ -150,26 +151,23 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
             var typeParamSubst = ScSubstitutor.empty
             fun.typeParameters.zip(typeParameters).foreach {
               case (oldParam: ScTypeParam, newParam: ScTypeParam) =>
-                typeParamSubst = typeParamSubst.bindT((oldParam.name, ScalaPsiUtil.getPsiElementId(oldParam)),
-                  new ScTypeParameterType(newParam, subst))
+                typeParamSubst = typeParamSubst.bindT(oldParam.nameAndId, TypeParameterType(newParam, subst))
             }
             fun.returnType.toOption.map(typeParamSubst.followed(subst).subst)
           case Some((fun: ScSyntheticFunction, subst)) =>
             var typeParamSubst = ScSubstitutor.empty
             fun.typeParameters.zip(typeParameters).foreach {
               case (oldParam: ScSyntheticTypeParameter, newParam: ScTypeParam) =>
-                typeParamSubst = typeParamSubst.bindT((oldParam.name, ScalaPsiUtil.getPsiElementId(oldParam)),
-                  new ScTypeParameterType(newParam, subst))
+                typeParamSubst = typeParamSubst.bindT(oldParam.nameAndId, TypeParameterType(newParam, subst))
             }
             Some(subst.subst(fun.retType))
           case Some((fun: PsiMethod, subst)) =>
             var typeParamSubst = ScSubstitutor.empty
             fun.getTypeParameters.zip(typeParameters).foreach {
               case (oldParam: PsiTypeParameter, newParam: ScTypeParam) =>
-                typeParamSubst = typeParamSubst.bindT((oldParam.name, ScalaPsiUtil.getPsiElementId(oldParam)),
-                  new ScTypeParameterType(newParam, subst))
+                typeParamSubst = typeParamSubst.bindT(oldParam.nameAndId, TypeParameterType(newParam, subst))
             }
-            Some(typeParamSubst.followed(subst).subst(ScType.create(fun.getReturnType, getProject, getResolveScope)))
+            Some(typeParamSubst.followed(subst).subst(fun.getReturnType.toScType(getProject, getResolveScope)))
           case _ => None
         }
         superReturnType
@@ -205,12 +203,12 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   def definedReturnType: TypeResult[ScType] = {
     returnTypeElement match {
       case Some(ret) => ret.getType(TypingContext.empty)
-      case _ if !hasAssign => Success(types.Unit, Some(this))
+      case _ if !hasAssign => Success(Unit, Some(this))
       case _ =>
         superMethod match {
           case Some(f: ScFunction) => f.definedReturnType
           case Some(m: PsiMethod) =>
-            Success(ScType.create(m.getReturnType, getProject, getResolveScope), Some(this))
+            Success(m.getReturnType.toScType(getProject, getResolveScope), Some(this))
           case _ => Failure("No defined return type", Some(this))
         }
     }
@@ -330,7 +328,8 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
 
   /**
    * Seek parameter with appropriate name in appropriate parameter clause.
-   * @param name parameter name
+    *
+    * @param name          parameter name
    * @param clausePosition = -1, effective clause number, if -1 then parameter in any explicit? clause
    */
   def getParamByName(name: String, clausePosition: Int = -1): Option[ScParameter] = {
@@ -431,7 +430,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
         buffer += new ScFunctionWrapper(this, isStatic = isStatic || isConstructor, isInterface, cClass, forDefault = Some(i + 1))
       }
     }
-    buffer.toSeq
+    buffer
   }
 
   def parameters: Seq[ScParameter] = paramClauses.params
@@ -448,9 +447,10 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   private def getReturnTypeImpl: PsiType = {
     val tp = getType(TypingContext.empty).getOrAny
+    def lift: ScType => PsiType = _.toPsiType(getProject, getResolveScope)
     tp match {
-      case ScFunctionType(rt, _) => ScType.toPsi(rt, getProject, getResolveScope)
-      case _ => ScType.toPsi(tp, getProject, getResolveScope)
+      case FunctionType(rt, _) => lift(rt)
+      case _ => lift(tp)
     }
   }
 
@@ -559,11 +559,11 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
     override def getReferencedTypes: Array[PsiClassType] = {
       hasAnnotation("scala.throws") match {
         case Some(annotation) =>
-          annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap { expr =>
-            expr.getType(TypingContext.empty) match {
-              case Success(ScParameterizedType(des, Seq(arg)), _) => ScType.extractClass(des) match {
+          annotation.constructor.args.map(_.exprs).getOrElse(Seq.empty).flatMap {
+            _.getType(TypingContext.empty) match {
+              case Success(ParameterizedType(des, Seq(arg)), _) => des.extractClass() match {
                 case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
-                  ScType.toPsi(arg, getProject, getResolveScope) match {
+                  arg.toPsiType(getProject, getResolveScope) match {
                     case c: PsiClassType => Seq(c)
                     case _ => Seq.empty
                   }
@@ -587,7 +587,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
           val paramTypes = cl.parameters.map(_.getType(ctx))
           res match {
             case Success(t: ScType, _) =>
-              res = collectFailures(paramTypes, Nothing)(ScFunctionType(t, _)(getProject, getResolveScope))
+              res = collectFailures(paramTypes, Nothing)(FunctionType(t, _)(getProject, getResolveScope))
             case _ =>
           }
           i = i - 1
@@ -657,7 +657,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       case Some(params) =>
         val project = getProject
         val resolveScope = getResolveScope
-        rt.map(params.foldLeft(_)((res, params) => ScFunctionType(res, params)(project, resolveScope)))
+        rt.map(params.foldLeft(_)((res, params) => FunctionType(res, params)(project, resolveScope)))
       case None => Failure("no params", Some(this))
     }
   }
@@ -675,7 +675,7 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
       }
       i = i - 1
     }
-    Some(res.toSeq)
+    Some(res)
   }
 
   override def modifiableReturnType: Option[ScType] = returnType.toOption

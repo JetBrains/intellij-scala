@@ -41,7 +41,7 @@ ScalaFile
               PsiElement(identifier)('z')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement: Boolean
+          SimpleType: Boolean
             CodeReferenceElement: Boolean
               PsiElement(identifier)('Boolean')
           PsiWhiteSpace(' ')

@@ -7,13 +7,14 @@ import org.jetbrains.plugins.scala.extensions.ResolvesTo
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScDesignatorType, ScTypeParameterType, _}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScDesignatorType, _}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
@@ -35,7 +36,8 @@ trait PatternAnnotator {
 
 object PatternAnnotator {
 
-  def checkPattern(pattern: ScPattern, holder: AnnotationHolder) = {
+  def checkPattern(pattern: ScPattern, holder: AnnotationHolder)
+                  (implicit typeSystem: TypeSystem = pattern.typeSystem) = {
     for {
       pType <- PatternAnnotatorUtil.patternType(pattern)
       eType <- pattern.expectedType
@@ -49,15 +51,16 @@ object PatternAnnotator {
    * [[scala.tools.nsc.typechecker.Infer.Inferencer]] and [[scala.tools.nsc.typechecker.Checkable]]
    *
    */
-  private def checkPatternType(patType: ScType, exprType: ScType, pattern: ScPattern, holder: AnnotationHolder): Unit = {
-    val exTp = widen(ScType.expandAliases(exprType).getOrElse(exprType))
+  private def checkPatternType(patType: ScType, exprType: ScType, pattern: ScPattern, holder: AnnotationHolder)
+                              (implicit typeSystem: TypeSystem) = {
+    val exTp = widen(ScalaType.expandAliases(exprType).getOrElse(exprType))
     def freeTypeParams = freeTypeParamsOfTerms(exTp)
 
     def exTpMatchesPattp = PatternAnnotatorUtil.matchesPattern(exTp, widen(patType))
 
     val neverMatches = !PatternAnnotatorUtil.matchesPattern(exTp, patType) && isNeverSubType(exTp, patType)
 
-    def isEliminatedByErasure = (ScType.extractClass(exprType), ScType.extractClass(patType)) match {
+    def isEliminatedByErasure = (exprType.extractClass(), patType.extractClass()) match {
       case (Some(cl1), Some(cl2)) if pattern.isInstanceOf[ScTypedPattern] => !isNeverSubClass(cl1, cl2)
       case _ => false
     }
@@ -153,11 +156,11 @@ object PatternAnnotator {
   }
 
   private def widen(scType: ScType): ScType = scType match {
-    case _ if ScType.isSingletonType(scType) => ScType.extractDesignatorSingletonType(scType).getOrElse(scType)
+    case scalaType: ScalaType if scalaType.isSingleton => ScalaType.extractDesignatorSingletonType(scType).getOrElse(scType)
     case _ =>
       scType.recursiveUpdate {
         case ScAbstractType(_, _, upper) => (true, upper)
-        case ScTypeParameterType(_, _, _, upper, _) => (true, upper.v)
+        case TypeParameterType(_, _, _, upper, _) => (true, upper.v)
         case tp => (false, tp)
       }
   }
@@ -165,32 +168,33 @@ object PatternAnnotator {
   private def freeTypeParamsOfTerms(tp: ScType): Seq[ScType] = {
     val buffer = ArrayBuffer[ScType]()
     tp.recursiveUpdate {
-      case tp: ScTypeParameterType =>
+      case tp: TypeParameterType =>
         buffer += tp
         (false, tp)
       case _ => (false, tp)
     }
-    buffer.toSeq
+    buffer
   }
 }
 
 object PatternAnnotatorUtil {
   @tailrec
-  def matchesPattern(matching: ScType, matched: ScType): Boolean = {
+  def matchesPattern(matching: ScType, matched: ScType)
+                    (implicit typeSystem: TypeSystem): Boolean = {
     def abstraction(scType: ScType, visited: HashSet[ScType] = HashSet.empty): ScType = {
       if (visited.contains(scType)) {
         return scType
       }
       val newVisited = visited + scType
       scType.recursiveUpdate {
-        case tp: ScTypeParameterType => (true, ScAbstractType(tp, abstraction(tp.lower.v, newVisited), abstraction(tp.upper.v, newVisited)))
+        case tp: TypeParameterType => (true, ScAbstractType(tp, abstraction(tp.lower.v, newVisited), abstraction(tp.upper.v, newVisited)))
         case tpe => (false, tpe)
       }
     }
 
     object arrayType {
       def unapply(scType: ScType): Option[ScType] = scType match {
-        case ScParameterizedType(ScDesignatorType(elem: ScClass), Seq(arg))
+        case ParameterizedType(ScDesignatorType(elem: ScClass), Seq(arg))
           if elem.qualifiedName == "scala.Array" => Some(arg)
         case _ => None
       }
@@ -227,7 +231,7 @@ object PatternAnnotatorUtil {
         val project = pattern.getProject
         val subPat = tuple.subpatterns
         val subTypes = subPat.flatMap(patternType)
-        if (subTypes.size == subPat.size) Some(ScTupleType(subTypes)(project, GlobalSearchScope.allScope(project)))
+        if (subTypes.size == subPat.size) Some(TupleType(subTypes)(project, GlobalSearchScope.allScope(project)))
         else None
       case typed: ScTypedPattern =>
         typed.typePattern.map(_.typeElement.calcType)

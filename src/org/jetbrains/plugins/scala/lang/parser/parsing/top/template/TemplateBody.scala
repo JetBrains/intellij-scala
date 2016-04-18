@@ -18,8 +18,15 @@ import scala.annotation.tailrec
 /*
  *  TemplateBody ::= '{' [SelfType] TemplateStat {semi TemplateStat} '}'
  */
+object TemplateBody extends TemplateBody {
+  override protected val templateStat = TemplateStat
+  override protected val selfType = SelfType
+}
 
-object TemplateBody {
+trait TemplateBody {
+  protected val templateStat: TemplateStat
+  protected val selfType: SelfType
+
   def parse(builder: ScalaPsiBuilder) {
     val templateBodyMarker = builder.mark
     //Look for {
@@ -29,7 +36,7 @@ object TemplateBody {
         builder.advanceLexer() //Ate {
       case _ => builder error ScalaBundle.message("lbrace.expected")
     }
-    SelfType parse builder
+    selfType parse builder
     //this metod parse recursively TemplateStat {semi TemplateStat}
     @tailrec
     def subparse(): Boolean = {
@@ -41,7 +48,7 @@ object TemplateBody {
           builder error ScalaBundle.message("rbrace.expected")
           true
         case _ =>
-          if (TemplateStat parse builder) {
+          if (templateStat parse builder) {
             builder.getTokenType match {
               case ScalaTokenTypes.tRBRACE => {
                 builder.advanceLexer() //Ate }

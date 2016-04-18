@@ -13,7 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType, ScTypePresentation}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, ScTypePresentation}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
 
 import scala.collection.mutable
 
@@ -23,8 +24,22 @@ import scala.collection.mutable
 
 class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs: Boolean) extends InsertHandler[LookupElement] {
   def handleInsert(context: InsertionContext, item: LookupElement) {
+    def collectAbstracts(`type`: ScType): Seq[ScAbstractType] = {
+      val set: mutable.HashSet[ScAbstractType] = new mutable.HashSet[ScAbstractType]
+
+      `type`.recursiveUpdate(tp => {
+        tp match {
+          case a: ScAbstractType => set += a
+          case _ =>
+        }
+        (false, tp)
+      })
+
+      set.toSeq
+    }
+
     val abstracts = new mutable.HashSet[ScAbstractType]
-    for (param <- params) abstracts ++= param.collectAbstracts
+    for (param <- params) abstracts ++= collectAbstracts(param)
 
     val editor = context.getEditor
     val document = editor.getDocument
@@ -51,7 +66,7 @@ class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs
     val builder: TemplateBuilderImpl = TemplateBuilderFactory.getInstance().
       createTemplateBuilder(commonParent).asInstanceOf[TemplateBuilderImpl]
 
-    val abstractNames = abstracts.map(at => ScTypePresentation.ABSTRACT_TYPE_PREFIX + at.tpt.name)
+    val abstractNames = abstracts.map(at => ScTypePresentation.ABSTRACT_TYPE_PREFIX + at.parameterType.name)
 
 
     def seekAbstracts(te: ScTypeElement) {
@@ -62,14 +77,13 @@ class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs
               val refName = ref.refName
               if (abstractNames.contains(refName)) {
                 val prefixLength = ScTypePresentation.ABSTRACT_TYPE_PREFIX.length
-                val node = abstracts.find(a => ScTypePresentation.ABSTRACT_TYPE_PREFIX + a.tpt.name == refName) match {
+                val node = abstracts.find(a => ScTypePresentation.ABSTRACT_TYPE_PREFIX + a.parameterType.name == refName) match {
                   case Some(abstr) =>
-                    import org.jetbrains.plugins.scala.lang.psi.types.{Any, Nothing}
                     abstr.simplifyType match {
                       case Any | Nothing =>
                         new ConstantNode(refName.substring(prefixLength))
                       case tp =>
-                        new ConstantNode(ScType.presentableText(tp))
+                        new ConstantNode(tp.presentableText)
                     }
                   case None =>
                     new ConstantNode(refName.substring(prefixLength))

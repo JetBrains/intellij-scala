@@ -12,8 +12,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.PostfixExpr
 * @author Alexander Podkhalyuzin
 * Date: 28.02.2008
 */
+object Guard extends Guard {
+  override protected val postfixExpr = PostfixExpr
+}
 
-object Guard {
+trait Guard {
+  protected val postfixExpr: PostfixExpr
+
   def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, noIf = false) //deprecated if true
   def parse(builder: ScalaPsiBuilder, noIf: Boolean): Boolean = {
     val guardMarker = builder.mark
@@ -26,7 +31,7 @@ object Guard {
           return false
         }
     }
-    if (!PostfixExpr.parse(builder)) {
+    if (!postfixExpr.parse(builder)) {
       if (noIf) {
         guardMarker.drop()
         return false

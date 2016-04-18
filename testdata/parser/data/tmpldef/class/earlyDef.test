@@ -34,7 +34,7 @@ ScalaFile
               PsiElement(identifier)('name')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement: String
+          SimpleType: String
             CodeReferenceElement: String
               PsiElement(identifier)('String')
         PsiWhiteSpace('\n  ')
@@ -105,7 +105,7 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          SimpleTypeElement: Greeting
+          SimpleType: Greeting
             CodeReferenceElement: Greeting
               PsiElement(identifier)('Greeting')
       PsiWhiteSpace(' ')

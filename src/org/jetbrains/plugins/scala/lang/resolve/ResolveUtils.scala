@@ -23,9 +23,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSynthetic
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor, ResolverEnv}
@@ -77,18 +78,18 @@ object ResolveUtils {
           })
 
   def methodType(m : PsiMethod, s : ScSubstitutor, scope: GlobalSearchScope) =
-    ScFunctionType(s.subst(ScType.create(m.getReturnType, m.getProject, scope)),
+    FunctionType(s.subst(m.getReturnType.toScType(m.getProject, scope)),
       m.getParameterList.getParameters.map({
         p => val pt = p.getType
         //scala hack: Objects in java are modelled as Any in scala
-        if (pt.equalsToText("java.lang.Object")) types.Any
-        else s.subst(ScType.create(pt, m.getProject, scope))
+          if (pt.equalsToText("java.lang.Object")) Any
+        else s.subst(pt.toScType(m.getProject, scope))
       }).toSeq)(m.getProject, scope)
 
   def javaMethodType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope, returnType: Option[ScType] = None): ScMethodType = {
     val retType: ScType = (m, returnType) match {
       case (f: FakePsiMethod, None) => s.subst(f.retType)
-      case (_, None) => s.subst(ScType.create(m.getReturnType, m.getProject, scope))
+      case (_, None) => s.subst(m.getReturnType.toScType(m.getProject, scope))
       case (_, Some(x)) => x
     }
     new ScMethodType(retType,
@@ -105,7 +106,7 @@ object ResolveUtils {
   def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope = null, returnType: Option[ScType] = None): NonValueType = {
     if (m.getTypeParameters.isEmpty) javaMethodType(m, s, scope, returnType)
     else {
-      ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(new TypeParameter(_)))
+      ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(new TypeParameter(_)))(m.typeSystem)
     }
   }
 
@@ -432,7 +433,7 @@ object ResolveUtils {
       case Some(te: ScSelfTypeElement) => te.typeElement match {
         case Some(te: ScTypeElement) =>
           def isInheritorOrSame(tp: ScType): Boolean = {
-            ScType.extractClass(tp) match {
+            tp.extractClass()(te.typeSystem) match {
               case Some(clazz) =>
                 if (clazz == td) return true
                 if (ScalaPsiUtil.cachedDeepIsInheritor(clazz, td)) return true

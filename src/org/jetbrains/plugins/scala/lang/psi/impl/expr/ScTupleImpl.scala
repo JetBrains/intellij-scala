@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TupleType, Unit}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 
 /**
@@ -17,12 +18,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, T
 class ScTupleImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTuple {
   override def toString: String = "Tuple"
 
-  protected[expr] override def innerType(ctx: TypingContext): TypeResult[ScType] =
-    if (exprs.length == 0) Success(Unit, Some(this))
-    else {
-      val tupleType = ScTupleType(exprs.map(_.getType(ctx).getOrAny))(getProject, getResolveScope)
-      Success(tupleType, Some(this))
+  protected[expr] override def innerType(ctx: TypingContext): TypeResult[ScType] = {
+    val result = exprs.map(_.getType(ctx).getOrAny) match {
+      case Seq() => Unit
+      case components => TupleType(components)(getProject, getResolveScope)
     }
+    Success(result, Some(this))
+  }
 
   override def accept(visitor: ScalaElementVisitor) {
     visitor.visitTupleExpr(this)

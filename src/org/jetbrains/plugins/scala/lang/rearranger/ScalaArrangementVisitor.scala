@@ -19,7 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.psi.types.{Any, Boolean, ScType, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.api.Any
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 import scala.collection.mutable
 
@@ -327,9 +328,9 @@ object ScalaArrangementVisitor {
   private def hasJavaGetterName(method: ScFunction) = {
     val name = method.getName
     if (nameStartsWith(name, "get") && !(nameStartsWith(name, "getAnd") && name.charAt("getAnd".length).isUpper)) {
-      method.returnType.getOrAny != Unit
+      method.returnType.getOrAny != api.Unit
     } else if (nameStartsWith(name, "is")) {
-      method.returnType.getOrAny == Boolean
+      method.returnType.getOrAny == api.Boolean
     } else false
   }
 
@@ -343,7 +344,7 @@ object ScalaArrangementVisitor {
   private def hasSetterSignature(method: ScFunction) =
     method.getParameterList.getParametersCount == 1 && (method.returnType.getOrAny match {
       case Any => true
-      case returnType: ScType => returnType == Unit
+      case returnType: ScType => returnType == api.Unit
     })
 
   private def isJavaGetter(method: ScFunction) =

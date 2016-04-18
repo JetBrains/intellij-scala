@@ -8,16 +8,17 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyRef, TypeVisitor, ValueType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, TypeParametersExt}
 
 import scala.collection.mutable
 
 /**
  * Substitutor should be meaningful only for decls and typeDecls. Components shouldn't be applied by substitutor.
  */
-case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, ScType],
-                          typesMap: Map[String, TypeAliasSignature]) extends ValueType {
+case class ScCompoundType(components: Seq[ScType],
+                          signatureMap: Map[Signature, ScType] = Map.empty,
+                          typesMap: Map[String, TypeAliasSignature] = Map.empty) extends ScalaType with ValueType {
   private var hash: Int = -1
 
   override def hashCode: Int = {
@@ -28,26 +29,24 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
   }
 
 
-  def visitType(visitor: ScalaTypeVisitor) {
-    visitor.visitCompoundType(this)
+  override def visitType(visitor: TypeVisitor) = visitor match {
+    case scalaVisitor: ScalaTypeVisitor => scalaVisitor.visitCompoundType(this)
+    case _ =>
   }
 
   override def typeDepth: Int = {
     val depths = signatureMap.map {
       case (sign: Signature, tp: ScType) =>
-        val rtDepth = tp.typeDepth
-        if (sign.typeParams.nonEmpty) {
-          (ScType.typeParamsDepth(sign.typeParams) + 1).max(rtDepth)
-        } else rtDepth
+        tp.typeDepth
+          .max(sign.typeParams.toSeq.depth)
     } ++ typesMap.map {
-      case (s: String, sign: TypeAliasSignature) =>
-        val boundsDepth = sign.lowerBound.typeDepth.max(sign.upperBound.typeDepth)
-        if (sign.typeParams.nonEmpty) {
-          (ScType.typeParamsDepth(sign.typeParams.toArray) + 1).max(boundsDepth)
-        } else boundsDepth
+      case (s: String, TypeAliasSignature(_, params, lowerBound, upperBound, _, _)) =>
+        lowerBound.typeDepth
+          .max(upperBound.typeDepth)
+          .max(params.depth)
     }
     val ints = components.map(_.typeDepth)
-    val componentsDepth = if (ints.length == 0) 0 else ints.max
+    val componentsDepth = if (ints.isEmpty) 0 else ints.max
     if (depths.nonEmpty) componentsDepth.max(depths.max + 1)
     else componentsDepth
   }
@@ -145,7 +144,8 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
     }
   }
 
-  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean): (Boolean, ScUndefinedSubstitutor) = {
+  override def equivInner(r: ScType, uSubst: ScUndefinedSubstitutor, falseUndef: Boolean)
+                         (implicit typeSystem: api.TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
     var undefinedSubst = uSubst
     r match {
       case r: ScCompoundType =>
@@ -155,7 +155,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
         val iterator = list.iterator
         while (iterator.hasNext) {
           val (w1, w2) = iterator.next()
-          val t = Equivalence.equivInner(w1, w2, undefinedSubst, falseUndef)
+          val t = w1.equiv(w2, undefinedSubst, falseUndef)
           if (!t._1) return (false, undefinedSubst)
           undefinedSubst = t._2
         }
@@ -168,7 +168,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
           r.signatureMap.get(sig) match {
             case None => return (false, undefinedSubst)
             case Some(t1) =>
-              val f = Equivalence.equivInner(t, t1, undefinedSubst, falseUndef)
+              val f = t.equiv(t1, undefinedSubst, falseUndef)
               if (!f._1) return (false, undefinedSubst)
               undefinedSubst = f._2
           }
@@ -184,10 +184,10 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
             types2.get(name) match {
               case None => return (false, undefinedSubst)
               case Some (bounds2) =>
-                var t = Equivalence.equivInner(bounds1.lowerBound, bounds2.lowerBound, undefinedSubst, falseUndef)
+                var t = bounds1.lowerBound.equiv(bounds2.lowerBound, undefinedSubst, falseUndef)
                 if (!t._1) return (false, undefinedSubst)
                 undefinedSubst = t._2
-                t = Equivalence.equivInner(bounds1.upperBound, bounds2.upperBound, undefinedSubst, falseUndef)
+                t = bounds1.upperBound.equiv(bounds2.upperBound, undefinedSubst, falseUndef)
                 if (!t._1) return (false, undefinedSubst)
                 undefinedSubst = t._2
             }
@@ -195,18 +195,18 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
           (true, undefinedSubst)
         }
       case _ =>
-        if (signatureMap.size == 0 && typesMap.size == 0) {
+        if (signatureMap.isEmpty && typesMap.isEmpty) {
           val filtered = components.filter {
-            case psi.types.Any => false
-            case psi.types.AnyRef =>
-              if (!r.conforms(psi.types.AnyRef)) return (false, undefinedSubst)
+            case Any => false
+            case AnyRef =>
+              if (!r.conforms(api.AnyRef)) return (false, undefinedSubst)
               false
             case ScDesignatorType(obj: PsiClass) if obj.qualifiedName == "java.lang.Object" =>
-              if (!r.conforms(psi.types.AnyRef)) return (false, undefinedSubst)
+              if (!r.conforms(api.AnyRef)) return (false, undefinedSubst)
               false
             case _ => true
           }
-          if (filtered.length == 1) Equivalence.equivInner(filtered(0), r, undefinedSubst, falseUndef)
+          if (filtered.length == 1) filtered.head.equiv(r, undefinedSubst, falseUndef)
           else (false, undefinedSubst)
         } else (false, undefinedSubst)
 
@@ -215,8 +215,7 @@ case class ScCompoundType(components: Seq[ScType], signatureMap: Map[Signature, 
 }
 
 object ScCompoundType {
-  def fromPsi(components: Seq[ScType], decls: Seq[ScDeclaredElementsHolder],
-              typeDecls: Seq[ScTypeAlias], subst: ScSubstitutor): ScCompoundType = {
+  def fromPsi(components: Seq[ScType], decls: Seq[ScDeclaredElementsHolder], typeDecls: Seq[ScTypeAlias]): ScCompoundType = {
     val signatureMapVal: mutable.HashMap[Signature, ScType] = new mutable.HashMap[Signature, ScType] {
       override def elemHashCode(s : Signature) = s.name.hashCode * 31 + {
         val length = s.paramLength
@@ -224,35 +223,30 @@ object ScCompoundType {
         else length.hashCode()
       }
     }
-    val typesVal = new mutable.HashMap[String, TypeAliasSignature]
 
-    for (typeDecl <- typeDecls) {
-      typesVal += ((typeDecl.name, new TypeAliasSignature(typeDecl)))
-    }
-
-
+    implicit val typeSystem = ScalaTypeSystem
     for (decl <- decls) {
       decl match {
-        case fun: ScFunction =>
-          signatureMapVal += ((new Signature(fun.name, PhysicalSignature.typesEval(fun), PhysicalSignature.paramLength(fun),
-            TypeParameter.fromArray(fun.getTypeParameters), subst, fun, PhysicalSignature.hasRepeatedParam(fun)),
-            fun.returnType.getOrAny))
+        case fun: ScFunction => signatureMapVal += ((Signature(fun), fun.returnType.getOrAny))
         case varDecl: ScVariable =>
-          for (e <- varDecl.declaredElements) {
-            val varType = e.getType(TypingContext.empty)
-            signatureMapVal += ((new Signature(e.name, Seq.empty, 0, subst, e), varType.getOrAny))
-            signatureMapVal += ((new Signature(e.name + "_=", Seq(() => varType.getOrAny), 1, subst, e), psi.types.Unit)) //setter
+          signatureMapVal ++= varDecl.declaredElements.map {
+            e => (Signature.getter(e), e.getType().getOrAny)
+          }
+          signatureMapVal ++= varDecl.declaredElements.map {
+            e => (Signature.setter(e), e.getType().getOrAny)
           }
         case valDecl: ScValue =>
-          for (e <- valDecl.declaredElements) {
-            val valType = e.getType(TypingContext.empty)
-            signatureMapVal += ((new Signature(e.name, Seq.empty, 0, subst, e), valType.getOrAny))
+          signatureMapVal ++= valDecl.declaredElements.map {
+            e => (Signature.getter(e), e.getType().getOrAny)
           }
       }
     }
 
-    ScCompoundType(components, signatureMapVal.toMap, typesVal.toMap)
+    ScCompoundType(
+      components,
+      signatureMapVal.toMap,
+      typeDecls.map {
+        typeDecl => (typeDecl.name, new TypeAliasSignature(typeDecl))
+      }.toMap)
   }
-
-  class CompoundSignature()
 }

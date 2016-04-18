@@ -17,9 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUs
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ScImplicitlyConvertible}
-import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
@@ -77,28 +78,28 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                 case _ =>
               }
 
-              val functionType = ScFunctionType(expected, Seq(tp))(getProject, getResolveScope)
+              val functionType = FunctionType(expected, Seq(tp))(getProject, getResolveScope)
               val results = new ImplicitCollector(ScExpression.this, functionType, functionType, None,
                 isImplicitConversion = true, isExtensionConversion = false).collect()
               if (results.length == 1) {
                 val res = results.head
                 val paramType = InferUtil.extractImplicitParameterType(res)
                 paramType match {
-                  case ScFunctionType(rt, Seq(param)) =>
+                  case FunctionType(rt, Seq(param)) =>
                     ExpressionTypeResult(Success(rt, Some(ScExpression.this)), res.importsUsed, Some(res.getElement))
                   case _ =>
                     ScalaPsiManager.instance(getProject).getCachedClass(
                       "scala.Function1", getResolveScope, ScalaPsiManager.ClassCategory.TYPE
                     ) match {
                       case function1: ScTrait =>
-                        ScParameterizedType(ScType.designator(function1), function1.typeParameters.map(tp =>
-                          new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1))) match {
+                        ScParameterizedType(ScalaType.designator(function1), function1.typeParameters.map(tp =>
+                          UndefinedType(TypeParameterType(tp), 1))) match {
                           case funTp: ScParameterizedType =>
-                            val secondArg = funTp.typeArgs(1)
-                            Conformance.undefinedSubst(funTp, paramType).getSubstitutor match {
+                            val secondArg = funTp.typeArguments(1)
+                            paramType.conforms(funTp, new ScUndefinedSubstitutor())._2.getSubstitutor match {
                               case Some(subst) =>
                                 val rt = subst.subst(secondArg)
-                                if (rt.isInstanceOf[ScUndefinedType]) defaultResult
+                                if (rt.isInstanceOf[UndefinedType]) defaultResult
                                 else {
                                   ExpressionTypeResult(Success(rt, Some(ScExpression.this)), res.importsUsed, Some(res.getElement))
                                 }
@@ -121,11 +122,11 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
     def checkForSAM(etaExpansionHappened: Boolean = false): Option[ExpressionTypeResult] = {
       def expectedResult = Some(ExpressionTypeResult(Success(expected, Some(this)), Set.empty, None))
       tp match {
-        case ScFunctionType(_, params) if ScalaPsiUtil.isSAMEnabled(this) =>
+        case FunctionType(_, params) if ScalaPsiUtil.isSAMEnabled(this) =>
           ScalaPsiUtil.toSAMType(expected, getResolveScope) match {
             case Some(methodType) if tp.conforms(methodType) => expectedResult
-            case Some(methodType@ScFunctionType(retTp, _)) if etaExpansionHappened && retTp.equiv(Unit) =>
-              val newTp = ScFunctionType(Unit, params)(getProject, getResolveScope)
+            case Some(methodType@FunctionType(retTp, _)) if etaExpansionHappened && retTp.equiv(Unit) =>
+              val newTp = FunctionType(Unit, params)(getProject, getResolveScope)
               if (newTp.conforms(methodType)) expectedResult
               else None
             case _ => None
@@ -200,7 +201,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
             exp match {
               case Some(expected) =>
                 expected.removeAbstracts match {
-                  case ScFunctionType(_, params) =>
+                  case FunctionType(_, params) =>
                   case expect if ScalaPsiUtil.isSAMEnabled(ScExpression.this) =>
                     ScalaPsiUtil.toSAMType(expect, getResolveScope) match {
                       case Some(_) =>
@@ -262,15 +263,15 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                       }
                   }
                   expected.removeAbstracts match {
-                    case types.Char  =>
+                    case api.Char =>
                       if (i >= scala.Char.MinValue.toInt && i <= scala.Char.MaxValue.toInt) {
                         return Some(Success(Char, Some(ScExpression.this)))
                       }
-                    case types.Byte  =>
+                    case api.Byte =>
                       if (i >= scala.Byte.MinValue.toInt && i <= scala.Byte.MaxValue.toInt) {
                         return Some(Success(Byte, Some(ScExpression.this)))
                       }
-                    case types.Short =>
+                    case api.Short =>
                       if (i >= scala.Short.MinValue.toInt && i <= scala.Short.MaxValue.toInt) {
                         return Some(Success(Short, Some(ScExpression.this)))
                       }
@@ -298,7 +299,15 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
                     case _ => None
                   }
                 }
-                (valType.getValType, expected.getValType) match {
+
+                def getValType: ScType => Option[ScType] = {
+                  case AnyVal => Some(AnyVal)
+                  case valType: ValType => Some(valType)
+                  case designatorType: ScDesignatorType => designatorType.getValType
+                  case _ => None
+                }
+
+                (getValType(valType), getValType(expected)) match {
                   case (Some(l), Some(r)) => checkWidening(l, r) match {
                     case Some(x) => x
                     case _ => Success(valType, Some(ScExpression.this))
@@ -341,8 +350,8 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
         ScalaPsiUtil.isAnonymousExpression(expr) match {
           case (-1, _) => (Nothing, "")
           case (i, expr: ScFunctionExpr) =>
-            (ScFunctionType(expr.result.map(_.getShape(ignoreAssign = true)._1).getOrElse(Nothing), Seq.fill(i)(Any))(getProject, getResolveScope), "")
-          case (i, _) => (ScFunctionType(Nothing, Seq.fill(i)(Any))(getProject, getResolveScope), "")
+            (FunctionType(expr.result.map(_.getShape(ignoreAssign = true)._1).getOrElse(Nothing), Seq.fill(i)(Any))(getProject, getResolveScope), "")
+          case (i, _) => (FunctionType(Nothing, Seq.fill(i)(Any))(getProject, getResolveScope), "")
         }
       case _ => (Nothing, "")
     }
@@ -519,7 +528,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
               }
             case _ => res += i
           }
-        case infix @ ScInfixExpr(ScExpression.Type(types.Boolean), ElementText(op), right @ ScExpression.Type(types.Boolean))
+        case infix@ScInfixExpr(ScExpression.Type(api.Boolean), ElementText(op), right@ScExpression.Type(api.Boolean))
           if withBooleanInfix && (op == "&&" || op == "||") => calculateReturns0(right)
         //TODO "!contains" is a quick fix, function needs unit testing to validate its behavior
         case _ => if (!res.contains(el)) res += el

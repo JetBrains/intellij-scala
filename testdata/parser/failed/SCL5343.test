@@ -22,13 +22,13 @@ ScalaFile
           PsiWhiteSpace(' ')
           ParameterType
             FunctionalType: Int => Int
-              SimpleTypeElement: Int
+              SimpleType: Int
                 CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
               PsiWhiteSpace(' ')
               PsiElement(=>)('=>')
               PsiWhiteSpace(' ')
-              SimpleTypeElement: Int
+              SimpleType: Int
                 CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
             PsiElement(identifier)('*')

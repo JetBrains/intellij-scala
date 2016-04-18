@@ -15,8 +15,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * ImplicitParamClause ::= [nl] '(' 'implicit' Params ')'
  */
+object ImplicitParamClause extends ImplicitParamClause {
+  override protected val params = Params
+}
 
-object ImplicitParamClause {
+trait ImplicitParamClause {
+  protected val params: Params
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark
     if (builder.twoNewlinesBeforeCurrentToken) {
@@ -39,7 +44,7 @@ object ImplicitParamClause {
         builder.restoreNewlinesState
         return false
     }
-    if (!Params.parse(builder)) {
+    if (!params.parse(builder)) {
       builder error ScalaBundle.message("implicit.params.excepted")
     }
     builder.getTokenType match {

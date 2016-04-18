@@ -38,7 +38,7 @@ ScalaFile
                 ParameterType
                   PsiElement(=>)('=>')
                   PsiWhiteSpace(' ')
-                  SimpleTypeElement: Boolean
+                  SimpleType: Boolean
                     CodeReferenceElement: Boolean
                       PsiElement(identifier)('Boolean')
               PsiElement())(')')
@@ -56,13 +56,13 @@ ScalaFile
                 ParameterType
                   PsiElement(=>)('=>')
                   PsiWhiteSpace(' ')
-                  SimpleTypeElement: Unit
+                  SimpleType: Unit
                     CodeReferenceElement: Unit
                       PsiElement(identifier)('Unit')
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement: Unit
+          SimpleType: Unit
             CodeReferenceElement: Unit
               PsiElement(identifier)('Unit')
         PsiWhiteSpace('\n')

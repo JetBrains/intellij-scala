@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.AnyRef
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 
 import scala.collection.mutable.ArrayBuffer
@@ -63,7 +64,7 @@ class ScNewTemplateDefinitionImpl private (stub: StubElement[ScTemplateDefinitio
 
 
     if (superTypes.length > 1 || holders.nonEmpty || aliases.nonEmpty) {
-      new Success(ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList, ScSubstitutor.empty), Some(this))
+      new Success(ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList), Some(this))
     } else {
       extendsBlock.templateParents match {
         case Some(tp) if tp.allTypeElements.length == 1 =>
@@ -138,7 +139,7 @@ class ScNewTemplateDefinitionImpl private (stub: StubElement[ScTemplateDefinitio
 
   import java.util.{Collection => JCollection, List => JList}
 
-import com.intellij.openapi.util.{Pair => IPair}
+  import com.intellij.openapi.util.{Pair => IPair}
 
   override def findMethodsByName(name: String, checkBases: Boolean): Array[PsiMethod] = {
     super[ScNewTemplateDefinition].findMethodsByName(name, checkBases)

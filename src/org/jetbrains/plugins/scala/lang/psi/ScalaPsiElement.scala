@@ -7,12 +7,15 @@ import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.plugins.scala.extensions.implementation.PsiElementExtTrait
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.monads.MonadTransformer
 
 trait ScalaPsiElement extends PsiElement with PsiElementExtTrait with MonadTransformer {
   protected override def repr = this
   protected var context: PsiElement = null
   protected var child: PsiElement = null
+
+  implicit lazy val typeSystem = getProject.typeSystem
 
   def isInCompiledFile = getContainingFile match {
     case file: ScalaFile => file.isCompiled

@@ -94,6 +94,7 @@ class ReferenceExpressionResolver(shapesOnly: Boolean)
 
     val prevInfoTypeParams = reference.getPrevTypeInfoParams
 
+    import reference.typeSystem
     def nonAssignResolve: Array[ResolveResult] = {
       def processor(smartProcessor: Boolean): MethodResolveProcessor =
         new MethodResolveProcessor(reference, name, info.arguments.toList,

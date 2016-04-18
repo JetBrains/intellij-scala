@@ -16,7 +16,13 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 /*
  * Packaging := 'package' QualId [nl] '{' TopStatSeq '}'
  */
-object Packaging {
+object Packaging extends Packaging {
+  override protected val topStatSeq = TopStatSeq
+}
+
+trait Packaging {
+  protected val topStatSeq: TopStatSeq
+
   def parse(builder: ScalaPsiBuilder):Boolean = {
     val packMarker = builder.mark
     builder.getTokenType match {
@@ -38,7 +44,7 @@ object Packaging {
             builder.enableNewlines
             ParserUtils.parseLoopUntilRBrace(builder, () => {
               //parse packaging body
-              TopStatSeq parse(builder, true)
+              topStatSeq parse(builder, true)
             })
             builder.restoreNewlinesState
             packMarker.done(ScalaElementTypes.PACKAGING)

@@ -42,7 +42,7 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  SimpleTypeElement: List
+                  SimpleType: List
                     CodeReferenceElement: List
                       PsiElement(identifier)('List')
               PsiElement())(')')
@@ -59,20 +59,20 @@ ScalaFile
                 PsiElement(:)(':')
                 PsiWhiteSpace(' ')
                 ParameterType
-                  ParametrizedTypeElement: Monoid[A]
-                    SimpleTypeElement: Monoid
+                  ParametrizedType: Monoid[A]
+                    SimpleType: Monoid
                       CodeReferenceElement: Monoid
                         PsiElement(identifier)('Monoid')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleTypeElement: A
+                      SimpleType: A
                         CodeReferenceElement: A
                           PsiElement(identifier)('A')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement: A
+          SimpleType: A
             CodeReferenceElement: A
               PsiElement(identifier)('A')
           PsiWhiteSpace(' ')

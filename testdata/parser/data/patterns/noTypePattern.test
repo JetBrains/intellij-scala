@@ -36,13 +36,13 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           TypePattern
-            ParametrizedTypeElement: Seq[scala.Int]
-              SimpleTypeElement: Seq
+            ParametrizedType: Seq[scala.Int]
+              SimpleType: Seq
                 CodeReferenceElement: Seq
                   PsiElement(identifier)('Seq')
               TypeArgumentsList
                 PsiElement([)('[')
-                SimpleTypeElement: scala.Int
+                SimpleType: scala.Int
                   CodeReferenceElement: scala.Int
                     CodeReferenceElement: scala
                       PsiElement(identifier)('scala')
@@ -62,8 +62,8 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           TypePattern
-            ParametrizedTypeElement: Map[a, scala.Int]
-              SimpleTypeElement: Map
+            ParametrizedType: Map[a, scala.Int]
+              SimpleType: Map
                 CodeReferenceElement: Map
                   PsiElement(identifier)('Map')
               TypeArgumentsList
@@ -72,7 +72,7 @@ ScalaFile
                   PsiElement(identifier)('a')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleTypeElement: scala.Int
+                SimpleType: scala.Int
                   CodeReferenceElement: scala.Int
                     CodeReferenceElement: scala
                       PsiElement(identifier)('scala')
@@ -92,8 +92,8 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           TypePattern
-            ParametrizedTypeElement: Tuple3[a, scala.Int, c]
-              SimpleTypeElement: Tuple3
+            ParametrizedType: Tuple3[a, scala.Int, c]
+              SimpleType: Tuple3
                 CodeReferenceElement: Tuple3
                   PsiElement(identifier)('Tuple3')
               TypeArgumentsList
@@ -102,7 +102,7 @@ ScalaFile
                   PsiElement(identifier)('a')
                 PsiElement(,)(',')
                 PsiWhiteSpace(' ')
-                SimpleTypeElement: scala.Int
+                SimpleType: scala.Int
                   CodeReferenceElement: scala.Int
                     CodeReferenceElement: scala
                       PsiElement(identifier)('scala')

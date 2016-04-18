@@ -4,7 +4,6 @@ package psi
 package impl
 package expr
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.Comparing
 import com.intellij.psi._
@@ -18,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationStub
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
@@ -39,7 +39,7 @@ class ScAnnotationImpl private (stub: StubElement[ScAnnotation], nodeType: IElem
   def getParameterList: PsiAnnotationParameterList = this
 
   private def getClazz: Option[PsiClass] =
-    ScType.extractClass(annotationExpr.constr.typeElement.getType(TypingContext.empty).getOrAny)
+    annotationExpr.constr.typeElement.getType(TypingContext.empty).getOrAny.extractClass()
 
   def getQualifiedName: String = getClazz match {
     case None => null

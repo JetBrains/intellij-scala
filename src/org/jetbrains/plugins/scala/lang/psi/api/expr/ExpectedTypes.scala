@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTupleTypeElement, ScTypeElement}
@@ -14,9 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
 
 import scala.annotation.tailrec
@@ -57,11 +59,12 @@ private[expr] object ExpectedTypes {
    */
   def expectedExprTypes(expr: ScExpression, withResolvedFunction: Boolean = false,
                         fromUnderscore: Boolean = true): Array[(ScType, Option[ScTypeElement])] = {
+    import expr.typeSystem
     @tailrec
     def fromFunction(tp: (ScType, Option[ScTypeElement])): Array[(ScType, Option[ScTypeElement])] = {
       tp._1 match {
-        case ScFunctionType(retType, _) => Array[(ScType, Option[ScTypeElement])]((retType, None))
-        case ScPartialFunctionType(retType, _) => Array[(ScType, Option[ScTypeElement])]((retType, None))
+        case FunctionType(retType, _) => Array[(ScType, Option[ScTypeElement])]((retType, None))
+        case PartialFunctionType(retType, _) => Array[(ScType, Option[ScTypeElement])]((retType, None))
         case ScAbstractType(_, _, upper) => fromFunction(upper, tp._2)
         case samType if ScalaPsiUtil.isSAMEnabled(expr) =>
           ScalaPsiUtil.toSAMType(samType, expr.getResolveScope) match {
@@ -89,18 +92,18 @@ private[expr] object ExpectedTypes {
         case _ => Array.empty
       }
       //see SLS[6.16]
-      case cond: ScIfStmt if cond.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((types.Boolean, None))
+      case cond: ScIfStmt if cond.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((api.Boolean, None))
       case cond: ScIfStmt if cond.elseBranch.isDefined => cond.expectedTypesEx(fromUnderscore = true)
       //see SLA[6.22]
       case tb: ScTryBlock => tb.lastExpr match {
         case Some(e) if e == expr => tb.getContext.asInstanceOf[ScTryStmt].expectedTypesEx(fromUnderscore = true)
         case _ => Array.empty
       }
-      case wh: ScWhileStmt if wh.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((types.Boolean, None))
-      case wh: ScWhileStmt => Array((types.Unit, None))
-      case d: ScDoStmt if d.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((types.Boolean, None))
-      case d: ScDoStmt => Array((types.Unit, None))
-      case fb: ScFinallyBlock => Array((types.Unit, None))
+      case wh: ScWhileStmt if wh.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((api.Boolean, None))
+      case wh: ScWhileStmt => Array((Unit, None))
+      case d: ScDoStmt if d.condition.getOrElse(null: ScExpression) == expr.getSameElementInContext => Array((api.Boolean, None))
+      case d: ScDoStmt => Array((api.Unit, None))
+      case fb: ScFinallyBlock => Array((api.Unit, None))
       case cb: ScCatchBlock => Array.empty
       case te: ScThrowStmt =>
         // Not in the SLS, but in the implementation.
@@ -152,7 +155,7 @@ private[expr] object ExpectedTypes {
                     //for named parameters
                     Array((subst.subst(p.getType(TypingContext.empty).getOrAny), p.typeElement))
                   case f: PsiField =>
-                    Array((subst.subst(ScType.create(f.getType, f.getProject, expr.getResolveScope)), None))
+                    Array((subst.subst(f.getType.toScType(f.getProject, expr.getResolveScope)), None))
                   case _ => Array.empty
                 }
               case _ => Array.empty
@@ -192,7 +195,7 @@ private[expr] object ExpectedTypes {
         if (index >= 0) {
           for (tp: ScType <- tuple.expectedTypes(fromUnderscore = true)) {
             tp match {
-              case ScTupleType(comps) if comps.length == exprs.length =>
+              case TupleType(comps) if comps.length == exprs.length =>
                 buffer += ((comps(index), None))
               case _ =>
             }
@@ -235,7 +238,7 @@ private[expr] object ExpectedTypes {
       }) =>
         v.returnTypeElement match {
           case Some(te) => v.returnType.toOption.map(x => (x, Some(te))).toArray
-          case None if !v.hasAssign => Array((types.Unit, None))
+          case None if !v.hasAssign => Array((api.Unit, None))
           case _ => v.getInheritedReturnType.map((_, None)).toArray
         }
       //default parameters
@@ -329,7 +332,7 @@ private[expr] object ExpectedTypes {
       val res = new ArrayBuffer[(ScType, Option[ScTypeElement])]
       for (tp <- result) {
         tp._1 match {
-          case ScFunctionType(rt: ScType, _) => res += ((rt, None))
+          case FunctionType(rt: ScType, _) => res += ((rt, None))
           case _ =>
         }
       }
@@ -340,7 +343,8 @@ private[expr] object ExpectedTypes {
   @tailrec
   private def processArgsExpected(res: ArrayBuffer[(ScType, Option[ScTypeElement])], expr: ScExpression, i: Int,
                                   tp: TypeResult[ScType], exprs: Seq[ScExpression], call: Option[MethodInvocation] = None,
-                                  forApply: Boolean = false, isDynamicNamed: Boolean = false) {
+                                  forApply: Boolean = false, isDynamicNamed: Boolean = false)
+                                 (implicit typeSystem: TypeSystem) {
     def applyForParams(params: Seq[Parameter]) {
       val p: (ScType, Option[ScTypeElement]) =
         if (i >= params.length && params.nonEmpty && params.last.isRepeated)
@@ -351,7 +355,7 @@ private[expr] object ExpectedTypes {
         case assign: ScAssignStmt =>
           if (isDynamicNamed) {
             p match {
-              case (ScTupleType(comps), te) if comps.length == 2 =>
+              case (TupleType(comps), te) if comps.length == 2 =>
                 res += ((comps(1), te.map {
                   case t: ScTupleTypeElement if t.components.length == 2 => t.components(1)
                   case t => t
@@ -373,7 +377,7 @@ private[expr] object ExpectedTypes {
           val seqClass: Array[PsiClass] = ScalaPsiManager.instance(expr.getProject).
                   getCachedClasses(expr.getResolveScope, "scala.collection.Seq").filter(!_.isInstanceOf[ScObject])
           if (seqClass.length != 0) {
-            val tp = ScParameterizedType(ScType.designator(seqClass(0)), Seq(params.last.paramType))
+            val tp = ScParameterizedType(ScalaType.designator(seqClass(0)), Seq(params.last.paramType))
             res += ((tp, None))
           }
         case _ => res += p
@@ -383,7 +387,7 @@ private[expr] object ExpectedTypes {
       case Success(ScMethodType(_, params, _), _) =>
         if (params.length == 1 && !params.head.isRepeated && exprs.length > 1) {
           params.head.paramType match {
-            case ScTupleType(args) => applyForParams(args.zipWithIndex.map {
+            case TupleType(args) => applyForParams(args.zipWithIndex.map {
               case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
             })
             case _ =>
@@ -394,7 +398,7 @@ private[expr] object ExpectedTypes {
         val newParams = params.map(p => p.copy(paramType = subst.subst(p.paramType)))
         if (newParams.length == 1 && !newParams.head.isRepeated && exprs.length > 1) {
           newParams.head.paramType match {
-            case ScTupleType(args) => applyForParams(args.zipWithIndex.map {
+            case TupleType(args) => applyForParams(args.zipWithIndex.map {
               case (tpe, index) => new Parameter("", None, tpe, false, false, false, index)
             })
             case _ =>

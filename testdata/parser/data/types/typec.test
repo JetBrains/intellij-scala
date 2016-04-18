@@ -28,7 +28,7 @@ ScalaFile
               PsiElement(identifier)('global')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement: compiler.type
+          SimpleType: compiler.type
             CodeReferenceElement: compiler
               PsiElement(identifier)('compiler')
             PsiElement(.)('.')

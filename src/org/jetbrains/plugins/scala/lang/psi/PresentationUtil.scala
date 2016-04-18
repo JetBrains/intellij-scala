@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil
@@ -30,7 +31,7 @@ object PresentationUtil {
         buffer.append(clause.parameters.map(presentationString(_, substitutor)).mkString(", "))
         buffer.append(")")
         buffer.toString()
-      case param: ScParameter => ScalaDocumentationProvider.parseParameter(param, presentationString(_, substitutor))
+      case param: ScParameter => ScalaDocumentationProvider.parseParameter(param)(presentationString(_, substitutor))
       case param: Parameter =>
         val builder = new StringBuilder
         builder.append(param.name)
@@ -38,10 +39,10 @@ object PresentationUtil {
         if (param.isRepeated) builder.append("*")
         if (param.isDefault) builder.append(" = _")
         builder.toString()
-      case tp: ScType => ScType.presentableText(substitutor.subst(tp))
+      case tp: ScType => substitutor.subst(tp).presentableText
       case tp: PsiEllipsisType =>
         presentationString(tp.getComponentType, substitutor) + "*"
-      case tp: PsiType => presentationString(ScType.create(tp, DecompilerUtil.obtainProject), substitutor)
+      case tp: PsiType => presentationString(tp.toScType(DecompilerUtil.obtainProject), substitutor)
       case tp: ScTypeParamClause =>
         tp.typeParameters.map(t => presentationString(t, substitutor)).mkString("[", ", ", "]")
       case param: ScTypeParam =>
@@ -49,11 +50,11 @@ object PresentationUtil {
         if (param.isContravariant) paramText = "-" + paramText
         else if (param.isCovariant) paramText = "+" + paramText
         param.lowerBound foreach {
-          case psi.types.Nothing =>
+          case Nothing =>
           case tp: ScType => paramText = paramText + " >: " + presentationString(tp, substitutor)
         }
         param.upperBound foreach {
-          case psi.types.Any =>
+          case Any =>
           case tp: ScType => paramText = paramText + " <: " + presentationString(tp, substitutor)
         }
         param.viewBound foreach {

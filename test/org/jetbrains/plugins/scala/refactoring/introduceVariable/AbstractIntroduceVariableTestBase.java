@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.refactoring.introduceVariable;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -21,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntro
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeItem;
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScopeSuggester;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil;
+import org.jetbrains.plugins.scala.project.package$;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.Assert;
 import scala.Option;
@@ -78,7 +80,8 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
   }
 
   private String processFile(final PsiFile file) throws IncorrectOperationException, InvalidDataException, IOException {
-    final SyntheticClasses syntheticClasses = getProject().getComponent(SyntheticClasses.class);
+    Project project = getProject();
+    final SyntheticClasses syntheticClasses = project.getComponent(SyntheticClasses.class);
     if (!syntheticClasses.isClassesRegistered()) {
       syntheticClasses.registerClasses();
     }
@@ -112,11 +115,11 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
     int endOffset = fileText.indexOf(TestUtils.END_MARKER);
     fileText = TestUtils.removeEndMarker(fileText);
-    myFile = TestUtils.createPseudoPhysicalScalaFile(getProject(), fileText);
-    fileEditorManager = FileEditorManager.getInstance(getProject());
+    myFile = TestUtils.createPseudoPhysicalScalaFile(project, fileText);
+    fileEditorManager = FileEditorManager.getInstance(project);
     VirtualFile virtualFile = myFile.getVirtualFile();
     assert virtualFile != null;
-    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(getProject(), virtualFile, 0), false);
+    myEditor = fileEditorManager.openTextEditor(new OpenFileDescriptor(project, virtualFile, 0), false);
     assert myEditor != null;
 
     try {
@@ -130,8 +133,10 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
       if (element instanceof ScExpression){
         ScExpression selectedExpr = null;
         ScType[] types = null;
-        if (ScalaRefactoringUtil.getExpression(getProject(), myEditor, myFile, startOffset, endOffset) instanceof Some) {
-          Some expression = (Some) ScalaRefactoringUtil.getExpression(getProject(), myEditor, myFile, startOffset, endOffset);
+        Option<Tuple2<ScExpression, ScType[]>> maybeExpression = ScalaRefactoringUtil.getExpression(project, myEditor, myFile, startOffset, endOffset,
+                package$.MODULE$.ProjectExt(project).typeSystem());
+        if (maybeExpression instanceof Some) {
+          Some expression = (Some) maybeExpression;
           selectedExpr = IntroduceVariableTestUtil.extract1((Tuple2<ScExpression, ScType[]>) expression.get());
           types = IntroduceVariableTestUtil.extract2((Tuple2<ScExpression, ScType[]>) expression.get());
         }
@@ -145,14 +150,14 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 
         result = myEditor.getDocument().getText();
       } else if (element instanceof ScTypeElement){
-        Option<ScTypeElement> optionType = ScalaRefactoringUtil.getTypeElement(getProject(), myEditor, myFile, startOffset, endOffset);
+        Option<ScTypeElement> optionType = ScalaRefactoringUtil.getTypeElement(project, myEditor, myFile, startOffset, endOffset);
         if (optionType.isEmpty()){
           result = "Selected block should be presented as type element";
         } else {
           ScTypeElement typeElement = optionType.get();
           String typeName = getName(fileText);
 
-          ScopeItem[] scopes = ScopeSuggester.suggestScopes(introduceVariableHandler, getProject(), myEditor, myFile, typeElement);
+          ScopeItem[] scopes = ScopeSuggester.suggestScopes(introduceVariableHandler, project, myEditor, myFile, typeElement);
 
 //          if (replaceOccurrencesFromInheritors) {
 //            ScTypeDefinition classOrTrait = PsiTreeUtil.getParentOfType(scopes.get(0).fileEncloser(), ScClass.class, ScTrait.class);

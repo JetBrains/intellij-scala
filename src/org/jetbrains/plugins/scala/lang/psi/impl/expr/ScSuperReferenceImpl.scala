@@ -4,7 +4,6 @@ package psi
 package impl
 package expr
 
-import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import _root_.org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
@@ -18,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 import _root_.scala.collection.mutable.ArrayBuffer
 
@@ -104,7 +104,7 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
       def resolve = {
         def resolveNoHack: PsiClass = {
           findSuper(id) match {
-            case Some(t) => ScType.extractClass(t) match {
+            case Some(t) => t.extractClass() match {
               case Some(c) => c
               case None    => null
             }
@@ -130,43 +130,40 @@ class ScSuperReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
 
       def getVariants: Array[Object] = superTypes match {
         case None => Array[Object]()
-        case Some(supers) => {
+        case Some(supers) =>
           val buff = new ArrayBuffer[Object]
-          supers.foreach{ t => ScType.extractClass(t) match {
+          supers.foreach { t => t.extractClass() match {
             case Some(c) => buff += c
             case None =>
           }}
           buff.toArray
-        }
       }
     }
   }
 
   def findSuper(id : PsiElement) : Option[ScType] = superTypes match {
     case None => None
-    case Some(types) => {
+    case Some(types) =>
       val name = id.getText
       for (t <- types) {
-        ScType.extractClass(t) match {
+        t.extractClass() match {
           case Some(c) if name == c.name => return Some(t)
           case _ =>
         }
       }
       None
-    }
   }
 
   private def superTypes: Option[Seq[ScType]] = reference match {
     case Some(q) => q.resolve() match {
-      case clazz : PsiClass => Some(clazz.getSuperTypes.map {t => ScType.create(t, getProject, getResolveScope)})
+      case clazz: PsiClass => Some(clazz.getSuperTypes.map(_.toScType(getProject, getResolveScope)))
       case _ => None
     }
-    case None => {
+    case None =>
       PsiTreeUtil.getContextOfType(this, false, classOf[ScExtendsBlock]) match {
         case null => None
         case eb: ScExtendsBlock => Some(eb.superTypes)
       }
-    }
   }
 
   protected override def innerType(ctx: TypingContext) = Failure("Cannot infer type of `super' expression", Some(this))

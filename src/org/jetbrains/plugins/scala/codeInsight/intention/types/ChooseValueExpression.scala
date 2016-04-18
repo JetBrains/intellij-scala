@@ -5,7 +5,7 @@ import com.intellij.codeInsight.lookup._
 import com.intellij.codeInsight.template.impl.TemplateManagerImpl
 import com.intellij.codeInsight.template.{Expression, ExpressionContext, Result, TextResult}
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeText
+import org.jetbrains.plugins.scala.lang.psi.types.api.ScTypeText
 
 /**
   * Author: Svyatoslav Ilinskiy

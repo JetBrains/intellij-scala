@@ -35,7 +35,7 @@ ScalaFile
               PsiElement(identifier)('x')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement: id.super[C].id.Type
+          SimpleType: id.super[C].id.Type
             CodeReferenceElement: id.super[C].id.Type
               CodeReferenceElement: id.super[C].id
                 SuperReference

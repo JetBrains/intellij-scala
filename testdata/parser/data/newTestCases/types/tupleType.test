@@ -38,11 +38,11 @@ ScalaFile
           TupleType: (Type,Type)
             PsiElement(()('(')
             TypesList
-              SimpleTypeElement: Type
+              SimpleType: Type
                 CodeReferenceElement: Type
                   PsiElement(identifier)('Type')
               PsiElement(,)(',')
-              SimpleTypeElement: Type
+              SimpleType: Type
                 CodeReferenceElement: Type
                   PsiElement(identifier)('Type')
             PsiElement())(')')

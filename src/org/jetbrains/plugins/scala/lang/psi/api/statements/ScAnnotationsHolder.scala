@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScAnnotations}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
@@ -64,7 +65,7 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotationOwner {
   private def acceptType(tp: ScType, qualifiedName: String): Boolean = {
     tp match {
       case ScDesignatorType(clazz: PsiClass) => clazz.qualifiedName == qualifiedName
-      case ScParameterizedType(ScDesignatorType(clazz: PsiClass), _) => clazz.qualifiedName == qualifiedName
+      case ParameterizedType(ScDesignatorType(clazz: PsiClass), _) => clazz.qualifiedName == qualifiedName
       case _ =>
         tp.isAliasType match {
           case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) =>

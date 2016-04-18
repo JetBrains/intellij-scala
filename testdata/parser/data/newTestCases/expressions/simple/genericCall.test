@@ -28,11 +28,11 @@ ScalaFile
             PsiElement(identifier)('foo')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleTypeElement: A
+            SimpleType: A
               CodeReferenceElement: A
                 PsiElement(identifier)('A')
             PsiElement(,)(',')
-            SimpleTypeElement: B
+            SimpleType: B
               CodeReferenceElement: B
                 PsiElement(identifier)('B')
             PsiElement(])(']')

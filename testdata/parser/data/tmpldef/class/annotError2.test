@@ -16,7 +16,7 @@ ScalaFile
         PsiElement(@)('@')
         AnnotationExpression
           Constructor
-            SimpleTypeElement: b
+            SimpleType: b
               CodeReferenceElement: b
                 PsiElement(identifier)('b')
     Modifiers

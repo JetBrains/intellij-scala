@@ -55,8 +55,9 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
 
   def refs = {
     extendsBlock.templateParents.toSeq.flatMap(_.typeElements).map { refElement =>
-      val tuple: Option[(PsiClass, ScSubstitutor)] = refElement.getType(TypingContext.empty).toOption.flatMap(
-        ScType.extractClassType(_, Some(getProject)))
+      val tuple: Option[(PsiClass, ScSubstitutor)] = refElement.getType(TypingContext.empty).toOption.flatMap {
+        _.extractClassType(getProject)
+      }
       (refElement, tuple)
     }
   }
@@ -68,7 +69,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       tp match {
         case Some(tp1) => (for (te <- tp1.allTypeElements;
                                 t = te.getType(TypingContext.empty).getOrAny;
-                                asPsi = ScType.toPsi(t, getProject, GlobalSearchScope.allScope(getProject))
+                                asPsi = t.toPsiType(getProject, GlobalSearchScope.allScope(getProject))
                                 if asPsi.isInstanceOf[PsiClassType]) yield asPsi.asInstanceOf[PsiClassType]).toArray[PsiClassType]
         case _ => PsiClassType.EMPTY_ARRAY
       }
@@ -76,7 +77,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   }
 
   def showAsInheritor: Boolean = {
-    isInstanceOf[ScTypeDefinition] || extendsBlock.templateBody != None
+    isInstanceOf[ScTypeDefinition] || extendsBlock.templateBody.isDefined
   }
 
   override def findMethodBySignature(patternMethod: PsiMethod, checkBases: Boolean): PsiMethod = {
@@ -179,7 +180,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
-        Bounds.glb(selfType, clazzType) match {
+        selfType.glb(clazzType) match {
           case c: ScCompoundType =>
             TypeDefinitionMembers.getTypes(c, Some(clazzType), this).allFirstSeq().
               flatMap(_.map { case (_, n) => (n.info, n.substitutor) })
@@ -206,7 +207,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
-        Bounds.glb(selfType, clazzType) match {
+        selfType.glb(clazzType) match {
           case c: ScCompoundType =>
             TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().flatMap(n => n.filter{
               case (_, x) => !x.info.isInstanceOf[PhysicalSignature] &&
@@ -236,7 +237,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
-        Bounds.glb(selfType, clazzType) match {
+        selfType.glb(clazzType) match {
           case c: ScCompoundType =>
             TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().flatMap(_.filter {
               case (_, n) => n.info.isInstanceOf[PhysicalSignature]}).
@@ -256,7 +257,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     selfType match {
       case Some(selfType) =>
         val clazzType = getTypeWithProjections(TypingContext.empty).getOrAny
-        Bounds.glb(selfType, clazzType) match {
+        selfType.glb(clazzType) match {
           case c: ScCompoundType =>
             TypeDefinitionMembers.getSignatures(c, Some(clazzType), this).allFirstSeq().
               flatMap(_.map { case (_, n) => n.info })
@@ -313,7 +314,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
     }
     state = state.put(BaseProcessor.FROM_TYPE_KEY,
       if (ScalaPsiUtil.isPlaceTdAncestor(this, place)) ScThisType(this)
-      else ScType.designator(this))
+      else ScalaType.designator(this))
     val eb = extendsBlock
     eb.templateParents match {
         case Some(p) if PsiTreeUtil.isContextAncestor(p, place, false) =>

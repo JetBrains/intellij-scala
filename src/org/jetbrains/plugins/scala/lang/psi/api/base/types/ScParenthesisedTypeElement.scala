@@ -11,5 +11,7 @@ package types
 */
 
 trait ScParenthesisedTypeElement extends ScTypeElement {
+  override protected val typeName = "TypeInParenthesis"
+
   def typeElement: Option[ScTypeElement] = findChild(classOf[ScTypeElement])
 }

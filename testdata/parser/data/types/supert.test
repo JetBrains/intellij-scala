@@ -22,7 +22,7 @@ ScalaFile
       PsiWhiteSpace(' ')
       ClassParents
         Constructor
-          SimpleTypeElement: super.MapProjection
+          SimpleType: super.MapProjection
             CodeReferenceElement: super.MapProjection
               SuperReference
                 PsiElement(super)('super')

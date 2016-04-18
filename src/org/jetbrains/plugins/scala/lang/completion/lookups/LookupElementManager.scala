@@ -5,8 +5,9 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
+import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, TypingContextOwner}
-import org.jetbrains.plugins.scala.lang.psi.types.{Nothing, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
@@ -48,12 +49,12 @@ object LookupElementManager {
 
       qualifierType match {
         case _ if !isPredef && !usedImportForElement =>
-          ScType.extractDesignated(qualifierType, withoutAliases = false) match {
+          ScalaType.extractDesignated(qualifierType, withoutAliases = false) match {
             case Some((named, _)) =>
               val clazz: Option[PsiClass] = named match {
                 case cl: PsiClass => Some(cl)
                 case tp: TypingContextOwner =>
-                  tp.getType(TypingContext.empty).map(ScType.extractClass(_)).getOrElse(None)
+                  tp.getType(TypingContext.empty).map(_.extractClass()(tp.typeSystem)).getOrElse(None)
                 case _ => None
               }
               checkIsExpectedClassMember(clazz)

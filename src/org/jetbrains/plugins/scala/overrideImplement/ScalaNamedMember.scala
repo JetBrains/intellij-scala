@@ -3,6 +3,7 @@ package overrideImplement
 
 import com.intellij.codeInsight.generation.PsiElementClassMember
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -33,9 +34,8 @@ class ScMethodMember(val sign: PhysicalSignature, val isOverride: Boolean)
           val scType: ScType = sign.method match {
             case fun: ScFunction => sign.substitutor.subst(fun.returnType.getOrAny)
             case method: PsiMethod =>
-              sign.substitutor.subst(ScType.create(Option(method.getReturnType).getOrElse(PsiType.VOID),
-                method.getProject, method.getResolveScope
-              ))
+              sign.substitutor.subst(Option(method.getReturnType).getOrElse(PsiType.VOID)
+                .toScType(method.getProject, method.getResolveScope))
           }
           val text = ScalaPsiUtil.getMethodPresentableText(sign.method)
         } with PsiElementClassMember[PsiMethod](sign.method, text) with ScalaNamedMember with ScalaTypedMember
@@ -44,19 +44,19 @@ class ScValueMember(member: ScValue, val element: ScTypedDefinition, val substit
         extends {
           val name = element.getName
           val scType = substitutor.subst(element.getType(TypingContext.empty).getOrAny)
-          val text = element.name + ": " + ScType.presentableText(scType)
+          val text = element.name + ": " + scType.presentableText
         } with PsiElementClassMember[ScValue](member, text) with ScalaNamedMember with ScalaTypedMember
 
 class ScVariableMember(member: ScVariable, val element: ScTypedDefinition, val substitutor: ScSubstitutor, val isOverride: Boolean)
         extends {
           val name = element.getName
           val scType = substitutor.subst(element.getType(TypingContext.empty).getOrAny)
-          val text = name + ": " + ScType.presentableText(scType)
+          val text = name + ": " + scType.presentableText
         } with PsiElementClassMember[ScVariable](member, text) with ScalaNamedMember with ScalaTypedMember
 
 class JavaFieldMember(field: PsiField, val substitutor: ScSubstitutor)
         extends {
-          val scType = substitutor.subst(ScType.create(field.getType, field.getProject, field.getResolveScope))
+          val scType = substitutor.subst(field.getType.toScType(field.getProject, field.getResolveScope))
           val name = field.getName
-          val text = name + ": " + ScType.presentableText(scType)
+          val text = name + ": " + scType.presentableText
         } with PsiElementClassMember[PsiField](field, text) with ScalaNamedMember with ScalaTypedMember

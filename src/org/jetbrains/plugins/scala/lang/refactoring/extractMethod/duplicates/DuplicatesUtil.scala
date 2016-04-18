@@ -19,6 +19,7 @@ import com.intellij.ui.ReplacePromptDialog
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.{ScalaExtractMethodSettings, ScalaExtractMethodUtils}
 
 /**
@@ -61,7 +62,8 @@ object DuplicatesUtil {
     else Some(siblings)
   }
 
-  def findDuplicates(settings: ScalaExtractMethodSettings): Seq[DuplicateMatch] = {
+  def findDuplicates(settings: ScalaExtractMethodSettings)
+                    (implicit typeSystem: TypeSystem): Seq[DuplicateMatch] = {
     val pattern = new DuplicatePattern(filtered(settings.elements), settings.parameters)
     pattern.findDuplicates(settings.nextSibling.getParent)
   }

@@ -10,7 +10,8 @@ import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
@@ -50,8 +51,11 @@ class ScFunctionExprImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with S
 
   protected override def innerType(ctx: TypingContext) = {
     val paramTypes = (parameters: Seq[ScParameter]).map(_.getType(ctx))
-    val resultType = result match {case Some(r) => r.getType(ctx).getOrAny case _ => Unit}
-    collectFailures(paramTypes, Nothing)(ScFunctionType(resultType, _)(getProject, getResolveScope))
+    val resultType = result match {
+      case Some(r) => r.getType(ctx).getOrAny
+      case _ => api.Unit
+    }
+    collectFailures(paramTypes, Nothing)(FunctionType(resultType, _)(getProject, getResolveScope))
   }
 
   override def controlFlowScope: Option[ScalaPsiElement] = result

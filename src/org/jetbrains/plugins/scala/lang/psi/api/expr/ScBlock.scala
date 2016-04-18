@@ -18,9 +18,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
-import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 
 import scala.collection.immutable.HashSet
 import scala.collection.mutable
@@ -35,9 +36,9 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
     if (hasCaseClauses) {
       val caseClauses = findChildByClassScala(classOf[ScCaseClauses])
       val clauses: Seq[ScCaseClause] = caseClauses.caseClauses
-      val clausesType = clauses.foldLeft(types.Nothing: ScType)((tp, clause) => Bounds.lub(tp, clause.expr match {
+      val clausesType = clauses.foldLeft(Nothing: ScType)((tp, clause) => tp.lub(clause.expr match {
         case Some(expr) => expr.getType(TypingContext.empty).getOrNothing
-        case _ => types.Nothing
+        case _ => Nothing
       }))
 
       getContext match {
@@ -50,12 +51,28 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           return Success(ScParameterizedType(ScDesignatorType(fun), Seq(ScDesignatorType(throwable), clausesType)), Some(this))
         case _ =>
           val et = expectedType(fromUnderscore = false).getOrElse(return Failure("Cannot infer type without expected type", Some(this)))
+
+          def removeVarianceAbstracts(scType: ScType) = {
+            var index = 0
+            scType.recursiveVarianceUpdate((tp: ScType, i: Int) => {
+              tp match {
+                case ScAbstractType(_, lower, upper) =>
+                  i match {
+                    case -1 => (true, lower)
+                    case 1 => (true, upper)
+                    case 0 => (true, ScExistentialArgument(s"_$$${index += 1; index}", Nil, lower, upper))
+                  }
+                case _ => (false, tp)
+              }
+            }, 1).unpackedType
+          }
+
           return et match {
-            case f@ScFunctionType(_, params) =>
-              Success(ScFunctionType(clausesType, params.map(_.removeVarianceAbstracts(1)))
+            case f@FunctionType(_, params) =>
+              Success(FunctionType(clausesType, params.map(removeVarianceAbstracts))
                 (getProject, getResolveScope), Some(this))
-            case f@ScPartialFunctionType(_, param) =>
-              Success(ScPartialFunctionType(clausesType, param.removeVarianceAbstracts(1))
+            case f@PartialFunctionType(_, param) =>
+              Success(PartialFunctionType(clausesType, removeVarianceAbstracts(param))
                 (getProject, getResolveScope), Some(this))
             case _ =>
               Failure("Cannot infer type without expected type of scala.FunctionN or scala.PartialFunction", Some(this))
@@ -74,13 +91,13 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           if (visited.contains(t)) return t
           val visitedWithT = visited + t
           t match {
-            case ScDesignatorType(p: ScParameter) if p.owner.isInstanceOf[ScFunctionExpr] && p.owner.asInstanceOf[ScFunctionExpr].result == Some(this) =>
+            case ScDesignatorType(p: ScParameter) if p.owner.isInstanceOf[ScFunctionExpr] && p.owner.asInstanceOf[ScFunctionExpr].result.contains(this) =>
               val t = existize(p.getType(TypingContext.empty).getOrAny, visitedWithT)
               val ex = new ScExistentialArgument(p.name, Nil, t, t)
               m.put(p.name, ex)
               ex
             case ScDesignatorType(typed: ScBindingPattern) if typed.nameContext.isInstanceOf[ScCaseClause] &&
-              typed.nameContext.asInstanceOf[ScCaseClause].expr == Some(this) =>
+              typed.nameContext.asInstanceOf[ScCaseClause].expr.contains(this) =>
               val t = existize(typed.getType(TypingContext.empty).getOrAny, visitedWithT)
               val ex = new ScExistentialArgument(typed.name, Nil, t, t)
               m.put(typed.name, ex)
@@ -128,8 +145,8 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
               }, typesMap.map {
                 case (s, sign) => (s, sign.updateTypes(existize(_, visitedWithT)))
               })
-            case JavaArrayType(arg) => JavaArrayType(existize(arg, visitedWithT))
-            case ScParameterizedType(des, typeArgs) =>
+            case JavaArrayType(argument) => JavaArrayType(existize(argument, visitedWithT))
+            case ParameterizedType(des, typeArgs) =>
               ScParameterizedType(existize(des, visitedWithT), typeArgs.map(existize(_, visitedWithT)))
             case ex@ScExistentialType(q, wildcards) =>
               new ScExistentialType(existize(q, visitedWithT), wildcards.map {
@@ -139,7 +156,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
           }
         }
         val t = existize(e.getType(TypingContext.empty).getOrAny, HashSet.empty)
-        if (m.size == 0) t else new ScExistentialType(t, m.values.toList).simplify()
+        if (m.isEmpty) t else new ScExistentialType(t, m.values.toList).simplify()
     }
     Success(inner, Some(this))
   }
@@ -153,9 +170,9 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
     }
 
     val superTypes = t.extendsBlock.superTypes
-    if (superTypes.length > 1 || !holders.isEmpty || !aliases.isEmpty) {
-      ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList, ScSubstitutor.empty)
-    } else superTypes(0)
+    if (superTypes.length > 1 || holders.nonEmpty || aliases.nonEmpty) {
+      ScCompoundType.fromPsi(superTypes, holders.toList, aliases.toList)
+    } else superTypes.head
   }
 
   def hasCaseClauses: Boolean = false

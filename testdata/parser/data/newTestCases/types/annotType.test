@@ -37,7 +37,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           TypeWithAnnotation: Type#id @annot
             TypeProjection: Type#id
-              SimpleTypeElement: Type
+              SimpleType: Type
                 CodeReferenceElement: Type
                   PsiElement(identifier)('Type')
               PsiElement(#)('#')
@@ -48,7 +48,7 @@ ScalaFile
                 PsiElement(@)('@')
                 AnnotationExpression
                   Constructor
-                    SimpleTypeElement: annot
+                    SimpleType: annot
                       CodeReferenceElement: annot
                         PsiElement(identifier)('annot')
         PsiWhiteSpace(' \n')

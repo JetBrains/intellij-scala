@@ -17,31 +17,31 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(<:)('<:')
         PsiWhiteSpace(' ')
-        SimpleTypeElement: A
+        SimpleType: A
           CodeReferenceElement: A
             PsiElement(identifier)('A')
         PsiWhiteSpace(' ')
         PsiElement(<%)('<%')
         PsiWhiteSpace(' ')
-        SimpleTypeElement: B
+        SimpleType: B
           CodeReferenceElement: B
             PsiElement(identifier)('B')
         PsiWhiteSpace(' ')
         PsiElement(<%)('<%')
         PsiWhiteSpace(' ')
-        SimpleTypeElement: C
+        SimpleType: C
           CodeReferenceElement: C
             PsiElement(identifier)('C')
         PsiWhiteSpace(' ')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleTypeElement: D
+        SimpleType: D
           CodeReferenceElement: D
             PsiElement(identifier)('D')
         PsiWhiteSpace(' ')
         PsiElement(:)(':')
         PsiWhiteSpace(' ')
-        SimpleTypeElement: E
+        SimpleType: E
           CodeReferenceElement: E
             PsiElement(identifier)('E')
       PsiElement(])(']')

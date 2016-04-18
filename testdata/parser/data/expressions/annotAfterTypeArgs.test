@@ -21,7 +21,7 @@ ScalaFile
           PsiElement(@)('@')
           AnnotationExpression
             Constructor
-              SimpleTypeElement: Inject
+              SimpleType: Inject
                 CodeReferenceElement: Inject
                   PsiElement(identifier)('Inject')
               ArgumentList
@@ -44,7 +44,7 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              SimpleTypeElement: Int
+              SimpleType: Int
                 CodeReferenceElement: Int
                   PsiElement(identifier)('Int')
           PsiElement(,)(',')
@@ -60,7 +60,7 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              SimpleTypeElement: String
+              SimpleType: String
                 CodeReferenceElement: String
                   PsiElement(identifier)('String')
           PsiElement(,)(',')
@@ -76,7 +76,7 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              SimpleTypeElement: T
+              SimpleType: T
                 CodeReferenceElement: T
                   PsiElement(identifier)('T')
           PsiElement())(')')

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 
 import java.io.File
-import java.net.URL
 
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.project.Project
@@ -13,7 +12,10 @@ import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore}
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.CommonProcessors.CollectProcessor
 import com.intellij.util.Processor
+import org.jetbrains.plugins.dotty.lang.psi.types.DottyTypeSystem
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 
 import scala.annotation.tailrec
@@ -180,6 +182,8 @@ package object project {
     def remove(library: Library) {
       ProjectLibraryTable.getInstance(project).removeLibrary(library)
     }
+
+    def typeSystem: TypeSystem = if (hasDotty) DottyTypeSystem else ScalaTypeSystem
   }
 
   class ScalaModule(val module: Module) {

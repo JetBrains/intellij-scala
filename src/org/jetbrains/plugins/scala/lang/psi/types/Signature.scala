@@ -8,8 +8,10 @@ import com.intellij.psi._
 import com.intellij.psi.util.MethodSignatureUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, TypeParameterExt}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -65,14 +67,21 @@ case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], low
     val state = Seq(name, typeParams, lowerBound, upperBound, isDefinition)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
+
+  def getType = ta match {
+    case definition: ScTypeAliasDefinition => definition.aliasedType.toOption
+    case _ => None
+  }
 }
 
 class Signature(val name: String, private val typesEval: List[Seq[() => ScType]], val paramLength: List[Int],
                 private val tParams: Array[TypeParameter], val substitutor: ScSubstitutor,
-                val namedElement: PsiNamedElement, val hasRepeatedParam: Seq[Int] = Seq.empty) {
+                val namedElement: PsiNamedElement, val hasRepeatedParam: Seq[Int] = Seq.empty)
+               (implicit val typeSystem: TypeSystem) {
 
   def this(name: String, stream: Seq[() => ScType], paramLength: Int, substitutor: ScSubstitutor,
-           namedElement: PsiNamedElement) =
+           namedElement: PsiNamedElement)
+          (implicit typeSystem: TypeSystem) =
     this(name, List(stream), List(paramLength), Array.empty, substitutor, namedElement)
 
   private def types: List[Seq[() => ScType]] = typesEval
@@ -131,12 +140,12 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
         val t2 = otherTypesIterator.next()
         val tp2 = unified2.subst(t2())
         val tp1 = unified1.subst(t1())
-        var t = Equivalence.equivInner(tp2, tp1, undefSubst, falseUndef)
-        if (!t._1 && tp1.equiv(AnyRef) && this.isJava) {
-          t = Equivalence.equivInner(tp2, Any, undefSubst, falseUndef)
+        var t = tp2.equiv(tp1, undefSubst, falseUndef)
+        if (!t._1 && tp1.equiv(api.AnyRef) && this.isJava) {
+          t = tp2.equiv(Any, undefSubst, falseUndef)
         }
-        if (!t._1 && tp2.equiv(AnyRef) && other.isJava) {
-          t = Equivalence.equivInner(Any, tp1, undefSubst, falseUndef)
+        if (!t._1 && tp2.equiv(api.AnyRef) && other.isJava) {
+          t = Any.equiv(tp1, undefSubst, falseUndef)
         }
         if (!t._1) {
           return (false, undefSubst)
@@ -190,6 +199,32 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
 }
 
 object Signature {
+  def apply(function: ScFunction)(implicit typeSystem: TypeSystem) = new Signature(
+    function.name,
+    PhysicalSignature.typesEval(function),
+    PhysicalSignature.paramLength(function),
+    TypeParameter.fromArray(function.getTypeParameters),
+    ScSubstitutor.empty,
+    function,
+    PhysicalSignature.hasRepeatedParam(function)
+  )
+
+  def getter(definition: ScTypedDefinition)(implicit typeSystem: TypeSystem) = new Signature(
+    definition.name,
+    Seq.empty,
+    0,
+    ScSubstitutor.empty,
+    definition
+  )
+
+  def setter(definition: ScTypedDefinition)(implicit typeSystem: TypeSystem) = new Signature(
+    s"$definition.name_=",
+    Seq(() => definition.getType().getOrAny),
+    1,
+    ScSubstitutor.empty,
+    definition
+  )
+
   def unify(subst: ScSubstitutor, tps1: Array[TypeParameter], tps2: Array[TypeParameter]) = {
     var res = subst
     val iterator1 = tps1.iterator
@@ -197,7 +232,7 @@ object Signature {
     while (iterator1.hasNext && iterator2.hasNext) {
       val (tp1, tp2) = (iterator1.next(), iterator2.next())
 
-      res = res bindT ((tp2.name, ScalaPsiUtil.getPsiElementId(tp2.ptp)), ScTypeParameterType.toTypeParameterType(tp1))
+      res = res bindT(tp2.nameAndId, tp1.toType)
     }
     res
   }
@@ -231,10 +266,10 @@ object PhysicalSignature {
           if (params(i).isRepeatedParameter) res += i
           i += 1
         }
-        res.toSeq
+        res
       case p =>
         val parameters = p.getParameters
-        if (parameters.length == 0) return Seq.empty
+        if (parameters.isEmpty) return Seq.empty
         if (parameters(parameters.length - 1).isVarArgs) return Seq(parameters.length - 1)
         Seq.empty
     }
@@ -246,6 +281,7 @@ object PhysicalSignature {
 }
 
 class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
+                       (implicit override val typeSystem: TypeSystem)
         extends Signature(method.name, PhysicalSignature.typesEval(method), PhysicalSignature.paramLength(method),
           TypeParameter.fromArray(method.getTypeParameters), substitutor, method, PhysicalSignature.hasRepeatedParam(method)) {
   override def isJava = method.getLanguage == JavaFileType.INSTANCE.getLanguage

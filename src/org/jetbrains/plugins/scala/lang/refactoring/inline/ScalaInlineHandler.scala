@@ -23,14 +23,15 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScStableReferenceElementPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeElement, ScTypeElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScProjectionType, ScTypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.ScProjectionType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
@@ -176,7 +177,7 @@ class ScalaInlineHandler extends InlineHandler {
       typeAlias.aliasedTypeElement.depthFirst.forall {
         case t: ScTypeElement =>
           t.calcType match {
-            case part: ScTypeParameterType => false
+            case part: TypeParameterType => false
             case part: ScProjectionType if !ScalaPsiUtil.hasStablePath(part.element) =>
               false
             case _ => true
@@ -185,13 +186,13 @@ class ScalaInlineHandler extends InlineHandler {
       }
     }
 
-    def isParametrizedTypeAlias(typeAlias: ScTypeAliasDefinition): Boolean =
-      !typeAlias.typeParameters.isEmpty
+    def isParametrizedTypeAlias(typeAlias: ScTypeAliasDefinition) = typeAlias.typeParameters.nonEmpty
 
     UsageTrigger.trigger(ScalaBundle.message("inline.id"))
 
+    implicit val typeSystem = element.typeSystem
     element match {
-      case typedDef: ScTypedDefinition if ScFunctionType.unapply(typedDef.getType().getOrAny).exists(_._2.nonEmpty) =>
+      case typedDef: ScTypedDefinition if FunctionType.unapply(typedDef.getType().getOrAny).exists(_._2.nonEmpty) =>
         val message = typedDef match {
           case _: ScFunctionDeclaration | _: ScFunctionDefinition => ScalaBundle.message("cannot.inline.function.with.parameters")
           case _ => ScalaBundle.message("cannot.inline.value.functional.type")

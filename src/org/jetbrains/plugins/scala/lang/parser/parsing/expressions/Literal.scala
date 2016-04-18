@@ -24,7 +24,13 @@ Literal ::= ['-']integerLiteral
             | null
             | javaId"StringLiteral" 
 */
-object Literal {
+object Literal extends Literal {
+  override protected val commonUtils = CommonUtils
+}
+
+trait Literal {
+  protected val commonUtils: CommonUtils
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
     builder.getTokenType match {
@@ -49,7 +55,7 @@ object Literal {
           false
         }
       case ScalaTokenTypes.tINTERPOLATED_STRING_ID =>
-        CommonUtils.parseInterpolatedString(builder, isPattern = false)
+        commonUtils.parseInterpolatedString(builder, isPattern = false)
         marker.done(ScalaElementTypes.INTERPOLATED_STRING_LITERAL)
         true
       case ScalaTokenTypes.tINTERPOLATED_MULTILINE_STRING | ScalaTokenTypes.tINTERPOLATED_STRING =>

@@ -9,5 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
  * @since 26/09/14.
  */
 trait ScTypeVariableTypeElement extends ScTypeElement with ScNamedElement {
+  override protected val typeName = "TypeVariable"
+
   override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitTypeVariableTypeElement(this)
 }

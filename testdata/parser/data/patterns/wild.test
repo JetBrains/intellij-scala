@@ -50,7 +50,7 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(>:)('>:')
               PsiWhiteSpace(' ')
-              SimpleTypeElement: T
+              SimpleType: T
                 CodeReferenceElement: T
                   PsiElement(identifier)('T')
             PsiElement(])(']')
@@ -68,26 +68,26 @@ ScalaFile
                 ParameterType
                   PsiElement(=>)('=>')
                   PsiWhiteSpace(' ')
-                  ParametrizedTypeElement: Parser[U]
-                    SimpleTypeElement: Parser
+                  ParametrizedType: Parser[U]
+                    SimpleType: Parser
                       CodeReferenceElement: Parser
                         PsiElement(identifier)('Parser')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleTypeElement: U
+                      SimpleType: U
                         CodeReferenceElement: U
                           PsiElement(identifier)('U')
                       PsiElement(])(']')
               PsiElement())(')')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          ParametrizedTypeElement: Parser[U]
-            SimpleTypeElement: Parser
+          ParametrizedType: Parser[U]
+            SimpleType: Parser
               CodeReferenceElement: Parser
                 PsiElement(identifier)('Parser')
             TypeArgumentsList
               PsiElement([)('[')
-              SimpleTypeElement: U
+              SimpleType: U
                 CodeReferenceElement: U
                   PsiElement(identifier)('U')
               PsiElement(])(']')
@@ -100,13 +100,13 @@ ScalaFile
             ExtendsBlock
               ClassParents
                 Constructor
-                  ParametrizedTypeElement: Parser[U]
-                    SimpleTypeElement: Parser
+                  ParametrizedType: Parser[U]
+                    SimpleType: Parser
                       CodeReferenceElement: Parser
                         PsiElement(identifier)('Parser')
                     TypeArgumentsList
                       PsiElement([)('[')
-                      SimpleTypeElement: U
+                      SimpleType: U
                         CodeReferenceElement: U
                           PsiElement(identifier)('U')
                       PsiElement(])(']')
@@ -134,7 +134,7 @@ ScalaFile
                         PsiElement(:)(':')
                         PsiWhiteSpace(' ')
                         ParameterType
-                          SimpleTypeElement: Input
+                          SimpleType: Input
                             CodeReferenceElement: Input
                               PsiElement(identifier)('Input')
                       PsiElement())(')')

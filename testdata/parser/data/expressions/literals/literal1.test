@@ -32,7 +32,7 @@ ScalaFile
             PsiElement(identifier)('asInstanceOf')
           TypeArgumentsList
             PsiElement([)('[')
-            SimpleTypeElement: T
+            SimpleType: T
               CodeReferenceElement: T
                 PsiElement(identifier)('T')
             PsiElement(])(']')

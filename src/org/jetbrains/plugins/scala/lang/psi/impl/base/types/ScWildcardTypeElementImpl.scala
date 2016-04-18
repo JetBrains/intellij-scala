@@ -18,10 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExis
 */
 
 class ScWildcardTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeBoundsOwnerImpl with ScWildcardTypeElement {
-  override def toString: String = "WildcardType: " + getText
-
   protected def innerType(ctx: TypingContext) = {
-
     for {
       lb <- lowerBound
       ub <- upperBound

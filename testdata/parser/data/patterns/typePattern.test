@@ -27,8 +27,8 @@ ScalaFile
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
           TypePattern
-            ParametrizedTypeElement: Tuple2[a, b]
-              SimpleTypeElement: Tuple2
+            ParametrizedType: Tuple2[a, b]
+              SimpleType: Tuple2
                 CodeReferenceElement: Tuple2
                   PsiElement(identifier)('Tuple2')
               TypeArgumentsList

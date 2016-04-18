@@ -8,24 +8,24 @@ package types
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference, ScUnderScoreSectionUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, ScalaElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.types
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, Nothing, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithRecursionGuard, ModCount}
 
@@ -37,22 +37,6 @@ import scala.collection.immutable.HashMap
  */
 
 class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleTypeElement {
-  override def toString: String = "SimpleTypeElement: " + getText
-
-  def singleton = getNode.findChildByType(ScalaTokenTypes.kTYPE) != null
-
-  def findConstructor: Option[ScConstructor] = {
-    getContext match {
-      case constr: ScConstructor => Some(constr)
-      case param: ScParameterizedTypeElement =>
-        param.getContext match {
-          case constr: ScConstructor => Some(constr)
-          case _ => None
-        }
-      case _ => None
-    }
-  }
-
   protected def innerType(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true)
 
   override def getTypeNoConstructor(ctx: TypingContext): TypeResult[ScType] = innerNonValueType(ctx, inferValueType = true, noConstructor = true)
@@ -65,21 +49,16 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
   private def innerNonValueType(ctx: TypingContext, inferValueType: Boolean, noConstructor: Boolean = false, withUnnecessaryImplicitsUpdate: Boolean = false): TypeResult[ScType] = {
     ProgressManager.checkCanceled()
-    val lift: (ScType) => Success[ScType] = Success(_, Some(this))
 
     def parametrise(tp: ScType, clazz: PsiClass, subst: ScSubstitutor): ScType = {
       if (clazz.getTypeParameters.isEmpty) {
         tp
       } else {
-        ScParameterizedType(tp, clazz.getTypeParameters.map {
-          case tp: ScTypeParam => new ScTypeParameterType(tp, subst)
-          case ptp             => new ScTypeParameterType(ptp, subst)
-        })
+        ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_, subst)))
       }
     }
 
     def getConstructorParams(constr: PsiMethod, subst: ScSubstitutor): (Seq[Seq[Parameter]], Boolean) = {
-
       constr match {
         case fun: ScFunction =>
           (fun.effectiveParameterClauses.map(_.effectiveParameters.map { p =>
@@ -127,8 +106,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               val params = method.getConstructorTypeParameters.map(_.typeParameters).getOrElse(Seq.empty)
               val subst = new ScSubstitutor(s.typeParameters.zip(params).map {
                 case (tpClass: ScTypeParam, tpConstr: ScTypeParam) =>
-                  ((tpClass.name, ScalaPsiUtil.getPsiElementId(tpClass)),
-                    new ScTypeParameterType(tpConstr, ScSubstitutor.empty))
+                  (tpClass.nameAndId, TypeParameterType(tpConstr))
               }.toMap, Map.empty, None)
               (params, subst)
             case _ => (Seq.empty, ScSubstitutor.empty)
@@ -138,10 +116,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       val subst = _subst followed constrSubst
       val tp = parentElement match {
         case ta: ScTypeAliasDefinition =>
-          ta.aliasedType.getOrElse(return types.Nothing)
+          ta.aliasedType.getOrElse(return Nothing)
         case _ =>
-          parametrise(ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = false).
-            getOrElse(return types.Nothing), clazz, subst)
+          parametrise(calculateReferenceType(ref).
+            getOrElse(return Nothing), clazz, subst)
       }
       val res = subst.subst(tp)
 
@@ -164,7 +142,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
           val appSubst = new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ zipped.map{
             case (arg, typeParam) =>
-              ((typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)), arg.getType(TypingContext.empty).getOrAny)
+              (typeParam.nameAndId, arg.getType(TypingContext.empty).getOrAny)
           }, Map.empty, None)
           val newRes = appSubst.subst(res)
           updateImplicits(newRes, withExpected = false, params = params, lastImplicit = lastImplicit)
@@ -205,7 +183,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                   updateRes(expected)
                 } else {
                   expected match {
-                    case ScFunctionType(retType, _) => updateRes(retType)
+                    case FunctionType(retType, _) => updateRes(retType)
                     case _ => //do not update res, we haven't expected type
                   }
                 }
@@ -254,10 +232,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                                     p: ScParameterizedTypeElement): (ScType, ScSubstitutor) = {
           val tp = elem match {
             case ta: ScTypeAliasDefinition =>
-              ta.aliasedType.getOrElse(return (types.Nothing, ScSubstitutor.empty))
+              ta.aliasedType.getOrElse(return (Nothing, ScSubstitutor.empty))
             case clazz: PsiClass =>
-              parametrise(ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = false).
-                getOrElse(return (types.Nothing, ScSubstitutor.empty)), clazz, subst)
+              parametrise(calculateReferenceType(ref).
+                getOrElse(return (Nothing, ScSubstitutor.empty)), clazz, subst)
           }
           val res = subst.subst(tp)
           val typeParameters: Seq[TypeParameter] = elem match {
@@ -271,7 +249,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           val zipped = p.typeArgList.typeArgs.zip(typeParameters)
           val appSubst = new ScSubstitutor(new HashMap[(String, PsiElement), ScType] ++ zipped.map {
             case (arg, typeParam) =>
-              ((typeParam.name, ScalaPsiUtil.getPsiElementId(typeParam.ptp)), arg.getType(TypingContext.empty).getOrAny)
+              (typeParam.nameAndId, arg.getType(TypingContext.empty).getOrAny)
           }, Map.empty, None)
           (appSubst.subst(res), appSubst)
         }
@@ -294,20 +272,20 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
         ref.resolveNoConstructor match {
           case Array(ScalaResolveResult(tp: PsiTypeParameter, _)) =>
-            lift(ScalaPsiManager.typeVariable(tp))
+            this.success(ScalaPsiManager.typeVariable(tp))
           case Array(ScalaResolveResult(tvar: ScTypeVariableTypeElement, _)) =>
-            lift(tvar.getType(TypingContext.empty).getOrAny)
+            this.success(tvar.getType().getOrAny)
           case Array(ScalaResolveResult(synth: ScSyntheticClass, _)) =>
-            lift(synth.t)
+            this.success(synth.t)
           case Array(ScalaResolveResult(to: ScTypeParametersOwner, subst: ScSubstitutor))
             if constrRef && to.isInstanceOf[PsiNamedElement] &&
               (to.typeParameters.isEmpty || getContext.isInstanceOf[ScParameterizedTypeElement]) =>
             val (tp, ss) = getContext match {
               case p: ScParameterizedTypeElement if !to.isInstanceOf[ScTypeAliasDeclaration] =>
                 val (parameterized, ss) = updateForParameterized(subst, to.asInstanceOf[PsiNamedElement], p)
-                (Success(parameterized, Some(this)), ss)
+                (this.success(parameterized), ss)
               case _ =>
-                (ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = false), ScSubstitutor.empty)
+                (calculateReferenceType(ref), ScSubstitutor.empty)
             }
             updateImplicitsWithoutLocalTypeInference(tp, ss)
           case Array(ScalaResolveResult(to: PsiTypeParameterListOwner, subst: ScSubstitutor))
@@ -316,22 +294,26 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             val (result, ss) = getContext match {
               case p: ScParameterizedTypeElement if !to.isInstanceOf[ScTypeAliasDeclaration] =>
                 val (parameterized, ss) = updateForParameterized(subst, to.asInstanceOf[PsiNamedElement], p)
-                (Success(parameterized, Some(this)), ss)
+                (this.success(parameterized), ss)
               case _ =>
-                (ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = false), ScSubstitutor.empty)
+                (calculateReferenceType(ref), ScSubstitutor.empty)
             }
             updateImplicitsWithoutLocalTypeInference(result, ss)
           case _ => //resolve constructor with local type inference
             ref.bind() match {
               case Some(r@ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) if !noConstructor =>
-                Success(typeForConstructor(ref, method, subst, r.getActualElement), Some(this))
+                this.success(typeForConstructor(ref, method, subst, r.getActualElement))
               case Some(r@ScalaResolveResult(ta: ScTypeAlias, subst: ScSubstitutor)) if ta.isExistentialTypeAlias =>
-                Success(ScExistentialArgument(ta.name, ta.typeParameters.map { tp => ScalaPsiManager.typeVariable(tp) }.toList,
-                  ta.lowerBound.getOrNothing, ta.upperBound.getOrAny), Some(this))
-              case _ => ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = false)
+                this.success(ScExistentialArgument(ta.name, ta.typeParameters.map(ScalaPsiManager.typeVariable(_)).toList,
+                  ta.lowerBound.getOrNothing, ta.upperBound.getOrAny))
+              case _ => calculateReferenceType(ref, shapesOnly = false)
             }
         }
-      case None => ScSimpleTypeElementImpl.calculateReferenceType(pathElement, shapesOnly = false)
+      case None => pathElement match {
+        case ref: ScStableCodeReferenceElement => calculateReferenceType(ref)
+        case thisRef: ScThisReference => fromThisReference(thisRef, ScThisType)()
+        case superRef: ScSuperReference => fromSuperReference(superRef, ScThisType)()
+      }
     }
   }
 
@@ -349,24 +331,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
 object ScSimpleTypeElementImpl {
 
-  def calculateReferenceType(path: ScPathElement, shapesOnly: Boolean): TypeResult[ScType] = {
-    path match {
-      case ref: ScStableCodeReferenceElement => calculateReferenceType(ref, shapesOnly)
-      case thisRef: ScThisReference =>
-        thisRef.refTemplate match {
-          case Some(template) =>
-            Success(ScThisType(template), Some(path))
-          case _ => Failure("Cannot find template for this reference", Some(thisRef))
-        }
-      case superRef: ScSuperReference =>
-        val template = superRef.drvTemplate.getOrElse(
-            return Failure("Cannot find enclosing container", Some(superRef))
-          )
-        Success(ScThisType(template), Some(path))
-    }
-  }
-
-  def calculateReferenceType(ref: ScStableCodeReferenceElement, shapesOnly: Boolean): TypeResult[ScType] = {
+  def calculateReferenceType(ref: ScStableCodeReferenceElement, shapesOnly: Boolean = false): TypeResult[ScType] = {
     val (resolvedElement, fromType) = (if (!shapesOnly) {
       if (ref.isConstructorReference) {
         ref.resolveNoConstructor match {
@@ -390,54 +355,74 @@ object ScSimpleTypeElementImpl {
       case Some(r@ScalaResolveResult(n: PsiNamedElement, _)) => (n, r.fromType)
       case _ => return Failure("Cannot resolve reference", Some(ref))
     }
+
+    def makeProjection(`type`: ScType, superReference: Boolean = false) =
+      ScProjectionType(`type`, resolvedElement, superReference = superReference)
+
     ref.qualifier match {
-      case Some(qual) =>
-        qual.resolve() match {
+      case Some(qualifier) =>
+        val result = qualifier.resolve() match {
           case pack: PsiPackage =>
-            val obj = PsiTreeUtil.getContextOfType(resolvedElement, classOf[ScObject])
-            if (obj != null && obj.isPackageObject) {
-              Success(ScProjectionType(ScDesignatorType(obj), resolvedElement,
-                superReference = false), Some(ref))
-            } else {
-              fromType match {
-                case Some(ScDesignatorType(obj: ScObject)) if obj.isPackageObject =>
-                  Success(ScProjectionType(ScDesignatorType(obj), resolvedElement,
-                    superReference = false), Some(ref))
-                case _ =>
-                  Success(ScType.designator(resolvedElement), Some(ref))
+            Option(getContextOfType(resolvedElement, classOf[ScObject])) match {
+              case Some(obj) if obj.isPackageObject =>
+                makeProjection(ScDesignatorType(obj))
+              case _ => fromType match {
+                case Some(designator@ScDesignatorType(obj: ScObject)) if obj.isPackageObject =>
+                  makeProjection(designator)
+                case _ => ScalaType.designator(resolvedElement)
               }
             }
           case _ =>
-            calculateReferenceType(qual, shapesOnly) match {
-              case failure: Failure => failure
-              case Success(tp, _) =>
-                Success(ScProjectionType(tp, resolvedElement, superReference = false), Some(ref))
+            calculateReferenceType(qualifier, shapesOnly) match {
+              case Success(tp, _) => makeProjection(tp)
+              case failure: Failure => return failure
             }
         }
-      case None =>
+        Success(result, Some(ref))
+      case _ =>
         ref.pathQualifier match {
           case Some(thisRef: ScThisReference) =>
-            thisRef.refTemplate match {
-              case Some(template) =>
-                Success(ScProjectionType(ScThisType(template), resolvedElement, superReference = false), Some(ref))
-              case _ => Failure("Cannot find template for this reference", Some(thisRef))
-            }
+            fromThisReference(thisRef, template => makeProjection(ScThisType(template)))(ref)
           case Some(superRef: ScSuperReference) =>
-            val template = superRef.drvTemplate match {
-              case Some(x) => x
-              case None => return Failure("Cannot find enclosing container", Some(superRef))
-            }
-            Success(ScProjectionType(ScThisType(template), resolvedElement, resolvedElement.isInstanceOf[PsiClass]), Some(ref))
+            fromSuperReference(superRef, template => makeProjection(ScThisType(template), resolvedElement.isInstanceOf[PsiClass]))(ref)
           case _ =>
-            resolvedElement match {
+            val result = resolvedElement match {
               case self: ScSelfTypeElement =>
-                val td = PsiTreeUtil.getContextOfType(self, true, classOf[ScTemplateDefinition])
-                Success(ScThisType(td), Some(ref))
-              case _ =>
-                if (fromType.isEmpty) return Success(ScType.designator(resolvedElement), Some(ref))
-                Success(ScProjectionType(fromType.get, resolvedElement, superReference = false), Some(ref))
+                ScThisType(getContextOfType(self, classOf[ScTemplateDefinition]))
+              case _ => fromType match {
+                case Some(tp) => makeProjection(tp)
+                case _ => ScalaType.designator(resolvedElement)
+              }
             }
+            Success(result, Some(ref))
         }
     }
   }
+
+  private def fromTemplate(maybeTemplate: Option[ScTemplateDefinition],
+                           message: String,
+                           path: ScPathElement,
+                           function: ScTemplateDefinition => ScType) = {
+    val element = Some(path)
+    maybeTemplate match {
+      case Some(template) => Success(function(template), element)
+      case _ => Failure(message, element)
+    }
+  }
+
+  private def fromThisReference(thisReference: ScThisReference,
+                                function: ScTemplateDefinition => ScType)
+                               (path: ScPathElement = thisReference) =
+    fromTemplate(thisReference.refTemplate,
+      "Cannot find template for this reference",
+      path,
+      function)
+
+  private def fromSuperReference(superReference: ScSuperReference,
+                                 function: ScTemplateDefinition => ScType)
+                                (path: ScPathElement = superReference) =
+    fromTemplate(superReference.drvTemplate,
+      "Cannot find enclosing container",
+      path,
+      function)
 }

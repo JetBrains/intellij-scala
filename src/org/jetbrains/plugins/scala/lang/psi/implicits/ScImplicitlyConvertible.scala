@@ -13,16 +13,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, Parameter}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
@@ -34,11 +35,13 @@ import scala.collection.{Set, mutable}
 
 /**
  * Utility class for implicit conversions.
- * @author alefas, ilyas
+  *
+  * @author alefas, ilyas
  */
 //todo: refactor this terrible code
-class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[ScType]) {
-  def this(expr: ScExpression) {
+class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[ScType])
+                             (implicit val typeSystem: TypeSystem) {
+  def this(expr: ScExpression)(implicit typeSystem: TypeSystem) {
     this(expr, fromUnder => {
       //this code is required, because compiler works in the same way
       //otherwise we will see strange error messages like:
@@ -47,7 +50,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
       // foo(Map(y -> 1)) //Error is here
       expr.getTypeWithoutImplicits(fromUnderscore = fromUnder).toOption.map {
         case tp =>
-          ScType.extractDesignatorSingletonType(tp) match {
+          ScalaType.extractDesignatorSingletonType(tp) match {
             case Some(res) => res
             case _ => tp
           }
@@ -110,8 +113,8 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
       val processor = new CollectImplicitsProcessor(true)
       val expandedType: ScType = exp match {
         case Some(expected) =>
-          ScFunctionType(expected, Seq(typez) ++ args)(place.getProject, place.getResolveScope)
-        case None if args.nonEmpty => ScTupleType(Seq(typez) ++ args)(place.getProject, place.getResolveScope)
+          FunctionType(expected, Seq(typez) ++ args)(place.getProject, place.getResolveScope)
+        case None if args.nonEmpty => TupleType(Seq(typez) ++ args)(place.getProject, place.getResolveScope)
         case None => typez
       }
       for (obj <- ScalaPsiUtil.collectImplicitObjects(expandedType, place.getProject, place.getResolveScope)) {
@@ -131,7 +134,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
             case Some(substitutor) =>
               exp match {
                 case Some(expected) =>
-                  val additionalUSubst = Conformance.undefinedSubst(expected, newSubst.subst(retTp))
+                  val additionalUSubst = newSubst.subst(retTp).conforms(expected, new ScUndefinedSubstitutor())._2
                   (uSubst + additionalUSubst).getSubstitutor match {
                     case Some(innerSubst) =>
                       result += ImplicitResolveResult(innerSubst.subst(retTp), r.element, r.importsUsed, r.substitutor,
@@ -177,8 +180,8 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
     treeWalkUp(place, null)
 
     val result = new ArrayBuffer[ImplicitMapResult]
-    if (typez == types.Nothing) return result
-    if (typez.isInstanceOf[ScUndefinedType]) return result
+    if (typez == Nothing) return result
+    if (typez.isInstanceOf[UndefinedType]) return result
 
     val sigsFound = processor.candidatesS.map(forMap(_, typez))
 
@@ -202,17 +205,17 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
           "scala.Function1", place.getResolveScope, ScalaPsiManager.ClassCategory.TYPE
         )
       ) collect {
-        case cl: ScTrait => ScParameterizedType(ScType.designator(cl), cl.typeParameters.map(tp =>
-          new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty), 1)))
+        case cl: ScTrait => ScParameterizedType(ScalaType.designator(cl), cl.typeParameters.map(tp =>
+          UndefinedType(TypeParameterType(tp), 1)))
       } flatMap {
         case p: ScParameterizedType => Some(p)
         case _ => None
       }
 
-      def firstArgType = funType.map(_.typeArgs.head)
-      
-      def secondArgType = funType.map(_.typeArgs.apply(1))
-      
+      def firstArgType = funType.map(_.typeArguments.head)
+
+      def secondArgType = funType.map(_.typeArguments.apply(1))
+
       val subst = r.substitutor
       val (tp: ScType, retTp: ScType) = r.element match {
         case f: ScFunction if f.paramClauses.clauses.nonEmpty =>
@@ -220,27 +223,29 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
           (subst.subst(params.head.getType(TypingContext.empty).getOrNothing),
            subst.subst(f.returnType.getOrNothing))
         case f: ScFunction =>
-          Conformance.undefinedSubst(funType.getOrElse(return default), subst.subst(f.returnType.getOrElse(return default))).getSubstitutor match {
+          subst.subst(f.returnType.getOrElse(return default)).conforms(funType.getOrElse(return default), new ScUndefinedSubstitutor())
+            ._2.getSubstitutor match {
             case Some(innerSubst) => (innerSubst.subst(firstArgType.getOrElse(return default)), innerSubst.subst(secondArgType.getOrElse(return default)))
-            case _ => (types.Nothing, types.Nothing)
+            case _ => (api.Nothing, api.Nothing)
           }
         case b: ScBindingPattern =>
-          Conformance.undefinedSubst(funType.getOrElse(return default), subst.subst(b.getType(TypingContext.empty).getOrElse(return default))).getSubstitutor match {
+          subst.subst(b.getType(TypingContext.empty).getOrElse(return default)).conforms(funType.getOrElse(return default), new ScUndefinedSubstitutor())
+            ._2.getSubstitutor match {
             case Some(innerSubst) => (innerSubst.subst(firstArgType.getOrElse(return default)), innerSubst.subst(secondArgType.getOrElse(return default)))
-            case _ => (types.Nothing, types.Nothing)
+            case _ => (api.Nothing, api.Nothing)
           }
         case param: ScParameter =>
           // View Bounds and Context Bounds are processed as parameters.
-          Conformance.undefinedSubst(funType.getOrElse(return default), subst.subst(param.getType(TypingContext.empty).getOrElse(return default))).
-                  getSubstitutor match {
+          subst.subst(param.getType(TypingContext.empty).getOrElse(return default)).conforms(funType.getOrElse(return default), new ScUndefinedSubstitutor())
+            ._2.getSubstitutor match {
             case Some(innerSubst) => (innerSubst.subst(firstArgType.getOrElse(return default)), innerSubst.subst(secondArgType.getOrElse(return default)))
-            case _ => (types.Nothing, types.Nothing)
+            case _ => (api.Nothing, api.Nothing)
           }
         case obj: ScObject =>
-          Conformance.undefinedSubst(funType.getOrElse(return default), subst.subst(obj.getType(TypingContext.empty).getOrElse(return default))).
-                  getSubstitutor match {
+          subst.subst(obj.getType(TypingContext.empty).getOrElse(return default)).conforms(funType.getOrElse(return default), new ScUndefinedSubstitutor())
+            ._2.getSubstitutor match {
             case Some(innerSubst) => (innerSubst.subst(firstArgType.getOrElse(return default)), innerSubst.subst(secondArgType.getOrElse(return default)))
-            case _ => (types.Nothing, types.Nothing)
+            case _ => (api.Nothing, api.Nothing)
           }
       }
       val newSubst = r.element match {
@@ -254,15 +259,15 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
       } else {
         r.element match {
           case f: ScFunction if f.hasTypeParameters =>
-            var uSubst = Conformance.undefinedSubst(newSubst.subst(tp), typez)
+            var uSubst = typez.conforms(newSubst.subst(tp), new ScUndefinedSubstitutor())._2
             uSubst.getSubstitutor(notNonable = false) match {
               case Some(unSubst) =>
                 def hasRecursiveTypeParameters(typez: ScType): Boolean = {
 
                   var hasRecursiveTypeParameters = false
                   typez.recursiveUpdate {
-                    case tpt: ScTypeParameterType =>
-                      f.typeParameters.find(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp)) == (tpt.name, tpt.getId)) match {
+                    case tpt: TypeParameterType =>
+                      f.typeParameters.find(_.nameAndId == tpt.nameAndId) match {
                         case None => (true, tpt)
                         case _ =>
                           hasRecursiveTypeParameters = true
@@ -274,17 +279,17 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                 }
                 for (tParam <- f.typeParameters) {
                   val lowerType: ScType = tParam.lowerBound.getOrNothing
-                  if (lowerType != types.Nothing) {
+                  if (lowerType != api.Nothing) {
                     val substedLower = unSubst.subst(subst.subst(lowerType))
                     if (!hasRecursiveTypeParameters(substedLower)) {
-                      uSubst = uSubst.addLower((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedLower, additional = true)
+                      uSubst = uSubst.addLower(tParam.nameAndId, substedLower, additional = true)
                     }
                   }
                   val upperType: ScType = tParam.upperBound.getOrAny
-                  if (upperType != types.Any) {
+                  if (upperType != Any) {
                     val substedUpper = unSubst.subst(subst.subst(upperType))
                     if (!hasRecursiveTypeParameters(substedUpper)) {
-                      uSubst = uSubst.addUpper((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedUpper, additional = true)
+                      uSubst = uSubst.addUpper(tParam.nameAndId, substedUpper, additional = true)
                     }
                   }
                 }
@@ -354,13 +359,14 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
   }
 
 
-  class CollectImplicitsProcessor(withoutPrecedence: Boolean) extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
+  class CollectImplicitsProcessor(withoutPrecedence: Boolean)(implicit override val typeSystem: TypeSystem)
+    extends ImplicitProcessor(StdKinds.refExprLastRef, withoutPrecedence) {
     //can be null (in Unit tests or without library)
     private val funType: ScType = {
       val funClass: PsiClass = ScalaPsiManager.instance(place.getProject).getCachedClass(place.getResolveScope, "scala.Function1").orNull
       funClass match {
-        case cl: ScTrait => ScParameterizedType(ScType.designator(funClass), cl.typeParameters.map(tp =>
-          new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty))))
+        case cl: ScTrait => ScParameterizedType(ScalaType.designator(funClass), cl.typeParameters.map(tp =>
+          UndefinedType(TypeParameterType(tp))))
         case _ => null
       }
     }
@@ -395,7 +401,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                 } {
                   var hasTypeParametersInType = false
                   paramType.recursiveUpdate {
-                    case tp@ScTypeParameterType(name, _, _, _, _) if typeParameters.contains(name) =>
+                    case tp@TypeParameterType(name, _, _, _, _) if typeParameters.contains(name) =>
                       hasTypeParametersInType = true
                       (true, tp)
                     case tp: ScType if hasTypeParametersInType => (true, tp)

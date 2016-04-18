@@ -20,7 +20,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * Nikolay.Tropin
@@ -30,7 +32,8 @@ class ScalaGenerateEqualsHandler extends LanguageCodeInsightActionHandler {
   private val myEqualsFields = collection.mutable.LinkedHashSet[ScNamedElement]()
   private val myHashCodeFields = collection.mutable.LinkedHashSet[ScNamedElement]()
 
-  def chooseOriginalMembers(aClass: ScClass, project: Project, editor: Editor): Boolean = {
+  def chooseOriginalMembers(aClass: ScClass, project: Project, editor: Editor)
+                           (implicit typeSystem: TypeSystem): Boolean = {
     val equalsMethod = hasEquals(aClass)
     val hashCodeMethod = hasHashCode(aClass)
     var needEquals = equalsMethod.isEmpty
@@ -86,7 +89,8 @@ class ScalaGenerateEqualsHandler extends LanguageCodeInsightActionHandler {
     myHashCodeFields.clear()
   }
 
-  protected def createHashCode(aClass: ScClass): ScFunction = {
+  protected def createHashCode(aClass: ScClass)
+                              (implicit typeSystem: TypeSystem): ScFunction = {
     val declText = "def hashCode(): Int"
     val signature = new PhysicalSignature(
       ScalaPsiElementFactory.createMethodWithContext(declText + " = 0", aClass, aClass.extendsBlock),
@@ -105,7 +109,8 @@ class ScalaGenerateEqualsHandler extends LanguageCodeInsightActionHandler {
     ScalaPsiElementFactory.createMethodWithContext(methodText, aClass, aClass.extendsBlock)
   }
 
-  protected def createCanEqual(aClass: ScClass, project: Project): ScFunction = {
+  protected def createCanEqual(aClass: ScClass, project: Project)
+                              (implicit typeSystem: TypeSystem): ScFunction = {
     val declText = "def canEqual(other: Any): Boolean"
     val sign = new PhysicalSignature(
       ScalaPsiElementFactory.createMethodWithContext(declText + " = true", aClass, aClass.extendsBlock),
@@ -115,7 +120,8 @@ class ScalaGenerateEqualsHandler extends LanguageCodeInsightActionHandler {
     ScalaPsiElementFactory.createMethodWithContext(text, aClass, aClass.extendsBlock)
   }
 
-  protected def createEquals(aClass: ScClass, project: Project): ScFunction = {
+  protected def createEquals(aClass: ScClass, project: Project)
+                            (implicit typeSystem: TypeSystem): ScFunction = {
     val fieldComparisons = myEqualsFields.map(_.name).map(name => s"$name == that.$name")
     val declText = "def equals(other: Any): Boolean"
     val signature = new PhysicalSignature(
@@ -140,6 +146,7 @@ class ScalaGenerateEqualsHandler extends LanguageCodeInsightActionHandler {
     if (!FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) return
 
     try {
+      implicit val typeSystem = project.typeSystem
       val aClass = GenerationUtil.classAtCaret(editor, file).getOrElse(return)
       val isOk = chooseOriginalMembers(aClass, project, editor)
       if (!isOk) return
@@ -176,22 +183,23 @@ class ScalaGenerateEqualsHandler extends LanguageCodeInsightActionHandler {
     file != null && ScalaFileType.SCALA_FILE_TYPE == file.getFileType && isSuitableClass
   }
 
-  private def hasEquals(aClass: ScClass): Option[ScFunction] = {
+  private def hasEquals(aClass: ScClass)(implicit typeSystem: api.TypeSystem): Option[ScFunction] = {
     val method = ScalaPsiElementFactory.createMethodFromText("def equals(that: Any): Boolean", aClass.getManager)
     findSuchMethod(aClass, "equals", method.methodType)
   }
 
-  private def hasHashCode(aClass: ScClass): Option[ScFunction] = {
+  private def hasHashCode(aClass: ScClass)(implicit typeSystem: api.TypeSystem): Option[ScFunction] = {
     val method = ScalaPsiElementFactory.createMethodFromText("def hashCode(): Int", aClass.getManager)
     findSuchMethod(aClass, "hashCode", method.methodType)
   }
 
-  private def hasCanEqual(aClass: ScClass): Option[ScFunction] = {
+  private def hasCanEqual(aClass: ScClass)(implicit typeSystem: api.TypeSystem): Option[ScFunction] = {
     val method = ScalaPsiElementFactory.createMethodFromText("def canEqual(that: Any): Boolean", aClass.getManager)
     findSuchMethod(aClass, "canEqual", method.methodType)
   }
 
-  private def findSuchMethod(aClass: ScClass, name: String, methodType: ScType): Option[ScFunction] = {
+  private def findSuchMethod(aClass: ScClass, name: String, methodType: ScType)
+                            (implicit typeSystem: api.TypeSystem): Option[ScFunction] = {
     aClass.functions
             .filter(_.name == name)
             .find(fun => fun.methodType(None) equiv methodType)

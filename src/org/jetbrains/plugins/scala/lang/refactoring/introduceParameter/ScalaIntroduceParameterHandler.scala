@@ -27,12 +27,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.{ReachingDefintionsCollector, VariableInfo}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScType, StdType, Any => scTypeAny, Unit => scTypeUnit}
+import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaMethodDescriptor, ScalaParameterInfo}
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler._
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{IntroduceException, showErrorHint}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaRefactoringUtil, ScalaVariableValidator}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -58,12 +60,13 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
     }
   }
 
-  def functionalArg(elems: Seq[PsiElement], input: Iterable[VariableInfo], method: ScMethodLike): (ScExpression, ScType) = {
+  def functionalArg(elems: Seq[PsiElement], input: Iterable[VariableInfo], method: ScMethodLike)
+                   (implicit typeSystem: TypeSystem): (ScExpression, ScType) = {
     val namesAndTypes = input.map { v =>
       val elem = v.element
       val typeText = elem match {
         case fun: ScFunction => fun.getType().getOrAny.canonicalText
-        case named => ScType.ofNamedElement(v.element).getOrElse(scTypeAny).canonicalText
+        case named => v.element.ofNamedElement().getOrElse(Any).canonicalText
       }
       s"${elem.name}: $typeText"
     }
@@ -97,7 +100,7 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
     }
 
     afterMethodChoosing(elems.head, editor) { methodLike =>
-      val data = collectData(exprWithTypes, elems, methodLike, editor)
+      val data = collectData(exprWithTypes, elems, methodLike, editor)(project.typeSystem)
 
       data.foreach { d =>
         val dialog = createDialog(project, d)
@@ -144,7 +147,8 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
   }
 
 
-  def collectData(exprWithTypes: ExprWithTypes, elems: Seq[PsiElement], methodLike: ScMethodLike, editor: Editor): Option[ScalaIntroduceParameterData] = {
+  def collectData(exprWithTypes: ExprWithTypes, elems: Seq[PsiElement], methodLike: ScMethodLike, editor: Editor)
+                 (implicit typeSystem: TypeSystem): Option[ScalaIntroduceParameterData] = {
     val project = methodLike.getProject
 
     val info = ReachingDefintionsCollector.collectVariableInfo(elems, methodLike)
@@ -154,8 +158,8 @@ class ScalaIntroduceParameterHandler extends RefactoringActionHandler with Dialo
         val (funExpr, funType) = functionalArg(elems, input, methodLike)
         val argClauseText = input.map(_.element.name).mkString("(", ", ", ")")
         val allTypes = funType match {
-          case ScFunctionType(retType, _) => Array(funType, retType, StdType.ANY)
-          case _ => Array(funType, StdType.ANY)
+          case FunctionType(retType, _) => Array(funType, retType, Any)
+          case _ => Array(funType, Any)
         }
         (allTypes, funExpr.getText, argClauseText)
       }

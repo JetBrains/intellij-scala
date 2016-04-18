@@ -26,13 +26,13 @@ ScalaFile
             PsiElement(:)(':')
             PsiWhiteSpace(' ')
             ParameterType
-              ParametrizedTypeElement: c[d]
-                SimpleTypeElement: c
+              ParametrizedType: c[d]
+                SimpleType: c
                   CodeReferenceElement: c
                     PsiElement(identifier)('c')
                 TypeArgumentsList
                   PsiElement([)('[')
-                  SimpleTypeElement: d
+                  SimpleType: d
                     CodeReferenceElement: d
                       PsiElement(identifier)('d')
                   PsiElement(])(']')

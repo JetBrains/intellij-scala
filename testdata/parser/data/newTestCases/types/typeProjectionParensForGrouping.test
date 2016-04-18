@@ -62,7 +62,7 @@ ScalaFile
           TypeProjection: (A)#X
             TypeInParenthesis: (A)
               PsiElement(()('(')
-              SimpleTypeElement: A
+              SimpleType: A
                 CodeReferenceElement: A
                   PsiElement(identifier)('A')
               PsiElement())(')')

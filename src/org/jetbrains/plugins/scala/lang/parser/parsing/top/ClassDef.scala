@@ -19,8 +19,19 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClau
 /*
  * ClassDef ::= id [TypeParamClause] {Annotation} [AcessModifier] [ClassParamClauses] ClassTemplateOpt
  */
+object ClassDef extends ClassDef {
+  override protected val classParamClauses = ClassParamClauses
+  override protected val classTemplateOpt = ClassTemplateOpt
+  override protected val annotation = Annotation
+  override protected val typeParamClause = TypeParamClause
+}
 
-object ClassDef {
+trait ClassDef {
+  protected val classParamClauses: ClassParamClauses
+  protected val classTemplateOpt: ClassTemplateOpt
+  protected val annotation: Annotation
+  protected val typeParamClause: TypeParamClause
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER => builder.advanceLexer() //Ate identifier
@@ -31,13 +42,13 @@ object ClassDef {
     //parsing type parameters
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET =>
-        TypeParamClause parse builder
+        typeParamClause parse builder
       case _ => /*it could be without type parameters*/
     }
     val constructorMarker = builder.mark
     val annotationsMarker = builder.mark
     if (!builder.newlineBeforeCurrentToken) {
-      while (Annotation.parse(builder)) {}
+      while (annotation.parse(builder)) {}
     }
     annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
     val modifierMareker = builder.mark
@@ -52,10 +63,10 @@ object ClassDef {
       }
     }
     modifierMareker.done(ScalaElementTypes.MODIFIERS)
-    ClassParamClauses parse builder
+    classParamClauses parse builder
     constructorMarker.done(ScalaElementTypes.PRIMARY_CONSTRUCTOR)
     //parse extends block
-    ClassTemplateOpt parse builder
+    classTemplateOpt parse builder
     return true
   }
 }

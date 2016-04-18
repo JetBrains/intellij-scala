@@ -8,8 +8,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLitera
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates.DuplicatesUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.{ExtractMethodOutput, ExtractMethodParameter}
 
@@ -20,7 +21,8 @@ import scala.collection.mutable
  * Nikolay.Tropin
  * 2014-05-15
  */
-class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement]) {
+class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement])
+                    (implicit val typeSystem: TypeSystem) {
   private val parameterValues = mutable.Map[ExtractMethodParameter, ScExpression]()
   private val definitionCorrespondence = mutable.Map[ScTypedDefinition, ScTypedDefinition]()
 
@@ -42,7 +44,7 @@ class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement])
     val filteredP = filtered(subPatterns)
     val filteredC = filtered(subCandidates)
     if (filteredC.size != filteredP.size) return false
-    if (filteredP.size == 0) return true
+    if (filteredP.isEmpty) return true
     filteredP.zip(filteredC).forall {
       case (e1, e2) => checkElement(e1, e2)
       case _ => false
@@ -70,7 +72,7 @@ class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement])
       (ref1: ScReferenceExpression, ref2: ScReferenceExpression),
       (ResolvesTo(td1: ScTypedDefinition), ResolvesTo(td2: ScTypedDefinition)))
         if pattern.definitions.contains(td1) =>
-        definitionCorrespondence.get(td1) == Some(td2) && typesEquiv(ref1, ref2)
+        definitionCorrespondence.get(td1).contains(td2) && typesEquiv(ref1, ref2)
       case Both((ref1: ScReferenceElement, ref2: ScReferenceElement), (ResolvesTo(res1), ResolvesTo(res2)))
         if res1 != res2 =>
         (res1, res2) match {
@@ -88,9 +90,10 @@ class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement])
   private def typesEquiv(expr1: ScExpression, expr2: ScExpression) = {
     (expr1.getType(), expr2.getType()) match {
       case (Success(t1, _), Success(t2, _)) =>
-        def extractFromSingletonType(t: ScType) =
-          if (ScType.isSingletonType(t)) ScType.extractDesignatorSingletonType(t)
-          else Some(t)
+        def extractFromSingletonType(t: ScType) = t match {
+          case scalaType: ScalaType if scalaType.isSingleton => ScalaType.extractDesignatorSingletonType(t)
+          case _ => Some(t)
+        }
         val Seq(newTp1, newTp2) = Seq(t1, t2).map(extractFromSingletonType)
         newTp1.zip(newTp2).forall {
           case (tp1, tp2) => tp1.equiv(tp2)

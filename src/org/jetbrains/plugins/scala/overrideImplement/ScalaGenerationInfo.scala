@@ -13,12 +13,12 @@ import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.{TypeAdjuster, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.overrideImplement.ScalaGenerationInfo._
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
@@ -116,10 +116,10 @@ object ScalaGenerationInfo {
     body match {
       case e: ScBlockExpr =>
         val statements = e.statements
-        if (statements.length == 0) {
+        if (statements.isEmpty) {
           editor.getCaretModel.moveToOffset(body.getTextRange.getStartOffset + 1)
         } else {
-          val range = new TextRange(statements(0).getTextRange.getStartOffset, statements(statements.length - 1).getTextRange.getEndOffset)
+          val range = new TextRange(statements.head.getTextRange.getStartOffset, statements.last.getTextRange.getEndOffset)
           editor.getCaretModel.moveToOffset(range.getStartOffset)
           editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
         }
@@ -131,10 +131,11 @@ object ScalaGenerationInfo {
   }
 
   private def callSuperText(td: ScTemplateDefinition, method: PsiMethod): String = {
+    import td.typeSystem
     val superOrSelfQual: String = td.selfType match {
       case None => "super."
       case Some(st: ScType) =>
-        val psiClass = ScType.extractClass(st, Option(td.getProject)).getOrElse(return "super.")
+        val psiClass = st.extractClass(td.getProject).getOrElse(return "super.")
 
         def nonStrictInheritor(base: PsiClass, inheritor: PsiClass): Boolean = {
           if (base == null || inheritor == null) false
@@ -179,7 +180,7 @@ object ScalaGenerationInfo {
 
     val method = member.getElement
 
-    properties.setProperty(FileTemplate.ATTRIBUTE_RETURN_TYPE, ScType.presentableText(returnType))
+    properties.setProperty(FileTemplate.ATTRIBUTE_RETURN_TYPE, returnType.presentableText)
     properties.setProperty(FileTemplate.ATTRIBUTE_DEFAULT_RETURN_VALUE, standardValue)
     properties.setProperty(FileTemplate.ATTRIBUTE_CALL_SUPER, callSuperText(td, method))
     properties.setProperty("Q_MARK", ScalaGenerationInfo.defaultValue(returnType, td.getContainingFile))

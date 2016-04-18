@@ -5,7 +5,7 @@ package typeLambdaSimplify
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScParameterizedTypeElement, ScParenthesisedTypeElement, ScTypeProjection}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
@@ -70,10 +70,10 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
                           val subst = params.zip(typeArgs).foldLeft(ScSubstitutor.empty) {
                             case (res, (param, arg)) =>
                               val typeVar = ScalaPsiManager.typeVariable(param)
-                              res.bindT((typeVar.name, typeVar.getId), arg.calcType)
+                              res.bindT(typeVar.nameAndId, arg.calcType)
                           }
                           val substituted = subst.subst(aliased)
-                          ScType.presentableText(substituted)
+                          substituted.presentableText
                         }
                         addInfo(paramType, simplified())
                       }
@@ -113,9 +113,7 @@ class SimplifyAppliedTypeLambdaQuickFix(paramType: ScParameterizedTypeElement, r
         extends AbstractFixOnPsiElement(InspectionBundle.message("simplify.type"), paramType) {
 
   def doApplyFix(project: Project): Unit = {
-    val pType = getElement
-    val parent = pType.getContext
-    pType.replace(ScalaPsiElementFactory.createTypeElementFromText(replacement, pType.getManager))
+    getElement.replace(ScalaPsiElementFactory.createTypeElementFromText(replacement, getElement.getManager))
   }
 }
 

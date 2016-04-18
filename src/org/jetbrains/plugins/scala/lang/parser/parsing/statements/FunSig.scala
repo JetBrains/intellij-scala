@@ -13,14 +13,19 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 * @author Alexander Podkhalyuzin
 * Date: 11.02.2008
 */
+object FunSig extends FunSig {
+  override protected val paramClauses = ParamClauses
+}
 
 //TODO: rewrite this
-object FunSig {
+trait FunSig {
+  protected val paramClauses: ParamClauses
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     if (ScalaTokenTypes.tIDENTIFIER.equals(builder.getTokenType)) {
       ParserUtils.eatElement(builder, ScalaTokenTypes.tIDENTIFIER)
       FunTypeParamClause parse builder
-      ParamClauses parse builder
+      paramClauses parse builder
       true
     } else {
       builder error "identifier expected"

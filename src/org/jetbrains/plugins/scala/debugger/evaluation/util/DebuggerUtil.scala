@@ -19,19 +19,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern,
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor, ScReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotations, ScExpression, ScForStatement, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScSubstitutor, ScType, ValueClassType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, ValueClassType}
 
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.util.Try
 
 /**
  * User: Alefas
@@ -82,8 +82,9 @@ object DebuggerUtil {
 
     private var buffer = new ArrayBuffer[JVMName]
   }
-  
-  def getJVMQualifiedName(tp: ScType): JVMName = {
+
+  def getJVMQualifiedName(tp: ScType)
+                         (implicit typeSystem: TypeSystem): JVMName = {
     import org.jetbrains.plugins.scala.lang.psi.types._
     tp match {
       case Any => JVMNameUtil.getJVMRawText("java.lang.Object")
@@ -101,25 +102,26 @@ object DebuggerUtil {
       case Double => JVMNameUtil.getJVMRawText("java.lang.Double")
       case Byte => JVMNameUtil.getJVMRawText("java.lang.Byte")
       case Short => JVMNameUtil.getJVMRawText("java.lang.Short")
-      case JavaArrayType(arg) =>
+      case JavaArrayType(argument) =>
         val buff = new JVMNameBuffer()
-        buff.append(getJVMQualifiedName(arg))
+        buff.append(getJVMQualifiedName(argument))
         buff.append("[]")
         buff.toName
-      case ScParameterizedType(arr, Seq(arg)) if ScType.extractClass(arr).exists(_.qualifiedName == "scala.Array") =>
+      case ParameterizedType(arr, Seq(arg)) if arr.extractClass().exists(_.qualifiedName == "scala.Array") =>
         val buff = new JVMNameBuffer()
         buff.append(getJVMQualifiedName(arg))
         buff.append("[]")
         buff.toName
       case _ =>
-        ScType.extractClass(tp) match {
+        tp.extractClass() match {
           case Some(clazz) => getClassJVMName(clazz)
-          case None => JVMNameUtil.getJVMRawText(ScType.canonicalText(tp))
+          case None => JVMNameUtil.getJVMRawText(tp.canonicalText)
         }
     }
   }
-  
-  def getJVMStringForType(tp: ScType, isParam: Boolean = true): String = {
+
+  def getJVMStringForType(tp: ScType, isParam: Boolean = true)
+                         (implicit typeSystem: TypeSystem): String = {
     import org.jetbrains.plugins.scala.lang.psi.types._
     tp match {
       case AnyRef => "Ljava/lang/Object;"
@@ -138,10 +140,10 @@ object DebuggerUtil {
       case Unit if isParam => "Lscala/runtime/BoxedUnit;"
       case Unit => "V"
       case JavaArrayType(arg) => "[" + getJVMStringForType(arg)
-      case ScParameterizedType(ScDesignatorType(clazz: PsiClass), Seq(arg)) 
+      case ParameterizedType(ScDesignatorType(clazz: PsiClass), Seq(arg))
         if clazz.qualifiedName == "scala.Array" => "[" + getJVMStringForType(arg)
       case _ =>
-        ScType.extractClass(tp) match {
+        tp.extractClass() match {
           case Some(obj: ScObject) => "L" + obj.getQualifiedNameForDebugger.replace('.', '/') + "$;"
           case Some(obj: ScTypeDefinition) => "L" + obj.getQualifiedNameForDebugger.replace('.', '/') + ";"
           case Some(clazz) => "L" + clazz.qualifiedName.replace('.', '/') + ";"
@@ -150,7 +152,8 @@ object DebuggerUtil {
     }
   }
 
-  def getFunctionJVMSignature(function: ScMethodLike): JVMName = {
+  def getFunctionJVMSignature(function: ScMethodLike)
+                             (implicit typeSystem: TypeSystem = function.typeSystem): JVMName = {
     val typeParams = function match {
       case fun: ScFunction if !fun.isConstructor => fun.typeParameters
       case _: ScFunction | _: ScPrimaryConstructor =>
@@ -161,7 +164,7 @@ object DebuggerUtil {
       case _ => Seq.empty
     }
     val subst = typeParams.foldLeft(ScSubstitutor.empty) {
-      (subst, tp) => subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)), tp.upperBound.getOrAny)
+      (subst, tp) => subst.bindT(tp.nameAndId, tp.upperBound.getOrAny)
     }
     val localParameters = function match {
       case fun: ScFunctionDefinition if fun.isLocal => localParamsForFunDef(fun)
@@ -192,7 +195,8 @@ object DebuggerUtil {
     JVMNameUtil.getJVMRawText(paramTypes + resultType)
   }
 
-  def constructorSignature(named: PsiNamedElement): JVMName = {
+  def constructorSignature(named: PsiNamedElement)
+                          (implicit typeSystem: TypeSystem): JVMName = {
     named match {
       case fun: ScFunction => DebuggerUtil.getFunctionJVMSignature(fun)
       case constr: ScPrimaryConstructor =>
@@ -211,10 +215,11 @@ object DebuggerUtil {
     }
   }
 
-  def lambdaJVMSignature(lambda: PsiElement): Option[String] = {
+  def lambdaJVMSignature(lambda: PsiElement)
+                        (implicit typeSystem: TypeSystem = lambda.typeSystem): Option[String] = {
     val (argumentTypes, returnType) = lambda match {
       case expr @ ExpressionType(tp) if ScalaPsiUtil.isByNameArgument(expr) => (Seq.empty, tp)
-      case ExpressionType(ScFunctionType(retT, argTypes)) => (argTypes, retT)
+      case ExpressionType(FunctionType(retT, argTypes)) => (argTypes, retT)
       case _ => return None
     }
     val trueReturnType = returnType match {
@@ -227,14 +232,14 @@ object DebuggerUtil {
     Some(paramText + returnTypeText)
   }
 
-  private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor) = param match {
+  private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor)
+                                      (implicit typeSystem: TypeSystem) = param match {
       case p: ScParameter if p.isRepeatedParameter => "Lscala/collection/Seq;"
       case p: ScParameter if p.isCallByNameParameter => "Lscala/Function0;"
       case _ => getJVMStringForType(subst.subst(param.getType(TypingContext.empty).getOrAny))
     }
   
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Boolean): Value = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
     tp match {
       case Boolean => vm.mirrorOf(b)
       case Unit => vm.mirrorOfVoid()
@@ -243,7 +248,6 @@ object DebuggerUtil {
   }
 
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Long): Value = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
     tp match {
       case Long => vm.mirrorOf(b)
       case Int => vm.mirrorOf(b.toInt)
@@ -258,7 +262,6 @@ object DebuggerUtil {
   }
 
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Char): Value = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
     tp match {
       case Long => vm.mirrorOf(b)
       case Int => vm.mirrorOf(b.toInt)
@@ -273,7 +276,6 @@ object DebuggerUtil {
   }
 
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Double): Value = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
     tp match {
       case Long => vm.mirrorOf(b)
       case Int => vm.mirrorOf(b.toInt)
@@ -288,7 +290,6 @@ object DebuggerUtil {
   }
 
   def createValue(vm: VirtualMachineProxyImpl, tp: ScType, b: Float): Value = {
-    import org.jetbrains.plugins.scala.lang.psi.types._
     tp match {
       case Long => vm.mirrorOf(b)
       case Int => vm.mirrorOf(b.toInt)

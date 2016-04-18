@@ -17,11 +17,17 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 /*
  * Block ::= {BlockStat semi}[ResultExpr]
  */
+object Block extends Block {
+  override protected val blockStat = BlockStat
+  override protected val resultExpr = ResultExpr
+}
 
-object Block {
+trait Block {
+  protected val blockStat: BlockStat
+  protected val resultExpr: ResultExpr
 
   def parse(builder: ScalaPsiBuilder) {
-    if (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
+    if (!resultExpr.parse(builder) && blockStat.parse(builder)) {
       var hasSemicolon = false
       var rollbackMarker = builder.mark()
 
@@ -38,7 +44,7 @@ object Block {
 
       updateSemicolon()
 
-      while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
+      while (!resultExpr.parse(builder) && blockStat.parse(builder)) {
         if (!hasSemicolon) {
           rollbackMarker.rollbackTo()
           builder error ErrMsg("semi.expected")
@@ -61,12 +67,12 @@ object Block {
     var continue = true
 
     while (continue) {
-      if (ResultExpr.parse(builder)) {
+      if (resultExpr.parse(builder)) {
         continue = false
         i = i + 1
         tts ::= builder.getTokenType
       } else {
-        if (BlockStat.parse(builder)) {
+        if (blockStat.parse(builder)) {
           i = i + 1
           tts ::= builder.getTokenType
         } else {

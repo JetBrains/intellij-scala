@@ -91,7 +91,7 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           TypeWithAnnotation: XmlElement  @field
-            SimpleTypeElement: XmlElement
+            SimpleType: XmlElement
               CodeReferenceElement: XmlElement
                 PsiElement(identifier)('XmlElement')
             PsiWhiteSpace('  ')
@@ -100,7 +100,7 @@ ScalaFile
                 PsiElement(@)('@')
                 AnnotationExpression
                   Constructor
-                    SimpleTypeElement: field
+                    SimpleType: field
                       CodeReferenceElement: field
                         PsiElement(identifier)('field')
         PsiWhiteSpace('\n  ')
@@ -116,7 +116,7 @@ ScalaFile
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
           TypeWithAnnotation: XmlJavaTypeAdapter @field @field
-            SimpleTypeElement: XmlJavaTypeAdapter
+            SimpleType: XmlJavaTypeAdapter
               CodeReferenceElement: XmlJavaTypeAdapter
                 PsiElement(identifier)('XmlJavaTypeAdapter')
             PsiWhiteSpace(' ')
@@ -125,7 +125,7 @@ ScalaFile
                 PsiElement(@)('@')
                 AnnotationExpression
                   Constructor
-                    SimpleTypeElement: field
+                    SimpleType: field
                       CodeReferenceElement: field
                         PsiElement(identifier)('field')
               PsiWhiteSpace(' ')
@@ -133,7 +133,7 @@ ScalaFile
                 PsiElement(@)('@')
                 AnnotationExpression
                   Constructor
-                    SimpleTypeElement: field
+                    SimpleType: field
                       CodeReferenceElement: field
                         PsiElement(identifier)('field')
         PsiWhiteSpace('\n\n  ')
@@ -143,7 +143,7 @@ ScalaFile
               PsiElement(@)('@')
               AnnotationExpression
                 Constructor
-                  SimpleTypeElement: field
+                  SimpleType: field
                     CodeReferenceElement: field
                       PsiElement(identifier)('field')
           Modifiers

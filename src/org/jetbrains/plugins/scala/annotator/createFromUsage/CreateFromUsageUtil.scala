@@ -15,8 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ExtractClass, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{Any => scTypeAny, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 /**
  * Nikolay.Tropin
@@ -41,7 +42,7 @@ object CreateFromUsageUtil {
     case p: ScPattern =>
       val tp: ScType = p.getType(TypingContext.empty).getOrAny
       (nameByType(tp), tp)
-    case _ => ("value", scTypeAny)
+    case _ => ("value", Any)
   }
   
   def paramsText(args: Seq[PsiElement]) = {
@@ -115,7 +116,7 @@ object CreateFromUsageUtil {
   }
 
   def unapplyMethodText(pattern: ScPattern) = {
-    val pType = pattern.expectedType.getOrElse(scTypeAny)
+    val pType = pattern.expectedType.getOrElse(Any)
     val pName = nameByType(pType)
     s"def unapply($pName: ${pType.canonicalText}): ${unapplyMethodTypeText(pattern)} = ???"
   }
@@ -132,7 +133,8 @@ object CreateFromUsageUtil {
 }
 
 object InstanceOfClass {
-  def unapply(elem: PsiElement): Option[PsiClass] = elem match {
+  def unapply(elem: PsiElement)
+             (implicit typeSystem: TypeSystem): Option[PsiClass] = elem match {
     case ScExpression.Type(TypeAsClass(psiClass)) => Some(psiClass)
     case ResolvesTo(typed: ScTypedDefinition) =>
       typed.getType().toOption match {
@@ -144,9 +146,10 @@ object InstanceOfClass {
 }
 
 object TypeAsClass {
-  def unapply(scType: ScType): Option[PsiClass] = scType match {
-    case ScType.ExtractClass(aClass) => Some(aClass)
-    case t: ScType => ScType.extractDesignatorSingletonType(t).flatMap(ScType.extractClass(_, None))
+  def unapply(scType: ScType)
+             (implicit typeSystem: TypeSystem): Option[PsiClass] = scType match {
+    case ExtractClass(aClass) => Some(aClass)
+    case t: ScType => ScalaType.extractDesignatorSingletonType(t).flatMap(_.extractClass())
     case _ => None
   }
 }

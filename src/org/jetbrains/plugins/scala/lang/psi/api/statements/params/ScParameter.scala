@@ -19,8 +19,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionEx
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScFunctionType, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.annotation.tailrec
@@ -69,7 +70,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
       case f@Success(tp: ScType, elem) =>
         val seq = ScalaPsiManager.instance(getProject).getCachedClass("scala.collection.Seq", getResolveScope, ScalaPsiManager.ClassCategory.TYPE)
         if (seq != null) {
-          Success(ScParameterizedType(ScType.designator(seq), Seq(tp)), elem)
+          Success(ScParameterizedType(ScalaType.designator(seq), Seq(tp)), elem)
         } else f
       case f => f
     }
@@ -114,7 +115,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
     specificScope.intersectWith(super.getUseScope)
   }
 
-  def getType: PsiType = ScType.toPsi(getRealParameterType(TypingContext.empty).getOrNothing, getProject, getResolveScope)
+  def getType: PsiType = getRealParameterType(TypingContext.empty).getOrNothing.toPsiType(getProject, getResolveScope)
 
   def isAnonymousParameter: Boolean = getContext match {
     case clause: ScParameterClause => clause.getContext.getContext match {
@@ -135,8 +136,8 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
           @tailrec
           def applyForFunction(tp: ScType, checkDeep: Boolean) {
             tp.removeAbstracts match {
-              case ScFunctionType(ret, _) if checkDeep => applyForFunction(ret, checkDeep = false)
-              case ScFunctionType(_, params) if params.length == f.parameters.length =>
+              case FunctionType(ret, _) if checkDeep => applyForFunction(ret, checkDeep = false)
+              case FunctionType(_, params) if params.length == f.parameters.length =>
                 val i = clause.parameters.indexOf(this)
                 if (result.isDefined) {
                   result = None
@@ -145,7 +146,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner with
               case any if ScalaPsiUtil.isSAMEnabled(f)=>
                 //infer type if it's a Single Abstract Method
                 ScalaPsiUtil.toSAMType(any, f.getResolveScope) match {
-                  case Some(ScFunctionType(_, params)) =>
+                  case Some(FunctionType(_, params)) =>
                     val i = clause.parameters.indexOf(this)
                     if (i < params.length) result = Some(params(i))
                   case _ =>

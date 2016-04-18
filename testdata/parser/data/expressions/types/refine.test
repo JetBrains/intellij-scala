@@ -27,19 +27,19 @@ ScalaFile
             PsiWhiteSpace(' ')
             ParameterType
               CompoundType: T with S with U {val i:T}
-                SimpleTypeElement: T
+                SimpleType: T
                   CodeReferenceElement: T
                     PsiElement(identifier)('T')
                 PsiWhiteSpace(' ')
                 PsiElement(with)('with')
                 PsiWhiteSpace(' ')
-                SimpleTypeElement: S
+                SimpleType: S
                   CodeReferenceElement: S
                     PsiElement(identifier)('S')
                 PsiWhiteSpace(' ')
                 PsiElement(with)('with')
                 PsiWhiteSpace(' ')
-                SimpleTypeElement: U
+                SimpleType: U
                   CodeReferenceElement: U
                     PsiElement(identifier)('U')
                 PsiWhiteSpace(' ')
@@ -56,7 +56,7 @@ ScalaFile
                       Field identifier: i
                         PsiElement(identifier)('i')
                     PsiElement(:)(':')
-                    SimpleTypeElement: T
+                    SimpleType: T
                       CodeReferenceElement: T
                         PsiElement(identifier)('T')
                   PsiElement(})('}')

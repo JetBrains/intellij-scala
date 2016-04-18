@@ -21,7 +21,7 @@ ScalaFile
       PsiWhiteSpace(' ')
       PsiElement(=>)('=>')
       PsiWhiteSpace(' ')
-      SimpleTypeElement: String
+      SimpleType: String
         CodeReferenceElement: String
           PsiElement(identifier)('String')
     PsiWhiteSpace(' ')
@@ -50,14 +50,14 @@ ScalaFile
             PsiElement(_)('_')
           PsiElement(,)(',')
           PsiWhiteSpace(' ')
-          SimpleTypeElement: Int
+          SimpleType: Int
             CodeReferenceElement: Int
               PsiElement(identifier)('Int')
         PsiElement())(')')
       PsiWhiteSpace(' ')
       PsiElement(=>)('=>')
       PsiWhiteSpace(' ')
-      SimpleTypeElement: String
+      SimpleType: String
         CodeReferenceElement: String
           PsiElement(identifier)('String')
     PsiWhiteSpace(' ')
@@ -79,7 +79,7 @@ ScalaFile
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
     FunctionalType: String => _
-      SimpleTypeElement: String
+      SimpleType: String
         CodeReferenceElement: String
           PsiElement(identifier)('String')
       PsiWhiteSpace(' ')

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import com.intellij.codeInsight.generation.{GenerateMembersUtil, ClassMember => JClassMember}
+import com.intellij.codeInsight.generation.{ClassMember => JClassMember, GenerateMembersUtil}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.util.ScalaUtils
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConversions
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.ListBuffer
 
@@ -78,8 +78,8 @@ object ScalaOIUtil {
       chooser.show()
 
       val elements = chooser.getSelectedElements
-      if (elements != null) selectedMembers ++= elements
-      if (selectedMembers.size == 0) return
+      if (elements != null) selectedMembers ++= JavaConversions.asScalaBuffer(elements)
+      if (selectedMembers.isEmpty) return
     } else {
       selectedMembers ++= classMembers.find {
         case named: ScalaNamedMember if named.name == methodName => true
@@ -128,7 +128,8 @@ object ScalaOIUtil {
             case _ => false
           })
       case x: ScTemplateDefinition =>
-        x.superTypes.map(t => ScType.extractClass(t)).find {
+        implicit val typeSystem = x.typeSystem
+        x.superTypes.map(_.extractClass()).find {
           case Some(c) => isProductAbstractMethod(m, c, visited + clazz)
           case _ => false
         } match {

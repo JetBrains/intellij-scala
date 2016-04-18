@@ -12,9 +12,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, Nothing, TupleType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil, types}
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
@@ -217,11 +218,11 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
         Some(checkConformance(retType, args, params))
       case ScTypePolymorphicType(ScMethodType(retType, params, _), typeParams) =>
         Some(checkConformanceWithInference(retType, args, typeParams, params))
-      case ScTypePolymorphicType(ScFunctionType(retType, params), typeParams) =>
+      case ScTypePolymorphicType(FunctionType(retType, params), typeParams) =>
         Some(checkConformanceWithInference(retType, args, typeParams, functionParams(params)))
       case any if ScalaPsiUtil.isSAMEnabled(this) =>
         ScalaPsiUtil.toSAMType(any, getResolveScope) match {
-          case Some(ScFunctionType(retType: ScType, params: Seq[ScType])) =>
+          case Some(FunctionType(retType: ScType, params: Seq[ScType])) =>
             Some(checkConformance(retType, args, functionParams(params)))
           case _ => None
         }
@@ -249,13 +250,13 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
               override def getTypeAfterImplicitConversion(checkImplicits: Boolean, isShape: Boolean,
                                                           _expectedOption: Option[ScType]): (TypeResult[ScType], collection.Set[ImportUsed]) = {
                 val expectedOption = _expectedOption.map {
-                  case ScTupleType(comps) if comps.length == 2 => comps(1)
+                  case TupleType(comps) if comps.length == 2 => comps(1)
                   case t => t
                 }
                 val (res, imports) = super.getTypeAfterImplicitConversion(checkImplicits, isShape, expectedOption)
                 val str = ScalaPsiManager.instance(getProject).getCachedClass(getResolveScope, "java.lang.String")
-                val stringType = str.map(ScType.designator(_)).getOrElse(types.Any)
-                (res.map(tp => ScTupleType(Seq(stringType, tp))(getProject, getResolveScope)), imports)
+                val stringType = str.map(ScalaType.designator(_)).getOrElse(Any)
+                (res.map(tp => TupleType(Seq(stringType, tp))(getProject, getResolveScope)), imports)
               }
             }
         }
@@ -273,7 +274,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
     var res: ScType = checkApplication(invokedType, args(isNamedDynamic = isApplyDynamicNamed)).getOrElse {
       var (processedType, importsUsed, implicitFunction, applyOrUpdateResult) =
         ScalaPsiUtil.processTypeForUpdateOrApply(invokedType, this, isShape = false).getOrElse {
-          (types.Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
+          (Nothing, Set.empty[ImportUsed], None, this.applyOrUpdateElement)
         }
       if (useExpectedType) {
         updateAccordingToExpectedType(Success(processedType, None)).foreach(x => processedType = x)

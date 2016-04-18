@@ -32,7 +32,7 @@ ScalaFile
         PsiWhiteSpace(' ')
         ClassParents
           Constructor
-            SimpleTypeElement: Application
+            SimpleType: Application
               CodeReferenceElement: Application
                 PsiElement(identifier)('Application')
         PsiWhiteSpace(' ')
@@ -72,12 +72,12 @@ ScalaFile
                       TupleType: (File, Long)
                         PsiElement(()('(')
                         TypesList
-                          SimpleTypeElement: File
+                          SimpleType: File
                             CodeReferenceElement: File
                               PsiElement(identifier)('File')
                           PsiElement(,)(',')
                           PsiWhiteSpace(' ')
-                          SimpleTypeElement: Long
+                          SimpleType: Long
                             CodeReferenceElement: Long
                               PsiElement(identifier)('Long')
                         PsiElement())(')')

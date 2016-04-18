@@ -11,16 +11,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
-import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
 
 import scala.collection.Set
@@ -41,7 +42,9 @@ class MethodResolveProcessor(override val ref: PsiElement,
                              val enableTupling: Boolean = false,
                              var noImplicitsForArgs: Boolean = false,
                              val selfConstructorResolve: Boolean = false,
-                             val isDynamic: Boolean = false) extends ResolveProcessor(kinds, ref, refName) {
+                             val isDynamic: Boolean = false)
+                            (implicit override val typeSystem: TypeSystem)
+  extends ResolveProcessor(kinds, ref, refName) {
 
   private def isUpdate: Boolean = {
     if (ref == null) return false
@@ -200,11 +203,11 @@ object MethodResolveProcessor {
           case f: ScFun => substitutor.subst(f.retType)
           case m: PsiMethod =>
             Option(m.getReturnType).map { rt =>
-              substitutor.subst(ScType.create(rt, ref.getProject, getResolveScope))
+              substitutor.subst(rt.toScType(ref.getProject, getResolveScope))
             }.getOrElse(Nothing)
           case _ => Nothing
         }
-        if (!retType.conforms(expected) && !expected.equiv(Unit)) {
+        if (!retType.conforms(expected) && !expected.equiv(api.Unit)) {
           problems += ExpectedTypeMismatch
         }
       }
@@ -250,10 +253,10 @@ object MethodResolveProcessor {
       }
 
       expectedOption().map(_.removeAbstracts) match {
-        case Some(ScFunctionType(retType, params)) => processFunctionType(retType, params)
+        case Some(FunctionType(retType, params)) => processFunctionType(retType, params)
         case Some(tp: ScType) if ScalaPsiUtil.isSAMEnabled(fun) =>
           ScalaPsiUtil.toSAMType(tp, fun.getResolveScope) match {
-            case Some(ScFunctionType(retType, params)) => processFunctionType(retType, params)
+            case Some(FunctionType(retType, params)) => processFunctionType(retType, params)
             case _ => default()
           }
         case _ => default()
@@ -386,8 +389,8 @@ object MethodResolveProcessor {
 
             var hasRecursiveTypeParameters = false
             typez.recursiveUpdate {
-              case tpt: ScTypeParameterType =>
-                typeParameters.find(tp => (tp.name, ScalaPsiUtil.getPsiElementId(tp.ptp)) == (tpt.name, tpt.getId)) match {
+              case tpt: TypeParameterType =>
+                typeParameters.find(_.nameAndId == tpt.nameAndId) match {
                   case None => (true, tpt)
                   case _ =>
                     hasRecursiveTypeParameters = true
@@ -401,13 +404,13 @@ object MethodResolveProcessor {
             if (lowerType() != Nothing) {
               val substedLower = s.subst(unSubst.subst(lowerType()))
               if (!hasRecursiveTypeParameters(substedLower)) {
-                uSubst = uSubst.addLower((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedLower, additional = true)
+                uSubst = uSubst.addLower(tParam.nameAndId, substedLower, additional = true)
               }
             }
             if (upperType() != Any) {
               val substedUpper = s.subst(unSubst.subst(upperType()))
               if (!hasRecursiveTypeParameters(substedUpper)) {
-                uSubst = uSubst.addUpper((tParam.name, ScalaPsiUtil.getPsiElementId(tParam)), substedUpper, additional = true)
+                uSubst = uSubst.addUpper(tParam.nameAndId, substedUpper, additional = true)
               }
             }
           }
@@ -420,7 +423,8 @@ object MethodResolveProcessor {
   }
 
   // TODO clean this up
-  def undefinedSubstitutor(element: PsiNamedElement, s: ScSubstitutor, proc: MethodResolveProcessor): ScSubstitutor = {
+  def undefinedSubstitutor(element: PsiNamedElement, s: ScSubstitutor, proc: MethodResolveProcessor)
+                          (implicit typeSystem: TypeSystem = element.typeSystem): ScSubstitutor = {
     import proc.typeArgElements
     if (proc.selfConstructorResolve) return ScSubstitutor.empty
 
@@ -429,56 +433,28 @@ object MethodResolveProcessor {
       case ml: ScMethodLike => ml.getClassTypeParameters
       case _ => None
     }
-    (constructorTypeParameters, element) match {
+
+    val maybeTypeParameters: Option[Seq[PsiTypeParameter]] = (constructorTypeParameters, element) match {
       case (Some(typeParameterClause), _) =>
-        val typeParameters = typeParameterClause.typeParameters
-        s.followed(
-          if (typeArgElements.nonEmpty && typeParameters.length == typeArgElements.length) {
-            ScalaPsiUtil.genericCallSubstitutor(typeParameters.map(p =>
-              (p.name, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
-          } else {
-            typeParameters.foldLeft(ScSubstitutor.empty) {
-              (subst: ScSubstitutor, tp: ScTypeParam) =>
-                subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
-                  new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
-            }
-          })
+        Some(typeParameterClause.typeParameters)
       //todo: this case is impossible case for reasons mentioned above
       case (_, method: PsiMethod) if method.isConstructor => // Java constructors
-        val typeParameters = method.containingClass.getTypeParameters
+        Some(method.containingClass.getTypeParameters)
+      case (None, t: ScTypeParametersOwner) =>
+        Some(t.typeParameters)
+      case (None, p: PsiTypeParameterListOwner) =>
+        Some(p.getTypeParameters)
+      case _ => None
+    }
+    maybeTypeParameters match {
+      case Some(typeParameters: Seq[PsiTypeParameter]) =>
         s.followed(
           if (typeArgElements.nonEmpty && typeParameters.length == typeArgElements.length) {
-            ScalaPsiUtil.genericCallSubstitutor(typeParameters.map(p =>
-              (p.name, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
+            ScalaPsiUtil.genericCallSubstitutor(typeParameters.map(_.nameAndId), typeArgElements)
           } else {
             typeParameters.foldLeft(ScSubstitutor.empty) {
-              (subst: ScSubstitutor, tp: PsiTypeParameter) =>
-                subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
-                  new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
-            }
-          })
-      case (None, t: ScTypeParametersOwner) =>
-        s.followed(
-          if (typeArgElements.nonEmpty && t.typeParameters.length == typeArgElements.length) {
-            ScalaPsiUtil.genericCallSubstitutor(t.typeParameters.map(p =>
-              (p.name, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
-          } else {
-            t.typeParameters.foldLeft(ScSubstitutor.empty) {
-              (subst: ScSubstitutor, tp: ScTypeParam) =>
-                subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
-                  new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
-            }
-          })
-      case (None, p: PsiTypeParameterListOwner) =>
-        s.followed(
-          if (typeArgElements.nonEmpty && p.getTypeParameters.length == typeArgElements.length) {
-            ScalaPsiUtil.genericCallSubstitutor(p.getTypeParameters.map(p =>
-              (p.name, ScalaPsiUtil.getPsiElementId(p))), typeArgElements)
-          } else {
-            p.getTypeParameters.foldLeft(ScSubstitutor.empty) {
-              (subst: ScSubstitutor, tp: PsiTypeParameter) =>
-                subst.bindT((tp.name, ScalaPsiUtil.getPsiElementId(tp)),
-                  new ScUndefinedType(new ScTypeParameterType(tp, ScSubstitutor.empty)))
+              case (subst, typeParameter) =>
+                subst.bindT(typeParameter.nameAndId, UndefinedType(TypeParameterType(typeParameter)))
             }
           })
       case _ => s
@@ -539,7 +515,7 @@ object MethodResolveProcessor {
           val tp = r.substitutor.subst(b.getType(TypingContext.empty).getOrElse(return HashSet.empty))
           applyMethodsFor(tp)
         case b: PsiField => // See SCL-3055
-          val tp = r.substitutor.subst(ScType.create(b.getType, b.getProject))
+          val tp = r.substitutor.subst(b.getType.toScType(b.getProject))
           applyMethodsFor(tp)
         case _ => HashSet(r)
       }

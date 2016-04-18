@@ -14,14 +14,14 @@ ScalaFile
     PsiElement(:)(':')
     PsiWhiteSpace(' ')
     InfixType: A :: B
-      SimpleTypeElement: A
+      SimpleType: A
         CodeReferenceElement: A
           PsiElement(identifier)('A')
       PsiWhiteSpace(' ')
       CodeReferenceElement: ::
         PsiElement(identifier)('::')
       PsiWhiteSpace(' ')
-      SimpleTypeElement: B
+      SimpleType: B
         CodeReferenceElement: B
           PsiElement(identifier)('B')
     PsiWhiteSpace(' ')

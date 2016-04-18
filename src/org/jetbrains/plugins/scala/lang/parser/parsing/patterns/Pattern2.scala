@@ -17,8 +17,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  *            | _ '@' Pattern3
  *            | Pattern3
  */
+object Pattern2 extends Pattern2 {
+  override protected val pattern3 = Pattern3
+}
 
-object Pattern2 {
+trait Pattern2 {
+  protected val pattern3: Pattern3
+
   def parse(builder: ScalaPsiBuilder, forDef: Boolean): Boolean = {
 
     def isVarId = {
@@ -57,7 +62,7 @@ object Pattern2 {
             case ScalaTokenTypes.tAT =>
               builder.advanceLexer() //Ate @
               backupMarker.drop()
-              if (!Pattern3.parse(builder)) {
+              if (!pattern3.parse(builder)) {
                 idMarker.rollbackTo()
                 pattern2Marker.done(ScalaElementTypes.REFERENCE_PATTERN)
                 val err = builder.mark
@@ -80,7 +85,7 @@ object Pattern2 {
           case ScalaTokenTypes.tAT =>
             builder.advanceLexer() //Ate @
             backupMarker.drop()
-            if (!Pattern3.parse(builder)) {
+            if (!pattern3.parse(builder)) {
               idMarker.rollbackTo()
               pattern2Marker.done(ScalaElementTypes.REFERENCE_PATTERN)
               val err = builder.mark
@@ -99,6 +104,6 @@ object Pattern2 {
         backupMarker.drop()
     }
     pattern2Marker.drop()
-    Pattern3.parse(builder)
+    pattern3.parse(builder)
   }
 }

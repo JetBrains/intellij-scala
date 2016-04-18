@@ -22,13 +22,26 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserPatcher
  *             | {LocalModifier} TmplDef
  *             | Expr1
  */
+object BlockStat extends BlockStat {
+  override protected val `def` = Def
+  override protected val expr1 = Expr1
+  override protected val dcl = Dcl
+  override protected val tmplDef = TmplDef
+  override protected val emptyDcl = EmptyDcl
+}
 
-object BlockStat {
+trait BlockStat {
+  protected val `def`: Def
+  protected val tmplDef: TmplDef
+  protected val expr1: Expr1
+  protected val dcl: Dcl
+  protected val emptyDcl: EmptyDcl
+
   def parse(builder: ScalaPsiBuilder): Boolean = {
     val tokenType = builder.getTokenType
-    
+
     val patcher = ParserPatcher.getSuitablePatcher(builder)
-    
+
     tokenType match {
       case ScalaTokenTypes.kIMPORT =>
         Import parse builder
@@ -37,29 +50,29 @@ object BlockStat {
         builder.advanceLexer()
         return true
       case ScalaTokenTypes.kDEF | ScalaTokenTypes.kVAL | ScalaTokenTypes.kVAR | ScalaTokenTypes.kTYPE =>
-        if (!Def.parse(builder, isMod = false, isImplicit = true)) {
-          if (Dcl.parse(builder)) {
+        if (!`def`.parse(builder, isMod = false, isImplicit = true)) {
+          if (dcl.parse(builder)) {
             builder error ErrMsg("wrong.declaration.in.block")
             return true
           } else {
-            EmptyDcl.parse(builder)
+            emptyDcl.parse(builder)
             builder error ErrMsg("wrong.declaration.in.block")
             return true
           }
         }
       case ScalaTokenTypes.kCLASS | ScalaTokenTypes.kTRAIT | ScalaTokenTypes.kOBJECT =>
-        return TmplDef.parse(builder)
+        return tmplDef.parse(builder)
       case _ if patcher.parse(builder) => parse(builder)
       case _ =>
-        if (!Expr1.parse(builder)) {
-          if (!Def.parse(builder, isMod = false, isImplicit = true)) {
-            if (!TmplDef.parse(builder)) {
-              if (Dcl.parse(builder)) {
+        if (!expr1.parse(builder)) {
+          if (!`def`.parse(builder, isMod = false, isImplicit = true)) {
+            if (!tmplDef.parse(builder)) {
+              if (dcl.parse(builder)) {
                 builder error ErrMsg("wrong.declaration.in.block")
                 return true
               }
               else {
-                if (EmptyDcl.parse(builder)) {
+                if (emptyDcl.parse(builder)) {
                   builder error ErrMsg("wrong.declaration.in.block")
                   return true
                 } else

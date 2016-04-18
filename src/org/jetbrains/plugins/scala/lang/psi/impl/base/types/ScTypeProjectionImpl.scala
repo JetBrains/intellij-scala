@@ -25,16 +25,13 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Comple
 * Date: 13.03.2008
 */
 class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScTypeProjection {
-
-  override def toString: String = "TypeProjection: " + getText
-
   protected def innerType(ctx: TypingContext) = {
     this.bind() match {
       case Some(ScalaResolveResult(elem, subst)) =>
         val te: TypeResult[ScType] = typeElement.getType(ctx)
         te match {
           case Success(ScDesignatorType(pack: PsiPackage), a) =>
-            Success(ScType.designator(elem), Some(this))
+            this.success(ScalaType.designator(elem))
           case _ =>
             te map {ScProjectionType(_, elem, superReference = false)}
         }
@@ -51,7 +48,7 @@ class ScTypeProjectionImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wit
     val isInImport: Boolean = ScalaPsiUtil.getParentOfType(this, classOf[ScImportStmt]) != null
     doResolve(new CompletionProcessor(getKinds(incomplete = true), this)).flatMap {
       case res: ScalaResolveResult =>
-        import org.jetbrains.plugins.scala.lang.psi.types.Nothing
+        import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
         val qualifier = res.fromType.getOrElse(Nothing)
         LookupElementManager.getLookupElement(res, isInImport = isInImport, qualifierType = qualifier, isInStableCodeReference = false)
       case r => Seq(r.getElement)

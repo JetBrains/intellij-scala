@@ -6,6 +6,8 @@ import com.intellij.psi.JavaPsiFacade
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * User: Alexander Podkhalyuzin
@@ -27,7 +29,8 @@ object InspectionsUtil {
     conformsToTypeFromClass(exprType, className, expr.getProject)
   }
 
-  def conformsToTypeFromClass(scType: ScType, className: String, project: Project): Boolean = {
+  def conformsToTypeFromClass(scType: ScType, className: String, project: Project)
+                             (implicit typeSystem: TypeSystem = project.typeSystem): Boolean = {
     def typeFromClassName(fqn: String, project: Project): Option[ScType] = {
       val clazz = JavaPsiFacade.getInstance(project).findClass(fqn, GlobalSearchScope.allScope(project))
       Option(clazz).map { c =>
@@ -35,13 +38,14 @@ object InspectionsUtil {
         c.getTypeParameters.toSeq match {
           case Seq() => designatorType
           case params =>
-            val undefines = params.map(p => ScUndefinedType(new ScTypeParameterType(p, ScSubstitutor.empty)))
-            ScParameterizedType(designatorType, undefines)
+            ScParameterizedType(designatorType, params.map {
+              p => UndefinedType(TypeParameterType(p))
+            })
         }
       }
     }
 
-    if (scType == StdType.NULL || scType == StdType.NOTHING) false
+    if (scType == Null || scType == Nothing) false
     else typeFromClassName(className, project).exists(scType.conforms(_))
   }
 }

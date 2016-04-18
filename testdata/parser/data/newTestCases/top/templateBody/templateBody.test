@@ -50,7 +50,7 @@ ScalaFile
               PsiElement(identifier)('x')
           PsiElement(:)(':')
           PsiWhiteSpace(' ')
-          SimpleTypeElement: Int
+          SimpleType: Int
             CodeReferenceElement: Int
               PsiElement(identifier)('Int')
         PsiWhiteSpace('\n  ')
@@ -60,7 +60,7 @@ ScalaFile
               PsiElement(@)('@')
               AnnotationExpression
                 Constructor
-                  SimpleTypeElement: a
+                  SimpleType: a
                     CodeReferenceElement: a
                       PsiElement(identifier)('a')
           PsiWhiteSpace('\n  ')

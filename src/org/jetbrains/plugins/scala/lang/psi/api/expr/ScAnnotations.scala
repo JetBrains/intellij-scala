@@ -9,8 +9,9 @@ import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
 /**
  * @author Alexander Podkhalyuzin
@@ -29,7 +30,7 @@ trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
   // todo rewrite via continuations
   private def getExceptionTypes: Array[PsiClassType] = {
     val annotations = getAnnotations
-    annotations.map(extractExceptionType _).filter(_ != null)
+    annotations.map(extractExceptionType).filter(_ != null)
   }
 
   private def extractExceptionType(a: ScAnnotation): PsiClassType = {
@@ -44,10 +45,10 @@ trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
                 constr.args match {
                   case Some(args) if args.exprs.length == 1 =>
                     args.exprs(0).getType(TypingContext.empty) match {
-                      case Success(ScParameterizedType(tp, arg), _) if arg.length == 1 =>
-                        ScType.extractClass(tp, Some(getProject)) match {
+                      case Success(ParameterizedType(tp, arg), _) if arg.length == 1 =>
+                        tp.extractClass(getProject) match {
                           case Some(clazz) if clazz.qualifiedName == "java.lang.Class" =>
-                            ScType.extractClass(arg(0), Some(getProject)) match {
+                            arg.head.extractClass(getProject) match {
                               case Some(p) =>
                                 JavaPsiFacade.getInstance(getProject).getElementFactory.
                                   createTypeByFQClassName(p.qualifiedName, GlobalSearchScope.allScope(getProject))

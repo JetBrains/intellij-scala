@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -35,7 +36,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           }
         }
         ref.bind() match {
-          case Some(ScalaResolveResult(f: ScFunction, _)) if f.paramClauses.clauses.length == 0 => fun()
+          case Some(ScalaResolveResult(f: ScFunction, _)) if f.paramClauses.clauses.isEmpty => fun()
           case Some(ScalaResolveResult(c: ScClassParameter, _)) if c.isVal | c.isVar => fun()
           case Some(ScalaResolveResult(b: ScBindingPattern, _)) =>
             b.nameContext match {
@@ -91,10 +92,10 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               }
 
               tp.removeAbstracts match {
-                case ScFunctionType(_, params) if params.length >= unders.length => processFunctionType(params)
+                case FunctionType(_, params) if params.length >= unders.length => processFunctionType(params)
                 case any if ScalaPsiUtil.isSAMEnabled(this) =>
                   ScalaPsiUtil.toSAMType(any, getResolveScope) match {
-                    case Some(ScFunctionType(_, params)) if params.length >= unders.length =>
+                    case Some(FunctionType(_, params)) if params.length >= unders.length =>
                       processFunctionType(params)
                     case _ =>
                   }

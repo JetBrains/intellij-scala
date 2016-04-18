@@ -2,16 +2,17 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.simulacrum
 
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScParameterizedTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignStmt, ScAnnotation}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAnnotation, ScAssignStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector.Kind
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
  * @author Alefas
@@ -48,11 +49,11 @@ class SimulacrumInjection extends SyntheticMembersInjector {
             val tpAdditional = if (clazzTypeParam.typeParameters.nonEmpty) Some(s"Lifted$tpName") else None
             val additionalWithComma = tpAdditional.map(", " + _).getOrElse("")
             val additionalWithBracket = tpAdditional.map("[" + _ + "]").getOrElse("")
-            def isProperTpt(tp: ScType): Option[Option[ScTypeParameterType]] = {
+            def isProperTpt(tp: ScType): Option[Option[TypeParameterType]] = {
               tp match {
-                case ScTypeParameterType(_, _, _, _, param) if param == clazzTypeParam => Some(None)
-                case ScParameterizedType(ScTypeParameterType(_, _, _, _, param),
-                  Seq(p: ScTypeParameterType)) if param == clazzTypeParam => Some(Some(p))
+                case TypeParameterType(_, _, _, _, param) if param == clazzTypeParam => Some(None)
+                case ParameterizedType(TypeParameterType(_, _, _, _, param),
+                Seq(p: TypeParameterType)) if param == clazzTypeParam => Some(Some(p))
                 case _ => None
               }
             }
@@ -95,10 +96,8 @@ class SimulacrumInjection extends SyntheticMembersInjector {
                       case name =>
                         val substOpt = funTypeParamToLift match {
                           case Some(typeParam) if tpAdditional.nonEmpty =>
-                            val subst = ScSubstitutor.empty.bindT((typeParam.name, typeParam.getId),
-                              new ScTypeParameterType(
-                                ScalaPsiElementFactory.createTypeParameterFromText(tpAdditional.get, source.getManager), ScSubstitutor.empty
-                              ))
+                            val subst = ScSubstitutor.empty.bindT(typeParam.nameAndId,
+                              TypeParameterType(ScalaPsiElementFactory.createTypeParameterFromText(tpAdditional.get, source.getManager)))
                             Some(subst)
                           case _ => None
                         }
@@ -140,9 +139,11 @@ class SimulacrumInjection extends SyntheticMembersInjector {
             val AllOpsSupers = clazz.extendsBlock.templateParents.toSeq.flatMap(parents => parents.typeElements.flatMap {
               case te =>
                 te.getType(TypingContext.empty) match {
-                  case Success(ScParameterizedType(classType, Seq(tp)), _) if isProperTpt(tp).isDefined =>
+                  case Success(ParameterizedType(classType, Seq(tp)), _) if isProperTpt(tp).isDefined =>
                     def fromType: Seq[String] = {
-                      ScType.extractClass(classType, Some(clazz.getProject)) match {
+                      val project = clazz.getProject
+                      implicit val typeSystem = project.typeSystem
+                      classType.extractClass(project) match {
                         case Some(cl: ScTypeDefinition) => Seq(s" with ${cl.qualifiedName}.AllOps[$tpName$additionalWithComma]")
                         case _ => Seq.empty
                       }

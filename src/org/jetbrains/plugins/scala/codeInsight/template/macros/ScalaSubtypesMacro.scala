@@ -7,14 +7,15 @@ import com.intellij.psi.search.searches.ClassInheritorsSearch
 import org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType
 import org.jetbrains.plugins.scala.codeInsight.template.util.MacroUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 /**
  * @author Roman.Shein
  * @since 29.09.2015.
  */
-class ScalaSubtypesMacro extends Macro {
+class ScalaSubtypesMacro extends ScalaMacro {
   override def getName: String = MacroUtil.scalaIdPrefix + "subtypes"
 
   override def getPresentableName: String = MacroUtil.scalaPresentablePrefix + "subtypes(TYPE)"
@@ -23,17 +24,19 @@ class ScalaSubtypesMacro extends Macro {
 
   override def isAcceptableInContext(context: TemplateContextType): Boolean = context.isInstanceOf[ScalaCodeContextType]
 
-  override def calculateResult(params: Array[Expression], context: ExpressionContext): Result =
+  override def innerCalculateResult(params: Array[Expression], context: ExpressionContext)
+                                   (implicit typeSystem: TypeSystem): Result =
     if (params.length != 1) null else params(0).calculateResult(context)
 
   override def calculateQuickResult(params: Array[Expression], context: ExpressionContext): Result = calculateResult(params, context)
 
-  override def calculateLookupItems(params: Array[Expression], context: ExpressionContext): Array[LookupElement] = {
+  override def innerCalculateLookupItems(params: Array[Expression], context: ExpressionContext)
+                                        (implicit typeSystem: TypeSystem): Array[LookupElement] = {
     if (params.length != 1) return Array[LookupElement]()
     val project = context.getProject
     params(0).calculateResult(context) match {
       case scTypeRes: ScalaTypeResult =>
-        ScType.extractClass(scTypeRes.myType, Some(context.getProject)) match {
+        scTypeRes.myType.extractClass(project) match {
           case Some(x: ScTypeDefinition) =>
             import scala.collection.JavaConversions._
             ClassInheritorsSearch.search(x, GlobalSearchScope.projectScope(context.getProject), true).findAll().

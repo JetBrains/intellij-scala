@@ -16,7 +16,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -29,7 +32,8 @@ import scala.collection.mutable
 object IntroduceImplicitParameterIntention {
   def familyName = "Introduce implicit parameter"
 
-  def createExpressionToIntroduce(expr: ScFunctionExpr, withoutParameterTypes: Boolean): Either[ScExpression, String] = {
+  def createExpressionToIntroduce(expr: ScFunctionExpr, withoutParameterTypes: Boolean)
+                                 (implicit typeSystem: TypeSystem): Either[ScExpression, String] = {
     def seekParams(fun: ScFunctionExpr): mutable.HashMap[String, Int] = {
       val map: mutable.HashMap[String, Int] = new mutable.HashMap[String, Int]()
       var clearMap = false
@@ -134,7 +138,7 @@ class IntroduceImplicitParameterIntention extends PsiElementBaseIntentionAction 
 
     val startOffset = expr.getTextRange.getStartOffset
 
-    createExpressionToIntroduce(expr, withoutParameterTypes = false) match {
+    createExpressionToIntroduce(expr, withoutParameterTypes = false)(project.typeSystem) match {
       case Left(newExpr) =>
         inWriteAction {
           expr.replace(newExpr)
