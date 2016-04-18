@@ -8,8 +8,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyRef, TypeVisitor, ValueType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, TypeParametersExt}
+import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParametersExt
 
 import scala.collection.mutable
 
