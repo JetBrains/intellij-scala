@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 import scala.collection.immutable.{HashSet, Set}
 import scala.collection.mutable
@@ -21,6 +22,10 @@ import scala.collection.mutable.ArrayBuffer
 */
 case class ScExistentialType(quantified : ScType,
                              wildcards : List[ScExistentialArgument]) extends ValueType {
+
+  override protected def isAliasTypeInner: Option[AliasType] = {
+    quantified.isAliasType.map(a => a.copy(lower = a.lower.map(_.unpackedType), upper = a.upper.map(_.unpackedType)))
+  }
 
   @volatile
   private var _boundNames: List[String] = null
