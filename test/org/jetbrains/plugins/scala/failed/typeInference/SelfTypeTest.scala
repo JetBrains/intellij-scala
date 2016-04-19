@@ -53,4 +53,20 @@ class SelfTypeTest extends TypeInferenceTestBase {
        |}
        |//b.type
       """.stripMargin)
+
+  def testSCL8648(): Unit = {
+    doTest(
+      s"""
+        |trait C {
+        |    type T
+        |  }
+        |
+        |  trait A[S]
+        |
+        |  trait B {
+        |    def bar(x : A[C { type T }]) : A[C] = ${START}x$END
+        |  }
+        |//A[C]
+      """.stripMargin)
+  }
 }
