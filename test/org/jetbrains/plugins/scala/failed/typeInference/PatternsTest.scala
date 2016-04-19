@@ -79,4 +79,25 @@ class PatternsTest extends TypeInferenceTestBase {
       """.stripMargin)
   }
 
+// assertion failed: Cannot resolve expression :: ::
+// test has to be reconfigured
+  def testSCL9052(): Unit = {
+    doTest(
+      s"""
+         |case class Foo[T](a: T)
+         |
+         |class Bar[T] {
+         |  def fix(in: List[Foo[T]]): List[Foo[T]] = {
+         |    def it(i: List[Foo[T]], o: List[Foo[T]]): List[Foo[T]] = {
+         |      in match {
+         |        case c :: rest =>
+         |          val x = c.copy()
+         |          it(i.tail, ${START}(x :: o)$END)
+         |      }}
+         |    it(in, Nil)
+         |}}
+         |//List[Foo[T]]
+      """.stripMargin)
+  }
+
 }
