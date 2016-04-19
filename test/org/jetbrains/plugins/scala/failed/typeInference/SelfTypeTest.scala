@@ -90,4 +90,19 @@ class SelfTypeTest extends TypeInferenceTestBase {
          |//Map[FeedbackReason, String]
       """.stripMargin)
   }
+
+  def testSCL3959(): Unit = {
+    doTest(
+      s"""
+         |class Z[T]
+         |class B[T] {
+         |  def foo(x: T) = x
+         |}
+         |
+         |def foo1[T]: Z[T] = new Z[T]
+         |def goo1[T](x: Z[T]): B[T] = new B[T]
+         |goo1(foo1) foo ${START}1$END
+         |//Nothing
+      """.stripMargin)
+  }
 }
