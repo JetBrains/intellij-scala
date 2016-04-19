@@ -70,7 +70,7 @@ trait ScTypePresentation extends TypeSystemOwner {
 }
 
 object ScTypePresentation {
-  val ABSTRACT_TYPE_PREFIX = "_"
+  val ABSTRACT_TYPE_POSTFIX = "_"
 
   def different(t1: ScType, t2: ScType): (String, String) = {
     val (p1, p2) = (t1.presentableText, t2.presentableText)

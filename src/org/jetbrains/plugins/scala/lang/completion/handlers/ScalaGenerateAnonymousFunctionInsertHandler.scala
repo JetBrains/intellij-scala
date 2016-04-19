@@ -66,7 +66,7 @@ class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs
     val builder: TemplateBuilderImpl = TemplateBuilderFactory.getInstance().
       createTemplateBuilder(commonParent).asInstanceOf[TemplateBuilderImpl]
 
-    val abstractNames = abstracts.map(at => ScTypePresentation.ABSTRACT_TYPE_PREFIX + at.parameterType.name)
+    val abstractNames = abstracts.map(at => at.parameterType.name + ScTypePresentation.ABSTRACT_TYPE_POSTFIX)
 
 
     def seekAbstracts(te: ScTypeElement) {
@@ -76,17 +76,17 @@ class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs
             case Some(ref) =>
               val refName = ref.refName
               if (abstractNames.contains(refName)) {
-                val prefixLength = ScTypePresentation.ABSTRACT_TYPE_PREFIX.length
-                val node = abstracts.find(a => ScTypePresentation.ABSTRACT_TYPE_PREFIX + a.parameterType.name == refName) match {
+                val postfixLength = ScTypePresentation.ABSTRACT_TYPE_POSTFIX.length
+                val node = abstracts.find(a => a.parameterType.name + ScTypePresentation.ABSTRACT_TYPE_POSTFIX == refName) match {
                   case Some(abstr) =>
                     abstr.simplifyType match {
                       case Any | Nothing =>
-                        new ConstantNode(refName.substring(prefixLength))
+                        new ConstantNode(refName.substring(0, refName.length - postfixLength))
                       case tp =>
                         new ConstantNode(tp.presentableText)
                     }
                   case None =>
-                    new ConstantNode(refName.substring(prefixLength))
+                    new ConstantNode(refName.substring(0, refName.length - postfixLength))
                 }
                 builder.replaceElement(simple, refName, node, false)
               }
@@ -128,7 +128,7 @@ class ScalaGenerateAnonymousFunctionInsertHandler(params: Seq[ScType], braceArgs
 
     val template = builder.buildTemplate()
     for (name <- abstractNames) {
-      val actualName: String = name.substring(ScTypePresentation.ABSTRACT_TYPE_PREFIX.length)
+      val actualName: String = name.substring(0, name.length - ScTypePresentation.ABSTRACT_TYPE_POSTFIX.length)
       template.addVariable(name, actualName, actualName, false)
     }
 

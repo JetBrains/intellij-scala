@@ -198,30 +198,10 @@ object ScTypePresentation extends api.ScTypePresentation {
       }
     }
 
-    def abstractTypeText(abstractType: ScAbstractType) = {
-      val ScAbstractType(tpt, lower, upper) = abstractType
-
-      val buffer = new StringBuilder
-      buffer.append("?")
-      buffer.append(api.ScTypePresentation.ABSTRACT_TYPE_PREFIX + tpt.name.capitalize)
-      buffer.append("/*")
-      if (!lower.equiv(Nothing)) {
-        val lowerText: String = " >: " + lower.toString
-        buffer.append(lowerText)
-      }
-      if (!upper.equiv(Any)) {
-        val upperText: String = " <: " + upper.toString
-        buffer.append(upperText)
-      }
-      buffer.append("*/")
-      buffer.toString()
-    }
-
     def innerTypeText(t: ScType, needDotType: Boolean = true, checkWildcard: Boolean = false): String = {
       t match {
         case namedType: NamedType => namedType.name
-        case abstractType: ScAbstractType =>
-          abstractTypeText(abstractType)
+        case ScAbstractType(tpt, lower, upper) => tpt.name.capitalize + api.ScTypePresentation.ABSTRACT_TYPE_POSTFIX
         case f@FunctionType(ret, params) if t.isAliasType.isEmpty =>
           val projectOption = f.extractClass().map(_.getProject)
           val arrow = projectOption.map(ScalaPsiUtil.functionArrow).getOrElse("=>")
