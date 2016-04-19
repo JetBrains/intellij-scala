@@ -18,19 +18,22 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.components.InvalidRepoException;
 import org.jetbrains.plugins.scala.components.ScalaPluginUpdater;
-import org.jetbrains.plugins.scala.components.libinjection.ui.JarCacheModel;
 import org.jetbrains.plugins.scala.components.libinjection.LibraryInjectorLoader$;
+import org.jetbrains.plugins.scala.components.libinjection.ui.JarCacheModel;
 import org.jetbrains.plugins.scala.components.libinjection.ui.JarCacheRenderer;
 import org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings;
 import org.jetbrains.plugins.scala.settings.uiControls.ScalaUiWithDependency;
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner$;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  * User: Alexander Podkhalyuzin
@@ -69,6 +72,7 @@ public class ScalaProjectSettingsPanel {
   private JSlider autoRunDelaySlider;
   private JCheckBox customScalatestSyntaxHighlightingCheckbox;
   private JPanel librariesPanel;
+  private JCheckBox enableScalaPluginExtensionsCheckBox;
   private ScalaUiWithDependency.ComponentWithSettings injectionPrefixTable;
   private Project myProject;
   private JBList librariesList;
@@ -88,6 +92,7 @@ public class ScalaProjectSettingsPanel {
     // This help looks ugly, disabled for now(extended info is in tooltip anyway)
 //    librariesPanel.add(new JLabel("<html>Compiled Injectors<br/>*Loaded Injectors<br/><strike>Disabled Injectors</strike><html>"), BorderLayout.PAGE_START);
     librariesPanel.add(librariesList);
+    librariesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     ToolbarDecorator decorator = ToolbarDecorator.createDecorator(librariesList).setRemoveAction(new AnActionButtonRunnable() {
       @Override
       public void run(AnActionButton anActionButton) {
@@ -98,11 +103,25 @@ public class ScalaProjectSettingsPanel {
     decorator.disableUpAction();
     decorator.addExtraAction(new AnActionButton("Toggle Ignore", AllIcons.Actions.Pause) {
       @Override
+      public boolean isEnabled() {
+        return !librariesList.isSelectionEmpty();
+      }
+
+      @Override
       public void actionPerformed(AnActionEvent e) {
         ((JarCacheModel) librariesList.getModel()).setIgnored(librariesList.getSelectedValue(), librariesList.getSelectedIndex());
       }
     });
     librariesPanel.add(decorator.createPanel());
+
+    enableScalaPluginExtensionsCheckBox.addChangeListener(new ChangeListener() {
+      @Override
+      public void stateChanged(ChangeEvent changeEvent) {
+        boolean selected = ((JCheckBox) changeEvent.getSource()).isSelected();
+        librariesPanel.setEnabled(selected);
+        librariesList.setEnabled(selected);
+      }
+    });
 
     ScalaUiWithDependency[] deps = DependencyAwareInjectionSettings.EP_NAME.getExtensions();
     for (ScalaUiWithDependency uiWithDependency : deps) {
@@ -170,6 +189,7 @@ public class ScalaProjectSettingsPanel {
     scalaProjectSettings.setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
     scalaProjectSettings.setCollectionTypeHighlightingLevel(collectionHighlightingChooser.getSelectedIndex());
     scalaProjectSettings.setAutoRunDelay(getWorksheetDelay());
+    scalaProjectSettings.setEnableLibraryExtensions(enableScalaPluginExtensionsCheckBox.isSelected());
     injectionPrefixTable.saveSettings(scalaProjectSettings);
   }
 
@@ -257,6 +277,9 @@ public class ScalaProjectSettingsPanel {
 
     if (injectionPrefixTable.isModified(scalaProjectSettings)) return true;
 
+    if (scalaProjectSettings.isEnableLibraryExtensions() != enableScalaPluginExtensionsCheckBox.isSelected())
+      return true;
+
     return false;
   }
 
@@ -305,6 +328,8 @@ public class ScalaProjectSettingsPanel {
     setValue(useScalaClassesPriorityCheckBox, scalaProjectSettings.isScalaPriority());
     collectionHighlightingChooser.setSelectedIndex(scalaProjectSettings.getCollectionTypeHighlightingLevel());
     setWorksheetDelay(scalaProjectSettings.getAutoRunDelay());
+
+    setValue(enableScalaPluginExtensionsCheckBox, scalaProjectSettings.isEnableLibraryExtensions());
 
     injectionPrefixTable.loadSettings(scalaProjectSettings);
   }
@@ -518,11 +543,15 @@ public class ScalaProjectSettingsPanel {
     updateChannel.setModel(defaultComboBoxModel2);
     panel7.add(updateChannel, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     final JPanel panel8 = new JPanel();
-    panel8.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
+    panel8.setLayout(new GridLayoutManager(2, 1, new Insets(9, 9, 0, 0), -1, -1));
     tabbedPane1.addTab("Extensions", panel8);
     librariesPanel = new JPanel();
     librariesPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
-    panel8.add(librariesPanel, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    panel8.add(librariesPanel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 1, false));
+    enableScalaPluginExtensionsCheckBox = new JCheckBox();
+    enableScalaPluginExtensionsCheckBox.setSelected(true);
+    enableScalaPluginExtensionsCheckBox.setText("Enable Scala Plugin Extensions");
+    panel8.add(enableScalaPluginExtensionsCheckBox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
   }
 
   /**

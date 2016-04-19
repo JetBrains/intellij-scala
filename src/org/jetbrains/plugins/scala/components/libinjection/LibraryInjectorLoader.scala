@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier.Version
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.collection.mutable
@@ -89,10 +90,12 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   }
 
   def init() = {
-    DumbService.getInstance(project).smartInvokeLater {
-      toRunnable {
-        loadCachedInjectors()
-        rescanAllJars()
+    if (ScalaProjectSettings.getInstance(project).isEnableLibraryExtensions) {
+      DumbService.getInstance(project).smartInvokeLater {
+        toRunnable {
+          loadCachedInjectors()
+          rescanAllJars()
+        }
       }
     }
   }

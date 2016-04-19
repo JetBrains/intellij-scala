@@ -48,6 +48,9 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
   private boolean SCALA_CLASSES_PRIORITY = true;
   private boolean GENERATE_TOSTRING_WITH_FIELD_NAMES = false;
 
+
+  private boolean ENABLE_LIBRARY_EXTENSIONS = true;
+
   //WORKSHEET
   private int OUTPUT_LIMIT = 35;
   private boolean IN_PROCESS_MODE = true;
@@ -295,5 +298,13 @@ public class ScalaProjectSettings  implements PersistentStateComponent<ScalaProj
 
   public void setGenerateToStringWithFieldNames(boolean generateToStringWithFieldNames) {
     this.GENERATE_TOSTRING_WITH_FIELD_NAMES = generateToStringWithFieldNames;
+  }
+
+  public boolean isEnableLibraryExtensions() {
+    return ENABLE_LIBRARY_EXTENSIONS;
+  }
+
+  public void setEnableLibraryExtensions(boolean ENABLE_LIBRARY_EXTENSIONS) {
+    this.ENABLE_LIBRARY_EXTENSIONS = ENABLE_LIBRARY_EXTENSIONS;
   }
 }
