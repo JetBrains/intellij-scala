@@ -69,4 +69,25 @@ class SelfTypeTest extends TypeInferenceTestBase {
         |//A[C]
       """.stripMargin)
   }
+
+  def testSCL9738(): Unit = {
+    doTest(
+      s"""
+         |sealed trait FeedbackReason
+         |case object CostReason extends FeedbackReason
+         |case object BugsReason extends FeedbackReason
+         |case object OtherReason extends FeedbackReason
+         |
+         |object FeedbackTypes {
+         |  def asMap(): Map[FeedbackReason, String] = ${START}{
+         |    val reasons = Map(
+         |      CostReason -> "It's too expensive",
+         |      BugsReason -> "It's buggy"
+         |    )
+         |    reasons ++ Map(OtherReason -> "Some other reason")
+         |  }$END
+         |}
+         |//Map[FeedbackReason, String]
+      """.stripMargin)
+  }
 }
