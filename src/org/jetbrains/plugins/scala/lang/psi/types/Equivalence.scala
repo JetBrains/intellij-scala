@@ -34,12 +34,12 @@ object Equivalence extends api.Equivalence {
       }
 
       right.isAliasType match {
-        case Some(AliasType(ta: ScTypeAliasDefinition, Success(right, _), _)) => return right.equivInner(left, substitutor, falseUndef)
+        case Some(AliasType(ta: ScTypeAliasDefinition, Success(right, _), _)) => return equivInner(left, right, substitutor, falseUndef)
         case _ =>
       }
 
       left.isAliasType match {
-        case Some(AliasType(ta: ScTypeAliasDefinition, Success(left, _), _)) => return left.equivInner(right, substitutor, falseUndef)
+        case Some(AliasType(ta: ScTypeAliasDefinition, Success(left, _), _)) => return equivInner(left, right, substitutor, falseUndef)
         case _ =>
       }
 
