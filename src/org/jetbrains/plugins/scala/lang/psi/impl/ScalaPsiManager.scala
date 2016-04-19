@@ -8,7 +8,7 @@ import java.util.Collections
 import java.util.concurrent.atomic.AtomicLong
 
 import com.intellij.ProjectTopics
-import com.intellij.openapi.components.ProjectComponent
+import com.intellij.openapi.components.AbstractProjectComponent
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.{ModuleRootEvent, ModuleRootListener}
 import com.intellij.openapi.util.{Key, LowMemoryWatcher, ModificationTracker}
@@ -40,7 +40,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.{Seq, mutable}
 
-class ScalaPsiManager(project: Project) extends ProjectComponent {
+class ScalaPsiManager(project: Project) extends AbstractProjectComponent(project) {
 
   private val clearCacheOnChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
   private val clearCacheOnLowMemory = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
@@ -219,59 +219,37 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     strings
   }
 
-  def projectOpened() {}
-  def projectClosed() {}
-  def getComponentName = "ScalaPsiManager"
-  def disposeComponent() {}
-  def initComponent() {
-    def clearOnChange(): Unit = {
-      clearCacheOnChange.foreach(_.clear())
-      Conformance.cache.clear()
-      Equivalence.cache.clear()
-      ScParameterizedType.substitutorCache.clear()
-      ScalaPsiUtil.collectImplicitObjectsCache.clear()
-      ImplicitCollector.cache.clear()
-    }
-
-    def clearOnOutOfCodeBlockChange(): Unit = {
-      clearCacheOnOutOfBlockChange.foreach(_.clear())
-      syntheticPackages.clear()
-    }
-
-    project.getMessageBus.connect.subscribe(PsiModificationTracker.TOPIC, new PsiModificationTracker.Listener {
-      def modificationCountChanged() {
-        clearOnChange()
-        val count = PsiModificationTracker.SERVICE.getInstance(project).getOutOfCodeBlockModificationCount
-        if (outOfCodeBlockModCount != count) {
-          outOfCodeBlockModCount = count
-          clearOnOutOfCodeBlockChange()
-        }
-      }
-
-      @volatile
-      private var outOfCodeBlockModCount: Long = 0L
-    })
-
-    project.getMessageBus.connect.subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
-      def beforeRootsChange(event: ModuleRootEvent) {}
-
-      def rootsChanged(event: ModuleRootEvent) {
-        clearOnChange()
-        clearOnOutOfCodeBlockChange()
-      }
-
-      LowMemoryWatcher.register(new Runnable {
-        def run(): Unit = {
-          clearCacheOnLowMemory.foreach(_.clear())
-          Conformance.cache.clear()
-          Equivalence.cache.clear()
-          ScParameterizedType.substitutorCache.clear()
-          ScalaPsiUtil.collectImplicitObjectsCache.clear()
-          ImplicitCollector.cache.clear()
-        }
-      })
-    })
+  private def clearCaches(): Unit = {
+    Conformance.cache.clear()
+    Equivalence.cache.clear()
+    ScParameterizedType.substitutorCache.clear()
+    ScalaPsiUtil.collectImplicitObjectsCache.clear()
+    ImplicitCollector.cache.clear()
   }
+
+  private def clearOnChange(): Unit = {
+    clearCacheOnChange.foreach(_.clear())
+    clearCaches()
+  }
+
+  private def clearOnLowMemory(): Unit = {
+    clearCacheOnLowMemory.foreach(_.clear())
+    clearCaches()
+  }
+
+  private def clearOnOutOfCodeBlockChange(): Unit = {
+    clearCacheOnOutOfBlockChange.foreach(_.clear())
+    syntheticPackages.clear()
+  }
+
+  override def projectOpened(): Unit = {
+    import ScalaPsiManager._
+
+    subscribeToPsiModification(project)
+    subscribeToRootsChange(project)
+    registerLowMemoryWatcher(project)
+  }
+
 
   private val syntheticPackagesCreator = new SyntheticPackageCreator(project)
   private val syntheticPackages = new WeakValueHashMap[String, Any]
@@ -302,22 +280,25 @@ class ScalaPsiManager(project: Project) extends ProjectComponent {
     }
   }
 
-  def typeVariable(tp: PsiTypeParameter) : ScTypeParameterType = {
+  def typeVariable(typeParameter: PsiTypeParameter): ScTypeParameterType = {
     import org.jetbrains.plugins.scala.Misc.fun2suspension
-    tp match {
-      case stp: ScTypeParam =>
-        val inner = stp.typeParameters.map{typeVariable(_)}.toList
-        val lower = () => stp.lowerBound.getOrNothing
-        val upper = () => stp.upperBound.getOrAny
+    val (name, arguments, lower, upper) = typeParameter match {
+      case typeParam: ScTypeParam =>
         // todo rework for error handling!
-        val res = new ScTypeParameterType(stp.name, inner, lower, upper, stp)
-        res
+        (typeParam.name,
+          typeParam.typeParameters.map(typeVariable).toList,
+          () => typeParam.lowerBound.getOrNothing,
+          () => typeParam.upperBound.getOrAny)
       case _ =>
-        val lower = () => types.Nothing
-        val upper = () => psiTypeParameterUpperType(tp)
-        val res = new ScTypeParameterType(tp.name, Nil, lower, upper, tp)
-        res
+        (typeParameter.name,
+          Nil,
+          () => Nothing,
+          () => {
+            val instance = ScalaPsiManager.instance(typeParameter.getProject)
+            instance.psiTypeParameterUpperType(typeParameter)
+          })
     }
+    ScTypeParameterType(name, arguments, lower, upper, typeParameter)
   }
 
   def getStableTypeAliasesNames: Seq[String] = {
@@ -373,6 +354,44 @@ object ScalaPsiManager {
   object ClassCategory extends Enumeration {
     type ClassCategory = Value
     val ALL, OBJECT, TYPE = Value
+  }
+
+  private def subscribeToPsiModification(project: Project) = {
+    project.getMessageBus.connect(project).subscribe(PsiModificationTracker.TOPIC, new PsiModificationTracker.Listener {
+      def modificationCountChanged() {
+        val manager = ScalaPsiManager.instance(project)
+        manager.clearOnChange()
+        val count = PsiModificationTracker.SERVICE.getInstance(project).getOutOfCodeBlockModificationCount
+        if (outOfCodeBlockModCount != count) {
+          outOfCodeBlockModCount = count
+          manager.clearOnOutOfCodeBlockChange()
+        }
+      }
+
+      @volatile
+      private var outOfCodeBlockModCount: Long = 0L
+    })
+  }
+
+  private def subscribeToRootsChange(project: Project) = {
+    project.getMessageBus.connect(project).subscribe(ProjectTopics.PROJECT_ROOTS, new ModuleRootListener {
+      def beforeRootsChange(event: ModuleRootEvent) {}
+
+      def rootsChanged(event: ModuleRootEvent) {
+        val manager = ScalaPsiManager.instance(project)
+        manager.clearOnChange()
+        manager.clearOnOutOfCodeBlockChange()
+      }
+    })
+  }
+
+  private def registerLowMemoryWatcher(project: Project) = {
+    LowMemoryWatcher.register(new Runnable {
+      def run(): Unit = {
+        val manager = ScalaPsiManager.instance(project)
+        manager.clearOnLowMemory()
+      }
+    }, project)
   }
 }
 
