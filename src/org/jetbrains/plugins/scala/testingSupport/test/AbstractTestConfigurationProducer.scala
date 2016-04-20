@@ -7,7 +7,6 @@ import com.intellij.execution.{Location, RunnerAndConfigurationSettings}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator
 
 /**
  * @author Ksenia.Sautina
@@ -15,10 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluato
  */
 
 trait AbstractTestConfigurationProducer {
-  private var myPsiElement: PsiElement = null
-  private val constEvaluator = new ScalaConstantExpressionEvaluator
-  def getSourceElement: PsiElement = myPsiElement
-
   def suitePaths: List[String]
 
   def createConfigurationByElement(location: Location[_ <: PsiElement],
@@ -27,7 +22,6 @@ trait AbstractTestConfigurationProducer {
     val scope: GlobalSearchScope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(context.getModule, true)
     if (suitePaths.forall(
       suitePath => ScalaPsiManager.instance(context.getProject).getCachedClass(scope, suitePath).orNull == null)) return null
-    myPsiElement = location.getPsiElement
     createConfigurationByLocation(location)//.asInstanceOf[RunnerAndConfigurationSettingsImpl]
   }
 

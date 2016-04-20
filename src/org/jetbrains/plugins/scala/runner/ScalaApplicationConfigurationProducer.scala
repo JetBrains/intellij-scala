@@ -7,8 +7,8 @@ import com.intellij.execution.configurations.ConfigurationUtil
 import com.intellij.execution.impl.RunManagerImpl
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Ref
-import com.intellij.psi.{util => _, _}
 import com.intellij.psi.util.PsiMethodUtil
+import com.intellij.psi.{util => _, _}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -26,8 +26,6 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
   extends JavaRuntimeConfigurationProduceBaseAdapter[T](configurationType)
     with Cloneable {
   import ScalaApplicationConfigurationProducer._
-  
-  def getSourceElement: PsiElement = myPsiElement
 
   def createConfigurationByElement(_location: Location[_ <: PsiElement], context: ConfigurationContext, configuration: T): Boolean = {
     val location = JavaExecutionUtil.stepIntoSingleClass(_location)
@@ -41,11 +39,6 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
     while (method != null) {
       val aClass: PsiClass = method.containingClass
       if (ConfigurationUtil.MAIN_CLASS.value(aClass)) {
-        myPsiElement = method match {
-          case fun: ScFunction => fun.getFirstChild
-          case fun: ScFunctionWrapper => fun.function.getFirstChild
-          case elem => elem.getFirstChild
-        }
         createConfiguration(aClass, context, location, configuration)
         return true
       }
@@ -54,7 +47,6 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
     }
     val aClass: PsiClass = getMainClass(element)
     if (aClass == null) return false
-    myPsiElement = aClass
     createConfiguration(aClass, context, location, configuration)
     true
   }
@@ -66,8 +58,6 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
     setupConfigurationModule(context, configuration)
     JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
   }
-
-  private var myPsiElement: PsiElement = null
 
   private def hasClassAncestorWithName(_element: PsiElement, name: String): Boolean = {
     def isConfigClassWithName(clazz: PsiClass) = clazz match {
@@ -112,13 +102,13 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
     while (method != null) {
       val aClass: PsiClass = method.containingClass
       if (ConfigurationUtil.MAIN_CLASS.value(aClass)) {
-        myPsiElement = method match {
+        val place = method match {
           case fun: ScFunction => fun.getFirstChild
           case fun: ScFunctionWrapper => fun.function.getFirstChild
           case elem => elem.getFirstChild
         }
         createConfiguration(aClass, context, location, configuration)
-        sourceElement.set(myPsiElement)
+        sourceElement.set(place)
         return true
       }
       currentElement = method.getParent
@@ -126,9 +116,8 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
     }
     val aClass: PsiClass = getMainClass(element)
     if (aClass == null) return false
-    myPsiElement = aClass
     createConfiguration(aClass, context, location, configuration)
-    sourceElement.set(myPsiElement)
+    sourceElement.set(aClass)
     true
   }
 }
