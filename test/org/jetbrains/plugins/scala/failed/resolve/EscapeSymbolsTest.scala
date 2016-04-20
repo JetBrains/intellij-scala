@@ -9,4 +9,5 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[PerfCycleTests]))
 class EscapeSymbolsTest extends FailedResolveTest("escapeSymbols") {
   def testSCL10116(): Unit = doTest()
+  def testSCL5375(): Unit = doTest()
 }
