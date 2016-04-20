@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package worksheet.server
 
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.util.containers.ConcurrentWeakHashMap
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.compiler.CompilationProcess
 
 /**
@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.compiler.CompilationProcess
  * Date: 2/20/14
  */
 object WorksheetProcessManager {
-  private val processes = new ConcurrentWeakHashMap[VirtualFile, CompilationProcess]()
+  private val processes = ContainerUtil.createConcurrentWeakMap[VirtualFile, CompilationProcess]()
 
   def add(file: VirtualFile, process: CompilationProcess) {
     process.addTerminationCallback({remove(file)})

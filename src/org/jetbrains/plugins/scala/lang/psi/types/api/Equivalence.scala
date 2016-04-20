@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
+import java.util.concurrent.ConcurrentMap
+
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.{Computable, RecursionManager}
-import com.intellij.util.containers.ConcurrentWeakHashMap
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.lang.psi.types._
 
 /**
@@ -11,8 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 trait Equivalence extends TypeSystemOwner {
   private val guard = RecursionManager.createGuard(s"${typeSystem.name}.equivalence.guard")
 
-  private val cache: ConcurrentWeakHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)] =
-    new ConcurrentWeakHashMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
+  private val cache: ConcurrentMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)] =
+    ContainerUtil.createConcurrentWeakMap[(ScType, ScType, Boolean), (Boolean, ScUndefinedSubstitutor)]()
 
   private val eval = new ThreadLocal[Boolean] {
     override def initialValue(): Boolean = false

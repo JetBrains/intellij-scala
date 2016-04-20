@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
-import com.intellij.util.containers.ConcurrentWeakHashMap
+import java.util.concurrent.ConcurrentMap
+
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.extensions.TraversableExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType.substitutorCache
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
@@ -54,7 +56,8 @@ trait ParameterizedType extends TypeInTypeSystem with ValueType {
 }
 
 object ParameterizedType {
-  val substitutorCache: ConcurrentWeakHashMap[ParameterizedType, ScSubstitutor] = new ConcurrentWeakHashMap()
+  val substitutorCache: ConcurrentMap[ParameterizedType, ScSubstitutor] =
+    ContainerUtil.createConcurrentWeakMap[ParameterizedType, ScSubstitutor]()
 
   def apply(designator: ScType, typeArguments: Seq[ScType])
            (implicit typeSystem: TypeSystem) = typeSystem.parameterizedType(designator, typeArguments)
