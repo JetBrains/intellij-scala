@@ -7,8 +7,8 @@ import com.intellij.execution.configurations.ConfigurationUtil
 import com.intellij.execution.impl.RunManagerImpl
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.Ref
-import com.intellij.psi.{util => _, _}
 import com.intellij.psi.util.PsiMethodUtil
+import com.intellij.psi.{util => _, _}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -21,8 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, ScFunctionWr
  */
 class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProduceBaseAdapter[ApplicationConfiguration](ApplicationConfigurationType.getInstance) with Cloneable {
   import ScalaApplicationConfigurationProducer._
-  
-  def getSourceElement: PsiElement = myPsiElement
 
   def createConfigurationByElement(_location: Location[_ <: PsiElement], context: ConfigurationContext, configuration: ApplicationConfiguration): Boolean = {
     val location = JavaExecutionUtil.stepIntoSingleClass(_location)
@@ -36,11 +34,6 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
     while (method != null) {
       val aClass: PsiClass = method.containingClass
       if (ConfigurationUtil.MAIN_CLASS.value(aClass)) {
-        myPsiElement = method match {
-          case fun: ScFunction => fun.getFirstChild
-          case fun: ScFunctionWrapper => fun.function.getFirstChild
-          case elem => elem.getFirstChild
-        }
         createConfiguration(aClass, context, location, configuration)
         return true
       }
@@ -49,7 +42,6 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
     }
     val aClass: PsiClass = getMainClass(element)
     if (aClass == null) return false
-    myPsiElement = aClass
     createConfiguration(aClass, context, location, configuration)
     true
   }
@@ -61,8 +53,6 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
     setupConfigurationModule(context, configuration)
     JavaRunConfigurationExtensionManager.getInstance.extendCreatedConfiguration(configuration, location)
   }
-
-  private var myPsiElement: PsiElement = null
 
   private def hasClassAncestorWithName(_element: PsiElement, name: String): Boolean = {
     def isConfigClassWithName(clazz: PsiClass) = clazz match {
@@ -107,13 +97,13 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
     while (method != null) {
       val aClass: PsiClass = method.containingClass
       if (ConfigurationUtil.MAIN_CLASS.value(aClass)) {
-        myPsiElement = method match {
+        val place = method match {
           case fun: ScFunction => fun.getFirstChild
           case fun: ScFunctionWrapper => fun.function.getFirstChild
           case elem => elem.getFirstChild
         }
         createConfiguration(aClass, context, location, configuration)
-        sourceElement.set(myPsiElement)
+        sourceElement.set(place)
         return true
       }
       currentElement = method.getParent
@@ -121,9 +111,8 @@ class ScalaApplicationConfigurationProducer extends JavaRuntimeConfigurationProd
     }
     val aClass: PsiClass = getMainClass(element)
     if (aClass == null) return false
-    myPsiElement = aClass
     createConfiguration(aClass, context, location, configuration)
-    sourceElement.set(myPsiElement)
+    sourceElement.set(aClass)
     true
   }
 }
