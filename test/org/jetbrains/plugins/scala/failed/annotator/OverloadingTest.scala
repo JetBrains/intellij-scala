@@ -63,20 +63,7 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
       }
     }
   }
-  
-  def testSCL7010(): Unit = assert(
-    collectMessages(
-      """
-        |  object O {
-        |    case class Z()
-        |
-        |    def Z(i: Int) = 123
-        |
-        |    val x: Int => Int = Z
-        |  }
-      """.stripMargin).isEmpty
-  )
-  
+
   def testSCL3878(): Unit = assert(
     collectMessages(
       """

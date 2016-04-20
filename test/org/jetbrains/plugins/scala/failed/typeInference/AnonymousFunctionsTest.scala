@@ -37,4 +37,16 @@ class AnonymousFunctionsTest extends TypeInferenceTestBase {
       |//(Int) => Unit
     """.stripMargin.trim
   }
+
+  def testSCL7010(): Unit = doTest {
+    """
+      |object O {
+      |    case class Z()      |
+      |    def Z(i: Int) = 123      |
+      |    val x: Int => Int = /*start*/Z/*end*/
+      |  }
+      |//(Int) => Unit
+    """.stripMargin.trim
+  }
+
 }
