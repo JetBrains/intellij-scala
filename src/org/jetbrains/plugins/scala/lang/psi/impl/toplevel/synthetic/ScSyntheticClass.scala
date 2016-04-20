@@ -188,12 +188,12 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 
 class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectComponent {
-  def projectOpened() {}
-  def projectClosed() {}
-  def getComponentName = "SyntheticClasses"
-  def disposeComponent() {}
+  def projectOpened(): Unit = {}
+  def disposeComponent(): Unit = {}
 
-  def initComponent() {
+  def getComponentName = "SyntheticClasses"
+
+  override def initComponent(): Unit = {
     StartupManager.getInstance(project).registerPostStartupActivity(new Runnable {
       def run() {
         registerClasses()
@@ -201,9 +201,33 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     })
   }
 
+  def projectClosed(): Unit = {
+    scriptSyntheticValues.clear()
+    all.clear()
+    numeric.clear()
+    integer.clear()
+    syntheticObjects.clear()
+
+    stringPlusMethod = null
+    scriptSyntheticValues = null
+    all = null
+    numeric = null
+    integer = null
+    syntheticObjects = null
+    file = null
+  }
+
   private implicit val typeSystem = project.typeSystem
   private var classesInitialized: Boolean = false
   def isClassesRegistered: Boolean = classesInitialized
+
+  var stringPlusMethod: ScType => ScSyntheticFunction = null
+  var scriptSyntheticValues: mutable.Set[ScSyntheticValue] = new mutable.HashSet[ScSyntheticValue]
+  var all: mutable.Map[String, ScSyntheticClass] = new mutable.HashMap[String, ScSyntheticClass]
+  var numeric: mutable.Set[ScSyntheticClass] = new mutable.HashSet[ScSyntheticClass]
+  var integer : mutable.Set[ScSyntheticClass] = new mutable.HashSet[ScSyntheticClass]
+  var syntheticObjects: mutable.Set[ScObject] = new mutable.HashSet[ScObject]
+  var file : PsiFile = _
 
   def registerClasses() {
     all = new mutable.HashMap[String, ScSyntheticClass]
@@ -429,21 +453,12 @@ object Unit
     classesInitialized = true
   }
 
-  var stringPlusMethod: ScType => ScSyntheticFunction = null
-  var scriptSyntheticValues: mutable.Set[ScSyntheticValue] = new mutable.HashSet[ScSyntheticValue]
-  var all: mutable.Map[String, ScSyntheticClass] = new mutable.HashMap[String, ScSyntheticClass]
-  var numeric: mutable.Set[ScSyntheticClass] = new mutable.HashSet[ScSyntheticClass]
-  var integer : mutable.Set[ScSyntheticClass] = new mutable.HashSet[ScSyntheticClass]
-  var syntheticObjects: mutable.Set[ScObject] = new mutable.HashSet[ScObject]
-
   def op_type (ic1 : ScSyntheticClass, ic2 : ScSyntheticClass) = (ic1.t, ic2.t) match {
     case (_, Double) | (Double, _) => Double
     case (Float, _) | (_, Float) => Float
     case (_, Long) | (Long, _)=> Long
     case _ => Int
   }
-
-  var file : PsiFile = _
 
   def registerClass(t: StdType, name: String) = {
     val manager = PsiManager.getInstance(project)
