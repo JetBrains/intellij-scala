@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import java.util.concurrent.ConcurrentMap
-
 import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.{JavaModuleType, Module, ModuleUtil}
@@ -20,7 +18,6 @@ import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
-import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, _}
@@ -584,14 +581,12 @@ object ScalaPsiUtil {
     index.getModuleForFile(element.getContainingFile.getVirtualFile)
   }
 
-  val collectImplicitObjectsCache: ConcurrentMap[(ScType, Project, GlobalSearchScope), Seq[ScType]] =
-    ContainerUtil.createConcurrentWeakMap[(ScType, Project, GlobalSearchScope), Seq[ScType]]()
-
   def collectImplicitObjects(_tp: ScType, project: Project, scope: GlobalSearchScope)
                             (implicit typeSystem: TypeSystem = project.typeSystem): Seq[ScType] = {
     val tp = _tp.removeAliasDefinitions()
-    val cacheKey = (tp, project, scope)
-    var cachedResult = collectImplicitObjectsCache.get(cacheKey)
+    val implicitObjectsCache = ScalaPsiManager.instance(project).collectImplicitObjectsCache
+    val cacheKey = (tp, scope)
+    var cachedResult = implicitObjectsCache.get(cacheKey)
     if (cachedResult != null) return cachedResult
 
     val visited: mutable.HashSet[ScType] = new mutable.HashSet[ScType]()
@@ -744,7 +739,7 @@ object ScalaPsiUtil {
       collectObjects(part)
     }
     cachedResult = res.values.flatten.toSeq
-    collectImplicitObjectsCache.put(cacheKey, cachedResult)
+    implicitObjectsCache.put(cacheKey, cachedResult)
     cachedResult
   }
 

@@ -5,6 +5,7 @@ package impl
 
 import java.util
 import java.util.Collections
+import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.atomic.AtomicLong
 
 import com.intellij.ProjectTopics
@@ -18,7 +19,7 @@ import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.util.PsiModificationTracker
 import com.intellij.util.ArrayUtil
-import com.intellij.util.containers.WeakValueHashMap
+import com.intellij.util.containers.{ContainerUtil, WeakValueHashMap}
 import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
@@ -30,12 +31,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes.{Map => SMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TypeNodes.{Map => TMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers._
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Null, ParameterizedType, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer
+import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, SyntheticClassProducer}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
@@ -47,6 +47,12 @@ class ScalaPsiManager(val project: Project) {
   private val clearCacheOnChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
   private val clearCacheOnLowMemory = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
   private val clearCacheOnOutOfBlockChange = new mutable.ArrayBuffer[util.Map[_ <: Any, _ <: Any]]()
+
+  val collectImplicitObjectsCache: ConcurrentMap[(ScType, GlobalSearchScope), Seq[ScType]] =
+    ContainerUtil.createConcurrentWeakMap[(ScType, GlobalSearchScope), Seq[ScType]]()
+
+  val implicitCollectorCache: ConcurrentMap[(PsiElement, ScType), Seq[ScalaResolveResult]] =
+    ContainerUtil.newConcurrentMap[(PsiElement, ScType), Seq[ScalaResolveResult]]()
 
   def getParameterlessSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): PMap = {
     if (ScalaProjectSettings.getInstance(project).isDontCacheCompoundTypes) ParameterlessNodes.build(tp, compoundTypeThisType)(ScalaTypeSystem)
@@ -231,8 +237,8 @@ class ScalaPsiManager(val project: Project) {
     conformance.clearCache()
     equivalence.clearCache()
     ParameterizedType.substitutorCache.clear()
-    ScalaPsiUtil.collectImplicitObjectsCache.clear()
-    ImplicitCollector.cache.clear()
+    collectImplicitObjectsCache.clear()
+    implicitCollectorCache.clear()
   }
 
   private def clearOnChange(): Unit = {
@@ -420,6 +426,11 @@ class ScalaPsiManagerComponent(project: Project) extends AbstractProjectComponen
 
   override def projectOpened(): Unit = {
     manager.projectOpened()
+  }
+
+  override def projectClosed(): Unit = {
+    //todo make separate substitutorCache for each project
+    ParameterizedType.substitutorCache.clear()
   }
 
   override def disposeComponent(): Unit = {

@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala
 package lang.psi.implicits
 
+import java.util.concurrent.ConcurrentMap
+
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.containers.ContainerUtil
@@ -19,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{InferUtil, MacroInferUtil}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -34,7 +38,10 @@ import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
 object ImplicitCollector {
-  val cache = ContainerUtil.newConcurrentMap[(PsiElement, ScType), Seq[ScalaResolveResult]]()
+  def cache(project: Project): ConcurrentMap[(PsiElement, ScType), Seq[ScalaResolveResult]] = {
+    if (project != null) ScalaPsiManager.instance(project).implicitCollectorCache
+    else ContainerUtil.newConcurrentMap[(PsiElement, ScType), Seq[ScalaResolveResult]]()
+  }
 
   def exprType(expr: ScExpression, fromUnder: Boolean): Option[ScType] = {
     expr.getTypeWithoutImplicits(fromUnderscore = fromUnder).toOption.map {
@@ -93,11 +100,13 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
   def collect(fullInfo: Boolean = false)
              (implicit typeSystem: TypeSystem): Seq[ScalaResolveResult] = {
     def calc(): Seq[ScalaResolveResult] = {
-      tp.extractClass(place.getProject) match {
+      val project = place.getProject
+      tp.extractClass(project) match {
         case Some(clazz) if InferUtil.skipQualSet.contains(clazz.qualifiedName) => return Seq.empty
         case _ =>
       }
-      var result = ImplicitCollector.cache.get((place, tp))
+      val implicitCollectorCache = ImplicitCollector.cache(project)
+      var result = implicitCollectorCache.get((place, tp))
       if (result != null && !fullInfo) return result
       ProgressManager.checkCanceled()
       var processor = new ImplicitParametersProcessor(false)
@@ -120,7 +129,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                 placeCalculated = true //we need to check that, otherwise we will be outside
               case _ =>
             }
-            if (predicate.isEmpty) result = ImplicitCollector.cache.get((place, tp))
+            if (predicate.isEmpty) result = implicitCollectorCache.get((place, tp))
             if (result != null && !fullInfo) return result
           }
           lastParent = placeForTreeWalkUp
@@ -135,14 +144,14 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
 
       if (!fullInfo) processor = new ImplicitParametersProcessor(true)
 
-      for (obj <- ScalaPsiUtil.collectImplicitObjects(expandedTp, place.getProject, place.getResolveScope)) {
+      for (obj <- ScalaPsiUtil.collectImplicitObjects(expandedTp, project, place.getResolveScope)) {
         processor.processType(obj, place, ResolveState.initial())
       }
 
       val secondCandidates = processor.candidatesS(fullInfo).toSeq
       result =
         if (secondCandidates.isEmpty) candidates else secondCandidates
-      if (predicate.isEmpty && !fullInfo) ImplicitCollector.cache.put((place, tp), result)
+      if (predicate.isEmpty && !fullInfo) implicitCollectorCache.put((place, tp), result)
       result
     }
 
