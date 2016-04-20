@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
  * Pavel Fatin
  */
 
-trait PsiElementExtTrait {
+trait PsiElementExtTrait extends Any {
   protected def repr: PsiElement
 
   def firstChild: Option[PsiElement] = Option(repr.getFirstChild)

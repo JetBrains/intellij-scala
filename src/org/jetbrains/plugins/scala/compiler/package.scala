@@ -34,7 +34,7 @@ package object compiler {
     }
   }
 
-  implicit class RichFile(val file: File) {
+  implicit class RichFile(val file: File) extends AnyVal {
     def canonicalPath: String = FileUtil.toCanonicalPath(file.getPath)
   }
 }

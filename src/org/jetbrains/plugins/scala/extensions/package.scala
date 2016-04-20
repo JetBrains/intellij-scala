@@ -176,7 +176,7 @@ package object extensions {
     def parenthesisedIf(condition: Boolean) = if (condition) "(" + s + ")" else s
   }
 
-  implicit class PsiElementExt(override val repr: PsiElement) extends PsiElementExtTrait {
+  implicit class PsiElementExt(override val repr: PsiElement) extends AnyVal with PsiElementExtTrait {
     def startOffsetInParent: Int = {
       repr match {
         case s: ScalaPsiElement => s.startOffsetInParent

@@ -27,7 +27,7 @@ import scala.util.matching.Regex
  * @author Pavel Fatin
  */
 package object project {
-  implicit class LibraryExt(library: Library) {
+  implicit class LibraryExt(val library: Library) extends AnyVal {
     def isScalaSdk: Boolean = libraryEx.getKind.isInstanceOf[ScalaLibraryKind]
 
     def scalaVersion: Option[Version] = LibraryVersion.findFirstIn(library.getName).map(Version(_))
@@ -56,7 +56,7 @@ package object project {
     def classes: Set[File] = library.getFiles(OrderRootType.CLASSES).toSet.map(VfsUtilCore.virtualToIoFile)
   }
 
-  implicit class ModuleExt(module: Module) {
+  implicit class ModuleExt(val module: Module) extends AnyVal {
     def hasScala: Boolean = scalaSdk.isDefined
 
     def hasDotty: Boolean = scalaSdk.exists(_.isDottySdk)
@@ -131,7 +131,7 @@ package object project {
     private def compilerConfiguration = ScalaCompilerConfiguration.instanceIn(module.getProject)
   }
 
-  implicit class ProjectExt(project: Project) {
+  implicit class ProjectExt(val project: Project) extends AnyVal {
     private def modules: Seq[Module] = ModuleManager.getInstance(project).getModules.toSeq
 
     def hasScala: Boolean = modules.exists(_.hasScala)
@@ -183,8 +183,10 @@ package object project {
       ProjectLibraryTable.getInstance(project).removeLibrary(library)
     }
 
-    def typeSystem: TypeSystem = if (hasDotty) DottyTypeSystem else ScalaTypeSystem
+    def typeSystem: TypeSystem = typeSystemIn(project)
   }
+
+  def typeSystemIn(project: Project): TypeSystem = if (project.hasDotty) DottyTypeSystem else ScalaTypeSystem
 
   class ScalaModule(val module: Module) {
     def sdk: ScalaSdk = module.scalaSdk.map(new ScalaSdk(_)).getOrElse {
@@ -217,7 +219,7 @@ package object project {
       "http://www.scala-lang.org/api/" + version.map(_.number).getOrElse("current") + "/"
   }
 
-  implicit class ProjectPsiElementExt(element: PsiElement) {
+  implicit class ProjectPsiElementExt(val element: PsiElement) extends AnyVal {
     def module: Option[Module] = Option(ModuleUtilCore.findModuleForPsiElement(element))
 
     def isInScalaModule: Boolean = module.exists(_.hasScala)

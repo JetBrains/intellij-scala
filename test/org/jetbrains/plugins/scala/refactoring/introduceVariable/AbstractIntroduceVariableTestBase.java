@@ -134,7 +134,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
         ScExpression selectedExpr = null;
         ScType[] types = null;
         Option<Tuple2<ScExpression, ScType[]>> maybeExpression = ScalaRefactoringUtil.getExpression(project, myEditor, myFile, startOffset, endOffset,
-                package$.MODULE$.ProjectExt(project).typeSystem());
+                package$.MODULE$.typeSystemIn(project));
         if (maybeExpression instanceof Some) {
           Some expression = (Some) maybeExpression;
           selectedExpr = IntroduceVariableTestUtil.extract1((Tuple2<ScExpression, ScType[]>) expression.get());
