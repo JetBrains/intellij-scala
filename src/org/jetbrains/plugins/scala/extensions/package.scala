@@ -418,9 +418,16 @@ package object extensions {
   }
 
   def inWriteAction[T](body: => T): T = {
-    ApplicationManager.getApplication.runWriteAction(new Computable[T] {
-      def compute: T = body
-    })
+    val application = ApplicationManager.getApplication
+
+    if (application.isWriteAccessAllowed) body
+    else {
+      application.runWriteAction(
+        new Computable[T] {
+          def compute: T = body
+        }
+      )
+    }
   }
 
   def inWriteCommandAction[T](project: Project, commandName: String = "Undefined")(body: => T): T = {
@@ -435,9 +442,16 @@ package object extensions {
   }
 
   def inReadAction[T](body: => T): T = {
-    ApplicationManager.getApplication.runReadAction(new Computable[T] {
-      def compute: T = body
-    })
+    val application = ApplicationManager.getApplication
+
+    if (application.isReadAccessAllowed) body
+    else {
+      application.runReadAction(
+        new Computable[T] {
+          override def compute(): T = body
+        }
+      )
+    }
   }
 
   def executeOnPooledThread[T](body: => T): Future[T] = {
