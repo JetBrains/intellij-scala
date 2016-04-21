@@ -58,7 +58,7 @@ package object project {
   implicit class ModuleExt(val module: Module) extends AnyVal {
     def hasScala: Boolean = scalaSdk.isDefined
 
-    def hasDotty: Boolean = scalaSdk.exists(_.isDottySdk)
+    def hasDotty: Boolean = scalaSdk.isDefined && scalaSdk.get.isDottySdk
 
     def scalaSdk: Option[ScalaSdk] = ScalaSdkCache.instanceIn(module.getProject).get(module)
 
@@ -175,8 +175,10 @@ package object project {
   }
 
   class ScalaSdk(val library: Library) {
-    private def properties: ScalaLibraryProperties = library.scalaProperties.getOrElse {
-      throw new IllegalStateException("Library is not Scala SDK: " + library.getName)
+    //too many instances of anonymous functions was created on getOrElse()
+    private def properties: ScalaLibraryProperties = library.scalaProperties match {
+      case Some(p) => p
+      case None => throw new IllegalStateException("Library is not Scala SDK: " + library.getName)
     }
 
     def compilerVersion: Option[String] = LibraryVersion.findFirstIn(library.getName)
