@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, PsiTypeParamatersExt, TypeParameter, TypeSystem}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, PsiTypeParamatersExt, TypeParameter, TypeParameterType, TypeSystem}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -223,15 +223,13 @@ object Signature {
   )
 
   def unify(subst: ScSubstitutor, tps1: Array[TypeParameter], tps2: Array[TypeParameter]) = {
-    var res = subst
+    var result = subst
     val iterator1 = tps1.iterator
     val iterator2 = tps2.iterator
     while (iterator1.hasNext && iterator2.hasNext) {
-      val (tp1, tp2) = (iterator1.next(), iterator2.next())
-
-      res = res bindT(tp2.nameAndId, tp1.toType)
+      result = result.bindT(iterator2.next().nameAndId, TypeParameterType(iterator1.next()))
     }
-    res
+    result
   }
 }
 

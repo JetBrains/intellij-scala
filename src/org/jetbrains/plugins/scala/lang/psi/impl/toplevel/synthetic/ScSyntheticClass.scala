@@ -241,7 +241,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     any.addMethod(new ScSyntheticFunction(manager, "##", Int, Seq.empty))
     any.addMethod(new ScSyntheticFunction(manager, "isInstanceOf", Boolean, Seq.empty, Seq(ScalaUtils.typeParameter)))
     any.addMethod(new ScSyntheticFunction(manager, "asInstanceOf", Any, Seq.empty, Seq(ScalaUtils.typeParameter)) {
-      override val retType = ScalaPsiManager.typeVariable(typeParams.head)
+      override val retType = TypeParameterType(typeParams.head, None)
     })
 
     val anyRef = registerClass(api.AnyRef, "AnyRef")
@@ -249,8 +249,8 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     anyRef.addMethod(new ScSyntheticFunction(manager, "ne", Boolean, Seq(Seq(api.AnyRef))))
     anyRef.addMethod(new ScSyntheticFunction(manager, "synchronized", Any, Seq.empty, Seq(ScalaUtils.typeParameter)) {
       override val paramClauses: Seq[Seq[Parameter]] = Seq(Seq(new Parameter("", None,
-        ScalaPsiManager.typeVariable(typeParams.head), false, false, false, 0)))
-      override val retType: ScType = ScalaPsiManager.typeVariable(typeParams.head)
+        TypeParameterType(typeParams.head, None), false, false, false, 0)))
+      override val retType: ScType = TypeParameterType(typeParams.head, None)
     })
 
     registerClass(AnyVal, "AnyVal")

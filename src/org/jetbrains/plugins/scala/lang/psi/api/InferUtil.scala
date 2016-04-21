@@ -356,55 +356,59 @@ object InferUtil {
             val undefiningSubstitutor = new ScSubstitutor(typeParams.map(typeParam => {
               (typeParam.nameAndId, UndefinedType(TypeParameterType(typeParam.psiTypeParameter)))
             }).toMap, Map.empty, None)
-            ScTypePolymorphicType(retType, typeParams.map(tp => {
-              var lower = tp.lowerType()
-              var upper = tp.upperType()
-              def hasRecursiveTypeParameters(typez: ScType): Boolean = {
-                var hasRecursiveTypeParameters = false
-                typez.recursiveUpdate {
-                  case tpt: TypeParameterType =>
-                    typeParams.find(_.nameAndId == tpt.nameAndId) match {
-                      case None => (true, tpt)
-                      case _ =>
-                        hasRecursiveTypeParameters = true
-                        (true, tpt)
-                    }
-                  case tp: ScType => (hasRecursiveTypeParameters, tp)
+            ScTypePolymorphicType(retType, typeParams.map {
+              case tp@TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
+                var lower = lowerType.v
+                var upper = upperType.v
+                def hasRecursiveTypeParameters(typez: ScType): Boolean = {
+                  var hasRecursiveTypeParameters = false
+                  typez.recursiveUpdate {
+                    case tpt: TypeParameterType =>
+                      typeParams.find(_.nameAndId == tpt.nameAndId) match {
+                        case None => (true, tpt)
+                        case _ =>
+                          hasRecursiveTypeParameters = true
+                          (true, tpt)
+                      }
+                    case tp: ScType => (hasRecursiveTypeParameters, tp)
+                  }
+                  hasRecursiveTypeParameters
                 }
-                hasRecursiveTypeParameters
-              }
-              val nameAndId = tp.nameAndId
-              subst.lMap.get(nameAndId) match {
-                case Some(_addLower) =>
-                  val substedLowerType = unSubst.subst(lower)
-                  val addLower =
-                    if (tp.typeParameters.nonEmpty && !_addLower.isInstanceOf[ScParameterizedType] &&
-                      !tp.typeParameters.exists(_.name == "_"))
-                      ScParameterizedType(_addLower, tp.typeParameters.map(_.toType))
-                    else _addLower
-                  if (hasRecursiveTypeParameters(substedLowerType)) lower = addLower
-                  else lower = substedLowerType.lub(addLower)
-                case None =>
-                  lower = unSubst.subst(lower)
-              }
-              subst.rMap.get(nameAndId) match {
-                case Some(_addUpper) =>
-                  val substedUpperType = unSubst.subst(upper)
-                  val addUpper =
-                    if (tp.typeParameters.nonEmpty && !_addUpper.isInstanceOf[ScParameterizedType] &&
-                      !tp.typeParameters.exists(_.name == "_"))
-                      ScParameterizedType(_addUpper, tp.typeParameters.map(_.toType))
-                    else _addUpper
-                  if (hasRecursiveTypeParameters(substedUpperType)) upper = addUpper
-                  else upper = substedUpperType.glb(addUpper)
-                case None =>
-                  upper = unSubst.subst(upper)
-              }
+                val nameAndId = tp.nameAndId
+                subst.lMap.get(nameAndId) match {
+                  case Some(_addLower) =>
+                    val substedLowerType = unSubst.subst(lower)
+                    val addLower =
+                      if (typeParameters.nonEmpty && !_addLower.isInstanceOf[ScParameterizedType] &&
+                        !typeParameters.exists(_.name == "_"))
+                        ScParameterizedType(_addLower, typeParameters.map(TypeParameterType(_)))
+                      else _addLower
+                    if (hasRecursiveTypeParameters(substedLowerType)) lower = addLower
+                    else lower = substedLowerType.lub(addLower)
+                  case None =>
+                    lower = unSubst.subst(lower)
+                }
+                subst.rMap.get(nameAndId) match {
+                  case Some(_addUpper) =>
+                    val substedUpperType = unSubst.subst(upper)
+                    val addUpper =
+                      if (typeParameters.nonEmpty && !_addUpper.isInstanceOf[ScParameterizedType] &&
+                        !typeParameters.exists(_.name == "_"))
+                        ScParameterizedType(_addUpper, typeParameters.map(TypeParameterType(_)))
+                      else _addUpper
+                    if (hasRecursiveTypeParameters(substedUpperType)) upper = addUpper
+                    else upper = substedUpperType.glb(addUpper)
+                  case None =>
+                    upper = unSubst.subst(upper)
+                }
 
-              if (safeCheck && !undefiningSubstitutor.subst(lower).weakConforms(undefiningSubstitutor.subst(upper)))
-                throw new SafeCheckException
-              TypeParameter(tp.name, tp.typeParameters /* doesn't important here */ , () => lower, () => upper, tp.psiTypeParameter)
-            }))
+                if (safeCheck && !undefiningSubstitutor.subst(lower).weakConforms(undefiningSubstitutor.subst(upper)))
+                  throw new SafeCheckException
+                TypeParameter(typeParameters, /* doesn't important here */
+                  new Suspension(lower),
+                  new Suspension(upper),
+                  psiTypeParameter)
+            })
           } else {
             typeParams.foreach { case tp =>
               val nameAndId = tp.nameAndId
@@ -424,14 +428,14 @@ object InferUtil {
                   hasRecursiveTypeParameters
                 }
                 //todo: add only one of them according to variance
-                if (tp.lowerType() != Nothing) {
-                  val substedLowerType = unSubst.subst(tp.lowerType())
+                if (tp.lowerType.v != Nothing) {
+                  val substedLowerType = unSubst.subst(tp.lowerType.v)
                   if (!hasRecursiveTypeParameters(substedLowerType)) {
                     un = un.addLower(nameAndId, substedLowerType, additional = true)
                   }
                 }
-                if (tp.upperType() != Any) {
-                  val substedUpperType = unSubst.subst(tp.upperType())
+                if (tp.upperType.v != Any) {
+                  val substedUpperType = unSubst.subst(tp.upperType.v)
                   if (!hasRecursiveTypeParameters(substedUpperType)) {
                     un = un.addUpper(nameAndId, substedUpperType, additional = true)
                   }
@@ -487,8 +491,13 @@ object InferUtil {
                     }
                   }
                   !removeMe
-              }.map(tp => TypeParameter(tp.name, tp.typeParameters /* doesn't important here */ ,
-                () => sub.subst(tp.lowerType()), () => sub.subst(tp.upperType()), tp.psiTypeParameter)))
+              }.map {
+                case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
+                  TypeParameter(typeParameters, /* doesn't important here */
+                    new Suspension(sub.subst(lowerType.v)),
+                    new Suspension(sub.subst(upperType.v)),
+                    psiTypeParameter)
+              })
             }
 
             un.getSubstitutor match {

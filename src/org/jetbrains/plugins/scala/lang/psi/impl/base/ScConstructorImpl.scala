@@ -80,7 +80,7 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
     if (clazz.getTypeParameters.isEmpty) {
       tp
     } else {
-      ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_, subst)))
+      ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_, Some(subst))))
     }
   }
 

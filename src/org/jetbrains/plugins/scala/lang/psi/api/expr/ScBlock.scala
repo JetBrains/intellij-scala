@@ -109,7 +109,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
                 ex
               case clazz: ScTypeDefinition =>
                 val t = existize(leastClassType(clazz), visitedWithT)
-                val vars = clazz.typeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}.toList
+                val vars = clazz.typeParameters.map(TypeParameterType(_, None)).toList
                 val ex = new ScExistentialArgument(clazz.name, vars, t, t)
                 m.put(clazz.name, ex)
                 ex
@@ -124,9 +124,12 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
             case ScCompoundType(comps, signatureMap, typesMap) =>
               new ScCompoundType(comps.map(existize(_, visitedWithT)), signatureMap.map {
                 case (s: Signature, tp) =>
-                  def updateTypeParam(tp: TypeParameter): TypeParameter = {
-                    new TypeParameter(tp.name, tp.typeParameters.map(updateTypeParam), () => existize(tp.lowerType(), visitedWithT),
-                      () => existize(tp.upperType(), visitedWithT), tp.psiTypeParameter)
+                  def updateTypeParam: TypeParameter => TypeParameter = {
+                    case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
+                      TypeParameter(typeParameters.map(updateTypeParam),
+                        new Suspension(existize(lowerType.v, visitedWithT)),
+                        new Suspension(existize(upperType.v, visitedWithT)),
+                        psiTypeParameter)
                   }
 
                   val pTypes: List[Seq[() => ScType]] =

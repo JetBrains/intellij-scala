@@ -248,8 +248,8 @@ object Bounds extends api.Bounds {
             lub(t1, t.getType(TypingContext.empty).getOrAny, checkWeak)
           case (ex: ScExistentialType, _) => lub(ex.quantified, t2, checkWeak).unpackedType
           case (_, ex: ScExistentialType) => lub(t1, ex.quantified, checkWeak).unpackedType
-          case (TypeParameterType(_, Nil, _, upper, _), _) => lub(upper.v, t2, checkWeak)
-          case (_, TypeParameterType(_, Nil, _, upper, _)) => lub(t1, upper.v, checkWeak)
+          case (TypeParameterType(Nil, _, upper, _), _) => lub(upper.v, t2, checkWeak)
+          case (_, TypeParameterType(Nil, _, upper, _)) => lub(t1, upper.v, checkWeak)
           case (ScExistentialArgument(name, args, lower, upper), ScExistentialArgument(name2, args2, lower2, upper2)) =>
             ScExistentialArgument(name, args, glb(lower, lower2, checkWeak), lub(upper, upper2, checkWeak))
           case (ScExistentialArgument(name, args, lower, upper), r) =>
@@ -369,8 +369,8 @@ object Bounds extends api.Bounds {
     if (baseClass.getTypeParameters.length == 0) return baseClassDesignator
     (baseClass.superSubstitutor(clazz1), baseClass.superSubstitutor(clazz2)) match {
       case (Some(superSubst1), Some(superSubst2)) =>
-        val tp = ScParameterizedType(baseClassDesignator, baseClass.
-          getTypeParameters.map(tp => ScalaPsiManager.instance(baseClass.getNamedElement.getProject).typeVariable(tp)))
+        val tp = ScParameterizedType(baseClassDesignator,
+          baseClass.getTypeParameters.map(TypeParameterType(_, None)))
         val tp1 = superSubst1.subst(tp).asInstanceOf[ScParameterizedType]
         val tp2 = superSubst2.subst(tp).asInstanceOf[ScParameterizedType]
         val resTypeArgs = new ArrayBuffer[ScType]

@@ -215,14 +215,14 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         }
       case ScDesignatorType(e) =>
         processElement(e, ScSubstitutor.empty, place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
-      case TypeParameterType(_, Nil, _, upper, _) =>
+      case TypeParameterType(Nil, _, upper, _) =>
         processType(upper.v, place, state, updateWithProjectionSubst = false, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
       case j: JavaArrayType =>
         processType(j.getParameterizedType(place.getProject, place.getResolveScope).
                 getOrElse(return true), place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
       case p@ParameterizedType(des, typeArgs) =>
         p.designator match {
-          case tpt@TypeParameterType(_, _, _, upper, _) =>
+          case tpt@TypeParameterType(_, _, upper, _) =>
             if (visitedTypeParameter.contains(tpt)) return true
             processType(p.substitutor.subst(upper.v), place,
               state.put(ScSubstitutor.key, new ScSubstitutor(p)), visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter + tpt)

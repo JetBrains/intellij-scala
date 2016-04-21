@@ -401,7 +401,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                 } {
                   var hasTypeParametersInType = false
                   paramType.recursiveUpdate {
-                    case tp@TypeParameterType(name, _, _, _, _) if typeParameters.contains(name) =>
+                    case tp@TypeParameterType(_, _, _, _) if typeParameters.contains(tp.name) =>
                       hasTypeParametersInType = true
                       (true, tp)
                     case tp: ScType if hasTypeParametersInType => (true, tp)

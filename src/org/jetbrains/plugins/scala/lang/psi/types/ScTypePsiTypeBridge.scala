@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -34,7 +33,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
       case classType: PsiClassType =>
         val result = classType.resolveGenerics
         result.getElement match {
-          case tp: PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
+          case psiTypeParameter: PsiTypeParameter => TypeParameterType(psiTypeParameter, None)
           case clazz if clazz != null && clazz.qualifiedName == "java.lang.Object" =>
             if (paramTopLevel && treatJavaObjectAsAny) Any
             else AnyRef
@@ -96,7 +95,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
                           if (wild.isSuper) toScType(capture.getLowerBound, project, scope, visitedRawTypes) else Nothing,
                           if (wild.isExtends) toScType(capture.getUpperBound, project, scope, visitedRawTypes) else Any)
                       case _ if psiType != null => toScType(psiType, project, scope, visitedRawTypes)
-                      case _ => ScalaPsiManager.typeVariable(tp)
+                      case _ => TypeParameterType(tp, None)
                     }
                   }).toSeq).unpackedType
             }
@@ -175,7 +174,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
           }
         case _ => javaObject
       }
-      case ParameterizedType(TypeParameterType(_, _, _, _, typeParameter), _) => EmptySubstitutor.getInstance().substitute(typeParameter)
+      case ParameterizedType(TypeParameterType(_, _, _, typeParameter), _) => EmptySubstitutor.getInstance().substitute(typeParameter)
       case proj@ScProjectionType(_, _, _) => proj.actualElement match {
         case clazz: PsiClass =>
           clazz match {
@@ -190,7 +189,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
         case _ => javaObject
       }
       case ScThisType(clazz) => createType(clazz, project)
-      case TypeParameterType(_, _, _, _, typeParameter) => EmptySubstitutor.getInstance().substitute(typeParameter)
+      case TypeParameterType(_, _, _, typeParameter) => EmptySubstitutor.getInstance().substitute(typeParameter)
       case ex: ScExistentialType => toPsiType(ex.quantified, project, scope, noPrimitives)
       case argument: ScExistentialArgument =>
         val upper = argument.upper

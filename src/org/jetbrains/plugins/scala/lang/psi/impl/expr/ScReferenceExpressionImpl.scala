@@ -369,7 +369,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
                 getOrElse(return Failure("Case Class hasn't primary constructor", Some(this))).polymorphicType)
       case Some(ScalaResolveResult(clazz: ScTypeDefinition, s)) if clazz.typeParameters.nonEmpty =>
         s.subst(ScParameterizedType(ScalaType.designator(clazz),
-          clazz.typeParameters.map(TypeParameterType(_, s))))
+          clazz.typeParameters.map(TypeParameterType(_, Some(s)))))
       case Some(ScalaResolveResult(clazz: PsiClass, _)) => new ScDesignatorType(clazz, true) //static Java class
       case Some(ScalaResolveResult(field: PsiField, s)) =>
         s.subst(field.getType.toScType(field.getProject, getResolveScope))

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.psi.PsiTypeParameter
-import org.jetbrains.plugins.scala.Suspension
 
 /**
   * @author adkozlov
@@ -9,15 +8,6 @@ import org.jetbrains.plugins.scala.Suspension
 package object api {
 
   private val EMPTY_ARRAY: Array[TypeParameter] = Array.empty
-
-  implicit class TypeParameterExt(val typeParameter: TypeParameter) extends AnyVal {
-    def toType: TypeParameterType = {
-      def lift(function: () => ScType) = new Suspension[ScType](function())
-
-      val TypeParameter(name, typeParams, lowerType, upperType, psiTypeParameter) = typeParameter
-      TypeParameterType(name, typeParams.map(_.toType).toList, lift(lowerType), lift(upperType), psiTypeParameter)
-    }
-  }
 
   implicit class TypeParametersExt(val typeParameters: Array[TypeParameter]) extends AnyVal {
     def subst(function: TypeParameter => TypeParameter): Array[TypeParameter] = typeParameters match {
@@ -28,9 +18,9 @@ package object api {
     def depth: Int = 1 + (typeParameters match {
       case Array() => 0
       case seq => seq.map {
-        case TypeParameter(_, parameters, lowerType, upperType, _) =>
-          lowerType().typeDepth
-            .max(upperType().typeDepth)
+        case TypeParameter(parameters, lowerType, upperType, _) =>
+          lowerType.v.typeDepth
+            .max(upperType.v.typeDepth)
             .max(parameters.toArray.depth)
       }.max
     })

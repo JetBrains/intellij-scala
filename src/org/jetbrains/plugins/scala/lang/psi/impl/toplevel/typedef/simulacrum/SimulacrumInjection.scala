@@ -51,8 +51,8 @@ class SimulacrumInjection extends SyntheticMembersInjector {
             val additionalWithBracket = tpAdditional.map("[" + _ + "]").getOrElse("")
             def isProperTpt(tp: ScType): Option[Option[TypeParameterType]] = {
               tp match {
-                case TypeParameterType(_, _, _, _, param) if param == clazzTypeParam => Some(None)
-                case ParameterizedType(TypeParameterType(_, _, _, _, param),
+                case TypeParameterType(_, _, _, param) if param == clazzTypeParam => Some(None)
+                case ParameterizedType(TypeParameterType(_, _, _, param),
                 Seq(p: TypeParameterType)) if param == clazzTypeParam => Some(Some(p))
                 case _ => None
               }

@@ -57,7 +57,7 @@ object ScalaType {
       val asClass = std.asClass(DecompilerUtil.obtainProject)
       if (asClass.isEmpty) return None
       Some((asClass.get, ScSubstitutor.empty))
-    case TypeParameterType(_, _, _, _, param) => Some(param, ScSubstitutor.empty)
+    case TypeParameterType(_, _, _, param) => Some(param, ScSubstitutor.empty)
     case _ => None
   }
 

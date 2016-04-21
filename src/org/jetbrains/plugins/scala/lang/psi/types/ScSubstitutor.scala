@@ -31,7 +31,7 @@ object ScSubstitutor {
 }
 
 class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
-                    val aliasesMap: Map[String, Suspension[ScType]],
+                    val aliasesMap: Map[String, Suspension],
                     val updateThisType: Option[ScType]) {
   //use ScSubstitutor.empty instead
   private[ScSubstitutor] def this() = this(Map.empty, Map.empty, None)
@@ -41,9 +41,9 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
   }
 
   def this(tvMap: Map[(String, PsiElement), ScType],
-                    aliasesMap: Map[String, Suspension[ScType]],
-                    updateThisType: Option[ScType],
-                    follower: ScSubstitutor) = {
+           aliasesMap: Map[String, Suspension],
+           updateThisType: Option[ScType],
+           follower: ScSubstitutor) = {
     this(tvMap, aliasesMap, updateThisType)
     this.follower = follower
   }
@@ -81,7 +81,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
   }
 
   def bindA(name: String, f: () => ScType) = {
-    val res = new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](f))), updateThisType, follower)
+    val res = new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension(f))), updateThisType, follower)
     res.myDependentMethodTypesFun = myDependentMethodTypesFun
     res.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
     res.myDependentMethodTypes = myDependentMethodTypes
@@ -160,10 +160,15 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
     val visitor = new ScalaTypeVisitor {
       override def visitTypePolymorphicType(t: ScTypePolymorphicType): Unit = {
         val ScTypePolymorphicType(internalType, typeParameters) = t
-        result = ScTypePolymorphicType(substInternal(internalType), typeParameters.map(tp => {
-          TypeParameter(tp.name, tp.typeParameters /* todo: is it important here to update? */ ,
-            () => substInternal(tp.lowerType()), () => substInternal(tp.upperType()), tp.psiTypeParameter)
-        }))(t.typeSystem)
+        result = ScTypePolymorphicType(substInternal(internalType),
+          typeParameters.map {
+            case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
+              TypeParameter(
+                parameters, // todo: is it important here to update?
+                new Suspension(substInternal(lowerType.v)),
+                new Suspension(substInternal(upperType.v)),
+                psiTypeParameter)
+          })(t.typeSystem)
       }
 
       override def visitAbstractType(a: ScAbstractType): Unit = {
@@ -270,7 +275,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                     case t: TypeParameterType => return update(t.upperType.v)
                     case p@ParameterizedType(des, typeArgs) =>
                       p.designator match {
-                        case TypeParameterType(_, _, _, upper, _) => return update(p.substitutor.subst(upper.v))
+                        case TypeParameterType(_, _, upper, _) => return update(p.substitutor.subst(upper.v))
                         case _ =>
                       }
                     case _ =>
@@ -296,7 +301,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                     case t: TypeParameterType => return update(t.upperType.v)
                     case p@ParameterizedType(des, typeArgs) =>
                       p.designator match {
-                        case TypeParameterType(_, _, _, upper, _) => return update(p.substitutor.subst(upper.v))
+                        case TypeParameterType(_, _, upper, _) => return update(p.substitutor.subst(upper.v))
                         case _ =>
                       }
                     case _ =>
@@ -419,9 +424,13 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
         substCopy.myDependentMethodTypesFun = myDependentMethodTypesFun
         substCopy.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
         substCopy.myDependentMethodTypes = myDependentMethodTypes
-        def substTypeParam(tp: TypeParameter): TypeParameter = {
-          new TypeParameter(tp.name, tp.typeParameters.map(substTypeParam), () => substInternal(tp.lowerType()),
-            () => substInternal(tp.upperType()), tp.psiTypeParameter)
+        def substTypeParam: TypeParameter => TypeParameter = {
+          case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
+            TypeParameter(
+              typeParameters.map(substTypeParam),
+              new Suspension(substInternal(lowerType.v)),
+              new Suspension(substInternal(upperType.v)),
+              psiTypeParameter)
         }
         val middleRes = ScCompoundType(comps.map(substInternal), signatureMap.map {
           case (s: Signature, tp: ScType) =>

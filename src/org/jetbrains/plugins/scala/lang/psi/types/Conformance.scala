@@ -996,7 +996,7 @@ object Conformance extends api.Conformance {
                 return
               }
             case (_: UndefinedType, UndefinedType(parameterType, _)) =>
-              val TypeParameterType(_, arguments, _, _, _) = parameterType
+              val TypeParameterType(arguments, _, _, _) = parameterType
               var anotherType = ScParameterizedType(des1, arguments)
               var args1replace = args1
               if (args1.length != args2.length) {
@@ -1025,7 +1025,7 @@ object Conformance extends api.Conformance {
                 undefinedSubst, visited, checkWeak)
               return
             case (UndefinedType(parameterType, _), _) =>
-              val TypeParameterType(_, arguments, _, _, _) = parameterType
+              val TypeParameterType(arguments, _, _, _) = parameterType
               var anotherType: ScType = ScParameterizedType(des2, arguments)
               var args2replace = args2
               if (args1.length != args2.length) {
@@ -1054,7 +1054,7 @@ object Conformance extends api.Conformance {
                 undefinedSubst, visited, checkWeak)
               return
             case (_, UndefinedType(parameterType, _)) =>
-              val TypeParameterType(_, arguments, _, _, _) = parameterType
+              val TypeParameterType(arguments, _, _, _) = parameterType
               var anotherType = ScParameterizedType(des1, arguments)
               var args1replace = args1
               if (args1.length != args2.length) {
@@ -1182,15 +1182,10 @@ object Conformance extends api.Conformance {
         t.recursiveUpdate {
           case ScExistentialArgument(name, _, _, _) =>
             e.wildcards.find(_.name == name) match {
-              case Some(wild) if !rejected.contains(wild.name) =>
-                val tpt = tptsMap.getOrElseUpdate(wild.name,
-                  TypeParameterType(wild.name,
-                    wild.args,
-                    wild.lower,
-                    wild.upper,
-                    ScalaPsiElementFactory.createTypeParameterFromText(
-                      wild.name, PsiManager.getInstance(DecompilerUtil.obtainProject) //todo: remove obtainProject?
-                    ))
+              case Some(ScExistentialArgument(thatName, args, lower, upper)) if !rejected.contains(thatName) =>
+                val tpt = tptsMap.getOrElseUpdate(thatName,
+                  TypeParameterType(args, new Suspension(lower), new Suspension(upper),
+                    ScalaPsiElementFactory.createTypeParameterFromText(name, PsiManager.getInstance(DecompilerUtil.obtainProject))) //todo: remove obtainProject?
                 )
                 (true, tpt)
               case _ => (false, t)
@@ -1504,13 +1499,13 @@ object Conformance extends api.Conformance {
           }
           var i = 0
           while (i < typeParameters1.length) {
-            var t = conformsInner(typeParameters1(i).lowerType(), typeParameters2(i).lowerType(), HashSet.empty, undefinedSubst)
+            var t = conformsInner(typeParameters1(i).lowerType.v, typeParameters2(i).lowerType.v, HashSet.empty, undefinedSubst)
             if (!t._1) {
               result = (false, undefinedSubst)
               return
             }
             undefinedSubst = t._2
-            t = conformsInner(typeParameters2(i).upperType(), typeParameters1(i).lowerType(), HashSet.empty, undefinedSubst)
+            t = conformsInner(typeParameters2(i).upperType.v, typeParameters1(i).lowerType.v, HashSet.empty, undefinedSubst)
             if (!t._1) {
               result = (false, undefinedSubst)
               return
@@ -1518,14 +1513,17 @@ object Conformance extends api.Conformance {
             undefinedSubst = t._2
             i = i + 1
           }
-          val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, PsiElement), ScType] ++ typeParameters1.zip(typeParameters2).map({
-            tuple => (tuple._1.nameAndId,
-              TypeParameterType(tuple._2.name,
-                tuple._2.psiTypeParameter match {
-                  case p: ScTypeParam => p.typeParameters.toList.map(TypeParameterType(_))
-                  case _ => Nil
-                }, new Suspension(tuple._2.lowerType), new Suspension(tuple._2.upperType), tuple._2.psiTypeParameter))
-          }), Map.empty, None)
+          val subst = new ScSubstitutor(new collection.immutable.HashMap[(String, PsiElement), ScType] ++ typeParameters1.zip(typeParameters2).map {
+            case (key, TypeParameter(_, lowerType, upperType, psiTypeParameter)) => (key.nameAndId,
+              TypeParameterType(
+                (psiTypeParameter match {
+                  case typeParam: ScTypeParam => typeParam.typeParameters
+                  case _ => Seq.empty
+                }).map(TypeParameterType(_)),
+                lowerType,
+                upperType,
+                psiTypeParameter))
+          }, Map.empty, None)
           val t = conformsInner(subst.subst(internalType1), internalType2, HashSet.empty, undefinedSubst)
           if (!t._1) {
             result = (false, undefinedSubst)

@@ -230,8 +230,8 @@ object ScTypePresentation extends api.ScTypePresentation {
           existentialTypeText(ex, checkWildcard, needDotType)
         case ScTypePolymorphicType(internalType, typeParameters) =>
           typeParameters.map(tp => {
-            val lowerBound = if (tp.lowerType().equiv(Nothing)) "" else " >: " + tp.lowerType().toString
-            val upperBound = if (tp.upperType().equiv(Any)) "" else " <: " + tp.upperType().toString
+            val lowerBound = if (tp.lowerType.v.equiv(Nothing)) "" else " >: " + tp.lowerType.v.toString
+            val upperBound = if (tp.upperType.v.equiv(Any)) "" else " <: " + tp.upperType.v.toString
             tp.name + lowerBound + upperBound
           }).mkString("[", ", ", "] ") + internalType.toString
         case mt@ScMethodType(retType, params, isImplicit) =>

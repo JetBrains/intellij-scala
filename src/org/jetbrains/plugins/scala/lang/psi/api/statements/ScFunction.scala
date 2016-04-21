@@ -151,21 +151,21 @@ trait ScFunction extends ScalaPsiElement with ScMember with ScTypeParametersOwne
             var typeParamSubst = ScSubstitutor.empty
             fun.typeParameters.zip(typeParameters).foreach {
               case (oldParam: ScTypeParam, newParam: ScTypeParam) =>
-                typeParamSubst = typeParamSubst.bindT(oldParam.nameAndId, TypeParameterType(newParam, subst))
+                typeParamSubst = typeParamSubst.bindT(oldParam.nameAndId, TypeParameterType(newParam, Some(subst)))
             }
             fun.returnType.toOption.map(typeParamSubst.followed(subst).subst)
           case Some((fun: ScSyntheticFunction, subst)) =>
             var typeParamSubst = ScSubstitutor.empty
             fun.typeParameters.zip(typeParameters).foreach {
               case (oldParam: ScSyntheticTypeParameter, newParam: ScTypeParam) =>
-                typeParamSubst = typeParamSubst.bindT(oldParam.nameAndId, TypeParameterType(newParam, subst))
+                typeParamSubst = typeParamSubst.bindT(oldParam.nameAndId, TypeParameterType(newParam, Some(subst)))
             }
             Some(subst.subst(fun.retType))
           case Some((fun: PsiMethod, subst)) =>
             var typeParamSubst = ScSubstitutor.empty
             fun.getTypeParameters.zip(typeParameters).foreach {
               case (oldParam: PsiTypeParameter, newParam: ScTypeParam) =>
-                typeParamSubst = typeParamSubst.bindT(oldParam.nameAndId, TypeParameterType(newParam, subst))
+                typeParamSubst = typeParamSubst.bindT(oldParam.nameAndId, TypeParameterType(newParam, Some(subst)))
             }
             Some(typeParamSubst.followed(subst).subst(fun.getReturnType.toScType(getProject, getResolveScope)))
           case _ => None

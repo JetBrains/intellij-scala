@@ -74,7 +74,7 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
                     case ParameterizedType(des, typeArgs) =>
                       val taArgs = ta.typeParameters
                       if (taArgs.length == typeArgs.length && taArgs.zip(typeArgs).forall {
-                        case (tParam: ScTypeParam, TypeParameterType(_, _, _, _, param)) if tParam == param => true
+                        case (tParam: ScTypeParam, TypeParameterType(_, _, _, param)) if tParam == param => true
                         case _ => false
                       }) return Some(AliasType(ta, Success(des, Some(element)), Success(des, Some(element))))
                     case _ =>
@@ -420,7 +420,7 @@ case class ScDesignatorType(element: PsiNamedElement) extends ScalaType with Val
                   case ParameterizedType(des, typeArgs) =>
                     val taArgs = ta.typeParameters
                     if (taArgs.length == typeArgs.length && taArgs.zip(typeArgs).forall {
-                      case (tParam: ScTypeParam, TypeParameterType(_, _, _, _, param)) if tParam == param => true
+                      case (tParam: ScTypeParam, TypeParameterType(_, _, _, param)) if tParam == param => true
                       case _ => false
                     }) return Some(AliasType(ta, Success(des, Some(element)), Success(des, Some(element))))
                   case _ =>

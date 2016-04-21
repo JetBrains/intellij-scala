@@ -54,7 +54,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       if (clazz.getTypeParameters.isEmpty) {
         tp
       } else {
-        ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_, subst)))
+        ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_, Some(subst))))
       }
     }
 
@@ -271,8 +271,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
         }
 
         ref.resolveNoConstructor match {
-          case Array(ScalaResolveResult(tp: PsiTypeParameter, _)) =>
-            this.success(ScalaPsiManager.typeVariable(tp))
+          case Array(ScalaResolveResult(psiTypeParameter: PsiTypeParameter, _)) =>
+            this.success(TypeParameterType(psiTypeParameter, None))
           case Array(ScalaResolveResult(tvar: ScTypeVariableTypeElement, _)) =>
             this.success(tvar.getType().getOrAny)
           case Array(ScalaResolveResult(synth: ScSyntheticClass, _)) =>
@@ -304,7 +304,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               case Some(r@ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) if !noConstructor =>
                 this.success(typeForConstructor(ref, method, subst, r.getActualElement))
               case Some(r@ScalaResolveResult(ta: ScTypeAlias, subst: ScSubstitutor)) if ta.isExistentialTypeAlias =>
-                this.success(ScExistentialArgument(ta.name, ta.typeParameters.map(ScalaPsiManager.typeVariable(_)).toList,
+                this.success(ScExistentialArgument(ta.name, ta.typeParameters.map(TypeParameterType(_, None)).toList,
                   ta.lowerBound.getOrNothing, ta.upperBound.getOrAny))
               case _ => calculateReferenceType(ref, shapesOnly = false)
             }

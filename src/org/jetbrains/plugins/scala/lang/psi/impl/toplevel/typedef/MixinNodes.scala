@@ -432,8 +432,8 @@ abstract class MixinNodes {
 
   def combine(superSubst : ScSubstitutor, derived : ScSubstitutor, superClass : PsiClass) = {
     var res : ScSubstitutor = ScSubstitutor.empty
-    for (tp <- superClass.getTypeParameters) {
-      res = res bindT(tp.nameAndId, derived.subst(superSubst.subst(ScalaPsiManager.typeVariable(tp))))
+    for (typeParameter <- superClass.getTypeParameters) {
+      res = res bindT(typeParameter.nameAndId, derived.subst(superSubst.subst(TypeParameterType(typeParameter, None))))
     }
     superClass match {
       case td : ScTypeDefinition =>
@@ -472,8 +472,8 @@ object MixinNodes {
       val tp = {
         def default =
           if (clazz.getTypeParameters.isEmpty) ScalaType.designator(clazz)
-          else ScParameterizedType(ScalaType.designator(clazz), clazz.
-            getTypeParameters.map(tp => ScalaPsiManager.instance(project).typeVariable(tp)))
+          else ScParameterizedType(ScalaType.designator(clazz),
+            clazz.getTypeParameters.map(TypeParameterType(_, None)))
         clazz match {
           case td: ScTypeDefinition => td.getType(TypingContext.empty).getOrElse(default)
           case _ => default
@@ -585,6 +585,6 @@ object MixinNodes {
       }
     }
     if (addTp) add(tp)
-    buffer.toSeq
+    buffer
   }
 }
