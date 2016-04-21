@@ -11,7 +11,6 @@ import com.intellij.openapi.roots.ui.configuration.libraryEditor.{ExistingLibrar
 import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore}
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.CommonProcessors.CollectProcessor
-import com.intellij.util.Processor
 import org.jetbrains.plugins.dotty.lang.psi.types.DottyTypeSystem
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypeSystem
@@ -61,30 +60,7 @@ package object project {
 
     def hasDotty: Boolean = scalaSdk.exists(_.isDottySdk)
 
-    def scalaSdk: Option[ScalaSdk] =
-      ScalaProjectCache.instanceIn(module.getProject)
-              .getOrUpdate(module)(scalaSdk0)
-
-    private def scalaSdk0: Option[ScalaSdk] = {
-      var result: Option[ScalaSdk] = None
-
-      // TODO breadth-first search is preferable
-      val enumerator = ModuleRootManager.getInstance(module)
-              .orderEntries().recursively().librariesOnly().exportedOnly()
-
-      enumerator.forEachLibrary(new Processor[Library] {
-        override def process(library: Library) = {
-          if (library.isScalaSdk) {
-            result = Some(new ScalaSdk(library))
-            false
-          } else {
-            true
-          }
-        }
-      })
-
-      result
-    }
+    def scalaSdk: Option[ScalaSdk] = ScalaSdkCache.instanceIn(module.getProject).get(module)
 
     def libraries: Set[Library] = {
       val collector = new CollectProcessor[Library]()
