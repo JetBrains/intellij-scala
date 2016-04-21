@@ -41,8 +41,8 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
     def checkTypeParameters(tp1: PsiTypeParameter, tp2: TypeParameter, variance: Int = 1): Boolean = {
       tp1 match {
         case tp1: ScTypeParam =>
-          if (tp1.typeParameters.length != tp2.typeParams.length) return false
-          val iter = tp1.typeParameters.zip(tp2.typeParams).iterator
+          if (tp1.typeParameters.length != tp2.typeParameters.length) return false
+          val iter = tp1.typeParameters.zip(tp2.typeParameters).iterator
           while (iter.hasNext) {
             val (tp1, tp2) = iter.next()
             if (!checkTypeParameters(tp1, tp2, -variance)) return false
@@ -69,7 +69,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
           //todo: view?
           true
         case _ =>
-          if (tp2.typeParams.nonEmpty) return false
+          if (tp2.typeParameters.nonEmpty) return false
           //todo: check bounds?
           true
       }
@@ -170,8 +170,8 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
     def checkTypeParameters(tp1: PsiTypeParameter, tp2: TypeParameter, variance: Int = 1): Boolean = {
       tp1 match {
         case tp1: ScTypeParam =>
-          if (tp1.typeParameters.length != tp2.typeParams.length) return false
-          val iter = tp1.typeParameters.zip(tp2.typeParams).iterator
+          if (tp1.typeParameters.length != tp2.typeParameters.length) return false
+          val iter = tp1.typeParameters.zip(tp2.typeParameters).iterator
           while (iter.hasNext) {
             val (tp1, tp2) = iter.next()
             if (!checkTypeParameters(tp1, tp2, -variance)) return false
@@ -198,7 +198,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
           //todo: view?
           true
         case _ =>
-          if (tp2.typeParams.nonEmpty) return false
+          if (tp2.typeParameters.nonEmpty) return false
           //todo: check bounds?
           true
       }

@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameterExt}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -303,7 +303,7 @@ object InferUtil {
                          (implicit typeSystem: TypeSystem): ScSubstitutor = {
     typeParams.foldLeft(ScSubstitutor.empty) {
       (subst: ScSubstitutor, tp: TypeParameter) =>
-        subst.bindT(tp.nameAndId, UndefinedType(TypeParameterType(tp.ptp)))
+        subst.bindT(tp.nameAndId, UndefinedType(TypeParameterType(tp.psiTypeParameter)))
     }
   }
 
@@ -354,7 +354,7 @@ object InferUtil {
         case Some(unSubst) =>
           if (!filterTypeParams) {
             val undefiningSubstitutor = new ScSubstitutor(typeParams.map(typeParam => {
-              (typeParam.nameAndId, UndefinedType(TypeParameterType(typeParam.ptp)))
+              (typeParam.nameAndId, UndefinedType(TypeParameterType(typeParam.psiTypeParameter)))
             }).toMap, Map.empty, None)
             ScTypePolymorphicType(retType, typeParams.map(tp => {
               var lower = tp.lowerType()
@@ -378,9 +378,9 @@ object InferUtil {
                 case Some(_addLower) =>
                   val substedLowerType = unSubst.subst(lower)
                   val addLower =
-                    if (tp.typeParams.nonEmpty && !_addLower.isInstanceOf[ScParameterizedType] &&
-                      !tp.typeParams.exists(_.name == "_"))
-                      ScParameterizedType(_addLower, tp.typeParams.map(_.toType))
+                    if (tp.typeParameters.nonEmpty && !_addLower.isInstanceOf[ScParameterizedType] &&
+                      !tp.typeParameters.exists(_.name == "_"))
+                      ScParameterizedType(_addLower, tp.typeParameters.map(_.toType))
                     else _addLower
                   if (hasRecursiveTypeParameters(substedLowerType)) lower = addLower
                   else lower = substedLowerType.lub(addLower)
@@ -391,9 +391,9 @@ object InferUtil {
                 case Some(_addUpper) =>
                   val substedUpperType = unSubst.subst(upper)
                   val addUpper =
-                    if (tp.typeParams.nonEmpty && !_addUpper.isInstanceOf[ScParameterizedType] &&
-                      !tp.typeParams.exists(_.name == "_"))
-                      ScParameterizedType(_addUpper, tp.typeParams.map(_.toType))
+                    if (tp.typeParameters.nonEmpty && !_addUpper.isInstanceOf[ScParameterizedType] &&
+                      !tp.typeParameters.exists(_.name == "_"))
+                      ScParameterizedType(_addUpper, tp.typeParameters.map(_.toType))
                     else _addUpper
                   if (hasRecursiveTypeParameters(substedUpperType)) upper = addUpper
                   else upper = substedUpperType.glb(addUpper)
@@ -403,7 +403,7 @@ object InferUtil {
 
               if (safeCheck && !undefiningSubstitutor.subst(lower).weakConforms(undefiningSubstitutor.subst(upper)))
                 throw new SafeCheckException
-              TypeParameter(tp.name, tp.typeParams /* doesn't important here */ , () => lower, () => upper, tp.ptp)
+              TypeParameter(tp.name, tp.typeParameters /* doesn't important here */ , () => lower, () => upper, tp.psiTypeParameter)
             }))
           } else {
             typeParams.foreach { case tp =>
@@ -473,22 +473,22 @@ object InferUtil {
                           ScalaType.extractDesignated(tp, withoutAliases = false) match {
                             case Some((named, _)) => checkNamed(named, typeParams)
                             case _ => tp match {
-                              case tpt: TypeParameterType => checkNamed(tpt.typeParameter, typeParams)
+                              case tpt: TypeParameterType => checkNamed(tpt.psiTypeParameter, typeParams)
                               case _ => false
                             }
                           }
                       }
                     }
-                    tp.ptp match {
+                    tp.psiTypeParameter match {
                       case typeParam: ScTypeParam =>
-                        if (!checkTypeParam(typeParam, sub.subst(TypeParameterType(tp.ptp))))
+                        if (!checkTypeParam(typeParam, sub.subst(TypeParameterType(tp.psiTypeParameter))))
                           throw new SafeCheckException
                       case _ =>
                     }
                   }
                   !removeMe
-              }.map(tp => TypeParameter(tp.name, tp.typeParams /* doesn't important here */ ,
-                () => sub.subst(tp.lowerType()), () => sub.subst(tp.upperType()), tp.ptp)))
+              }.map(tp => TypeParameter(tp.name, tp.typeParameters /* doesn't important here */ ,
+                () => sub.subst(tp.lowerType()), () => sub.subst(tp.upperType()), tp.psiTypeParameter)))
             }
 
             un.getSubstitutor match {

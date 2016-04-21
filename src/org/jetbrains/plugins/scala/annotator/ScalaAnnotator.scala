@@ -1223,7 +1223,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     def functionToSendIn(tp: ScType, i: Int) = {
       tp match {
         case paramType: TypeParameterType =>
-          paramType.typeParameter match {
+          paramType.psiTypeParameter match {
             case scTypeParam: ScTypeParam =>
               val compareTo = scTypeParam.owner
               val parentIt = checkParentOf.parents

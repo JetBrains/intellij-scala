@@ -116,9 +116,9 @@ class ScConstructorImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
       }
       val typeParameters: Seq[TypeParameter] = r.getActualElement match {
         case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
-          tp.typeParameters.map(new TypeParameter(_))
+          tp.typeParameters.map(TypeParameter(_))
         case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.nonEmpty =>
-          ptp.getTypeParameters.toSeq.map(new TypeParameter(_))
+          ptp.getTypeParameters.toSeq.map(TypeParameter(_))
         case _ => return Success(res, Some(this))
       }
       s.getParent match {

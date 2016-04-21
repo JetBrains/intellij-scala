@@ -33,7 +33,7 @@ object DottyRefinedType {
       case value: ScValue => value.declaredElements.map(Signature.getter)
     }.foldLeft(Set[Signature]())(_ ++ _)
 
-    val typeAliasSignatures = refinement.types.map(new TypeAliasSignature(_)).toSet
+    val typeAliasSignatures = refinement.types.map(TypeAliasSignature(_)).toSet
 
     val (newType, newSinatures, newTypeAliasSignatures) = designator match {
       case DottyRefinedType(refinedType, refinedSignatures, refinedTypeAliasSignatures) =>

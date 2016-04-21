@@ -15,35 +15,30 @@ import org.jetbrains.plugins.scala.lang.psi.types.{NamedType, ScSubstitutor, ScT
   * @param lowerType important to be lazy, see SCL-7216
   * @param upperType important to be lazy, see SCL-7216
   */
-class TypeParameter(val name: String, val typeParams: Seq[TypeParameter], val lowerType: () => ScType,
-                    val upperType: () => ScType, val ptp: PsiTypeParameter) {
-  def this(ptp: PsiTypeParameter) {
-    this(ptp match {
-      case tp: ScTypeParam => tp.name
-      case _ => ptp.getName
-    }, ptp match {
-      case tp: ScTypeParam => tp.typeParameters.map(new TypeParameter(_))
-      case _ => Seq.empty
-    }, ptp match {
-      case tp: ScTypeParam => () => tp.lowerBound.getOrNothing
-      case _ => () => Nothing //todo: lower type?
-    }, ptp match {
-      case tp: ScTypeParam => () => tp.upperBound.getOrAny
-      case _ => () => Any //todo: upper type?
-    }, ptp)
-  }
+case class TypeParameter(name: String,
+                         typeParameters: Seq[TypeParameter],
+                         lowerType: () => ScType,
+                         upperType: () => ScType,
+                         psiTypeParameter: PsiTypeParameter) {
+  def nameAndId = getPsiElementId(psiTypeParameter)
 
-  def nameAndId = getPsiElementId(ptp)
-
-  def update(fun: ScType => ScType): TypeParameter = {
-    new TypeParameter(name, typeParams.map(_.update(fun)), {
-      val res = fun(lowerType())
-      () => res
+  def update(function: ScType => ScType): TypeParameter = TypeParameter(name,
+    typeParameters.map(_.update(function)), {
+      val result = function(lowerType())
+      () => result
     }, {
-      val res = fun(upperType())
-      () => res
-    }, ptp)
-  }
+      val result = function(upperType())
+      () => result
+    }, psiTypeParameter)
+
+  def updateWithVariance(function: (ScType, Int) => ScType, variance: Int): TypeParameter = TypeParameter(name,
+    typeParameters.map(_.updateWithVariance(function, variance)), {
+      val result = function(lowerType(), variance)
+      () => result
+    }, {
+      val result = function(upperType(), -variance)
+      () => result
+    }, psiTypeParameter)
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[TypeParameter]
 
@@ -51,87 +46,85 @@ class TypeParameter(val name: String, val typeParams: Seq[TypeParameter], val lo
     case that: TypeParameter =>
       (that canEqual this) &&
         name == that.name &&
-        typeParams == that.typeParams &&
+        typeParameters == that.typeParameters &&
         lowerType() == that.lowerType() &&
         upperType() == that.upperType() &&
-        ptp == that.ptp
+        psiTypeParameter == that.psiTypeParameter
     case _ => false
   }
 
-  override def hashCode(): Int = {
-    val state = Seq(name, typeParams, ptp)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-  }
+  override def hashCode() = Seq(name, typeParameters, psiTypeParameter)
+    .map(_.hashCode())
+    .foldLeft(0)((a, b) => 31 * a + b)
 }
 
 object TypeParameter {
-  def apply(name: String, typeParams: Seq[TypeParameter], lowerType: () => ScType, upperType: () => ScType,
-            ptp: PsiTypeParameter): TypeParameter = {
-    new TypeParameter(name, typeParams, lowerType, upperType, ptp)
+  def apply(typeParameter: PsiTypeParameter): TypeParameter = {
+    val (typeParameters, maybeLower, maybeUpper) = typeParameter match {
+      case typeParam: ScTypeParam =>
+        (typeParam.typeParameters, typeParam.lowerBound.toOption, typeParam.upperBound.toOption)
+      case _ =>
+        (Seq.empty, None, None)
+    }
+    TypeParameter(typeParameter.name,
+      typeParameters.map(TypeParameter(_)),
+      () => maybeLower.getOrElse(Nothing),
+      () => maybeUpper.getOrElse(Any),
+      typeParameter)
   }
-
-  def unapply(t: TypeParameter): Option[(String, Seq[TypeParameter], () => ScType, () => ScType, PsiTypeParameter)] = {
-    Some(t.name, t.typeParams, t.lowerType, t.upperType, t.ptp)
-  }
-
-  def fromArray(ptps: Array[PsiTypeParameter]): Array[TypeParameter] = {
-    if (ptps.length == 0) EMPTY_ARRAY
-    else ptps.map(new TypeParameter(_))
-  }
-
-  val EMPTY_ARRAY: Array[TypeParameter] = Array.empty
 }
 
-case class TypeParameterType(name: String, arguments: Seq[TypeParameterType],
-                             lower: Suspension[ScType], upper: Suspension[ScType],
-                             typeParameter: PsiTypeParameter) extends ValueType with NamedType {
+case class TypeParameterType(name: String,
+                             arguments: Seq[TypeParameterType],
+                             lowerType: Suspension[ScType],
+                             upperType: Suspension[ScType],
+                             psiTypeParameter: PsiTypeParameter) extends ValueType with NamedType {
   private var hash: Int = -1
 
   override def hashCode: Int = {
     if (hash == -1) {
-      hash = (((typeParameter.hashCode() * 31 + upper.hashCode) * 31 + lower.hashCode()) * 31 + arguments.hashCode()) * 31 + name.hashCode
+      hash = Seq(name, arguments, lowerType, upperType, psiTypeParameter).map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
     }
     hash
   }
 
-  def nameAndId = getPsiElementId(typeParameter)
+  def nameAndId = getPsiElementId(psiTypeParameter)
 
-  def isInvariant = typeParameter match {
+  def isInvariant = psiTypeParameter match {
     case typeParam: ScTypeParam => !typeParam.isCovariant && !typeParam.isContravariant
     case _ => false
   }
 
   override def equivInner(`type`: ScType, substitutor: ScUndefinedSubstitutor, falseUndef: Boolean)
-                         (implicit typeSystem: TypeSystem): (Boolean, ScUndefinedSubstitutor) = {
+                         (implicit typeSystem: TypeSystem) =
     (`type` match {
-      case that: TypeParameterType => that.typeParameter eq typeParameter
+      case that: TypeParameterType => that.psiTypeParameter eq psiTypeParameter
       case _ => false
     }, substitutor)
-  }
 
   override def visitType(visitor: TypeVisitor) = visitor.visitTypeParameterType(this)
 }
 
 object TypeParameterType {
   def apply(typeParameter: PsiTypeParameter, substitutor: ScSubstitutor = ScSubstitutor.empty): TypeParameterType = {
-    def lift(function: () => ScType) = new Suspension[ScType](function)
+    def lift(`type`: ScType) = new Suspension[ScType](substitutor.subst(`type`))
 
-    val (name, typeParameters, lower, upper) = typeParameter match {
-      case tp: ScTypeParam =>
-        (tp.name,
-          tp.typeParameters,
-          lift(() => substitutor.subst(tp.lowerBound.getOrNothing)),
-          lift(() => substitutor.subst(tp.upperBound.getOrAny))
-          )
+    val (typeParameters, lower, upper) = typeParameter match {
+      case typeParam: ScTypeParam =>
+        (typeParam.typeParameters,
+          typeParam.lowerBound.getOrNothing,
+          typeParam.upperBound.getOrAny)
       case _ =>
         val manager = ScalaPsiManager.instance(typeParameter.getProject)
-        (typeParameter.name,
-          typeParameter.getTypeParameters.toSeq,
-          lift(() => substitutor.subst(manager.psiTypeParameterLowerType(typeParameter))),
-          lift(() => substitutor.subst(manager.psiTypeParameterUpperType(typeParameter)))
-          )
+        (typeParameter.getTypeParameters.toSeq,
+          manager.psiTypeParameterLowerType(typeParameter),
+          manager.psiTypeParameterUpperType(typeParameter))
     }
 
-    TypeParameterType(name, typeParameters.map(TypeParameterType(_, substitutor)), lower, upper, typeParameter)
+    TypeParameterType(typeParameter.name,
+      typeParameters.map(TypeParameterType(_, substitutor)),
+      lift(lower),
+      lift(upper),
+      typeParameter)
   }
 }

@@ -213,20 +213,20 @@ case class ScExistentialType(quantified: ScType,
         val newSet = rejected ++ typeMap.keys
 
         def updateTypeParam(tp: TypeParameter): TypeParameter = {
-          new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), {
+          new TypeParameter(tp.name, tp.typeParameters.map(updateTypeParam), {
             val res = updateRecursive(tp.lowerType(), newSet, variance)
             () => res
           }, {
             val res = updateRecursive(tp.upperType(), newSet, -variance)
             () => res
-          }, tp.ptp)
+          }, tp.psiTypeParameter)
         }
 
         new ScCompoundType(components, signatureMap.map {
           case (s, sctype) =>
             val pTypes: List[Seq[() => ScType]] =
               s.substitutedTypes.map(_.map(f => () => updateRecursive(f(), newSet, variance)))
-            val tParams: Array[TypeParameter] = if (s.typeParams.length == 0) TypeParameter.EMPTY_ARRAY else s.typeParams.map(updateTypeParam)
+            val tParams = s.typeParams.subst(updateTypeParam)
             val rt: ScType = updateRecursive(sctype, newSet, -variance)
             (new Signature(s.name, pTypes, s.paramLength, tParams,
               ScSubstitutor.empty, s.namedElement match {
@@ -244,9 +244,9 @@ case class ScExistentialType(quantified: ScType,
       case ParameterizedType(designator, typeArgs) =>
         val parameteresIterator = designator match {
           case tpt: TypeParameterType =>
-            tpt.arguments.map(_.typeParameter).iterator
+            tpt.arguments.map(_.psiTypeParameter).iterator
           case undef: UndefinedType =>
-            undef.parameterType.arguments.map(_.typeParameter).iterator
+            undef.parameterType.arguments.map(_.psiTypeParameter).iterator
           case tp: ScType =>
             tp.extractClass() match {
               case Some(owner) =>
@@ -309,10 +309,10 @@ case class ScExistentialType(quantified: ScType,
       case ScTypePolymorphicType(internalType, typeParameters) =>
         ScTypePolymorphicType(
           updateRecursive(internalType, rejected, variance),
-          typeParameters.map(tp => TypeParameter(tp.name, tp.typeParams /* todo: is it important here to update? */,
+          typeParameters.map(tp => TypeParameter(tp.name, tp.typeParameters /* todo: is it important here to update? */ ,
             () => updateRecursive(tp.lowerType(), rejected, variance),
             () => updateRecursive(tp.upperType(), rejected, variance),
-            tp.ptp
+            tp.psiTypeParameter
           ))
         )
       case _ => tp
@@ -391,7 +391,7 @@ case class ScExistentialType(quantified: ScType,
     def typeParamsDepth(typeParams: Seq[TypeParameterType]): Int = {
       typeParams.map {
         case typeParam =>
-          val boundsDepth = typeParam.lower.v.typeDepth.max(typeParam.upper.v.typeDepth)
+          val boundsDepth = typeParam.lowerType.v.typeDepth.max(typeParam.upperType.v.typeDepth)
           if (typeParam.arguments.nonEmpty) {
             (typeParamsDepth(typeParam.arguments) + 1).max(boundsDepth)
           } else boundsDepth

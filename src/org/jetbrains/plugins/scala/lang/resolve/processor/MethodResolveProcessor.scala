@@ -186,8 +186,8 @@ object MethodResolveProcessor {
       undefinedSubstitutor(elementForUndefining, s, proc).followed(InferUtil.undefineSubstitutor(prevTypeInfo))
 
     val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
-      case fun: ScFunction => fun.typeParameters.map(new TypeParameter(_))
-      case fun: PsiMethod => fun.getTypeParameters.map(new TypeParameter(_)).toSeq
+      case fun: ScFunction => fun.typeParameters.map(TypeParameter(_))
+      case fun: PsiMethod => fun.getTypeParameters.map(TypeParameter(_)).toSeq
       case _ => Seq.empty
     })
 
@@ -339,7 +339,7 @@ object MethodResolveProcessor {
           } else if (typeParamCount < typeArgCount) {
             problems ++= typeArgElements.drop(typeParamCount).map(ExcessTypeArgument)
           } else {
-            problems ++= tp.typeParameters.drop(typeArgCount).map(ptp => MissedTypeParameter(new TypeParameter(ptp)))
+            problems ++= tp.typeParameters.drop(typeArgCount).map(ptp => MissedTypeParameter(TypeParameter(ptp)))
           }
           addExpectedTypeProblems()
           new ConformanceExtResult(problems)
@@ -360,7 +360,7 @@ object MethodResolveProcessor {
           } else if (typeParamCount < typeArgCount) {
             problems ++= typeArgElements.drop(typeParamCount).map(ExcessTypeArgument)
           } else {
-            problems ++= tp.getTypeParameters.drop(typeArgCount).map(ptp => MissedTypeParameter(new TypeParameter(ptp)))
+            problems ++= tp.getTypeParameters.drop(typeArgCount).map(ptp => MissedTypeParameter(TypeParameter(ptp)))
           }
           addExpectedTypeProblems()
           new ConformanceExtResult(problems)

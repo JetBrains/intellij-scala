@@ -187,7 +187,7 @@ object PatternAnnotatorUtil {
       }
       val newVisited = visited + scType
       scType.recursiveUpdate {
-        case tp: TypeParameterType => (true, ScAbstractType(tp, abstraction(tp.lower.v, newVisited), abstraction(tp.upper.v, newVisited)))
+        case tp: TypeParameterType => (true, ScAbstractType(tp, abstraction(tp.lowerType.v, newVisited), abstraction(tp.upperType.v, newVisited)))
         case tpe => (false, tpe)
       }
     }

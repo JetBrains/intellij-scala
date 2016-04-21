@@ -127,11 +127,11 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
 
       val typeParameters: Seq[TypeParameter] = parentElement match {
         case tp: ScTypeParametersOwner if constrTypParameters.nonEmpty =>
-          constrTypParameters.map(new TypeParameter(_))
+          constrTypParameters.map(TypeParameter(_))
         case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
-          tp.typeParameters.map(new TypeParameter(_))
+          tp.typeParameters.map(TypeParameter(_))
         case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.nonEmpty =>
-          ptp.getTypeParameters.toSeq.map(new TypeParameter(_))
+          ptp.getTypeParameters.toSeq.map(TypeParameter(_))
         case _ =>
           updateImplicits(tp, withExpected = false, params = params, lastImplicit = lastImplicit)
           return res
@@ -240,9 +240,9 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           val res = subst.subst(tp)
           val typeParameters: Seq[TypeParameter] = elem match {
             case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
-              tp.typeParameters.map(new TypeParameter(_))
+              tp.typeParameters.map(TypeParameter(_))
             case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.nonEmpty =>
-              ptp.getTypeParameters.toSeq.map(new TypeParameter(_))
+              ptp.getTypeParameters.toSeq.map(TypeParameter(_))
             case _ => return (res, ScSubstitutor.empty)
           }
 

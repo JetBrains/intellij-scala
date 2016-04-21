@@ -331,7 +331,7 @@ object ScalaPsiUtil {
                     val mrp = processor.asInstanceOf[MethodResolveProcessor]
                     val newProc = new MethodResolveProcessor(ref, refName, mrp.argumentClauses, mrp.typeArgElements,
                       rr.element match {
-                        case fun: ScFunction if fun.hasTypeParameters => fun.typeParameters.map(new TypeParameter(_))
+                        case fun: ScFunction if fun.hasTypeParameters => fun.typeParameters.map(TypeParameter(_))
                         case _ => Seq.empty
                       }, kinds,
                       mrp.expectedOption, mrp.isUnderscore, mrp.isShapeResolve, mrp.constructorResolve, noImplicitsForArgs = withoutImplicitsForArgs)
@@ -536,7 +536,7 @@ object ScalaPsiUtil {
             tp match {
               case t: TypeParameterType =>
                 if (typeParameters.exists {
-                  case TypeParameter(_, _, _, _, ptp) if ptp == t.typeParameter && ptp.getOwner != ownerPtp.getOwner => true
+                  case TypeParameter(_, _, _, _, ptp) if ptp == t.psiTypeParameter && ptp.getOwner != ownerPtp.getOwner => true
                   case _ => false
                 }) res = None
               case _ =>

@@ -182,9 +182,9 @@ trait ScPattern extends ScalaPsiElement {
             def updateRes(tp: ScType): ScType = {
               val parameters: Seq[ScTypeParam] = fun.typeParameters
               tp.recursiveVarianceUpdate {
-                case (tp: TypeParameterType, variance) if parameters.contains(tp.typeParameter) =>
-                  (true, if (variance == -1) substitutor.subst(tp.lower.v)
-                  else substitutor.subst(tp.upper.v))
+                case (tp: TypeParameterType, variance) if parameters.contains(tp.psiTypeParameter) =>
+                  (true, if (variance == -1) substitutor.subst(tp.lowerType.v)
+                  else substitutor.subst(tp.upperType.v))
                 case (typez, _) => (false, typez)
               }
             }

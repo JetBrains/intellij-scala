@@ -311,7 +311,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                       else {
                         val methodType = lastImplicit.map(li => subst.subst(ScMethodType(ret, li.getSmartParameters, isImplicit = true)
                           (place.getProject, place.getResolveScope))).getOrElse(ret)
-                        val polymorphicTypeParameters = typeParameters.map(new TypeParameter(_))
+                        val polymorphicTypeParameters = typeParameters.map(TypeParameter(_))
                         def inferValueType(tp: ScType): (ScType, Seq[TypeParameter]) = {
                           if (isExtensionConversion) {
                             tp match {

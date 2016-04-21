@@ -161,8 +161,8 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
       override def visitTypePolymorphicType(t: ScTypePolymorphicType): Unit = {
         val ScTypePolymorphicType(internalType, typeParameters) = t
         result = ScTypePolymorphicType(substInternal(internalType), typeParameters.map(tp => {
-          TypeParameter(tp.name, tp.typeParams /* todo: is it important here to update? */,
-            () => substInternal(tp.lowerType()), () => substInternal(tp.upperType()), tp.ptp)
+          TypeParameter(tp.name, tp.typeParameters /* todo: is it important here to update? */ ,
+            () => substInternal(tp.lowerType()), () => substInternal(tp.upperType()), tp.psiTypeParameter)
         }))(t.typeSystem)
       }
 
@@ -171,7 +171,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
         result = tvMap.get(parameterType.nameAndId) match {
           case None => a
           case Some(v) => v match {
-            case tpt: TypeParameterType if tpt.typeParameter == parameterType.typeParameter => a
+            case tpt: TypeParameterType if tpt.psiTypeParameter == parameterType.psiTypeParameter => a
             case _ => extractTpt(parameterType, v)
           }
         }
@@ -189,7 +189,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
         result = tvMap.get(parameterType.nameAndId) match {
           case None => u
           case Some(v) => v match {
-            case tpt: TypeParameterType if tpt.typeParameter == parameterType.typeParameter => u
+            case tpt: TypeParameterType if tpt.psiTypeParameter == parameterType.psiTypeParameter => u
             case _ => extractTpt(parameterType, v)
           }
         }
@@ -267,7 +267,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                   }
                 case Some((cl: PsiClass, subst)) =>
                   typez match {
-                    case t: TypeParameterType => return update(t.upper.v)
+                    case t: TypeParameterType => return update(t.upperType.v)
                     case p@ParameterizedType(des, typeArgs) =>
                       p.designator match {
                         case TypeParameterType(_, _, _, upper, _) => return update(p.substitutor.subst(upper.v))
@@ -293,7 +293,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                           case _ =>
                         }
                       }
-                    case t: TypeParameterType => return update(t.upper.v)
+                    case t: TypeParameterType => return update(t.upperType.v)
                     case p@ParameterizedType(des, typeArgs) =>
                       p.designator match {
                         case TypeParameterType(_, _, _, upper, _) => return update(p.substitutor.subst(upper.v))
@@ -420,13 +420,13 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
         substCopy.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
         substCopy.myDependentMethodTypes = myDependentMethodTypes
         def substTypeParam(tp: TypeParameter): TypeParameter = {
-          new TypeParameter(tp.name, tp.typeParams.map(substTypeParam), () => substInternal(tp.lowerType()),
-            () => substInternal(tp.upperType()), tp.ptp)
+          new TypeParameter(tp.name, tp.typeParameters.map(substTypeParam), () => substInternal(tp.lowerType()),
+            () => substInternal(tp.upperType()), tp.psiTypeParameter)
         }
         val middleRes = ScCompoundType(comps.map(substInternal), signatureMap.map {
           case (s: Signature, tp: ScType) =>
             val pTypes: List[Seq[() => ScType]] = s.substitutedTypes.map(_.map(f => () => substInternal(f())))
-            val tParams: Array[TypeParameter] = if (s.typeParams.length == 0) TypeParameter.EMPTY_ARRAY else s.typeParams.map(substTypeParam)
+            val tParams = s.typeParams.subst(substTypeParam)
             val rt: ScType = substInternal(tp)
             (new Signature(s.name, pTypes, s.paramLength, tParams,
               ScSubstitutor.empty, s.namedElement match {

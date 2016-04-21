@@ -101,7 +101,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT(tp.nameAndId,
-                      UndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
+                      UndefinedType(ScalaPsiManager.typeVariable(tp.psiTypeParameter)))
                 }
                 Left(params.map(p => p.copy(paramType = s.subst(p.paramType))))
               } else {
@@ -119,7 +119,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT(tp.nameAndId,
-                      UndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
+                      UndefinedType(ScalaPsiManager.typeVariable(tp.psiTypeParameter)))
                 }
                 Right(s.subst(internal))
               } else {
@@ -317,7 +317,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
       case f: ScFunction if f.isConstructor =>
         f.containingClass match {
           case td: ScTypeDefinition if td.hasTypeParameters =>
-            ScTypePolymorphicType(f.methodType, td.typeParameters.map(new TypeParameter(_)))
+            ScTypePolymorphicType(f.methodType, td.typeParameters.map(TypeParameter(_)))
           case _ => f.polymorphicType()
         }
       case f: ScFunction => f.polymorphicType()
