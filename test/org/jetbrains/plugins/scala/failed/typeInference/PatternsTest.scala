@@ -100,4 +100,16 @@ class PatternsTest extends TypeInferenceTestBase {
       """.stripMargin)
   }
 
+  def testSCL6383(): Unit = {
+    doTest(
+      s"""
+         |object Test {
+         |  class R[T]
+         |  case object MyR extends R[Int]
+         |  def buggy[T] : PartialFunction[R[T], T] = { case MyR => ${START}3$END }
+         |}
+         |//T
+      """.stripMargin)
+  }
+
 }
