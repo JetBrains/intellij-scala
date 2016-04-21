@@ -1,28 +1,16 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.PerfCycleTests
-import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 import org.junit.experimental.categories.Category
 
 /**
-  * Created by Anton Yalyshev
+  * Created by Anton Yalyshev on 15/04/16.
   */
 @Category(Array(classOf[PerfCycleTests]))
-class CollectionsResolveTest extends SimpleTestCase {
-
-  def doResolveTest (code: String) {
-    val (psi, caretPos) = parseText(code, EditorTestUtil.CARET_TAG)
-    val reference = psi.findElementAt(caretPos).getParent
-    reference match {
-      case r: ResolvableReferenceElement => assert(r.resolve() != null, "failed to resolve enclosing object")
-      case _ => assert(true)
-    }
-  }
+class CollectionsResolveTest extends FailedResolveCaretTestBase {
 
   def testSCL7209(): Unit = {
-    doResolveTest(
+    doResolveCaretTest(
       """
         |class mc {
         |  for {
@@ -34,7 +22,7 @@ class CollectionsResolveTest extends SimpleTestCase {
       """.stripMargin)
   }
 
-  def testSCL5756(): Unit = doResolveTest(
+  def testSCL5756(): Unit = doResolveCaretTest(
     s"""
        |class Person {
        |    def toMarkdown: String = "text"
