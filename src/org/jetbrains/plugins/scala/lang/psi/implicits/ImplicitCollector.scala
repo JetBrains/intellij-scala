@@ -7,7 +7,6 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.ScalaRecursionManager
 import org.jetbrains.plugins.scala.caches.ScalaRecursionManager.RecursionMap
 import org.jetbrains.plugins.scala.extensions._
@@ -38,10 +37,8 @@ import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
 object ImplicitCollector {
-  def cache(project: Project): ConcurrentMap[(PsiElement, ScType), Seq[ScalaResolveResult]] = {
-    if (project != null) ScalaPsiManager.instance(project).implicitCollectorCache
-    else ContainerUtil.newConcurrentMap[(PsiElement, ScType), Seq[ScalaResolveResult]]()
-  }
+  def cache(project: Project): ConcurrentMap[(PsiElement, ScType), Seq[ScalaResolveResult]] =
+    ScalaPsiManager.instance(project).implicitCollectorCache
 
   def exprType(expr: ScExpression, fromUnder: Boolean): Option[ScType] = {
     expr.getTypeWithoutImplicits(fromUnderscore = fromUnder).toOption.map {
