@@ -102,8 +102,6 @@ trait ScalaPsiElement extends PsiElement with PsiElementExtTrait with MonadTrans
     if (child == null) None else Some(child.asInstanceOf[T])
   }
 
-  protected def lock(handler: => Unit): Unit = {}
-
   /**
    * Override in inheritors
    */

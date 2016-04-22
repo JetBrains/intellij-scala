@@ -23,10 +23,6 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     }
   }
 
-  private val _locked = new ThreadLocal[Boolean] {
-    override def initialValue: Boolean = false
-  }
-
   override def getContext: PsiElement = {
     context match {
       case null => super.getContext
@@ -67,14 +63,6 @@ abstract class ScalaPsiElementImpl(node: ASTNode) extends ASTWrapperPsiElement(n
     findChildrenByClass[T](clazz)
 
   protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
-
-  override protected def lock(handler: => Unit) {
-    if (!_locked.get) {
-      _locked.set(true)
-      handler
-      _locked.set(false)
-    }
-  }
 
   // todo override in more specific cases
   override def replace(newElement: PsiElement): PsiElement = {
