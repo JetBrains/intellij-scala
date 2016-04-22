@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
+import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -61,7 +62,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    * @return seq of application problems
    */
   def applicationProblems: Seq[ApplicabilityProblem] = {
-    getUpdatableUserData(MethodInvocation.APPLICABILITY_PROBLEMS_VAR_KEY)(Seq.empty)
+    getUpdatableUserData(APPLICABILITY_PROBLEMS_VAR_KEY)(APPLICABILITY_PROBLEMS_DEFAULT)
   }
 
   /**
@@ -79,7 +80,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   }
 
   private def matchedParametersInner: Seq[(Parameter, ScExpression)] = {
-    getUpdatableUserData(MethodInvocation.MATCHED_PARAMETERS_VAR_KEY)(Seq.empty)
+    getUpdatableUserData(MATCHED_PARAMETERS_VAR_KEY)(MATCHED_PARAMETERS_DEFAULT)
   }
 
   /**
@@ -88,7 +89,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    * @return imports used for implicit conversion
    */
   def getImportsUsed: collection.Set[ImportUsed] = {
-    getUpdatableUserData(MethodInvocation.IMPORTS_USED_KEY)(collection.Set.empty[ImportUsed])
+    getUpdatableUserData(IMPORTS_USED_KEY)(IMPORTS_USED_DEFAULT)
   }
 
   /**
@@ -97,7 +98,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
    * @return actual conversion element
    */
   def getImplicitFunction: Option[PsiNamedElement] = {
-    getUpdatableUserData(MethodInvocation.IMPLICIT_FUNCTION_KEY)(None)
+    getUpdatableUserData(IMPLICIT_FUNCTION_KEY)(None)
   }
 
   /**
@@ -106,7 +107,7 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
   def isApplyOrUpdateCall: Boolean = applyOrUpdateElement.isDefined
 
   def applyOrUpdateElement: Option[ScalaResolveResult] = {
-    getUpdatableUserData(MethodInvocation.APPLY_OR_UPDATE_KEY)(None)
+    getUpdatableUserData(APPLY_OR_UPDATE_KEY)(None)
   }
 
   /**
@@ -306,37 +307,36 @@ trait MethodInvocation extends ScExpression with ScalaPsiElement {
 
   def setApplicabilityProblemsVar(seq: Seq[ApplicabilityProblem]) {
     val modCount: Long = getManager.getModificationTracker.getModificationCount
-    putUserData(MethodInvocation.APPLICABILITY_PROBLEMS_VAR_KEY, (modCount, seq))
+    putUserData(APPLICABILITY_PROBLEMS_VAR_KEY, (modCount, seq))
   }
 
   private def setMatchedParametersVar(seq: Seq[(Parameter, ScExpression)]) {
     val modCount: Long = getManager.getModificationTracker.getModificationCount
-    putUserData(MethodInvocation.MATCHED_PARAMETERS_VAR_KEY, (modCount, seq))
+    putUserData(MATCHED_PARAMETERS_VAR_KEY, (modCount, seq))
   }
 
   def setImportsUsed(set: collection.Set[ImportUsed]) {
     val modCount: Long = getManager.getModificationTracker.getModificationCount
-    putUserData(MethodInvocation.IMPORTS_USED_KEY, (modCount, set))
+    putUserData(IMPORTS_USED_KEY, (modCount, set))
   }
 
   def setImplicitFunction(opt: Option[PsiNamedElement]) {
     val modCount: Long = getManager.getModificationTracker.getModificationCount
-    putUserData(MethodInvocation.IMPLICIT_FUNCTION_KEY, (modCount, opt))
+    putUserData(IMPLICIT_FUNCTION_KEY, (modCount, opt))
   }
 
   def setApplyOrUpdate(opt: Option[ScalaResolveResult]) {
     val modCount: Long = getManager.getModificationTracker.getModificationCount
-    putUserData(MethodInvocation.APPLY_OR_UPDATE_KEY, (modCount, opt))
+    putUserData(APPLY_OR_UPDATE_KEY, (modCount, opt))
   }
 
-  private def getUpdatableUserData[Res](key: Key[(Long, Res)])(default: => Res): Res = {
+  private def getUpdatableUserData[Res](key: Key[(Long, Res)])(default: Res): Res = {
     val modCount = getManager.getModificationTracker.getModificationCount
-    def getData = Option(getUserData(key)).getOrElse(-1L, default)
-    getData match {
+    getUserData(key) match {
       case (`modCount`, res) => res
       case _ =>
         getType(TypingContext.empty) //update if needed
-        getData match {
+        getUserData(key) match {
           case (`modCount`, res) => res
           case _ => default //todo: should we throw an exception in this case?
         }
@@ -349,8 +349,14 @@ object MethodInvocation {
     Some(invocation.getInvokedExpr, invocation.argumentExpressions)
 
   private val APPLICABILITY_PROBLEMS_VAR_KEY: Key[(Long, Seq[ApplicabilityProblem])] = Key.create("applicability.problems.var.key")
+  private val APPLICABILITY_PROBLEMS_DEFAULT = Seq.empty[ApplicabilityProblem]
+
   private val MATCHED_PARAMETERS_VAR_KEY: Key[(Long, Seq[(Parameter, ScExpression)])] = Key.create("matched.parameter.var.key")
+  private val MATCHED_PARAMETERS_DEFAULT = Seq.empty[(Parameter, ScExpression)]
+
   private val IMPORTS_USED_KEY: Key[(Long, collection.Set[ImportUsed])] = Key.create("imports.used.method.invocation.key")
+  private val IMPORTS_USED_DEFAULT = collection.Set.empty[ImportUsed]
+
   private val IMPLICIT_FUNCTION_KEY: Key[(Long, Option[PsiNamedElement])] = Key.create("implicit.function.method.invocation.key")
   private val APPLY_OR_UPDATE_KEY: Key[(Long, Option[ScalaResolveResult])] = Key.create("apply.or.update.key")
 }
