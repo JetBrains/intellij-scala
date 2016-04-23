@@ -22,7 +22,7 @@ In order to take part in Scala plugin development, you need to:
 
 1. Install the following software:
     - SBT 0.13.5 or higher
-    - IntelliJ IDEA 14 or higher with compatible version of Scala plugin
+    - IntelliJ IDEA 14 or higher with compatible version of Scala plugin and ant support enabled
 
 2. Fork this repository and clone it to your computer
 
