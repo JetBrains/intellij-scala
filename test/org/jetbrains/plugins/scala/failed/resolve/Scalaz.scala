@@ -20,4 +20,6 @@ class Scalaz extends FailedResolveTest("scalaz"){
   def testSCL7213(): Unit = doTest()
 
   def testSCL10087(): Unit = doTest()
+
+  def testSCL7227(): Unit = doTest()
 }
