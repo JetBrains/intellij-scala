@@ -2,12 +2,14 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 
+import org.jetbrains.annotations.PropertyKey
+
 /**
 * @author ilyas
 */
 
 object ErrMsg{
-  def apply(msg: String) = {
+  def apply(@PropertyKey(resourceBundle = "org.jetbrains.plugins.scala.ScalaBundle") msg: String) = {
     ScalaBundle.message(msg)
   }
 }
