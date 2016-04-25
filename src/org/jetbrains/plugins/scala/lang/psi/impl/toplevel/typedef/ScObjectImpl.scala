@@ -162,6 +162,7 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
 
   override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = SyntheticMembersInjector.inject(this, withOverride = false)
 
+  @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   def fakeCompanionClass: Option[PsiClass] = {
     ScalaPsiUtil.getCompanionModule(this) match {
       case Some(module) => None
