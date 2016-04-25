@@ -105,4 +105,21 @@ class SelfTypeTest extends TypeInferenceTestBase {
          |//Nothing
       """.stripMargin)
   }
+
+  def testSCL7493(): Unit = {
+    doTest(
+      s"""
+         |  class Foo[T,+U] {}
+         |  class Bar[T] {}
+         |  type FooBar[T,U] = Foo[T,Bar[U]]
+         |
+         |  def baz[T,U](x: FooBar[T,U], y: FooBar[T,_]): FooBar[T,U] = x
+         |
+         |  val s1: FooBar[String,Int] = null
+         |  val s2: FooBar[String,Boolean] = null
+         |  baz[String,Int](s1,${START}s2$END)
+         |
+         |//FooBar[String,_]
+      """.stripMargin)
+  }
 }
