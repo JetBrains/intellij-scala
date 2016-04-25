@@ -405,7 +405,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
   }
 
   override def isInheritor(baseClass: PsiClass, deep: Boolean): Boolean = {
-    if (baseClass == null) return false
+    if (baseClass == null || baseClass.isEffectivelyFinal) return false
 
     val visited: util.Set[PsiClass] = new util.HashSet[PsiClass]
     val baseQualifiedName = baseClass.qualifiedName
@@ -444,7 +444,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClass {
       }
       false
     }
-    if (baseClass == null || DumbService.getInstance(baseClass.getProject).isDumb) return false //to prevent failing during indexes
+    if (DumbService.getInstance(baseClass.getProject).isDumb) return false //to prevent failing during indexes
 
     // This doesn't appear in the superTypes at the moment, so special case required.
     if (baseQualifiedName == "java.lang.Object") return true

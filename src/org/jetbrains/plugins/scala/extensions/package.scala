@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions.implementation._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -247,7 +248,7 @@ package object extensions {
 
     def isEffectivelyFinal: Boolean = clazz match {
       case scClass: ScClass => scClass.hasFinalModifier
-      case _: ScObject => true
+      case _: ScObject | _: ScNewTemplateDefinition => true
       case synth: ScSyntheticClass if !Seq("AnyRef", "AnyVal").contains(synth.className) => true //wrappers for value types
       case _ => clazz.hasModifierProperty(PsiModifier.FINAL)
     }

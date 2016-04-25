@@ -79,7 +79,9 @@ object ScalaOverridingMemberSearcher {
     result.toArray
   }
 
-  def search(member: PsiNamedElement, scopeOption: Option[SearchScope] = None, deep: Boolean = true,
+  def search(member: PsiNamedElement,
+             scopeOption: Option[SearchScope] = None,
+             deep: Boolean = true,
              withSelfType: Boolean = false): Array[PsiNamedElement] = {
     val scope = scopeOption.getOrElse(member.getUseScope)
     def inTemplateBodyOrEarlyDef(element: PsiElement) = element.getParent match {
@@ -100,6 +102,9 @@ object ScalaOverridingMemberSearcher {
       case m: PsiMethod => m.containingClass
       case x: PsiNamedElement => PsiTreeUtil.getParentOfType(x, classOf[ScTemplateDefinition])
     }
+
+    if (parentClass.isEffectivelyFinal) return Array.empty
+
     val buffer = new ArrayBuffer[PsiNamedElement]
 
     def process(inheritor: PsiClass): Boolean = {

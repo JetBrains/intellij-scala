@@ -594,26 +594,32 @@ object TypeDefinitionMembers {
 
   def getSelfTypeSignatures(clazz: PsiClass)
                            (implicit typeSystem: TypeSystem = clazz.typeSystem): SMap = {
-    clazz match {
-      case td: ScTypeDefinition =>
-        td.selfType match {
-          case Some(selfType) =>
-            val clazzType = td.getTypeWithProjections(TypingContext.empty).getOrAny
-            selfType.glb(clazzType) match {
-              case c: ScCompoundType =>
-                getSignatures(c, Some(clazzType), clazz)
-              case tp =>
-                val cl = tp.extractClassType(clazz.getProject) match {
-                  case Some((selfClazz, subst)) => selfClazz
-                  case _ => clazz
-                }
-                getSignatures(cl)
-            }
-          case _ =>
-            getSignatures(clazz)
-        }
-      case _ => getSignatures(clazz)
+
+    @CachedInsidePsiElement(clazz, CachesUtil.getDependentItem(clazz)())
+    def selfTypeSignaturesInner(implicit typeSystem: TypeSystem = clazz.typeSystem): SMap = {
+      clazz match {
+        case td: ScTypeDefinition =>
+          td.selfType match {
+            case Some(selfType) =>
+              val clazzType = td.getTypeWithProjections(TypingContext.empty).getOrAny
+              selfType.glb(clazzType) match {
+                case c: ScCompoundType =>
+                  getSignatures(c, Some(clazzType), clazz)
+                case tp =>
+                  val cl = tp.extractClassType(clazz.getProject) match {
+                    case Some((selfClazz, subst)) => selfClazz
+                    case _ => clazz
+                  }
+                  getSignatures(cl)
+              }
+            case _ =>
+              getSignatures(clazz)
+          }
+        case _ => getSignatures(clazz)
+      }
     }
+
+    selfTypeSignaturesInner()
   }
 
   def getSelfTypeTypes(clazz: PsiClass)
