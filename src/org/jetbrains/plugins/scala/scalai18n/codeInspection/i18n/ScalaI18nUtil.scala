@@ -15,10 +15,10 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Key, Ref, TextRange}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
-import com.intellij.psi.util._
 import org.jetbrains.annotations.{NotNull, Nullable}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.extensions.ResolvesTo
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScStringLiteral}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator
 import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
 
@@ -31,128 +31,63 @@ import scala.collection.mutable
 
 object ScalaI18nUtil {
   final val NULL: IProperty = new PropertyImpl(new PropertyStubImpl(null, null), PropertiesElementTypes.PROPERTY)
-  private final val FOLD_MAX_LENGTH: Int = 50
-  private final val CACHE: Key[IProperty] = Key.create("i18n.property.cache")
-  private final val TOP_LEVEL_EXPRESSION: Key[ParameterizedCachedValue[ScExpression, (Project, ScExpression)]] = Key.create("TOP_LEVEL_EXPRESSION")
-  private final val TOP_LEVEL_PROVIDER: ParameterizedCachedValueProvider[ScExpression, (Project, ScExpression)] =
-    new ParameterizedCachedValueProvider[ScExpression, (Project, ScExpression)] {
-      def compute(pair: (Project, ScExpression)): CachedValueProvider.Result[ScExpression] = {
-        val param: ScExpression = pair._2
-        val project: Project = pair._1
-        val topLevel: ScExpression = getTopLevel(project, param)
-        val cachedValue: ParameterizedCachedValue[ScExpression, (Project, ScExpression)] = param.getUserData(TOP_LEVEL_EXPRESSION)
-        assert(cachedValue != null)
-        var i: Int = 0
-        var element: PsiElement = param
-        while (element ne topLevel) {
-          if (i % 10 == 0) {
-            element.putUserData(TOP_LEVEL_EXPRESSION, cachedValue)
-          }
-          element = element.getParent
-          i += 1
-          i
-        }
-        CachedValueProvider.Result.create(topLevel, PsiManager.getInstance(project).getModificationTracker)
-      }
-    }
+  private val FOLD_MAX_LENGTH: Int = 50
+  private val CACHE: Key[IProperty] = Key.create("i18n.property.cache")
 
   def isFoldingsOn: Boolean = {
     ScalaCodeFoldingSettings.getInstance.isCollapseI18nMessages
   }
 
-  def isI18nProperty(@NotNull project: Project, @NotNull expr: ScLiteral): Boolean = {
-    if (!isStringLiteral(expr)) return false
-    val property: IProperty = expr.getUserData(CACHE)
+  def isI18nProperty(@NotNull project: Project, @NotNull literal: ScLiteral): Boolean = {
+    if (!mayBePropertyKey(literal)) return false
+    val property: IProperty = literal.getUserData(CACHE)
     if (property == NULL) return false
     if (property != null) return true
-    val annotationParams = new mutable.HashMap[String, AnyRef]
-    annotationParams.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
-    val isI18n: Boolean = mustBePropertyKey(project, expr, annotationParams)
-    if (!isI18n) {
-      expr.putUserData(CACHE, NULL)
-    }
+
+    val annotationAttributeValues = new mutable.HashMap[String, AnyRef]
+    annotationAttributeValues.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
+
+    val isI18n: Boolean = mustBePropertyKey(literal, annotationAttributeValues)
+
+    if (!isI18n) literal.putUserData(CACHE, NULL)
     isI18n
   }
 
-  private def isStringLiteral(expr: ScLiteral): Boolean = {
-    if (expr == null || expr.getText == null) return false
-    val text: String = expr.getText
-    text.startsWith("\"") && text.endsWith("\"") && text.length > 2
-  }
-
-  def mustBePropertyKey(@NotNull project: Project, @NotNull expression: ScLiteral,
+  def mustBePropertyKey(@NotNull literal: ScLiteral,
                         @NotNull annotationAttributeValues: mutable.HashMap[String, AnyRef]): Boolean = {
-    isPassedToAnnotatedParam(project, expression, AnnotationUtil.PROPERTY_KEY, annotationAttributeValues, null)
+    mayBePropertyKey(literal) && isPassedToAnnotatedParam(literal, AnnotationUtil.PROPERTY_KEY, annotationAttributeValues, null)
   }
 
-  def isPassedToAnnotatedParam(@NotNull project: Project, @NotNull myExpression: ScLiteral, annFqn: String,
+  def mayBePropertyKey(literal: ScLiteral) = {
+    def isForbiddenInKey(c: Char) = c == '=' || c == ':' || Character.isWhitespace(c)
+
+    literal match {
+      case ScStringLiteral(value) => !value.exists(isForbiddenInKey)
+      case _ => false
+    }
+  }
+
+  def isPassedToAnnotatedParam(@NotNull literal: ScLiteral, annFqn: String,
                                @Nullable annotationAttributeValues: mutable.HashMap[String, AnyRef],
                                @Nullable nonNlsTargets: mutable.HashSet[PsiModifierListOwner]): Boolean = {
-    val expression = getToplevelExpression(project, myExpression)
-    val parent: PsiElement = expression.getParent
-    if (!parent.isInstanceOf[ScArgumentExprList]) return false
-    var idx: Int = -1
-    val args: Array[ScExpression] = parent.asInstanceOf[ScArgumentExprList].exprsArray
-    var i: Int = 0
-    var flag = true
-    while (i < args.length && flag) {
-      val arg: ScExpression = args(i)
-      if (PsiTreeUtil.isAncestor(arg, expression, false)) {
-        idx = i
-        flag = false
-      }
-      i += 1
-      i
-    }
-    if (idx == -1) return false
-    val grParent: PsiElement = parent.getParent
-    grParent match {
-      case methodCall: ScMethodCall =>
-        methodCall.getInvokedExpr match {
-          case refExpr: ScReferenceExpression =>
-            val method = refExpr.resolve()
-            method match {
-              case psiMethod: PsiMethod =>
-                if (method != null && isMethodParameterAnnotatedWith(psiMethod, idx, null, annFqn, annotationAttributeValues, nonNlsTargets)) {
-                  return true
-                }
-              case _ =>
-            }
+    literal.getParent match {
+      case argList: ScArgumentExprList =>
+        val idx = argList.exprs.indexOf(literal)
+        if (idx == -1) return false
+
+        argList.getParent match {
+          case ScMethodCall(ResolvesTo(method: PsiMethod), _) =>
+            isMethodParameterAnnotatedWith(method, idx, null, annFqn, annotationAttributeValues, nonNlsTargets)
           case _ =>
+            false
         }
-      case _ =>
+      case _ => false
     }
-    false
   }
 
-  @NotNull def getToplevelExpression(@NotNull project: Project, @NotNull expression: ScExpression): ScExpression = {
-    if (expression.isInstanceOf[PsiBinaryExpression] || expression.getParent.isInstanceOf[PsiBinaryExpression]) {
-      return CachedValuesManager.getManager(project).getParameterizedCachedValue(expression, TOP_LEVEL_EXPRESSION, TOP_LEVEL_PROVIDER, true, (project, expression))
-    }
-    getTopLevel(project, expression)
-  }
-
-  @NotNull private def getTopLevel(project: Project, @NotNull myExpression: ScExpression): ScExpression = {
-    var expression = myExpression
-    var i: Int = 0
-    var flag = true
-    while (expression.getParent.isInstanceOf[ScExpression] && flag) {
-      i += 1
-      val parent: ScExpression = expression.getParent.asInstanceOf[ScExpression]
-      parent match {
-        case condExpr: PsiConditionalExpression if condExpr.getCondition == expression => flag = false
-        case _ =>
-      }
-      expression = parent
-      if (expression.isInstanceOf[PsiAssignmentExpression]) flag = false
-      if (i > 10 && expression.isInstanceOf[PsiBinaryExpression]) {
-        val value: ParameterizedCachedValue[ScExpression, (Project, ScExpression)] = expression.getUserData(TOP_LEVEL_EXPRESSION)
-        if (value != null && value.hasUpToDateValue) {
-          return getToplevelExpression(project, expression)
-        }
-      }
-    }
-    expression
+  @NotNull def getMaxExpression(@NotNull expression: ScExpression): ScExpression = {
+    val exprs = expression.withParentsInFile.takeWhile(_.isInstanceOf[ScExpression])
+    exprs.toSeq.last.asInstanceOf[ScExpression]
   }
 
   def isMethodParameterAnnotatedWith(method: PsiMethod, idx: Int, @Nullable myProcessed: mutable.HashSet[PsiMethod],
@@ -302,27 +237,17 @@ object ScalaI18nUtil {
       reference match {
         case polyVarRef: PsiPolyVariantReference =>
           for (result <- polyVarRef.multiResolve(false)) {
-            var flag = true
+
             if (result.isValidResult && result.getElement.isInstanceOf[IProperty]) {
               val value: String = result.getElement.asInstanceOf[IProperty].getValue
               var format: MessageFormat = null
               try {
                 format = new MessageFormat(value)
+                val count: Int = format.getFormatsByArgumentIndex.length
+                maxCount = Math.max(maxCount, count)
               }
               catch {
-                case e: Exception => {
-                  flag = false
-                }
-              }
-              if (flag) {
-                try {
-                  val count: Int = format.getFormatsByArgumentIndex.length
-                  maxCount = Math.max(maxCount, count)
-                }
-                catch {
-                  case ignored: IllegalArgumentException => {
-                  }
-                }
+                case e: Exception =>
               }
             }
           }
@@ -333,45 +258,45 @@ object ScalaI18nUtil {
   }
 
   def formatMethodCallExpression(project: Project, methodCallExpression: ScMethodCall): String = {
-    val args: Array[ScExpression] = methodCallExpression.args.exprsArray
-    if (args.length > 0 && args(0).isInstanceOf[ScLiteral] && args(0).isValid &&
-      isI18nProperty(project, args(0).asInstanceOf[ScLiteral])) {
-      val count: Int = getPropertyValueParamsMaxCount(args(0).asInstanceOf[ScLiteral])
-      if (args.length == 1 + count) {
-        var text: String = getI18nMessage(project, args(0).asInstanceOf[ScLiteral])
-        var i: Int = 1
-        var flag = true
-        while (i < count + 1 && flag) {
-          val evaluator = new ScalaConstantExpressionEvaluator
-          var value: AnyRef = evaluator.computeConstantExpression(args(i), throwExceptionOnOverflow = false)
-          if (value == null) {
-            if (args(i).isInstanceOf[ScReferenceExpression]) {
-              value = "{" + args(i).getText + "}"
-            }
-            else {
-              text = null
-              flag = false
-            }
+    def argText(expr: ScExpression): String = {
+      val evaluator = new ScalaConstantExpressionEvaluator
+      Option(evaluator.computeConstantExpression(expr, throwExceptionOnOverflow = false)).getOrElse {
+        "{" + expr.getText + "}"
+      }.toString
+    }
+    def placeholder(idx: Int) = s"{${idx - 1}}"
+
+    val defaultText = methodCallExpression.getText
+
+    methodCallExpression.args.exprs match {
+      case args @ Seq(lit: ScLiteral, _*) if lit.isValid && isI18nProperty(project, lit) =>
+        val count: Int = getPropertyValueParamsMaxCount(lit)
+        if (args.size == 1 + count) {
+          var text: String = getI18nMessage(project, lit)
+          for {
+            (arg, idx) <- args.zipWithIndex.drop(1)
+            value = argText(arg)
+          } {
+            text = text.replace(placeholder(idx), value.toString)
           }
-          text = text.replace("{" + (i - 1) + "}", value.toString)
-          i += 1
-          i
-        }
-        if (text != null) {
-          if (!(text == methodCallExpression.getText)) {
+
+          if (text != defaultText) {
             text = text.replace("''", "'")
           }
-          return if (text.length > FOLD_MAX_LENGTH) text.substring(0, FOLD_MAX_LENGTH - 3) + "...\"" else text
+
+          if (text.length > FOLD_MAX_LENGTH)  text.substring(0, FOLD_MAX_LENGTH - 3) + "...\""
+          else text
         }
-      }
+        else defaultText
+      case _ =>
+        defaultText
     }
-    methodCallExpression.getText
   }
 
   def isValidPropertyReference(@NotNull project: Project, @NotNull expression: ScLiteral, @NotNull key: String, @NotNull outResourceBundle: Ref[String]): Boolean = {
     val annotationAttributeValues = new mutable.HashMap[String, AnyRef]
     annotationAttributeValues.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
-    if (mustBePropertyKey(project, expression, annotationAttributeValues)) {
+    if (mustBePropertyKey(expression, annotationAttributeValues)) {
       annotationAttributeValues get AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER exists {
         case bundleName: PsiElement =>
           val result = JavaPsiFacade.getInstance(bundleName.getProject).getConstantEvaluationHelper.computeConstantExpression(bundleName)

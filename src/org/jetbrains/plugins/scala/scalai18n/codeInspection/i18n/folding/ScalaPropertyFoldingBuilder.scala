@@ -9,9 +9,10 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.SourceTreeToPsiMap
 import com.intellij.util.ObjectUtils
 import org.jetbrains.annotations.NotNull
+import org.jetbrains.plugins.scala.extensions.IteratorExt
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.ScalaI18nUtil
 
@@ -29,11 +30,10 @@ class ScalaPropertyFoldingBuilder extends FoldingBuilderEx {
     val file: ScalaFile = element.asInstanceOf[ScalaFile]
     val project: Project = file.getProject
     val result = new java.util.ArrayList[FoldingDescriptor]
-    file.accept(new ScalaRecursiveElementVisitor {
-      override def visitLiteral(expression: ScLiteral) {
-        checkLiteral(project, expression, result)
-      }
-    })
+    file.depthFirst
+      .filterByType(classOf[ScLiteral])
+      .foreach(checkLiteral(project, _, result))
+
     result.toArray(new Array[FoldingDescriptor](result.size))
   }
 
@@ -49,46 +49,35 @@ class ScalaPropertyFoldingBuilder extends FoldingBuilderEx {
     element.getText
   }
 
-  def isCollapsedByDefault(@NotNull node: ASTNode): Boolean = {
-    ScalaI18nUtil.isFoldingsOn
-  }
+  def isCollapsedByDefault(@NotNull node: ASTNode): Boolean = ScalaI18nUtil.isFoldingsOn
 
-  private def checkLiteral(project: Project, expression: ScLiteral, result: java.util.ArrayList[FoldingDescriptor]) {
-    if (ScalaI18nUtil.isI18nProperty(project, expression)) {
-      val property: IProperty = ScalaI18nUtil.getI18nProperty(project, expression)
+  private def checkLiteral(project: Project, literal: ScLiteral, result: java.util.ArrayList[FoldingDescriptor]) {
+    if (ScalaI18nUtil.isI18nProperty(project, literal)) {
+      val property: IProperty = ScalaI18nUtil.getI18nProperty(project, literal)
       val set = new java.util.HashSet[AnyRef]
       if (property != null) set.add(property)
-      val msg: String = ScalaI18nUtil.formatI18nProperty(expression, property)
-      val parent: PsiElement = expression.getParent
-      parent match {
-        case expressions: ScArgumentExprList =>
-          val exprs = expressions.exprsArray
-          if (!(msg == expression.getText) && (exprs(0) eq expression)) {
-            val count: Int = ScalaI18nUtil.getPropertyValueParamsMaxCount(expression)
-            val args: Array[ScExpression] = expressions.exprsArray
-            if (args.length == 1 + count && parent.getParent.isInstanceOf[ScMethodCall]) {
-              var ok: Boolean = true
-              var i: Int = 1
-              while (i < count + 1 && ok) {
-                val evaluator = new ScalaConstantExpressionEvaluator
-                val value: AnyRef = evaluator.computeConstantExpression(args(i), throwExceptionOnOverflow = false)
-                if (value == null) {
-                  if (!args(i).isInstanceOf[ScReferenceExpression]) {
-                    ok = false
-                  }
-                }
-                i += 1
-                i
+      literal.getParent match {
+        case argsList: ScArgumentExprList =>
+          val exprs = argsList.exprsArray
+          val msg: String = ScalaI18nUtil.formatI18nProperty(literal, property)
+          if (msg != literal.getText && (exprs(0) == literal)) {
+            val count: Int = ScalaI18nUtil.getPropertyValueParamsMaxCount(literal)
+            val args: Array[ScExpression] = argsList.exprsArray
+            if (args.length == 1 + count && argsList.getParent.isInstanceOf[ScMethodCall]) {
+              val evaluator = new ScalaConstantExpressionEvaluator
+              val refOrValue = args.drop(1).forall { arg =>
+                arg.isInstanceOf[ScReferenceExpression] ||
+                  evaluator.computeConstantExpression(arg, throwExceptionOnOverflow = false) != null
               }
-              if (ok) {
-                result.add(new FoldingDescriptor(ObjectUtils.assertNotNull(parent.getParent.getNode), parent.getParent.getTextRange, null, set))
+              if (refOrValue) {
+                result.add(new FoldingDescriptor(ObjectUtils.assertNotNull(argsList.getParent.getNode), argsList.getParent.getTextRange, null, set))
                 return
               }
             }
           }
         case _ =>
       }
-      result.add(new FoldingDescriptor(ObjectUtils.assertNotNull(expression.getNode), expression.getTextRange, null, set))
+      result.add(new FoldingDescriptor(ObjectUtils.assertNotNull(literal.getNode), literal.getTextRange, null, set))
     }
   }
 }

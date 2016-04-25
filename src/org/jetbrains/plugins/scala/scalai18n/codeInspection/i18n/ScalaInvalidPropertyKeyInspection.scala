@@ -113,7 +113,7 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
           case expressions: ScArgumentExprList if expression.getParent.getParent.isInstanceOf[ScMethodCall] =>
             val annotationParams = new mutable.HashMap[String, AnyRef]
             annotationParams.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
-            if (!ScalaI18nUtil.mustBePropertyKey(myManager.getProject, expression, annotationParams)) return
+            if (!ScalaI18nUtil.mustBePropertyKey(expression, annotationParams)) return
             val paramsCount: java.lang.Integer = ScalaI18nUtil.getPropertyValueParamsMaxCount(expression)
             if (paramsCount == -1) return
             val methodCall: ScMethodCall = expressions.getParent.asInstanceOf[ScMethodCall]
