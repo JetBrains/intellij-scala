@@ -50,5 +50,11 @@ class OverridingAnnotatorTest2 extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin, "overriding variable name in class Abs of type String")
   }
 
-
+  def testScl2071(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |  def doSmth(p: String) {}
+        |  def doSmth(p: => String) {}
+      """.stripMargin)
+  }
 }
