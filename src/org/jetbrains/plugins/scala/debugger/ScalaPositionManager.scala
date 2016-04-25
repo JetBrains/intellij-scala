@@ -105,7 +105,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       if (onTheLine.isEmpty) return Collections.emptyList()
       val nonLambdaParent =
         if (isCompiledWithIndyLambdas(file)) {
-          val nonStrictParents = Iterator(onTheLine.head) ++ onTheLine.head.parentsInFile
+          val nonStrictParents = onTheLine.head.withParentsInFile
           nonStrictParents.find(p => ScalaEvaluatorBuilderUtil.isGenerateNonAnonfunClass(p))
         } else None
 
@@ -725,7 +725,7 @@ object ScalaPositionManager {
       }
 
       def findParent(element: PsiElement): Option[PsiElement] = {
-        val parentsOnTheLine = element +: element.parentsInFile.takeWhile(e => e.getTextOffset > startLine).toIndexedSeq
+        val parentsOnTheLine = element.withParentsInFile.takeWhile(e => e.getTextOffset > startLine).toIndexedSeq
         val anon = parentsOnTheLine.collectFirst {
           case e if isLambda(e) => e
           case newTd: ScNewTemplateDefinition if DebuggerUtil.generatesAnonClass(newTd) => newTd
@@ -892,9 +892,8 @@ object ScalaPositionManager {
     private def computeClassJVMNameParts: Seq[String] = {
       if (exactName.isDefined) Seq.empty
       else inReadAction {
-        val forElem = partsFor(elem).toIterator
-        val forParents = elem.parentsInFile.flatMap(e => partsFor(e))
-        (forElem ++ forParents).toSeq.reverse
+        val parts = elem.withParentsInFile.flatMap(partsFor)
+        parts.toSeq.reverse
       }
     }
 

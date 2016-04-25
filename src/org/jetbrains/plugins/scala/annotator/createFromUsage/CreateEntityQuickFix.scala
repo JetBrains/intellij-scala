@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, TypeSystem}
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_10
 import org.jetbrains.plugins.scala.project._
@@ -209,8 +208,8 @@ object CreateEntityQuickFix {
   }
 
   private def anchorForUnqualified(ref: ScReferenceExpression): Option[PsiElement] = {
-    val parents = ref.parents.toList
-    val anchors = ref :: parents
+    val parents = ref.parentsInFile
+    val anchors = ref.withParentsInFile
 
     val place = parents.zip(anchors).find {
       case (_ : ScTemplateBody, _) => true
@@ -226,7 +225,7 @@ object CreateEntityQuickFix {
     supRef.staticSuper match {
       case Some(ExtractClass(clazz: ScTypeDefinition)) => Some(clazz)
       case None =>
-        supRef.parents.toSeq.collect { case td: ScTemplateDefinition => td } match {
+        supRef.parentsInFile.toSeq.collect { case td: ScTemplateDefinition => td } match {
           case Seq(td) =>
             td.supers match {
               case Seq(t: ScTypeDefinition) => Some(t)

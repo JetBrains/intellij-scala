@@ -53,7 +53,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReferenceElement, description
         case Some(InstanceOfClass(typeDef: ScTypeDefinition)) => createInnerClassIn(typeDef)
         case Some(ResolvesTo(pack: PsiPackage)) => createClassInPackage(pack)
         case None =>
-          val inThisFile = (Iterator(ref) ++ ref.parentsInFile).collect {
+          val inThisFile = ref.withParentsInFile.collect {
             case inner childOf (_: ScTemplateBody) => inner
             case td: ScTypeDefinition if td.isTopLevel => td
           }

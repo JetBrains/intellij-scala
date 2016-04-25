@@ -20,15 +20,18 @@ trait PsiElementExtTrait extends Any {
   def referenceAt(offset: Int): Option[PsiReference] = Option(repr.findReferenceAt(offset))
   def parent: Option[PsiElement] = Option(repr.getParent)
   def parents: Iterator[PsiElement] = new ParentsIterator(repr)
+  def withParents: Iterator[PsiElement] = new ParentsIterator(repr, strict = false)
+
   def containingFile: Option[PsiFile] = Option(repr.getContainingFile)
 
   def parentsInFile: Iterator[PsiElement] = {
     repr match {
       case _: PsiFile | _: PsiDirectory => Iterator.empty
-      case _ => new ParentsIterator(repr).takeWhile(!_.isInstanceOf[PsiFile])
+      case _ => parents.takeWhile(!_.isInstanceOf[PsiFile])
     }
   }
 
+  def withParentsInFile: Iterator[PsiElement] = Iterator(repr) ++ parentsInFile
 
   def contexts: Iterator[PsiElement] = new ContextsIterator(repr)
 

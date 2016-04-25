@@ -10,7 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.RefactoringActionHandler
-import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
@@ -77,7 +77,7 @@ object ScalaIntroduceFieldHandlerBase {
 
   def canBeInitializedInDeclaration(expr: ScExpression, aClass: ScTemplateDefinition): Boolean = {
     val stmtsAndMmbrs = ScalaRefactoringUtil.statementsAndMembersInClass(aClass)
-    (Iterator(expr) ++ expr.parents)
+    expr.withParentsInFile
             .find(stmtsAndMmbrs.contains(_))
             .forall(ScalaRefactoringUtil.checkForwardReferences(expr, _))
   }
@@ -87,7 +87,7 @@ object ScalaIntroduceFieldHandlerBase {
     val parExpr: ScExpression = ScalaRefactoringUtil.findParentExpr(ScalaRefactoringUtil.commonParent(ifc.file, occurrences: _*))
     val container = ScalaRefactoringUtil.container(parExpr, ifc.file)
     val stmtsAndMmbrs = ScalaRefactoringUtil.statementsAndMembersInClass(ifc.aClass)
-    val containerIsLocal = (Iterator(container) ++ new ParentsIterator(container)).exists(stmtsAndMmbrs.contains(_))
+    val containerIsLocal = container.withParentsInFile.exists(stmtsAndMmbrs.contains(_))
     if (!containerIsLocal) false
     else {
       ifc.element match {

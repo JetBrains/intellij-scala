@@ -379,6 +379,11 @@ package object extensions {
 
     def filterByType[T](aClass: Class[T]): Iterator[T] =
       delegate.filter(aClass.isInstance(_)).map(_.asInstanceOf[T])
+
+    def headOption: Option[A] = {
+      if (delegate.hasNext) Some(delegate.next())
+      else None
+    }
   }
 
   implicit class RegexExt(val regex: Regex) extends AnyVal {

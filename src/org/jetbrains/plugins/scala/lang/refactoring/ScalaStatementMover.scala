@@ -6,7 +6,7 @@ import com.intellij.codeInsight.editorActions.moveUpDown.{LineMover, LineRange}
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement, PsiFile, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -89,9 +89,8 @@ class ScalaStatementMover extends LineMover {
     val right = edges._2.flatMap(PsiTreeUtil.getParentOfType(_, cl, false).toOption)
 
     left.zip(right)
-            .filter(p => p._1 == p._2 || p._1.parentsInFile.contains(p._2))
-            .map(_._2)
-            .find(it => editor.offsetToLogicalPosition(it.getTextOffset).line == line)
+      .collect { case (l, r) if l.withParentsInFile.contains(r) => r }
+      .find(it => editor.offsetToLogicalPosition(it.getTextOffset).line == line)
   }
 
   private def edgeLeafsOf(line: Int, editor: Editor, file: PsiFile): (Option[PsiElement], Option[PsiElement]) = {

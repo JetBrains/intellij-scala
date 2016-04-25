@@ -233,7 +233,7 @@ class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     val closestClass = classAtOffset(editor.getCaretModel.getOffset, file)
     if (closestClass == null) return Seq.empty
 
-    closestClass +: closestClass.parentsInFile.toSeq.collect {case td: ScTemplateDefinition => td}
+    closestClass.withParentsInFile.toSeq.collect {case td: ScTemplateDefinition => td}
   }
 
 }

@@ -25,7 +25,7 @@ abstract class AbstractFormatConversionIntention(name: String,
 
   private def findTargetIn(element: PsiElement): Option[(PsiElement, Seq[StringPart])] = {
     val candidates = {
-      val list = element :: element.parentsInFile.toList
+      val list = element.withParentsInFile.toList
       if (eager) list.reverse else list
     }
     val results = candidates.map(parser.parse)

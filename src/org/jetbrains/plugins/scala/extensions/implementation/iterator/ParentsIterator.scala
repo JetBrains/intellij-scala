@@ -6,8 +6,8 @@ import com.intellij.psi.PsiElement
  * Pavel.Fatin, 11.05.2010
  */
 
-class ParentsIterator(element: PsiElement) extends Iterator[PsiElement] {
-  private var current = element.getParent
+class ParentsIterator(element: PsiElement, strict: Boolean = true) extends Iterator[PsiElement] {
+  private var current = if (strict) element.getParent else element
 
   def hasNext = current != null
 

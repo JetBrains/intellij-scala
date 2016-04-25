@@ -748,7 +748,7 @@ object ScalaPsiUtil {
       param match {
         case scp: ScParameter => scp.getType(TypingContext.empty).getOrNothing
         case p: PsiParameter =>
-          val treatJavaObjectAsAny = p.parents.findByType(classOf[PsiClass]) match {
+          val treatJavaObjectAsAny = p.parentsInFile.findByType(classOf[PsiClass]) match {
             case Some(cls) if cls.qualifiedName == "java.lang.Object" => true // See SCL-3036
             case _ => false
           }

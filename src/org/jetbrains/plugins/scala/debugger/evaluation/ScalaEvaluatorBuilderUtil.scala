@@ -929,7 +929,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
     if (pattern == null || subPattern == null)
       throw new IllegalArgumentException("Patterns should not be null")
-    val nextPatternIndex: Int = pattern.subpatterns.indexWhere(next => next == subPattern || subPattern.parents.contains(next))
+    val nextPatternIndex: Int = pattern.subpatterns.indexWhere(next => subPattern.withParentsInFile.contains(next))
 
     if (pattern == subPattern) exprEval
     else if (nextPatternIndex < 0) throw new IllegalArgumentException("Pattern is not ancestor of subpattern")

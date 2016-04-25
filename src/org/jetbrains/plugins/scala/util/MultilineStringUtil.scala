@@ -148,7 +148,7 @@ object MultilineStringUtil {
   }
 
   def findParentMLString(element: PsiElement): Option[ScLiteral] = {
-    (Iterator(element) ++ element.parentsInFile).collect {
+    element.withParentsInFile.collect {
       case lit: ScLiteral if lit.isMultiLineString => lit
     }.toStream.headOption
   }

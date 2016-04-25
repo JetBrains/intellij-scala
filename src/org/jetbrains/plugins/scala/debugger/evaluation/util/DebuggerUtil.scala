@@ -541,7 +541,7 @@ object DebuggerUtil {
   }
 
   def getContainingMethod(elem: PsiElement): Option[PsiElement] = {
-    (Iterator(elem) ++ elem.parentsInFile).collectFirst {
+    elem.withParentsInFile.collectFirst {
       case c if ScalaPositionManager.isLambda(c) => c
       case m: PsiMethod => m
       case tb: ScTemplateBody => tb
