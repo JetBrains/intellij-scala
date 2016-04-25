@@ -68,4 +68,26 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin, "Reference to a is ambiguous; it is both a method parameter and a variable in scope.")
   }
+
+  def testSCL7618(): Unit = {
+    checkTextHasError(
+      """
+        |object Main extends App {
+        |  trait A[T]
+        |  trait C[T]
+        |  trait E extends A[Int]
+        |  trait F extends C[Int]
+        |  class B1 extends E with F
+        |  class B2 extends F with E
+        |  class B3 extends A[Int] with C[Int]
+        |  class B4 extends C[Int] with A[Int]
+        |  def foo[T, M[_] <: A[_]](x: M[T]): M[T] = x
+        |
+        |  foo(new B1)
+        |  foo(new B2)
+        |  foo(new B3)
+        |  foo(new B4)
+        |}
+      """.stripMargin, "Type mismatch, expected: M[T], actual: Main.B4")
+  }
 }
