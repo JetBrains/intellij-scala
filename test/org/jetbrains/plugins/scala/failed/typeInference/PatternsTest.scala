@@ -112,4 +112,20 @@ class PatternsTest extends TypeInferenceTestBase {
       """.stripMargin)
   }
 
+  def testSCL7418(): Unit = {
+    doTest(
+      s"""
+         |trait Foo[A]
+         |case class Bar(i: Int) extends Foo[Int]
+         |
+         |object Test {
+         |  def test[A](foo: Foo[A]): A => String =
+         |    a =>
+         |      foo match {
+         |        case Bar(i) => (a + ${START}1$END).toString
+         |      }
+         |}
+         |//String
+      """.stripMargin)
+  }
 }
