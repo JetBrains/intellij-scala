@@ -128,4 +128,17 @@ class PatternsTest extends TypeInferenceTestBase {
          |//String
       """.stripMargin)
   }
+
+  def testSCL5448(): Unit = {
+    doTest(
+      s"""
+         |  case class Value[T](actual: T, numeric: Numeric[T])
+         |
+         |  def matcher(a: Any) = a match {
+         |    case value: Value[_] => value.numeric.toDouble(${START}value.actual$END)
+         |    case _ =>
+         |  }
+         |//_$$1
+      """.stripMargin)
+  }
 }
