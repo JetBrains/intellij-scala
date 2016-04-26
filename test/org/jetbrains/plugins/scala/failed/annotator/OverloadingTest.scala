@@ -118,4 +118,21 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin).isEmpty
   )
+
+  def testSCL10183(): Unit = assert(
+    collectMessages(
+      """
+        |class MyClass {
+        |  def foo[T](): T = ???
+        |
+        |  val value = foo[MyTrait]
+        |  value.get _
+        |}
+        |
+        |trait MyTrait {
+        |  def get() = ???
+        |  def get[A](arg: Any => Any) = ???
+        |}
+      """.stripMargin).isEmpty
+  )
 }
