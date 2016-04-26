@@ -7,7 +7,8 @@ package statements
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -71,15 +72,38 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
         case _ => Seq(elem)
       }
     }
-    val expressions = resultExpressions.flatMap(expandIf)
+
+    def quickCheck(ref: ScReferenceElement): Boolean = {
+      ref match {
+        case _: ScStableCodeReferenceElement  =>
+          ref.getParent match {
+            case ChildOf(_: ScConstructor) =>
+              this.isSecondaryConstructor && containingClass.name == ref.refName
+            case cp: ScConstructorPattern if cp.ref == ref =>
+              this.name == "unapply" || this.name == "unapplySeq"
+            case inf: ScInfixPattern if inf.reference == ref =>
+              this.name == "unapply" || this.name == "unapplySeq"
+            case _ => false
+          }
+        case _: ScReferenceExpression =>
+          if (this.name == "apply")
+            if (this.containingClass.isInstanceOf[ScObject]) this.containingClass.name == ref.refName
+            else true
+          else this.name == ref.refName
+        case _ => false
+      }
+    }
+
     body match {
-      case Some(body) =>
-        for {
-          ref <- body.depthFirst.filterByType(classOf[ScReferenceElement]).toSeq if ref.isReferenceTo(this)
-        } yield {
-          RecursiveReference(ref, expressions.contains(possiblyTailRecursiveCallFor(ref)))
+      case Some(b) =>
+        val possiblyRecursiveRefs = b.depthFirst.filterByType(classOf[ScReferenceElement]).filter(quickCheck).toSeq
+        val recursiveRefs = possiblyRecursiveRefs.filter(_.isReferenceTo(this))
+        if (recursiveRefs.nonEmpty) {
+          val expressions = resultExpressions.flatMap(expandIf)
+          recursiveRefs.map(ref => RecursiveReference(ref, expressions.contains(possiblyTailRecursiveCallFor(ref))))
         }
-      case None => Seq.empty
+        else Seq.empty
+      case _ => Seq.empty
     }
   }
 
