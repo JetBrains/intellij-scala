@@ -411,14 +411,17 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
 
   def getFileResolveScope: GlobalSearchScope = {
     val vFile = getOriginalFile.getVirtualFile
+
     if (vFile == null) GlobalSearchScope.allScope(getProject)
-    else {
-      val resolveScopeManager = ResolveScopeManager.getInstance(getProject)
-      if (isCompiled) {
-        val orderEntries = ProjectRootManager.getInstance(getProject).getFileIndex.getOrderEntriesForFile(vFile)
-        LibraryScopeCache.getInstance(getProject).getLibraryScope(orderEntries)
-      } else resolveScopeManager.getDefaultResolveScope(vFile)
-    }
+    else if (isCompiled) compiledFileResolveScope
+    else ResolveScopeManager.getInstance(getProject).getDefaultResolveScope(vFile)
+  }
+
+  @CachedInsidePsiElement(this, ProjectRootManager.getInstance(getProject))
+  private def compiledFileResolveScope: GlobalSearchScope = {
+    val vFile = getOriginalFile.getVirtualFile
+    val orderEntries = ProjectRootManager.getInstance(getProject).getFileIndex.getOrderEntriesForFile(vFile)
+    LibraryScopeCache.getInstance(getProject).getLibraryScope(orderEntries) //this cache is very inefficient when orderEntries.size is large
   }
 
   def ignoreReferencedElementAccessibility(): Boolean = true //todo: ?
