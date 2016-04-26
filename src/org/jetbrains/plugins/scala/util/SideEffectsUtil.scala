@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 /**
   * @author Nikolay.Tropin
@@ -133,7 +133,7 @@ object SideEffectsUtil {
       case _ =>
     }
 
-    val clazzName = typeOfQual.flatMap(ScalaType.extractDesignatorSingletonType).orElse(typeOfQual) match {
+    val clazzName = typeOfQual.map(_.tryExtractDesignatorSingleton) match {
       case Some(tp) => tp.extractClass().map(_.qualifiedName)
       case None => methodClazzName
     }

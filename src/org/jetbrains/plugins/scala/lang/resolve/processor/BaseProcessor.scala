@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSynthetic
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.resolve.processor.PrecedenceHelper.PrecedenceTypes
 
@@ -188,7 +188,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
               state.put(BaseProcessor.COMPOUND_TYPE_THIS_TYPE_KEY, Some(t)), visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
           }
         }
-      case d@ScDesignatorType(e: PsiClass) if d.isStatic && !e.isInstanceOf[ScTemplateDefinition] =>
+      case d@ScDesignatorType(e: PsiClass) if d.asInstanceOf[ScDesignatorType].isStatic && !e.isInstanceOf[ScTemplateDefinition] =>
         //not scala from scala
         var break = true
         for (method <- e.getMethods if break && method.hasModifierProperty("static")) {
@@ -216,18 +216,18 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
         }
       case ScDesignatorType(e) =>
         processElement(e, ScSubstitutor.empty, place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
-      case TypeParameterType(_, Nil, _, upper, _) =>
+      case TypeParameterType(Nil, _, upper, _) =>
         processType(upper.v, place, state, updateWithProjectionSubst = false, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
       case j: JavaArrayType =>
         processType(j.getParameterizedType(place.getProject, place.getResolveScope).
                 getOrElse(return true), place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
       case p@ParameterizedType(des, typeArgs) =>
         p.designator match {
-          case tpt@TypeParameterType(_, _, _, upper, _) =>
+          case tpt@TypeParameterType(_, _, upper, _) =>
             if (visitedTypeParameter.contains(tpt)) return true
             processType(p.substitutor.subst(upper.v), place,
               state.put(ScSubstitutor.key, new ScSubstitutor(p)), visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter + tpt)
-          case _ => ScalaType.extractDesignated(p, withoutAliases = false) match {
+          case _ => p.extractDesignated(withoutAliases = false) match {
             case Some((designator, subst)) =>
               processElement(designator, subst, place, state, visitedAliases = visitedAliases, visitedTypeParameter = visitedTypeParameter)
             case None => true

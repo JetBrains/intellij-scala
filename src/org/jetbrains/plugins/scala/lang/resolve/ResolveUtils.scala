@@ -23,7 +23,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSynthetic
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -106,7 +107,7 @@ object ResolveUtils {
   def javaPolymorphicType(m: PsiMethod, s: ScSubstitutor, scope: GlobalSearchScope = null, returnType: Option[ScType] = None): NonValueType = {
     if (m.getTypeParameters.isEmpty) javaMethodType(m, s, scope, returnType)
     else {
-      ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(new TypeParameter(_)))(m.typeSystem)
+      ScTypePolymorphicType(javaMethodType(m, s, scope, returnType), m.getTypeParameters.map(TypeParameter(_)))(m.typeSystem)
     }
   }
 

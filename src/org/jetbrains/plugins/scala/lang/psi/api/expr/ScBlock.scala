@@ -18,10 +18,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 
 import scala.collection.immutable.HashSet
 import scala.collection.mutable
@@ -110,7 +110,7 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
                 ex
               case clazz: ScTypeDefinition =>
                 val t = existize(leastClassType(clazz), visitedWithT)
-                val vars = clazz.typeParameters.map {tp => ScalaPsiManager.typeVariable(tp)}.toList
+                val vars = clazz.typeParameters.map(TypeParameterType(_, None)).toList
                 val ex = new ScExistentialArgument(clazz.name, vars, t, t)
                 m.put(clazz.name, ex)
                 ex
@@ -125,14 +125,17 @@ trait ScBlock extends ScExpression with ScDeclarationSequenceHolder with ScImpor
             case ScCompoundType(comps, signatureMap, typesMap) =>
               new ScCompoundType(comps.map(existize(_, visitedWithT)), signatureMap.map {
                 case (s: Signature, tp) =>
-                  def updateTypeParam(tp: TypeParameter): TypeParameter = {
-                    new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), () => existize(tp.lowerType(), visitedWithT),
-                      () => existize(tp.upperType(), visitedWithT), tp.ptp)
+                  def updateTypeParam: TypeParameter => TypeParameter = {
+                    case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
+                      TypeParameter(typeParameters.map(updateTypeParam),
+                        new Suspension(existize(lowerType.v, visitedWithT)),
+                        new Suspension(existize(upperType.v, visitedWithT)),
+                        psiTypeParameter)
                   }
 
                   val pTypes: List[Seq[() => ScType]] =
                     s.substitutedTypes.map(_.map(f => () => existize(f(), visitedWithT)))
-                  val tParams: Array[TypeParameter] = if (s.typeParams.length == 0) TypeParameter.EMPTY_ARRAY else s.typeParams.map(updateTypeParam)
+                  val tParams = s.typeParams.subst(updateTypeParam)
                   val rt: ScType = existize(tp, visitedWithT)
                   (new Signature(s.name, pTypes, s.paramLength, tParams,
                     ScSubstitutor.empty, s.namedElement match {

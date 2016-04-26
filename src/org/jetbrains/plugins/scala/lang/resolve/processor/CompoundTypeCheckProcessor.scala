@@ -8,8 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, Unit}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
 
@@ -42,15 +41,15 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
     def checkTypeParameters(tp1: PsiTypeParameter, tp2: TypeParameter, variance: Int = 1): Boolean = {
       tp1 match {
         case tp1: ScTypeParam =>
-          if (tp1.typeParameters.length != tp2.typeParams.length) return false
-          val iter = tp1.typeParameters.zip(tp2.typeParams).iterator
+          if (tp1.typeParameters.length != tp2.typeParameters.length) return false
+          val iter = tp1.typeParameters.zip(tp2.typeParameters).iterator
           while (iter.hasNext) {
             val (tp1, tp2) = iter.next()
             if (!checkTypeParameters(tp1, tp2, -variance)) return false
           }
           //lower type
           val lower1 = tp1.lowerBound.getOrNothing
-          val lower2 = substitutor.subst(tp2.lowerType())
+          val lower2 = substitutor.subst(tp2.lowerType.v)
           var conformance = (if (variance == 1) lower1
           else lower2).conforms(
             if (variance == 1) lower2
@@ -59,7 +58,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
           undef = conformance._2
 
           val upper1 = tp1.upperBound.getOrAny
-          val upper2 = substitutor.subst(tp2.upperType())
+          val upper2 = substitutor.subst(tp2.upperType.v)
           conformance = (if (variance == 1) upper2
           else upper1).conforms(
             if (variance == 1) upper1
@@ -70,7 +69,7 @@ class CompoundTypeCheckSignatureProcessor(s: Signature, retType: ScType,
           //todo: view?
           true
         case _ =>
-          if (tp2.typeParams.nonEmpty) return false
+          if (tp2.typeParameters.nonEmpty) return false
           //todo: check bounds?
           true
       }
@@ -171,15 +170,15 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
     def checkTypeParameters(tp1: PsiTypeParameter, tp2: TypeParameter, variance: Int = 1): Boolean = {
       tp1 match {
         case tp1: ScTypeParam =>
-          if (tp1.typeParameters.length != tp2.typeParams.length) return false
-          val iter = tp1.typeParameters.zip(tp2.typeParams).iterator
+          if (tp1.typeParameters.length != tp2.typeParameters.length) return false
+          val iter = tp1.typeParameters.zip(tp2.typeParameters).iterator
           while (iter.hasNext) {
             val (tp1, tp2) = iter.next()
             if (!checkTypeParameters(tp1, tp2, -variance)) return false
           }
           //lower type
           val lower1 = tp1.lowerBound.getOrNothing
-          val lower2 = substitutor.subst(tp2.lowerType())
+          val lower2 = substitutor.subst(tp2.lowerType.v)
           var conformance = (if (variance == 1) lower1
           else lower2).conforms(
             if (variance == 1) lower2
@@ -188,7 +187,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
           undef = conformance._2
 
           val upper1 = tp1.upperBound.getOrAny
-          val upper2 = substitutor.subst(tp2.upperType())
+          val upper2 = substitutor.subst(tp2.upperType.v)
           conformance = (if (variance == 1) upper2
           else upper1).conforms(
             if (variance == 1) upper1
@@ -199,7 +198,7 @@ class CompoundTypeCheckTypeAliasProcessor(sign: TypeAliasSignature, undefSubst: 
           //todo: view?
           true
         case _ =>
-          if (tp2.typeParams.nonEmpty) return false
+          if (tp2.typeParameters.nonEmpty) return false
           //todo: check bounds?
           true
       }

@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult}
 
 /**
@@ -19,9 +19,9 @@ class ScLightTypeParam(t: TypeParameter, tParam: ScTypeParam)
   extends LightElement(tParam.getManager, tParam.getLanguage) with ScTypeParam with PsiClassFake {
   override def nameId: PsiElement = tParam.nameId
 
-  override def upperBound: TypeResult[ScType] = Success(t.upperType(), Some(this))
+  override def upperBound: TypeResult[ScType] = Success(t.upperType.v, Some(this))
 
-  override def lowerBound: TypeResult[ScType] = Success(t.lowerType(), Some(this))
+  override def lowerBound: TypeResult[ScType] = Success(t.lowerType.v, Some(this))
 
   override def getIndex: Int = tParam.getIndex
 
@@ -52,7 +52,7 @@ class ScLightTypeParam(t: TypeParameter, tParam: ScTypeParam)
 
   override def toString: String = tParam.toString
 
-  override def typeParameters: Seq[ScTypeParam] = t.typeParams.zip(tParam.typeParameters).map {
+  override def typeParameters: Seq[ScTypeParam] = t.typeParameters.zip(tParam.typeParameters).map {
     case (t: TypeParameter, tParam: ScTypeParam) => new ScLightTypeParam(t, tParam)
   }
 

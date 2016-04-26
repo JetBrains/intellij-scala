@@ -17,10 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible.ImplicitResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
-import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, TypeSystem}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, TypeSystem, _}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 import scala.collection.Set
@@ -102,17 +102,17 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT(tp.nameAndId,
-                      UndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
+                      UndefinedType(TypeParameterType(tp.psiTypeParameter, None)))
                 }
                 Left(params.map(p => p.copy(paramType = s.subst(p.paramType))))
               } else {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT(tp.nameAndId,
-                      new ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType(), tp.upperType()))
+                      new ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType.v, tp.upperType.v))
                 }
                 val arguments = typeParams.toList.map(tp =>
-                  new ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType()), s.subst(tp.upperType())))
+                  new ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType.v), s.subst(tp.upperType.v)))
                 Left(params.map(p => p.copy(paramType = ScExistentialType(s.subst(p.paramType), arguments))))
               }
             case ScTypePolymorphicType(internal, typeParams) =>
@@ -120,17 +120,17 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT(tp.nameAndId,
-                      UndefinedType(ScalaPsiManager.typeVariable(tp.ptp)))
+                      UndefinedType(TypeParameterType(tp.psiTypeParameter, None)))
                 }
                 Right(s.subst(internal))
               } else {
                 val s: ScSubstitutor = typeParams.foldLeft(ScSubstitutor.empty) {
                   (subst: ScSubstitutor, tp: TypeParameter) =>
                     subst.bindT(tp.nameAndId,
-                      new ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType(), tp.upperType()))
+                      new ScExistentialArgument(tp.name, List.empty /* todo? */ , tp.lowerType.v, tp.upperType.v))
                 }
                 val arguments = typeParams.toList.map(tp =>
-                  new ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType()), s.subst(tp.upperType())))
+                  new ScExistentialArgument(tp.name, List.empty /* todo? */ , s.subst(tp.lowerType.v), s.subst(tp.upperType.v)))
                 Right(ScExistentialType(s.subst(internal), arguments))
               }
             case _ => Right(tp)
@@ -196,15 +196,15 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
                   hasRecursiveTypeParameters
                 }
                 typeParams.foreach(tp => {
-                  if (tp.lowerType() != Nothing) {
-                    val substedLower = uSubst.subst(tp.lowerType())
-                    if (!hasRecursiveTypeParameters(tp.lowerType())) {
+                  if (tp.lowerType.v != Nothing) {
+                    val substedLower = uSubst.subst(tp.lowerType.v)
+                    if (!hasRecursiveTypeParameters(tp.lowerType.v)) {
                       u = u.addLower(tp.nameAndId, substedLower, additional = true)
                     }
                   }
-                  if (tp.upperType() != Any) {
-                    val substedUpper = uSubst.subst(tp.upperType())
-                    if (!hasRecursiveTypeParameters(tp.upperType())) {
+                  if (tp.upperType.v != Any) {
+                    val substedUpper = uSubst.subst(tp.upperType.v)
+                    if (!hasRecursiveTypeParameters(tp.upperType.v)) {
                       u = u.addUpper(tp.nameAndId, substedUpper, additional = true)
                     }
                   }
@@ -318,7 +318,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int)
       case f: ScFunction if f.isConstructor =>
         f.containingClass match {
           case td: ScTypeDefinition if td.hasTypeParameters =>
-            ScTypePolymorphicType(f.methodType, td.typeParameters.map(new TypeParameter(_)))
+            ScTypePolymorphicType(f.methodType, td.typeParameters.map(TypeParameter(_)))
           case _ => f.polymorphicType()
         }
       case f: ScFunction => f.polymorphicType()

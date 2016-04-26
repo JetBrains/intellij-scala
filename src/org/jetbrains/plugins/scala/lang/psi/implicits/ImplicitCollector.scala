@@ -25,7 +25,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve._
@@ -41,13 +42,7 @@ object ImplicitCollector {
     ScalaPsiManager.instance(project).implicitCollectorCache
 
   def exprType(expr: ScExpression, fromUnder: Boolean): Option[ScType] = {
-    expr.getTypeWithoutImplicits(fromUnderscore = fromUnder).toOption.map {
-      case tp =>
-        ScalaType.extractDesignatorSingletonType(tp) match {
-          case Some(res) => res
-          case _ => tp
-        }
-    }
+    expr.getTypeWithoutImplicits(fromUnderscore = fromUnder).toOption.map(_.tryExtractDesignatorSingleton)
   }
 
   sealed trait ImplicitResult
@@ -311,13 +306,13 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                       else {
                         val methodType = lastImplicit.map(li => subst.subst(ScMethodType(ret, li.getSmartParameters, isImplicit = true)
                           (place.getProject, place.getResolveScope))).getOrElse(ret)
-                        val polymorphicTypeParameters = typeParameters.map(new TypeParameter(_))
+                        val polymorphicTypeParameters = typeParameters.map(TypeParameter(_))
                         def inferValueType(tp: ScType): (ScType, Seq[TypeParameter]) = {
                           if (isExtensionConversion) {
                             tp match {
                               case ScTypePolymorphicType(internalType, typeParams) =>
                                 val filteredTypeParams =
-                                  typeParams.filter(tp => !tp.lowerType().equiv(Nothing) || !tp.upperType().equiv(Any))
+                                  typeParams.filter(tp => !tp.lowerType.v.equiv(Nothing) || !tp.upperType.v.equiv(Any))
                                 val newPolymorphicType = ScTypePolymorphicType(internalType, filteredTypeParams)
                                 (newPolymorphicType.inferValueType.recursiveUpdate {
                                   case u: UndefinedType => (true, u.parameterType)
@@ -433,7 +428,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                     val typeParameters = fun.typeParameters.map(_.name)
                     var hasTypeParametersInType = false
                     funType.recursiveUpdate {
-                      case tp@TypeParameterType(name, _, _, _, _) if typeParameters.contains(name) =>
+                      case tp@TypeParameterType(_, _, _, _) if typeParameters.contains(tp.name) =>
                         hasTypeParametersInType = true
                         (true, tp)
                       case tp: ScType if hasTypeParametersInType => (true, tp)

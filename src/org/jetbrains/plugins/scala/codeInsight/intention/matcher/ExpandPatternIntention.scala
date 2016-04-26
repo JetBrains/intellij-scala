@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScRefe
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TupleType, TypeSystem}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
@@ -71,7 +71,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
         val tuplePattern = names.mkParenString
         Some(tuplePattern)
       case _ =>
-        expectedType.flatMap(ScalaType.extractDesignated(_, withoutAliases = true)).map(_._1) match {
+        expectedType.flatMap(_.extractDesignated(withoutAliases = true)).map(_._1) match {
           case Some(cls: ScClass) if cls.isCase =>
             val companionObj = ScalaPsiUtil.getCompanionModule(cls).get
             cls.constructor match {

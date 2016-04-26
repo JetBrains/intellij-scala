@@ -11,8 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.light.ScPrimaryConstructorWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
 import scala.collection.mutable.ArrayBuffer
@@ -94,7 +95,7 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
   def polymorphicType: ScType = {
     val typeParameters = getParent.asInstanceOf[ScTypeDefinition].typeParameters
     if (typeParameters.isEmpty) methodType
-    else ScTypePolymorphicType(methodType, typeParameters.map(new TypeParameter(_)))
+    else ScTypePolymorphicType(methodType, typeParameters.map(TypeParameter(_)))
   }
 
   def getParamByName(name: String, clausePosition: Int = -1): Option[ScParameter] = {

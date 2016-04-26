@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 
 /**
@@ -56,21 +57,22 @@ object ScThisReferenceImpl {
     // SLS 6.5:  If the expression’s expected type is a stable type,
     // or C .this occurs as the prefix of a selection, its type is C.this.type,
     // otherwise it is the self type of class C .
-    expr.getContext match {
-      case r: ScReferenceExpression if r.qualifier.contains(expr) =>
-        Success(ScThisType(td), Some(expr))
+    val element = Some(expr)
+    val result = expr.getContext match {
+      case referenceExpression: ScReferenceExpression if referenceExpression.qualifier.contains(expr) =>
+        ScThisType(td)
       case _ => expr.expectedType() match {
-        case Some(t) if t.isStable =>
-          Success(ScThisType(td), Some(expr))
+        case Some(designatorOwner: DesignatorOwner) if designatorOwner.isStable =>
+          ScThisType(td)
         case _ =>
-          val selfTypeOfClass = td.getTypeWithProjections(TypingContext.empty, thisProjections = true).map(tp =>
-            td.selfType match {
-              case Some(selfType) => tp.glb(selfType)
-              case _ => tp
-            }
-          )
-          Success(selfTypeOfClass.getOrElse (return Failure("No clazz type found", Some(expr))), Some(expr))
+          td.getTypeWithProjections(TypingContext.empty, thisProjections = true).map {
+            case scType => td.selfType.map(scType.glb(_)).getOrElse(scType)
+          } match {
+            case Success(scType, _) => scType
+            case _ => return Failure("No clazz type found", Some(expr))
+          }
       }
     }
+    Success(result, element)
   }
 }

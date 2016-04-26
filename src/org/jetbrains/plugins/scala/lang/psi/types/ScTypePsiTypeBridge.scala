@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -34,7 +34,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
       case classType: PsiClassType =>
         val result = classType.resolveGenerics
         result.getElement match {
-          case tp: PsiTypeParameter => ScalaPsiManager.typeVariable(tp)
+          case psiTypeParameter: PsiTypeParameter => TypeParameterType(psiTypeParameter, None)
           case clazz if clazz != null && clazz.qualifiedName == "java.lang.Object" =>
             if (paramTopLevel && treatJavaObjectAsAny) Any
             else AnyRef
@@ -96,7 +96,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
                           if (wild.isSuper) toScType(capture.getLowerBound, project, scope, visitedRawTypes) else Nothing,
                           if (wild.isExtends) toScType(capture.getUpperBound, project, scope, visitedRawTypes) else Any)
                       case _ if psiType != null => toScType(psiType, project, scope, visitedRawTypes)
-                      case _ => ScalaPsiManager.typeVariable(tp)
+                      case _ => TypeParameterType(tp, None)
                     }
                   }).toSeq).unpackedType
             }
@@ -175,7 +175,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
           }
         case _ => javaObject
       }
-      case ParameterizedType(TypeParameterType(_, _, _, _, typeParameter), _) => EmptySubstitutor.getInstance().substitute(typeParameter)
+      case ParameterizedType(TypeParameterType(_, _, _, typeParameter), _) => EmptySubstitutor.getInstance().substitute(typeParameter)
       case proj@ScProjectionType(_, _, _) => proj.actualElement match {
         case clazz: PsiClass =>
           clazz match {
@@ -190,7 +190,7 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
         case _ => javaObject
       }
       case ScThisType(clazz) => createType(clazz, project)
-      case TypeParameterType(_, _, _, _, typeParameter) => EmptySubstitutor.getInstance().substitute(typeParameter)
+      case TypeParameterType(_, _, _, typeParameter) => EmptySubstitutor.getInstance().substitute(typeParameter)
       case ex: ScExistentialType => toPsiType(ex.quantified, project, scope, noPrimitives)
       case argument: ScExistentialArgument =>
         val upper = argument.upper
@@ -221,28 +221,8 @@ object ScTypePsiTypeBridge extends api.ScTypePsiTypeBridge {
                                 project: Project,
                                 visitedAlias: HashSet[ScTypeAlias]): Option[(PsiClass, ScSubstitutor)] =
     `type` match {
-      case ScThisType(clazz) => Some(clazz, new ScSubstitutor(`type`))
-      case ScDesignatorType(clazz: PsiClass) => Some(clazz, ScSubstitutor.empty)
-      case ScDesignatorType(ta: ScTypeAliasDefinition) =>
-        if (visitedAlias.contains(ta)) return None
-        val result = ta.aliasedType(TypingContext.empty)
-        if (result.isEmpty) return None
-        extractClassType(result.get, project, visitedAlias + ta)
-      case proj@ScProjectionType(p, elem, _) => proj.actualElement match {
-        case c: PsiClass => Some((c, proj.actualSubst))
-        case t: ScTypeAliasDefinition =>
-          if (visitedAlias.contains(t)) return None
-          val result = t.aliasedType(TypingContext.empty)
-          if (result.isEmpty) return None
-          extractClassType(proj.actualSubst.subst(result.get), project, visitedAlias + t)
-        case _ => None
-      }
-      case ScExistentialType(quantified, _) => extractClassType(quantified, project, visitedAlias)
-      case p@ParameterizedType(t1, _) =>
-        extractClassType(t1, project, visitedAlias) match {
-          case Some((c, s)) => Some((c, s.followed(p.substitutor)))
-          case None => None
-        }
+      case ScExistentialType(quantified, _) =>
+        quantified.extractClassType(project, visitedAlias)
       case _ => super.extractClassType(`type`, project, visitedAlias)
     }
 }

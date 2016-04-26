@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.PsiTypeParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 import scala.collection.immutable.HashSet
@@ -33,7 +34,7 @@ object BaseTypes {
         if (visitedAliases.contains(ta)) return Seq.empty
         BaseTypes.get(ta.aliasedType.getOrElse(return Seq.empty), visitedAliases = visitedAliases + ta)
       case ScThisType(clazz) => BaseTypes.get(clazz.getTypeWithProjections(TypingContext.empty).getOrElse(return Seq.empty), visitedAliases = visitedAliases)
-      case TypeParameterType(_, Nil, _, upper, _) => get(upper.v, notAll, visitedAliases = visitedAliases)
+      case TypeParameterType(Nil, _, upper, _) => get(upper.v, notAll, visitedAliases = visitedAliases)
       case ScExistentialArgument(_, Nil, _, upper) => get(upper, notAll, visitedAliases = visitedAliases)
       case a: JavaArrayType => Seq(Any)
       case p: ScProjectionType if p.actualElement.isInstanceOf[ScTypeAliasDefinition] =>

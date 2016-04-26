@@ -39,6 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedStringPartReference
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ScTypePresentation, TypeParameterType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext, TypingContextOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
@@ -100,7 +101,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
         val tp = parameterized.typeElement.getTypeNoConstructor(TypingContext.empty)
         tp match {
           case Success(res, _) =>
-            ScalaType.extractDesignated(res, withoutAliases = false) match {
+            res.extractDesignated(withoutAliases = false) match {
               case Some((t: ScTypeParametersOwner, subst)) =>
                 val typeParametersLength = t.typeParameters.length
                 val argsLength = parameterized.typeArgList.typeArgs.length
@@ -1223,7 +1224,7 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
     def functionToSendIn(tp: ScType, i: Int) = {
       tp match {
         case paramType: TypeParameterType =>
-          paramType.typeParameter match {
+          paramType.psiTypeParameter match {
             case scTypeParam: ScTypeParam =>
               val compareTo = scTypeParam.owner
               val parentIt = checkParentOf.parents

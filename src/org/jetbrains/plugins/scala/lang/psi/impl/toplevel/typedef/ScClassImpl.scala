@@ -274,7 +274,7 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     val fields = constructor match {
       case Some(constr) => constr.parameters.map { param =>
         param.getType(TypingContext.empty) match {
-          case Success(tp: TypeParameterType, _) if tp.typeParameter.findAnnotation("scala.specialized") != null =>
+          case Success(tp: TypeParameterType, _) if tp.psiTypeParameter.findAnnotation("scala.specialized") != null =>
             val factory: PsiElementFactory = PsiElementFactory.SERVICE.getInstance(getProject)
             val psiTypeText: String = tp.toPsiType(getProject, getResolveScope).getCanonicalText
             val text = s"public final $psiTypeText ${param.name};"

@@ -7,8 +7,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.PsiTypeParameterExt
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -69,8 +70,7 @@ class AppliedTypeLambdaCanBeSimplifiedInspection extends LocalInspectionTool {
                           val aliased = typeAliasDefinition.aliasedType.getOrAny
                           val subst = params.zip(typeArgs).foldLeft(ScSubstitutor.empty) {
                             case (res, (param, arg)) =>
-                              val typeVar = ScalaPsiManager.typeVariable(param)
-                              res.bindT(typeVar.nameAndId, arg.calcType)
+                              res.bindT(param.nameAndId, arg.calcType)
                           }
                           val substituted = subst.subst(aliased)
                           substituted.presentableText

@@ -358,7 +358,7 @@ package object collections {
     if (expr == null) return false
     expr.getType() match {
       case Success(tp, _) =>
-        ScalaType.extractDesignatorSingletonType(tp).getOrElse(tp) match {
+        tp.tryExtractDesignatorSingleton match {
           case ExtractClass(cl) if nameFitToPatterns(cl.qualifiedName, patterns) => true
           case _ => false
         }

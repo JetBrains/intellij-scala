@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, StdType, TypeInTypeSystem, TypeParameterType}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeInTypeSystem
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
@@ -20,65 +19,9 @@ import scala.collection.immutable.HashSet
   */
 trait ScalaType extends TypeInTypeSystem {
   implicit val typeSystem = ScalaTypeSystem
-
-  val isSingleton: Boolean = false
 }
 
 object ScalaType {
-  /**
-    * Returns named element associated with type `t`.
-    * If withoutAliases is `true` expands alias definitions first
-    *
-    * @param t              type
-    * @param withoutAliases need to expand alias or not
-    * @return element and substitutor
-    */
-  def extractDesignated(t: ScType, withoutAliases: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = t match {
-    case n: NonValueType => extractDesignated(n.inferValueType, withoutAliases)
-    case ScDesignatorType(ta: ScTypeAliasDefinition) if withoutAliases =>
-      val result = ta.aliasedType(TypingContext.empty)
-      if (result.isEmpty) return None
-      extractDesignated(result.get, withoutAliases)
-    case ScDesignatorType(e) => Some(e, ScSubstitutor.empty)
-    case ScThisType(c) => Some(c, ScSubstitutor.empty)
-    case proj@ScProjectionType(p, e, _) => proj.actualElement match {
-      case t: ScTypeAliasDefinition if withoutAliases =>
-        val result = t.aliasedType(TypingContext.empty)
-        if (result.isEmpty) return None
-        extractDesignated(proj.actualSubst.subst(result.get), withoutAliases)
-      case _ => Some((proj.actualElement, proj.actualSubst))
-    }
-    case p@ParameterizedType(t1, _) =>
-      extractDesignated(t1, withoutAliases) match {
-        case Some((e, s)) => Some((e, s.followed(p.substitutor)))
-        case None => None
-      }
-    case std@StdType(_, _) =>
-      val asClass = std.asClass(DecompilerUtil.obtainProject)
-      if (asClass.isEmpty) return None
-      Some((asClass.get, ScSubstitutor.empty))
-    case TypeParameterType(_, _, _, _, param) => Some(param, ScSubstitutor.empty)
-    case _ => None
-  }
-
-  def extractDesignatorSingletonType(tp: ScType): Option[ScType] = tp match {
-    case ScDesignatorType(v) =>
-      v match {
-        case o: ScObject => None
-        case p: ScParameter if p.isStable => p.getRealParameterType(TypingContext.empty).toOption
-        case t: ScTypedDefinition if t.isStable => t.getType(TypingContext.empty).toOption
-        case _ => None
-      }
-    case proj@ScProjectionType(_, elem, _) =>
-      elem match {
-        case o: ScObject => None
-        case p: ScParameter if p.isStable => p.getRealParameterType(TypingContext.empty).toOption.map(proj.actualSubst.subst)
-        case t: ScTypedDefinition if t.isStable => t.getType(TypingContext.empty).toOption.map(proj.actualSubst.subst)
-        case _ => None
-      }
-    case _ => None
-  }
-
   /**
     * Expands type aliases, including those in a type projection. Type Alias Declarations are replaced by their upper
     * bound.
@@ -121,7 +64,9 @@ object ScalaType {
     */
   def designator(element: PsiNamedElement): ScType = {
     element match {
-      case td: ScClass => StdType.QualNameToType.getOrElse(td.qualifiedName, new ScDesignatorType(element))
+      case td: ScClass =>
+        val designatorType = ScDesignatorType(element)
+        designatorType.getValType.getOrElse(designatorType)
       case _ =>
         val clazzOpt = element match {
           case p: ScClassParameter => Option(p.containingClass)
@@ -134,7 +79,7 @@ object ScalaType {
 
         clazzOpt match {
           case Some(clazz) => ScProjectionType(ScThisType(clazz), element, superReference = false)
-          case _ => new ScDesignatorType(element)
+          case _ => ScDesignatorType(element)
         }
     }
   }

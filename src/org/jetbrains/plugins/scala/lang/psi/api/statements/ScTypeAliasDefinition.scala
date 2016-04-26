@@ -32,7 +32,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
     findChildByClassScala(classOf[ScTypeElement])
   }
 
-  def aliasedType(ctx: TypingContext): TypeResult[ScType] = {
+  def aliasedType(ctx: TypingContext = TypingContext.empty): TypeResult[ScType] = {
     if (ctx.visited.contains(this)) {
       new Failure(ScalaBundle.message("circular.dependency.detected", name), Some(this)) {override def isCyclic = true}
     } else {
@@ -41,10 +41,11 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
   }
 
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
-  def aliasedType: TypeResult[ScType] = aliasedType(TypingContext.empty)
+  def aliasedType: TypeResult[ScType] = aliasedType()
 
-  def lowerBound: TypeResult[ScType] = aliasedType(TypingContext.empty)
-  def upperBound: TypeResult[ScType] = aliasedType(TypingContext.empty)
+  def lowerBound: TypeResult[ScType] = aliasedType()
+
+  def upperBound: TypeResult[ScType] = aliasedType()
 
   def isExactAliasFor(cls: PsiClass)(implicit typeSystem: TypeSystem): Boolean = {
     val isDefinedInObject = containingClass match {
@@ -61,7 +62,7 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
         case pte: ScParameterizedType =>
           val refersToClass = pte.designator.equiv(ScalaType.designator(cls))
           val typeParamsAppliedInOrder = (pte.typeArguments corresponds typeParameters) {
-            case (tpt: TypeParameterType, tp) if tpt.typeParameter == tp => true
+            case (tpt: TypeParameterType, tp) if tpt.psiTypeParameter == tp => true
             case _ => false
           }
           refersToClass && typeParamsAppliedInOrder

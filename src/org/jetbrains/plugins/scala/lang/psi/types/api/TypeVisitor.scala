@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api
 
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 
 /**
@@ -17,4 +18,10 @@ trait TypeVisitor {
   def visitTypeParameterType(`type`: TypeParameterType) {}
 
   def visitParameterizedType(`type`: ParameterizedType) {}
+
+  def visitProjectionType(p: ScProjectionType) {}
+
+  def visitThisType(t: ScThisType) {}
+
+  def visitDesignatorType(d: ScDesignatorType) {}
 }

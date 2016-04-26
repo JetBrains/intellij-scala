@@ -81,7 +81,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
               calculateReferenceType(ref, shapesOnly = false).getOrElse(ScalaType.designator(td))
             val newSubst = {
               val clazzType = ScParameterizedType(refType, td.getTypeParameters.map(tp =>
-                UndefinedType(TypeParameterType(tp, r.substitutor))))
+                UndefinedType(TypeParameterType(tp, Some(r.substitutor)))))
               val emptySubst: ScSubstitutor = new ScSubstitutor(Map(td.typeParameters.map(tp =>
                 (tp.nameAndId, Any)): _*), Map.empty, None)
               expectedType match {
@@ -96,9 +96,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
                 case _ => emptySubst
               }
             }
-            Success(ScParameterizedType(refType, td.getTypeParameters.map({
-              tp => newSubst.subst(ScalaPsiManager.typeVariable(tp))
-            }).toSeq), Some(this))
+            Success(ScParameterizedType(refType, td.getTypeParameters.map(tp => newSubst.subst(TypeParameterType(tp, None)))), Some(this))
           case td: ScClass => Success(ScalaType.designator(td), Some(this))
           case obj: ScObject => Success(ScalaType.designator(obj), Some(this))
           case fun: ScFunction /*It's unapply method*/ if (fun.name == "unapply" || fun.name == "unapplySeq") &&
@@ -106,7 +104,7 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
             val substitutor = r.substitutor
             val subst = if (fun.typeParameters.isEmpty) substitutor else {
               val undefSubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
-                s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, substitutor))))
+                s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, Some(substitutor)))))
               val emptySubst: ScSubstitutor = fun.typeParameters.foldLeft(ScSubstitutor.empty)((s, p) =>
                 s.bindT(p.nameAndId, p.upperBound.getOrAny))
               val emptyRes = substitutor followed emptySubst

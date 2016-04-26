@@ -21,7 +21,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor}
@@ -48,13 +49,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
       // def foo(x: Map[String, Int]) {}
       // def foo(x: String) {}
       // foo(Map(y -> 1)) //Error is here
-      expr.getTypeWithoutImplicits(fromUnderscore = fromUnder).toOption.map {
-        case tp =>
-          ScalaType.extractDesignatorSingletonType(tp) match {
-            case Some(res) => res
-            case _ => tp
-          }
-      }
+      expr.getTypeWithoutImplicits(fromUnderscore = fromUnder).toOption.map(_.tryExtractDesignatorSingleton)
     })
   }
 
@@ -154,7 +149,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
       }
     }
 
-    result.toSeq
+    result
   }
 
   @CachedMappedWithRecursionGuard(place, ArrayBuffer.empty, ModCount.getBlockModificationCount)
@@ -401,7 +396,7 @@ class ScImplicitlyConvertible(place: PsiElement, placeType: Boolean => Option[Sc
                 } {
                   var hasTypeParametersInType = false
                   paramType.recursiveUpdate {
-                    case tp@TypeParameterType(name, _, _, _, _) if typeParameters.contains(name) =>
+                    case tp@TypeParameterType(_, _, _, _) if typeParameters.contains(tp.name) =>
                       hasTypeParametersInType = true
                       (true, tp)
                     case tp: ScType if hasTypeParametersInType => (true, tp)

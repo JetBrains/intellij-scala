@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
@@ -187,8 +187,8 @@ object MethodResolveProcessor {
       undefinedSubstitutor(elementForUndefining, s, proc).followed(InferUtil.undefineSubstitutor(prevTypeInfo))
 
     val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
-      case fun: ScFunction => fun.typeParameters.map(new TypeParameter(_))
-      case fun: PsiMethod => fun.getTypeParameters.map(new TypeParameter(_)).toSeq
+      case fun: ScFunction => fun.typeParameters.map(TypeParameter(_))
+      case fun: PsiMethod => fun.getTypeParameters.map(TypeParameter(_)).toSeq
       case _ => Seq.empty
     })
 
@@ -340,7 +340,7 @@ object MethodResolveProcessor {
           } else if (typeParamCount < typeArgCount) {
             problems ++= typeArgElements.drop(typeParamCount).map(ExcessTypeArgument)
           } else {
-            problems ++= tp.typeParameters.drop(typeArgCount).map(ptp => MissedTypeParameter(new TypeParameter(ptp)))
+            problems ++= tp.typeParameters.drop(typeArgCount).map(ptp => MissedTypeParameter(TypeParameter(ptp)))
           }
           addExpectedTypeProblems()
           new ConformanceExtResult(problems)
@@ -361,7 +361,7 @@ object MethodResolveProcessor {
           } else if (typeParamCount < typeArgCount) {
             problems ++= typeArgElements.drop(typeParamCount).map(ExcessTypeArgument)
           } else {
-            problems ++= tp.getTypeParameters.drop(typeArgCount).map(ptp => MissedTypeParameter(new TypeParameter(ptp)))
+            problems ++= tp.getTypeParameters.drop(typeArgCount).map(ptp => MissedTypeParameter(TypeParameter(ptp)))
           }
           addExpectedTypeProblems()
           new ConformanceExtResult(problems)
@@ -400,15 +400,15 @@ object MethodResolveProcessor {
             }
             hasRecursiveTypeParameters
           }
-          for (TypeParameter(name, typeParams, lowerType, upperType, tParam) <- typeParameters) {
-            if (lowerType() != Nothing) {
-              val substedLower = s.subst(unSubst.subst(lowerType()))
+          for (TypeParameter(typeParams, lowerType, upperType, tParam) <- typeParameters) {
+            if (lowerType.v != Nothing) {
+              val substedLower = s.subst(unSubst.subst(lowerType.v))
               if (!hasRecursiveTypeParameters(substedLower)) {
                 uSubst = uSubst.addLower(tParam.nameAndId, substedLower, additional = true)
               }
             }
-            if (upperType() != Any) {
-              val substedUpper = s.subst(unSubst.subst(upperType()))
+            if (upperType.v != Any) {
+              val substedUpper = s.subst(unSubst.subst(upperType.v))
               if (!hasRecursiveTypeParameters(substedUpper)) {
                 uSubst = uSubst.addUpper(tParam.nameAndId, substedUpper, additional = true)
               }

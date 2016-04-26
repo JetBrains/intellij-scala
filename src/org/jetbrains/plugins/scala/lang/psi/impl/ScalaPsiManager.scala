@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.caches.{CachesUtil, ScalaShortNamesCacheManag
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticPackageCreator}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.ParameterlessNodes.{Map => PMap}
@@ -34,7 +33,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Null, ParameterizedType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Null, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, SyntheticClassProducer}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -304,27 +303,6 @@ class ScalaPsiManager(val project: Project) {
     project.typeSystem.andType(psiTypes.map(_.toScType(project)))
   }
 
-  def typeVariable(typeParameter: PsiTypeParameter): TypeParameterType = {
-    import org.jetbrains.plugins.scala.Misc.fun2suspension
-    val (name, arguments, lower, upper) = typeParameter match {
-      case typeParam: ScTypeParam =>
-        // todo rework for error handling!
-        (typeParam.name,
-          typeParam.typeParameters.map(typeVariable),
-          () => typeParam.lowerBound.getOrNothing,
-          () => typeParam.upperBound.getOrAny)
-      case _ =>
-        (typeParameter.name,
-          Nil,
-          () => Nothing,
-          () => {
-            val instance = ScalaPsiManager.instance(typeParameter.getProject)
-            instance.psiTypeParameterUpperType(typeParameter)
-          })
-    }
-    TypeParameterType(name, arguments, lower, upper, typeParameter)
-  }
-
   def getStableTypeAliasesNames: Seq[String] = {
     val keys = StubIndex.getInstance.getAllKeys(ScalaIndexKeys.STABLE_ALIAS_NAME_KEY, project)
     import scala.collection.JavaConversions._
@@ -370,8 +348,6 @@ object ScalaPsiManager {
   val TYPE_VARIABLE_KEY: Key[TypeParameterType] = Key.create("type.variable.key")
 
   def instance(project: Project): ScalaPsiManager = project.getComponent(classOf[ScalaPsiManagerComponent]).instance
-
-  def typeVariable(typeParameter: PsiTypeParameter) = instance(typeParameter.getProject).typeVariable(typeParameter)
 
   object ClassCategory extends Enumeration {
     type ClassCategory = Value

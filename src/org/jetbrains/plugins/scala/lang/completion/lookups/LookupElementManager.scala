@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.result.{TypingContext, TypingContextOwner}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
@@ -49,7 +49,7 @@ object LookupElementManager {
 
       qualifierType match {
         case _ if !isPredef && !usedImportForElement =>
-          ScalaType.extractDesignated(qualifierType, withoutAliases = false) match {
+          qualifierType.extractDesignated(withoutAliases = false) match {
             case Some((named, _)) =>
               val clazz: Option[PsiClass] = named match {
                 case cl: PsiClass => Some(cl)

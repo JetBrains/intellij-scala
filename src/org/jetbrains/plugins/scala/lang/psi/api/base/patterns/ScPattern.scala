@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTem
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve._
@@ -159,7 +160,7 @@ trait ScPattern extends ScalaPsiElement {
               fun.parameters.length == 1 =>
         val subst = if (fun.typeParameters.isEmpty) substitutor else {
           var undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty) { (s, p) =>
-            s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, substitutor)))
+            s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, Some(substitutor))))
           }
           val clazz = ScalaPsiUtil.getContextOfType(this, true, classOf[ScTemplateDefinition])
           clazz match {
@@ -182,9 +183,9 @@ trait ScPattern extends ScalaPsiElement {
             def updateRes(tp: ScType): ScType = {
               val parameters: Seq[ScTypeParam] = fun.typeParameters
               tp.recursiveVarianceUpdate {
-                case (tp: TypeParameterType, variance) if parameters.contains(tp.typeParameter) =>
-                  (true, if (variance == -1) substitutor.subst(tp.lower.v)
-                  else substitutor.subst(tp.upper.v))
+                case (tp: TypeParameterType, variance) if parameters.contains(tp.psiTypeParameter) =>
+                  (true, if (variance == -1) substitutor.subst(tp.lowerType.v)
+                  else substitutor.subst(tp.upperType.v))
                 case (typez, _) => (false, typez)
               }
             }
@@ -202,7 +203,7 @@ trait ScPattern extends ScalaPsiElement {
               fun.parameters.length == 1 =>
         val subst = if (fun.typeParameters.isEmpty) substitutor else {
           val undefSubst = substitutor followed fun.typeParameters.foldLeft(ScSubstitutor.empty) { (s, p) =>
-            s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, substitutor)))
+            s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, Some(substitutor))))
           }
           val firstParameterRetTp = fun.parameters.head.getType(TypingContext.empty) match {
             case Success(tp, _) => tp

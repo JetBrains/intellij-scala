@@ -12,7 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 import scala.collection.immutable.{HashMap, HashSet, Map}
@@ -31,7 +32,7 @@ object ScSubstitutor {
 }
 
 class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
-                    val aliasesMap: Map[String, Suspension[ScType]],
+                    val aliasesMap: Map[String, Suspension],
                     val updateThisType: Option[ScType]) {
   //use ScSubstitutor.empty instead
   private[ScSubstitutor] def this() = this(Map.empty, Map.empty, None)
@@ -41,9 +42,9 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
   }
 
   def this(tvMap: Map[(String, PsiElement), ScType],
-                    aliasesMap: Map[String, Suspension[ScType]],
-                    updateThisType: Option[ScType],
-                    follower: ScSubstitutor) = {
+           aliasesMap: Map[String, Suspension],
+           updateThisType: Option[ScType],
+           follower: ScSubstitutor) = {
     this(tvMap, aliasesMap, updateThisType)
     this.follower = follower
   }
@@ -81,7 +82,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
   }
 
   def bindA(name: String, f: () => ScType) = {
-    val res = new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension[ScType](f))), updateThisType, follower)
+    val res = new ScSubstitutor(tvMap, aliasesMap + ((name, new Suspension(f))), updateThisType, follower)
     res.myDependentMethodTypesFun = myDependentMethodTypesFun
     res.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
     res.myDependentMethodTypes = myDependentMethodTypes
@@ -160,10 +161,15 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
     val visitor = new ScalaTypeVisitor {
       override def visitTypePolymorphicType(t: ScTypePolymorphicType): Unit = {
         val ScTypePolymorphicType(internalType, typeParameters) = t
-        result = ScTypePolymorphicType(substInternal(internalType), typeParameters.map(tp => {
-          TypeParameter(tp.name, tp.typeParams /* todo: is it important here to update? */,
-            () => substInternal(tp.lowerType()), () => substInternal(tp.upperType()), tp.ptp)
-        }))(t.typeSystem)
+        result = ScTypePolymorphicType(substInternal(internalType),
+          typeParameters.map {
+            case TypeParameter(parameters, lowerType, upperType, psiTypeParameter) =>
+              TypeParameter(
+                parameters, // todo: is it important here to update?
+                new Suspension(substInternal(lowerType.v)),
+                new Suspension(substInternal(upperType.v)),
+                psiTypeParameter)
+          })(t.typeSystem)
       }
 
       override def visitAbstractType(a: ScAbstractType): Unit = {
@@ -171,7 +177,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
         result = tvMap.get(parameterType.nameAndId) match {
           case None => a
           case Some(v) => v match {
-            case tpt: TypeParameterType if tpt.typeParameter == parameterType.typeParameter => a
+            case tpt: TypeParameterType if tpt.psiTypeParameter == parameterType.psiTypeParameter => a
             case _ => extractTpt(parameterType, v)
           }
         }
@@ -189,7 +195,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
         result = tvMap.get(parameterType.nameAndId) match {
           case None => u
           case Some(v) => v match {
-            case tpt: TypeParameterType if tpt.typeParameter == parameterType.typeParameter => u
+            case tpt: TypeParameterType if tpt.psiTypeParameter == parameterType.psiTypeParameter => u
             case _ => extractTpt(parameterType, v)
           }
         }
@@ -218,7 +224,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
       }
 
       override def visitThisType(th: ScThisType): Unit = {
-        val clazz = th.clazz
+        val clazz = th.element
         def hasRecursiveThisType(tp: ScType): Boolean = {
           var res = false
           tp.recursiveUpdate {
@@ -234,14 +240,14 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
           case Some(oldTp) if !hasRecursiveThisType(oldTp) => //todo: hack to avoid infinite recursion during type substitution
             var tp = oldTp
             def update(typez: ScType): ScType = {
-              ScalaType.extractDesignated(typez, withoutAliases = true) match {
+              typez.extractDesignated(withoutAliases = true) match {
                 case Some((t: ScTypeDefinition, subst)) =>
                   if (t == clazz) tp
                   else if (ScalaPsiUtil.cachedDeepIsInheritor(t, clazz)) tp
                   else {
                     t.selfType match {
                       case Some(selfType) =>
-                        ScalaType.extractDesignated(selfType, withoutAliases = true) match {
+                        selfType.extractDesignated(withoutAliases = true) match {
                           case Some((cl: PsiClass, _)) =>
                             if (cl == clazz) tp
                             else if (ScalaPsiUtil.cachedDeepIsInheritor(cl, clazz)) tp
@@ -267,10 +273,10 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                   }
                 case Some((cl: PsiClass, subst)) =>
                   typez match {
-                    case t: TypeParameterType => return update(t.upper.v)
+                    case t: TypeParameterType => return update(t.upperType.v)
                     case p@ParameterizedType(des, typeArgs) =>
                       p.designator match {
-                        case TypeParameterType(_, _, _, upper, _) => return update(p.substitutor.subst(upper.v))
+                        case TypeParameterType(_, _, upper, _) => return update(p.substitutor.subst(upper.v))
                         case _ =>
                       }
                     case _ =>
@@ -293,10 +299,10 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
                           case _ =>
                         }
                       }
-                    case t: TypeParameterType => return update(t.upper.v)
+                    case t: TypeParameterType => return update(t.upperType.v)
                     case p@ParameterizedType(des, typeArgs) =>
                       p.designator match {
-                        case TypeParameterType(_, _, _, upper, _) => return update(p.substitutor.subst(upper.v))
+                        case TypeParameterType(_, _, upper, _) => return update(p.substitutor.subst(upper.v))
                         case _ =>
                       }
                     case _ =>
@@ -407,7 +413,7 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
           case res: ScProjectionType if !s =>
             val actualElement = p.actualElement
             if (actualElement.isInstanceOf[ScTypeDefinition] &&
-              actualElement != res.actualElement) res.copy(superReference = true)
+              actualElement != res.actualElement) ScProjectionType(res.projected, res.element, superReference = true)
             else res
           case _ => res
         }
@@ -419,14 +425,18 @@ class ScSubstitutor(val tvMap: Map[(String, PsiElement), ScType],
         substCopy.myDependentMethodTypesFun = myDependentMethodTypesFun
         substCopy.myDependentMethodTypesFunDefined = myDependentMethodTypesFunDefined
         substCopy.myDependentMethodTypes = myDependentMethodTypes
-        def substTypeParam(tp: TypeParameter): TypeParameter = {
-          new TypeParameter(tp.name, tp.typeParams.map(substTypeParam), () => substInternal(tp.lowerType()),
-            () => substInternal(tp.upperType()), tp.ptp)
+        def substTypeParam: TypeParameter => TypeParameter = {
+          case TypeParameter(typeParameters, lowerType, upperType, psiTypeParameter) =>
+            TypeParameter(
+              typeParameters.map(substTypeParam),
+              new Suspension(substInternal(lowerType.v)),
+              new Suspension(substInternal(upperType.v)),
+              psiTypeParameter)
         }
         val middleRes = ScCompoundType(comps.map(substInternal), signatureMap.map {
           case (s: Signature, tp: ScType) =>
             val pTypes: List[Seq[() => ScType]] = s.substitutedTypes.map(_.map(f => () => substInternal(f())))
-            val tParams: Array[TypeParameter] = if (s.typeParams.length == 0) TypeParameter.EMPTY_ARRAY else s.typeParams.map(substTypeParam)
+            val tParams = s.typeParams.subst(substTypeParam)
             val rt: ScType = substInternal(tp)
             (new Signature(s.name, pTypes, s.paramLength, tParams,
               ScSubstitutor.empty, s.namedElement match {

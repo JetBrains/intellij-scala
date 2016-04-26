@@ -39,6 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeParameterType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
@@ -113,14 +114,8 @@ object ScalaRefactoringUtil {
     result.toArray
   }
 
-  def replaceSingletonTypes(scType: ScType): ScType = {
-    def replaceSingleton(scType: ScType): (Boolean, ScType) = {
-      ScalaType.extractDesignatorSingletonType(scType) match {
-        case None => (false, scType)
-        case Some(tp) => (true, tp)
-      }
-    }
-    scType.recursiveUpdate(replaceSingleton)
+  def replaceSingletonTypes(scType: ScType) = scType.recursiveUpdate {
+    case tp => (tp.isInstanceOf[DesignatorOwner], tp.tryExtractDesignatorSingleton)
   }
 
   def inTemplateParents(typeElement: ScTypeElement): Boolean = {

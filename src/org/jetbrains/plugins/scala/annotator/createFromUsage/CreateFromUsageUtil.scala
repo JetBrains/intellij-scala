@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ExtractClass, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 /**
  * Nikolay.Tropin
@@ -149,7 +149,7 @@ object TypeAsClass {
   def unapply(scType: ScType)
              (implicit typeSystem: TypeSystem): Option[PsiClass] = scType match {
     case ExtractClass(aClass) => Some(aClass)
-    case t: ScType => ScalaType.extractDesignatorSingletonType(t).flatMap(_.extractClass())
+    case t: ScType => t.extractDesignatorSingleton.flatMap(_.extractClass())
     case _ => None
   }
 }

@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.PsiTypeParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
@@ -432,8 +433,8 @@ abstract class MixinNodes {
 
   def combine(superSubst : ScSubstitutor, derived : ScSubstitutor, superClass : PsiClass) = {
     var res : ScSubstitutor = ScSubstitutor.empty
-    for (tp <- superClass.getTypeParameters) {
-      res = res bindT(tp.nameAndId, derived.subst(superSubst.subst(ScalaPsiManager.typeVariable(tp))))
+    for (typeParameter <- superClass.getTypeParameters) {
+      res = res bindT(typeParameter.nameAndId, derived.subst(superSubst.subst(TypeParameterType(typeParameter, None))))
     }
     superClass match {
       case td : ScTypeDefinition =>
@@ -472,8 +473,8 @@ object MixinNodes {
       val tp = {
         def default =
           if (clazz.getTypeParameters.isEmpty) ScalaType.designator(clazz)
-          else ScParameterizedType(ScalaType.designator(clazz), clazz.
-            getTypeParameters.map(tp => ScalaPsiManager.instance(project).typeVariable(tp)))
+          else ScParameterizedType(ScalaType.designator(clazz),
+            clazz.getTypeParameters.map(TypeParameterType(_, None)))
         clazz match {
           case td: ScTypeDefinition => td.getType(TypingContext.empty).getOrElse(default)
           case _ => default
@@ -553,7 +554,7 @@ object MixinNodes {
           case _ =>
             tp match {
               case ex: ScExistentialType => ex.quantified
-              case tpt: TypeParameterType => tpt.upper.v
+              case tpt: TypeParameterType => tpt.upperType.v
               case _ => tp
             }
         }
@@ -585,6 +586,6 @@ object MixinNodes {
       }
     }
     if (addTp) add(tp)
-    buffer.toSeq
+    buffer
   }
 }

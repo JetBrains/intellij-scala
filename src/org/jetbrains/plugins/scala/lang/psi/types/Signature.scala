@@ -10,45 +10,33 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, TypeSystem}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{TypeParameter, TypeParameterExt}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, PsiTypeParamatersExt, TypeParameter, TypeParameterType, TypeSystem}
 
 import scala.collection.mutable.ArrayBuffer
 
-case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], lowerBound: ScType,
-                              upperBound: ScType, isDefinition: Boolean, ta: ScTypeAlias) {
-  def this(ta: ScTypeAlias) {
-    this(ta.name, ta.typeParameters.map(new TypeParameter(_)).toList, ta.lowerBound.getOrNothing,
-      ta.upperBound.getOrAny, ta.isDefinition, ta)
-  }
+case class TypeAliasSignature(name: String,
+                              typeParams: Seq[TypeParameter],
+                              lowerBound: ScType,
+                              upperBound: ScType,
+                              isDefinition: Boolean,
+                              ta: ScTypeAlias) {
+  def updateTypes(fun: ScType => ScType): TypeAliasSignature = TypeAliasSignature(name,
+    typeParams.map(_.update(fun)),
+    fun(lowerBound),
+    fun(upperBound),
+    isDefinition,
+    ta)
+    .copyWithCompoundBody
 
-  def updateTypes(fun: ScType => ScType, withCopy: Boolean = true): TypeAliasSignature = {
-    def updateTypeParam(tp: TypeParameter): TypeParameter = {
-      new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), {
-        val res = fun(tp.lowerType())
-        () => res
-      }, {
-        val res = fun(tp.upperType())
-        () => res
-      }, tp.ptp)
-    }
-    val res = TypeAliasSignature(name, typeParams.map(updateTypeParam), fun(lowerBound), fun(upperBound), isDefinition, ta)
+  def updateTypesWithVariance(function: (ScType, Int) => ScType, variance: Int): TypeAliasSignature = TypeAliasSignature(name,
+    typeParams.map(_.updateWithVariance(function, variance)),
+    function(lowerBound, variance),
+    function(upperBound, -variance),
+    isDefinition,
+    ta)
+    .copyWithCompoundBody
 
-    if (withCopy) res.copy(ta = ScTypeAlias.getCompoundCopy(res, ta))
-    else res
-  }
-
-  def updateTypesWithVariance(fun: (ScType, Int) => ScType, variance: Int, withCopy: Boolean = true): TypeAliasSignature = {
-    def updateTypeParam(tp: TypeParameter): TypeParameter = {
-      new TypeParameter(tp.name, tp.typeParams.map(updateTypeParam), () => fun(tp.lowerType(), variance),
-        () => fun(tp.upperType(), -variance), tp.ptp)
-    }
-    val res = TypeAliasSignature(name, typeParams.map(updateTypeParam), fun(lowerBound, variance),
-      fun(upperBound, -variance), isDefinition, ta)
-
-    if (withCopy) res.copy(ta = ScTypeAlias.getCompoundCopy(res, ta))
-    else res
-  }
+  private def copyWithCompoundBody = copy(ta = ScTypeAlias.getCompoundCopy(this, ta))
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[TypeAliasSignature]
 
@@ -72,6 +60,15 @@ case class TypeAliasSignature(name: String, typeParams: List[TypeParameter], low
     case definition: ScTypeAliasDefinition => definition.aliasedType.toOption
     case _ => None
   }
+}
+
+object TypeAliasSignature {
+  def apply(typeAlias: ScTypeAlias): TypeAliasSignature = TypeAliasSignature(typeAlias.name,
+    typeAlias.typeParameters.map(TypeParameter(_)),
+    typeAlias.lowerBound.getOrNothing,
+    typeAlias.upperBound.getOrAny,
+    typeAlias.isDefinition,
+    typeAlias)
 }
 
 class Signature(val name: String, private val typesEval: List[Seq[() => ScType]], val paramLength: List[Int],
@@ -203,7 +200,7 @@ object Signature {
     function.name,
     PhysicalSignature.typesEval(function),
     PhysicalSignature.paramLength(function),
-    TypeParameter.fromArray(function.getTypeParameters),
+    function.getTypeParameters.instantiate,
     ScSubstitutor.empty,
     function,
     PhysicalSignature.hasRepeatedParam(function)
@@ -226,15 +223,13 @@ object Signature {
   )
 
   def unify(subst: ScSubstitutor, tps1: Array[TypeParameter], tps2: Array[TypeParameter]) = {
-    var res = subst
+    var result = subst
     val iterator1 = tps1.iterator
     val iterator2 = tps2.iterator
     while (iterator1.hasNext && iterator2.hasNext) {
-      val (tp1, tp2) = (iterator1.next(), iterator2.next())
-
-      res = res bindT(tp2.nameAndId, tp1.toType)
+      result = result.bindT(iterator2.next().nameAndId, TypeParameterType(iterator1.next()))
     }
-    res
+    result
   }
 }
 
@@ -283,6 +278,6 @@ object PhysicalSignature {
 class PhysicalSignature(val method: PsiMethod, override val substitutor: ScSubstitutor)
                        (implicit override val typeSystem: TypeSystem)
         extends Signature(method.name, PhysicalSignature.typesEval(method), PhysicalSignature.paramLength(method),
-          TypeParameter.fromArray(method.getTypeParameters), substitutor, method, PhysicalSignature.hasRepeatedParam(method)) {
+          method.getTypeParameters.instantiate, substitutor, method, PhysicalSignature.hasRepeatedParam(method)) {
   override def isJava = method.getLanguage == JavaFileType.INSTANCE.getLanguage
 }

@@ -12,9 +12,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.ComparingUtil._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ScTypePresentation, _}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScDesignatorType, _}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScParameterizedType, ScType, ScTypeExt, ScalaType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
@@ -156,11 +157,12 @@ object PatternAnnotator {
   }
 
   private def widen(scType: ScType): ScType = scType match {
-    case scalaType: ScalaType if scalaType.isSingleton => ScalaType.extractDesignatorSingletonType(scType).getOrElse(scType)
+    case designatorOwner: DesignatorOwner if designatorOwner.isSingleton =>
+      scType.tryExtractDesignatorSingleton
     case _ =>
       scType.recursiveUpdate {
         case ScAbstractType(_, _, upper) => (true, upper)
-        case TypeParameterType(_, _, _, upper, _) => (true, upper.v)
+        case TypeParameterType(_, _, upper, _) => (true, upper.v)
         case tp => (false, tp)
       }
   }
@@ -187,7 +189,7 @@ object PatternAnnotatorUtil {
       }
       val newVisited = visited + scType
       scType.recursiveUpdate {
-        case tp: TypeParameterType => (true, ScAbstractType(tp, abstraction(tp.lower.v, newVisited), abstraction(tp.upper.v, newVisited)))
+        case tp: TypeParameterType => (true, ScAbstractType(tp, abstraction(tp.lowerType.v, newVisited), abstraction(tp.upperType.v, newVisited)))
         case tpe => (false, tpe)
       }
     }

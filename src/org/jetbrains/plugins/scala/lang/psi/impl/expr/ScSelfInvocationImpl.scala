@@ -15,7 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScTypePolymorphicType, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult}
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
@@ -70,7 +71,7 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with
     }
     clazz match {
       case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
-        val params: Seq[TypeParameter] = tp.typeParameters.map(new TypeParameter(_))
+        val params: Seq[TypeParameter] = tp.typeParameters.map(TypeParameter(_))
         Success(ScTypePolymorphicType(res, params), Some(this))
       case _ => Success(res, Some(this))
     }
