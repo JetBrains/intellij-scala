@@ -25,7 +25,9 @@ object ExistsEquals extends SimplificationType {
 
   override def hint = InspectionBundle.message("exists.equals.hint")
 
-  def canBeReplacedWithContains(qual: ScExpression, arg: ScExpression) = {
+  def canBeReplacedWithContains(qual: ScExpression, arg: ScExpression): Boolean = {
+    if (qual == null) return false
+
     val exprText = s"(${qual.getText}).contains(${arg.getText})"
     ScalaPsiElementFactory.createExpressionWithContextFromText(exprText, qual.getContext, qual) match {
       case ScMethodCall(ref: ScReferenceExpression, Seq(a)) =>

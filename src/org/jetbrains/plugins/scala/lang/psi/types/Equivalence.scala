@@ -4,6 +4,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.{Computable, RecursionManager}
 import com.intellij.util.containers.ConcurrentWeakHashMap
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 
 /**
@@ -66,12 +67,12 @@ object Equivalence {
       }
 
       r.isAliasType match {
-        case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => return r.equivInner(l, subst, falseUndef)
+        case Some(AliasType(ta: ScTypeAliasDefinition, Success(r, _), _)) => return equivInner(l, r, subst, falseUndef)
         case _ =>
       }
 
       l.isAliasType match {
-        case Some(AliasType(ta: ScTypeAliasDefinition, _, _)) => return l.equivInner(r, subst, falseUndef)
+        case Some(AliasType(ta: ScTypeAliasDefinition, Success(l, _), _)) => return equivInner(l, r, subst, falseUndef)
         case _ =>
       }
 

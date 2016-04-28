@@ -30,7 +30,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, mutable}
 
 abstract class SyntheticNamedElement(val manager: PsiManager, name: String)
-extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifierOwner {
+  extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifierOwner {
   override def getName = name
   override def getText = ""
   def setName(newName: String) : PsiElement = throw new IncorrectOperationException("nonphysical element")
@@ -45,7 +45,7 @@ extends LightElement(manager, ScalaFileType.SCALA_LANGUAGE) with PsiNameIdentifi
 }
 
 class ScSyntheticTypeParameter(manager: PsiManager, override val name: String, val owner: ScFun)
-extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake {
+  extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake {
   def typeParameterText: String = name
 
   override def getPresentation: ItemPresentation = super[ScTypeParam].getPresentation
@@ -74,7 +74,7 @@ extends SyntheticNamedElement(manager, name) with ScTypeParam with PsiClassFake 
 // we could try and implement all type system related stuff
 // with class types, but it is simpler to indicate types corresponding to synthetic classes explicitly
 class ScSyntheticClass(manager: PsiManager, val className: String, val t: StdType)
-extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFake {
+  extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFake {
   override def getPresentation: ItemPresentation = {
     new ItemPresentation {
       val This = ScSyntheticClass.this
@@ -91,20 +91,20 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
   override def toString = "Synthetic class"
 
   def syntheticMethods(scope: GlobalSearchScope) = methods.values.flatMap(s => s).toList ++
-          specialMethods.values.flatMap(s => s.map(_(scope))).toList
+    specialMethods.values.flatMap(s => s.map(_(scope))).toList
 
   protected object methods extends mutable.HashMap[String, mutable.Set[ScSyntheticFunction]] with mutable.MultiMap[String, ScSyntheticFunction]
   protected object specialMethods extends mutable.HashMap[String, mutable.Set[GlobalSearchScope => ScSyntheticFunction]] with
-          mutable.MultiMap[String, GlobalSearchScope => ScSyntheticFunction]
+    mutable.MultiMap[String, GlobalSearchScope => ScSyntheticFunction]
 
   def addMethod(method: ScSyntheticFunction) = methods.addBinding(method.name, method)
   def addMethod(method: GlobalSearchScope => ScSyntheticFunction, methodName: String) = specialMethods.addBinding(methodName, method)
 
   import com.intellij.psi.scope.PsiScopeProcessor
   override def processDeclarations(processor: PsiScopeProcessor,
-                                  state: ResolveState,
-                                  lastParent: PsiElement,
-                                  place: PsiElement): Boolean = {
+                                   state: ResolveState,
+                                   lastParent: PsiElement,
+                                   place: PsiElement): Boolean = {
     processor match {
       case p : ResolveProcessor =>
         val nameSet = state.get(ResolverEnv.nameKey)
@@ -132,7 +132,7 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
     t.tSuper match {
       case None => PsiClassType.EMPTY_ARRAY
       case Some(ts) => Array[PsiClassType] (JavaPsiFacade.getInstance(project).getElementFactory.
-              createType(ts.asClass(project).getOrElse(return PsiClassType.EMPTY_ARRAY), PsiSubstitutor.EMPTY))
+        createType(ts.asClass(project).getOrElse(return PsiClassType.EMPTY_ARRAY), PsiSubstitutor.EMPTY))
     }
   }
 }
@@ -140,7 +140,7 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
 class ScSyntheticFunction(manager: PsiManager, val name: String,
                           val retType: ScType, val paramClauses: Seq[Seq[Parameter]],
                           typeParameterNames : Seq[String])
-extends SyntheticNamedElement(manager, name) with ScFun {
+  extends SyntheticNamedElement(manager, name) with ScFun {
   def isStringPlusMethod: Boolean = {
     if (name != "+") return false
     ScType.extractClass(retType, Some(manager.getProject)) match {
@@ -148,7 +148,7 @@ extends SyntheticNamedElement(manager, name) with ScFun {
       case _ => false
     }
   }
-  
+
   def this(manager: PsiManager, name: String, retType: ScType, paramTypes: Seq[Seq[ScType]]) =
     this(manager, name, retType, paramTypes.mapWithIndex {
       case (p, index) => p.map(new Parameter("", None, _, false, false, false, index))
@@ -186,12 +186,12 @@ import com.intellij.openapi.components.ProjectComponent
 import com.intellij.openapi.project.Project
 
 class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectComponent {
-  def projectOpened() {}
-  def projectClosed() {}
-  def getComponentName = "SyntheticClasses"
-  def disposeComponent() {}
+  def projectOpened(): Unit = {}
+  def disposeComponent(): Unit = {}
 
-  def initComponent() {
+  def getComponentName = "SyntheticClasses"
+
+  override def initComponent(): Unit = {
     StartupManager.getInstance(project).registerPostStartupActivity(new Runnable {
       def run() {
         registerClasses()
@@ -199,8 +199,32 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     })
   }
 
+  def projectClosed(): Unit = {
+    scriptSyntheticValues.clear()
+    all.clear()
+    numeric.clear()
+    integer.clear()
+    syntheticObjects.clear()
+
+    stringPlusMethod = null
+    scriptSyntheticValues = null
+    all = null
+    numeric = null
+    integer = null
+    syntheticObjects = null
+    file = null
+  }
+
   private var classesInitialized: Boolean = false
   def isClassesRegistered: Boolean = classesInitialized
+
+  var stringPlusMethod: ScType => ScSyntheticFunction = null
+  var scriptSyntheticValues: mutable.Set[ScSyntheticValue] = new mutable.HashSet[ScSyntheticValue]
+  var all: mutable.Map[String, ScSyntheticClass] = new mutable.HashMap[String, ScSyntheticClass]
+  var numeric: mutable.Set[ScSyntheticClass] = new mutable.HashSet[ScSyntheticClass]
+  var integer : mutable.Set[ScSyntheticClass] = new mutable.HashSet[ScSyntheticClass]
+  var syntheticObjects: mutable.Set[ScObject] = new mutable.HashSet[ScObject]
+  var file : PsiFile = _
 
   def registerClasses() {
     all = new mutable.HashMap[String, ScSyntheticClass]
@@ -291,25 +315,25 @@ class SyntheticClasses(project: Project) extends PsiElementFinder with ProjectCo
     syntheticObjects = new mutable.HashSet[ScObject]
     def registerObject(fileText: String) {
       val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-              createFileFromText("dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
-        ScalaFileType.SCALA_FILE_TYPE, fileText).asInstanceOf[ScalaFile]
-      val obj = dummyFile.typeDefinitions(0).asInstanceOf[ScObject]
+        createFileFromText("dummy." + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
+          ScalaFileType.SCALA_FILE_TYPE, fileText).asInstanceOf[ScalaFile]
+      val obj = dummyFile.typeDefinitions.head.asInstanceOf[ScObject]
       syntheticObjects += obj
     }
 
     registerObject(
-"""
+      """
 package scala
 
 object Boolean {
  	def box(x: Boolean): java.lang.Boolean = throw new Error()
  	def unbox(x: Object): Boolean = throw new Error()
 }
-"""
+      """
     )
 
     registerObject(
-"""
+      """
 package scala
 
 object Byte {
@@ -318,11 +342,11 @@ object Byte {
   def MinValue = java.lang.Byte.MIN_VALUE
  	def MaxValue = java.lang.Byte.MAX_VALUE
 }
-"""
+      """
     )
 
     registerObject(
-"""
+      """
 package scala
 
 object Char {
@@ -331,11 +355,11 @@ object Char {
  	def MinValue = java.lang.Character.MIN_VALUE
  	def MaxValue = java.lang.Character.MAX_VALUE
 }
-"""
+      """
     )
 
     registerObject(
-"""
+      """
 package scala
 
 object Double {
@@ -352,11 +376,11 @@ object Double {
  	def PositiveInfinity = java.lang.Double.POSITIVE_INFINITY
  	def NegativeInfinity = java.lang.Double.NEGATIVE_INFINITY
 }
-"""
+      """
     )
 
     registerObject(
-"""
+      """
 package scala
 
 object Float {
@@ -373,11 +397,11 @@ object Float {
  	def PositiveInfinity = java.lang.Float.POSITIVE_INFINITY
  	def NegativeInfinity = java.lang.Float.NEGATIVE_INFINITY
 }
-"""
+      """
     )
 
     registerObject(
-"""
+      """
 package scala
 
 object Int {
@@ -386,11 +410,11 @@ object Int {
  	def MinValue = java.lang.Integer.MIN_VALUE
  	def MaxValue = java.lang.Integer.MAX_VALUE
 }
-"""
+      """
     )
 
     registerObject(
-"""
+      """
 package scala
 
 object Long {
@@ -399,11 +423,11 @@ object Long {
  	def MinValue = java.lang.Long.MIN_VALUE
  	def MaxValue = java.lang.Long.MAX_VALUE
 }
-"""
+      """
     )
 
     registerObject(
-"""
+      """
 package scala
 
 object Short {
@@ -412,26 +436,19 @@ object Short {
  	def MinValue = java.lang.Short.MIN_VALUE
  	def MaxValue = java.lang.Short.MAX_VALUE
 }
-"""
+      """
     )
 
     registerObject(
-"""
+      """
 package scala
 
 object Unit
-"""
+      """
     )
 
     classesInitialized = true
   }
-
-  var stringPlusMethod: ScType => ScSyntheticFunction = null
-  var scriptSyntheticValues: mutable.Set[ScSyntheticValue] = new mutable.HashSet[ScSyntheticValue]
-  var all: mutable.Map[String, ScSyntheticClass] = new mutable.HashMap[String, ScSyntheticClass]
-  var numeric: mutable.Set[ScSyntheticClass] = new mutable.HashSet[ScSyntheticClass]
-  var integer : mutable.Set[ScSyntheticClass] = new mutable.HashSet[ScSyntheticClass]
-  var syntheticObjects: mutable.Set[ScObject] = new mutable.HashSet[ScObject]
 
   def op_type (ic1 : ScSyntheticClass, ic2 : ScSyntheticClass) = (ic1.t, ic2.t) match {
     case (_, Double) | (Double, _) => Double
@@ -439,8 +456,6 @@ object Unit
     case (_, Long) | (Long, _)=> Long
     case _ => Int
   }
-
-  var file : PsiFile = _
 
   def registerClass(t: StdType, name: String) = {
     val manager = PsiManager.getInstance(project)

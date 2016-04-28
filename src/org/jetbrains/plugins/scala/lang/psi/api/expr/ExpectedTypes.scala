@@ -189,11 +189,13 @@ private[expr] object ExpectedTypes {
         val exprs = tuple.exprs
         val actExpr = expr.getDeepSameElementInContext
         val index = exprs.indexOf(actExpr)
-        for (tp: ScType <- tuple.expectedTypes(fromUnderscore = true)) {
-          tp match {
-            case ScTupleType(comps) if comps.length == tuple.exprs.length =>
-              buffer += ((comps(index), None))
-            case _ =>
+        if (index >= 0) {
+          for (tp: ScType <- tuple.expectedTypes(fromUnderscore = true)) {
+            tp match {
+              case ScTupleType(comps) if comps.length == exprs.length =>
+                buffer += ((comps(index), None))
+              case _ =>
+            }
           }
         }
         buffer.toArray
