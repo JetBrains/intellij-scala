@@ -10,14 +10,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTemplateBodyImpl
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScExistentialArgument, ScExistentialType, ScSubstitutor, ScType, ScTypeExt, ScUndefinedSubstitutor, api}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
 
+import scala.collection.Set
 import scala.collection.immutable.HashSet
 import scala.collection.mutable.ArrayBuffer
 
@@ -30,8 +31,9 @@ import scala.collection.mutable.ArrayBuffer
  * SomeType#member
  * member can be class or type alias
  */
-class ScProjectionType private (val projected: ScType, val element: PsiNamedElement,
-                                val superReference: Boolean /* todo: find a way to remove it*/) extends DesignatorOwner {
+class ScProjectionType private(val projected: ScType,
+                               val element: PsiNamedElement,
+                               val superReference: Boolean /* todo: find a way to remove it*/) extends DesignatorOwner {
   override protected def isAliasTypeInner: Option[AliasType] = {
     if (actualElement.isInstanceOf[ScTypeAlias]) {
       actualElement match {
@@ -133,63 +135,59 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
 
   @CachedMappedWithRecursionGuard(element, None, ModCount.getBlockModificationCount)
   private def actualImpl(projected: ScType, superReference: Boolean): Option[(PsiNamedElement, ScSubstitutor)] = {
-    val emptySubst = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
     val resolvePlace = {
-      def fromClazz(clazz: ScTypeDefinition): PsiElement = {
-        clazz.extendsBlock.templateBody.flatMap(_.asInstanceOf[ScTemplateBodyImpl].getLastChildStub.toOption).
-          getOrElse(clazz.extendsBlock)
-      }
+      def fromClazz(definition: ScTypeDefinition): PsiElement =
+        definition.extendsBlock.templateBody
+          .flatMap(_.asInstanceOf[ScTemplateBodyImpl].getLastChildStub.toOption).
+          getOrElse(definition.extendsBlock)
+
       projected.extractClass(element.getProject) match {
-        case Some(clazz: ScTypeDefinition) => fromClazz(clazz)
+        case Some(definition: ScTypeDefinition) => fromClazz(definition)
         case _ => projected match {
-          case ScThisType(clazz: ScTypeDefinition) => fromClazz(clazz)
+          case ScThisType(definition: ScTypeDefinition) => fromClazz(definition)
           case _ => element
         }
       }
     }
 
-    def resolveProcessor(kinds: Set[ResolveTargets.Value], name: String): ResolveProcessor = {
-      new ResolveProcessor(kinds, resolvePlace, name) {
+    import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
+    def processType(kinds: Set[ResolveTargets.Value] = ValueSet(CLASS),
+                    default: Boolean = !superReference): Option[(PsiNamedElement, ScSubstitutor)] = {
+      val processor = new ResolveProcessor(kinds, resolvePlace, element.name) {
         override protected def addResults(results: Seq[ScalaResolveResult]): Boolean = {
           candidatesSet ++= results
           true
         }
       }
+      processor.processType(projected, resolvePlace, ResolveState.initial)
+
+      processor.candidates match {
+        case Array(candidate) => candidate.element match {
+          case candidateElement: PsiNamedElement =>
+            val defaultSubstitutor = new ScSubstitutor(Map.empty, Map.empty, Some(projected))
+              .followed(candidate.substitutor)
+            if (default) {
+              Some(candidateElement, defaultSubstitutor)
+            } else {
+              Some(element,
+                ScalaPsiUtil.superTypeMembersAndSubstitutors(candidateElement)
+                  .find(_.info == element)
+                  .map(node => defaultSubstitutor.followed(node.substitutor))
+                  .getOrElse(defaultSubstitutor))
+            }
+          case _ => None
+        }
+        case _ => None
+      }
     }
 
-    def processType(name: String): Option[(PsiNamedElement, ScSubstitutor)] = {
-      import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-      val proc = resolveProcessor(ValueSet(CLASS), name)
-      proc.processType(projected, resolvePlace, ResolveState.initial)
-      val candidates = proc.candidates
-      if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
-        val defaultSubstitutor = emptySubst followed candidates(0).substitutor
-        if (superReference) {
-          ScalaPsiUtil.superTypeMembersAndSubstitutors(candidates(0).element).find {
-            _.info == element
-          } match {
-            case Some(node) =>
-              Some(element, defaultSubstitutor followed node.substitutor)
-            case _ => Some(element, defaultSubstitutor)
-          }
-        } else Some(candidates(0).element, defaultSubstitutor)
-      } else None
-    }
     element match {
-      case a: ScTypeAlias => processType(a.name)
+      case _: ScTypeAlias => processType()
       case d: ScTypedDefinition if d.isStable =>
-        val name = d.name
-        import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
-
-        val proc = resolveProcessor(ValueSet(VAL, OBJECT), name)
-        proc.processType(projected, resolvePlace, ResolveState.initial)
-        val candidates = proc.candidates
-        if (candidates.length == 1 && candidates(0).element.isInstanceOf[PsiNamedElement]) {
-          //todo: superMemberSubstitutor? However I don't know working example for this case
-          Some(candidates(0).element, emptySubst followed candidates(0).substitutor)
-        } else None
-      case d: ScTypeDefinition => processType(d.name)
-      case d: PsiClass => processType(d.getName)
+        // TODO: superMemberSubstitutor? However I don't know working example for this case
+        processType(ValueSet(VAL, OBJECT), default = true)
+      case _: ScTypeDefinition => processType()
+      case _: PsiClass => processType()
       case _ => None
     }
   }
