@@ -382,8 +382,23 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         if (method.getName == "getClass" && method.containingClass != null &&
           method.containingClass.getQualifiedName == "java.lang.Object") {
 
+          def getType(element: PsiNamedElement) = Option(element) collect {
+            case pattern: ScBindingPattern => pattern
+            case fieldId: ScFieldId => fieldId
+            case parameter: ScParameter => parameter
+          } map {
+            _.getType().toOption
+          }
+
           def removeTypeDesignator(`type`: ScType): Option[ScType] = `type` match {
-            case designatorOwner: DesignatorOwner => designatorOwner.getType.flatMap(removeTypeDesignator)
+            case ScDesignatorType(element) => getType(element) match {
+              case Some(maybeType) => maybeType.flatMap(removeTypeDesignator)
+              case _ => Some(`type`)
+            }
+            case projectionType: ScProjectionType => getType(projectionType.actualElement) match {
+              case Some(maybeType) => maybeType.map(projectionType.actualSubst.subst).flatMap(removeTypeDesignator)
+              case _ => Some(`type`)
+            }
             case _ => Some(`type`)
           }
 

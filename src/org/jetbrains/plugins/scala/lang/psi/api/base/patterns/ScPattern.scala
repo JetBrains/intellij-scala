@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceEleme
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{CompletionProcessor, ExpandedExtractorResolveProcessor}
@@ -34,10 +34,10 @@ import scala.collection.mutable.ArrayBuffer
  * @author Alexander Podkhalyuzin
  */
 
-trait ScPattern extends ScalaPsiElement {
+trait ScPattern extends ScalaPsiElement with TypingContextOwner {
   def isIrrefutableFor(t: Option[ScType]): Boolean = false
 
-  def getType(ctx: TypingContext): TypeResult[ScType] = Failure("Cannot type pattern", Some(this))
+  override def getType(ctx: TypingContext): TypeResult[ScType] = Failure("Cannot type pattern", Some(this))
 
   def bindings: Seq[ScBindingPattern] = {
     val b = new ArrayBuffer[ScBindingPattern]

@@ -4,9 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScClassParameter, ScParameter, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{PsiTypeParameterExt, ScClassParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -79,15 +77,6 @@ class ScProjectionType private (val projected: ScType, val element: PsiNamedElem
     case designatorOwner: DesignatorOwner => designatorOwner.isStable
     case _ => false
   }) && super.isStable
-
-  override def getType = (actualElement match {
-    case pattern: ScBindingPattern => pattern.getType(TypingContext.empty)
-    case fieldId: ScFieldId => fieldId.getType()
-    case parameter: ScParameter => parameter.getType(TypingContext.empty)
-    case _ => Success(this, Some(actualElement))
-  }).map {
-    actualSubst.subst
-  }.toOption
 
   override private[types] def designatorSingletonType = super.designatorSingletonType.map(actualSubst.subst)
 
