@@ -14,8 +14,8 @@ import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.util.{Consumer, FileContentUtil}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.icons.Icons
-import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.util.NotificationUtil
 
 import scala.collection.JavaConversions._
 
@@ -102,7 +102,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
   }
 
   private def notifyIfNeeded() {
-    if(settings.SUGGEST_TYPE_AWARE_HIGHLIGHTING && !enabled && applicable) {
+    if (settings.SUGGEST_TYPE_AWARE_HIGHLIGHTING && !enabled && applicable) {
       notify("Configure type-aware highlighting for the project", AdviceMessage, NotificationType.WARNING)
     }
   }
@@ -116,20 +116,20 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
   }
 
   def toggle() {
-    if(applicable) {
+    if (applicable) {
       enabled = !enabled
       TypeAwareHighlightingApplicationState.getInstance setSuggest enabled
     }
   }
 
-  private def applicable = project.hasScala
+  private def applicable = project.hasScala && !project.hasDotty
 
-  def enabled = settings.TYPE_AWARE_HIGHLIGHTING_ENABLED
+  def enabled = if (applicable) settings.TYPE_AWARE_HIGHLIGHTING_ENABLED else false
 
   private def enabled_=(enabled: Boolean) {
     settings.SUGGEST_TYPE_AWARE_HIGHLIGHTING = false
 
-    if(this.enabled == enabled) return
+    if (this.enabled == enabled) return
 
     settings.TYPE_AWARE_HIGHLIGHTING_ENABLED = enabled
 
@@ -137,15 +137,11 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
       updateWidget(bar)
       reparseActiveFile()
 
-      if (enabled)
-        notify(status, EnabledMessage, NotificationType.INFORMATION)
-      else
-        notify(status, DisabledMessage, NotificationType.INFORMATION)
+      notify(status, if (enabled) EnabledMessage else DisabledMessage, NotificationType.INFORMATION)
     }
   }
 
-  private def status = "Scala type-aware highlighting: %s"
-          .format(if(enabled) "enabled" else "disabled")
+  private def status = s"Scala type-aware highlighting: ${if (enabled) "enabled" else "disabled"}}"
 
   private def updateWidget(bar: StatusBar) {
     bar.updateWidget(Widget.ID)
@@ -177,17 +173,14 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
     def dispose() {}
 
     object Presentation extends StatusBarWidget.IconPresentation {
-      def getIcon = if(enabled) Icons.TYPED else Icons.UNTYPED
+      def getIcon = if (enabled) Icons.TYPED else Icons.UNTYPED
 
       def getClickConsumer = ClickConsumer
 
-      def getTooltipText = "%s (click to %s, or press Ctrl+Shift+Alt+E)"
-              .format(status, if(enabled) "disable" else "enable")
+      def getTooltipText = s"$status (click to ${if (enabled) "disable" else "enable"}, or press Ctrl+Shift+Alt+E)"
 
       object ClickConsumer extends Consumer[MouseEvent] {
-        def consume(t: MouseEvent) {
-          toggle()
-        }
+        def consume(t: MouseEvent) = toggle()
       }
     }
   }
@@ -196,7 +189,7 @@ class HighlightingAdvisor(project: Project) extends ProjectComponent with Persis
     def onScalaProjectChanged() {
       statusBar.foreach { bar =>
         configureWidget(bar)
-        if (project.hasScala) {
+        if (applicable) {
           notifyIfNeeded()
         }
       }
