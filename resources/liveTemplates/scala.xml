@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templateSet group="scala">
-  <template name="main" value="def main(args: Array[String]){&#13;&#10;  $END$&#13;&#10;}" description="Template for main method"
+  <template name="main" value="def main(args: Array[String]): Unit = {&#13;&#10;  $END$&#13;&#10;}"
+            description="Template for main method"
             toReformat="true" toShortenFQNames="true">
     <context>
       <option name="SCALA_CODE" value="true"/>
