@@ -40,7 +40,7 @@ trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with I
   /**
    * This method returns real type, after using implicit conversions.
    * Second parameter to return is used imports for this conversion.
- *
+   *
    * @param expectedOption to which type we trying to convert
    * @param ignoreBaseTypes parameter to avoid value discarding, literal narrowing, widening
    *                        this parameter is useful for refactorings (introduce variable)

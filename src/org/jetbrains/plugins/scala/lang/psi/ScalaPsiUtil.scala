@@ -862,11 +862,27 @@ object ScalaPsiUtil {
     buffer
   }
 
-  def getParents(elem: PsiElement, topLevel: PsiElement): List[PsiElement] = {
+  def isInvalidContextOrder(before: PsiElement, after: PsiElement, topLevel: Option[PsiElement]): Boolean = {
+    if (before == after) return true
+    import scala.collection.JavaConversions._
+    (getParents(before, topLevel.orNull, contextParents = true) zip getParents(after, topLevel.orNull, contextParents = true)
+      dropWhile { case (a, b) => a == b }).headOption.exists {
+      case (beforeAncestor, afterAncestor) =>
+        val topChildren: Seq[PsiElement] = beforeAncestor.getContext match {
+          case s: StubBasedPsiElement[_] if s.getStub != null =>
+            val stub = s.getStub.asInstanceOf[StubElement[_ <: PsiElement]]
+            stub.getChildrenStubs.map(_.getPsi)
+          case other => other.getChildren
+        }
+        topChildren.indexOf(beforeAncestor) <= topChildren.indexOf(afterAncestor)
+    }
+  }
+
+  def getParents(elem: PsiElement, topLevel: PsiElement, contextParents: Boolean = false): List[PsiElement] = {
     @tailrec
     def inner(parent: PsiElement, k: List[PsiElement] => List[PsiElement]): List[PsiElement] = {
       if (parent != topLevel && parent != null)
-        inner(parent.getParent, {l => parent :: k(l)})
+        inner(if (contextParents) parent.getContext else parent.getParent, {l => parent :: k(l)})
       else k(Nil)
     }
     inner(elem, (l: List[PsiElement]) => l)

@@ -763,6 +763,8 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
     """.stripMargin.trim
   }
 
+  def testSCL9877_1(): Unit = doTest()
+
   def testSOE(): Unit = doTest()
 
   def testSOE2(): Unit = doTest()
