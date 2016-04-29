@@ -17,5 +17,5 @@ object DottyTypeSystem extends TypeSystem {
   override def andType(types: Seq[ScType]) = DottyAndType(types)
 
   override def parameterizedType(designator: ScType, typeArguments: Seq[ScType]) =
-    DottyRefinedType(designator, typeArguments)
+    DottyRefinedType(designator)(typeArguments)
 }
