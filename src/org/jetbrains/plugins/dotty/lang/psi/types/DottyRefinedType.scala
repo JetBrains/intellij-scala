@@ -8,10 +8,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType, Signat
 /**
   * @author adkozlov
   */
-case class DottyRefinedType private(designator: ScType,
-                                    signatures: Set[Signature],
-                                    typeAliasSignatures: Set[TypeAliasSignature]) extends ParameterizedType with DottyType {
-  override val typeArguments = typeAliasSignatures.toSeq.flatMap(_.getType)
+case class DottyRefinedType(designator: ScType,
+                            signatures: Set[Signature] = Set.empty,
+                            typeAliasSignatures: Set[TypeAliasSignature] = Set.empty)
+                           (override val typeArguments: Seq[ScType] = typeAliasSignatures.toSeq.flatMap(_.getType))
+  extends ParameterizedType with DottyType {
 
   override protected def substitutorInner = ScSubstitutor.empty
 
@@ -35,18 +36,6 @@ object DottyRefinedType {
 
     val typeAliasSignatures = refinement.types.map(TypeAliasSignature(_)).toSet
 
-    val (newType, newSinatures, newTypeAliasSignatures) = designator match {
-      case DottyRefinedType(refinedType, refinedSignatures, refinedTypeAliasSignatures) =>
-        (refinedType, refinedSignatures, refinedTypeAliasSignatures)
-      case notRefinedType =>
-        (notRefinedType, Set.empty, Set.empty)
-    }
-    DottyRefinedType(newType,
-      signatures ++ newSinatures,
-      typeAliasSignatures ++ newTypeAliasSignatures)
-  }
-
-  def apply(designator: ScType, typeArguments: Seq[ScType]): DottyRefinedType = {
-    DottyRefinedType(designator, Set.empty, Set.empty)
+    DottyRefinedType(designator, signatures, typeAliasSignatures)()
   }
 }
