@@ -141,4 +141,24 @@ class PatternsTest extends TypeInferenceTestBase {
          |//_$$1
       """.stripMargin)
   }
+
+  def testSCL8323(): Unit = {
+    doTest(
+      s"""
+         |import scala.collection.Searching
+         |import scala.collection.Searching.{Found, InsertionPoint}
+         |
+         |object CaseInsensitiveOrdering extends scala.math.Ordering[String] {
+         |  def compare(a:String, b:String) = a.compareToIgnoreCase(b)
+         |  def findClosest(s: String, availableNames: List[String]): String = {
+         |    val sorted: List[String] = availableNames.sorted(CaseInsensitiveOrdering)
+         |    Searching.search(sorted).search(s)(${START}CaseInsensitiveOrdering$END) match {
+         |      case Found(_) => s
+         |      case InsertionPoint(index) => sorted(index min sorted.size - 1)
+         |    }
+         |  }
+         |}
+         |//Ordering[Any]
+      """.stripMargin)
+  }
 }
