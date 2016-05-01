@@ -90,4 +90,21 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin, "Type mismatch, expected: M[T], actual: Main.B4")
   }
+
+  def testSCL8983(): Unit = {
+    checkTextHasError(
+      """
+        |class Foo extends ((String,String) => String) with Serializable{
+        |  override def apply(v1: String, v2: String): String = {
+        |    v1+v2
+        |  }
+        |}
+        |
+        |object main extends App {
+        |  val x = "x"
+        |  val y = "y"
+        |  val string: Foo = new Foo()(x,y)
+        |}
+      """.stripMargin, "Type mismatch, expected: Foo, actual: String")
+  }
 }
