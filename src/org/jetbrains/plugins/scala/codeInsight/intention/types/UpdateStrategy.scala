@@ -138,15 +138,35 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
       added
     }
 
+    val tps = UpdateStrategy.annotationsFor(t, context)
+
+    val added = addActualType(tps.head)
+    editor match {
+      case Some(e) if tps.size > 1 =>
+        val texts = tps.flatMap(_.getType().toOption).map(ScTypeText)
+        val expr = new ChooseTypeTextExpression(texts)
+        IntentionUtil.startTemplate(added, context, expr, e)
+      case _ => ScalaPsiUtil.adjustTypes(added)
+    }
+  }
+
+  def removeTypeAnnotation(e: PsiElement) {
+    e.prevSiblings.find(_.getText == ":").foreach(_.delete())
+    e.delete()
+  }
+}
+
+object UpdateStrategy {
+  private def isSealed(c: PsiClass) = c match {
+    case _: ScClass | _: ScTrait => c.hasModifierPropertyScala("sealed")
+    case _ => false
+  }
+
+  def annotationsFor(t: ScType, context: PsiElement): Seq[ScTypeElement] = {
     def typeElemfromText(s: String) = ScalaPsiElementFactory.createTypeElementFromText(s, context.getManager)
     def typeElemFromType(tp: ScType) = typeElemfromText(tp.canonicalText)
 
-    def isSealed(c: PsiClass) = c match {
-      case _: ScClass | _: ScTrait => c.hasModifierPropertyScala("sealed")
-      case _ => false
-    }
-
-    val tps: Seq[ScTypeElement] = t match {
+    t match {
       case ScCompoundType(comps, _, _) =>
         val uselessTypes = Set("_root_.scala.Product", "_root_.scala.Serializable", "_root_.java.lang.Object")
         comps.map(_.canonicalText).filterNot(uselessTypes.contains) match {
@@ -181,19 +201,6 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
           case _ => Seq(typeElemFromType(tp))
         }
     }
-    val added = addActualType(tps.head)
-    editor match {
-      case Some(e) if tps.size > 1 =>
-        val texts = tps.flatMap(_.getType().toOption).map(ScTypeText)
-        val expr = new ChooseTypeTextExpression(texts)
-        IntentionUtil.startTemplate(added, context, expr, e)
-      case _ => ScalaPsiUtil.adjustTypes(added)
-    }
-  }
-
-  def removeTypeAnnotation(e: PsiElement) {
-    e.prevSiblings.find(_.getText == ":").foreach(_.delete())
-    e.delete()
   }
 }
 
