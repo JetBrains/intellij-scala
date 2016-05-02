@@ -122,4 +122,21 @@ class SelfTypeTest extends TypeInferenceTestBase {
          |//FooBar[String,_]
       """.stripMargin)
   }
+
+  def testSCL9471(): Unit = {
+    doTest(
+      s"""
+         |  object Foo {
+         |  trait Sys[S <: Sys[S]] {
+         |    type I <: Sys[I]
+         |  }
+         |
+         |  def apply[S <: Sys[S]](system: S): Any =
+         |    prepare[S, system.I](${START}system$END)
+         |
+         |  private def prepare[S <: Sys[S], I1 <: Sys[I1]](system: S {type I = I1}): Any = ???
+         |}
+         |//S{type I = system.I}
+      """.stripMargin)
+  }
 }
