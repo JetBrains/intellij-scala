@@ -8,4 +8,5 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaElementType
 object DottyElementTypes {
   val REFINED_TYPE = new ScalaElementType("refined type")
   val WITH_TYPE = new ScalaElementType("with type")
+  val TYPE_ARGUMENT_NAME = new ScalaElementType("type argument name")
 }

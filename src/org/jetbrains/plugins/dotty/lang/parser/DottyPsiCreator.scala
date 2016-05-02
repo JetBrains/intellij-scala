@@ -29,6 +29,8 @@ object DottyPsiCreator extends ScalaPsiCreator {
     case TYPE_GENERIC_CALL => new DottyParameterizedTypeElementImpl(node)
     case WITH_TYPE => new DottyAndTypeElementImpl(node)
     case TUPLE_TYPE => new DottyTupleTypeElementImpl(node)
+    case TYPE_ARGUMENT_NAME => new DottyTypeArgumentNameElementImpl(node)
+    case TYPE_ARGS => new DottyTypeArgsImpl(node)
     case _ => super.inner(node)
   }
 }
