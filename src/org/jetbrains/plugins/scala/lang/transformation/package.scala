@@ -9,7 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScDesignatorType, ScThisType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScThisType}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceElement, ScalaResolveResult}
 
 /**
@@ -50,7 +51,7 @@ package object transformation {
 
   def targetFor(result: ScalaResolveResult): String = {
     result.substitutor.updateThisType.collect {
-      case t: ScThisType => t.clazz.qualifiedName + "." + result.element.name
+      case t: ScThisType => t.element.qualifiedName + "." + result.element.name
       case t: ScDesignatorType => qualifiedNameOf(t.element) + "." + result.element.name
     } getOrElse {
       qualifiedNameOf(result.element)

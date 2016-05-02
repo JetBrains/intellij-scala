@@ -162,7 +162,8 @@ object UpdateStrategy {
     case _ => false
   }
 
-  def annotationsFor(t: ScType, context: PsiElement): Seq[ScTypeElement] = {
+  def annotationsFor(t: ScType, context: PsiElement)
+                    (implicit typeSystem: TypeSystem = context.typeSystem): Seq[ScTypeElement] = {
     def typeElemfromText(s: String) = ScalaPsiElementFactory.createTypeElementFromText(s, context.getManager)
     def typeElemFromType(tp: ScType) = typeElemfromText(tp.canonicalText)
 
