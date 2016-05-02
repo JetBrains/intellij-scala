@@ -17,17 +17,15 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils._
  *  typeArgs ::= '[' Types ']'
  */
 object TypeArgs extends TypeArgs {
-  override protected val `type` = Type
+  override protected def parseComponent(builder: ScalaPsiBuilder) = Type.parse(builder)
 }
 
 trait TypeArgs {
-  protected val `type`: Type
-
   def parse(builder: ScalaPsiBuilder, isPattern: Boolean): Boolean = build(ScalaElementTypes.TYPE_ARGS, builder) {
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET =>
         builder.advanceLexer() //Ate [
-        builder.disableNewlines
+        builder.disableNewlines()
         def checkTypeVariable: Boolean = {
           if (isPattern) {
             builder.getTokenType match {
@@ -54,11 +52,11 @@ trait TypeArgs {
           } else false
         }
 
-        if (checkTypeVariable || `type`.parse(builder)) {
+        if (checkTypeVariable || parseComponent(builder)) {
           var parsedType = true
           while (builder.getTokenType == ScalaTokenTypes.tCOMMA && parsedType) {
             builder.advanceLexer()
-            parsedType = checkTypeVariable || `type`.parse(builder)
+            parsedType = checkTypeVariable || parseComponent(builder)
             if (!parsedType) builder error ScalaBundle.message("wrong.type")
           }
         } else builder error ScalaBundle.message("wrong.type")
@@ -68,9 +66,11 @@ trait TypeArgs {
             builder.advanceLexer() //Ate ]
           case _ => builder error ScalaBundle.message("rsqbracket.expected")
         }
-        builder.restoreNewlinesState
+        builder.restoreNewlinesState()
         true
       case _ => false
     }
   }
+
+  protected def parseComponent(builder: ScalaPsiBuilder): Boolean
 }
