@@ -35,7 +35,7 @@ import scala.collection.{Seq, Set}
  */
 
 trait ScExpression extends ScBlockStatement with PsiAnnotationMemberValue with ImplicitParametersOwner
-  with ScModificationTrackerOwner {
+  with ScModificationTrackerOwner with Typed {
   import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression._
   /**
    * This method returns real type, after using implicit conversions.

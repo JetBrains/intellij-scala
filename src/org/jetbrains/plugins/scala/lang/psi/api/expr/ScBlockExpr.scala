@@ -14,6 +14,10 @@ import org.jetbrains.plugins.scala.lang.psi.controlFlow.{Instruction, ScControlF
 */
 
 trait ScBlockExpr extends ScExpression with ScBlock with ScControlFlowOwner {
+  def asSimpleExpression: Option[ScExpression] = Some(exprs) collect {
+    case Seq(it) if !it.isInstanceOf[ScBlockExpr] => it
+  }
+
   def caseClauses: Option[ScCaseClauses] = findChild(classOf[ScCaseClauses])
 
   override def getControlFlow(policy: ScControlFlowPolicy): Seq[Instruction] = {
@@ -25,4 +29,10 @@ trait ScBlockExpr extends ScExpression with ScBlock with ScControlFlowOwner {
   }
 
   override def controlFlowScope = if (isAnonymousFunction) caseClauses else None
+}
+
+object ScBlockExpr {
+  object Expressions {
+    def unapplySeq(e: ScBlockExpr): Some[Seq[ScExpression]] = Some(e.exprs)
+  }
 }

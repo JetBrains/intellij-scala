@@ -12,3 +12,7 @@ package expr
 trait ScTuple extends ScInfixArgumentExpression {
   def exprs : Seq[ScExpression] = findChildrenByClassScala(classOf[ScExpression]).toSeq
 }
+
+object ScTuple {
+  def unapply(e: ScTuple): Some[Seq[ScExpression]] = Some(e.exprs)
+}

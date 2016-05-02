@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 trait PsiElementExtTrait extends Any {
   protected def repr: PsiElement
 
+  def text: String = repr.getText
   def firstChild: Option[PsiElement] = Option(repr.getFirstChild)
   def lastChild: Option[PsiElement] = Option(repr.getLastChild)
   def elementAt(offset: Int): Option[PsiElement] = Option(repr.findElementAt(offset))
@@ -23,6 +24,7 @@ trait PsiElementExtTrait extends Any {
   def withParents: Iterator[PsiElement] = new ParentsIterator(repr, strict = false)
 
   def containingFile: Option[PsiFile] = Option(repr.getContainingFile)
+  def psiManager: PsiManager = repr.getManager
 
   def parentsInFile: Iterator[PsiElement] = {
     repr match {
@@ -108,5 +110,19 @@ trait PsiElementExtTrait extends Any {
   def containingScalaFile: Option[ScalaFile] = repr.getContainingFile match {
     case sf: ScalaFile => Some(sf)
     case _ => None
+  }
+
+  def append(elements: PsiElement*): Seq[PsiElement] = addElementsAfter(repr, elements: _*)
+
+  def prepend(elements: PsiElement*): Seq[PsiElement] = addElementsBefore(repr, elements: _*)
+
+  def addElementsAfter(anchor: PsiElement, elements: PsiElement*): Seq[PsiElement] = {
+    val p = repr.getParent
+    elements.scanLeft(anchor)((acc, e) => p.addAfter(e, acc)).tail
+  }
+
+  def addElementsBefore(anchor: PsiElement, elements: PsiElement*): Seq[PsiElement] = {
+    val p = repr.getParent
+    elements.scanRight(anchor)((e, acc) => p.addAfter(e, acc)).reverse.tail
   }
 }

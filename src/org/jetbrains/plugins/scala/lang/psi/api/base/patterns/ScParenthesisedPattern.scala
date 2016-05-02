@@ -12,3 +12,7 @@ package patterns
 trait ScParenthesisedPattern extends ScPattern {
   def subpattern = findChild(classOf[ScPattern])
 }
+
+object ScParenthesisedPattern {
+  def unapply(e: ScParenthesisedPattern): Option[ScPattern] = e.subpattern
+}

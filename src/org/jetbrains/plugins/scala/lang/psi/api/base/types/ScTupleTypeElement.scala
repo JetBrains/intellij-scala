@@ -21,3 +21,7 @@ trait ScTupleTypeElement extends ScDesugarizableToParametrizedTypeElement {
     s"_root_.scala.Tuple${componentsTexts.length}${componentsTexts.mkString("[", ",", "]")}"
   }
 }
+
+object ScTupleTypeElement {
+  def unapplySeq(e: ScTupleTypeElement): Some[Seq[ScTypeElement]] = Some(e.components)
+}

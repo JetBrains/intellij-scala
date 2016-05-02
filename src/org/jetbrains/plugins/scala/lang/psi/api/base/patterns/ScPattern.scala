@@ -34,7 +34,7 @@ import scala.collection.mutable.ArrayBuffer
  * @author Alexander Podkhalyuzin
  */
 
-trait ScPattern extends ScalaPsiElement with TypingContextOwner {
+trait ScPattern extends ScalaPsiElement with TypingContextOwner with Typed {
   def isIrrefutableFor(t: Option[ScType]): Boolean = false
 
   override def getType(ctx: TypingContext): TypeResult[ScType] = Failure("Cannot type pattern", Some(this))

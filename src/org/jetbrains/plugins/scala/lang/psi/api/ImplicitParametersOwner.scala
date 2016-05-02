@@ -18,3 +18,7 @@ trait ImplicitParametersOwner extends ScalaPsiElement {
    */
   def findImplicitParameters: Option[Seq[ScalaResolveResult]]
 }
+
+object ImplicitParametersOwner {
+  def unapply(e: ImplicitParametersOwner): Option[Seq[ScalaResolveResult]] = e.findImplicitParameters
+}

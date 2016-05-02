@@ -20,3 +20,7 @@ trait ScPatternList extends ScalaPsiElement {
    */
   def allPatternsSimple: Boolean
 }
+
+object ScPatternList {
+  def unapply(e: ScPatternList): Some[Seq[ScPattern]] = Some(e.patterns)
+}

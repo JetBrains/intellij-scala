@@ -74,3 +74,7 @@ trait ScArgumentExprList extends ScArguments {
 
   def isBraceArgs: Boolean = findChild(classOf[ScBlock]).isDefined
 }
+
+object ScArgumentExprList {
+  def unapplySeq(e: ScArgumentExprList): Some[Seq[ScExpression]] = Some(e.exprs)
+}

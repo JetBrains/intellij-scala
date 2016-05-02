@@ -42,3 +42,7 @@ trait ScParameterClause extends ScalaPsiElement {
 
   def owner: PsiElement
 }
+
+object ScParameterClause {
+  def unapplySeq(e: ScParameterClause): Some[Seq[ScParameter]] = Some(e.parameters)
+}

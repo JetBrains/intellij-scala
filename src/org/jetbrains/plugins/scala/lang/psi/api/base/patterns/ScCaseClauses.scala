@@ -14,3 +14,7 @@ trait ScCaseClauses extends ScalaPsiElement {
   def caseClause = findChildByClassScala(classOf[ScCaseClause])
   def caseClauses: Seq[ScCaseClause] = findChildrenByClassScala(classOf[ScCaseClause]).toSeq
 }
+
+object ScCaseClauses {
+  def unapplySeq(e: ScCaseClauses): Some[Seq[ScCaseClause]] = Some(e.caseClauses)
+}

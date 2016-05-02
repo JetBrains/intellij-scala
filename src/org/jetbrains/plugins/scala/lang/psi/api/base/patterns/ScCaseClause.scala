@@ -29,3 +29,8 @@ trait ScCaseClause extends ScalaPsiElement {
     visitor.visitCaseClause(this)
   }
 }
+
+object ScCaseClause {
+  def unapply(e: ScCaseClause): Some[(Option[ScPattern], Option[ScGuard], Option[ScExpression])] =
+    Some(e.pattern, e.guard, e.expr)
+}

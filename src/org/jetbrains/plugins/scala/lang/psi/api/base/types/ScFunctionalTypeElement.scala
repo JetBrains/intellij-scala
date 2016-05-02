@@ -30,3 +30,8 @@ trait ScFunctionalTypeElement extends ScDesugarizableToParametrizedTypeElement {
     s"_root_.scala.Function${paramTypes.length - 1}${paramTypes.mkString("[", ",", "]")}"
   }
 }
+
+object ScFunctionalTypeElement {
+  def unapply(e: ScFunctionalTypeElement): Some[(ScTypeElement, Option[ScTypeElement])] =
+    Some(e.paramTypeElement, e.returnTypeElement)
+}

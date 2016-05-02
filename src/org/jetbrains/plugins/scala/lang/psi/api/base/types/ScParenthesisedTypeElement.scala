@@ -15,3 +15,7 @@ trait ScParenthesisedTypeElement extends ScTypeElement {
 
   def typeElement: Option[ScTypeElement] = findChild(classOf[ScTypeElement])
 }
+
+object ScParenthesisedTypeElement {
+  def unapply(e: ScParenthesisedTypeElement): Option[ScTypeElement] = e.typeElement
+}
