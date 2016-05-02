@@ -91,4 +91,28 @@ class ScalaZTest extends TypeInferenceTestBase {
          |//Kleisli[Option, Int, String]
       """.stripMargin)
   }
+
+  def testSCL9989(): Unit = {
+    doTest(
+      s"""
+         |import scala.concurrent.ExecutionContext.Implicits.global
+         |import scala.concurrent.Future
+         |import scalaz.Scalaz._
+         |
+         |class Comparison {
+         |
+         |  def function1(inputParam: String): Future[Option[String]] = ???
+         |
+         |  def function2(inputParam: String): Future[Option[String]] = ???
+         |
+         |  def allTogetherWithTraverseM: Future[Option[String]] = {
+         |    for {
+         |      res1 <- function1("input")
+         |      res2 <- res1.traverseM(param => function2(${START}param$END))
+         |    } yield res2
+         |  }
+         |}
+         |//_G[Option[_B]]
+      """.stripMargin)
+  }
 }
