@@ -161,4 +161,6 @@ class PatternsTest extends TypeInferenceTestBase {
          |//Ordering[Any]
       """.stripMargin)
   }
+
+  def testSCL9094(): Unit = doTest()
 }
