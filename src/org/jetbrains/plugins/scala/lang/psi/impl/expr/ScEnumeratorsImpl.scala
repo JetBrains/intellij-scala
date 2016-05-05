@@ -7,7 +7,6 @@ package expr
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
@@ -29,10 +28,6 @@ class ScEnumeratorsImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
   def namings: Seq[ScPatterned] =
     for (c <- getChildren if c.isInstanceOf[ScGenerator] || c.isInstanceOf[ScEnumerator])
           yield c.asInstanceOf[ScPatterned]
-
-  type Patterned = {
-    def pattern: ScPattern
-  }
 
   override def processDeclarations(processor: PsiScopeProcessor,
                                   state: ResolveState,
