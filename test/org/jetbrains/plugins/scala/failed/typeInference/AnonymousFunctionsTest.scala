@@ -64,4 +64,14 @@ class AnonymousFunctionsTest extends TypeInferenceTestBase {
     """.stripMargin.trim
   }
 
+  def testSCL9701(): Unit = doTest {
+    """
+      |def f(arg: (String*) => Unit) = {}
+      |def ff(arg: Seq[String]) = {}
+      |
+      |f(s => ff(/*start*/s/*end*/))
+      |//Seq[String]
+    """.stripMargin.trim
+  }
+
 }
