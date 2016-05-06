@@ -11,33 +11,27 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
- * @author AlexanderPodkhalyuzin
-* Date: 11.05.2008
- */
-
+  * @author AlexanderPodkhalyuzin
+  *         Date: 11.05.2008
+  */
 class ScalaWithParenthesisSurrounder extends ScalaExpressionSurrounder {
   override def isApplicable(elements: Array[PsiElement]): Boolean = {
     if (elements.length > 1) return false
     for (element <- elements)
       if (!isApplicable(element)) return false
-    return true
+    true
   }
+
   override def isApplicable(element: PsiElement): Boolean = {
     element match {
       case _: ScBlockExpr => true
       case _: ScBlock => false
-      case _: ScExpression | _: PsiWhiteSpace => {
-        true
-      }
-      case e => {
-        ScalaPsiUtil.isLineTerminator(e)
-      }
+      case _: ScExpression | _: PsiWhiteSpace => true
+      case e => ScalaPsiUtil.isLineTerminator(e)
     }
   }
 
-  override def getTemplateAsString(elements: Array[PsiElement]): String = {
-    return "(" + super.getTemplateAsString(elements) + ")"
-  }
+  override def getTemplateAsString(elements: Array[PsiElement]): String = "(" + super.getTemplateAsString(elements) + ")"
 
   override def getTemplateDescription = "(  )"
 

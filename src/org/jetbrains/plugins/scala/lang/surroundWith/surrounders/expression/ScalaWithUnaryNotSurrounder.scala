@@ -10,24 +10,28 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr}
 import org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 29.09.2008
- */
-
+  * User: Alexander Podkhalyuzin
+  * Date: 29.09.2008
+  */
 class ScalaWithUnaryNotSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String =
     "!(" + super.getTemplateAsString(elements) + ")"
+
   override def getTemplateDescription: String = "!(expr)"
+
   override def isApplicable(elements: Array[PsiElement]): Boolean = {
     if (elements.length != 1) return false
     elements(0) match {
       case x: ScExpression
-        if x.getTypeIgnoreBaseType(TypingContext.empty).getOrAny == api.Boolean => return true
-      case _ => return false
+        if x.getTypeIgnoreBaseType(TypingContext.empty).getOrAny.conforms(api.Boolean)(x.getProject.typeSystem) => true
+      case _ => false
     }
   }
+
   override def getSurroundSelectionRange(withUnaryNot: ASTNode): TextRange = {
     val element: PsiElement = withUnaryNot.getPsi match {
       case x: ScParenthesisedExpr => x.expr match {
@@ -39,6 +43,6 @@ class ScalaWithUnaryNotSurrounder extends ScalaExpressionSurrounder {
 
     val expr: ScExpression = element.asInstanceOf[ScExpression]
     val offset = expr.getTextRange.getEndOffset
-    new TextRange(offset,offset)
+    new TextRange(offset, offset)
   }
 }

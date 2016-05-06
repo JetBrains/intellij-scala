@@ -11,9 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /**
-* @author Alexander Podkhalyuzin
-* Date: 04.05.2008
-*/
+  * @author Alexander Podkhalyuzin
+  *         Date: 04.05.2008
+  */
 class ScalaWithTryCatchFinallySurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
     val arrow = if (elements.length == 0) "=>" else ScalaPsiUtil.functionArrow(elements(0).getProject)
@@ -22,7 +22,7 @@ class ScalaWithTryCatchFinallySurrounder extends ScalaExpressionSurrounder {
 
   override def getTemplateDescription = "try / catch / finally"
 
-  override def getSurroundSelectionRange (withTryCatchNode : ASTNode) : TextRange = {
+  override def getSurroundSelectionRange(withTryCatchNode: ASTNode): TextRange = {
     val element: PsiElement = withTryCatchNode.getPsi match {
       case x: ScParenthesisedExpr => x.expr match {
         case Some(y) => y
@@ -35,7 +35,7 @@ class ScalaWithTryCatchFinallySurrounder extends ScalaExpressionSurrounder {
 
     val catchBlockPsiElement = tryCatchStmt.catchBlock.get
     val caseClause =
-      catchBlockPsiElement.expression.get.asInstanceOf[ScBlockExpr].caseClauses.get.caseClauses(0).pattern.get
+      catchBlockPsiElement.expression.get.asInstanceOf[ScBlockExpr].caseClauses.get.caseClauses.head.pattern.get
 
     val offset = caseClause.getTextRange.getStartOffset
     tryCatchStmt.getNode.removeChild(caseClause.getNode)

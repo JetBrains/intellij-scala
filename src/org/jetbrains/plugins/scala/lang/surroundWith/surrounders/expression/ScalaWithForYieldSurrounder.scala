@@ -5,8 +5,8 @@ package surrounders
 package expression
 
 /**
- * @author: Dmitry Krasilschikov
- */
+  * @author Dmitry Krasilschikov
+  */
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
@@ -17,11 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 /*
  * Surrounds expression with for: for { <Cursor> } yield Expression
  */
-
 class ScalaWithForYieldSurrounder extends ScalaExpressionSurrounder {
-  override def getTemplateAsString(elements: Array[PsiElement]): String = {
+  override def getTemplateAsString(elements: Array[PsiElement]): String =
     "for (a <- as) yield {" + super.getTemplateAsString(elements) + "}"
-  }
 
   override def getTemplateDescription = "for / yield"
 
@@ -43,7 +41,7 @@ class ScalaWithForYieldSurrounder extends ScalaExpressionSurrounder {
     val offset = enums.getTextRange.getStartOffset
     forStmt.getNode.removeChild(enums)
 
-    new TextRange(offset, offset);
+    new TextRange(offset, offset)
   }
 }
 

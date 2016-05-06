@@ -1,34 +1,30 @@
- package org.jetbrains.plugins.scala
+package org.jetbrains.plugins.scala
 package lang
 package surroundWith
 package surrounders
 package expression
 
- /**
-  * @author: Dmitry Krasilschikov
+/**
+  * @author Dmitry Krasilschikov
   */
 
-
- import com.intellij.lang.ASTNode
- import com.intellij.openapi.util.TextRange
- import com.intellij.psi.PsiElement
+import com.intellij.lang.ASTNode
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiElement
 
 /*
  * ScalaWithBracketsSurrounder is responsible of surrounders, witch enclause expression in brackets: { Expression } or ( Expression )
-*/
+ */
+class ScalaWithBracesSurrounder extends ScalaExpressionSurrounder {
 
- class ScalaWithBracesSurrounder extends ScalaExpressionSurrounder {
+  override def getTemplateAsString(elements: Array[PsiElement]): String = "{" + super.getTemplateAsString(elements) + "}"
 
-   override def getTemplateAsString(elements: Array[PsiElement]): String = {
-     return "{"+super.getTemplateAsString(elements)+"}"
-   }
+  override def getTemplateDescription = "{  }"
 
-   override def getTemplateDescription = "{  }"
+  override def getSurroundSelectionRange(expr: ASTNode): TextRange = {
+    val offset = expr.getTextRange.getEndOffset
+    new TextRange(offset, offset)
+  }
 
-   override def getSurroundSelectionRange (expr : ASTNode) : TextRange = {
-     val offset = expr.getTextRange.getEndOffset
-     new TextRange(offset, offset)
-   }
-
-   override def needParenthesis(elements: Array[PsiElement]) = false
- }
+  override def needParenthesis(elements: Array[PsiElement]) = false
+}

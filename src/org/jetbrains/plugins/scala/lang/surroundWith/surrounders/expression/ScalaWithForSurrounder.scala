@@ -5,9 +5,9 @@ package surrounders
 package expression
 
 /**
-* @author Alexander.Podkhalyuzin
-* Date: 28.04.2008
-*/
+  * @author Alexander.Podkhalyuzin
+  *         Date: 28.04.2008
+  */
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
@@ -18,7 +18,7 @@ class ScalaWithForSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateDescription = "for"
 
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
-    return "for (a <- as) {" + super.getTemplateAsString(elements) + "}"
+    "for (a <- as) {" + super.getTemplateAsString(elements) + "}"
   }
 
   override def getSurroundSelectionRange(withForNode: ASTNode): TextRange = {
@@ -38,6 +38,6 @@ class ScalaWithForSurrounder extends ScalaExpressionSurrounder {
     val offset = enums.getTextRange.getStartOffset
     forStmt.getNode.removeChild(enums)
 
-    new TextRange(offset, offset);
+    new TextRange(offset, offset)
   }
 }

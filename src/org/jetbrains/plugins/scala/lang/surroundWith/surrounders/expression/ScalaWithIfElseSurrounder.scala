@@ -5,8 +5,8 @@ package surrounders
 package expression
 
 /**
- * @author: Dmitry Krasilschikov
- */
+  * @author Dmitry Krasilschikov
+  */
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
@@ -17,15 +17,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr._
 /*
  * Surrounds expression with { } and if: if { <Cursor> } { Expression }
  */
-
 class ScalaWithIfElseSurrounder extends ScalaExpressionSurrounder {
-  override def getTemplateAsString(elements: Array[PsiElement]): String = {
-    return "if (a) { " + super.getTemplateAsString(elements) + "} else {  }"
-  }
+  override def getTemplateAsString(elements: Array[PsiElement]): String =
+    "if (a) { " + super.getTemplateAsString(elements) + "} else {  }"
 
   override def getTemplateDescription = "if / else"
 
-  override def getSurroundSelectionRange(nodeWithIfNode : ASTNode ) : TextRange = {
+  override def getSurroundSelectionRange(nodeWithIfNode: ASTNode): TextRange = {
     val element: PsiElement = nodeWithIfNode.getPsi match {
       case x: ScParenthesisedExpr => x.expr match {
         case Some(y) => y
@@ -36,14 +34,14 @@ class ScalaWithIfElseSurrounder extends ScalaExpressionSurrounder {
 
     val stmt = element.asInstanceOf[ScIfStmtImpl]
 
-    val conditionNode : ASTNode = (stmt.condition: @unchecked) match {
-        case Some(c) => c.getNode
+    val conditionNode: ASTNode = (stmt.condition: @unchecked) match {
+      case Some(c) => c.getNode
     }
 
-    val offset = conditionNode.getStartOffset();
+    val offset = conditionNode.getStartOffset
     stmt.getNode.removeChild(conditionNode)
 
-    return new TextRange(offset, offset);
+    new TextRange(offset, offset)
   }
 }
 
