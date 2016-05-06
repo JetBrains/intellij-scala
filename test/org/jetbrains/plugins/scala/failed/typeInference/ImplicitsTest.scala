@@ -307,7 +307,9 @@ class ImplicitsTest extends TypeInferenceTestBase {
          |    def entry[A](info: BuildInfoKey.Entry[A]): Option[BuildInfoResult] = {
          |      val typeExpr: Any = ???
          |      val result: Option[(String, A)] = info match {
-         |        case BuildInfoKey.Mapped(from, fun) => entry(from).map { r => fun(${START}r.identifier -> r.value.asInstanceOf[A]$END) }
+         |        case BuildInfoKey.Mapped(from, fun) =>
+         |        ${START}fun$END
+         |        entry(from).map { r => fun(r.identifier -> r.value.asInstanceOf[A]) }
          |      }
          |      result.map(r => BuildInfoResult(r._1, r._2, typeExpr))
          |    }
@@ -318,7 +320,7 @@ class ImplicitsTest extends TypeInferenceTestBase {
          |  case class Mapped[A, B](from: Entry[A], fun: ((String, A)) => (String, B))(implicit val manifest: Manifest[B]) extends Entry[B]
          |  sealed trait Entry[A] { def manifest: Manifest[A] }
          |}
-         |//(String, Nothing)
+         |//((String, A)) => (String, A)
       """.stripMargin)
   }
 }
