@@ -294,4 +294,31 @@ class ImplicitsTest extends TypeInferenceTestBase {
   }
 
   def testSCL9877(): Unit = doTest()
+
+  def testSCL10141(): Unit = {
+    doTest(
+      s"""
+         |case class BuildInfoResult(identifier: String, value: Any, typeExpr: Any)
+         |
+         |object BuildInfo {
+         |
+         |  case class BuildInfoTask() {
+         |
+         |    def entry[A](info: BuildInfoKey.Entry[A]): Option[BuildInfoResult] = {
+         |      val typeExpr: Any = ???
+         |      val result: Option[(String, A)] = info match {
+         |        case BuildInfoKey.Mapped(from, fun) => entry(from).map { r => fun(${START}r.identifier -> r.value.asInstanceOf[A]$END) }
+         |      }
+         |      result.map(r => BuildInfoResult(r._1, r._2, typeExpr))
+         |    }
+         |  }
+         |}
+         |
+         |object BuildInfoKey {
+         |  case class Mapped[A, B](from: Entry[A], fun: ((String, A)) => (String, B))(implicit val manifest: Manifest[B]) extends Entry[B]
+         |  sealed trait Entry[A] { def manifest: Manifest[A] }
+         |}
+         |//(String, Nothing)
+      """.stripMargin)
+  }
 }
