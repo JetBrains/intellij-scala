@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.Scal
  * @author Roman.Shein
  * @since 09.09.2015.
  */
-class ScalaElseExpressionPostfixTemplate extends ElseExpressionPostfixTemplateBase(new ScalaPostfixTemplatePsiInfo,
+class ScalaElseExpressionPostfixTemplate extends ElseExpressionPostfixTemplateBase(ScalaPostfixTemplatePsiInfo,
   new AncestorSelector(SelectorConditions.BOOLEAN_EXPR, Topmost)) {
   override def getSurrounder: Surrounder = new ScalaWithIfConditionSurrounder
 }

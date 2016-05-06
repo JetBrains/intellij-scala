@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.Scal
  * @since 05.09.2015.
  */
 class ScalaTryPostfixTemplate extends SurroundPostfixTemplateBase("try", "try { exp } catch {}",
-  new ScalaPostfixTemplatePsiInfo, new AncestorSelector(SelectorConditions.ANY_EXPR, Topmost)) {
+  ScalaPostfixTemplatePsiInfo, new AncestorSelector(SelectorConditions.ANY_EXPR, Topmost)) {
 
   override def getSurrounder = new ScalaWithTryCatchSurrounder
 }

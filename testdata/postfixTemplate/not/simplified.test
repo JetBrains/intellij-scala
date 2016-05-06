@@ -1,0 +1,7 @@
+class Test {
+  if (<start>true<not> op) return
+}
+------
+class Test {
+  if (false op) return
+}

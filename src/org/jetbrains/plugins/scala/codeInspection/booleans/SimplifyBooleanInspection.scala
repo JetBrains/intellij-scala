@@ -52,14 +52,7 @@ object SimplifyBooleanUtil {
       case ScParenthesisedExpr(e) => canBeSimplified(e, isTopLevel)
       case expression: ScExpression =>
         val children = getScExprChildren(expr)
-        val isBooleanOperation = expression match {
-          case ScPrefixExpr(operation, operand) => operation.refName == "!" && isOfBooleanType(operand)
-          case ScInfixExpr(left, oper, right) =>
-            boolInfixOperations.contains(oper.refName) &&
-                    isOfBooleanType(left) && isOfBooleanType(right)
-          case _ => false
-        }
-        isBooleanOperation && isOfBooleanType(expr) && children.exists(canBeSimplified(_, isTopLevel = false))
+        isBooleanOperation(expression) && isOfBooleanType(expr) && children.exists(canBeSimplified(_, isTopLevel = false))
     }
   }
 
@@ -71,6 +64,14 @@ object SimplifyBooleanUtil {
       simplifyTrivially(exprCopy)
     }
     else expr
+  }
+
+  def isBooleanOperation(expression: ScExpression): Boolean = expression match {
+    case ScPrefixExpr(operation, operand) => operation.refName == "!" && isOfBooleanType(operand)
+    case ScInfixExpr(left, oper, right) =>
+      boolInfixOperations.contains(oper.refName) &&
+        isOfBooleanType(left) && isOfBooleanType(right)
+    case _ => false
   }
 
   private def isOfBooleanType(expr: ScExpression)

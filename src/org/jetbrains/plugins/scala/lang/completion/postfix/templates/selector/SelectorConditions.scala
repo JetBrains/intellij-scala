@@ -48,7 +48,8 @@ object SelectorConditions {
   def typedCondition(myType: ValType) = new Condition[PsiElement]{
 
     override def value(t: PsiElement): Boolean = t match {
-      case expr: ScExpression => expr.getTypeIgnoreBaseType().getOrAny == myType
+      case expr: ScExpression =>
+        expr.getTypeIgnoreBaseType().getOrAny.conforms(myType)(t.getProject.typeSystem)
       case _ => false
     }
   }

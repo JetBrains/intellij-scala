@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.{S
  * @since 14.09.2015.
  */
 class ScalaDoWhilePostfixTemplate extends ScalaStringBasedPostfixTemplate("dowhile", "do {} while (expr)",
-  new AncestorSelector(SelectorConditions.BOOLEAN_EXPR, Topmost)){
+  new AncestorSelector(SelectorConditions.BOOLEAN_EXPR, Topmost)) {
 
   override def getTemplateString(element: PsiElement): String = "do {\n$END$\n} while ($expr$)"
 }

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.Se
  * @author Roman.Shein
  * @since 10.09.2015.
  */
-class ScalaParenthesizedExpressionPostfixTemplate extends ParenthesizedPostfixTemplate(new ScalaPostfixTemplatePsiInfo,
+class ScalaParenthesizedExpressionPostfixTemplate extends ParenthesizedPostfixTemplate(ScalaPostfixTemplatePsiInfo,
   new AncestorSelector(SelectorConditions.ANY_EXPR, All)) {
 
 }

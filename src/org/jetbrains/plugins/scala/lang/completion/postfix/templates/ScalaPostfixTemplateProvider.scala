@@ -24,7 +24,7 @@ class ScalaPostfixTemplateProvider extends PostfixTemplateProvider {
 }
 
 object ScalaPostfixTemplateProvider {
-  protected def templates: util.Set[PostfixTemplate] = ContainerUtil.newHashSet(
+  def templates: util.Set[PostfixTemplate] = ContainerUtil.newHashSet(
     new ScalaTryPostfixTemplate,
     new ScalaAssertPostfixTemplate,
     new ScalaCastPostfixTemplate,

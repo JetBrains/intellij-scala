@@ -9,5 +9,5 @@ import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.Se
  * @since 11.09.2015.
  */
 class ScalaNotPostfixTemplate(val alias: String = "not") extends NotPostfixTemplate(alias, "." + alias, "!expr",
-  new ScalaPostfixTemplatePsiInfo, new AncestorSelector(SelectorConditions.BOOLEAN_EXPR, All)) {
+  ScalaPostfixTemplatePsiInfo, new AncestorSelector(SelectorConditions.BOOLEAN_EXPR, All)) {
 }
