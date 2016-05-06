@@ -150,6 +150,7 @@ private[annotator] object ModifierChecker {
               }
             case "override" =>
               owner match {
+                case o: ScObject if o.containingClass != null => //allowed
                 case _: ScTypeDefinition =>
                   proccessError(ScalaBundle.message("override.modifier.is.not.allowed.for.classes"), modifierPsi,
                     holder, new RemoveModifierQuickFix(owner, "override"))
