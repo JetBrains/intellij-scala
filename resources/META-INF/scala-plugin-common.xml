@@ -707,6 +707,9 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.CaseClassParamInspection"
                          displayName="Case Class Parameter" groupPath="Scala" groupName="General" shortName="CaseClassParam"
                          id="CaseClassParam" level="WARNING" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.caseClassRedundantNew.RedundantNewCaseClassInspection"
+                         displayName="Redundant New on Case Class" groupPath="Scala" groupName="General" shortName="RedundantNewCaseClass"
+                         id="RedundantNewCaseClass" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection"
                          displayName="'var' could be a 'val'" groupPath="Scala" groupName="General" shortName="VarCouldBeVal"
                          level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
