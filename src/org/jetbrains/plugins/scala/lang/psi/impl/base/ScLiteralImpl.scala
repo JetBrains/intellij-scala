@@ -15,6 +15,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafElement
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageUtil
 import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
+import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -22,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLitera
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Char, Int, Nothing, Null}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 
 import scala.StringContext.InvalidEscapeException
 
@@ -59,6 +61,7 @@ class ScLiteralImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScLite
     Success(inner, Some(this))
   }
 
+  @CachedInsidePsiElement(this, PsiModificationTracker.MODIFICATION_COUNT)
   def getValue: AnyRef = {
     val child = getFirstChild.getNode
     var text = getText

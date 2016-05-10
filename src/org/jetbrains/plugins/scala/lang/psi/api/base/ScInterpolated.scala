@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api.base
 
-import com.intellij.psi.util.{PsiTreeUtil, PsiModificationTracker}
 import com.intellij.psi.{PsiElement, PsiReference}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScInterpolationPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedPrefixReference, ScInterpolatedStringPartReference}
-import org.jetbrains.plugins.scala.macroAnnotations.{ModCount, CachedInsidePsiElement}
+import org.jetbrains.plugins.scala.macroAnnotations.{CachedInsidePsiElement, ModCount}
 
 import scala.collection.mutable.ListBuffer
 
@@ -37,7 +36,7 @@ trait ScInterpolated extends ScalaPsiElement {
   @CachedInsidePsiElement(this, ModCount.getBlockModificationCount)
   def getStringContextExpression: Option[ScExpression] = {
     val quote = if (isMultiLineString) "\"\"\"" else "\""
-    val parts = getStringParts(this).mkString(quote, s"$quote, $quote", quote) //making list of string literals
+    val parts = getStringParts.mkString(quote, s"$quote, $quote", quote) //making list of string literals
     val params = getInjections.map(_.getText).mkString("(", ",", ")")
     if (getContext == null) None else Option(ScalaPsiElementFactory.createExpressionWithContextFromText(
       s"_root_.scala.StringContext($parts).${getFirstChild.getText}$params", getContext, this))
@@ -55,8 +54,8 @@ trait ScInterpolated extends ScalaPsiElement {
     }
   }
 
-  def getStringParts(l: ScInterpolated): Seq[String] = {
-    val childNodes = l.children.map(_.getNode)
+  def getStringParts: Seq[String] = {
+    val childNodes = this.children.map(_.getNode)
     val result = ListBuffer[String]()
     val emptyString = ""
     for {
@@ -84,6 +83,6 @@ trait ScInterpolated extends ScalaPsiElement {
         case _ =>
       }
     }
-    result.toSeq
+    result.toVector
   }
 }

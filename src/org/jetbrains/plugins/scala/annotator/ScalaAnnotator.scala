@@ -49,7 +49,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsin
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocTag}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
-import org.jetbrains.plugins.scala.util.ScalaUtils
+import org.jetbrains.plugins.scala.util.{MultilineStringUtil, ScalaUtils}
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.{Seq, Set, mutable}
@@ -181,6 +181,11 @@ class ScalaAnnotator extends Annotator with FunctionAnnotator with ScopeAnnotato
             checkIntegerLiteral(l, holder)
           case _ =>
         }
+
+        if (MultilineStringUtil.isTooLongStringLiteral(l)) {
+          holder.createErrorAnnotation(l, ScalaBundle.message("too.long.string.literal"))
+        }
+
         super.visitLiteral(l)
       }
 
