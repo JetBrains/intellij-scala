@@ -98,6 +98,28 @@ class RedundantNewCaseClassInspectionTest extends ScalaLightInspectionFixtureTes
     testFix(program, expected, annotation)
   }
 
+  def testOverriddenApplyMethod(): Unit = {
+    val program =
+      s"""
+         |case class C(a: Int, x: String = "default")
+         |object C { def apply(a: Int): C = C(a, "xxx") }
+         |
+         |${START}new$END C(0)
+       """.stripMargin
+
+    check(program)
+
+    val expected =
+      s"""
+         |case class C(a: Int, x: String = "default")
+         |object C { def apply(a: Int): C = C(a, "xxx") }
+         |
+         |C(0)
+       """.stripMargin
+
+    testFix(program, expected, annotation)
+  }
+
   def testCaseClassWithNormalClassNestedHasNoErrors(): Unit = checkTextHasNoErrors(
     s"""
        |class B()
@@ -141,7 +163,7 @@ class RedundantNewCaseClassInspectionTest extends ScalaLightInspectionFixtureTes
        |  def b(): Int
        |}
        |
-        |val a = new A {
+       |val a = new A {
        |  override def b: Int = 2
        |}
      """.stripMargin
@@ -166,6 +188,14 @@ class RedundantNewCaseClassInspectionTest extends ScalaLightInspectionFixtureTes
     s"""
        |case class Foo()
        |val f = new Foo
+     """.stripMargin
+  )
+
+  def testShouldNotShowIfCallingTypeAlias(): Unit = checkTextHasNoErrors(
+    s"""
+       |case class Foo()
+       |type A = Foo
+       |val f = new A()
      """.stripMargin
   )
 
