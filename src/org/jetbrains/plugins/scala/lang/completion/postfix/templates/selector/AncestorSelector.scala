@@ -10,16 +10,15 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.SelectorType._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr, ScExpression}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
- * @author Roman.Shein
- * @since 08.09.2015.
- */
+  * @author Roman.Shein
+  * @since 08.09.2015.
+  */
 class AncestorSelector(val condition: Condition[PsiElement], val selectorType: SelectorType = First) extends PostfixTemplateExpressionSelectorBase(condition) {
 
-  override protected def getFilters (offset: Int): Condition[PsiElement] = {
+  override protected def getFilters(offset: Int): Condition[PsiElement] = {
     and(super.getFilters(offset), getPsiErrorFilter)
   }
 
@@ -33,7 +32,12 @@ class AncestorSelector(val condition: Condition[PsiElement], val selectorType: S
           case Topmost => current.isInstanceOf[ScExpression]
           case First => false
         })) {
-          result.add(current)
+          if (result.getLast.getText == current.getText) {
+            result.removeLast()
+            result.add(current)
+          } else {
+            result.add(current)
+          }
           current = current.getParent
         }
         result
