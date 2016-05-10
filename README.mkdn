@@ -38,13 +38,3 @@ In order to take part in Scala plugin development, you need to:
 
 4. Open IntelliJ IDEA, select `File -> New -> Project from existing sources`, point to
 the directory where Scala plugin repository is and then import it as SBT project.
-
-5. When importing is finished, go to Scala plugin repo directory and run
-
-  ```
-  $ git checkout .idea
-  ```
-
-  in order to get artifacts and run configurations for IDEA project.
-
-
