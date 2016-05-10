@@ -15,7 +15,7 @@ class RemoveNewQuickFix(param: ScNewTemplateDefinition) extends AbstractFixOnPsi
   override def doApplyFix(project: Project): Unit = {
     val p = getElement
     if (!p.isValid) return
-    param.findFirstChildByType(ScalaTokenTypes.kNEW).delete()
-    param.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(param.getText, p.getManager), false)
+    p.findFirstChildByType(ScalaTokenTypes.kNEW).delete()
+    p.replaceExpression(ScalaPsiElementFactory.createExpressionFromText(param.getText, p.getManager), false)
   }
 }
