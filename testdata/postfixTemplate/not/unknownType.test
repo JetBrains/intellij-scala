@@ -5,5 +5,5 @@ class Test {
 ------
 class Test {
   val a: Boolean = true
-  (!a) toString
+  !a toString
 }

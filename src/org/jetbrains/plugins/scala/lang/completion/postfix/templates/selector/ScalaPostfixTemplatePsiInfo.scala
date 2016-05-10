@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector
 
 import com.intellij.codeInsight.template.postfix.templates.PostfixTemplatePsiInfo
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.codeInspection.booleans.SimplifyBooleanUtil
+import org.jetbrains.plugins.scala.codeInspection.parentheses.{UnnecessaryParenthesesQuickFix, UnnecessaryParenthesesUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr, ScPrefixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -34,14 +35,22 @@ object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
       elements.foldLeft(""){case (acc, elem) => acc + elem.getNode.getText}
 
     override def needParenthesis(elements: Array[PsiElement]): Boolean = super.needParenthesis(elements) &&
+      //are in boolean operation expr (operation priorities are known) we don't spend time on removing parentheses
       elements.headOption.map(_.getParent).exists {
         case expr: ScExpression => !SimplifyBooleanUtil.isBooleanOperation(expr)
         case _ => true
       }
 
-    override def surroundPsi(elements: Array[PsiElement]): ScExpression =
-      SimplifyBooleanUtil.simplify(super.surroundPsi(elements), isTopLevel = false)
-
+    override def surroundPsi(elements: Array[PsiElement]): ScExpression = {
+      SimplifyBooleanUtil.simplify(super.surroundPsi(elements), isTopLevel = false) match {
+        case parenthesized: ScParenthesisedExpr
+          if UnnecessaryParenthesesUtil.canBeStripped(parenthesized, ignoreClarifying = false) =>
+          ScalaPsiElementFactory.createExpressionFromText(
+            UnnecessaryParenthesesUtil.getTextOfStripped(parenthesized, ignoreClarifying = false),
+            PsiManager.getInstance(parenthesized.getProject))
+        case other => other
+      }
+    }
   }
 
   override def getNegatedExpression(element: PsiElement): ScExpression =

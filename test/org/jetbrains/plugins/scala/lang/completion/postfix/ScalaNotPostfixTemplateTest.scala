@@ -20,4 +20,6 @@ class ScalaNotPostfixTemplateTest extends PostfixTemplateTest {
   def testUnknownType() = doTest()
 
   def testNotApplicable() = doNotApplicableTest()
+
+  def testScl10247() = doTest()
 }
