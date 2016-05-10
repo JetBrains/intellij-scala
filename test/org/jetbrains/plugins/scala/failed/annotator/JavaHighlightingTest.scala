@@ -412,4 +412,38 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
 
     assertNothing(errorsFromJavaCode(scala, java, "Bug10232"))
   }
+
+  def testSCL10236(): Unit = {
+    val java =
+      """
+        |class Bug10236 {
+        |
+        |    void foo() {
+        |        ActorSystem system = ActorSystem.create("aSystem", "something");
+        |        Object random = system.actorOf(Props.create(RandomActor.class, 1));
+        |    }
+        |}
+        |
+        |class RandomActor {
+        |    public RandomActor(Integer whatever) { }
+        |}
+      """.stripMargin
+
+    val scala =
+      """
+        |class Props
+        |object Props {
+        |  @scala.annotation.varargs
+        |  def create(clazz: scala.Predef.Class[_], args: scala.AnyRef*): Props = ???
+        |}
+        |
+        |abstract class ActorSystem()
+        |object ActorSystem extends scala.AnyRef {
+        |  def create(name : scala.Predef.String, config : Any) : ActorSystem = ???
+        |  def actorOf(props : Props) : Any = ???
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromJavaCode(scala, java, "Bug10236"))
+  }
 }
