@@ -13,13 +13,28 @@ trait Strategy {
 
   def removeFromFunction(function: ScFunctionDefinition)
 
+  def redoFromFunction(function: ScFunctionDefinition) = {
+    removeFromFunction(function)
+    addToFunction(function)
+  }
+
   def addToValue(value: ScPatternDefinition)
 
   def removeFromValue(value: ScPatternDefinition)
 
+  def redoFromValue(value: ScPatternDefinition) = {
+    removeFromValue(value)
+    addToValue(value)
+  }
+
   def addToVariable(variable: ScVariableDefinition)
 
   def removeFromVariable(variable: ScVariableDefinition)
+
+  def redoFromVariable(variable: ScVariableDefinition) = {
+    removeFromVariable(variable)
+    addToVariable(variable)
+  }
 
   def addToPattern(pattern: ScBindingPattern)
 
