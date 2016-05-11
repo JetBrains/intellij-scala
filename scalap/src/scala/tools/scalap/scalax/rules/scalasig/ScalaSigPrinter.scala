@@ -614,8 +614,12 @@ class ScalaSigPrinter(stream: PrintStream, verbosity: Verbosity) {
         val ubs = if (!ub.equals("scala.Any")) " <: " + ub else ""
         lbs + ubs
       case RefinedType(classSym: ClassSymbol, typeRefs) =>
-        val classStr = getClassString(level + 1, classSym)
-        sep + typeRefs.map(toString(_, level)).mkString("", " with ", "") + (if (classStr == " {\n}") "" else classStr)
+        val classStr = {
+          val text = getClassString(level + 1, classSym)
+          if (text.trim.stripPrefix("{").stripSuffix("}").trim.isEmpty) ""
+          else text
+        }
+        sep + typeRefs.map(toString(_, level)).mkString("", " with ", "") + classStr
       case RefinedType(classSym, typeRefs) => sep + typeRefs.map(toString(_, level)).mkString("", " with ", "")
       case ClassInfoType(symbol, typeRefs) => sep + typeRefs.map(toString(_, level)).mkString(" extends ", " with ", "")
       case ClassInfoTypeWithCons(symbol, typeRefs, cons) => sep + typeRefs.map(toString(_, level)).
