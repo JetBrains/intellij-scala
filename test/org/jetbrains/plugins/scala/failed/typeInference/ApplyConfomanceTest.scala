@@ -39,4 +39,25 @@ class ApplyConfomanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |/* True */
       """.stripMargin)
   }
+
+  def testSCL10253(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |import PersonObject.Person
+         |
+         |package object PersonObject {
+         |
+         |  object Person {
+         |    def apply() = new Person("<no name>", 0)
+         |  }
+         |
+         |  case class Person(name: String, age: Int)
+         |}
+         |
+         |object CaseClassTest {
+         |  val b = Person("William Shatner", 82)
+         |}
+         |/* True */
+      """.stripMargin)
+  }
 }
