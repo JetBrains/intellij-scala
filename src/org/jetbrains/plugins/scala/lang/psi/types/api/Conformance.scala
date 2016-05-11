@@ -29,6 +29,8 @@ trait Conformance extends TypeSystemOwner {
                           checkWeak: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     ProgressManager.checkCanceled()
 
+    if (left.equiv(Any) || right.equiv(Nothing)) return (true, new ScUndefinedSubstitutor())
+
     val key = (left, right, checkWeak)
 
     val tuple = cache.get(key)
