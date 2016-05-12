@@ -82,4 +82,9 @@ class DecompilerTest extends DecompilerTestBase {
   def testScl9877_1(): Unit = {
     doTest("MyJoin.class")
   }
+
+  //SCL-10244, SCL-10252
+  def testSelfType(): Unit = {
+    doTest("ResultExtractors.class")
+  }
 }
