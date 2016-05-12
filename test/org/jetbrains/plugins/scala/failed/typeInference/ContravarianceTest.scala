@@ -51,4 +51,31 @@ class ContravarianceTest extends TypeInferenceTestBase {
          |//Array[Error.Foo[NotInferedT]]
        """.stripMargin)
   }
+
+  def testSCL10238a(): Unit ={
+    doTest(
+      s"""
+         |class Foo[A](superfoos: Seq[Foo[_ >: A]])         |
+         |class Bar[A](superbars: Seq[Bar[_ >: A]]) extends Foo[A](${START}superbars$END)
+         |//Seq[Foo[_ >: A]]
+       """.stripMargin)
+  }
+
+  def testSCL10238b(): Unit ={
+    doTest(
+      s"""
+         |class Foo[A](foos: Seq[Foo[A]])         |
+         |class Bar[A](bars: Seq[Bar[A]]) extends Foo[A](${START}bars$END)
+         |//Seq[Foo[A]]
+       """.stripMargin)
+  }
+
+  def testSCL10238c(): Unit ={
+    doTest(
+      s"""
+         |class Foo[A](underfoos: Seq[Foo[_ <: A]])         |
+         |class Bar[A](underbars: Seq[Bar[_ <: A]]) extends Foo[A](${START}underbars$END)
+         |//Seq[Foo[_ <: A]]
+       """.stripMargin)
+  }
 }
