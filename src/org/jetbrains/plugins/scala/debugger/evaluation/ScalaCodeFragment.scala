@@ -12,6 +12,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory}
@@ -27,7 +28,7 @@ class ScalaCodeFragment(project: Project, text: String) extends {
     ScalaFileType.SCALA_FILE_TYPE, text)
   private var provider = new SingleRootFileViewProvider(
     PsiManager.getInstance(project), vFile, true)
-} with ScalaFileImpl(provider) with JavaCodeFragment {
+} with ScalaFileImpl(provider) with JavaCodeFragment with ScDeclarationSequenceHolder {
   getViewProvider.forceCachedPsi(this)
 
   override def getViewProvider = provider
@@ -117,7 +118,7 @@ class ScalaCodeFragment(project: Project, text: String) extends {
       val imp = ScalaPsiElementFactory.createImportFromTextWithContext("import _root_." + qName, this, this)
       if (!imp.processDeclarations(processor, state, lastParent, place)) return false
     }
-    if (!super.processDeclarations(processor, state, lastParent, place)) return false
+    if (!super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
     true
   }
 
