@@ -1,13 +1,14 @@
 package org.jetbrains.sbt.runner;
 
 import com.intellij.execution.configuration.EnvironmentVariablesComponent;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
-import org.jetbrains.sbt.SbtBundle;
-import scala.collection.Seq;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,9 +23,13 @@ public class SbtRunConfigurationForm {
   private RawCommandLineEditor tasksEditor;
   private RawCommandLineEditor javaOptionsEditor;
   private EnvironmentVariablesComponent environmentVariables;
+  private TextFieldWithBrowseButton workingDirField;
 
   public SbtRunConfigurationForm(final Project project, final SbtRunConfiguration configuration) {
     environmentVariables.setEnvs(configuration.getEnvironmentVariables());
+    workingDirField.setText(configuration.getWorkingDir());
+    FileChooserDescriptor folderDescriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor();
+    workingDirField.addBrowseFolderListener("Choose Working Directory", null, project, folderDescriptor);
   }
 
   public JPanel getMainPanel() {
@@ -52,10 +57,15 @@ public class SbtRunConfigurationForm {
     return environmentVariables.getEnvs();
   }
 
+  public String getWorkingDir() {
+    return workingDirField.getText();
+  }
+
   public void apply(SbtRunConfiguration configuration) {
     tasksEditor.setText(configuration.getTasks());
     javaOptionsEditor.setText(configuration.getJavaOptions());
     environmentVariables.setEnvs(configuration.getEnvironmentVariables());
+    workingDirField.setText(configuration.getWorkingDir());
   }
 
   {
@@ -74,24 +84,29 @@ public class SbtRunConfigurationForm {
    */
   private void $$$setupUI$$$() {
     mainPanel = new JPanel();
-    mainPanel.setLayout(new GridLayoutManager(6, 1, new Insets(0, 0, 0, 0), -1, -1));
+    mainPanel.setLayout(new GridLayoutManager(8, 1, new Insets(0, 0, 0, 0), -1, -1));
     final JLabel label1 = new JLabel();
     this.$$$loadLabelText$$$(label1, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.runner.form.tasks"));
     mainPanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     javaOptionsEditor = new RawCommandLineEditor();
     javaOptionsEditor.setDialogCaption(ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.runner.form.vmParametersEditorTitle"));
-    mainPanel.add(javaOptionsEditor, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(495, 29), null, 0, false));
+    mainPanel.add(javaOptionsEditor, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(495, 29), null, 0, false));
     tasksEditor = new RawCommandLineEditor();
     tasksEditor.setDialogCaption(ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.runner.form.tasksEditorTitle"));
     mainPanel.add(tasksEditor, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_NORTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(495, 29), null, 0, false));
     final JLabel label2 = new JLabel();
     this.$$$loadLabelText$$$(label2, ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.runner.form.vmParameters"));
-    mainPanel.add(label2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(495, 21), null, 0, false));
+    mainPanel.add(label2, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(495, 21), null, 0, false));
     environmentVariables = new EnvironmentVariablesComponent();
     environmentVariables.setText(ResourceBundle.getBundle("org/jetbrains/sbt/SbtBundle").getString("sbt.runner.form.environmentVariables"));
-    mainPanel.add(environmentVariables, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    mainPanel.add(environmentVariables, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     final Spacer spacer1 = new Spacer();
-    mainPanel.add(spacer1, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    mainPanel.add(spacer1, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+    workingDirField = new TextFieldWithBrowseButton();
+    mainPanel.add(workingDirField, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+    final JLabel label3 = new JLabel();
+    label3.setText("Working directory:");
+    mainPanel.add(label3, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
   }
 
   /**

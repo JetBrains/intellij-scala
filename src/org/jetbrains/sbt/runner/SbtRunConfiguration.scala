@@ -2,7 +2,7 @@ package org.jetbrains.sbt.runner
 
 import java.io.File
 import java.util
-import java.util.jar.{Attributes, JarFile}
+import java.util.jar.JarFile
 
 import com.intellij.execution.Executor
 import com.intellij.execution.configuration.EnvironmentVariablesComponent
@@ -15,6 +15,7 @@ import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.JDOMExternalizer
+import com.intellij.openapi.util.text.StringUtil
 import org.jdom.Element
 import org.jetbrains.android.sdk.AndroidSdkType
 import org.jetbrains.sbt.project.structure.SbtRunner
@@ -44,6 +45,8 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
    */
   private val envirnomentVariables: java.util.Map[String, String] = new mutable.HashMap[String, String]()
 
+  private var workingDirectory: String = project.getBaseDir.getPath
+
   override def getValidModules: util.Collection[Module] = List()
 
   override def getState(executor: Executor, env: ExecutionEnvironment): RunProfileState = {
@@ -58,6 +61,7 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
     super.writeExternal(element)
     JDOMExternalizer.write(element, "tasks", getTasks)
     JDOMExternalizer.write(element, "vmparams", getJavaOptions)
+    JDOMExternalizer.write(element, "workingDir", getWorkingDir)
     EnvironmentVariablesComponent.writeExternal(element, getEnvironmentVariables)
   }
 
@@ -65,12 +69,14 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
     super.readExternal(element)
     tasks = JDOMExternalizer.readString(element, "tasks")
     javaOptions = JDOMExternalizer.readString(element, "vmparams")
+    workingDirectory = JDOMExternalizer.readString(element, "workingDir")
     EnvironmentVariablesComponent.readExternal(element, envirnomentVariables)
   }
 
   def apply(params: SbtRunConfigurationForm): Unit = {
     tasks = params.getTasks
     javaOptions = params.getJavaOptions
+    workingDirectory = params.getWorkingDir
     envirnomentVariables.clear()
     envirnomentVariables.putAll(params.getEnvironmentVariables)
   }
@@ -87,6 +93,8 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
 
   def getEnvironmentVariables = envirnomentVariables
 
+  def getWorkingDir = if (StringUtil.isEmpty(workingDirectory)) project.getBaseDir.getPath else workingDirectory
+
   class SbtComandLineState(configuration: SbtRunConfiguration, envirnoment: ExecutionEnvironment)
           extends JavaCommandLineState(envirnoment) {
 
@@ -102,7 +110,7 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
       } catch {
         case _ : NoClassDefFoundError => // no android plugin, do nothing
       }
-      params.setWorkingDirectory(project.getBaseDir.getPath)
+      params.setWorkingDirectory(workingDirectory)
       params.configureByProject(configuration.getProject, JavaParameters.JDK_ONLY, jdk)
       val sbtSystemSettings: SbtSystemSettings = SbtSystemSettings.getInstance(configuration.getProject)
       if (sbtSystemSettings.getCustomLauncherEnabled) {
