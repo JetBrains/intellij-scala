@@ -446,7 +446,7 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
                     substedFunType = subst.subst(funType)
                   }
 
-                  if (substedFunType conforms tp) {
+                  if (isExtensionConversion && argsConformWeakly(substedFunType, tp) || (substedFunType conforms tp)) {
                     if (checkFast || noReturnType) Some(c, ScSubstitutor.empty)
                     else checkType(substedFunType)
                   } else if (noReturnType) Some(c, ScSubstitutor.empty) else {
@@ -625,6 +625,17 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
         1 + complexity(valueType)
       case ScCompoundType(comps, _, _) => comps.foldLeft(0)(_ + complexity(_))
       case _ => 1
+    }
+  }
+
+  private def argsConformWeakly(left: ScType, right: ScType)(implicit typeSystem: TypeSystem): Boolean = {
+    (left, right) match {
+      case (leftFun: ScParameterizedType, rightFun: ScParameterizedType) =>
+        leftFun.designator.canonicalText == "_root_.scala.Function1" &&
+          rightFun.designator.canonicalText == "_root_.scala.Function1" &&
+          rightFun.typeArguments.nonEmpty && leftFun.typeArguments.nonEmpty &&
+          (rightFun.typeArguments.head weakConforms leftFun.typeArguments.head)
+      case _ => false
     }
   }
 }
