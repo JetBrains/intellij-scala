@@ -1,0 +1,9 @@
+class Test {
+  <start>42<match>
+}
+-----
+class Test {
+  42 match {
+    case  =>
+  }
+}

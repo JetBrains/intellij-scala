@@ -15,6 +15,7 @@ import com.intellij.lang.surroundWith.Surrounder
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
+import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -57,6 +58,10 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
   }
 
   override def surroundElements(project: Project, editor: Editor, elements: Array[PsiElement]): TextRange = {
+    surroundWithReformat(project, editor, elements, doReformat = false)
+  }
+
+  def surroundWithReformat(project: Project, editor: Editor, elements: Array[PsiElement], doReformat: Boolean): TextRange = {
     val newNode = surroundPsi(elements).getNode
     var childNode: ASTNode = null
 
@@ -69,6 +74,9 @@ abstract class ScalaExpressionSurrounder extends Surrounder {
         childNode = child.getNode
         childNode.getTreeParent.removeChild(childNode)
       }
+    }
+    if (doReformat) {
+      CodeStyleManager.getInstance(project).reformat(newNode.getPsi)
     }
     getSurroundSelectionRange(newNode)
   }

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.Scal
  * @since 14.09.2015.
  */
 abstract class ScalaNullPostfixTemplate(val name: String, val example: String) extends SurroundPostfixTemplateBase(name,
-  example, ScalaPostfixTemplatePsiInfo, new AncestorSelector(SelectorConditions.ANY_EXPR, Topmost)) {
+  example, ScalaPostfixTemplatePsiInfo, AncestorSelector(ScalaNullPostfixTemplate.surrounder, Topmost)) {
 
   override protected def getWrappedExpression(expression: PsiElement): PsiElement = {
     val (head, tail) = expression match {
@@ -22,6 +22,9 @@ abstract class ScalaNullPostfixTemplate(val name: String, val example: String) e
     myPsiInfo.createExpression(expression, head, tail)
   }
 
-  override def getSurrounder = new ScalaWithIfConditionSurrounder
+  override def getSurrounder = ScalaNullPostfixTemplate.surrounder
+}
 
+object ScalaNullPostfixTemplate {
+  private val surrounder = new ScalaWithIfConditionSurrounder()
 }

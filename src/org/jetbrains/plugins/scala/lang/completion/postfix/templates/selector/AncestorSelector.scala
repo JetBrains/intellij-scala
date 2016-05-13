@@ -11,6 +11,7 @@ import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.SelectorType._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaExpressionSurrounder
 
 /**
   * @author Roman.Shein
@@ -44,4 +45,11 @@ class AncestorSelector(val condition: Condition[PsiElement], val selectorType: S
       case _ => ContainerUtil.emptyList()
     }
   }
+}
+
+object AncestorSelector {
+  def apply(surrounder: ScalaExpressionSurrounder, selectorType: SelectorType = First): AncestorSelector =
+    new AncestorSelector(new Condition[PsiElement]{
+      override def value(t: PsiElement): Boolean = surrounder.isApplicable(t)
+    }, selectorType)
 }

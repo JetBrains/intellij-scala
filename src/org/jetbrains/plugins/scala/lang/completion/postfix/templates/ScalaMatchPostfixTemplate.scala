@@ -10,7 +10,10 @@ import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.Scal
  * @author Roman.Shein
  * @since 09.09.2015.
  */
-class ScalaMatchPostfixTemplate extends SurroundPostfixTemplateBase("match", "expr match {...}",
-  ScalaPostfixTemplatePsiInfo, new AncestorSelector(SelectorConditions.ANY_EXPR, All)) {
-  override def getSurrounder: Surrounder = new ScalaWithMatchSurrounder
+class ScalaMatchPostfixTemplate extends FormattingSurroundPostfixTemplate("match", "expr match {...}",
+  ScalaPostfixTemplatePsiInfo, ScalaMatchPostfixTemplate.surrounder) {
+}
+
+object ScalaMatchPostfixTemplate {
+  private val surrounder = new ScalaWithMatchSurrounder
 }

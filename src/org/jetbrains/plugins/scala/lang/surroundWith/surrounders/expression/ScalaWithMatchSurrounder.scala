@@ -26,6 +26,9 @@ class ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
   override def isApplicable(element: PsiElement): Boolean = {
     element match {
       case _: ScBlockExpr => true
+      //TODO perhaps this is a temporary hack?
+      case block: ScBlock if !block.hasRBrace && block.exprs.length == 1 &&
+        block.exprs.head.isInstanceOf[ScExpression] => true
       case _: ScBlock => false
       case _: ScExpression | _: PsiWhiteSpace => true
       case e => ScalaPsiUtil.isLineTerminator(e)
