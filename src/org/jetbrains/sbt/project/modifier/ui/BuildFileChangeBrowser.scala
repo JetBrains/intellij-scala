@@ -1,6 +1,5 @@
 package org.jetbrains.sbt.project.modifier.ui
 
-import com.intellij.diff.DiffDialogHints
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.changes.Change
@@ -46,10 +45,10 @@ ChangesBrowser(project, null, changes, null, canExcludeChanges, true, null, Chan
   }
 
   override protected def showDiffForChanges(changesArray: Array[Change], indexInSelection: Int) {
-    val context: ShowDiffContext = new ShowDiffContext(DiffDialogHints.DEFAULT)
-    val changesArraySwapped: Array[BuildFileChange] = for (change <- changesArray)
+    val context: ShowDiffContext = new ShowDiffContext()
+    val changesArraySwapped: Array[Change] = for (change <- changesArray)
     yield BuildFileChange.swap(change.asInstanceOf[BuildFileChange])
 
-    ShowDiffAction.showDiffForChange(myProject, changesArraySwapped.toList, indexInSelection, context)
+    ShowDiffAction.showDiffForChange(myProject, changesArraySwapped.toSeq, indexInSelection, context)
   }
 }

@@ -213,7 +213,6 @@ object ScalaPluginUpdater {
   def postCheckIdeaCompatibility(): Unit = postCheckIdeaCompatibility(getScalaPluginBranch)
 
   private def suggestIdeaUpdate(branch: String, suggestedVersion: String) = {
-    import collection.JavaConversions._
     val infoImpl = ApplicationInfo.getInstance().asInstanceOf[ApplicationInfoImpl]
     val appSettings = ScalaApplicationSettings.getInstance()
     def getPlatformUpdateResult = {
@@ -234,7 +233,7 @@ object ScalaPluginUpdater {
         Some(strategy.checkForUpdates())
       } else None
     }
-    def isUpToDatePlatform(result: CheckForUpdateResult) = result.getUpdatedChannel.getBuilds.last.getNumber.compareTo(infoImpl.getBuild) <= 0
+    def isUpToDatePlatform(result: CheckForUpdateResult) = result.getNewBuild.getNumber.compareTo(infoImpl.getBuild) <= 0
     def isBetaOrEAPPlatform = infoImpl.isEAP || infoImpl.isBetaOrRC
     val notification = getPlatformUpdateResult match {
       case Some(result) if isUpToDatePlatform(result) && !isBetaOrEAPPlatform && appSettings.ASK_PLATFORM_UPDATE => // platform is up to date - suggest eap

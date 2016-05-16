@@ -69,5 +69,5 @@ class CaretModelStub extends CaretModel {
 
   override def runForEachCaret(action: CaretAction, reverseOrder: Boolean): Unit = ???
 
-  override def addCaret(pos: VisualPosition, makePrimary: Boolean): Caret = ???
+  override def addCaret(visualPosition: VisualPosition, b: Boolean): Caret = ???
 }
