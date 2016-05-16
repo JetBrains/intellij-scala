@@ -253,4 +253,23 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
       """.stripMargin.trim
     )
   }
+
+  def testSCL10264() = {
+    checkTextHasNoErrors(
+      """
+        |import scala.language.higherKinds
+        |
+        |trait Functor [F[_]] {
+        |  def map [A, B] (fa: F[A]) (f: A => B): F[B]
+        |}
+        |
+        |trait Applicative [F[_]] extends Functor[F] {
+        |  def apply [A, B] (fab: F[A => B]) (fa: F[A]): F[B] = map2(fab, fa) (_(_))
+        |  def unit [A] (a: => A): F[A]
+        |  def map [A, B] (fa: F[A]) (f: A => B): F[B] = apply(unit(f))(fa) // <-- (fa) is highlighted, error message: "Type mismatch, expected: F[Nothing], actual: F[A]"
+        |  def map2 [A, B, C] (fa: F[A], fb: F[B]) (f: (A, B) => C): F[C]
+        |}
+        |""".stripMargin
+    )
+  }
 }
