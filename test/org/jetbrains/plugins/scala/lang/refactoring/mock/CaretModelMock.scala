@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.mock
 
-import com.intellij.openapi.editor.LogicalPosition
+import com.intellij.openapi.editor.{Caret, LogicalPosition, VisualPosition}
 
 /**
  * Pavel Fatin

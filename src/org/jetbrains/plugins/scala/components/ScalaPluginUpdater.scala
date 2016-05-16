@@ -233,7 +233,7 @@ object ScalaPluginUpdater {
         Some(strategy.checkForUpdates())
       } else None
     }
-    def isUpToDatePlatform(result: CheckForUpdateResult) = result.getUpdatedChannel.getLatestBuild.getNumber.compareTo(infoImpl.getBuild) <= 0
+    def isUpToDatePlatform(result: CheckForUpdateResult) = result.getNewBuild.getNumber.compareTo(infoImpl.getBuild) <= 0
     def isBetaOrEAPPlatform = infoImpl.isEAP || infoImpl.isBetaOrRC
     val notification = getPlatformUpdateResult match {
       case Some(result) if isUpToDatePlatform(result) && !isBetaOrEAPPlatform && appSettings.ASK_PLATFORM_UPDATE => // platform is up to date - suggest eap

@@ -7,8 +7,9 @@ import com.intellij.openapi.actionSystem.{ActionManager, IdeActions}
 import com.intellij.openapi.project.{Project => IJProject}
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.Getter
-import com.intellij.openapi.vcs.changes.{Change, ShortDiffDetails, VcsChangeDetailsManager}
+import com.intellij.openapi.vcs.changes.Change
 import com.intellij.openapi.vfs.VirtualFile
+
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 
@@ -43,13 +44,13 @@ class ChangesConfirmationDialog private (val project: IJProject, private val cha
     changesBrowser.addToolbarAction(ActionManager.getInstance.getAction(IdeActions.ACTION_EDIT_SOURCE))
     rootPane.add(changesBrowser)
 
-    val diffDetails = new ShortDiffDetails(project, new Getter[Array[Change]] {
+    /*todo val diffDetails = new ShortDiffDetails(project, new Getter[Array[Change]] {
       def get: Array[Change] = {
         val selectedChanges = changesBrowser.getViewer.getSelectedChanges
         selectedChanges.toArray(new Array[Change](selectedChanges.size))
       }
     }, VcsChangeDetailsManager.getInstance(project))
-    diffDetails.setParent(changesBrowser)
+    diffDetails.setParent(changesBrowser)*/
 
     rootPane
   }
