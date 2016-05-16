@@ -137,7 +137,7 @@ trait ScTypePsiTypeBridge {
   }
 
   def toPsi(_t: ScType, project: Project, scope: GlobalSearchScope, noPrimitives: Boolean = false,
-            skolemToWildcard: Boolean = false): PsiType = {
+            isInsideTypeArg: Boolean = false): PsiType = {
     def isValueType(cl: ScClass): Boolean = cl.superTypes.contains(AnyVal) && cl.parameters.length == 1
 
     def outerClassHasTypeParameters(proj: ScProjectionType): Boolean = {
@@ -157,9 +157,26 @@ trait ScTypePsiTypeBridge {
       JavaPsiFacade.getInstance(project).getElementFactory.createTypeByFQClassName(fqn, scope)
     }
 
+    def javaObj = createTypeByFqn("java.lang.Object")
+
+    def createWildcardType(upper: ScType, lower: ScType): PsiType = {
+      if (upper.equiv(types.Any)) {
+        if (lower.equiv(types.Nothing)) PsiWildcardType.createUnbounded(PsiManager.getInstance(project))
+        else {
+          val sup: PsiType = toPsi(lower, project, scope)
+          if (sup.isInstanceOf[PsiWildcardType]) javaObj
+          else PsiWildcardType.createSuper(PsiManager.getInstance(project), sup)
+        }
+      } else {
+        val psi = toPsi(upper, project, scope)
+        if (psi.isInstanceOf[PsiWildcardType]) javaObj
+        else PsiWildcardType.createExtends(PsiManager.getInstance(project), psi)
+      }
+    }
+
     val t = ScType.removeAliasDefinitions(_t)
     if (t.isInstanceOf[NonValueType]) return toPsi(t.inferValueType, project, scope)
-    def javaObj = createTypeByFqn("java.lang.Object")
+
     t match {
       case types.Any => javaObj
       case types.AnyRef => javaObj
@@ -181,11 +198,11 @@ trait ScTypePsiTypeBridge {
       case types.Nothing => javaObj
       case ScCompoundType(Seq(typez, _*), _, _) => toPsi(typez, project, scope)
       case ScDesignatorType(c: ScTypeDefinition) if ScType.baseTypesQualMap.contains(c.qualifiedName) =>
-        toPsi(ScType.baseTypesQualMap.get(c.qualifiedName).get, project, scope, noPrimitives, skolemToWildcard)
+        toPsi(ScType.baseTypesQualMap.get(c.qualifiedName).get, project, scope, noPrimitives, isInsideTypeArg)
       case ScDesignatorType(valType: ScClass) if isValueType(valType) =>
         valType.parameters.head.getRealParameterType(TypingContext.empty) match {
           case Success(tp, _) if !(noPrimitives && ScalaEvaluatorBuilderUtil.isPrimitiveScType(tp)) =>
-            toPsi(tp, project, scope, noPrimitives, skolemToWildcard)
+            toPsi(tp, project, scope, noPrimitives, isInsideTypeArg)
           case _ => createType(valType)
         }
       case ScDesignatorType(c: PsiClass) => createType(c)
@@ -194,7 +211,7 @@ trait ScTypePsiTypeBridge {
           new PsiArrayType(toPsi(args.head, project, scope))
         else {
           val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY) {
-            case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope, noPrimitives = true, skolemToWildcard = true))
+            case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope, noPrimitives = true, isInsideTypeArg = true))
           }
           JavaPsiFacade.getInstance(project).getElementFactory.createType(c, subst)
         }
@@ -203,7 +220,7 @@ trait ScTypePsiTypeBridge {
           if (c.qualifiedName == "scala.Array" && args.length == 1) new PsiArrayType(toPsi(args.head, project, scope))
           else {
             val subst = args.zip(c.getTypeParameters).foldLeft(PsiSubstitutor.EMPTY)
-            {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope, skolemToWildcard = true))}
+            {case (s, (targ, tp)) => s.put(tp, toPsi(targ, project, scope, isInsideTypeArg = true))}
             createType(c, subst, raw = outerClassHasTypeParameters(proj))
           }
         case a: ScTypeAliasDefinition =>
@@ -233,20 +250,9 @@ trait ScTypePsiTypeBridge {
       case tpt: ScTypeParameterType => EmptySubstitutor.getInstance().substitute(tpt.param)
       case ex: ScExistentialType => toPsi(ex.skolem, project, scope, noPrimitives)
       case argument: ScSkolemizedType =>
-        val upper = argument.upper
-        if (upper.equiv(types.Any)) {
-          val lower = argument.lower
-          if (lower.equiv(types.Nothing)) PsiWildcardType.createUnbounded(PsiManager.getInstance(project))
-          else {
-            val sup: PsiType = toPsi(lower, project, scope)
-            if (sup.isInstanceOf[PsiWildcardType]) javaObj
-            else PsiWildcardType.createSuper(PsiManager.getInstance(project), sup)
-          }
-        } else {
-          val psi = toPsi(upper, project, scope)
-          if (psi.isInstanceOf[PsiWildcardType]) javaObj
-          else PsiWildcardType.createExtends(PsiManager.getInstance(project), psi)
-        }
+        createWildcardType(argument.upper, argument.lower)
+      case ScDesignatorType(typeDecl: ScTypeAliasDeclaration) if isInsideTypeArg =>
+        createWildcardType(typeDecl.upperBound.getOrAny, typeDecl.lowerBound.getOrNothing)
       case _ => javaObj
     }
   }

@@ -92,6 +92,8 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
       state.isExtensionConversion, state.searchImplicitsRecursively, state.predicate, state.previousRecursionState)
   }
 
+  private val searchStart = place
+
   lazy val collectorState: ImplicitState = ImplicitState(place, tp, expandedTp, coreElement, isImplicitConversion,
     isExtensionConversion, searchImplicitsRecursively, predicate, Some(ScalaRecursionManager.recursionMap.get()))
 
@@ -488,7 +490,16 @@ class ImplicitCollector(private var place: PsiElement, tp: ScType, expandedTp: S
         }
       }
 
-      val candidates = super.candidatesS
+      val candidates = super.candidatesS.filter {
+        def lowerInFile(e: PsiElement) = e.containingFile == searchStart.containingFile &&
+          ScalaPsiUtil.isInvalidContextOrder(searchStart, e, e.containingFile)
+        c => c.getElement match {
+          case fun: ScFunction if fun.returnTypeElement.isEmpty => !lowerInFile(fun)
+          case pattern: ScBindingPattern if Option(ScalaPsiUtil.getParentOfType(pattern, classOf[ScPatternDefinition])).
+            flatMap(_.asInstanceOf[ScPatternDefinition].typeElement).isEmpty => !lowerInFile(pattern)
+          case _ => true
+        }
+      }
 
       val mostSpecific: MostSpecificUtil = new MostSpecificUtil(place, 1)
 
