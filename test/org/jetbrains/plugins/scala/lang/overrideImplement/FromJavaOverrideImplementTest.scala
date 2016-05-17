@@ -265,7 +265,7 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
       """
     val expectedText =
       """
-        |import _root_.JavaDummy.DummyInterface
+        |import JavaDummy.DummyInterface
         |
         |class Child extends JavaDummy[Int] {
         |  override def method[S <: JavaDummy[Int] with DummyInterface[Int]](arg: Int): Int = super.method(arg)

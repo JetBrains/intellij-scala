@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceElementImpl
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
@@ -84,12 +83,15 @@ case class ImportInfo(prefixQualifier: String,
   def toHiddenNameInfo(name: String): ImportInfo = template.copy(hiddenNames = Set(name))
 
   def withRootPrefix: ImportInfo = copy(rootUsed = true)
+
+  def canAddRoot: Boolean = relative.isEmpty && !rootUsed && isStableImport && prefixQualifier.nonEmpty
 }
 
 object ImportInfo {
 
   def apply(imp: ScImportExpr, isImportUsed: ImportUsed => Boolean): Option[ImportInfo] = {
     import imp.typeSystem
+
     def name(s: String) = ScalaNamesUtil.changeKeyword(s)
 
     val qualifier = imp.qualifier

@@ -195,7 +195,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       createInfo(importStmt)
     }
 
-    val importRanges = optimizer.collectImportRanges(this, namesAtRangeStart, createInfo(_))
+    val importRanges = optimizer.collectImportRanges(this, createInfo(_))
 
     val needToInsertFirst =
       if (importRanges.isEmpty) true
@@ -206,8 +206,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       val usedNames = collectUsedImportedNames(this)
       val inserted = insertFirstImport(dummyImport, getFirstChild).asInstanceOf[ScImportStmt]
       val range = inserted.getTextRange
-      val namesAtStart = namesAtRangeStart(inserted)
-      val rangeInfo = RangeInfo(namesAtStart, importInfosToAdd, usedImportedNames = usedNames, isLocal = false)
+      val rangeInfo = RangeInfo(PsiAnchor.create(inserted), importInfosToAdd, usedImportedNames = usedNames, isLocal = false)
       val infosToAdd = optimizedImportInfos(rangeInfo, settings)
 
       replaceWithNewInfos(range, infosToAdd)
@@ -220,13 +219,13 @@ trait ScImportsHolder extends ScalaPsiElement {
         else sortedRanges.headOption
 
       selectedRange match {
-        case Some((range, RangeInfo(names, importInfos, usedImportedNames, _))) =>
+        case Some((range, RangeInfo(startPsi, importInfos, usedImportedNames, _))) =>
           val buffer = importInfos.to[ArrayBuffer]
 
           importInfosToAdd.foreach { infoToAdd =>
             insertInto(buffer, infoToAdd, usedImportedNames, settings)
           }
-          updateRootPrefix(buffer, names)
+          updateRootPrefix(buffer)
 
           replaceWithNewInfos(range, buffer)
         case _ =>
