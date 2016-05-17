@@ -39,12 +39,8 @@ In order to take part in Scala plugin development, you need to:
 4. Open IntelliJ IDEA, select `File -> New -> Project from existing sources`, point to
 the directory where Scala plugin repository is and then import it as SBT project.
 
-5. When importing is finished, go to Scala plugin repo directory and run
+## Troubleshooting
 
-  ```
-  $ git checkout .idea
-  ```
+1. I keep getting `Error: scalac: Error: GC overhead limit exceeded` when I run `All Tests`.
 
-  in order to get artifacts and run configurations for IDEA project.
-
-
+Specify the JVM heap size to at least 2GB in the Scala Compiler Settings. Increase the scala compiler heap size by setting `Build process heap size` in the settings pane by going here `Build, Execution, Deployment > Compiler`. For more information, see this [link](https://www.jetbrains.com/help/idea/2016.1/compiler.html)

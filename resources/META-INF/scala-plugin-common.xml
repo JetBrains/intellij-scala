@@ -1117,6 +1117,10 @@
                          displayName="Extracting values manually" groupPath="Scala, Collections" groupName="Maps"
                          shortName="MapValues" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.MapGetGetInspection"
+                       displayName="Redundant get when getting a value from Map" groupPath="Scala, Collections" groupName="Maps"
+                       shortName="MapGetGet" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
         <!--options-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantHeadOrLastOptionInspection"
                          displayName="Redundant headOption or lastOption" groupPath="Scala, Collections" groupName="Options"
