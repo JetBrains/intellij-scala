@@ -47,4 +47,9 @@ the directory where Scala plugin repository is and then import it as SBT project
 
   in order to get artifacts and run configurations for IDEA project.
 
+6. To build Scala plugin you need to give at least 2GB of the heap size to the compiler process.
+   - if you use Scala Compile Server (default):
+   ```Settings > Languages & Frameworks > Scala Compile Server > JVM maximum heap size```
 
+   - if Scala Compile Server is disabled:
+   ```Settings > Build, Execution, Deployment > Compiler > Build process heap size```
