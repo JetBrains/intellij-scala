@@ -68,6 +68,6 @@ public class RearrangerTest extends BaseScalaFileSetTestCase {
   }
 
   public static Test suite() throws IOException {
-    return new RearrangerTest();
+    return new ScalaFailedRearrangerTest();
   }
 }
