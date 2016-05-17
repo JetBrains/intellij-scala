@@ -28,7 +28,11 @@ class ImportAllMembersIntention extends PsiElementBaseIntentionAction {
     checkQualifier(qualAtCaret)
   }
 
+
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
+
+    case class RefWithUsage(ref: ScReferenceElement, usage: PsiNamedElement)
+
     val qualAtCaret = PsiTreeUtil.getParentOfType(element, classOf[ScReferenceElement])
     if (qualAtCaret == null || !checkQualifier(qualAtCaret)) return
     qualAtCaret.resolve() match {
@@ -36,11 +40,15 @@ class ImportAllMembersIntention extends PsiElementBaseIntentionAction {
         val importHolder = ScalaImportTypeFix.getImportHolder(element, project)
         val usages = ReferencesSearch.search(named, new LocalSearchScope(importHolder)).findAll()
         val pathWithWildcard = ScalaNamesUtil.qualifiedName(named).getOrElse(return) + "._"
+
+        val sortedUsages = sorted(usages, isQualifier = true).collect {
+          case isQualifierFor(ref@resolve(resolved: PsiNamedElement)) if !isInImport(ref) => RefWithUsage(ref, resolved)
+        }
+
         importHolder.addImportForPath(pathWithWildcard)
-        sorted(usages, isQualifier = true).foreach {
-          case isQualifierFor(ref @ resolve(resolved: PsiNamedElement)) if !isInImport(ref) =>
-            replaceAndBind(ref, ref.refName, resolved)
-          case _ =>
+
+        sortedUsages.foreach { element =>
+          replaceAndBind(element.ref, element.ref.refName, element.usage)
         }
       case _ =>
     }
