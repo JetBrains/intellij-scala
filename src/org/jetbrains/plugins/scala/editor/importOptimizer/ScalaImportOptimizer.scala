@@ -50,6 +50,23 @@ class ScalaImportOptimizer extends ImportOptimizer {
   def processFile(file: PsiFile): Runnable = processFile(file, null)
 
   def processFile(file: PsiFile, progressIndicator: ProgressIndicator = null): Runnable = {
+    def collectImportHoldersAndUsers: (util.ArrayList[ScImportsHolder], util.ArrayList[PsiElement]) = {
+      val holders = new util.ArrayList[ScImportsHolder]()
+      val users = new util.ArrayList[PsiElement]()
+
+      file.depthFirst.foreach { elem =>
+        elem match {
+          case holder: ScImportsHolder => holders.add(holder)
+          case _ =>
+        }
+        elem match {
+          case ImportUser(e) => users.add(e)
+          case _ =>
+        }
+      }
+      (holders, users)
+    }
+
     val scalaFile = file match {
       case scFile: ScalaFile => scFile
       case multiRootFile: PsiFile if multiRootFile.getViewProvider.getLanguages contains ScalaFileType.SCALA_LANGUAGE =>
@@ -63,8 +80,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val analyzingDocumentText = document.getText
 
     val usedImports = ContainerUtil.newConcurrentSet[ImportUsed]()
-    val usedImportedNames = ContainerUtil.newConcurrentSet[String]()
-    val allElementsInFile = allElementsIn(scalaFile)
+    val usedImportedNames = ContainerUtil.newConcurrentSet[UsedName]()
+
+    val (importHolders, importUsers) = collectImportHoldersAndUsers
 
     val progressManager: ProgressManager = ProgressManager.getInstance()
     val indicator: ProgressIndicator =
@@ -73,12 +91,12 @@ class ScalaImportOptimizer extends ImportOptimizer {
       else null
     if (indicator != null) indicator.setText2(file.getName + ": analyzing imports usage")
 
-    val size = allElementsInFile.size * 2 //processAllElementsConcurrentlyUnderProgress will be called 2 times
+    val size = importHolders.size + importUsers.size //processAllElementsConcurrentlyUnderProgress will be called 2 times
     val counter = new AtomicInteger(0)
 
-    def processAllElementsConcurrentlyUnderProgress(action: PsiElement => Unit) = {
-      JobLauncher.getInstance().invokeConcurrentlyUnderProgress(allElementsInFile, indicator, true, true, new Processor[PsiElement] {
-        override def process(element: PsiElement): Boolean = {
+    def processAllElementsConcurrentlyUnderProgress[T <: PsiElement](elements: util.List[T])(action: T => Unit) = {
+      JobLauncher.getInstance().invokeConcurrentlyUnderProgress(elements, indicator, true, true, new Processor[T] {
+        override def process(element: T): Boolean = {
           val count: Int = counter.getAndIncrement
           if (count <= size && indicator != null) indicator.setFraction(count.toDouble / size)
 
@@ -89,19 +107,17 @@ class ScalaImportOptimizer extends ImportOptimizer {
       })
     }
 
-    processAllElementsConcurrentlyUnderProgress { element =>
-      val (imports, names) = collectImportsUsed(element)
-      usedImports.addAll(imports)
-      usedImportedNames.addAll(names)
+    processAllElementsConcurrentlyUnderProgress(importUsers) { element =>
+      collectImportsUsed(element, usedImports, usedImportedNames)
     }
 
     if (indicator != null) indicator.setText2(file.getName + ": collecting additional info")
 
     def collectRanges(createInfo: ScImportStmt => Seq[ImportInfo]): Seq[(TextRange, RangeInfo)] = {
       val importsInfo = ContainerUtil.newConcurrentMap[TextRange, RangeInfo]()
-      processAllElementsConcurrentlyUnderProgress {
+      processAllElementsConcurrentlyUnderProgress(importHolders) {
         case holder: ScImportsHolder =>
-          importsInfo.putAll(collectImportRanges(holder, createInfo))
+          importsInfo.putAll(collectImportRanges(holder, createInfo, usedImportedNames.toSet))
         case _ =>
       }
       importsInfo.toSeq.sortBy(_._1.getStartOffset)
@@ -203,7 +219,8 @@ class ScalaImportOptimizer extends ImportOptimizer {
   }
 
   def collectImportRanges(holder: ScImportsHolder,
-                          createInfo: ScImportStmt => Seq[ImportInfo]): Map[TextRange, RangeInfo] = {
+                          createInfo: ScImportStmt => Seq[ImportInfo],
+                          allUsedImportedNames: Set[UsedName]): Map[TextRange, RangeInfo] = {
     val result = mutable.Map[TextRange, RangeInfo]()
     var rangeStart = -1
     var rangeEnd = -1
@@ -213,11 +230,11 @@ class ScalaImportOptimizer extends ImportOptimizer {
       case _ => true
     }
     val infos = ArrayBuffer[ImportInfo]()
-    val allUsedImportedNames = collectUsedImportedNamesSorted(holder)
+    val sortedUsedNames = allUsedImportedNames.toSeq.sortBy(_.offset)
 
     def addRange(): Unit = {
       if (rangeStart != -1) {
-        val usedImportedNames = allUsedImportedNames.dropWhile(_._2 < rangeStart).map(_._1).toSet
+        val usedImportedNames = sortedUsedNames.dropWhile(_.offset < rangeStart).map(_.name).toSet
         val rangeInfo = RangeInfo(startPsi, infos.toVector, usedImportedNames, isLocalRange)
         result += (new TextRange(rangeStart, rangeEnd) -> rangeInfo)
         rangeStart = -1
@@ -268,6 +285,16 @@ class ScalaImportOptimizer extends ImportOptimizer {
 }
 
 object ScalaImportOptimizer {
+
+  private case class UsedName(name: String, offset: Int)
+
+  private object ImportUser {
+    def unapply(e: PsiElement): Option[PsiElement] = e match {
+      case elem @ (_: ScReferenceElement | _: ScSimpleTypeElement | _: ScExpression) => Some(elem)
+      case _ => None
+    }
+  }
+
   val NO_IMPORT_USED: Set[ImportUsed] = Set.empty
   val _root_prefix = "_root_"
 
@@ -659,37 +686,7 @@ object ScalaImportOptimizer {
     res.toSet
   }
 
-  private def collectImportsUsed(element: PsiElement): (Set[ImportUsed], Set[String]) = {
-    val result = mutable.Set[ImportUsed]()
-    val importedNames = mutable.Set[String]()
-    element match {
-      case ref: ScReferenceElement if PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null =>
-        ref.multiResolve(false) foreach {
-          case scalaResult: ScalaResolveResult if scalaResult.importsUsed.nonEmpty => 
-            result ++= scalaResult.importsUsed
-            importedNames += scalaResult.name
-          case _ =>
-        }
-      case simple: ScSimpleTypeElement =>
-        simple.findImplicitParameters match {
-          case Some(parameters) =>
-            parameters.foreach {
-              case r: ScalaResolveResult => result ++= r.importsUsed
-              case _ =>
-            }
-          case _ =>
-        }
-      case _ =>
-    }
-    //separate match to have reference expressions processed
-    element match {
-      case expression: ScExpression => result ++= importsUsedFor(expression)
-      case _ =>
-    }
-    (result.toSet, importedNames.toSet)
-  }
-
-  private def collectUsedImportedNamesSorted(holder: ScImportsHolder): ArrayBuffer[(String, Int)] = {
+  private def collectImportsUsed(element: PsiElement, imports: util.Set[ImportUsed], names: util.Set[UsedName]): Unit = {
     def implicitlyImported(srr: ScalaResolveResult) = {
       srr.element match {
         case c: PsiClass =>
@@ -702,38 +699,74 @@ object ScalaImportOptimizer {
       }
     }
 
-    val namesWithOffset = ArrayBuffer[(String, Int)]()
-    holder.depthFirst.foreach {
-      case ref: ScReferenceElement if ref.qualifier.isEmpty =>
+    def addResult(srr: ScalaResolveResult, fromElem: PsiElement) = {
+      val importsUsed = srr.importsUsed
+      if (importsUsed.nonEmpty || implicitlyImported(srr)) {
+        imports.addAll(importsUsed)
+        names.add(UsedName(srr.name, fromElem.getTextRange.getStartOffset))
+      }
+    }
+
+    def addFromExpression(expr: ScExpression): Unit = {
+      val afterImplicitConversion = expr.getTypeAfterImplicitConversion(expectedOption = expr.smartExpectedType())
+
+      imports.addAll(afterImplicitConversion.importsUsed)
+      afterImplicitConversion.implicitFunction.foreach(f => names.add(UsedName(f.name, expr.getTextRange.getStartOffset)))
+
+      expr match {
+        case call: ScMethodCall => imports.addAll(call.getImportsUsed)
+        case f: ScForStatement => imports.addAll(ScalaPsiUtil.getExprImports(f))
+        case _ =>
+      }
+
+      expr.findImplicitParameters match {
+        case Some(seq) =>
+          for (rr <- seq if rr != null) {
+            addResult(rr, expr)
+          }
+        case _ =>
+      }
+    }
+
+    element match {
+      case ref: ScReferenceElement if PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null =>
         ref.multiResolve(false) foreach {
-          case srr: ScalaResolveResult if srr.importsUsed.nonEmpty =>
-            namesWithOffset += (srr.name -> ref.getTextRange.getStartOffset)
-          case srr: ScalaResolveResult if implicitlyImported(srr) =>
-            namesWithOffset += (srr.name -> ref.getTextRange.getStartOffset)
+          case scalaResult: ScalaResolveResult => addResult(scalaResult, ref)
+          case _ =>
+        }
+      case simple: ScSimpleTypeElement =>
+        simple.findImplicitParameters match {
+          case Some(parameters) =>
+            parameters.foreach {
+              case r: ScalaResolveResult => addResult(r, simple)
+              case _ =>
+            }
           case _ =>
         }
       case _ =>
     }
-    namesWithOffset.sortBy(_._2)
+    //separate match to have reference expressions processed
+    element match {
+      case e: ScExpression => addFromExpression(e)
+      case _ =>
+    }
   }
 
+  //quite heavy computation, is really needed only for dealing with wildcard imports
   def collectUsedImportedNames(holder: ScImportsHolder): Set[String] = {
-    collectUsedImportedNamesSorted(holder).map(_._1).toSet
+    val imports = new util.HashSet[ImportUsed]()
+    val names = new util.HashSet[UsedName]()
+
+    holder.depthFirst.foreach {
+      case ImportUser(elem) => collectImportsUsed(elem, imports, names)
+      case _ =>
+    }
+    names.toSet.map((x: UsedName) => x.name)
   }
 
 
   def createInfo(imp: ScImportStmt, isImportUsed: ImportUsed => Boolean = _ => true): Seq[ImportInfo] =
     imp.importExprs.flatMap(ImportInfo(_, isImportUsed))
-
-  private def allElementsIn(container: PsiElement): util.ArrayList[PsiElement] = {
-    val result = new util.ArrayList[PsiElement]()
-    def addChildren(elem: PsiElement): Unit = {
-      result.add(elem)
-      elem.getChildren.foreach(addChildren)
-    }
-    addChildren(container)
-    result
-  }
 
 
 }

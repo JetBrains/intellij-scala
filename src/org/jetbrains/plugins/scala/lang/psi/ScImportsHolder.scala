@@ -173,7 +173,9 @@ trait ScImportsHolder extends ScalaPsiElement {
 
     val documentManager = PsiDocumentManager.getInstance(getProject)
     val document: Document = documentManager.getDocument(file)
-    val settings = OptimizeImportSettings(getProject)
+
+    //converting to wildcard imports should only work in Optimize Imports
+    val settings = OptimizeImportSettings(getProject).copy(classCountToUseImportOnDemand = Int.MaxValue)
 
     val optimizer: ScalaImportOptimizer = findOptimizerFor(file) match {
       case Some(o: ScalaImportOptimizer) => o
@@ -195,7 +197,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       createInfo(importStmt)
     }
 
-    val importRanges = optimizer.collectImportRanges(this, createInfo(_))
+    val importRanges = optimizer.collectImportRanges(this, createInfo(_), Set.empty)
 
     val needToInsertFirst =
       if (importRanges.isEmpty) true
@@ -219,11 +221,15 @@ trait ScImportsHolder extends ScalaPsiElement {
         else sortedRanges.headOption
 
       selectedRange match {
-        case Some((range, RangeInfo(startPsi, importInfos, usedImportedNames, _))) =>
+        case Some((range, RangeInfo(startPsi, importInfos, _, _))) =>
           val buffer = importInfos.to[ArrayBuffer]
 
+          val usedNames =
+            if (importInfosToAdd.exists(_.hasWildcard)) collectUsedImportedNames(this)
+            else Set.empty[String]
+
           importInfosToAdd.foreach { infoToAdd =>
-            insertInto(buffer, infoToAdd, usedImportedNames, settings)
+            insertInto(buffer, infoToAdd, usedNames, settings)
           }
           updateRootPrefix(buffer)
 
@@ -235,6 +241,13 @@ trait ScImportsHolder extends ScalaPsiElement {
 
   def addImportForPath(path: String, ref: PsiElement = null): Unit = {
     addImportsForPaths(Seq(path), ref)
+  }
+
+  //ignores implicits and a fact that some names may be imported earlier
+  private def collectUsedNamesFast: Set[String] = {
+    this.depthFirst.collect {
+      case ref: ScReferenceElement if ref.qualifier.isEmpty => ref.refName
+    }.toSet
   }
 
   private def hasCodeBeforeImports: Boolean = {
