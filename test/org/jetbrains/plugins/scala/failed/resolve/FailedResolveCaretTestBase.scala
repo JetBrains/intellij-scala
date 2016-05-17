@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 /**
   * Created by Anton Yalyshev on 21/04/16.
   */
-class FailedResolveCaretTestBase extends SimpleTestCase {
+abstract class FailedResolveCaretTestBase extends SimpleTestCase {
 
   def doResolveCaretTest(code: String) {
     val (psi, caretPos) = parseText(code, EditorTestUtil.CARET_TAG)
