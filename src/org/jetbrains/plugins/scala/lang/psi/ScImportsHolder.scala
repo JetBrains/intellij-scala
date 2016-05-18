@@ -182,6 +182,8 @@ trait ScImportsHolder extends ScalaPsiElement {
       case _ => return
     }
 
+    val place = getImportStatements.lastOption.getOrElse(getFirstChild.getNextSibling)
+
     def replaceWithNewInfos(range: TextRange, infosToAdd: Seq[ImportInfo]): Unit = {
       val rangeMarker = document.createRangeMarker(range)
       documentManager.doPostponedOperationsAndUnblockDocument(document)
@@ -192,7 +194,6 @@ trait ScImportsHolder extends ScalaPsiElement {
 
     val importInfosToAdd = paths.filterNot(samePackage).flatMap { path =>
       val importText = s"import $path"
-      val place = getImportStatements.lastOption.getOrElse(getFirstChild.getNextSibling)
       val importStmt = ScalaPsiElementFactory.createImportFromTextWithContext(importText, this, place)
       createInfo(importStmt)
     }
@@ -229,7 +230,10 @@ trait ScImportsHolder extends ScalaPsiElement {
             else Set.empty[String]
 
           importInfosToAdd.foreach { infoToAdd =>
-            insertInto(buffer, infoToAdd, usedNames, settings)
+            val withAllNamesForWildcard =
+              if (infoToAdd.hasWildcard && infoToAdd.allNamesForWildcard.isEmpty) infoToAdd.withAllNamesForWildcard(place)
+              else infoToAdd
+            insertInto(buffer, withAllNamesForWildcard, usedNames, settings)
           }
           updateRootPrefix(buffer)
 

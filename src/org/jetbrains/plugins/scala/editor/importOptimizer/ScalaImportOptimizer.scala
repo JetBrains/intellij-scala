@@ -450,29 +450,37 @@ object ScalaImportOptimizer {
       }
     }
 
-    def shouldUpdate(info: ImportInfo) = {
+    def possiblyWithWildcard(info: ImportInfo): ImportInfo = {
       val needUpdate = info.singleNames.size >= settings.classCountToUseImportOnDemand
-      val mayUpdate = info.hiddenNames.isEmpty && info.renames.isEmpty && !info.wildcardHasUnusedImplicit
-      if (needUpdate && mayUpdate) {
-        val explicitNames = infos.flatMap {
-          case `info` => Seq.empty
-          case other => other.singleNames
-        }.toSet
-        val namesFromOtherWildcards = infos.flatMap {
-          case `info` => Seq.empty
-          case other => other.allNames
-        }.toSet -- explicitNames
-        val problematicNames = info.allNamesForWildcard & usedImportedNames
-        (problematicNames & namesFromOtherWildcards).isEmpty && problematicNames.forall(name => !resolvesAtRangeStart(name))
-      }
-      else false
+      val onlySingleNames = info.hiddenNames.isEmpty && info.renames.isEmpty
+
+      if (!needUpdate || !onlySingleNames) return info
+
+      val withWildcard = info.toWildcardInfo.withAllNamesForWildcard(rangeStartPsi)
+
+      if (withWildcard.wildcardHasUnusedImplicit) return info
+
+      val explicitNames = infos.flatMap {
+        case `info` => Seq.empty
+        case other => other.singleNames
+      }.toSet
+      val namesFromOtherWildcards = infos.flatMap {
+        case `info` => Seq.empty
+        case other => other.allNames
+      }.toSet -- explicitNames
+
+      val problematicNames = withWildcard.allNamesForWildcard & usedImportedNames
+      val notInOtherWildcards = (problematicNames & namesFromOtherWildcards).isEmpty
+      def notAtRangeStart = problematicNames.forall(name => !resolvesAtRangeStart(name))
+
+      if (notInOtherWildcards && notAtRangeStart) withWildcard
+      else info
     }
 
     for ((info, i) <- infos.zipWithIndex) {
-      if (shouldUpdate(info)) {
-        val newInfo = info.toWildcardInfo
+      val newInfo = possiblyWithWildcard(info)
+      if (info != newInfo)
         infos.update(i, newInfo)
-      }
     }
   }
 

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.editor.importOptimizer
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer._root_prefix
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiModifierListOwnerExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiMemberExt, PsiModifierListOwnerExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReferenceElement
@@ -61,11 +61,18 @@ case class ImportInfo(prefixQualifier: String,
   def merge(second: ImportInfo): ImportInfo = {
     val relative = this.relative.orElse(second.relative)
     val rootUsed = relative.isEmpty && (this.rootUsed || second.rootUsed)
-    new ImportInfo(this.prefixQualifier, relative,
-      this.allNames ++ second.allNames, this.singleNames ++ second.singleNames,
-      this.renames ++ second.renames, this.hiddenNames ++ second.hiddenNames,
-      this.hasWildcard || second.hasWildcard, rootUsed, this.isStableImport && second.isStableImport,
-      this.allNamesForWildcard)
+    new ImportInfo(
+      this.prefixQualifier,
+      relative,
+      this.allNames ++ second.allNames,
+      this.singleNames ++ second.singleNames,
+      this.renames ++ second.renames,
+      this.hiddenNames ++ second.hiddenNames,
+      this.hasWildcard || second.hasWildcard,
+      rootUsed,
+      this.isStableImport && second.isStableImport,
+      this.allNamesForWildcard
+    )
   }
 
   def isSimpleWildcard = hasWildcard && singleNames.isEmpty && renames.isEmpty && hiddenNames.isEmpty
@@ -80,20 +87,29 @@ case class ImportInfo(prefixQualifier: String,
 
   def toWildcardInfo: ImportInfo = template.copy(hasWildcard = true)
 
-  def toHiddenNameInfo(name: String): ImportInfo = template.copy(hiddenNames = Set(name))
+  def toHiddenNameInfo(name: String): ImportInfo = template.copy(hiddenNames = Set(name), allNames = allNames - name)
 
   def withRootPrefix: ImportInfo = copy(rootUsed = true)
 
   def canAddRoot: Boolean = relative.isEmpty && !rootUsed && isStableImport && prefixQualifier.nonEmpty
+
+  def withAllNamesForWildcard(place: PsiElement): ImportInfo = {
+    if (!hasWildcard || allNamesForWildcard.nonEmpty) this
+    else {
+      val (namesForWildcard, implicitNames) = ImportInfo.collectAllNamesAndImplicitsFromWildcard(prefixQualifier, place)
+      val hasWildcardImplicits = (implicitNames -- singleNames).nonEmpty
+      copy(
+        allNames = namesForWildcard -- hiddenNames -- renames.keys,
+        allNamesForWildcard = namesForWildcard,
+        wildcardHasUnusedImplicit = hasWildcardImplicits
+      )
+    }
+  }
 }
 
 object ImportInfo {
 
   def apply(imp: ScImportExpr, isImportUsed: ImportUsed => Boolean): Option[ImportInfo] = {
-    import imp.typeSystem
-
-    def name(s: String) = ScalaNamesUtil.changeKeyword(s)
-
     val qualifier = imp.qualifier
     if (qualifier == null) return None //ignore invalid imports
 
@@ -103,66 +119,29 @@ object ImportInfo {
     val renames = mutable.HashMap[String, String]()
     val hiddenNames = mutable.HashSet[String]()
     var hasWildcard = false
-    val namesForWildcard = mutable.HashSet[String]()
-    val implicitNames = mutable.HashSet[String]()
+    var allNamesForWildcard = Set.empty[String]
     var hasNonUsedImplicits = false
-
-    def shouldAddName(resolveResult: ResolveResult): Boolean = {
-      resolveResult match {
-        case ScalaResolveResult(p: PsiPackage, _) => true
-        case ScalaResolveResult(m: PsiMethod, _) => m.containingClass != null
-        case ScalaResolveResult(td: ScTypedDefinition, _) if td.isStable => true
-        case ScalaResolveResult(_: ScTypeAlias, _) => true
-        case ScalaResolveResult(_: PsiClass, _) => true
-        case ScalaResolveResult(f: PsiField, _) => f.hasFinalModifier
-        case _ => false
-      }
-    }
 
     def addAllNames(ref: ScStableCodeReferenceElement, nameToAdd: String): Unit = {
       if (ref.multiResolve(false).exists(shouldAddName)) allNames += nameToAdd
     }
 
-    def collectAllNamesForWildcard(): Unit = {
-      val refText = imp.qualifier.getText + ".someIdentifier"
-      val reference = ScalaPsiElementFactory.createReferenceFromText(refText, imp.qualifier.getContext, imp.qualifier)
-        .asInstanceOf[ScStableCodeReferenceElementImpl]
-      val processor = new CompletionProcessor(StdKinds.stableImportSelector, reference, collectImplicits = true, includePrefixImports = false)
+    val deepRef = deepestQualifier(qualifier)
+    val rootUsed = deepRef.getText == _root_prefix
 
-      reference.doResolve(reference, processor).foreach {
-        case rr: ScalaResolveResult if shouldAddName(rr) =>
-          val element = rr.element
-          val nameToAdd = name(element.name)
-          namesForWildcard += nameToAdd
-          if (ScalaPsiUtil.isImplicit(element))
-            implicitNames += nameToAdd
-        case _ =>
+    val (prefixQualifier, isRelative) =
+      if (rootUsed) (explicitQualifierString(qualifier, withDeepest = false), false)
+      else {
+        val qualifiedDeepRef =
+          try qualifiedRef(deepRef)
+          catch {
+            case _: IllegalStateException => return None
+          }
+        val prefixQual = qualifiedDeepRef + withDot(explicitQualifierString(qualifier, withDeepest = false))
+        val relative = qualifiedDeepRef != deepRef.getText
+        (prefixQual, relative)
       }
-    }
 
-    collectAllNamesForWildcard()
-
-    if (!imp.singleWildcard && imp.selectorSet.isEmpty) {
-      val importUsed: ImportExprUsed = ImportExprUsed(imp)
-      if (isImportUsed(importUsed)) {
-        importsUsed += importUsed
-        imp.reference match {
-          case Some(ref) =>
-            singleNames += ref.refName
-            addAllNames(ref, ref.refName)
-          case None => //something is not valid
-        }
-      }
-    } else if (imp.singleWildcard) {
-      val importUsed =
-        if (imp.selectorSet.isEmpty) ImportExprUsed(imp)
-        else ImportWildcardSelectorUsed(imp)
-      if (isImportUsed(importUsed)) {
-        importsUsed += importUsed
-        hasWildcard = true
-        allNames ++= namesForWildcard
-      }
-    }
     for (selector <- imp.selectors) {
       val importUsed: ImportSelectorUsed = ImportSelectorUsed(selector)
       if (isImportUsed(importUsed)) {
@@ -185,102 +164,34 @@ object ImportInfo {
         }
       }
     }
+
+    if (imp.selectorSet.isEmpty && !imp.singleWildcard) {
+      val importUsed: ImportExprUsed = ImportExprUsed(imp)
+      if (isImportUsed(importUsed)) {
+        importsUsed += importUsed
+        imp.reference match {
+          case Some(ref) =>
+            singleNames += ref.refName
+            addAllNames(ref, ref.refName)
+          case None => //something is not valid
+        }
+      }
+    } else if (imp.singleWildcard) {
+      val importUsed =
+        if (imp.selectorSet.isEmpty) ImportExprUsed(imp)
+        else ImportWildcardSelectorUsed(imp)
+      if (isImportUsed(importUsed)) {
+        importsUsed += importUsed
+        hasWildcard = true
+        val (namesForWildcard, implicitNames) = collectAllNamesAndImplicitsFromWildcard(prefixQualifier, imp)
+        allNames ++= namesForWildcard
+        allNamesForWildcard = namesForWildcard
+        hasNonUsedImplicits = (implicitNames -- singleNames).nonEmpty
+      }
+    }
     if (importsUsed.isEmpty) return None //all imports are empty
 
     allNames --= hiddenNames
-    hasNonUsedImplicits = (implicitNames -- singleNames).nonEmpty
-
-    @tailrec
-    def deepestQualifier(ref: ScStableCodeReferenceElement): ScStableCodeReferenceElement = {
-      ref.qualifier match {
-        case Some(q) => deepestQualifier(q)
-        case None => ref
-      }
-    }
-
-    def packageFqn(p: PsiPackage): String = {
-      p.getParentPackage match {
-        case null => name(p.getName)
-        case parent if parent.getName == null => name(p.getName)
-        case parent => packageFqn(parent) + "." + name(p.getName)
-      }
-    }
-
-    @tailrec
-    def explicitQualifierString(ref: ScStableCodeReferenceElement, withDeepest: Boolean, res: String = ""): String = {
-      ref.qualifier match {
-        case Some(q) => explicitQualifierString(q, withDeepest, ref.refName + withDot(res))
-        case None if withDeepest && ref.refName != _root_prefix => ref.refName + withDot(res)
-        case None => res
-      }
-    }
-
-    def withDot(s: String): String = {
-      if (s.isEmpty) "" else "." + s
-    }
-
-    @tailrec
-    def isRelativeObject(o: ScObject, res: Boolean = false): Boolean = {
-      o.getContext match {
-        case _: ScTemplateBody =>
-          o.containingClass match {
-            case containingObject: ScObject => isRelativeObject(containingObject, res = true)
-            case _ => false //inner of some class/trait
-          }
-        case _: ScPackaging | _: ScalaFile => true
-        case _ => res //something in default package or in local object
-      }
-    }
-
-    def qualifiedRef(ref: ScStableCodeReferenceElement): String = {
-      if (ref.getText == _root_prefix) return _root_prefix
-
-      val refName = ref.refName
-      ref.bind() match {
-        case Some(ScalaResolveResult(p: PsiPackage, _)) =>
-          if (p.getParentPackage != null && p.getParentPackage.getName != null) packageFqn(p)
-          else refName
-        case Some(ScalaResolveResult(o: ScObject, _)) =>
-          if (isRelativeObject(o)) o.qualifiedName
-          else refName
-        case Some(ScalaResolveResult(c: PsiClass, _)) =>
-          val parts = c.qualifiedName.split('.')
-          if (parts.length > 1) parts.map(name).mkString(".") else refName
-        case Some(ScalaResolveResult(td: ScTypedDefinition, _)) =>
-          ScalaPsiUtil.nameContext(td) match {
-            case m: ScMember =>
-              m.containingClass match {
-                case o: ScObject if isRelativeObject(o, res = true) =>
-                  o.qualifiedName + withDot(refName)
-                case _ => refName
-              }
-            case _ => refName
-          }
-        case Some(ScalaResolveResult(f: PsiField, _)) =>
-          val clazzFqn = f.containingClass match {
-            case null => throw new IllegalStateException() //somehting is wrong
-            case clazz => clazz.qualifiedName.split('.').map(name).mkString(".")
-          }
-          clazzFqn + withDot(refName)
-        case _ => throw new IllegalStateException() //do not process invalid import
-      }
-    }
-
-    val deepRef = deepestQualifier(qualifier)
-    val rootUsed = deepRef.getText == _root_prefix
-
-    val (prefixQualifier, isRelative) =
-      if (rootUsed) (explicitQualifierString(qualifier, withDeepest = false), false)
-      else {
-        val qualifiedDeepRef =
-          try qualifiedRef(deepRef)
-          catch {
-            case _: IllegalStateException => return None
-          }
-        val prefixQual = qualifiedDeepRef + withDot(explicitQualifierString(qualifier, withDeepest = false))
-        val relative = qualifiedDeepRef != deepRef.getText
-        (prefixQual, relative)
-      }
 
     val relativeQualifier =
       if (isRelative) Some(explicitQualifierString(qualifier, withDeepest = true))
@@ -293,10 +204,134 @@ object ImportInfo {
       }
     }
 
-    Some(new ImportInfo(prefixQualifier, relativeQualifier, allNames.toSet,
-      singleNames.toSet, renames.toMap, hiddenNames.toSet, hasWildcard, rootUsed,
-      isStableImport, namesForWildcard.toSet, hasNonUsedImplicits))
+    Some(
+      new ImportInfo(
+        prefixQualifier,
+        relativeQualifier,
+        allNames.toSet,
+        singleNames.toSet,
+        renames.toMap,
+        hiddenNames.toSet,
+        hasWildcard,
+        rootUsed,
+        isStableImport,
+        allNamesForWildcard,
+        hasNonUsedImplicits
+      )
+    )
   }
 
   def merge(infos: Seq[ImportInfo]): Option[ImportInfo] = infos.reduceOption(_ merge _)
+
+  private def withDot(s: String): String = {
+    if (s.isEmpty) "" else "." + s
+  }
+
+  @tailrec
+  private def isRelativeObject(o: ScObject, res: Boolean = false): Boolean = {
+    o.getContext match {
+      case _: ScTemplateBody =>
+        o.containingClass match {
+          case containingObject: ScObject => isRelativeObject(containingObject, res = true)
+          case _ => false //inner of some class/trait
+        }
+      case _: ScPackaging | _: ScalaFile => true
+      case _ => res //something in default package or in local object
+    }
+  }
+
+  @tailrec
+  private def deepestQualifier(ref: ScStableCodeReferenceElement): ScStableCodeReferenceElement = {
+    ref.qualifier match {
+      case Some(q) => deepestQualifier(q)
+      case None => ref
+    }
+  }
+
+  private def packageFqn(p: PsiPackage): String = {
+    p.getParentPackage match {
+      case null => fixName(p.getName)
+      case parent if parent.getName == null => fixName(p.getName)
+      case parent => packageFqn(parent) + "." + fixName(p.getName)
+    }
+  }
+
+  private def fixName(s: String) = ScalaNamesUtil.changeKeyword(s)
+
+  @tailrec
+  private def explicitQualifierString(ref: ScStableCodeReferenceElement, withDeepest: Boolean, res: String = ""): String = {
+    ref.qualifier match {
+      case Some(q) => explicitQualifierString(q, withDeepest, ref.refName + withDot(res))
+      case None if withDeepest && ref.refName != _root_prefix => ref.refName + withDot(res)
+      case None => res
+    }
+  }
+
+  private def qualifiedRef(ref: ScStableCodeReferenceElement): String = {
+    if (ref.getText == _root_prefix) return _root_prefix
+
+    val refName = ref.refName
+    ref.bind() match {
+      case Some(ScalaResolveResult(p: PsiPackage, _)) =>
+        if (p.getParentPackage != null && p.getParentPackage.getName != null) packageFqn(p)
+        else refName
+      case Some(ScalaResolveResult(o: ScObject, _)) =>
+        if (isRelativeObject(o)) o.qualifiedName
+        else refName
+      case Some(ScalaResolveResult(c: PsiClass, _)) =>
+        val parts = c.qualifiedName.split('.')
+        if (parts.length > 1) parts.map(fixName).mkString(".") else refName
+      case Some(ScalaResolveResult(td: ScTypedDefinition, _)) =>
+        ScalaPsiUtil.nameContext(td) match {
+          case m: ScMember =>
+            m.containingClass match {
+              case o: ScObject if isRelativeObject(o, res = true) =>
+                o.qualifiedName + withDot(refName)
+              case _ => refName
+            }
+          case _ => refName
+        }
+      case Some(ScalaResolveResult(f: PsiField, _)) =>
+        val clazzFqn = f.containingClass match {
+          case null => throw new IllegalStateException() //somehting is wrong
+          case clazz => clazz.qualifiedName.split('.').map(fixName).mkString(".")
+        }
+        clazzFqn + withDot(refName)
+      case _ => throw new IllegalStateException() //do not process invalid import
+    }
+  }
+
+  private def collectAllNamesAndImplicitsFromWildcard(qualifier: String, place: PsiElement): (Set[String], Set[String]) = {
+    implicit val ts = place.typeSystem
+
+    val namesForWildcard = mutable.HashSet[String]()
+    val implicitNames = mutable.HashSet[String]()
+    val refText = qualifier + ".someIdentifier"
+    val reference = ScalaPsiElementFactory.createReferenceFromText(refText, place.getContext, place)
+      .asInstanceOf[ScStableCodeReferenceElementImpl]
+    val processor = new CompletionProcessor(StdKinds.stableImportSelector, reference, collectImplicits = true, includePrefixImports = false)
+
+    reference.doResolve(reference, processor).foreach {
+      case rr: ScalaResolveResult if shouldAddName(rr) =>
+        val element = rr.element
+        val nameToAdd = fixName(element.name)
+        namesForWildcard += nameToAdd
+        if (ScalaPsiUtil.isImplicit(element))
+          implicitNames += nameToAdd
+      case _ =>
+    }
+    (namesForWildcard.toSet, implicitNames.toSet)
+  }
+
+  private def shouldAddName(resolveResult: ResolveResult): Boolean = {
+    resolveResult match {
+      case ScalaResolveResult(p: PsiPackage, _) => true
+      case ScalaResolveResult(m: PsiMethod, _) => m.containingClass != null
+      case ScalaResolveResult(td: ScTypedDefinition, _) if td.isStable => true
+      case ScalaResolveResult(_: ScTypeAlias, _) => true
+      case ScalaResolveResult(_: PsiClass, _) => true
+      case ScalaResolveResult(f: PsiField, _) => f.hasFinalModifier
+      case _ => false
+    }
+  }
 }
