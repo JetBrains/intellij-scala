@@ -29,7 +29,7 @@ trait Conformance extends TypeSystemOwner {
                           checkWeak: Boolean = false): (Boolean, ScUndefinedSubstitutor) = {
     ProgressManager.checkCanceled()
 
-    if (left.equiv(Any) || right.equiv(Nothing)) return (true, new ScUndefinedSubstitutor())
+    if (left.equiv(Any) || right.equiv(Nothing)) return (true, substitutor)
 
     val key = (left, right, checkWeak)
 
