@@ -1,12 +1,19 @@
 <html>
 <body>
-Replaces get(key).getOrElse(value) on a map with getOrElse(key, value) <br/><br/>
+Replaces get(key).getOrElse(value) on a map with getOrElse(key, value).
+
+<p>
 Before:
-<p><code>map.get(key).getOrElse(defValue)</code></p>
+<pre>
+map.get(key).getOrElse(defValue)
+</pre>
 
-<p>After:</p>
-
-<p><code>map.getOrElse(key, defValue)</code></p>
+<br>
+After:
+<pre>
+map.getOrElse(key, defValue)
+</pre>
+</p>
 
 </body>
 </html>

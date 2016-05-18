@@ -1,6 +1,19 @@
 <html>
 <body>
-From scala collection library documentation: <br><br>
-<code>xs.reverseMap(f)</code> is the same as <code>xs.reverse.map(f)</code> but might be more efficient.
+Removes unnecessary gets when getting a value from map given a key. From scala collection library documentation, <code>xs.reverseMap(f)</code> might be more efficient.
+
+<p>
+Before:
+<pre>
+xs.reverse.map(f)
+</pre>
+
+<br>
+After:
+<pre>
+xs.reverseMap(f)
+</pre>
+</p>
+
 </body>
 </html>

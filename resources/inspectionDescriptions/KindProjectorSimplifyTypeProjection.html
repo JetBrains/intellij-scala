@@ -1,29 +1,19 @@
 <html>
 <body>
-This inspection runs when Kind Projector plugin is enabled.<br>
-It finds type projections and converts them into Kind Projector format.
+This inspection runs when Kind Projector plugin is enabled. It finds type projections and converts them into Kind Projector format.
 
 <p>
-    <br><br>
-    For example:
-    <br><br>
-    <code>
-        &nbsp;&nbsp;def a: ({type L[A] = (A, A)})#L
-    </code>
+Before:
+<pre>
+def a: ({type L[A] = (A, A)})#L
+</pre>
 
-    <br><br>
-
-    <i>
-        will be transformed into:
-    </i>
-
-    <br><br>
-
-    <code>
-        &nbsp;&nbsp;def a: λ[A => (A, A)]
-    </code>
+<br>
+After:
+<pre>
+def a: λ[A => (A, A)]
+</pre>
 </p>
-
 
 </body>
 </html>
