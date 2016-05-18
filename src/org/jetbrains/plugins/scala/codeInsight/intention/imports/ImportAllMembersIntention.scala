@@ -31,7 +31,7 @@ class ImportAllMembersIntention extends PsiElementBaseIntentionAction {
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
 
-    case class RefWithUsage(ref: ScReferenceElement, usage: PsiNamedElement)
+    case class RefWithUsage(ref: ScReferenceElement, named: PsiNamedElement)
 
     val qualAtCaret = PsiTreeUtil.getParentOfType(element, classOf[ScReferenceElement])
     if (qualAtCaret == null || !checkQualifier(qualAtCaret)) return
@@ -48,7 +48,7 @@ class ImportAllMembersIntention extends PsiElementBaseIntentionAction {
         importHolder.addImportForPath(pathWithWildcard)
 
         sortedUsages.foreach { element =>
-          replaceAndBind(element.ref, element.ref.refName, element.usage)
+          replaceAndBind(element.ref, element.ref.refName, element.named)
         }
       case _ =>
     }
