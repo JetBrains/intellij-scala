@@ -30,7 +30,7 @@ class ScalaIntroduceParameterDialog(project: Project,
         extends ScalaChangeSignatureDialog(project, method) {
 
   private var paramNameField: EditorTextField = _
-  private var typeCombobox: ComboBox = _
+  private var typeCombobox: ComboBox[String] = _
   private var typeMap: util.LinkedHashMap[String, ScType] = _
   private var replaceOccurrencesChb: JCheckBox = _
   private var defaultValuesUsagePanel: DefaultValuesUsagePanel = _

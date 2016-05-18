@@ -1,11 +1,13 @@
 package org.jetbrains.sbt.project.modifier.ui
 
+import com.intellij.diff.DiffDialogHints
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.changes.Change
-import com.intellij.openapi.vcs.changes.actions.{ShowDiffAction, ShowDiffUIContext}
+import com.intellij.openapi.vcs.changes.actions.diff.{ShowDiffAction, ShowDiffContext}
 import com.intellij.openapi.vcs.changes.ui.ChangesBrowser
 import com.intellij.openapi.vfs.VirtualFile
+
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 
@@ -44,10 +46,10 @@ ChangesBrowser(project, null, changes, null, canExcludeChanges, true, null, Chan
   }
 
   override protected def showDiffForChanges(changesArray: Array[Change], indexInSelection: Int) {
-    val context: ShowDiffUIContext = new ShowDiffUIContext(false)
-    val changesArraySwapped: Array[Change] = for (change <- changesArray)
+    val context: ShowDiffContext = new ShowDiffContext(DiffDialogHints.DEFAULT)
+    val changesArraySwapped: Array[BuildFileChange] = for (change <- changesArray)
     yield BuildFileChange.swap(change.asInstanceOf[BuildFileChange])
 
-    ShowDiffAction.showDiffForChange(changesArraySwapped, indexInSelection, myProject, context)
+    ShowDiffAction.showDiffForChange(myProject, changesArraySwapped.toList, indexInSelection, context)
   }
 }
