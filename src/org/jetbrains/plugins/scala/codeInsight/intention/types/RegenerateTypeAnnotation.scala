@@ -12,8 +12,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
+/**
+  * Markus.Hauck, 18.05.2016
+  */
+
 class RegenerateTypeAnnotation extends PsiElementBaseIntentionAction {
-  import RegenerateTypeAnnotation._
 
   def getFamilyName = RegenerateTypeAnnotation.getFamilyName
 
@@ -27,58 +30,16 @@ class RegenerateTypeAnnotation extends PsiElementBaseIntentionAction {
       implicit val typeSystem = project.typeSystem
 
       getTypeAnnotation(element).isDefined &&
-        complete(new Description(message), element)
+        ToggleTypeAnnotation.complete(new RegenerateTypeAnnotationDescription(message), element)
     }
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    complete(new AddOrRemoveStrategy(Option(editor)), element)(project.typeSystem)
-  }
-}
-
-object RegenerateTypeAnnotation {
-  def getFamilyName = ScalaBundle.message("intention.type.annotation.regen.family")
-
-  def complete(strategy: Strategy, element: PsiElement)(implicit typeSystem: TypeSystem): Boolean = {
-    for {function <- element.parentsInFile.findByType(classOf[ScFunctionDefinition])
-         if function.hasAssign
-         body <- function.body
-         if !body.isAncestorOf(element)} {
-
-      strategy.redoFromFunction(function)
-
-      return true
-    }
-
-    for {value <- element.parentsInFile.findByType(classOf[ScPatternDefinition])
-         if value.expr.forall(!_.isAncestorOf(element))
-         if value.pList.allPatternsSimple
-         bindings = value.bindings
-         if bindings.size == 1
-         binding <- bindings} {
-
-      strategy.redoFromValue(value)
-
-      return true
-    }
-
-    for {variable <- element.parentsInFile.findByType(classOf[ScVariableDefinition])
-         if variable.expr.forall(!_.isAncestorOf(element))
-         if variable.pList.allPatternsSimple
-         bindings = variable.bindings
-         if bindings.size == 1
-         binding <- bindings} {
-
-      strategy.redoFromVariable(variable)
-
-      return true
-    }
-
-    false
+    ToggleTypeAnnotation.complete(new RegenerateStrategy(Option(editor)), element)(project.typeSystem)
   }
 
   private def getTypeAnnotation(element: PsiElement)
-                               (implicit typeSystem: TypeSystem): Option[ScTypeElement] = {
+    (implicit typeSystem: TypeSystem): Option[ScTypeElement] = {
     def funType: Option[ScTypeElement] = for {
       function <- element.parentsInFile.findByType(classOf[ScFunctionDefinition])
       if function.hasAssign
@@ -95,4 +56,8 @@ object RegenerateTypeAnnotation {
 
     funType orElse valType orElse varType
   }
+}
+
+object RegenerateTypeAnnotation {
+  def getFamilyName = ScalaBundle.message("intention.type.annotation.regen.family")
 }

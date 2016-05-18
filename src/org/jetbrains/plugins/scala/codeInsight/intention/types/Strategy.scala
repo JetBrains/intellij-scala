@@ -9,40 +9,25 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
  */
 
 trait Strategy {
-  def addToFunction(function: ScFunctionDefinition)
+  def functionWithoutType(function: ScFunctionDefinition)
 
-  def removeFromFunction(function: ScFunctionDefinition)
+  def functionWithType(function: ScFunctionDefinition)
 
-  def redoFromFunction(function: ScFunctionDefinition) = {
-    removeFromFunction(function)
-    addToFunction(function)
-  }
+  def valueWithoutType(value: ScPatternDefinition)
 
-  def addToValue(value: ScPatternDefinition)
+  def valueWithType(value: ScPatternDefinition)
 
-  def removeFromValue(value: ScPatternDefinition)
+  def variableWithoutType(variable: ScVariableDefinition)
 
-  def redoFromValue(value: ScPatternDefinition) = {
-    removeFromValue(value)
-    addToValue(value)
-  }
+  def variableWithType(variable: ScVariableDefinition)
 
-  def addToVariable(variable: ScVariableDefinition)
+  def patternWithoutType(pattern: ScBindingPattern)
 
-  def removeFromVariable(variable: ScVariableDefinition)
+  def wildcardPatternWithoutType(pattern: ScWildcardPattern)
 
-  def redoFromVariable(variable: ScVariableDefinition) = {
-    removeFromVariable(variable)
-    addToVariable(variable)
-  }
+  def patternWithType(pattern: ScTypedPattern)
 
-  def addToPattern(pattern: ScBindingPattern)
+  def parameterWithoutType(param: ScParameter)
 
-  def addToWildcardPattern(pattern: ScWildcardPattern)
-
-  def removeFromPattern(pattern: ScTypedPattern)
-
-  def addToParameter(param: ScParameter)
-
-  def removeFromParameter(param: ScParameter)
+  def parameterWithType(param: ScParameter)
 }

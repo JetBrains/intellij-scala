@@ -24,16 +24,35 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 
 class AddOrRemoveStrategy(editor: Option[Editor]) extends UpdateStrategy(editor)
 
+class RegenerateStrategy(editor: Option[Editor]) extends StrategyAdapter {
+  private val strategy = new AddOrRemoveStrategy(editor)
+
+  override def functionWithType(function: ScFunctionDefinition): Unit = {
+    strategy.functionWithType(function)
+    strategy.functionWithoutType(function)
+  }
+
+  override def variableWithType(variable: ScVariableDefinition): Unit = {
+    strategy.variableWithType(variable)
+    strategy.variableWithoutType(variable)
+  }
+
+  override def valueWithType(value: ScPatternDefinition): Unit = {
+    strategy.valueWithType(value)
+    strategy.valueWithoutType(value)
+  }
+}
+
 object AddOrRemoveStrategy {
   def withoutEditor = new AddOrRemoveStrategy(None)
 }
 
 class AddOnlyStrategy(editor: Option[Editor]) extends UpdateStrategy(editor) {
-  override def removeFromFunction(function: ScFunctionDefinition): Unit = {}
-  override def removeFromParameter(param: ScParameter): Unit = {}
-  override def removeFromPattern(pattern: ScTypedPattern): Unit = {}
-  override def removeFromValue(value: ScPatternDefinition): Unit = {}
-  override def removeFromVariable(variable: ScVariableDefinition): Unit = {}
+  override def functionWithType(function: ScFunctionDefinition): Unit = {}
+  override def parameterWithType(param: ScParameter): Unit = {}
+  override def patternWithType(pattern: ScTypedPattern): Unit = {}
+  override def valueWithType(value: ScPatternDefinition): Unit = {}
+  override def variableWithType(variable: ScVariableDefinition): Unit = {}
 }
 
 object AddOnlyStrategy {
@@ -41,54 +60,54 @@ object AddOnlyStrategy {
 }
 
 abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
-  def addToFunction(function: ScFunctionDefinition) {
+  def functionWithoutType(function: ScFunctionDefinition) {
     function.returnType.foreach {
       addTypeAnnotation(_, function, function.paramClauses)
     }
   }
 
-  def removeFromFunction(function: ScFunctionDefinition) {
+  def functionWithType(function: ScFunctionDefinition) {
     function.returnTypeElement.foreach(removeTypeAnnotation)
   }
 
-  def addToValue(value: ScPatternDefinition) {
+  def valueWithoutType(value: ScPatternDefinition) {
     value.getType(TypingContext.empty).toOption.foreach {
       addTypeAnnotation(_, value, value.pList)
     }
   }
 
-  def removeFromValue(value: ScPatternDefinition) {
+  def valueWithType(value: ScPatternDefinition) {
     value.typeElement.foreach(removeTypeAnnotation)
   }
 
-  def addToVariable(variable: ScVariableDefinition) {
+  def variableWithoutType(variable: ScVariableDefinition) {
     variable.getType(TypingContext.empty).toOption.foreach {
       addTypeAnnotation(_, variable, variable.pList)
     }
   }
 
-  def removeFromVariable(variable: ScVariableDefinition) {
+  def variableWithType(variable: ScVariableDefinition) {
     variable.typeElement.foreach(removeTypeAnnotation)
   }
 
-  def addToPattern(pattern: ScBindingPattern) {
+  def patternWithoutType(pattern: ScBindingPattern) {
     pattern.expectedType.foreach {
       addTypeAnnotation(_, pattern.getParent, pattern)
     }
   }
 
-  def addToWildcardPattern(pattern: ScWildcardPattern) {
+  def wildcardPatternWithoutType(pattern: ScWildcardPattern) {
     pattern.expectedType.foreach {
       addTypeAnnotation(_, pattern.getParent, pattern)
     }
   }
 
-  def removeFromPattern(pattern: ScTypedPattern) {
+  def patternWithType(pattern: ScTypedPattern) {
     val newPattern = ScalaPsiElementFactory.createPatternFromText(pattern.name, pattern.getManager)
     pattern.replace(newPattern)
   }
 
-  def addToParameter(param: ScParameter) {
+  def parameterWithoutType(param: ScParameter) {
     import param.typeSystem
     param.parentsInFile.findByType(classOf[ScFunctionExpr]) match {
       case Some(func) =>
@@ -112,7 +131,7 @@ abstract class UpdateStrategy(editor: Option[Editor]) extends Strategy {
     }
   }
 
-  def removeFromParameter(param: ScParameter) {
+  def parameterWithType(param: ScParameter) {
     val newParam = ScalaPsiElementFactory.createParameterFromText(param.name, param.getManager)
     val newClause = ScalaPsiElementFactory.createClauseForFunctionExprFromText(newParam.getText, param.getManager)
     val expr : ScFunctionExpr = PsiTreeUtil.getParentOfType(param, classOf[ScFunctionExpr], false)
@@ -206,25 +225,25 @@ object UpdateStrategy {
 }
 
 class StrategyAdapter extends Strategy {
-  override def addToFunction(function: ScFunctionDefinition): Unit = ()
+  override def functionWithoutType(function: ScFunctionDefinition): Unit = ()
 
-  override def removeFromPattern(pattern: ScTypedPattern): Unit = ()
+  override def patternWithType(pattern: ScTypedPattern): Unit = ()
 
-  override def addToVariable(variable: ScVariableDefinition): Unit = ()
+  override def variableWithoutType(variable: ScVariableDefinition): Unit = ()
 
-  override def removeFromParameter(param: ScParameter): Unit = ()
+  override def parameterWithType(param: ScParameter): Unit = ()
 
-  override def addToParameter(param: ScParameter): Unit = ()
+  override def parameterWithoutType(param: ScParameter): Unit = ()
 
-  override def removeFromVariable(variable: ScVariableDefinition): Unit = ()
+  override def variableWithType(variable: ScVariableDefinition): Unit = ()
 
-  override def addToWildcardPattern(pattern: ScWildcardPattern): Unit = ()
+  override def wildcardPatternWithoutType(pattern: ScWildcardPattern): Unit = ()
 
-  override def removeFromFunction(function: ScFunctionDefinition): Unit = ()
+  override def functionWithType(function: ScFunctionDefinition): Unit = ()
 
-  override def addToValue(value: ScPatternDefinition): Unit = ()
+  override def valueWithoutType(value: ScPatternDefinition): Unit = ()
 
-  override def removeFromValue(value: ScPatternDefinition): Unit = ()
+  override def valueWithType(value: ScPatternDefinition): Unit = ()
 
-  override def addToPattern(pattern: ScBindingPattern): Unit = ()
+  override def patternWithoutType(pattern: ScBindingPattern): Unit = ()
 }

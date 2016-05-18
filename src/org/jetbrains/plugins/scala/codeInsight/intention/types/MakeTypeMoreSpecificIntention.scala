@@ -37,7 +37,7 @@ class MakeTypeMoreSpecificIntention extends PsiElementBaseIntentionAction {
       }
       implicit val typeSystem = project.typeSystem
       val desc = new StrategyAdapter {
-        override def removeFromVariable(variable: ScVariableDefinition): Unit = {
+        override def variableWithType(variable: ScVariableDefinition): Unit = {
           for {
             declared <- variable.declaredType
             expr <- variable.expr
@@ -46,7 +46,7 @@ class MakeTypeMoreSpecificIntention extends PsiElementBaseIntentionAction {
           } text(ScalaBundle.message("make.type.more.specific"))
         }
 
-        override def removeFromValue(value: ScPatternDefinition): Unit = {
+        override def valueWithType(value: ScPatternDefinition): Unit = {
           for {
             declared <- value.declaredType
             expr <- value.expr
@@ -55,7 +55,7 @@ class MakeTypeMoreSpecificIntention extends PsiElementBaseIntentionAction {
           } text(ScalaBundle.message("make.type.more.specific"))
         }
 
-        override def removeFromFunction(function: ScFunctionDefinition): Unit = {
+        override def functionWithType(function: ScFunctionDefinition): Unit = {
           for {
             declared <- function.returnType
             expr <- function.body
@@ -90,7 +90,7 @@ class MakeTypeMoreSpecificStrategy(editor: Option[Editor])
   }
 
 
-  override def removeFromFunction(function: ScFunctionDefinition): Unit = {
+  override def functionWithType(function: ScFunctionDefinition): Unit = {
     for {
       edit <- editor
       te <- function.returnTypeElement
@@ -100,7 +100,7 @@ class MakeTypeMoreSpecificStrategy(editor: Option[Editor])
     } doTemplate(te, declared, tp, function.getParent, edit)
   }
 
-  override def removeFromValue(value: ScPatternDefinition): Unit = {
+  override def valueWithType(value: ScPatternDefinition): Unit = {
     for {
       edit <- editor
       te <- value.typeElement
@@ -110,7 +110,7 @@ class MakeTypeMoreSpecificStrategy(editor: Option[Editor])
     } doTemplate(te, declared, tp, value.getParent, edit)
   }
 
-  override def removeFromVariable(variable: ScVariableDefinition): Unit = {
+  override def variableWithType(variable: ScVariableDefinition): Unit = {
     for {
       edit <- editor
       te <- variable.typeElement
@@ -120,21 +120,21 @@ class MakeTypeMoreSpecificStrategy(editor: Option[Editor])
     } doTemplate(te, declared, tp, variable.getParent, edit)
   }
 
-  override def addToPattern(pattern: ScBindingPattern): Unit = ()
+  override def patternWithoutType(pattern: ScBindingPattern): Unit = ()
 
-  override def addToWildcardPattern(pattern: ScWildcardPattern): Unit = ()
+  override def wildcardPatternWithoutType(pattern: ScWildcardPattern): Unit = ()
 
-  override def addToValue(value: ScPatternDefinition): Unit = ()
+  override def valueWithoutType(value: ScPatternDefinition): Unit = ()
 
-  override def addToFunction(function: ScFunctionDefinition): Unit = ()
+  override def functionWithoutType(function: ScFunctionDefinition): Unit = ()
 
-  override def removeFromPattern(pattern: ScTypedPattern): Unit = ()
+  override def patternWithType(pattern: ScTypedPattern): Unit = ()
 
-  override def addToVariable(variable: ScVariableDefinition): Unit = ()
+  override def variableWithoutType(variable: ScVariableDefinition): Unit = ()
 
-  override def removeFromParameter(param: ScParameter): Unit = ()
+  override def parameterWithType(param: ScParameter): Unit = ()
 
-  override def addToParameter(param: ScParameter): Unit = ()
+  override def parameterWithoutType(param: ScParameter): Unit = ()
 }
 
 object MakeTypeMoreSpecificStrategy {
