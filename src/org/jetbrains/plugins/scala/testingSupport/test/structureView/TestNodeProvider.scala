@@ -167,10 +167,11 @@ object TestNodeProvider {
 
   private def checkMethodCallPending(expr: ScMethodCall): Boolean = {
     expr.getLastChild match {
-      case args: ScArgumentExprList =>
-        val lastChild = args.getChildren.apply(0)
-        args.getChildren.length == 1 && lastChild.isInstanceOf[ScReferenceExpression] &&
-          checkRefExpr(lastChild.asInstanceOf[ScReferenceExpression], "pending")
+      case args: ScArgumentExprList if args.getChildren.length == 1 =>
+        args.getChildren.head match {
+          case lastChild: ScReferenceExpression => checkRefExpr(lastChild, "pending")
+          case _ => false
+        }
       case _ => false
     }
   }
