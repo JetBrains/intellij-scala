@@ -184,14 +184,6 @@ trait ScImportsHolder extends ScalaPsiElement {
 
     val place = getImportStatements.lastOption.getOrElse(getFirstChild.getNextSibling)
 
-    def replaceWithNewInfos(range: TextRange, infosToAdd: Seq[ImportInfo]): Unit = {
-      val rangeMarker = document.createRangeMarker(range)
-      documentManager.doPostponedOperationsAndUnblockDocument(document)
-      val newRange = new TextRange(rangeMarker.getStartOffset, rangeMarker.getEndOffset)
-      optimizer.replaceWithNewImportInfos(newRange, infosToAdd, settings, document)
-      documentManager.commitDocument(document)
-    }
-
     val importInfosToAdd = paths.filterNot(samePackage).flatMap { path =>
       val importText = s"import $path"
       val importStmt = ScalaPsiElementFactory.createImportFromTextWithContext(importText, this, place)
@@ -208,21 +200,21 @@ trait ScImportsHolder extends ScalaPsiElement {
       val dummyImport = ScalaPsiElementFactory.createImportFromText("import dummy._", getManager)
       val usedNames = collectUsedImportedNames(this)
       val inserted = insertFirstImport(dummyImport, getFirstChild).asInstanceOf[ScImportStmt]
-      val range = inserted.getTextRange
-      val rangeInfo = RangeInfo(PsiAnchor.create(inserted), importInfosToAdd, usedImportedNames = usedNames, isLocal = false)
+      val psiAnchor = PsiAnchor.create(inserted)
+      val rangeInfo = RangeInfo(psiAnchor, psiAnchor, importInfosToAdd, usedImportedNames = usedNames, isLocal = false)
       val infosToAdd = optimizedImportInfos(rangeInfo, settings)
 
-      replaceWithNewInfos(range, infosToAdd)
+      optimizer.replaceWithNewImportInfos(rangeInfo, infosToAdd, settings, file)
     }
     else {
-      val sortedRanges = importRanges.toSeq.sortBy(_._1.getStartOffset)
+      val sortedRanges = importRanges.toSeq.sortBy(_.startOffset)
       val selectedRange =
         if (refsContainer != null && ScalaCodeStyleSettings.getInstance(getProject).isAddImportMostCloseToReference)
-          sortedRanges.reverse.find(_._1.getEndOffset < refsContainer.getTextRange.getStartOffset)
+          sortedRanges.reverse.find(_.endOffset < refsContainer.getTextRange.getStartOffset)
         else sortedRanges.headOption
 
       selectedRange match {
-        case Some((range, RangeInfo(startPsi, importInfos, _, _))) =>
+        case Some(rangeInfo @ (RangeInfo(_, _, importInfos, _, _))) =>
           val buffer = importInfos.to[ArrayBuffer]
 
           val usedNames =
@@ -237,7 +229,7 @@ trait ScImportsHolder extends ScalaPsiElement {
           }
           updateRootPrefix(buffer)
 
-          replaceWithNewInfos(range, buffer)
+          optimizer.replaceWithNewImportInfos(rangeInfo, buffer, settings, file)
         case _ =>
       }
     }
