@@ -1,19 +1,25 @@
-<html><body>Detects if the match statement can be converted to pattern matching anonymous function.
-For example:
-<br />
+<html>
+<body>
+Detects if the match statement can be converted to pattern matching anonymous function.
 
-<code>iterable.map(value => value match {<br />
-        case Some(value) => whenValue(value)<br />
-        case None => whenNothing()<br />
-    })</code>
+<p> 
+Before:
+<pre>
+iterable.map(value => value match {
+    case Some(value) => whenValue(value)
+    case None => whenNothing()
+})
+</pre>
 
-<br />
-<p>can be converted to </p>
-<br />
-<code>iterable.map {<br />
-        case Some(value) => whenValue(value)<br />
-        case None => whenNothing()<br />
-    }</code>
+<br>
+After:
+<pre>
+iterable.map {
+    case Some(value) => whenValue(value)
+    case None => whenNothing()
+}
+</pre>
+</p>
 
 </body>
 </html>

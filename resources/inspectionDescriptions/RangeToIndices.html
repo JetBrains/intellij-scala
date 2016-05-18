@@ -1,14 +1,21 @@
 <html>
 <body>
-Use seq.indices instead of constructing range manually:
-<p>Before:</p>
-<code>Range(0, seq.size)</code><br>
-<code>0 until seq.size</code><br>
-<code>0.to(seq.size - 1)</code><br>
+Use <code>seq.indices</code> instead of constructing range manually.
 
-<p>After:</p>
+<p>
+Before: 
+<pre>
+Range(0, seq.size)
+0 until seq.size
+0.to(seq.size - 1)
+</pre>
 
-<code>seq.indices</code><br>
+<br>
+After:
+<pre>
+seq.indices
+</pre>
+</p>
 
 </body>
 </html>

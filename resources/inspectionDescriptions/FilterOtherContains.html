@@ -1,17 +1,26 @@
 <html>
 <body>
-Replaces <code>filter</code> or <code>filterNot</code> on a Set with <code>intersect</code> or <code>diff</code> if possible. <br/><br/>
+Replaces <code>filter</code> or <code>filterNot</code> on a Set with <code>intersect</code> or <code>diff</code> if
+possible.
 
-Before:
-<p><code>set.filter(others.contains(_))</code></p>
-<p><code>set.filterNot(others.contains))</code></p>
-<p><code>set.filter(x => !others.contains(x))</code></p>
-<p><code>set.filterNot(x => !others.contains(x))</code></p>
+<p>
+Before: 
+<pre>
+set.filter(others.contains(_))
+set.filterNot(others.contains))
+set.filter(x => !others.contains(x))
+set.filterNot(x => !others.contains(x))
+</pre>
+
+<br>
 After:
-<p><code>set.intersect(others)</code></p>
-<p><code>set.diff(others)</code></p>
-<p><code>set.diff(others)</code></p>
-<p><code>set.intersect(others)</code></p>
+<pre>
+set.intersect(others)
+set.diff(others)
+set.diff(others)
+set.intersect(others)
+</pre>
+</p>
 
 </body>
 </html>
