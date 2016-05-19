@@ -632,7 +632,7 @@ object ScalaImportOptimizer {
               j += 1
             }
             if (!break) {
-              val merged = buffer(i).merge(buffer(j + 1))
+              val merged = buffer(j).merge(buffer(j + 1))
               buffer(j) = merged
               buffer.remove(j + 1)
             }
