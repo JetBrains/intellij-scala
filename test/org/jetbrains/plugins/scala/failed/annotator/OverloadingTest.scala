@@ -135,4 +135,29 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin).isEmpty
   )
+
+  def testSCL10295(): Unit = assert(
+    collectMessages(
+      """
+        |import java.lang.reflect.Field
+        |import scala.collection.mutable
+        |
+        |class Test {
+        |
+        |  def instanceFieldsOf(v: AnyRef): Array[Field] = ???
+        |  def instanceFieldsOf(v: AnyRef,
+        |                       cache: mutable.Map[Class[_], Array[Field]],
+        |                       newFieldsHandler: Field => Unit = v => ())
+        |  : Array[Field] = ???
+        |
+        |  def valueAndInstanceFieldTuplesOf(v: AnyRef,
+        |                                    cache: mutable.Map[Class[_], Array[Field]],
+        |                                    newFieldsHandler: Field => Unit = v => ())
+        |  : Stream[(AnyRef, Field)] = {
+        |    val fields: Array[Field] = this.instanceFieldsOf(v, cache, newFieldsHandler)
+        |    fields.toStream.map { f => (f.get(v), f) }
+        |  }
+        |}
+      """.stripMargin).isEmpty
+  )
 }
