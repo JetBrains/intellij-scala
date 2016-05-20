@@ -2,38 +2,56 @@ package org.jetbrains.plugins.scala.lang.formatting.processors
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiManager, PsiElement}
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.source.codeStyle.PreFormatProcessor
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiManager}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
-import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocTag, ScDocComment}
+import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocTag}
 
 /**
   * @author Roman.Shein
   *         Date: 12.11.2015
   */
-class ScalaDocNewlinedPreFormatProcessor extends ScalaRecursiveElementVisitor with PreFormatProcessor {
+class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor {
+
+  private class ScalaDocNewlinedPreFormatVisitor(settings: ScalaCodeStyleSettings) extends ScalaElementVisitor {
+
+    override def visitDocComment(s: ScDocComment) {
+      s.getChildren.foreach {fixNewlines(_, settings)}
+    }
+
+    override def visitTag(s: ScDocTag): Unit =
+      fixNewlines(s, settings)
+  }
+
   override def process(element: ASTNode, range: TextRange): TextRange =
     Option(element.getPsi).map { psiElem =>
       val oldRange = psiElem.getTextRange
-      psiElem.accept(this)
+      val settings = CodeStyleSettingsManager.getSettings(psiElem.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
+      val visitor = new ScalaDocNewlinedPreFormatVisitor(settings)
+
+      for {
+        elem <- elementsToProcess(psiElem, range)
+        if elem.isValid
+      } elem.accept(visitor)
+
       val diff = psiElem.getTextRange.getEndOffset - oldRange.getEndOffset
       //range can be overshrinked only for small elements that can't be formatted on their own, so it's ok to return whole range
       if (range.getLength + diff <= 0) 0 else diff
     }.map(range.grown).getOrElse(range)
 
-  override def visitDocComment(s: ScDocComment) {
-    val scalaSettings = CodeStyleSettingsManager.getSettings(s.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings])
-    s.getChildren.foreach {fixNewlines(_, scalaSettings)}
+  private def elementsToProcess(psiElement: PsiElement, range: TextRange): Seq[PsiElement] = {
+    psiElement.depthFirst.filter(_.getTextRange.intersects(range)).toVector.collect {
+      case comment: ScDocComment => comment
+      case tag: ScDocTag => tag
+    }.reverse
   }
-
-  override def visitTag(s: ScDocTag): Unit =
-    fixNewlines(s, CodeStyleSettingsManager.getSettings(s.getProject).getCustomSettings(classOf[ScalaCodeStyleSettings]))
 
   private def fixNewlines(element: PsiElement, scalaSettings: ScalaCodeStyleSettings): Unit = {
     import ScalaDocNewlinedPreFormatProcessor._
