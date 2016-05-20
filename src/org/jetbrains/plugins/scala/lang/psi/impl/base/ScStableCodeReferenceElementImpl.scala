@@ -119,6 +119,17 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
 
   //  @throws(IncorrectOperationException)
   def bindToElement(element: PsiElement): PsiElement = {
+    object CheckedAndReplaced {
+      def unapply(text: String): Option[PsiElement] = {
+        val ref = ScalaPsiElementFactory.createReferenceFromText(text, getContext, ScStableCodeReferenceElementImpl.this)
+        if (ref.isReferenceTo(element)) {
+          val ref = ScalaPsiElementFactory.createReferenceFromText(text, getManager)
+          Some(ScStableCodeReferenceElementImpl.this.replace(ref))
+        }
+        else None
+      }
+    }
+
     if (isReferenceTo(element)) this
     else {
       val aliasedRef: Option[ScReferenceElement] = ScalaPsiUtil.importAliasFor(element, this)
@@ -145,48 +156,56 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
           val qname = c.qualifiedName
           val isPredefined = ScalaCodeStyleSettings.getInstance(getProject).hasImportWithPrefix(qname)
           if (qualifier.isDefined && !isPredefined) {
-            val ref = ScalaPsiElementFactory.createReferenceFromText(c.name, getContext, this)
-            if (ref.isReferenceTo(element)) {
-              val ref = ScalaPsiElementFactory.createReferenceFromText(c.name, getManager)
-              return this.replace(ref)
+            c.name match {
+              case CheckedAndReplaced(newRef) => return newRef
+              case _ =>
             }
           }
           if (qname != null) {
             val selector: ScImportSelector = PsiTreeUtil.getParentOfType(this, classOf[ScImportSelector])
+            val importExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
             if (selector != null) {
-              val importExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
               selector.deleteSelector() //we can't do anything here, so just simply delete it
               return importExpr.reference.get //todo: what we should return exactly?
               //              }
-            } else getParent match {
-              case importExpr: ScImportExpr if !importExpr.singleWildcard && !importExpr.selectorSet.isDefined =>
+            } else if (importExpr != null) {
+              if (importExpr == getParent && !importExpr.singleWildcard && importExpr.selectorSet.isEmpty) {
                 val holder = PsiTreeUtil.getParentOfType(this, classOf[ScImportsHolder])
                 importExpr.deleteExpr()
                 c match {
                   case ClassTypeToImport(clazz) => holder.addImportForClass(clazz)
                   case ta => holder.addImportForPath(ta.qualifiedName)
                 }
-              //todo: so what to return? probable PIEAE after such code invocation
-              case _ =>
-                return safeBindToElement(qname, {
-                  case (qual, true) => ScalaPsiElementFactory.createReferenceFromText(qual, getContext, this)
-                  case (qual, false) => ScalaPsiElementFactory.createReferenceFromText(qual, getManager)
-                }) {
-                  c match {
-                    case ClassTypeToImport(clazz) =>
-                      ScalaImportTypeFix.getImportHolder(ref = this, project = getProject).
-                        addImportForClass(clazz, ref = this)
-                    case ta =>
-                      ScalaImportTypeFix.getImportHolder(ref = this, project = getProject).
-                        addImportForPath(ta.qualifiedName, ref = this)
-                  }
-                  if (qualifier != None) {
-                    //let's make our reference unqualified
-                    val ref: ScStableCodeReferenceElement = ScalaPsiElementFactory.createReferenceFromText(c.name, getManager)
-                    this.replace(ref).asInstanceOf[ScReferenceElement]
-                  }
-                  this
+                //todo: so what to return? probable PIEAE after such code invocation
+                this
+              } else {
+                //qualifier reference in import expression
+                qname match {
+                  case CheckedAndReplaced(newRef) => return newRef
+                  case _ =>
                 }
+              }
+            }
+            else {
+              return safeBindToElement(qname, {
+                case (qual, true) => ScalaPsiElementFactory.createReferenceFromText(qual, getContext, this)
+                case (qual, false) => ScalaPsiElementFactory.createReferenceFromText(qual, getManager)
+              }) {
+                c match {
+                  case ClassTypeToImport(clazz) =>
+                    ScalaImportTypeFix.getImportHolder(ref = this, project = getProject).
+                      addImportForClass(clazz, ref = this)
+                  case ta =>
+                    ScalaImportTypeFix.getImportHolder(ref = this, project = getProject).
+                      addImportForPath(ta.qualifiedName, ref = this)
+                }
+                if (qualifier != None) {
+                  //let's make our reference unqualified
+                  val ref: ScStableCodeReferenceElement = ScalaPsiElementFactory.createReferenceFromText(c.name, getManager)
+                  this.replace(ref).asInstanceOf[ScReferenceElement]
+                }
+                this
+              }
             }
           }
           this
