@@ -29,7 +29,7 @@ class ToggleTypeAnnotation extends PsiElementBaseIntentionAction {
         setText(ScalaBundle.message(key))
       }
       implicit val typeSystem = project.typeSystem
-      ToggleTypeAnnotation.complete(new Description(message), element)
+      ToggleTypeAnnotation.complete(new ToggleTypeAnnotationDescription(message), element)
     }
   }
 
@@ -48,9 +48,9 @@ object ToggleTypeAnnotation {
          if !body.isAncestorOf(element)} {
 
       if (function.returnTypeElement.isDefined)
-        strategy.removeFromFunction(function)
+        strategy.functionWithType(function)
       else
-        strategy.addToFunction(function)
+        strategy.functionWithoutType(function)
 
       return true
     }
@@ -63,9 +63,9 @@ object ToggleTypeAnnotation {
          binding <- bindings} {
 
       if (value.typeElement.isDefined)
-        strategy.removeFromValue(value)
+        strategy.valueWithType(value)
       else
-        strategy.addToValue(value)
+        strategy.valueWithoutType(value)
 
       return true
     }
@@ -78,9 +78,9 @@ object ToggleTypeAnnotation {
          binding <- bindings} {
 
       if (variable.typeElement.isDefined)
-        strategy.removeFromVariable(variable)
+        strategy.variableWithType(variable)
       else
-        strategy.addToVariable(variable)
+        strategy.variableWithoutType(variable)
 
       return true
     }
@@ -91,14 +91,14 @@ object ToggleTypeAnnotation {
       param.parentsInFile.findByType(classOf[ScFunctionExpr]) match {
         case Some(func) =>
           if (param.typeElement.isDefined) {
-            strategy.removeFromParameter(param)
+            strategy.parameterWithType(param)
             return true
           } else {
             val index = func.parameters.indexOf(param)
             func.expectedType() match {
               case Some(FunctionType(_, params)) =>
                 if (index >= 0 && index < params.length) {
-                  strategy.addToParameter(param)
+                  strategy.parameterWithoutType(param)
                   return true
                 }
               case _ =>
@@ -111,16 +111,16 @@ object ToggleTypeAnnotation {
     for (pattern <- element.parentsInFile.findByType(classOf[ScBindingPattern])) {
       pattern match {
         case p: ScTypedPattern if p.typePattern.isDefined =>
-          strategy.removeFromPattern(p)
+          strategy.patternWithType(p)
           return true
         case _: ScReferencePattern =>
-          strategy.addToPattern(pattern)
+          strategy.patternWithoutType(pattern)
           return true
         case _ =>
       }
     }
     for (pattern <- element.parentsInFile.findByType(classOf[ScWildcardPattern])) {
-      strategy.addToWildcardPattern(pattern)
+      strategy.wildcardPatternWithoutType(pattern)
       return true
     }
 

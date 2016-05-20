@@ -9,25 +9,25 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
  */
 
 trait Strategy {
-  def addToFunction(function: ScFunctionDefinition)
+  def functionWithoutType(function: ScFunctionDefinition)
 
-  def removeFromFunction(function: ScFunctionDefinition)
+  def functionWithType(function: ScFunctionDefinition)
 
-  def addToValue(value: ScPatternDefinition)
+  def valueWithoutType(value: ScPatternDefinition)
 
-  def removeFromValue(value: ScPatternDefinition)
+  def valueWithType(value: ScPatternDefinition)
 
-  def addToVariable(variable: ScVariableDefinition)
+  def variableWithoutType(variable: ScVariableDefinition)
 
-  def removeFromVariable(variable: ScVariableDefinition)
+  def variableWithType(variable: ScVariableDefinition)
 
-  def addToPattern(pattern: ScBindingPattern)
+  def patternWithoutType(pattern: ScBindingPattern)
 
-  def addToWildcardPattern(pattern: ScWildcardPattern)
+  def wildcardPatternWithoutType(pattern: ScWildcardPattern)
 
-  def removeFromPattern(pattern: ScTypedPattern)
+  def patternWithType(pattern: ScTypedPattern)
 
-  def addToParameter(param: ScParameter)
+  def parameterWithoutType(param: ScParameter)
 
-  def removeFromParameter(param: ScParameter)
+  def parameterWithType(param: ScParameter)
 }
