@@ -852,4 +852,25 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       }
     }
   }
+
+  addFileWithBreakpoints("QualifierNamedAsPackage.scala",
+    s"""
+       |object QualifierNamedAsPackage {
+       |  def main(args: Array[String]) {
+       |    val invoke = "invoke"
+       |    val text = "text"
+       |    val ref = "ref"
+       |    ""$bp
+       |  }
+       |}
+    """.stripMargin.trim)
+  def testQualifierNamedAsPackage(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("invoke.charAt(0)", "i")
+      evalEquals("text.length", "4")
+      evalEquals("ref.isEmpty()", "false")
+      evalEquals("ref + text", "reftext")
+    }
+  }
 }
