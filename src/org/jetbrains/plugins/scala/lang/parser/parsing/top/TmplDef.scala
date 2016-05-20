@@ -4,6 +4,7 @@ package parser
 package parsing
 package top
 
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
@@ -35,71 +36,66 @@ trait TmplDef {
   protected val annotation: Annotation
 
   def parse(builder: ScalaPsiBuilder): Boolean = {
-    val templateMarker = builder.mark
+    val templateMarker = builder.mark()
     templateMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEEDING_COMMENTS_TOKEN, null)
-    val annotationsMarker = builder.mark
-    while (annotation.parse(builder)) {}
+
+    val annotationsMarker = builder.mark()
+    while (annotation.parse(builder)) {
+    }
     annotationsMarker.done(ScalaElementTypes.ANNOTATIONS)
     annotationsMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.DEFAULT_LEFT_EDGE_BINDER, null)
-    //parsing modifiers
-    val modifierMarker = builder.mark
-    while (Modifier.parse(builder)) {}
-    //could be case modifier
-    val caseMarker = builder.mark
-    if (builder.getTokenType == ScalaTokenTypes.kCASE)
-      builder.advanceLexer() //Ate case
-    //parsing template body
-    builder.getTokenType match {
-      case ScalaTokenTypes.kCLASS =>
-        caseMarker.drop()
-        modifierMarker.done(ScalaElementTypes.MODIFIERS)
-        builder.advanceLexer() //Ate class
-        if (classDef parse builder) {
-          templateMarker.done(ScalaElementTypes.CLASS_DEF)
+
+    val modifierMarker = builder.mark()
+    while (Modifier.parse(builder)) {
+    }
+    val caseState = isCaseState(builder)
+    modifierMarker.done(ScalaElementTypes.MODIFIERS)
+
+    templateParser(builder.getTokenType, caseState) match {
+      case Some((parse, elementType)) =>
+        builder.advanceLexer()
+        if (parse(builder)) {
+          templateMarker.done(elementType)
         } else {
           templateMarker.drop()
         }
+
         true
-      case ScalaTokenTypes.kOBJECT =>
-        caseMarker.drop()
-        modifierMarker.done(ScalaElementTypes.MODIFIERS)
-        builder.advanceLexer() //Ate object
-        if (objectDef parse builder) {
-          templateMarker.done(ScalaElementTypes.OBJECT_DEF)
-        } else {
-          templateMarker.drop()
-        }
-        true
-      case ScalaTokenTypes.kTRAIT =>
-        caseMarker.rollbackTo()
-        modifierMarker.done(ScalaElementTypes.MODIFIERS)
-        builder.getTokenType match {
-          case ScalaTokenTypes.kTRAIT => {
-            builder.advanceLexer() //Ate trait
-            if (traitDef.parse(builder)) {
-              templateMarker.done(ScalaElementTypes.TRAIT_DEF)
-            } else {
-              templateMarker.drop()
-            }
-            true
-          }
-          // In this way wrong case modifier
-          case _ => {
-            builder error ErrMsg("wrong.case.modifier")
-            builder.advanceLexer() //Ate case
-            builder.getTokenText
-            builder.advanceLexer() //Ate trait
-            traitDef.parse(builder)
-            templateMarker.done(ScalaElementTypes.TRAIT_DEF)
-            true
-          }
-        }
-      //it's error
-      case _ =>
+      case None =>
         templateMarker.rollbackTo()
-        //builder.advanceLexer //Ate something
         false
     }
+  }
+
+  private def isCaseState(builder: ScalaPsiBuilder) = {
+    val caseMarker = builder.mark()
+    val result = builder.getTokenType match {
+      case ScalaTokenTypes.kCASE =>
+        builder.advanceLexer() // Ate case
+        true
+      case _ => false
+    }
+
+    builder.getTokenType match {
+      case ScalaTokenTypes.kTRAIT if result =>
+        caseMarker.rollbackTo()
+        builder.error(ErrMsg("wrong.case.modifier"))
+        builder.advanceLexer() // Ate case
+      case _ => caseMarker.drop()
+    }
+    result
+  }
+
+  private def templateParser(tokenType: IElementType, caseState: Boolean) = tokenType match {
+    case ScalaTokenTypes.kCLASS => Some(classDef.parse _, ScalaElementTypes.CLASS_DEF)
+    case ScalaTokenTypes.kOBJECT => Some(objectDef.parse _, ScalaElementTypes.OBJECT_DEF)
+    case ScalaTokenTypes.kTRAIT =>
+      def parse(builder: ScalaPsiBuilder): Boolean = {
+        val result = traitDef.parse(builder)
+        if (caseState) true else result
+      }
+      Some(parse _, ScalaElementTypes.TRAIT_DEF)
+    case _ => None
   }
 }
 
