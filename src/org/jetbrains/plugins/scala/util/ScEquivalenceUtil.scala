@@ -1,9 +1,12 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiPackage, PsiClass, PsiElement}
+import com.intellij.psi.{PsiClass, PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 /**
  * @author Alexander Podkhalyuzin
@@ -39,10 +42,23 @@ object ScEquivalenceUtil {
       p1.getQualifiedName == p2.getQualifiedName
   }
 
+  private def areTypeAliasesEquivalent(ta1: ScTypeAlias, ta2: ScTypeAlias): Boolean = {
+    def equiv(tr1: TypeResult[ScType], tr2: TypeResult[ScType]): Boolean = {
+      if (tr1.isEmpty || tr2.isEmpty) false
+      else tr1.get.equiv(tr2.get)
+    }
+
+    if (ta1.isExistentialTypeAlias && ta2.isExistentialTypeAlias) {
+      equiv(ta1.lowerBound, ta2.lowerBound) && equiv(ta1.upperBound, ta2.upperBound)
+    }
+    else ta1 == ta2
+  }
+
   def smartEquivalence(elem1: PsiElement, elem2: PsiElement): Boolean = {
     (elem1, elem2) match {
       case (clazz1: PsiClass, clazz2: PsiClass) => areClassesEquivalent(clazz1, clazz2)
       case (p1: PsiPackage, p2: PsiPackage) => arePackagesEquivalent(p1, p2)
+      case (ta1: ScTypeAlias, ta2: ScTypeAlias) => areTypeAliasesEquivalent(ta1, ta2)
       case _ => elem1 == elem2
     }
   }
