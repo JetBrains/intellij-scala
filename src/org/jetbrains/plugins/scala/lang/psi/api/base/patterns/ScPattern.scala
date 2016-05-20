@@ -157,7 +157,7 @@ trait ScPattern extends ScalaPsiElement with TypingContextOwner with Typed {
         }
         tpe.getType().toOption
       case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.name == "unapply" &&
-              fun.parameters.length == 1 =>
+              fun.parameters.count(!_.isImplicitParameter) == 1 =>
         val subst = if (fun.typeParameters.isEmpty) substitutor else {
           var undefSubst = fun.typeParameters.foldLeft(ScSubstitutor.empty) { (s, p) =>
             s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, Some(substitutor))))
@@ -200,7 +200,7 @@ trait ScPattern extends ScalaPsiElement with TypingContextOwner with Typed {
           case _ => None
         }
       case Some(ScalaResolveResult(fun: ScFunction, substitutor: ScSubstitutor)) if fun.name == "unapplySeq" &&
-              fun.parameters.length == 1 =>
+            fun.parameters.count(!_.isImplicitParameter) == 1 =>
         val subst = if (fun.typeParameters.isEmpty) substitutor else {
           val undefSubst = substitutor followed fun.typeParameters.foldLeft(ScSubstitutor.empty) { (s, p) =>
             s.bindT(p.nameAndId, UndefinedType(TypeParameterType(p, Some(substitutor))))

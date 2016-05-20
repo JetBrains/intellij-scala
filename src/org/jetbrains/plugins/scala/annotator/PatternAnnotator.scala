@@ -216,7 +216,7 @@ object PatternAnnotatorUtil {
       patternRef.advancedResolve match {
         case Some(srr) =>
           srr.getElement match {
-            case fun: ScFunction if fun.parameters.size == 1 =>
+            case fun: ScFunction if fun.parameters.count(!_.isImplicitParameter) == 1 =>
               Some(srr.substitutor.subst(fun.paramTypes.head))
             case _ => None
           }

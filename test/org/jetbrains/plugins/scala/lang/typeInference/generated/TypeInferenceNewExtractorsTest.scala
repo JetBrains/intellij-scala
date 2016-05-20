@@ -21,4 +21,6 @@ class TypeInferenceNewExtractorsTest extends TypeInferenceTestBase {
   def testUnapply2() {doTest()}
   def testUnapplySeq() {doTest()}
   def testUnapplySeq2() {doTest()}
+  def testUnapplyWithImplicitParam() {doTest()}
+  def testUnapplySeqWithImplicitParam() {doTest()}
 }
