@@ -98,27 +98,13 @@ class RedundantNewCaseClassInspectionTest extends ScalaLightInspectionFixtureTes
     testFix(program, expected, annotation)
   }
 
-  def testOverriddenApplyMethod(): Unit = {
-    val program =
-      s"""
-         |case class C(a: Int, x: String = "default")
-         |object C { def apply(a: Int): C = C(a, "xxx") }
-         |
+  def testOverriddenApplyMethodHasNoErrors(): Unit = checkTextHasNoErrors(
+    s"""
+       |case class C(a: Int, x: String = "default")
+       |object C { def apply(a: Int): C = C(a, "xxx") }
+       |
          |${START}new$END C(0)
-       """.stripMargin
-
-    check(program)
-
-    val expected =
-      s"""
-         |case class C(a: Int, x: String = "default")
-         |object C { def apply(a: Int): C = C(a, "xxx") }
-         |
-         |C(0)
-       """.stripMargin
-
-    testFix(program, expected, annotation)
-  }
+       """.stripMargin)
 
   def testCaseClassWithNormalClassNestedHasNoErrors(): Unit = checkTextHasNoErrors(
     s"""
@@ -198,5 +184,41 @@ class RedundantNewCaseClassInspectionTest extends ScalaLightInspectionFixtureTes
        |val f = new A()
      """.stripMargin
   )
+
+  //SCL-10289
+  def testShouldNotShowInApplyOfImplicitParameter(): Unit = checkTextHasNoErrors(
+    s"""
+       |object A {
+       |  def apply(s: String)(implicit ev: Boolean): A = new A(s.toLowerCase)
+       |}
+       |case class A(s: String)
+       |
+       |new A("Hello")
+     """.stripMargin)
+
+  //SCL-10289
+  def testShouldNotShowWithImplicitly(): Unit = checkTextHasNoErrors(
+    s"""
+       |trait ToLong[A] {
+       |    def apply(a: A): Long
+       |  }
+       |
+       |case class Container(a: Long)
+       |
+       |object Container {
+       |  def apply[A: ToLong](a: A) = new Container(implicitly[ToLong[A]].apply(a))
+       |}
+       |
+       |val c1 = Container(1)
+     """.stripMargin)
+
+  //SCL-10287
+  def testShouldNotShowInCreationOfAnonymousClassInApply(): Unit = checkTextHasNoErrors(
+    s"""
+       |abstract case class A private[A] (s: String, i: Int)
+       |object A {
+       |def apply(s: String, i: Int): A =
+       |new A(s.toUpperCase, i) { /* something*/ }
+       |}""".stripMargin)
 
 }

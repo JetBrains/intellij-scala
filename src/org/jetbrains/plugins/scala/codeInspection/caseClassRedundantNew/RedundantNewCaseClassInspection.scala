@@ -5,9 +5,11 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScClassParents
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 /**
@@ -28,8 +30,34 @@ class RedundantNewCaseClassInspection extends AbstractInspection("RedundantNewCa
     val constructor = getConstructorFromTemplate(newTemplate)
     val resolvedConstructor = resolveConstructor(constructor)
 
-    isCreatingSameType(newTemplate) && constructorCallHasArgumentList(constructor) &&
+    isApplyDefinedOnCaseClass(newTemplate) && isCreatingSameType(newTemplate) && constructorCallHasArgumentList(constructor) &&
       isProblemlessPrimaryConstructorOfCaseClass(resolvedConstructor) && !isTypeAlias(resolvedConstructor)
+  }
+
+  private def isApplyDefinedOnCaseClass(newTemplate: ScNewTemplateDefinition): Boolean = {
+    val extendsText = newTemplate.extendsBlock.getText
+    val expression = ScalaPsiElementFactory.createExpressionWithContextFromText(extendsText, newTemplate.getContext, newTemplate)
+    val reference = getDeepestInvokedReference(expression)
+
+    val syntheticNavigationElement = reference.flatMap(_.advancedResolve.map(_.element match {
+      case a: ScFunctionDefinition => a.getSyntheticNavigationElement
+      case _ => None
+    }))
+
+    syntheticNavigationElement.flatten.exists {
+      case _: ScClass => true
+      case _ => false
+    }
+  }
+
+  private def getDeepestInvokedReference(resolved: ScExpression): Option[ScReferenceExpression] = {
+    resolved match {
+      case method: ScMethodCall => method.deepestInvokedExpr match {
+        case deepestRef: ScReferenceExpression => Some(deepestRef)
+        case _ => None
+      }
+      case _ => None
+    }
   }
 
   /**
