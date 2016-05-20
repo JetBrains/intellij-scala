@@ -44,4 +44,7 @@ class TypeConformanceExistentialTest extends TypeConformanceTestBase {
   def testToExistential() {doTest()}
 
   def testToExistentialSimple() {doTest()}
+
+  //SCL-10295
+  def testExistentialWithAliasedDesignator() {doTest()}
 }
