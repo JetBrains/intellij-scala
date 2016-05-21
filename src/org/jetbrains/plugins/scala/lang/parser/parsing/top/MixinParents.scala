@@ -4,7 +4,6 @@ package parser
 package parsing
 package top
 
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.AnnotType
 
@@ -20,27 +19,14 @@ object MixinParents extends MixinParents {
   override protected val annotType = AnnotType
 }
 
-trait MixinParents {
-  protected val annotType: AnnotType
+trait MixinParents extends Parents {
+  override protected val elementType = ScalaElementTypes.TRAIT_PARENTS
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    val mixinMarker = builder.mark
-    //Look for parent
-    if (!annotType.parse(builder, isPattern = false)) {
-      builder error ScalaBundle.message("wrong.simple.type")
-      mixinMarker.done(ScalaElementTypes.TRAIT_PARENTS)
-      return false
+  override protected def parseParent(builder: ScalaPsiBuilder) = {
+    val result = annotType.parse(builder, isPattern = false)
+    if (!result) {
+      builder.error(ErrMsg("wrong.simple.type"))
     }
-    //Look for mixin
-    while (builder.getTokenType == ScalaTokenTypes.kWITH) {
-      builder.advanceLexer() //Ate with
-      if (!annotType.parse(builder, isPattern = false)) {
-        builder error ScalaBundle.message("wrong.simple.type")
-        mixinMarker.done(ScalaElementTypes.TRAIT_PARENTS)
-        return false
-      }
-    }
-    mixinMarker.done(ScalaElementTypes.TRAIT_PARENTS)
-    true
+    result
   }
 }
