@@ -11,5 +11,6 @@ object ClassDef extends org.jetbrains.plugins.scala.lang.parser.parsing.top.Clas
   override protected val classParamClauses = ClassParamClauses
   override protected val classTemplateOpt = ClassTemplateOpt
   override protected val annotation = Annotation
+  override protected val constrMods = ConstrMods
   override protected val typeParamClause = TypeParamClause
 }
