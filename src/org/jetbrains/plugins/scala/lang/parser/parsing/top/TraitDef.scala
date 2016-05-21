@@ -4,9 +4,9 @@ package parser
 package parsing
 package top
 
-import _root_.org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 
 /**
 * @author Alexander Podkhalyuzin
@@ -17,25 +17,22 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * TraitDef ::= id [TypeParamClause] TraitTemplateOpt
  */
 object TraitDef extends TraitDef {
-  override protected val traitTemplateOpt = TraitTemplateOpt
+  override protected val templateOpt = TraitTemplateOpt
+  override protected val typeParamClause = TypeParamClause
 }
 
 trait TraitDef {
-  protected val traitTemplateOpt: TraitTemplateOpt
+  protected val templateOpt: TraitTemplateOpt
+  protected val typeParamClause: TypeParamClause
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    builder.getTokenType match {
-      case ScalaTokenTypes.tIDENTIFIER => builder.advanceLexer() //Ate identifier
+  def parse(builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
+    case ScalaTokenTypes.tIDENTIFIER =>
+      builder.advanceLexer() //Ate identifier
+      typeParamClause.parse(builder)
+      templateOpt.parse(builder)
+      true
       case _ =>
-        builder error ScalaBundle.message("identifier.expected")
-        return false
+        builder.error(ErrMsg("identifier.expected"))
+        false
     }
-    //parsing type parameters
-    builder.getTokenType match {
-      case ScalaTokenTypes.tLSQBRACKET => TypeParamClause parse builder
-      case _ => /*it could be without type parameters*/
-    }
-    traitTemplateOpt parse builder
-    return true
-  }
 }

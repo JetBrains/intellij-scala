@@ -9,5 +9,5 @@ object TmplDef extends org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplD
   override protected val classDef = ClassDef
   override protected val annotation = Annotation
   override protected val objectDef = ObjectDef
-  override protected val traitDef = TraitDef
+  override protected val traitDef = ClassDef
 }
