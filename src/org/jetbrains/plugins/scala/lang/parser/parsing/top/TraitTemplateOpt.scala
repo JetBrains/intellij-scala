@@ -19,14 +19,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateBody
 object TraitTemplateOpt extends TraitTemplateOpt {
   override protected val templateBody = TemplateBody
   override protected val earlyDef = EarlyDef
-  override protected val mixinParents = MixinParents
+  override protected val parents = MixinParents
 }
 
 //It's very similar code to ClassTemplateOpt
 trait TraitTemplateOpt {
   protected val templateBody: TemplateBody
   protected val earlyDef: EarlyDef
-  protected val mixinParents: MixinParents
+  protected val parents: Parents
 
   def parse(builder: ScalaPsiBuilder): Unit = {
     val extendsMarker = builder.mark
@@ -51,7 +51,7 @@ trait TraitTemplateOpt {
       case ScalaTokenTypes.tLBRACE =>
         //try to parse early definition if we can't => it's template body
         if (earlyDef parse builder) {
-          mixinParents parse builder
+          parents parse builder
           //parse template body
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE => {
@@ -86,7 +86,7 @@ trait TraitTemplateOpt {
       //if we find nl => it could be TemplateBody only, but we can't find nl after extends keyword
       //In this case of course it's ClassParents
       case _ =>
-        mixinParents parse builder
+        parents parse builder
         //parse template body
         builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE => {
