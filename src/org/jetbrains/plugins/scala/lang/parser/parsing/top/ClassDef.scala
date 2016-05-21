@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClau
  */
 object ClassDef extends ClassDef {
   override protected val classParamClauses = ClassParamClauses
-  override protected val classTemplateOpt = ClassTemplateOpt
+  override protected val templateOpt = ClassTemplateOpt
   override protected val annotation = Annotation
   override protected val constrMods = ConstrMods
   override protected val typeParamClause = TypeParamClause
@@ -28,7 +28,7 @@ object ClassDef extends ClassDef {
 
 trait ClassDef {
   protected val classParamClauses: ClassParamClauses
-  protected val classTemplateOpt: ClassTemplateOpt
+  protected val templateOpt: ClassTemplateOpt
   protected val annotation: Annotation
   protected val constrMods: ConstrMods
   protected val typeParamClause: TypeParamClause
@@ -45,7 +45,7 @@ trait ClassDef {
       constructorMarker.done(ScalaElementTypes.PRIMARY_CONSTRUCTOR)
 
       //parse extends block
-      classTemplateOpt.parse(builder)
+      templateOpt.parse(builder)
       true
     case _ =>
       builder.error(ErrMsg("identifier.expected"))
