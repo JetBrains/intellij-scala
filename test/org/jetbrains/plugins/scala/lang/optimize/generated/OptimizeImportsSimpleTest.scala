@@ -39,4 +39,6 @@ class OptimizeImportsSimpleTest extends OptimizeImportsTestBase {
   def testUsedImport() = doTest()
 
   def testRelativeNameConflict() = doTest()
+
+  def testNoReformattingComments() = doTest()
 }

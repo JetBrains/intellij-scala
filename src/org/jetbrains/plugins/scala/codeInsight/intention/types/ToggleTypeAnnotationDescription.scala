@@ -8,48 +8,48 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
  * Pavel.Fatin, 28.04.2010
  */
 
-class Description(message: String => Unit) extends Strategy {
-  def addToFunction(function: ScFunctionDefinition) {
+class ToggleTypeAnnotationDescription(message: String => Unit) extends Strategy {
+  def functionWithoutType(function: ScFunctionDefinition) {
     message("intention.type.annotation.function.add.text")
   }
 
-  def removeFromFunction(function: ScFunctionDefinition) {
+  def functionWithType(function: ScFunctionDefinition) {
     message("intention.type.annotation.function.remove.text")
   }
 
-  def addToValue(value: ScPatternDefinition) {
+  def valueWithoutType(value: ScPatternDefinition) {
     message("intention.type.annotation.value.add.text")
   }
 
-  def removeFromValue(value: ScPatternDefinition) {
+  def valueWithType(value: ScPatternDefinition) {
     message("intention.type.annotation.value.remove.text")
   }
 
-  def addToVariable(variable: ScVariableDefinition) {
+  def variableWithoutType(variable: ScVariableDefinition) {
     message("intention.type.annotation.variable.add.text")
   }
 
-  def removeFromVariable(variable: ScVariableDefinition) {
+  def variableWithType(variable: ScVariableDefinition) {
     message("intention.type.annotation.variable.remove.text")
   }
 
-  def addToPattern(pattern: ScBindingPattern) {
+  def patternWithoutType(pattern: ScBindingPattern) {
     message("intention.type.annotation.pattern.add.text")
   }
 
-  def addToWildcardPattern(pattern: ScWildcardPattern) {
+  def wildcardPatternWithoutType(pattern: ScWildcardPattern) {
     message("intention.type.annotation.pattern.add.text")
   }
 
-  def removeFromPattern(pattern: ScTypedPattern) {
+  def patternWithType(pattern: ScTypedPattern) {
     message("intention.type.annotation.pattern.remove.text")
   }
 
-  def addToParameter(param: ScParameter) {
+  def parameterWithoutType(param: ScParameter) {
     message("intention.type.annotation.parameter.add.text")
   }
 
-  def removeFromParameter(param: ScParameter) {
+  def parameterWithType(param: ScParameter) {
     message("intention.type.annotation.parameter.remove.text")
   }
 }
