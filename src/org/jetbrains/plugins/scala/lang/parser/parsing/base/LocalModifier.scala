@@ -21,14 +21,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 
 object LocalModifier {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    builder.getTokenType match {
-      case ScalaTokenTypes.kABSTRACT | ScalaTokenTypes.kFINAL
-           | ScalaTokenTypes.kSEALED | ScalaTokenTypes.kIMPLICIT
-           | ScalaTokenTypes.kLAZY =>
-        builder.advanceLexer //Ate modifier
-        return true
-      case _ => return false
-    }
+  def parse(builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
+    case ScalaTokenTypes.kABSTRACT | ScalaTokenTypes.kFINAL
+         | ScalaTokenTypes.kSEALED | ScalaTokenTypes.kIMPLICIT
+         | ScalaTokenTypes.kLAZY =>
+      builder.advanceLexer() // Ate modifier
+      true
+    case _ => false
   }
 }
