@@ -14,6 +14,7 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.{Ref, TextRange}
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ExceptionUtil
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.extensions._
@@ -120,13 +121,15 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
   private def doRestoreAssociations(value: Associations, file: PsiFile, offset: Int, project: Project)
                          (filter: Seq[Binding] => Seq[Binding]) {
+    val usingUnderScore = ScalaCodeStyleSettings.getInstance(project).isImportMembersUsingUnderScore
     val bindings =
       (for {
         association <- value.associations
         element <- elementFor(association, file, offset)
         if !association.isSatisfiedIn(element)
-      } yield Binding(element, association.path.asString(ScalaCodeStyleSettings.getInstance(project).
-                isImportMembersUsingUnderScore))).filter {
+      } yield {
+        Binding(element, association.path.asString(usingUnderScore))
+      }).filter {
         case Binding(_, path) =>
           val index = path.lastIndexOf('.')
           index != -1 && !Set("scala", "java.lang", "scala.Predef").contains(path.substring(0, index))
@@ -138,10 +141,13 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
 
     if (bindingsToRestore.isEmpty) return
 
+    val grouped = bindingsToRestore.groupBy(_.importsHolder)
     inWriteAction {
-      for (Binding(ref, path) <- bindingsToRestore;
-           holder = ScalaImportTypeFix.getImportHolder(ref, file.getProject))
-        holder.addImportForPath(path, ref)
+      for ((holder, bindings) <- grouped if bindings.nonEmpty) {
+        val commonParent = PsiTreeUtil.findCommonParent(bindings.map(_.element): _*)
+        val paths = bindings.map(_.path)
+        holder.addImportsForPaths(paths, commonParent)
+      }
     }
   }
 
@@ -158,5 +164,7 @@ class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associa
       .filter(e => range.contains(e.getTextRange))
   }
 
-  private case class Binding(element: PsiElement, path: String)
+  private case class Binding(element: PsiElement, path: String) {
+    def importsHolder = ScalaImportTypeFix.getImportHolder(element, element.getProject)
+  }
 }
