@@ -487,6 +487,18 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     checkWarning(text, "ScFunctionType(_)", fruitless("(Int, Int)", "Foo"))
   }
 
+  def testInfixPatternWithConstructorOnTheRight(): Unit = {
+    val text =
+      """
+        |List(1, 2, 3) match {
+        |  case 1 :: List(x, y) =>
+        |  case _ =>
+        |}
+      """.stripMargin
+    assertNoErrors(text)
+    assertNoWarnings(text)
+  }
+
   /*def testNonFinalCaseClassConstructorPattern(): Unit = {
     val code =
       """
