@@ -171,7 +171,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase {
     val semaphore = new Semaphore()
     semaphore.down()
     getDebugProcess.getManagerThread.invokeAndWait(new DebuggerContextCommandImpl(ctx) {
-      def threadAction() {
+      override def threadAction() {
         result = callback
         semaphore.up()
       }
