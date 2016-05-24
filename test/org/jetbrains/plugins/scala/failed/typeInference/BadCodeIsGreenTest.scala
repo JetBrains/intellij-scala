@@ -107,4 +107,21 @@ class BadCodeIsGreenTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |}
       """.stripMargin, "Type mismatch, expected: Foo, actual: String")
   }
+
+  def testSCL10320(): Unit = {
+    checkTextHasError(
+      """
+        |object Hello {
+        |  val foobar = new Foobar()
+        |  foobar.notRed(Array(classOf[Hello.type], classOf[Object]))
+        |}
+        |
+        |class Foobar {
+        |  def notRed(someArray: Array[Class[_]]): Foobar = {
+        |    someArray foreach (c ⇒ println(c.getCanonicalName))
+        |    this
+        |  }
+        |}
+      """.stripMargin, "class type required but Hello.type found")
+  }
 }
