@@ -219,6 +219,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val fileFactory = PsiFileFactory.getInstance(file.getProject)
     val dummyFile = fileFactory.createFileFromText("dummy." + file.getFileType.getDefaultExtension, file.getLanguage, text)
 
+    val errorElements = dummyFile.getChildren.filter(_.isInstanceOf[PsiErrorElement]).map(_.getNode)
+    errorElements.foreach(dummyFile.getNode.removeChild)
+
     val parentNode = firstPsi.getParent.getNode
     val firstPsiNode = firstPsi.getNode
     val firstNodeToRemove =
@@ -231,8 +234,10 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
     val anchor = lastPsi.getNextSibling.getNode
 
-    parentNode.removeRange(firstNodeToRemove, anchor)
-    parentNode.addChildren(dummyFile.getNode.getFirstChildNode, null, anchor)
+    withDisabledPostprocessFormatting(file.getProject) {
+      parentNode.removeRange(firstNodeToRemove, anchor)
+      parentNode.addChildren(dummyFile.getNode.getFirstChildNode, null, anchor)
+    }
   }
 
   def collectImportRanges(holder: ScImportsHolder,
