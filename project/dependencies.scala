@@ -2,7 +2,7 @@ import sbt._
 
 
 object Versions {
-  val scalaVersion = "2.11.6"
+  val scalaVersion = "2.12.0-M4"
   val sbtVersion = "0.13.11"
   val ideaVersion = "163.4396.1"
   val sbtStructureVersion = "6.0.2"
@@ -70,7 +70,7 @@ object Dependencies {
 
   val scalastyle_2_11 = "org.scalastyle" % "scalastyle_2.11" % "0.8.0"
   val scalariform_2_11 = "org.scalariform" % "scalariform_2.11" % "0.1.7"
-  val macroParadise = "org.scalamacros" % "paradise" % "2.1.0-M5" cross CrossVersion.full
+  val macroParadise = "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full
 
   val nailgun = "org.jetbrains" % "nailgun-patched" % "1.0.0"
   val compilerInterfaceSources = "org.jetbrains" % "compiler-interface-sources" % "1.0.0"
@@ -162,13 +162,13 @@ object DependencyGroups {
   )
 
   val scalaRunner = Seq(
-    "org.specs2" %% "specs2" % "2.3.11" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
+    "org.specs2" %% "specs2-core" % "3.8.2" % "provided" excludeAll ExclusionRule(organization = "org.ow2.asm")
   )
 
   val runners = Seq(
-    "org.specs2" %% "specs2" % "2.3.11" % "provided"  excludeAll ExclusionRule(organization = "org.ow2.asm"),
+    "org.specs2" %% "specs2-core" % "3.8.2" % "provided"  excludeAll ExclusionRule(organization = "org.ow2.asm"),
     "org.scalatest" % "scalatest_2.11" % "2.2.1" % "provided",
-    "com.lihaoyi" %% "utest" % "0.3.1" % "provided"
+    "com.lihaoyi" %% "utest" % "0.4.3" % "provided"
   )
 
   val sbtLaunchTestDownloader =
@@ -200,13 +200,13 @@ object DependencyGroups {
     "org.scalatest" % "scalatest_2.11" % "2.1.7",
     "org.scalatest" % "scalatest_2.10" % "2.1.7",
     "org.scalatest" % "scalatest_2.10" % "1.9.2",
-    "com.github.julien-truffaut"  %%  "monocle-core"    % "1.2.0",
-    "com.github.julien-truffaut"  %%  "monocle-generic" % "1.2.0",
-    "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.2.0",
-    "io.spray" %% "spray-routing" % "1.3.1",
-    "com.typesafe.slick" %% "slick" % "3.1.0",
+    "com.github.julien-truffaut"  %  "monocle-core_2.11"    % "1.2.0",
+    "com.github.julien-truffaut"  %  "monocle-generic_2.11" % "1.2.0",
+    "com.github.julien-truffaut"  %  "monocle-macro_2.11"   % "1.2.0",
+    "io.spray" % "spray-routing_2.11" % "1.3.1",
+    "com.typesafe.slick" % "slick_2.11" % "3.1.0",
     "org.scala-lang.modules" % "scala-async_2.11" % "0.9.5",
-    "org.typelevel" %% "cats" % "0.4.0"
+    "org.typelevel" % "cats_2.11" % "0.4.0"
   )
 
   val testScalaLibraryDownloader = Seq(
