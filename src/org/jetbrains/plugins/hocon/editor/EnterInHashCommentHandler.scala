@@ -7,7 +7,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler
 import com.intellij.openapi.util.Ref
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.plugins.hocon.lexer.HoconTokenType
 import org.jetbrains.plugins.hocon.psi.HoconPsiFile
@@ -57,9 +57,14 @@ class EnterInHashCommentHandler extends EnterHandlerDelegateAdapter {
   override def postProcessEnter(file: PsiFile, editor: Editor, dataContext: DataContext): Result =
     file match {
       case _: HoconPsiFile =>
+        val document = editor.getDocument
+        PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
+
         val caretModel = editor.getCaretModel
         val caretOffset = caretModel.getOffset
         val psiAtOffset = file.findElementAt(caretOffset)
+        if (psiAtOffset == null) return Result.Continue
+
         lazy val prevPsi = psiAtOffset.getPrevSiblingNotWhitespace
 
         def lineNumber(psi: PsiElement) =
