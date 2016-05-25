@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala
 package codeInspection
-package redundantReturnInspection
+package syntacticSimplification
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project

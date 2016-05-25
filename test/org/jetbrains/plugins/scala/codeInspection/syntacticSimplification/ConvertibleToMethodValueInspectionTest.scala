@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection.etaExpansion
+package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaLightInspectionFixtureTestAdapter}

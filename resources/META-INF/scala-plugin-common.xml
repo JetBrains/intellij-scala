@@ -712,25 +712,15 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.CaseClassParamInspection"
                          displayName="Case Class Parameter" groupPath="Scala" groupName="General" shortName="CaseClassParam"
                          id="CaseClassParam" level="WARNING" enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.caseClassRedundantNew.RedundantNewCaseClassInspection"
-                         displayName="Redundant New on Case Class" groupPath="Scala" groupName="General" shortName="RedundantNewCaseClass"
-                         id="RedundantNewCaseClass" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection"
                          displayName="'var' could be a 'val'" groupPath="Scala" groupName="General" shortName="VarCouldBeVal"
                          level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolInspection"
                          displayName="Unused Symbol" groupPath="Scala" groupName="General" shortName="ScalaUnusedSymbol"
                          level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.sugar.FunctionTupleSyntacticSugarInspection"
-                         displayName="Syntactic Sugar" groupPath="Scala" groupName="General" shortName="FunctionTupleSyntacticSugar"
-                         id="FunctionTupleSyntacticSugar" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.defaultFileTemplateInspection.ScalaDefaultFileTemplateUsageInspection"
                          displayName="Default file template inspection" groupPath="Scala" groupName="General" shortName="ScalaDefaultFileTemplateUsage"
                          id="ScalaDefaultFileTemplateUsage" level="WARNING" enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.AppliedTypeLambdaCanBeSimplifiedInspection"
-                         displayName="Applied Type Lambda can be simplified" groupPath="Scala" groupName="General"
-                         shortName="AppliedTypeLambdaCanBeSimplified" id="AppliedTypeLambdaCanBeSimplified"
-                         level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.KindProjectorUseCorrectLambdaKeywordInspection"
                          displayName="Kind Projector: Use correct lambda keyword" groupPath="Scala" groupName="General"
                          shortName="KindProjectorUseCorrectLambdaKeyword" id="KindProjectorUseCorrectLambdaKeyword"
@@ -759,10 +749,6 @@
                          displayName="Chained Package Clause Inspection" groupPath="Scala" groupName="General"
                          shortName="ChainedPackage" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.redundantReturnInspection.RemoveRedundantReturnInspection"
-                         displayName="Redundant Return" groupPath="Scala" groupName="General"
-                         shortName="RemoveRedundantReturn" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection"
                          displayName="Relative Import" groupPath="Scala" groupName="General"
                          shortName="RelativeImport" level="WARNING"
@@ -779,10 +765,6 @@
                          displayName="Abstract Value in Trait" groupPath="Scala" groupName="General"
                          shortName="AbstractValueInTrait" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.semicolon.ScalaUnnecessarySemicolonInspection"
-                         displayName="Scala unnecessary semicolon inspection" groupPath="Scala" groupName="General"
-                         shortName="ScalaUnnecessarySemicolon" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.xml.ScalaXmlUnmatchedTagInspection"
                          displayName="Unmatched Tag" groupPath="Scala" groupName="General" shortName="ScalaXmlUnmatchedTag" level="ERROR"
                          enabledByDefault="true" language="Scala"/>
@@ -850,10 +832,6 @@
                          displayName="Type check can be pattern matching" groupPath="Scala" groupName="General"
                          shortName="TypeCheckCanBeMatch" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.etaExpansion.ConvertibleToMethodValueInspection"
-                         displayName="Anonymous function convertible to a method value" groupPath="Scala" groupName="General"
-                         shortName="ConvertibleToMethodValue" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.ComparingUnrelatedTypesInspection"
                          displayName="Comparing unrelated types" groupPath="Scala" groupName="General"
                          shortName="ComparingUnrelatedTypes" level="WARNING"
@@ -878,10 +856,6 @@
                          displayName="No return type for implicit function" groupPath="Scala" groupName="General"
                          shortName="NoReturnTypeForImplicitDef" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.parameters.AutoTuplingInspection"
-                         displayName="Auto-tupling" groupPath="Scala" groupName="General"
-                         shortName="AutoTupling" level="WARNING"
-                         enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.DeprecatedViewBoundInspection"
                          displayName="View bounds are deprecated" groupPath="Scala" groupName="General"
                          shortName="DeprecatedViewBound" level="WARNING"
@@ -909,6 +883,38 @@
                         displayName="All Errors Tool" groupPath="Scala" groupName="General"
                         shortName="ScalaAllErrors" level="WARNING"
                         enabledByDefault="false" language="Scala"/>-->
+
+        <!--Syntactic simplification inspections (including syntactic sugaring), see SCL-10327-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.FunctionTupleSyntacticSugarInspection"
+                         displayName="Syntactic Sugar" groupPath="Scala" groupName="Syntactic Simplification"
+                         shortName="FunctionTupleSyntacticSugar" level="WARNING"
+                         id="FunctionTupleSyntacticSugar" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ScalaUnnecessarySemicolonInspection"
+                         displayName="Scala unnecessary semicolon inspection" groupPath="Scala" groupName="Syntactic Simplification"
+                         shortName="ScalaUnnecessarySemicolon" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.RemoveRedundantReturnInspection"
+                         displayName="Redundant Return" groupPath="Scala" groupName="Syntactic Simplification"
+                         shortName="RemoveRedundantReturn" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ConvertibleToMethodValueInspection"
+                         displayName="Anonymous function convertible to a method value" groupPath="Scala" groupName="Syntactic Simplification"
+                         shortName="ConvertibleToMethodValue" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeLambdaSimplify.AppliedTypeLambdaCanBeSimplifiedInspection"
+                         displayName="Applied Type Lambda can be simplified" groupPath="Scala" groupName="Syntactic Simplification"
+                         shortName="AppliedTypeLambdaCanBeSimplified" id="AppliedTypeLambdaCanBeSimplified"
+                         level="WARNING" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.RedundantNewCaseClassInspection"
+                         displayName="Redundant New on Case Class" groupPath="Scala" groupName="Syntactic Simplification"
+                         shortName="RedundantNewCaseClass"
+                         id="RedundantNewCaseClass" level="WARNING" enabledByDefault="true" language="Scala"/>
+
+        <!--Syntacitc clarification inspections (including syntactic desugaring), see SCL-10327-->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.AutoTuplingInspection"
+                         displayName="Auto-tupling" groupPath="Scala" groupName="Syntactic Clarification"
+                         shortName="AutoTupling" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
 
         <!--Method signature inspections-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.AccessorLikeMethodIsEmptyParenInspection"

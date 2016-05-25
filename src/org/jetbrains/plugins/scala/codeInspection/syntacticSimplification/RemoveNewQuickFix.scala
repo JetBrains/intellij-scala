@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.codeInspection.caseClassRedundantNew
+package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.ScalaBundle
