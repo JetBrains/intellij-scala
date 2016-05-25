@@ -83,7 +83,7 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
 
   private def types: List[Seq[() => ScType]] = typesEval
 
-  def substitutedTypes: List[Seq[() => ScType]] = types.map(_.map(f => () => substitutor.subst(f())))
+  def substitutedTypes: List[Seq[() => ScType]] = types.map(_.map(f => () => substitutor.subst(f()).unpackedType))
 
   def typeParams: Array[TypeParameter] = tParams.map(_.update(substitutor.subst))
 
