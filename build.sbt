@@ -27,13 +27,13 @@ addCommandAlias("packagePluginCommunityZip", "pluginCompressorCommunity/package"
 // Main projects
 lazy val scalaCommunity: Project =
   newProject("scalaCommunity", file("."))
-  .dependsOn(compilerSettings, scalap % "test->test;compile->compile", runners % "test->test;compile->compile", macroAnnotations)
+  .dependsOn(compilerSettings, scalap % "test->test;compile->compile", macroAnnotations)
   .enablePlugins(SbtIdeaPlugin)
   .settings(commonTestSettings(packagedPluginDir):_*)
   .settings(
     ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
-    javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6"),
-    scalacOptions in Global += "-target:jvm-1.6",
+    javacOptions in Global ++= Seq("-source", "1.8", "-target", "1.8"),
+    scalacOptions in Global += "-target:jvm-1.8",
     //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
     libraryDependencies ++= DependencyGroups.scalaCommunity,
     unmanagedJars in Compile +=  file(System.getProperty("java.home")).getParentFile / "lib" / "tools.jar",
@@ -73,12 +73,22 @@ lazy val compilerSettings =
 
 lazy val scalaRunner =
   newProject("scalaRunner", file("ScalaRunner"))
-  .settings(libraryDependencies ++= DependencyGroups.scalaRunner)
+  .settings(
+    libraryDependencies ++= DependencyGroups.scalaRunner,
+    scalaVersion := "2.11.6",
+    javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6"),
+    scalacOptions in Global += "-target:jvm-1.6"
+  )
 
 lazy val runners =
   newProject("runners", file("Runners"))
   .dependsOn(scalaRunner)
-  .settings(libraryDependencies ++= DependencyGroups.runners)
+  .settings(
+    libraryDependencies ++= DependencyGroups.runners,
+    scalaVersion := "2.11.6",
+    javacOptions in Global ++= Seq("-source", "1.6", "-target", "1.6"),
+    scalacOptions in Global += "-target:jvm-1.6"
+  )
 
 lazy val nailgunRunners =
   newProject("nailgunRunners", file("NailgunRunners"))

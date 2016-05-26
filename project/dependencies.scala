@@ -24,7 +24,7 @@ object Dependencies {
   val scalaLibrary = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect = "org.scala-lang" % "scala-reflect" % scalaVersion
   val scalaCompiler = "org.scala-lang" % "scala-compiler" % scalaVersion
-  val scalaXml = "org.scala-lang.modules" %% "scala-xml" % "1.0.2"
+  val scalaXml = "org.scala-lang.modules" %% "scala-xml" % "1.0.4"
   val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
   val sbtStructureCore = "org.jetbrains" % "sbt-structure-core_2.11" % sbtStructureVersion
   val evoInflector = "org.atteo" % "evo-inflector" % "1.2"
@@ -68,8 +68,8 @@ object Dependencies {
 
   val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
 
-  val scalastyle_2_11 = "org.scalastyle" % "scalastyle_2.11" % "0.8.0"
-  val scalariform_2_11 = "org.scalariform" % "scalariform_2.11" % "0.1.7"
+  val scalastyle_2_11 = "org.scalastyle" %% "scalastyle" % "0.8.0"
+  val scalariform_2_11 = "org.scalariform" %% "scalariform" % "0.1.7"
   val macroParadise = "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full
 
   val nailgun = "org.jetbrains" % "nailgun-patched" % "1.0.0"
