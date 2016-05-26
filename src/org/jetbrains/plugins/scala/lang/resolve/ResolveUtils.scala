@@ -489,31 +489,14 @@ object ResolveUtils {
                   case r: ResolveProcessor => r.getResolveScope
                   case _ => place.getResolveScope
                 }
-                var classes: Array[PsiClass] = manager.getCachedClasses(scope, fqn)
-                if (classes.isEmpty) {
-                  //todo: fast fix for the problem with classes, should be fixed in indexes
-                  val improvedFqn = fqn.split('.').map { s =>
-                    if (ScalaNamesUtil.isKeyword(s)) s"`$s`" else s
-                  }.mkString(".")
-                  if (improvedFqn != fqn) {
-                    classes = manager.getCachedClasses(scope, improvedFqn)
-                  }
-                }
+                val classes: Array[PsiClass] = manager.getCachedClasses(scope, fqn)
+
                 for (clazz <- classes if clazz.containingClass == null) {
                   if (!processor.execute(clazz, state)) return false
                 }
                 true
               }
               if (!calcForName(name)) return false
-              val scalaName = { //todo: fast fix for the problem with classes, should be fixed in indexes
-                base match {
-                  case r: ResolveProcessor =>
-                    val stateName = state.get(ResolverEnv.nameKey)
-                    if (stateName == null) r.name else stateName
-                  case _ => name
-                }
-              }
-              if (scalaName != name && !calcForName(scalaName)) return false
             }
 
             //process subpackages

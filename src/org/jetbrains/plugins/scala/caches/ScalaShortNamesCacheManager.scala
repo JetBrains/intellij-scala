@@ -8,6 +8,7 @@ import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.psi.stubs.StubIndex
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -30,13 +31,14 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
   def getClassByFQName(name: String, scope: GlobalSearchScope): PsiClass = {
     if (DumbService.getInstance(project).isDumb) return null
 
+    val cleanName = ScalaPsiUtil.convertMemberFqn(name)
     val classes =
-      StubIndex.getElements[java.lang.Integer, PsiClass](ScalaIndexKeys.FQN_KEY, name.hashCode, project,
+      StubIndex.getElements[java.lang.Integer, PsiClass](ScalaIndexKeys.FQN_KEY, cleanName.hashCode, project,
         new ScalaSourceFilterScope(scope, project), classOf[PsiClass])
     val iterator = classes.iterator()
     while (iterator.hasNext) {
       val clazz = iterator.next()
-      if (name == clazz.qualifiedName) {
+      if (ScalaPsiUtil.fqnNamesEquals(name, clazz.qualifiedName)) {
         clazz.getContainingFile match {
           case file: ScalaFile =>
             if (!file.isScriptFile(withCaching = true)) return clazz
@@ -50,8 +52,10 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
   def getClassesByFQName(fqn: String, scope: GlobalSearchScope): Seq[PsiClass] = {
     if (DumbService.getInstance(project).isDumb) return Seq.empty
 
+    val cleanName = ScalaPsiUtil.convertMemberFqn(fqn)
+
     val classes =
-      StubIndex.getElements[java.lang.Integer, PsiClass](ScalaIndexKeys.FQN_KEY, fqn.hashCode, project,
+      StubIndex.getElements[java.lang.Integer, PsiClass](ScalaIndexKeys.FQN_KEY, cleanName.hashCode, project,
         new ScalaSourceFilterScope(scope, project), classOf[PsiClass])
     val buffer: ArrayBuffer[PsiClass] = new ArrayBuffer[PsiClass]
     var psiClass: PsiClass = null
@@ -59,7 +63,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     val iterator = classes.iterator()
     while (iterator.hasNext) {
       val clazz = iterator.next()
-      if (fqn == clazz.qualifiedName) {
+      if (ScalaPsiUtil.fqnNamesEquals(fqn, clazz.qualifiedName)) {
         buffer += clazz
         count += 1
         psiClass = clazz
@@ -77,7 +81,7 @@ class ScalaShortNamesCacheManager(project: Project) extends ProjectComponent {
     }
     if (count == 0) return Seq.empty
     if (count == 1) return Seq(psiClass)
-    buffer.toSeq
+    buffer
   }
 
   def getAllScalaFieldNames: Seq[String] = {

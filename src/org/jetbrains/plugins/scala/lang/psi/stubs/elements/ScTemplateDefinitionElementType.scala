@@ -134,7 +134,8 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
         else javaFqn.substring(0, i)
       sink.occurrence(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, pack)
     }
-    val fqn = stub.qualName
+
+    val fqn = ScalaPsiUtil.convertMemberFqn(stub.qualName)
     if (fqn != null && !stub.isLocal) {
       sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.FQN_KEY, fqn.hashCode)
       val i = fqn.lastIndexOf(".")

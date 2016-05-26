@@ -83,7 +83,8 @@ object ScalaNamesUtil {
 
   object isBacktickedName {
     def unapply(name: String): Option[String] = {
-      if (name.startsWith("`") && name.endsWith("`")) Some(name.substring(1, name.length - 1))
+      if (name == null || name.isEmpty) None
+      else if (name != "`" && name.startsWith("`") && name.endsWith("`")) Some(name.substring(1, name.length - 1))
       else None
     }
   }
