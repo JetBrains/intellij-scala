@@ -13,7 +13,7 @@ class UsedNameClash {
 }
 
 /*
-import java.util.{Date, Enumeration, Random, Timer, UUID}
+import java.util.{Random => _, _}
 
 import scala.util._
 

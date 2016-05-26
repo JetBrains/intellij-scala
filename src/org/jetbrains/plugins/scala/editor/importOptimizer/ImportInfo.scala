@@ -83,11 +83,11 @@ case class ImportInfo(prefixQualifier: String,
   }
 
   private def template: ImportInfo =
-    copy(singleNames = Set.empty, renames = Map.empty, hiddenNames = Set.empty, allNames = allNamesForWildcard, hasWildcard = false)
+    copy(singleNames = Set.empty, renames = Map.empty, hiddenNames = Set.empty, allNames = Set.empty, hasWildcard = false)
 
-  def toWildcardInfo: ImportInfo = template.copy(hasWildcard = true)
+  def toWildcardInfo: ImportInfo = template.copy(hasWildcard = true, allNames = allNamesForWildcard)
 
-  def toHiddenNameInfo(name: String): ImportInfo = template.copy(hiddenNames = Set(name), allNames = allNames - name)
+  def toHiddenNameInfo(name: String): ImportInfo = template.copy(hiddenNames = Set(name))
 
   def withRootPrefix: ImportInfo = copy(rootUsed = true)
 

@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReferenceElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReferenceElement, ScStableCodeReferenceElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForStatement, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -137,9 +137,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
     val rangeInfos = collectRanges(createInfo(_, isImportUsed))
 
-    val optimized = rangeInfos.map {
-      case range => (range, optimizedImportInfos(range, settings))
-    }
+    val optimized = rangeInfos.map(range => (range, optimizedImportInfos(range, settings)))
 
     new Runnable {
       def run() {
@@ -470,9 +468,18 @@ object ScalaImportOptimizer {
       }
     }
 
+    def updateWithWildcardNames(buffer: ArrayBuffer[ImportInfo]) {
+      for ((info, idx) <- buffer.zipWithIndex) {
+        val withWildcardNames = info.withAllNamesForWildcard(rangeStartPsi)
+        if (info != withWildcardNames) {
+          buffer.update(idx, withWildcardNames)
+        }
+      }
+    }
+
     def possiblyWithWildcard(info: ImportInfo): ImportInfo = {
       val needUpdate = info.singleNames.size >= settings.classCountToUseImportOnDemand
-      val onlySingleNames = info.hiddenNames.isEmpty && info.renames.isEmpty
+      val onlySingleNames = info.hiddenNames.isEmpty && info.renames.isEmpty && !info.hasWildcard
 
       if (!needUpdate || !onlySingleNames) return info
 
@@ -480,20 +487,25 @@ object ScalaImportOptimizer {
 
       if (withWildcard.wildcardHasUnusedImplicit) return info
 
+      updateWithWildcardNames(infos)
+
       val explicitNames = infos.flatMap {
         case `info` => Seq.empty
         case other => other.singleNames
       }.toSet
+
       val namesFromOtherWildcards = infos.flatMap {
         case `info` => Seq.empty
         case other => other.allNames
       }.toSet -- explicitNames
 
       val problematicNames = withWildcard.allNamesForWildcard & usedImportedNames
-      val notInOtherWildcards = (problematicNames & namesFromOtherWildcards).isEmpty
+      val clashesWithOtherWildcards = problematicNames & namesFromOtherWildcards
+
       def notAtRangeStart = problematicNames.forall(name => !resolvesAtRangeStart(name))
 
-      if (notInOtherWildcards && notAtRangeStart) withWildcard
+      if (clashesWithOtherWildcards.size < info.singleNames.size && notAtRangeStart)
+        withWildcard.copy(hiddenNames = clashesWithOtherWildcards)
       else info
     }
 
@@ -504,30 +516,26 @@ object ScalaImportOptimizer {
     }
   }
 
-  def insertInto(infos: ArrayBuffer[ImportInfo],
-                 infoToInsert: ImportInfo,
-                 usedImportedNames: Set[String],
-                 settings: OptimizeImportSettings): Unit = {
-
+  def insertImportInfos(infosToAdd: Seq[ImportInfo], infos: Seq[ImportInfo], rangeStart: PsiAnchor, settings: OptimizeImportSettings): Seq[ImportInfo] = {
     import settings._
 
-    def addLastAndMoveUpwards(newInfo: ImportInfo): Unit = {
-      var i = infos.size
-      infos.insert(i, newInfo)
-      while(i > 0 && greater(infos(i - 1), infos(i), settings) && swapWithNext(infos, i - 1)) {
+    def addLastAndMoveUpwards(newInfo: ImportInfo, buffer: ArrayBuffer[ImportInfo]): Unit = {
+      var i = buffer.size
+      buffer.insert(i, newInfo)
+      while(i > 0 && greater(buffer(i - 1), buffer(i), settings) && swapWithNext(buffer, i - 1)) {
         i -= 1
       }
     }
 
-    def replace(oldInfos: Seq[ImportInfo], newInfos: Seq[ImportInfo]) = {
-      val oldIndices = oldInfos.map(infos.indexOf).filter(_ >= 0).sorted(Ordering[Int].reverse)
+    def replace(oldInfos: Seq[ImportInfo], newInfos: Seq[ImportInfo], buffer: ArrayBuffer[ImportInfo]) = {
+      val oldIndices = oldInfos.map(buffer.indexOf).filter(_ >= 0).sorted(Ordering[Int].reverse)
       if (oldIndices.nonEmpty) {
         val minIndex = oldIndices.last
-        oldIndices.foreach(infos.remove)
-        infos.insert(minIndex, newInfos: _*)
+        oldIndices.foreach(buffer.remove)
+        buffer.insert(minIndex, newInfos: _*)
       }
       else {
-        newInfos.foreach(addLastAndMoveUpwards)
+        newInfos.foreach(addLastAndMoveUpwards(_, buffer))
       }
     }
 
@@ -547,51 +555,82 @@ object ScalaImportOptimizer {
           return info.copy(prefixQualifier = newPrefix, relative = Some(newRelative), rootUsed = false)
         }
       }
-
       info
     }
 
-    val actuallyInserted = withAliasedQualifier(infoToInsert)
+    val actuallyInserted = infosToAdd.map(withAliasedQualifier)
+    val addedPrefixes = actuallyInserted.map(_.prefixQualifier)
 
-    val (samePrefixInfos, otherInfos) = infos.partition(_.prefixQualifier == actuallyInserted.prefixQualifier)
-    val samePrefixWithNewSplitted = samePrefixInfos.flatMap(_.split) ++ actuallyInserted.split
-    val (simpleInfos, notSimpleInfos) = samePrefixWithNewSplitted.partition(_.singleNames.nonEmpty)
+    val tooManySingleNames: Map[String, Boolean] = addedPrefixes.map { prefix =>
+      val singleNamesCount = (actuallyInserted ++ infos)
+        .filter(_.prefixQualifier == prefix)
+        .flatMap(_.singleNames)
+        .distinct.size
+      prefix -> (singleNamesCount >= classCountToUseImportOnDemand)
+    }.toMap
 
-    def insertInfoWithWildcard(): Unit = {
+    def insertSimpleInfo(info: ImportInfo, buffer: ArrayBuffer[ImportInfo]): Unit = {
+      val samePrefixInfos = buffer.filter(_.prefixQualifier == info.prefixQualifier)
+      if (collectImports) {
+        val merged = ImportInfo.merge(samePrefixInfos :+ info)
+        replace(samePrefixInfos, merged.toSeq, buffer)
+      }
+      else addLastAndMoveUpwards(info, buffer)
+    }
+
+    def insertInfoWithWildcard(info: ImportInfo, buffer: ArrayBuffer[ImportInfo], usedNames: Set[String]): Unit = {
+      val (samePrefixInfos, otherInfos) = buffer.partition(_.prefixQualifier == info.prefixQualifier)
+      val samePrefixWithNewSplitted = samePrefixInfos.flatMap(_.split) ++ info.split
+
+      val (simpleInfos, notSimpleInfos) = samePrefixWithNewSplitted.partition(_.singleNames.nonEmpty)
       val (wildcard, withArrows) = notSimpleInfos.partition(_.hasWildcard)
+
       val namesFromOtherWildcards = otherInfos.flatMap(_.namesFromWildcard).toSet
-      val simpleNamesToRemain = simpleInfos.flatMap(_.singleNames).toSet & namesFromOtherWildcards & usedImportedNames
+      val simpleNamesToRemain = simpleInfos.flatMap(_.singleNames).toSet & namesFromOtherWildcards & usedNames
       val simpleInfosToRemain = simpleInfos.filter(si => simpleNamesToRemain.contains(si.singleNames.head))
       val renames = withArrows.flatMap(_.renames)
       val hiddenNames = withArrows.flatMap(_.hiddenNames)
-      val newHiddenNames =
-        (actuallyInserted.allNamesForWildcard -- simpleNamesToRemain -- renames.map(_._1) -- hiddenNames) &
-          namesFromOtherWildcards & usedImportedNames
+      val newHiddenNames = {
+        val fromInsertedWildcard = info.allNamesForWildcard -- simpleNamesToRemain -- renames.map(_._1) -- hiddenNames
+        fromInsertedWildcard & namesFromOtherWildcards & usedNames
+      }
 
-      withArrows ++= newHiddenNames.map(actuallyInserted.toHiddenNameInfo)
+      withArrows ++= newHiddenNames.map(info.toHiddenNameInfo)
 
       val notSimpleMerged = ImportInfo.merge(withArrows ++ wildcard)
       if (collectImports) {
         val simpleMerged = ImportInfo.merge(simpleInfosToRemain ++ notSimpleMerged)
-        replace(samePrefixInfos, simpleMerged.toSeq)
+        replace(samePrefixInfos, simpleMerged.toSeq, buffer)
       }
       else {
-        replace(samePrefixInfos, simpleInfosToRemain ++ notSimpleMerged)
+        replace(samePrefixInfos, simpleInfosToRemain ++ notSimpleMerged, buffer)
       }
     }
 
-    if (actuallyInserted.hasWildcard) {
-      insertInfoWithWildcard()
+    val needAdditionalInfo = infosToAdd.exists(_.hasWildcard) || addedPrefixes.exists(tooManySingleNames)
+    val buffer = infos.to[ArrayBuffer]
+
+    if (needAdditionalInfo) {
+      val rangeStartPsi = rangeStart.retrieve()
+      val holder = PsiTreeUtil.getParentOfType(rangeStartPsi, classOf[ScImportsHolder])
+      val usedNames = collectUsedImportedNames(holder)
+
+      for (info <- infosToAdd) {
+        if (info.hasWildcard) {
+          insertInfoWithWildcard(info, buffer, usedNames)
+        }
+        else {
+          insertSimpleInfo(info, buffer)
+        }
+      }
+      updateToWildcardImports(buffer, rangeStart, usedNames, settings)
     }
-    else if (simpleInfos.size >= settings.classCountToUseImportOnDemand && !actuallyInserted.wildcardHasUnusedImplicit) {
-      notSimpleInfos += actuallyInserted.toWildcardInfo
-      insertInfoWithWildcard()
+    else {
+      actuallyInserted.foreach(insertSimpleInfo(_, buffer))
     }
-    else if (collectImports) {
-      val merged = ImportInfo.merge(samePrefixInfos :+ actuallyInserted)
-      replace(samePrefixInfos, merged.toSeq)
-    }
-    else addLastAndMoveUpwards(actuallyInserted)
+
+    updateRootPrefix(buffer)
+    buffer.toVector
   }
 
   private def swapWithNext(buffer: ArrayBuffer[ImportInfo], i: Int): Boolean = {
