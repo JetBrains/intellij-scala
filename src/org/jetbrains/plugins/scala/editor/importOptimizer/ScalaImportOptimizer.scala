@@ -796,6 +796,16 @@ object ScalaImportOptimizer {
     }
 
     element match {
+      case impQual: ScStableCodeReferenceElement
+        if impQual.qualifier.isEmpty && PsiTreeUtil.getParentOfType(impQual, classOf[ScImportStmt]) != null =>
+        //don't add as ImportUsed to be able to optimize it away if it is used only in unused imports
+        val hasImportUsed = impQual.multiResolve(false).exists {
+          case srr: ScalaResolveResult => srr.importsUsed.nonEmpty
+          case _ => false
+        }
+        if (hasImportUsed) {
+          names.add(UsedName(impQual.refName, impQual.getTextRange.getStartOffset))
+        }
       case ref: ScReferenceElement if PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null =>
         ref.multiResolve(false) foreach {
           case scalaResult: ScalaResolveResult => addResult(scalaResult, ref)
