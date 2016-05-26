@@ -127,8 +127,7 @@ class ScalaCodeFragment(project: Project, text: String) extends {
     clone.imports = this.imports
     clone.vFile = new LightVirtualFile("Dummy.scala",
       ScalaFileType.SCALA_FILE_TYPE, getText)
-    clone.provider = new SingleRootFileViewProvider(
-      PsiManager.getInstance(project), clone.vFile, true)
+    clone.provider = provider.clone().asInstanceOf[SingleRootFileViewProvider]
     clone.provider.forceCachedPsi(clone)
     clone
   }
