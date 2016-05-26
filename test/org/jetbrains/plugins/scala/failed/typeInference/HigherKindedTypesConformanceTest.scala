@@ -96,4 +96,12 @@ class HigherKindedTypesConformanceTest extends TypeConformanceTestBase {
       |//true""".stripMargin
   }
 
+  def testSCL10354(): Unit = doTest {
+    s"""object X {
+        |  val a = ""
+        |  ${caretMarker}val b: Option[a.type] = Some(a)
+        |}
+        |//true""".stripMargin
+  }
+
 }
