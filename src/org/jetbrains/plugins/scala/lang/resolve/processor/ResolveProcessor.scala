@@ -227,9 +227,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   object ScalaNameHint extends NameHint {
     def getName(state: ResolveState) = {
       val stateName = state.get(ResolverEnv.nameKey)
-      val result = if (stateName == null) name else stateName
-      if (result != null && result.startsWith("`") && result.endsWith("`") && result.length > 1) result.substring(1, result.length - 1)
-      else result
+      if (stateName == null) name else stateName
     }
   }
 }

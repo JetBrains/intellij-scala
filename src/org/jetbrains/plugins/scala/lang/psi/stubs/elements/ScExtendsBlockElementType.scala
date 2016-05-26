@@ -25,7 +25,7 @@ extends ScStubElementType[ScExtendsBlockStub, ScExtendsBlock]("extends block") {
 
   def indexStub(stub: ScExtendsBlockStub, sink: IndexSink) {
     for (name <- stub.getBaseClasses) {
-      sink.occurrence(ScalaIndexKeys.SUPER_CLASS_NAME_KEY, name)
+      sink.occurrence(ScalaIndexKeys.SUPER_CLASS_NAME_KEY, ScalaPsiUtil.convertMemberFqn(name))
     }
   }
 

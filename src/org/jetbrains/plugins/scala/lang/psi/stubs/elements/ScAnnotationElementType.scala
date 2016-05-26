@@ -64,7 +64,7 @@ class ScAnnotationElementType[Func <: ScAnnotation]
 
   def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit = {
 
-    val name = stub.getName
+    val name = ScalaPsiUtil.convertMemberFqn(stub.getName)
     if (name != null && name != "") {
       sink.occurrence(ScalaIndexKeys.ANNOTATED_MEMBER_KEY, name)
     }

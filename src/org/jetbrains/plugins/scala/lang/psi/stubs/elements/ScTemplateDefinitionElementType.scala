@@ -113,7 +113,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
 
   def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink) {
     if (stub.isScriptFileClass) return
-    val name = stub.getName
+    val name = ScalaPsiUtil.convertMemberFqn(stub.getName)
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.SHORT_NAME_KEY, name)
     }
@@ -134,7 +134,8 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
         else javaFqn.substring(0, i)
       sink.occurrence(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, pack)
     }
-    val fqn = stub.qualName
+
+    val fqn = ScalaPsiUtil.convertMemberFqn(stub.qualName)
     if (fqn != null && !stub.isLocal) {
       sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.FQN_KEY, fqn.hashCode)
       val i = fqn.lastIndexOf(".")
@@ -150,7 +151,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       }
     }
     if (stub.isPackageObject) {
-      val packageName = fqn.stripSuffix(".`package`")
+      val packageName = ScalaPsiUtil.convertMemberFqn(fqn.stripSuffix(".`package`"))
       val shortName = {
         val index = packageName.lastIndexOf('.')
         if (index < 0) packageName else packageName.substring(index + 1, packageName.size)

@@ -83,7 +83,8 @@ object ScalaNamesUtil {
 
   object isBacktickedName {
     def unapply(name: String): Option[String] = {
-      if (name.startsWith("`") && name.endsWith("`")) Some(name.substring(1, name.length - 1))
+      if (name == null || name.isEmpty) None
+      else if (name != "`" && name.startsWith("`") && name.endsWith("`")) Some(name.substring(1, name.length - 1))
       else None
     }
   }
@@ -94,6 +95,35 @@ object ScalaNamesUtil {
       case _ => name
     }
     NameTransformer.encode(toEncode)
+  }
+
+  def removeBacktickedIfScalaKeyword(name: String):String = {
+    name match {
+      case ScalaNamesUtil.isBacktickedName(n) if isKeyword(n) => n
+      case _ => name
+    }
+  }
+
+  def removeBacktickedIfScalaKeywordFqn(fqn: String): String = {
+    if (fqn == null || fqn.isEmpty) return fqn
+
+    if (!fqn.contains(".")) removeBacktickedIfScalaKeyword(fqn)
+    else fqn.split("\\.").map { n =>
+      removeBacktickedIfScalaKeyword(n)
+    }.mkString(".")
+  }
+
+  def addBacktickedIfScalaKeyword(name: String):String = {
+    if (isKeyword(name)) s"`$name`" else name
+  }
+
+  def addBacktickedIfScalaKeywordFqn(fqn: String): String = {
+    if (fqn == null || fqn.isEmpty) return fqn
+
+    if (!fqn.contains(".")) addBacktickedIfScalaKeyword(fqn)
+    else fqn.split("\\.").map { n =>
+      addBacktickedIfScalaKeyword(n)
+    }.mkString(".")
   }
 
   def changeKeyword(s: String): String = {

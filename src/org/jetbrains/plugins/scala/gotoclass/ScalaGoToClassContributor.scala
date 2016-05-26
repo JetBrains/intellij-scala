@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndex
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 import scala.collection.JavaConversions._
@@ -23,8 +24,9 @@ class ScalaGoToClassContributor extends ChooseByNameContributor {
 
   def getItemsByName(name: String, pattern: String, project: Project, includeNonProjectItems: Boolean): Array[NavigationItem] = {
     val scope = if (includeNonProjectItems) GlobalSearchScope.allScope(project) else GlobalSearchScope.projectScope(project)
-    val classes = StubIndex.getElements(ScalaIndexKeys.NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, name, project, scope, classOf[PsiClass])
-    val packageObjects = StubIndex.getElements(ScalaIndexKeys.PACKAGE_OBJECT_SHORT_NAME_KEY, name, project, scope, classOf[PsiClass])
+    val cleanName = ScalaPsiUtil.convertMemberFqn(name)
+    val classes = StubIndex.getElements(ScalaIndexKeys.NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, cleanName, project, scope, classOf[PsiClass])
+    val packageObjects = StubIndex.getElements(ScalaIndexKeys.PACKAGE_OBJECT_SHORT_NAME_KEY, cleanName, project, scope, classOf[PsiClass])
     (classes ++ packageObjects).toArray
   }
 }
