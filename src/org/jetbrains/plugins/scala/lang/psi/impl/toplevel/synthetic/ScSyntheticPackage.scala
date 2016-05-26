@@ -75,12 +75,14 @@ object ScSyntheticPackage {
     val i = fqn.lastIndexOf(".")
     val name = if (i < 0) fqn else fqn.substring(i + 1)
 
+    val cleanName = ScalaPsiUtil.convertMemberFqn(fqn)
+
     import com.intellij.psi.stubs.StubIndex
 
     import scala.collection.JavaConversions._
     val packages = StubIndex.getElements(
       ScalaIndexKeys.PACKAGE_FQN_KEY.asInstanceOf[StubIndexKey[Any, ScPackageContainer]],
-      fqn.hashCode(), project, GlobalSearchScope.allScope(project), classOf[ScPackageContainer]).toSeq
+      cleanName.hashCode(), project, GlobalSearchScope.allScope(project), classOf[ScPackageContainer]).toSeq
 
     if (packages.isEmpty) {
       StubIndex.getElements(
@@ -107,7 +109,7 @@ object ScSyntheticPackage {
       }
     } else {
       val pkgs = packages.filter(pc => {
-          pc.fqn.startsWith(fqn) && fqn.startsWith(pc.prefix)
+          ScalaPsiUtil.convertMemberFqn(pc.fqn).startsWith(cleanName) && cleanName.startsWith(ScalaPsiUtil.convertMemberFqn(pc.prefix))
       })
 
       if (pkgs.isEmpty) null else {
@@ -116,18 +118,18 @@ object ScSyntheticPackage {
           override def getFiles(globalSearchScope: GlobalSearchScope): Array[PsiFile] = Array.empty //todo: ?
 
           def findClassByShortName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {
-            getClasses.filter(_.name == name)
+            getClasses.filter(n => ScalaPsiUtil.fqnNamesEquals(n.name, name))
           }
 
           def containsClassNamed(name: String): Boolean = {
-            getClasses.exists(_.name == name)
+            getClasses.exists(n => ScalaPsiUtil.fqnNamesEquals(n.name, name))
           }
 
           def getQualifiedName = fqn
 
           def getClasses = {
             Array(pkgs.flatMap(p =>
-              if (p.fqn.length == fqn.length)
+              if (ScalaPsiUtil.convertMemberFqn(p.fqn).length == cleanName.length)
                 p.typeDefs.flatMap {
                   case td@(c: ScTypeDefinition) if c.fakeCompanionModule.isDefined =>
                     Seq(td, c.fakeCompanionModule.get)

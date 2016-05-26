@@ -166,6 +166,20 @@ object ScalaPsiUtil {
     NameTransformer.decode(s1)
   }
 
+  def convertMemberFqn(fqn: String): String = {
+    if (fqn == null || fqn.isEmpty)
+      fqn
+    else if (fqn.contains("."))
+      fqn.split("\\.").map(convertMemberName).mkString(".")
+    else
+      convertMemberName(fqn)
+  }
+
+  def fqnNamesEquals(l: String, r: String): Boolean = {
+    if (l == r) return true
+    convertMemberFqn(l) == convertMemberFqn(r)
+  }
+
   def memberNamesEquals(l: String, r: String): Boolean = {
     if (l == r) return true
     convertMemberName(l) == convertMemberName(r)

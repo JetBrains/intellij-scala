@@ -34,6 +34,7 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Null, ParameterizedType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, SyntheticClassProducer}
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedWithoutModificationCount, ValueWrapper}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -97,7 +98,9 @@ class ScalaPsiManager(val project: Project) {
   }
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
-  def getCachedPackage(fqn: String): Option[PsiPackage] = {
+  def getCachedPackage(inFqn: String): Option[PsiPackage] = {
+    //to find java packages with scala keyword name as PsiPackage not ScSyntheticPackage
+    val fqn = ScalaNamesUtil.removeBacktickedIfScalaKeywordFqn(inFqn)
     Option(JavaPsiFacade.getInstance(project).findPackage(fqn))
   }
 

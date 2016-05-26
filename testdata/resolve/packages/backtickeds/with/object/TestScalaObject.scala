@@ -1,0 +1,3 @@
+object TestScalaObject {
+  def foo = ???
+}

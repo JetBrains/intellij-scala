@@ -96,6 +96,22 @@ object ScalaNamesUtil {
     NameTransformer.encode(toEncode)
   }
 
+  def removeBacktickedIfScalaKeyword(name: String):String = {
+    name match {
+      case ScalaNamesUtil.isBacktickedName(n) if isKeyword(n) => n
+      case _ => name
+    }
+  }
+
+  def removeBacktickedIfScalaKeywordFqn(fqn: String): String = {
+    if (fqn == null || fqn.isEmpty) return fqn
+
+    if (!fqn.contains(".")) removeBacktickedIfScalaKeyword(fqn)
+    else fqn.split("\\.").map { n =>
+      removeBacktickedIfScalaKeyword(n)
+    }.mkString(".")
+  }
+
   def changeKeyword(s: String): String = {
     if (ScalaNamesUtil.isKeyword(s)) "`" + s + "`"
     else s
