@@ -173,8 +173,8 @@ class ScNewTemplateDefinitionImpl private (stub: StubElement[ScTemplateDefinitio
 
   override def getAllMethods: Array[PsiMethod] = {
     val res = new ArrayBuffer[PsiMethod]()
-    TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) { node =>
-      this.processPsiMethodsForNode(node, isStatic = false, isInterface = false)(res += _)
+    TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) flatMap {
+      case signatureNode => this.processPsiMethodsForNode(signatureNode, isStatic = false, isInterface = false)
     }
     res.toArray
   }

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.dotty.lang.psi.impl.toplevel.typedef
 import javax.swing.Icon
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiClass
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -21,7 +21,7 @@ class DottyTypeDefinitionImpl(node: ASTNode)
 
   override def constructor: Option[ScPrimaryConstructor] = ???
 
-  override def fakeCompanionClass: PsiClass = ???
-
   override def parameters: Seq[ScParameter] = ???
+
+  override def getObjectClassOrTraitToken: PsiElement = super[ScTrait].getObjectClassOrTraitToken
 }

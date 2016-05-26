@@ -15,17 +15,13 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiUtil
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, PsiClassWrapper}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
@@ -86,9 +82,9 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
     super.getName + "$"
   }
 
-  override def hasModifierProperty(name: String): Boolean = {
-    if (name == "final") return true
-    super[ScTypeDefinitionImpl].hasModifierProperty(name)
+  override def hasModifierProperty(name: String): Boolean = name match {
+    case "final" => true
+    case _ => super[ScTypeDefinitionImpl].hasModifierProperty(name)
   }
 
   override def isObject : Boolean = true
@@ -154,7 +150,7 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
             case e: Exception => //do not add methods with wrong signature
           }
         })
-        res.toSeq
+        res
       case _ => Seq.empty
     }
     res ++ super.syntheticMethodsWithOverrideImpl
@@ -171,13 +167,9 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
     }
   }
 
-  def fakeCompanionClassOrCompanionClass: PsiClass = {
-    fakeCompanionClass match {
-      case Some(clazz) => clazz
-      case _ =>
-        ScalaPsiUtil.getCompanionModule(this).get
-    }
-  }
+  def fakeCompanionClassOrCompanionClass: PsiClass = fakeCompanionClass
+    .orElse(ScalaPsiUtil.getCompanionModule(this))
+    .get
 
   @Cached(synchronized = false, ModCount.getBlockModificationCount, this)
   private def getModuleField: Option[PsiField] = {
@@ -204,29 +196,6 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
 
   override def getInnerClasses: Array[PsiClass] = Array.empty
 
-  override def getMethods: Array[PsiMethod] = {
-    getAllMethods.filter(_.containingClass == this)
-  }
-
-  override def getAllMethods: Array[PsiMethod] = {
-    val res = new ArrayBuffer[PsiMethod]()
-    res ++= getConstructors
-    TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) { node =>
-      val isInterface = node.info.namedElement match {
-        case t: ScTypedDefinition if t.isAbstractMember => true
-        case _ => false
-      }
-      this.processPsiMethodsForNode(node, isStatic = false, isInterface = isInterface)(res += _)
-    }
-
-    for (synthetic <- syntheticMethodsNoOverride) {
-      this.processPsiMethodsForNode(new SignatureNodes.Node(new PhysicalSignature(synthetic, ScSubstitutor.empty),
-        ScSubstitutor.empty),
-        isStatic = false, isInterface = isInterface)(res += _)
-    }
-    res.toArray
-  }
-
   @volatile
   private var emptyObjectConstructor: EmptyPrivateConstructor = null
   @volatile
@@ -243,10 +212,6 @@ class ScObjectImpl protected (stub: StubElement[ScTemplateDefinition], nodeType:
   override def getTextRange: TextRange = {
     if (isSyntheticObject) null
     else super.getTextRange
-  }
-
-  override def getInterfaces: Array[PsiClass] = {
-    getSupers.filter(_.isInterface)
   }
 
   private val hardParameterlessSignatures: mutable.WeakHashMap[Project, TypeDefinitionMembers.ParameterlessNodes.Map] =

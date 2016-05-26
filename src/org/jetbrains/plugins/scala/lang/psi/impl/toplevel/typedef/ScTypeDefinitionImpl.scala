@@ -29,11 +29,12 @@ import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScToplevelElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScToplevelElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScMemberOrLocal, ScTemplateDefinitionStub}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
@@ -434,5 +435,38 @@ extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScTypeDefinition wi
 
   override def getOriginalElement: PsiElement = {
     ScalaPsiImplementationHelper.getOriginalClass(this)
+  }
+
+  override def getMethods: Array[PsiMethod] = {
+    getAllMethods.filter(_.containingClass == this)
+  }
+
+  override def getInterfaces: Array[PsiClass] = {
+    getSupers.filter(_.isInterface)
+  }
+
+  override def getAllMethods: Array[PsiMethod] = getAllMethodsWithNames.map(_._1).toArray
+
+  def getAllMethodsWithNames: Seq[(PsiMethod, String)] = {
+    (getConstructors map {
+      case constuctor => (constuctor, constuctor.getName)
+    }) ++
+      (TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) flatMap {
+        case signatureNode => this.processPsiMethodsForNode(signatureNode,
+          isStatic = false,
+          isInterface = isInterfaceNode(signatureNode))
+      }) ++
+      (syntheticMethodsNoOverride map {
+        new PhysicalSignature(_, ScSubstitutor.empty)
+      } map {
+        new SignatureNodes.Node(_, ScSubstitutor.empty)
+      } flatMap {
+        this.processPsiMethodsForNode(_, isStatic = false, isInterface = isInterface)
+      })
+  }
+
+  protected def isInterfaceNode(node: SignatureNodes.Node): Boolean = node.info.namedElement match {
+    case definition: ScTypedDefinition if definition.isAbstractMember => true
+    case _ => false
   }
 }

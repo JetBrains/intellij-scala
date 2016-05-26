@@ -13,24 +13,21 @@ import com.intellij.psi.impl.light.LightField
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.SignatureNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
+import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalSignature, ScSubstitutor, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
-import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -69,15 +66,11 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     findChild(classOf[ScPrimaryConstructor])
   }
 
-  def parameters = constructor match {
-    case Some(c) => c.effectiveParameterClauses.flatMap(_.unsafeClassParameters)
-    case None => Seq.empty
+  def parameters = constructor.toSeq.flatMap {
+    _.effectiveParameterClauses.flatMap(_.unsafeClassParameters)
   }
 
-  override def members = constructor match {
-    case Some(c) => super.members ++ Seq(c)
-    case _ => super.members
-  }
+  override def members = super.members ++ constructor
 
   import com.intellij.psi.scope.PsiScopeProcessor
   import com.intellij.psi.{PsiElement, ResolveState}
@@ -108,66 +101,39 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
   }
 
-  override def isCase: Boolean = hasModifierProperty("case")
+  override def getAllMethodsWithNames = {
+    val methods = super.getAllMethodsWithNames
+    val names = methods.map(_._2).toSet
 
-  override def getMethods: Array[PsiMethod] = {
-    getAllMethods.filter(_.containingClass == this)
-  }
-
-  override def getAllMethods: Array[PsiMethod] = {
-    val res = new ArrayBuffer[PsiMethod]()
-    val names = new mutable.HashSet[String]
-    res ++= getConstructors
-
-    TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(this) { node =>
-      val isInterface = node.info.namedElement match {
-        case t: ScTypedDefinition if t.isAbstractMember => true
-        case _ => false
-      }
-      this.processPsiMethodsForNode(node, isStatic = false, isInterface = isInterface)(res += _, names += _)
+    def createSyntheticMethod(text: String) = {
+      val function = ScalaPsiElementFactory.createMethodWithContext(text, this, this)
+      function.setSynthetic(this)
+      function
     }
 
-    for (synthetic <- syntheticMethodsNoOverride) {
-      this.processPsiMethodsForNode(new SignatureNodes.Node(new PhysicalSignature(synthetic, ScSubstitutor.empty),
-        ScSubstitutor.empty),
-        isStatic = false, isInterface = isInterface)(res += _, names += _)
-    }
-
-
-    if (isCase) { //for Scala this is done in ScalaOIUtil.isProductAbstractMethod, for Java we do it here
-      val caseClassGeneratedFunctions = Array(
+    val syntheticMethods = (isCase match {
+      //for Scala this is done in ScalaOIUtil.isProductAbstractMethod, for Java we do it here
+      case true => Seq(
         "def canEqual(that: Any): Boolean = ???",
         "def equals(that: Any): Boolean = ???",
         "def productArity: Int = ???",
         "def productElement(n: Int): Any = ???"
       )
+      case _ => Seq.empty
+    }) map {
+      case text =>
+        val function = createSyntheticMethod(text)
+        (function, function.name)
+    }
 
-      caseClassGeneratedFunctions.foreach { funText =>
-        val fun: ScFunction = ScalaPsiElementFactory.createMethodWithContext(funText, this, this)
-        fun.setSynthetic(this)
-        res += fun
+    val companionMethods = ScalaPsiUtil.getCompanionModule(this) match {
+      case Some(o: ScObjectImpl) => o.getAllMethodsWithNames filter {
+        case (function, name) => !names.contains(name)
       }
+      case _ => Seq.empty
     }
 
-    ScalaPsiUtil.getCompanionModule(this) match {
-      case Some(o: ScObject) =>
-        def add(method: PsiMethod) {
-          if (!names.contains(method.getName)) {
-            res += method
-          }
-        }
-        TypeDefinitionMembers.SignatureNodes.forAllSignatureNodes(o) { node =>
-          this.processPsiMethodsForNode(node, isStatic = true, isInterface = false)(add)
-        }
-
-        for (synthetic <- o.syntheticMethodsNoOverride) {
-          this.processPsiMethodsForNode(new SignatureNodes.Node(new PhysicalSignature(synthetic, ScSubstitutor.empty),
-            ScSubstitutor.empty),
-            isStatic = true, isInterface = false)(res += _, names += _)
-        }
-      case _ =>
-    }
-    res.toArray
+    methods ++ syntheticMethods ++ companionMethods
   }
 
   override def getConstructors: Array[PsiMethod] = {
@@ -290,8 +256,4 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
   }
 
   override def getTypeParameterList: PsiTypeParameterList = typeParametersClause.orNull
-
-  override def getInterfaces: Array[PsiClass] = {
-    getSupers.filter(_.isInterface)
-  }
 }

@@ -5,7 +5,7 @@ package api
 package toplevel
 package typedef
 
-import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
+import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
@@ -23,9 +23,7 @@ trait ScObject extends ScTypeDefinition with ScTypedDefinition with ScMember wit
     isSyntheticCaseClassCompanion = true
   }
 
-  def getObjectToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kOBJECT)
-
-  def getObjectClassOrTraitToken = getObjectToken
+  def getObjectClassOrTraitToken = findFirstChildByType(ScalaTokenTypes.kOBJECT)
 
   def declaredElements = Seq(this)
 

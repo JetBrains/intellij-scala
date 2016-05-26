@@ -5,7 +5,7 @@ package api
 package toplevel
 package typedef
 
-import com.intellij.psi.{PsiElement, PsiMethod}
+import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
@@ -25,13 +25,10 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
   }
 
   def constructors: Array[PsiMethod] = {
-    (secondaryConstructors ++ constructor.toSeq).toArray
+    (secondaryConstructors ++ constructor).toArray
   }
 
-  def clauses: Option[ScParameters] = constructor match {
-    case Some(x: ScPrimaryConstructor) => Some(x.parameterList)
-    case None => None
-  }
+  def clauses: Option[ScParameters] = constructor.map(_.parameterList)
 
   def addEmptyParens() {
     clauses match {
@@ -108,9 +105,7 @@ trait ScClass extends ScTypeDefinition with ScParameterOwner {
 
   def getSyntheticImplicitMethod: Option[ScFunction]
 
-  def getClassToken: PsiElement = findFirstChildByType(ScalaTokenTypes.kCLASS)
-
-  def getObjectClassOrTraitToken = getClassToken
+  def getObjectClassOrTraitToken = findFirstChildByType(ScalaTokenTypes.kCLASS)
 
   override def accept(visitor: ScalaElementVisitor): Unit = visitor.visitClass(this)
 }
