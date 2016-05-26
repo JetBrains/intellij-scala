@@ -36,8 +36,8 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
     case MethodRepr(expr, _, Some(ref), _)
       if ref.bind().exists(srr => srr.implicitType.nonEmpty || srr.implicitFunction.nonEmpty) =>
       //do nothing if implicit conversions are involved
-    case MethodRepr(expr, Some(qual), Some(_), args) =>
-      if (allArgsUnderscores(args) && onlyStableValuesUsed(qual))
+    case MethodRepr(expr, qualOpt, Some(_), args) =>
+      if (allArgsUnderscores(args) && qualOpt.forall(onlyStableValuesUsed))
         registerProblem(holder, expr, InspectionBundle.message("convertible.to.method.value.anonymous.hint"))
     case und: ScUnderscoreSection if und.bindingExpr.isDefined =>
       val isInParameterOfParameterizedClass = PsiTreeUtil.getParentOfType(und, classOf[ScClassParameter]) match {
@@ -46,7 +46,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
       }
       def checkStable() = und.bindingExpr.get match {
         case ScReferenceExpression.withQualifier(qual) => onlyStableValuesUsed(qual)
-        case e => onlyStableValuesUsed(e)
+        case e => true
       }
       if (!isInParameterOfParameterizedClass && checkStable())
         registerProblem(holder, und, InspectionBundle.message("convertible.to.method.value.eta.hint"))
