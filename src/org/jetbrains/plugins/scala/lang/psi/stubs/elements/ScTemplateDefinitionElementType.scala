@@ -118,7 +118,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.SHORT_NAME_KEY, name)
     }
-    val javaName = stub.javaName
+    val javaName = ScalaNamesUtil.convertMemberFqn(stub.javaName)
     if (javaName != null && stub.isVisibleInJava) sink.occurrence(JavaStubIndexKeys.CLASS_SHORT_NAMES, javaName)
     else sink.occurrence(ScalaIndexKeys.NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, name)
     sink.occurrence(ScalaIndexKeys.ALL_CLASS_NAMES, javaName)
@@ -126,7 +126,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     for (name <- additionalNames) {
       sink.occurrence(ScalaIndexKeys.ALL_CLASS_NAMES, name)
     }
-    val javaFqn = stub.javaQualName
+    val javaFqn = ScalaNamesUtil.convertMemberFqn(stub.javaQualName)
     if (javaFqn != null && !stub.isLocal && stub.isVisibleInJava) {
       sink.occurrence[PsiClass, java.lang.Integer](JavaStubIndexKeys.CLASS_FQN, javaFqn.hashCode)
       val i = javaFqn.lastIndexOf(".")

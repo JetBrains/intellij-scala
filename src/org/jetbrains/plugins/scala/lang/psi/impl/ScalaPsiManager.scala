@@ -100,7 +100,7 @@ class ScalaPsiManager(val project: Project) {
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.SofterReference, clearCacheOnOutOfBlockChange)
   def getCachedPackage(inFqn: String): Option[PsiPackage] = {
     //to find java packages with scala keyword name as PsiPackage not ScSyntheticPackage
-    val fqn = ScalaNamesUtil.removeBacktickedIfScalaKeywordFqn(inFqn)
+    val fqn = ScalaNamesUtil.convertMemberFqn(inFqn)
     Option(JavaPsiFacade.getInstance(project).findPackage(fqn))
   }
 
@@ -179,7 +179,7 @@ class ScalaPsiManager(val project: Project) {
     }
     if (DumbService.getInstance(project).isDumb) return Array.empty
 
-    val classes = getCachedFacadeClasses(scope, fqn)
+    val classes = getCachedFacadeClasses(scope, ScalaNamesUtil.convertMemberFqn(fqn))
     val fromScala = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(fqn, scope)
     ArrayUtil.mergeArrays(classes, ArrayUtil.mergeArrays(fromScala.toArray, SyntheticClassProducer.getAllClasses(fqn, scope)))
   }

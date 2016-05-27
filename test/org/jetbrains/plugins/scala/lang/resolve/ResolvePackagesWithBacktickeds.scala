@@ -22,5 +22,11 @@ class ResolvePackagesWithBacktickeds extends ScalaResolveTestCase {
 
   def testClassInPackageWithJavaKeyword() = checkReference()
 
-  def testJavaClass() = checkReference()
+  def testJavaClass() =
+    checkReference()
+
+  def testScalaClass() = checkReference()
+
+  def testMethodInBactickedsPackage() = checkReference()
+
 }
