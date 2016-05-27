@@ -174,7 +174,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
                 var state = ResolveState.initial.put(ScSubstitutor.key, subst).
                   put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
                 if (!ScalaNamesUtil.memberNamesEquals(param.name, ref.refName)) {
-                  state = state.put(ResolverEnv.nameKey, param.deprecatedName.get)
+                  state = state.put(ResolverEnv.nameKey, ScalaNamesUtil.convertMemberName(param.deprecatedName.get))
                 }
                 processor.execute(param, state)
               case None =>
@@ -282,7 +282,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
                       var state = ResolveState.initial.put(ScSubstitutor.key, subst).
                         put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
                       if (!ScalaNamesUtil.memberNamesEquals(param.name, ref.refName)) {
-                        state = state.put(ResolverEnv.nameKey, param.deprecatedName.get)
+                        state = state.put(ResolverEnv.nameKey, ScalaNamesUtil.convertMemberName(param.deprecatedName.get))
                       }
                       baseProcessor.execute(param, state)
                     case None =>
