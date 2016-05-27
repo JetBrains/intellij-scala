@@ -1215,4 +1215,34 @@ class ScalaBasicCompletionTest extends ScalaCodeInsightTestBase {
 
     doTest(fileText, "name", result)
   }
+
+  def testClassInPackageWithBackticks(): Unit ={
+    val fileText =
+      """
+        |package `interface` {
+        | class ScalaClass {
+        |
+        | }
+        |}
+        |
+        |object Test {
+        | new ScalaC<caret>
+        |}
+      """.stripMargin
+
+    val result =
+      """
+        |import `interface`.ScalaClass
+        |package `interface` {
+        | class ScalaClass {
+        |
+        | }
+        |}
+        |
+        |object Test {
+        | new ScalaClass
+        |}"""
+
+    doTest(fileText, "ScalaClass", result)
+  }
 }
