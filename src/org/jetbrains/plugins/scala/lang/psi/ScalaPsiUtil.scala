@@ -1985,7 +1985,7 @@ object ScalaPsiUtil {
               case PhysicalSignature(fun: ScFunction, _) if fun.isAbstractMember => fun
             }
             val constrValid: Boolean = templDef match { //if it's a class check its constructor
-              case cla: ScClass => cla.constructor.fold(false)(constructorValidForSAM)
+              case cla: ScConstructorOwner => cla.constructor.fold(false)(constructorValidForSAM)
               case tr: ScTrait => true
               case _ => false
             }

@@ -280,7 +280,7 @@ package object extensions {
 
     def constructors: Array[PsiMethod] = {
       clazz match {
-        case c: ScClass => c.constructors
+        case c: ScConstructorOwner => c.constructors.toArray
         case _ => clazz.getConstructors
       }
     }
