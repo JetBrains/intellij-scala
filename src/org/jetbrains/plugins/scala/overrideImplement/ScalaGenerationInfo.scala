@@ -147,11 +147,11 @@ object ScalaGenerationInfo {
         else "super."
     }
     def paramText(param: PsiParameter) = {
-      val name = ScalaNamesUtil.addBacktickedIfScalaKeyword(param.name).toOption.getOrElse("")
+      val name = ScalaNamesUtil.changeKeyword(param.name).toOption.getOrElse("")
       val whitespace = if (name.endsWith("_")) " " else ""
       name + (if (param.isVarArgs) whitespace + ": _*" else "")
     }
-    val methodName = ScalaNamesUtil.addBacktickedIfScalaKeyword(method.name)
+    val methodName = ScalaNamesUtil.changeKeyword(method.name)
     val parametersText: String = {
       method match {
         case fun: ScFunction =>

@@ -135,8 +135,8 @@ object ScalaNamesUtil {
     splitName(fqn).map(removeBacktickedIfScalaKeyword).mkString(".")
 
   def addBacktickedIfScalaKeywordFqn(fqn: String): String =
-    splitName(fqn).map(addBacktickedIfScalaKeyword).mkString(".")
+    splitName(fqn).map(changeKeyword).mkString(".")
 
-  def addBacktickedIfScalaKeyword(s: String): String =
+  def changeKeyword(s: String): String =
     if (ScalaNamesUtil.isKeyword(s)) s"`$s`" else s
 }
