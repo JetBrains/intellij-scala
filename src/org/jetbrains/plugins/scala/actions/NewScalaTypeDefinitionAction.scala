@@ -127,7 +127,10 @@ object NewScalaTypeDefinitionAction {
     val project = directory.getProject
     val template: FileTemplate = FileTemplateManager.getInstance(project).getInternalTemplate(templateName)
     val properties: Properties = new Properties(FileTemplateManager.getInstance(project).getDefaultProperties())
-    JavaTemplateUtil.setPackageNameAttribute(properties, directory)
+
+    properties.setProperty(FileTemplate.ATTRIBUTE_PACKAGE_NAME,
+      ScalaNamesUtil.addBacktickedIfScalaKeywordFqn(JavaTemplateUtil.getPackageName(directory)))
+
     properties.setProperty(NAME_TEMPLATE_PROPERTY, name)
     properties.setProperty(LOW_CASE_NAME_TEMPLATE_PROPERTY, name.substring(0, 1).toLowerCase + name.substring(1))
 

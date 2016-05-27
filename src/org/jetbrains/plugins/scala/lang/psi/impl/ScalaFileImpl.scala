@@ -197,12 +197,15 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   }
 
 
-  def setPackageName(name: String) {
+  def setPackageName(inName: String) {
     // TODO support multiple base packages simultaneously
     val basePackageName = {
       val basePackages = ScalaProjectSettings.getInstance(getProject).getBasePackages.asScala
-      basePackages.find(name.startsWith).getOrElse("")
+      basePackages.find(inName.startsWith).getOrElse("")
     }
+
+    import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.addBacktickedIfScalaKeywordFqn
+    val name = addBacktickedIfScalaKeywordFqn(inName)
 
     this match {
       // Handle package object
