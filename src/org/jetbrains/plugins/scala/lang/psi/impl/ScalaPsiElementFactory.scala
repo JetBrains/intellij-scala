@@ -811,7 +811,7 @@ object ScalaPsiElementFactory {
         }
         builder ++= retAndBody
       case _ =>
-        builder ++= "def " + ScalaNamesUtil.changeKeyword(method.name)
+        builder ++= "def " + ScalaNamesUtil.addBacktickedIfScalaKeyword(method.name)
         if (method.hasTypeParameters) {
           val params = method.getTypeParameters
           val strings = for (param <- params) yield {
@@ -837,7 +837,7 @@ object ScalaPsiElementFactory {
               case null => param match {case param: ClsParameterImpl => param.getStub.getName case _ => null}
               case x => x
             }
-            val pName: String = ScalaNamesUtil.changeKeyword(paramName)
+            val pName: String = ScalaNamesUtil.addBacktickedIfScalaKeyword(paramName)
             val colon = if (pName.endsWith("_")) " : " else ": "
             val scType: ScType = substitutor.subst(param.getTypeElement.getType.toScType(method.getProject))
             val typeText = scType match {
