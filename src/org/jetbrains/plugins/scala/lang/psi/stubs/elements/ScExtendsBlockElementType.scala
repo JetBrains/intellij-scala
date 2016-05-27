@@ -10,6 +10,7 @@ import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScExtendsBlockStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * @author ilyas
@@ -25,7 +26,7 @@ extends ScStubElementType[ScExtendsBlockStub, ScExtendsBlock]("extends block") {
 
   def indexStub(stub: ScExtendsBlockStub, sink: IndexSink) {
     for (name <- stub.getBaseClasses) {
-      sink.occurrence(ScalaIndexKeys.SUPER_CLASS_NAME_KEY, ScalaPsiUtil.convertMemberFqn(name))
+      sink.occurrence(ScalaIndexKeys.SUPER_CLASS_NAME_KEY, ScalaNamesUtil.convertMemberFqn(name))
     }
   }
 

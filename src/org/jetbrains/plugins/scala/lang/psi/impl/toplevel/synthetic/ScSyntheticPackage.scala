@@ -15,8 +15,9 @@ import com.intellij.psi.stubs.StubIndexKey
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageContainer
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScClass, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
@@ -75,7 +76,7 @@ object ScSyntheticPackage {
     val i = fqn.lastIndexOf(".")
     val name = if (i < 0) fqn else fqn.substring(i + 1)
 
-    val cleanName = ScalaPsiUtil.convertMemberFqn(fqn)
+    val cleanName = ScalaNamesUtil.convertMemberFqn(fqn)
 
     import com.intellij.psi.stubs.StubIndex
 
@@ -89,7 +90,7 @@ object ScSyntheticPackage {
         ScalaIndexKeys.PACKAGE_OBJECT_KEY.asInstanceOf[StubIndexKey[Any, PsiClass]],
         cleanName.hashCode(), project, GlobalSearchScope.allScope(project), classOf[PsiClass]).toSeq.
         find(pc => {
-        ScalaPsiUtil.fqnNamesEquals(pc.qualifiedName, fqn)
+          ScalaNamesUtil.fqnNamesEquals(pc.qualifiedName, fqn)
       }) match {
         case Some(obj) =>
           val pname = if (i < 0) "" else fqn.substring(0, i)
@@ -109,7 +110,7 @@ object ScSyntheticPackage {
       }
     } else {
       val pkgs = packages.filter(pc => {
-          ScalaPsiUtil.convertMemberFqn(pc.fqn).startsWith(cleanName) && cleanName.startsWith(ScalaPsiUtil.convertMemberFqn(pc.prefix))
+        ScalaNamesUtil.convertMemberFqn(pc.fqn).startsWith(cleanName) && cleanName.startsWith(ScalaNamesUtil.convertMemberFqn(pc.prefix))
       })
 
       if (pkgs.isEmpty) null else {
@@ -118,18 +119,18 @@ object ScSyntheticPackage {
           override def getFiles(globalSearchScope: GlobalSearchScope): Array[PsiFile] = Array.empty //todo: ?
 
           def findClassByShortName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {
-            getClasses.filter(n => ScalaPsiUtil.fqnNamesEquals(n.name, name))
+            getClasses.filter(n => ScalaNamesUtil.fqnNamesEquals(n.name, name))
           }
 
           def containsClassNamed(name: String): Boolean = {
-            getClasses.exists(n => ScalaPsiUtil.fqnNamesEquals(n.name, name))
+            getClasses.exists(n => ScalaNamesUtil.fqnNamesEquals(n.name, name))
           }
 
           def getQualifiedName = fqn
 
           def getClasses = {
             Array(pkgs.flatMap(p =>
-              if (ScalaPsiUtil.convertMemberFqn(p.fqn).length == cleanName.length)
+              if (ScalaNamesUtil.convertMemberFqn(p.fqn).length == cleanName.length)
                 p.typeDefs.flatMap {
                   case td@(c: ScTypeDefinition) if c.fakeCompanionModule.isDefined =>
                     Seq(td, c.fakeCompanionModule.get)

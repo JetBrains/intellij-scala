@@ -160,31 +160,6 @@ object ScalaPsiUtil {
     }
   }
 
-  def convertMemberName(s: String): String = {
-    if (s == null || s.isEmpty) return s
-    val s1 = if (s(0) == '`' && s.length() > 1) s.tail.dropRight(1) else s
-    NameTransformer.decode(s1)
-  }
-
-  def convertMemberFqn(fqn: String): String = {
-    if (fqn == null || fqn.isEmpty)
-      fqn
-    else if (fqn.contains("."))
-      fqn.split("\\.").map(convertMemberName).mkString(".")
-    else
-      convertMemberName(fqn)
-  }
-
-  def fqnNamesEquals(l: String, r: String): Boolean = {
-    if (l == r) return true
-    convertMemberFqn(l) == convertMemberFqn(r)
-  }
-
-  def memberNamesEquals(l: String, r: String): Boolean = {
-    if (l == r) return true
-    convertMemberName(l) == convertMemberName(r)
-  }
-
   def cachedDeepIsInheritor(clazz: PsiClass, base: PsiClass): Boolean = {
     val manager = ScalaPsiManager.instance(clazz.getProject)
     manager.cachedDeepIsInheritor(clazz, base)

@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInsidePsiElement, ModCount}
 
 import scala.collection.mutable.ArrayBuffer
@@ -101,13 +102,13 @@ trait ScPrimaryConstructor extends ScMember with ScMethodLike with ScAnnotations
   def getParamByName(name: String, clausePosition: Int = -1): Option[ScParameter] = {
     clausePosition match {
       case -1 =>
-        for (param <- parameters if ScalaPsiUtil.memberNamesEquals(param.name, name)) return Some(param)
+        for (param <- parameters if ScalaNamesUtil.memberNamesEquals(param.name, name)) return Some(param)
         None
       case i if i < 0 => None
       case i if i >= effectiveParameterClauses.length => None
       case i =>
         val clause: ScParameterClause = effectiveParameterClauses.apply(i)
-        for (param <- clause.parameters if ScalaPsiUtil.memberNamesEquals(param.name, name)) return Some(param)
+        for (param <- clause.parameters if ScalaNamesUtil.memberNamesEquals(param.name, name)) return Some(param)
         None
     }
   }

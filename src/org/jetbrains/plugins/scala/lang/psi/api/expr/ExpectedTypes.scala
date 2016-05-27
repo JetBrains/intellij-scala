@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, ScalaResolveResult}
 
 import scala.annotation.tailrec
@@ -367,7 +368,7 @@ private[expr] object ExpectedTypes {
             val lE = assign.getLExpression
             lE match {
               case ref: ScReferenceExpression if ref.qualifier.isEmpty =>
-                params.find(parameter => ScalaPsiUtil.memberNamesEquals(parameter.name, ref.refName)) match {
+                params.find(parameter => ScalaNamesUtil.memberNamesEquals(parameter.name, ref.refName)) match {
                   case Some(param) => res += ((param.paramType, param.paramInCode.flatMap(_.typeElement)))
                   case _ => res += p
                 }

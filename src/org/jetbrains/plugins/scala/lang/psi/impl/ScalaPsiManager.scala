@@ -118,7 +118,7 @@ class ScalaPsiManager(val project: Project) {
 
   def getStableAliasesByName(name: String, scope: GlobalSearchScope): Seq[ScTypeAlias] = {
     val types: util.Collection[ScTypeAlias] =
-      StubIndex.getElements(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, ScalaPsiUtil.convertMemberFqn(name), project,
+      StubIndex.getElements(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, ScalaNamesUtil.convertMemberFqn(name), project,
         new ScalaSourceFilterScope(scope, project), classOf[ScTypeAlias])
     import scala.collection.JavaConversions._
     types.toSeq
@@ -195,7 +195,7 @@ class ScalaPsiManager(val project: Project) {
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None, clearCacheOnLowMemory, clearCacheOnOutOfBlockChange)
   private def getJavaPackageClassNamesCached(packageFQN: String, scope: GlobalSearchScope): JSet[String] = {
     val classes: util.Collection[PsiClass] =
-      StubIndex.getElements(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, ScalaPsiUtil.convertMemberFqn(packageFQN), project,
+      StubIndex.getElements(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, ScalaNamesUtil.convertMemberFqn(packageFQN), project,
         new ScalaSourceFilterScope(scope, project), classOf[PsiClass])
     val strings: util.HashSet[String] = new util.HashSet[String]
     val classesIterator = classes.iterator()
@@ -219,7 +219,7 @@ class ScalaPsiManager(val project: Project) {
 
   @CachedWithoutModificationCount(synchronized = false, ValueWrapper.None, clearCacheOnLowMemory, clearCacheOnOutOfBlockChange)
   def getScalaClassNamesCached(packageFQN: String, scope: GlobalSearchScope): mutable.HashSet[String] = {
-    val cleanName = ScalaPsiUtil.convertMemberFqn(packageFQN)
+    val cleanName = ScalaNamesUtil.convertMemberFqn(packageFQN)
     val classes: util.Collection[PsiClass] =
       StubIndex.getElements(ScalaIndexKeys.CLASS_NAME_IN_PACKAGE_KEY, cleanName, project,
         new ScalaSourceFilterScope(scope, project), classOf[PsiClass])

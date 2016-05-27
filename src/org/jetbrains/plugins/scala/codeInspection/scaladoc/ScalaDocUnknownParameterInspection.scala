@@ -31,7 +31,7 @@ class ScalaDocUnknownParameterInspection extends LocalInspectionTool {
         val tagTypeParams = mutable.HashMap[String, ScDocTag]()
         val duplicatingParams = mutable.HashSet[ScDocTag]()
 
-        import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.convertMemberName
+        import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.convertMemberName
         def insertDuplicating(element: Option[ScDocTag], duplicateElement: ScDocTag) {
           element.foreach(duplicatingParams +=(_, duplicateElement))
         }

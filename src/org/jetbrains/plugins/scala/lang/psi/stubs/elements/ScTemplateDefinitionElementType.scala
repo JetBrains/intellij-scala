@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * @author ilyas, alefas
@@ -113,7 +114,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
 
   def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink) {
     if (stub.isScriptFileClass) return
-    val name = ScalaPsiUtil.convertMemberFqn(stub.getName)
+    val name = ScalaNamesUtil.convertMemberFqn(stub.getName)
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.SHORT_NAME_KEY, name)
     }
@@ -135,7 +136,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       sink.occurrence(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, pack)
     }
 
-    val fqn = ScalaPsiUtil.convertMemberFqn(stub.qualName)
+    val fqn = ScalaNamesUtil.convertMemberFqn(stub.qualName)
     if (fqn != null && !stub.isLocal) {
       sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.FQN_KEY, fqn.hashCode)
       val i = fqn.lastIndexOf(".")
@@ -151,7 +152,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       }
     }
     if (stub.isPackageObject) {
-      val packageName = ScalaPsiUtil.convertMemberFqn(fqn.stripSuffix(".`package`"))
+      val packageName = ScalaNamesUtil.convertMemberFqn(fqn.stripSuffix(".`package`"))
       val shortName = {
         val index = packageName.lastIndexOf('.')
         if (index < 0) packageName else packageName.substring(index + 1, packageName.size)
