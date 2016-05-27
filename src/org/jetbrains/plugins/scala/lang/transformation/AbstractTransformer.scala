@@ -14,5 +14,5 @@ abstract class AbstractTransformer extends Transformer {
     transformation.lift(e).nonEmpty
   }
 
-  protected def transformation: PartialFunction[PsiElement, Unit]
+  def transformation: PartialFunction[PsiElement, Unit]
 }

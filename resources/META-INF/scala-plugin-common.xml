@@ -916,6 +916,10 @@
                          displayName="Auto-tupling" groupPath="Scala" groupName="Syntactic Clarification"
                          shortName="AutoTupling" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.ConcealedApplyCall"
+                         displayName="Concealed &quot;apply&quot; call" groupPath="Scala" groupName="Syntactic Clarification"
+                         shortName="ConcealedApplyCall" level="WARNING"
+                         enabledByDefault="false" language="Scala"/>
 
         <!--Method signature inspections-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.AccessorLikeMethodIsEmptyParenInspection"
