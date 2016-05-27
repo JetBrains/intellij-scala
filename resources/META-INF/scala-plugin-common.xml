@@ -879,6 +879,10 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.functionExpressions.UnnecessaryPartialFunctionInspection"
                          displayName="Unnecessary Partial Function" groupPath="Scala" groupName="General" shortName="UnnecessaryPartialFunction"
                          id="UnnecessaryPartialFunction" level="WARNING" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.convertNullInitializerToUnderscore.ConvertNullInitializerToUnderscore"
+                         displayName="Null initializer can be replaced by _" groupPath="Scala" groupName="General"
+                         shortName="ConvertNullInitializerToUnderscore" level="WEAK WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
                         displayName="All Errors Tool" groupPath="Scala" groupName="General"
                         shortName="ScalaAllErrors" level="WARNING"
@@ -1182,7 +1186,6 @@
                          displayName="Deprecated with type" groupPath="Scala" groupName="Other"
                          shortName="DottyDeprecatedWith" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-
 
         <!-- scaladoc inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnclosedTagWithoutParserInspection"
