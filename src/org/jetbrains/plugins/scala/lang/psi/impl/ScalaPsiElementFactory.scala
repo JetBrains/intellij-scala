@@ -401,7 +401,7 @@ object ScalaPsiElementFactory {
   }
 
   def createImportExprFromText(name: String, manager: PsiManager): ScImportExpr = {
-    val text = "import " + name
+    val text = "import " + ScalaNamesUtil.addBacktickedIfScalaKeywordFqn(name)
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
@@ -416,7 +416,7 @@ object ScalaPsiElementFactory {
   }
 
   def createReferenceFromText(name: String, manager: PsiManager): ScStableCodeReferenceElement = {
-    val text = "import " + name
+    val text = "import " + ScalaNamesUtil.addBacktickedIfScalaKeywordFqn(name) //java qName doesn't contain bactickeds, even for scala keywords
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]

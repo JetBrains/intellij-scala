@@ -113,6 +113,19 @@ object ScalaNamesUtil {
     }.mkString(".")
   }
 
+  def addBacktickedIfScalaKeyword(name: String):String = {
+    if (isKeyword(name)) s"`$name`" else name
+  }
+
+  def addBacktickedIfScalaKeywordFqn(fqn: String): String = {
+    if (fqn == null || fqn.isEmpty) return fqn
+
+    if (!fqn.contains(".")) addBacktickedIfScalaKeyword(fqn)
+    else fqn.split("\\.").map { n =>
+      addBacktickedIfScalaKeyword(n)
+    }.mkString(".")
+  }
+
   def changeKeyword(s: String): String = {
     if (ScalaNamesUtil.isKeyword(s)) "`" + s + "`"
     else s

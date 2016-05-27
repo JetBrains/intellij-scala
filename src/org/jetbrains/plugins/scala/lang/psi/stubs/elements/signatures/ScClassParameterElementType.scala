@@ -26,7 +26,7 @@ class ScClassParameterElementType extends ScParamElementType[ScClassParameter]("
 
     val name = stub.getName
       if (name != null) {
-        sink.occurrence(ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY, name)
+        sink.occurrence(ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY, ScalaPsiUtil.convertMemberFqn(name))
       }
   }
 }

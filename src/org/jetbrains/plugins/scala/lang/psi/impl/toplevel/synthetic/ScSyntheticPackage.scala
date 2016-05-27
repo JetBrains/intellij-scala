@@ -87,9 +87,9 @@ object ScSyntheticPackage {
     if (packages.isEmpty) {
       StubIndex.getElements(
         ScalaIndexKeys.PACKAGE_OBJECT_KEY.asInstanceOf[StubIndexKey[Any, PsiClass]],
-        fqn.hashCode(), project, GlobalSearchScope.allScope(project), classOf[PsiClass]).toSeq.
+        cleanName.hashCode(), project, GlobalSearchScope.allScope(project), classOf[PsiClass]).toSeq.
         find(pc => {
-        pc.qualifiedName == fqn
+        ScalaPsiUtil.fqnNamesEquals(pc.qualifiedName, fqn)
       }) match {
         case Some(obj) =>
           val pname = if (i < 0) "" else fqn.substring(0, i)

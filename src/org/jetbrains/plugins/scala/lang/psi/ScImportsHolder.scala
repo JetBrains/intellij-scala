@@ -185,7 +185,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     val place = getImportStatements.lastOption.getOrElse(getFirstChild.getNextSibling)
 
     val importInfosToAdd = paths.filterNot(samePackage).flatMap { path =>
-      val importText = s"import $path"
+      val importText = s"import ${ScalaNamesUtil.addBacktickedIfScalaKeywordFqn(path)}"
       val importStmt = ScalaPsiElementFactory.createImportFromTextWithContext(importText, this, place)
       createInfo(importStmt)
     }
