@@ -89,6 +89,12 @@ object ScalaNamesUtil {
     }
   }
 
+  def splitName(name: String): Seq[String] = {
+    if (name == null || name.isEmpty) Seq.empty
+    else if (name.contains(".")) name.split("\\.")
+    else Seq(name)
+  }
+
   def toJavaName(name: String) = {
     val toEncode = name match {
       case ScalaNamesUtil.isBacktickedName(s) => s
@@ -97,20 +103,16 @@ object ScalaNamesUtil {
     NameTransformer.encode(toEncode)
   }
 
-  def convertMemberName(s: String): String = {
-    if (s == null || s.isEmpty) return s
-    val s1 = if (s(0) == '`' && s.length() > 1) s.tail.dropRight(1) else s
-    NameTransformer.decode(s1)
+  def convertMemberName(name: String): String = {
+    val toDecode = name match {
+      case ScalaNamesUtil.isBacktickedName(s) => s
+      case _ => name
+    }
+    NameTransformer.decode(toDecode)
   }
 
-  def convertMemberFqn(fqn: String): String = {
-    if (fqn == null || fqn.isEmpty)
-      fqn
-    else if (fqn.contains("."))
-      fqn.split("\\.").map(convertMemberName).mkString(".")
-    else
-      convertMemberName(fqn)
-  }
+  def convertMemberFqn(fqn: String): String =
+    splitName(fqn).map(convertMemberName).mkString(".")
 
   def fqnNamesEquals(l: String, r: String): Boolean = {
     if (l == r) return true
@@ -129,30 +131,12 @@ object ScalaNamesUtil {
     }
   }
 
-  def removeBacktickedIfScalaKeywordFqn(fqn: String): String = {
-    if (fqn == null || fqn.isEmpty) return fqn
+  def removeBacktickedIfScalaKeywordFqn(fqn: String): String =
+    splitName(fqn).map(removeBacktickedIfScalaKeyword).mkString(".")
 
-    if (!fqn.contains(".")) removeBacktickedIfScalaKeyword(fqn)
-    else fqn.split("\\.").map { n =>
-      removeBacktickedIfScalaKeyword(n)
-    }.mkString(".")
-  }
+  def addBacktickedIfScalaKeywordFqn(fqn: String): String =
+    splitName(fqn).map(addBacktickedIfScalaKeyword).mkString(".")
 
-  def addBacktickedIfScalaKeyword(name: String):String = {
-    if (isKeyword(name)) s"`$name`" else name
-  }
-
-  def addBacktickedIfScalaKeywordFqn(fqn: String): String = {
-    if (fqn == null || fqn.isEmpty) return fqn
-
-    if (!fqn.contains(".")) addBacktickedIfScalaKeyword(fqn)
-    else fqn.split("\\.").map { n =>
-      addBacktickedIfScalaKeyword(n)
-    }.mkString(".")
-  }
-
-  def changeKeyword(s: String): String = {
-    if (ScalaNamesUtil.isKeyword(s)) "`" + s + "`"
-    else s
-  }
+  def addBacktickedIfScalaKeyword(s: String): String =
+    if (ScalaNamesUtil.isKeyword(s)) s"`$s`" else s
 }
