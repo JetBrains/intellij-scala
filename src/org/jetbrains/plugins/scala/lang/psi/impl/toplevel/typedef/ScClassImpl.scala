@@ -6,13 +6,11 @@ package toplevel
 package typedef
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightField
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -25,7 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
-import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, ModCount}
 
 import scala.collection.mutable.ArrayBuffer
@@ -56,21 +53,11 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
 
   override def getIconInner = Icons.CLASS
 
-  def constructor: Option[ScPrimaryConstructor] = {
-    val stub = getStub
-    if (stub != null) {
-      val array =
-        stub.getChildrenByType(ScalaElementTypes.PRIMARY_CONSTRUCTOR, JavaArrayFactoryUtil.ScPrimaryConstructorFactory)
-      return array.headOption
-    }
-    findChild(classOf[ScPrimaryConstructor])
+  override def constructor = Option(getStub) flatMap {
+    _.getChildrenByType(ScalaElementTypes.PRIMARY_CONSTRUCTOR, JavaArrayFactoryUtil.ScPrimaryConstructorFactory).headOption
+  } orElse {
+    super.constructor
   }
-
-  def parameters = constructor.toSeq.flatMap {
-    _.effectiveParameterClauses.flatMap(_.unsafeClassParameters)
-  }
-
-  override def members = super.members ++ constructor
 
   import com.intellij.psi.scope.PsiScopeProcessor
   import com.intellij.psi.{PsiElement, ResolveState}
@@ -79,26 +66,8 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
                                   lastParent: PsiElement,
                                   place: PsiElement): Boolean = {
     if (DumbService.getInstance(getProject).isDumb) return true
-    if (!super[ScTemplateDefinition].processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
-
-    constructor match {
-      case Some(constr) if place != null && PsiTreeUtil.isContextAncestor(constr, place, false) =>
-        //ignore, should be processed in ScParameters
-      case _ =>
-        for (p <- parameters) {
-          ProgressManager.checkCanceled()
-          if (processor.isInstanceOf[BaseProcessor]) { // don't expose class parameters to Java.
-            if (!processor.execute(p, state)) return false
-          }
-        }
-    }
-
+    if (!super.processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)
-  }
-
-  override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
-                                   place: PsiElement): Boolean = {
-    super[ScTemplateDefinition].processDeclarations(processor, state, lastParent, place)
   }
 
   override def getAllMethodsWithNames = {
@@ -134,16 +103,6 @@ class ScClassImpl private (stub: StubElement[ScTemplateDefinition], nodeType: IE
     }
 
     methods ++ syntheticMethods ++ companionMethods
-  }
-
-  override def getConstructors: Array[PsiMethod] = {
-    val buffer = new ArrayBuffer[PsiMethod]
-    buffer ++= functions.filter(_.isConstructor).flatMap(_.getFunctionWrappers(isStatic = false, isInterface = false, Some(this)))
-    constructor match {
-      case Some(x) => buffer ++= x.getFunctionWrappers
-      case _ =>
-    }
-    buffer.toArray
   }
 
   override protected def syntheticMethodsNoOverrideImpl: Seq[PsiMethod] = {

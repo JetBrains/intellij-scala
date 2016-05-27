@@ -1934,7 +1934,7 @@ object ScalaPsiUtil {
     */
   def toSAMType(expected: ScType, scalaScope: GlobalSearchScope)
                (implicit typeSystem: TypeSystem): Option[ScType] = {
-    def constructorValidForSAM(constructors: Array[PsiMethod]): Boolean = {
+    def constructorValidForSAM(constructors: Seq[PsiMethod]): Boolean = {
       //primary constructor (if any) must be public, no-args, not overloaded
       constructors.length match {
         case 0 => true
@@ -1952,7 +1952,7 @@ object ScalaPsiUtil {
               case PhysicalSignature(fun: ScFunction, _) if fun.isAbstractMember => fun
             }
             val constrValid = templDef match { //if it's a class check its constructor
-              case cla: ScClass => constructorValidForSAM(cla.constructors)
+              case cla: ScConstructorOwner => constructorValidForSAM(cla.constructors)
               case tr: ScTrait => true
               case _ => false
             }
