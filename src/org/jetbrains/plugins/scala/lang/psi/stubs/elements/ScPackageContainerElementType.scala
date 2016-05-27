@@ -9,6 +9,7 @@ import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutp
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging.ScPackageContainer
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPackageContainerStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * @author ilyas
@@ -39,7 +40,7 @@ extends ScStubElementType[ScPackageContainerStub, ScPackageContainer](debugName)
     val prefix = stub.prefix
     var ownNamePart = stub.ownNamePart
     def append(postfix : String) =
-      ScalaPsiUtil.convertMemberFqn(if (prefix.length > 0) prefix + "." + postfix else postfix)
+      ScalaNamesUtil.convertMemberFqn(if (prefix.length > 0) prefix + "." + postfix else postfix)
 
     var i = 0
     do {

@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScAnnotationImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAnnotationStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -64,7 +65,7 @@ class ScAnnotationElementType[Func <: ScAnnotation]
 
   def indexStub(stub: ScAnnotationStub, sink: IndexSink): Unit = {
 
-    val name = ScalaPsiUtil.convertMemberFqn(stub.getName)
+    val name = ScalaNamesUtil.convertMemberFqn(stub.getName)
     if (name != null && name != "") {
       sink.occurrence(ScalaIndexKeys.ANNOTATED_MEMBER_KEY, name)
     }

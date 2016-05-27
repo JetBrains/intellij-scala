@@ -45,7 +45,7 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
   public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
     final boolean searchAll = ScalaProjectSettings.getInstance(project).isSearchAllSymbols();
     final GlobalSearchScope scope = includeNonProjectItems ? GlobalSearchScope.allScope(project) : GlobalSearchScope.projectScope(project);
-    String cleanName = ScalaPsiUtil.convertMemberFqn(name);
+    String cleanName = ScalaNamesUtil.convertMemberFqn(name);
     final Collection<ScFunction> methods =
         StubIndex.getElements(ScalaIndexKeys.METHOD_NAME_KEY(), cleanName, project,
             new ScalaSourceFilterScope(scope, project), ScFunction.class);
@@ -85,7 +85,7 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
         for (PsiNamedElement elem : elems) {
           if (elem instanceof NavigationItem) {
             String navigationItemName = ScalaNamesUtil.scalaName(elem);
-            if (ScalaPsiUtil.fqnNamesEquals(name, navigationItemName)) items.add((NavigationItem) elem);
+            if (ScalaNamesUtil.fqnNamesEquals(name, navigationItemName)) items.add((NavigationItem) elem);
           }
         }
       }
@@ -97,7 +97,7 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
         for (PsiNamedElement elem : elems) {
           if (elem instanceof NavigationItem) {
             String navigationItemName = ScalaNamesUtil.scalaName(elem);
-            if (ScalaPsiUtil.fqnNamesEquals(name, navigationItemName)) items.add((NavigationItem) elem);
+            if (ScalaNamesUtil.fqnNamesEquals(name, navigationItemName)) items.add((NavigationItem) elem);
           }
         }
       }
@@ -106,7 +106,7 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
     for (PsiClass clazz : notVisibleInJava) {
       if (!isLocal(clazz) || searchAll) {
         String navigationItemName = ScalaNamesUtil.scalaName(clazz);
-        if (ScalaPsiUtil.fqnNamesEquals(name, navigationItemName)) items.add(clazz);
+        if (ScalaNamesUtil.fqnNamesEquals(name, navigationItemName)) items.add(clazz);
       }
     }
 

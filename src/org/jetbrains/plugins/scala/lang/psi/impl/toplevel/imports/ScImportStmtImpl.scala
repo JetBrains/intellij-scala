@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportStmtStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypingContext}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolvableStableCodeReferenceElement, ResolveTargets, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
@@ -67,10 +68,10 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
         val nameHint = processor.getHint(NameHint.KEY)
         val name = if (nameHint == null) "" else nameHint.getName(state)
         if (name != "" && !importExpr.singleWildcard) {
-          val decodedName = ScalaPsiUtil.convertMemberName(name)
+          val decodedName = ScalaNamesUtil.convertMemberName(name)
           importExpr.selectorSet match {
-            case Some(set) => set.selectors.exists(selector => ScalaPsiUtil.convertMemberName(selector.reference.refName) == decodedName)
-            case None => if (ScalaPsiUtil.convertMemberName(ref.refName) != decodedName) return true
+            case Some(set) => set.selectors.exists(selector => ScalaNamesUtil.convertMemberName(selector.reference.refName) == decodedName)
+            case None => if (ScalaNamesUtil.convertMemberName(ref.refName) != decodedName) return true
           }
         }
         val checkWildcardImports = processor match {
