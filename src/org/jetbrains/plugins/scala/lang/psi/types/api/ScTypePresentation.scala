@@ -42,7 +42,7 @@ trait ScTypePresentation extends TypeSystemOwner {
 
   final def canonicalText(`type`: ScType) = {
     def removeKeywords(s: String): String = {
-      s.split('.').map(s => if (ScalaNamesUtil.isKeyword(s)) "`" + s + "`" else s).mkString(".")
+      s.split('.').map(ScalaNamesUtil.addBacktickedIfScalaKeyword).mkString(".")
     }
     def nameFun(e: PsiNamedElement, withPoint: Boolean): String = {
       removeKeywords(e match {

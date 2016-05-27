@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
   */
 
 abstract class IntermediateNode {
-  def escapeKeyword(name: String): String = if (ScalaNamesUtil.isKeyword(name)) "`" + name + "`" else name
+  def escapeKeyword(name: String): String = ScalaNamesUtil.addBacktickedIfScalaKeyword(name)
 }
 
 
