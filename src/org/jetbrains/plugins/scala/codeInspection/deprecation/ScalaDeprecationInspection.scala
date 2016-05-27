@@ -26,7 +26,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
       val refElement = result.getOrElse(return).element
       refElement match {
         case param: ScParameter if result.get.isNamedParameter &&
-          !ScalaNamesUtil.memberNamesEquals(param.name, name)=>
+          !ScalaNamesUtil.equivalent(param.name, name)=>
           val description: String = s"Parameter name ${param.deprecatedName.get} is deprecated"
           holder.registerProblem(holder.getManager.createProblemDescriptor(elementToHighlight, description, true,
             ProblemHighlightType.LIKE_DEPRECATED, isOnTheFly))

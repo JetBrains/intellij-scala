@@ -256,7 +256,7 @@ object ImportInfo {
     }
   }
 
-  private def fixName(s: String) = ScalaNamesUtil.addBacktickedIfScalaKeyword(s)
+  private def fixName(s: String) = ScalaNamesUtil.escapeKeyword(s)
 
   @tailrec
   private def explicitQualifierString(ref: ScStableCodeReferenceElement, withDeepest: Boolean, res: String = ""): String = {

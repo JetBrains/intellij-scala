@@ -24,7 +24,7 @@ class ScalaGoToClassContributor extends ChooseByNameContributor {
 
   def getItemsByName(name: String, pattern: String, project: Project, includeNonProjectItems: Boolean): Array[NavigationItem] = {
     val scope = if (includeNonProjectItems) GlobalSearchScope.allScope(project) else GlobalSearchScope.projectScope(project)
-    val cleanName = ScalaNamesUtil.convertMemberFqn(name)
+    val cleanName = ScalaNamesUtil.cleanFqn(name)
     val classes = StubIndex.getElements(ScalaIndexKeys.NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, cleanName, project, scope, classOf[PsiClass])
     val packageObjects = StubIndex.getElements(ScalaIndexKeys.PACKAGE_OBJECT_SHORT_NAME_KEY, cleanName, project, scope, classOf[PsiClass])
     (classes ++ packageObjects).toArray

@@ -37,6 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScControlFlowOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -204,8 +205,7 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
       basePackages.find(inName.startsWith).getOrElse("")
     }
 
-    import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.addBacktickedIfScalaKeywordFqn
-    val name = addBacktickedIfScalaKeywordFqn(inName)
+    val name = ScalaNamesUtil.escapeKeywordsFqn(inName)
 
     this match {
       // Handle package object

@@ -84,7 +84,7 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
 
   def indexStub(stub: ScFunctionStub, sink: IndexSink) {
 
-    val name = ScalaNamesUtil.convertMemberFqn(stub.getName)
+    val name = ScalaNamesUtil.cleanFqn(stub.getName)
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.METHOD_NAME_KEY, name)
     }

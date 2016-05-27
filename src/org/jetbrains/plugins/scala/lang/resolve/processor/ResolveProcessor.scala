@@ -172,7 +172,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       if (name == "") return false
       name
     } else  nameSet
-    val nameMatches = ScalaNamesUtil.memberNamesEquals(elName, name)
+    val nameMatches = ScalaNamesUtil.equivalent(elName, name)
     nameMatches && kindMatches(named)
   }
 

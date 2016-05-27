@@ -114,11 +114,11 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
 
   def indexStub(stub: ScTemplateDefinitionStub, sink: IndexSink) {
     if (stub.isScriptFileClass) return
-    val name = ScalaNamesUtil.convertMemberFqn(stub.getName)
+    val name = ScalaNamesUtil.cleanFqn(stub.getName)
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.SHORT_NAME_KEY, name)
     }
-    val javaName = ScalaNamesUtil.convertMemberFqn(stub.javaName)
+    val javaName = ScalaNamesUtil.cleanFqn(stub.javaName)
     if (javaName != null && stub.isVisibleInJava) sink.occurrence(JavaStubIndexKeys.CLASS_SHORT_NAMES, javaName)
     else sink.occurrence(ScalaIndexKeys.NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, name)
     sink.occurrence(ScalaIndexKeys.ALL_CLASS_NAMES, javaName)
@@ -126,7 +126,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
     for (name <- additionalNames) {
       sink.occurrence(ScalaIndexKeys.ALL_CLASS_NAMES, name)
     }
-    val javaFqn = ScalaNamesUtil.convertMemberFqn(stub.javaQualName)
+    val javaFqn = ScalaNamesUtil.cleanFqn(stub.javaQualName)
     if (javaFqn != null && !stub.isLocal && stub.isVisibleInJava) {
       sink.occurrence[PsiClass, java.lang.Integer](JavaStubIndexKeys.CLASS_FQN, javaFqn.hashCode)
       val i = javaFqn.lastIndexOf(".")
@@ -136,7 +136,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       sink.occurrence(ScalaIndexKeys.JAVA_CLASS_NAME_IN_PACKAGE_KEY, pack)
     }
 
-    val fqn = ScalaNamesUtil.convertMemberFqn(stub.qualName)
+    val fqn = ScalaNamesUtil.cleanFqn(stub.qualName)
     if (fqn != null && !stub.isLocal) {
       sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.FQN_KEY, fqn.hashCode)
       val i = fqn.lastIndexOf(".")
@@ -152,7 +152,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       }
     }
     if (stub.isPackageObject) {
-      val packageName = ScalaNamesUtil.convertMemberFqn(fqn.stripSuffix(".`package`"))
+      val packageName = fqn.stripSuffix(".package")
       val shortName = {
         val index = packageName.lastIndexOf('.')
         if (index < 0) packageName else packageName.substring(index + 1, packageName.size)

@@ -26,7 +26,7 @@ object ScalaNamesUtil {
   private def checkGeneric(text: String, predicate: ScalaLexer => Boolean): Boolean = {
 //    ApplicationManager.getApplication.assertReadAccessAllowed() - looks like we don't need it
     if (text == null || text == "") return false
-    
+
     val lexer = lexerCache.get()
     lexer.start(text, 0, text.length(), 0)
     if (!predicate(lexer)) return false
@@ -53,7 +53,7 @@ object ScalaNamesUtil {
   }
 
   def isKeyword(text: String): Boolean = keywordNames.contains(text)
-  
+
   def isOperatorName(text: String): Boolean = isIdentifier(text) && isOpCharacter(text(0))
 
   def scalaName(element: PsiElement) = element match {
@@ -103,7 +103,7 @@ object ScalaNamesUtil {
     NameTransformer.encode(toEncode)
   }
 
-  def convertMemberName(name: String): String = {
+  def clean(name: String): String = {
     val toDecode = name match {
       case ScalaNamesUtil.isBacktickedName(s) => s
       case _ => name
@@ -111,32 +111,18 @@ object ScalaNamesUtil {
     NameTransformer.decode(toDecode)
   }
 
-  def convertMemberFqn(fqn: String): String =
-    splitName(fqn).map(convertMemberName).mkString(".")
+  def cleanFqn(fqn: String): String =
+    splitName(fqn).map(clean).mkString(".")
 
-  def fqnNamesEquals(l: String, r: String): Boolean = {
-    if (l == r) return true
-    convertMemberFqn(l) == convertMemberFqn(r)
-  }
+  def equivalentFqn(l: String, r: String): Boolean =
+    l == r || cleanFqn(l) == cleanFqn(r)
 
-  def memberNamesEquals(l: String, r: String): Boolean = {
-    if (l == r) return true
-    convertMemberName(l) == convertMemberName(r)
-  }
+  def equivalent(l: String, r: String): Boolean =
+    l == r || clean(l) == clean(r)
 
-  def removeBacktickedIfScalaKeyword(name: String):String = {
-    name match {
-      case ScalaNamesUtil.isBacktickedName(n) if isKeyword(n) => n
-      case _ => name
-    }
-  }
+  def escapeKeywordsFqn(fqn: String): String =
+    splitName(fqn).map(escapeKeyword).mkString(".")
 
-  def removeBacktickedIfScalaKeywordFqn(fqn: String): String =
-    splitName(fqn).map(removeBacktickedIfScalaKeyword).mkString(".")
-
-  def addBacktickedIfScalaKeywordFqn(fqn: String): String =
-    splitName(fqn).map(addBacktickedIfScalaKeyword).mkString(".")
-
-  def addBacktickedIfScalaKeyword(s: String): String =
+  def escapeKeyword(s: String): String =
     if (ScalaNamesUtil.isKeyword(s)) s"`$s`" else s
 }
