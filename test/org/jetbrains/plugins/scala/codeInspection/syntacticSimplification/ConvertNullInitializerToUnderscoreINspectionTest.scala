@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
-import org.jetbrains.plugins.scala.codeInspection.convertNullInitializerToUnderscore.ConvertNullInitializerToUnderscore
+import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.ConvertNullInitializerToUnderscore
 
 /**
   * Created by a.tsukanov on 27.05.2016.
@@ -13,10 +13,18 @@ class ConvertNullInitializerToUnderscoreInspectionTest extends ScalaLightInspect
 
   def testSimpleCase(): Unit = {
     def testType(typeName: String): Unit = {
-      val declaration = s"${START}var x: $typeName = null$END"
+      val declaration =
+        s"""class A {
+           |  var x: $typeName = ${START}null$END
+           |}""".stripMargin
+
+      val fixedDeclaration =
+        s"""class A {
+            |  var x: $typeName = _
+            |}""".stripMargin
 
       check(declaration)
-      testFix(declaration, s"var x: $typeName = _", annotation)
+      testFix(declaration, fixedDeclaration, annotation)
     }
 
     testType("String")
@@ -24,7 +32,7 @@ class ConvertNullInitializerToUnderscoreInspectionTest extends ScalaLightInspect
     testType("List[_]")
   }
 
-  def testDeclarationsWithStdValType(): Unit = {
+  def testDeclarationsWithStdValueType(): Unit = {
     def testType(typeName: String): Unit = checkTextHasNoErrors(s"var x: $typeName = null")
 
     testType("Char")
@@ -36,10 +44,18 @@ class ConvertNullInitializerToUnderscoreInspectionTest extends ScalaLightInspect
   }
 
   def testMultiDeclaration(): Unit = {
-    val declaration = s"${START}var a, b, c: String = null$END"
+    val declaration =
+      s"""class A {
+         |  var a, b, c: String = ${START}null$END
+         |}""".stripMargin
+
+    val fixedDeclaration =
+      s"""class A {
+          |  var a, b, c: String = _
+          |}""".stripMargin
 
     check(declaration)
-    testFix(declaration, "var a, b, c: String = _", annotation)
+    testFix(declaration, fixedDeclaration, annotation)
   }
 
   def testDeclarationWithUnderscore(): Unit = {
@@ -54,6 +70,11 @@ class ConvertNullInitializerToUnderscoreInspectionTest extends ScalaLightInspect
   }
 
   def testValDeclaration(): Unit = {
+    checkTextHasNoErrors("val x: String = null")
+    checkTextHasNoErrors("val x: Unit = null")
+  }
+
+  def testLocalDeclaration(): Unit = {
     checkTextHasNoErrors("val x: String = null")
     checkTextHasNoErrors("val x: Unit = null")
   }

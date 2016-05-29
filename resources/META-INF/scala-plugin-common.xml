@@ -879,10 +879,6 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.functionExpressions.UnnecessaryPartialFunctionInspection"
                          displayName="Unnecessary Partial Function" groupPath="Scala" groupName="General" shortName="UnnecessaryPartialFunction"
                          id="UnnecessaryPartialFunction" level="WARNING" enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.convertNullInitializerToUnderscore.ConvertNullInitializerToUnderscore"
-                         displayName="Null initializer can be replaced by _" groupPath="Scala" groupName="General"
-                         shortName="ConvertNullInitializerToUnderscore" level="WEAK WARNING"
-                         enabledByDefault="true" language="Scala"/>
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.allErrorsInspection.AnnotatorBasedErrorInspection"
                         displayName="All Errors Tool" groupPath="Scala" groupName="General"
                         shortName="ScalaAllErrors" level="WARNING"
@@ -919,6 +915,10 @@
                          displayName="Auto-tupling" groupPath="Scala" groupName="Syntactic Clarification"
                          shortName="AutoTupling" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
+      <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.ConvertNullInitializerToUnderscore"
+                       displayName="Null initializer can be replaced by _" groupPath="Scala" groupName="Syntactic Clarification"
+                       shortName="ConvertNullInitializerToUnderscore" level="WARNING"
+                       enabledByDefault="true" language="Scala"/>
 
         <!--Method signature inspections-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.AccessorLikeMethodIsEmptyParenInspection"

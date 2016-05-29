@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.convertNullInitializerToUnderscore
+package org.jetbrains.plugins.scala.codeInspection.syntacticClarification
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.codeInspection.convertNullInitializerToUnderscore.ConvertNullInitializerToUnderscore._
+import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.ConvertNullInitializerToUnderscore._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api
 class ConvertNullInitializerToUnderscore extends AbstractInspection(inspectionId, inspectionName) {
   private def registerProblem(holder: ProblemsHolder, variable: ScVariableDefinition): Unit = {
     val fix = new ConvertNullInitializerToUnderscoreQuickFix(variable)
-    holder.registerProblem(variable, inspectionName, ProblemHighlightType.WEAK_WARNING, fix)
+    holder.registerProblem(variable.expr.get, inspectionName, fix)
   }
 
   private def isNull(expr: ScExpression): Boolean = {
@@ -24,18 +24,13 @@ class ConvertNullInitializerToUnderscore extends AbstractInspection(inspectionId
   }
 
   override def actionFor(holder: ProblemsHolder) = {
-    case variable: ScVariableDefinition if variable.expr.nonEmpty && variable.hasExplicitType =>
+    case variable: ScVariableDefinition if !variable.isLocal && variable.expr.nonEmpty && variable.hasExplicitType =>
       variable.declaredType.get match {
         case valType: api.ValType if valType ne api.Unit =>
         case declaredType  =>
           val expr = variable.expr.get
-          if (expr.isValid) {
-            val exprIsNull = expr.getTypeWithoutImplicits().exists(_ eq api.Null)
-            val unitIsNull = (declaredType eq api.Unit) && isNull(expr)
-
-            if (exprIsNull || unitIsNull)
+          if (expr.isValid && isNull(expr))
               registerProblem(holder, variable)
-          }
       }
   }
 }
