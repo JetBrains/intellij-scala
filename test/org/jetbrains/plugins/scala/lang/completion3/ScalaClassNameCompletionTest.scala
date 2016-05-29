@@ -175,7 +175,7 @@ class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
 
     val resultText =
       """
-        |import scala.collection.immutable.{BitSet, HashSet, ListMap, ListSet, SortedMap}
+        |import scala.collection.immutable.{HashMap => _, _}
         |import scala.collection.mutable._
         |
         |class Test2 {

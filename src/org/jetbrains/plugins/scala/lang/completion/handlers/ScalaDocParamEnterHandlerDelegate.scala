@@ -21,6 +21,8 @@ class ScalaDocParamEnterHandlerDelegate extends EnterHandlerDelegateAdapter {
     if (!file.isInstanceOf[ScalaFile]) {
       return Result.Continue
     }
+    val document = editor.getDocument
+    PsiDocumentManager.getInstance(file.getProject).commitDocument(document)
 
     val scalaFile = file.asInstanceOf[ScalaFile]
     val caretOffset = editor.getCaretModel.getOffset
@@ -30,7 +32,6 @@ class ScalaDocParamEnterHandlerDelegate extends EnterHandlerDelegateAdapter {
     }
 
     var nextParent = scalaFile.elementAt(caretOffset).get
-    val document = editor.getDocument
 
     while (!nextParent.isInstanceOf[ScDocTag]) {
       nextParent = nextParent.getParent

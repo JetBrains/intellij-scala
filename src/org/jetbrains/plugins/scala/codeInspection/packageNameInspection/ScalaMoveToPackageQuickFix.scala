@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveUtil
  */
 
 class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packQualName: String)
-      extends AbstractFixOnPsiElement(s"Move File ${myFile.name} To Package " + packQualName, myFile) {
+      extends AbstractFixOnPsiElement(ScalaMoveToPackageQuickFix.hint(myFile.name, packQualName), myFile) {
   def doApplyFix(project: Project): Unit = {
     val file = getElement
     if (!file.isValid) return
@@ -43,13 +43,25 @@ class ScalaMoveToPackageQuickFix(myFile: ScalaFile, packQualName: String)
       return
     }
     ScalaMoveUtil.saveMoveDestination(file, directory)
-    new MoveClassesOrPackagesProcessor(
+    val processor = new MoveClassesOrPackagesProcessor(
       project,
       Array[PsiElement](file.typeDefinitions.head),
       new SingleSourceRootMoveDestination(PackageWrapper.create(JavaDirectoryService.getInstance().getPackage(directory)), directory), false,
       false,
-      null).run()
+      null)
+
+    invokeLater {
+      //shouldn't be started inside write action
+      processor.run()
+    }
   }
 
   override def getFamilyName: String = "Move File To Package"
+}
+
+object ScalaMoveToPackageQuickFix {
+  def hint(fileName: String, packageName: String) = {
+    val packageText = if (packageName.nonEmpty) s"Package $packageName" else "Default Package"
+    s"Move File $fileName To $packageText"
+  }
 }
