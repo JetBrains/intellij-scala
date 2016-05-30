@@ -41,7 +41,7 @@ class UTestRunConfiguration(override val project: Project,
 
   override def reporterClass: String = null
 
-  override def suitePaths = List("utest.framework.TestSuite")
+  override def suitePaths = List("utest.framework.TestSuite", "utest.TestSuite")
 
   override def mainClass = "org.jetbrains.plugins.scala.testingSupport.uTest.UTestRunner"
 
