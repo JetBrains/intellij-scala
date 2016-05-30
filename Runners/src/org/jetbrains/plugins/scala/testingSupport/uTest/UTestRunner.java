@@ -5,14 +5,15 @@ import scala.Option;
 import scala.collection.*;
 import scala.collection.immutable.Nil$;
 import scala.collection.mutable.Buffer;
+import scala.concurrent.Future;
 import scala.concurrent.Future$;
 import scala.runtime.BoxedUnit;
 import utest.framework.Result;
 import utest.framework.Test;
 import utest.framework.TestTreeSeq;
-import utest.util.Tree;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -21,6 +22,24 @@ import java.util.Map;
 import java.util.Set;
 
 public class UTestRunner {
+
+  private static Class getClassByFqn(String errorMessage, String... options) {
+    for (String fqn: options) {
+      try {
+        return Class.forName(fqn);
+      } catch (ClassNotFoundException ignored) {}
+    }
+    throw new RuntimeException(errorMessage);
+  }
+
+  private static Class getTreeClass() {
+    return getClassByFqn("Failed to load Test class from uTest libary.", "utest.util.Tree", "utest.framework.Tree");
+  }
+
+  private static Class getExecContextRunNowClass() {
+    return getClassByFqn("Failed to load ExecutionContext.RunNow from uTest library", "utest.ExecutionContext$RunNow$",
+            "utest.framework.ExecutionContext$RunNow$");
+  }
 
   private static UTestPath parseTestPath(String className, String argsString) {
     String[] nameArgs = argsString.split("\\\\");
@@ -36,7 +55,7 @@ public class UTestRunner {
     Method method;
     try {
       method = clazz.getMethod(asList.get(0));
-      assert (method.getReturnType().equals(Tree.class));
+      assert (method.getReturnType().equals(getTreeClass()));
     } catch (NoSuchMethodException e) {
       System.out.println("NoSuchMethodException for " + asList.get(0) + " in " + className + ": " + e.getMessage());
       return null;
@@ -47,24 +66,43 @@ public class UTestRunner {
   private static Method getRunAsynchMethod(Class<?> treeSeqClass) {
     try {
       return treeSeqClass.getMethod("runFuture", scala.Function2.class, Seq.class, Seq.class, scala.concurrent.Future.class, scala.concurrent.ExecutionContext.class);
-    } catch (NoSuchMethodException ignored) {
-
-    }
+    } catch (NoSuchMethodException ignored) {}
     try {
-      return treeSeqClass.getMethod("runAsync", scala.Function2.class, Seq.class, Seq.class, scala.Option.class, scala.concurrent.ExecutionContext.class);
-    } catch (NoSuchMethodException ignored) {
-
-    }
+      return treeSeqClass.getMethod("runFuture", scala.Function2.class, Seq.class, Seq.class, scala.Function1.class, scala.concurrent.Future.class, scala.concurrent.ExecutionContext.class);
+    } catch (NoSuchMethodException ignored) {}
     return null;
   }
 
-  private static void traverseTestTreeDown(Tree<Test> testTree, UTestPath currentPath, List<UTestPath> leafTests) {
-    if (testTree.children().isEmpty()) {
+  private static void traverseTestTreeDown(Object testTree, UTestPath currentPath, List<UTestPath> leafTests,
+                                           Method getChildren, Method getValue) {
+    Class treeClass = getTreeClass();
+    assert(treeClass.isInstance(testTree));
+    Seq children;
+    try {
+      children = (Seq) getChildren.invoke(testTree);
+    } catch (IllegalAccessException e) {
+      System.out.println("IllegalAccessException when traversing tests tree: " + e);
+      return;
+    } catch (InvocationTargetException e) {
+      System.out.println("InvocationTargetException when traversing tests tree: " + e);
+      return;
+    }
+    if (children.isEmpty()) {
       leafTests.add(currentPath);
     } else {
-      for (scala.collection.Iterator<Tree<Test>> it = testTree.children().iterator(); it.hasNext();) {
-        Tree<Test> child = it.next();
-        traverseTestTreeDown(child, currentPath.append(child.value().name()), leafTests);
+      for (scala.collection.Iterator it = children.iterator(); it.hasNext();) {
+        Object child = it.next();
+        Test childTest;
+        try {
+          childTest = (Test) getValue.invoke(child);
+        } catch (IllegalAccessException e) {
+          System.out.println("IllegalAccessException when traversing tests tree: " + e);
+          return;
+        } catch (InvocationTargetException e) {
+          System.out.println("InvocationTargetException when traversing tests tree: " + e);
+          return;
+        }
+        traverseTestTreeDown(child, currentPath.append(childTest.name()), leafTests, getChildren, getValue);
       }
     }
   }
@@ -91,7 +129,6 @@ public class UTestRunner {
                                      Method runAsyncMethod, final UTestReporter reporter, final UTestPath testPath,
                                      final List<UTestPath> leafTests, final Map<UTestPath, Integer> childrenCount) {
     scala.Function2<Seq<String>, Result, BoxedUnit> reportFunction = new scala.runtime.AbstractFunction2<Seq<String>, Result, BoxedUnit>() {
-
       @Override
       public BoxedUnit apply(Seq < String > seq, Result result) {
         synchronized(reporter) {
@@ -107,11 +144,33 @@ public class UTestRunner {
         }
       }
     };
+
+    scala.Function1<scala.runtime.AbstractFunction0<scala.concurrent.Future>, scala.concurrent.Future> identity =
+            new scala.runtime.AbstractFunction1<scala.runtime.AbstractFunction0<scala.concurrent.Future>, scala.concurrent.Future>() {
+              @Override
+              public Future apply(scala.runtime.AbstractFunction0<scala.concurrent.Future> v1) {
+                return v1.apply();
+              }
+            };
+
     String errorMessage = "Failed to invoke " + runAsyncMethod.getName() + ": ";
+    Class runNowClass = getExecContextRunNowClass();
+    Object runNowDefaultArg = null;
     try {
-      runAsyncMethod.invoke(testTree, reportFunction, path, Nil$.MODULE$,
-          runAsyncMethod.getName().equals("runAsync") ? Option.empty() : Future$.MODULE$.successful(Option.empty()),
-          utest.ExecutionContext.RunNow$.MODULE$);
+      runNowDefaultArg = runNowClass.getField("MODULE$").get(runNowClass);
+    } catch (NoSuchFieldException e) {
+      e.printStackTrace();
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+    }
+    try {
+      if (runAsyncMethod.getParameterTypes().length == 5) {
+        runAsyncMethod.invoke(testTree, reportFunction, path, Nil$.MODULE$, Future$.MODULE$.successful(Option.empty()),
+                runNowDefaultArg);
+      } else {
+        runAsyncMethod.invoke(testTree, reportFunction, path, Nil$.MODULE$, identity,
+                Future$.MODULE$.successful(Option.empty()), runNowDefaultArg);
+      }
     } catch (IllegalAccessException e) {
       System.out.println(errorMessage + e);
     } catch (InvocationTargetException e) {
@@ -128,13 +187,14 @@ public class UTestRunner {
       System.out.println("ClassNotFoundException for " + className + ": " + e.getMessage());
       return;
     }
+    Class treeClass = getTreeClass();
     Collection<UTestPath> testsToRun;
     if (!tests.isEmpty()) {
       testsToRun = tests;
     } else {
       testsToRun = new LinkedList<UTestPath>();
       for (Method method : clazz.getMethods()) {
-        if (method.getReturnType().equals(Tree.class) && method.getParameterTypes().length == 0) {
+        if (method.getReturnType().equals(treeClass) && method.getParameterTypes().length == 0) {
           testsToRun.add(new UTestPath(className, method));
         }
       }
@@ -144,26 +204,36 @@ public class UTestRunner {
     Set<Method> testMethods = new HashSet<Method>();
     List<UTestPath> leafTests = new LinkedList<UTestPath>();
     Map<UTestPath, Integer> childrenCount = new HashMap<UTestPath, Integer>();
-    Map<UTestPath, scala.Tuple2<Buffer<Object>, Tree<Test>>> pathToResolvedTests =
-        new HashMap<UTestPath, scala.Tuple2<Buffer<Object>, Tree<Test>>>();
+    Map<UTestPath, scala.Tuple2<Buffer<Object>, ?>> pathToResolvedTests =
+        new HashMap<UTestPath, scala.Tuple2<Buffer<Object>, ?>>();
+    TestTreeSeq treeSeq;
+    Constructor<TestTreeSeq> treeSeqConstructor = TestTreeSeq.class.getConstructor(treeClass);
+
     //collect test data required to perform test launch without scope duplication
     for (UTestPath testPath: testsToRun) {
       testMethods.add(testPath.getMethod());
       Method test = testPath.getMethod();
-      Tree<Test> testTree;
+      Object testTree;
       try {
-        testTree = (Tree) ((Modifier.isStatic(test.getModifiers())) ? test.invoke(null) :
+        testTree = ((Modifier.isStatic(test.getModifiers())) ? test.invoke(null) :
             test.invoke(clazz.getField("MODULE$").get(null)));
       } catch (NoSuchFieldException e) {
         System.out.println("Instance field not found for object " + clazz.getName() + ": " + e.getMessage());
         return;
       }
 
-      TestTreeSeq treeSeq = new TestTreeSeq(testTree);
+      try {
+        treeSeq = treeSeqConstructor.newInstance(testTree);
+      } catch (InstantiationException e) {
+        System.out.println("Failed to instantiate TestTreeSeq");
+        return;
+      }
 
-      scala.Tuple2<Buffer<Object>, Tree<Test>> resolveResult = treeSeq.resolve(testPath.getPath().isEmpty() ?
+      scala.Tuple2<Buffer<Object>, ?> resolveResult = treeSeq.resolve(testPath.getPath().isEmpty() ?
           treeSeq.run$default$3() : scala.collection.JavaConversions.asScalaBuffer(testPath.getPath()).toList());
-      traverseTestTreeDown(resolveResult._2(), testPath, leafTests);
+      Method getChildren = treeClass.getMethod("children");
+      Method getValue = treeClass.getMethod("value");
+      traverseTestTreeDown(resolveResult._2(), testPath, leafTests, getChildren, getValue);
       pathToResolvedTests.put(testPath, resolveResult);
     }
     countTests(childrenCount, leafTests);
@@ -172,7 +242,7 @@ public class UTestRunner {
 
     for (UTestPath testPath : testsToRun) {
 
-      scala.Tuple2<Buffer<Object>, Tree<Test>> resolveResult = pathToResolvedTests.get(testPath);
+      scala.Tuple2<Buffer<Object>, ?> resolveResult = pathToResolvedTests.get(testPath);
       for (UTestPath leafTest: leafTests) {
         //open all leaf tests and their outer scopes
         if (!reporter.isStarted(leafTest)) {
@@ -180,7 +250,14 @@ public class UTestRunner {
         }
       }
 
-      invokeRunAsync(new TestTreeSeq(resolveResult._2()), resolveResult._1(), runAsyncMethod, reporter, testPath, leafTests,
+      try {
+        treeSeq = treeSeqConstructor.newInstance(resolveResult._2());
+      } catch (InstantiationException e) {
+        System.out.println("Instance field not found for object " + clazz.getName() + ": " + e.getMessage());
+        return;
+      }
+
+      invokeRunAsync(treeSeq, resolveResult._1(), runAsyncMethod, reporter, testPath, leafTests,
           childrenCount);
     }
   }

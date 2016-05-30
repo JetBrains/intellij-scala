@@ -162,19 +162,17 @@ trait IntegrationTest {
 
     SwingUtilities.invokeLater(new Runnable() {
       override def run(): Unit = {
-        try {
-          assert(testTreeRoot.isDefined && testTreeCheck(testTreeRoot.get))
-
-          if (checkOutputs) {
-            assert(res == expectedText)
-          }
-        } finally {
-          semaphore.up()
-        }
+        semaphore.up()
       }
     })
 
     semaphore.waitFor()
+
+    assert(testTreeRoot.isDefined && testTreeCheck(testTreeRoot.get))
+
+    if (checkOutputs) {
+      assert(res == expectedText)
+    }
   }
 
   def runDuplicateConfigTest(lineNumber: Int, offset: Int, fileName: String,
