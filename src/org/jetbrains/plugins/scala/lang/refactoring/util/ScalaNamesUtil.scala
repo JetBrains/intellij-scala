@@ -13,9 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import scala.reflect.NameTransformer
 
 /**
-  * User: Alexander Podkhalyuzin
-  * Date: 24.06.2008
-  */
+ * User: Alexander Podkhalyuzin
+ * Date: 24.06.2008
+ */
 object ScalaNamesUtil {
   val keywordNames = ScalaTokenTypes.KEYWORDS.getTypes.map(_.toString).toSet
 
@@ -24,7 +24,7 @@ object ScalaNamesUtil {
   }
 
   private def checkGeneric(text: String, predicate: ScalaLexer => Boolean): Boolean = {
-    //    ApplicationManager.getApplication.assertReadAccessAllowed() - looks like we don't need it
+//    ApplicationManager.getApplication.assertReadAccessAllowed() - looks like we don't need it
     if (text == null || text == "") return false
 
     val lexer = lexerCache.get()
@@ -34,7 +34,7 @@ object ScalaNamesUtil {
     lexer.getTokenType == null
   }
 
-  def isOpCharacter(c: Char): Boolean = {
+  def isOpCharacter(c : Char) : Boolean = {
     c match {
       case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '<' | '>' | '?' | ':' | '=' | '&' | '|' | '/' | '\\' =>
         true
