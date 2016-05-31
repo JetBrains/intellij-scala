@@ -920,6 +920,10 @@
                          displayName="Concealed &quot;apply&quot; call" groupPath="Scala" groupName="Syntactic Clarification"
                          shortName="ConcealedApplyCall" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.ConvertNullInitializerToUnderscore"
+                         displayName="Null initializer can be replaced by _" groupPath="Scala" groupName="Syntactic Clarification"
+                         shortName="ConvertNullInitializerToUnderscore" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
 
         <!--Method signature inspections-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.AccessorLikeMethodIsEmptyParenInspection"
@@ -1187,7 +1191,6 @@
                          displayName="Deprecated with type" groupPath="Scala" groupName="Other"
                          shortName="DottyDeprecatedWith" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-
 
         <!-- scaladoc inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnclosedTagWithoutParserInspection"
