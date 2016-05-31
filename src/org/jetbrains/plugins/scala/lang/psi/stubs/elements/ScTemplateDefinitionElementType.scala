@@ -152,7 +152,7 @@ extends ScStubElementType[ScTemplateDefinitionStub, ScTemplateDefinition](debugN
       }
     }
     if (stub.isPackageObject) {
-      val packageName = ScalaNamesUtil.convertMemberFqn(fqn.stripSuffix(".`package`"))
+      val packageName = fqn.stripSuffix(".package")
       val shortName = {
         val index = packageName.lastIndexOf('.')
         if (index < 0) packageName else packageName.substring(index + 1, packageName.size)
