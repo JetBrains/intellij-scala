@@ -64,7 +64,7 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
   }
 
   def indexStub(stub: ScTypeAliasStub, sink: IndexSink) {
-    val name = ScalaNamesUtil.convertMemberFqn(stub.getName)
+    val name = ScalaNamesUtil.cleanFqn(stub.getName)
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, name)
       if (stub.isStableQualifier) {

@@ -63,7 +63,7 @@ extends ScStubElementType[ScValueStub, ScValue](debugName) {
     val names = stub.getNames
     
     for (name <- names if name != null) {
-      sink.occurrence(ScalaIndexKeys.VALUE_NAME_KEY, ScalaNamesUtil.convertMemberFqn(name))
+      sink.occurrence(ScalaIndexKeys.VALUE_NAME_KEY, ScalaNamesUtil.cleanFqn(name))
     }
     if (stub.isImplicit) sink.occurrence(ScalaIndexKeys.IMPLICITS_KEY, "implicit")
   }

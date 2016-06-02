@@ -10,7 +10,6 @@ import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.stubs.StubIndex;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.finder.ScalaSourceFilterScope;
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue;
@@ -45,7 +44,7 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
   public NavigationItem[] getItemsByName(String name, String pattern, Project project, boolean includeNonProjectItems) {
     final boolean searchAll = ScalaProjectSettings.getInstance(project).isSearchAllSymbols();
     final GlobalSearchScope scope = includeNonProjectItems ? GlobalSearchScope.allScope(project) : GlobalSearchScope.projectScope(project);
-    String cleanName = ScalaNamesUtil.convertMemberFqn(name);
+    String cleanName = ScalaNamesUtil.cleanFqn(name);
     final Collection<ScFunction> methods =
         StubIndex.getElements(ScalaIndexKeys.METHOD_NAME_KEY(), cleanName, project,
             new ScalaSourceFilterScope(scope, project), ScFunction.class);
@@ -85,7 +84,7 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
         for (PsiNamedElement elem : elems) {
           if (elem instanceof NavigationItem) {
             String navigationItemName = ScalaNamesUtil.scalaName(elem);
-            if (ScalaNamesUtil.fqnNamesEquals(name, navigationItemName)) items.add((NavigationItem) elem);
+            if (ScalaNamesUtil.equivalentFqn(name, navigationItemName)) items.add((NavigationItem) elem);
           }
         }
       }
@@ -97,7 +96,7 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
         for (PsiNamedElement elem : elems) {
           if (elem instanceof NavigationItem) {
             String navigationItemName = ScalaNamesUtil.scalaName(elem);
-            if (ScalaNamesUtil.fqnNamesEquals(name, navigationItemName)) items.add((NavigationItem) elem);
+            if (ScalaNamesUtil.equivalentFqn(name, navigationItemName)) items.add((NavigationItem) elem);
           }
         }
       }
@@ -106,7 +105,7 @@ public class ScalaGoToSymbolContributor implements ChooseByNameContributor {
     for (PsiClass clazz : notVisibleInJava) {
       if (!isLocal(clazz) || searchAll) {
         String navigationItemName = ScalaNamesUtil.scalaName(clazz);
-        if (ScalaNamesUtil.fqnNamesEquals(name, navigationItemName)) items.add(clazz);
+        if (ScalaNamesUtil.equivalentFqn(name, navigationItemName)) items.add(clazz);
       }
     }
 

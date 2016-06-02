@@ -260,8 +260,8 @@ object Compatibility {
           }
         case Expression(assign@NamedAssignStmt(name)) =>
           val index = parameters.indexWhere { p =>
-            ScalaNamesUtil.memberNamesEquals(p.name, name) ||
-              p.deprecatedName.exists(ScalaNamesUtil.memberNamesEquals(_, name))
+            ScalaNamesUtil.equivalent(p.name, name) ||
+              p.deprecatedName.exists(ScalaNamesUtil.equivalent(_, name))
           }
           if (index == -1 || used(index)) {
             def extractExpression(assign: ScAssignStmt): ScExpression = {

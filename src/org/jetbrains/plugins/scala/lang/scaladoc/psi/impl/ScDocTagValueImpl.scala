@@ -42,7 +42,7 @@ class ScDocTagValueImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with Sc
 
   def multiResolve(incompleteCode: Boolean): Array[ResolveResult] =
     getParametersVariants.filter(a =>
-      ScalaNamesUtil.memberNamesEquals(a.name, refName)).
+      ScalaNamesUtil.equivalent(a.name, refName)).
             map(new ScalaResolveResult(_))
 
   override def toString = "ScalaDocTagValue: " + getText

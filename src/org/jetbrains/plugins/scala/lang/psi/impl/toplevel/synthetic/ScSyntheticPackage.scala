@@ -76,7 +76,7 @@ object ScSyntheticPackage {
     val i = fqn.lastIndexOf(".")
     val name = if (i < 0) fqn else fqn.substring(i + 1)
 
-    val cleanName = ScalaNamesUtil.convertMemberFqn(fqn)
+    val cleanName = ScalaNamesUtil.cleanFqn(fqn)
 
     import com.intellij.psi.stubs.StubIndex
 
@@ -90,7 +90,7 @@ object ScSyntheticPackage {
         ScalaIndexKeys.PACKAGE_OBJECT_KEY.asInstanceOf[StubIndexKey[Any, PsiClass]],
         cleanName.hashCode(), project, GlobalSearchScope.allScope(project), classOf[PsiClass]).toSeq.
         find(pc => {
-          ScalaNamesUtil.fqnNamesEquals(pc.qualifiedName, fqn)
+          ScalaNamesUtil.equivalentFqn(pc.qualifiedName, fqn)
       }) match {
         case Some(obj) =>
           val pname = if (i < 0) "" else fqn.substring(0, i)
@@ -110,7 +110,7 @@ object ScSyntheticPackage {
       }
     } else {
       val pkgs = packages.filter(pc => {
-        ScalaNamesUtil.convertMemberFqn(pc.fqn).startsWith(cleanName) && cleanName.startsWith(ScalaNamesUtil.convertMemberFqn(pc.prefix))
+        ScalaNamesUtil.cleanFqn(pc.fqn).startsWith(cleanName) && cleanName.startsWith(ScalaNamesUtil.cleanFqn(pc.prefix))
       })
 
       if (pkgs.isEmpty) null else {
@@ -119,18 +119,18 @@ object ScSyntheticPackage {
           override def getFiles(globalSearchScope: GlobalSearchScope): Array[PsiFile] = Array.empty //todo: ?
 
           def findClassByShortName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {
-            getClasses.filter(n => ScalaNamesUtil.fqnNamesEquals(n.name, name))
+            getClasses.filter(n => ScalaNamesUtil.equivalentFqn(n.name, name))
           }
 
           def containsClassNamed(name: String): Boolean = {
-            getClasses.exists(n => ScalaNamesUtil.fqnNamesEquals(n.name, name))
+            getClasses.exists(n => ScalaNamesUtil.equivalentFqn(n.name, name))
           }
 
           def getQualifiedName = fqn
 
           def getClasses = {
             Array(pkgs.flatMap(p =>
-              if (ScalaNamesUtil.convertMemberFqn(p.fqn).length == cleanName.length)
+              if (ScalaNamesUtil.cleanFqn(p.fqn).length == cleanName.length)
                 p.typeDefs.flatMap {
                   case td@(c: ScTypeDefinition) if c.fakeCompanionModule.isDefined =>
                     Seq(td, c.fakeCompanionModule.get)

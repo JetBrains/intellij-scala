@@ -380,7 +380,7 @@ object ScalaPsiElementFactory {
   }
 
   def createIdentifier(name: String, manager: PsiManager): ASTNode = {
-    val text = "package " + ScalaNamesUtil.changeKeyword(name)
+    val text = "package " + ScalaNamesUtil.escapeKeyword(name)
     try {
       val dummyFile = PsiFileFactory.getInstance(manager.getProject).
               createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
@@ -401,7 +401,7 @@ object ScalaPsiElementFactory {
   }
 
   def createImportExprFromText(name: String, manager: PsiManager): ScImportExpr = {
-    val text = "import " + ScalaNamesUtil.addBacktickedIfScalaKeywordFqn(name)
+    val text = "import " + ScalaNamesUtil.escapeKeywordsFqn(name)
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
@@ -416,7 +416,7 @@ object ScalaPsiElementFactory {
   }
 
   def createReferenceFromText(name: String, manager: PsiManager): ScStableCodeReferenceElement = {
-    val text = "import " + ScalaNamesUtil.addBacktickedIfScalaKeywordFqn(name) //java qName doesn't contain bactickeds, even for scala keywords
+    val text = "import " + ScalaNamesUtil.escapeKeywordsFqn(name) //java qName doesn't contain bactickeds, even for scala keywords
     val dummyFile = PsiFileFactory.getInstance(manager.getProject).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
       ScalaFileType.SCALA_FILE_TYPE, text).asInstanceOf[ScalaFile]
@@ -811,7 +811,7 @@ object ScalaPsiElementFactory {
         }
         builder ++= retAndBody
       case _ =>
-        builder ++= "def " + ScalaNamesUtil.changeKeyword(method.name)
+        builder ++= "def " + ScalaNamesUtil.escapeKeyword(method.name)
         if (method.hasTypeParameters) {
           val params = method.getTypeParameters
           val strings = for (param <- params) yield {
@@ -837,7 +837,7 @@ object ScalaPsiElementFactory {
               case null => param match {case param: ClsParameterImpl => param.getStub.getName case _ => null}
               case x => x
             }
-            val pName: String = ScalaNamesUtil.changeKeyword(paramName)
+            val pName: String = ScalaNamesUtil.escapeKeyword(paramName)
             val colon = if (pName.endsWith("_")) " : " else ": "
             val scType: ScType = substitutor.subst(param.getTypeElement.getType.toScType(method.getProject))
             val typeText = scType match {

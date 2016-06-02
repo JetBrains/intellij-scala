@@ -40,7 +40,7 @@ extends ScStubElementType[ScPackageContainerStub, ScPackageContainer](debugName)
     val prefix = stub.prefix
     var ownNamePart = stub.ownNamePart
     def append(postfix : String) =
-      ScalaNamesUtil.convertMemberFqn(if (prefix.length > 0) prefix + "." + postfix else postfix)
+      ScalaNamesUtil.cleanFqn(if (prefix.length > 0) prefix + "." + postfix else postfix)
 
     var i = 0
     do {

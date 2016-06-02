@@ -94,7 +94,7 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
       !isField(this) ^ isField(other)
     }
 
-    ScalaNamesUtil.memberNamesEquals(name, other.name) &&
+    ScalaNamesUtil.equivalent(name, other.name) &&
             ((typeParams.length == other.typeParams.length && paramTypesEquiv(other)) || 
               (paramLength == other.paramLength && javaErasedEquiv(other))) && fieldCheck(other)
     
@@ -176,7 +176,7 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
    * Because for class hierarch def foo(): Int is the same thing as def foo: Int and val foo: Int.
    */
   def simpleHashCode: Int = {
-    ScalaNamesUtil.convertMemberName(name).hashCode
+    ScalaNamesUtil.clean(name).hashCode
   }
 
   def isJava: Boolean = false

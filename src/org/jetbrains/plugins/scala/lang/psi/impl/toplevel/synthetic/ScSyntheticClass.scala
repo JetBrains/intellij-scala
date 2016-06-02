@@ -112,7 +112,7 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
     processor match {
       case p : ResolveProcessor =>
         val nameSet = state.get(ResolverEnv.nameKey)
-        val name = ScalaNamesUtil.convertMemberName(if (nameSet == null) p.name else nameSet)
+        val name = ScalaNamesUtil.clean(if (nameSet == null) p.name else nameSet)
         methods.get(name) match {
           case Some(ms) => for (method <- ms) {
             if (!processor.execute(method, state)) return false

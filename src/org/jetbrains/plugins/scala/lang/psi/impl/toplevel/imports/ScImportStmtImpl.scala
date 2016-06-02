@@ -68,10 +68,10 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
         val nameHint = processor.getHint(NameHint.KEY)
         val name = if (nameHint == null) "" else nameHint.getName(state)
         if (name != "" && !importExpr.singleWildcard) {
-          val decodedName = ScalaNamesUtil.convertMemberName(name)
+          val decodedName = ScalaNamesUtil.clean(name)
           importExpr.selectorSet match {
-            case Some(set) => set.selectors.exists(selector => ScalaNamesUtil.convertMemberName(selector.reference.refName) == decodedName)
-            case None => if (ScalaNamesUtil.convertMemberName(ref.refName) != decodedName) return true
+            case Some(set) => set.selectors.exists(selector => ScalaNamesUtil.clean(selector.reference.refName) == decodedName)
+            case None => if (ScalaNamesUtil.clean(ref.refName) != decodedName) return true
           }
         }
         val checkWildcardImports = processor match {
@@ -223,7 +223,7 @@ class ScImportStmtImpl private (stub: StubElement[ScImportStmt], nodeType: IElem
                       //Collect shadowed elements
                       shadowed += ((selector, result.getElement))
                       var newState: ResolveState = state
-                      newState = state.put(ResolverEnv.nameKey, ScalaNamesUtil.convertMemberName(selector.importedName))
+                      newState = state.put(ResolverEnv.nameKey, ScalaNamesUtil.clean(selector.importedName))
                       newState = newState.put(ImportUsed.key, Set(importsUsed.toSeq: _*) + ImportSelectorUsed(selector)).
                         put(ScSubstitutor.key, subst)
                       calculateRefType(checkResolve(result)).foreach {tp =>
