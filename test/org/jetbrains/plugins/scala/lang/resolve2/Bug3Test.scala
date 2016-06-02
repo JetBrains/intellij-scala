@@ -88,4 +88,6 @@ class Bug3Test extends ResolveTestBase {
   def testSOE() {doTest()}
   def testAccessiblePattern() {doTest()}
   def testConstructorNamedParameters() {doTest()}
+  def testSCL10171A() = doTest()
+  def testSCL10171B() = doTest()
 }

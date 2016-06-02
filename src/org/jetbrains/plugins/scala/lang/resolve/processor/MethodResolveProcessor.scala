@@ -4,6 +4,7 @@ package resolve
 package processor
 
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
@@ -170,7 +171,7 @@ object MethodResolveProcessor {
                           proc: MethodResolveProcessor): ConformanceExtResult = {
     import proc._
     val problems = new ArrayBuffer[ApplicabilityProblem]()
-    
+
     val realResolveResult = c.innerResolveResult match {
       case Some(rr) => rr
       case _ => c
@@ -266,8 +267,8 @@ object MethodResolveProcessor {
     def constructorCompatibility(constr: ScMethodLike with PsiNamedElement): ConformanceExtResult = {
       val classTypeParameters: Seq[ScTypeParam] = constr.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq())
       if (typeArgElements.isEmpty || typeArgElements.length == classTypeParameters.length) {
-        val result = 
-          Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits, 
+        val result =
+          Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits,
             ref.getResolveScope, isShapeResolve)
         problems ++= result.problems
         result.copy(problems)
@@ -276,12 +277,12 @@ object MethodResolveProcessor {
         ConformanceExtResult(problems)
       }
     }
-    
+
     def javaConstructorCompatibility(constr: PsiMethod): ConformanceExtResult = {
       val classTypeParmeters = constr.containingClass.getTypeParameters
       if (typeArgElements.isEmpty || typeArgElements.length == classTypeParmeters.length) {
-        val result = 
-          Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits, 
+        val result =
+          Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits,
             ref.getResolveScope, isShapeResolve)
         problems ++= result.problems
         result.copy(problems)
@@ -293,12 +294,12 @@ object MethodResolveProcessor {
 
     val result = element match {
       //objects
-      case obj: PsiClass => 
+      case obj: PsiClass =>
         ConformanceExtResult(problems)
-      case a: ScTypeAlias => 
+      case a: ScTypeAlias =>
         ConformanceExtResult(problems)
       //Implicit Application
-      case f: ScFunction if f.hasMalformedSignature => 
+      case f: ScFunction if f.hasMalformedSignature =>
         problems += new MalformedDefinition
         ConformanceExtResult(problems)
       case c: ScPrimaryConstructor if c.hasMalformedSignature =>
@@ -601,6 +602,18 @@ object MethodResolveProcessor {
     else {
       val len = if (argumentClauses.isEmpty) 0 else argumentClauses.head.length
       if (filtered.size == 1) return filtered
+
+      def getElementFromImportIfPossible(rr: ScalaResolveResult) = {
+        if (rr.importsUsed.nonEmpty) rr.importsUsed.head.e
+        else rr.element
+      }
+
+      // trying to find reference with nearest scope
+      // A binding in some inner scope shadows bindings of lower precedence in the same scope as well
+      // as bindings of the same or lower precedence in outer scopes.
+      val filterByInnerScope = filtered.filter(el => PsiTreeUtil.findCommonParent(getPlace, getElementFromImportIfPossible(el)) != null)
+      if (filterByInnerScope.size == 1) return filterByInnerScope
+
       MostSpecificUtil(ref, len).mostSpecificForResolveResult(filtered, hasTypeParametersCall = typeArgElements.nonEmpty) match {
         case Some(r) => HashSet(r)
         case None => filtered
