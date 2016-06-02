@@ -273,7 +273,8 @@ object InferUtil {
           expr.asInstanceOf[ScExpression].setAdditionalExpression(Some(dummyExpr, expectedRet))
 
           new ScMethodType(updatedResultType.tr.getOrElse(mt.returnType), mt.params, mt.isImplicit)(mt.project, mt.scope)
-        case Some(tp) if !fromSAM && ScalaPsiUtil.isSAMEnabled(expr) =>
+        case Some(tp) if !fromSAM && ScalaPsiUtil.isSAMEnabled(expr) &&
+          (mt.params.nonEmpty || expr.scalaLanguageLevelOrDefault == ScalaLanguageLevel.Scala_2_11) =>
           //we do this to update additional expression, so that implicits work correctly
           //@see SingleAbstractMethodTest.testEtaExpansionImplicit
           applyImplicitViewToResult(mt, ScalaPsiUtil.toSAMType(tp, expr.getResolveScope), fromSAM = true)
