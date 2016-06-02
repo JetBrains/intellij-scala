@@ -6,6 +6,7 @@ import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiUtilCore
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
@@ -22,10 +23,24 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.ScalaDocPsiCreator
 
 object ScalaPsiCreator extends ScalaPsiCreator {
+  override protected val elementTypes = ScalaElementTypes
 
+  override protected def classCase: ASTNode => ScClass = new ScClassImpl(_)
+
+  override protected def traitCase: ASTNode => ScTrait = new ScTraitImpl(_)
+
+  override protected def objectCase: ASTNode => ScObject = new ScObjectImpl(_)
 }
 
 trait ScalaPsiCreator extends PsiCreator {
+  protected val elementTypes: ElementTypes
+
+  protected def classCase: ASTNode => ScClass
+
+  protected def objectCase: ASTNode => ScObject
+
+  protected def traitCase: ASTNode => ScTrait
+
   def createElement(node: ASTNode): PsiElement =     
     node.getElementType match {
      case s: SelfPsiCreator => s.createElement(node)
@@ -50,9 +65,9 @@ trait ScalaPsiCreator extends PsiCreator {
       /********************** DEF ************************/
       /***************************************************/
 
-      case ScalaElementTypes.CLASS_DEF => new ScClassImpl(node)
-      case ScalaElementTypes.OBJECT_DEF => new ScObjectImpl(node)
-      case ScalaElementTypes.TRAIT_DEF => new ScTraitImpl(node)
+     case elementTypes.classDefinition => classCase(node)
+     case elementTypes.objectDefinition => objectCase(node)
+     case elementTypes.traitDefinition => traitCase(node)
 
       /***************** class ***************/
       case ScalaElementTypes.REQUIRES_BLOCK => new ScRequiresBlockImpl(node)

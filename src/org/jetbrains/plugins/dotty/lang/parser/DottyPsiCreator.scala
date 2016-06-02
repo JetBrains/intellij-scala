@@ -9,18 +9,22 @@ import org.jetbrains.plugins.dotty.lang.psi.impl.toplevel.typedef.DottyTraitImpl
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaPsiCreator
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.{ScClassImpl, ScObjectImpl}
 
 /**
   * @author adkozlov
   */
 object DottyPsiCreator extends ScalaPsiCreator {
-  private val idTokenSet = TokenSet.create(REFERENCE, ScalaTokenTypes.tAND, ScalaTokenTypes.tOR)
+  override protected val elementTypes = DottyElementTypes
 
-  override def createElement(node: ASTNode): PsiElement = node.getElementType match {
-    case TRAIT_DEF =>
-      new DottyTraitImpl(node)
-    case _ => super.createElement(node)
-  }
+  override protected def objectCase: ASTNode => ScObject = new ScObjectImpl(_)
+
+  override protected def traitCase: ASTNode => ScTrait = new DottyTraitImpl(_)
+
+  override protected def classCase: ASTNode => ScClass = new ScClassImpl(_)
+
+  private val idTokenSet = TokenSet.create(REFERENCE, ScalaTokenTypes.tAND, ScalaTokenTypes.tOR)
 
   override protected def inner(node: ASTNode): PsiElement = node.getElementType match {
     case TYPE => new DottyFunctionalTypeElementImpl(node)

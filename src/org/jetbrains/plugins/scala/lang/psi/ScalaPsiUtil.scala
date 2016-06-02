@@ -1229,14 +1229,13 @@ object ScalaPsiUtil {
     }
 
     val name: String = td.name
+
+    val templateDefinitionSet = scope.getProject.tokenSets.templateDefinitionSet
     val arrayOfElements: Array[PsiElement] = scope match {
       case stub: StubBasedPsiElement[_] if stub.getStub != null =>
-        stub.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET, JavaArrayFactoryUtil.PsiElementFactory)
-      case file: PsiFileImpl =>
-        val stub = file.getStub
-        if (stub != null) {
-          file.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET, JavaArrayFactoryUtil.PsiElementFactory)
-        } else scope.getChildren
+        stub.getStub.getChildrenByType(templateDefinitionSet, JavaArrayFactoryUtil.PsiElementFactory)
+      case file: PsiFileImpl if file.getStub != null =>
+        file.getStub.getChildrenByType(templateDefinitionSet, JavaArrayFactoryUtil.PsiElementFactory)
       case _ => scope.getChildren
     }
     td match {
