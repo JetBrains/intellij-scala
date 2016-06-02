@@ -185,8 +185,12 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
     var counter = 1
 
     def nameFor(base: Option[File]) = {
-      val namedDirectory = if (base.exists(_.getName == "shared")) base.flatMap(_.parent) else base
-      val prefix = namedDirectory.map(_.getName + "-sources").getOrElse("shared-sources")
+      val namedDirectory = {
+        var d = base
+        while (d.exists(_.getName == "shared")) d = d.flatMap(_.parent)
+        d
+      }
+      val prefix = namedDirectory.map(_.getName + "-shared-sources").getOrElse("shared-sources")
       if (usedNames.contains(prefix)) {
         val result = prefix + counter
         counter += 1
