@@ -46,7 +46,7 @@ object SideEffectsUtil {
           case bp: ScBindingPattern =>
             val tp = bp.getType(TypingContext.empty)
             !FunctionType.isFunctionType(tp.getOrAny)
-          case _: ScObject => true
+          case o: ScObject => false
           case p: ScParameter
             if !p.isCallByNameParameter &&
               !FunctionType.isFunctionType(p.getRealParameterType(TypingContext.empty).getOrAny) => true
@@ -86,6 +86,7 @@ object SideEffectsUtil {
         case _ => hasNoSideEffects(baseExpr)
       }
       checkQual && checkBaseExpr && args.forall(hasNoSideEffects)
+    case newTd: ScNewTemplateDefinition => false
     case _ => false
   }
 

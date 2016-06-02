@@ -217,4 +217,40 @@ class UselessExpressionInspectionTest extends ScalaLightInspectionFixtureTestAda
         |}"""
     checkTextHasNoErrors(text)
   }
+
+  def testObject(): Unit = {
+    val text =
+      """
+        |class Test {
+        |  def foo(): Unit = {
+        |    A
+        |    println("world")
+        |  }
+        |}
+        |
+        |object A {
+        |  println("hello")
+        |}
+        |
+      """
+    checkTextHasNoErrors(text)
+  }
+
+  def testConstructorCall(): Unit = {
+    val text =
+      """
+        |class Test {
+        |  def foo(): Unit = {
+        |    new A
+        |    println("world")
+        |  }
+        |}
+        |
+        |class A {
+        |  println("hello")
+        |}
+        |
+      """
+    checkTextHasNoErrors(text)
+  }
 }

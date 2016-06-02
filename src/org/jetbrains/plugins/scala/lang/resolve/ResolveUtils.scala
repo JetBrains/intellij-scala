@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.psi.light.scala.isLightScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, TypeParameter}
@@ -124,6 +125,7 @@ object ResolveUtils {
         case memb: PsiMember => return isAccessible(memb, place)
         case _ =>
       }
+      case isLightScNamedElement(named: ScMember) => return isAccessible(named, place)
       case _ =>
     }
     if (place.getLanguage == JavaLanguage.INSTANCE) {
