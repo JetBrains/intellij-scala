@@ -10,10 +10,10 @@ trait UTestPackageTest extends UTestTestCase {
 
   protected def addPackageTest(): Unit = {
     addFileToProject(packageName + "/Test1.scala",
-      """
+      s"""
         |package myPackage
         |
-        |import utest.framework.TestSuite
+        |$testSuiteSecondPrefix
         |import utest._
         |
         |object Test1 extends TestSuite {
@@ -26,10 +26,10 @@ trait UTestPackageTest extends UTestTestCase {
       """.stripMargin.trim())
 
     addFileToProject(packageName + "/Test2.scala",
-      """
+      s"""
         |package myPackage
         |
-        |import utest.framework.TestSuite
+        |$testSuiteSecondPrefix
         |import utest._
         |
         |object Test2 extends TestSuite {
@@ -42,10 +42,10 @@ trait UTestPackageTest extends UTestTestCase {
       """.stripMargin.trim())
 
     addFileToProject(secondPackageName + "/Test1.scala",
-      """
+      s"""
         |package otherPackage
         |
-        |import utest.framework.TestSuite
+        |$testSuiteSecondPrefix
         |import utest._
         |
         |object Test2 extends TestSuite {
@@ -63,7 +63,7 @@ trait UTestPackageTest extends UTestTestCase {
         checkResultTreeHasExactNamedPath(root, "[root]", "Test1", "tests", "test2") &&
         checkResultTreeHasExactNamedPath(root, "[root]", "Test2", "tests", "test1") &&
         checkResultTreeHasExactNamedPath(root, "[root]", "Test2", "tests", "test2") &&
-        checkResultTreeDoesNotHaveNodes(root, "[root]", "test"))
+        checkResultTreeDoesNotHaveNodes(root, "test"))
   }
 
   def testModuleTestRun(): Unit = {
