@@ -523,7 +523,7 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
         |((x: Int) => x.toString()): TwoConstrucorParamLists
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("((x: Int) => x.toString())", typeMismatch()) :: Nil =>
+      case Error("((x: Int) => x.toString())", typeMismatch()) :: Error("((x: Int) => x.toString())", doesNotConform()) :: Nil =>
     }
   }
 

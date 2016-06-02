@@ -1943,13 +1943,12 @@ object ScalaPsiUtil {
     */
   def toSAMType(expected: ScType, scalaScope: GlobalSearchScope)
                (implicit typeSystem: TypeSystem): Option[ScType] = {
-    def constructorValidForSAM(constructors: Array[PsiMethod]): Boolean = {
-      //primary constructor (if any) must be public, no-args, not overloaded
-      constructors.length match {
-        case 0 => true
-        case 1 => constructors.head.getModifierList.hasModifierProperty("public") &&
-          constructors.head.getParameterList.getParameters.isEmpty
-        case _ => false
+    def constructorValidForSAM(constructor: PsiMethod): Boolean = {
+      val isPublicAndParameterless = constructor.getModifierList.hasModifierProperty(PsiModifier.PUBLIC) &&
+        constructor.getParameterList.getParametersCount == 0
+      constructor match {
+        case scalaConstr: ScPrimaryConstructor if isPublicAndParameterless => scalaConstr.effectiveParameterClauses.size < 2
+        case _ => isPublicAndParameterless
       }
     }
 
@@ -1960,8 +1959,8 @@ object ScalaPsiUtil {
             val abst: Seq[ScFunction] = templDef.allMethods.toSeq.collect {
               case PhysicalSignature(fun: ScFunction, _) if fun.isAbstractMember => fun
             }
-            val constrValid = templDef match { //if it's a class check its constructor
-              case cla: ScClass => constructorValidForSAM(cla.constructors)
+            val constrValid: Boolean = templDef match { //if it's a class check its constructor
+              case cla: ScClass => cla.constructor.fold(false)(constructorValidForSAM)
               case tr: ScTrait => true
               case _ => false
             }
@@ -1996,8 +1995,10 @@ object ScalaPsiUtil {
               case array if array.length > 0 => array.filterNot(overridesConcreteMethod)
               case any => any
             }
+            val constructors: Array[PsiMethod] = cl.getConstructors
+            val constructorValid = constructors.exists(constructorValidForSAM) || constructors.isEmpty
             //must have exactly one abstract member and SAM must be monomorphic
-            val valid = abst.length == 1 && !abst.head.hasTypeParameters && constructorValidForSAM(cl.getConstructors)
+            val valid = constructorValid && abst.length == 1 && !abst.head.hasTypeParameters
             if (valid) {
               //need to generate ScType for Java method
               val method = abst.head
