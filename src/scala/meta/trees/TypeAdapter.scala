@@ -1,15 +1,14 @@
 package scala.meta.trees
 
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAliasDeclaration, ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, Compatibility, ScSubstitutor, ScTypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScSubstitutor, ScTypePsiTypeBridge}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
 import org.scalameta.collections._
@@ -46,7 +45,7 @@ trait TypeAdapter {
           m.Type.Placeholder(typeBounds(t))
         case t: ScParenthesisedTypeElement =>
           t.typeElement match {
-            case Some(t: ScInfixTypeElement) => m.Type.ApplyInfix(toType(t.lOp), toTypeName(t.ref), toType(t.rOp.get))
+            case Some(t: ScReferenceableInfixTypeElement) => m.Type.ApplyInfix(toType(t.leftTypeElement), toTypeName(t.reference), toType(t.rightTypeElement.get))
             case _ => unreachable
           }
         case t: ScTypeVariableTypeElement => die("i cannot into type variables")
@@ -115,7 +114,7 @@ trait TypeAdapter {
             .map(Compatibility.toParameter)
             .map(i=> convertParam(i.paramInCode.get))
             .toStream),
-            toType(ScType.create(t.getReturnType, t.getProject))).setTypechecked
+            toType(ScTypePsiTypeBridge.toScType(t.getReturnType, t.getProject))).setTypechecked
         case other => other ?!
       }
     })
@@ -129,17 +128,17 @@ trait TypeAdapter {
       }
       tp match {
         case t: ptype.ScParameterizedType =>
-          m.Type.Apply(toType(t.designator), Seq(t.typeArgs.map(toType(_)): _*)).setTypechecked
-        case t: ptype.ScThisType =>
-          toTypeName(t.clazz).setTypechecked
-        case t: ptype.ScProjectionType =>
+          m.Type.Apply(toType(t.designator), Seq(t.typeArguments.map(toType(_)): _*)).setTypechecked
+        case t: ptype.api.designator.ScThisType =>
+          toTypeName(t.element).setTypechecked
+        case t: ptype.api.designator.ScProjectionType =>
           t.projected match {
-            case tt: ptype.ScThisType =>
-              m.Type.Select(toTermName(tt.clazz), toTypeName(t.actualElement)).setTypechecked
+            case tt: ptype.api.designator.ScThisType =>
+              m.Type.Select(toTermName(tt.element), toTypeName(t.actualElement)).setTypechecked
             case _ =>
               m.Type.Project(toType(t.projected), toTypeName(t.actualElement)).setTypechecked
           }
-        case t: ptype.ScDesignatorType =>
+        case t: ptype.api.designator.ScDesignatorType =>
           if (t.element.isSingletonType)
             toSingletonType(t.element)
           else
@@ -148,8 +147,9 @@ trait TypeAdapter {
           m.Type.Compound(Seq(t.components.map(toType(_)):_*), Seq.empty)
         case t: ptype.ScExistentialType =>
           val wcards = t.wildcards.map {wc =>
-            val ubound = if (wc.upperBound == ptype.Any)      None else Some(toType(wc.upperBound))
-            val lbound = if (wc.lowerBound == ptype.Nothing)  None else Some(toType(wc.lowerBound))
+//            val (name, args, lower, upper) = wc
+            val ubound = if (wc.upper == ptype.api.Any)      None else Some(toType(wc.upper))
+            val lbound = if (wc.lower == ptype.api.Nothing)  None else Some(toType(wc.lower))
             m.Decl.Type(Nil, m.Type.Name(wc.name)
                 //FIXME: pass actual prefix, when solution for recursive prefix computation is ready
                 .withAttrs(h.Denotation.Single(h.Prefix.Zero, toSymbolWtihParent(wc.name, pivot, h.Signature.Type)))
@@ -157,10 +157,10 @@ trait TypeAdapter {
               Nil, m.Type.Bounds(lbound, ubound)).setTypechecked
           }
           m.Type.Existential(toType(t.quantified), wcards).setTypechecked
-        case t: ptype.StdType =>
+        case t: ptype.api.StdType =>
           toStdTypeName(t)
-        case t: ScTypeParameterType =>
-          m.Type.Name(t.name).withAttrsFor(t.param).setTypechecked
+        case t: TypeParameterType =>
+          m.Type.Name(t.name).withAttrsFor(t.nameAndId._2).setTypechecked
         case t: ptype.ScType =>
           LOG.warn(s"Unknown type: ${t.getClass} - ${t.canonicalText}")
           m.Type.Name(t.canonicalText).withAttrs(h.Denotation.Zero)
@@ -172,13 +172,13 @@ trait TypeAdapter {
     m.Type.Singleton(toTermName(elem)).setTypechecked
   }
 
-  def toTypeParams(tp: ScTypeParameterType): m.Type.Param = {
-    val ubound = if (tp.upper.v == ptype.Any)      None else Some(toType(tp.upper.v))
-    val lbound = if (tp.lower.v == ptype.Nothing)  None else Some(toType(tp.lower.v))
+  def toTypeParams(tp: TypeParameterType): m.Type.Param = {
+    val ubound = if (tp.upperType.v == ptype.api.Any)      None else Some(toType(tp.upperType.v))
+    val lbound = if (tp.lowerType.v == ptype.api.Nothing)  None else Some(toType(tp.lowerType.v))
     m.Type.Param(
       if(tp.isCovariant) m.Mod.Covariant() :: Nil else if(tp.isContravariant) m.Mod.Contravariant() :: Nil else Nil,
       if (tp.name != "_") m.Type.Name(tp.name) else m.Name.Anonymous().withAttrs(h.Denotation.Zero).setTypechecked,
-      Seq(tp.args.map(toTypeParams):_*),
+      Seq(tp.arguments.map(toTypeParams):_*),
       m.Type.Bounds(lbound, ubound), Nil, Nil
     )
   }

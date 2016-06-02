@@ -99,14 +99,14 @@ class IDEAContext(project: =>Project) extends TreeConverter with semantic.Contex
   override def supertypes(tpe : Type) : Seq[Type] = {
     val ptp = fromType(tpe.asInstanceOf[m.Type])
     ptp match {
-      case ptype.ScDesignatorType(elem) =>
+      case ptype.api.designator.ScDesignatorType(elem) =>
         elem match {
           case t: ScTemplateDefinition =>
             t.superTypes.map(toType(_))
           case _ =>
             Seq.empty
         }
-      case ptype.ScProjectionType(ptype.ScThisType(clazz), td: ScTemplateDefinition, superRef) =>
+      case ptype.api.designator.ScProjectionType(ptype.api.designator.ScThisType(clazz), td: ScTemplateDefinition, superRef) =>
         Seq(td.extendsBlock.superTypes.map(toType(_))    :_*)
       case _ =>
         Seq.empty

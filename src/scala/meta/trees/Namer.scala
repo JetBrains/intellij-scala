@@ -6,17 +6,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import org.jetbrains.plugins.scala.lang.psi.types.api.StdType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypeVisitor, StdType}
-import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypeVisitor}
+import org.jetbrains.plugins.scala.lang.psi.{impl, api => p, types => ptype}
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 
 import scala.language.postfixOps
 import scala.meta.internal.ast.Type
-import scala.meta.internal.{ast => m, semantic => h, AbortException}
+import scala.meta.internal.{AbortException, ast => m, semantic => h}
 import scala.meta.trees.error._
 import scala.{Seq => _}
 
@@ -86,19 +87,19 @@ trait Namer {
     val visitor = new ScalaTypeVisitor {
       override def visitStdType(x: StdType) = {
         res = x match {
-          case ptype.Any    => std.anyTypeName
-          case ptype.AnyRef => std.anyRefTypeName
-          case ptype.AnyVal => std.anyValTypeName
-          case ptype.Nothing=> std.nothingTypeName
-          case ptype.Null   => std.nullTypeName
-          case ptype.Unit   => std.unit
-          case ptype.Boolean=> std.boolean
-          case ptype.Char   => std.char
-          case ptype.Int    => std.int
-          case ptype.Float  => std.float
-          case ptype.Double => std.double
-          case ptype.Byte   => std.byte
-          case ptype.Short  => std.short
+          case ptype.api.Any    => std.anyTypeName
+          case ptype.api.AnyRef => std.anyRefTypeName
+          case ptype.api.AnyVal => std.anyValTypeName
+          case ptype.api.Nothing=> std.nothingTypeName
+          case ptype.api.Null   => std.nullTypeName
+          case ptype.api.Unit   => std.unit
+          case ptype.api.Boolean=> std.boolean
+          case ptype.api.Char   => std.char
+          case ptype.api.Int    => std.int
+          case ptype.api.Float  => std.float
+          case ptype.api.Double => std.double
+          case ptype.api.Byte   => std.byte
+          case ptype.api.Short  => std.short
           case _ =>
             val clazz = ScalaPsiManager.instance(getCurrentProject).getCachedClass(GlobalSearchScope.allScope(getCurrentProject), s"scala.${x.name}")
             if (clazz != null)
