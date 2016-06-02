@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateBodyStub
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 /**
 * @author Alexander Podkhalyuzin
@@ -43,9 +44,9 @@ class ScTemplateBodyImpl private (stub: StubElement[ScTemplateBody], nodeType: I
   def functions: Array[ScFunction] = getStubOrPsiChildren(TokenSets.FUNCTIONS, JavaArrayFactoryUtil.ScFunctionFactory).filterNot(_.isLocal)
 
   def typeDefinitions: Seq[ScTypeDefinition] =
-    getStubOrPsiChildren(TokenSets.TMPL_DEF_BIT_SET, JavaArrayFactoryUtil.ScTypeDefinitionFactory).filterNot(_.isLocal)
+    getStubOrPsiChildren(getProject.tokenSets.templateDefinitionSet, JavaArrayFactoryUtil.ScTypeDefinitionFactory).filterNot(_.isLocal)
 
-  def members: Array[ScMember] = getStubOrPsiChildren(TokenSets.MEMBERS, JavaArrayFactoryUtil.ScMemberFactory).filterNot(_.isLocal)
+  def members: Array[ScMember] = getStubOrPsiChildren(getProject.tokenSets.membersSet, JavaArrayFactoryUtil.ScMemberFactory).filterNot(_.isLocal)
 
   def holders: Array[ScDeclaredElementsHolder] =
     getStubOrPsiChildren(TokenSets.DECLARED_ELEMENTS_HOLDER, JavaArrayFactoryUtil.ScDeclaredElementsHolderFactory).filterNot {

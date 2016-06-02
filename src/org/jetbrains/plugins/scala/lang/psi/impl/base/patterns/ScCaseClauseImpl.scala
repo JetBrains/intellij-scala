@@ -8,13 +8,12 @@ package patterns
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
+import org.jetbrains.plugins.scala.project.ProjectExt
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 28.02.2008
 */
@@ -28,7 +27,7 @@ class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
   }
 
   override def toString: String = "CaseClause"
-  
+
   override def processDeclarations(processor: PsiScopeProcessor,
       state : ResolveState,
       lastParent: PsiElement,
@@ -59,12 +58,7 @@ class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with Sc
                 g.startOffsetInParent == lastParent.startOffsetInParent => if (!process) return false
               case _ =>
                 //todo: is this good? Maybe parser => always expression.
-                val last = findLastChildByType(TokenSet.create(ScalaElementTypes.FUNCTION_DECLARATION,
-                  ScalaElementTypes.FUNCTION_DEFINITION, ScalaElementTypes.PATTERN_DEFINITION,
-                  ScalaElementTypes.VALUE_DECLARATION, ScalaElementTypes.VARIABLE_DECLARATION,
-                  ScalaElementTypes.VARIABLE_DEFINITION, ScalaElementTypes.TYPE_DECLARATION,
-                  ScalaElementTypes.TYPE_DECLARATION, ScalaElementTypes.CLASS_DEF,
-                  ScalaElementTypes.TRAIT_DEF, ScalaElementTypes.OBJECT_DEF))
+                val last = findLastChildByType(getProject.tokenSets.membersSet)
                 if (last != null && lastParent != null && last.startOffsetInParent == lastParent.startOffsetInParent) {
                   if (!process) return false
                 }

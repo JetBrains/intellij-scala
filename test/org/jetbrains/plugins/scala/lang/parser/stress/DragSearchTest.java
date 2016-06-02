@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.parser.stress;
 
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilderFactory;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.TextRange;
@@ -17,9 +18,9 @@ import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementTypes;
 import org.jetbrains.plugins.scala.lang.parser.ScalaParser;
 import org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition;
+import org.jetbrains.plugins.scala.project.package$;
 import org.jetbrains.plugins.scala.testcases.BaseScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.util.TestUtils;
 import org.junit.Assert;
@@ -69,20 +70,21 @@ public class DragSearchTest extends BaseScalaFileSetTestCase {
 
 
   public String transform(String fileText) throws Exception {
-    JavaPsiFacade facade = JavaPsiFacade.getInstance(getProject());
+    Project project = getProject();
+    JavaPsiFacade facade = JavaPsiFacade.getInstance(project);
     PsiElementFactory psiElementFactory = facade.getElementFactory();
     Assert.assertNotNull(psiElementFactory);
     Assert.assertNotNull(TEMP_FILE);
     Assert.assertNotNull(fileText);
 
     PsiBuilder psiBuilder = PsiBuilderFactory.getInstance().createBuilder(new ScalaParserDefinition(), new ScalaLexer(), fileText);
-    DragBuilderWrapper dragBuilder = new DragBuilderWrapper(getProject(), psiBuilder);
-    new ScalaParser().parse(ScalaElementTypes.FILE(), dragBuilder);
+    DragBuilderWrapper dragBuilder = new DragBuilderWrapper(project, psiBuilder);
+    new ScalaParser().parse(package$.MODULE$.elementTypesIn(project).file(), dragBuilder);
 
     Pair<TextRange, Integer>[] dragInfo = dragBuilder.getDragInfo();
     exploreForDrags(dragInfo);
 
-    PsiFile psiFile = PsiFileFactory.getInstance(getProject()).createFileFromText(TEMP_FILE,
+    PsiFile psiFile = PsiFileFactory.getInstance(project).createFileFromText(TEMP_FILE,
         ScalaFileType.SCALA_FILE_TYPE, fileText);
     return DebugUtil.psiToString(psiFile, false);
   }

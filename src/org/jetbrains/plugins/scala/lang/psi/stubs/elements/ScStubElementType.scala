@@ -12,10 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers.IStubElement
  * @author ilyas
  */
 
-abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](debugName: String)
-extends IStubElementTypeWrapper[S, T](debugName) {
-
-  def getExternalId = "sc." + super.toString
+abstract class ScStubElementType[S <: StubElement[T], T <: PsiElement](val debugName: String)
+  extends IStubElementTypeWrapper[S, T](debugName) with ScStubSerializer[S] {
 
   def isCompiled(stub: S) = {
     var parent = stub

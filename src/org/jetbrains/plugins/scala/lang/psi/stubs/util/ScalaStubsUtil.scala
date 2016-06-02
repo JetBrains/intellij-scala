@@ -8,7 +8,7 @@ package util
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import com.intellij.psi.stubs.{StubIndex, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.StubIndex
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.Processor
@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScExtendsBlockImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
-import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFileStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ScDirectInheritorsIndex, ScSelfTypeInheritorsIndex}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
@@ -114,21 +113,6 @@ object ScalaStubsUtil {
 
     if (clazz.isEffectivelyFinal) Seq.empty
     else selfTypeInheritorsInner(scope)
-  }
-
-  def serializeFileStubElement(stub: ScFileStub, dataStream: StubOutputStream) {
-    dataStream.writeBoolean(stub.isScript)
-    dataStream.writeBoolean(stub.isCompiled)
-    dataStream.writeName(stub.packageName)
-    dataStream.writeName(stub.getFileName)
-  }
-  
-  def deserializeFileStubElement(dataStream: StubInputStream, parentStub: Object) = {
-    val script = dataStream.readBoolean
-    val compiled = dataStream.readBoolean
-    val packName = dataStream.readName
-    val fileName = dataStream.readName
-    new ScFileStubImpl(null, packName, fileName, compiled, script)
   }
 
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil")

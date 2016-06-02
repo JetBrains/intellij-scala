@@ -51,6 +51,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScTypeUtil, ScalaNamesUtil}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInnerCodeElement, ScDocResolvableCodeReference, ScDocSyntaxElement}
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.collection.mutable
 
@@ -980,19 +981,20 @@ object ScalaPsiElementFactory {
   }
 
   def createElement(text: String, manager: PsiManager, parse: ScalaPsiBuilder => Unit): PsiElement = {
-    val context = PsiFileFactory.getInstance(manager.getProject).
+    val project = manager.getProject
+    val context = PsiFileFactory.getInstance(project).
             createFileFromText(DUMMY + ScalaFileType.SCALA_FILE_TYPE.getDefaultExtension,
               ScalaFileType.SCALA_FILE_TYPE, "").asInstanceOf[ScalaFile]
     val holder: FileElement = DummyHolderFactory.createHolder(manager, context).getTreeElement
     val builder: ScalaPsiBuilderImpl =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(manager.getProject, holder,
+      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(project, holder,
         new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text.trim))
     val marker = builder.mark()
     parse(builder)
     while (!builder.eof()) {
       builder.advanceLexer()
     }
-    marker.done(ScalaElementTypes.FILE)
+    marker.done(project.elementTypes.file)
     val fileNode = builder.getTreeBuilt
     val node = fileNode.getFirstChildNode
     holder.rawAddChildren(node.asInstanceOf[TreeElement])
@@ -1003,15 +1005,16 @@ object ScalaPsiElementFactory {
   def createElementWithContext(text: String, context: PsiElement, child: PsiElement,
                                                 parse: ScalaPsiBuilder => Unit): PsiElement = {
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
+    val project = context.getProject
     val builder: ScalaPsiBuilderImpl =
-      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(context.getProject, holder,
+      new ScalaPsiBuilderImpl(PsiBuilderFactory.getInstance.createBuilder(project, holder,
         new ScalaLexer, ScalaFileType.SCALA_LANGUAGE, text.trim))
     val marker = builder.mark()
     parse(builder)
     while (!builder.eof()) {
       builder.advanceLexer()
     }
-    marker.done(ScalaElementTypes.FILE)
+    marker.done(project.elementTypes.file)
     val fileNode = builder.getTreeBuilt
     val node = fileNode.getFirstChildNode
     holder.rawAddChildren(node.asInstanceOf[TreeElement])

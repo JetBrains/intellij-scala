@@ -3,37 +3,42 @@ package lang
 package psi
 package stubs
 package elements
-import com.intellij.lang.Language
-import com.intellij.psi.StubBuilder
+
 import com.intellij.psi.stubs.{IndexSink, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.decompiler.DecompilerUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.wrappers.IStubFileElementWrapper
-import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaStubsUtil
 
 /**
  * @author ilyas
  */
 
-class ScStubFileElementType(lang: Language) extends IStubFileElementWrapper[ScalaFile, ScFileStub]("scala.FILE", lang) {
+class ScStubFileElementType private(val debugName: String)
+  extends IStubFileElementWrapper[ScalaFile, ScFileStub](debugName, ScalaFileType.SCALA_LANGUAGE) with ScStubSerializer[ScFileStub] {
 
-  override def getStubVersion: Int = StubVersion.STUB_VERSION
+  def this() = this("file")
 
-  override def getBuilder: StubBuilder = new ScalaFileStubBuilder()
+  override def getStubVersion = StubVersion.STUB_VERSION
 
-  override def getExternalId = "scala.FILE"
+  override def getBuilder = new ScalaFileStubBuilder
+
+  override def getExternalId = super.getExternalId
 
   override def deserializeImpl(dataStream: StubInputStream, parentStub: Object): ScFileStub = {
-    ScalaStubsUtil.deserializeFileStubElement(dataStream, parentStub)
+    val isScript = dataStream.readBoolean
+    val isCompiled = dataStream.readBoolean
+    getBuilder.fileStub(null, dataStream.readName, dataStream.readName, isCompiled, isScript)
   }
 
   override def serialize(stub: ScFileStub, dataStream: StubOutputStream): Unit = {
-    ScalaStubsUtil.serializeFileStubElement(stub, dataStream)
+    dataStream.writeBoolean(stub.isScript)
+    dataStream.writeBoolean(stub.isCompiled)
+    dataStream.writeName(stub.packageName)
+    dataStream.writeName(stub.getFileName)
   }
 
-  def indexStub(stub: ScFileStub, sink: IndexSink){
+  def indexStub(stub: ScFileStub, sink: IndexSink) {
   }
-
 }
 
 object StubVersion {

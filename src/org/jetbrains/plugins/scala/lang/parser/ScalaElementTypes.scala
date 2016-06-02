@@ -20,17 +20,24 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.{ScClassPa
  * Date: 02.10.2006
  *
  */
-object ScalaElementTypes {
+trait ElementTypes {
+  val file: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]]
 
+  val classDefinition: ScClassDefinitionElementType
+  val objectDefinition: ScObjectDefinitionElementType
+  val traitDefinition: ScTraitDefinitionElementType
+}
+
+object ScalaElementTypes extends ElementTypes {
   val DUMMY_ELEMENT = new ScalaElementType("Dummy Elemnet")
 
 
   //Stub element types
-  val FILE: IStubFileElementType[_ <: PsiFileStub[_ <: PsiFile]] = new ScStubFileElementType(ScalaFileType.SCALA_LANGUAGE)
+  val file = new ScStubFileElementType
 
-  val CLASS_DEF = new ScClassDefinitionElementType
-  val OBJECT_DEF = new ScObjectDefinitionElementType
-  val TRAIT_DEF = new ScTraitDefinitionElementType
+  val classDefinition = new ScClassDefinitionElementType
+  val objectDefinition = new ScObjectDefinitionElementType
+  val traitDefinition = new ScTraitDefinitionElementType
 
   val PACKAGING = new ScPackagingElementType
   val EXTENDS_BLOCK = new ScExtendsBlockElementType
