@@ -1,19 +1,18 @@
 package org.jetbrains.plugins.scala.annotator
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
+import org.jetbrains.plugins.scala.base.{AssertMatches, ScalaFixtureTestCase}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
-import org.junit.Assert
 
 /**
   * Author: Svyatoslav Ilinskiy
   * Date: 6/15/15
   */
 abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtils.DEFAULT_SCALA_SDK_VERSION)
-  extends ScalaFixtureTestCase(scalaSdk) {
+  extends ScalaFixtureTestCase(scalaSdk) with AssertMatches {
   def testBasicGenerics() {
     val code =
       """
@@ -350,97 +349,33 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
     """.stripMargin
 
 
-  def testSAMEtaExpansion1(): Unit = {
-    val code = etaExpansionTestPrefix + "val a1: Runnable = a"
-    assertMatches(messages(code)) {
-      case Error("a", typeMismatch()) :: Error("a", doesNotConform()) :: Nil =>
-    }
-  }
-
-  def testSAMEtaExpansion2(): Unit = {
-    val code = etaExpansionTestPrefix + "val a2: Runnable = a()"
-    assertMatches(messages(code)) {
-      case Error("a()", typeMismatch()) :: Error("a()", doesNotConform()) :: Nil =>
-    }
-  }
-
-  def testSAMEtaExpansion4(): Unit = {
-    val code = etaExpansionTestPrefix + "val b2: Runnable = b()"
-    assertMatches(messages(code)) {
-      case Error("b()", typeMismatch()) :: Error("b()", doesNotConform()) :: Nil =>
-    }
-  }
-
-  def testSAMEtaExpansion5(): Unit = {
-    val code = etaExpansionTestPrefix + "val c1: Runnable = c"
-    assertMatches(messages(code)) {
-      case Error("c", typeMismatch()) :: Error("c", doesNotConform()) :: Nil =>
-    }
-  }
-
-  def testSAMEtaExpansion6(): Unit = {
-    val code = etaExpansionTestPrefix + "val c2: Runnable = c()"
-    assertMatches(messages(code)) {
-      case Error("()", doesNotTakeParameters()) :: Nil =>
-    }
-  }
-
-  def testSAMEtaExpansion8(): Unit = {
-    val code = etaExpansionTestPrefix + "val d2: Runnable = d()"
-    assertMatches(messages(code)) {
-      case Error("d()", typeMismatch()) :: Error("d()", doesNotConform()) :: Nil =>
-    }
-  }
-
-  def testSAMEtaExpansion9(): Unit = {
-    val code = etaExpansionTestPrefix + "val e1: Runnable = e"
-    assertMatches(messages(code)) {
-      case Error("e", typeMismatch()) :: Error("e", doesNotConform()) :: Nil =>
-    }
-  }
-
-  def testSAMEtaExpansion10(): Unit = {
-    val code = etaExpansionTestPrefix + "val e2: Runnable = e()"
-    assertMatches(messages(code)) {
-      case Error("e()", typeMismatch()) :: Error("e()", doesNotConform()) :: Nil =>
-    }
-  }
-
-  def testSAMEtaExpansion12(): Unit = {
-    val code = etaExpansionTestPrefix + "val f2: Runnable = f()"
-    assertMatches(messages(code)) {
-      case Error("f()", typeMismatch()) :: Error("f()", doesNotConform()) :: Nil =>
-    }
-  }
-
-  def testSAMEtaExpansion14(): Unit = {
-    val code = etaExpansionTestPrefix + "val g2: Runnable = g()"
-    assertMatches(messages(code)) {
-      case Error("g()", typeMismatch()) :: Error("g()", doesNotConform()) :: Nil =>
-    }
-  }
-
-
-  def testSAMEtaExpansion16(): Unit = {
-    val code = etaExpansionTestPrefix + "val h2: Runnable = h()"
-    assertMatches(messages(code)) {
-      case Error("h()", typeMismatch()) :: Error("h()", doesNotConform()) :: Nil =>
-    }
-  }
-
-  //similar to testEtaExpansion11
-  def testEtaExpansionUnitReturnWithParams(): Unit = {
-    val code =
+  def testSAMInvalidEtaExpansion(): Unit = {
+    val code = etaExpansionTestPrefix +
       """
-        |trait S {
-        |  def foo(i: Int): Unit
-        |}
-        |def ss(): Int => Unit = (i: Int) => Unit
-        |
-        |val s: S = ss
+        |val a1: Runnable = a
+        |val a2: Runnable = a()
+        |val b2: Runnable = b()
+        |val c1: Runnable = c
+        |val c2: Runnable = c()
+        |val d2: Runnable = d()
+        |val e1: Runnable = e
+        |val e2: Runnable = e()
+        |val f2: Runnable = f()
+        |val g2: Runnable = g()
+        |val h2: Runnable = h()
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("ss", typeMismatch()) :: Error("ss", doesNotConform()) :: Nil =>
+      case Error("a", typeMismatch()) :: Error("a", doesNotConform()) ::
+        Error("a()", typeMismatch()) :: Error("a()", doesNotConform()) ::
+        Error("b()", typeMismatch()) :: Error("b()", doesNotConform()) ::
+        Error("c", typeMismatch()) :: Error("c", doesNotConform()) ::
+        Error("()", doesNotTakeParameters()) ::
+        Error("d()", typeMismatch()) :: Error("d()", doesNotConform()) ::
+        Error("e", typeMismatch()) :: Error("e", doesNotConform()) ::
+        Error("e()", typeMismatch()) :: Error("e()", doesNotConform()) ::
+        Error("f()", typeMismatch()) :: Error("f()", doesNotConform()) ::
+        Error("g()", typeMismatch()) :: Error("g()", doesNotConform()) ::
+        Error("h()", typeMismatch()) :: Error("h()", doesNotConform()) :: Nil =>
     }
   }
 
@@ -546,9 +481,7 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
   }
 
   def checkCodeHasNoErrors(scalaCode: String, javaCode: Option[String] = None) {
-    assertMatches(messages(scalaCode, javaCode)) {
-      case Nil =>
-    }
+    assertNothing(messages(scalaCode, javaCode))
   }
 
   def messages(@Language("Scala") scalaCode: String, javaCode: Option[String] = None): List[Message] = {
@@ -568,10 +501,6 @@ abstract class SingleAbstractMethodTestBase(scalaSdk: ScalaSdkVersion = TestUtil
       case Error(_, null) => false
       case _ => true
     }
-  }
-
-  def assertMatches[T](actual: T)(pattern: PartialFunction[T, Unit]) {
-    Assert.assertTrue("actual: " + actual.toString, pattern.isDefinedAt(actual))
   }
 
   def parseText(@Language("Scala") s: String): ScalaFile = {
@@ -604,38 +533,21 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase(scalaSdk = S
     }
   }
 
-  def testSAMEtaExpansion3(): Unit = {
-    val code = etaExpansionTestPrefix + "val b1: Runnable = b"
+  def testSAMEtaExpansionInvalid212(): Unit = {
+    val code = etaExpansionTestPrefix +
+      """
+        |val b1: Runnable = b
+        |val d1: Runnable = d
+        |val f1: Runnable = f
+        |val g1: Runnable = g
+        |val h1: Runnable = h
+      """.stripMargin
     assertMatches(messages(code)) {
-      case Error("b", typeMismatch()) :: Error("b", doesNotConform()) :: Nil =>
-    }
-  }
-
-  def testSAMEtaExpansion7(): Unit = {
-    val code = etaExpansionTestPrefix + "val d1: Runnable = d"
-    assertMatches(messages(code)) {
-      case Error("d", typeMismatch()) :: Error("d", doesNotConform()) :: Nil =>
-    }
-  }
-
-  def testSAMEtaExpansion11(): Unit = {
-    val code = etaExpansionTestPrefix + "val f1: Runnable = f"
-    assertMatches(messages(code)) {
-      case Error("f", typeMismatch()) :: Error("f", doesNotConform()) :: Nil =>
-    }
-  }
-
-  def testSAMEtaExpansion13(): Unit = {
-    val code = etaExpansionTestPrefix + "val g1: Runnable = g"
-    assertMatches(messages(code)) {
-      case Error("g", typeMismatch()) :: Error("g", doesNotConform()) :: Nil =>
-    }
-  }
-
-  def testSAMEtaExpansion15(): Unit = {
-    val code = etaExpansionTestPrefix + "val h1: Runnable = h"
-    assertMatches(messages(code)) {
-      case Error("h", typeMismatch()) :: Error("h", doesNotConform()) :: Nil =>
+      case Error("b", typeMismatch()) :: Error("b", doesNotConform()) ::
+        Error("d", typeMismatch()) :: Error("d", doesNotConform()) ::
+        Error("f", typeMismatch()) :: Error("f", doesNotConform()) ::
+        Error("g", typeMismatch()) :: Error("g", doesNotConform()) ::
+        Error("h", typeMismatch()) :: Error("h", doesNotConform()) :: Nil =>
     }
   }
 
@@ -710,42 +622,6 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase(scalaSdk = S
     }
   }
 
-  def testSAMMissingParameterTypeGeneric(): Unit = {
-    val code =
-      """
-        |trait F1[A, B] { def apply(a: A): B }
-        |
-        |class Test {
-        |  def foo[A](f1: F1[A, A]) = f1
-        |
-        |  foo(x => x)
-        |}
-      """.stripMargin
-    assertMatches(messages(code)) {
-      case Error("foo(x => x)", missingParameterType()) :: Nil =>
-    }
-  }
-
-  def testSAMMissingParameterType(): Unit = {
-    val code =
-      """
-        |trait Id {
-        |  def foo(x: String): String
-        |}
-        |
-        |def z(x: String => String): Int = 0
-        |
-        |def z(x: Id): Int = 1
-        |
-        |z((x: String) => x)
-        |z(_)
-        |z(x => x)
-      """.stripMargin
-    assertMatches(messages(code)) {
-      case Error("z(_)", missingParameterType()) :: Error("x => x", missingParameterType()) :: Nil =>
-    }
-  }
-
   def testSelfTypeNotAllowed(): Unit = {
     val code =
       """
@@ -781,28 +657,18 @@ class SingleAbstractMethodTest_2_11 extends SingleAbstractMethodTestBase(scalaSd
     checkCodeHasNoErrors(code)
   }
 
-  def testSAMEtaExpansion3(): Unit = {
-    val code = etaExpansionTestPrefix + "val b1: Runnable = b"
-    checkCodeHasNoErrors(code)
-  }
-
-  def testSAMEtaExpansion7(): Unit = {
-    val code = etaExpansionTestPrefix + "val d1: Runnable = d"
-    checkCodeHasNoErrors(code)
-  }
-
-  def testSAMEtaExpansion11(): Unit = {
-    val code = etaExpansionTestPrefix + "val f1: Runnable = f"
-    checkCodeHasNoErrors(code)
-  }
-
-  def testSAMEtaExpansion13(): Unit = {
-    val code = etaExpansionTestPrefix + "val g1: Runnable = g"
-    checkCodeHasNoErrors(code)
-  }
-
-  def testSAMEtaExpansion15(): Unit = {
-    val code = etaExpansionTestPrefix + "val h1: Runnable = h"
+  def testSAMValidEtaExpansion211(): Unit = {
+    val code =
+      s"""
+        |object T {
+        |  $etaExpansionTestPrefix
+        |  val b1: Runnable = b
+        |  val d1: Runnable = d
+        |  val f1: Runnable = f
+        |  val g1: Runnable = g
+        |  val h1: Runnable = h
+        |}
+      """.stripMargin
     checkCodeHasNoErrors(code)
   }
 
