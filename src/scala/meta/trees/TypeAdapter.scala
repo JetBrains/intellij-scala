@@ -6,18 +6,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
+import org.jetbrains.plugins.scala.lang.psi.types.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypeResult, TypingContext}
-import org.jetbrains.plugins.scala.lang.psi.types.{Compatibility, ScSubstitutor, ScTypePsiTypeBridge}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
-import org.scalameta.collections._
 
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
-import scala.meta.internal.{ast => m, semantic => h}
+import scala.meta.collections._
+import scala.meta.internal.{semantic => h}
 import scala.meta.trees.error._
-import scala.{Seq => _}
+import scala.{meta => m, Seq => _}
 
 trait TypeAdapter {
   self: TreeConverter =>
@@ -82,12 +82,12 @@ trait TypeAdapter {
           toType(s.subst(t.getType(TypingContext.empty).get)) // FIXME: what about typing context?
         case t: packaging.ScPackaging =>
           m.Type.Singleton(toTermName(t.reference.get)).setTypechecked
-        case t: ScConstructor =>
-          m.Type.Method(toParams(Seq(t.arguments:_*)), toType(t.newTemplate.get.getType(TypingContext.empty))).setTypechecked
-        case t: ScPrimaryConstructor =>
-          m.Type.Method(Seq(t.parameterList.clauses.map(convertParamClause):_*), toType(t.containingClass)).setTypechecked
-        case t: ScFunctionDefinition =>
-          m.Type.Method(Seq(t.parameterList.clauses.map(convertParamClause):_*), toType(t.getTypeWithCachedSubst)).setTypechecked
+        case t: ScConstructor => ???
+//          m.Type.Method(toParams(Seq(t.arguments:_*)), toType(t.newTemplate.get.getType(TypingContext.empty))).setTypechecked
+        case t: ScPrimaryConstructor => ???
+//          m.Type.Method(Seq(t.parameterList.clauses.map(convertParamClause):_*), toType(t.containingClass)).setTypechecked
+        case t: ScFunctionDefinition => ???
+//          m.Type.Method(Seq(t.parameterList.clauses.map(convertParamClause):_*), toType(t.getTypeWithCachedSubst)).setTypechecked
         case t: ScFunction =>
           m.Type.Function(Seq(t.paramTypes.map(toType(_, t).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType)).setTypechecked
         case t: ScParameter =>
@@ -109,12 +109,12 @@ trait TypeAdapter {
           m.Type.Singleton(toTermName(t)).setTypechecked
         case t: PsiClass =>
           m.Type.Name(t.getName).withAttrsFor(t).setTypechecked
-        case t: PsiMethod =>
-          m.Type.Method(Seq(t.getParameterList.getParameters
-            .map(Compatibility.toParameter)
-            .map(i=> convertParam(i.paramInCode.get))
-            .toStream),
-            toType(ScTypePsiTypeBridge.toScType(t.getReturnType, t.getProject))).setTypechecked
+        case t: PsiMethod => ???
+//          m.Type.Method(Seq(t.getParameterList.getParameters
+//            .map(Compatibility.toParameter)
+//            .map(i=> convertParam(i.paramInCode.get))
+//            .toStream),
+//            toType(ScTypePsiTypeBridge.toScType(t.getReturnType, t.getProject))).setTypechecked
         case other => other ?!
       }
     })
@@ -152,7 +152,7 @@ trait TypeAdapter {
             val lbound = if (wc.lower == ptype.api.Nothing)  None else Some(toType(wc.lower))
             m.Decl.Type(Nil, m.Type.Name(wc.name)
                 //FIXME: pass actual prefix, when solution for recursive prefix computation is ready
-                .withAttrs(h.Denotation.Single(h.Prefix.Zero, toSymbolWtihParent(wc.name, pivot, h.Signature.Type)))
+                .withAttrs(h.Denotation.Single(h.Prefix.None, toSymbolWtihParent(wc.name, pivot, h.ScalaSig.Type(wc.name))))
                 .setTypechecked,
               Nil, m.Type.Bounds(lbound, ubound)).setTypechecked
           }
@@ -163,7 +163,7 @@ trait TypeAdapter {
           m.Type.Name(t.name).withAttrsFor(t.nameAndId._2).setTypechecked
         case t: ptype.ScType =>
           LOG.warn(s"Unknown type: ${t.getClass} - ${t.canonicalText}")
-          m.Type.Name(t.canonicalText).withAttrs(h.Denotation.Zero)
+          m.Type.Name(t.canonicalText).withAttrs(h.Denotation.None)
       }
     })
   }
@@ -177,7 +177,7 @@ trait TypeAdapter {
     val lbound = if (tp.lowerType.v == ptype.api.Nothing)  None else Some(toType(tp.lowerType.v))
     m.Type.Param(
       if(tp.isCovariant) m.Mod.Covariant() :: Nil else if(tp.isContravariant) m.Mod.Contravariant() :: Nil else Nil,
-      if (tp.name != "_") m.Type.Name(tp.name) else m.Name.Anonymous().withAttrs(h.Denotation.Zero).setTypechecked,
+      if (tp.name != "_") m.Type.Name(tp.name) else m.Name.Anonymous().withAttrs(h.Denotation.None).setTypechecked,
       Seq(tp.arguments.map(toTypeParams):_*),
       m.Type.Bounds(lbound, ubound), Nil, Nil
     )
