@@ -1,19 +1,19 @@
 package scala.meta.trees
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.psi.{PsiClass, PsiElement, PsiPackage}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSugarCallExpr, ScExpression}
+import com.intellij.psi.{PsiElement, PsiPackage}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScSubstitutor}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypeResult, TypingContext}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScSubstitutor, ScType}
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
-import scala.meta.internal.{ast => m, semantic => h, AbortException}
+import scala.meta.internal.{semantic => h}
 import scala.meta.trees.error._
-import scala.{Seq => _}
+import scala.{meta => m, Seq => _}
 
 trait Utils {
   self: TreeConverter =>
@@ -24,13 +24,13 @@ trait Utils {
   object std {
 
     def scalaTypeName(name: String) = {
-      m.Type.Name(name).withAttrs(h.Denotation.Single(std.scalaPackagePrefix, h.Symbol.Global(std.scalaPackageSymbol, name, h.Signature.Type))).setTypechecked
+      m.Type.Name(name).withAttrs(h.Denotation.Single(std.scalaPackagePrefix, h.Symbol.Global(std.scalaPackageSymbol, h.ScalaSig.Term(name), h.BinarySig.None))).setTypechecked
     }
 
-    val rootPackageName = m.Term.Name("_root_").withAttrs(denot = h.Denotation.Single(h.Prefix.Zero, h.Symbol.RootPackage), typingLike = h.Typing.Recursive)
+    val rootPackageName = m.Term.Name("_root_").withAttrs(denot = h.Denotation.Single(h.Prefix.None, h.Symbol.RootPackage), typingLike = h.Typing.Recursive)
     val rootPackagePrefix = h.Prefix.Type(m.Type.Singleton(rootPackageName).setTypechecked)
 
-    val scalaPackageSymbol = h.Symbol.Global(h.Symbol.RootPackage, "scala", h.Signature.Term)
+    val scalaPackageSymbol = h.Symbol.Global(h.Symbol.RootPackage, h.ScalaSig.Term("scala"), h.BinarySig.None)
     val scalaPackageName = m.Term.Name("scala").withAttrs(denot = h.Denotation.Single(rootPackagePrefix, scalaPackageSymbol), h.Typing.Recursive)
     val scalaPackagePrefix = h.Prefix.Type(m.Type.Singleton(scalaPackageName).setTypechecked)
 
