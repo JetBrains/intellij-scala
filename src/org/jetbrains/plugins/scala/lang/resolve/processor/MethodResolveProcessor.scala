@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionTyp
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 import scala.collection.Set
 import scala.collection.immutable.HashSet
@@ -255,7 +256,7 @@ object MethodResolveProcessor {
       expectedOption().map(_.removeAbstracts) match {
         case Some(FunctionType(retType, params)) => processFunctionType(retType, params)
         case Some(tp: ScType) if ScalaPsiUtil.isSAMEnabled(fun) =>
-          ScalaPsiUtil.toSAMType(tp, fun.getResolveScope) match {
+          ScalaPsiUtil.toSAMType(tp, fun.getResolveScope, fun.scalaLanguageLevelOrDefault) match {
             case Some(FunctionType(retType, params)) => processFunctionType(retType, params)
             case _ => default()
           }

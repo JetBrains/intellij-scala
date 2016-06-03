@@ -56,7 +56,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolvableReferenceExpression, 
 import org.jetbrains.plugins.scala.lang.structureView.ScalaElementPresentation
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 import scala.annotation.tailrec
@@ -1625,7 +1625,8 @@ object ScalaPsiUtil {
       import expr.typeSystem
       if (!expr.expectedType(fromUnderscore = false).exists {
         case FunctionType(_, _) => true
-        case expected if isSAMEnabled(expr) => toSAMType(expected, expr.getResolveScope).isDefined
+        case expected if isSAMEnabled(expr) =>
+          toSAMType(expected, expr.getResolveScope, expr.scalaLanguageLevelOrDefault).isDefined
         case _ => false
       }) {
         return None
@@ -1941,7 +1942,7 @@ object ScalaPsiUtil {
     * @see SCL-6140
     * @see https://github.com/scala/scala/pull/3018/
     */
-  def toSAMType(expected: ScType, scalaScope: GlobalSearchScope)
+  def toSAMType(expected: ScType, scalaScope: GlobalSearchScope, languageLevel: ScalaLanguageLevel)
                (implicit typeSystem: TypeSystem): Option[ScType] = {
     def constructorValidForSAM(constructor: PsiMethod): Boolean = {
       val isPublicAndParameterless = constructor.getModifierList.hasModifierProperty(PsiModifier.PUBLIC) &&
@@ -1956,6 +1957,19 @@ object ScalaPsiUtil {
       case Some((cl, sub)) =>
         cl match {
           case templDef: ScTemplateDefinition => //it's a Scala class or trait
+            def selfTypeValid: Boolean = {
+              templDef.selfType match {
+                case Some(selfParam: ScParameterizedType) => templDef.getType(TypingContext.empty) match {
+                  case Success(classParamTp: ScParameterizedType, _) => selfParam.designator.conforms(classParamTp.designator)
+                  case _ => false
+                }
+                case Some(selfTp) => templDef.getType(TypingContext.empty) match {
+                  case Success(classType, _) => selfTp.conforms(classType)
+                  case _ => false
+                }
+                case _ => true
+              }
+            }
             val abst: Seq[ScFunction] = templDef.allMethods.toSeq.collect {
               case PhysicalSignature(fun: ScFunction, _) if fun.isAbstractMember => fun
             }
@@ -1964,12 +1978,14 @@ object ScalaPsiUtil {
               case tr: ScTrait => true
               case _ => false
             }
+            val isScala211 = languageLevel == ScalaLanguageLevel.Scala_2_11
             //cl must have only one abstract member, one argument list and be monomorphic
             val valid =
               constrValid &&
                 abst.length == 1 &&
                 abst.head.parameterList.clauses.length == 1 &&
-                !abst.head.hasTypeParameters
+                !abst.head.hasTypeParameters &&
+                (isScala211 || selfTypeValid)
 
             if (valid) {
               val fun = abst.head

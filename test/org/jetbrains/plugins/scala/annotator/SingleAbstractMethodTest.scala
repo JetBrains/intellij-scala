@@ -625,6 +625,7 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase(scalaSdk = S
   def testSelfTypeNotAllowed(): Unit = {
     val code =
       """
+        |class Foo
         |abstract class SelfTp extends Foo { self: Foo =>
         |  def ap(a: Int): Any
         |}
@@ -632,8 +633,30 @@ class SingleAbstractMethodTest extends SingleAbstractMethodTestBase(scalaSdk = S
         |((x: Int) => x): SelfTp
       """.stripMargin
     assertMatches(messages(code)) {
-      case Error("((x: Int) => x)", typeMismatch()) :: Nil =>
+      case Error("((x: Int) => x)", typeMismatch()) :: Error("((x: Int) => x)", doesNotConform()) :: Nil =>
     }
+  }
+
+  def testSelfTpAllowed(): Unit = {
+    val code =
+      """
+        |class Foo
+        |abstract class SelfTp1 extends Foo { self: SelfTp1 =>
+        |  def ap(a: Int): Any
+        |}
+        |
+        |abstract class SelfTp2 extends Foo { self =>
+        |  def ap(a: Int): Any
+        |}
+        |abstract class SelfTp3[T] extends Foo { self: SelfTp3[String] =>
+        |  def ap(a: Int): Any
+        |}
+        |
+        |((x: Int) => x): SelfTp1
+        |((x: Int) => x): SelfTp2
+        |((x: Int) => x): SelfTp3[Int] //this compiles with 2.12-M4
+      """.stripMargin
+    checkCodeHasNoErrors(code)
   }
 }
 
