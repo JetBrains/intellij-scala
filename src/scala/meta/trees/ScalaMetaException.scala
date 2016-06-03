@@ -4,6 +4,9 @@ import com.intellij.psi.PsiElement
 
 import scala.meta.internal.{ast => m, semantic => h, AbortException}
 
+class AbortException(reason: String) extends RuntimeException {
+  def this(place: Any, casue: String) = this("")
+}
 class ScalaMetaException(message: String) extends Exception(message)
 
 class ScalaMetaResolveError(elem: PsiElement) extends ScalaMetaException(s"Cannot resolve ${elem.getClass} at ${elem.toString}")
