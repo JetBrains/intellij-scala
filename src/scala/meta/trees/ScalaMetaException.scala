@@ -2,7 +2,7 @@ package scala.meta.trees
 
 import com.intellij.psi.PsiElement
 
-import scala.meta.internal.{ast => m, semantic => h, AbortException}
+import scala.meta.internal.{ast => m, semantic => h}
 
 class AbortException(reason: String) extends RuntimeException {
   def this(place: Any, casue: String) = this("")

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInl
 
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
-import scala.meta.internal.{ast => m}
+import scala.{meta=>m}
 import scala.{Seq => _}
 
 trait TreeConverterBuilder {

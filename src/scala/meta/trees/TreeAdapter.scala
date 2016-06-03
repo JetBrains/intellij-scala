@@ -13,9 +13,10 @@ import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiElement, api => p, types =>
 
 import scala.collection.immutable.Seq
 import scala.language.postfixOps
-import scala.meta.internal.ast.Term
-import scala.meta.internal.ast.Term.Param
-import scala.meta.internal.{ast => m, semantic => h, AbortException}
+//import scala.meta.internal.ast.Term
+//import scala.meta.internal.ast.Term.Param
+import scala.meta.internal.{semantic => h}
+import scala.{meta=>m}
 import scala.meta.trees.error._
 import scala.{Seq => _}
 
@@ -54,7 +55,7 @@ trait TreeAdapter {
       convertMods(t), toTermName(t),
       Seq(t.typeParameters map toTypeParams: _*),
       Seq(t.paramClauses.clauses.map(convertParamClause): _*),
-      t.definedReturnType.map(toType(_)).get,
+      t.definedReturnType.map(toType(_)).toOption,
       expression(t.body).get
     )
   }
@@ -91,11 +92,11 @@ trait TreeAdapter {
   }
 
   def toVar(t: ScVariableDeclaration): m.Decl.Var = {
-    m.Decl.Var(convertMods(t), Seq(t.getIdList.fieldIds map { it => m.Pat.Var.Term(toTermName(it)) }: _*), toType(t.typeElement.get.calcType))
+    m.Decl.Var(convertMods(t), Seq(t.getIdList.fieldIds map { it => m.Pat.Var.Term(toTermName(it)) }: _*), toType(t.typeElement.get.getType()))
   }
 
   def toVal(t: ScValueDeclaration): m.Decl.Val = {
-    m.Decl.Val(convertMods(t), Seq(t.getIdList.fieldIds map { it => m.Pat.Var.Term(toTermName(it)) }: _*), toType(t.typeElement.get.calcType))
+    m.Decl.Val(convertMods(t), Seq(t.getIdList.fieldIds map { it => m.Pat.Var.Term(toTermName(it)) }: _*), toType(t.typeElement.get.getType()))
   }
 
   def toTrait(t: ScTrait) = m.Defn.Trait(
@@ -125,7 +126,6 @@ trait TreeAdapter {
   def toObject(o: ScObject) = m.Defn.Object(
     convertMods(o),
     toTermName(o),
-    m.Ctor.Primary(Nil, m.Ctor.Ref.Name("this"), Nil),
     template(o.extendsBlock)
   )
 
@@ -244,7 +244,7 @@ trait TreeAdapter {
       case t: ScLiteral =>
         literal(t)
       case t: ScUnitExpr =>
-        m.Lit.Unit()
+        m.Lit(())
           .withAttrs(toType(e.getType()))
           .setTypechecked
       case t: ScReturnStmt =>
@@ -274,7 +274,7 @@ trait TreeAdapter {
           .withAttrs(toType(tp)).setTypechecked
         }
       case t: ScIfStmt =>
-        val unit = m.Lit.Unit().withAttrs(toType(e.getType())).setTypechecked
+        val unit = m.Lit(()).withAttrs(toType(e.getType())).setTypechecked
         m.Term.If(expression(t.condition.get),
             t.thenBranch.map(expression).getOrElse(unit), t.elseBranch.map(expression).getOrElse(unit))
           .withAttrs(toType(e.getType()))
@@ -285,7 +285,7 @@ trait TreeAdapter {
           .withAttrs(toType(t.getTypeWithCachedSubst))
           .setTypechecked
       case t: ScWhileStmt =>
-        m.Term.While(t.condition.map(expression).getOrElse(throw new AbortException(Some(t), "Empty while condition", None)),
+        m.Term.While(t.condition.map(expression).getOrElse(throw new AbortException(Some(t), "Empty while condition")),
             t.body.map(expression).getOrElse(m.Term.Block(Seq.empty)))
           .withAttrs(toType(t.getType()))
           .setTypechecked
@@ -389,7 +389,7 @@ trait TreeAdapter {
 
   def toParams(argss: Seq[ScArgumentExprList]): Seq[Seq[m.Term.Param]] = {
     argss.toStream map { args =>
-      args.matchedParameters.getOrElse(Seq.empty).toStream map { case (expr, param) =>
+      args.matchedParameters.toStream map { case (expr, param) =>
         m.Term.Param(param.psiParam.map(p => convertMods(p.getModifierList)).getOrElse(Seq.empty), toParamName(param), Some(toType(param.paramType)), None)
           .withAttrs(toType(param.paramType)).setTypechecked
       }
@@ -450,21 +450,21 @@ trait TreeAdapter {
     }
   }
 
-  def imports(t: p.toplevel.imports.ScImportExpr):m.Import.Clause = {
-    def selector(sel: p.toplevel.imports.ScImportSelector): m.Import.Selector = {
+  def imports(t: p.toplevel.imports.ScImportExpr):m.Importer = {
+    def selector(sel: p.toplevel.imports.ScImportSelector): m.Importee = {
       if (sel.isAliasedImport && sel.importedName == "_")
-        m.Import.Selector.Unimport(ind(sel.reference))
+        m.Importee.Unimport(ind(sel.reference))
       else if (sel.isAliasedImport)
-        m.Import.Selector.Rename(m.Name.Indeterminate(sel.reference.qualName), m.Name.Indeterminate(sel.importedName))
+        m.Importee.Rename(m.Name.Indeterminate(sel.reference.qualName), m.Name.Indeterminate(sel.importedName))
       else
-        m.Import.Selector.Name(m.Name.Indeterminate(sel.importedName))
+        m.Importee.Name(m.Name.Indeterminate(sel.importedName))
     }
     if (t.selectors.nonEmpty)
-      m.Import.Clause(getQualifier(t.qualifier), Seq(t.selectors.map(selector):_*) ++ (if (t.singleWildcard) Seq(m.Import.Selector.Wildcard()) else Seq.empty))
+      m.Importer(getQualifier(t.qualifier), Seq(t.selectors.map(selector):_*) ++ (if (t.singleWildcard) Seq(m.Importee.Wildcard()) else Seq.empty))
     else if (t.singleWildcard)
-      m.Import.Clause(getQualifier(t.qualifier), Seq(m.Import.Selector.Wildcard()))
+      m.Importer(getQualifier(t.qualifier), Seq(m.Importee.Wildcard()))
     else
-      m.Import.Clause(getQualifier(t.qualifier), Seq(m.Import.Selector.Name(m.Name.Indeterminate(t.getNames.head))))
+      m.Importer(getQualifier(t.qualifier), Seq(m.Importee.Name(m.Name.Indeterminate(t.getNames.head))))
   }
 
   def literal(l: ScLiteral): m.Lit = {
@@ -472,16 +472,16 @@ trait TreeAdapter {
 
     import m.Lit
     val res = l match {
-      case ScLiteral(i: Integer)              => Lit.Int(i)
-      case ScLiteral(l: java.lang.Long)       => Lit.Long(l)
-      case ScLiteral(f: java.lang.Float)      => Lit.Float(f)
-      case ScLiteral(d: java.lang.Double)     => Lit.Double(d)
-      case ScLiteral(b: java.lang.Boolean)    => Lit.Bool(b)
-      case ScLiteral(c: java.lang.Character)  => Lit.Char(c)
-      case ScLiteral(b: java.lang.Byte)       => Lit.Byte(b)
-      case ScLiteral(s: String)               => Lit.String(s)
-      case ScLiteral(null)                    => Lit.Null()
-      case _ if l.isSymbol                    => Lit.Symbol(l.getValue.asInstanceOf[Symbol])
+      case ScLiteral(i: Integer)              => Lit(i)
+      case ScLiteral(l: java.lang.Long)       => Lit(l)
+      case ScLiteral(f: java.lang.Float)      => Lit(f)
+      case ScLiteral(d: java.lang.Double)     => Lit(d)
+      case ScLiteral(b: java.lang.Boolean)    => Lit(b)
+      case ScLiteral(c: java.lang.Character)  => Lit(c)
+      case ScLiteral(b: java.lang.Byte)       => Lit(b)
+      case ScLiteral(s: String)               => Lit(s)
+      case ScLiteral(null)                    => Lit(null)
+      case _ if l.isSymbol                    => Lit(l.getValue.asInstanceOf[Symbol])
       case other => other ?!
     }
     res.withAttrs(toType(l.getType())).setTypechecked
@@ -538,7 +538,7 @@ trait TreeAdapter {
     Seq(mods:_*)
   }
 
-  def convertParamClause(paramss: params.ScParameterClause): Seq[Param] = {
+  def convertParamClause(paramss: params.ScParameterClause): Seq[m.Term.Param] = {
     Seq(paramss.parameters.map(convertParam):_*)
   }
 

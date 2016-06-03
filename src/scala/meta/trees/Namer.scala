@@ -124,7 +124,7 @@ trait Namer {
   }
 
   def toParamName(param: Parameter): m.Term.Param.Name = {
-    m.Term.Name(param.name).withAttrs(h.Denotation.None).setTypechecked // TODO: param denotation
+    m.Term.Name(param.name).withAttrs(h.Denotation.None, typingLike = h.Typing.None).setTypechecked // TODO: param denotation
   }
 
   def toPrimaryCtorName(t: ScPrimaryConstructor) = {

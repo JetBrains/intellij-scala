@@ -46,7 +46,7 @@ trait Attributes {
       h.Denotation.Single(h.Prefix.Type(toType(walkUp(elem))), toLocalSymbol(elem))
     }
 
-    def denot[P <: PsiElement](elem: Option[P]): h.Denotation = {
+    def mkDenot[P <: PsiElement](elem: Option[P]): h.Denotation = {
       def mprefix(elem: PsiElement, fqn: String = "") = Option(elem).map(cc => h.Prefix.Type(toType(cc))).getOrElse(fqnameToPrefix(fqn))
       if (elem.isEmpty) h.Denotation.None
       else
@@ -127,13 +127,13 @@ trait Attributes {
     def withAttrsFor[P <: PsiElement](elem: Option[P]): T = {
       val denotatedTree = ptree match {
         case ptree: m.Name.Anonymous => ptree.withAttrs(anonDenot(elem.get))
-        case ptree: m.Name.Indeterminate => ptree.withAttrs(denot(elem))
-        case ptree: m.Term.Name => ptree.withAttrs(denot = denot(elem), typingLike = withTypingFor(elem)).setTypechecked // FIXME: remove setTypechecked?
-        case ptree: m.Type.Name => ptree.withAttrs(denot(elem))
+        case ptree: m.Name.Indeterminate => ptree.withAttrs(mkDenot(elem))
+        case ptree: m.Term.Name => ptree.withAttrs(denot = mkDenot(elem), typingLike = withTypingFor(elem)).setTypechecked // FIXME: remove setTypechecked?
+        case ptree: m.Type.Name => ptree.withAttrs(mkDenot(elem))
         // TODO: some ctor refs don't have corresponding constructor symbols in Scala (namely, ones for traits)
         // in these cases, our lsym is going to be a symbol of the trait in question
         // we need to account for that in `symbolTable.convert` and create a constructor symbol of our own
-        case ptree: m.Ctor.Name => ptree.withAttrs(denot(elem))
+        case ptree: m.Ctor.Name => ptree.withAttrs(mkDenot(elem), typingLike = h.Typing.None)
         case _ => unreachable(s"Cannot denotate $elem tree")
       }
       denotatedTree.asInstanceOf[T]
