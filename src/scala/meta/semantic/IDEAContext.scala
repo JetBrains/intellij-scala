@@ -1,27 +1,21 @@
 package scala.meta.semantic
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiClass, PsiManager}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
+import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
-import scala.annotation.tailrec
 import scala.collection.immutable.Seq
 import scala.meta._
-import scala.meta.internal.{ast => m}
 import scala.meta.trees.TreeConverter
 import scala.meta.trees.error._
-import scala.{Seq => _}
+import scala.{meta => m, Seq => _}
 
 class IDEAContext(project: =>Project) extends TreeConverter with semantic.Context {
 
   override def getCurrentProject = project
 
-  override def dialect = dialects.Scala211
+  override def dialect: Dialect = dialects.Scala211
 
   override def typecheck(tree : Tree): Tree = {
 //    def doTypecheck(root: Tree) = {
@@ -66,7 +60,7 @@ class IDEAContext(project: =>Project) extends TreeConverter with semantic.Contex
       case m.Ctor.Ref.Select(_, pname) => defns(pname)
       case m.Ctor.Ref.Project(_, pname) => defns(pname)
       case m.Ctor.Ref.Function(pname) => defns(pname)
-      case _: m.Import.Selector => ???
+//      case _: m.Import.Selector => ???
     }
   }
 
@@ -116,7 +110,7 @@ class IDEAContext(project: =>Project) extends TreeConverter with semantic.Contex
   override def supermembers(member : Member) : Seq[Member] = {
     val name = member match {
       case t@m.Defn.Class(_, name, _, _, _) => name
-      case t@m.Defn.Object(_, name, _, _)   => name
+      case t@m.Defn.Object(_, name, _)   => name
       case t@m.Defn.Trait(_, name, _, _, _) => name
       case other => unreachable(s"Can't get parents of a non-class tree: $other")
     }
@@ -132,6 +126,4 @@ class IDEAContext(project: =>Project) extends TreeConverter with semantic.Contex
 
   override def submembers(member: Member): Seq[Member] = ???
 
-
-  override def domain = ???
 }
