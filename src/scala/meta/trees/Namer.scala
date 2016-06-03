@@ -16,8 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.{impl, api => p, types => ptype}
 import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 
 import scala.language.postfixOps
-import scala.meta.internal.ast.Type
-import scala.meta.internal.{AbortException, ast => m, semantic => h}
+//import scala.meta.internal.ast.Type
+import scala.meta.internal.{semantic => h}
+import scala.{meta=>m}
 import scala.meta.trees.error._
 import scala.{Seq => _}
 
@@ -123,7 +124,7 @@ trait Namer {
   }
 
   def toParamName(param: Parameter): m.Term.Param.Name = {
-    m.Term.Name(param.name).withAttrs(h.Denotation.Zero).setTypechecked // TODO: param denotation
+    m.Term.Name(param.name).withAttrs(h.Denotation.None).setTypechecked // TODO: param denotation
   }
 
   def toPrimaryCtorName(t: ScPrimaryConstructor) = {
