@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 import scala.collection.immutable.Seq
 import scala.meta._
-import scala.meta.internal.{ast => m}
+import scala.{meta=>m}
 import scala.{Seq => _}
 
 trait MemberAdapter {

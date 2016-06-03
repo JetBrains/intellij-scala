@@ -8,12 +8,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScToplevelElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
-import org.jetbrains.plugins.scala.lang.psi.{api => p, impl, types => ptype}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.psi.{impl, api => p, types => ptype}
 
 import scala.language.postfixOps
-import scala.meta.internal.{ast => m, semantic => h}
+import scala.meta.internal.{semantic => h}
 import scala.meta.trees.error._
+import scala.{meta => m}
 
 trait Attributes {
   self: TreeConverter =>
@@ -48,7 +48,7 @@ trait Attributes {
 
     def denot[P <: PsiElement](elem: Option[P]): h.Denotation = {
       def mprefix(elem: PsiElement, fqn: String = "") = Option(elem).map(cc => h.Prefix.Type(toType(cc))).getOrElse(fqnameToPrefix(fqn))
-      if (elem.isEmpty) h.Denotation.Zero
+      if (elem.isEmpty) h.Denotation.None
       else
         elem.get match {
             //reference has a prefix
@@ -65,11 +65,11 @@ trait Attributes {
           case cr: ScStableCodeReferenceElement =>
             val results = cr.multiResolve(false)
             if (results.length > 1) {
-              h.Denotation.Multi(h.Prefix.Zero, results.map(toSymbol).toList)
+              h.Denotation.Multi(h.Prefix.None, results.map(toSymbol).toList)
             } else if (results.isEmpty) {
               die(s"Failed to resolve $cr")
             } else {
-              h.Denotation.Single(h.Prefix.Zero, toSymbol(results(0)))
+              h.Denotation.Single(h.Prefix.None, toSymbol(results(0)))
             }
           case td: ScFieldId =>
             val pref = td.nameContext match {  // FIXME: what?
@@ -83,7 +83,7 @@ trait Attributes {
           case r: ScPackageImpl =>
             h.Denotation.Single(mprefix(r.getParentPackage), toSymbol(r))
           case td: ScTypeDefinition if !td.qualifiedName.contains(".") =>
-            h.Denotation.Single(h.Prefix.Zero, toSymbol(td))
+            h.Denotation.Single(h.Prefix.None, toSymbol(td))
           case td: ScTypeDefinition =>
             h.Denotation.Single(mprefix(td.containingClass, td.qualifiedName), toSymbol(td))
           case sc: impl.toplevel.synthetic.ScSyntheticClass =>
@@ -91,9 +91,9 @@ trait Attributes {
           case mm: ScMember =>
             h.Denotation.Single(mprefix(mm.containingClass), toSymbol(mm))
           case tp: ScTypeParam =>
-            h.Denotation.Single(h.Prefix.Zero, toSymbol(tp))
+            h.Denotation.Single(h.Prefix.None, toSymbol(tp))
           case pp: params.ScParameter =>
-            h.Denotation.Single(h.Prefix.Zero, toSymbol(pp)) // FIXME: prefix of a parameter?
+            h.Denotation.Single(h.Prefix.None, toSymbol(pp)) // FIXME: prefix of a parameter?
           // Java Stuff starts here
           case pc: PsiClass =>
             h.Denotation.Single(mprefix(pc.getContainingClass, pc.getQualifiedName), toSymbol(pc))
@@ -109,13 +109,14 @@ trait Attributes {
         case Some(psi) =>
           val toType1 = toType(psi)  // eagerify type computation beacuse substitution caches are mutable
           h.Typing.Nonrecursive(toType1)
-        case None      => h.Typing.Zero
+        case None      => h.Typing.None
       }
     }
 
     def withExpansionFor[P <: PsiElement](elem: P): T = {
       val expanded = ptree match {
-        case ptree: m.Term.Name => ptree.withExpansion(h.Expansion.Desugaring(toTermName(elem, insertExpansions = false)))
+        case ptree: m.Term.Name => unreachable("FIXME: Expansions are currently unsupported")
+//          ptree.withExpansion(h.Expansion.Desugaring(toTermName(elem, insertExpansions = false)))
         case _ => unreachable(s"Cannot expand $elem tree")
       }
       expanded.asInstanceOf[T]
