@@ -16,6 +16,9 @@ IDEA.
 - If you found a bug, please report it on [our issue
   tracker](https://youtrack.jetbrains.com/issues/SCL#newissue).
 
+- If you want to contribute, please see our [intro to the Scala plugin
+  internals](http://blog.jetbrains.com/scala/2016/04/21/how-to-contribute-to-intellij-scala-plugin/).
+
 ## Developing Scala plugin
 
 In order to take part in Scala plugin development, you need to:
@@ -30,16 +33,10 @@ In order to take part in Scala plugin development, you need to:
   $ git clone https://github.com/JetBrains/intellij-scala.git
   ```
 
-3. Switch to the main developement branch
-
-  ```
-  $ git checkout idea16.x
-  ```
-
-4. Open IntelliJ IDEA, select `File -> New -> Project from existing sources`, point to
+3. Open IntelliJ IDEA, select `File -> New -> Project from existing sources`, point to
 the directory where Scala plugin repository is and then import it as SBT project.
 
-5. When importing is finished, go to Scala plugin repo directory and run
+4. When importing is finished, go to Scala plugin repo directory and run
 
   ```
   $ git checkout .idea
@@ -47,7 +44,7 @@ the directory where Scala plugin repository is and then import it as SBT project
 
   in order to get artifacts and run configurations for IDEA project.
 
-6. To build Scala plugin you need to give at least 2GB of the heap size to the compiler process.
+5. To build Scala plugin you need to give at least 2GB of the heap size to the compiler process.
    - if you use Scala Compile Server (default):
    ```Settings > Languages & Frameworks > Scala Compile Server > JVM maximum heap size```
 

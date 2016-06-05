@@ -19,6 +19,15 @@ trait ScType {
     aliasType
   }
 
+  private var unpacked: ScType = null
+
+  final def unpackedType: ScType = {
+    if (unpacked == null) {
+      unpacked = unpackedTypeInner
+    }
+    unpacked
+  }
+
   protected def isAliasTypeInner: Option[AliasType] = None
 
   override final def toString = presentableText
@@ -29,7 +38,7 @@ trait ScType {
 
   def inferValueType: ValueType
 
-  def unpackedType: ScType = {
+  protected def unpackedTypeInner: ScType = {
     val existingWildcards = ScExistentialType.existingWildcards(this)
     val wildcards = new ArrayBuffer[ScExistentialArgument]
     val quantified = recursiveVarianceUpdateModifiable[HashSet[String]](HashSet.empty, {

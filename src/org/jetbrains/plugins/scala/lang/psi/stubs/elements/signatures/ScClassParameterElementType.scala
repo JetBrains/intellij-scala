@@ -9,6 +9,7 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScClas
 import com.intellij.psi.stubs.IndexSink
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -26,7 +27,7 @@ class ScClassParameterElementType extends ScParamElementType[ScClassParameter]("
 
     val name = stub.getName
       if (name != null) {
-        sink.occurrence(ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY, name)
+        sink.occurrence(ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY, ScalaNamesUtil.cleanFqn(name))
       }
   }
 }

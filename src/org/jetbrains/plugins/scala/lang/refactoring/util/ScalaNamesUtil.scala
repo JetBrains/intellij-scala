@@ -26,7 +26,7 @@ object ScalaNamesUtil {
   private def checkGeneric(text: String, predicate: ScalaLexer => Boolean): Boolean = {
 //    ApplicationManager.getApplication.assertReadAccessAllowed() - looks like we don't need it
     if (text == null || text == "") return false
-    
+
     val lexer = lexerCache.get()
     lexer.start(text, 0, text.length(), 0)
     if (!predicate(lexer)) return false
@@ -53,7 +53,7 @@ object ScalaNamesUtil {
   }
 
   def isKeyword(text: String): Boolean = keywordNames.contains(text)
-  
+
   def isOperatorName(text: String): Boolean = isIdentifier(text) && isOpCharacter(text(0))
 
   def scalaName(element: PsiElement) = element match {
@@ -83,9 +83,16 @@ object ScalaNamesUtil {
 
   object isBacktickedName {
     def unapply(name: String): Option[String] = {
-      if (name.startsWith("`") && name.endsWith("`")) Some(name.substring(1, name.length - 1))
+      if (name == null || name.isEmpty) None
+      else if (name != "`" && name.startsWith("`") && name.endsWith("`")) Some(name.substring(1, name.length - 1))
       else None
     }
+  }
+
+  def splitName(name: String): Seq[String] = {
+    if (name == null || name.isEmpty) Seq.empty
+    else if (name.contains(".")) name.split("\\.")
+    else Seq(name)
   }
 
   def toJavaName(name: String) = {
@@ -96,8 +103,26 @@ object ScalaNamesUtil {
     NameTransformer.encode(toEncode)
   }
 
-  def changeKeyword(s: String): String = {
-    if (ScalaNamesUtil.isKeyword(s)) "`" + s + "`"
-    else s
+  def clean(name: String): String = {
+    val toDecode = name match {
+      case ScalaNamesUtil.isBacktickedName(s) => s
+      case _ => name
+    }
+    NameTransformer.decode(toDecode)
   }
+
+  def cleanFqn(fqn: String): String =
+    splitName(fqn).map(clean).mkString(".")
+
+  def equivalentFqn(l: String, r: String): Boolean =
+    l == r || cleanFqn(l) == cleanFqn(r)
+
+  def equivalent(l: String, r: String): Boolean =
+    l == r || clean(l) == clean(r)
+
+  def escapeKeywordsFqn(fqn: String): String =
+    splitName(fqn).map(escapeKeyword).mkString(".")
+
+  def escapeKeyword(s: String): String =
+    if (ScalaNamesUtil.isKeyword(s)) s"`$s`" else s
 }

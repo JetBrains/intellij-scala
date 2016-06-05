@@ -10,6 +10,7 @@ import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -83,7 +84,7 @@ extends ScStubElementType[ScFunctionStub, ScFunction](debugName) {
 
   def indexStub(stub: ScFunctionStub, sink: IndexSink) {
 
-    val name = stub.getName
+    val name = ScalaNamesUtil.cleanFqn(stub.getName)
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.METHOD_NAME_KEY, name)
     }

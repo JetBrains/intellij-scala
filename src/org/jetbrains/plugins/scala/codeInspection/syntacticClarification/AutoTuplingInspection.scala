@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
-package codeInspection.parameters
+package codeInspection.syntacticClarification
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.parameters.AutoTuplingInspection.message
-import org.jetbrains.plugins.scala.codeInspection.parameters.MakeTuplesExplicitFix.hint
+import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.AutoTuplingInspection.message
+import org.jetbrains.plugins.scala.codeInspection.syntacticClarification.MakeTuplesExplicitFix.hint
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory

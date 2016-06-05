@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala
 package codeInspection
-package sugar
+package syntacticSimplification
 
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
@@ -27,7 +27,7 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
       }
     }
 
-    import org.jetbrains.plugins.scala.codeInspection.sugar.FunctionTupleSyntacticSugarInspection._
+    import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.FunctionTupleSyntacticSugarInspection._
 
     new ScalaElementVisitor {
       override def visitElement(elem: ScalaPsiElement) {

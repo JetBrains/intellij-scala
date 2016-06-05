@@ -10,6 +10,7 @@ import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValue, ScValueDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScValueStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -62,7 +63,7 @@ extends ScStubElementType[ScValueStub, ScValue](debugName) {
     val names = stub.getNames
     
     for (name <- names if name != null) {
-      sink.occurrence(ScalaIndexKeys.VALUE_NAME_KEY, name)
+      sink.occurrence(ScalaIndexKeys.VALUE_NAME_KEY, ScalaNamesUtil.cleanFqn(name))
     }
     if (stub.isImplicit) sink.occurrence(ScalaIndexKeys.IMPLICITS_KEY, "implicit")
   }

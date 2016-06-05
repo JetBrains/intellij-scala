@@ -175,31 +175,6 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
     assertNothing(errorsFromJavaCode(scala, java, "A"))
   }
 
-  def testSCL9871(): Unit = {
-    val java =
-      """
-        |package foo.object;
-        |
-        |public class Related
-        |{
-        |    static String foo() { return "package scoped"; }
-        |}
-      """.stripMargin
-
-    val scala =
-      """
-        |package foo.`object`
-        |
-        |import foo.`object`.Related // unneeded, but without this, Related is marked red below with message "cannot resolve symbol"
-        |
-        |object Escaping extends App {
-        |  println(Related.foo) // foo is marked as red, with message "Symbol foo is inaccessible from this place"
-        |}
-      """.stripMargin
-
-    assertNothing(errorsFromScalaCode(scala, java))
-  }
-
   def testSCL10150(): Unit = {
     val java =
       """

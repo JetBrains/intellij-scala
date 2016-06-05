@@ -171,11 +171,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       case _ => return
     }
 
-    val documentManager = PsiDocumentManager.getInstance(getProject)
-    val document: Document = documentManager.getDocument(file)
-
-    //converting to wildcard imports should only work in Optimize Imports
-    val settings = OptimizeImportSettings(getProject).copy(classCountToUseImportOnDemand = Int.MaxValue)
+    val settings = OptimizeImportSettings(getProject)
 
     val optimizer: ScalaImportOptimizer = findOptimizerFor(file) match {
       case Some(o: ScalaImportOptimizer) => o
@@ -185,7 +181,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     val place = getImportStatements.lastOption.getOrElse(getFirstChild.getNextSibling)
 
     val importInfosToAdd = paths.filterNot(samePackage).flatMap { path =>
-      val importText = s"import $path"
+      val importText = s"import ${ScalaNamesUtil.escapeKeywordsFqn(path)}"
       val importStmt = ScalaPsiElementFactory.createImportFromTextWithContext(importText, this, place)
       createInfo(importStmt)
     }
@@ -214,22 +210,9 @@ trait ScImportsHolder extends ScalaPsiElement {
         else sortedRanges.headOption
 
       selectedRange match {
-        case Some(rangeInfo @ (RangeInfo(_, _, importInfos, _, _))) =>
-          val buffer = importInfos.to[ArrayBuffer]
-
-          val usedNames =
-            if (importInfosToAdd.exists(_.hasWildcard)) collectUsedImportedNames(this)
-            else Set.empty[String]
-
-          importInfosToAdd.foreach { infoToAdd =>
-            val withAllNamesForWildcard =
-              if (infoToAdd.hasWildcard && infoToAdd.allNamesForWildcard.isEmpty) infoToAdd.withAllNamesForWildcard(place)
-              else infoToAdd
-            insertInto(buffer, withAllNamesForWildcard, usedNames, settings)
-          }
-          updateRootPrefix(buffer)
-
-          optimizer.replaceWithNewImportInfos(rangeInfo, buffer, settings, file)
+        case Some(rangeInfo @ (RangeInfo(rangeStart, _, infosFromRange, _, _))) =>
+          val resultInfos = insertImportInfos(importInfosToAdd, infosFromRange, rangeStart, settings)
+          optimizer.replaceWithNewImportInfos(rangeInfo, resultInfos, settings, file)
         case _ =>
       }
     }

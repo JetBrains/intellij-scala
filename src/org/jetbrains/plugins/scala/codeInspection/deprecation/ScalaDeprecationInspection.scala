@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScRe
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScAnnotationsHolder, ScFunction}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 
@@ -25,7 +26,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
       val refElement = result.getOrElse(return).element
       refElement match {
         case param: ScParameter if result.get.isNamedParameter &&
-          !ScalaPsiUtil.memberNamesEquals(param.name, name)=>
+          !ScalaNamesUtil.equivalent(param.name, name)=>
           val description: String = s"Parameter name ${param.deprecatedName.get} is deprecated"
           holder.registerProblem(holder.getManager.createProblemDescriptor(elementToHighlight, description, true,
             ProblemHighlightType.LIKE_DEPRECATED, isOnTheFly))

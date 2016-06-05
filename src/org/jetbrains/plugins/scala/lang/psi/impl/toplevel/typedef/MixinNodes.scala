@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScTypeUtil.AliasType
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
@@ -50,7 +51,7 @@ abstract class MixinNodes {
     private[Map] val implicitNames: mutable.HashSet[String] = new mutable.HashSet[String]
     private val privatesMap: mutable.HashMap[String, ArrayBuffer[(T, Node)]] = mutable.HashMap.empty
     def addToMap(key: T, node: Node) {
-      val name = ScalaPsiUtil.convertMemberName(elemName(key))
+      val name = ScalaNamesUtil.clean(elemName(key))
       (if (!isPrivate(key)) this else privatesMap).
         getOrElseUpdate(name, new ArrayBuffer) += ((key, node))
       if (isImplicit(key)) implicitNames.add(name)
@@ -70,7 +71,7 @@ abstract class MixinNodes {
     private val calculatedSupers: mutable.HashMap[String, AllNodes] = new mutable.HashMap
 
     def forName(name: String): (AllNodes, AllNodes) = {
-      val convertedName = ScalaPsiUtil.convertMemberName(name)
+      val convertedName = ScalaNamesUtil.clean(name)
       synchronized {
         if (calculatedNames.contains(convertedName)) {
           return (calculated(convertedName), calculatedSupers(convertedName))

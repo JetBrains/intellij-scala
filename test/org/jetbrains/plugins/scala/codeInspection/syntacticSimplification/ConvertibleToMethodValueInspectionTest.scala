@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInspection.etaExpansion
+package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.{InspectionBundle, ScalaLightInspectionFixtureTestAdapter}
@@ -346,5 +345,46 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
                  """.stripMargin
     checkTextHasError(text)
     testFix(text, result, hintEta)
+  }
+
+  def testFunFromThis(): Unit = {
+    val text =
+      s"""class A {
+         |  def foo(s: String) = s
+         |  Seq("aa").map(${START}foo _$END)
+         |}
+         """.stripMargin
+    val result =
+      s"""class A {
+          |  def foo(s: String) = s
+          |  Seq("aa").map(foo)
+          |}
+         """.stripMargin
+    checkTextHasError(text)
+    testFix(text, result, hintEta)
+  }
+
+  def testCallFromImported(): Unit = {
+    val text =
+      s"""object A {
+        |  def sum(s: String, s2: String) = s + s2
+        |}
+        |object B {
+        |  import A.sum
+        |  Seq("aa", "bb").fold("")(${START}sum(_, _)$END)
+        |}
+      """.stripMargin
+
+    val result =
+      s"""object A {
+          |  def sum(s: String, s2: String) = s + s2
+          |}
+          |object B {
+          |  import A.sum
+          |  Seq("aa", "bb").fold("")(sum)
+          |}
+      """.stripMargin
+    checkTextHasError(text)
+    testFix(text, result, hintAnon)
   }
 }

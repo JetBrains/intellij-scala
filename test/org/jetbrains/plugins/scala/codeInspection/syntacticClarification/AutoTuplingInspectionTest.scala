@@ -1,8 +1,7 @@
-package org.jetbrains.plugins.scala.codeInspection.parentheses
+package org.jetbrains.plugins.scala.codeInspection.syntacticClarification
 
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.ScalaLightInspectionFixtureTestAdapter
-import org.jetbrains.plugins.scala.codeInspection.parameters.{AutoTuplingInspection, MakeTuplesExplicitFix}
 
 /**
   * Author: Svyatoslav Ilinskiy

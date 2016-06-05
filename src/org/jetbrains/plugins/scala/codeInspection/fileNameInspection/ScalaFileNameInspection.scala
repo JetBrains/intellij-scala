@@ -8,9 +8,9 @@ import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 import scala.collection.mutable.ArrayBuffer
@@ -47,7 +47,7 @@ class ScalaFileNameInspection extends LocalInspectionTool {
     for (clazz <- definitions) {
       clazz match {
         case o: ScObject if file.name == "package.scala" && o.isPackageObject => hasProblems = false
-        case _ if ScalaPsiUtil.memberNamesEquals(clazz.name, name) => hasProblems = false
+        case _ if ScalaNamesUtil.equivalent(clazz.name, name) => hasProblems = false
         case _ =>
       }
     }

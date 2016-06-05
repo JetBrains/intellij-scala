@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala
-package codeInspection.etaExpansion
+package codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
-import org.jetbrains.plugins.scala.codeInspection.etaExpansion.ConvertibleToMethodValueInspection._
+import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ConvertibleToMethodValueInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{Both, PsiModifierListOwnerExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -36,8 +36,8 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
     case MethodRepr(expr, _, Some(ref), _)
       if ref.bind().exists(srr => srr.implicitType.nonEmpty || srr.implicitFunction.nonEmpty) =>
       //do nothing if implicit conversions are involved
-    case MethodRepr(expr, Some(qual), Some(_), args) =>
-      if (allArgsUnderscores(args) && onlyStableValuesUsed(qual))
+    case MethodRepr(expr, qualOpt, Some(_), args) =>
+      if (allArgsUnderscores(args) && qualOpt.forall(onlyStableValuesUsed))
         registerProblem(holder, expr, InspectionBundle.message("convertible.to.method.value.anonymous.hint"))
     case und: ScUnderscoreSection if und.bindingExpr.isDefined =>
       val isInParameterOfParameterizedClass = PsiTreeUtil.getParentOfType(und, classOf[ScClassParameter]) match {
@@ -46,7 +46,7 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
       }
       def checkStable() = und.bindingExpr.get match {
         case ScReferenceExpression.withQualifier(qual) => onlyStableValuesUsed(qual)
-        case e => onlyStableValuesUsed(e)
+        case e => true
       }
       if (!isInParameterOfParameterizedClass && checkStable())
         registerProblem(holder, und, InspectionBundle.message("convertible.to.method.value.eta.hint"))

@@ -9,7 +9,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Ref, TextRange}
-import com.intellij.psi.PsiFile
+import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.format.StringConcatenationParser
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -55,18 +55,21 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
   override def postProcessEnter(file: PsiFile, editor: Editor, dataContext: DataContext): Result = {
     if (!file.isInstanceOf[ScalaFile]) return Result.Continue
 
-    val caretModel = editor.getCaretModel
+    if (!wasInMultilineString) return Result.Continue
+    wasInMultilineString = false
+
+    val project = file.getProject
     val document = editor.getDocument
+    PsiDocumentManager.getInstance(project).commitDocument(document)
+
+    val caretModel = editor.getCaretModel
     val offset = caretModel.getOffset
     val caretMarker = document.createRangeMarker(offset, offset)
     caretMarker.setGreedyToRight(true)
     def caretOffset = caretMarker.getEndOffset
 
-    val project = file.getProject
     val element = file.findElementAt(offset)
-    
-    if (!wasInMultilineString) return Result.Continue
-    wasInMultilineString = false
+    if (element == null) return Result.Continue
 
     val marginChar = getMarginChar(element)
 

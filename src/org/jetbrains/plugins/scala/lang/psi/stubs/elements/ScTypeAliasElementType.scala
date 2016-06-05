@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeA
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeAliasStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -63,7 +64,7 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
   }
 
   def indexStub(stub: ScTypeAliasStub, sink: IndexSink) {
-    val name = stub.getName
+    val name = ScalaNamesUtil.cleanFqn(stub.getName)
     if (name != null) {
       sink.occurrence(ScalaIndexKeys.TYPE_ALIAS_NAME_KEY, name)
       if (stub.isStableQualifier) {

@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.Success
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ImplicitProcessor, ResolveProcessor, ResolverEnv}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScalaUtils
@@ -111,7 +112,7 @@ extends SyntheticNamedElement(manager, className) with PsiClass with PsiClassFak
     processor match {
       case p : ResolveProcessor =>
         val nameSet = state.get(ResolverEnv.nameKey)
-        val name = if (nameSet == null) p.name else nameSet
+        val name = ScalaNamesUtil.clean(if (nameSet == null) p.name else nameSet)
         methods.get(name) match {
           case Some(ms) => for (method <- ms) {
             if (!processor.execute(method, state)) return false

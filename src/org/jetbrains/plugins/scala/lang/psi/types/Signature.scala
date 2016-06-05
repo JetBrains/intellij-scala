@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, PsiTypeParamatersExt, TypeParameter, TypeParameterType, TypeSystem}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -83,7 +84,7 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
 
   private def types: List[Seq[() => ScType]] = typesEval
 
-  def substitutedTypes: List[Seq[() => ScType]] = types.map(_.map(f => () => substitutor.subst(f())))
+  def substitutedTypes: List[Seq[() => ScType]] = types.map(_.map(f => () => substitutor.subst(f()).unpackedType))
 
   def typeParams: Array[TypeParameter] = tParams.map(_.update(substitutor.subst))
 
@@ -92,8 +93,8 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
       def isField(s: Signature) = s.namedElement.isInstanceOf[PsiField]
       !isField(this) ^ isField(other)
     }
-    
-    ScalaPsiUtil.convertMemberName(name) == ScalaPsiUtil.convertMemberName(other.name) &&
+
+    ScalaNamesUtil.equivalent(name, other.name) &&
             ((typeParams.length == other.typeParams.length && paramTypesEquiv(other)) || 
               (paramLength == other.paramLength && javaErasedEquiv(other))) && fieldCheck(other)
     
@@ -175,7 +176,7 @@ class Signature(val name: String, private val typesEval: List[Seq[() => ScType]]
    * Because for class hierarch def foo(): Int is the same thing as def foo: Int and val foo: Int.
    */
   def simpleHashCode: Int = {
-    ScalaPsiUtil.convertMemberName(name).hashCode
+    ScalaNamesUtil.clean(name).hashCode
   }
 
   def isJava: Boolean = false

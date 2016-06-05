@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameterType, UndefinedType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, ModCount}
 
 import scala.collection.mutable.ArrayBuffer
@@ -259,8 +260,8 @@ object Compatibility {
           }
         case Expression(assign@NamedAssignStmt(name)) =>
           val index = parameters.indexWhere { p =>
-            ScalaPsiUtil.memberNamesEquals(p.name, name) ||
-              p.deprecatedName.exists(ScalaPsiUtil.memberNamesEquals(_, name))
+            ScalaNamesUtil.equivalent(p.name, name) ||
+              p.deprecatedName.exists(ScalaNamesUtil.equivalent(_, name))
           }
           if (index == -1 || used(index)) {
             def extractExpression(assign: ScAssignStmt): ScExpression = {

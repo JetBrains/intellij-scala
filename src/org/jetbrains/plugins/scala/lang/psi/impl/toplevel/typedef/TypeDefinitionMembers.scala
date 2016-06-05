@@ -12,7 +12,6 @@ import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.convertMemberName
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScFieldId, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -23,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedPrefixRefere
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, AnyRef, TypeSystem}
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypingContext
 import org.jetbrains.plugins.scala.lang.psi.types.{api, _}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 
@@ -762,11 +762,12 @@ object TypeDefinitionMembers {
     val subst = if (substK == null) ScSubstitutor.empty else substK
     val nameHint = processor.getHint(NameHint.KEY)
     val name = if (nameHint == null) "" else nameHint.getName(state)
-    val decodedName = if (name != null) convertMemberName(name) else ""
+
+    val decodedName = if (name != null) ScalaNamesUtil.clean(name) else ""
     val isScalaProcessor = processor.isInstanceOf[BaseProcessor]
     def checkName(s: String): Boolean = {
       if (name == null || name == "") true
-      else convertMemberName(s) == decodedName
+      else ScalaNamesUtil.clean(s) == decodedName
     }
     def checkNameGetSetIs(s: String): Boolean = {
       if (name == null || name == "") true

@@ -1,12 +1,19 @@
 <html>
 <body>
-Replaces map and getOrElse on Option by fold. <br/>
-Before:
-<p><code>option.map(f)getOrElse(default)</code></p>
+Replaces map and getOrElse on Option by fold.
 
-<p>After:</p>
+<p>
+Before: 
+<pre>
+option.map(f)getOrElse(default)
+</pre>
 
-<p><code>option.fold(default)(f)</code></p>
+<br>
+After:
+<pre>
+option.fold(default)(f)
+</pre>
+</p>
 
 </body>
 </html>

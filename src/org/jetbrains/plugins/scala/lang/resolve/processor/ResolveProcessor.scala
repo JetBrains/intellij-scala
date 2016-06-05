@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeSystem
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.collection.Set
 
@@ -171,7 +172,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
       if (name == "") return false
       name
     } else  nameSet
-    val nameMatches = ScalaPsiUtil.memberNamesEquals(elName, name)
+    val nameMatches = ScalaNamesUtil.equivalent(elName, name)
     nameMatches && kindMatches(named)
   }
 
@@ -227,9 +228,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
   object ScalaNameHint extends NameHint {
     def getName(state: ResolveState) = {
       val stateName = state.get(ResolverEnv.nameKey)
-      val result = if (stateName == null) name else stateName
-      if (result != null && result.startsWith("`") && result.endsWith("`") && result.length > 1) result.substring(1, result.length - 1)
-      else result
+      if (stateName == null) name else stateName
     }
   }
 }

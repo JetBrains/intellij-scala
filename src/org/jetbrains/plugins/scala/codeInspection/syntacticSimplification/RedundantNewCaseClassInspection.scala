@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.codeInspection.caseClassRedundantNew
+package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElement

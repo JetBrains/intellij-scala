@@ -11,6 +11,7 @@ import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.command.impl.StartMarkAction
 import com.intellij.openapi.command.undo.UndoManager
 import com.intellij.openapi.editor.event.{DocumentAdapter, DocumentEvent, DocumentListener}
+import com.intellij.openapi.editor.ex.DocumentEx
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
@@ -269,7 +270,11 @@ class ScalaInplaceVariableIntroducer(project: Project,
   }
 
   private def resetBalloonPanel(nameIsValid: Boolean): Unit = {
-    if (myBalloon.isDisposed) return
+    def isBulkUpdate = myEditor.getDocument match {
+      case docEx: DocumentEx => docEx.isInBulkUpdate
+      case _ => false
+    }
+    if (myBalloon.isDisposed || isBulkUpdate) return
     if (!nameIsValid) {
       myBalloonPanel add myLabelPanel
       myBalloonPanel remove myChbPanel

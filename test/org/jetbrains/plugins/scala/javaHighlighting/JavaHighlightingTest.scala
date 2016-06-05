@@ -385,6 +385,29 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
     assertNothing(errorsFromScalaCode(scalaCode, javaCode))
   }
 
+  def testRawTypeInheritance(): Unit = {
+    val scalaCode =
+      """
+        |package inheritance
+        |
+        |class Аf extends R
+      """.stripMargin
+
+    val javaCode =
+      """
+        |package inheritance;
+        |
+        |public class R implements Comparable {
+        |    @Override
+        |    public int compareTo(Object o) {
+        |        return 0;
+        |    }
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(scalaCode, javaCode))
+  }
+
   def testGenericsPlainInnerClass(): Unit = {
     val scalaCode =
       """

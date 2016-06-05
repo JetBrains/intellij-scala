@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Success, TypingContext}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedMappedWithRecursionGuard, CachedWithRecursionGuard, ModCount}
 
@@ -172,8 +173,8 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
               case Some(param) =>
                 var state = ResolveState.initial.put(ScSubstitutor.key, subst).
                   put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
-                if (!ScalaPsiUtil.memberNamesEquals(param.name, ref.refName)) {
-                  state = state.put(ResolverEnv.nameKey, param.deprecatedName.get)
+                if (!ScalaNamesUtil.equivalent(param.name, ref.refName)) {
+                  state = state.put(ResolverEnv.nameKey, ScalaNamesUtil.clean(param.deprecatedName.get))
                 }
                 processor.execute(param, state)
               case None =>
@@ -218,7 +219,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
             for (method <- clazz.getMethods) {
               method match {
                 case p: PsiAnnotationMethod =>
-                  if (ScalaPsiUtil.memberNamesEquals(p.name, ref.refName)) {
+                  if (ScalaNamesUtil.equivalent(p.name, ref.refName)) {
                     baseProcessor.execute(p, ResolveState.initial)
                   }
                 case _ =>
@@ -241,7 +242,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
                   case assignStmt: ScAssignStmt =>
                     assignStmt.getLExpression match {
                       case ref: ScReferenceExpression =>
-                        val ind = methods.indexWhere(p => ScalaPsiUtil.memberNamesEquals(p.name, ref.refName))
+                        val ind = methods.indexWhere(p => ScalaNamesUtil.equivalent(p.name, ref.refName))
                         if (ind != -1) methods.remove(ind)
                         else tail()
                       case _ => tail()
@@ -280,8 +281,8 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
                     case Some(param) =>
                       var state = ResolveState.initial.put(ScSubstitutor.key, subst).
                         put(CachesUtil.NAMED_PARAM_KEY, java.lang.Boolean.TRUE)
-                      if (!ScalaPsiUtil.memberNamesEquals(param.name, ref.refName)) {
-                        state = state.put(ResolverEnv.nameKey, param.deprecatedName.get)
+                      if (!ScalaNamesUtil.equivalent(param.name, ref.refName)) {
+                        state = state.put(ResolverEnv.nameKey, ScalaNamesUtil.clean(param.deprecatedName.get))
                       }
                       baseProcessor.execute(param, state)
                     case None =>
@@ -349,7 +350,7 @@ trait ResolvableReferenceExpression extends ScReferenceExpression {
           case assignStmt: ScAssignStmt =>
             assignStmt.getLExpression match {
               case ref: ScReferenceExpression =>
-                val ind = params.indexWhere(p => ScalaPsiUtil.memberNamesEquals(p.name, ref.refName))
+                val ind = params.indexWhere(p => ScalaNamesUtil.equivalent(p.name, ref.refName))
                 if (ind != -1) params.remove(ind)
                 else tail()
               case _ => tail()

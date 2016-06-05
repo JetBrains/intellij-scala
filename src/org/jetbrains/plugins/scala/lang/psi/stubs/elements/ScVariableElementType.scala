@@ -10,6 +10,7 @@ import com.intellij.util.io.StringRef
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, ScVariableDeclaration, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScVariableStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -59,7 +60,7 @@ extends ScStubElementType[ScVariableStub, ScVariable](debugName) {
   def indexStub(stub: ScVariableStub, sink: IndexSink) {
     val names = stub.getNames
     for (name <- names if name != null) {
-      sink.occurrence(ScalaIndexKeys.VARIABLE_NAME_KEY, name)
+      sink.occurrence(ScalaIndexKeys.VARIABLE_NAME_KEY, ScalaNamesUtil.cleanFqn(name))
     }
   }
 }

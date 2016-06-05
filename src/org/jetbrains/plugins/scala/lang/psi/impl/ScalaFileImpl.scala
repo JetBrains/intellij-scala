@@ -37,6 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScControlFlowOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFileStub
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInsidePsiElement
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -197,12 +198,14 @@ class ScalaFileImpl(viewProvider: FileViewProvider, fileType: LanguageFileType =
   }
 
 
-  def setPackageName(name: String) {
+  def setPackageName(inName: String) {
     // TODO support multiple base packages simultaneously
     val basePackageName = {
       val basePackages = ScalaProjectSettings.getInstance(getProject).getBasePackages.asScala
-      basePackages.find(name.startsWith).getOrElse("")
+      basePackages.find(inName.startsWith).getOrElse("")
     }
+
+    val name = ScalaNamesUtil.escapeKeywordsFqn(inName)
 
     this match {
       // Handle package object

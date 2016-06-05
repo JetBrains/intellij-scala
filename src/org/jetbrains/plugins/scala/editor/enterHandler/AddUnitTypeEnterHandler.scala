@@ -22,8 +22,10 @@ class AddUnitTypeEnterHandler extends EnterHandlerDelegateAdapter {
     val scalaSettings = ScalaCodeStyleSettings.getInstance(project)
     if (!scalaSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT) return Result.Continue
 
-    val caretModel = editor.getCaretModel
     val document = editor.getDocument
+    PsiDocumentManager.getInstance(project).commitDocument(document)
+
+    val caretModel = editor.getCaretModel
     val offset = caretModel.getOffset
     val element = file.findElementAt(offset)
 
