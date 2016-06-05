@@ -7,11 +7,11 @@ Before:
 <pre>
 val value = 0
 if (value.isInstanceOf[Int]) {
-	val x = value.asInstanceOf[Int] + 1
-	val y = value.asInstanceOf[Int] + 2
+  val x = value.asInstanceOf[Int] + 1
+  val y = value.asInstanceOf[Int] + 2
 } else if (value.isInstanceOf[Long]) {
-	val x = value.asInstanceOf[Long]
-	println(x)
+  val x = value.asInstanceOf[Long]
+  println(x)
 }
 </pre>
 
@@ -20,12 +20,12 @@ After:
 <pre>
 val value = 0
 value match {
-	case i: Int =>
-		val x = i + 1
-		val y = i + 2
-	case x: Long =>
-		println(x)
-	case _ =>
+  case i: Int =>
+  	val x = i + 1
+    val y = i + 2
+  case x: Long =>
+    println(x)
+  case _ =>
 }
 </pre>
 </p>
