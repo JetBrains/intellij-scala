@@ -1,29 +1,34 @@
 <html>
 <body>
+Detects type checks and type casts in a series of if-else statements and replaces it by pattern matching.
+
 <p>
-    Detects type checks and type casts in a series of if-else statements and replaces it by pattern matching.</p>
-<p>
-    Before:</p>
-<p>
-			<span style="font-family:courier new,courier,monospace;">&nbsp; val value = 0<br />
-			&nbsp; if (value.isInstanceOf[Int]) {<br />
-			&nbsp;&nbsp;&nbsp; val x = value.asInstanceOf[Int] + 1<br />
-			&nbsp;&nbsp;&nbsp; val y = value.asInstanceOf[Int] + 2<br />
-			&nbsp; } else if (value.isInstanceOf[Long]) {<br />
-			&nbsp;&nbsp;&nbsp; val x = value.asInstanceOf[Long]<br />
-			&nbsp;&nbsp;&nbsp; println(x)<br />
-			&nbsp; }</span></p>
-<p>
-    After:</p>
-<p>
-			<span style="font-family:courier new,courier,monospace;">&nbsp; val value = 0<br />
-			&nbsp; value match {<br />
-			&nbsp;&nbsp;&nbsp; case i: Int =&gt;<br />
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; val x = i + 1<br />
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; val y = i + 2<br />
-			&nbsp;&nbsp;&nbsp; case x: Long =&gt;<br />
-			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; println(x)<br />
-			&nbsp;&nbsp;&nbsp; case _ =&gt;<br />
-			&nbsp; }</span></p>
+Before: 
+<pre>
+val value = 0
+if (value.isInstanceOf[Int]) {
+  val x = value.asInstanceOf[Int] + 1
+  val y = value.asInstanceOf[Int] + 2
+} else if (value.isInstanceOf[Long]) {
+  val x = value.asInstanceOf[Long]
+  println(x)
+}
+</pre>
+
+<br>
+After:
+<pre>
+val value = 0
+value match {
+  case i: Int =>
+  	val x = i + 1
+    val y = i + 2
+  case x: Long =>
+    println(x)
+  case _ =>
+}
+</pre>
+</p>
+
 </body>
 </html>
