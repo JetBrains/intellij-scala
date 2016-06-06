@@ -1992,7 +1992,7 @@ object ScalaPsiUtil {
               fun.getType() match {
                 case Success(tp, _) =>
                   val subbed = sub.subst(tp)
-                  extrapolateWildcardBounds(subbed, expected, fun.getProject, scalaScope) match {
+                  extrapolateWildcardBounds(subbed, expected, fun.getProject, scalaScope, languageLevel) match {
                     case s@Some(_) => s
                     case _ => Some(subbed)
                   }
@@ -2025,7 +2025,7 @@ object ScalaPsiUtil {
               }
               val fun = FunctionType(returnType, params)(project, scalaScope)
               val subbed = sub.subst(fun)
-              extrapolateWildcardBounds(subbed, expected, project, scalaScope) match {
+              extrapolateWildcardBounds(subbed, expected, project, scalaScope, languageLevel) match {
                 case s@Some(_) => s
                 case _ => Some(subbed)
               }
@@ -2053,7 +2053,7 @@ object ScalaPsiUtil {
    * @see https://github.com/scala/scala/pull/4101
    * @see SCL-8956
    */
-  private def extrapolateWildcardBounds(tp: ScType, expected: ScType, proj: Project, scope: GlobalSearchScope)
+  private def extrapolateWildcardBounds(tp: ScType, expected: ScType, proj: Project, scope: GlobalSearchScope, scalaVersion: ScalaLanguageLevel)
                                        (implicit typeSystem: TypeSystem = proj.typeSystem): Option[ScType] = {
     expected match {
       case ScExistentialType(ParameterizedType(expectedDesignator, _), wildcards) =>
@@ -2062,7 +2062,8 @@ object ScalaPsiUtil {
             def convertParameter(tpArg: ScType, variance: Int): ScType = {
               tpArg match {
                 case p@ParameterizedType(des, tpArgs) => ScParameterizedType(des, tpArgs.map(convertParameter(_, variance)))
-                case ScExistentialType(param: ScParameterizedType, _) => convertParameter(param, variance)
+                case ScExistentialType(param: ScParameterizedType, _) if scalaVersion == ScalaLanguageLevel.Scala_2_11 =>
+                  convertParameter(param, variance)
                 case _ =>
                   wildcards.find(_.name == tpArg.canonicalText) match {
                     case Some(wildcard) =>
