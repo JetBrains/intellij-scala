@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.packaging._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
@@ -324,8 +324,9 @@ object ScalaCompletionUtil {
       case null => parameters.getPosition //we got to the top of the tree and didn't find a modificationTrackerOwner
       case owner: ScModificationTrackerOwner if owner.isValidModificationTrackerOwner() =>
         if (owner.containingFile.contains(parameters.getOriginalFile)) {
-          owner.getMirrorPositionForCompletion(getDummyIdentifier(parameters.getOffset, parameters.getOriginalFile),
-            parameters.getOffset - owner.getTextRange.getStartOffset).getOrElse(parameters.getPosition)
+          val dummyId = getDummyIdentifier(parameters.getOffset, parameters.getOriginalFile)
+          val relativeOffset = parameters.getOffset - owner.getTextRange.getStartOffset
+          owner.getMirrorPositionForCompletion(dummyId, relativeOffset).getOrElse(parameters.getPosition)
         } else parameters.getPosition
       case _ => inner(element.getContext)
     }

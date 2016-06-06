@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.lang.completion.lookups
 
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.{CodeStyleManager, CodeStyleSettingsManager}
-import com.intellij.psi.{PsiDocumentManager, PsiElement}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiManager}
 import com.intellij.util.ui.EmptyIcon
 import org.jetbrains.plugins.scala.ScalaFileType
 
@@ -13,8 +14,8 @@ import org.jetbrains.plugins.scala.ScalaFileType
  * @since 27.03.12
  */
 object ScalaKeywordLookupItem {
-  def getLookupElement(keyword: String, position: PsiElement): LookupElement = {
-    val keywordPsi: PsiElement = ScalaLightKeyword(position.getManager, keyword)
+  def getLookupElement(keyword: String, project: Project): LookupElement = {
+    val keywordPsi: PsiElement = ScalaLightKeyword(PsiManager.getInstance(project), keyword)
     LookupElementBuilder.create(keywordPsi, keyword).withBoldness(true).withIcon(new EmptyIcon(16, 16)).
       withInsertHandler(new KeywordInsertHandler(keyword))
   }

@@ -24,7 +24,7 @@ class ScalaKeywordCompletionContributor extends ScalaCompletionContributor {
       new CompletionProvider[CompletionParameters] {
         def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
           for (keyword <- keywords) {
-            result.addElement(LookupElementManager.getKeywrodLookupElement(keyword, positionFromParameters(parameters)))
+            result.addElement(LookupElementManager.getKeywordLookupElement(keyword, parameters.getOriginalFile.getProject))
           }
         }
       })
@@ -36,7 +36,7 @@ class ScalaKeywordCompletionContributor extends ScalaCompletionContributor {
       new CompletionProvider[CompletionParameters] {
         def addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
           for (keyword <- keywords) {
-            result.addElement(LookupElementManager.getKeywrodLookupElement(keyword, positionFromParameters(parameters)))
+            result.addElement(LookupElementManager.getKeywordLookupElement(keyword, parameters.getOriginalFile.getProject))
           }
         }
       })

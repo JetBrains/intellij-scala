@@ -88,7 +88,7 @@ trait ScModificationTrackerOwner extends ScalaPsiElement with PsiModifiableCodeB
     val text = new StringBuilder(getText)
     text.insert(pos, dummyIdentifier)
     val newBlock = createMirror(text.toString())
-    Option(newBlock).map(_.findElementAt(pos))
+    Option(newBlock).flatMap(b => Option(b.findElementAt(pos)))
   }
 }
 

@@ -237,7 +237,7 @@ class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
         variants.foreach(applyVariant(_, checkForSecondCompletion = true))
         if (typez.exists(_.equiv(types.api.Boolean))) {
           for (keyword <- Set("false", "true")) {
-            result.addElement(LookupElementManager.getKeywrodLookupElement(keyword, place))
+            result.addElement(LookupElementManager.getKeywordLookupElement(keyword, place.getProject))
           }
         }
         if (completeThis) {

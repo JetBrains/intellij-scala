@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion.lookups
 
 import com.intellij.codeInsight.lookup.LookupElement
+import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -15,8 +16,8 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
  * @since 19.03.12
  */
 object LookupElementManager {
-  def getKeywrodLookupElement(keyword: String, position: PsiElement): LookupElement = {
-    ScalaKeywordLookupItem.getLookupElement(keyword, position)
+  def getKeywordLookupElement(keyword: String, project: Project): LookupElement = {
+    ScalaKeywordLookupItem.getLookupElement(keyword, project)
   }
 
   def getLookupElement(resolveResult: ScalaResolveResult,
