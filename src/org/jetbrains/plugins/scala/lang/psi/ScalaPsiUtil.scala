@@ -1210,10 +1210,12 @@ object ScalaPsiUtil {
 
   //Performance critical method
   def getBaseCompanionModule(clazz: PsiClass): Option[ScTypeDefinition] = {
-    if (!clazz.isInstanceOf[ScTypeDefinition]) return None
-    val td = clazz.asInstanceOf[ScTypeDefinition]
+    val (td, scope) = clazz match {
+      case t: ScTypeDefinition if t.getContext != null => (t, t.getContext)
+      case _ => return None
+    }
+
     val name: String = td.name
-    val scope: PsiElement = td.getContext
     val arrayOfElements: Array[PsiElement] = scope match {
       case stub: StubBasedPsiElement[_] if stub.getStub != null =>
         stub.getStub.getChildrenByType(TokenSets.TYPE_DEFINITIONS_SET, JavaArrayFactoryUtil.PsiElementFactory)

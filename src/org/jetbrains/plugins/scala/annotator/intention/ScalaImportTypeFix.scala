@@ -120,14 +120,15 @@ class ScalaImportTypeFix(private var classes: Array[TypeToImport], ref: ScRefere
         if (HintManagerImpl.getInstanceImpl.hasShownHintsThatWillHideByOtherHint(true)) return
         val action = new ScalaAddImportAction(editor, classes, ref: ScReferenceElement)
 
-        val offset = ref.getTextRange.getStartOffset
-        if (classes.nonEmpty && offset >= startOffset(editor) && offset <= endOffset(editor) && editor != null &&
-          offset <= editor.getDocument.getTextLength) {
+        val refStart = ref.getTextRange.getStartOffset
+        val refEnd = ref.getTextRange.getEndOffset
+        if (classes.nonEmpty && refStart >= startOffset(editor) && refStart <= endOffset(editor) && editor != null &&
+        refEnd < editor.getDocument.getTextLength) {
           HintManager.getInstance().showQuestionHint(editor,
             if (classes.length == 1) classes(0).qualifiedName + "? Alt+Enter"
             else classes(0).qualifiedName + "? (multiple choices...) Alt+Enter",
-            offset,
-            offset + ref.getTextLength,
+            refStart,
+            refEnd,
             action)
           return
         }
