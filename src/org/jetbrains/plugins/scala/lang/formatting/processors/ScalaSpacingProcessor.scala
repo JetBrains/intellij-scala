@@ -873,7 +873,13 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     // SCL-2601
     if ((rightNode.getPsi.isInstanceOf[ScUnitExpr] || rightNode.getPsi.isInstanceOf[ScTuple]) &&
             leftNode.getTreeParent.getPsi.isInstanceOf[ScInfixExpr]) {
-      if (scalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES) return WITH_SPACING
+
+      val isOperator = leftNode.getPsi match {
+        case ref: ScReferenceExpression => ScalaNamesUtil.isOperatorName(ref.refName)
+        case _ => false
+      }
+
+      if (scalaSettings.SPACE_BEFORE_INFIX_METHOD_CALL_PARENTHESES || isOperator) return WITH_SPACING
       else return WITHOUT_SPACING
     }
 
