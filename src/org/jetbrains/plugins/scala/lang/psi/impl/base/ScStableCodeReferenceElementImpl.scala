@@ -10,7 +10,7 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix
-import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport}
+import org.jetbrains.plugins.scala.annotator.intention.ScalaImportTypeFix.{ClassTypeToImport, TypeAliasToImport, TypeToImport}
 import org.jetbrains.plugins.scala.lang.completion.lookups.LookupElementManager
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -139,16 +139,9 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
       else {
         def bindToType(c: ScalaImportTypeFix.TypeToImport): PsiElement = {
           val suitableKinds = getKinds(incomplete = false)
-          if (!ResolveUtils.kindMatches(element, suitableKinds))
-            throw new IncorrectOperationException("class does not match expected kind, problem place: " + {
-              if (getContext != null)
-                if (getContext.getContext != null)
-                  if (getContext.getContext.getContext != null)
-                    getContext.getContext.getContext.getText
-                  else getContext.getContext.getText
-                else getContext.getText
-              else getText
-            })
+          if (!ResolveUtils.kindMatches(element, suitableKinds)) {
+            reportWrongKind(c, suitableKinds)
+          }
           if (nameId.getText != c.name) {
             val ref = ScalaPsiElementFactory.createReferenceFromText(c.name, getManager)
             return this.replace(ref).asInstanceOf[ScStableCodeReferenceElement].bindToElement(element)
@@ -238,6 +231,21 @@ class ScStableCodeReferenceElementImpl(node: ASTNode) extends ScalaPsiElementImp
         }
       }
     }
+  }
+
+  private def reportWrongKind(c: TypeToImport, suitableKinds: Set[_root_.org.jetbrains.plugins.scala.lang.resolve.ResolveTargets.Value]): Nothing = {
+    val contextText = if (getContext != null)
+      if (getContext.getContext != null)
+        if (getContext.getContext.getContext != null)
+          getContext.getContext.getContext.getText
+        else getContext.getContext.getText
+      else getContext.getText
+    else getText
+    throw new IncorrectOperationException(
+      s"""${c.element} does not match expected kind,
+         |kinds: ${suitableKinds.mkString(", ")}
+         |problem place: $refName in
+         |$contextText""".stripMargin)
   }
 
   def getSameNameVariants: Array[ResolveResult] = doResolve(this, new CompletionProcessor(getKinds(incomplete = true), this, false, Some(refName)))

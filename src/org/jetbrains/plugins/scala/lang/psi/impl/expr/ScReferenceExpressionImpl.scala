@@ -73,10 +73,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
           case _ => this
         }
       case c: PsiClass =>
-        if (!ResolveUtils.kindMatches(element, getKinds(incomplete = false)))
-          throw new IncorrectOperationException("class does not match expected kind")
+        val kinds = getKinds(incomplete = false)
+        if (!ResolveUtils.kindMatches(element, kinds))
+          throw new IncorrectOperationException(s"class $c does not match expected kind,\nexpected: ${kinds.mkString(", ")}")
         if (refName != c.name)
-          throw new IncorrectOperationException("class does not match expected name")
+          throw new IncorrectOperationException(s"class $c does not match expected name $refName")
         val qualName = c.qualifiedName
         if (qualName != null) {
           return tail(qualName) {
@@ -100,7 +101,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScalaPsiElementImpl(node)
         }
       case elem: PsiNamedElement =>
         if (refName != elem.name)
-          throw new IncorrectOperationException("named element does not match expected name")
+          throw new IncorrectOperationException(s"named element $elem does not match expected name $refName")
         ScalaPsiUtil.nameContext(elem) match {
           case memb: PsiMember =>
             val cClass = containingClass.getOrElse(memb.containingClass)
