@@ -12,6 +12,7 @@ import com.intellij.util.ui.ColumnInfo
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode
 import org.jetbrains.plugins.scala.lang.transformation.annotations._
 import org.jetbrains.plugins.scala.lang.transformation.calls._
+import org.jetbrains.plugins.scala.lang.transformation.functions.ExpandPlaceholderSyntax
 import org.jetbrains.plugins.scala.lang.transformation.general._
 import org.jetbrains.plugins.scala.lang.transformation.implicits._
 import org.jetbrains.plugins.scala.lang.transformation.references._
@@ -60,6 +61,7 @@ class SelectionDialog {
       Entry("Expand unboxing")
     ),
     Group("Functions",
+      Entry("Expand placeholder syntax", ExpandPlaceholderSyntax),
       Entry("Make currying explicit"),
       Entry("Make eta-expansion explicit"),
       Entry("Convert underscore section to anonynous function"),
