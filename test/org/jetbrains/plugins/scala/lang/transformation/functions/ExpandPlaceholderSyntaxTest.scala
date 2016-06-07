@@ -12,7 +12,7 @@ class ExpandPlaceholderSyntaxTest extends TransformerTest(ExpandPlaceholderSynta
 
   def testUnderscoreType() = check(
     "(_: A).foo",
-    "(x: A) => x.foo"
+    "(a: A) => a.foo"
   )
 
   def testMultipleUnderscores() = check(
@@ -27,7 +27,7 @@ class ExpandPlaceholderSyntaxTest extends TransformerTest(ExpandPlaceholderSynta
 
   def testArgumentType() = check(
     "foo(_: A)",
-    "(x: A) => foo(x)"
+    "(a: A) => foo(a)"
   )
 
   def testMultipleArguments() = check(
@@ -60,6 +60,5 @@ class ExpandPlaceholderSyntaxTest extends TransformerTest(ExpandPlaceholderSynta
     "val v: A = _"
   )
 
-  // TODO generate names based on types
   // TODO check for name collisions
 }
