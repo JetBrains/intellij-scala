@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.components.libinjection
 import java.io._
 import java.net.URL
 import java.util
+import java.util.concurrent.atomic.AtomicBoolean
 
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.notification._
@@ -46,6 +47,7 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   val myInjectorCacheDir     = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/")
   val myInjectorCacheIndex   = new File(ScalaUtil.getScalaPluginSystemPath + "injectorCache/libs.index")
   private val myClassLoader  = new DynamicClassLoader(Array(myInjectorCacheDir.toURI.toURL), this.getClass.getClassLoader)
+  private val initialized = new AtomicBoolean(false)
   implicit private val LOG = Logger.getInstance(getClass)
   private val GROUP = new NotificationGroup("Injector", NotificationDisplayType.STICKY_BALLOON, false)
   private val ackProvider = {
@@ -86,10 +88,11 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
 
   override def projectOpened(): Unit = {
     jarCache = verifyLibraryCache(loadJarCache(myInjectorCacheIndex))
-    init()
+//    init()
   }
 
   def init() = {
+    initialized.set(true)
     if (ScalaProjectSettings.getInstance(project).isEnableLibraryExtensions) {
       DumbService.getInstance(project).smartInvokeLater {
         toRunnable {
@@ -120,10 +123,12 @@ class LibraryInjectorLoader(val project: Project) extends ProjectComponent {
   @inline def inWriteAction[T](f: => T) = ApplicationManager.getApplication.runWriteAction(toRunnable(f))
 
   def getInjectorClasses[T](interface: Class[T]): Seq[Class[T]] = {
+    if (!initialized.get()) init()
     loadedInjectors.getOrElse(interface, Seq.empty).map(myClassLoader.loadClass(_).asInstanceOf[Class[T]]).toSeq
   }
 
   def getInjectorInstances[T](interface: Class[T]): Seq[T] = {
+    if (!initialized.get()) init()
     getInjectorClasses(interface).map(_.newInstance())
   }
 
