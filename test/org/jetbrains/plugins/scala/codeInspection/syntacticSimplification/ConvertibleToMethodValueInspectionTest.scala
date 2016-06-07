@@ -387,4 +387,32 @@ class ConvertibleToMethodValueInspectionTest extends ScalaLightInspectionFixture
     checkTextHasError(text)
     testFix(text, result, hintAnon)
   }
+
+  def testByNameParam(): Unit = {
+    val text =
+      s"""trait Semigroup[F] {
+          |  def zero: F = ???
+          |
+          |  def append(f1: F, f2: => F): F = ???
+          |}
+          |
+          |object Test {
+          |  def foo(i: Iterator[String], s: Semigroup[String]) = i.fold(s.zero)(s.append(_, _))
+          |}""".stripMargin
+    checkTextHasNoErrors(text)
+  }
+
+  def testByNameParam2(): Unit = {
+    val text =
+      s"""trait Semigroup[F] {
+          |  def zero: F = ???
+          |
+          |  def append(f1: F, f2: => F): F = ???
+          |}
+          |
+          |object Test {
+          |  def foo(i: Iterator[String], s: Semigroup[String]) = i.fold(s.zero)(s.append _)
+          |}""".stripMargin
+    checkTextHasNoErrors(text)
+  }
 }
