@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.Conver
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, InspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{Both, PsiModifierListOwnerExt, ResolvesTo}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructor, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
@@ -34,8 +34,8 @@ object ConvertibleToMethodValueInspection {
 class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId, inspectionName){
   def actionFor(holder: ProblemsHolder): PartialFunction[PsiElement, Any] = {
     case MethodRepr(expr, _, Some(ref), _)
-      if ref.bind().exists(srr => srr.implicitType.nonEmpty || srr.implicitFunction.nonEmpty) =>
-      //do nothing if implicit conversions are involved
+      if ref.bind().exists(srr => srr.implicitType.nonEmpty || srr.implicitFunction.nonEmpty || hasByNameParam(srr.getElement)) =>
+      //do nothing if implicit conversions or by-name params are involved
     case MethodRepr(expr, qualOpt, Some(_), args) =>
       if (allArgsUnderscores(args) && qualOpt.forall(onlyStableValuesUsed))
         registerProblem(holder, expr, InspectionBundle.message("convertible.to.method.value.anonymous.hint"))
@@ -44,11 +44,13 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
         case null => false
         case cp => cp.containingClass.hasTypeParameters
       }
-      def checkStable() = und.bindingExpr.get match {
+      def mayReplace() = und.bindingExpr.get match {
+        case ResolvesTo(fun) if hasByNameParam(fun) => false
         case ScReferenceExpression.withQualifier(qual) => onlyStableValuesUsed(qual)
         case e => true
       }
-      if (!isInParameterOfParameterizedClass && checkStable())
+
+      if (!isInParameterOfParameterizedClass && mayReplace())
         registerProblem(holder, und, InspectionBundle.message("convertible.to.method.value.eta.hint"))
   }
 
@@ -113,6 +115,13 @@ class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionId
       else withoutArguments.map(_ + " _")
 
     withoutArguments ++ withUnderscore
+  }
+
+  private def hasByNameParam(elem: PsiElement): Boolean = {
+    elem match {
+      case fun: ScMethodLike => fun.parameterList.params.exists(_.isCallByNameParameter)
+      case _ => false
+    }
   }
 }
 

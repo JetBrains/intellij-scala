@@ -37,4 +37,32 @@ class TypeArgInferenceTest extends BadCodeGreenTestBase {
   def testScl6883(): Unit = {
     doTest("List(1, 2).reduce(_.toString + _.toString)")
   }
+
+  def testSCL10395(): Unit = {
+    val text =
+      s"""trait Semigroup[F] {
+        |  def zero: F = ???
+        |
+        |  def append(f1: F, f2: => F): F = ???
+        |}
+        |
+        |object Test {
+        |  def foo(i: Iterator[String], s: Semigroup[String]) = i.fold(s.zero)(s.ap${CARET_MARKER}pend)
+        |}""".stripMargin
+    doTest(text)
+  }
+
+  def testSCL10395_2(): Unit = {
+    val text =
+      s"""trait Semigroup[F] {
+          |  def zero: F = ???
+          |
+        |  def append(f1: F, f2: => F): F = ???
+          |}
+          |
+        |object Test {
+          |  def foo(i: Iterator[String], s: Semigroup[String]) = i.fold(s.zero)(s.ap${CARET_MARKER}pend _)
+          |}""".stripMargin
+    doTest(text)
+  }
 }
