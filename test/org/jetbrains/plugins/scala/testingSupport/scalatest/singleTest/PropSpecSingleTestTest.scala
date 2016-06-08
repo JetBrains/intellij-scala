@@ -10,8 +10,6 @@ trait PropSpecSingleTestTest extends PropSpecGenerator {
   val propSpecTestPath = List("[root]", "PropSpecTest", "Single tests should run")
 
   def testPropSpec() {
-    addPropSpec()
-
     runTestByLocation(5, 5, "PropSpecTest.scala",
       checkConfigAndSettings(_, "PropSpecTest", "Single tests should run"),
       root => checkResultTreeHasExactNamedPath(root, propSpecTestPath:_*) &&

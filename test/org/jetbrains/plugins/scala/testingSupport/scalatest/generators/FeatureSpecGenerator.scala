@@ -7,37 +7,35 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
   * @since 10.02.2015.
   */
 trait FeatureSpecGenerator extends ScalaTestTestCase {
-  def featureSpecClassName = "FeatureSpecTest"
+  val featureSpecClassName = "FeatureSpecTest"
 
-  def featureSpecFileName = featureSpecClassName + ".scala"
+  val featureSpecFileName = featureSpecClassName + ".scala"
 
-  def addFeatureSpec() {
-    addFileToProject(featureSpecFileName,
-      """
-        |import org.scalatest._
-        |
-        |class FeatureSpecTest extends FeatureSpec with GivenWhenThen {
-        | feature("Feature 1") {
-        |   scenario("Scenario A") {
-        |    Given("A")
-        |    print(">>TEST: OK<<")
-        |   }
-        |   scenario("Scenario B") {
-        |    Given("B")
-        |    print(">>TEST: 1-B-B<<")
-        |   }
-        | }
-        |
-        | feature("Feature 2") {
-        |   scenario("Scenario C") {
-        |    Given("C")
-        |    print(">>TEST: 2-C-C<<")
-        |   }
-        | }
-        |
-        | feature("empty") {}
-        |}
-      """.stripMargin.trim()
-    )
-  }
+  addSourceFile(featureSpecFileName,
+    s"""
+      |import org.scalatest._
+      |
+      |class $featureSpecClassName extends FeatureSpec with GivenWhenThen {
+      | feature("Feature 1") {
+      |   scenario("Scenario A") {
+      |    Given("A")
+      |    print(">>TEST: OK<<")
+      |   }
+      |   scenario("Scenario B") {
+      |    Given("B")
+      |    print(">>TEST: 1-B-B<<")
+      |   }
+      | }
+      |
+      | feature("Feature 2") {
+      |   scenario("Scenario C") {
+      |    Given("C")
+      |    print(">>TEST: 2-C-C<<")
+      |   }
+      | }
+      |
+      | feature("empty") {}
+      |}
+    """.stripMargin.trim()
+  )
 }

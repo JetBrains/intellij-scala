@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.finders
 
 import com.intellij.testFramework.UsefulTestCase
-import org.jetbrains.plugins.scala.testingSupport.IntegrationTest
 import org.jetbrains.plugins.scala.testingSupport.scalatest.generators._
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestAstTransformer
 import org.scalatest.finders.Selection
@@ -23,8 +22,6 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
   }
 
   def testFeatureSpec() {
-    addFeatureSpec()
-
     val scenarioA = "Feature: Feature 1 Scenario: Scenario A"
     val scenarioB = "Feature: Feature 1 Scenario: Scenario B"
     val fileName = "FeatureSpecTest.scala"
@@ -44,8 +41,6 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
   }
 
   def testFlatSpec() {
-    addFlatSpec()
-    addBehaviorFlatSpec()
 
     val flatTestName1 = "A FlatSpecTest should be able to run single test"
     val flatTestName2 = "A FlatSpecTest should not run other tests"
@@ -64,10 +59,8 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
   }
 
   def testBehaviorFlatSpec() {
-    addBehaviorFlatSpec()
-
     val testNames = Set("FlatSpec should run scopes", "FlatSpec should do other stuff")
-    val fileName = "BehaviorFlatSpec.scala"
+    val fileName = s"$behaviourFlatClassName.scala"
 
     //'behavior' word
     checkSelection(3, 3, fileName, testNames)
@@ -81,19 +74,6 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
 
   def testItFlatSpec(): Unit = {
     val fileName = "TestItFlatSpec.scala"
-    addFileToProject(fileName,
-      """
-        |import org.scalatest._
-        |
-        |class TestItFlatSpec extends FlatSpec with GivenWhenThen {
-        | it should "run test with correct name" in {
-        | }
-        |
-        | "Test" should "be fine" in {}
-        |
-        | it should "change name" in {}
-        |}
-      """.stripMargin.trim())
 
     checkSelection(3, 10, fileName, Set("should run test with correct name"))
 
@@ -104,8 +84,6 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
 
   //for now, there is no need to test path.FreeSpec separately: it and FreeSpec share the same finder
   def testFreeSpec() {
-    addComplexFreeSpec()
-
     val fileName = "ComplexFreeSpec.scala"
     val testName1 = "A ComplexFreeSpec Outer scope 1 Inner scope 1"
     val testName2 = "A ComplexFreeSpec Outer scope 2 Inner test"
@@ -135,8 +113,6 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
   }
 
   def testFunSpec() {
-    addFunSpec()
-
     val fileName = "FunSpecTest.scala"
 
     val testName1 = "FunSpecTest should launch single test"
@@ -156,8 +132,6 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
   }
 
   def testFunSuite() {
-    addFunSuite()
-
     val fileName = "FunSuiteTest.scala"
     val testName1 = "should not run other tests"
 
@@ -170,8 +144,6 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
   }
 
   def testPropSpec() {
-    addPropSpec()
-
     val fileName = "PropSpecTest.scala"
     val testName1 = "Single tests should run"
 
@@ -184,8 +156,6 @@ with FreeSpecPathGenerator with FunSpecGenerator with FunSuiteGenerator with Pro
   }
 
   def testWordSpec() {
-    addWordSpec()
-
     val fileName = "WordSpecTest.scala"
     val testName1 = "WordSpecTest should Run single test"
     val testName2 = "WordSpecTest should ignore other tests"

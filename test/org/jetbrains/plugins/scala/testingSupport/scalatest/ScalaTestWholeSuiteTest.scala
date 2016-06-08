@@ -26,8 +26,6 @@ with FunSpecGenerator with FunSuiteGenerator with PropSpecGenerator with WordSpe
     List("[root]", "WordSpecTest", "WordSpecTest", "ignore other tests"), List("[root]", "WordSpecTest", "outer", "inner"))
 
   def testFeatureSpec() {
-    addFeatureSpec()
-
     runTestByLocation(2, 10, "FeatureSpecTest.scala",
       checkConfigAndSettings(_, "FeatureSpecTest"),
       root => featureSpecTestPaths.forall(checkResultTreeHasExactNamedPath(root, _:_*))
@@ -38,8 +36,6 @@ with FunSpecGenerator with FunSuiteGenerator with PropSpecGenerator with WordSpe
   }
 
   def testFlatSpec() {
-    addFlatSpec()
-
     runTestByLocation(2, 10, "FlatSpecTest.scala",
       checkConfigAndSettings(_, "FlatSpecTest"),
       root => flatSpecTestPaths.forall(checkResultTreeHasExactNamedPath(root, _:_*))
@@ -49,8 +45,6 @@ with FunSpecGenerator with FunSuiteGenerator with PropSpecGenerator with WordSpe
   }
 
   def testFreeSpec() {
-    addFreeSpec()
-
     runTestByLocation(2, 10, "FreeSpecTest.scala",
       checkConfigAndSettings(_, "FreeSpecTest"),
       root => freeSpecTestPaths.forall(checkResultTreeHasExactNamedPath(root, _:_*))
@@ -60,8 +54,6 @@ with FunSpecGenerator with FunSuiteGenerator with PropSpecGenerator with WordSpe
   }
 
   def testFunSpec() {
-    addFunSpec()
-
     runTestByLocation(2, 10, "FunSpecTest.scala",
       checkConfigAndSettings(_, "FunSpecTest"),
       root => funSpecTestPaths.forall(checkResultTreeHasExactNamedPath(root, _:_*))
@@ -71,8 +63,6 @@ with FunSpecGenerator with FunSuiteGenerator with PropSpecGenerator with WordSpe
   }
 
   def testFunSuite() {
-    addFunSuite()
-
     runTestByLocation(2, 10, "FunSuiteTest.scala",
       checkConfigAndSettings(_, "FunSuiteTest"),
       root => funSuiteTestPaths.forall(checkResultTreeHasExactNamedPath(root, _:_*))
@@ -82,8 +72,6 @@ with FunSpecGenerator with FunSuiteGenerator with PropSpecGenerator with WordSpe
   }
 
   def testPropSpec() {
-    addPropSpec()
-
     runTestByLocation(2, 10, "PropSpecTest.scala",
       checkConfigAndSettings(_, "PropSpecTest"),
       root => propSpecTestPaths.forall(checkResultTreeHasExactNamedPath(root, _:_*))
@@ -93,8 +81,6 @@ with FunSpecGenerator with FunSuiteGenerator with PropSpecGenerator with WordSpe
   }
 
   def testWordSpec() {
-    addWordSpec()
-
     runTestByLocation(2, 10, "WordSpecTest.scala",
       checkConfigAndSettings(_, "WordSpecTest"),
       root => wordSpecTestPaths.forall(checkResultTreeHasExactNamedPath(root, _:_*))

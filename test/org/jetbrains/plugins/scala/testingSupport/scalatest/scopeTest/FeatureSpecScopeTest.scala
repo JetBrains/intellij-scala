@@ -8,13 +8,10 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FeatureSp
  */
 trait FeatureSpecScopeTest extends FeatureSpecGenerator {
   def testFeatureSpecEmptyScope() {
-    addFeatureSpec()
-
     assert(checkConfigAndSettings(createTestFromLocation(21, 7, featureSpecFileName), featureSpecClassName))
   }
 
   def testFeatureSpecScope() {
-    addFeatureSpec()
     val testNames = Seq("Feature: Feature 1 Scenario: Scenario A", "Feature: Feature 1 Scenario: Scenario B")
     val aPath = List("[root]", "FeatureSpecTest", "Feature: Feature 1", "Scenario: Scenario A")
     val bPath = List("[root]", "FeatureSpecTest", "Feature: Feature 1", "Scenario: Scenario B")

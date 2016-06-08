@@ -8,14 +8,10 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FunSpecGe
  */
 trait FunSpecScopeTest extends FunSpecGenerator {
   def testFunSpecEmptyScope() {
-    addFunSpec()
-
     assert(checkConfigAndSettings(createTestFromLocation(17, 15, funSpecFileName), funSpecClassName))
   }
 
   def testFunSpecScope() {
-    addFunSpec()
-
     val testNames = Seq("FunSpecTest should launch single test", "FunSpecTest should not launch other tests")
 
     val path1 = List("[root]", "FunSpecTest", "FunSpecTest", "should launch single test")

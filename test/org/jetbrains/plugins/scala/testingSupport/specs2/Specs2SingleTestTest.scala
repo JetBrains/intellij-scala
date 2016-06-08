@@ -9,31 +9,31 @@ abstract class Specs2SingleTestTest extends Specs2TestCase {
   protected val specsTestFileName = "SpecificationTest.scala"
   protected val specsTestClassName = "SpecificationTest"
 
-  def testSpecification() {
-    addFileToProject(specsTestFileName,
-      """
-        |import org.specs2.mutable.Specification
-        |
-        |class SpecificationTest extends Specification {
-        |  "The 'SpecificationTest'" should {
-        |    "run single test" in {
-        |      print(">>TEST: OK<<")
-        |      1 mustEqual 1
-        |    }
-        |
-        |    "run exclamation test" ! { success }
-        |
-        |    "run greater test" >> { success }
-        |
-        |    "ignore other test" in {
-        |      print(">>TEST: FAILED<<")
-        |      1 mustEqual 1
-        |    }
-        |  }
-        |}
-      """.stripMargin
-    )
+  addSourceFile(specsTestFileName,
+    s"""
+      |import org.specs2.mutable.Specification
+      |
+      |class $specsTestClassName extends Specification {
+      |  "The 'SpecificationTest'" should {
+      |    "run single test" in {
+      |      print(">>TEST: OK<<")
+      |      1 mustEqual 1
+      |    }
+      |
+      |    "run exclamation test" ! { success }
+      |
+      |    "run greater test" >> { success }
+      |
+      |    "ignore other test" in {
+      |      print(">>TEST: FAILED<<")
+      |      1 mustEqual 1
+      |    }
+      |  }
+      |}
+    """.stripMargin
+  )
 
+  def testSpecification() {
     runTestByLocation(5, 10, specsTestFileName,
       checkConfigAndSettings(_, specsTestClassName, "run single test"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", specsTestClassName, "The 'SpecificationTest' should", "run single test") &&

@@ -8,56 +8,53 @@ trait UTestPackageTest extends UTestTestCase {
   val packageName = "myPackage"
   val secondPackageName = "otherPackage"
 
-  protected def addPackageTest(): Unit = {
-    addFileToProject(packageName + "/Test1.scala",
-      s"""
-        |package myPackage
-        |
-        |$testSuiteSecondPrefix
-        |import utest._
-        |
-        |object Test1 extends TestSuite {
-        |  val tests = TestSuite {
-        |    "test1" - {}
-        |
-        |    "test2" - {}
-        |  }
-        |}
+  addSourceFile(packageName + "/Test1.scala",
+    s"""
+       |package myPackage
+       |
+       |$testSuiteSecondPrefix
+       |import utest._
+       |
+       |object Test1 extends TestSuite {
+       |  val tests = TestSuite {
+       |    "test1" - {}
+       |
+       |    "test2" - {}
+       |  }
+       |}
       """.stripMargin.trim())
 
-    addFileToProject(packageName + "/Test2.scala",
-      s"""
-        |package myPackage
-        |
-        |$testSuiteSecondPrefix
-        |import utest._
-        |
-        |object Test2 extends TestSuite {
-        |  val tests = TestSuite {
-        |    "test1" - {}
-        |
-        |    "test2" - {}
-        |  }
-        |}
+  addSourceFile(packageName + "/Test2.scala",
+    s"""
+       |package myPackage
+       |
+       |$testSuiteSecondPrefix
+       |import utest._
+       |
+       |object Test2 extends TestSuite {
+       |  val tests = TestSuite {
+       |    "test1" - {}
+       |
+       |    "test2" - {}
+       |  }
+       |}
       """.stripMargin.trim())
 
-    addFileToProject(secondPackageName + "/Test1.scala",
-      s"""
-        |package otherPackage
-        |
-        |$testSuiteSecondPrefix
-        |import utest._
-        |
-        |object Test2 extends TestSuite {
-        |  val tests = TestSuite {
-        |    "test" - {}
-        |  }
-        |}
+  addSourceFile(secondPackageName + "/Test1.scala",
+    s"""
+       |package otherPackage
+       |
+       |$testSuiteSecondPrefix
+       |import utest._
+       |
+       |object Test2 extends TestSuite {
+       |  val tests = TestSuite {
+       |    "test" - {}
+       |  }
+       |}
       """.stripMargin.trim())
-  }
 
   def testPackageTestRun(): Unit = {
-    addPackageTest()
     runTestByConfig(createTestFromPackage(packageName), checkPackageConfigAndSettings(_, packageName),
       root => checkResultTreeHasExactNamedPath(root, "[root]", "Test1", "tests", "test1") &&
         checkResultTreeHasExactNamedPath(root, "[root]", "Test1", "tests", "test2") &&
@@ -67,7 +64,6 @@ trait UTestPackageTest extends UTestTestCase {
   }
 
   def testModuleTestRun(): Unit = {
-    addPackageTest()
     runTestByConfig(createTestFromModule(testClassName),
       checkPackageConfigAndSettings(_, generatedName = "ScalaTests in 'src'"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", "Test1", "tests", "test1") &&

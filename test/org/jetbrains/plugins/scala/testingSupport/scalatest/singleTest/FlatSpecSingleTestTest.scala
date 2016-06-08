@@ -10,9 +10,7 @@ trait FlatSpecSingleTestTest extends FlatSpecGenerator {
   val flatSpecTestPath = List("[root]", "FlatSpecTest", "A FlatSpecTest", "should be able to run single test")
 
   def testFlatSpec() {
-    addFlatSpec()
-
-    runTestByLocation(7, 1, flatSpecFileName,
+    runTestByLocation(7, 1, s"$flatSpecClassName.scala",
       checkConfigAndSettings(_, flatSpecClassName, "A FlatSpecTest should be able to run single test"),
       root => checkResultTreeHasExactNamedPath(root, flatSpecTestPath:_*) &&
           checkResultTreeDoesNotHaveNodes(root, "should not run other tests"),

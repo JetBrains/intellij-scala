@@ -10,8 +10,6 @@ trait FreeSpecSingleTestTest extends FreeSpecGenerator {
   val freeSpecTestPath = List("[root]", "FreeSpecTest", "A FreeSpecTest", "should be able to run single tests")
 
   def testFreeSpec() {
-    addFreeSpec()
-
     runTestByLocation(6, 3, "FreeSpecTest.scala",
       checkConfigAndSettings(_, "FreeSpecTest", "A FreeSpecTest should be able to run single tests"),
       root => checkResultTreeHasExactNamedPath(root, freeSpecTestPath:_*) &&

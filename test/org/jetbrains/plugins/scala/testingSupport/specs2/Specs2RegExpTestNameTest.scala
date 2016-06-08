@@ -8,36 +8,32 @@ abstract class Specs2RegExpTestNameTest extends Specs2TestCase {
   protected val regExpClassName = "SpecsRegExpTest"
   protected val regExpFileName = regExpClassName + ".scala"
 
-  def addRegExpTest() {
-    addFileToProject(regExpFileName,
-      """
-        |import org.specs2.mutable.Specification
-        |
-        |class SpecsRegExpTest extends Specification {
-        |  "The RegExpTest" should {
-        |    "testtesttest" in {
-        |      1 mustEqual 1
-        |    }
-        |
-        |    "test" ! { success }
-        |
-        |    "testtest" >> { success }
-        |  }
-        |
-        |  "First" should {
-        |    "run" ! { success }
-        |  }
-        |
-        |  "Second" should {
-        |    "run" ! { success }
-        |  }
-        |}
-      """.stripMargin.trim)
-  }
+  addSourceFile(regExpFileName,
+    """
+      |import org.specs2.mutable.Specification
+      |
+      |class SpecsRegExpTest extends Specification {
+      |  "The RegExpTest" should {
+      |    "testtesttest" in {
+      |      1 mustEqual 1
+      |    }
+      |
+      |    "test" ! { success }
+      |
+      |    "testtest" >> { success }
+      |  }
+      |
+      |  "First" should {
+      |    "run" ! { success }
+      |  }
+      |
+      |  "Second" should {
+      |    "run" ! { success }
+      |  }
+      |}
+    """.stripMargin.trim)
 
   def testInnerMost() = {
-    addRegExpTest()
-
     runTestByLocation(8, 10, regExpFileName,
       checkConfigAndSettings(_, regExpClassName, "test"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", regExpClassName, "The RegExpTest should", "test") &&
@@ -46,8 +42,6 @@ abstract class Specs2RegExpTestNameTest extends Specs2TestCase {
   }
 
   def testMiddle() = {
-    addRegExpTest()
-
     runTestByLocation(10, 10, regExpFileName,
       checkConfigAndSettings(_, regExpClassName, "testtest"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", regExpClassName, "The RegExpTest should", "testtest") &&
@@ -55,8 +49,6 @@ abstract class Specs2RegExpTestNameTest extends Specs2TestCase {
   }
 
   def testOuterMost() = {
-    addRegExpTest()
-
     runTestByLocation(4, 10, regExpFileName,
       checkConfigAndSettings(_, regExpClassName, "testtesttest"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", regExpClassName, "The RegExpTest should", "testtesttest") &&
@@ -65,8 +57,6 @@ abstract class Specs2RegExpTestNameTest extends Specs2TestCase {
 
   //TODO: enable the test once I find a way to run different tests with same description in specs2
   def __IGNORE_testDifferentScopes() = {
-    addRegExpTest()
-
     runTestByLocation(14, 10, regExpFileName,
       checkConfigAndSettings(_, regExpClassName, "run"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", regExpClassName, "First should", "run") &&

@@ -8,14 +8,10 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.FreeSpecG
  */
 trait FreeSpecScopeTest extends FreeSpecGenerator {
   def testFreeSpecEmptyScope() {
-    addComplexFreeSpec()
-
     assert(checkConfigAndSettings(createTestFromLocation(31, 7, "ComplexFreeSpec.scala"), "ComplexFreeSpec"))
   }
 
   def testFreeSpecScope() {
-    addComplexFreeSpec()
-
     val testNames = Seq("A ComplexFreeSpec Outer scope 2 Inner scope 2 Another innermost scope",
         "A ComplexFreeSpec Outer scope 2 Inner test")
     val path1 = List("[root]", "ComplexFreeSpec", "A ComplexFreeSpec", "Outer scope 2", "Inner scope 2",

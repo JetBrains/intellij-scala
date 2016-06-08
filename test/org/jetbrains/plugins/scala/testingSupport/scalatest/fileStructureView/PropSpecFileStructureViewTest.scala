@@ -10,40 +10,34 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
 trait PropSpecFileStructureViewTest extends ScalaTestTestCase {
   private val className = "PropSpecViewTest"
 
-  def addPropSpecViewTest(): Unit = {
-    addFileToProject(className + ".scala",
-      """
-        |import org.scalatest._
-        |
-        |class PropSpecViewTest extends PropSpec {
-        |  property("test") {}
-        |
-        |  ignore("ignore") {}
-        |
-        |  property("pending") (pending)
-        |
-        |  ignore("pending and ignore") (pending)
-        |}
+  addSourceFile(className + ".scala",
+    s"""
+       |import org.scalatest._
+       |
+       |class $className extends PropSpec {
+       |  property("test") {}
+       |
+       |  ignore("ignore") {}
+       |
+       |  property("pending") (pending)
+       |
+       |  ignore("pending and ignore") (pending)
+       |}
       """.stripMargin)
-  }
 
   def testPropSpecNormal(): Unit = {
-    addPropSpecViewTest()
     runFileStructureViewTest(className, normalStatusId, "property(\"test\")")
   }
 
   def testPropSpecIgnored(): Unit = {
-    addPropSpecViewTest()
     runFileStructureViewTest(className, ignoredStatusId, "ignore(\"ignore\")")
   }
 
   def testPropSpecPending(): Unit = {
-    addPropSpecViewTest()
     runFileStructureViewTest(className, pendingStatusId, "property(\"pending\")")
   }
 
   def testPropSpecIgnoredAndPending(): Unit = {
-    addPropSpecViewTest()
     runFileStructureViewTest(className, ignoredStatusId, "ignore(\"pending and ignore\")")
   }
 

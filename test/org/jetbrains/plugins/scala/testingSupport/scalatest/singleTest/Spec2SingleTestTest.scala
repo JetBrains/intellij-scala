@@ -8,8 +8,7 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
  */
 trait Spec2SingleTestTest extends ScalaTestTestCase {
   //TODO: stop ignoring this test once finders API is functioning
-  def __ignored__testSpec() {
-    addFileToProject("Spec.scala",
+  addSourceFile("Spec.scala",
     """
       |import org.scalatest._
       |
@@ -28,8 +27,8 @@ trait Spec2SingleTestTest extends ScalaTestTestCase {
       |  }
       |}
     """.stripMargin
-    )
-
+  )
+  def __ignored__testSpec() {
     runTestByLocation(8, 12, "Spec.scala",
       checkConfigAndSettings(_, "SpecTest", "A SpecTest When launched should run single test"),
       root => checkResultTreeHasExactNamedPath(root, "[root]", "SpecTest", "A SpecTest", "When launched", "should run single test") &&

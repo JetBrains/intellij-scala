@@ -35,7 +35,9 @@ import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfiguratio
   * @author Roman.Shein
   *         Date: 03.03.14
   */
-abstract class ScalaTestingTestCase(private val configurationProducer: AbstractTestConfigurationProducer) extends ScalaDebuggerTestBase with IntegrationTest with ScalaVersion_2_11 {
+abstract class ScalaTestingTestCase extends ScalaDebuggerTestBase with IntegrationTest with ScalaVersion_2_11 {
+
+  protected val configurationProducer: AbstractTestConfigurationProducer
 
   override protected def isRunInEdt = false
 

@@ -10,8 +10,6 @@ trait FunSuiteSingleTestTest extends FunSuiteGenerator {
   val funSuiteTestPath = List("[root]", "FunSuiteTest", "should run single test")
 
   def testFunSuite() {
-    addFunSuite()
-
     runTestByLocation(9, 8, "FunSuiteTest.scala",
       checkConfigAndSettings(_, "FunSuiteTest", "should run single test"),
       root => checkResultTreeHasExactNamedPath(root, funSuiteTestPath:_*) &&

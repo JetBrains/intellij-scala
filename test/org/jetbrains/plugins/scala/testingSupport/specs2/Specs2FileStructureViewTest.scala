@@ -9,46 +9,43 @@ import org.jetbrains.plugins.scala.lang.structureView.elements.impl.TestStructur
 abstract class Specs2FileStructureViewTest extends Specs2TestCase {
 
   private def prepareAndRunTestInner(status: Int, tests: String*) = {
-    prepareFile()
     runFileStructureViewTest("SpecsFileStrctureViewTest", status, tests:_*)
   }
 
-  protected def prepareFile(): Unit = {
-    addFileToProject("SpecsFileStrctureViewTest.scala",
-     """|import org.specs2.mutable.Specification
-        |
-        |class SpecsFileStrctureViewTest extends Specification {
-        |
-        |  "parent" should {
-        |    "child1" ! {
-        |      success
-        |    }
-        |    "child2" >> {
-        |      success
-        |    }
-        |
-        |    "child3" in {
-        |      success
-        |    }
-        |
-        |    "pending" in {
-        |      success
-        |    }.pendingUntilFixed
-        |
-        |    "pending2" in {
-        |      success
-        |    }.pendingUntilFixed("message")
-        |  }
-        |
-        |  "parent2" can {
-        |    "child" in {
-        |      success
-        |    }
-        |  }
-        |}
-      """.stripMargin
-    )
-  }
+  addSourceFile("SpecsFileStrctureViewTest.scala",
+    """|import org.specs2.mutable.Specification
+      |
+      |class SpecsFileStrctureViewTest extends Specification {
+      |
+      |  "parent" should {
+      |    "child1" ! {
+      |      success
+      |    }
+      |    "child2" >> {
+      |      success
+      |    }
+      |
+      |    "child3" in {
+      |      success
+      |    }
+      |
+      |    "pending" in {
+      |      success
+      |    }.pendingUntilFixed
+      |
+      |    "pending2" in {
+      |      success
+      |    }.pendingUntilFixed("message")
+      |  }
+      |
+      |  "parent2" can {
+      |    "child" in {
+      |      success
+      |    }
+      |  }
+      |}
+    """.stripMargin
+  )
 
   def testShouldView(): Unit = prepareAndRunTestInner(normalStatusId, "\"parent\"")
 
@@ -63,7 +60,6 @@ abstract class Specs2FileStructureViewTest extends Specs2TestCase {
   def testPending(): Unit = prepareAndRunTestInner(pendingStatusId, "\"pending\"", "\"pending2\"")
 
   def testHierarchy(): Unit = {
-    prepareFile()
     runFileStructureViewTest("SpecsFileStrctureViewTest", "\"child1\"", Some("\"parent\""))
   }
 }

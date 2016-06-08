@@ -8,14 +8,10 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.generators.WordSpecG
  */
 trait WordSpecScopeTest extends WordSpecGenerator {
   def testWordSpecEmptyScope() = {
-    addWordSpec()
-
     assert(checkConfigAndSettings(createTestFromLocation(13, 10, wordSpecFileName), wordSpecClassName))
   }
 
   def testWordSpecScope() {
-    addWordSpec()
-
     val testNames = Seq("WordSpecTest should Run single test", "WordSpecTest should ignore other tests")
 
     val path1 = List("[root]", "WordSpecTest", "WordSpecTest", "Run single test")

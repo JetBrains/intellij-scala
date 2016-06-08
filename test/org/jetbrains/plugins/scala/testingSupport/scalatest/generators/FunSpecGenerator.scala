@@ -7,33 +7,31 @@ import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTestTestCase
   * @since 10.02.2015.
   */
 trait FunSpecGenerator extends ScalaTestTestCase {
-  def funSpecClassName = "FunSpecTest"
+  val funSpecClassName = "FunSpecTest"
 
-  def funSpecFileName = funSpecClassName + ".scala"
+  val funSpecFileName = funSpecClassName + ".scala"
 
-  def addFunSpec() {
-    addFileToProject("FunSpecTest.scala",
-      """
-        |import org.scalatest._
-        |
-        |class FunSpecTest extends FunSpec {
-        |  describe("FunSpecTest") {
-        |    it ("should launch single test") {
-        |      print(">>TEST: OK<<")
-        |    }
-        |
-        |    it ("should not launch other tests") {
-        |      print(">>TEST: FAILED<<")
-        |    }
-        |  }
-        |
-        |  describe("OtherScope") {
-        |    it ("is here") {}
-        |  }
-        |
-        |  describe("emptyScope") {}
-        |}
-      """.stripMargin.trim()
-    )
-  }
+  addSourceFile("FunSpecTest.scala",
+    """
+      |import org.scalatest._
+      |
+      |class FunSpecTest extends FunSpec {
+      |  describe("FunSpecTest") {
+      |    it ("should launch single test") {
+      |      print(">>TEST: OK<<")
+      |    }
+      |
+      |    it ("should not launch other tests") {
+      |      print(">>TEST: FAILED<<")
+      |    }
+      |  }
+      |
+      |  describe("OtherScope") {
+      |    it ("is here") {}
+      |  }
+      |
+      |  describe("emptyScope") {}
+      |}
+    """.stripMargin.trim()
+  )
 }

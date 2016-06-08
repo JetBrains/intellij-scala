@@ -10,8 +10,6 @@ trait FunSpecSingleTestTest extends FunSpecGenerator {
   val funSpecTestPath = List("[root]", "FunSpecTest", "FunSpecTest", "should launch single test")
 
   def testFunSpec() {
-    addFunSpec()
-
     runTestByLocation(5, 9, funSpecFileName,
       checkConfigAndSettings(_, funSpecClassName, "FunSpecTest should launch single test"),
       root => checkResultTreeHasExactNamedPath(root, funSpecTestPath:_*) &&
