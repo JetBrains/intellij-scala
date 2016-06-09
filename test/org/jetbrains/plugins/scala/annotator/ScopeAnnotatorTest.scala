@@ -454,6 +454,11 @@ class ScopeAnnotatorTest extends SimpleTestCase {
     assertClashes("val (a, a) = ()", "a")
     assertClashes("val (a, (b, a)) = ()", "a")    
   }
+
+  def testBackticks(): Unit = {
+    Assert.assertTrue(clashesOf("class Test1 { def foo = ???; def `foo` = ???}").toSet == Set("foo", "`foo`"))
+    Assert.assertTrue(clashesOf("class A; trait `A`").toSet == Set("A", "`A`"))
+  }
   
   // TODO implement function signatures comparison based on types (not on plain text representations)
 //  def testFunctionSignatureTypeConformanceAndErasure {

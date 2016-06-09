@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -96,8 +97,10 @@ trait ScopeAnnotator {
   }
 
   private def nameOf(element: ScNamedElement): String = element match {
-    case f: ScFunction if !f.getParent.isInstanceOf[ScBlockExpr] => f.name + signatureOf(f)
-    case _ => element.name
+    case f: ScFunction if !f.getParent.isInstanceOf[ScBlockExpr] =>
+      ScalaNamesUtil.clean(f.name) + signatureOf(f)
+    case _ =>
+      ScalaNamesUtil.clean(element.name)
   }
 
   private def signatureOf(f: ScFunction): String = {
