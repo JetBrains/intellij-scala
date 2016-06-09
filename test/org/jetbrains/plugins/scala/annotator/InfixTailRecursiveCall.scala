@@ -1,14 +1,10 @@
-package org.jetbrains.plugins.scala.failed.annotator
+package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.junit.experimental.categories.Category
 
 /**
   * Created by kate on 3/29/16.
   */
-
-@Category(Array(classOf[PerfCycleTests]))
 class InfixTailRecursiveCall extends ScalaLightCodeInsightFixtureTestAdapter{
   def testSCL8792(): Unit = {
     checkTextHasNoErrors(

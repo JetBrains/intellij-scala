@@ -57,6 +57,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
     def possiblyTailRecursiveCallFor(elem: PsiElement): PsiElement = elem.getParent match {
       case call: ScMethodCall => possiblyTailRecursiveCallFor(call)
       case call: ScGenericCall => possiblyTailRecursiveCallFor(call)
+      case infix: ScInfixExpr => possiblyTailRecursiveCallFor(infix)
       case ret: ScReturnStmt => ret
       case _ => elem
     }
@@ -102,6 +103,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
           val expressions = resultExpressions.flatMap(expandIf)
           recursiveRefs.map(ref => RecursiveReference(ref, expressions.contains(possiblyTailRecursiveCallFor(ref))))
         }
+
         else Seq.empty
       case _ => Seq.empty
     }
