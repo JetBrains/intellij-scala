@@ -272,4 +272,22 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
         |""".stripMargin
     )
   }
+
+  //this test is intermittent!
+  def testSCL10399(): Unit = {
+    val fileText =
+      s"""
+         |trait AA[T]
+         |trait QQ[T] extends AA[T]
+         |
+         |class Z extends QQ[AnyRef]
+         |
+         |object Example {
+         |  def asFA[F[_], A](fa: F[A]): F[A] = fa
+         |
+         |  val z: QQ[AnyRef] = asFA(new Z) // sometimes type of the rhs is AA[T] instead of QQ[T]
+         |}
+     """.stripMargin
+    checkTextHasNoErrors(fileText)
+  }
 }
