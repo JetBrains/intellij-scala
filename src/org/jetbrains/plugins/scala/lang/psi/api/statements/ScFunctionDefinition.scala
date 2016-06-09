@@ -57,7 +57,7 @@ trait ScFunctionDefinition extends ScFunction with ScControlFlowOwner {
     def possiblyTailRecursiveCallFor(elem: PsiElement): PsiElement = elem.getParent match {
       case call: ScMethodCall => possiblyTailRecursiveCallFor(call)
       case call: ScGenericCall => possiblyTailRecursiveCallFor(call)
-      case infix: ScInfixExpr => possiblyTailRecursiveCallFor(infix)
+      case infix: ScInfixExpr if infix.operation == elem => possiblyTailRecursiveCallFor(infix)
       case ret: ScReturnStmt => ret
       case _ => elem
     }
