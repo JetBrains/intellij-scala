@@ -89,7 +89,12 @@ class MethodResolveProcessor(override val ref: PsiElement,
             case _ => obj.getType(TypingContext.empty)
           }
           val processor = new CollectMethodsProcessor(ref, functionName)
-          typeResult.foreach(t => processor.processType(t, ref))
+
+          import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+          // keep information about imports for proper precedence
+          val newState = ResolveState.initial.put(ImportUsed.key,  state.get(ImportUsed.key))
+          typeResult.foreach(t => processor.processType(t, ref, newState))
+
           val sigs = processor.candidatesS.flatMap {
             case ScalaResolveResult(meth: PsiMethod, subst) => Some((meth, subst))
             case _ => None
