@@ -31,9 +31,11 @@ trait ScUnderscoreSection extends ScExpression {
     @tailrec
     def go(expr: PsiElement, calcArguments: Boolean = true): Option[ScExpression] = {
       expr.getContext match {
-        case args: ScArgumentExprList =>
+        case _: ScTuple | _: ScArgumentExprList =>
           if (!calcArguments) return Some(expr.asInstanceOf[ScExpression])
-          args.getContext match {
+          val expression = expr.getContext
+          expression.getContext match {
+            case infix: ScInfixExpr => go(infix, calcArguments = false)
             case call: ScMethodCall => go(call, calcArguments = false)
             case constr: ScConstructor =>
               PsiTreeUtil.getContextOfType(constr, true, classOf[ScNewTemplateDefinition]) match {
