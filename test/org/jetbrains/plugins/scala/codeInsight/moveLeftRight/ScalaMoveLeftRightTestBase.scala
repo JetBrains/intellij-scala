@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 /**
   * @author Nikolay.Tropin
   */
-class ScalaMoveLeftRightTestBase extends LightPlatformCodeInsightTestCase {
+abstract class ScalaMoveLeftRightTestBase extends LightPlatformCodeInsightTestCase {
   protected def doTestFromLeftToRight(leftMostPosition: String, rightPositions: String*) {
     doTest(moveLeft = true, leftMostPosition)
     doTest(false, leftMostPosition, rightPositions: _*)

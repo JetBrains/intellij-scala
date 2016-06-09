@@ -423,27 +423,6 @@ class ScalaOverrideImplementTest extends ScalaLightPlatformCodeInsightTestCaseAd
     runTest(methodName, fileText, expectedText, isImplement, needsInferType)
   }
 
-  def testMap() {
-    val fileText =
-      """
-        |class ExtendsMap[K, V] extends java.util.Map[K, V] {
-        |  <caret>
-        |}
-      """
-    val expectedText =
-      """
-        |import java.util
-        |
-        |class ExtendsMap[K, V] extends java.util.Map[K, V] {
-        |  def putAll(m: util.Map[_ <: K, _ <: V]): Unit = <selection>???</selection>
-        |}
-      """
-    val methodName: String = "putAll"
-    val isImplement = true
-    val needsInferType = true
-    runTest(methodName, fileText, expectedText, isImplement, needsInferType)
-  }
-
   def testClassTypeParam() {
     val fileText =
       """

@@ -297,4 +297,30 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
 
   }
 
+  def testMap() {
+    val javaText = {
+      """
+        |public interface Map<K,V>
+        |    void putAll(Map<? extends K, ? extends V> m);
+        |}
+      """
+    }
+    val scalaText =
+      """
+        |class ExtendsMap[K, V] extends Map[K, V] {
+        |  <caret>
+        |}
+      """
+    val expectedText =
+      """
+        |class ExtendsMap[K, V] extends Map[K, V] {
+        |  def putAll(m: Map[_ <: K, _ <: V]): Unit = ???
+        |}
+      """
+    val methodName: String = "putAll"
+    val isImplement = true
+    val needsInferType = true
+    runTest(methodName, javaText, scalaText, expectedText, isImplement, needsInferType)
+  }
+
 }
