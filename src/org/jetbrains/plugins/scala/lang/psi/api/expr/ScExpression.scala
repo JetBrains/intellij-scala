@@ -585,3 +585,11 @@ object ScExpression {
     }
   }
 }
+
+object ExpectedType {
+  def unapply(e: ScExpression): Option[ScType] = e.expectedType()
+}
+
+object NonValueType {
+  def unapply(e: ScExpression): Option[ScType] = e.getNonValueType().toOption
+}

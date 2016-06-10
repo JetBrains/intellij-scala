@@ -60,5 +60,11 @@ class ExpandPlaceholderSyntaxTest extends TransformerTest(ExpandPlaceholderSynta
     "val v: A = _"
   )
 
+  def testEtaExpansion() = check(
+    "def f(a: A): C = _",
+    "f _",
+    "f _"
+  )
+
   // TODO check for name collisions
 }
