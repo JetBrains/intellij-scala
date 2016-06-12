@@ -2,7 +2,7 @@ package scala.meta.converter
 
 import scala.collection.immutable.Seq
 import scala.meta.TreeConverterTestBaseWithLibrary
-import scala.meta.internal.ast._
+import scala.meta._
 import scala.{Seq => _}
 
 // tests that require library loading

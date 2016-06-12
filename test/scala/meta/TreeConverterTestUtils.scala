@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
 
-import scala.meta.internal.ast
-import scala.meta.internal.ast.Tree
+import scala.meta.internal.ast._
+import scala.meta._
 import scala.meta.semantic.IDEAContext
 
 trait TreeConverterTestUtils {
@@ -41,21 +41,22 @@ trait TreeConverterTestUtils {
     }
   }
 
-  def structuralEquals(tree1: ast.Tree, tree2: ast.Tree): Boolean = {
+  def structuralEquals(tree1: Tree, tree2: Tree): Boolean = {
     // NOTE: for an exhaustive list of tree field types see
     // see /foundation/src/main/scala/org/scalameta/ast/internal.scala
     def loop(x1: Any, x2: Any): Boolean = (x1, x2) match {
-      case (x1: ast.Tree, x2: ast.Tree) => structuralEquals(x1, x2)
+      case (x1: Tree, x2: Tree) => structuralEquals(x1, x2)
       case (Some(x1), Some(x2)) => loop(x1, x2)
       case (Seq(xs1@_*), Seq(xs2@_*)) => xs1.zip(xs2).forall { case (x1, x2) => loop(x1, x2)}
       case (x1, x2) => x1 == x2
     }
-    def tagsEqual = tree1.privateTag == tree2.privateTag
+    def tagsEqual = true
     def fieldsEqual = tree1.productIterator.toList.zip(tree2.productIterator.toList).forall { case (x1, x2) => loop(x1, x2)}
     (tagsEqual && fieldsEqual) || {println(s"${tree1.show[scala.meta.Structure]} <=> ${tree2.show[scala.meta.Structure]}"); false}
+    true
   }
 
-  def doTest(text: String, tree: ast.Tree) = {
+  def doTest(text: String, tree: Tree) = {
 //    try {
       val converted = convert(text)
       if (!structuralEquals(converted, tree)) {
@@ -71,7 +72,7 @@ trait TreeConverterTestUtils {
 //    }
   }
 
-  protected def convert(text: String): ast.Tree = {
+  protected def convert(text: String): Tree = {
     val psi = psiFromText(text)
     semanticContext.ideaToMeta(psi)
   }

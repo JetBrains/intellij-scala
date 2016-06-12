@@ -1,7 +1,7 @@
 package scala.meta.converter
 
 import scala.meta.{TreeConverterTestBaseWithLibrary, TreeConverterTestBaseNoLibrary}
-import scala.meta.internal.ast._
+import scala.meta._
 import scala.collection.immutable.Seq
 import scala.{Seq => _}
 
@@ -10,21 +10,21 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
   def testIf() {
     doTest(
       "if (true) 42",
-      Term.If(Lit.Bool(value = true), Lit.Int(42), Lit.Unit())
+      Term.If(Lit(value = true), Lit(42), Lit(()))
     )
   }
   
   def testIfElse() {
     doTest(
       "if (false) 42 else 0",
-      Term.If(Lit.Bool(value = false), Lit.Int(42), Lit.Int(0))
+      Term.If(Lit(value = false), Lit(42), Lit(0))
     )
   }
   
   def testIfElseIfElse() {
     doTest(
       "if (true) 42 else if (false) 999 else 0",
-      Term.If(Lit.Bool(value = true), Lit.Int(42), Term.If(Lit.Bool(value = false), Lit.Int(999), Lit.Int(0)))
+      Term.If(Lit(value = true), Lit(42), Term.If(Lit(value = false), Lit(999), Lit(0)))
     )
   }
 
@@ -64,7 +64,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
         |//start
         |new Foo(42)
       """.stripMargin,
-      Term.New(Template(Nil, List(Term.Apply(Ctor.Ref.Name("Foo"), List(Lit.Int(42)))), Term.Param(Nil, Name.Anonymous(), None, None), None))
+      Term.New(Template(Nil, List(Term.Apply(Ctor.Ref.Name("Foo"), List(Lit(42)))), Term.Param(Nil, Name.Anonymous(), None, None), None))
     )
   }
 
@@ -73,7 +73,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
       """class Foo(a:Int)(b:String)
         |//start
         |new Foo(42)("")""".stripMargin,
-      Term.New(Template(Nil, List(Term.Apply(Term.Apply(Ctor.Ref.Name("Foo"), List(Lit.Int(42))), List(Lit.String("")))), Term.Param(Nil, Name.Anonymous(), None, None), None))
+      Term.New(Template(Nil, List(Term.Apply(Term.Apply(Ctor.Ref.Name("Foo"), List(Lit(42))), List(Lit("")))), Term.Param(Nil, Name.Anonymous(), None, None), None))
     )
   }
 
@@ -95,9 +95,9 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
         |  case _ => ()
         |}
         |finally { () }""".stripMargin,
-      Term.TryWithCases(Term.Block(List(Lit.Unit())), List(Case(Pat.Typed(Pat.Var.Term(Term.Name("e")),
-        Type.Name("Exception")), None, Term.Block(List(Lit.Unit()))), Case(Pat.Wildcard(), None,
-        Term.Block(List(Lit.Unit())))), Some(Term.Block(List(Lit.Unit()))))
+      Term.TryWithCases(Term.Block(List(Lit(()))), List(Case(Pat.Typed(Pat.Var.Term(Term.Name("e")),
+        Type.Name("Exception")), None, Term.Block(List(Lit(())))), Case(Pat.Wildcard(), None,
+        Term.Block(List(Lit(()))))), Some(Term.Block(List(Lit(())))))
     )
   }
   
@@ -112,14 +112,14 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
   def testDoWhile() {
     doTest(
       "do {()} while (true)",
-      Term.Do(Term.Block(List(Lit.Unit())), Lit.Bool(true))
+      Term.Do(Term.Block(List(Lit(()))), Lit(true))
     )
   }
   
   def testWhile() {
     doTest(
       "while(true) {()}",
-      Term.While(Lit.Bool(true), Term.Block(List(Lit.Unit())))
+      Term.While(Lit(true), Term.Block(List(Lit(()))))
     )
   }
 
@@ -127,7 +127,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
     doTest(
       "for(s <- Seq(1)) {42}",
       Term.For(List(Enumerator.Generator(Pat.Var.Term(Term.Name("s")),
-        Term.Apply(Term.Name("Seq"), List(Lit.Int(1))))), Term.Block(List(Lit.Int(42))))
+        Term.Apply(Term.Name("Seq"), List(Lit(1))))), Term.Block(List(Lit(42))))
     )
   }
   
@@ -135,8 +135,8 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
     doTest(
       "for (s: Int <- Seq(1); y <- Seq(3) if y == s; z = (s, y)) {}",
       Term.For(List(
-        Enumerator.Generator(Pat.Typed(Pat.Var.Term(Term.Name("s")), Type.Name("Int")), Term.Apply(Term.Name("Seq"), List(Lit.Int(1)))),
-        Enumerator.Generator(Pat.Var.Term(Term.Name("y")), Term.Apply(Term.Name("Seq"), List(Lit.Int(3)))),
+        Enumerator.Generator(Pat.Typed(Pat.Var.Term(Term.Name("s")), Type.Name("Int")), Term.Apply(Term.Name("Seq"), List(Lit(1)))),
+        Enumerator.Generator(Pat.Var.Term(Term.Name("y")), Term.Apply(Term.Name("Seq"), List(Lit(3)))),
         Enumerator.Guard(Term.ApplyInfix(Term.Name("y"), Term.Name("=="), Nil, List(Term.Name("s")))),
         Enumerator.Val(Pat.Var.Term(Term.Name("z")), Term.Tuple(List(Term.Name("s"), Term.Name("y"))))),
         Term.Block(Nil))
@@ -151,7 +151,7 @@ class TreeConverterExprTest extends TreeConverterTestBaseWithLibrary {
         |trait Bar
         |class Baz extends A.Foo with A.Bar { Baz.super[Foo].hashCode }}
         |""".stripMargin,
-      Defn.Object(Nil, Term.Name("A"), Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
+      Defn.Object(Nil, Term.Name("A"),
         Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), Some(
           List(Defn.Trait(Nil, Type.Name("Foo"), Nil, Ctor.Primary(Nil, Ctor.Ref.Name("this"), Nil),
             Template(Nil, Nil, Term.Param(Nil, Name.Anonymous(), None, None), None)),

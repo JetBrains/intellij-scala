@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScMethodCallImpl
 
 import scala.meta.TreeConverterTestBaseWithLibrary
 
-import scala.meta.internal.{ast => m, semantic => h}
+import scala.meta._
 
 class MetaContextTest extends TreeConverterTestBaseWithLibrary {
 
@@ -32,11 +32,11 @@ class MetaContextTest extends TreeConverterTestBaseWithLibrary {
     }
     val macroBody = semanticContext.ideaToMeta(macroDef)
     val macroName = macroBody match {
-      case m.Defn.Macro(_, name, _, _, _, _) => name
+      case Defn.Macro(_, name, _, _, _, _) => name
     }
     val macroArgs = callImpl.args.exprs.toStream.map(semanticContext.ideaToMeta)
-    val macroApplication = m.Term.Apply(macroName, macroArgs.asInstanceOf[scala.collection.immutable.Seq[m.Term]])
-    val mMacroEnv = scala.collection.mutable.Map[m.Term.Name, Any]()
+    val macroApplication = Term.Apply(macroName, macroArgs.asInstanceOf[scala.collection.immutable.Seq[Term]])
+    val mMacroEnv = scala.collection.mutable.Map[Term.Name, Any]()
     try {
       val result = macroApplication //.eval(mMacroEnv.toMap)
     } catch {
@@ -46,11 +46,11 @@ class MetaContextTest extends TreeConverterTestBaseWithLibrary {
     }
   }
 
-  def extractClass(t: m.Tree): m.Defn.Class = {
+  def extractClass(t: Tree): Defn.Class = {
     t match {
-      case c@m.Defn.Class(_, name, _, _, m.Template(_, _, _, Some(stats))) =>
+      case c@Defn.Class(_, name, _, _, Template(_, _, _, Some(stats))) =>
         stats.last match {
-          case cl: m.Defn.Class => cl
+          case cl: Defn.Class => cl
         }
     }
   }
@@ -71,9 +71,9 @@ class MetaContextTest extends TreeConverterTestBaseWithLibrary {
       """.stripMargin
 
     val bar = extractClass(convert(text))
-    val foo = bar.tpe.supertypes.head
-    val members = foo.members
-    val denot = foo.show[Semantics]
+//    val foo = bar.tpe.supertypes.head
+//    val members = foo.members
+//    val denot = foo.show[Semantics]
     ""
   }
 }

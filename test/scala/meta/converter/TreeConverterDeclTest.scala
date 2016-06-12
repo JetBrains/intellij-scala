@@ -1,7 +1,7 @@
 package scala.meta.converter
 
 import scala.meta.TreeConverterTestBaseNoLibrary
-import scala.meta.internal.ast._
+import scala.meta._
 
 
 class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
@@ -179,7 +179,7 @@ class TreeConverterDeclTest extends TreeConverterTestBaseNoLibrary {
   def testLocalDeclarations() {
     doTest(
       "def f = { val x = 42 }",
-      Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Term.Block(List(Defn.Val(Nil, List(Pat.Var.Term(Term.Name("x"))), None, Lit.Int(42)))))
+      Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Term.Block(List(Defn.Val(Nil, List(Pat.Var.Term(Term.Name("x"))), None, Lit(42)))))
     )
   }
   

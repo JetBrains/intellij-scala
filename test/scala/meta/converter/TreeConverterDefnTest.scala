@@ -1,21 +1,21 @@
 package scala.meta.converter
 
 import scala.meta.TreeConverterTestBaseWithLibrary
-import scala.meta.internal.ast._
+import scala.meta._
 
 class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
 
   def testValInit() {
     doTest(
       "val x = 2",
-      Defn.Val(Nil, Pat.Var.Term(Term.Name("x")) :: Nil, None, Lit.Int(2))
+      Defn.Val(Nil, Pat.Var.Term(Term.Name("x")) :: Nil, None, Lit(2))
     )
   }
 
   def testVarInit(): Unit = {
     doTest(
       "var x = 2",
-      Defn.Var(Nil, Pat.Var.Term(Term.Name("x")) :: Nil, None, Some(Lit.Int(2)))
+      Defn.Var(Nil, Pat.Var.Term(Term.Name("x")) :: Nil, None, Some(Lit(2)))
     )
   }
 
@@ -23,14 +23,14 @@ class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
     doTest(
       "val x, y = 2",
       Defn.Val(Nil, Pat.Var.Term(Term.Name("x")) :: Pat.Var.Term(Term.Name("y")) :: Nil,
-        None, Lit.Int(2))
+        None, Lit(2))
     )
   }
 
   def testTypedValInit(): Unit = {
     doTest(
       "val x: Int = 2",
-      Defn.Val(Nil, Pat.Var.Term(Term.Name("x")) :: Nil, Some(Type.Name("Int")), Lit.Int(2))
+      Defn.Val(Nil, Pat.Var.Term(Term.Name("x")) :: Nil, Some(Type.Name("Int")), Lit(2))
     )
   }
 
@@ -44,7 +44,7 @@ class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
   def testDef(): Unit = {
     doTest(
       "def f = 2",
-      Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Lit.Int(2))
+      Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Lit(2))
     )
   }
   
@@ -53,7 +53,7 @@ class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
       "def x[A <: Any] = 2",
       Defn.Def(Nil, Term.Name("x"),
         Type.Param(Nil, Type.Name("A"), Nil, Type.Bounds(None, Some(Type.Name("Any"))), Nil, Nil) :: Nil,
-        Nil, None, Lit.Int(2))
+        Nil, None, Lit(2))
     )
   }
   
@@ -62,7 +62,7 @@ class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
       "def x[A <% Any] = 2",
       Defn.Def(Nil, Term.Name("x"),
         Type.Param(Nil, Type.Name("A"), Nil, Type.Bounds(None, None), Type.Name("Any") :: Nil, Nil) :: Nil,
-        Nil, None, Lit.Int(2))
+        Nil, None, Lit(2))
     )
   }
   
@@ -71,7 +71,7 @@ class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
       "def x[A: Any] = 2",
       Defn.Def(Nil, Term.Name("x"),
         Type.Param(Nil, Type.Name("A"), Nil, Type.Bounds(None, None), Nil, Type.Name("Any") :: Nil) :: Nil,
-        Nil, None, Lit.Int(2))
+        Nil, None, Lit(2))
     )
   }
   
@@ -87,7 +87,7 @@ class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
   def testDefBrackets() {
     doTest(
       "def proc { return 42 }",
-      Defn.Def(Nil, Term.Name("proc"), Nil, Nil, Some(Type.Name("Unit")), Term.Block(Term.Return(Lit.Int(42)) :: Nil))
+      Defn.Def(Nil, Term.Name("proc"), Nil, Nil, Some(Type.Name("Unit")), Term.Block(Term.Return(Lit(42)) :: Nil))
     )
   }
 
@@ -114,7 +114,7 @@ class TreeConverterDefnTest extends  TreeConverterTestBaseWithLibrary {
   def testManyStatements() {
     doTest(
       "def f = {f(); f(); 42}",
-      Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Term.Block(List(Term.Apply(Term.Name("f"), Nil), Term.Apply(Term.Name("f"), Nil), Lit.Int(42))))
+      Defn.Def(Nil, Term.Name("f"), Nil, Nil, None, Term.Block(List(Term.Apply(Term.Name("f"), Nil), Term.Apply(Term.Name("f"), Nil), Lit(42))))
     )
   }
 }

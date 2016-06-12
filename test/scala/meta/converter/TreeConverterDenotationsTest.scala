@@ -1,13 +1,14 @@
 package scala.meta.converter
 
 import scala.meta._
+import scala.meta.prettyprinters.Structure
 
 class TreeConverterDenotationsTest extends TreeConverterTestBaseWithLibrary {
 
   def doTest(text: String, expected: String) = {
     implicit val c = semanticContext
     val converted = convert(text)
-    val got = converted.show[Semantics].trim.replaceAll("local#.+\\n", "(LOCAL)\n")
+    val got = converted.show[Structure].trim.replaceAll("local#.+\\n", "(LOCAL)\n")
     org.junit.Assert.assertEquals(expected.trim, got)
   }
 
@@ -76,8 +77,8 @@ class TreeConverterDenotationsTest extends TreeConverterTestBaseWithLibrary {
         |java.lang.System.exit(1)
       """.stripMargin)
     tree match {
-      case m.Term.Apply(fun, args) => fun match {
-        case m.Term.Select(qual, name) => semanticContext.fromSymbol(name.denot.symbols.head)
+      case Term.Apply(fun, args) => fun match {
+        case Term.Select(qual, name) => semanticContext.fromSymbol(name.denot.symbols.head)
       }
     }
   }
