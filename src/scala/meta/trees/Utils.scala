@@ -24,15 +24,15 @@ trait Utils {
   object std {
 
     def scalaTypeName(name: String) = {
-      m.Type.Name(name).withAttrs(h.Denotation.Single(std.scalaPackagePrefix, h.Symbol.Global(std.scalaPackageSymbol, h.ScalaSig.Term(name), h.BinarySig.None))).setTypechecked
+      m.Type.Name(name) //.withAttrs(h.Denotation.Single(std.scalaPackagePrefix, h.Symbol.Global(std.scalaPackageSymbol, h.ScalaSig.Term(name), h.BinarySig.None))).setTypechecked
     }
 
-    val rootPackageName = m.Term.Name("_root_").withAttrs(denot = h.Denotation.Single(h.Prefix.None, h.Symbol.RootPackage), typingLike = h.Typing.Recursive)
-    val rootPackagePrefix = h.Prefix.Type(m.Type.Singleton(rootPackageName).setTypechecked)
+    val rootPackageName = m.Term.Name("_root_") //.withAttrs(denot = h.Denotation.Single(h.Prefix.None, h.Symbol.RootPackage), typingLike = h.Typing.Recursive)
+    val rootPackagePrefix = h.Prefix.Type(m.Type.Singleton(rootPackageName))//.setTypechecked)
 
     val scalaPackageSymbol = h.Symbol.Global(h.Symbol.RootPackage, h.ScalaSig.Term("scala"), h.BinarySig.None)
-    val scalaPackageName = m.Term.Name("scala").withAttrs(denot = h.Denotation.Single(rootPackagePrefix, scalaPackageSymbol), h.Typing.Recursive)
-    val scalaPackagePrefix = h.Prefix.Type(m.Type.Singleton(scalaPackageName).setTypechecked)
+    val scalaPackageName = m.Term.Name("scala") //.withAttrs(denot = h.Denotation.Single(rootPackagePrefix, scalaPackageSymbol), h.Typing.Recursive)
+    val scalaPackagePrefix = h.Prefix.Type(m.Type.Singleton(scalaPackageName))//.setTypechecked)
 
     lazy val anyTypeName       = scalaTypeName("Any")
     lazy val anyRefTypeName    = scalaTypeName("AnyRef")
@@ -86,10 +86,10 @@ trait Utils {
 
   def mkSyntheticMethodName(owner: m.Type, elem: ScSyntheticFunction, context: ScSugarCallExpr): m.Term.Name = {
     m.Term.Name(elem.name)
-      .withAttrs(
-        denot = h.Denotation.Single(h.Prefix.Type(owner), fqnameToSymbol(owner.toString()+s".${elem.name}")),
-        typingLike = h.Typing.Nonrecursive(toType(context.getTypeWithCachedSubst(TypingContext.empty))))
-      .setTypechecked
+//      .withAttrs(
+//        denot = h.Denotation.Single(h.Prefix.Type(owner), fqnameToSymbol(owner.toString()+s".${elem.name}")),
+//        typingLike = h.Typing.Nonrecursive(toType(context.getTypeWithCachedSubst(TypingContext.empty))))
+//      .setTypechecked
   }
 
   implicit class RichPSI(psi: PsiElement) {

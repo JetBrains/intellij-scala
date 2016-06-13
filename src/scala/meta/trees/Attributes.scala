@@ -125,6 +125,7 @@ trait Attributes {
     def withAttrsFor[P <: PsiElement](elem: P): T = withAttrsFor(Some(elem))
 
     def withAttrsFor[P <: PsiElement](elem: Option[P]): T = {
+//      return ptree.
       val denotatedTree = ptree match {
         case ptree: m.Name.Anonymous => ptree.withAttrs(anonDenot(elem.get))
         case ptree: m.Name.Indeterminate => ptree.withAttrs(mkDenot(elem))
@@ -136,7 +137,7 @@ trait Attributes {
         case ptree: m.Ctor.Name => ptree.withAttrs(mkDenot(elem), typingLike = h.Typing.None)
         case _ => unreachable(s"Cannot denotate $elem tree")
       }
-      denotatedTree.asInstanceOf[T]
+      denotatedTree.asInstanceOf[T].setTypechecked
     }
 
   }

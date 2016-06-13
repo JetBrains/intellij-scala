@@ -30,11 +30,11 @@ trait Namer {
   def toTermName(elem: PsiElement, insertExpansions: Boolean = true): m.Term.Name = elem match {
       // TODO: what to resolve apply/update methods to?
     case sf: ScFunction if insertExpansions && (sf.name == "apply" || sf.name == "update" || sf.name == "unapply") =>
-      toTermName(sf.containingClass).withExpansionFor(sf).setTypechecked
+      toTermName(sf.containingClass)
     case sf: ScFunction =>
-      m.Term.Name(sf.name).withAttrsFor(sf)
+      m.Term.Name(sf.name)
     case ne: ScNamedElement =>
-      m.Term.Name(ne.name).withAttrsFor(ne)
+      m.Term.Name(ne.name)
     case cr: ResolvableReferenceElement  =>
       cr.bind()  match {
         case Some(x) => try {
@@ -54,21 +54,21 @@ trait Namer {
 //      toTermName(cs.reference.get)
     // Java stuff starts here
     case pp: PsiPackage =>
-      m.Term.Name(pp.getName).withAttrsFor(pp)
+      m.Term.Name(pp.getName)
     case pc: PsiClass =>
-      m.Term.Name(pc.getName).withAttrsFor(pc)
+      m.Term.Name(pc.getName)
     case pm: PsiMethod =>
-      m.Term.Name(pm.getName).withAttrsFor(pm)
+      m.Term.Name(pm.getName)
     case other => other ?!
   }
 
   def toTypeName(elem: PsiElement): m.Type.Name = elem match {
     case ne: ScNamedElement =>
-      m.Type.Name(ne.name).withAttrsFor(ne).setTypechecked
+      m.Type.Name(ne.name)
     case re: ScReferenceExpression =>
       toTypeName(re.resolve())
     case sc: impl.toplevel.synthetic.ScSyntheticClass =>
-      m.Type.Name(sc.className).withAttrsFor(sc).setTypechecked
+      m.Type.Name(sc.className)
     case cr: ScStableCodeReferenceElement =>
       toTypeName(cr.resolve())
     case se: impl.toplevel.synthetic.SyntheticNamedElement =>
@@ -77,9 +77,9 @@ trait Namer {
       unreachable(s"Package and Object types shoud be Singleton, not Name: ${elem.getText}")
     // Java stuff starts here
     case pc: PsiClass =>
-      m.Type.Name(pc.getName).withAttrsFor(pc).setTypechecked
+      m.Type.Name(pc.getName)
     case pm: PsiMethod =>
-      m.Type.Name(pm.getName).withAttrsFor(pm).setTypechecked
+      m.Type.Name(pm.getName)
     case other => other ?!
   }
 
@@ -104,7 +104,7 @@ trait Namer {
           case _ =>
             val clazz = ScalaPsiManager.instance(getCurrentProject).getCachedClass(GlobalSearchScope.allScope(getCurrentProject), s"scala.${x.name}")
             if (clazz != null)
-              m.Type.Name(x.name).withAttrsFor(clazz).setTypechecked
+              m.Type.Name(x.name)
             else null
         }
       }
@@ -118,13 +118,13 @@ trait Namer {
     val resolved = toTermName(c)
     resolved match {
       case n@m.Term.Name(value) =>
-        m.Ctor.Ref.Name(value).withAttrs(n.denot, typingLike = toType(c))
+        m.Ctor.Ref.Name(value)
       case other => unreachable
     }
   }
 
   def toParamName(param: Parameter): m.Term.Param.Name = {
-    m.Term.Name(param.name).withAttrs(h.Denotation.None, typingLike = h.Typing.None).setTypechecked // TODO: param denotation
+    m.Term.Name(param.name) // TODO: param denotation
   }
 
   def toPrimaryCtorName(t: ScPrimaryConstructor) = {
@@ -132,19 +132,19 @@ trait Namer {
   }
 
   def ind(cr: ScStableCodeReferenceElement): m.Name.Indeterminate = {
-    m.Name.Indeterminate(cr.qualName).withAttrsFor(cr).setTypechecked
+    m.Name.Indeterminate(cr.qualName)
   }
 
   // only used in m.Term.Super/This
   def ind(td: ScTemplateDefinition): m.Name.Indeterminate = {
-    m.Name.Indeterminate(td.name).withAttrsFor(td).setTypechecked
+    m.Name.Indeterminate(td.name)
   }
 
   // only raw type names can be used as super selector
   def getSuperName(tp: ScSuperReference): m.Name.Qualifier = {
     def loop(mtp: m.Type): m.Name.Qualifier = {
       mtp match {
-        case n@m.Type.Name(value) => m.Name.Indeterminate(value).withAttrs(n.denot).setTypechecked
+        case n@m.Type.Name(value) => m.Name.Indeterminate(value)
         case _: m.Type.Select => loop(mtp.stripped)
         case _: m.Type.Project => loop(mtp.stripped)
         case other => throw new AbortException(other, "Super selector cannot be non-name type")
@@ -159,8 +159,6 @@ trait Namer {
     raw.stripped match {
       case n@m.Type.Name(value) =>
         m.Ctor.Ref.Name(value)
-          .withAttrs(denot = n.denot, typingLike = h.Typing.Nonrecursive(n)) // HACK: use parent name type as ctor typing
-          .setTypechecked
       case other => die(s"Unexpected type in parents: $other")
     }
   }

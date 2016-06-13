@@ -81,7 +81,7 @@ trait TypeAdapter {
           val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
           toType(s.subst(t.getType(TypingContext.empty).get)) // FIXME: what about typing context?
         case t: packaging.ScPackaging =>
-          m.Type.Singleton(toTermName(t.reference.get)).setTypechecked
+          m.Type.Singleton(toTermName(t.reference.get))//.setTypechecked
         case t: ScConstructor => ???
 //          m.Type.Method(toParams(Seq(t.arguments:_*)), toType(t.newTemplate.get.getType(TypingContext.empty))).setTypechecked
         case t: ScPrimaryConstructor => ???
@@ -89,7 +89,7 @@ trait TypeAdapter {
         case t: ScFunctionDefinition => ???
 //          m.Type.Method(Seq(t.parameterList.clauses.map(convertParamClause):_*), toType(t.getTypeWithCachedSubst)).setTypechecked
         case t: ScFunction =>
-          m.Type.Function(Seq(t.paramTypes.map(toType(_, t).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType)).setTypechecked
+          m.Type.Function(Seq(t.paramTypes.map(toType(_, t).asInstanceOf[m.Type.Arg]): _*), toType(t.returnType))//.setTypechecked
         case t: ScParameter =>
           val s = new ScSubstitutor(ScSubstitutor.cache.toMap, Map(), None)
           toType(s.subst(t.typeElement.get.getType().get))
@@ -104,11 +104,11 @@ trait TypeAdapter {
             case None => m.Type.Placeholder(m.Type.Bounds(None, None))
           }
         case t: PsiPackage if t.getName == null =>
-          m.Type.Singleton(std.rootPackageName).setTypechecked
+          m.Type.Singleton(std.rootPackageName)//.setTypechecked
         case t: PsiPackage =>
-          m.Type.Singleton(toTermName(t)).setTypechecked
+          m.Type.Singleton(toTermName(t))//.setTypechecked
         case t: PsiClass =>
-          m.Type.Name(t.getName).withAttrsFor(t).setTypechecked
+          m.Type.Name(t.getName)//.withAttrsFor(t)
         case t: PsiMethod => ???
 //          m.Type.Method(Seq(t.getParameterList.getParameters
 //            .map(Compatibility.toParameter)
@@ -128,15 +128,15 @@ trait TypeAdapter {
       }
       tp match {
         case t: ptype.ScParameterizedType =>
-          m.Type.Apply(toType(t.designator), Seq(t.typeArguments.map(toType(_)): _*)).setTypechecked
+          m.Type.Apply(toType(t.designator), Seq(t.typeArguments.map(toType(_)): _*))//.setTypechecked
         case t: ptype.api.designator.ScThisType =>
-          toTypeName(t.element).setTypechecked
+          toTypeName(t.element)//.setTypechecked
         case t: ptype.api.designator.ScProjectionType =>
           t.projected match {
             case tt: ptype.api.designator.ScThisType =>
-              m.Type.Select(toTermName(tt.element), toTypeName(t.actualElement)).setTypechecked
+              m.Type.Select(toTermName(tt.element), toTypeName(t.actualElement))//.setTypechecked
             case _ =>
-              m.Type.Project(toType(t.projected), toTypeName(t.actualElement)).setTypechecked
+              m.Type.Project(toType(t.projected), toTypeName(t.actualElement))//.setTypechecked
           }
         case t: ptype.api.designator.ScDesignatorType =>
           if (t.element.isSingletonType)
@@ -150,26 +150,26 @@ trait TypeAdapter {
 //            val (name, args, lower, upper) = wc
             val ubound = if (wc.upper == ptype.api.Any)      None else Some(toType(wc.upper))
             val lbound = if (wc.lower == ptype.api.Nothing)  None else Some(toType(wc.lower))
-            m.Decl.Type(Nil, m.Type.Name(wc.name)
+            m.Decl.Type(Nil, m.Type.Name(wc.name),
                 //FIXME: pass actual prefix, when solution for recursive prefix computation is ready
-                .withAttrs(h.Denotation.Single(h.Prefix.None, toSymbolWtihParent(wc.name, pivot, h.ScalaSig.Type(wc.name))))
-                .setTypechecked,
-              Nil, m.Type.Bounds(lbound, ubound)).setTypechecked
+               // .withAttrs(h.Denotation.Single(h.Prefix.None, toSymbolWtihParent(wc.name, pivot, h.ScalaSig.Type(wc.name))))
+               // .setTypechecked,
+              Nil, m.Type.Bounds(lbound, ubound))//.setTypechecked
           }
-          m.Type.Existential(toType(t.quantified), wcards).setTypechecked
+          m.Type.Existential(toType(t.quantified), wcards)//.setTypechecked
         case t: ptype.api.StdType =>
           toStdTypeName(t)
         case t: TypeParameterType =>
-          m.Type.Name(t.name).withAttrsFor(t.nameAndId._2).setTypechecked
+          m.Type.Name(t.name)//.withAttrsFor(t.nameAndId._2)
         case t: ptype.ScType =>
           LOG.warn(s"Unknown type: ${t.getClass} - ${t.canonicalText}")
-          m.Type.Name(t.canonicalText).withAttrs(h.Denotation.None)
+          m.Type.Name(t.canonicalText)//.withAttrs(h.Denotation.None)
       }
     })
   }
 
   def toSingletonType(elem: PsiElement): m.Type.Singleton = {
-    m.Type.Singleton(toTermName(elem)).setTypechecked
+    m.Type.Singleton(toTermName(elem))//.setTypechecked
   }
 
   def toTypeParams(tp: TypeParameterType): m.Type.Param = {
@@ -177,7 +177,7 @@ trait TypeAdapter {
     val lbound = if (tp.lowerType.v == ptype.api.Nothing)  None else Some(toType(tp.lowerType.v))
     m.Type.Param(
       if(tp.isCovariant) m.Mod.Covariant() :: Nil else if(tp.isContravariant) m.Mod.Contravariant() :: Nil else Nil,
-      if (tp.name != "_") m.Type.Name(tp.name) else m.Name.Anonymous().withAttrs(h.Denotation.None).setTypechecked,
+      if (tp.name != "_") m.Type.Name(tp.name) else m.Name.Anonymous(),//.withAttrs(h.Denotation.None).setTypechecked,
       Seq(tp.arguments.map(toTypeParams):_*),
       m.Type.Bounds(lbound, ubound), Nil, Nil
     )
@@ -186,12 +186,12 @@ trait TypeAdapter {
   def toTypeParams(tp: p.statements.params.ScTypeParam): m.Type.Param = {
     m.Type.Param(
       if(tp.isCovariant) m.Mod.Covariant() :: Nil else if(tp.isContravariant) m.Mod.Contravariant() :: Nil else Nil,
-      if (tp.name != "_") toTypeName(tp) else m.Name.Anonymous().withAttrsFor(tp).setTypechecked,
+      if (tp.name != "_") toTypeName(tp) else m.Name.Anonymous(),//.withAttrsFor(tp),
       Seq(tp.typeParameters.map(toTypeParams):_*),
       typeBounds(tp),
       viewBounds(tp),
       contextBounds(tp)
-    ).setTypechecked
+    )//.setTypechecked
   }
 
   def toTypeParams(tp: PsiTypeParameter): m.Type.Param = {
@@ -201,7 +201,7 @@ trait TypeAdapter {
       Seq(tp.getTypeParameters.map(toTypeParams):_*),
       m.Type.Bounds(None, None),
       Seq.empty, Seq.empty
-    ).setTypechecked
+    )//.setTypechecked
   }
 
   def viewBounds(tp: ScTypeBoundsOwner): Seq[m.Type] = {
@@ -213,7 +213,7 @@ trait TypeAdapter {
   }
 
   def typeBounds(tp: ScTypeBoundsOwner): m.Type.Bounds = {
-    m.Type.Bounds(tp.lowerTypeElement.map(toType), tp.upperTypeElement.map(toType)).setTypechecked
+    m.Type.Bounds(tp.lowerTypeElement.map(toType), tp.upperTypeElement.map(toType))//.setTypechecked
   }
 
   def returnType(tr: ptype.result.TypeResult[ptype.ScType]): m.Type = {
@@ -222,7 +222,7 @@ trait TypeAdapter {
       case Success(t, elem) => toType(t)
       case Failure(cause, place) =>
         LOG.warn(s"Failed to infer return type($cause) at ${place.map(_.getText).getOrElse("UNKNOWN")}")
-        m.Type.Name("Unit").setTypechecked
+        m.Type.Name("Unit")//.setTypechecked
     }
   }
 
