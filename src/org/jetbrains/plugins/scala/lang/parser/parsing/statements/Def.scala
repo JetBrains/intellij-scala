@@ -56,6 +56,7 @@ trait Def {
       val modifierMarker = builder.mark
       if (isMod) {
         while (Modifier.parse(builder)) {}
+        while (builder.getTokenType == ScalaTokenTypes.kINLINE) builder.advanceLexer()
       }
       else {
         while (builder.getTokenType == ScalaTokenTypes.kIMPLICIT || builder.getTokenType == ScalaTokenTypes.kLAZY) {
