@@ -220,7 +220,7 @@ trait ScImportsHolder extends ScalaPsiElement {
   }
 
   private def hasValidQualifier(importInfo: ImportInfo, place: PsiElement): Boolean = {
-    val ref = ScalaPsiElementFactory.createReferenceFromText(importInfo.prefixQualifier, place.getContext, place)
+    val ref = ScalaPsiElementFactory.createReferenceFromText(importInfo.prefixQualifier, this, place)
     ref.multiResolve(false).nonEmpty
   }
 
