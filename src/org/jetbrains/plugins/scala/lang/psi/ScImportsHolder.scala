@@ -3,9 +3,7 @@ package lang
 package psi
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.editor.Document
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.scope._
@@ -77,7 +75,7 @@ trait ScImportsHolder extends ScalaPsiElement {
         run = ScalaPsiUtil.getPrevStubOrPsiElement(run)
       }
     }
-    buffer.toSeq
+    buffer.toVector
   }
 
   def getAllImportUsed: mutable.Set[ImportUsed] = {
@@ -110,11 +108,11 @@ trait ScImportsHolder extends ScalaPsiElement {
       child match {
         case x: ScImportStmt => buf += x
         case p: ScPackaging if !p.isExplicit && buf.isEmpty => return p.importStatementsInHeader
-        case _: ScTypeDefinition | _: ScPackaging => return buf.toSeq
+        case _: ScTypeDefinition | _: ScPackaging => return buf.toVector
         case _ =>
       }
     }
-    buf.toSeq
+    buf.toVector
   }
 
   def addImportForClass(clazz: PsiClass, ref: PsiElement = null) {
@@ -180,11 +178,10 @@ trait ScImportsHolder extends ScalaPsiElement {
 
     val place = getImportStatements.lastOption.getOrElse(getFirstChild.getNextSibling)
 
-    val importInfosToAdd = paths.filterNot(samePackage).flatMap { path =>
-      val importText = s"import ${ScalaNamesUtil.escapeKeywordsFqn(path)}"
-      val importStmt = ScalaPsiElementFactory.createImportFromTextWithContext(importText, this, place)
-      createInfo(importStmt)
-    }
+    val importInfosToAdd = paths
+      .filterNot(samePackage)
+      .flatMap(createInfoFromPath(_, place))
+      .filter(hasValidQualifier(_, place))
 
     val importRanges = optimizer.collectImportRanges(this, createInfo(_), Set.empty)
 
@@ -222,11 +219,15 @@ trait ScImportsHolder extends ScalaPsiElement {
     addImportsForPaths(Seq(path), ref)
   }
 
-  //ignores implicits and a fact that some names may be imported earlier
-  private def collectUsedNamesFast: Set[String] = {
-    this.depthFirst.collect {
-      case ref: ScReferenceElement if ref.qualifier.isEmpty => ref.refName
-    }.toSet
+  private def hasValidQualifier(importInfo: ImportInfo, place: PsiElement): Boolean = {
+    val ref = ScalaPsiElementFactory.createReferenceFromText(importInfo.prefixQualifier, place.getContext, place)
+    ref.multiResolve(false).nonEmpty
+  }
+
+  private def createInfoFromPath(path: String, place: PsiElement): Seq[ImportInfo] = {
+    val importText = s"import ${ScalaNamesUtil.escapeKeywordsFqn(path)}"
+    val importStmt = ScalaPsiElementFactory.createImportFromTextWithContext(importText, this, place)
+    ScalaImportOptimizer.createInfo(importStmt)
   }
 
   private def hasCodeBeforeImports: Boolean = {
@@ -267,11 +268,11 @@ trait ScImportsHolder extends ScalaPsiElement {
     if (anchor.getNode == getNode.getLastChildNode) return addImport(element)
     addImportBefore(element, anchor.getNode.getTreeNext.getPsi)
   }
-  
+
   def plainDeleteImport(stmt: ScImportExpr) {
     stmt.deleteExpr()
   }
-  
+
   def plainDeleteSelector(sel: ScImportSelector) {
     sel.deleteSelector()
   }
