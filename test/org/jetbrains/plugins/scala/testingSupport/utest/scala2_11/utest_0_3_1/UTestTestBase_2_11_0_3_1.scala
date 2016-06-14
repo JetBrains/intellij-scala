@@ -1,13 +1,13 @@
-package org.jetbrains.plugins.scala.testingSupport.utest.scala2_11
+package org.jetbrains.plugins.scala.testingSupport.utest.scala2_11.utest_0_3_1
 
-import org.jetbrains.plugins.scala.testingSupport.utest.{UTestSimpleTest, UTestTestCase}
+import org.jetbrains.plugins.scala.testingSupport.utest.UTestTestCase
 import org.jetbrains.plugins.scala.util.TestUtils.ScalaSdkVersion
 
 /**
   * @author Roman.Shein
   * @since 02.09.2015.
   */
-abstract class UTestTestBase_2_11 extends UTestTestCase {
+abstract class UTestTestBase_2_11_0_3_1 extends UTestTestCase {
 
   /**
     * Intended for loading libraries different from scala-compiler.

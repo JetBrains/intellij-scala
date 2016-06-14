@@ -17,9 +17,9 @@ trait UTestStaticStringTest extends UTestTestCase {
 
   protected def addTest(): Unit = {
     addFileToProject(staticStringTestFileName,
-      """
+      s"""
         |import utest._
-        |import utest.framework.TestSuite
+        |$testSuiteSecondPrefix
         |
         |object UTestStaticStringTest extends TestSuite {
         |  val tests = TestSuite {

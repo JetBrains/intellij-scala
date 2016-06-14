@@ -72,6 +72,8 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private boolean myLastReturn;
   private Option<ScType> myLastMeaningful = null;
 
+  private boolean isInitialized = false;
+
   public ScalaExtractMethodDialog(Project project, PsiElement[] elements, Option<ScType> hasReturn, boolean lastReturn,
                                   PsiElement sibling, VariableInfo[] input, VariableInfo[] output,
                                   Option<ScType> lastMeaningful) {
@@ -94,6 +96,10 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     init();
     mySibling = sibling;
     setUpDialog();
+
+    isInitialized = true;
+
+    updateSettings();
     updateOkStatus();
   }
 
@@ -147,8 +153,6 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     setupParametersPanel();
     setupMultipleOutputsPanel();
     setupPreviewPanel();
-
-    updateSettings();
   }
 
   private void updateClassName(String newName) {
@@ -281,6 +285,8 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   }
 
   protected void updateSignature() {
+    if (!isInitialized) return;
+
     updateOkStatus();
     updateSettings();
     String text = ScalaExtractMethodUtils.previewSignatureText(settings);

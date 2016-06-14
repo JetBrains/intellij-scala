@@ -8,7 +8,7 @@ import com.intellij.execution._
 import com.intellij.execution.configurations._
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.testframework.TestFrameworkRunningModel
-import com.intellij.execution.testframework.sm.{CompositeTestLocationProvider, SMTestRunnerConnectionUtil}
+import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
 import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.execution.testframework.sm.runner.ui.SMTRunnerConsoleView
 import com.intellij.openapi.application.ApplicationManager
@@ -35,6 +35,7 @@ import org.jetbrains.plugins.scala.testingSupport.ScalaTestingConfiguration
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration.PropertiesExtension
 import org.jetbrains.plugins.scala.testingSupport.test.TestRunConfigurationForm.{SearchForTest, TestKind}
+import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationType
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.beans.BeanProperty
@@ -356,7 +357,9 @@ abstract class AbstractTestRunConfiguration(val project: Project,
         for (p <- pack.getSubPackages) {
           buffer ++= getClasses(ScPackageImpl(p))
         }
-        buffer.toSeq
+        if (configurationFactory.getType.isInstanceOf[UTestConfigurationType])
+          buffer.filter {_.isInstanceOf[ScObject]}
+        else buffer
       }
       for (cl <- getClasses(pack)) {
         if (!isInvalidSuite(cl) && ScalaPsiUtil.cachedDeepIsInheritor(cl, suiteClass))
