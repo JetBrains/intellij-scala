@@ -216,6 +216,23 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
     }
   }
 
+  def testScl6729(): Unit = {
+    assertNothing(
+      messages(
+        """
+          |trait Foo
+          |
+          |trait Bar {
+          |  def foo: Foo = _
+          |}
+          |
+          |class Baz extends Bar {
+          |  override object foo extends Foo
+          |}
+        """.stripMargin)
+    )
+  }
+
   //SCL-9578
   def testVarOverridesVal(): Unit = {
     val code =

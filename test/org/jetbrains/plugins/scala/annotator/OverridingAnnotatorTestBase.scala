@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.annotator
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
@@ -62,6 +64,11 @@ trait OverridingAnnotatorTestBase extends SimpleTestCase{
       override def visitClassParameter(parameter: ScClassParameter): Unit = {
         annotator.checkOverrideClassParameters(parameter, mock)
         super.visitClassParameter(parameter)
+      }
+
+      override def visitModifierList(modifierList: ScModifierList) {
+        ModifierChecker.checkModifiers(modifierList, mock)
+        super.visitModifierList(modifierList)
       }
     }
 

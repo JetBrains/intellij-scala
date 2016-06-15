@@ -603,6 +603,13 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
 
   def testSCL6730B(): Unit = doTest()
 
+  def testSCL6736(): Unit = {
+    doTest(
+      s"""val concatenate =  "%s%s" format (_: String, _: String )
+          |${START}concatenate$END
+          |//(String, String) => String""".stripMargin)
+  }
+
   def testSCL6745(): Unit = doTest()
 
   def testSCL6786(): Unit = doTest()
@@ -722,6 +729,25 @@ class TypeInferenceBugs5Test extends TypeInferenceTestBase {
   def testSCL8995(): Unit = doTest()
 
   def testSCL9000(): Unit = doTest()
+
+  def testSCL9052(): Unit = {
+    doTest(
+      s"""
+         |case class Foo[T](a: T)
+         |
+         |class Bar[T] {
+         |  def fix(in: List[Foo[T]]): List[Foo[T]] = {
+         |    def it(i: List[Foo[T]], o: List[Foo[T]]): List[Foo[T]] = {
+         |      in match {
+         |        case c :: rest =>
+         |          val x = c.copy()
+         |          it(i.tail, $START(x :: o)$END)
+         |      }}
+         |    it(in, Nil)
+         |}}
+         |//List[Foo[T]]
+      """.stripMargin)
+  }
 
   def testSCL9181(): Unit = doTest()
 

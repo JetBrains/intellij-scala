@@ -334,25 +334,6 @@ class JavaHighlightingTest extends JavaHighlitghtingTestBase {
     assertNothing(errorsFromScalaCode(scala, java))
   }
 
-  def testOptionApply(): Unit = {
-    val java =
-      """
-        |import scala.Option;
-        |
-        |public abstract class OptionApply {
-        |
-        |    public OptionApply() {
-        |        setAction(Option.apply("importVCardFile"));
-        |    }
-        |
-        |    public abstract void setAction(Option<String> bar);
-        |}
-      """.stripMargin
-
-
-    assertNothing(errorsFromJavaCode(scalaFileText = "", java, javaClassName = "OptionApply"))
-  }
-
   def testSCL10266(): Unit = {
     val java =
       """
