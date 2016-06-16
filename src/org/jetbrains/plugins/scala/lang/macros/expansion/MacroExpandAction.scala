@@ -1,24 +1,27 @@
 package org.jetbrains.plugins.scala.lang.macros.expansion
 
 import java.io._
+import java.net.URL
 import java.util.regex.Pattern
 
 import com.intellij.internal.statistic.UsageTrigger
 import com.intellij.notification.{NotificationGroup, NotificationType}
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.PathManager
+import com.intellij.openapi.compiler.CompilerPaths
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator, ProjectRootManager}
 import com.intellij.openapi.util.Key
-import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.openapi.wm.ToolWindowId
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import org.jetbrains.plugin.scala.util.MacroExpansion
+import org.jetbrains.plugin.scala.util.{MacroExpansion, Place}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -34,6 +37,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolvableReferenceElement
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.meta.trees.TreeConverter
+import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
 
 
 class MacroExpandAction extends AnAction {
@@ -53,26 +57,47 @@ class MacroExpandAction extends AnAction {
     val psiFile = PsiDocumentManager.getInstance(e.getProject).getPsiFile(sourceEditor.getDocument)
 
     expandMeta(e, sourceEditor, psiFile.asInstanceOf[ScalaFile])
-    expandSerialized(e, sourceEditor, psiFile)
+//    expandSerialized(e, sourceEditor, psiFile)
   }
 
-  private def expandMeta(e: AnActionEvent, sourceEditor: Editor, psiFile: ScalaFile) = {
+  private def expandMeta(e: AnActionEvent, sourceEditor: Editor, psiFile: ScalaFile):String = {
+    import org.jetbrains.plugins.scala.project._
+    import scala.collection.JavaConversions._
+
+    def outputDirs(module: Module) = (ModuleRootManager.getInstance(module).getDependencies :+ module)
+      .map(m => CompilerPaths.getModuleOutputPath(m, false)).toList
+    def toUrl(f: VirtualFile) = new File(f.getPath.replaceAll("!", "")).toURI.toURL
     val converter = new TreeConverter {
       override def getCurrentProject: Project = e.getProject
     }
     val offset = sourceEditor.getCaretModel.getOffset
-    val annotClass = ScalaPsiUtil.getParentOfType(psiFile.elementAt(offset).get, classOf[ScReferenceElement])
+    val element: PsiElement = psiFile.elementAt(offset).get
+    val annotClass = ScalaPsiUtil.getParentOfType(element, classOf[ScReferenceElement])
       .asInstanceOf[ScReferenceElement]
       .bind()
-    val annotee = ScalaPsiUtil.getParentOfType(psiFile.elementAt(offset).get, classOf[ScAnnotationsHolder])
-    annotClass.foreach { res =>
-      res.element match {
-        case o: ScObject if o.isMetaAnnotatationImpl =>
-          val converted = converter.ideaToMeta(annotee)
-          ""
-        case _ =>
-      }
+      .map(_.element)
+    val annotee = ScalaPsiUtil.getParentOfType(element, classOf[ScAnnotationsHolder])
+    val converted = annotClass.map {
+      case o: ScObject if o.isMetaAnnotatationImpl =>
+        converter.ideaToMeta(annotee)
+      case _ =>
     }
+    val metaModule = annotClass.flatMap(_.module)
+    val cp: Option[List[URL]] = metaModule.map(OrderEnumerator.orderEntries).map(_.getClassesRoots.toList.map(toUrl))
+    val outDirs: Option[List[URL]] = metaModule.map(outputDirs(_).map(str => new File(str).toURI.toURL))
+    val classLoader = new URLClassLoader(outDirs.get ++ cp.get, this.getClass.getClassLoader)
+    val outer = classLoader.loadClass("bar.Main$")
+    val ctor = outer.getDeclaredConstructors.head
+    ctor.setAccessible(true)
+    val inst = ctor.newInstance()
+    val meth = outer.getDeclaredMethods.find(_.getName == "apply$impl").get
+    meth.setAccessible(true)
+    val result = meth.invoke(inst, converted.get.asInstanceOf[AnyRef])
+
+    inWriteCommandAction(e.getProject) {
+      expandAnnotation(ScalaPsiUtil.contextOfType(element, false, classOf[ScAnnotation]), MacroExpansion(null, result.toString))(e)
+    }
+    ""
   }
 
   private def expandSerialized(e: AnActionEvent, sourceEditor: Editor, psiFile: PsiFile): Unit = {
