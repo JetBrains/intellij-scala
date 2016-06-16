@@ -38,7 +38,7 @@ abstract class TransformationTest(transformation: PsiElement => Unit, @Language(
 
     val file = parse(prefix + before + suffix)
 
-    file.depthFirst.foreach(transformation)
+    file.depthFirst.filter(e => e.getTextRange.getStartOffset >= prefix.length).foreach(transformation)
 
     Assert.assertEquals(after, file.text.substring(prefix.length, file.text.length - suffix.length))
     Assert.assertEquals(psiToString(parse(prefix + after + suffix), false), psiToString(file, false))

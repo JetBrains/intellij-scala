@@ -12,7 +12,7 @@ import com.intellij.util.ui.ColumnInfo
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode
 import org.jetbrains.plugins.scala.lang.transformation.annotations._
 import org.jetbrains.plugins.scala.lang.transformation.calls._
-import org.jetbrains.plugins.scala.lang.transformation.declarations.ExpandProcedureSyntax
+import org.jetbrains.plugins.scala.lang.transformation.declarations.{ExpandProcedureSyntax, MakeResultExpressionExplicit}
 import org.jetbrains.plugins.scala.lang.transformation.functions.{ExpandEtaExpansion, ExpandPlaceholderSyntax, MakeEtaExpansionExplicit}
 import org.jetbrains.plugins.scala.lang.transformation.general._
 import org.jetbrains.plugins.scala.lang.transformation.implicits._
@@ -75,7 +75,7 @@ class SelectionDialog {
     ),
     Group("Declarations",
       Entry("Expand procedure syntax", ExpandProcedureSyntax),
-      Entry("Make method return expressions explicit"),
+      Entry("Make method return expressions explicit", MakeResultExpressionExplicit),
       Entry("Add explicit \"override\" modifier"),
       Entry("Replace underscore section with default value"),
       Entry("Expand property declaration", enabled = false),
