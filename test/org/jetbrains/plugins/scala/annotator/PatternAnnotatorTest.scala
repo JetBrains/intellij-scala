@@ -499,6 +499,19 @@ class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter 
     assertNoWarnings(text)
   }
 
+  def testTupleWildcardWrongNumberOfParams(): Unit = {
+    val text =
+      """
+        |object Foo {
+        |  def makeTuple4(): (Int, Int, Int, Int) = (1, 2, 3, 4)
+        |
+        |  val (one, _): (Int, Int, Int, Int) = makeTuple4()
+        |}
+      """.stripMargin
+    assertNoWarnings(text)
+    checkError(text, "(one, _)", patternTypeIncompatible("(Int, Int)", "(Int, Int, Int, Int)"))
+  }
+
   /*def testNonFinalCaseClassConstructorPattern(): Unit = {
     val code =
       """

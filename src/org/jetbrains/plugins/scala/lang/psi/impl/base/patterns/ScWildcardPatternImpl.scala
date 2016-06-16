@@ -10,6 +10,7 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Success, TypingContext}
 
 /** 
 * @author Alexander Podkhalyuzin
@@ -27,4 +28,9 @@ class ScWildcardPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) wi
   override def isIrrefutableFor(t: Option[ScType]): Boolean = true
 
   override def toString: String = "WildcardPattern"
+
+  override def getType(ctx: TypingContext = TypingContext.empty) = expectedType match {
+    case Some(x) => Success(x, Some(this))
+    case _ => Failure("cannot determine expected type", Some(this))
+  }
 }
