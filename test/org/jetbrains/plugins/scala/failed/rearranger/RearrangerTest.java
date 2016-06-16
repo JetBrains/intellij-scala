@@ -25,7 +25,7 @@ import java.io.IOException;
  * Date: 26.07.13
  */
 @RunWith(AllTests.class)
-public class RearrangerTest extends BaseScalaFileSetTestCase {
+public abstract class RearrangerTest extends BaseScalaFileSetTestCase {
   @NonNls
   private static final String DATA_PATH = "/rearranger/failedData";
 
