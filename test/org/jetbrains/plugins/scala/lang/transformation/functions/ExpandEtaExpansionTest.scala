@@ -36,15 +36,15 @@ class ExpandEtaExpansionTest extends TransformerTest(ExpandEtaExpansion) {
   )
 
   def testImplicit() = check(
-    "def f(a: A): C = _",
-    "val v: A => C = f",
-    "val v: A => C = a => f(a)"
+    "def f(a: A): B = _",
+    "val v: A => B = f",
+    "val v: A => B = a => f(a)"
   )
 
   def testImplicitNoParameters() = check(
-    "def f: C = _",
-    "val v: () => C = f", // not applicable
-    "val v: () => C = f"
+    "def f: A = _",
+    "val v: () => A = f", // not applicable
+    "val v: () => A = f"
   )
 
   def testImplicitMultipleParameters() = check(
